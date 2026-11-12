@@ -379,6 +379,7 @@ impl Scope {
 
     /// The scope with the locale `format` and `ago` speak, the project's
     /// default one.
+    #[must_use]
     pub fn with_locale(mut self, locale: &str) -> Self {
         if let Some(frame) = self.frames.first_mut() {
             Arc::make_mut(frame).insert("__locale".to_string(), Static::Str(locale.to_string()));
@@ -392,6 +393,7 @@ impl Scope {
     /// heard of it: spliced into a string, added to one, or held in a prop
     /// the component then spliced, the whole value came back unknown and the
     /// static paint left the element empty until the script ran.
+    #[must_use]
     pub fn with_messages(mut self, messages: &HashMap<String, String>) -> Self {
         if let Some(frame) = self.frames.first_mut() {
             Arc::make_mut(frame).insert(

@@ -71,6 +71,7 @@ pub struct Planned {
 impl Diagnostic {
     /// A fix this finding offers, to be written out against the source by
     /// [`realise`].
+    #[must_use]
     pub fn with_plan(mut self, title: impl Into<String>, plan: Plan) -> Self {
         self.plans.push(Planned {
             title: title.into(),
@@ -80,6 +81,7 @@ impl Diagnostic {
     }
 
     /// The fix, when there is one.
+    #[must_use]
     pub fn with_plans(self, plan: Option<(String, Plan)>) -> Self {
         match plan {
             Some((title, plan)) => self.with_plan(title, plan),

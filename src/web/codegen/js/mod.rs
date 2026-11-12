@@ -88,6 +88,7 @@ pub struct JsOptions {
 }
 
 /// JavaScript code generator — compiles the AST to a JS bundle with reactivity and routing.
+#[derive(Debug)]
 pub struct JsCodegen {
     output: String,
     /// `build.sourcemap`: each declaration's source (by `map_key`) as an
@@ -256,7 +257,7 @@ pub struct JsCodegen {
 /// one body and not reset by the next used to leak — the last page's
 /// validated states made the `app` read a `_x_check` only that page
 /// declared, and the app threw at boot.
-#[derive(Default)]
+#[derive(Debug, Default)]
 struct BodyState {
     /// Track current component/page prop names (not signals)
     current_props: Vec<String>,

@@ -1234,6 +1234,8 @@ pub fn webfluent::codegen::JsCodegen::take_chunks(&mut self) -> alloc::vec::Vec<
 pub fn webfluent::codegen::JsCodegen::with_options(self, webfluent::codegen::JsOptions) -> Self
 impl core::default::Default for webfluent::codegen::JsCodegen
 pub fn webfluent::codegen::JsCodegen::default() -> Self
+impl core::fmt::Debug for webfluent::codegen::JsCodegen
+pub fn webfluent::codegen::JsCodegen::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
 impl !core::marker::Freeze for webfluent::codegen::JsCodegen
 impl core::marker::Send for webfluent::codegen::JsCodegen
 impl !core::marker::Sync for webfluent::codegen::JsCodegen
@@ -1930,6 +1932,8 @@ pub fn webfluent::codegen::JsCodegen::take_chunks(&mut self) -> alloc::vec::Vec<
 pub fn webfluent::codegen::JsCodegen::with_options(self, webfluent::codegen::JsOptions) -> Self
 impl core::default::Default for webfluent::codegen::JsCodegen
 pub fn webfluent::codegen::JsCodegen::default() -> Self
+impl core::fmt::Debug for webfluent::codegen::JsCodegen
+pub fn webfluent::codegen::JsCodegen::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
 impl !core::marker::Freeze for webfluent::codegen::JsCodegen
 impl core::marker::Send for webfluent::codegen::JsCodegen
 impl !core::marker::Sync for webfluent::codegen::JsCodegen
@@ -4460,6 +4464,8 @@ pub fn webfluent::syntax::lexer::v2::LexerV2::for_file(&str, &str) -> Self
 pub fn webfluent::syntax::lexer::v2::LexerV2::new(&str, &str) -> Self
 pub fn webfluent::syntax::lexer::v2::LexerV2::tokenize(&mut self) -> webfluent::diagnostics::error::diagnostic::Result<alloc::vec::Vec<webfluent::syntax::lexer::token::Token>>
 pub fn webfluent::syntax::lexer::v2::LexerV2::with_layout(&str, &str, webfluent::syntax::lexer::v2::Layout) -> Self
+impl core::fmt::Debug for webfluent::syntax::lexer::v2::LexerV2
+pub fn webfluent::syntax::lexer::v2::LexerV2::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
 impl core::marker::Freeze for webfluent::syntax::lexer::v2::LexerV2
 impl core::marker::Send for webfluent::syntax::lexer::v2::LexerV2
 impl core::marker::Sync for webfluent::syntax::lexer::v2::LexerV2
@@ -4685,6 +4691,8 @@ pub fn webfluent::syntax::lexer::v2::LexerV2::for_file(&str, &str) -> Self
 pub fn webfluent::syntax::lexer::v2::LexerV2::new(&str, &str) -> Self
 pub fn webfluent::syntax::lexer::v2::LexerV2::tokenize(&mut self) -> webfluent::diagnostics::error::diagnostic::Result<alloc::vec::Vec<webfluent::syntax::lexer::token::Token>>
 pub fn webfluent::syntax::lexer::v2::LexerV2::with_layout(&str, &str, webfluent::syntax::lexer::v2::Layout) -> Self
+impl core::fmt::Debug for webfluent::syntax::lexer::v2::LexerV2
+pub fn webfluent::syntax::lexer::v2::LexerV2::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
 impl core::marker::Freeze for webfluent::syntax::lexer::v2::LexerV2
 impl core::marker::Send for webfluent::syntax::lexer::v2::LexerV2
 impl core::marker::Sync for webfluent::syntax::lexer::v2::LexerV2
@@ -8533,6 +8541,8 @@ pub fn webfluent::syntax::parser::v2::ParserV2::new(alloc::vec::Vec<webfluent::s
 pub fn webfluent::syntax::parser::v2::ParserV2::parse(&mut self) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::syntax::parser::Program>
 pub fn webfluent::syntax::parser::v2::ParserV2::parse_expression(&mut self) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::syntax::parser::Expr>
 pub fn webfluent::syntax::parser::v2::ParserV2::parse_recovering(&mut self) -> (webfluent::syntax::parser::Program, alloc::vec::Vec<webfluent::diagnostics::Diagnostic>)
+impl core::fmt::Debug for webfluent::syntax::parser::v2::ParserV2
+pub fn webfluent::syntax::parser::v2::ParserV2::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
 impl core::marker::Freeze for webfluent::syntax::parser::v2::ParserV2
 impl core::marker::Send for webfluent::syntax::parser::v2::ParserV2
 impl core::marker::Sync for webfluent::syntax::parser::v2::ParserV2
@@ -10830,6 +10840,8 @@ pub struct webfluent::runtime::Kept
 pub webfluent::runtime::Kept::bytes: usize
 pub webfluent::runtime::Kept::name: &'static str
 pub webfluent::runtime::Kept::reason: alloc::string::String
+impl core::fmt::Debug for webfluent::runtime::Kept
+pub fn webfluent::runtime::Kept::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
 impl core::marker::Freeze for webfluent::runtime::Kept
 impl core::marker::Send for webfluent::runtime::Kept
 impl core::marker::Sync for webfluent::runtime::Kept
@@ -11123,6 +11135,8 @@ pub fn webfluent::sema::types::TypeInfo::member(&self, usize, &str) -> core::opt
 pub fn webfluent::sema::types::TypeInfo::type_at(&self, usize, &str, webfluent::parser::Span) -> core::option::Option<&webfluent::sema::types::Type>
 impl core::default::Default for webfluent::sema::types::TypeInfo
 pub fn webfluent::sema::types::TypeInfo::default() -> Self
+impl core::fmt::Debug for webfluent::sema::types::TypeInfo
+pub fn webfluent::sema::types::TypeInfo::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
 impl core::marker::Freeze for webfluent::sema::types::TypeInfo
 impl core::marker::Send for webfluent::sema::types::TypeInfo
 impl core::marker::Sync for webfluent::sema::types::TypeInfo
@@ -11887,6 +11901,8 @@ pub fn webfluent::syntax::lexer::v2::LexerV2::for_file(&str, &str) -> Self
 pub fn webfluent::syntax::lexer::v2::LexerV2::new(&str, &str) -> Self
 pub fn webfluent::syntax::lexer::v2::LexerV2::tokenize(&mut self) -> webfluent::diagnostics::error::diagnostic::Result<alloc::vec::Vec<webfluent::syntax::lexer::token::Token>>
 pub fn webfluent::syntax::lexer::v2::LexerV2::with_layout(&str, &str, webfluent::syntax::lexer::v2::Layout) -> Self
+impl core::fmt::Debug for webfluent::syntax::lexer::v2::LexerV2
+pub fn webfluent::syntax::lexer::v2::LexerV2::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
 impl core::marker::Freeze for webfluent::syntax::lexer::v2::LexerV2
 impl core::marker::Send for webfluent::syntax::lexer::v2::LexerV2
 impl core::marker::Sync for webfluent::syntax::lexer::v2::LexerV2
@@ -12112,6 +12128,8 @@ pub fn webfluent::syntax::lexer::v2::LexerV2::for_file(&str, &str) -> Self
 pub fn webfluent::syntax::lexer::v2::LexerV2::new(&str, &str) -> Self
 pub fn webfluent::syntax::lexer::v2::LexerV2::tokenize(&mut self) -> webfluent::diagnostics::error::diagnostic::Result<alloc::vec::Vec<webfluent::syntax::lexer::token::Token>>
 pub fn webfluent::syntax::lexer::v2::LexerV2::with_layout(&str, &str, webfluent::syntax::lexer::v2::Layout) -> Self
+impl core::fmt::Debug for webfluent::syntax::lexer::v2::LexerV2
+pub fn webfluent::syntax::lexer::v2::LexerV2::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
 impl core::marker::Freeze for webfluent::syntax::lexer::v2::LexerV2
 impl core::marker::Send for webfluent::syntax::lexer::v2::LexerV2
 impl core::marker::Sync for webfluent::syntax::lexer::v2::LexerV2
@@ -13721,6 +13739,8 @@ pub fn webfluent::syntax::parser::v2::ParserV2::new(alloc::vec::Vec<webfluent::s
 pub fn webfluent::syntax::parser::v2::ParserV2::parse(&mut self) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::syntax::parser::Program>
 pub fn webfluent::syntax::parser::v2::ParserV2::parse_expression(&mut self) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::syntax::parser::Expr>
 pub fn webfluent::syntax::parser::v2::ParserV2::parse_recovering(&mut self) -> (webfluent::syntax::parser::Program, alloc::vec::Vec<webfluent::diagnostics::Diagnostic>)
+impl core::fmt::Debug for webfluent::syntax::parser::v2::ParserV2
+pub fn webfluent::syntax::parser::v2::ParserV2::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
 impl core::marker::Freeze for webfluent::syntax::parser::v2::ParserV2
 impl core::marker::Send for webfluent::syntax::parser::v2::ParserV2
 impl core::marker::Sync for webfluent::syntax::parser::v2::ParserV2

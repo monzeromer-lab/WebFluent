@@ -47,6 +47,7 @@ impl Layout {
     }
 }
 
+#[derive(Debug)]
 pub struct LexerV2 {
     source: Vec<char>,
     pos: usize,

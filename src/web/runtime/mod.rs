@@ -217,6 +217,7 @@ fn calls_in(program: &str) -> BTreeSet<&str> {
 }
 
 /// One module a build kept: what it weighs, and what brought it in.
+#[derive(Debug)]
 pub struct Kept {
     pub name: &'static str,
     pub bytes: usize,

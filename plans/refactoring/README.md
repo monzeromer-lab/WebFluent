@@ -876,6 +876,14 @@ string-parts `unwrap` is gone by construction. The printer's
 `Template`, `LexerV2`, `ParserV2`, `JsCodegen`, `TypeInfo` derive `Debug`;
 `with_*` builders get `#[must_use]`; doc examples use `?`.
 
+**Public surface, the 5.x part: done (2026-11-12).** `LexerV2`,
+`ParserV2`, `JsCodegen` and `TypeInfo` derive `Debug` (`Template` already
+had it). Every `with_*` builder that returns a new value is
+`#[must_use]`, so a call whose result is dropped is a warning, not a
+silent no-op. What is left (`#[doc(hidden)]`/`pub(crate)` internals,
+`#[non_exhaustive]`, `pub use ast::*` as a list) changes the API and
+waits for 6.0.
+
 **API shape** (the skill's checklist, per layer): `bool` parameters in
 shared signatures become two-variant enums (94 today, `max-fn-params-bools
 = 0`); public types derive `Debug` and the applicable std traits; magic

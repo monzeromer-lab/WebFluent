@@ -41,6 +41,7 @@ impl WebFluentError {
     }
 
     /// The same error with its finding given another code.
+    #[must_use]
     pub fn with_code(self, code: &'static str) -> Self {
         match self {
             WebFluentError::LexerError(d) => {
@@ -139,6 +140,7 @@ impl A11yWarning {
     }
 
     /// The fix, when there is one.
+    #[must_use]
     pub fn with_plans(self, plan: Option<(String, crate::diagnostics::fixes::Plan)>) -> Self {
         match plan {
             Some((title, plan)) => self.with_plan(title, plan),

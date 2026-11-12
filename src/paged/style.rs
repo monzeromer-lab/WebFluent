@@ -31,6 +31,7 @@ impl Rgba {
     pub fn is_visible(&self) -> bool {
         self.a > 0.001
     }
+    #[must_use]
     pub fn with_alpha(self, a: f32) -> Rgba {
         Rgba {
             a: self.a * a,

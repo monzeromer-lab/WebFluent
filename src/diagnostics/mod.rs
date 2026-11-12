@@ -155,6 +155,7 @@ impl Diagnostic {
     }
 
     /// The code, and with it the severity and tags the registry gives it.
+    #[must_use]
     pub fn with_code(mut self, code: &'static str) -> Self {
         self.set_code(code);
         self
@@ -171,6 +172,7 @@ impl Diagnostic {
     }
 
     /// Add a hint (fix suggestion) to the diagnostic.
+    #[must_use]
     pub fn with_hint(mut self, hint: impl Into<String>) -> Self {
         let hint = hint.into();
         self.hint = if hint.is_empty() { None } else { Some(hint) };
@@ -178,12 +180,14 @@ impl Diagnostic {
     }
 
     /// The severity, over the code's.
+    #[must_use]
     pub fn with_severity(mut self, severity: Severity) -> Self {
         self.severity = severity;
         self
     }
 
     /// Where the finding ends (1-based, the column one past the end).
+    #[must_use]
     pub fn with_end(mut self, end_line: usize, end_column: usize) -> Self {
         if end_line > self.line || (end_line == self.line && end_column > self.column) {
             self.end_line = end_line;
@@ -194,6 +198,7 @@ impl Diagnostic {
 
     /// The whole of a node's span — its start and end — read against the
     /// text of its file, when the file is at hand.
+    #[must_use]
     pub fn with_span(mut self, span: crate::base::span::Span, source: Option<&str>) -> Self {
         if span.line > 0 {
             self.line = span.line as usize;
@@ -227,6 +232,7 @@ impl Diagnostic {
     }
 
     /// A fix.
+    #[must_use]
     pub fn with_fix(mut self, title: impl Into<String>, edits: Vec<Edit>) -> Self {
         self.fixes.push(Fix {
             title: title.into(),

@@ -139,7 +139,7 @@ pub struct Typed {
 
 /// The types of every name declared in the program, in the order they
 /// were met, beside the findings.
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub struct TypeInfo {
     pub findings: Findings,
     pub bindings: Vec<Typed>,

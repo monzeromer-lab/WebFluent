@@ -154,6 +154,7 @@ struct ComponentBody {
     parts: Vec<ComponentDecl>,
 }
 
+#[derive(Debug)]
 pub struct ParserV2 {
     tokens: Vec<Token>,
     pos: usize,
