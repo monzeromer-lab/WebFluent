@@ -1,12 +1,13 @@
 # WebFluent refactoring: the plan
 
-Status: **Phases 0, 0b and 1 done.** The editors are their own
+Status: **Phases 0, 0b, 1 and 2 done.** The editors are their own
 repositories, linked as submodules. Every bug the two reviews found —
 B1–B14 ([review.md](review.md)) and S1–S47, M1–M28 (the security and
 memory review, kept out of the repository) — is fixed with a regression
 test; see Phase 0b for the few that are partial or wait on the
-maintainer. The safety net is in place (Phase 0). Phase 2 is next, then
-the refactor itself. No module has moved yet.
+maintainer. The safety net is in place (Phase 0) and the repository is
+tidied (Phase 2). Phase 3, breaking the module cycles, is next. No module
+has moved yet.
 Last updated: 2026-11-12.
 
 This file is the single source of truth for the refactor. It records what
@@ -465,6 +466,21 @@ builds, tests and releases on its own; `editors/` holds only the three
 submodule pointers.
 
 ### Phase 2 — Repository hygiene (1–2 PRs)
+
+**Done (2026-11-12), with changes from the list below.** `spec/` stays at
+the top level: it is the language specification, which the README, the
+guide, the source and `tests/docs_parse.rs` all name. The docs research went
+under `plans/docs-redesign/research/`; `examples_probe/` was empty and is
+gone. The crate-wide `dead_code` allowance hid six dead items, now removed.
+It also hid that `main.rs` declared every module again, so the `wf` binary
+compiled the whole crate a second time and ran every unit test twice: it now
+builds against the library. Every `#[allow]` became an `#[expect(…, reason)]`
+or went where nothing fired; the two left, in the shared test helpers, carry
+a reason. Along the way the golden test found SVG text (a chart's labels) set
+with the machine's fonts whatever `system_fonts` said: fixed. Removing the
+other worktrees is left to the maintainer, since other sessions own them.
+
+The original items:
 
 - Move `spec/`, `reports/` and `research_notes/` under `plans/` or
   `docs/design/`. Delete the empty `examples_probe/`. Keep `md-docs/`
