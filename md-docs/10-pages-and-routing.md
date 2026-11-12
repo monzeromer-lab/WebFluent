@@ -289,6 +289,13 @@ page Share(path: "/share", title: "Share", description: "A page with its own tag
 }
 ```
 
+A tag's `src:` and `href:` go through the same scheme check as every
+address, at build time and on the live page, so a value never points one at
+`javascript:` or `data:`. A `script(src:)` is written out, never read from a
+value, and a `meta(http-equiv: "refresh")` may not take its address from
+one (`E107`): whoever controls the value would choose what the page runs or
+where the reader goes.
+
 `title:` and `description:` are page attributes, not head tags. From them
 and the config, the compiler writes the standard tags itself: charset,
 viewport, description, canonical, Open Graph, Twitter card and JSON-LD.

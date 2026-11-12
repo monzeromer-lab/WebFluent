@@ -37,7 +37,13 @@ them on.
 - **No inline handlers.** Events are bound with `addEventListener`.
   `Button("x", onclick: expr)` is a compile error, because an `on*`
   attribute is the one place a browser runs an attribute's value. Write
-  `on click { }` instead.
+  `on click { }` instead. `style:` is refused the same way (`E106`): a
+  value from data would be the element's whole inline style. A
+  `style { }` block sets one property at a time.
+- **An attribute holds its value.** A `class:` from data, a page title from
+  a route parameter or front matter, a chart's or a QR code's colour: each
+  is escaped for where it is written, and a colour must be a colour
+  (`#0F766E`, `red`, `rgb(…)`, `var(--x)`) or the default is drawn.
 - **No URL a browser would run.** `href:`, `src:`, `to:`, `poster:` and
   `navigate()` take a URL whose scheme is `http`, `https`, `mailto`, `tel`,
   `sms` or `ftp`, or a URL with no scheme at all. The compiler refuses a
@@ -52,6 +58,18 @@ them on.
   is not a picture.
 - **No handle on your page.** A link with `target:` carries
   `rel="noopener noreferrer"`, so the page it opens cannot navigate yours.
+  In markup that `sanitize` keeps, such a link's `rel` loses any `opener`
+  and always ends `noopener noreferrer`.
+- **A frame drawing HTML from a value runs none of it.** A
+  `Frame(srcdoc: value)` with no `sandbox:` is given `sandbox=""`, and the
+  build names it (`V03`). Its `on message` hears only what that frame's
+  own document posts, from the origin that document has, not a page it
+  navigated to.
+- **A page's `head { }` points nowhere a browser runs.** Its `src:` and
+  `href:` go through the scheme check at build time and in the browser. A
+  `script(src:)` must be written out, and a refresh may not take its
+  address from a value (`E107`): either would let whoever controls the
+  value choose what the page runs or where the reader goes.
 - **Markdown is escaped first.** `Markdown(text)` shows any HTML in the
   text instead of running it. Its links and pictures go through the same
   scheme check as every other URL: a link to a `javascript:` URL is drawn
@@ -226,7 +244,10 @@ A Content-Security-Policy (CSP) tells the browser which scripts, styles,
 images and connections a page may use. To ship one, set `"build": { "csp":
 true }`. A project `wf init` creates has it on. The build then writes:
 
-- a `<meta http-equiv="Content-Security-Policy">` in every page;
+- a `<meta http-equiv="Content-Security-Policy">` in every page, right
+  after `<meta charset>`: a meta policy governs only what the browser
+  parses after it, so it stands before the title, the sharing tags and a
+  page's own `head { }` tags, which a page's data reaches;
 - a `_headers` file for hosts that read one (Netlify, Cloudflare Pages,
   Vercel; other hosts ignore it).
 
@@ -313,10 +334,15 @@ Three settings widen the policy for pages that need more:
 
 **The build holds every page to the policy it ships.** It reads each HTML
 file back and stops on anything the policy would block: an inline
-`<script>`, a `<style>`, a `style=` attribute, an `on*` attribute, or a
-script or stylesheet from an origin the policy never named. A policy is a
-promise about what a page contains; without this check, the browser would
-enforce it and show a blank page.
+`<script>`, a `<style>`, a `style=` attribute, an `on*` attribute, a
+script or stylesheet from an origin the policy never named or from an
+address that names no place (`data:`, `javascript:`), a `<base>`, or a
+refresh that sends the reader to another site. It reads the HTML as a
+browser does — names in any case, attributes apart by white space or a
+`/`, values quoted or not. A policy is a promise about what a page
+contains; without this check, the browser would enforce it and show a
+blank page. A page the check refuses is removed from the output, so a
+deploy that ignores the failed build does not publish it.
 
 A page's own `head { script(src: …) }` or stylesheet `link` is added on the
 live page, after the HTML is written, so the compiler checks it where you

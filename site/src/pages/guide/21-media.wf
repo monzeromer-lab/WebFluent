@@ -137,7 +137,7 @@ page Home(path: "/", title: "Home", description: "The front page.") {
 
         Heading("Draw HTML you give the frame", id: "draw-html-you-give-the-frame").h3
 
-        Markdown("To draw HTML instead of loading an address (an example a page renders, or a preview of what a reader is writing), use `srcdoc:`. The frame draws it sandboxed as `sandbox:` says, so `sandbox: \"\"` draws it with no script and no reach into your page. A value that reads state draws the new HTML each time it changes, and the pre-rendered page has the HTML before any script runs.\n\nThis page previews a note as the reader types it:")
+        Markdown("To draw HTML instead of loading an address (an example a page renders, or a preview of what a reader is writing), use `srcdoc:`. The frame draws it sandboxed as `sandbox:` says, so `sandbox: \"\"` draws it with no script and no reach into your page. HTML from a value with no `sandbox:` is given `sandbox=\"\"` — what a value holds is somebody else's document, scripts and all — and the build names it with a `V03`. A value that reads state draws the new HTML each time it changes, and the pre-rendered page has the HTML before any script runs.\n\nA frame's `on message` hears what its own document posts, from the origin that document has: its address's, or the opaque `\"null\"` of a sandbox without `allow-same-origin`. A page the frame was navigated to is no longer its own.\n\nThis page previews a note as the reader types it:")
 
         CodeBlock(#"page Preview(path: "/preview-note", title: "Preview", description: "A note, drawn as it will look.") {
     state note = "Hello"

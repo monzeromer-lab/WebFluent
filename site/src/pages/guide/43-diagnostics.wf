@@ -297,7 +297,7 @@ page P(path: "/", title: "T", description: "D", layout: Shell) {
 
         Markdown("**Fix:** Put it in `on click \{ \}`, an `action` or an `effect`.")
 
-        Heading("E106 — Script in an attribute", id: "e106-script-in-an-attribute").h3
+        Heading("E106 — Script or a whole style in an attribute", id: "e106-script-or-a-whole-style-in-an-attribute").h3
 
         CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     Heading("Save").h1
@@ -310,9 +310,25 @@ page P(path: "/", title: "T", description: "D", layout: Shell) {
 3 |     Button("Save", onclick: "save()")
   |                    ^^^^^^^
   = help: Write the handler instead: `Button(…) { on click { … } }`
-  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#e106-script-in-an-attribute"#, title: "text")
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#e106-script-or-a-whole-style-in-an-attribute"#, title: "text")
 
-        Markdown("**Fix:** `Button(\"Save\") \{ on click \{ save() \} \}`.")
+        Markdown("**Fix:** `Button(\"Save\") \{ on click \{ save() \} \}`.\n\n`style:` is refused the same way: it would write a value as the element's whole `style=` attribute, which a value from data can turn into a box over the whole page or a request to anywhere. A style is a `style \{ \}` block, one property at a time, where a value that reads state sets that one property and nothing else.")
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    state look = "color: red"
+    Heading("Note").h1
+    Text("Hi", style: look)
+}"#, title: "wf · draws E106")
+
+        CodeBlock(#"error[E106]: `style:` on Text would write a value as the element's whole inline style
+ --> src/App.wf:4:16
+  |
+4 |     Text("Hi", style: look)
+  |                ^^^^^
+  = help: Write a style block instead: `Text(…) { style { color: {tone} } }`, one property at a time
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#e106-script-or-a-whole-style-in-an-attribute"#, title: "text")
+
+        Markdown("**Fix:** `Text(\"Hi\") \{ style \{ color: \{tone\} \} \}`.")
 
         Heading("E107 — A URL a browser would run", id: "e107-a-url-a-browser-would-run").h3
 
@@ -329,7 +345,22 @@ page P(path: "/", title: "T", description: "D", layout: Shell) {
   = help: A URL here may be relative, or name http, https, mailto, tel, sms or ftp
   = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#e107-a-url-a-browser-would-run"#, title: "text")
 
-        Markdown("**Fix:** A relative URL, or `http`, `https`, `mailto`, `tel`, `sms`, `ftp`.")
+        Markdown("**Fix:** A relative URL, or `http`, `https`, `mailto`, `tel`, `sms`, `ftp`.\n\nA page's `head \{ \}` is held to the same rule, and more: a `script(src:)` must be written out, since whoever controls a value it reads would choose the script the page runs; a `meta(http-equiv: \"refresh\")` whose address comes from a value is an open redirect, and an `http-equiv` a value chooses could become one.")
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    head { script(src: query.lib) }
+    Heading("Home").h1
+}"#, title: "wf · draws E107")
+
+        CodeBlock(#"error[E107]: `head { script(src: …) }` loads a script a value chooses: whoever controls the value runs code as this site
+ --> src/App.wf:2:12
+  |
+2 |     head { script(src: query.lib) }
+  |            ^^^^^^
+  = help: Write the address out — `script(src: "/analytics.js")` — and keep what varies in the script's own data
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#e107-a-url-a-browser-would-run"#, title: "text")
+
+        Markdown("**Fix:** `head \{ script(src: \"/analytics.js\") \}`; send a reader on with `navigate(…)`, which keeps to the site's routes.")
 
         Heading("E108 — An env name that is not public", id: "e108-an-env-name-that-is-not-public").h3
 
@@ -956,7 +987,20 @@ page P(path: "/", title: "T", description: "D") {
   = help: Convert it: `Number(value)`
   = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#t01-a-value-of-the-wrong-type"#, title: "text")
 
-        Markdown("**Fix:** Give the state a value of its type, or convert: `Number(text)`, `\"\{n\}\"`. If the state really holds either, declare it `Any`.")
+        Markdown("**Fix:** Give the state a value of its type, or convert: `Number(text)`, `\"\{n\}\"`. If the state really holds either, declare it `Any`.\n\nA number a built-in cannot be given is one too: a `Carousel(interval:)` outside 1 to 2147483647 milliseconds (`-5000` used to become a 0 ms autoplay), a `Column(span:)` that is not a whole number from 1 to 12.")
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    Heading("Grid").h1
+    Row { Column(span: 13) { Text("Wide") } }
+}"#, title: "wf · draws T01")
+
+        CodeBlock(#"error[T01]: `span` of Column is 13, but a whole number of the 12 columns, from 1 to 12, is wanted
+ --> src/App.wf:3:11
+  |
+3 |     Row { Column(span: 13) { Text("Wide") } }
+  |           ^^^^^^
+  = help: `span: 6` is half the row
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#t01-a-value-of-the-wrong-type"#, title: "text")
 
         Heading("T02 — A case the enum does not have", id: "t02-a-case-the-enum-does-not-have").h3
 
@@ -2032,7 +2076,23 @@ page P(path: "/", title: "T", description: "D") {
   = help: Anything the project did not write itself belongs in `sanitize(…)` first
   = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#v03-markup-put-in-as-markup"#, title: "text")
 
-        Markdown("**Fix:** Wrap markup from outside the project in `sanitize(…)`: `Unsafe.Html(sanitize(body))`.")
+        Markdown("**Fix:** Wrap markup from outside the project in `sanitize(…)`: `Unsafe.Html(sanitize(body))`.\n\nA `Frame(srcdoc:)` drawing HTML from a value is named too: that HTML is a document of its own, scripts and all. Unless the call says what the frame may do, it may do nothing — the build gives it `sandbox=\"\"` — and the warning says so. Writing `sandbox:` out is the reviewed case; `allow-scripts` with `allow-same-origin` undoes the sandbox, and is named again.")
+
+        CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    state html = "<p>Hi</p>"
+    Heading("Preview").h1
+    Frame(srcdoc: html, title: "Preview")
+}"#, title: "wf · draws V03")
+
+        CodeBlock(#"warning[V03]: `Frame(srcdoc:)` draws HTML from a value as a document; it is sandboxed (`sandbox=""`), so nothing in it runs
+ --> src/App.wf:4:5
+  |
+4 |     Frame(srcdoc: html, title: "Preview")
+  |     ^^^^^
+  = help: Say what it may do with `sandbox:` — `sandbox: ""` keeps it as it is now; `allow-scripts` and `allow-same-origin` together undo the sandbox
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#v03-markup-put-in-as-markup"#, title: "text")
+
+        Markdown("**Fix:** `Frame(srcdoc: html, title: \"Preview\", sandbox: \"\")`.")
 
         Heading("V02 — A flag no stylesheet styles", id: "v02-a-flag-no-stylesheet-styles").h3
 
