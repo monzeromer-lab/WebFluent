@@ -669,8 +669,30 @@ Left as found: `a && b` and `a || b` give a boolean in both evaluators,
 where JavaScript gives an operand. A `NaN` shown on its own (not spliced)
 shows nothing.
 
+**One renderer: done (2026-11-12).** The template engine draws every
+built-in with the static paint's `render_builtin`. What drawing a built-in
+reads (scope, indent, counters, messages) is `ssg::PaintState`. An engine
+is a `Paint`: it draws a built-in's block with its own control flow, and
+says how a `style { }` value is written (a template works it out; the
+build leaves state to the page).
+
+The template engine keeps three things of its own:
+- slots
+- what only a document has (`Document`, `Header`, the slides)
+- in a PDF, `List`, `Avatar`, `Chart` and `QrCode`, whose shape the paged
+  engine needs
+
+Its own `render_builtin` and `render_labelled_input` are gone, about 650
+lines. Before the merge, 11 of 53 built-ins drew differently in a template
+and a static page. Taking the static paint fixed the template's missing
+`<input>` in `Checkbox`, `Radio` and `Switch`, its missing
+`type="button"`, its missing tooltip text and its image loading. The
+static paint's own `Avatar` bug (no initials, `src` on the box) is fixed
+too. `builtin_components.rs` now holds the two to the same HTML for every
+built-in. The build's output, PDFs included, is unchanged.
+
 Still to do in this phase: the special emitter table, one expression
-emitter, `js_str`, `with_locals`, `JsOptions`, the renderer merge, the checker's borrow and
+emitter, `js_str`, `with_locals`, `JsOptions`, the checker's borrow and
 `ProgramIndex` work, errors, state, panics, public surface and API shape).
 
 These can run in any order once their layer exists. Each PR is
