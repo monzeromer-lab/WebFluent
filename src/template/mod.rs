@@ -1,8 +1,5 @@
 use crate::diagnostics::error::{Result, WebFluentError};
-use crate::project::builtin::{
-    builtin_to_html, class_list, element_tag, implicit_role, input_type, landmark_label,
-    layout_arg_classes, span_class,
-};
+use crate::project::builtin::{builtin_to_html, class_list, layout_arg_classes, span_class};
 use crate::project::config::project::{PdfConfig, SlidesConfig};
 use crate::syntax::parser::ast::{ArmPattern, DerivedDecl, ForStmt, IfStmt, PropDecl};
 use crate::syntax::parser::{
@@ -810,6 +807,9 @@ struct Rendering {
 
 fn render_program_with(program: &Program, data: &Value, how: Rendering) -> Result<String> {
     let mut ctx = RenderContext::for_program(program, data);
+    ctx.paint.default_messages = (*how.messages).clone();
+    // A template is no page of a site: no link in it is the current one.
+    ctx.paint.current_path = "\u{0}".to_string();
     ctx.messages = how.messages;
     ctx.locale = std::rc::Rc::from(if how.locale.is_empty() {
         "en"
@@ -867,16 +867,13 @@ struct RenderContext<'a> {
     /// …` — by name, applied where they are called.
     functions: Functions,
     components: HashMap<String, TemplateComponent>,
-    indent: usize,
-    /// Inside a `Thead`, a `Tcell` is a column header (`<th scope="col">`).
-    in_thead: bool,
+    /// What drawing a built-in reads and keeps — the indent, the counters
+    /// ids are made from — shared with the build's static paint, which
+    /// draws every built-in for both.
+    paint: crate::web::codegen::ssg::PaintState,
     /// The caller's block for each user component being expanded, innermost
     /// last; `children` renders the top one.
     slots: Vec<HashMap<String, Fill>>,
-    /// Fields rendered so far, for their ids.
-    fields: usize,
-    /// Modals and dialogs drawn so far, for their headings' ids.
-    dialogs: usize,
     /// The messages `t("key")` reads: the project's default locale, when it
     /// has translations. Without them `t` shows its key.
     messages: std::rc::Rc<HashMap<String, String>>,
@@ -1159,11 +1156,11 @@ impl<'a> RenderContext<'a> {
             locals: Locals::default(),
             functions: Functions::default(),
             components: HashMap::new(),
-            indent: 1,
-            in_thead: false,
+            paint: crate::web::codegen::ssg::PaintState {
+                indent: 1,
+                ..Default::default()
+            },
             slots: Vec::new(),
-            fields: 0,
-            dialogs: 0,
             messages: Default::default(),
             locale: std::rc::Rc::from("en"),
             budget: Default::default(),
@@ -1171,10 +1168,6 @@ impl<'a> RenderContext<'a> {
             studio: None,
             data_static: Default::default(),
         }
-    }
-
-    fn indent_str(&self) -> String {
-        "    ".repeat(self.indent)
     }
 
     /// Evaluate an expression against the data context.
@@ -1207,16 +1200,22 @@ impl<'a> RenderContext<'a> {
         self.eval_static(expr)
     }
 
-    /// Evaluate `expr` with the static evaluator, over this context's data
-    /// and locals. What it spends comes out of the render's budget; an
-    /// evaluation that runs out of its own fuel stops the render, rather
-    /// than showing nothing where a value was asked for.
-    fn eval_static(&self, expr: &Expr) -> Value {
-        use crate::project::static_eval::{Scope, Static, eval_metered};
-        if self.budget.stopped() {
-            return Value::Null;
-        }
-        let data = self.data_static.get_or_init(|| {
+    /// The names in reach as the build's evaluator reads them, in template
+    /// mode: the data, then the locals, innermost last, then the derived
+    /// functions. Shared, not copied.
+    fn scope_over(&self, data: &DataFrame) -> crate::project::static_eval::Scope {
+        let mut frames = Vec::with_capacity(self.locals.frames.len() + 2);
+        frames.push(data.clone());
+        frames.extend(self.locals.frames.iter().cloned());
+        frames.push(self.functions.frame.clone());
+        crate::project::static_eval::Scope::over_frames(frames).lenient()
+    }
+
+    /// The data, as the evaluator's outermost frame, converted once per
+    /// render with the messages `t(…)` reads.
+    fn data_frame(&self) -> &DataFrame {
+        use crate::project::static_eval::Static;
+        self.data_static.get_or_init(|| {
             let mut frame: HashMap<String, Static> = match self.data {
                 Value::Object(map) => map
                     .iter()
@@ -1241,16 +1240,28 @@ impl<'a> RenderContext<'a> {
                 Static::Str(self.locale.to_string()),
             );
             Arc::new(frame)
-        });
+        })
+    }
+
+    /// The scope a built-in is drawn with.
+    fn scope(&self) -> crate::project::static_eval::Scope {
+        self.scope_over(self.data_frame())
+    }
+
+    /// Evaluate `expr` with the static evaluator, over this context's data
+    /// and locals. What it spends comes out of the render's budget; an
+    /// evaluation that runs out of its own fuel stops the render, rather
+    /// than showing nothing where a value was asked for.
+    fn eval_static(&self, expr: &Expr) -> Value {
+        use crate::project::static_eval::eval_metered;
+        if self.budget.stopped() {
+            return Value::Null;
+        }
+        let data = self.data_frame();
         // The locals and the derived functions are frames of their own,
         // converted once when each name is bound: an evaluation copies
         // none of them, however long a list a prop holds.
-        let mut frames = Vec::with_capacity(self.locals.frames.len() + 2);
-        frames.push(data.clone());
-        frames.extend(self.locals.frames.iter().cloned());
-        frames.push(self.functions.frame.clone());
-        let scope = Scope::over_frames(frames).lenient();
-        let metered = eval_metered(expr, &scope);
+        let metered = eval_metered(expr, &self.scope_over(data));
         let span = self.budget.at.get();
         if metered.exhausted {
             self.budget.stop(
@@ -1263,6 +1274,36 @@ impl<'a> RenderContext<'a> {
         }
         self.budget.spend(u64::from(metered.spent), span);
         metered.value.map(|v| v.to_json()).unwrap_or(Value::Null)
+    }
+}
+
+impl std::ops::Deref for RenderContext<'_> {
+    type Target = crate::web::codegen::ssg::PaintState;
+    fn deref(&self) -> &Self::Target {
+        &self.paint
+    }
+}
+
+impl std::ops::DerefMut for RenderContext<'_> {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.paint
+    }
+}
+
+/// A template draws a built-in's block with its own control flow, which
+/// works every condition and list out; the names in reach come back as
+/// they were for the rest of the built-in.
+impl crate::web::codegen::ssg::Paint for RenderContext<'_> {
+    fn statements(&mut self, stmts: &[Statement]) -> String {
+        let scope = self.paint.scope.clone();
+        let html = render_statements(stmts, self);
+        self.paint.scope = scope;
+        html
+    }
+
+    /// A value from the data, held to one declaration ([`safe_style_piece`]).
+    fn style_value(&self, value: &Expr) -> Option<String> {
+        style_value(value, self)
     }
 }
 
@@ -1626,595 +1667,28 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
             None => String::new(),
         };
     }
-    // A custom element, by its tag, with the attributes the data gives it.
-    if name == "Element" {
-        let tag = match ui.args.first() {
-            Some(Arg::Positional(Expr::StringLiteral(tag))) => tag.clone(),
-            _ => "wf-element".to_string(),
-        };
-        let mut attrs = String::new();
-        for arg in &ui.args {
-            let Arg::Named(key, value) = arg else {
-                continue;
-            };
-            if matches!(
-                key.as_str(),
-                "class" | "ref" | "mount" | "update" | "cleanup"
-            ) || key.starts_with("data-wf-")
-            {
-                continue;
-            }
-            let attribute = camel_to_kebab(key);
-            match ctx.eval_expr(value) {
-                Value::Bool(true) => attrs.push_str(&format!(" {attribute}")),
-                Value::Bool(false) | Value::Null | Value::Array(_) | Value::Object(_) => {}
-                v => {
-                    let text = value_to_string(&v);
-                    let text = if crate::project::url::URL_ATTRS.contains(&attribute.as_str()) {
-                        crate::project::url::guard(&text).to_string()
-                    } else {
-                        text
-                    };
-                    attrs.push_str(&format!(" {attribute}=\"{}\"", html_escape(&text)));
-                }
-            }
-        }
-        let classes = extra_classes(ui, ctx).join(" ");
-        let class = if classes.is_empty() {
-            String::new()
-        } else {
-            format!(" class=\"{classes}\"")
-        };
-        let indent = ctx.indent_str();
-        let mut out = format!("{indent}<{tag}{class}{attrs}>\n");
-        ctx.indent += 1;
-        out.push_str(&render_statements(&ui.children, ctx));
-        ctx.indent -= 1;
-        out.push_str(&format!("{indent}</{tag}>\n"));
-        return out;
-    }
-    // A portal draws into a node somebody else's code makes in a running
-    // page; what is rendered here has only its place, as the pre-rendered
-    // page does.
-    if name == "Portal" {
-        return format!("{}<!--wf-portal-->\n", ctx.indent_str());
-    }
-    let (_, base_class) = builtin_to_html(name);
-    let mut classes = class_list(base_class, &ui.modifiers);
-    classes.extend(layout_arg_classes(&ui.args));
-    classes.extend(span_class(base_class, &ui.args));
-    classes.extend(extra_classes(ui, ctx));
-    let class_str = classes.join(" ");
-
-    // Special handling. These build their tag inline, so they carry the author's
-    // `style { }` block themselves — returning early used to drop it.
-    let style_attr = style_block_attr(ui, ctx);
-    if let Some(html) = render_paged(name, ui, ctx, &class_str, &style_attr) {
-        return html;
-    }
-    match name {
-        "Spacer" | "Spinner" => {
-            return format!(
-                "{}<div class=\"{}\"{}{}></div>\n",
-                ctx.indent_str(),
-                class_str,
-                own_attrs(name, ui, ctx, &[]),
-                style_attr
-            );
-        }
-        // A modal or a dialog, as the pre-render and the live page draw it:
-        // its title is its heading, not the `title` attribute.
-        "Modal" | "Dialog" => {
-            let title = ui.args.iter().find_map(|a| match a {
-                Arg::Named(k, v) if k == "title" => Some(value_to_string(&ctx.eval_expr(v))),
-                _ => None,
-            });
-            let id = title.as_ref().map(|_| {
-                ctx.dialogs += 1;
-                format!("wf-dlg-s{}", ctx.dialogs)
-            });
-            let own = own_attrs(name, ui, ctx, &[]);
-            let indent = ctx.indent_str();
-            ctx.indent += 3;
-            let mut body = Vec::new();
-            let mut footer = None;
-            let mut heading = None;
-            for child in &ui.children {
-                if let StatementKind::UIElement(part) = &child.kind
-                    && matches!(&part.component, ComponentRef::SubComponent(p, s) if p == name && s == "Title")
-                {
-                    let drawn = render_statements(&part.children, ctx);
-                    heading = Some(drawn.lines().map(str::trim).collect::<Vec<_>>().join(""));
-                    continue;
-                }
-                if let StatementKind::UIElement(part) = &child.kind
-                    && matches!(&part.component, ComponentRef::SubComponent(p, s) if p == name && s == "Footer")
-                {
-                    footer = Some(render_statements(&part.children, ctx));
-                    continue;
-                }
-                body.push(child.clone());
-            }
-            let body = render_statements(&body, ctx);
-            ctx.indent -= 3;
-            return crate::web::codegen::ssg::static_dialog(
-                &indent,
-                &crate::web::codegen::ssg::DialogPaint {
-                    root_class: &class_str,
-                    class: base_class,
-                    attrs: &format!("{own}{style_attr}"),
-                    title: title.as_deref().zip(id.as_deref()),
-                    heading: heading.as_deref(),
-                    closable: ui.modifiers.iter().any(|m| m == "closable"),
-                    body: &body,
-                    footer: footer.as_deref().map(|f| ("", f)),
-                },
-            );
-        }
-        // A menu at its button: the button, and the list hidden, as the
-        // pre-render and the live page draw it.
-        "Menu" | "Dropdown" => {
-            let named = |ctx: &RenderContext, key: &str| {
-                ui.args.iter().find_map(|a| match a {
-                    Arg::Named(k, v) if k == key => Some(value_to_string(&ctx.eval_expr(v))),
-                    _ => None,
-                })
-            };
-            let visible = ui
-                .args
-                .iter()
-                .any(|a| matches!(a, Arg::Named(k, _) if k == "visible"));
-            let trigger = if name == "Dropdown" {
-                named(ctx, "label")
-            } else {
-                named(ctx, "trigger")
-            };
-            let label = if name == "Dropdown" {
-                None
-            } else {
-                named(ctx, "label")
-            };
-            let aria = label
-                .map(|l| format!(" aria-label=\"{}\"", html_escape(&l)))
-                .unwrap_or_default();
-            // What any element takes is the menu's root's, as on the live
-            // page.
-            let own = own_attrs(name, ui, ctx, crate::web::codegen::js::MENU_READS);
-            let gives = |key: &str| {
-                ui.args
-                    .iter()
-                    .any(|a| matches!(a, Arg::Named(k, _) if k == key))
-            };
-            let items_class = format!("wf-{}__items", name.to_lowercase());
-            let indent = ctx.indent_str();
-            // Opened by state alone, a menu is its list and nothing else;
-            // its author's `role:` and `aria-label:` take the place of its
-            // own.
-            if trigger.is_none() && visible {
-                let classes =
-                    crate::project::builtin::class_list(&items_class, &ui.modifiers).join(" ");
-                let role = if gives("role") { "" } else { " role=\"menu\"" };
-                let aria = if gives("aria-label") {
-                    ""
-                } else {
-                    aria.as_str()
-                };
-                let mut out = format!("{indent}<ul class=\"{classes}\"{role}{aria}{own} hidden>\n");
-                ctx.indent += 1;
-                out.push_str(&render_statements(&ui.children, ctx));
-                ctx.indent -= 1;
-                out.push_str(&format!("{indent}</ul>\n"));
-                return out;
-            }
-            // Given no words for its button, a menu's says "Menu".
-            let trigger = trigger.unwrap_or_else(|| "Menu".to_string());
-            let mut out = format!("{indent}<div class=\"{class_str}\"{own}{style_attr}>\n");
-            ctx.indent += 1;
-            let inner = ctx.indent_str();
-            out.push_str(&format!(
-                "{inner}<button class=\"wf-btn wf-menu__trigger\" type=\"button\" aria-haspopup=\"menu\" aria-expanded=\"false\">{}</button>\n",
-                html_escape(&trigger)
-            ));
-            out.push_str(&format!(
-                "{inner}<ul class=\"{items_class}\" role=\"menu\"{aria} hidden>\n"
-            ));
-            ctx.indent += 1;
-            out.push_str(&render_statements(&ui.children, ctx));
-            ctx.indent -= 1;
-            out.push_str(&format!("{inner}</ul>\n"));
-            ctx.indent -= 1;
-            out.push_str(&format!("{indent}</div>\n"));
-            return out;
-        }
-        "Markdown" => {
-            let text = ui
-                .args
-                .iter()
-                .find_map(|a| match a {
-                    Arg::Positional(e) => Some(value_to_string(&ctx.eval_expr(e))),
-                    _ => None,
-                })
-                .unwrap_or_default();
-            let inert = ui.args.iter().any(
-                |a| matches!(a, Arg::Named(k, v) if k == "inert" && is_truthy(&ctx.eval_expr(v))),
-            );
-            let options = crate::web::codegen::markdown::Options {
-                inert,
-                ..Default::default()
-            };
-            return format!(
-                "{}<div class=\"{}\"{}>\n{}{}</div>\n",
-                ctx.indent_str(),
-                class_str,
-                style_attr,
-                crate::web::codegen::markdown::render_with(&text, options),
-                ctx.indent_str()
-            );
-        }
-        "Divider" => {
-            return format!(
-                "{}<hr class=\"{}\"{}>\n",
-                ctx.indent_str(),
-                class_str,
-                style_attr
-            );
-        }
-        // A wrapper carrying the component class, an optional label, and the
-        // input — the same shape the SPA and SSG renderers build.
-        "Slider" | "DatePicker" | "FileUpload" => {
-            return render_labelled_input(name, &class_str, &style_attr, ui, ctx);
-        }
-        "Toast" | "Router" | "Route" => return String::new(),
-        _ => {}
-    }
-
-    let mut attrs = Vec::new();
-    let mut text_content: Option<String> = None;
-    let mut inline_style: Option<String> = None;
-
-    if let Some(role) = implicit_role(name, &ui.modifiers) {
-        attrs.push(format!("role=\"{}\"", role));
-    }
-    // A landmark is named unless its author names it, as on the live page.
-    if let Some(label) = landmark_label(name)
-        && !ui
-            .args
-            .iter()
-            .any(|a| matches!(a, Arg::Named(k, _) if k == "aria-label"))
-    {
-        attrs.push(format!("aria-label=\"{}\"", label));
-    }
-
-    if !class_str.is_empty() {
-        attrs.push(format!("class=\"{}\"", class_str));
-    }
-
-    // A `Frame` that draws HTML it is handed rather than HTML the template
-    // wrote, with no `sandbox:` of its own, is sandboxed whole — as the
-    // build and the live page sandbox it.
-    if name == "Frame" {
-        let named = |k: &str| {
-            ui.args
-                .iter()
-                .find(|a| matches!(a, Arg::Named(n, _) if n == k))
-        };
-        if let Some(Arg::Named(_, srcdoc)) = named("srcdoc")
-            && !matches!(srcdoc, Expr::StringLiteral(_))
-            && named("sandbox").is_none()
-        {
-            attrs.push("sandbox=\"\"".to_string());
+    // What only a document has is drawn here. In a document — a PDF, a
+    // deck — so are a list, an avatar, a chart and a QR code, whose shape
+    // the paged engine relies on; on a web page they are drawn as the
+    // build draws them.
+    let paged = ctx.locals.contains_key(PAGED);
+    if paged || !matches!(name, "List" | "Avatar" | "Chart" | "QrCode") {
+        let (_, base_class) = builtin_to_html(name);
+        let mut classes = class_list(base_class, &ui.modifiers);
+        classes.extend(layout_arg_classes(&ui.args));
+        classes.extend(span_class(base_class, &ui.args));
+        classes.extend(extra_classes(ui, ctx));
+        let class_str = classes.join(" ");
+        let style_attr = style_block_attr(ui, ctx);
+        if let Some(html) = render_paged(name, ui, ctx, &class_str, &style_attr) {
+            return html;
         }
     }
-
-    for arg in &ui.args {
-        match arg {
-            Arg::Named(key, val) => match key.as_str() {
-                "src" | "alt" | "href" | "placeholder" | "type" | "min" | "max" | "step"
-                | "accept" | "role" | "value" | "title" | "width" | "height" | "loading"
-                | "decoding" | "fetchpriority" | "sandbox" | "srcdoc" | "allow" => {
-                    let resolved = value_to_string(&ctx.eval_expr(val));
-                    // A URL from the data: `javascript:` and its kind are
-                    // dropped, as `WF.safeUrl` drops them on a live page.
-                    // An image's may be a picture carried in its address
-                    // (`data:image/…`), as on the live page.
-                    let resolved = if key == "src" && crate::project::url::draws_picture(name) {
-                        crate::project::url::guard_picture(&resolved).to_string()
-                    } else if crate::project::url::URL_ATTRS.contains(&key.as_str()) {
-                        crate::project::url::guard(&resolved).to_string()
-                    } else {
-                        resolved
-                    };
-                    attrs.push(format!("{}=\"{}\"", key, html_escape(&resolved)));
-                }
-                "to" => {
-                    let resolved = ctx.address(val);
-                    attrs.push(format!(
-                        "href=\"{}\"",
-                        html_escape(crate::project::url::guard(&resolved))
-                    ));
-                }
-                // What a long list, a splitter or a carousel is, for a
-                // screen reader: its accessible name, never words in it.
-                "label" if matches!(name, "VirtualList" | "Splitter" | "Carousel") => {
-                    if !ui
-                        .args
-                        .iter()
-                        .any(|a| matches!(a, Arg::Named(k, _) if k == "aria-label"))
-                    {
-                        let s = value_to_string(&ctx.eval_expr(val));
-                        attrs.push(format!("aria-label=\"{}\"", html_escape(&s)));
-                    }
-                }
-                "label" if name == "IconButton" => {
-                    // The accessible name of an icon-only button, never visible text.
-                    let s = value_to_string(&ctx.eval_expr(val));
-                    attrs.push(format!("aria-label=\"{}\"", html_escape(&s)));
-                    // Its tooltip too, unless its author writes one.
-                    if !ui
-                        .args
-                        .iter()
-                        .any(|a| matches!(a, Arg::Named(k, _) if k == "title"))
-                    {
-                        attrs.push(format!("title=\"{}\"", html_escape(&s)));
-                    }
-                }
-                "label" => {
-                    let resolved = ctx.eval_expr(val);
-                    text_content = Some(value_to_string(&resolved));
-                }
-                "columns" => {
-                    if let Value::Number(n) = ctx.eval_expr(val) {
-                        attrs.push(format!(
-                            "data-cols=\"{}\"",
-                            n.as_f64().unwrap_or(1.0) as i32
-                        ));
-                    }
-                }
-                // There or not: `disabled: false` writes nothing.
-                "required" | "disabled" | "controls" => {
-                    if matches!(ctx.eval_expr(val), Value::Bool(true)) {
-                        attrs.push(key.to_string());
-                    }
-                }
-                // What a form sends the control as; an icon's is its glyph.
-                "name" | "autocomplete" if name != "Icon" => {
-                    let s = value_to_string(&ctx.eval_expr(val));
-                    attrs.push(format!("{key}=\"{}\"", html_escape(&s)));
-                }
-                "icon" => {
-                    let s = value_to_string(&ctx.eval_expr(val));
-                    attrs.push(format!("data-icon=\"{}\"", html_escape(&s)));
-                }
-                // A hyphenated name — `aria-*`, `data-*` — as the live page
-                // writes it: `true` is `"true"`, `false` none but an ARIA
-                // state's, `null` none.
-                k if k.contains('-') => {
-                    if let Some(one) = crate::web::codegen::ssg::paint_attr(
-                        k,
-                        val,
-                        &|e| painted_value(ctx.eval_expr(e)),
-                        &[],
-                    ) {
-                        attrs.push(one);
-                    }
-                }
-                // Anything else the component has no prop for is an
-                // attribute, as `C04` says and the live page writes it: the
-                // global attributes (`id`, `tabindex`, `lang`, `dir`,
-                // `hidden`), `target:`, `colspan:`, an author's own.
-                k if crate::registry::component(name).is_none_or(|s| s.prop(k).is_none()) => {
-                    if let Some(one) = crate::web::codegen::ssg::paint_attr(
-                        k,
-                        val,
-                        &|e| painted_value(ctx.eval_expr(e)),
-                        &[],
-                    ) {
-                        attrs.push(one);
-                    }
-                }
-                _ => {}
-            },
-            Arg::Positional(expr) => {
-                // `Icon("home")` names the glyph, drawn at runtime from `data-icon`.
-                if name == "Icon" {
-                    if !attrs.iter().any(|a| a.starts_with("data-icon=")) {
-                        let s = value_to_string(&ctx.eval_expr(expr));
-                        attrs.push(format!("data-icon=\"{}\"", html_escape(&s)));
-                    }
-                    continue;
-                }
-                // `Option("value", "Label")`: value attribute, then the label.
-                if name == "Option" && text_content.is_some() {
-                    if !attrs.iter().any(|a| a.starts_with("value=")) {
-                        if let Some(v) = text_content.take() {
-                            attrs.push(format!("value=\"{}\"", html_escape(&v)));
-                        }
-                        let s = value_to_string(&ctx.eval_expr(expr));
-                        if !s.is_empty() && s != "null" {
-                            text_content = Some(s);
-                        }
-                    }
-                    continue;
-                }
-                if text_content.is_none() {
-                    let resolved = ctx.eval_expr(expr);
-                    let s = value_to_string(&resolved);
-                    if !s.is_empty() && s != "null" {
-                        text_content = Some(s);
-                    }
-                }
-            }
-        }
-    }
-
-    // Inline style blocks: a literal or a token is in the stylesheet under
-    // the element's scoped class; a value that reads the data is inline.
-    if let Some(style_block) = &ui.style_block {
-        let mut style_parts = Vec::new();
-        for prop in &style_block.properties {
-            if crate::project::scoped_css::static_declaration(prop).is_some() {
-                continue;
-            }
-            if let Some(val) = style_value(&prop.value, ctx) {
-                style_parts.push(format!("{}: {}", prop.name, val));
-            }
-        }
-        if let Some(existing) = &inline_style {
-            style_parts.insert(0, existing.clone());
-        }
-        if !style_parts.is_empty() {
-            inline_style = Some(style_parts.join("; "));
-        }
-    }
-
-    if let Some(style) = &inline_style {
-        attrs.push(format!("style=\"{}\"", html_escape(style)));
-    }
-
-    if name == "Image" {
-        for (key, default) in [("loading", "lazy"), ("decoding", "async")] {
-            if !ui
-                .args
-                .iter()
-                .any(|a| matches!(a, Arg::Named(k, _) if k == key))
-            {
-                attrs.push(format!("{}=\"{}\"", key, default));
-            }
-        }
-    }
-
-    // Input type from modifiers
-    for m in &ui.modifiers {
-        if let Some(t) = input_type(m) {
-            attrs.push(format!("type=\"{}\"", t));
-        } else if m == "multiple" {
-            attrs.push("multiple".to_string());
-        }
-    }
-
-    let actual_tag =
-        if name == "Tcell" && (ctx.in_thead || element_tag(name, &ui.modifiers) == "th") {
-            attrs.push("scope=\"col\"".to_string());
-            "th"
-        } else {
-            element_tag(name, &ui.modifiers)
-        };
-    let indent = ctx.indent_str();
-    let attrs_str = if attrs.is_empty() {
-        String::new()
-    } else {
-        format!(" {}", attrs.join(" "))
-    };
-
-    // A field: label, control, hint, error — the shape the bundle builds.
-    if matches!(name, "Input" | "Select") {
-        let resolve = |e: &Expr| Some(value_to_string(&ctx.eval_expr(e)));
-        if let Some(mut parts) = crate::web::codegen::ssg::field_parts(ui, resolve) {
-            let (id, own_attr) = match crate::web::codegen::ssg::own_id(&attrs) {
-                Some(own) => (own, String::new()),
-                None => {
-                    ctx.fields += 1;
-                    let id = format!("wf-field-{}", ctx.fields);
-                    let attr = format!(" id=\"{id}\"");
-                    (id, attr)
-                }
-            };
-            parts.set_id(&id);
-            let control = if actual_tag == "input" {
-                format!(
-                    "<{}{}{}{}>",
-                    actual_tag,
-                    attrs_str,
-                    own_attr,
-                    parts.control_attrs()
-                )
-            } else {
-                ctx.indent += 1;
-                let inner = render_statements(&ui.children, ctx);
-                ctx.indent -= 1;
-                format!(
-                    "<{}{}{}{}>\n{}{}</{}>",
-                    actual_tag,
-                    attrs_str,
-                    own_attr,
-                    parts.control_attrs(),
-                    inner,
-                    indent,
-                    actual_tag
-                )
-            };
-            return crate::web::codegen::ssg::static_field(&indent, &id, &control, &parts);
-        }
-    }
-
-    // Self-closing tags
-    if matches!(actual_tag, "input" | "img" | "hr" | "br") {
-        return format!("{}<{}{}>\n", indent, actual_tag, attrs_str);
-    }
-
-    let caption = if name == "Table" {
-        ui.args.iter().find_map(|a| match a {
-            Arg::Named(k, v) if k == "caption" => Some(value_to_string(&ctx.eval_expr(v))),
-            _ => None,
-        })
-    } else {
-        None
-    };
-    let has_children = !ui.children.is_empty();
-    let has_text = text_content.is_some();
-
-    if !has_children && !has_text && caption.is_none() {
-        return format!("{}<{}{}></{}>\n", indent, actual_tag, attrs_str, actual_tag);
-    }
-
-    if let Some(text) = &text_content
-        && !has_children
-    {
-        // `Code(…, language: "wf")`: coloured, as every other backend.
-        let language = if name == "Code" {
-            ui.args.iter().find_map(|a| match a {
-                Arg::Named(k, v) if k == "language" => Some(value_to_string(&ctx.eval_expr(v))),
-                _ => None,
-            })
-        } else {
-            None
-        };
-        let inner = match language {
-            Some(lang) => crate::web::codegen::highlight::highlight(text, &lang),
-            None => html_escape(text),
-        };
-        return format!(
-            "{}<{}{}>{}</{}>\n",
-            indent, actual_tag, attrs_str, inner, actual_tag
-        );
-    }
-
-    let mut result = format!("{}<{}{}>\n", indent, actual_tag, attrs_str);
-
-    if let Some(cap) = &caption {
-        result.push_str(&format!(
-            "{}    <caption class=\"wf-visually-hidden\">{}</caption>\n",
-            indent,
-            html_escape(cap)
-        ));
-    }
-
-    if let Some(text) = &text_content {
-        result.push_str(&format!("{}    {}\n", indent, html_escape(text)));
-    }
-
-    ctx.indent += 1;
-    let was_in_thead = ctx.in_thead;
-    if name == "Thead" {
-        ctx.in_thead = true;
-    } else if name == "Tbody" {
-        ctx.in_thead = false;
-    }
-    result.push_str(&render_statements(&ui.children, ctx));
-    ctx.in_thead = was_in_thead;
-    ctx.indent -= 1;
-    result.push_str(&format!("{}</{}>\n", indent, actual_tag));
-    result
+    // Every other built-in is drawn by the build's own code, over the
+    // names in reach as a template reads them: one renderer, so a template
+    // and a page cannot drift apart.
+    ctx.paint.scope = ctx.scope();
+    crate::web::codegen::ssg::render_builtin(name, ui, ctx)
 }
 
 /// An element's `style { }` block as a ready-to-append ` style="…"` attribute,
@@ -2281,110 +1755,6 @@ fn safe_style_piece(text: &str) -> bool {
         "@import",
     ];
     !FETCHING.iter().any(|f| lower.contains(f))
-}
-
-/// `Slider`, `DatePicker` and `FileUpload`: a wrapper carrying the component
-/// class, an optional `<label>`, and the input itself — the shape every renderer
-/// agrees on.
-fn render_labelled_input(
-    name: &str,
-    class_str: &str,
-    style_attr: &str,
-    ui: &UIElement,
-    ctx: &mut RenderContext,
-) -> String {
-    let named = |key: &str| -> Option<String> {
-        let arg = ui.args.iter().find_map(|a| match a {
-            Arg::Named(k, v) if k == key => Some(v.clone()),
-            _ => None,
-        })?;
-        Some(value_to_string(&ctx.eval_expr(&arg)))
-    };
-
-    let indent = ctx.indent_str();
-    let label = named("label");
-    let (min, max, step, accept, value) = (
-        named("min"),
-        named("max"),
-        named("step"),
-        named("accept"),
-        named("value"),
-    );
-
-    // What is the whole control's is its box's; every other attribute is
-    // its input's, as on the live page.
-    let own = |keep: &dyn Fn(&str) -> bool| {
-        crate::web::codegen::ssg::painted_attrs(
-            crate::registry::component(name),
-            ui,
-            keep,
-            &|e| painted_value(ctx.eval_expr(e)),
-            &[],
-        )
-    };
-    let on_box = own(&|k| crate::web::codegen::js::BOX_ATTRS.contains(&k));
-    let on_input = own(&|k| {
-        !crate::web::codegen::js::BOX_ATTRS.contains(&k)
-            && !matches!(k, "min" | "max" | "accept" | "value" | "multiple")
-    });
-    let mut out = format!(
-        "{}<div class=\"{}\"{}{}>\n",
-        indent, class_str, on_box, style_attr
-    );
-    if let Some(l) = label {
-        out.push_str(&format!(
-            "{}    <label class=\"wf-form-label\">{}</label>\n",
-            indent,
-            html_escape(&l)
-        ));
-    }
-
-    let mut attrs = match name {
-        "Slider" => vec![
-            "type=\"range\"".to_string(),
-            format!("min=\"{}\"", min.clone().unwrap_or_else(|| "0".into())),
-            format!("max=\"{}\"", max.clone().unwrap_or_else(|| "100".into())),
-            format!("step=\"{}\"", step.unwrap_or_else(|| "1".into())),
-        ],
-        "DatePicker" => {
-            let mut a = vec![
-                "type=\"date\"".to_string(),
-                "class=\"wf-input\"".to_string(),
-            ];
-            if let Some(v) = min {
-                a.push(format!("min=\"{}\"", html_escape(&v)));
-            }
-            if let Some(v) = max {
-                a.push(format!("max=\"{}\"", html_escape(&v)));
-            }
-            a
-        }
-        _ => {
-            let mut a = vec![
-                "type=\"file\"".to_string(),
-                "class=\"wf-input\"".to_string(),
-            ];
-            if let Some(v) = accept {
-                a.push(format!("accept=\"{}\"", html_escape(&v)));
-            }
-            a
-        }
-    };
-    if let Some(v) = value {
-        attrs.push(format!("value=\"{}\"", html_escape(&v)));
-    }
-    if ui.modifiers.iter().any(|m| m == "multiple") {
-        attrs.push("multiple".to_string());
-    }
-
-    out.push_str(&format!(
-        "{}    <input {}{}>\n",
-        indent,
-        attrs.join(" "),
-        on_input
-    ));
-    out.push_str(&format!("{}</div>\n", indent));
-    out
 }
 
 /// An element's opening tag with what it carries as any element does

@@ -508,6 +508,7 @@ pub fn render_page_html_studio(
 /// page is, and the counters ids are made from. The build's static paint
 /// and the template engine each hold one, and draw built-ins with the same
 /// code ([`Paint`]).
+#[derive(Clone, Default)]
 pub(crate) struct PaintState {
     /// Images painted so far on this page; the first is fetched eagerly.
     pub(crate) images: usize,
@@ -550,6 +551,13 @@ pub(crate) struct PaintState {
 pub(crate) trait Paint: std::ops::DerefMut<Target = PaintState> {
     /// A block of statements inside a built-in, drawn by this engine.
     fn statements(&mut self, stmts: &[Statement]) -> String;
+
+    /// A value of a `style { }` block that is written on the element: the
+    /// build writes what is written and leaves a value that reads state to
+    /// the page; a template, with no page to finish it, works it out.
+    fn style_value(&self, value: &Expr) -> Option<String> {
+        expr_to_static_string(value)
+    }
 }
 
 struct SsgContext {
@@ -1284,7 +1292,7 @@ pub(crate) fn render_builtin<C: Paint>(name: &str, ui: &UIElement, ctx: &mut C) 
     // carry the author's `style { }` block, which returning early used to drop.
     let wf = ctx.wf_node_attr_inline(ui);
     let inline_style = {
-        let decls = style_block_decls(ui);
+        let decls = style_block_decls(ui, ctx);
         if decls.is_empty() {
             String::new()
         } else {
@@ -1521,6 +1529,45 @@ pub(crate) fn render_builtin<C: Paint>(name: &str, ui: &UIElement, ctx: &mut C) 
         // page runs: the paint has only its place, which the live page
         // takes over, and the block is drawn there by the script.
         "Portal" => return format!("{}<!--wf-portal-->\n", ctx.indent_str()),
+        // An avatar is its picture, or else its initials, as the live page
+        // draws it; `src:` and `alt:` belong to the picture, not the box.
+        "Avatar" => {
+            let named = |key: &str| {
+                ui.args.iter().find_map(|a| match a {
+                    Arg::Named(k, v) if k == key => Some(v),
+                    _ => None,
+                })
+            };
+            let inner = match named("src") {
+                // A picture the build cannot know yet is the page's to draw.
+                Some(src) => match static_attr(src, &ctx.scope) {
+                    Some(src) => {
+                        let alt = named("alt")
+                            .and_then(|v| static_attr(v, &ctx.scope))
+                            .unwrap_or_default();
+                        format!(
+                            "<img src=\"{}\" alt=\"{}\">",
+                            html_escape(crate::project::url::guard_picture(&src)),
+                            html_escape(&alt)
+                        )
+                    }
+                    None => String::new(),
+                },
+                None => named("initials")
+                    .and_then(|v| resolve_text_scoped(v, &ctx.default_messages, &ctx.scope))
+                    .map(|t| html_escape(&t))
+                    .unwrap_or_default(),
+            };
+            return format!(
+                "{}<div class=\"{}\"{}{}{}>{}</div>\n",
+                ctx.indent_str(),
+                class_str,
+                own_attrs(name, ui, ctx, &[]),
+                wf,
+                inline_style,
+                inner
+            );
+        }
         "Spacer" | "Spinner" => {
             return format!(
                 "{}<div class=\"{}\"{}{}{}></div>\n",
@@ -1704,7 +1751,7 @@ pub(crate) fn render_builtin<C: Paint>(name: &str, ui: &UIElement, ctx: &mut C) 
     // Collected here and emitted as ONE `style="…"` attribute below so a grid
     // `columns` arg merges into the same attribute instead of producing a duplicate
     // `style=` (HTML keeps the first and silently drops the rest).
-    let style_decls = style_block_decls(ui);
+    let style_decls = style_block_decls(ui, ctx);
 
     for arg in &ui.args {
         match arg {
@@ -2643,7 +2690,7 @@ fn render_tag<C: Paint>(tag: &str, class: &str, ui: &UIElement, ctx: &mut C) -> 
         .collect::<Vec<_>>()
         .join(" ");
     let class = class.as_str();
-    let decls = style_block_decls(ui);
+    let decls = style_block_decls(ui, ctx);
     let style_attr = if decls.is_empty() {
         String::new()
     } else {
@@ -2668,7 +2715,7 @@ fn render_tag<C: Paint>(tag: &str, class: &str, ui: &UIElement, ctx: &mut C) -> 
 /// hydration, so the static paint carries the class and no inline text. What
 /// remains is a value the static pass can name but the stylesheet cannot —
 /// today, nothing: a value that reads state is left to the bundle.
-fn style_block_decls(ui: &UIElement) -> Vec<String> {
+fn style_block_decls<C: Paint>(ui: &UIElement, ctx: &C) -> Vec<String> {
     use super::scoped_css::static_declaration;
     use super::style_tokens::canonical_style_prop;
     let Some(sb) = &ui.style_block else {
@@ -2679,7 +2726,7 @@ fn style_block_decls(ui: &UIElement) -> Vec<String> {
         .filter(|p| static_declaration(p).is_none())
         .filter_map(|p| {
             let prop = canonical_style_prop(&p.name);
-            let value = expr_to_static_string(&p.value)?;
+            let value = ctx.style_value(&p.value)?;
             Some(format!("{prop}: {value}"))
         })
         .collect()
@@ -2994,13 +3041,16 @@ fn resolve_text_scoped(
         && let Some(Static::Map(params)) = eval(&args[1], scope)
     {
         return Some(crate::project::i18n::message(
-            &scope.locale(),
+            &scope.messages_locale(),
             messages,
             key,
             &params,
         ));
     }
     resolve_text(expr, messages).or_else(|| match eval(expr, scope)? {
+        // A template has no page to finish it: it writes what the page
+        // would show.
+        value if scope.is_lenient() => Some(value.js_text()),
         // A collection has no text form; painting "" would be a lie about what
         // the running page shows.
         Static::List(_) | Static::Map(_) => None,

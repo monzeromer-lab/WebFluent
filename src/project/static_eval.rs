@@ -429,6 +429,20 @@ impl Scope {
         }
     }
 
+    /// The locale the messages `t(…)` reads are in: a template's own, or
+    /// [`Scope::locale`].
+    pub fn messages_locale(&self) -> String {
+        match self.get("__messages_locale") {
+            Some(Static::Str(l)) => l.clone(),
+            _ => self.locale(),
+        }
+    }
+
+    /// Whether this scope reads as a template does ([`Scope::lenient`]).
+    pub fn is_lenient(&self) -> bool {
+        self.lenient
+    }
+
     fn set(&mut self, name: &str, value: Static) {
         for frame in self.frames.iter_mut().rev() {
             if frame.contains_key(name) {
@@ -917,13 +931,8 @@ fn eval_node(expr: &Expr, scope: &Scope, fuel: &Fuel) -> Option<Static> {
                         Some(Static::Map(params)) => params.clone(),
                         Some(_) => return None,
                     };
-                    // A template's messages say which locale they are in.
-                    let locale = match scope.get("__messages_locale") {
-                        Some(Static::Str(l)) => l.clone(),
-                        _ => scope.locale(),
-                    };
                     Some(Static::Str(crate::project::i18n::message(
-                        &locale,
+                        &scope.messages_locale(),
                         &scope.messages(),
                         key,
                         &params,

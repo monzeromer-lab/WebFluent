@@ -1634,3 +1634,37 @@ fn a_navigation_item_without_a_destination_is_not_a_link() {
         }
     }
 }
+
+/// The template engine and the static paint draw a built-in with the same
+/// code, so they must draw the same HTML: a template is a page painted
+/// with its data, not a second guess at one.
+#[test]
+fn the_template_and_the_static_paint_draw_the_same_html() {
+    fn lines(html: &str) -> String {
+        let body = match html.split_once("<main id=\"wf-main\">") {
+            Some((_, rest)) => rest
+                .rsplit_once("</main>")
+                .map(|(inner, _)| inner.to_string())
+                .unwrap_or_else(|| rest.to_string()),
+            None => html.to_string(),
+        };
+        body.lines()
+            .map(str::trim)
+            .filter(|l| !l.is_empty())
+            .collect::<Vec<_>>()
+            .join("\n")
+    }
+    let mut failures = Vec::new();
+    for spec in SPECS {
+        let src = spec_source(spec);
+        let ssg = lines(&raw_output(Backend::Ssg, &src));
+        let template = lines(&raw_output(Backend::Template, &src));
+        if ssg != template {
+            failures.push(format!(
+                "{}\n  static paint: {ssg}\n  template:     {template}",
+                spec.name
+            ));
+        }
+    }
+    assert!(failures.is_empty(), "{}", failures.join("\n"));
+}

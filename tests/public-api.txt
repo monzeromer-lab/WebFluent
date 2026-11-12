@@ -1702,8 +1702,10 @@ pub fn webfluent::codegen::static_eval::Scope::for_page(&webfluent::codegen::sta
 pub fn webfluent::codegen::static_eval::Scope::for_program(&webfluent::syntax::parser::Program, &alloc::collections::btree::map::BTreeMap<alloc::string::String, serde_json::value::Value>) -> Self
 pub fn webfluent::codegen::static_eval::Scope::from_program(&webfluent::syntax::parser::Program, &[webfluent::syntax::parser::Statement]) -> Self
 pub fn webfluent::codegen::static_eval::Scope::from_program_with_env(&webfluent::syntax::parser::Program, &[webfluent::syntax::parser::Statement], &alloc::collections::btree::map::BTreeMap<alloc::string::String, serde_json::value::Value>) -> Self
+pub fn webfluent::codegen::static_eval::Scope::is_lenient(&self) -> bool
 pub fn webfluent::codegen::static_eval::Scope::lenient(self) -> Self
 pub fn webfluent::codegen::static_eval::Scope::locale(&self) -> alloc::string::String
+pub fn webfluent::codegen::static_eval::Scope::messages_locale(&self) -> alloc::string::String
 pub fn webfluent::codegen::static_eval::Scope::of(impl core::iter::traits::collect::IntoIterator<Item = (alloc::string::String, webfluent::codegen::static_eval::Static)>) -> Self
 pub fn webfluent::codegen::static_eval::Scope::over(&alloc::rcs::arc::Arc<std::collections::hash::map::HashMap<alloc::string::String, webfluent::codegen::static_eval::Static>>, impl core::iter::traits::collect::IntoIterator<Item = (alloc::string::String, webfluent::codegen::static_eval::Static)>) -> Self
 pub fn webfluent::codegen::static_eval::Scope::over_frames(alloc::vec::Vec<alloc::rcs::arc::Arc<std::collections::hash::map::HashMap<alloc::string::String, webfluent::codegen::static_eval::Static>>>) -> Self
