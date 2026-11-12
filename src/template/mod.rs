@@ -94,6 +94,22 @@ pub struct Template {
     studio: bool,
 }
 
+impl std::fmt::Debug for Template {
+    /// What the template is — its pages and the choices made on it — not
+    /// its whole program.
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Template")
+            .field("pages", &self.pages())
+            .field("page", &self.page)
+            .field("theme", &self.theme)
+            .field("custom_tokens", &self.custom_tokens)
+            .field("lang", &self.lang)
+            .field("root", &self.root)
+            .field("studio", &self.studio)
+            .finish_non_exhaustive()
+    }
+}
+
 // `Template::from_str` is documented public API used throughout the README and
 // the docs site; it predates any `FromStr` impl and renaming it would break every
 // consumer to satisfy a naming lint.
@@ -108,8 +124,10 @@ impl Template {
     /// # Errors
     ///
     /// Returns [`WebFluentError::LexerError`] or [`WebFluentError::ParseError`]
-    /// if the source is invalid, and [`WebFluentError::CodegenError`] with every
-    /// finding if it does not check.
+    /// if the source is invalid (and [`WebFluentError::Diagnostics`] when
+    /// several declarations do not parse), and
+    /// [`WebFluentError::Diagnostics`] with every error finding if it does
+    /// not check.
     pub fn from_str(source: &str) -> Result<Self> {
         Self::from_sources(&[("<template>", source)])
     }
@@ -335,20 +353,22 @@ impl Template {
         Ok(chosen)
     }
 
-    /// Select which `Theme` declared in the template to render with.
-    ///
-    /// Only needed when the source declares more than one. A template with a
-    /// single `Theme` uses it automatically, and one with none renders on the
-    /// baseline tokens.
     /// Mark each element with its node id — the same ids the builds give a
     /// page — so an editor showing the render can tell what was drawn by
     /// what: `data-wf-node="Report:0.1"` on an element, `data-wf-call` on
     /// the root a component's call drew.
+    #[must_use]
     pub fn with_studio(mut self, on: bool) -> Self {
         self.studio = on;
         self
     }
 
+    /// Select which `Theme` declared in the template to render with.
+    ///
+    /// Only needed when the source declares more than one. A template with a
+    /// single `Theme` uses it automatically, and one with none renders on the
+    /// baseline tokens.
+    #[must_use]
     pub fn with_theme(mut self, theme: &str) -> Self {
         self.theme = Some(theme.to_string());
         self
@@ -358,6 +378,7 @@ impl Template {
     ///
     /// Common tokens: `"color-primary"`, `"color-secondary"`, `"font-family"`,
     /// `"radius-md"`, `"spacing-md"`, etc.
+    #[must_use]
     pub fn with_tokens(mut self, tokens: &[(&str, &str)]) -> Self {
         for (k, v) in tokens {
             self.custom_tokens.insert(k.to_string(), v.to_string());
@@ -369,6 +390,7 @@ impl Template {
     /// declares — the page's own `lang:`, else `en`, unless set:
     /// `<html lang="ar">`, which also turns the document right to left for
     /// an RTL language.
+    #[must_use]
     pub fn with_lang(mut self, lang: &str) -> Self {
         self.lang = Some(lang.to_string());
         self
@@ -384,6 +406,7 @@ impl Template {
     ///     .with_pdf(PdfConfig { page_size: "Letter".into(), ..PdfConfig::default() });
     /// assert!(tpl.render_pdf(&serde_json::json!({})).unwrap().starts_with(b"%PDF"));
     /// ```
+    #[must_use]
     pub fn with_pdf(mut self, config: PdfConfig) -> Self {
         self.pdf = config;
         self
@@ -391,6 +414,7 @@ impl Template {
 
     /// The slide size, margin and chrome [`render_slides`](Template::render_slides)
     /// uses: 16:9 unless set.
+    #[must_use]
     pub fn with_slides(mut self, config: SlidesConfig) -> Self {
         self.slides = config;
         self
@@ -580,14 +604,21 @@ impl Template {
         if !self.studio {
             return render_program_fragment(&drawn, data);
         }
+        // The ids travel with this render's context, so nothing of one
+        // render outlives it — a render that panics on a server's thread
+        // leaves no ids behind for the next request.
         let mut nodes = HashMap::new();
         crate::codegen::node_id::visit_nodes(&drawn, &mut |ui, id, _| {
             nodes.insert((ui.span.start, ui.span.end, ui.span.line), id.to_string());
         });
-        STUDIO.with(|s| *s.borrow_mut() = Some(nodes));
-        let html = render_program_fragment(&drawn, data);
-        STUDIO.with(|s| *s.borrow_mut() = None);
-        html
+        render_program_with(
+            &drawn,
+            data,
+            Rendering {
+                studio: Some(std::rc::Rc::new(nodes)),
+                ..Rendering::default()
+            },
+        )
     }
 
     /// Render to PDF as raw bytes.
@@ -750,10 +781,38 @@ fn render_program_in(
     messages: std::rc::Rc<HashMap<String, String>>,
     locale: String,
 ) -> Result<String> {
+    render_program_with(
+        program,
+        data,
+        Rendering {
+            paged,
+            messages,
+            locale,
+            studio: None,
+        },
+    )
+}
+
+/// How one render is asked for.
+#[derive(Default)]
+struct Rendering {
+    paged: bool,
+    messages: std::rc::Rc<HashMap<String, String>>,
+    locale: String,
+    /// The node ids to stamp, for [`Template::with_studio`].
+    studio: Option<std::rc::Rc<NodeIds>>,
+}
+
+fn render_program_with(program: &Program, data: &Value, how: Rendering) -> Result<String> {
     let mut ctx = RenderContext::for_program(program, data);
-    ctx.messages = messages;
-    ctx.locale = std::rc::Rc::from(locale.as_str());
-    if paged {
+    ctx.messages = how.messages;
+    ctx.locale = std::rc::Rc::from(if how.locale.is_empty() {
+        "en"
+    } else {
+        how.locale.as_str()
+    });
+    ctx.studio = how.studio;
+    if how.paged {
         ctx.locals.insert(PAGED.to_string(), Value::Bool(true));
     }
 
@@ -763,7 +822,10 @@ fn render_program_in(
             html.push_str(&render_statements(&page.body, &mut ctx));
         }
     }
-    Ok(html)
+    match ctx.budget.failure.take() {
+        Some(found) => Err(WebFluentError::Diagnostics(vec![found])),
+        None => Ok(html),
+    }
 }
 
 // ─── Render Context ──────────────────────────────────────────────────
@@ -812,6 +874,99 @@ struct RenderContext<'a> {
     messages: std::rc::Rc<HashMap<String, String>>,
     /// The locale those messages are, whose plural rules pick a form.
     locale: std::rc::Rc<str>,
+    /// What this render may still do, shared by every context made from
+    /// it.
+    budget: std::rc::Rc<Budget>,
+    /// How many elements — and the components they expand to — enclose the
+    /// one being drawn.
+    depth: usize,
+    /// The node ids to stamp, for [`Template::with_studio`].
+    studio: Option<std::rc::Rc<NodeIds>>,
+    /// The data as the build-time evaluator reads it, converted once per
+    /// render rather than once per evaluation.
+    data_static: std::rc::Rc<std::cell::OnceCell<DataFrame>>,
+}
+
+/// The data, as the build-time evaluator's outermost scope.
+type DataFrame = Arc<HashMap<String, crate::codegen::static_eval::Static>>;
+
+/// What one render may do: draw so many elements and loop items, work so
+/// much out, and write so much markup. A render past any of them stops
+/// with an error rather than growing without end — a `for` over a range
+/// the data names, nested in another, can otherwise ask for more than a
+/// server has.
+#[derive(Default)]
+struct Budget {
+    /// Where the render is: the element being drawn, where a stop is
+    /// reported.
+    at: std::cell::Cell<crate::parser::ast::Span>,
+    steps: std::cell::Cell<u64>,
+    bytes: std::cell::Cell<usize>,
+    failure: std::cell::RefCell<Option<crate::error::Diagnostic>>,
+}
+
+/// Elements drawn, loop items, and units of evaluation one render may
+/// spend: a table of a million cells fits several times over.
+pub const RENDER_STEPS: u64 = 10_000_000;
+/// The markup one render may write.
+pub const RENDER_BYTES: usize = 256 * 1024 * 1024;
+
+impl Budget {
+    /// Whether the render has stopped.
+    fn stopped(&self) -> bool {
+        self.failure.borrow().is_some()
+    }
+
+    /// Stop the render with `code` and `message`, at `span`, unless it has
+    /// stopped already.
+    fn stop(&self, code: &'static str, message: String, span: crate::parser::ast::Span) {
+        let mut failure = self.failure.borrow_mut();
+        if failure.is_none() {
+            *failure = Some(crate::error::Diagnostic::coded(
+                code,
+                message,
+                "<template>",
+                span.line as usize,
+                span.col as usize,
+            ));
+        }
+    }
+
+    /// Spend `n` steps at `span`; `false` once the render has stopped.
+    fn spend(&self, n: u64, span: crate::parser::ast::Span) -> bool {
+        if self.stopped() {
+            return false;
+        }
+        let steps = self.steps.get().saturating_add(n);
+        self.steps.set(steps);
+        if steps > RENDER_STEPS {
+            self.stop(
+                "E121",
+                format!(
+                    "The render would do more than {RENDER_STEPS} steps — elements, loop items and evaluation"
+                ),
+                span,
+            );
+            return false;
+        }
+        true
+    }
+
+    /// Account for `n` bytes of markup written at `span`.
+    fn write(&self, n: usize, span: crate::parser::ast::Span) {
+        let bytes = self.bytes.get().saturating_add(n);
+        self.bytes.set(bytes);
+        if bytes > RENDER_BYTES {
+            self.stop(
+                "E121",
+                format!(
+                    "The render would write more than {} MB of markup",
+                    RENDER_BYTES / (1024 * 1024)
+                ),
+                span,
+            );
+        }
+    }
 }
 
 impl<'a> RenderContext<'a> {
@@ -904,6 +1059,10 @@ impl<'a> RenderContext<'a> {
             dialogs: 0,
             messages: Default::default(),
             locale: std::rc::Rc::from("en"),
+            budget: Default::default(),
+            depth: 0,
+            studio: None,
+            data_static: Default::default(),
         }
     }
 
@@ -926,6 +1085,10 @@ impl<'a> RenderContext<'a> {
             dialogs: self.dialogs,
             messages: self.messages.clone(),
             locale: self.locale.clone(),
+            budget: self.budget.clone(),
+            depth: self.depth,
+            studio: self.studio.clone(),
+            data_static: self.data_static.clone(),
         }
     }
 
@@ -993,6 +1156,10 @@ impl<'a> RenderContext<'a> {
                     Value::Array(arr) if prop == "length" => {
                         Value::Number(serde_json::Number::from(arr.len()))
                     }
+                    // A string's length in characters, as the build counts it.
+                    Value::String(s) if prop == "length" => {
+                        Value::Number(serde_json::Number::from(s.chars().count()))
+                    }
                     _ => Value::Null,
                 }
             }
@@ -1013,9 +1180,13 @@ impl<'a> RenderContext<'a> {
                 let arr = self.eval_expr(arr_expr);
                 let idx = self.eval_expr(idx_expr);
                 match (&arr, &idx) {
-                    // A literal index is a float here (`0` lexes as `0.0`).
+                    // A literal index is a float here (`0` lexes as `0.0`);
+                    // only a whole number from 0 names an item — `xs[1.5]`
+                    // is nothing, as it is in the browser and the build.
                     (Value::Array(a), Value::Number(n)) => match n.as_f64() {
-                        Some(i) if i >= 0.0 => a.get(i as usize).cloned().unwrap_or(Value::Null),
+                        Some(i) if i >= 0.0 && i.fract() == 0.0 => {
+                            a.get(i as usize).cloned().unwrap_or(Value::Null)
+                        }
                         _ => Value::Null,
                     },
                     (Value::Object(map), Value::String(key)) => {
@@ -1079,55 +1250,28 @@ impl<'a> RenderContext<'a> {
                 let case = self.eval_expr(&args[0]);
                 payload_of(&v, &case)
             }
-            Expr::MethodCall(obj, method, args) => {
-                let parent = self.eval_expr(obj);
-                match method.as_str() {
-                    "length" => match &parent {
-                        Value::Array(a) => Value::Number(serde_json::Number::from(a.len())),
-                        Value::String(s) => Value::Number(serde_json::Number::from(s.len())),
-                        _ => Value::Null,
-                    },
-                    "toUpperCase" => match &parent {
-                        Value::String(s) => Value::String(s.to_uppercase()),
-                        _ => Value::Null,
-                    },
-                    "toLowerCase" => match &parent {
-                        Value::String(s) => Value::String(s.to_lowercase()),
-                        _ => Value::Null,
-                    },
-                    "includes" => {
-                        let needle = if let Some(a) = args.first() {
-                            self.eval_expr(a)
-                        } else {
-                            Value::Null
-                        };
-                        match (&parent, &needle) {
-                            (Value::String(s), Value::String(n)) => {
-                                Value::Bool(s.contains(n.as_str()))
-                            }
-                            (Value::Array(arr), _) => Value::Bool(arr.contains(&needle)),
-                            _ => Value::Bool(false),
-                        }
-                    }
-                    "join" => {
-                        let sep = if let Some(a) = args.first() {
-                            value_to_string(&self.eval_expr(a))
-                        } else {
-                            ", ".to_string()
-                        };
-                        match &parent {
-                            Value::Array(arr) => {
-                                let parts: Vec<String> = arr.iter().map(value_to_string).collect();
-                                Value::String(parts.join(&sep))
-                            }
-                            _ => Value::Null,
-                        }
-                    }
-                    // Every other method the language has, the build-time
-                    // evaluator knows: the data is its scope.
-                    _ => self.eval_static(expr),
+            // A method is the build-time evaluator's, over the receiver this
+            // context works out: one meaning for `name.length()`,
+            // `xs.includes(2)` and `xs.join()` in a template and a build.
+            // `Math.max(…)` and the like are globals, not receivers.
+            Expr::MethodCall(obj, method, args) => match obj.as_ref() {
+                Expr::Identifier(global)
+                    if !self.locals.contains_key(global) && self.data.get(global).is_none() =>
+                {
+                    self.eval_static(expr)
                 }
-            }
+                _ => {
+                    let receiver = self.eval_expr(obj);
+                    self.eval_static_with(
+                        &Expr::MethodCall(
+                            Box::new(Expr::Identifier(RECEIVER.to_string())),
+                            method.clone(),
+                            args.clone(),
+                        ),
+                        Some(receiver),
+                    )
+                }
+            },
             Expr::Regex(..) => self.eval_static(expr),
             // A derived function: its parameters bound to what it is called
             // with, its body worked out.
@@ -1231,15 +1375,33 @@ impl<'a> RenderContext<'a> {
     /// Evaluate `expr` with the static evaluator, over this context's data
     /// and locals; `Null` when it cannot.
     fn eval_static(&self, expr: &Expr) -> Value {
-        use crate::codegen::static_eval::{Scope, Static, eval};
-        let mut names: Vec<(String, Static)> = Vec::new();
-        if let Value::Object(map) = self.data {
-            for (k, v) in map {
-                names.push((k.clone(), Static::from_json(v)));
-            }
+        self.eval_static_with(expr, None)
+    }
+
+    /// [`RenderContext::eval_static`], with [`RECEIVER`] bound to
+    /// `receiver` when there is one. What it spends comes out of the
+    /// render's budget; an evaluation that runs out of its own fuel stops
+    /// the render, rather than showing nothing where a value was asked for.
+    fn eval_static_with(&self, expr: &Expr, receiver: Option<Value>) -> Value {
+        use crate::codegen::static_eval::{Scope, Static, eval_metered};
+        if self.budget.stopped() {
+            return Value::Null;
         }
+        let data = self.data_static.get_or_init(|| {
+            Arc::new(match self.data {
+                Value::Object(map) => map
+                    .iter()
+                    .map(|(k, v)| (k.clone(), Static::from_json(v)))
+                    .collect(),
+                _ => HashMap::new(),
+            })
+        });
+        let mut names: Vec<(String, Static)> = Vec::new();
         for (k, v) in &self.locals {
             names.push((k.clone(), Static::from_json(v)));
+        }
+        if let Some(receiver) = receiver {
+            names.push((RECEIVER.to_string(), Static::from_json(&receiver)));
         }
         // The derived functions in reach, so a lambda handed to a method —
         // `rows.every((r) => countOf(r) == 0)` — may call one.
@@ -1251,9 +1413,19 @@ impl<'a> RenderContext<'a> {
                 ))),
             ));
         }
-        eval(expr, &Scope::of(names))
-            .map(|v| v.to_json())
-            .unwrap_or(Value::Null)
+        let metered = eval_metered(expr, &Scope::over(data, names));
+        let span = self.budget.at.get();
+        if metered.exhausted {
+            self.budget.stop(
+                "E121",
+                "An expression would do more work, or make more, than one evaluation may"
+                    .to_string(),
+                span,
+            );
+            return Value::Null;
+        }
+        self.budget.spend(u64::from(metered.spent), span);
+        metered.value.map(|v| v.to_json()).unwrap_or(Value::Null)
     }
 
     /// Resolve a dotted path like "user.address.city" from data context.
@@ -1363,6 +1535,9 @@ fn render_statements(stmts: &[Statement], ctx: &mut RenderContext) -> String {
 fn render_statements_seeded(stmts: &[Statement], ctx: &mut RenderContext) -> String {
     let mut html = String::new();
     for stmt in stmts {
+        if ctx.budget.stopped() {
+            break;
+        }
         match &stmt.kind {
             StatementKind::UIElement(ui) => html.push_str(&render_ui_element(ui, ctx)),
             StatementKind::If(if_stmt) => html.push_str(&render_if(if_stmt, ctx)),
@@ -1452,6 +1627,9 @@ fn render_for(for_stmt: &ForStmt, ctx: &mut RenderContext) -> String {
 
     if let Value::Array(items) = &collection {
         for (i, item) in items.iter().enumerate() {
+            if !ctx.budget.spend(1, ctx.budget.at.get()) {
+                break;
+            }
             // Push loop variable into locals
             let old_item = ctx.locals.insert(for_stmt.item.clone(), item.clone());
             let old_index = if let Some(idx_var) = &for_stmt.index {
@@ -1484,19 +1662,37 @@ fn render_for(for_stmt: &ForStmt, ctx: &mut RenderContext) -> String {
 /// Each element's node id, by where it is written: start, end, line.
 type NodeIds = HashMap<(u32, u32, u32), String>;
 
-thread_local! {
-    /// While a template renders with [`Template::with_studio`]: each
-    /// element's node id, by where it is written.
-    static STUDIO: std::cell::RefCell<Option<NodeIds>> = const { std::cell::RefCell::new(None) };
-}
-
 fn render_ui_element(ui: &UIElement, ctx: &mut RenderContext) -> String {
+    // Elements inside elements, and the components they expand to — a
+    // component that places itself, as deep as its data goes — are held to
+    // the depth the parser holds a program to.
+    if ctx.depth >= crate::parser::MAX_NESTING {
+        ctx.budget.stop(
+            "E120",
+            format!(
+                "{}: elements and the components they place nest more than {} levels deep",
+                crate::parser::NESTING_MESSAGE,
+                crate::parser::MAX_NESTING
+            ),
+            ui.span,
+        );
+        return String::new();
+    }
+    ctx.budget.at.set(ui.span);
+    if !ctx.budget.spend(1, ui.span) {
+        return String::new();
+    }
+    let written = ctx.budget.bytes.get();
+    ctx.depth += 1;
     let html = render_ui_element_unmarked(ui, ctx);
-    let id = STUDIO.with(|s| {
-        s.borrow()
-            .as_ref()
-            .and_then(|n| n.get(&(ui.span.start, ui.span.end, ui.span.line)).cloned())
-    });
+    ctx.depth -= 1;
+    // What this element wrote beyond what the elements inside it did.
+    let inner = ctx.budget.bytes.get() - written;
+    ctx.budget.write(html.len().saturating_sub(inner), ui.span);
+    let id = ctx
+        .studio
+        .as_ref()
+        .and_then(|n| n.get(&(ui.span.start, ui.span.end, ui.span.line)).cloned());
     match id {
         Some(id) => {
             let attr = if matches!(ui.component, ComponentRef::UserDefined(_)) {
@@ -1882,6 +2078,23 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
         attrs.push(format!("class=\"{}\"", class_str));
     }
 
+    // A `Frame` that draws HTML it is handed rather than HTML the template
+    // wrote, with no `sandbox:` of its own, is sandboxed whole — as the
+    // build and the live page sandbox it.
+    if name == "Frame" {
+        let named = |k: &str| {
+            ui.args
+                .iter()
+                .find_map(|a| matches!(a, Arg::Named(n, _) if n == k).then_some(a))
+        };
+        if let Some(Arg::Named(_, srcdoc)) = named("srcdoc")
+            && !matches!(srcdoc, Expr::StringLiteral(_))
+            && named("sandbox").is_none()
+        {
+            attrs.push("sandbox=\"\"".to_string());
+        }
+    }
+
     for arg in &ui.args {
         match arg {
             Arg::Named(key, val) => match key.as_str() {
@@ -2031,13 +2244,16 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
             if crate::codegen::scoped_css::static_declaration(prop).is_some() {
                 continue;
             }
-            let val = ctx.eval_expr(&prop.value);
-            style_parts.push(format!("{}: {}", prop.name, value_to_string(&val)));
+            if let Some(val) = style_value(&prop.value, ctx) {
+                style_parts.push(format!("{}: {}", prop.name, val));
+            }
         }
         if let Some(existing) = &inline_style {
             style_parts.insert(0, existing.clone());
         }
-        inline_style = Some(style_parts.join("; "));
+        if !style_parts.is_empty() {
+            inline_style = Some(style_parts.join("; "));
+        }
     }
 
     if let Some(style) = &inline_style {
@@ -2200,13 +2416,60 @@ fn style_block_attr(ui: &UIElement, ctx: &mut RenderContext) -> String {
         .properties
         .iter()
         .filter(|p| crate::codegen::scoped_css::static_declaration(p).is_none())
-        .map(|p| format!("{}: {}", p.name, value_to_string(&ctx.eval_expr(&p.value))))
+        .filter_map(|p| Some(format!("{}: {}", p.name, style_value(&p.value, ctx)?)))
         .collect();
     if decls.is_empty() {
         String::new()
     } else {
         format!(" style=\"{}\"", html_escape(&decls.join("; ")))
     }
+}
+
+/// A style value as the live page sets it: one property at a time, so what
+/// the data puts in it is one value. A spliced piece that would end the
+/// declaration (`;`), open or close a block (`{`, `}`), escape its way past
+/// either (`\`), or fetch something (`url(`, `image-set(`, …) is refused,
+/// and the declaration left out — as a browser leaves out a value it cannot
+/// read. What the template itself writes around a splice is its own.
+fn style_value(value: &Expr, ctx: &RenderContext) -> Option<String> {
+    let checked = |e: &Expr| {
+        let text = value_to_string(&ctx.eval_expr(e));
+        safe_style_piece(&text).then_some(text)
+    };
+    match value {
+        Expr::InterpolatedString(parts) => {
+            let mut out = String::new();
+            for part in parts {
+                match part {
+                    StringPart::Literal(t) => out.push_str(t),
+                    StringPart::Expression(e) => out.push_str(&checked(e)?),
+                }
+            }
+            Some(out)
+        }
+        other => checked(other),
+    }
+}
+
+/// Whether a piece of a style value from the data is a piece of one value.
+fn safe_style_piece(text: &str) -> bool {
+    if text.contains([';', '{', '}', '\\', '<', '>']) {
+        return false;
+    }
+    let lower = text.to_ascii_lowercase();
+    // Every function that fetches what it names, and the old ones that ran
+    // script.
+    const FETCHING: &[&str] = &[
+        "url(",
+        "image(",
+        "image-set(",
+        "cross-fade(",
+        "element(",
+        "src(",
+        "expression(",
+        "@import",
+    ];
+    !FETCHING.iter().any(|f| lower.contains(f))
 }
 
 /// `Slider`, `DatePicker` and `FileUpload`: a wrapper carrying the component
@@ -2437,6 +2700,10 @@ pub fn is_rtl(lang: &str) -> bool {
 /// A local only a paged render sets: inside a running element, `page` and
 /// `pages` are the marks the engine replaces on each page.
 const PAGED: &str = "\u{0}paged";
+
+/// The name a method's receiver is bound to when the build-time evaluator
+/// calls the method: no program can write it.
+const RECEIVER: &str = "\u{0}receiver";
 
 /// A `Chart`'s arguments, read from the data.
 fn chart_of(ui: &UIElement, ctx: &mut RenderContext) -> crate::codegen::charts::Chart {
@@ -2783,9 +3050,12 @@ fn class_names(val: &Value, out: &mut Vec<String>) {
             }
         }
         other => {
+            // Each class is written into a `class="…"`, so each is escaped:
+            // a `"` from the data cannot close the attribute and open another.
             for c in value_to_string(other).split_whitespace() {
-                if !out.iter().any(|o| o == c) {
-                    out.push(c.to_string());
+                let c = html_escape(c);
+                if !out.iter().any(|o| *o == c) {
+                    out.push(c);
                 }
             }
         }
@@ -2840,8 +3110,27 @@ fn is_truthy(val: &Value) -> bool {
     }
 }
 
+/// `left op right`: what the build works out, where it does; else what
+/// JavaScript would — two strings compare as text, `"12" * 2` is `24`, and
+/// text that is no number is `NaN`, which compares false.
 fn eval_binary_op(left: &Value, op: &crate::parser::ast::BinOp, right: &Value) -> Value {
+    use crate::codegen::static_eval::{Static, binary};
     use crate::parser::ast::BinOp;
+    if let Some(v) = binary(&Static::from_json(left), op, &Static::from_json(right)) {
+        return v.to_json();
+    }
+    // Two strings compare by their UTF-16 code units, as JavaScript does.
+    if let (Value::String(l), Value::String(r)) = (left, right)
+        && matches!(op, BinOp::Lt | BinOp::Gt | BinOp::Lte | BinOp::Gte)
+    {
+        let order = l.encode_utf16().cmp(r.encode_utf16());
+        return Value::Bool(match op {
+            BinOp::Lt => order.is_lt(),
+            BinOp::Gt => order.is_gt(),
+            BinOp::Lte => order.is_le(),
+            _ => order.is_ge(),
+        });
+    }
 
     // `2` from the data and `2.0` from a literal are the same number.
     let same = |l: &Value, r: &Value| match (l, r) {
@@ -2908,12 +3197,16 @@ fn eval_binary_op(left: &Value, op: &crate::parser::ast::BinOp, right: &Value) -
     }
 }
 
+/// A value as JavaScript's `Number(v)` reads it: text that is no number is
+/// `NaN`, empty text and `null` are `0`, a list or a map is `NaN`.
 fn as_f64(val: &Value) -> f64 {
     match val {
         Value::Number(n) => n.as_f64().unwrap_or(0.0),
-        Value::String(s) => s.parse::<f64>().unwrap_or(0.0),
+        Value::String(s) if s.trim().is_empty() => 0.0,
+        Value::String(s) => s.trim().parse::<f64>().unwrap_or(f64::NAN),
         Value::Bool(true) => 1.0,
-        _ => 0.0,
+        Value::Bool(false) | Value::Null => 0.0,
+        Value::Array(_) | Value::Object(_) => f64::NAN,
     }
 }
 
