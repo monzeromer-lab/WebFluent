@@ -5,8 +5,17 @@ on:
     tags:
       - "v*"
 
-permissions:
-  contents: write
+# Nothing may write unless a job says so. Each job below names the least it
+# needs: the builds read, the attestation signs, and only `release` writes to
+# the repository (it creates the release and uploads its assets).
+permissions: {}
+
+# The tag reaches every script through the environment, never through
+# `${{ }}` spliced into a `run:` line, so a tag name is data and not shell.
+# `preflight` holds it to vX.Y.Z before anything else runs.
+env:
+  TAG: ${{ github.ref_name }}
+  CARGO_TERM_COLOR: always
 
 jobs:
   # Nothing is built for a tag that disagrees with the source: the crates'
@@ -14,32 +23,52 @@ jobs:
   # `just preflight vX.Y.Z` runs the same check before tagging.
   preflight:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
+      - name: The tag is vX.Y.Z
+        run: |
+          if ! printf '%s' "$TAG" | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "::error::the tag must be vX.Y.Z; refusing to release from this one"
+            exit 1
+          fi
+
       # The editors' submodules: the Zed extension's grammar pin is read
       # from editors/zed and compared with editors/tree-sitter-webfluent.
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           submodules: true
+          persist-credentials: false
 
       - name: The tag agrees with the source
-        run: scripts/release-preflight.sh "${{ github.ref_name }}"
+        run: scripts/release-preflight.sh "$TAG"
 
   build-linux:
     needs: preflight
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
 
-      - uses: dtolnay/rust-toolchain@stable
+      # Pinned by commit, so the toolchain is named here rather than read
+      # from the action's branch name.
+      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
+        with:
+          toolchain: stable
 
       # `--workspace`, so the language server is built too: `cargo build` at
       # the root builds the root package alone.
       - name: Build release
-        run: cargo build --release --workspace
+        run: cargo build --release --locked --workspace
 
+      # Pinned and locked: a tool that runs where the release is assembled
+      # is part of what the release is.
       - name: Build .deb package
         run: |
-          cargo install cargo-deb
+          cargo install --locked cargo-deb@3.8.0
           cargo deb --no-build
 
       # The `wf-lsp-<tag>-<arch>-<os>.tar.gz` name is what the Zed extension
@@ -47,14 +76,14 @@ jobs:
       - name: Create tarballs
         run: |
           mkdir -p dist
-          tar czf dist/wf-${{ github.ref_name }}-x86_64-linux.tar.gz -C target/release wf
-          tar czf dist/wf-lsp-${{ github.ref_name }}-x86_64-linux.tar.gz -C target/release wf-lsp
+          tar czf "dist/wf-$TAG-x86_64-linux.tar.gz" -C target/release wf
+          tar czf "dist/wf-lsp-$TAG-x86_64-linux.tar.gz" -C target/release wf-lsp
 
       - name: Collect artifacts
         run: |
           cp target/debian/*.deb dist/
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: linux-packages
           path: dist/*
@@ -62,18 +91,24 @@ jobs:
   build-windows:
     needs: preflight
     runs-on: windows-latest
+    permissions:
+      contents: read
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
 
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
+        with:
+          toolchain: stable
 
       - name: Build release
-        run: cargo build --release --workspace
+        run: cargo build --release --locked --workspace
 
       - name: Install WiX and cargo-wix
         run: |
           dotnet tool install --global wix --version 5.0.2
-          cargo install cargo-wix
+          cargo install --locked cargo-wix@0.3.9
 
       # wix/main.wxs is checked in: it installs wf.exe and webfluent.exe,
       # and keeps one UpgradeCode, so a new MSI replaces the old one.
@@ -87,14 +122,14 @@ jobs:
           # which PATH and PATHEXT find before a user-installed wf.exe. The
           # zip carries the same binary as webfluent.exe, the name to type there.
           Copy-Item target\release\wf.exe target\release\webfluent.exe
-          Compress-Archive -Path target\release\wf.exe,target\release\webfluent.exe -DestinationPath dist\wf-${{ github.ref_name }}-x86_64-windows.zip
-          Compress-Archive -Path target\release\wf-lsp.exe -DestinationPath dist\wf-lsp-${{ github.ref_name }}-x86_64-windows.zip
+          Compress-Archive -Path target\release\wf.exe,target\release\webfluent.exe -DestinationPath "dist\wf-$env:TAG-x86_64-windows.zip"
+          Compress-Archive -Path target\release\wf-lsp.exe -DestinationPath "dist\wf-lsp-$env:TAG-x86_64-windows.zip"
 
       - name: Collect MSI
         run: |
           Copy-Item target\wix\*.msi dist\
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: windows-packages
           path: dist/*
@@ -102,6 +137,8 @@ jobs:
   build-macos:
     needs: preflight
     runs-on: macos-latest
+    permissions:
+      contents: read
     strategy:
       matrix:
         target: [aarch64-apple-darwin, x86_64-apple-darwin]
@@ -110,45 +147,95 @@ jobs:
             arch: aarch64
           - target: x86_64-apple-darwin
             arch: x86_64
+    env:
+      TARGET: ${{ matrix.target }}
+      ARCH: ${{ matrix.arch }}
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
+          persist-credentials: false
+
+      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
+        with:
+          toolchain: stable
           targets: ${{ matrix.target }}
 
       - name: Build release
-        run: cargo build --release --workspace --target ${{ matrix.target }}
+        run: cargo build --release --locked --workspace --target "$TARGET"
 
       - name: Create tarballs
         run: |
           mkdir -p dist
-          tar czf dist/wf-${{ github.ref_name }}-${{ matrix.arch }}-macos.tar.gz -C target/${{ matrix.target }}/release wf
-          tar czf dist/wf-lsp-${{ github.ref_name }}-${{ matrix.arch }}-macos.tar.gz -C target/${{ matrix.target }}/release wf-lsp
+          tar czf "dist/wf-$TAG-$ARCH-macos.tar.gz" -C "target/$TARGET/release" wf
+          tar czf "dist/wf-lsp-$TAG-$ARCH-macos.tar.gz" -C "target/$TARGET/release" wf-lsp
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: macos-packages-${{ matrix.arch }}
           path: dist/*
 
-  release:
+  # Every asset's SHA-256 in one `SHA256SUMS`, which install.sh, install.ps1
+  # and both editor extensions check a download against before running it,
+  # and a signed build-provenance attestation for every asset, which
+  # `gh attestation verify <file> --repo monzeromer-lab/WebFluent` checks.
+  # The only job that may mint an OIDC token, and it writes nothing to the
+  # repository.
+  attest:
     needs: [build-linux, build-windows, build-macos]
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
     steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
         with:
           merge-multiple: true
           path: dist
 
+      - name: SHA256SUMS
+        working-directory: dist
+        run: |
+          sha256sum -- *.deb *.tar.gz *.msi *.zip > ../SHA256SUMS
+          mv ../SHA256SUMS SHA256SUMS
+          cat SHA256SUMS
+
+      - uses: actions/attest-build-provenance@96278af6caaf10aea03fd8d33a09a777ca52d62f # v3.2.0
+        with:
+          subject-checksums: dist/SHA256SUMS
+
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: checksums
+          path: dist/SHA256SUMS
+
+  release:
+    needs: attest
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          merge-multiple: true
+          path: dist
+
+      # What is published is what was hashed and attested.
+      - name: The assets match SHA256SUMS
+        working-directory: dist
+        run: sha256sum --check --strict SHA256SUMS
+
       # The page says what RELEASE_NOTES.md says, with GitHub's list of the
       # changes below it.
       - name: This release's notes
-        run: scripts/release-notes.sh "${{ github.ref_name }}" > notes.md
+        run: scripts/release-notes.sh "$TAG" > notes.md
 
       - name: Create Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2.6.2
         with:
           body_path: notes.md
           generate_release_notes: true
@@ -157,27 +244,44 @@ jobs:
             dist/*.tar.gz
             dist/*.msi
             dist/*.zip
+            dist/SHA256SUMS
 
   # After the release exists, so a crate is never published for a release
-  # whose binaries failed to build. Without the `CARGO_REGISTRY_TOKEN`
-  # secret it warns and passes; with it, a re-run is safe.
+  # whose binaries failed to build. crates.io's trusted publishing first: the
+  # job trades its OIDC token for a short-lived crates.io token, so no
+  # long-lived secret is needed (RELEASING.md says what to set up on
+  # crates.io). Until that is configured, the `CARGO_REGISTRY_TOKEN` secret
+  # is used; with neither it warns and passes. A re-run is safe.
   publish-crate:
     needs: release
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
 
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
+        with:
+          toolchain: stable
+
+      - name: crates.io trusted publishing
+        id: crates-io-auth
+        continue-on-error: true
+        uses: rust-lang/crates-io-auth-action@3268eb413133e2960fa4ae0e963ca76380c54cd9 # v1.0.6
 
       - name: Publish to crates.io
         env:
-          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
-        run: scripts/publish-crate.sh "${{ github.ref_name }}"
+          CARGO_REGISTRY_TOKEN: ${{ steps.crates-io-auth.outputs.token || secrets.CARGO_REGISTRY_TOKEN }}
+        run: scripts/publish-crate.sh "$TAG"
 
   # The Node binding (`bindings/node`) as `webfluent` on npm, at the
-  # compiler's version. It needs an npm automation token as the repository
-  # secret `NPM_TOKEN`; without it this warns and passes. A version already on
-  # npm is skipped, so a re-run is safe.
+  # compiler's version, with provenance. npm's trusted publishing first (the
+  # job's OIDC token; RELEASING.md says what to set up on npmjs.com), then
+  # the `NPM_TOKEN` secret; with neither it warns and passes. A version
+  # already on npm is skipped, so a re-run is safe.
   publish-npm:
     needs: release
     runs-on: ubuntu-latest
@@ -185,12 +289,18 @@ jobs:
       contents: read
       id-token: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
           node-version: 22
           registry-url: https://registry.npmjs.org
+
+      # Trusted publishing needs npm 11.5.1 or later; Node 22 brings 10.
+      - name: npm with trusted publishing
+        run: npm install --global npm@11.21.2
 
       - name: Publish to npm
         working-directory: bindings/node
@@ -198,10 +308,12 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           version=$(node -p 'require("./package.json").version')
-          if [ -z "$NODE_AUTH_TOKEN" ]; then
-            echo "::warning::NPM_TOKEN is not set, so webfluent $version was not published to npm. Add an npm automation token as that repository secret, then re-run this job."
-          elif npm view "webfluent@$version" version >/dev/null 2>&1; then
+          if npm view "webfluent@$version" version >/dev/null 2>&1; then
             echo "webfluent $version is already on npm; nothing to do."
+          elif npm publish --provenance --access public; then
+            echo "webfluent $version: published."
+          elif [ -z "$NODE_AUTH_TOKEN" ]; then
+            echo "::warning::webfluent $version was not published to npm: no trusted publisher is configured for this workflow on npmjs.com, and the NPM_TOKEN secret is not set. See RELEASING.md, then re-run this job."
           else
-            npm publish --provenance --access public
+            exit 1
           fi
