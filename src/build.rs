@@ -10,7 +10,11 @@
 //! parse. [`check()`](crate::build::check) is `wf check`: every finding of a
 //! build, with nothing written.
 
+/// `public/` as data: every file, its kind, size and dimensions, where
+/// the project names it, and what the media pipeline will make of an image.
+pub mod assets;
 pub mod cache;
+pub mod offline;
 
 pub(crate) use crate::project::sources::find_wf_files;
 pub use crate::project::sources::{
@@ -1895,7 +1899,7 @@ fn write_service_worker(
     program: &crate::syntax::parser::ast::Program,
     written_html: &[PathBuf],
 ) -> Result<()> {
-    use crate::web::codegen::offline::{Worker, route_matches, service_worker, version_of};
+    use crate::build::offline::{Worker, route_matches, service_worker, version_of};
     let base = config.build.base_path.trim_end_matches('/').to_string();
     let site = |rel: &str| format!("{base}/{}", rel.trim_start_matches('/'));
     let exists = |rel: &str| fs::is_file(output_dir.join(rel));

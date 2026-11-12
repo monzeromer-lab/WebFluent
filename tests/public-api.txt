@@ -396,109 +396,109 @@ pub webfluent::assets::Kind::Font
 pub webfluent::assets::Kind::Image
 pub webfluent::assets::Kind::Other
 pub webfluent::assets::Kind::Video
-impl webfluent::assets::Kind
-pub const webfluent::assets::Kind::ALL: &[webfluent::assets::Kind]
-pub fn webfluent::assets::Kind::of(&str) -> webfluent::assets::Kind
-pub fn webfluent::assets::Kind::word(self) -> &'static str
-impl core::clone::Clone for webfluent::assets::Kind
-pub fn webfluent::assets::Kind::clone(&self) -> Self
-impl core::cmp::Eq for webfluent::assets::Kind
-impl core::cmp::Ord for webfluent::assets::Kind
-pub fn webfluent::assets::Kind::cmp(&self, &Self) -> core::cmp::Ordering
-impl core::cmp::PartialEq for webfluent::assets::Kind
-pub fn webfluent::assets::Kind::eq(&self, &Self) -> bool
-impl core::cmp::PartialOrd for webfluent::assets::Kind
-pub fn webfluent::assets::Kind::partial_cmp(&self, &Self) -> core::option::Option<core::cmp::Ordering>
-impl core::fmt::Debug for webfluent::assets::Kind
-pub fn webfluent::assets::Kind::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl core::hash::Hash for webfluent::assets::Kind
-pub fn webfluent::assets::Kind::hash<__H: core::hash::Hasher>(&self, &mut __H)
-impl core::marker::Copy for webfluent::assets::Kind
-impl core::marker::StructuralPartialEq for webfluent::assets::Kind
-impl core::marker::Freeze for webfluent::assets::Kind
-impl core::marker::Send for webfluent::assets::Kind
-impl core::marker::Sync for webfluent::assets::Kind
-impl core::marker::Unpin for webfluent::assets::Kind
-impl core::marker::UnsafeUnpin for webfluent::assets::Kind
-impl core::panic::unwind_safe::RefUnwindSafe for webfluent::assets::Kind
-impl core::panic::unwind_safe::UnwindSafe for webfluent::assets::Kind
+impl webfluent::build::assets::Kind
+pub const webfluent::build::assets::Kind::ALL: &[webfluent::build::assets::Kind]
+pub fn webfluent::build::assets::Kind::of(&str) -> webfluent::build::assets::Kind
+pub fn webfluent::build::assets::Kind::word(self) -> &'static str
+impl core::clone::Clone for webfluent::build::assets::Kind
+pub fn webfluent::build::assets::Kind::clone(&self) -> Self
+impl core::cmp::Eq for webfluent::build::assets::Kind
+impl core::cmp::Ord for webfluent::build::assets::Kind
+pub fn webfluent::build::assets::Kind::cmp(&self, &Self) -> core::cmp::Ordering
+impl core::cmp::PartialEq for webfluent::build::assets::Kind
+pub fn webfluent::build::assets::Kind::eq(&self, &Self) -> bool
+impl core::cmp::PartialOrd for webfluent::build::assets::Kind
+pub fn webfluent::build::assets::Kind::partial_cmp(&self, &Self) -> core::option::Option<core::cmp::Ordering>
+impl core::fmt::Debug for webfluent::build::assets::Kind
+pub fn webfluent::build::assets::Kind::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::hash::Hash for webfluent::build::assets::Kind
+pub fn webfluent::build::assets::Kind::hash<__H: core::hash::Hasher>(&self, &mut __H)
+impl core::marker::Copy for webfluent::build::assets::Kind
+impl core::marker::StructuralPartialEq for webfluent::build::assets::Kind
+impl core::marker::Freeze for webfluent::build::assets::Kind
+impl core::marker::Send for webfluent::build::assets::Kind
+impl core::marker::Sync for webfluent::build::assets::Kind
+impl core::marker::Unpin for webfluent::build::assets::Kind
+impl core::marker::UnsafeUnpin for webfluent::build::assets::Kind
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::build::assets::Kind
+impl core::panic::unwind_safe::UnwindSafe for webfluent::build::assets::Kind
 pub struct webfluent::assets::Asset
 pub webfluent::assets::Asset::bytes: u64
 pub webfluent::assets::Asset::convention: core::option::Option<&'static str>
 pub webfluent::assets::Asset::file: alloc::string::String
 pub webfluent::assets::Asset::height: core::option::Option<u32>
 pub webfluent::assets::Asset::icon: bool
-pub webfluent::assets::Asset::kind: webfluent::assets::Kind
+pub webfluent::assets::Asset::kind: webfluent::build::assets::Kind
 pub webfluent::assets::Asset::path: alloc::string::String
-pub webfluent::assets::Asset::uses: alloc::vec::Vec<webfluent::assets::Use>
+pub webfluent::assets::Asset::uses: alloc::vec::Vec<webfluent::build::assets::Use>
 pub webfluent::assets::Asset::vector: bool
 pub webfluent::assets::Asset::width: core::option::Option<u32>
-impl webfluent::assets::Asset
-pub fn webfluent::assets::Asset::as_json(&self) -> serde_json::value::Value
-pub fn webfluent::assets::Asset::processed(&self) -> bool
-pub fn webfluent::assets::Asset::unused(&self) -> bool
-pub fn webfluent::assets::Asset::used_in(&self) -> alloc::collections::btree::set::BTreeSet<&str>
-impl core::clone::Clone for webfluent::assets::Asset
-pub fn webfluent::assets::Asset::clone(&self) -> Self
-impl core::fmt::Debug for webfluent::assets::Asset
-pub fn webfluent::assets::Asset::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl core::marker::Freeze for webfluent::assets::Asset
-impl core::marker::Send for webfluent::assets::Asset
-impl core::marker::Sync for webfluent::assets::Asset
-impl core::marker::Unpin for webfluent::assets::Asset
-impl core::marker::UnsafeUnpin for webfluent::assets::Asset
-impl core::panic::unwind_safe::RefUnwindSafe for webfluent::assets::Asset
-impl core::panic::unwind_safe::UnwindSafe for webfluent::assets::Asset
+impl webfluent::build::assets::Asset
+pub fn webfluent::build::assets::Asset::as_json(&self) -> serde_json::value::Value
+pub fn webfluent::build::assets::Asset::processed(&self) -> bool
+pub fn webfluent::build::assets::Asset::unused(&self) -> bool
+pub fn webfluent::build::assets::Asset::used_in(&self) -> alloc::collections::btree::set::BTreeSet<&str>
+impl core::clone::Clone for webfluent::build::assets::Asset
+pub fn webfluent::build::assets::Asset::clone(&self) -> Self
+impl core::fmt::Debug for webfluent::build::assets::Asset
+pub fn webfluent::build::assets::Asset::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for webfluent::build::assets::Asset
+impl core::marker::Send for webfluent::build::assets::Asset
+impl core::marker::Sync for webfluent::build::assets::Asset
+impl core::marker::Unpin for webfluent::build::assets::Asset
+impl core::marker::UnsafeUnpin for webfluent::build::assets::Asset
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::build::assets::Asset
+impl core::panic::unwind_safe::UnwindSafe for webfluent::build::assets::Asset
 pub struct webfluent::assets::Listing
-pub webfluent::assets::Listing::assets: alloc::vec::Vec<webfluent::assets::Asset>
-impl webfluent::assets::Listing
-pub fn webfluent::assets::Listing::as_json(&self) -> serde_json::value::Value
-pub fn webfluent::assets::Listing::bytes(&self) -> u64
-pub fn webfluent::assets::Listing::counts(&self) -> alloc::collections::btree::map::BTreeMap<&'static str, usize>
-pub fn webfluent::assets::Listing::get(&self, &str) -> core::option::Option<&webfluent::assets::Asset>
-pub fn webfluent::assets::Listing::offered(&self, webfluent::registry::FileKind) -> impl core::iter::traits::iterator::Iterator<Item = &webfluent::assets::Asset>
-pub fn webfluent::assets::Listing::unused(&self) -> usize
-impl core::clone::Clone for webfluent::assets::Listing
-pub fn webfluent::assets::Listing::clone(&self) -> Self
-impl core::default::Default for webfluent::assets::Listing
-pub fn webfluent::assets::Listing::default() -> Self
-impl core::fmt::Debug for webfluent::assets::Listing
-pub fn webfluent::assets::Listing::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl core::marker::Freeze for webfluent::assets::Listing
-impl core::marker::Send for webfluent::assets::Listing
-impl core::marker::Sync for webfluent::assets::Listing
-impl core::marker::Unpin for webfluent::assets::Listing
-impl core::marker::UnsafeUnpin for webfluent::assets::Listing
-impl core::panic::unwind_safe::RefUnwindSafe for webfluent::assets::Listing
-impl core::panic::unwind_safe::UnwindSafe for webfluent::assets::Listing
+pub webfluent::assets::Listing::assets: alloc::vec::Vec<webfluent::build::assets::Asset>
+impl webfluent::build::assets::Listing
+pub fn webfluent::build::assets::Listing::as_json(&self) -> serde_json::value::Value
+pub fn webfluent::build::assets::Listing::bytes(&self) -> u64
+pub fn webfluent::build::assets::Listing::counts(&self) -> alloc::collections::btree::map::BTreeMap<&'static str, usize>
+pub fn webfluent::build::assets::Listing::get(&self, &str) -> core::option::Option<&webfluent::build::assets::Asset>
+pub fn webfluent::build::assets::Listing::offered(&self, webfluent::registry::FileKind) -> impl core::iter::traits::iterator::Iterator<Item = &webfluent::build::assets::Asset>
+pub fn webfluent::build::assets::Listing::unused(&self) -> usize
+impl core::clone::Clone for webfluent::build::assets::Listing
+pub fn webfluent::build::assets::Listing::clone(&self) -> Self
+impl core::default::Default for webfluent::build::assets::Listing
+pub fn webfluent::build::assets::Listing::default() -> Self
+impl core::fmt::Debug for webfluent::build::assets::Listing
+pub fn webfluent::build::assets::Listing::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for webfluent::build::assets::Listing
+impl core::marker::Send for webfluent::build::assets::Listing
+impl core::marker::Sync for webfluent::build::assets::Listing
+impl core::marker::Unpin for webfluent::build::assets::Listing
+impl core::marker::UnsafeUnpin for webfluent::build::assets::Listing
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::build::assets::Listing
+impl core::panic::unwind_safe::UnwindSafe for webfluent::build::assets::Listing
 pub struct webfluent::assets::Use
 pub webfluent::assets::Use::column: usize
 pub webfluent::assets::Use::file: alloc::string::String
 pub webfluent::assets::Use::how: alloc::string::String
 pub webfluent::assets::Use::line: usize
 pub webfluent::assets::Use::processed: bool
-impl core::clone::Clone for webfluent::assets::Use
-pub fn webfluent::assets::Use::clone(&self) -> Self
-impl core::cmp::Eq for webfluent::assets::Use
-impl core::cmp::Ord for webfluent::assets::Use
-pub fn webfluent::assets::Use::cmp(&self, &Self) -> core::cmp::Ordering
-impl core::cmp::PartialEq for webfluent::assets::Use
-pub fn webfluent::assets::Use::eq(&self, &Self) -> bool
-impl core::cmp::PartialOrd for webfluent::assets::Use
-pub fn webfluent::assets::Use::partial_cmp(&self, &Self) -> core::option::Option<core::cmp::Ordering>
-impl core::fmt::Debug for webfluent::assets::Use
-pub fn webfluent::assets::Use::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl core::marker::StructuralPartialEq for webfluent::assets::Use
-impl core::marker::Freeze for webfluent::assets::Use
-impl core::marker::Send for webfluent::assets::Use
-impl core::marker::Sync for webfluent::assets::Use
-impl core::marker::Unpin for webfluent::assets::Use
-impl core::marker::UnsafeUnpin for webfluent::assets::Use
-impl core::panic::unwind_safe::RefUnwindSafe for webfluent::assets::Use
-impl core::panic::unwind_safe::UnwindSafe for webfluent::assets::Use
+impl core::clone::Clone for webfluent::build::assets::Use
+pub fn webfluent::build::assets::Use::clone(&self) -> Self
+impl core::cmp::Eq for webfluent::build::assets::Use
+impl core::cmp::Ord for webfluent::build::assets::Use
+pub fn webfluent::build::assets::Use::cmp(&self, &Self) -> core::cmp::Ordering
+impl core::cmp::PartialEq for webfluent::build::assets::Use
+pub fn webfluent::build::assets::Use::eq(&self, &Self) -> bool
+impl core::cmp::PartialOrd for webfluent::build::assets::Use
+pub fn webfluent::build::assets::Use::partial_cmp(&self, &Self) -> core::option::Option<core::cmp::Ordering>
+impl core::fmt::Debug for webfluent::build::assets::Use
+pub fn webfluent::build::assets::Use::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for webfluent::build::assets::Use
+impl core::marker::Freeze for webfluent::build::assets::Use
+impl core::marker::Send for webfluent::build::assets::Use
+impl core::marker::Sync for webfluent::build::assets::Use
+impl core::marker::Unpin for webfluent::build::assets::Use
+impl core::marker::UnsafeUnpin for webfluent::build::assets::Use
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::build::assets::Use
+impl core::panic::unwind_safe::UnwindSafe for webfluent::build::assets::Use
 pub fn webfluent::assets::accepts(webfluent::registry::FileKind, &str) -> bool
-pub fn webfluent::assets::list(&std::path::Path) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::assets::Listing>
-pub fn webfluent::assets::list_via(&dyn webfluent::vfs::Vfs, &std::path::Path) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::assets::Listing>
+pub fn webfluent::assets::list(&std::path::Path) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::build::assets::Listing>
+pub fn webfluent::assets::list_via(&dyn webfluent::vfs::Vfs, &std::path::Path) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::build::assets::Listing>
 pub fn webfluent::assets::plan(&std::path::Path, &str) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::media::plan::Plan>
 pub fn webfluent::assets::plan_via(&dyn webfluent::vfs::Vfs, &std::path::Path, &str) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::media::plan::Plan>
 pub mod webfluent::audit
@@ -677,6 +677,121 @@ impl core::marker::UnsafeUnpin for webfluent::browser::chrome::Browser
 impl core::panic::unwind_safe::RefUnwindSafe for webfluent::browser::chrome::Browser
 impl core::panic::unwind_safe::UnwindSafe for webfluent::browser::chrome::Browser
 pub mod webfluent::build
+pub mod webfluent::build::assets
+pub enum webfluent::build::assets::Kind
+pub webfluent::build::assets::Kind::Audio
+pub webfluent::build::assets::Kind::Code
+pub webfluent::build::assets::Kind::Data
+pub webfluent::build::assets::Kind::Document
+pub webfluent::build::assets::Kind::Font
+pub webfluent::build::assets::Kind::Image
+pub webfluent::build::assets::Kind::Other
+pub webfluent::build::assets::Kind::Video
+impl webfluent::build::assets::Kind
+pub const webfluent::build::assets::Kind::ALL: &[webfluent::build::assets::Kind]
+pub fn webfluent::build::assets::Kind::of(&str) -> webfluent::build::assets::Kind
+pub fn webfluent::build::assets::Kind::word(self) -> &'static str
+impl core::clone::Clone for webfluent::build::assets::Kind
+pub fn webfluent::build::assets::Kind::clone(&self) -> Self
+impl core::cmp::Eq for webfluent::build::assets::Kind
+impl core::cmp::Ord for webfluent::build::assets::Kind
+pub fn webfluent::build::assets::Kind::cmp(&self, &Self) -> core::cmp::Ordering
+impl core::cmp::PartialEq for webfluent::build::assets::Kind
+pub fn webfluent::build::assets::Kind::eq(&self, &Self) -> bool
+impl core::cmp::PartialOrd for webfluent::build::assets::Kind
+pub fn webfluent::build::assets::Kind::partial_cmp(&self, &Self) -> core::option::Option<core::cmp::Ordering>
+impl core::fmt::Debug for webfluent::build::assets::Kind
+pub fn webfluent::build::assets::Kind::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::hash::Hash for webfluent::build::assets::Kind
+pub fn webfluent::build::assets::Kind::hash<__H: core::hash::Hasher>(&self, &mut __H)
+impl core::marker::Copy for webfluent::build::assets::Kind
+impl core::marker::StructuralPartialEq for webfluent::build::assets::Kind
+impl core::marker::Freeze for webfluent::build::assets::Kind
+impl core::marker::Send for webfluent::build::assets::Kind
+impl core::marker::Sync for webfluent::build::assets::Kind
+impl core::marker::Unpin for webfluent::build::assets::Kind
+impl core::marker::UnsafeUnpin for webfluent::build::assets::Kind
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::build::assets::Kind
+impl core::panic::unwind_safe::UnwindSafe for webfluent::build::assets::Kind
+pub struct webfluent::build::assets::Asset
+pub webfluent::build::assets::Asset::bytes: u64
+pub webfluent::build::assets::Asset::convention: core::option::Option<&'static str>
+pub webfluent::build::assets::Asset::file: alloc::string::String
+pub webfluent::build::assets::Asset::height: core::option::Option<u32>
+pub webfluent::build::assets::Asset::icon: bool
+pub webfluent::build::assets::Asset::kind: webfluent::build::assets::Kind
+pub webfluent::build::assets::Asset::path: alloc::string::String
+pub webfluent::build::assets::Asset::uses: alloc::vec::Vec<webfluent::build::assets::Use>
+pub webfluent::build::assets::Asset::vector: bool
+pub webfluent::build::assets::Asset::width: core::option::Option<u32>
+impl webfluent::build::assets::Asset
+pub fn webfluent::build::assets::Asset::as_json(&self) -> serde_json::value::Value
+pub fn webfluent::build::assets::Asset::processed(&self) -> bool
+pub fn webfluent::build::assets::Asset::unused(&self) -> bool
+pub fn webfluent::build::assets::Asset::used_in(&self) -> alloc::collections::btree::set::BTreeSet<&str>
+impl core::clone::Clone for webfluent::build::assets::Asset
+pub fn webfluent::build::assets::Asset::clone(&self) -> Self
+impl core::fmt::Debug for webfluent::build::assets::Asset
+pub fn webfluent::build::assets::Asset::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for webfluent::build::assets::Asset
+impl core::marker::Send for webfluent::build::assets::Asset
+impl core::marker::Sync for webfluent::build::assets::Asset
+impl core::marker::Unpin for webfluent::build::assets::Asset
+impl core::marker::UnsafeUnpin for webfluent::build::assets::Asset
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::build::assets::Asset
+impl core::panic::unwind_safe::UnwindSafe for webfluent::build::assets::Asset
+pub struct webfluent::build::assets::Listing
+pub webfluent::build::assets::Listing::assets: alloc::vec::Vec<webfluent::build::assets::Asset>
+impl webfluent::build::assets::Listing
+pub fn webfluent::build::assets::Listing::as_json(&self) -> serde_json::value::Value
+pub fn webfluent::build::assets::Listing::bytes(&self) -> u64
+pub fn webfluent::build::assets::Listing::counts(&self) -> alloc::collections::btree::map::BTreeMap<&'static str, usize>
+pub fn webfluent::build::assets::Listing::get(&self, &str) -> core::option::Option<&webfluent::build::assets::Asset>
+pub fn webfluent::build::assets::Listing::offered(&self, webfluent::registry::FileKind) -> impl core::iter::traits::iterator::Iterator<Item = &webfluent::build::assets::Asset>
+pub fn webfluent::build::assets::Listing::unused(&self) -> usize
+impl core::clone::Clone for webfluent::build::assets::Listing
+pub fn webfluent::build::assets::Listing::clone(&self) -> Self
+impl core::default::Default for webfluent::build::assets::Listing
+pub fn webfluent::build::assets::Listing::default() -> Self
+impl core::fmt::Debug for webfluent::build::assets::Listing
+pub fn webfluent::build::assets::Listing::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for webfluent::build::assets::Listing
+impl core::marker::Send for webfluent::build::assets::Listing
+impl core::marker::Sync for webfluent::build::assets::Listing
+impl core::marker::Unpin for webfluent::build::assets::Listing
+impl core::marker::UnsafeUnpin for webfluent::build::assets::Listing
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::build::assets::Listing
+impl core::panic::unwind_safe::UnwindSafe for webfluent::build::assets::Listing
+pub struct webfluent::build::assets::Use
+pub webfluent::build::assets::Use::column: usize
+pub webfluent::build::assets::Use::file: alloc::string::String
+pub webfluent::build::assets::Use::how: alloc::string::String
+pub webfluent::build::assets::Use::line: usize
+pub webfluent::build::assets::Use::processed: bool
+impl core::clone::Clone for webfluent::build::assets::Use
+pub fn webfluent::build::assets::Use::clone(&self) -> Self
+impl core::cmp::Eq for webfluent::build::assets::Use
+impl core::cmp::Ord for webfluent::build::assets::Use
+pub fn webfluent::build::assets::Use::cmp(&self, &Self) -> core::cmp::Ordering
+impl core::cmp::PartialEq for webfluent::build::assets::Use
+pub fn webfluent::build::assets::Use::eq(&self, &Self) -> bool
+impl core::cmp::PartialOrd for webfluent::build::assets::Use
+pub fn webfluent::build::assets::Use::partial_cmp(&self, &Self) -> core::option::Option<core::cmp::Ordering>
+impl core::fmt::Debug for webfluent::build::assets::Use
+pub fn webfluent::build::assets::Use::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for webfluent::build::assets::Use
+impl core::marker::Freeze for webfluent::build::assets::Use
+impl core::marker::Send for webfluent::build::assets::Use
+impl core::marker::Sync for webfluent::build::assets::Use
+impl core::marker::Unpin for webfluent::build::assets::Use
+impl core::marker::UnsafeUnpin for webfluent::build::assets::Use
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::build::assets::Use
+impl core::panic::unwind_safe::UnwindSafe for webfluent::build::assets::Use
+pub fn webfluent::build::assets::accepts(webfluent::registry::FileKind, &str) -> bool
+pub fn webfluent::build::assets::list(&std::path::Path) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::build::assets::Listing>
+pub fn webfluent::build::assets::list_via(&dyn webfluent::vfs::Vfs, &std::path::Path) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::build::assets::Listing>
+pub fn webfluent::build::assets::plan(&std::path::Path, &str) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::media::plan::Plan>
+pub fn webfluent::build::assets::plan_via(&dyn webfluent::vfs::Vfs, &std::path::Path, &str) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::media::plan::Plan>
 pub mod webfluent::build::cache
 pub struct webfluent::build::cache::BuildCache
 impl webfluent::build::cache::BuildCache
@@ -693,6 +808,27 @@ impl core::marker::Unpin for webfluent::build::cache::BuildCache
 impl core::marker::UnsafeUnpin for webfluent::build::cache::BuildCache
 impl core::panic::unwind_safe::RefUnwindSafe for webfluent::build::cache::BuildCache
 impl core::panic::unwind_safe::UnwindSafe for webfluent::build::cache::BuildCache
+pub mod webfluent::build::offline
+pub struct webfluent::build::offline::Worker<'a>
+pub webfluent::build::offline::Worker::base: &'a str
+pub webfluent::build::offline::Worker::fallback: core::option::Option<alloc::string::String>
+pub webfluent::build::offline::Worker::policies: alloc::vec::Vec<(alloc::string::String, alloc::string::String)>
+pub webfluent::build::offline::Worker::precache: alloc::vec::Vec<alloc::string::String>
+pub webfluent::build::offline::Worker::routes: alloc::vec::Vec<(alloc::string::String, alloc::string::String)>
+pub webfluent::build::offline::Worker::shell: core::option::Option<alloc::string::String>
+pub webfluent::build::offline::Worker::sync: bool
+pub webfluent::build::offline::Worker::version: &'a str
+impl<'a> core::marker::Freeze for webfluent::build::offline::Worker<'a>
+impl<'a> core::marker::Send for webfluent::build::offline::Worker<'a>
+impl<'a> core::marker::Sync for webfluent::build::offline::Worker<'a>
+impl<'a> core::marker::Unpin for webfluent::build::offline::Worker<'a>
+impl<'a> core::marker::UnsafeUnpin for webfluent::build::offline::Worker<'a>
+impl<'a> core::panic::unwind_safe::RefUnwindSafe for webfluent::build::offline::Worker<'a>
+impl<'a> core::panic::unwind_safe::UnwindSafe for webfluent::build::offline::Worker<'a>
+pub fn webfluent::build::offline::glob_regex(&str) -> alloc::string::String
+pub fn webfluent::build::offline::route_matches(&[alloc::string::String], &str) -> bool
+pub fn webfluent::build::offline::service_worker(&webfluent::build::offline::Worker<'_>) -> alloc::string::String
+pub fn webfluent::build::offline::version_of(&[(alloc::string::String, alloc::vec::Vec<u8>)]) -> alloc::string::String
 pub enum webfluent::build::Stream
 pub webfluent::build::Stream::Stderr
 pub webfluent::build::Stream::Stdout
@@ -1335,16 +1471,16 @@ pub webfluent::codegen::offline::Worker::routes: alloc::vec::Vec<(alloc::string:
 pub webfluent::codegen::offline::Worker::shell: core::option::Option<alloc::string::String>
 pub webfluent::codegen::offline::Worker::sync: bool
 pub webfluent::codegen::offline::Worker::version: &'a str
-impl<'a> core::marker::Freeze for webfluent::codegen::offline::Worker<'a>
-impl<'a> core::marker::Send for webfluent::codegen::offline::Worker<'a>
-impl<'a> core::marker::Sync for webfluent::codegen::offline::Worker<'a>
-impl<'a> core::marker::Unpin for webfluent::codegen::offline::Worker<'a>
-impl<'a> core::marker::UnsafeUnpin for webfluent::codegen::offline::Worker<'a>
-impl<'a> core::panic::unwind_safe::RefUnwindSafe for webfluent::codegen::offline::Worker<'a>
-impl<'a> core::panic::unwind_safe::UnwindSafe for webfluent::codegen::offline::Worker<'a>
+impl<'a> core::marker::Freeze for webfluent::build::offline::Worker<'a>
+impl<'a> core::marker::Send for webfluent::build::offline::Worker<'a>
+impl<'a> core::marker::Sync for webfluent::build::offline::Worker<'a>
+impl<'a> core::marker::Unpin for webfluent::build::offline::Worker<'a>
+impl<'a> core::marker::UnsafeUnpin for webfluent::build::offline::Worker<'a>
+impl<'a> core::panic::unwind_safe::RefUnwindSafe for webfluent::build::offline::Worker<'a>
+impl<'a> core::panic::unwind_safe::UnwindSafe for webfluent::build::offline::Worker<'a>
 pub fn webfluent::codegen::offline::glob_regex(&str) -> alloc::string::String
 pub fn webfluent::codegen::offline::route_matches(&[alloc::string::String], &str) -> bool
-pub fn webfluent::codegen::offline::service_worker(&webfluent::codegen::offline::Worker<'_>) -> alloc::string::String
+pub fn webfluent::codegen::offline::service_worker(&webfluent::build::offline::Worker<'_>) -> alloc::string::String
 pub fn webfluent::codegen::offline::version_of(&[(alloc::string::String, alloc::vec::Vec<u8>)]) -> alloc::string::String
 pub mod webfluent::codegen::project_css
 pub fn webfluent::codegen::project_css::bundle(&std::path::Path, &std::path::Path) -> webfluent::diagnostics::error::diagnostic::Result<alloc::string::String>
