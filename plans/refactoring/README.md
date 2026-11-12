@@ -2,8 +2,9 @@
 
 Status: **Phase 1 done** (the editors are their own repositories, linked
 as submodules). A full Rust review of the code is in
-[review.md](review.md); it found 14 bugs (Phase 0b): 6 reproduced by running, the rest
-confirmed by reading the code.
+[review.md](review.md) (14 bugs, B1–B14), and a security and memory review
+in `security-and-memory.md` (S1–S47, M1–M28; confidential until fixed).
+Both feed Phase 0b.
 Phase 0 is next. No compiler code has moved yet.
 Last updated: 2026-11-12.
 
@@ -267,13 +268,33 @@ independent of Phases 2–6 and can run alongside them.
 
 Done when: CI runs the golden, snapshot and semver checks on every PR.
 
-### Phase 0b — Fix the bugs the review found (one PR each)
+### Phase 0b — Fix the bugs the reviews found (one PR each)
 
-The review ([review.md §1](review.md#1-bugs-found--fix-these-before-refactoring))
-found behaviour bugs. They are fixed **before** the refactor, each with a
+Two reviews found behaviour bugs: the Rust review
+([review.md §1](review.md#1-bugs-found--fix-these-before-refactoring), B1–B14)
+and the security and memory review (`security-and-memory.md`, S1–S47 and
+M1–M28; kept out of the public repository until its Critical and High items
+ship, since it describes working attacks). They are fixed **before** the refactor, each with a
 failing test first (skill §11), because the refactor must not change
 behaviour and these must change it. Each fix updates the Phase 0 golden
 files on purpose and says so.
+
+**Order across both reviews:**
+
+1. **S1–S3** (Critical): one at a time, each released as a patch as soon
+   as it lands.
+2. **S4–S10** (High): output escaping and keeping a project or its data
+   inside its own folder; they share one path-confinement helper (the one
+   `agent::escapes` already has).
+3. **M1** (High): every single-page app leaks per page visit.
+4. **B1, B2, M2–M5**: crashes and unbounded memory reachable from source
+   text or template data.
+5. **S11, S12, S21–S23**: supply chain and the editor extensions (in their
+   own repositories where the code lives there).
+6. The rest of the Rust review's table below, then the Medium and Low
+   items of both reviews.
+
+The Rust review's bugs, in its own order:
 
 | Order | Bug | Fix in one line |
 |---|---|---|
@@ -735,7 +756,8 @@ this is a few hours per PR, not a freeze.
   the compiler.
 - `cargo clippy --workspace --all-targets -- -D warnings` clean with
   BeautifulRust's config and an empty allow-list (§5.1).
-- The 14 bugs in review.md §1 fixed, each with its test; fuzz targets for
+- The bugs in review.md §1 and security-and-memory.md fixed, each with its
+  test; fuzz targets for
   the lexer, parser and `fmt` round-trip running nightly.
 - No `Result<_, String>`, no `thread_local!` below the `cli` layer.
 - One integration test binary, fixtures under nextest, fuzz targets running
@@ -748,9 +770,8 @@ this is a few hours per PR, not a freeze.
 
 ## 9. Where to start
 
-Phase 0, item 1 (the golden-file test), then Phase 0b in the order of its
-table: B1 and B2 first, since one character or a long expression takes
-down anything that parses `.wf` text (the LSP, a template server).
+Phase 0, item 1 (the golden-file test), then Phase 0b in its order: the
+three Critical security fixes first, each shipped as a patch release.
 
 ---
 
