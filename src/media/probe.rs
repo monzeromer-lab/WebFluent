@@ -8,9 +8,16 @@
 
 use std::path::Path;
 
-use image::{DynamicImage, GenericImageView, imageops::FilterType};
+use image::{DynamicImage, GenericImageView, ImageReader, Limits, imageops::FilterType};
 
 use crate::error::{Result, WebFluentError};
+
+/// The most pixels a picture the build reads may have: 50 megapixels,
+/// more than any screen shows (an 8K frame is 33). A picture is decoded
+/// whole, at four bytes a pixel and more, so a small file of a vast
+/// picture — an 11000×11000 PNG is 470 KB — would otherwise take gigabytes
+/// and minutes; past this the build says so instead.
+pub const MAX_PIXELS: u64 = 50_000_000;
 
 /// An image, decoded once.
 pub struct Probed {
@@ -23,9 +30,48 @@ pub struct Probed {
     pub placeholder: String,
 }
 
+/// A reader over `bytes`, its format guessed from them.
+fn reader<'a>(bytes: &'a [u8], source: &Path) -> Result<ImageReader<std::io::Cursor<&'a [u8]>>> {
+    ImageReader::new(std::io::Cursor::new(bytes))
+        .with_guessed_format()
+        .map_err(|e| WebFluentError::IoError(format!("{} could not be read: {e}", source.display())))
+}
+
+/// The width and height `bytes` say they hold, read from the header alone.
+pub fn dimensions(bytes: &[u8], source: &Path) -> Result<(u32, u32)> {
+    reader(bytes, source)?
+        .into_dimensions()
+        .map_err(|e| WebFluentError::IoError(format!("{} could not be read: {e}", source.display())))
+}
+
 /// Decode `bytes`, and read what the build needs from them.
+///
+/// # Errors
+///
+/// [`WebFluentError::IoError`] when the bytes are no picture the build
+/// reads, or one of more than [`MAX_PIXELS`], which is said before
+/// anything is decoded.
 pub fn probe(bytes: &[u8], source: &Path) -> Result<Probed> {
-    let image = image::load_from_memory(bytes).map_err(|e| {
+    let (w, h) = dimensions(bytes, source)?;
+    let pixels = u64::from(w) * u64::from(h);
+    if pixels > MAX_PIXELS {
+        return Err(WebFluentError::IoError(format!(
+            "{} is {w}×{h}, {:.0} megapixels; the build reads pictures of at most {} — make it smaller, or serve it from public/ as a file the build does not read",
+            source.display(),
+            pixels as f64 / 1e6,
+            MAX_PIXELS / 1_000_000
+        )));
+    }
+    let mut reader = reader(bytes, source)?;
+    // The decoder is held to what the header said, and to what that many
+    // pixels take at the widest a pixel is (16-bit RGBA, eight bytes), so a
+    // file that lies about its size cannot ask for more.
+    let mut limits = Limits::default();
+    limits.max_image_width = Some(w);
+    limits.max_image_height = Some(h);
+    limits.max_alloc = Some((MAX_PIXELS * 8).max(64 * 1024 * 1024));
+    reader.limits(limits);
+    let image = reader.decode().map_err(|e| {
         WebFluentError::IoError(format!("{} could not be read: {e}", source.display()))
     })?;
     let (width, height) = image.dimensions();

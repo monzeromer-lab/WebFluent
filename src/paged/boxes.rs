@@ -144,6 +144,9 @@ pub struct Builder<'a> {
     page_vars: Option<(usize, usize)>,
     /// Leave the running elements in place: building one of them.
     keep_running: bool,
+    /// Each picture read so far, by its address: one picture a document
+    /// shows on every row is read, decoded and embedded once.
+    loaded: std::collections::HashMap<String, Option<usize>>,
 }
 
 /// What the template engine writes for `page` and `pages` inside a running
@@ -186,6 +189,7 @@ impl<'a> Builder<'a> {
             },
             page_vars: None,
             keep_running: false,
+            loaded: std::collections::HashMap::new(),
         }
     }
 
@@ -846,6 +850,15 @@ impl<'a> Builder<'a> {
     }
 
     fn load(&mut self, src: &str) -> Option<usize> {
+        if let Some(found) = self.loaded.get(src) {
+            return *found;
+        }
+        let found = self.load_new(src);
+        self.loaded.insert(src.to_string(), found);
+        found
+    }
+
+    fn load_new(&mut self, src: &str) -> Option<usize> {
         let bytes = (self.assets)(src)?;
         let lower = src.to_ascii_lowercase();
         if lower.ends_with(".svg") || bytes.starts_with(b"<svg") || bytes.starts_with(b"<?xml") {

@@ -45,6 +45,15 @@ pub fn hash(bytes: &[u8], settings: &Settings) -> String {
     format!("{h:x}")[..8].to_string()
 }
 
+/// The longest side libwebp writes. A wider or taller WebP is not made:
+/// the original serves at that width instead.
+pub const WEBP_MAX_SIDE: u32 = 16_383;
+
+/// Whether a `width`×`height` file can be written as `format`.
+pub fn fits(format: &str, width: u32, height: u32) -> bool {
+    format != "webp" || (width <= WEBP_MAX_SIDE && height <= WEBP_MAX_SIDE)
+}
+
 /// Whether this build of the compiler can write `format`. Without the
 /// `native-media` feature (a WebAssembly build) there is no WebP encoder,
 /// and the original picture serves where a WebP would have.
@@ -53,22 +62,31 @@ pub fn can_write(format: &str) -> bool {
 }
 
 /// `image` at `width`, encoded as `format`.
+///
+/// # Errors
+///
+/// [`WebFluentError::IoError`] when the encoder refuses the picture — a
+/// WebP with a side past [`WEBP_MAX_SIDE`] among them — or `format` is not
+/// one the build writes.
 pub fn resized(probed: &Probed, width: u32, format: &str, quality: u8) -> Result<Vec<u8>> {
     let height = ((width as f64) * probed.height as f64 / probed.width as f64).round() as u32;
-    let scaled = if width >= probed.width {
-        probed.image.clone()
+    // At its own width the picture is encoded where it is, not copied.
+    let scaled: std::borrow::Cow<'_, image::DynamicImage> = if width >= probed.width {
+        std::borrow::Cow::Borrowed(&probed.image)
     } else {
         // Lanczos3 for a photograph: the cheaper filters leave a downscale
         // looking soft, which is exactly what a reader notices.
-        probed
-            .image
-            .resize_exact(width, height.max(1), FilterType::Lanczos3)
+        std::borrow::Cow::Owned(probed.image.resize_exact(
+            width,
+            height.max(1),
+            FilterType::Lanczos3,
+        ))
     };
     let mut out = Vec::new();
     let mut cursor = std::io::Cursor::new(&mut out);
     let written = match format {
         #[cfg(wf_webp)]
-        "webp" => return Ok(webp_of(&scaled, quality)),
+        "webp" => return webp_of(&scaled, quality),
         "png" => scaled.write_to(&mut cursor, image::ImageFormat::Png),
         "jpeg" | "jpg" => {
             // The quality is the author's, and the encoder wants it here
@@ -92,19 +110,33 @@ pub fn resized(probed: &Probed, width: u32, format: &str, quality: u8) -> Result
 }
 
 /// `image` as a lossy WebP at `quality`, its alpha kept where it has one.
+/// Pixels already laid out as the encoder reads them are handed over as
+/// they are; anything else is converted once.
 #[cfg(wf_webp)]
-fn webp_of(image: &image::DynamicImage, quality: u8) -> Vec<u8> {
+fn webp_of(image: &image::DynamicImage, quality: u8) -> Result<Vec<u8>> {
+    use image::DynamicImage;
     let (width, height) = (image.width(), image.height());
-    let quality = f32::from(quality.clamp(1, 100));
-    if image.color().has_alpha() {
-        let rgba = image.to_rgba8();
-        webp::Encoder::from_rgba(rgba.as_raw(), width, height)
-            .encode(quality)
-            .to_vec()
-    } else {
-        let rgb = image.to_rgb8();
-        webp::Encoder::from_rgb(rgb.as_raw(), width, height)
-            .encode(quality)
-            .to_vec()
+    if !fits("webp", width, height) {
+        return Err(WebFluentError::IoError(format!(
+            "a WebP is at most {WEBP_MAX_SIDE} pixels on a side, and this one would be {width}×{height}"
+        )));
     }
+    let quality = f32::from(quality.clamp(1, 100));
+    let converted;
+    let encoder = match image {
+        DynamicImage::ImageRgba8(rgba) => webp::Encoder::from_rgba(rgba.as_raw(), width, height),
+        DynamicImage::ImageRgb8(rgb) => webp::Encoder::from_rgb(rgb.as_raw(), width, height),
+        other if other.color().has_alpha() => {
+            converted = DynamicImage::ImageRgba8(other.to_rgba8());
+            webp::Encoder::from_rgba(converted.as_bytes(), width, height)
+        }
+        other => {
+            converted = DynamicImage::ImageRgb8(other.to_rgb8());
+            webp::Encoder::from_rgb(converted.as_bytes(), width, height)
+        }
+    };
+    encoder
+        .encode_simple(false, quality)
+        .map(|m| m.to_vec())
+        .map_err(|e| WebFluentError::IoError(format!("the image could not be written as WebP: {e:?}")))
 }

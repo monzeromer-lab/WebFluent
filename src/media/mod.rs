@@ -38,6 +38,15 @@ pub fn widths_for(settings: &Settings, width: u32) -> Vec<u32> {
     out
 }
 
+/// How tall `probed` is at `width`, as the encoder makes it.
+pub fn height_at(probed: &probe::Probed, width: u32) -> u32 {
+    if width >= probed.width {
+        probed.height
+    } else {
+        (((width as f64) * probed.height as f64 / probed.width as f64).round() as u32).max(1)
+    }
+}
+
 /// Whether a file of `size` bytes saves nothing over the `original`'s:
 /// the build does not ship it, and the plan says it would not.
 pub fn no_saving(size: u64, original: u64) -> bool {
@@ -203,6 +212,11 @@ pub fn process_via(
             }
             let mut made = Vec::new();
             for width in &widths {
+                // A file the format cannot hold (a WebP wider than libwebp
+                // writes) is not made: the original serves at that width.
+                if !encode::fits(format, *width, height_at(&probed, *width)) {
+                    continue;
+                }
                 let file = format!("{stem}.{hash}.{width}.{format}");
                 let at = img_dir.join(&file);
                 let cached = cache_dir.join(&file);
