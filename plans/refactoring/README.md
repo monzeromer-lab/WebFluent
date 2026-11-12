@@ -620,6 +620,32 @@ describes the layers). What differs from the steps above:
 
 ### Phase 5 — Inside the layers (parallel, one concern per PR)
 
+**Progress (2026-11-12).** Both file splits are done, each as a pure move
+(golden output byte-identical, public API unchanged):
+
+- `web/codegen/js.rs` (10,956 lines) is `web/codegen/js/` (it kept its
+  folder, so `webfluent::codegen::js` does not move). The parts are
+  `names`, `store`, `body`, `dom/{flow,element}`,
+  `widgets/{overlay,control,nav,display,host}`, `net`, `statement`,
+  `expr`, `reactive`, `case`, `externals` and `tests`. The largest file is
+  now `dom/element.rs` (1,556 lines), most of it `emit_ui_element`.
+- `check/sema/types.rs` (7,622 lines) is `check/sema/types/`. The parts
+  are `ty`, `members`, `stmt`, `element`, `reactivity`, `expr`, `method`,
+  `call`, `report`, `walk`, `tables`, `names`, `jsdoc`, `handles`,
+  `refine` and `tests`. The largest is `expr.rs` (1,121 lines).
+- `Checker` and `World` stay in `mod.rs`, because their fields are private
+  to the module that defines them. Moving them out would mean widening
+  every field.
+- Methods and helpers in the new files are `pub(super)` (or
+  `pub(in super::super)` one folder down). Tests stay in one `tests.rs`
+  per folder for now; moving each test beside its code comes with the
+  semantic changes below.
+
+Still to do in this phase: everything below the two splits (the special
+emitter table, one expression emitter, `js_str`, `with_locals`,
+`JsOptions`, the evaluator and renderer merges, the checker's borrow and
+`ProgramIndex` work, errors, state, panics, public surface and API shape).
+
 These can run in any order once their layer exists. Each PR is
 behaviour-preserving, held by Phase 0. The findings behind each item, with
 their file:line citations and rules, are in [review.md §2](review.md#2-findings-by-area).
