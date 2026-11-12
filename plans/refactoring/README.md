@@ -1,13 +1,14 @@
 # WebFluent refactoring: the plan
 
-Status: **Phases 0, 0b, 1 and 2 done.** The editors are their own
+Status: **Phases 0, 0b, 1, 2 and 3 done.** The editors are their own
 repositories, linked as submodules. Every bug the two reviews found —
 B1–B14 ([review.md](review.md)) and S1–S47, M1–M28 (the security and
 memory review, kept out of the repository) — is fixed with a regression
 test; see Phase 0b for the few that are partial or wait on the
 maintainer. The safety net is in place (Phase 0) and the repository is
-tidied (Phase 2). Phase 3, breaking the module cycles, is next. No module
-has moved yet.
+tidied (Phase 2). The module graph is layered and acyclic, held there by
+`tests/module_layers.rs` with no exceptions (Phase 3). Phase 4, moving the
+folders into their layers, is next.
 Last updated: 2026-11-12.
 
 This file is the single source of truth for the refactor. It records what
@@ -524,6 +525,41 @@ reason, and each PR in this phase deletes some. It stays for good: it is
 what keeps the one crate layered.
 
 Done when: the layer test passes with no exceptions.
+
+**Done (2026-11-12).** The test is `tests/module_layers.rs`; it started
+with 53 exceptions (101 references) and ends with none. It went faster
+than the table above expected, because most "cycles" were modules filed
+in the wrong layer, not real loops. What was done instead of the table:
+
+- **Reassigned, not moved.** Many modules already depended only downward
+  and just needed the right layer in `GROUPS`:
+  - `codegen::{url, format, sanitize, static_eval, builtin, scoped_css}`
+    sit in `project`
+  - `codegen::style_tokens` in `registry`, and `codegen::node_id` and
+    `project_js::scan` in `syntax`
+  - `project_js::jsdoc`, `edit` and `diagnostics::allow` in `check`
+  - `diagnostics::check` in `template`, and `codegen::offline` in `build`
+  - `registry::{json, schema}` and `themes::view` in `tools`
+  - `media`, `openapi` and `sources` in `project`, and `style_value` in
+    `paged`
+
+  Phase 4 moves these files to match.
+- **Moved down.** Seven helpers moved below their callers, each with a
+  `pub use` left at its old path:
+  - `Span` → `span`, and `levenshtein` → `text` (both `base`)
+  - the browser vocabulary (globals, values, scalar methods, gestures,
+    root attributes) → `registry::browser`
+  - `escapes`, `leaves` and `stays_inside` → `vfs`
+  - the source readers → `sources`
+  - the tree walks (`body_of`, `child_bodies`, `visit`,
+    `translation_group`) → `parser::walk`
+  - script `signature` → `sema::script`
+- **Re-exports are not edges.** A `pub use` line keeps a public path
+  stable and is not a dependency, so the test skips it. Phase 6 decides
+  which of these old paths stay.
+
+The public API gained `vfs::escapes` and `vfs::stays_inside` (additive);
+golden output is unchanged.
 
 ### Phase 4 — Move the folders into their layers (1 PR per layer, bottom up)
 
