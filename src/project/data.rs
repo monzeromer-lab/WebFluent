@@ -96,7 +96,7 @@ pub fn resolve_data_via(
                 root.join("public").join(&d.file),
             ];
             let Some(path) = candidates.iter().find(|p| vfs.is_file(p)) else {
-                return Err(WebFluentError::IoError(format!(
+                return Err(WebFluentError::io(format!(
                     "`image {}`: no file `{}` under {}, its src/ or its public/",
                     d.name,
                     d.file,
@@ -138,7 +138,7 @@ pub fn resolve_data_via(
         }
         let candidates = [root.join(&d.file), root.join("src").join(&d.file)];
         let Some(path) = candidates.iter().find(|p| vfs.is_file(p)) else {
-            return Err(WebFluentError::IoError(format!(
+            return Err(WebFluentError::io(format!(
                 "`data {}`: no file `{}` under {} or its src/",
                 d.name,
                 d.file,
@@ -147,7 +147,7 @@ pub fn resolve_data_via(
         };
         let text = vfs.read_to_string(path)?;
         let json: serde_json::Value = serde_json::from_str(&text).map_err(|e| {
-            WebFluentError::IoError(format!(
+            WebFluentError::io(format!(
                 "`data {}`: {} is not JSON: {e}",
                 d.name,
                 path.display()

@@ -20,7 +20,7 @@ impl Stage {
         // A directory of this run's own, which nobody else could have made
         // first, and which goes with the stage.
         let work = crate::browser::chrome::private_dir("wf-act-").map_err(|e| {
-            crate::error::WebFluentError::IoError(format!(
+            crate::error::WebFluentError::io(format!(
                 "could not make a directory for the tests' sites: {e}"
             ))
         })?;

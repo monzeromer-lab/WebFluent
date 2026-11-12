@@ -35,7 +35,7 @@ pub fn run_render(
                 .map(|(k, v)| (k.trim(), v.trim()))
                 .filter(|(k, _)| !k.is_empty())
                 .ok_or_else(|| {
-                    WebFluentError::ConfigError(format!(
+                    WebFluentError::config(format!(
                         "`--token {t}` is not `NAME=VALUE`, e.g. `--token color-primary=#8B5CF6`"
                     ))
                 })
@@ -45,7 +45,7 @@ pub fn run_render(
     // Read JSON data
     let json_str = if let Some(dp) = data_path {
         fs::read_to_string(dp).map_err(|e| {
-            WebFluentError::IoError(format!("Failed to read data '{}': {}", dp.display(), e))
+            WebFluentError::io(format!("Failed to read data '{}': {}", dp.display(), e))
         })?
     } else if io::stdin().is_terminal() {
         // Nothing piped in: a template that needs no data renders with
@@ -55,7 +55,7 @@ pub fn run_render(
         let mut buf = String::new();
         io::stdin()
             .read_to_string(&mut buf)
-            .map_err(|e| WebFluentError::IoError(format!("Failed to read stdin: {e}")))?;
+            .map_err(|e| WebFluentError::io_with(format!("Failed to read stdin: {e}"), e))?;
         // An empty pipe (`< /dev/null`, a script's unset variable) is no data.
         if buf.trim().is_empty() {
             "{}".to_string()
@@ -65,7 +65,7 @@ pub fn run_render(
     };
 
     let data: serde_json::Value = serde_json::from_str(&json_str)
-        .map_err(|e| WebFluentError::ConfigError(format!("Invalid JSON data: {e}")))?;
+        .map_err(|e| WebFluentError::config_with(format!("Invalid JSON data: {e}"), e))?;
 
     // From the file, so an indented `.wfx` template reads and a `data` file
     // it names is found beside it.
@@ -106,7 +106,7 @@ pub fn run_render(
             write_output(output_path, &pdf)?;
         }
         _ => {
-            return Err(WebFluentError::ConfigError(format!(
+            return Err(WebFluentError::config(format!(
                 "Unknown format '{format}'. Use 'html', 'html-fragment', 'pdf', or 'slides'."
             )));
         }
@@ -129,7 +129,7 @@ fn write_output(path: Option<&Path>, data: &[u8]) -> Result<()> {
         use std::io::Write;
         io::stdout()
             .write_all(data)
-            .map_err(|e| WebFluentError::IoError(format!("Failed to write stdout: {e}")))?;
+            .map_err(|e| WebFluentError::io_with(format!("Failed to write stdout: {e}"), e))?;
     }
     Ok(())
 }

@@ -458,14 +458,14 @@ pub fn set_token(
     let probe = format!("theme Probe {{\n    {name}: {value}\n}}\n");
     let parsed = crate::syntax::parse_source(&probe, "probe.wf")?;
     let Some(Declaration::Theme(t)) = parsed.declarations.into_iter().next() else {
-        return Err(crate::diagnostics::error::WebFluentError::EditError(
-            format!("`{name}: {value}` is not a token"),
-        ));
+        return Err(crate::diagnostics::error::WebFluentError::edit(format!(
+            "`{name}: {value}` is not a token"
+        )));
     };
     let Some(token) = t.tokens.into_iter().next() else {
-        return Err(crate::diagnostics::error::WebFluentError::EditError(
-            format!("`{name}: {value}` is not a token"),
-        ));
+        return Err(crate::diagnostics::error::WebFluentError::edit(format!(
+            "`{name}: {value}` is not a token"
+        )));
     };
     crate::check::edit::rewrite_declaration(source, file, theme, |d| {
         if let Declaration::Theme(t) = d {

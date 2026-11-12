@@ -464,7 +464,7 @@ fn find_declaration<'a>(project: &'a Project, name: &str) -> Option<&'a Declarat
         Declaration::Data(d) => d.name == name,
         Declaration::Api(a) => a.name == name,
         // A script's names are found by `Project::script_name`.
-        Declaration::Script(_) | Declaration::Test(_) | Declaration::App(_) => false,
+        _ => false,
     })
 }
 
@@ -505,6 +505,7 @@ pub fn type_name(ty: &TypeRef) -> String {
             let said: Vec<String> = args.iter().map(|(n, _)| n.clone()).collect();
             format!("{}({})", type_name(inner), said.join(", "))
         }
+        _ => "Any".into(),
     }
 }
 
@@ -640,6 +641,7 @@ fn output_name(output: OutputType) -> &'static str {
         OutputType::Pdf => "pdf",
         OutputType::Slides => "slides",
         OutputType::Elements => "elements",
+        _ => "another output",
     }
 }
 
@@ -909,6 +911,7 @@ fn declaration_doc(project: &Project, decl: &Declaration) -> String {
                 }
             )
         }
+        _ => String::new(),
     }
 }
 

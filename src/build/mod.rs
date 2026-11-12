@@ -408,7 +408,7 @@ fn check_config_paths(config: &ProjectConfig) -> Result<()> {
     }
     for (what, path) in named {
         if !crate::base::vfs::stays_inside(path) {
-            return Err(WebFluentError::ConfigError(format!(
+            return Err(WebFluentError::config(format!(
                 "{what} names `{path}`, which is outside the project: a build reads only the project's own files, by a path inside it (no absolute path, no `..`)"
             )));
         }
@@ -724,7 +724,7 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
             );
             crate::paged::render(&html, "", &options)
         }
-        .map_err(WebFluentError::CodegenError)?;
+        .map_err(WebFluentError::codegen)?;
 
         let filename = if deck {
             config.build.slides.output_filename.clone()
@@ -1313,7 +1313,7 @@ pub fn project_output(project_dir: &Path, output: &str, allow_outside: bool) -> 
         return Ok(joined);
     }
     let refuse = |why: &str| {
-        WebFluentError::ConfigError(format!(
+        WebFluentError::config(format!(
             "`build.output` is `{output}`, which {why}. A build writes only inside its project; \
              to write elsewhere, run it with `--allow-output-outside`"
         ))
@@ -1338,7 +1338,7 @@ pub fn project_output(project_dir: &Path, output: &str, allow_outside: bool) -> 
         return Err(refuse("leads out of the project through a link"));
     }
     if let Some(link) = link_inside(&joined) {
-        return Err(WebFluentError::ConfigError(format!(
+        return Err(WebFluentError::config(format!(
             "the output holds a link, {}, which a build would write through. \
              Remove it, or run the build with `--allow-output-outside`",
             link.display()
@@ -1382,7 +1382,7 @@ fn page_dir(output_dir: &Path, page: &str, route: &str) -> Result<PathBuf> {
             .components()
             .all(|c| matches!(c, std::path::Component::Normal(_)));
     if !fine {
-        return Err(WebFluentError::CodegenError(format!(
+        return Err(WebFluentError::codegen(format!(
             "page {page}: the route `{route}` does not name a directory inside the output"
         )));
     }

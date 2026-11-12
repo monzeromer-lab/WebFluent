@@ -20,7 +20,7 @@ pub fn run_fmt(path: &Path, to: Option<&str>, check: bool, stdout: bool) -> Resu
         source_files(&src)?
     };
     if files.is_empty() {
-        return Err(WebFluentError::IoError(format!(
+        return Err(WebFluentError::io(format!(
             "no .wf or .wfx files under {}",
             path.display()
         )));
@@ -66,7 +66,7 @@ fn format_files(files: &[(PathBuf, String)], check: bool, stdout: bool) -> Resul
     }
     if check {
         if !would_change.is_empty() {
-            return Err(WebFluentError::IoError(format!(
+            return Err(WebFluentError::io(format!(
                 "{} file(s) are not formatted: {}",
                 would_change.len(),
                 would_change.join(", ")
@@ -80,7 +80,7 @@ fn format_files(files: &[(PathBuf, String)], check: bool, stdout: bool) -> Resul
         );
     }
     if failed > 0 {
-        return Err(WebFluentError::IoError(format!(
+        return Err(WebFluentError::io(format!(
             "{failed} file(s) could not be formatted"
         )));
     }
@@ -94,7 +94,7 @@ fn change_layout(files: &[(PathBuf, String)], to: &str, stdout: bool) -> Result<
         "wfx" | "offside" | "indent" => "wfx",
         "wf" | "braces" => "wf",
         other => {
-            return Err(WebFluentError::IoError(format!(
+            return Err(WebFluentError::io(format!(
                 "`--to {other}` is not a layout; write `--to wfx` or `--to wf`"
             )));
         }
@@ -137,7 +137,7 @@ fn change_layout(files: &[(PathBuf, String)], to: &str, stdout: bool) -> Result<
         );
     }
     if failed > 0 {
-        return Err(WebFluentError::IoError(format!(
+        return Err(WebFluentError::io(format!(
             "{failed} file(s) could not change layout"
         )));
     }

@@ -12,7 +12,7 @@ pub fn run_context(dir: &Path, open: Option<&str>, guide_depth: &str, json: bool
         "index" => Depth::Index,
         "full" => Depth::Full,
         other => {
-            return Err(WebFluentError::EditError(format!(
+            return Err(WebFluentError::edit(format!(
                 "`--guide {other}`: the guide is given as `index` or `full`"
             )));
         }

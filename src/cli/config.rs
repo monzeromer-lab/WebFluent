@@ -42,20 +42,20 @@ pub fn run_schema(json: bool) -> Result<()> {
 fn read(dir: &Path) -> Result<String> {
     let path = dir.join(CONFIG);
     std::fs::read_to_string(&path)
-        .map_err(|e| WebFluentError::IoError(format!("{}: {e}", path.display())))
+        .map_err(|e| WebFluentError::io_with(format!("{}: {e}", path.display()), e))
 }
 
 /// `wf config get PATH`: what the project sets, or the default, said so.
 pub fn run_get(dir: &Path, dotted: &str) -> Result<()> {
     let text = read(dir)?;
     let (keys, field) = schema::path_of(dotted).ok_or_else(|| {
-        WebFluentError::ConfigError(format!(
+        WebFluentError::config(format!(
             "`{dotted}` is not a setting; `wf config schema` lists them"
         ))
     })?;
     let keys: Vec<&str> = keys.iter().map(String::as_str).collect();
     let set = crate::config::json_edit::get(&text, &keys)
-        .map_err(|e| WebFluentError::ConfigError(e.to_string()))?;
+        .map_err(|e| WebFluentError::config(e.to_string()))?;
     match set {
         Some(v) => println!("{v}"),
         None => {
@@ -77,14 +77,14 @@ pub fn run_set(dir: &Path, dotted: &str, value: Option<&str>) -> Result<()> {
     let value = value
         .map(|v| serde_json::from_str::<Value>(v).unwrap_or_else(|_| Value::String(v.to_string())));
     let out = schema::edit(&text, dotted, value.as_ref())
-        .map_err(|e| WebFluentError::ConfigError(e.to_string()))?;
+        .map_err(|e| WebFluentError::config(e.to_string()))?;
     if out == text {
         println!("{CONFIG} already says so.");
         return Ok(());
     }
     let path = dir.join(CONFIG);
     std::fs::write(&path, &out)
-        .map_err(|e| WebFluentError::IoError(format!("{}: {e}", path.display())))?;
+        .map_err(|e| WebFluentError::io_with(format!("{}: {e}", path.display()), e))?;
     match value {
         Some(v) => println!("{dotted} = {v}"),
         None => println!("{dotted} removed: the default applies"),

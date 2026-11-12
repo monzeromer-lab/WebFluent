@@ -8,7 +8,7 @@ use crate::error::{Result, WebFluentError};
 /// stores it uses, and a template's data — each with its type and where it
 /// comes from.
 pub fn run_scope(dir: &Path, place: &str, data: Option<&Path>, json: bool) -> Result<()> {
-    let bad = || WebFluentError::EditError(format!("`{place}` is not FILE:LINE or FILE:LINE:COL"));
+    let bad = || WebFluentError::edit(format!("`{place}` is not FILE:LINE or FILE:LINE:COL"));
     let mut parts = place.rsplitn(3, ':').collect::<Vec<_>>();
     parts.reverse();
     let (file, line, col) = match parts.as_slice() {
@@ -38,7 +38,7 @@ pub fn run_scope(dir: &Path, place: &str, data: Option<&Path>, json: bool) -> Re
     let mut entries = crate::scope::paths::at_via(&crate::vfs::FsVfs, dir, &file, offset)?;
     if let Some(data) = data {
         let value: serde_json::Value = serde_json::from_str(&std::fs::read_to_string(data)?)
-            .map_err(|e| WebFluentError::EditError(format!("{}: {e}", data.display())))?;
+            .map_err(|e| WebFluentError::edit(format!("{}: {e}", data.display())))?;
         entries.extend(crate::scope::paths::data(&value));
     }
     if json {

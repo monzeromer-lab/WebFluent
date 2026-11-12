@@ -45,14 +45,14 @@ pub fn serve_directory_within(
 ) -> Result<Preview> {
     let server = Arc::new(
         tiny_http::Server::http("127.0.0.1:0")
-            .map_err(|e| WebFluentError::IoError(format!("could not open a port: {e}")))?,
+            .map_err(|e| WebFluentError::io(format!("could not open a port: {e}")))?,
     );
     let origin = format!(
         "http://{}",
         server
             .server_addr()
             .to_ip()
-            .ok_or_else(|| WebFluentError::IoError("no address".into()))?
+            .ok_or_else(|| WebFluentError::io("no address"))?
     );
     let base = base_path.to_string();
     let serving = server.clone();

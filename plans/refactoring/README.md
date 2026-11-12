@@ -22,9 +22,12 @@ review, kept out of the repository) — is fixed with a regression test.
   nextest (about 10 minutes a run), the fuzz targets are in `fuzz/`, and
   `cargo xtask` runs the checks.
 
+- **6.0, prepared:** the documented surface is a facade, the internals
+  are `#[doc(hidden)]`, findings are one `Diagnostic`, errors are typed
+  with sources, and the public enums that grow are `#[non_exhaustive]`.
+  The version is bumped by `just ship 6.0.0`.
+
 Left, on purpose:
-- **Breaking, so for 6.0:** `#[non_exhaustive]`, hiding the internal
-  modules, and an error type per layer.
 - **Phase 7's long tail:** about 5,000 lint findings, mostly
   `missing_docs` on internal items and `as` casts.
 - **Small leftovers:** splitting `element_parts`' argument loop, and the
@@ -919,6 +922,34 @@ had it). Every `with_*` builder that returns a new value is
 silent no-op. What is left (`#[doc(hidden)]`/`pub(crate)` internals,
 `#[non_exhaustive]`, `pub use ast::*` as a list) changes the API and
 waits for 6.0.
+
+**6.0, prepared (2026-11-12).** What 6.0 breaks is in, unreleased:
+- **A facade.** The crate documents `template`, `syntax` (the AST, `fmt`,
+  `layout`), `diagnostics`, `build`, `config`, `vfs`, `outfs`, `memory`,
+  `init`, `studio` and the root items. Every other module is
+  `#[doc(hidden)]`: reachable, so `wf-lsp` and the bin need no change of
+  path, but outside semver. The root's duplicate paths (`webfluent::lexer`,
+  `::parser`, `::fmt`, `::error`, `::assets`, …) are gone; each item has one
+  path, its layer's.
+- **One finding type.** `A11yWarning`, `VocabWarning` and the studio's own
+  `Diagnostic` are gone: the linters and the studio return
+  `diagnostics::Diagnostic`, with the code's severity from the registry.
+- **Typed errors.** Each cause of `WebFluentError` holds its own type
+  (`IoError`, `ConfigError`, `CodegenError`, `EditError`, `NotFound`): a
+  message and, where there was one, the error beneath it, which
+  `source()` walks. `WebFluentError::io(…)` and the like build them;
+  `io_with(…)` keeps the cause. `From<io::Error>` keeps it too. `Display`
+  is unchanged, so no message moved. `Send + Sync + 'static` is held by
+  a const assertion. Written by hand rather than with `thiserror`: five
+  small types did not need the dependency.
+- **`#[non_exhaustive]`** on `WebFluentError`, the AST's enums that grow
+  (`Declaration`, `Expr`, `StatementKind`, `TypeRef`, `Step`, …), `Plan`,
+  `Tag`, `OutputType`, `RuntimeMode`, `ScriptLoad`, `init::Template`,
+  `NameKind`, `memory::Contents`, `EditOp` and `ArgRef`. The closed ones
+  (`Arg`, `ComponentRef`, `Severity`, `Stream`, `Dialect`) stay
+  exhaustive, so a match on them still proves it covers everything.
+- **Not done:** `pub(crate)` for the internals (it needs the `ide` module
+  for `wf-lsp`), `Type` (in `sema`, now hidden), and `cli` on `anyhow`.
 
 **Lint sweep, first pass (2026-11-12).** Clippy's own machine-applicable
 fixes took eleven pedantic lints to zero, each now `"warn"` in

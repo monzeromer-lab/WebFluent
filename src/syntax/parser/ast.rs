@@ -24,6 +24,7 @@ pub struct Program {
     clippy::large_enum_variant,
     reason = "the tree is walked, not moved, so the size difference costs nothing; boxing the page changes the public AST"
 )]
+#[non_exhaustive]
 pub enum Declaration {
     /// `const NAME = value`.
     Const(ConstDecl),
@@ -196,6 +197,7 @@ impl EnumDecl {
 
 /// A reference to a type, as written after a colon.
 #[derive(Debug, Clone)]
+#[non_exhaustive]
 pub enum TypeRef {
     String,
     Number,
@@ -343,6 +345,7 @@ impl TestDecl {
 
 /// One line of a test: what it does, or what it expects to see.
 #[derive(Debug, Clone)]
+#[non_exhaustive]
 pub enum Step {
     /// `expect "text"`, or `expect not "text"`.
     Expect {
@@ -595,6 +598,7 @@ impl Statement {
 }
 
 #[derive(Debug, Clone)]
+#[non_exhaustive]
 pub enum StatementKind {
     State(StateDecl),
     Derived(DerivedDecl),
@@ -674,6 +678,7 @@ pub struct Rule {
 /// What a connection is: a socket, a stream of events, or a channel every
 /// tab of the origin hears.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[non_exhaustive]
 pub enum ConnectionKind {
     /// `socket chat = ws("wss://…") { … }`.
     Socket,
@@ -726,6 +731,7 @@ pub struct MatchArm {
 }
 
 #[derive(Debug, Clone, PartialEq)]
+#[non_exhaustive]
 pub enum ArmPattern {
     Loading,
     Error,
@@ -764,6 +770,7 @@ pub struct StateDecl {
 
 /// How long a store's state lives.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+#[non_exhaustive]
 pub enum StoreScope {
     /// Built once, for as long as the page is open. The default.
     #[default]
@@ -1126,6 +1133,7 @@ pub struct MethodCallStmt {
 // ─── Expressions ─────────────────────────────────────────
 
 #[derive(Debug, Clone, PartialEq)]
+#[non_exhaustive]
 pub enum Expr {
     // Literals
     StringLiteral(String),
@@ -1640,12 +1648,14 @@ pub fn awaits(stmts: &[Statement]) -> bool {
 }
 
 #[derive(Debug, Clone, PartialEq)]
+#[non_exhaustive]
 pub enum StringPart {
     Literal(String),
     Expression(Expr),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[non_exhaustive]
 pub enum BinOp {
     Add,
     Sub,
@@ -1665,6 +1675,7 @@ pub enum BinOp {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[non_exhaustive]
 pub enum UnaryOp {
     Not,
     Neg,

@@ -100,12 +100,13 @@ pub fn resized(probed: &Probed, width: u32, format: &str, quality: u8) -> Result
             )
         }
         other => {
-            return Err(WebFluentError::IoError(format!(
+            return Err(WebFluentError::io(format!(
                 "`{other}` is not a format the build can write; it writes webp, png and jpeg"
             )));
         }
     };
-    written.map_err(|e| WebFluentError::IoError(format!("the image could not be written: {e}")))?;
+    written
+        .map_err(|e| WebFluentError::io_with(format!("the image could not be written: {e}"), e))?;
     Ok(out)
 }
 
@@ -117,7 +118,7 @@ fn webp_of(image: &image::DynamicImage, quality: u8) -> Result<Vec<u8>> {
     use image::DynamicImage;
     let (width, height) = (image.width(), image.height());
     if !fits("webp", width, height) {
-        return Err(WebFluentError::IoError(format!(
+        return Err(WebFluentError::io(format!(
             "a WebP is at most {WEBP_MAX_SIDE} pixels on a side, and this one would be {width}×{height}"
         )));
     }
@@ -138,7 +139,5 @@ fn webp_of(image: &image::DynamicImage, quality: u8) -> Result<Vec<u8>> {
     encoder
         .encode_simple(false, quality)
         .map(|m| m.to_vec())
-        .map_err(|e| {
-            WebFluentError::IoError(format!("the image could not be written as WebP: {e:?}"))
-        })
+        .map_err(|e| WebFluentError::io(format!("the image could not be written as WebP: {e:?}")))
 }

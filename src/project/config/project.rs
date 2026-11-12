@@ -7,6 +7,7 @@ use std::path::Path;
 /// The output format for the build pipeline.
 #[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Default)]
 #[serde(rename_all = "lowercase")]
+#[non_exhaustive]
 pub enum OutputType {
     /// Single-page application with client-side routing.
     #[default]
@@ -388,6 +389,7 @@ pub enum Owner {
 /// How much of the JavaScript runtime a build ships.
 #[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Default)]
 #[serde(rename_all = "lowercase")]
+#[non_exhaustive]
 pub enum RuntimeMode {
     /// Only the modules the program reaches.
     #[default]
@@ -764,6 +766,7 @@ pub struct ScriptSpec {
 /// When a `meta.scripts` entry is asked for.
 #[derive(Debug, Serialize, Deserialize, Clone, Copy, PartialEq, Eq, Default)]
 #[serde(rename_all = "lowercase")]
+#[non_exhaustive]
 pub enum ScriptLoad {
     /// While the page loads: a tag in the HTML.
     #[default]
@@ -1240,13 +1243,13 @@ impl ProjectConfig {
     pub fn load_via(vfs: &dyn crate::base::vfs::Vfs, project_dir: &Path) -> Result<Self> {
         let config_path = project_dir.join("webfluent.app.json");
         if !vfs.exists(&config_path) {
-            return Err(WebFluentError::ConfigError(
-                "webfluent.app.json not found. Run 'wf init' to create a project.".to_string(),
+            return Err(WebFluentError::config(
+                "webfluent.app.json not found. Run 'wf init' to create a project.",
             ));
         }
         let content = vfs.read_to_string(&config_path)?;
         let config: ProjectConfig = serde_json::from_str(&content).map_err(|e| {
-            WebFluentError::ConfigError(format!("Failed to parse webfluent.app.json: {e}"))
+            WebFluentError::config(format!("Failed to parse webfluent.app.json: {e}"))
         })?;
         Ok(config)
     }

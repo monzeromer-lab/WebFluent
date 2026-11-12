@@ -44,7 +44,7 @@ pub fn document_symbols(
     let file = &project.files[file_ix];
     let symbols: Vec<DocumentSymbol> = project
         .declarations_of(file_ix)
-        .map(|(_, decl)| declaration_symbol(decl, &file.source, &file.index))
+        .filter_map(|(_, decl)| declaration_symbol(decl, &file.source, &file.index))
         .collect();
     if hierarchical {
         DocumentSymbolResponse::Nested(symbols)
@@ -55,8 +55,14 @@ pub fn document_symbols(
     }
 }
 
-fn declaration_symbol(decl: &Declaration, source: &str, index: &LineIndex) -> DocumentSymbol {
-    match decl {
+/// The outline entry of a declaration; `None` for a kind of declaration
+/// this server does not know yet.
+fn declaration_symbol(
+    decl: &Declaration,
+    source: &str,
+    index: &LineIndex,
+) -> Option<DocumentSymbol> {
+    Some(match decl {
         Declaration::Page(page) => symbol(
             page.name.clone(),
             &format!("Page · {}", page.path),
@@ -295,7 +301,8 @@ fn declaration_symbol(decl: &Declaration, source: &str, index: &LineIndex) -> Do
                 Vec::new(),
             )
         }
-    }
+        _ => return None,
+    })
 }
 
 fn statement_symbols(stmts: &[Statement], source: &str, index: &LineIndex) -> Vec<DocumentSymbol> {
@@ -443,7 +450,7 @@ pub fn workspace_symbols(project: &Project, query: &str) -> Vec<SymbolInformatio
             ),
             Declaration::Data(d) => (d.name.clone(), SymbolKind::CONSTANT, d.span, "Data"),
             Declaration::Api(a) => (a.name.clone(), SymbolKind::INTERFACE, a.span, "Api"),
-            Declaration::App(_) | Declaration::Script(_) => continue,
+            _ => continue,
         };
         if query.is_empty() || name.to_lowercase().contains(&query) {
             out.push(SymbolInformation {

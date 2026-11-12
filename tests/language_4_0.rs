@@ -2470,6 +2470,7 @@ fn steps_of(src: &str) -> Vec<String> {
                 Some(t) => format!("press {} in {}", text(key), text(t)),
                 None => format!("press {}", text(key)),
             },
+            other => panic!("a step this test does not know: {other:?}"),
         })
         .collect()
 }

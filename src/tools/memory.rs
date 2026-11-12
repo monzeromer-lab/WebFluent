@@ -116,6 +116,7 @@ fn base64_map<S: serde::Serializer>(
 
 /// What a file of the project holds.
 #[derive(Clone, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub enum Contents {
     Text(String),
     /// A file that is not text: a picture, a font.

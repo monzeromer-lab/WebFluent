@@ -50,7 +50,7 @@ pub fn run_fix(dir: &Path, code: Option<&str>, dry_run: bool) -> Result<()> {
                 continue;
             }
             let text = std::fs::read_to_string(&path)
-                .map_err(|e| WebFluentError::IoError(format!("{}: {e}", path.display())))?;
+                .map_err(|e| WebFluentError::io_with(format!("{}: {e}", path.display()), e))?;
             let out = apply(
                 &text,
                 &Fix {
@@ -62,7 +62,7 @@ pub fn run_fix(dir: &Path, code: Option<&str>, dry_run: bool) -> Result<()> {
                 println!("would change {file}");
             } else if out != text {
                 std::fs::write(&path, out)
-                    .map_err(|e| WebFluentError::IoError(format!("{}: {e}", path.display())))?;
+                    .map_err(|e| WebFluentError::io_with(format!("{}: {e}", path.display()), e))?;
             }
         }
         if dry_run {

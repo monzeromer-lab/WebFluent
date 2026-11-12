@@ -233,7 +233,7 @@ pub fn process_via(
     base_path: &str,
 ) -> Result<Asset> {
     let bytes = vfs.read(source).map_err(|e| {
-        crate::diagnostics::error::WebFluentError::IoError(format!("{}: {e}", source.display()))
+        crate::diagnostics::error::WebFluentError::io(format!("{}: {e}", source.display()))
     })?;
     let probed = probe::probe(&bytes, source)?;
     let hash = encode::hash(&bytes, settings);
@@ -251,7 +251,7 @@ pub fn process_via(
     // The original, under its hashed name, so it can be cached forever.
     let original = format!("{stem}.{hash}.{extension}");
     crate::base::outfs::write(img_dir.join(&original), &bytes)
-        .map_err(|e| crate::diagnostics::error::WebFluentError::IoError(e.to_string()))?;
+        .map_err(|e| crate::diagnostics::error::WebFluentError::io(e.to_string()))?;
 
     let mut sources: BTreeMap<String, Vec<(u32, String)>> = BTreeMap::new();
     if settings.pipeline {
@@ -299,7 +299,7 @@ pub fn process_via(
                         None => crate::base::outfs::copy(&cached, &at),
                     };
                     written.map_err(|e| {
-                        crate::diagnostics::error::WebFluentError::IoError(e.to_string())
+                        crate::diagnostics::error::WebFluentError::io(e.to_string())
                     })?;
                 }
                 made.push((*width, url_of(&file)));

@@ -27,7 +27,7 @@ pub const WITHHELD: &str = "‹withheld›";
 const CONFIG: &str = "webfluent.app.json";
 
 fn refused(why: impl Into<String>) -> WebFluentError {
-    WebFluentError::EditError(why.into())
+    WebFluentError::edit(why.into())
 }
 
 /// `rel` as a path inside the project, or why it is not one the set may
@@ -229,13 +229,13 @@ impl ChangeSet {
         let text = match self.changes.get(rel) {
             Some(Some(t)) => t.clone(),
             Some(None) => {
-                return Err(WebFluentError::NotFound(format!(
+                return Err(WebFluentError::not_found(format!(
                     "`{rel}` is deleted in this change set"
                 )));
             }
             None => self
                 .on_disk(rel)
-                .ok_or_else(|| WebFluentError::NotFound(format!("there is no `{rel}`")))?,
+                .ok_or_else(|| WebFluentError::not_found(format!("there is no `{rel}`")))?,
         };
         Ok(text)
     }
@@ -303,7 +303,7 @@ impl ChangeSet {
     pub fn edited(&self, rel: &str, edits: &[super::edit::Edit]) -> Result<(String, String)> {
         let rel = self.within(rel)?;
         if !self.has_read(&rel) {
-            return Err(WebFluentError::NotFound(format!(
+            return Err(WebFluentError::not_found(format!(
                 "Read `{rel}` before you edit it."
             )));
         }
@@ -311,13 +311,13 @@ impl ChangeSet {
             && let Some(was) = self.seen.get(&rel)
             && self.on_disk(&rel).map(|t| hash(&t)) != Some(*was)
         {
-            return Err(WebFluentError::NotFound(format!(
+            return Err(WebFluentError::not_found(format!(
                 "`{rel}` changed since you read it. Read it again."
             )));
         }
         let shown = self.shown(&rel)?;
         let new = super::edit::apply(&shown, edits)
-            .map_err(|e| WebFluentError::NotFound(e.to_string()))?;
+            .map_err(|e| WebFluentError::not_found(e.to_string()))?;
         Ok((shown, new))
     }
 

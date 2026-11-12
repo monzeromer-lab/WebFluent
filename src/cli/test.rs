@@ -27,8 +27,8 @@ pub fn run_test(path: &Path, update: bool) -> Result<()> {
                     tests.acting()
                 );
                 println!("  {e}");
-                return Err(WebFluentError::IoError(
-                    "a test that runs in a browser needs one".to_string(),
+                return Err(WebFluentError::io(
+                    "a test that runs in a browser needs one",
                 ));
             }
         }
@@ -78,7 +78,7 @@ pub fn run_test(path: &Path, update: bool) -> Result<()> {
         }
     );
     if failed > 0 {
-        return Err(WebFluentError::IoError(format!("{failed} test(s) failed")));
+        return Err(WebFluentError::io(format!("{failed} test(s) failed")));
     }
     Ok(())
 }

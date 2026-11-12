@@ -121,6 +121,7 @@ fn type_name(ty: &TypeRef) -> String {
         TypeRef::Optional(inner) => format!("{}?", type_name(inner)),
         TypeRef::Named(name) => name.clone(),
         TypeRef::Refined(inner, _) => type_name(inner),
+        _ => "Any".into(),
     }
 }
 

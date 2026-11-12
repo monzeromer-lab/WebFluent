@@ -134,7 +134,7 @@ pub fn plan(path: &Path, wfx: bool) -> Result<Plan> {
         source_files(&src)?
     };
     if files.is_empty() {
-        return Err(WebFluentError::IoError(format!(
+        return Err(WebFluentError::io(format!(
             "no .wf files under {}",
             path.display()
         )));
@@ -265,7 +265,7 @@ pub fn write_four_two(project_dir: &Path, step: &FourTwo) -> Result<Option<PathB
     // Nothing is written through a link out of the project.
     let refuse = |path: &Path| -> Result<()> {
         if crate::base::vfs::escapes(project_dir, path) {
-            return Err(WebFluentError::IoError(format!(
+            return Err(WebFluentError::io(format!(
                 "{} leads outside the project, through a link: not written",
                 path.display()
             )));
@@ -293,7 +293,7 @@ pub fn write_four_two(project_dir: &Path, step: &FourTwo) -> Result<Option<PathB
     let path = project_dir.join("webfluent.app.json");
     let text = std::fs::read_to_string(&path).at(&path)?;
     let mut value: serde_json::Value = serde_json::from_str(&text)
-        .map_err(|e| WebFluentError::ConfigError(format!("{}: {e}", path.display())))?;
+        .map_err(|e| WebFluentError::config_with(format!("{}: {e}", path.display()), e))?;
     if let Some(map) = value.as_object_mut() {
         let meta = map.entry("meta").or_insert_with(|| serde_json::json!({}));
         if let Some(meta) = meta.as_object_mut() {
@@ -353,7 +353,7 @@ pub fn write_public_env(project_dir: &Path, names: &[String]) -> Result<PathBuf>
     let path = project_dir.join("webfluent.app.json");
     let text = std::fs::read_to_string(&path).at(&path)?;
     let mut value: serde_json::Value = serde_json::from_str(&text)
-        .map_err(|e| WebFluentError::ConfigError(format!("{}: {e}", path.display())))?;
+        .map_err(|e| WebFluentError::config_with(format!("{}: {e}", path.display()), e))?;
     if let Some(map) = value.as_object_mut() {
         map.insert(
             "public_env".to_string(),

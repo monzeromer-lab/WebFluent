@@ -163,9 +163,10 @@ pub fn to_lsp(
     let tags: Vec<DiagnosticTag> = finding
         .tags
         .iter()
-        .map(|t| match t {
-            Tag::Unnecessary => DiagnosticTag::UNNECESSARY,
-            Tag::Deprecated => DiagnosticTag::DEPRECATED,
+        .filter_map(|t| match t {
+            Tag::Unnecessary => Some(DiagnosticTag::UNNECESSARY),
+            Tag::Deprecated => Some(DiagnosticTag::DEPRECATED),
+            _ => None,
         })
         .collect();
     let code = (!finding.code.is_empty()).then(|| NumberOrString::String(finding.code.to_string()));

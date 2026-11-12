@@ -30,7 +30,7 @@ pub fn run_verify(
     let output_dir =
         crate::build::project_output(project_dir, &config.build.output, allow_output_outside)?;
     if !output_dir.exists() {
-        return Err(WebFluentError::IoError(format!(
+        return Err(WebFluentError::io(format!(
             "nothing to verify: {} does not exist. Run `wf build` first",
             output_dir.display()
         )));
@@ -38,9 +38,7 @@ pub fn run_verify(
     let base_path = config.build.base_path.trim_end_matches('/').to_string();
     let routes = crate::verify::routes(&output_dir, project_dir, &config)?;
     if routes.is_empty() {
-        return Err(WebFluentError::IoError(
-            "the build wrote no pages to load".to_string(),
-        ));
+        return Err(WebFluentError::io("the build wrote no pages to load"));
     }
 
     let server = super::preview::serve_directory(output_dir.clone(), &base_path)?;
@@ -117,7 +115,7 @@ pub fn run_verify(
         println!("\n  {} page(s), {problems} problem(s)", visits.len());
     }
     if problems > 0 {
-        return Err(WebFluentError::IoError(format!(
+        return Err(WebFluentError::io(format!(
             "{problems} problem(s) in the browser"
         )));
     }

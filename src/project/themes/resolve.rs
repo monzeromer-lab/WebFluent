@@ -71,7 +71,7 @@ pub fn resolve_tokens(program: &Program, config: &ThemeConfig) -> Result<HashMap
     if let Some(theme) = select_theme(program, config)? {
         for token in &theme.tokens {
             let Some(value) = literal_value(&token.value) else {
-                return Err(WebFluentError::CodegenError(format!(
+                return Err(WebFluentError::codegen(format!(
                     "Theme {}: token `{}` must be a literal value, since it becomes a CSS custom \
                      property at build time",
                     theme.name, token.name
@@ -120,7 +120,7 @@ pub fn resolve_dark_tokens(
     };
     let themes = declared_themes(program);
     let Some(theme) = themes.iter().find(|t| t.name == name) else {
-        return Err(WebFluentError::ConfigError(format!(
+        return Err(WebFluentError::config(format!(
             "No `theme {name}` is declared for `theme.dark`. Declare one — \
              `theme {name} {{ color-background: #0B1220 }}` — or remove \
              `theme.dark` from webfluent.app.json.{}",
@@ -130,7 +130,7 @@ pub fn resolve_dark_tokens(
     let mut tokens = HashMap::new();
     for token in &theme.tokens {
         let Some(value) = literal_value(&token.value) else {
-            return Err(WebFluentError::CodegenError(format!(
+            return Err(WebFluentError::codegen(format!(
                 "Theme {}: token `{}` must be a literal value, since it becomes a CSS custom \
                  property at build time",
                 theme.name, token.name
@@ -160,7 +160,7 @@ fn select_theme<'a>(program: &'a Program, config: &ThemeConfig) -> Result<Option
                 return Ok(Some(found));
             }
             if let Some((_, example)) = REMOVED_PALETTES.iter().find(|(p, _)| *p == name) {
-                return Err(WebFluentError::ConfigError(format!(
+                return Err(WebFluentError::config(format!(
                     "The built-in `{name}` theme was removed. Themes are now written in \
                      WebFluent: copy `{example}` into your `src/` and keep \
                      `\"theme\": {{ \"name\": \"{name}\" }}` pointing at it."
@@ -170,7 +170,7 @@ fn select_theme<'a>(program: &'a Program, config: &ThemeConfig) -> Result<Option
                 // A declaration is present but the config still asks for the baseline.
                 return Ok(None);
             }
-            Err(WebFluentError::ConfigError(format!(
+            Err(WebFluentError::config(format!(
                 "No `theme {name}` is declared in this project. Declare one — \
                  `theme {name} {{ color-primary: #0F766E }}` — or remove \
                  `theme.name` to use the baseline tokens.{}",
@@ -181,7 +181,7 @@ fn select_theme<'a>(program: &'a Program, config: &ThemeConfig) -> Result<Option
         None => match themes.len() {
             0 => Ok(None),
             1 => Ok(Some(themes[0])),
-            _ => Err(WebFluentError::ConfigError(format!(
+            _ => Err(WebFluentError::config(format!(
                 "This project declares {} themes, so the build cannot tell which to use. \
                  Set `\"theme\": {{ \"name\": \"…\" }}` in webfluent.app.json.{}",
                 themes.len(),

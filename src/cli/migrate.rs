@@ -36,7 +36,7 @@ pub fn run_migrate(path: &Path, check: bool, stdout: bool, layout: super::Layout
     }
     if stdout {
         if failed > 0 {
-            return Err(WebFluentError::IoError(format!(
+            return Err(WebFluentError::io(format!(
                 "{failed} file(s) could not be migrated"
             )));
         }
@@ -49,7 +49,7 @@ pub fn run_migrate(path: &Path, check: bool, stdout: bool, layout: super::Layout
     );
     print_four(&plan, check)?;
     if failed > 0 {
-        return Err(WebFluentError::IoError(format!(
+        return Err(WebFluentError::io(format!(
             "{failed} file(s) could not be migrated"
         )));
     }

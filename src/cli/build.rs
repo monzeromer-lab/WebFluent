@@ -82,7 +82,7 @@ fn run(
             &path,
             serde_json::to_string_pretty(&nodes.to_json()).unwrap_or_default(),
         )
-        .map_err(|e| crate::error::WebFluentError::IoError(format!("{}: {e}", path.display())))?;
+        .map_err(|e| crate::error::WebFluentError::io(format!("{}: {e}", path.display())))?;
     }
     Ok(())
 }

@@ -106,13 +106,13 @@ pub fn static_routes(
     };
     let scope = Scope::from_program_with_env(program, &[], env);
     let Some(Static::List(values)) = eval(paths, &scope) else {
-        return Err(WebFluentError::CodegenError(format!(
+        return Err(WebFluentError::codegen(format!(
             "page {}: `paths:` must be a list known at build time, such as `posts.map(p => p.slug)` over a `data` file",
             page.name
         )));
     };
     if values.len() > MAX_PATHS {
-        return Err(WebFluentError::CodegenError(format!(
+        return Err(WebFluentError::codegen(format!(
             "page {}: `paths:` names {} pages, more than the {MAX_PATHS} one build writes",
             page.name,
             values.len()
@@ -130,7 +130,7 @@ pub fn static_routes(
             (Static::Map(fields), _) => {
                 for name in &names {
                     let Some(v) = fields.iter().find(|(k, _)| k == name).map(|(_, v)| v) else {
-                        return Err(WebFluentError::CodegenError(format!(
+                        return Err(WebFluentError::codegen(format!(
                             "page {}: a value of `paths:` has no `{name}` for the route {}",
                             page.name, page.path
                         )));
@@ -142,7 +142,7 @@ pub fn static_routes(
                 params.insert(names[0].clone(), v.clone());
             }
             _ => {
-                return Err(WebFluentError::CodegenError(format!(
+                return Err(WebFluentError::codegen(format!(
                     "page {}: the route {} has {} parameters, so each value of `paths:` must be a map naming them",
                     page.name,
                     page.path,
@@ -159,7 +159,7 @@ pub fn static_routes(
             // Each value is one part of an address, and a directory of the
             // output: never empty, `.` or `..`, never more than one part.
             if text.is_empty() || text == "." || text == ".." || text.contains(['/', '\\', '\0']) {
-                return Err(WebFluentError::CodegenError(format!(
+                return Err(WebFluentError::codegen(format!(
                     "page {}: `{}` is not a value `paths:` can give `:{name}`: each is one part of an address (not empty, `.` or `..`, with no `/`, `\\` or NUL)",
                     page.name,
                     text.escape_debug()

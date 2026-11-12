@@ -16,7 +16,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 use crate::diagnostics::error::{Result, WebFluentError};
 
 fn oops(what: impl std::fmt::Display) -> WebFluentError {
-    WebFluentError::IoError(format!("browser: {what}"))
+    WebFluentError::io(format!("browser: {what}"))
 }
 
 /// An open connection to a DevTools endpoint.

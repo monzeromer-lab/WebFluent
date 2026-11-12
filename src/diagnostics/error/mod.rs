@@ -8,4 +8,6 @@
 
 pub mod diagnostic;
 
-pub use diagnostic::{Diagnostic, Result, WebFluentError};
+pub use diagnostic::{
+    CodegenError, ConfigError, Diagnostic, EditError, IoError, NotFound, Result, WebFluentError,
+};

@@ -78,6 +78,7 @@ pub struct Fix {
 /// What an editor may show about a finding besides its severity.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize)]
 #[serde(rename_all = "lowercase")]
+#[non_exhaustive]
 pub enum Tag {
     /// Code nothing needs — an editor greys it out.
     Unnecessary,

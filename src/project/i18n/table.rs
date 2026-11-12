@@ -553,7 +553,7 @@ pub fn table_via(
 }
 
 fn edit_error(e: impl std::fmt::Display) -> crate::diagnostics::error::WebFluentError {
-    crate::diagnostics::error::WebFluentError::EditError(e.to_string())
+    crate::diagnostics::error::WebFluentError::edit(e.to_string())
 }
 
 /// `text` (a locale's file; empty when there is none yet) with the message

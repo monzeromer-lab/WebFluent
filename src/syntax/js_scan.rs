@@ -16,6 +16,7 @@
 
 /// What one top-level name is.
 #[derive(Debug, Clone, PartialEq)]
+#[non_exhaustive]
 pub enum NameKind {
     /// A function: its parameters as written, a `...rest` one included.
     Function { params: Vec<Param>, is_async: bool },

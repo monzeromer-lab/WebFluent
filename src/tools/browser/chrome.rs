@@ -222,9 +222,8 @@ fn abandon(child: &mut Child, profile: &Path) {
 
 /// A browser, started, and the address of its protocol.
 fn open_browser(binary: &str, sandbox: bool) -> Result<(Child, PathBuf, String)> {
-    let profile = private_dir("wf-chrome-").map_err(|e| {
-        WebFluentError::IoError(format!("could not make the browser's profile: {e}"))
-    })?;
+    let profile = private_dir("wf-chrome-")
+        .map_err(|e| WebFluentError::io(format!("could not make the browser's profile: {e}")))?;
     let mut args: Vec<String> = [
         "--headless=new",
         "--remote-debugging-port=0",
@@ -254,7 +253,7 @@ fn open_browser(binary: &str, sandbox: bool) -> Result<(Child, PathBuf, String)>
         Ok(child) => child,
         Err(e) => {
             let _ = std::fs::remove_dir_all(&profile);
-            return Err(WebFluentError::IoError(format!(
+            return Err(WebFluentError::io(format!(
                 "could not start the browser: {e}"
             )));
         }
@@ -275,8 +274,8 @@ fn open_browser(binary: &str, sandbox: bool) -> Result<(Child, PathBuf, String)>
         Some(endpoint) => Ok((child, profile, endpoint)),
         None => {
             abandon(&mut child, &profile);
-            Err(WebFluentError::IoError(
-                "the browser started but never said where to talk to it".into(),
+            Err(WebFluentError::io(
+                "the browser started but never said where to talk to it",
             ))
         }
     }
@@ -297,7 +296,7 @@ impl Browser {
     /// cannot be opened.
     pub fn start() -> Result<Self> {
         let binary = find().ok_or_else(|| {
-            WebFluentError::IoError(
+            WebFluentError::io(
                 "no Chrome or Chromium on this machine. Install one, or point `WF_CHROME` at it"
                     .to_string(),
             )
@@ -345,7 +344,7 @@ impl Browser {
             let value: Value = serde_json::from_str(&text).unwrap_or(Value::Null);
             if value.get("id").and_then(Value::as_u64) == Some(id) {
                 if let Some(error) = value.get("error") {
-                    return Err(WebFluentError::IoError(format!("browser: {error}")));
+                    return Err(WebFluentError::io(format!("browser: {error}")));
                 }
                 return Ok(value.get("result").cloned().unwrap_or(Value::Null));
             }
@@ -462,7 +461,7 @@ impl Browser {
                 .as_str()
                 .or_else(|| details["text"].as_str())
                 .unwrap_or("(no message)");
-            return Err(WebFluentError::IoError(format!("in the page: {text}")));
+            return Err(WebFluentError::io(format!("in the page: {text}")));
         }
         Ok(result["result"]["value"].clone())
     }

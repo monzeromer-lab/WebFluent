@@ -11,6 +11,7 @@ use std::path::Path;
 
 /// What a new project starts as.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub enum Template {
     /// An interactive dashboard: pages, components, stores (`spa`).
     Spa,
@@ -96,7 +97,7 @@ pub fn create_with(dir: &Path, name: &str, options: &Options) -> Result<()> {
         Vec::new()
     } else {
         if !template.translates() {
-            return Err(WebFluentError::ConfigError(format!(
+            return Err(WebFluentError::config(format!(
                 "The `{}` template does not take locales: a {} is made in one \
                  language. Start it in that language, or use `spa` or `static` \
                  for a project in several.",
@@ -111,7 +112,7 @@ pub fn create_with(dir: &Path, name: &str, options: &Options) -> Result<()> {
         check_locales(&options.locales)?
     };
     if dir.exists() {
-        return Err(WebFluentError::IoError(format!(
+        return Err(WebFluentError::io(format!(
             "Directory '{}' already exists",
             dir.display()
         )));
@@ -240,8 +241,8 @@ pub fn parse_locales(list: &str) -> Result<Vec<String>> {
 /// language tag, or one is named twice.
 pub fn check_locales(locales: &[String]) -> Result<Vec<String>> {
     if locales.is_empty() {
-        return Err(WebFluentError::ConfigError(
-            "No locales: name at least one, the default first (`en,ar`).".to_string(),
+        return Err(WebFluentError::config(
+            "No locales: name at least one, the default first (`en,ar`).",
         ));
     }
     let mut out: Vec<String> = Vec::new();
@@ -255,14 +256,14 @@ pub fn check_locales(locales: &[String]) -> Result<Vec<String>> {
             } else {
                 String::new()
             };
-            return Err(WebFluentError::ConfigError(format!(
+            return Err(WebFluentError::config(format!(
                 "`{given}` is not a locale: a language tag is two or three \
                  letters, then a region or script if it needs one, as in `en`, \
                  `ar`, `pt-BR`{hint}."
             )));
         };
         if out.contains(&tag) {
-            return Err(WebFluentError::ConfigError(format!(
+            return Err(WebFluentError::config(format!(
                 "`{tag}` is named twice: each locale once, the default first."
             )));
         }
@@ -372,7 +373,7 @@ fn translated_config(text: &str, locales: &[String]) -> Result<String> {
         "locales": locales,
         "dir": "src/translations",
     });
-    let edit = |e: json_edit::EditError| WebFluentError::ConfigError(e.to_string());
+    let edit = |e: json_edit::EditError| WebFluentError::config(e.to_string());
     let text = json_edit::set(text, &["i18n"], &i18n).map_err(edit)?;
     json_edit::set(&text, &["meta", "lang"], &serde_json::json!(locales[0])).map_err(edit)
 }

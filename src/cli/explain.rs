@@ -22,7 +22,7 @@ pub fn run_explain(code: Option<&str>) -> Result<()> {
                 let near = nearest(&wanted, CODES.iter().map(|c| c.code))
                     .map(|c| format!(" — did you mean `{c}`?"))
                     .unwrap_or_default();
-                Err(WebFluentError::ConfigError(format!(
+                Err(WebFluentError::config(format!(
                     "`{code}` is no code{near} `wf explain` with no code lists them all"
                 )))
             }

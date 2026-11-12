@@ -322,7 +322,7 @@ pub fn run_serve(project_dir: &Path, host: &str, allow_output_outside: bool) -> 
         s.version = 0;
     }
     if !output_dir.exists() {
-        return Err(crate::error::WebFluentError::IoError(format!(
+        return Err(crate::error::WebFluentError::io(format!(
             "nothing to serve: the build failed and {} does not exist",
             output_dir.display()
         )));
@@ -330,7 +330,7 @@ pub fn run_serve(project_dir: &Path, host: &str, allow_output_outside: bool) -> 
 
     let port = config.dev.port;
     let ip: std::net::IpAddr = host.parse().map_err(|_| {
-        crate::error::WebFluentError::IoError(format!(
+        crate::error::WebFluentError::io(format!(
             "`--host {host}` is not an address to listen on: give one such as 127.0.0.1 or 0.0.0.0"
         ))
     })?;
@@ -341,9 +341,8 @@ pub fn run_serve(project_dir: &Path, host: &str, allow_output_outside: bool) -> 
     // its absolute links then resolve, and a visit to `/` is sent there.
     let base_path = config.build.base_path.trim_end_matches('/').to_string();
 
-    let server = tiny_http::Server::http(addr).map_err(|e| {
-        crate::error::WebFluentError::IoError(format!("Failed to start server: {e}"))
-    })?;
+    let server = tiny_http::Server::http(addr)
+        .map_err(|e| crate::error::WebFluentError::io(format!("Failed to start server: {e}")))?;
     let port = server.server_addr().to_ip().map_or(port, |a| a.port());
     let shown = if ip.is_loopback() || ip.is_unspecified() {
         "localhost".to_string()

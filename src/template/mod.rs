@@ -201,10 +201,10 @@ impl Template {
         let dir = dir.as_ref();
         let mut files = Vec::new();
         walk(dir, &mut files).map_err(|e| {
-            WebFluentError::IoError(format!("Failed to read '{}': {}", dir.display(), e))
+            WebFluentError::io(format!("Failed to read '{}': {}", dir.display(), e))
         })?;
         if files.is_empty() {
-            return Err(WebFluentError::IoError(format!(
+            return Err(WebFluentError::io(format!(
                 "no .wf or .wfx template under '{}'",
                 dir.display()
             )));
@@ -221,7 +221,7 @@ impl Template {
         let mut sources = Vec::new();
         for path in files {
             let source = fs::read_to_string(path).map_err(|e| {
-                WebFluentError::IoError(format!(
+                WebFluentError::io(format!(
                     "Failed to read template '{}': {}",
                     path.display(),
                     e
@@ -300,7 +300,7 @@ impl Template {
                     .iter()
                     .find(|d| matches!(d, Declaration::Data(_)))
                 {
-                    return Err(WebFluentError::IoError(format!(
+                    return Err(WebFluentError::io(format!(
                         "`data {}` reads a file, which a template from a string has no place to read from; use `Template::from_file`",
                         d.name
                     )));
@@ -342,7 +342,7 @@ impl Template {
     /// is called `name`.
     pub fn page(&self, name: &str) -> Result<Self> {
         if !self.pages().contains(&name) {
-            return Err(WebFluentError::CodegenError(format!(
+            return Err(WebFluentError::codegen(format!(
                 "no page called `{name}`; the template has {}",
                 self.pages()
                     .iter()
@@ -697,8 +697,7 @@ impl Template {
         let html = self.paged_document(&data)?;
         let read = crate::paged::reader(self.root.clone());
         let options = crate::paged::Options::from_pdf(&self.pdf, &read, self.root.as_deref());
-        let out =
-            crate::paged::render(&html, "", &options).map_err(WebFluentError::CodegenError)?;
+        let out = crate::paged::render(&html, "", &options).map_err(WebFluentError::codegen)?;
         Ok(PdfReport {
             bytes: out.bytes,
             pages: out.pages,
@@ -722,7 +721,7 @@ impl Template {
         let (options, chrome) =
             crate::paged::Options::from_slides(&self.slides, &read, self.root.as_deref());
         let out = crate::paged::render_slides(&html, "", &options, &chrome)
-            .map_err(WebFluentError::CodegenError)?;
+            .map_err(WebFluentError::codegen)?;
         Ok(PdfReport {
             bytes: out.bytes,
             pages: out.pages,
@@ -752,7 +751,7 @@ impl Template {
         let (options, chrome) =
             crate::paged::Options::from_slides(&self.slides, &read, self.root.as_deref());
         let out = crate::paged::render_slides(&html, "", &options, &chrome)
-            .map_err(WebFluentError::CodegenError)?;
+            .map_err(WebFluentError::codegen)?;
         Ok(out.bytes)
     }
 
@@ -778,7 +777,7 @@ impl Template {
 /// `data` as the JSON value the renderers read.
 fn to_value<T: Serialize + ?Sized>(data: &T) -> Result<Value> {
     serde_json::to_value(data)
-        .map_err(|e| WebFluentError::ConfigError(format!("the data does not serialize: {e}")))
+        .map_err(|e| WebFluentError::config_with(format!("the data does not serialize: {e}"), e))
 }
 
 /// The HTML fragment of every page of a lowered program, over `data`:

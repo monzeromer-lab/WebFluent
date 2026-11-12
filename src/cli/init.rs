@@ -9,7 +9,7 @@ pub fn run_init(name: &str, template: &str, locales: Option<&str>) -> Result<()>
     let project_dir = Path::new(name);
 
     if project_dir.exists() {
-        return Err(crate::error::WebFluentError::IoError(format!(
+        return Err(crate::error::WebFluentError::io(format!(
             "Directory '{name}' already exists"
         )));
     }

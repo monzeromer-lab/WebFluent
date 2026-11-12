@@ -34,9 +34,7 @@ pub struct Probed {
 fn reader<'a>(bytes: &'a [u8], source: &Path) -> Result<ImageReader<std::io::Cursor<&'a [u8]>>> {
     ImageReader::new(std::io::Cursor::new(bytes))
         .with_guessed_format()
-        .map_err(|e| {
-            WebFluentError::IoError(format!("{} could not be read: {e}", source.display()))
-        })
+        .map_err(|e| WebFluentError::io(format!("{} could not be read: {e}", source.display())))
 }
 
 /// The width and height `bytes` say they hold, read from the header alone.
@@ -46,9 +44,9 @@ fn reader<'a>(bytes: &'a [u8], source: &Path) -> Result<ImageReader<std::io::Cur
 /// [`WebFluentError::IoError`] when the header is no picture's the build
 /// reads.
 pub fn dimensions(bytes: &[u8], source: &Path) -> Result<(u32, u32)> {
-    reader(bytes, source)?.into_dimensions().map_err(|e| {
-        WebFluentError::IoError(format!("{} could not be read: {e}", source.display()))
-    })
+    reader(bytes, source)?
+        .into_dimensions()
+        .map_err(|e| WebFluentError::io(format!("{} could not be read: {e}", source.display())))
 }
 
 /// Decode `bytes`, and read what the build needs from them.
@@ -62,7 +60,7 @@ pub fn probe(bytes: &[u8], source: &Path) -> Result<Probed> {
     let (w, h) = dimensions(bytes, source)?;
     let pixels = u64::from(w) * u64::from(h);
     if pixels > MAX_PIXELS {
-        return Err(WebFluentError::IoError(format!(
+        return Err(WebFluentError::io(format!(
             "{} is {w}×{h}, {:.0} megapixels; the build reads pictures of at most {} — make it smaller, or serve it from public/ as a file the build does not read",
             source.display(),
             pixels as f64 / 1e6,
@@ -78,9 +76,9 @@ pub fn probe(bytes: &[u8], source: &Path) -> Result<Probed> {
     limits.max_image_height = Some(h);
     limits.max_alloc = Some((MAX_PIXELS * 8).max(64 * 1024 * 1024));
     reader.limits(limits);
-    let image = reader.decode().map_err(|e| {
-        WebFluentError::IoError(format!("{} could not be read: {e}", source.display()))
-    })?;
+    let image = reader
+        .decode()
+        .map_err(|e| WebFluentError::io(format!("{} could not be read: {e}", source.display())))?;
     let (width, height) = image.dimensions();
     Ok(Probed {
         color: average_color(&image),

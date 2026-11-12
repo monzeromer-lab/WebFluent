@@ -59,7 +59,7 @@ pub fn load_via(
             Err(e) => return Err(e.into()),
         };
         let messages: HashMap<String, String> = serde_json::from_str(&content).map_err(|e| {
-            crate::diagnostics::error::WebFluentError::ConfigError(format!(
+            crate::diagnostics::error::WebFluentError::config(format!(
                 "Failed to parse {locale}.json: {e}"
             ))
         })?;

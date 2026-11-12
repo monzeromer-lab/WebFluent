@@ -47,6 +47,7 @@ use std::collections::HashMap;
 /// Which argument of a node an op targets.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
+#[non_exhaustive]
 pub enum ArgRef {
     /// The n-th positional argument (0-based, counting only positional args).
     Positional(usize),
@@ -57,6 +58,7 @@ pub enum ArgRef {
 /// A structured edit targeting a node by its studio id (e.g. `"Home:2.0.3"`).
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(tag = "op", rename_all = "snake_case")]
+#[non_exhaustive]
 pub enum EditOp {
     /// Replace the node's first positional string argument with `value` (quoted).
     SetText { node: String, value: String },
@@ -1542,7 +1544,7 @@ fn statement_at_mut(
 }
 
 fn edit_err(msg: impl Into<String>) -> WebFluentError {
-    WebFluentError::EditError(msg.into())
+    WebFluentError::edit(msg.into())
 }
 
 #[cfg(test)]

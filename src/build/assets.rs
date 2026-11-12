@@ -865,15 +865,13 @@ pub fn list(root: &Path) -> Result<Listing> {
 pub fn plan_via(vfs: &dyn Vfs, root: &Path, path: &str) -> Result<Plan> {
     let site = site_path(path)
         .or_else(|| (!path.contains("://")).then(|| site_path(&format!("/{path}")))?)
-        .ok_or_else(|| WebFluentError::IoError(format!("`{path}` is not a path of the site")))?;
+        .ok_or_else(|| WebFluentError::io(format!("`{path}` is not a path of the site")))?;
     let file = root.join("public").join(site.trim_start_matches('/'));
     if !vfs.is_file(&file) {
-        return Err(WebFluentError::IoError(format!(
-            "`public{site}` does not exist"
-        )));
+        return Err(WebFluentError::io(format!("`public{site}` does not exist")));
     }
     if Kind::of(&site) != Kind::Image || matches!(extension(&site).as_str(), "svg" | "ico") {
-        return Err(WebFluentError::IoError(format!(
+        return Err(WebFluentError::io(format!(
             "`{site}` is not a picture the pipeline re-encodes: it is copied as it is"
         )));
     }
@@ -882,7 +880,7 @@ pub fn plan_via(vfs: &dyn Vfs, root: &Path, path: &str) -> Result<Plan> {
         .unwrap_or_default();
     let bytes = vfs
         .read(&file)
-        .map_err(|e| WebFluentError::IoError(format!("{}: {e}", file.display())))?;
+        .map_err(|e| WebFluentError::io_with(format!("{}: {e}", file.display()), e))?;
     crate::project::media::plan::plan(
         &bytes,
         &file,

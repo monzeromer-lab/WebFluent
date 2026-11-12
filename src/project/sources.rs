@@ -98,15 +98,11 @@ pub fn read_project_collecting_via(
     let mut parse_errors: Vec<Diagnostic> = Vec::new();
     let src_dir = project_dir.join("src");
     if !vfs.exists(&src_dir) {
-        return Err(WebFluentError::IoError(
-            "src/ directory not found".to_string(),
-        ));
+        return Err(WebFluentError::io("src/ directory not found"));
     }
     let wf_files = find_wf_files(vfs, &src_dir)?;
     if wf_files.is_empty() {
-        return Err(WebFluentError::IoError(
-            "No .wf files found in src/".to_string(),
-        ));
+        return Err(WebFluentError::io("No .wf files found in src/"));
     }
     let mut all_declarations = Vec::new();
     let mut declaration_files: Vec<String> = Vec::new();

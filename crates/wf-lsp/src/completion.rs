@@ -2076,6 +2076,7 @@ fn type_name(ty: &TypeRef) -> String {
             let said: Vec<String> = args.iter().map(|(n, _)| n.clone()).collect();
             format!("{}({})", type_name(inner), said.join(", "))
         }
+        _ => "Any".into(),
     }
 }
 

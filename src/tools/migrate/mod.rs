@@ -194,7 +194,7 @@ pub fn migrate_file(source: &str, file: &str, ctx: &ProjectContext) -> Result<Mi
 
     // Round 2: spelling.
     let program = parse_v1(&ordered, file).map_err(|e| {
-        WebFluentError::EditError(format!(
+        WebFluentError::edit(format!(
             "the block reordering produced text the original grammar rejects: {e}"
         ))
     })?;
@@ -206,7 +206,7 @@ pub fn migrate_file(source: &str, file: &str, ctx: &ProjectContext) -> Result<Mi
 
     // The result must be WebFluent 3.
     if let Err(e) = crate::syntax::parser::v2::parse_v2(&text, file) {
-        return Err(WebFluentError::EditError(format!(
+        return Err(WebFluentError::edit(format!(
             "the migration of {file} produced text WebFluent 3 rejects — a bug in wf migrate, not in the project: {e}"
         )));
     }

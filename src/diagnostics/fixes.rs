@@ -10,6 +10,7 @@ use super::{Diagnostic, Edit, Fix};
 
 /// What would fix a finding, in terms of the text at its place.
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[non_exhaustive]
 pub enum Plan {
     /// The first occurrence of `from` at or after the finding's start, as a
     /// whole word where its edge is a word character, becomes `to`.
