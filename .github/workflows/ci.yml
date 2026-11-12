@@ -90,13 +90,13 @@ jobs:
           persist-credentials: false
       - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
         with:
-          toolchain: nightly-2026-09-29
+          toolchain: nightly-2026-09-30
       - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
       - name: Install cargo-public-api
         run: cargo install --locked cargo-public-api@0.52.0
       - name: The public API is as tests/public-api.txt lists it
         env:
-          WF_API_TOOLCHAIN: nightly-2026-09-29
+          WF_API_TOOLCHAIN: nightly-2026-09-30
         run: scripts/public-api.sh
 
   # What a release would have to be called, against the last one on
