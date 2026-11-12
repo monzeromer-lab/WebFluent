@@ -8,12 +8,13 @@
 #        scripts/public-api.sh --update   write tests/public-api.txt again
 #
 # Needs cargo-public-api and a nightly toolchain (rustdoc's JSON is nightly
-# only). WF_API_TOOLCHAIN names the nightly; CI pins the one the file was
-# written with, since rustdoc's output can differ between nightlies.
+# only): the one the file was written with, pinned here and in CI, since
+# rustdoc's output differs between nightlies (a newer one lists auto traits
+# an older one does not). WF_API_TOOLCHAIN names another.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-toolchain="${WF_API_TOOLCHAIN:-nightly}"
+toolchain="${WF_API_TOOLCHAIN:-nightly-2026-09-30}"
 now="$(mktemp)"
 trap 'rm -f "$now"' EXIT
 
