@@ -8,6 +8,41 @@ use std::path::Path;
 use crate::error::{Result, WebFluentError};
 use crate::parser::ast::*;
 
+/// Whether `file`, a path a project names (a `data` file, an image, the
+/// translations directory, a font directory, a specification), stays
+/// inside the project by its words: not absolute, no `..`, no NUL. Where it
+/// leads on the disk — through a link — is the reader's to check
+/// ([`crate::vfs::Confined`]).
+pub fn stays_inside(file: &str) -> bool {
+    let path = Path::new(file);
+    !file.is_empty()
+        && !path.is_absolute()
+        && !file.starts_with(['/', '\\'])
+        && !file.contains('\0')
+        // A drive, as Windows writes one: `C:\x`, `C:x`.
+        && !(file.len() >= 2 && file.as_bytes()[1] == b':' && file.as_bytes()[0].is_ascii_alphabetic())
+        && !file.split(['/', '\\']).any(|part| part == "..")
+}
+
+/// The finding for a path a project names that leads out of it.
+pub fn outside_project(
+    what: &str,
+    file: &str,
+    at: &str,
+    line: usize,
+    column: usize,
+) -> WebFluentError {
+    WebFluentError::Diagnostics(vec![crate::error::Diagnostic::coded(
+        "E111",
+        format!(
+            "{what} names `{file}`, which is outside the project: a build reads only the project's own files, by a path inside it (no absolute path, no `..`)"
+        ),
+        at,
+        line,
+        column,
+    )])
+}
+
 /// Every `data` declaration of `program` replaced by a `const` holding
 /// the file's JSON, read relative to `root`, then `root/src`.
 pub fn resolve_data(program: &mut Program, root: &Path) -> Result<()> {
@@ -39,6 +74,16 @@ pub fn resolve_data_via(
         let Declaration::Data(d) = decl else {
             continue;
         };
+        let kind = if d.is_image { "image" } else { "data" };
+        if !stays_inside(&d.file) {
+            return Err(outside_project(
+                &format!("`{kind} {}`", d.name),
+                &d.file,
+                &d.file,
+                d.span.line as usize,
+                d.span.col as usize,
+            ));
+        }
         // `image hero = "media/hero.jpg"`: the picture itself, at every
         // width the page will ask for.
         if d.is_image {

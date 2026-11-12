@@ -40,6 +40,8 @@ pub struct Options {
     /// For an editor's preview: every element stamped with its node id,
     /// and `nodes.json` written beside the site.
     pub studio: bool,
+    /// Let `build.output` name a directory outside the project.
+    pub allow_output_outside: bool,
 }
 
 /// Build with `options`. With a format for a tool, the findings are written
@@ -74,6 +76,7 @@ fn run(
         deny_warnings: options.deny_warnings,
         dev: options.dev,
         studio: options.studio,
+        allow_output_outside: options.allow_output_outside,
         color: crate::diagnostics::render::stderr_wants_color(),
         on_line: Some(&print),
         ..BuildOptions::new(project_dir, &FsVfs)

@@ -1394,24 +1394,52 @@ fn route_page(route: &UIElement) -> Option<&str> {
 }
 
 /// The `.wf` files under `dir`, `App.wf` first, as `wf build` reads them.
+///
+/// What is listed is what a formatter or a migration may write back, so a
+/// link that leads out of `dir` is left out — writing through it would
+/// change a file somewhere else — and no directory is entered twice, so a
+/// link that loops ends the walk rather than running it forever.
 pub fn source_files(dir: &Path) -> std::io::Result<Vec<(PathBuf, String)>> {
     let mut paths = Vec::new();
-    fn walk(dir: &Path, out: &mut Vec<PathBuf>) -> std::io::Result<()> {
-        let mut entries: Vec<PathBuf> = std::fs::read_dir(dir)?
+    fn walk(
+        root: &Path,
+        dir: &Path,
+        seen: &mut std::collections::HashSet<PathBuf>,
+        out: &mut Vec<PathBuf>,
+    ) -> std::io::Result<()> {
+        let real = std::fs::canonicalize(dir)?;
+        if !seen.insert(real) {
+            return Ok(());
+        }
+        let mut entries: Vec<(PathBuf, bool)> = std::fs::read_dir(dir)?
             .flatten()
-            .map(|e| e.path())
+            .map(|e| (e.path(), e.file_type().is_ok_and(|t| t.is_symlink())))
             .collect();
         entries.sort();
-        for path in entries {
+        for (path, linked) in entries {
+            if linked && std::fs::canonicalize(&path).map_or(true, |real| !real.starts_with(root)) {
+                eprintln!(
+                    "  {}: left out, a link that leads outside {}",
+                    path.display(),
+                    root.display()
+                );
+                continue;
+            }
             if path.is_dir() {
-                walk(&path, out)?;
+                walk(root, &path, seen, out)?;
             } else if crate::syntax::is_source_file(&path) {
                 out.push(path);
             }
         }
         Ok(())
     }
-    walk(dir, &mut paths)?;
+    let root = std::fs::canonicalize(dir)?;
+    walk(
+        &root,
+        dir,
+        &mut std::collections::HashSet::new(),
+        &mut paths,
+    )?;
     let mut files = Vec::new();
     for path in paths {
         let text = std::fs::read_to_string(&path)?;

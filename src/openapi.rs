@@ -792,6 +792,15 @@ pub fn expand(
         let Some(file) = api.from.clone() else {
             continue;
         };
+        if !crate::data::stays_inside(&file) {
+            return Err(crate::data::outside_project(
+                &format!("`api {} from`", api.name),
+                &file,
+                &file,
+                1,
+                1,
+            ));
+        }
         let Some(text) = read_file(&file) else {
             return Err(WebFluentError::ParseError(Box::new(Diagnostic::coded(
                 "E111",

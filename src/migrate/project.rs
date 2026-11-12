@@ -248,12 +248,25 @@ pub fn four(project_dir: &Path, files: &[(PathBuf, String)]) -> Option<Four> {
 /// that the rest of the migration changed further.
 pub fn write_four_two(project_dir: &Path, step: &FourTwo) -> Result<Option<PathBuf>> {
     let outcome = &step.outcome;
+    // Nothing is written through a link out of the project.
+    let refuse = |path: &Path| -> Result<()> {
+        if crate::agent::escapes(project_dir, path) {
+            return Err(WebFluentError::IoError(format!(
+                "{} leads outside the project, through a link: not written",
+                path.display()
+            )));
+        }
+        Ok(())
+    };
     for path in &outcome.changed {
         if let Some((_, text)) = outcome.files.iter().find(|(p, _)| p == path) {
+            refuse(path)?;
             std::fs::write(path, text)?;
         }
     }
     for (from, to, source) in &outcome.moved {
+        refuse(from)?;
+        refuse(to)?;
         if let Some(dir) = to.parent() {
             std::fs::create_dir_all(dir)?;
         }

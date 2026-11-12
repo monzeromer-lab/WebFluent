@@ -97,6 +97,10 @@ enum Commands {
         /// (`data-wf-node`) and write `nodes.json`, from each id to its source
         #[arg(long)]
         studio: bool,
+        /// Let `build.output` name a directory outside the project; without
+        /// it a build writes only inside the project
+        #[arg(long)]
+        allow_output_outside: bool,
     },
     /// Check the project — every finding a build would report — and write
     /// nothing
@@ -260,6 +264,13 @@ enum Commands {
         /// Project directory (default: current directory)
         #[arg(short, long, default_value = ".")]
         dir: PathBuf,
+        /// The address to listen on: this machine only by default; `0.0.0.0`
+        /// lets a phone on the same network reach it
+        #[arg(long, default_value = "127.0.0.1")]
+        host: String,
+        /// Let `build.output` name a directory outside the project
+        #[arg(long)]
+        allow_output_outside: bool,
     },
     /// Generate a new page, component, or store
     Generate {
@@ -361,6 +372,9 @@ enum Commands {
         /// previous build's pages kept
         #[arg(long)]
         returning_visitor: bool,
+        /// Let `build.output` name a directory outside the project
+        #[arg(long)]
+        allow_output_outside: bool,
     },
     /// Describe every built-in component: props, cases, flags, events, slots, parts
     Registry {
@@ -447,6 +461,7 @@ fn main() {
             deny_warnings,
             cache,
             studio,
+            allow_output_outside,
         } => cli::build::run_build_opts(
             &dir,
             cli::build::Options {
@@ -456,6 +471,7 @@ fn main() {
                 dev: false,
                 cache,
                 studio,
+                allow_output_outside,
             },
         ),
         Commands::Check {
@@ -471,6 +487,7 @@ fn main() {
                 dev: false,
                 cache: false,
                 studio: false,
+                allow_output_outside: false,
             },
         ),
         Commands::Config { action } => match action {
@@ -524,7 +541,11 @@ fn main() {
         }
         Commands::Fix { dir, code, dry_run } => cli::fix::run_fix(&dir, code.as_deref(), dry_run),
         Commands::Explain { code } => cli::explain::run_explain(code.as_deref()),
-        Commands::Serve { dir } => cli::serve::run_serve(&dir),
+        Commands::Serve {
+            dir,
+            host,
+            allow_output_outside,
+        } => cli::serve::run_serve(&dir, &host, allow_output_outside),
         Commands::Generate { kind, name, dir } => cli::generate::run_generate(&kind, &name, &dir),
         Commands::Render {
             template: tpl,
@@ -567,7 +588,8 @@ fn main() {
             json,
             budget,
             returning_visitor,
-        } => cli::verify::run_verify(&path, json, budget, returning_visitor),
+            allow_output_outside,
+        } => cli::verify::run_verify(&path, json, budget, returning_visitor, allow_output_outside),
         Commands::Registry { json } => cli::describe::run_registry(json),
         Commands::Types { path, json } => cli::describe::run_types(&path, json),
     };
