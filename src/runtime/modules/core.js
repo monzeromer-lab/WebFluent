@@ -462,6 +462,42 @@
   // many such writes wait. Empty in a build without it.
   let offlineWrites = null;
   let offlineQueued = null;
+  // How many messages a connection's `.messages` holds by default: the
+  // newest, the oldest going first. `keep:` on the connection says another
+  // number. A list that grew for as long as the page was open — copied on
+  // every message — is how a chat left open for a day ran out of memory.
+  const KEEP_MESSAGES = 500;
+  function keepOf(opts) {
+    const n = opts && opts.keep != null ? Math.floor(Number(opts.keep)) : KEEP_MESSAGES;
+    return Number.isFinite(n) && n >= 0 ? n : KEEP_MESSAGES;
+  }
+  function appendKept(held, item, keep) {
+    if (keep <= 0) return [];
+    if (held.length < keep) return [...held, item];
+    const out = held.slice(held.length - keep + 1);
+    out.push(item);
+    return out;
+  }
+  // A service's `on request` hook, by the service's name, so a write kept
+  // offline is sent later with the credentials the hook gives then — they
+  // are never stored with it.
+  const _requestHooks = new Map();
+
+  // A header that carries a credential: never stored with a kept write, and
+  // what tells one reader's cached answer from another's.
+  const _CREDENTIAL = /^(authorization|proxy-authorization|cookie)$|token|secret|api[-_]?key|session|auth|csrf|xsrf|password/i;
+  function _credentialHeaders(headers) {
+    const out = [];
+    for (const [k, v] of Object.entries(headers || {})) {
+      if (_CREDENTIAL.test(k) && v != null && v !== "") out.push([k.toLowerCase(), String(v)]);
+    }
+    return out;
+  }
+  function _withoutCredentials(headers) {
+    const out = {};
+    for (const [k, v] of Object.entries(headers || {})) if (!_CREDENTIAL.test(k)) out[k] = v;
+    return out;
+  }
   // The project's translations, set by `locales()` when i18n is built in.
   // `format` and a field's labels read it without depending on i18n.
   let i18nInstance = null;

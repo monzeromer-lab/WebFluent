@@ -75,7 +75,7 @@ pub const MODULES: &[Module] = &[
         same("dedent"), same("lines"), same("words"),
     ], deps: [], triggers: []),
     module!("format", exports: [same("format"), same("ago")], deps: [], triggers: []),
-    module!("offline", exports: [same("offline"), same("update")], deps: [], triggers: []),
+    module!("offline", exports: [same("offline"), same("update"), same("clearQueued")], deps: [], triggers: []),
     module!("peer", exports: [same("rtc")], deps: [], triggers: []),
     module!("scalars", exports: [
         same("year"), same("month"), same("day"), same("weekday"), same("hour"),
