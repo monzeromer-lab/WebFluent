@@ -322,8 +322,6 @@ fn config_paths_outside_the_project_are_refused() {
     for config in [
         r#"{ "name": "p", "i18n": { "default_locale": "en", "locales": ["en"], "dir": "../outside" } }"#,
         r#"{ "name": "p", "i18n": { "default_locale": "en", "locales": ["en"], "dir": "/etc" } }"#,
-        r#"{ "name": "p", "build": { "pdf": { "fonts": ["/usr/share/fonts"] } } }"#,
-        r#"{ "name": "p", "build": { "slides": { "fonts": ["../fonts"] } } }"#,
     ] {
         let s = Scratch::new("config-paths");
         s.config(config);

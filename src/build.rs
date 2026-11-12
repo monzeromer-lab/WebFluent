@@ -367,19 +367,16 @@ fn routes(program: &Program, declaration_files: &[String]) -> Vec<RouteInfo> {
         .collect()
 }
 
-/// The paths the config names that the build reads — the translations,
-/// the font directories of a document and a deck — each inside the
-/// project, or the finding that one is not.
+/// The paths the config names that the build reads as they are — the
+/// translations — each inside the project, or the finding that one is not.
+///
+/// The font directories of a document and a deck may be elsewhere (a
+/// folder of fonts several projects share, `../fonts`): only font files are
+/// read there, and only the glyphs a document uses are embedded.
 fn check_config_paths(config: &ProjectConfig) -> Result<()> {
     let mut named: Vec<(&str, &str)> = Vec::new();
     if let Some(i18n) = &config.i18n {
         named.push(("`i18n.dir`", &i18n.dir));
-    }
-    for dir in &config.build.pdf.fonts {
-        named.push(("`build.pdf.fonts`", dir));
-    }
-    for dir in &config.build.slides.fonts {
-        named.push(("`build.slides.fonts`", dir));
     }
     for (what, path) in named {
         if !crate::data::stays_inside(path) {
@@ -662,7 +659,12 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
                     .next()
                     .unwrap_or(src)
                     .trim_start_matches('/');
-                fs::read(built.join(rel)).ok()
+                // Only what this build wrote, under its output.
+                let inside = !rel.contains(['\\', '\0'])
+                    && Path::new(rel)
+                        .components()
+                        .all(|c| matches!(c, std::path::Component::Normal(_)));
+                inside.then(|| fs::read(built.join(rel)).ok()).flatten()
             })
         };
         let rendered = if deck {

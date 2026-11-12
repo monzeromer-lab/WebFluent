@@ -142,7 +142,7 @@ wf build --format github --deny-warnings
 ```
 
 **A build stays inside its project.** It reads only the project's own
-files: a `data`, `image`, `api … from`, `i18n.dir` or font directory names a
+files: a `data`, `image`, `api … from` or `i18n.dir` names a
 path inside the project (an absolute path or a `..` is an error), and a
 symbolic link that leads out of the project — or to nothing, or back into a
 directory above it — is left out of every walk, with a warning naming it. A

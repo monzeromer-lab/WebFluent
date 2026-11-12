@@ -2587,7 +2587,7 @@ since a cloned project could list a shell secret there; each build warns of
 every such value it bundles.
 
 **A build stays in its project.** `data`, `image`, `api … from`,
-`i18n.dir` and font directories are paths inside it (an absolute path or a
+and `i18n.dir` are paths inside it (an absolute path or a
 `..` is an error); a link out of the project, to nothing, or looping back is
 left out of every walk with a warning; `build.output` outside the project,
 or a link in it, is refused unless the command line says

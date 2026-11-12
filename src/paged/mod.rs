@@ -741,8 +741,7 @@ pub fn font_dirs_via(
                 out.push(p);
             }
         }
-        // `pdf.fonts`, inside the project: the build refuses one that is not.
-        for e in extra.iter().filter(|e| crate::data::stays_inside(e)) {
+        for e in extra {
             out.push(root.join(e));
         }
     }
