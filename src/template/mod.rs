@@ -1260,6 +1260,9 @@ impl<'a> RenderContext<'a> {
                 {
                     self.eval_static(expr)
                 }
+                // A regular expression is no JSON value: the evaluator
+                // works the whole call out, `/…/.test(x)` and the like.
+                Expr::Regex(..) => self.eval_static(expr),
                 _ => {
                     let receiver = self.eval_expr(obj);
                     self.eval_static_with(
@@ -2085,7 +2088,7 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
         let named = |k: &str| {
             ui.args
                 .iter()
-                .find_map(|a| matches!(a, Arg::Named(n, _) if n == k).then_some(a))
+                .find(|a| matches!(a, Arg::Named(n, _) if n == k))
         };
         if let Some(Arg::Named(_, srcdoc)) = named("srcdoc")
             && !matches!(srcdoc, Expr::StringLiteral(_))
@@ -3054,7 +3057,7 @@ fn class_names(val: &Value, out: &mut Vec<String>) {
             // a `"` from the data cannot close the attribute and open another.
             for c in value_to_string(other).split_whitespace() {
                 let c = html_escape(c);
-                if !out.iter().any(|o| *o == c) {
+                if !out.contains(&c) {
                     out.push(c);
                 }
             }

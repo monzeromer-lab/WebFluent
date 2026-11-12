@@ -17,7 +17,11 @@ use webfluent::{Template, WebFluentError};
 /// The stack a test thread gets: 2 MB — what a server's worker thread has —
 /// in a release build; a debug build's frames are several times larger, so
 /// there it is what `wf`'s own main thread has, twice over.
-const STACK: usize = if cfg!(debug_assertions) { 16 << 20 } else { 2 << 20 };
+const STACK: usize = if cfg!(debug_assertions) {
+    16 << 20
+} else {
+    2 << 20
+};
 
 /// Run `f` on a thread with [`STACK`] and fail if it does not finish in
 /// `secs`. A hang or a runaway allocation would otherwise take the whole
@@ -79,8 +83,14 @@ fn a_name_may_start_with_any_character_uax31_lets_one_start_with() {
             .collect::<Vec<_>>()
     });
     for (c, names) in found {
-        assert!(names.iter().all(|n| !n.is_empty()), "{c:?} made an empty name: {names:?}");
-        assert!(names.iter().any(|n| n.starts_with(c)), "{c:?} is not a name: {names:?}");
+        assert!(
+            names.iter().all(|n| !n.is_empty()),
+            "{c:?} made an empty name: {names:?}"
+        );
+        assert!(
+            names.iter().any(|n| n.starts_with(c)),
+            "{c:?} is not a name: {names:?}"
+        );
     }
 }
 
@@ -141,7 +151,9 @@ fn a_long_wfx_file_lexes_in_linear_time() {
     // 40,000 implied blocks: quadratic was minutes, linear is well under
     // a second even in a debug build.
     let src = wfx_lines(20_000);
-    let tokens = within(20, move || LexerV2::for_file(&src, "x.wfx").tokenize().unwrap());
+    let tokens = within(20, move || {
+        LexerV2::for_file(&src, "x.wfx").tokenize().unwrap()
+    });
     let opens = tokens
         .iter()
         .filter(|t| t.token_type == TokenType::OpenBrace)
@@ -191,7 +203,8 @@ fn every_implied_brace_is_where_the_source_says() {
     let mut checked = 0;
     for file in files {
         let src = if file.to_str() == Some("<inline>") {
-            "page P(path: \"/\")\n    Row\n        Text(\"عدد {x}\")\n    /// docs\n    عمود\n".to_string()
+            "page P(path: \"/\")\n    Row\n        Text(\"عدد {x}\")\n    /// docs\n    عمود\n"
+                .to_string()
         } else {
             std::fs::read_to_string(&file).unwrap()
         };
@@ -201,7 +214,10 @@ fn every_implied_brace_is_where_the_source_says() {
         for pair in tokens.windows(2) {
             let (before, brace) = (&pair[0], &pair[1]);
             if brace.offset != brace.end
-                || !matches!(brace.token_type, TokenType::OpenBrace | TokenType::CloseBrace)
+                || !matches!(
+                    brace.token_type,
+                    TokenType::OpenBrace | TokenType::CloseBrace
+                )
             {
                 continue;
             }
@@ -257,7 +273,9 @@ fn a_parser_given_tokens_without_an_end_finds_one() {
 // ─── B2: nesting, in the parser ──────────────────────────────────────
 
 fn page_with(expr: &str) -> String {
-    format!("page P(path: \"/\", title: \"T\", description: \"D\") {{\n    derived x = {expr}\n    Heading(\"H\").h1\n    Text(\"{{x}}\")\n}}\n")
+    format!(
+        "page P(path: \"/\", title: \"T\", description: \"D\") {{\n    derived x = {expr}\n    Heading(\"H\").h1\n    Text(\"{{x}}\")\n}}\n"
+    )
 }
 
 /// Each shape of nesting the grammar has, `n` deep.
@@ -277,7 +295,10 @@ fn shapes(n: usize) -> Vec<(&'static str, String)> {
         ("indexes", format!("a{}", "[0]".repeat(n))),
         ("optional", format!("a{}", "?.b".repeat(n))),
         ("methods", format!("a{}", ".m()".repeat(n))),
-        ("ifs", format!("{}1{}", "if true { ".repeat(n), " } else { 0 }".repeat(n))),
+        (
+            "ifs",
+            format!("{}1{}", "if true { ".repeat(n), " } else { 0 }".repeat(n)),
+        ),
         ("lambdas", format!("{}1", "x => ".repeat(n))),
     ]
 }
@@ -334,7 +355,12 @@ fn a_long_chain_past_the_limit_is_e120_not_a_deep_tree() {
 #[test]
 fn the_limit_is_exact_for_a_bracket() {
     // The derived value's own expression is one level, each `(` another.
-    let at = |n: usize| parse_codes(&page_with(&format!("{}1{}", "(".repeat(n), ")".repeat(n))), "x.wf");
+    let at = |n: usize| {
+        parse_codes(
+            &page_with(&format!("{}1{}", "(".repeat(n), ")".repeat(n))),
+            "x.wf",
+        )
+    };
     let (ok, over) = within(30, move || {
         let mut last_ok = 0;
         for n in (MAX_NESTING - 20)..(MAX_NESTING + 5) {
@@ -371,7 +397,11 @@ fn nesting_through_string_splices_is_counted() {
 
 #[test]
 fn nesting_through_style_splices_is_counted() {
-    let inner = format!("{}1{}", "(".repeat(MAX_NESTING + 1), ")".repeat(MAX_NESTING + 1));
+    let inner = format!(
+        "{}1{}",
+        "(".repeat(MAX_NESTING + 1),
+        ")".repeat(MAX_NESTING + 1)
+    );
     let src = format!(
         "page P(path: \"/\") {{\n    Text(\"x\") {{\n        style {{\n            width: {{{inner}}}px\n        }}\n    }}\n}}\n"
     );
@@ -382,14 +412,26 @@ fn nesting_through_style_splices_is_counted() {
 #[test]
 fn nesting_blocks_and_elements_is_counted() {
     let n = MAX_NESTING + 1;
-    let elements = format!("page P(path: \"/\") {{ {}Text(\"x\"){} }}", "Row { ".repeat(n), " }".repeat(n));
-    let ifs = format!("page P(path: \"/\") {{ {}Text(\"x\"){} }}", "if true { ".repeat(n), " }".repeat(n));
+    let elements = format!(
+        "page P(path: \"/\") {{ {}Text(\"x\"){} }}",
+        "Row { ".repeat(n),
+        " }".repeat(n)
+    );
+    let ifs = format!(
+        "page P(path: \"/\") {{ {}Text(\"x\"){} }}",
+        "if true { ".repeat(n),
+        " }".repeat(n)
+    );
     let handlers = format!(
         "page P(path: \"/\") {{ state a = 0\n Button(\"b\") {{ on click {{ {}a = 1{} }} }} }}",
         "if true { ".repeat(n),
         " }".repeat(n)
     );
-    let types = format!("component C(x: {}String{}) {{ Text(\"x\") }}", "[".repeat(n), "]".repeat(n));
+    let types = format!(
+        "component C(x: {}String{}) {{ Text(\"x\") }}",
+        "[".repeat(n),
+        "]".repeat(n)
+    );
     let found = within(60, move || {
         [elements, ifs, handlers, types]
             .iter()
@@ -454,7 +496,10 @@ fn nesting_generated_at_random_never_overflows() {
             close.push(c);
         }
         let tail = ".b".repeat((next() % 300) as usize);
-        let e = format!("{open}a{tail}{}", close.iter().rev().copied().collect::<String>());
+        let e = format!(
+            "{open}a{tail}{}",
+            close.iter().rev().copied().collect::<String>()
+        );
         cases.push(page_with(&e));
     }
     let found = within(120, move || {
@@ -465,7 +510,10 @@ fn nesting_generated_at_random_never_overflows() {
     });
     for result in found {
         if let Err(codes) = result {
-            assert!(codes.iter().all(|c| *c == "E120" || *c == "E002"), "{codes:?}");
+            assert!(
+                codes.iter().all(|c| *c == "E120" || *c == "E002"),
+                "{codes:?}"
+            );
         }
     }
 }
@@ -504,7 +552,10 @@ fn a_program_just_under_the_limit_checks_on_a_small_stack() {
         ("not", format!("{}true", "!".repeat(n))),
         ("methods", format!("\"a\"{}", ".trim()".repeat(n))),
         ("plus", format!("1{}", " + 1".repeat(n))),
-        ("ifs", format!("{}1{}", "if true { ".repeat(n), " } else { 0 }".repeat(n))),
+        (
+            "ifs",
+            format!("{}1{}", "if true { ".repeat(n), " } else { 0 }".repeat(n)),
+        ),
         ("lists", format!("{}1{}", "[".repeat(n), "]".repeat(n))),
         ("lambdas", format!("[1].map({}1)", "x => ".repeat(n))),
     ];
@@ -557,7 +608,10 @@ fn a_status_outside_http_s_range_or_with_a_fraction_is_refused() {
         let err = parse_v2(&api_with(bad), "x.wf").unwrap_err();
         let found = err.diagnostics();
         assert_eq!(found.len(), 1, "{bad}: {found:?}");
-        assert!(found[0].message.contains("is not an HTTP status"), "{bad}: {found:?}");
+        assert!(
+            found[0].message.contains("is not an HTTP status"),
+            "{bad}: {found:?}"
+        );
     }
     for good in ["100", "422", "599"] {
         parse_v2(&api_with(good), "x.wf").unwrap_or_else(|e| panic!("{good}: {e}"));
@@ -567,7 +621,9 @@ fn a_status_outside_http_s_range_or_with_a_fraction_is_refused() {
 #[test]
 fn a_persisted_version_too_large_to_hold_is_refused() {
     let with = |v: &str| {
-        format!("page P(path: \"/\") {{\n    persist n: Number = 0 {{ version: {v} }}\n    Text(\"{{n}}\")\n}}\n")
+        format!(
+            "page P(path: \"/\") {{\n    persist n: Number = 0 {{ version: {v} }}\n    Text(\"{{n}}\")\n}}\n"
+        )
     };
     for bad in ["4294967296", "10000000000000", "0", "1.5"] {
         let err = parse_v2(&with(bad), "x.wf").unwrap_err();
@@ -612,7 +668,12 @@ fn child_bodies_names_every_body_the_ast_has() {
         if let StatementKind::UIElement(el) = &stmt.kind {
             want = 1 + el.events.len() + el.slot_fills.len();
         }
-        assert_eq!(webfluent::scope::child_bodies(stmt).len(), want, "{:?}", stmt.kind);
+        assert_eq!(
+            webfluent::scope::child_bodies(stmt).len(),
+            want,
+            "{:?}",
+            stmt.kind
+        );
     }
     let StatementKind::Connection(c) = &page.body[0].kind else {
         unreachable!()

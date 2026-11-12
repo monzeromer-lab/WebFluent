@@ -144,8 +144,9 @@ pub fn check_project_via(vfs: &dyn Vfs, p: &Project) -> Checked {
         crate::platform::scope(|s| {
             let around = deep(s, || project_checks_via(vfs, shared, file_of));
             let typed = deep(s, || program_checks_typed(p.program, file_of, source_of));
-            let structure =
-                deep(s, || crate::linter::structure::lint_structure(p.program, file_of));
+            let structure = deep(s, || {
+                crate::linter::structure::lint_structure(p.program, file_of)
+            });
             let lowered = crate::sema::lower(p.program.clone());
             let from_lowered = lowered_checks(&lowered, shared, file_of);
             (
@@ -278,9 +279,12 @@ fn lowered_checks(
                     crate::linter::styles::lint_styles(lowered, None, file_of),
                 ),
             });
-            let unused = deep(s, || crate::linter::lint_unused_in(lowered, file_of, &published));
-            let vocabulary =
-                deep(s, || crate::linter::lint_vocabulary_with(lowered, p.stylesheets, file_of));
+            let unused = deep(s, || {
+                crate::linter::lint_unused_in(lowered, file_of, &published)
+            });
+            let vocabulary = deep(s, || {
+                crate::linter::lint_vocabulary_with(lowered, p.stylesheets, file_of)
+            });
             let output = p.config.map(|config| {
                 let mut out = output_checks(lowered, config, file_of);
                 if config.build.csp {

@@ -84,7 +84,10 @@ fn what_the_fuel_allows_is_still_worked_out() {
         ("(1..=1000).map(i => i * 2).length", Static::Num(1000.0)),
         ("(1..=200000).length", Static::Num(200_000.0)),
         ("(1..=100).flatMap(i => [i, i]).length", Static::Num(200.0)),
-        ("(1..=300).map(i => \"ab\").join(\"\").length", Static::Num(600.0)),
+        (
+            "(1..=300).map(i => \"ab\").join(\"\").length",
+            Static::Num(600.0),
+        ),
         ("[1, 2, 3][1.5] ?? \"none\"", Static::Str("none".into())),
         ("[1, 2, 3][-1] ?? \"none\"", Static::Str("none".into())),
     ] {
@@ -152,7 +155,9 @@ fn a_picture_wider_than_webp_holds_is_served_as_it_is_at_that_width() {
     // build. The narrower widths are still made; the full width is the
     // original's.
     let dir = scratch("wide");
-    let asset = within(120, move || process(&dir, "wide.png", &noise_png(16_400, 8)).unwrap());
+    let asset = within(120, move || {
+        process(&dir, "wide.png", &noise_png(16_400, 8)).unwrap()
+    });
     let widths: Vec<u32> = asset
         .sources
         .get("webp")
@@ -163,14 +168,21 @@ fn a_picture_wider_than_webp_holds_is_served_as_it_is_at_that_width() {
     assert_eq!((asset.width, asset.height), (16_400, 8));
     // And a tall one, which has no narrower width to make.
     let dir = scratch("tall");
-    let asset = within(120, move || process(&dir, "tall.png", &noise_png(8, 16_400)).unwrap());
-    assert!(asset.sources.get("webp").is_none_or(|s| s.is_empty()), "{asset:?}");
+    let asset = within(120, move || {
+        process(&dir, "tall.png", &noise_png(8, 16_400)).unwrap()
+    });
+    assert!(
+        asset.sources.get("webp").is_none_or(|s| s.is_empty()),
+        "{asset:?}"
+    );
 }
 
 #[test]
 fn a_picture_at_webp_s_limit_is_still_made() {
     let dir = scratch("edge");
-    let asset = within(120, move || process(&dir, "edge.png", &noise_png(16_383, 8)).unwrap());
+    let asset = within(120, move || {
+        process(&dir, "edge.png", &noise_png(16_383, 8)).unwrap()
+    });
     let widths: Vec<u32> = asset.sources["webp"].iter().map(|(w, _)| *w).collect();
     assert!(widths.contains(&16_383), "{widths:?}");
 }
@@ -183,7 +195,11 @@ fn header_only_png(w: u32, h: u32) -> Vec<u8> {
         for b in bytes {
             c ^= u32::from(*b);
             for _ in 0..8 {
-                c = if c & 1 != 0 { 0xEDB8_8320 ^ (c >> 1) } else { c >> 1 };
+                c = if c & 1 != 0 {
+                    0xEDB8_8320 ^ (c >> 1)
+                } else {
+                    c >> 1
+                };
             }
         }
         !c
@@ -203,7 +219,10 @@ fn header_only_png(w: u32, h: u32) -> Vec<u8> {
     png.extend(chunk(b"IHDR", &ihdr));
     // An empty zlib stream: the header is followed by data, which holds
     // nothing.
-    png.extend(chunk(b"IDAT", &[0x78, 0x9C, 0x03, 0x00, 0x00, 0x00, 0x00, 0x01]));
+    png.extend(chunk(
+        b"IDAT",
+        &[0x78, 0x9C, 0x03, 0x00, 0x00, 0x00, 0x00, 0x01],
+    ));
     png.extend(chunk(b"IEND", &[]));
     png
 }
@@ -213,14 +232,18 @@ fn a_picture_of_too_many_pixels_is_refused_before_it_is_decoded() {
     // 11000×11000 is 121 megapixels: the reviewers' 470 KB file took 3 GB
     // and seven minutes. Its header alone now decides.
     let dir = scratch("vast");
-    let err = within(30, move || process(&dir, "vast.png", &header_only_png(11_000, 11_000)).unwrap_err());
+    let err = within(30, move || {
+        process(&dir, "vast.png", &header_only_png(11_000, 11_000)).unwrap_err()
+    });
     let message = err.to_string();
     assert!(message.contains("11000×11000"), "{message}");
     assert!(message.contains("at most 50"), "{message}");
     // Just under the limit, the header is read and the (empty) picture is
     // then refused as unreadable, not as too large.
     let dir = scratch("under");
-    let err = within(30, move || process(&dir, "under.png", &header_only_png(7_000, 7_000)).unwrap_err());
+    let err = within(30, move || {
+        process(&dir, "under.png", &header_only_png(7_000, 7_000)).unwrap_err()
+    });
     assert!(!err.to_string().contains("megapixels"), "{err}");
 }
 

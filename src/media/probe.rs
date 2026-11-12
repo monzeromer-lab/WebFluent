@@ -34,14 +34,16 @@ pub struct Probed {
 fn reader<'a>(bytes: &'a [u8], source: &Path) -> Result<ImageReader<std::io::Cursor<&'a [u8]>>> {
     ImageReader::new(std::io::Cursor::new(bytes))
         .with_guessed_format()
-        .map_err(|e| WebFluentError::IoError(format!("{} could not be read: {e}", source.display())))
+        .map_err(|e| {
+            WebFluentError::IoError(format!("{} could not be read: {e}", source.display()))
+        })
 }
 
 /// The width and height `bytes` say they hold, read from the header alone.
 pub fn dimensions(bytes: &[u8], source: &Path) -> Result<(u32, u32)> {
-    reader(bytes, source)?
-        .into_dimensions()
-        .map_err(|e| WebFluentError::IoError(format!("{} could not be read: {e}", source.display())))
+    reader(bytes, source)?.into_dimensions().map_err(|e| {
+        WebFluentError::IoError(format!("{} could not be read: {e}", source.display()))
+    })
 }
 
 /// Decode `bytes`, and read what the build needs from them.

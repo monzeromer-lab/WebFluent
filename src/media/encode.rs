@@ -138,5 +138,7 @@ fn webp_of(image: &image::DynamicImage, quality: u8) -> Result<Vec<u8>> {
     encoder
         .encode_simple(false, quality)
         .map(|m| m.to_vec())
-        .map_err(|e| WebFluentError::IoError(format!("the image could not be written as WebP: {e:?}")))
+        .map_err(|e| {
+            WebFluentError::IoError(format!("the image could not be written as WebP: {e:?}"))
+        })
 }

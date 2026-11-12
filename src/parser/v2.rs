@@ -420,7 +420,7 @@ impl ParserV2 {
                 t.line,
                 t.column,
             )
-            .with_hint(&format!(
+            .with_hint(format!(
                 "Nothing may nest more than {} levels deep — brackets, blocks and the links of a chain counted together; name a part of it with `let` or `derived`",
                 crate::parser::MAX_NESTING
             )),
@@ -3651,7 +3651,10 @@ impl ParserV2 {
     fn parse_postfix(&mut self) -> Result<Expr> {
         let mut expr = self.parse_primary()?;
         loop {
-            if self.check(&TokenType::Dot) || self.check(&TokenType::OpenBracket) || self.check(&TokenType::OptionalChain) {
+            if self.check(&TokenType::Dot)
+                || self.check(&TokenType::OpenBracket)
+                || self.check(&TokenType::OptionalChain)
+            {
                 self.link()?;
             }
             if self.check(&TokenType::Dot) {

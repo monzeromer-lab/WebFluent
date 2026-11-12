@@ -114,8 +114,7 @@ fn components_are_shared_across_sources_and_a_finding_names_its_file() {
         ),
         ("quote.wf", r#"page Quote(path: "/") { Prise(1) }"#),
     ])
-    .err()
-    .expect("an unknown component is refused")
+    .expect_err("an unknown component is refused")
     .to_string();
     assert!(err.contains("Prise") && err.contains("quote.wf"), "{err}");
 }

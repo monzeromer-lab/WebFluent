@@ -13,7 +13,11 @@ use webfluent::{Template, WebFluentError};
 
 /// The stack a test thread gets: 2 MB — what a server's worker thread has —
 /// in a release build; a debug build's frames are several times larger.
-const STACK: usize = if cfg!(debug_assertions) { 16 << 20 } else { 2 << 20 };
+const STACK: usize = if cfg!(debug_assertions) {
+    16 << 20
+} else {
+    2 << 20
+};
 
 /// Run `f` on a thread with [`STACK`], and end the process if it does not
 /// finish in `secs`: a hang or a runaway allocation must fail the test,
@@ -72,7 +76,10 @@ fn data_cannot_add_declarations_to_a_style() {
         assert!(!html.contains("position"), "{evil}: {html}");
         assert!(!html.to_lowercase().contains("url("), "{evil}: {html}");
         assert!(!html.contains("evil.example"), "{evil}: {html}");
-        assert!(!html.contains("color:"), "the declaration is left out: {html}");
+        assert!(
+            !html.contains("color:"),
+            "the declaration is left out: {html}"
+        );
         assert!(!html.contains("<script"), "{evil}: {html}");
     }
 }
@@ -88,7 +95,10 @@ fn a_style_value_from_the_data_that_is_one_value_is_kept() {
     ] {
         let html = render(STYLED, json!({ "c": good }));
         let escaped = good.replace('"', "&quot;");
-        assert!(html.contains(&format!("color: {escaped}")), "{good}: {html}");
+        assert!(
+            html.contains(&format!("color: {escaped}")),
+            "{good}: {html}"
+        );
     }
 }
 
@@ -98,7 +108,10 @@ fn what_the_template_writes_around_a_splice_is_its_own() {
     Text("hi") { style { background: url({img}) center } }
 }"#;
     let html = render(src, json!({ "img": "/photo.png" }));
-    assert!(html.contains("background: url(/photo.png) center"), "{html}");
+    assert!(
+        html.contains("background: url(/photo.png) center"),
+        "{html}"
+    );
     // The data's piece may not end the declaration the template opened.
     let html = render(src, json!({ "img": "x); position: fixed; (" }));
     assert!(!html.contains("position"), "{html}");
@@ -119,7 +132,10 @@ page P(path: "/") { Box2(class: c) }"#;
         assert!(!html.contains("onfocus=\""), "{html}");
         assert!(!html.contains(" autofocus"), "{html}");
         assert!(!html.contains("tabindex=\""), "{html}");
-        assert!(html.contains("x&quot;/tabindex=&quot;0&quot;/autofocus"), "{html}");
+        assert!(
+            html.contains("x&quot;/tabindex=&quot;0&quot;/autofocus"),
+            "{html}"
+        );
     }
     // A class without anything to escape is written as it is.
     let html = render(builtin, json!({ "c": "lead is-on" }));
@@ -204,6 +220,8 @@ const CORPUS: &[(&str, &str)] = &[
     ("if 1 < 2 { \"yes\" } else { \"no\" }", "yes"),
     ("!\"\"", "true"),
     ("Math.max(3, 7)", "7"),
+    ("/^m/i.test(\"Mo\")", "true"),
+    ("\"a1b2\".replace(/\\d/g, \"#\")", "a#b#"),
     ("items.length", "2"),
     ("items[0].title", "First"),
     ("items.map(i => i.title).join(\", \")", "First, Second"),
@@ -286,7 +304,9 @@ fn a_component_that_places_itself_forever_is_e120() {
     let src = r#"component Loop(n: Number) { Stack { Text("{n}") Loop(n: n + 1) } }
 page P(path: "/") { Loop(n: 0) }"#;
     let tpl = Template::from_str(src).unwrap();
-    let err = within(60, move || tpl.render_html_fragment(&json!({})).unwrap_err());
+    let err = within(60, move || {
+        tpl.render_html_fragment(&json!({})).unwrap_err()
+    });
     assert_eq!(codes(&err), vec!["E120"]);
 }
 
@@ -306,7 +326,9 @@ page P(path: "/") { Node(item: tree) }"#;
         tree = json!({ "name": format!("n{i}"), "children": [tree] });
     }
     let tpl = Template::from_str(src).unwrap();
-    let html = within(60, move || tpl.render_html_fragment(&json!({ "tree": tree })).unwrap());
+    let html = within(60, move || {
+        tpl.render_html_fragment(&json!({ "tree": tree })).unwrap()
+    });
     assert!(html.contains("leaf") && html.contains("n29"), "{html}");
     // Sixty deep is past it, and says so.
     let mut tree = json!({ "name": "leaf", "children": [] });
@@ -314,7 +336,10 @@ page P(path: "/") { Node(item: tree) }"#;
         tree = json!({ "name": format!("n{i}"), "children": [tree] });
     }
     let tpl = Template::from_str(src).unwrap();
-    let err = within(60, move || tpl.render_html_fragment(&json!({ "tree": tree })).unwrap_err());
+    let err = within(60, move || {
+        tpl.render_html_fragment(&json!({ "tree": tree }))
+            .unwrap_err()
+    });
     assert_eq!(codes(&err), vec!["E120"]);
 }
 
@@ -331,7 +356,9 @@ fn nested_loops_over_vast_ranges_stop_with_e121() {
     }
 }"#;
     let tpl = Template::from_str(src).unwrap();
-    let err = within(60, move || tpl.render_html_fragment(&json!({})).unwrap_err());
+    let err = within(60, move || {
+        tpl.render_html_fragment(&json!({})).unwrap_err()
+    });
     assert_eq!(codes(&err), vec!["E121"]);
 }
 
@@ -344,7 +371,9 @@ fn nested_loops_over_the_data_stop_with_e121_past_the_budget() {
 }"#;
     let xs: Vec<u32> = (0..4000).collect();
     let tpl = Template::from_str(src).unwrap();
-    let err = within(300, move || tpl.render_html_fragment(&json!({ "xs": xs })).unwrap_err());
+    let err = within(300, move || {
+        tpl.render_html_fragment(&json!({ "xs": xs })).unwrap_err()
+    });
     assert_eq!(codes(&err), vec!["E121"]);
 }
 
@@ -360,7 +389,9 @@ fn a_large_render_under_the_budget_draws_whole() {
 }"#;
     let rows: Vec<u32> = (0..5000).collect();
     let tpl = Template::from_str(src).unwrap();
-    let html = within(120, move || tpl.render_html_fragment(&json!({ "rows": rows })).unwrap());
+    let html = within(120, move || {
+        tpl.render_html_fragment(&json!({ "rows": rows })).unwrap()
+    });
     assert!(html.contains(">9998<"), "the last row is drawn");
 }
 
@@ -374,7 +405,10 @@ fn an_expression_that_would_make_too_much_stops_with_e121() {
         let src = format!("page P(path: \"/\") {{\n    derived v = {e}\n    Text(\"{{v}}\")\n}}");
         let tpl = Template::from_str(&src).unwrap();
         let big = "x".repeat(100_000);
-        let err = within(60, move || tpl.render_html_fragment(&json!({ "big": big })).unwrap_err());
+        let err = within(60, move || {
+            tpl.render_html_fragment(&json!({ "big": big }))
+                .unwrap_err()
+        });
         assert_eq!(codes(&err), vec!["E121"], "{e}");
     }
 }
@@ -386,7 +420,9 @@ fn deeply_nested_quotes_in_markdown_render_as_text_past_the_cap() {
     let src = r#"page P(path: "/") { Markdown(md) }"#;
     let tpl = Template::from_str(src).unwrap();
     let md = format!("{}deep", ">".repeat(5000));
-    let html = within(60, move || tpl.render_html_fragment(&json!({ "md": md })).unwrap());
+    let html = within(60, move || {
+        tpl.render_html_fragment(&json!({ "md": md })).unwrap()
+    });
     assert_eq!(html.matches("<blockquote>").count(), 32, "{}", &html[..400]);
     assert!(html.contains("&gt;"), "what is past the cap is text");
     assert!(html.contains("deep"));
@@ -401,7 +437,9 @@ fn a_precision_from_the_data_cannot_panic_the_render() {
     let tpl = Template::from_str(src).unwrap();
     for n in [70000, 1000000000, -1, 101] {
         let tpl = tpl.clone();
-        let html = within(60, move || tpl.render_html_fragment(&json!({ "n": n })).unwrap());
+        let html = within(60, move || {
+            tpl.render_html_fragment(&json!({ "n": n })).unwrap()
+        });
         // `toFixed` past 100 is a RangeError in the browser: nothing shown.
         assert!(html.contains("[]"), "{n}: {html}");
     }
