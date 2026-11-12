@@ -23,6 +23,7 @@ exclude = [
     "/tests",
     "/.github",
     "/.claude",
+    "/.config",
     # The reference documents and the fonts they are set in: tests and
     # examples, not the compiler.
     "/examples/documents",
@@ -178,6 +179,13 @@ qrcode = { version = "0.14", default-features = false }
 [dev-dependencies]
 # The golden-output test hashes every file a build writes.
 sha2 = "0.10"
+
+# Dependencies are built optimised even in a debug build. The slow tests
+# (the corpora, PDF layout, pictures) spend their time in them, while the
+# compiler itself stays a debug build with its checks on. Built once; the
+# CI cache keeps them.
+[profile.dev.package."*"]
+opt-level = 2
 
 [profile.wasm-release]
 inherits = "release"

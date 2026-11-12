@@ -278,15 +278,31 @@ jobs:
         env:
           RUSTDOCFLAGS: -D warnings
 
+      - uses: taiki-e/install-action@cfdb7ed4ccc7c7dce37759eae89dc5674b469b39 # v2.90.3
+        with:
+          tool: cargo-nextest
+
       # Covers the unit suites, the component conformance suite, the CSS
       # invariants, both end-to-end suites, and — through `e2e_rendered` — the
       # JavaScript suites that run the compiled bundles in a DOM.
       # `serve_and_verify` drives `wf verify` in the runner's Chrome; it
       # skips on a machine without one, and here that would be a failure.
+      #
+      # nextest runs every binary's tests side by side, where `cargo test`
+      # ran the binaries one after another; .config/nextest.toml keeps the
+      # two whose tests share a folder apart. The corpora and the golden
+      # manifests run in release in the scaffolds job, so they are not run
+      # again here in debug.
       - name: Tests
-        run: cargo test --workspace
+        run: >-
+          cargo nextest run --workspace --profile ci
+          -E 'not (binary(printer_corpus) | binary(reprint_corpus) | binary(golden))'
         env:
           WF_REQUIRE_CHROME: "1"
+
+      # nextest does not run the examples in the documentation.
+      - name: Documentation examples
+        run: cargo test --workspace --doc
 
       # `e2e_rendered` skips rather than fails when Node is absent, so run the
       # JavaScript suites directly too. A skip that nobody reads is a gap.

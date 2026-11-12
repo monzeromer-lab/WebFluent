@@ -55,7 +55,14 @@ step "Clippy" cargo clippy --workspace --all-targets -- -D warnings
 step "Build" cargo build --workspace
 step "Docs" env RUSTDOCFLAGS="-D warnings" cargo doc --workspace --no-deps --quiet
 if [ "$test" = 1 ]; then
-    step "Tests" cargo test --workspace
+    # nextest, where it is installed, runs the binaries side by side, as CI
+    # does; `cargo test` runs them one after another.
+    if cargo nextest --version >/dev/null 2>&1; then
+        step "Tests" cargo nextest run --workspace
+        step "Documentation examples" cargo test --workspace --doc
+    else
+        step "Tests" cargo test --workspace
+    fi
 fi
 
 echo
