@@ -135,7 +135,7 @@ struct FakePage<'a> {
 }
 
 impl Page for FakePage<'_> {
-    fn eval(&mut self, script: &str) -> webfluent::error::Result<serde_json::Value> {
+    fn eval(&mut self, script: &str) -> webfluent::diagnostics::error::Result<serde_json::Value> {
         if script.contains("innerText") {
             return Ok(serde_json::json!(self.fake.shown));
         }
@@ -147,7 +147,7 @@ impl Page for FakePage<'_> {
         Ok(serde_json::json!("none"))
     }
 
-    fn settle(&mut self, _ms: u64) -> webfluent::error::Result<()> {
+    fn settle(&mut self, _ms: u64) -> webfluent::diagnostics::error::Result<()> {
         Ok(())
     }
 
@@ -161,7 +161,7 @@ impl Browser for Fake {
         &mut self,
         dir: &Path,
         _settle_ms: u64,
-    ) -> webfluent::error::Result<Box<dyn Page + '_>> {
+    ) -> webfluent::diagnostics::error::Result<Box<dyn Page + '_>> {
         assert!(dir.join("index.html").is_file() && dir.join("app.js").is_file());
         self.opened = Some(dir.to_path_buf());
         self.shown = "Count 0".to_string();
@@ -214,7 +214,7 @@ impl Browser for Looker {
         &mut self,
         dir: &Path,
         _settle_ms: u64,
-    ) -> webfluent::error::Result<Box<dyn Page + '_>> {
+    ) -> webfluent::diagnostics::error::Result<Box<dyn Page + '_>> {
         self.sheet = std::fs::read_to_string(dir.join("styles.css")).unwrap();
         self.page = std::fs::read_to_string(dir.join("index.html")).unwrap();
         self.extra = std::fs::read_to_string(dir.join("extra.css")).ok();
@@ -226,10 +226,10 @@ impl Browser for Looker {
 struct Shown;
 
 impl Page for Shown {
-    fn eval(&mut self, _script: &str) -> webfluent::error::Result<serde_json::Value> {
+    fn eval(&mut self, _script: &str) -> webfluent::diagnostics::error::Result<serde_json::Value> {
         Ok(serde_json::json!("Hi"))
     }
-    fn settle(&mut self, _ms: u64) -> webfluent::error::Result<()> {
+    fn settle(&mut self, _ms: u64) -> webfluent::diagnostics::error::Result<()> {
         Ok(())
     }
     fn errors(&self) -> Vec<String> {
@@ -407,7 +407,7 @@ impl Browser for Leaving {
         &mut self,
         _dir: &Path,
         _settle_ms: u64,
-    ) -> webfluent::error::Result<Box<dyn Page + '_>> {
+    ) -> webfluent::diagnostics::error::Result<Box<dyn Page + '_>> {
         Ok(Box::new(LeavingPage { left: self.reads }))
     }
 }
@@ -417,7 +417,7 @@ struct LeavingPage {
 }
 
 impl Page for LeavingPage {
-    fn eval(&mut self, script: &str) -> webfluent::error::Result<serde_json::Value> {
+    fn eval(&mut self, script: &str) -> webfluent::diagnostics::error::Result<serde_json::Value> {
         if !script.contains("innerText") {
             return Ok(serde_json::json!("ok"));
         }
@@ -427,7 +427,7 @@ impl Page for LeavingPage {
         self.left -= 1;
         Ok(serde_json::json!("Staying Leaving"))
     }
-    fn settle(&mut self, ms: u64) -> webfluent::error::Result<()> {
+    fn settle(&mut self, ms: u64) -> webfluent::diagnostics::error::Result<()> {
         std::thread::sleep(std::time::Duration::from_millis(ms));
         Ok(())
     }

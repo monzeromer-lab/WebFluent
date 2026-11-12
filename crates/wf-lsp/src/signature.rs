@@ -4,9 +4,9 @@
 //! language gives.
 
 use lsp_types::*;
-use webfluent::lexer::{Token, TokenType};
-use webfluent::parser::ast::*;
 use webfluent::registry::{self, PropType};
+use webfluent::syntax::lexer::{Token, TokenType};
+use webfluent::syntax::parser::ast::*;
 
 use crate::analysis;
 use crate::project::Project;

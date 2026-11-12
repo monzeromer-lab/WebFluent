@@ -9,7 +9,7 @@
 use std::path::{Path, PathBuf};
 
 use webfluent::edit::{rewrite_body, rewrite_element, rewrite_statement};
-use webfluent::parser::ast::*;
+use webfluent::syntax::parser::ast::*;
 
 fn sources(dir: &Path, out: &mut Vec<PathBuf>) {
     let Ok(entries) = std::fs::read_dir(dir) else {
@@ -83,7 +83,7 @@ fn check(
     what: &str,
     line: u32,
     before: &str,
-    result: webfluent::error::Result<String>,
+    result: webfluent::diagnostics::error::Result<String>,
     within: (usize, usize),
 ) {
     t.edits += 1;
@@ -141,7 +141,7 @@ fn prove_file(path: &Path, root: &Path) -> Tally {
         &if braced {
             source.clone()
         } else {
-            webfluent::layout::to_braces(&source, &name).unwrap_or_default()
+            webfluent::syntax::layout::to_braces(&source, &name).unwrap_or_default()
         },
         "x.wf",
     ) else {
@@ -288,11 +288,11 @@ fn prove_file(path: &Path, root: &Path) -> Tally {
     // Every `if`, `for` and `show`: its head.
     if braced {
         let mut heads: Vec<(usize, usize, u32, usize)> = Vec::new();
-        webfluent::print::each_statement(&program, &mut |stmts, i, _| {
+        webfluent::syntax::print::each_statement(&program, &mut |stmts, i, _| {
             let s = &stmts[i];
             let (start, end) = (s.span.start as usize, s.span.end as usize);
             if let StatementKind::If(_) | StatementKind::For(_) | StatementKind::Show(_) = &s.kind {
-                let open = webfluent::reprint::blocks_in(&source, start, end)
+                let open = webfluent::syntax::reprint::blocks_in(&source, start, end)
                     .first()
                     .map_or(end, |b| b.0);
                 heads.push((start, end, s.span.line, open));
@@ -323,7 +323,7 @@ fn prove_file(path: &Path, root: &Path) -> Tally {
         let end_of_last = program
             .declarations
             .iter()
-            .filter_map(|d| webfluent::print::declaration_span(&source, d))
+            .filter_map(|d| webfluent::syntax::print::declaration_span(&source, d))
             .map(|s| s.1)
             .max()
             .unwrap_or(0);
@@ -358,7 +358,7 @@ fn prove_file(path: &Path, root: &Path) -> Tally {
             {
                 continue;
             }
-            let Some((ds, de)) = webfluent::print::declaration_span(&source, d) else {
+            let Some((ds, de)) = webfluent::syntax::print::declaration_span(&source, d) else {
                 continue;
             };
             let line = source[..ds].matches('\n').count() as u32 + 1;

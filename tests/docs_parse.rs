@@ -312,7 +312,7 @@ fn check_strictly(path: &str) -> Vec<String> {
             continue;
         }
         let block = if wfx {
-            match webfluent::layout::to_braces(&block, &format!("{path}.wfx")) {
+            match webfluent::syntax::layout::to_braces(&block, &format!("{path}.wfx")) {
                 Ok(b) => b,
                 Err(_) => continue,
             }
@@ -363,7 +363,7 @@ fn check_strictly(path: &str) -> Vec<String> {
 
 /// The scripts a chapter shows: every ```` ```js ```` block whose first line
 /// is `// src/<file>.js`, read as the build reads a script under `src/`.
-fn chapter_scripts(markdown: &str) -> Vec<webfluent::parser::ast::Declaration> {
+fn chapter_scripts(markdown: &str) -> Vec<webfluent::syntax::parser::ast::Declaration> {
     let mut out = Vec::new();
     let mut lines = markdown.lines();
     while let Some(line) = lines.next() {
@@ -382,8 +382,8 @@ fn chapter_scripts(markdown: &str) -> Vec<webfluent::parser::ast::Declaration> {
             scan.problems.is_empty() && scan.module_at.is_none(),
             "src/{path}: {scan:?}"
         );
-        out.push(webfluent::parser::ast::Declaration::Script(
-            webfluent::parser::ast::ScriptDecl {
+        out.push(webfluent::syntax::parser::ast::Declaration::Script(
+            webfluent::syntax::parser::ast::ScriptDecl {
                 path: format!("src/{}", path.trim()),
                 names: scan.names,
             },
@@ -397,8 +397,8 @@ fn chapter_scripts(markdown: &str) -> Vec<webfluent::parser::ast::Declaration> {
 /// The check that matters here is the one the type checker cannot make: a
 /// store compiles to an object of the state and actions it declares, so every
 /// `Store.member(…)` the bundle calls has to be one of them.
-fn emitted_js_problems(program: &webfluent::parser::ast::Program) -> Vec<String> {
-    use webfluent::parser::ast::{Declaration, StatementKind};
+fn emitted_js_problems(program: &webfluent::syntax::parser::ast::Program) -> Vec<String> {
+    use webfluent::syntax::parser::ast::{Declaration, StatementKind};
 
     let js = webfluent::codegen::JsCodegen::new().generate(program);
     let mut problems = Vec::new();
@@ -463,7 +463,7 @@ fn check_until(path: &str, stop: Option<&str>) -> Vec<String> {
         // An indented block is checked as its braced spelling, which the
         // converter holds to the same tokens.
         let block = if wfx {
-            match webfluent::layout::to_braces(&block, &format!("{path}.wfx")) {
+            match webfluent::syntax::layout::to_braces(&block, &format!("{path}.wfx")) {
                 Ok(braced) => braced,
                 Err(e) => {
                     failures.push(format!("{path}:{line}: {e}\n{block}"));
@@ -810,7 +810,7 @@ fn corpus_for(path: &str, stop: Option<&str>) -> (String, String) {
             continue;
         }
         let braced = if indented {
-            match webfluent::layout::to_braces(&block, &format!("{path}.wfx")) {
+            match webfluent::syntax::layout::to_braces(&block, &format!("{path}.wfx")) {
                 Ok(b) => b,
                 Err(_) => continue,
             }
@@ -1796,7 +1796,7 @@ fn the_skills_references_build_and_name_only_what_wf_has() {
                 continue;
             }
             let block = if wfx {
-                match webfluent::layout::to_braces(&block, &format!("{rel}.wfx")) {
+                match webfluent::syntax::layout::to_braces(&block, &format!("{rel}.wfx")) {
                     Ok(b) => b,
                     Err(_) => continue,
                 }

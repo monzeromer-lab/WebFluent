@@ -21,7 +21,7 @@ use webfluent::Template;
 use webfluent::codegen::ssg::SiteContext;
 use webfluent::codegen::{JsCodegen, render_page_html};
 use webfluent::config::ProjectConfig;
-use webfluent::parser::ast::*;
+use webfluent::syntax::parser::ast::*;
 
 /// Which renderer produced an element. Reported in assertion messages so a
 /// failure names the backend that drifted.
@@ -207,7 +207,7 @@ pub fn raw_output_as(backend: Backend, src: &str, file: &str) -> String {
         Backend::Ssg => ssg_html_as(src, file),
         Backend::Template => {
             let braced = if file.ends_with(".wfx") {
-                webfluent::layout::to_braces(src, file).expect("layout")
+                webfluent::syntax::layout::to_braces(src, file).expect("layout")
             } else {
                 src.to_string()
             };

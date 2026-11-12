@@ -6,7 +6,7 @@
 )]
 
 use lsp_types::*;
-use webfluent::parser::ast::*;
+use webfluent::syntax::parser::ast::*;
 
 use crate::line_index::LineIndex;
 use crate::project::{Project, SourceFile};

@@ -68,7 +68,7 @@ fn every_theme_is_read_as_the_build_resolves_it() {
             .declarations
             .iter()
             .find_map(|d| match d {
-                webfluent::parser::ast::Declaration::Theme(x) if x.name == theme => Some(x),
+                webfluent::syntax::parser::ast::Declaration::Theme(x) if x.name == theme => Some(x),
                 _ => None,
             })
             .unwrap();
@@ -88,13 +88,13 @@ fn every_theme_is_read_as_the_build_resolves_it() {
         let named: usize = view.tokens.iter().map(|t| t.uses.len()).sum();
         let mut written = 0;
         for (i, d) in program.declarations.iter().enumerate() {
-            let Some(body) = webfluent::print::body_of(d) else {
+            let Some(body) = webfluent::syntax::print::body_of(d) else {
                 continue;
             };
             let file = &files[i];
-            let mut count = |stmts: &[webfluent::parser::ast::Statement]| {
-                fn walk(stmts: &[webfluent::parser::ast::Statement], n: &mut usize) {
-                    use webfluent::parser::ast::*;
+            let mut count = |stmts: &[webfluent::syntax::parser::ast::Statement]| {
+                fn walk(stmts: &[webfluent::syntax::parser::ast::Statement], n: &mut usize) {
+                    use webfluent::syntax::parser::ast::*;
                     for s in stmts {
                         if let StatementKind::UIElement(ui) = &s.kind {
                             if let Some(b) = &ui.style_block {
@@ -104,7 +104,7 @@ fn every_theme_is_read_as_the_build_resolves_it() {
                                     .chain(b.media_queries.iter().flat_map(|m| m.properties.iter()))
                                     .chain(b.pseudo_blocks.iter().flat_map(|q| q.properties.iter()))
                                 {
-                                    let text = webfluent::print::style_value(&p.value);
+                                    let text = webfluent::syntax::print::style_value(&p.value);
                                     if text.contains('$') {
                                         *n += 1;
                                     }

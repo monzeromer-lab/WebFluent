@@ -5,8 +5,10 @@
 //!
 //! Project configuration — loads and manages `webfluent.app.json`.
 
+#[doc(hidden)]
 pub mod json_edit;
 pub mod project;
+#[doc(hidden)]
 pub mod schema;
 
 pub use project::{

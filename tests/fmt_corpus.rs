@@ -4,7 +4,7 @@
 
 use std::path::Path;
 
-use webfluent::fmt::format_source;
+use webfluent::syntax::fmt::format_source;
 
 fn wf_files(dir: &Path, out: &mut Vec<std::path::PathBuf>) {
     let Ok(entries) = std::fs::read_dir(dir) else {

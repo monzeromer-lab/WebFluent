@@ -56,7 +56,7 @@ fn every_statement_prints_back_as_itself() {
                     let (mut proven, mut failures, mut unparsed) = (0, Vec::new(), Vec::new());
                     for f in files.iter().skip(k).step_by(threads) {
                         let source = std::fs::read_to_string(f).unwrap();
-                        match webfluent::print::prove(&source, &f.to_string_lossy()) {
+                        match webfluent::syntax::print::prove(&source, &f.to_string_lossy()) {
                             Ok(n) => proven += n,
                             // A file written not to parse — a fixture of an
                             // error, the old grammar — has nothing to print.
@@ -138,7 +138,7 @@ fn every_declaration_prints_back_as_itself() {
     let mut failures = Vec::new();
     for f in &files {
         let source = std::fs::read_to_string(f).unwrap();
-        match webfluent::print::prove_declarations(&source, &f.to_string_lossy()) {
+        match webfluent::syntax::print::prove_declarations(&source, &f.to_string_lossy()) {
             Ok(n) => proven += n,
             Err(wrong)
                 if wrong.len() == 1

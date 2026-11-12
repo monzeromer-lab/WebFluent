@@ -918,7 +918,7 @@ fn in_page(valid_body: &str, broken_body: &str) -> Vec<String> {
 fn every_keyword_the_parser_reads_is_documented() {
     use wf_lsp::reference::KEYWORDS;
     let documented = |w: &str| KEYWORDS.iter().any(|k| k.name == w);
-    for word in webfluent::parser::v2::DECLARATION_WORDS
+    for word in webfluent::syntax::parser::v2::DECLARATION_WORDS
         .iter()
         .filter(|w| **w != "external")
     {
@@ -927,9 +927,9 @@ fn every_keyword_the_parser_reads_is_documented() {
             "`{word}` declares something and has no entry"
         );
     }
-    for word in webfluent::parser::v2::BODY_KEYWORDS
+    for word in webfluent::syntax::parser::v2::BODY_KEYWORDS
         .iter()
-        .chain(webfluent::parser::v2::IMPERATIVE_KEYWORDS)
+        .chain(webfluent::syntax::parser::v2::IMPERATIVE_KEYWORDS)
     {
         assert!(
             documented(word),
@@ -1502,7 +1502,7 @@ fn formatting_is_what_wf_fmt_writes() {
     let src = "page P(path: \"/\"){\n  Heading(\"H\").h1\n\n\n  Text(\"a\")\n}";
     let project = project(src);
     let edits = wf_lsp::formatting::format_document(&project, 0).unwrap();
-    let want = webfluent::fmt::format_source(src, "test.wf").unwrap();
+    let want = webfluent::syntax::fmt::format_source(src, "test.wf").unwrap();
     assert_eq!(edits.len(), 1);
     assert_eq!(edits[0].new_text, want);
     assert_eq!(edits[0].range.start, Position::new(0, 0));

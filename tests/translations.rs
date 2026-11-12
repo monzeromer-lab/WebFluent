@@ -433,8 +433,11 @@ fn a_project_s_table_is_each_thing_it_should_be() {
     // The inspector's binding.
     let program = webfluent::parse_source(PAGE, "Inbox.wf").unwrap();
     let mut calls = Vec::new();
-    fn find(e: &webfluent::parser::ast::Expr, out: &mut Vec<webfluent::parser::ast::Expr>) {
-        if let webfluent::parser::ast::Expr::FunctionCall(n, _) = e
+    fn find(
+        e: &webfluent::syntax::parser::ast::Expr,
+        out: &mut Vec<webfluent::syntax::parser::ast::Expr>,
+    ) {
+        if let webfluent::syntax::parser::ast::Expr::FunctionCall(n, _) = e
             && n == "t"
         {
             out.push(e.clone());
@@ -447,15 +450,15 @@ fn a_project_s_table_is_each_thing_it_should_be() {
         .declarations
         .iter()
         .find_map(|d| match d {
-            webfluent::parser::ast::Declaration::Page(p) => Some(p),
+            webfluent::syntax::parser::ast::Declaration::Page(p) => Some(p),
             _ => None,
         })
         .unwrap();
     for s in &p.body {
-        if let webfluent::parser::ast::StatementKind::UIElement(el) = &s.kind {
+        if let webfluent::syntax::parser::ast::StatementKind::UIElement(el) = &s.kind {
             for a in &el.args {
-                let (webfluent::parser::ast::Arg::Positional(e)
-                | webfluent::parser::ast::Arg::Named(_, e)) = a;
+                let (webfluent::syntax::parser::ast::Arg::Positional(e)
+                | webfluent::syntax::parser::ast::Arg::Named(_, e)) = a;
                 find(e, &mut calls);
             }
         }

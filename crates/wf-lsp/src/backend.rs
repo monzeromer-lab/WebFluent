@@ -16,7 +16,7 @@ use dashmap::DashMap;
 use tower_lsp::jsonrpc::Result;
 use tower_lsp::lsp_types::*;
 use tower_lsp::{Client, LanguageServer};
-use webfluent::parser::Program;
+use webfluent::syntax::parser::Program;
 
 use crate::code_actions::{extract_component_action, fix_all_actions, provide_code_actions};
 use crate::completion::provide_completions;

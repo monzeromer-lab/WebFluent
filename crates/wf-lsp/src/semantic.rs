@@ -6,9 +6,9 @@
 use std::collections::HashMap;
 
 use lsp_types::*;
-use webfluent::lexer::TokenType;
-use webfluent::parser::ast::*;
 use webfluent::registry;
+use webfluent::syntax::lexer::TokenType;
+use webfluent::syntax::parser::ast::*;
 
 use crate::analysis::{self, BindingKind};
 use crate::project::Project;
@@ -238,7 +238,7 @@ pub fn classify(project: &Project, file_ix: usize) -> Vec<Classified> {
 /// Whether the name at `ix` is a flag: a `.word` after an element's call or
 /// its other flags — `Button("x").primary.lg` — rather than a value's field.
 fn is_flag_chain(
-    tokens: &[webfluent::lexer::Token],
+    tokens: &[webfluent::syntax::lexer::Token],
     ix: usize,
     is_component: &dyn Fn(&str) -> bool,
 ) -> bool {

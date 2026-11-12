@@ -3,7 +3,7 @@
 #![no_main]
 
 libfuzzer_sys::fuzz_target!(|source: &str| {
-    let Ok(formatted) = webfluent::fmt::format_source(source, "fuzz.wf") else {
+    let Ok(formatted) = webfluent::syntax::fmt::format_source(source, "fuzz.wf") else {
         return;
     };
     if webfluent::syntax::parse_source(source, "fuzz.wf").is_ok() {
@@ -12,7 +12,7 @@ libfuzzer_sys::fuzz_target!(|source: &str| {
             "formatting broke a file that parsed:\n{formatted}"
         );
     }
-    let again = webfluent::fmt::format_source(&formatted, "fuzz.wf")
+    let again = webfluent::syntax::fmt::format_source(&formatted, "fuzz.wf")
         .expect("what fmt wrote, fmt reads");
     assert_eq!(again, formatted, "formatting twice changed the file");
 });

@@ -13,8 +13,8 @@
 //! string's `{…}` splices are code, and are read as such.
 
 use lsp_types::*;
-use webfluent::lexer::Token;
-use webfluent::parser::ast::*;
+use webfluent::syntax::lexer::Token;
+use webfluent::syntax::parser::ast::*;
 
 use crate::analysis::{self, Binding, ElementPart};
 use crate::line_index::word_at;

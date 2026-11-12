@@ -10,9 +10,9 @@
 use std::collections::HashSet;
 use std::path::{Path, PathBuf};
 
-use webfluent::parser::ast::{Declaration, Statement, StatementKind};
 use webfluent::scope::paths::{self, Group, Shape};
 use webfluent::scope::{BindingKind, body_of, child_bodies, scope_at};
+use webfluent::syntax::parser::ast::{Declaration, Statement, StatementKind};
 
 fn projects() -> Vec<PathBuf> {
     let root = Path::new(env!("CARGO_MANIFEST_DIR"));

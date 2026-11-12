@@ -17,7 +17,7 @@ fn project(name: &str) -> PathBuf {
 fn a_broken_config_is_an_error_not_the_defaults() {
     let dir = project("broken-config");
     std::fs::write(dir.join("webfluent.app.json"), "{ not json").unwrap();
-    let err = webfluent::assets::list(&dir).expect_err("a broken config is an error");
+    let err = webfluent::build::assets::list(&dir).expect_err("a broken config is an error");
     assert!(err.to_string().contains("webfluent.app.json"), "{err}");
     let _ = std::fs::remove_dir_all(&dir);
 }
@@ -25,7 +25,7 @@ fn a_broken_config_is_an_error_not_the_defaults() {
 #[test]
 fn a_project_with_no_config_is_listed_with_the_defaults() {
     let dir = project("no-config");
-    assert!(webfluent::assets::list(&dir).is_ok());
+    assert!(webfluent::build::assets::list(&dir).is_ok());
     let _ = std::fs::remove_dir_all(&dir);
 }
 

@@ -12,7 +12,7 @@ use std::path::{Path, PathBuf};
 
 use crate::common;
 
-use webfluent::parser::ast::{Declaration, Program, StatementKind};
+use webfluent::syntax::parser::ast::{Declaration, Program, StatementKind};
 use webfluent::validation::{
     Message, PATTERNS, RuleText, catalogue, move_rule, must_be, must_be_via, remove_rule,
     rule_texts, set_rule, write_rules,

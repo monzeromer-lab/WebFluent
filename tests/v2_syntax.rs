@@ -13,7 +13,7 @@ fn same(v1: &str, v2: &str) {
     let from_v1 = migrated(v1);
     // The indented layout of the hand-written spelling, as `wf fmt --to
     // wfx` writes it; the converter itself holds it to the same tokens.
-    let wfx = webfluent::layout::to_offside(&dedent(v2), "t.wf")
+    let wfx = webfluent::syntax::layout::to_offside(&dedent(v2), "t.wf")
         .unwrap_or_else(|e| panic!("to_offside failed for:\n{v2}\n{e}"));
     for backend in [Backend::Spa, Backend::Ssg, Backend::Template] {
         let a = raw_output(backend, &from_v1);

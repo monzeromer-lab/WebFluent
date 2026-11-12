@@ -12,7 +12,7 @@
 use std::collections::HashMap;
 
 use lsp_types::*;
-use webfluent::lexer::{Token, TokenType};
+use webfluent::syntax::lexer::{Token, TokenType};
 
 use crate::analysis;
 use crate::definition::definition_at;

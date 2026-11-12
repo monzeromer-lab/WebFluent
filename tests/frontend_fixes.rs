@@ -8,9 +8,9 @@ use std::sync::mpsc;
 use std::time::Duration;
 
 use webfluent::build::{BuildOptions, check};
-use webfluent::lexer::{LexerV2, TokenType};
-use webfluent::parser::MAX_NESTING;
-use webfluent::parser::v2::{ParserV2, parse_v2};
+use webfluent::syntax::lexer::{LexerV2, TokenType};
+use webfluent::syntax::parser::MAX_NESTING;
+use webfluent::syntax::parser::v2::{ParserV2, parse_v2};
 use webfluent::vfs::FsVfs;
 use webfluent::{Template, WebFluentError};
 
@@ -570,7 +570,7 @@ fn a_program_just_under_the_limit_checks_on_a_small_stack() {
 fn a_tree_deeper_than_the_parser_allows_is_e120_in_the_checker() {
     // A tree the parser would refuse, made by hand: the checker says so
     // once and goes on, rather than recursing past its stack.
-    use webfluent::parser::{Declaration, Expr, StatementKind, UnaryOp};
+    use webfluent::syntax::parser::{Declaration, Expr, StatementKind, UnaryOp};
     let found = within(60, || {
         let mut program = parse_v2(&page_with("true"), "x.wf").unwrap();
         let Declaration::Page(page) = &mut program.declarations[0] else {
@@ -657,10 +657,10 @@ fn a_socket_s_handler_has_its_message_in_scope() {
 
 #[test]
 fn child_bodies_names_every_body_the_ast_has() {
-    use webfluent::parser::StatementKind;
+    use webfluent::syntax::parser::StatementKind;
     let src = "page P(path: \"/\") {\n    socket chat = ws(\"wss://x.example/c\") {\n        on message(m) { log(m) }\n        on close(c) { log(c) }\n    }\n    every(1000) { log(1) }\n    effect { log(2)\n cleanup { log(3) } }\n    Text(\"x\")\n}\n";
     let program = parse_v2(src, "x.wf").unwrap();
-    let webfluent::parser::Declaration::Page(page) = &program.declarations[0] else {
+    let webfluent::syntax::parser::Declaration::Page(page) = &program.declarations[0] else {
         unreachable!()
     };
     for stmt in &page.body {

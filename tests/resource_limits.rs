@@ -8,8 +8,8 @@ use std::sync::mpsc;
 use std::time::Duration;
 
 use webfluent::codegen::static_eval::{Scope, Static, eval, eval_metered};
-use webfluent::parser::v2::parse_v2;
-use webfluent::parser::{Arg, Declaration, Expr, StatementKind};
+use webfluent::syntax::parser::v2::parse_v2;
+use webfluent::syntax::parser::{Arg, Declaration, Expr, StatementKind};
 
 /// Run `f` on its own thread and end the process if it does not finish in
 /// `secs`: a runaway allocation must fail the test, not the machine.

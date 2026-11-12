@@ -6,8 +6,8 @@
 //! modifier from a named argument from a string that happens to contain the
 //! word `Button`, and can tell which page or component a `count` belongs to.
 
-use webfluent::lexer::{Token, TokenType};
-use webfluent::parser::ast::*;
+use webfluent::syntax::lexer::{Token, TokenType};
+use webfluent::syntax::parser::ast::*;
 
 use crate::project::{Project, SourceFile};
 

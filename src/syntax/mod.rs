@@ -16,10 +16,13 @@
 pub mod fmt;
 pub mod js_scan;
 pub mod layout;
+#[doc(hidden)]
 pub mod lexer;
 pub mod node_id;
 pub mod parser;
+#[doc(hidden)]
 pub mod print;
+#[doc(hidden)]
 pub mod reprint;
 use crate::diagnostics::error::{Diagnostic, Result, WebFluentError};
 use crate::syntax::lexer::Token;
@@ -146,6 +149,7 @@ fn position_of_first_word(source: &str) -> (usize, usize) {
 /// # Errors
 ///
 /// [`WebFluentError::LexerError`] when the source does not lex.
+#[doc(hidden)]
 pub fn tokens(source: &str, file: &str) -> Result<Vec<Token>> {
     crate::syntax::lexer::LexerV2::for_file(source, file).tokenize()
 }

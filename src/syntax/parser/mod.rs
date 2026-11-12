@@ -6,18 +6,23 @@
 pub mod ast;
 // `parser::parser` mirrors the crate layout the rest of the tree uses;
 // flattening it would move every public path for no gain.
+#[doc(hidden)]
 pub mod parser;
+#[doc(hidden)]
 pub mod v2;
+#[doc(hidden)]
 pub mod vocabulary;
 pub(crate) mod walk;
 
 pub use ast::*;
 
+#[doc(hidden)]
 pub use parser::Parser;
 // These are public API — a consumer reaches them as `webfluent::…`, and the LSP,
 // the studio and the docs all do. Nothing inside this crate calls them, which is
 // why `cargo clippy --fix` removed them; `#[allow]` records that the emptiness is
 // expected rather than leaving the next person to delete them again.
+#[doc(hidden)]
 pub use vocabulary::{MODIFIER_KEYWORDS, is_modifier_keyword};
 
 /// How deeply a program may nest: expressions inside expressions, blocks

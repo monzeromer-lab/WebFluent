@@ -213,8 +213,8 @@ mod tests {
 
 // ─── Extract component ──────────────────────────────────
 
-use webfluent::parser::ast::*;
 use webfluent::sema::types::Type;
+use webfluent::syntax::parser::ast::*;
 
 use crate::analysis::{self, Binding, BindingKind};
 use crate::project::Project;

@@ -264,11 +264,11 @@ fn a_test_that_looks_at_a_portal_is_run_in_a_browser() {
         "t.wf",
     )
     .unwrap();
-    let tests: Vec<&webfluent::parser::ast::TestDecl> = program
+    let tests: Vec<&webfluent::syntax::parser::ast::TestDecl> = program
         .declarations
         .iter()
         .filter_map(|d| match d {
-            webfluent::parser::ast::Declaration::Test(t) => Some(t),
+            webfluent::syntax::parser::ast::Declaration::Test(t) => Some(t),
             _ => None,
         })
         .collect();

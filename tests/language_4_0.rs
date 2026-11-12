@@ -563,7 +563,7 @@ fn a_service_read_from_a_specification_is_checked_like_one_written_by_hand() {
 
     // The endpoints and the schemas both arrived.
     let api = program.declarations.iter().find_map(|d| match d {
-        webfluent::parser::Declaration::Api(a) => Some(a),
+        webfluent::syntax::parser::Declaration::Api(a) => Some(a),
         _ => None,
     });
     let api = api.expect("the service");
@@ -575,7 +575,7 @@ fn a_service_read_from_a_specification_is_checked_like_one_written_by_hand() {
     );
     assert!(
         program.declarations.iter().any(|d| matches!(
-            d, webfluent::parser::Declaration::Type(t) if t.name == "User"
+            d, webfluent::syntax::parser::Declaration::Type(t) if t.name == "User"
         )),
         "each named schema is a type the program can name"
     );
@@ -663,12 +663,12 @@ const OPS_SPEC: &str = r##"{
 }"##;
 
 /// `body` on a page beside `api Ops from "ops.json"`, read with [`OPS_SPEC`].
-fn with_ops_spec(body: &str) -> webfluent::parser::Program {
+fn with_ops_spec(body: &str) -> webfluent::syntax::parser::Program {
     with_spec(OPS_SPEC, body)
 }
 
 /// `body` on a page beside `api Ops from "ops.json"`, read with `spec`.
-fn with_spec(spec: &str, body: &str) -> webfluent::parser::Program {
+fn with_spec(spec: &str, body: &str) -> webfluent::syntax::parser::Program {
     let src = format!("api Ops from \"ops.json\" (base: \"/api\")\n{}", page(body));
     let mut program = parse_source(&src, "t.wf").unwrap();
     webfluent::openapi::expand(&mut program, &|_| Some(spec.to_string())).unwrap();
@@ -676,7 +676,7 @@ fn with_spec(spec: &str, body: &str) -> webfluent::parser::Program {
 }
 
 /// What the whole pipeline finds in `program`, as `CODE: message` lines.
-fn findings_of(program: &webfluent::parser::Program) -> Vec<String> {
+fn findings_of(program: &webfluent::syntax::parser::Program) -> Vec<String> {
     webfluent::diagnostics::check::check_project(&webfluent::diagnostics::check::Project {
         program,
         file_of: &|_| "t.wf".to_string(),
@@ -695,20 +695,23 @@ fn findings_of(program: &webfluent::parser::Program) -> Vec<String> {
 }
 
 fn record<'a>(
-    program: &'a webfluent::parser::Program,
+    program: &'a webfluent::syntax::parser::Program,
     name: &str,
-) -> &'a webfluent::parser::TypeDecl {
+) -> &'a webfluent::syntax::parser::TypeDecl {
     program
         .declarations
         .iter()
         .find_map(|d| match d {
-            webfluent::parser::Declaration::Type(t) if t.name == name => Some(t),
+            webfluent::syntax::parser::Declaration::Type(t) if t.name == name => Some(t),
             _ => None,
         })
         .unwrap_or_else(|| panic!("no `type {name}`"))
 }
 
-fn field(ty: &webfluent::parser::TypeDecl, name: &str) -> webfluent::parser::TypeRef {
+fn field(
+    ty: &webfluent::syntax::parser::TypeDecl,
+    name: &str,
+) -> webfluent::syntax::parser::TypeRef {
     ty.fields
         .iter()
         .find(|f| f.name == name)
@@ -719,7 +722,7 @@ fn field(ty: &webfluent::parser::TypeDecl, name: &str) -> webfluent::parser::Typ
 
 #[test]
 fn a_string_schema_with_cases_is_an_enum_and_one_with_unwritable_cases_is_a_string() {
-    use webfluent::parser::{Declaration, TypeRef};
+    use webfluent::syntax::parser::{Declaration, TypeRef};
     let program = with_ops_spec(
         "Heading(\"Ops\").h1\n    \
          resource one = Ops.server(env: .prod)\n    \
@@ -770,7 +773,7 @@ fn a_string_schema_with_cases_is_an_enum_and_one_with_unwritable_cases_is_a_stri
 
 #[test]
 fn a_value_that_may_be_null_is_its_type_made_optional() {
-    use webfluent::parser::TypeRef;
+    use webfluent::syntax::parser::TypeRef;
     let program = with_ops_spec(
         "resource one = Ops.server(env: .prod)\n    \
          match one {\n        \
@@ -817,7 +820,7 @@ fn a_value_that_may_be_null_is_its_type_made_optional() {
 
 #[test]
 fn an_all_of_is_a_record_that_extends_the_one_it_names() {
-    use webfluent::parser::TypeRef;
+    use webfluent::syntax::parser::TypeRef;
     let program = with_ops_spec(
         "Heading(\"Ops\").h1\n    \
          resource one = Ops.detail(env: .prod)\n    \
@@ -883,7 +886,7 @@ fn an_all_of_is_a_record_that_extends_the_one_it_names() {
 
 #[test]
 fn a_string_format_is_the_type_the_language_has_for_it() {
-    use webfluent::parser::TypeRef;
+    use webfluent::syntax::parser::TypeRef;
     let program = with_ops_spec(
         "Heading(\"Ops\").h1\n    \
          state typed = \"\"\n    \
@@ -919,7 +922,7 @@ fn a_string_format_is_the_type_the_language_has_for_it() {
         .declarations
         .iter()
         .find_map(|d| match d {
-            webfluent::parser::Declaration::Api(a) => Some(a),
+            webfluent::syntax::parser::Declaration::Api(a) => Some(a),
             _ => None,
         })
         .expect("the service");
@@ -960,7 +963,7 @@ fn a_string_format_is_the_type_the_language_has_for_it() {
 
 #[test]
 fn the_rest_of_a_specification_s_shapes_import_as_they_read() {
-    use webfluent::parser::{Declaration, TypeRef};
+    use webfluent::syntax::parser::{Declaration, TypeRef};
     let spec = r##"{ "openapi": "3.1.0", "components": { "schemas": {
         "Env": { "type": "string", "enum": ["prod", "test"] },
         "Slug": { "type": "string" },
@@ -1820,7 +1823,7 @@ fn a_secret_is_never_written_down() {
 #[test]
 fn a_test_reads_a_store_and_seeds_it_by_name() {
     use webfluent::codegen::static_eval::store_as_value;
-    use webfluent::parser::ast::Declaration;
+    use webfluent::syntax::parser::ast::Declaration;
     let program = parse_source(
         "store Cart {\n    state items: [Map] = []\n    derived count = items.length\n}\n",
         "t.wf",
@@ -2439,7 +2442,7 @@ fn a_route_store_that_persists_says_so() {
 
 /// The steps a test declares, as words, in the order written.
 fn steps_of(src: &str) -> Vec<String> {
-    use webfluent::parser::ast::{Declaration, Step};
+    use webfluent::syntax::parser::ast::{Declaration, Step};
     let program = parse_source(src, "t.wf").unwrap();
     let Some(Declaration::Test(test)) = program
         .declarations
@@ -2449,8 +2452,8 @@ fn steps_of(src: &str) -> Vec<String> {
     else {
         panic!("a test");
     };
-    let text = |e: &webfluent::parser::ast::Expr| match e {
-        webfluent::parser::ast::Expr::StringLiteral(s) => s.clone(),
+    let text = |e: &webfluent::syntax::parser::ast::Expr| match e {
+        webfluent::syntax::parser::ast::Expr::StringLiteral(s) => s.clone(),
         other => format!("{other:?}"),
     };
     test.steps
@@ -2503,7 +2506,7 @@ fn a_test_says_what_it_does_and_what_it_then_expects_in_order() {
 
 #[test]
 fn a_test_that_acts_is_told_apart_from_one_that_looks() {
-    use webfluent::parser::ast::Declaration;
+    use webfluent::syntax::parser::ast::Declaration;
     let test = |src: &str| {
         let program = parse_source(src, "t.wf").unwrap();
         match program.declarations.into_iter().next() {
@@ -2543,7 +2546,7 @@ fn the_step_that_types_is_told_from_the_declaration_that_names_a_type() {
         program
             .declarations
             .iter()
-            .any(|d| matches!(d, webfluent::parser::ast::Declaration::Type(_))),
+            .any(|d| matches!(d, webfluent::syntax::parser::ast::Declaration::Type(_))),
         "the record is still a record"
     );
     assert_eq!(

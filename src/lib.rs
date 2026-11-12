@@ -72,23 +72,26 @@
 //! assert!(html.contains("--color-secondary: #8B5CF6"), "config tokens layer on top");
 //! ```
 //!
-//! ## Architecture
+//! ## What this crate offers
 //!
-//! The compilation pipeline:
+//! The documented API is what semver covers:
 //!
-//! 1. **Syntax** ([`syntax`]) — [`parse_source`] reads a `.wf` file into an AST
-//!    ([`lexer`] and [`parser`] beneath it); a file in the grammar of
-//!    WebFluent 2 is refused with a pointer to `wf migrate` ([`migrate`])
-//! 2. **Registry** ([`registry`]) — the one description of every built-in
-//!    component, its props, flags, events, slots and parts
-//! 3. **Semantics** ([`sema`]) — `check` resolves names, flags and cases against
-//!    the registry and the program's declarations; `types::check` infers and
-//!    checks types; `lower` rewrites the new grammar's forms into what the
-//!    backends render
-//! 4. **Linter** ([`linter`]) — accessibility, SEO, vocabulary and PDF checks
-//! 5. **Codegen** ([`codegen`]) — generates HTML, CSS, JS, SSG pages, or PDF output
-//! 6. **Themes** ([`themes`]) — design tokens and component CSS
-//! 7. **Runtime** ([`runtime`]) — the JavaScript runtime for reactivity, routing and motion
+//! - **Templates** ([`template`], [`Template`]) — render `.wf` templates
+//!   with JSON data, to HTML or PDF.
+//! - **The front end** ([`syntax`]) — [`parse_source`] reads a `.wf` file
+//!   into its tree ([`syntax::parser::ast`]), and [`syntax::fmt`] and
+//!   [`syntax::layout`] write it back.
+//! - **Builds** ([`build`]) — `wf build` as a library call, through a
+//!   [`vfs::Vfs`], writing through [`outfs`]; [`memory`] builds a project
+//!   held in memory, as the browser's playground does.
+//! - **Configuration** ([`config`]), **findings** ([`diagnostics`],
+//!   [`Diagnostic`]), **new projects** ([`init`]) and the **studio's**
+//!   compile ([`studio`]).
+//!
+//! The rest of the compiler — names and types, the linters, code
+//! generation, the runtime, the paged engine — is reachable, since the `wf`
+//! command and the language server are built on it, but is not documented,
+//! and a release may change it without a major version.
 //!
 //! ## Templates in a server
 //!
@@ -121,11 +124,10 @@
 //! - **`cli`** (default) — the `wf` command's own dependencies: its argument
 //!   parser and the dev server. A program that only compiles or renders
 //!   templates turns it off:
-//!   `webfluent = { version = "5", default-features = false }`.
+//!   `webfluent = { version = "6", default-features = false }`.
 //!
-//! This crate exposes the full compiler pipeline. For most use cases, the [`Template`] API
-//! is the simplest entry point. For full control, use [`parse_source`], [`sema`] and the
-//! codegen modules directly.
+//! For most uses the [`Template`] API is the entry point; [`parse_source`]
+//! and [`build`] are there for a tool that needs the tree or a whole site.
 
 /// The compiler's version, as `wf --version` prints it: what a program
 /// that builds through the library says it built with.
@@ -141,8 +143,10 @@ pub(crate) mod base;
 pub mod build;
 pub(crate) mod check;
 pub mod diagnostics;
+#[doc(hidden)]
 pub mod paged;
 pub(crate) mod project;
+#[doc(hidden)]
 pub mod registry;
 /// The front end's one entry point: [`syntax::parse_source`] reads a file in
 /// whichever grammar it is written in.
@@ -155,18 +159,27 @@ pub mod template;
 pub(crate) mod tools;
 pub(crate) mod web;
 
-// Every module at the path it has always had.
-pub use base::{outfs, platform, vfs};
-pub use build::assets;
+// The documented API, which semver covers: the template engine, the front
+// end and its tree, the build, the config, the findings, the file systems,
+// a project built from memory, a new project, and the studio's compile.
+pub use base::{outfs, vfs};
+pub use project::config;
+pub use tools::{init, memory, studio};
+
+// The compiler's own parts. They stay reachable — the `wf` command and the
+// language server are built on them — but they are not documented, and a
+// release may change them without a major version.
+#[doc(hidden)]
+pub use base::platform;
+#[doc(hidden)]
 pub use check::{edit, linter, scope, sema, validation};
-pub use diagnostics::error;
-pub use paged::style_value;
-pub use project::{config, data, i18n, media, openapi, project_js, themes};
-pub use syntax::{fmt, layout, lexer, parser, print, reprint};
+#[doc(hidden)]
+pub use project::{data, i18n, media, openapi, project_js, themes};
+#[doc(hidden)]
 pub use tools::{
-    agent, audit, browser, commands, gallery, generate, init, memory, migrate, patch, studio,
-    testing, verify,
+    agent, audit, browser, commands, gallery, generate, migrate, patch, testing, verify,
 };
+#[doc(hidden)]
 pub use web::{codegen, motion, runtime};
 
 pub use check::edit::{ArgRef, EditOp, apply_edits};

@@ -9,7 +9,7 @@
 //! with Arabic, an em dash or an emoji, so every conversion goes through here.
 
 use lsp_types::{Position, Range};
-use webfluent::parser::ast::Span;
+use webfluent::syntax::parser::ast::Span;
 
 #[derive(Debug, Clone)]
 pub struct LineIndex {

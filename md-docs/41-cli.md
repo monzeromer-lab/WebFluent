@@ -696,7 +696,7 @@ estimated from strips of the picture encoded at that width, and says
 and a width it skips because the file would be no smaller than the
 original. With `--json`, the same sentences are in the `said` field.
 
-The library has the same as `webfluent::assets::{list, plan}`. It reads
+The library has the same as `webfluent::build::assets::{list, plan}`. It reads
 through a `Vfs`, so an editor's unsaved buffers count.
 
 See also: [Media](21-media.md).

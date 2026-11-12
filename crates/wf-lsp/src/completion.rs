@@ -23,10 +23,10 @@
 
 use lsp_types::*;
 use webfluent::config::OutputType;
-use webfluent::lexer::{Token, TokenType};
 use webfluent::linter;
-use webfluent::parser::ast::*;
 use webfluent::registry::{self, Children, ComponentSig, PropType};
+use webfluent::syntax::lexer::{Token, TokenType};
+use webfluent::syntax::parser::ast::*;
 
 use crate::analysis::{self, Binding, BindingKind};
 use crate::project::Project;
@@ -416,7 +416,7 @@ fn tokens_until_error(source: &str) -> Vec<Token> {
     let mut tokens = Vec::new();
     let mut base = 0;
     for line in source.split_inclusive('\n') {
-        if let Ok(mut line_tokens) = webfluent::lexer::LexerV2::new(line, "").tokenize() {
+        if let Ok(mut line_tokens) = webfluent::syntax::lexer::LexerV2::new(line, "").tokenize() {
             line_tokens.retain(|t| !matches!(t.token_type, TokenType::EOF));
             for t in &mut line_tokens {
                 t.offset += base;
@@ -626,7 +626,7 @@ fn after_dot(
             opening_dot(project, file_ix, previous, anchor)
         }
         // `3.` — a number given a unit: a `Duration`.
-        TokenType::NumberLiteral(_) => webfluent::parser::v2::DURATION_UNITS
+        TokenType::NumberLiteral(_) => webfluent::syntax::parser::v2::DURATION_UNITS
             .iter()
             .map(|u| CompletionItem {
                 label: u.to_string(),
@@ -928,7 +928,7 @@ fn type_position(previous: &[&Token], decl: &Declaration) -> bool {
                     .map(|t| &t.token_type);
                 return matches!(keyword, Some(TokenType::Identifier(kw))
                     if matches!(kw.as_str(), "component" | "action" | "event" | "slot" | "part")
-                        || webfluent::parser::v2::HTTP_VERBS.contains(&kw.as_str()));
+                        || webfluent::syntax::parser::v2::HTTP_VERBS.contains(&kw.as_str()));
             }
             TokenType::OpenBrace | TokenType::CloseBrace if depth == 0 => return false,
             _ => {}
@@ -1054,7 +1054,7 @@ fn api_body() -> Vec<CompletionItem> {
             ..snippet(name, first_sentence(doc), body)
         })
         .collect();
-    for verb in webfluent::parser::v2::HTTP_VERBS {
+    for verb in webfluent::syntax::parser::v2::HTTP_VERBS {
         items.push(CompletionItem {
             kind: Some(CompletionItemKind::KEYWORD),
             ..snippet(
@@ -1192,16 +1192,20 @@ fn string_value(project: &Project, tokens: &[Token], offset: usize) -> Vec<Compl
         && word(2) == Some("key")
         && word(3) == Some("on")
     {
-        let mut names: Vec<(String, String)> = webfluent::parser::v2::KEY_NAMES
+        let mut names: Vec<(String, String)> = webfluent::syntax::parser::v2::KEY_NAMES
             .iter()
             .map(|k| (k.to_string(), "a key".to_string()))
             .collect();
-        names.extend(webfluent::parser::v2::KEY_MODIFIERS.iter().map(|m| {
-            (
-                format!("{m}+"),
-                "a modifier, then the key: `ctrl+k`".to_string(),
-            )
-        }));
+        names.extend(
+            webfluent::syntax::parser::v2::KEY_MODIFIERS
+                .iter()
+                .map(|m| {
+                    (
+                        format!("{m}+"),
+                        "a modifier, then the key: `ctrl+k`".to_string(),
+                    )
+                }),
+        );
         return values(names, CompletionItemKind::CONSTANT);
     }
     // `Host(tag: "…")`: the elements a Host is made of.

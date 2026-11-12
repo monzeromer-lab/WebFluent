@@ -6,10 +6,10 @@ libfuzzer_sys::fuzz_target!(|source: &str| {
     if webfluent::syntax::parse_source(source, "fuzz.wf").is_err() {
         return;
     }
-    let Ok(offside) = webfluent::layout::to_offside(source, "fuzz.wf") else {
+    let Ok(offside) = webfluent::syntax::layout::to_offside(source, "fuzz.wf") else {
         return;
     };
-    let braces = webfluent::layout::to_braces(&offside, "fuzz.wfx")
+    let braces = webfluent::syntax::layout::to_braces(&offside, "fuzz.wfx")
         .expect("the indented layout it wrote, it reads back");
     assert!(
         webfluent::syntax::parse_source(&braces, "fuzz.wf").is_ok(),

@@ -19,7 +19,7 @@ fn value(p: &Prop) -> Option<String> {
         "number" => {
             let r = p.range.as_ref();
             let n = r.and_then(|r| r.min).unwrap_or(1.0);
-            webfluent::print::number(n)
+            webfluent::syntax::print::number(n)
         }
         "bool" => "true".into(),
         "enum" => format!(".{}", p.cases.first()?.name),

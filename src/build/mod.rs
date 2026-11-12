@@ -10,8 +10,11 @@
 //! parse. [`check()`](crate::build::check) is `wf check`: every finding of a
 //! build, with nothing written.
 
+#[doc(hidden)]
 pub mod assets;
+#[doc(hidden)]
 pub mod cache;
+#[doc(hidden)]
 pub mod offline;
 
 pub(crate) use crate::project::sources::find_wf_files;

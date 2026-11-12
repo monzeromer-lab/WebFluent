@@ -6,8 +6,8 @@ use std::path::{Path, PathBuf};
 
 use webfluent::edit::{EditOp, apply_edits_to};
 use webfluent::parse_source;
-use webfluent::parser::ast::{Declaration, Program};
 use webfluent::patch::{InPlace, agrees, in_place};
+use webfluent::syntax::parser::ast::{Declaration, Program};
 
 fn wf_files(dir: &Path, out: &mut Vec<PathBuf>) {
     let mut entries: Vec<_> = std::fs::read_dir(dir)
@@ -68,7 +68,10 @@ fn exercise(project: &Path, tally: &mut Tally) {
         let own = parse_source(text, &file).unwrap();
         let mut nodes = Vec::new();
         webfluent::codegen::node_id::visit_nodes(&own, &mut |ui, id, _| {
-            nodes.push((id.to_string(), webfluent::print::component(&ui.component)));
+            nodes.push((
+                id.to_string(),
+                webfluent::syntax::print::component(&ui.component),
+            ));
         });
         for (id, component) in nodes {
             if component == "Children" || component == "_StyleBlock" {

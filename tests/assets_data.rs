@@ -8,7 +8,7 @@
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
-use webfluent::assets::{self, Kind, Listing};
+use webfluent::build::assets::{self, Kind, Listing};
 use webfluent::registry::FileKind;
 use webfluent::vfs::{OverlayVfs, Vfs};
 

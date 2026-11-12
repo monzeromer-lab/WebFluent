@@ -10,6 +10,7 @@
 //! same list, so the editor shows exactly what the build refuses.
 
 pub use crate::check::allow;
+#[doc(hidden)]
 pub use crate::web::check;
 pub mod codes;
 pub mod error;

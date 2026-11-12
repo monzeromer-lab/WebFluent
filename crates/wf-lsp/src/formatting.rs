@@ -21,7 +21,7 @@ pub fn format_document(project: &Project, file_ix: usize) -> Option<Vec<TextEdit
         file.path.to_string_lossy().to_string()
     };
     let source: &str = &file.source;
-    let formatted = webfluent::fmt::format_source(source, &name).ok()?;
+    let formatted = webfluent::syntax::fmt::format_source(source, &name).ok()?;
     if formatted == source {
         return Some(Vec::new());
     }

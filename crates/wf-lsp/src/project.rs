@@ -25,8 +25,8 @@ use std::time::SystemTime;
 use dashmap::DashMap;
 use lsp_types::Url;
 use webfluent::config::project::{OutputType, ProjectConfig, ThemeConfig};
-use webfluent::error::WebFluentError;
-use webfluent::parser::{Declaration, Program};
+use webfluent::diagnostics::error::WebFluentError;
+use webfluent::syntax::parser::{Declaration, Program};
 use webfluent::vfs::{FsVfs, Vfs};
 
 use crate::line_index::LineIndex;
@@ -303,7 +303,7 @@ impl Project {
                 .unwrap_or(&script_path)
                 .to_string_lossy()
                 .replace('\\', "/");
-            let declaration = Declaration::Script(webfluent::parser::ast::ScriptDecl {
+            let declaration = Declaration::Script(webfluent::syntax::parser::ast::ScriptDecl {
                 path: label,
                 names: scan.names,
             });
@@ -345,10 +345,12 @@ impl Project {
                 index: LineIndex::new(&source),
                 source,
                 parsed: Ok(Arc::new(Program {
-                    declarations: vec![Declaration::Script(webfluent::parser::ast::ScriptDecl {
-                        path: "webfluent.app.json".to_string(),
-                        names,
-                    })],
+                    declarations: vec![Declaration::Script(
+                        webfluent::syntax::parser::ast::ScriptDecl {
+                            path: "webfluent.app.json".to_string(),
+                            names,
+                        },
+                    )],
                 })),
                 open: false,
                 stale: false,

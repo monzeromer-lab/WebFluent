@@ -7,8 +7,8 @@ use serde_json::{Value, json};
 use std::sync::mpsc;
 use std::time::Duration;
 use webfluent::codegen::static_eval::{Scope, Static, eval};
-use webfluent::parser::v2::parse_v2;
-use webfluent::parser::{Arg, Declaration, Expr, StatementKind};
+use webfluent::syntax::parser::v2::parse_v2;
+use webfluent::syntax::parser::{Arg, Declaration, Expr, StatementKind};
 use webfluent::{Template, WebFluentError};
 
 /// The stack a test thread gets: 2 MB — what a server's worker thread has —

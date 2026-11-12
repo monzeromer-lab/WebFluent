@@ -10,10 +10,10 @@
 use lsp_types::*;
 use webfluent::codegen::builtin::{builtin_to_html, implicit_role, landmark_label};
 use webfluent::config::OutputType;
-use webfluent::lexer::TokenType;
-use webfluent::parser::ast::*;
 use webfluent::registry::{self, Children, ComponentSig, Flag, PropSig, PropType, Sink};
 use webfluent::sema::types::Type;
+use webfluent::syntax::lexer::TokenType;
+use webfluent::syntax::parser::ast::*;
 
 use crate::analysis::{self, Binding, BindingKind, ElementPart};
 use crate::line_index::word_at;
@@ -63,7 +63,7 @@ fn hover_text(
     file_ix: usize,
     offset: usize,
     word: &str,
-    tokens: &[webfluent::lexer::Token],
+    tokens: &[webfluent::syntax::lexer::Token],
 ) -> Option<String> {
     let source: &str = &project.files[file_ix].source;
     let token_ix = analysis::token_index_at(tokens, offset);
@@ -892,7 +892,7 @@ fn declaration_doc(project: &Project, decl: &Declaration) -> String {
             let expects = t
                 .steps
                 .iter()
-                .filter(|s| matches!(s, webfluent::parser::Step::Expect { .. }))
+                .filter(|s| matches!(s, webfluent::syntax::parser::Step::Expect { .. }))
                 .count();
             format!(
                 "**test \"{}\"** — {} by `wf test`{}{declared}",

@@ -1,9 +1,11 @@
 mod cli;
 
+use webfluent::build::assets;
+use webfluent::diagnostics::error;
+use webfluent::syntax::{fmt, layout};
 use webfluent::{
-    agent, assets, audit, browser, build, codegen, config, diagnostics, error, fmt, gallery,
-    generate, i18n, init, layout, media, migrate, motion, registry, scope, template, testing,
-    themes, validation, verify, vfs,
+    agent, audit, browser, build, codegen, config, diagnostics, gallery, generate, i18n, init,
+    media, migrate, motion, registry, scope, template, testing, themes, validation, verify, vfs,
 };
 
 use clap::{Parser, Subcommand};

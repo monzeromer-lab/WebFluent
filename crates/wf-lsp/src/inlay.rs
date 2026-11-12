@@ -2,7 +2,7 @@
 //! `let` written without one — `state count = 0` shows `: Number`.
 
 use lsp_types::*;
-use webfluent::parser::ast::*;
+use webfluent::syntax::parser::ast::*;
 
 use crate::analysis;
 use crate::project::Project;

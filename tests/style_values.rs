@@ -8,8 +8,8 @@
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 
-use webfluent::parser::ast::*;
-use webfluent::style_value::{Shape, Value, parse, print, property};
+use webfluent::paged::style_value::{Shape, Value, parse, print, property};
+use webfluent::syntax::parser::ast::*;
 
 fn sources(dir: &Path, out: &mut Vec<PathBuf>) {
     let Ok(entries) = std::fs::read_dir(dir) else {
@@ -107,12 +107,12 @@ fn every_style_value_reads_into_its_shape_and_back() {
             continue;
         };
         for d in &program.declarations {
-            let Some(body) = webfluent::print::body_of(d) else {
+            let Some(body) = webfluent::syntax::print::body_of(d) else {
                 continue;
             };
             each_style(body, &mut |p| {
                 total += 1;
-                let text = webfluent::print::style_value(&p.value);
+                let text = webfluent::syntax::print::style_value(&p.value);
                 let v = parse(&p.name, &text);
                 let printed = print(&p.name, &v);
                 let again = parse(&p.name, &printed);

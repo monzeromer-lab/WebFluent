@@ -7,7 +7,7 @@
 //! hover, and goes to it.
 
 use lsp_types::*;
-use webfluent::lexer::{Token, TokenType};
+use webfluent::syntax::lexer::{Token, TokenType};
 
 use crate::project::Project;
 
