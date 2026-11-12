@@ -12,11 +12,11 @@
 
 use std::collections::{HashMap, HashSet};
 
-use crate::diagnostics::error::A11yWarning;
+use crate::diagnostics::error::Diagnostic;
 use crate::syntax::parser::ast::*;
 
 /// The unused declarations of a program, as warnings.
-pub fn lint_unused(program: &Program) -> Vec<A11yWarning> {
+pub fn lint_unused(program: &Program) -> Vec<Diagnostic> {
     lint_unused_in(program, &|_| "<unknown>".to_string(), &[])
 }
 
@@ -27,7 +27,7 @@ pub fn lint_unused_in(
     program: &Program,
     file_of: &dyn Fn(usize) -> String,
     published: &[String],
-) -> Vec<A11yWarning> {
+) -> Vec<Diagnostic> {
     let mut out = Vec::new();
 
     // Every component and part the program places, by name; every layout.
@@ -199,7 +199,7 @@ fn header_reads(p: &PageDecl) -> Vec<&Expr> {
 
 /// The state, derived values and actions of a page or component body that
 /// nothing in the body (or the page's header) reads.
-fn local_unused(body: &[Statement], header: &[&Expr], file: &str, out: &mut Vec<A11yWarning>) {
+fn local_unused(body: &[Statement], header: &[&Expr], file: &str, out: &mut Vec<Diagnostic>) {
     let mut reads = Reads::default();
     read_statements(body, &mut reads);
     for e in header {
@@ -240,8 +240,8 @@ fn keep(name: &str) -> crate::diagnostics::fixes::Plan {
     }
 }
 
-fn warn(code: &str, message: String, file: &str, span: Span, hint: &str) -> A11yWarning {
-    A11yWarning::new(
+fn warn(code: &str, message: String, file: &str, span: Span, hint: &str) -> Diagnostic {
+    crate::diagnostics::finding(
         code,
         message,
         file,
@@ -391,7 +391,7 @@ mod tests {
         let program = parse_v2(src, "<t>").expect("parse");
         lint_unused(&program)
             .iter()
-            .map(|w| format!("[{}] {}", w.rule_id, w.message))
+            .map(|w| format!("[{}] {}", w.code, w.message))
             .collect()
     }
 

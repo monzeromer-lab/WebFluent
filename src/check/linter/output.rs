@@ -11,11 +11,11 @@
 //! - `T01`: a `Carousel(interval:)` no timer keeps, a `Column(span:)` that
 //!   is not a whole number of the twelve columns.
 
-use crate::diagnostics::error::A11yWarning;
+use crate::diagnostics::error::Diagnostic;
 use crate::syntax::parser::ast::*;
 
 /// Every finding of this module in `program`.
-pub fn lint_output(program: &Program, file_of: &dyn Fn(usize) -> String) -> Vec<A11yWarning> {
+pub fn lint_output(program: &Program, file_of: &dyn Fn(usize) -> String) -> Vec<Diagnostic> {
     let mut out = Vec::new();
     for (index, decl) in program.declarations.iter().enumerate() {
         let file = file_of(index);
@@ -32,7 +32,7 @@ pub fn lint_output(program: &Program, file_of: &dyn Fn(usize) -> String) -> Vec<
     out
 }
 
-fn walk(body: &[Statement], file: &str, out: &mut Vec<A11yWarning>) {
+fn walk(body: &[Statement], file: &str, out: &mut Vec<Diagnostic>) {
     for stmt in body {
         if let StatementKind::UIElement(el) = &stmt.kind {
             element(el, file, out);
@@ -63,7 +63,7 @@ fn number(e: &Expr) -> Option<f64> {
     }
 }
 
-fn element(el: &UIElement, file: &str, out: &mut Vec<A11yWarning>) {
+fn element(el: &UIElement, file: &str, out: &mut Vec<Diagnostic>) {
     let ComponentRef::BuiltIn(name) = &el.component else {
         return;
     };
@@ -77,7 +77,7 @@ fn element(el: &UIElement, file: &str, out: &mut Vec<A11yWarning>) {
                 return;
             }
             match named(el, "sandbox") {
-                None => out.push(A11yWarning::new(
+                None => out.push(crate::diagnostics::finding(
                     "V03",
                     "`Frame(srcdoc:)` draws HTML from a value as a document; it is sandboxed (`sandbox=\"\"`), so nothing in it runs",
                     file,
@@ -91,7 +91,7 @@ fn element(el: &UIElement, file: &str, out: &mut Vec<A11yWarning>) {
                         && s.split_whitespace()
                             .any(|t| t.eq_ignore_ascii_case("allow-same-origin")) =>
                 {
-                    out.push(A11yWarning::new(
+                    out.push(crate::diagnostics::finding(
                         "V03",
                         "`Frame(srcdoc:)` draws HTML from a value with `allow-scripts` and `allow-same-origin`: what it runs runs as this site",
                         file,
@@ -101,7 +101,7 @@ fn element(el: &UIElement, file: &str, out: &mut Vec<A11yWarning>) {
                     ));
                 }
                 Some(Expr::StringLiteral(_)) => {}
-                Some(_) => out.push(A11yWarning::new(
+                Some(_) => out.push(crate::diagnostics::finding(
                     "V03",
                     "`Frame(srcdoc:)` draws HTML from a value, sandboxed as a value says",
                     file,
@@ -115,7 +115,7 @@ fn element(el: &UIElement, file: &str, out: &mut Vec<A11yWarning>) {
             if let Some(n) = named(el, "interval").and_then(number)
                 && !(1.0..=crate::project::builtin::LONGEST_INTERVAL).contains(&n)
             {
-                out.push(A11yWarning::new(
+                out.push(crate::diagnostics::finding(
                     "T01",
                     format!(
                         "`interval` of Carousel is {n}, but a number of milliseconds from 1 to 2147483647 is wanted"
@@ -131,7 +131,7 @@ fn element(el: &UIElement, file: &str, out: &mut Vec<A11yWarning>) {
             if let Some(n) = named(el, "span").and_then(number)
                 && crate::project::builtin::column_span(n).is_none()
             {
-                out.push(A11yWarning::new(
+                out.push(crate::diagnostics::finding(
                     "T01",
                     format!(
                         "`span` of Column is {n}, but a whole number of the 12 columns, from 1 to 12, is wanted"
@@ -156,7 +156,7 @@ fn refresh_target(content: &str) -> Option<&str> {
     Some(rest.trim_matches(|c| c == '\'' || c == '"'))
 }
 
-fn head_tags(tags: &[HeadTag], file: &str, out: &mut Vec<A11yWarning>) {
+fn head_tags(tags: &[HeadTag], file: &str, out: &mut Vec<Diagnostic>) {
     for tag in tags {
         let (line, col) = (tag.span.line as usize, tag.span.col as usize);
         let attr = |name: &str| {
@@ -166,7 +166,9 @@ fn head_tags(tags: &[HeadTag], file: &str, out: &mut Vec<A11yWarning>) {
                 .map(|(_, v)| v)
         };
         let mut refuse = |message: String, hint: &str| {
-            out.push(A11yWarning::new("E107", message, file, line, col, hint));
+            out.push(crate::diagnostics::finding(
+                "E107", message, file, line, col, hint,
+            ));
         };
         // A literal address with a scheme a browser runs.
         for (key, value) in &tag.attrs {

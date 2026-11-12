@@ -10,7 +10,7 @@
 //! (Non-text Contrast): 4.5:1 for body text, 3:1 for large text and for the
 //! boundaries of user interface components.
 
-use crate::diagnostics::error::A11yWarning;
+use crate::diagnostics::error::Diagnostic;
 use crate::syntax::parser::ast::{
     ComponentRef, Declaration, Expr, Program, Statement, StatementKind,
 };
@@ -205,7 +205,7 @@ pub fn pairings(
 pub fn lint_contrast(
     program: &Program,
     resolved: &std::collections::HashMap<String, String>,
-) -> Vec<A11yWarning> {
+) -> Vec<Diagnostic> {
     lint_contrast_in(program, resolved, &|_| "src/theme.wf".to_string())
 }
 
@@ -215,7 +215,7 @@ pub fn lint_contrast_in(
     program: &Program,
     resolved: &std::collections::HashMap<String, String>,
     file_of: &dyn Fn(usize) -> String,
-) -> Vec<A11yWarning> {
+) -> Vec<Diagnostic> {
     // Only report on projects that actually declare a theme: the baseline is the
     // engine's own problem, and warning about it on every build of every project
     // would say nothing the author can act on.
@@ -249,7 +249,7 @@ pub fn lint_contrast_in(
         };
         let ratio = contrast_ratio(fg, bg);
         if ratio < *threshold {
-            warnings.push(A11yWarning::new(
+            warnings.push(crate::diagnostics::finding(
                 "A13",
                 format!(
                     "{description} has a contrast ratio of {ratio:.2}:1, below the {threshold}:1 WCAG AA minimum"
@@ -272,7 +272,7 @@ pub fn lint_contrast_in(
         };
         let ratio = contrast_ratio((255, 255, 255), value);
         if ratio < AA_TEXT {
-            warnings.push(A11yWarning::new(
+            warnings.push(crate::diagnostics::finding(
                 "A13",
                 format!("{description} has a contrast ratio of {ratio:.2}:1, below the {AA_TEXT}:1 WCAG AA minimum"),
                 file,
@@ -375,7 +375,7 @@ mod tests {
         crate::syntax::parse_source(src, "<t>").expect("parse")
     }
 
-    fn check(theme_src: &str) -> Vec<A11yWarning> {
+    fn check(theme_src: &str) -> Vec<Diagnostic> {
         let program = parse(&format!(
             "{theme_src}\npage P(path: \"/\") {{ Text(\"x\") }}"
         ));

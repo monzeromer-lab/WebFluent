@@ -345,6 +345,20 @@ pub fn summary(diagnostics: &[Diagnostic]) -> String {
     }
 }
 
+/// A linter's finding: `code`'s severity from the registry, the message, the
+/// place, and the hint (none when empty).
+pub(crate) fn finding(
+    code: &str,
+    message: impl Into<String>,
+    file: impl Into<String>,
+    line: usize,
+    column: usize,
+    hint: impl Into<String>,
+) -> Diagnostic {
+    let code = codes::info(code).map_or("", |c| c.code);
+    Diagnostic::coded(code, message, file, line, column).with_hint(hint)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

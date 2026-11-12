@@ -26,7 +26,7 @@
 pub(crate) use crate::base::text::levenshtein;
 use std::collections::HashSet;
 
-use crate::diagnostics::error::VocabWarning;
+use crate::diagnostics::error::Diagnostic;
 use crate::project::builtin::{builtin_to_html, modifier_to_class};
 use crate::syntax::parser::{
     Arg, ComponentRef, Declaration, Expr, Program, Statement, StatementKind, UIElement,
@@ -43,17 +43,14 @@ fn stylesheet() -> &'static str {
 /// Lint every UI element's positional arguments against the modifier vocabulary
 /// and the program's own names. Returns one warning per dead word (empty =
 /// clean), in declaration order.
-pub fn lint_vocabulary(program: &Program, file: &str) -> Vec<VocabWarning> {
+pub fn lint_vocabulary(program: &Program, file: &str) -> Vec<Diagnostic> {
     lint_vocabulary_in(program, &|_| file.to_string())
 }
 
 /// [`lint_vocabulary`] for a program merged from several files: `file_of`
 /// names the file the declaration at that index came from, so a warning
 /// points at the source a reader can open.
-pub fn lint_vocabulary_in(
-    program: &Program,
-    file_of: &dyn Fn(usize) -> String,
-) -> Vec<VocabWarning> {
+pub fn lint_vocabulary_in(program: &Program, file_of: &dyn Fn(usize) -> String) -> Vec<Diagnostic> {
     lint_vocabulary_with(program, "", file_of)
 }
 
@@ -63,7 +60,7 @@ pub fn lint_vocabulary_with(
     program: &Program,
     project_css: &str,
     file_of: &dyn Fn(usize) -> String,
-) -> Vec<VocabWarning> {
+) -> Vec<Diagnostic> {
     let globals = global_names(program);
     let mut warnings = Vec::new();
 
@@ -243,7 +240,7 @@ fn walk(
     file: &str,
     scope: &HashSet<String>,
     sheets: &Sheets,
-    out: &mut Vec<VocabWarning>,
+    out: &mut Vec<Diagnostic>,
 ) {
     for stmt in stmts {
         match &stmt.kind {
@@ -293,7 +290,7 @@ fn walk(
 /// — they are stable — but adding one to an element puts another built-in's
 /// rules on it (`Card(class: "wf-btn")` is half a card and half a button),
 /// and the engine's state hooks (`wf-active`, `wf-open`) are its to set.
-fn check_engine_classes(el: &UIElement, file: &str, out: &mut Vec<VocabWarning>) {
+fn check_engine_classes(el: &UIElement, file: &str, out: &mut Vec<Diagnostic>) {
     fn names(value: &Expr, out: &mut Vec<String>) {
         match value {
             Expr::StringLiteral(s) => out.extend(s.split_whitespace().map(str::to_string)),
@@ -349,17 +346,14 @@ fn check_engine_classes(el: &UIElement, file: &str, out: &mut Vec<VocabWarning>)
         .iter()
         .filter(|c| c.starts_with("wf-") && !own.contains(c) && !project_animation(c))
     {
-        out.push(VocabWarning {
-            rule_id: "V04".to_string(),
-            message: format!("`class:` names `{class}`, one of the engine's own classes"),
-            file: file.to_string(),
-            line: el.span.line as usize,
-            column: el.span.col as usize,
-            hint: Some(
-                "`wf-` classes are the built-ins': one added here brings another built-in's rules with it. Name a class of your own, or use the flag that sets the look".to_string(),
-            ),
-            plans: Vec::new(),
-        });
+        out.push(crate::diagnostics::finding(
+            "V04",
+            format!("`class:` names `{class}`, one of the engine's own classes"),
+            file,
+            el.span.line as usize,
+            el.span.col as usize,
+            "`wf-` classes are the built-ins': one added here brings another built-in's rules with it. Name a class of your own, or use the flag that sets the look",
+        ));
     }
 }
 
@@ -375,7 +369,7 @@ fn check_engine_classes(el: &UIElement, file: &str, out: &mut Vec<VocabWarning>)
 /// Suppressing the class in the codegen was the alternative, and it is the wrong
 /// one: `{base}--{modifier}` is a documented styling hook, so an author may have
 /// written the rule themselves. Saying so is right; deciding for them is not.
-fn check_dead_variants(el: &UIElement, file: &str, sheets: &Sheets, out: &mut Vec<VocabWarning>) {
+fn check_dead_variants(el: &UIElement, file: &str, sheets: &Sheets, out: &mut Vec<Diagnostic>) {
     let ComponentRef::BuiltIn(name) = &el.component else {
         return;
     };
@@ -401,19 +395,16 @@ fn check_dead_variants(el: &UIElement, file: &str, sheets: &Sheets, out: &mut Ve
             .map_or((el.span.line as usize, el.span.col as usize), |s| {
                 (s.line as usize, s.col as usize)
             });
-        out.push(VocabWarning {
-            rule_id: "V02".to_string(),
-            message: format!(
-                "`{modifier}` on {name} produces the class `{class}`, which no stylesheet defines"
-            ),
-            file: file.to_string(),
+        out.push(crate::diagnostics::finding(
+            "V02",
+            format!("`{modifier}` on {name} produces the class `{class}`, which no stylesheet defines"),
+            file,
             line,
             column,
-            hint: Some(format!(
+            format!(
                 "Either drop it, or add a `.{class}` rule to a .css file under src/ — the engine emits the class either way"
-            )),
-            plans: Vec::new(),
-        });
+            ),
+        ));
     }
 }
 
@@ -436,7 +427,7 @@ fn defines_class(stylesheet: &str, class: &str) -> bool {
     false
 }
 
-fn check_element(el: &UIElement, file: &str, scope: &HashSet<String>, out: &mut Vec<VocabWarning>) {
+fn check_element(el: &UIElement, file: &str, scope: &HashSet<String>, out: &mut Vec<Diagnostic>) {
     for (i, arg) in el.args.iter().enumerate() {
         // Positional bare identifiers only: that is the position where a typo'd
         // modifier lands, and where the parser's vocabulary check is the sole
@@ -470,17 +461,18 @@ fn check_element(el: &UIElement, file: &str, scope: &HashSet<String>, out: &mut 
             }],
             None => Vec::new(),
         };
-        out.push(VocabWarning {
-            rule_id: "V01".into(),
-            message: format!(
+        let mut d = crate::diagnostics::finding(
+            "V01",
+            format!(
                 "nothing in scope declares `{name}`, so it reads as nothing — a flag is written `.{name}`"
             ),
-            file: file.into(),
-            line: span.line as usize,
-            column: span.col as usize,
-            hint,
-            plans,
-        });
+            file,
+            span.line as usize,
+            span.col as usize,
+            hint.unwrap_or_default(),
+        );
+        d.plans = plans;
+        out.push(d);
     }
 }
 
@@ -537,7 +529,7 @@ fn suggest(word: &str, scope: &HashSet<String>, el: &UIElement) -> Option<String
 mod tests {
     use super::*;
 
-    fn lint(source: &str) -> Vec<VocabWarning> {
+    fn lint(source: &str) -> Vec<Diagnostic> {
         let program = crate::syntax::parse_source(source, "<test>")
             .map(crate::check::sema::lower)
             .expect("parse");
@@ -581,7 +573,7 @@ mod tests {
         // The studio's probe case (finding 0.7): compiles clean, does nothing.
         let w = lint(r#"page Home(path: "/") { Container { Button(huge) } }"#);
         assert_eq!(w.len(), 1, "{w:?}");
-        assert_eq!(w[0].rule_id, "V01");
+        assert_eq!(w[0].code, "V01");
         assert!(w[0].message.contains("`huge`"));
         assert!(w[0].line >= 1 && w[0].column >= 1, "must point at the word");
     }
@@ -689,13 +681,13 @@ mod dead_variant_tests {
     //! section has no rule for it.
     use super::*;
 
-    fn warnings(src: &str) -> Vec<VocabWarning> {
+    fn warnings(src: &str) -> Vec<Diagnostic> {
         let program = crate::syntax::parse_source(src, "<t>")
             .map(crate::check::sema::lower)
             .expect("parse");
         lint_vocabulary(&program, "<t>")
             .into_iter()
-            .filter(|w| w.rule_id == "V02")
+            .filter(|w| w.code == "V02")
             .collect()
     }
 

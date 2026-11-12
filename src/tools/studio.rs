@@ -56,7 +56,7 @@ pub struct CompiledSite {
     ///
     /// The studio can surface these against the node they belong to rather than
     /// waiting for the author to read build output they may never see.
-    pub diagnostics: Vec<Diagnostic>,
+    pub diagnostics: Vec<crate::diagnostics::Diagnostic>,
 
     /// Why a theme failed to resolve, if it did.
     ///
@@ -75,17 +75,6 @@ pub struct ThemeInfo {
     /// Byte offset of the declaration, for click-to-code.
     pub offset: u32,
     pub line: u32,
-}
-
-/// One finding, flattened for the studio: its code, what it says and where.
-#[derive(Debug, Clone)]
-pub struct Diagnostic {
-    /// The code, e.g. `A11`, `T05`, `E101`.
-    pub rule: String,
-    pub message: String,
-    pub file: String,
-    pub line: usize,
-    pub hint: String,
 }
 
 /// Compile a program for the studio preview: node ids stamped, SSG pages + CSS +
@@ -152,18 +141,8 @@ pub fn compile_studio(
         stylesheets: "",
         incomplete: false,
     });
-    let mut diagnostics: Vec<Diagnostic> = checked
-        .diagnostics
-        .into_iter()
-        .map(|d| Diagnostic {
-            rule: d.code.to_string(),
-            message: d.message,
-            file: d.file,
-            line: d.line,
-            hint: d.hint.unwrap_or_default(),
-        })
-        .collect();
-    diagnostics.sort_by(|a, b| a.rule.cmp(&b.rule).then(a.line.cmp(&b.line)));
+    let mut diagnostics = checked.diagnostics;
+    diagnostics.sort_by(|a, b| a.code.cmp(b.code).then(a.line.cmp(&b.line)));
 
     // The preview boots from the static paint, then takes it over.
     let mut js_gen = JsCodegen::new().with_options(crate::web::codegen::JsOptions {

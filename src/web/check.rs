@@ -320,8 +320,8 @@ fn lowered_checks(
     let mut lints = accessibility;
     lints.extend(contrast);
     lints.extend(unused);
-    out.extend(lints.into_iter().map(Diagnostic::from));
-    out.extend(vocabulary.into_iter().map(Diagnostic::from));
+    out.extend(lints);
+    out.extend(vocabulary);
     out.extend(output);
     out
 }

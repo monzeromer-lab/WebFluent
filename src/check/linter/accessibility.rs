@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::diagnostics::error::A11yWarning;
+use crate::diagnostics::error::Diagnostic;
 use crate::syntax::parser::ast::*;
 
 /// Run all accessibility lint rules on the parsed program.
@@ -9,7 +9,7 @@ use crate::syntax::parser::ast::*;
 /// Warnings name files by the project convention (`src/pages/<Name>.wf`);
 /// a caller that merged several files knows the real ones and should use
 /// [`lint_accessibility_in`].
-pub fn lint_accessibility(program: &Program) -> Vec<A11yWarning> {
+pub fn lint_accessibility(program: &Program) -> Vec<Diagnostic> {
     lint_accessibility_in(program, &|index| match &program.declarations[index] {
         Declaration::Page(page) => format!("src/pages/{}.wf", page.name),
         Declaration::Component(comp) => format!("src/components/{}.wf", comp.name),
@@ -23,7 +23,7 @@ pub fn lint_accessibility(program: &Program) -> Vec<A11yWarning> {
 pub fn lint_accessibility_in(
     program: &Program,
     file_of: &dyn Fn(usize) -> String,
-) -> Vec<A11yWarning> {
+) -> Vec<Diagnostic> {
     let mut warnings = Vec::new();
     // A page's outline includes the headings of the components it calls, so
     // the outline check reads through a call to the component's body.
@@ -86,8 +86,8 @@ pub fn lint_accessibility_in(
 /// It is not a mistake — there is no other way to render a CMS's HTML —
 /// but it is the one place in the output where a string becomes structure,
 /// so every one of them is named in the build, not only greppable.
-fn lint_unsafe(program: &Program, file_of: &dyn Fn(usize) -> String) -> Vec<A11yWarning> {
-    fn walk(body: &[Statement], file: &str, out: &mut Vec<A11yWarning>) {
+fn lint_unsafe(program: &Program, file_of: &dyn Fn(usize) -> String) -> Vec<Diagnostic> {
+    fn walk(body: &[Statement], file: &str, out: &mut Vec<Diagnostic>) {
         for stmt in body {
             match &stmt.kind {
                 StatementKind::UIElement(el) => {
@@ -99,7 +99,7 @@ fn lint_unsafe(program: &Program, file_of: &dyn Fn(usize) -> String) -> Vec<A11y
                         let sanitised = el.args.iter().any(|a| {
                             matches!(a, Arg::Positional(Expr::FunctionCall(f, _)) if f == "sanitize")
                         });
-                        out.push(A11yWarning::new(
+                        out.push(crate::diagnostics::finding(
                             "V03",
                             "`Unsafe.Html` puts markup in as markup".to_string(),
                             file,
@@ -154,7 +154,7 @@ fn lint_unsafe(program: &Program, file_of: &dyn Fn(usize) -> String) -> Vec<A11y
 ///
 /// A version is a promise that a value an older build wrote still means
 /// something. These two find the places where the promise is not kept.
-fn lint_persistence(program: &Program, file_of: &dyn Fn(usize) -> String) -> Vec<A11yWarning> {
+fn lint_persistence(program: &Program, file_of: &dyn Fn(usize) -> String) -> Vec<Diagnostic> {
     let mut warnings = Vec::new();
     for (index, decl) in program.declarations.iter().enumerate() {
         let file = file_of(index);
@@ -177,7 +177,7 @@ fn lint_persistence(program: &Program, file_of: &dyn Fn(usize) -> String) -> Vec
             // again — which reads the persisted value straight back, so
             // the value outlives the route that was supposed to own it.
             if route_scoped && state.persist {
-                warnings.push(A11yWarning::new(
+                warnings.push(crate::diagnostics::finding(
                     "P03",
                     format!(
                         "`{}` is persisted in a store scoped to the route",
@@ -196,7 +196,7 @@ fn lint_persistence(program: &Program, file_of: &dyn Fn(usize) -> String) -> Vec
             // P02: a step that never runs.
             for step in &policy.migrations {
                 if step.to > version {
-                    warnings.push(A11yWarning::new(
+                    warnings.push(crate::diagnostics::finding(
                         "P02",
                         format!(
                             "`migrate {} -> {}` on `{}` is past the declared version",
@@ -221,7 +221,7 @@ fn lint_persistence(program: &Program, file_of: &dyn Fn(usize) -> String) -> Vec
                     // reader had until it is said how it changes.
                     let close = (stmt.span.end as usize).saturating_sub(1);
                     warnings.push(
-                        A11yWarning::new(
+                        crate::diagnostics::finding(
                             "P01",
                             format!(
                                 "`{}` is at version {version}, and nothing brings version {at} forward",
@@ -256,7 +256,7 @@ fn lint_persistence(program: &Program, file_of: &dyn Fn(usize) -> String) -> Vec
 /// crawler cannot summarise is usually a page a screen reader cannot either. A
 /// missing description is a search result whose snippet is written by whatever
 /// crawled it; a duplicate route is two pages competing for one ranking.
-fn lint_seo(program: &Program, file_of: &dyn Fn(usize) -> String) -> Vec<A11yWarning> {
+fn lint_seo(program: &Program, file_of: &dyn Fn(usize) -> String) -> Vec<Diagnostic> {
     let mut warnings = Vec::new();
     let mut seen_paths: Vec<(&str, &str)> = Vec::new();
 
@@ -274,7 +274,7 @@ fn lint_seo(program: &Program, file_of: &dyn Fn(usize) -> String) -> Vec<A11yWar
 
         // S01: a page with no title has nothing to show as a search result link.
         if page.title.as_deref().unwrap_or("").trim().is_empty() {
-            warnings.push(A11yWarning::new(
+            warnings.push(crate::diagnostics::finding(
                 "S01",
                 format!("Page {} has no title", page.name),
                 &file,
@@ -286,7 +286,7 @@ fn lint_seo(program: &Program, file_of: &dyn Fn(usize) -> String) -> Vec<A11yWar
 
         // S02: no description means the snippet is written for you.
         if page.description.is_none() && !page.noindex {
-            warnings.push(A11yWarning::new(
+            warnings.push(crate::diagnostics::finding(
                 "S02",
                 format!("Page {} has no description", page.name),
                 &file,
@@ -300,7 +300,7 @@ fn lint_seo(program: &Program, file_of: &dyn Fn(usize) -> String) -> Vec<A11yWar
         if let Some(d) = &page.description {
             let len = d.chars().count();
             if len > 160 {
-                warnings.push(A11yWarning::new(
+                warnings.push(crate::diagnostics::finding(
                     "S03",
                     format!(
                         "Page {}'s description is {len} characters; a search result shows about 160",
@@ -319,7 +319,7 @@ fn lint_seo(program: &Program, file_of: &dyn Fn(usize) -> String) -> Vec<A11yWar
         // the names of the pages before it, so two pages on one route were
         // never reported.
         if let Some((other, _)) = seen_paths.iter().find(|(_, p)| *p == page.path) {
-            warnings.push(A11yWarning::new(
+            warnings.push(crate::diagnostics::finding(
                 "S04",
                 format!(
                     "Pages {} and {} both claim the route {}",
@@ -365,7 +365,7 @@ struct HeadingTracker<'p> {
     /// While a page's layout is walked: the page's body, placed where the
     /// layout's `children` is, and the warnings it produces there.
     page_body: Option<(&'p [Statement], String)>,
-    page_warnings: Vec<A11yWarning>,
+    page_warnings: Vec<Diagnostic>,
 }
 
 impl<'p> HeadingTracker<'p> {
@@ -449,7 +449,7 @@ fn is_document_or_deck(body: &[Statement]) -> bool {
 fn lint_page<'p>(
     page: &'p PageDecl,
     file: &str,
-    warnings: &mut Vec<A11yWarning>,
+    warnings: &mut Vec<Diagnostic>,
     components: &'p HashMap<&'p str, &'p ComponentDecl>,
 ) {
     let mut tracker = if is_document_or_deck(&page.body) {
@@ -468,7 +468,7 @@ fn lint_page<'p>(
             tracker.page_body = Some((&page.body, file.to_string()));
             let mut quiet = Vec::new();
             lint_statements(&layout.body, file, &mut quiet, &mut tracker);
-            warnings.extend(quiet.into_iter().filter(|w| w.rule_id == "A11"));
+            warnings.extend(quiet.into_iter().filter(|w| w.code == "A11"));
             match tracker.page_body.take() {
                 // The layout placed the page: its findings are the page's.
                 None => warnings.append(&mut tracker.page_warnings),
@@ -485,7 +485,7 @@ fn lint_page<'p>(
 
     // A12: Page should have exactly one h1
     if tracker.h1_count == 0 {
-        warnings.push(A11yWarning::new(
+        warnings.push(crate::diagnostics::finding(
             "A12",
             "Page has no h1 heading",
             file,
@@ -494,7 +494,7 @@ fn lint_page<'p>(
             "Add a main heading: Heading(\"Page Title\").h1".to_string(),
         ));
     } else if tracker.h1_count > 1 {
-        warnings.push(A11yWarning::new(
+        warnings.push(crate::diagnostics::finding(
             "A12",
             format!(
                 "Page has {} h1 headings (should be exactly 1)",
@@ -511,7 +511,7 @@ fn lint_page<'p>(
 fn lint_statements(
     stmts: &[Statement],
     file: &str,
-    warnings: &mut Vec<A11yWarning>,
+    warnings: &mut Vec<Diagnostic>,
     heading_tracker: &mut HeadingTracker<'_>,
 ) {
     for stmt in stmts {
@@ -568,7 +568,7 @@ fn lint_statements(
 fn lint_alternatives(
     bodies: &[&[Statement]],
     file: &str,
-    warnings: &mut Vec<A11yWarning>,
+    warnings: &mut Vec<Diagnostic>,
     heading_tracker: &mut HeadingTracker<'_>,
 ) {
     let (levels, h1s) = (
@@ -600,7 +600,7 @@ fn lint_alternatives(
 fn lint_ui_element(
     ui: &UIElement,
     file: &str,
-    warnings: &mut Vec<A11yWarning>,
+    warnings: &mut Vec<Diagnostic>,
     heading_tracker: &mut HeadingTracker<'_>,
 ) {
     // The element's own position: the parser records a span for every
@@ -624,7 +624,7 @@ fn lint_ui_element(
             "Image" => {
                 if !has_named_arg(&ui.args, "alt") {
                     warnings.push(
-                        A11yWarning::new(
+                        crate::diagnostics::finding(
                             "A01",
                             "Image missing \"alt\" attribute",
                             file,
@@ -652,7 +652,7 @@ fn lint_ui_element(
                         _ => None,
                     });
                     warnings.push(
-                        A11yWarning::new(
+                        crate::diagnostics::finding(
                             "A02",
                             "IconButton missing accessible label",
                             file,
@@ -669,7 +669,7 @@ fn lint_ui_element(
             "Input" => {
                 if !has_accessible_name(&ui.args) && !has_named_arg(&ui.args, "placeholder") {
                     warnings.push(
-                        A11yWarning::new(
+                        crate::diagnostics::finding(
                             "A03",
                             "Input missing \"label\" or \"placeholder\" attribute",
                             file,
@@ -686,7 +686,7 @@ fn lint_ui_element(
             "Checkbox" | "Radio" | "Switch" | "Slider" | "Textarea" => {
                 if !has_accessible_name(&ui.args) {
                     warnings.push(
-                        A11yWarning::new(
+                        crate::diagnostics::finding(
                             "A04",
                             format!("{name} missing \"label\" attribute"),
                             file,
@@ -707,7 +707,7 @@ fn lint_ui_element(
                     && !has_accessible_name(&ui.args)
                     && !shows_text(&ui.children, heading_tracker)
                 {
-                    warnings.push(A11yWarning::new(
+                    warnings.push(crate::diagnostics::finding(
                         "A05",
                         "Button has no text content",
                         file,
@@ -753,7 +753,7 @@ fn lint_ui_element(
                         _ => None,
                     });
                     warnings.push(
-                        A11yWarning::new(
+                        crate::diagnostics::finding(
                             "A06",
                             "Link has no text content",
                             file,
@@ -793,7 +793,7 @@ fn lint_ui_element(
                                 heading_tracker.levels_seen[heading_tracker.levels_seen.len() - 2];
                             if level > prev_level + 1 {
                                 let mended = prev_level + 1;
-                                warnings.push(A11yWarning::new(
+                                warnings.push(crate::diagnostics::finding(
                                     "A11",
                                     format!(
                                         "Heading level skips from h{prev_level} to h{level}"
@@ -820,7 +820,7 @@ fn lint_ui_element(
 
                 // Check for empty text
                 if !has_positional_arg(&ui.args) {
-                    warnings.push(A11yWarning::new(
+                    warnings.push(crate::diagnostics::finding(
                         "A07",
                         "Heading has no text content",
                         file,
@@ -829,7 +829,7 @@ fn lint_ui_element(
                         "Add text: Heading(\"Section Title\").h2",
                     ));
                 } else if has_empty_string_arg(&ui.args) {
-                    warnings.push(A11yWarning::new(
+                    warnings.push(crate::diagnostics::finding(
                         "A07",
                         "Heading has empty text content",
                         file,
@@ -853,7 +853,7 @@ fn lint_ui_element(
                         _ => None,
                     });
                     warnings.push(
-                        A11yWarning::new(
+                        crate::diagnostics::finding(
                             "A08",
                             format!("{name} missing \"title\" attribute"),
                             file,
@@ -869,7 +869,7 @@ fn lint_ui_element(
             // A17: a frame is announced by its title
             "Frame" => {
                 if !has_named_arg(&ui.args, "title") {
-                    warnings.push(A11yWarning::new(
+                    warnings.push(crate::diagnostics::finding(
                         "A17",
                         "Frame missing \"title\" attribute",
                         file,
@@ -886,7 +886,7 @@ fn lint_ui_element(
                     && !ui.modifiers.contains(&"controls".to_string())
                 {
                     warnings.push(
-                        A11yWarning::new(
+                        crate::diagnostics::finding(
                             "A09",
                             "Video missing \"controls\" attribute",
                             file,
@@ -904,7 +904,7 @@ fn lint_ui_element(
                 }
                 // A video nobody can hear is a video nobody can follow.
                 if !has_named_arg(&ui.args, "captions") {
-                    warnings.push(A11yWarning::new(
+                    warnings.push(crate::diagnostics::finding(
                         "A09",
                         "Video missing \"captions\"",
                         file,
@@ -920,7 +920,7 @@ fn lint_ui_element(
                     && !ui.modifiers.contains(&"controls".to_string())
                 {
                     warnings.push(
-                        A11yWarning::new(
+                        crate::diagnostics::finding(
                             "A09",
                             "Audio missing \"controls\" attribute",
                             file,
@@ -937,7 +937,7 @@ fn lint_ui_element(
                     );
                 }
                 if !has_named_arg(&ui.args, "transcript") {
-                    warnings.push(A11yWarning::new(
+                    warnings.push(crate::diagnostics::finding(
                         "A09",
                         "Audio missing \"transcript\"",
                         file,
@@ -958,7 +958,7 @@ fn lint_ui_element(
                     }
                 });
                 if !has_thead {
-                    warnings.push(A11yWarning::new(
+                    warnings.push(crate::diagnostics::finding(
                         "A10",
                         "Table has no header row (`Table.Head`)",
                         file,
@@ -990,7 +990,7 @@ fn lint_ui_element(
         heading_tracker.props = outer;
         // Only the outline findings from inside the expansion matter
         // here — and they are about this page's outline.
-        warnings.extend(quiet.into_iter().filter(|w| w.rule_id == "A11"));
+        warnings.extend(quiet.into_iter().filter(|w| w.code == "A11"));
         heading_tracker.expanding.pop();
     }
 
@@ -1010,7 +1010,7 @@ fn lint_aria_structure(
     file: &str,
     line: usize,
     col: usize,
-    warnings: &mut Vec<A11yWarning>,
+    warnings: &mut Vec<Diagnostic>,
     tracker: &HeadingTracker<'_>,
 ) {
     let Some(role) = named_arg_literal(&ui.args, "role") else {
@@ -1092,7 +1092,7 @@ fn lint_aria_structure(
                 name.as_str(),
                 "Button" | "IconButton" | "Link" | "Input" | "Text"
             ) {
-                warnings.push(A11yWarning::new(
+                warnings.push(crate::diagnostics::finding(
                     "A14",
                     format!("role \"{role}\" requires children with role \"{}\", but holds a {name}", required[0]),
                     file,
@@ -1105,7 +1105,7 @@ fn lint_aria_structure(
             continue;
         };
         if !required.contains(&child_role.as_str()) {
-            warnings.push(A11yWarning::new(
+            warnings.push(crate::diagnostics::finding(
                 "A14",
                 format!(
                     "role \"{role}\" requires children with role \"{}\", but holds a {name} with role \"{child_role}\"",
@@ -1139,7 +1139,7 @@ fn lint_label_in_name(
     file: &str,
     line: usize,
     col: usize,
-    warnings: &mut Vec<A11yWarning>,
+    warnings: &mut Vec<Diagnostic>,
     tracker: &HeadingTracker<'_>,
 ) {
     let ComponentRef::BuiltIn(name) = &ui.component else {
@@ -1173,7 +1173,7 @@ fn lint_label_in_name(
         .unwrap_or(missing.as_str())
         .to_string();
     warnings.push(
-        A11yWarning::new(
+        crate::diagnostics::finding(
             "A15",
             format!("{name} shows \"{missing}\" but its aria-label says \"{label}\""),
             file,
@@ -1462,7 +1462,7 @@ mod naming_tests {
         let program = crate::syntax::parse_source(src, "<t>").expect("parse");
         lint_accessibility(&program)
             .into_iter()
-            .map(|w| w.rule_id)
+            .map(|w| w.code.to_string())
             .collect()
     }
 
@@ -1574,7 +1574,7 @@ mod structure_tests {
     //! A14 and A15, and the positions every element rule now carries.
     use super::*;
 
-    fn warnings(src: &str) -> Vec<A11yWarning> {
+    fn warnings(src: &str) -> Vec<Diagnostic> {
         let program = crate::syntax::parse_source(src, "<t>").expect("parse");
         lint_accessibility(&program)
     }
@@ -1584,13 +1584,13 @@ mod structure_tests {
         let src = "page A(path: \"/about\", title: \"A\", description: \"d\") { Heading(\"A\").h1 }\npage B(path: \"/about\", title: \"B\", description: \"d\") { Heading(\"B\").h1 }\n";
         let found = warnings(src);
         assert!(
-            found.iter().any(|w| w.rule_id == "S04"
+            found.iter().any(|w| w.code == "S04"
                 && w.message
                     .contains("Pages A and B both claim the route /about")),
             "{found:?}"
         );
         let apart = "page A(path: \"/a\", title: \"A\", description: \"d\") { Heading(\"A\").h1 }\npage B(path: \"/b\", title: \"B\", description: \"d\") { Heading(\"B\").h1 }\n";
-        assert!(warnings(apart).iter().all(|w| w.rule_id != "S04"));
+        assert!(warnings(apart).iter().all(|w| w.code != "S04"));
     }
 
     #[test]
@@ -1600,13 +1600,13 @@ mod structure_tests {
         // always looked like, and what A12 used to count as two.
         let src = "page P(path: \"/\", title: \"t\", description: \"d\") {\n    state found = true\n    if found {\n        Heading(\"A\").h1\n    } else {\n        Heading(\"B\").h1\n    }\n}\n";
         let found = warnings(src);
-        assert!(found.iter().all(|w| w.rule_id != "A12"), "{found:?}");
+        assert!(found.iter().all(|w| w.code != "A12"), "{found:?}");
         // Two in one branch are still two.
         let twice = "page P(path: \"/\", title: \"t\", description: \"d\") {\n    state found = true\n    if found {\n        Heading(\"A\").h1\n        Heading(\"B\").h1\n    }\n}\n";
-        assert!(warnings(twice).iter().any(|w| w.rule_id == "A12"));
+        assert!(warnings(twice).iter().any(|w| w.code == "A12"));
         // And a page whose only h1 is in one branch of several has one.
         let one = "page P(path: \"/\", title: \"t\", description: \"d\") {\n    state found = true\n    if found {\n        Heading(\"A\").h1\n    } else {\n        Text(\"none\")\n    }\n}\n";
-        assert!(warnings(one).iter().all(|w| w.rule_id != "A12"));
+        assert!(warnings(one).iter().all(|w| w.code != "A12"));
     }
 
     #[test]
@@ -1614,17 +1614,17 @@ mod structure_tests {
         // The layout draws the h1; the page's body sits at its `children`.
         let src = "component Shell(_ heading: String) {\n    slot\n    Heading(heading).h1\n    children\n}\npage P(path: \"/\", title: \"t\", description: \"d\", layout: Shell(\"Hi\")) {\n    Heading(\"Section\").h2\n    Image(src: \"x.png\")\n}\n";
         let found = warnings(src);
-        assert!(found.iter().all(|w| w.rule_id != "A12"), "{found:?}");
-        assert!(found.iter().all(|w| w.rule_id != "A11"), "{found:?}");
+        assert!(found.iter().all(|w| w.code != "A12"), "{found:?}");
+        assert!(found.iter().all(|w| w.code != "A11"), "{found:?}");
         // The page's own findings still surface, once.
         assert_eq!(
-            found.iter().filter(|w| w.rule_id == "A01").count(),
+            found.iter().filter(|w| w.code == "A01").count(),
             1,
             "{found:?}"
         );
         // A skip across the boundary is seen: h1 in the layout, h3 in the page.
         let skip = "component Shell {\n    slot\n    Heading(\"Hi\").h1\n    children\n}\npage P(path: \"/\", title: \"t\", description: \"d\", layout: Shell) {\n    Heading(\"Deep\").h3\n}\n";
-        assert!(warnings(skip).iter().any(|w| w.rule_id == "A11"));
+        assert!(warnings(skip).iter().any(|w| w.code == "A11"));
     }
 
     #[test]
@@ -1632,7 +1632,7 @@ mod structure_tests {
         let src = "page P(path: \"/\", title: \"t\", description: \"d\") {\n    Heading(\"H\").h1\n    Row(role: \"tablist\") {\n        Button(\"One\")\n        Button(\"Two\")\n    }\n}\n";
         let found: Vec<_> = warnings(src)
             .into_iter()
-            .filter(|w| w.rule_id == "A14")
+            .filter(|w| w.code == "A14")
             .collect();
         assert_eq!(found.len(), 1, "{found:?}");
         assert_eq!(found[0].line, 3, "points at the Row");
@@ -1648,10 +1648,10 @@ mod structure_tests {
     #[test]
     fn a_tablist_of_tabs_is_fine_and_a_component_is_judged_by_its_root() {
         let src = "component Tab(label: String) {\n    Button(label, role: \"tab\")\n}\npage P(path: \"/\", title: \"t\", description: \"d\") {\n    Heading(\"H\").h1\n    Row(role: \"tablist\") {\n        Button(\"One\", role: \"tab\")\n        Tab(label: \"Two\")\n    }\n}\n";
-        assert!(warnings(src).iter().all(|w| w.rule_id != "A14"));
+        assert!(warnings(src).iter().all(|w| w.code != "A14"));
         let bare = "component Chip(label: String) {\n    Button(label)\n}\npage P(path: \"/\", title: \"t\", description: \"d\") {\n    Heading(\"H\").h1\n    Row(role: \"tablist\") {\n        Chip(label: \"Two\")\n    }\n}\n";
         assert!(
-            warnings(bare).iter().any(|w| w.rule_id == "A14"),
+            warnings(bare).iter().any(|w| w.code == "A14"),
             "a component whose root is a plain button is a plain button"
         );
     }
@@ -1661,7 +1661,7 @@ mod structure_tests {
         let src = "component Entry(label: String, role: String = \"menuitem\") {\n    Button(label, role: role)\n}\npage P(path: \"/\", title: \"t\", description: \"d\") {\n    Heading(\"H\").h1\n    Stack(role: \"menu\") {\n        Entry(label: \"Open\")\n        Entry(label: \"Pick\", role: \"menuitemradio\")\n    }\n    Stack(role: \"menu\") {\n        Entry(label: \"Wrong\", role: \"tab\")\n    }\n    Stack(role: \"menu\") {\n        Entry(label: \"Unknown\", role: someRole)\n    }\n}\n";
         let found: Vec<_> = warnings(src)
             .into_iter()
-            .filter(|w| w.rule_id == "A14")
+            .filter(|w| w.code == "A14")
             .collect();
         assert_eq!(found.len(), 1, "{found:?}");
         assert_eq!(found[0].line, 10, "only the tab in a menu is wrong");
@@ -1677,7 +1677,7 @@ mod structure_tests {
         let src = "page P(path: \"/\", title: \"t\", description: \"d\") {\n    Heading(\"H\").h1\n    Button(\"Save\", aria-label: \"Submit the form\")\n    Button(\"Delete\", aria-label: \"Delete the draft\")\n    Link(to: \"/\", aria-label: \"Go home\") { Text(\"Home\") }\n}\n";
         let found: Vec<_> = warnings(src)
             .into_iter()
-            .filter(|w| w.rule_id == "A15")
+            .filter(|w| w.code == "A15")
             .collect();
         assert_eq!(found.len(), 1, "{found:?}");
         assert_eq!(found[0].line, 3);
@@ -1695,7 +1695,7 @@ mod structure_tests {
         let src = "page P(path: \"/\", title: \"t\", description: \"d\") {\n    Heading(\"H\").h1\n    Button(aria-label: \"Match case\") { Text(\"Aa\", aria-hidden: true) }\n    Button(aria-label: \"Whole word\") { Text(\"ab\") }\n}\n";
         let found: Vec<_> = warnings(src)
             .into_iter()
-            .filter(|w| w.rule_id == "A15")
+            .filter(|w| w.code == "A15")
             .collect();
         assert_eq!(found.len(), 1, "{found:?}");
         assert_eq!(found[0].line, 4, "only the one shown to readers");
@@ -1708,7 +1708,7 @@ mod structure_tests {
         let src = "component Kbd(text: String) {\n    Text(text)\n}\npage P(path: \"/\", title: \"t\", description: \"d\") {\n    Heading(\"H\").h1\n    Button(\"\", aria-label: \"Search, command palette\") {\n        Icon(\"search\")\n        Kbd(text: \"⌘K\")\n    }\n    Button(\"\", aria-label: \"Search, command palette, ⌘K\") {\n        Icon(\"search\")\n        Kbd(text: \"⌘K\")\n    }\n    Button(\"\", aria-label: \"Notifications\") {\n        Icon(\"bell\")\n        Kbd(text: count)\n    }\n}\n";
         let found: Vec<_> = warnings(src)
             .into_iter()
-            .filter(|w| w.rule_id == "A15")
+            .filter(|w| w.code == "A15")
             .collect();
         assert_eq!(found.len(), 1, "{found:?}");
         assert_eq!(found[0].line, 6);
@@ -1720,7 +1720,7 @@ mod structure_tests {
         let src = "page P(path: \"/\", title: \"t\", description: \"d\") {\n    Heading(\"H\").h1\n    Container {\n        Image(src: \"/a.png\")\n    }\n}\n";
         let a01 = warnings(src)
             .into_iter()
-            .find(|w| w.rule_id == "A01")
+            .find(|w| w.code == "A01")
             .expect("A01");
         assert_eq!((a01.line, a01.column), (4, 9));
     }

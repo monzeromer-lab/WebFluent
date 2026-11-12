@@ -190,6 +190,4 @@ pub use project::config::project::{PdfConfig, PdfMargins, SlidesConfig};
 pub use syntax::node_id::{NodeInfo, NodeMap};
 pub use syntax::{Dialect, detect_dialect, parse_source};
 pub use template::{PdfReport, Template};
-pub use tools::studio::{
-    CompiledPage, CompiledSite, Diagnostic as StudioDiagnostic, ThemeInfo, compile_studio,
-};
+pub use tools::studio::{CompiledPage, CompiledSite, ThemeInfo, compile_studio};

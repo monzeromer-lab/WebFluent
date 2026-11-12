@@ -26,7 +26,7 @@ fn warnings_of(src: &str, rule: &str) -> Vec<String> {
     let program = webfluent::sema::lower(parse_source(src, "t.wf").unwrap());
     webfluent::linter::lint_vocabulary(&program, "t.wf")
         .into_iter()
-        .filter(|w| w.rule_id == rule)
+        .filter(|w| w.code == rule)
         .map(|w| w.message)
         .collect()
 }
