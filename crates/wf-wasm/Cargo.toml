@@ -1,6 +1,6 @@
 [package]
 name = "wf-wasm"
-version = "5.13.0"
+version = "5.14.0"
 edition = "2024"
 description = "The WebFluent compiler as WebAssembly, for a playground that compiles in the browser"
 authors = ["Monzer Omer <monzer.a.omer@gmail.com>"]

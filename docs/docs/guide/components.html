@@ -45,7 +45,7 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.13</p>
+                            <p class="wf-text wf-s859a58d7">5.14</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
@@ -598,6 +598,7 @@
 <ul>
 <li>A DOM event handler: <code>Chip(&quot;x&quot;) { on click { … } }</code> attaches to the root, so a styled button component is clickable wherever you place it.</li>
 <li><code>class:</code>, which is added to the root's own classes.</li>
+<li>A <code>style { }</code> block, which styles the root: <code>Tile(label: &quot;a&quot;) { style { grid-column: 2 / span 2 } }</code> places that tile in its grid. Its rule's class joins the root's classes, as <code>class:</code> does.</li>
 <li>An attribute the component takes no prop for: <code>aria-*</code>, <code>data-*</code>, <code>id</code>, <code>role</code>, <code>title</code> and <code>hidden</code>. You write it as you would on an element: <code>data-open: true</code> is <code>data-open=&quot;true&quot;</code>, and <code>false</code> writes no attribute, except for an ARIA state, which keeps <code>&quot;false&quot;</code>.</li>
 <li><code>mount:</code>, <code>update:</code> and <code>cleanup:</code> (see <a href="/docs/guide/interop">JavaScript interop</a>).</li>
 <li><code>drag:</code>, the <code>drop…:</code> props, <code>on receive</code>, <code>on dragmove</code>, <code>on longpress</code> and <code>on swipe</code>. These need one root element: on a component whose body is an <code>if</code>, a <code>for</code> or several elements they are <code>C07</code>.</li>
@@ -910,7 +911,7 @@
                             <p class="wf-text wf-s7c2fb5e9">wf</p>
                             <p class="wf-text wf-s312df231">WebFluent</p>
                         </div>
-                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.13, parsed, type-checked and compiled by the test suite.</p>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.14, parsed, type-checked and compiled by the test suite.</p>
                     </div>
                     <div class="wf-row wf-gap--xl wf-align--start wf-s45b84406 footer-columns">
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
@@ -938,7 +939,7 @@
                     </div>
                 </div>
                 <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-s6ee62d46">
-                    <p class="wf-text">WebFluent 5.13 — MPL-2.0</p>
+                    <p class="wf-text">WebFluent 5.14 — MPL-2.0</p>
                     <div class="wf-row wf-align--center wf-gap--md">
                         <button class="wf-btn link-button" type="button">Cookie settings</button>
                         <p class="wf-text">© 2026 Monzer Omer</p>

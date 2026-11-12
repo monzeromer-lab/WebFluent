@@ -47,6 +47,15 @@ what the documentation's playground runs.
 
 ## Fixes
 
+- **A `style { }` on a component's call styles the component.** Its rule
+  was compiled and its class put on nothing, so placing a component in a
+  grid or sizing it from its call did nothing. The class now joins the
+  root's classes, as `class:` does, on the live page and in the static
+  paint.
+- **An `if let` value whose branch awaits compiles.** `if let p = x {
+  await f(p) } else { … }` used as a value made a plain arrow with an
+  `await` in it, and the page's code did not parse; it is now an async
+  arrow, awaited.
 - **D01 reads `public/` through the project's `Vfs`**, as every other
   check does, so an editor's unsaved picture or a project held in memory
   counts as there.
