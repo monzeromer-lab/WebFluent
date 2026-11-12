@@ -25,12 +25,12 @@
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 
 use crate::codegen::js::JsCodegen;
-use crate::codegen::node_id::{build_node_map, visit_nodes};
 use crate::codegen::scoped_css::{
     breakpoints, rules_for, scoped_class, scoped_rules, static_declaration,
 };
 use crate::data::each_element_mut;
-use crate::parser::ast::{Arg, Declaration, Expr, Program, Span, StyleBlock, UIElement};
+use crate::syntax::node_id::{build_node_map, visit_nodes};
+use crate::syntax::parser::ast::{Arg, Declaration, Expr, Program, Span, StyleBlock, UIElement};
 use serde::Serialize;
 
 /// The built-ins whose first positional string is their own text, written as
@@ -121,8 +121,8 @@ pub fn in_place_with(
     let mut changed: HashMap<(&str, Span), &UIElement> = HashMap::new();
     for ((old_id, old_ui), (new_id, new_ui)) in old.iter().zip(&new) {
         if old_id != new_id
-            || crate::print::component(&old_ui.component)
-                != crate::print::component(&new_ui.component)
+            || crate::syntax::print::component(&old_ui.component)
+                != crate::syntax::print::component(&new_ui.component)
         {
             return rebuild("an element moved or became another");
         }
@@ -136,7 +136,7 @@ pub fn in_place_with(
             if live_text(old_ui.style_block.as_ref()) != live_text(new_ui.style_block.as_ref()) {
                 return rebuild("a style that reads a value changed");
             }
-            if !takes_a_class(&crate::print::component(&new_ui.component)) {
+            if !takes_a_class(&crate::syntax::print::component(&new_ui.component)) {
                 return rebuild("this element does not take its style as one class");
             }
             let from = old_ui.style_block.as_ref().and_then(scoped_class);
@@ -145,7 +145,7 @@ pub fn in_place_with(
             // line of its own: one gained or lost changes the page's code.
             if matches!(
                 new_ui.component,
-                crate::parser::ast::ComponentRef::UserDefined(_)
+                crate::syntax::parser::ast::ComponentRef::UserDefined(_)
             ) && from.is_some() != to.is_some()
             {
                 return rebuild("a component's call gained or lost its style");
@@ -162,7 +162,8 @@ pub fn in_place_with(
 
         let (old_text, new_text) = (own_text(old_ui), own_text(new_ui));
         if old_text != new_text {
-            let is_text = TEXTS.contains(&crate::print::component(&new_ui.component).as_str());
+            let is_text =
+                TEXTS.contains(&crate::syntax::print::component(&new_ui.component).as_str());
             match (is_text, old_text, new_text) {
                 (true, Some(_), Some(text)) => node.text = Some(text.to_string()),
                 _ => return rebuild("an argument other than an element's text changed"),
@@ -208,7 +209,7 @@ pub fn in_place_with(
     let reads = |p: &Program| -> Vec<String> {
         p.declarations
             .iter()
-            .map(|d| crate::print::declaration(d, p))
+            .map(|d| crate::syntax::print::declaration(d, p))
             .collect()
     };
     if reads(&put_back) != reads(before) {
@@ -238,7 +239,7 @@ fn own_text(ui: &UIElement) -> Option<&str> {
 }
 
 fn style_text(block: Option<&StyleBlock>) -> Option<String> {
-    block.map(|b| crate::print::style_block(b, 0))
+    block.map(|b| crate::syntax::print::style_block(b, 0))
 }
 
 /// The declarations of a block that read a value, which stay on the element
@@ -248,7 +249,7 @@ fn live_text(block: Option<&StyleBlock>) -> Vec<String> {
         b.properties
             .iter()
             .filter(|p| static_declaration(p).is_none())
-            .map(crate::print::style_property)
+            .map(crate::syntax::print::style_property)
             .collect()
     })
 }

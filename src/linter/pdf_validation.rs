@@ -1,4 +1,6 @@
-use crate::parser::{ComponentRef, Declaration, Program, Statement, StatementKind, UIElement};
+use crate::syntax::parser::{
+    ComponentRef, Declaration, Program, Statement, StatementKind, UIElement,
+};
 
 /// The elements a paged output (a PDF document or a slide deck) draws.
 /// Every other built-in is refused where it is written — an element that
@@ -127,7 +129,7 @@ pub struct PdfValidationError {
     pub reason: String,
     /// The declaration it is in, by index, and where.
     pub decl: usize,
-    pub span: crate::parser::ast::Span,
+    pub span: crate::syntax::parser::ast::Span,
 }
 
 impl std::fmt::Display for PdfValidationError {

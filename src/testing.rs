@@ -22,7 +22,7 @@ use std::path::{Path, PathBuf};
 
 use crate::config::project::ThemeConfig;
 use crate::diagnostics::error::Result;
-use crate::parser::ast::*;
+use crate::syntax::parser::ast::*;
 
 /// A project's tests, read and ready to run.
 pub struct Tests {
@@ -160,7 +160,7 @@ pub fn collect(path: &Path) -> Result<Tests> {
     // A test file's own declaration may not take a name the project gives
     // something else: the two would be one name in the test's site, and
     // the page would stop before any test ran.
-    let project_names: Vec<(&str, &String, crate::parser::ast::Span)> = declarations
+    let project_names: Vec<(&str, &String, crate::syntax::parser::ast::Span)> = declarations
         .iter()
         .zip(&owners)
         .filter(|(d, file)| !is_drawn(d) && !own.contains_key(*file))
@@ -220,18 +220,20 @@ pub fn collect(path: &Path) -> Result<Tests> {
             && page.params.is_empty()
             && !components.contains(&page.name)
         {
-            shared.push(Declaration::Component(crate::parser::ast::ComponentDecl {
-                name: page.name.clone(),
-                props: Vec::new(),
-                events: Vec::new(),
-                slots: Vec::new(),
-                parts: Vec::new(),
-                doc: None,
-                body: page.body.clone(),
-                span: page.span,
-                header_span: page.header_span,
-                body_span: page.body_span,
-            }));
+            shared.push(Declaration::Component(
+                crate::syntax::parser::ast::ComponentDecl {
+                    name: page.name.clone(),
+                    props: Vec::new(),
+                    events: Vec::new(),
+                    slots: Vec::new(),
+                    parts: Vec::new(),
+                    doc: None,
+                    body: page.body.clone(),
+                    span: page.span,
+                    header_span: page.header_span,
+                    body_span: page.body_span,
+                },
+            ));
         }
     }
     let config = crate::config::ProjectConfig::load(&project_dir).ok();

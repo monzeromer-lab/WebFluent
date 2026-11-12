@@ -14,7 +14,7 @@ use std::path::Path;
 
 use crate::config::ProjectConfig;
 use crate::diagnostics::error::Result;
-use crate::parser::ast::{
+use crate::syntax::parser::ast::{
     Arg, ComponentRef, Declaration, Expr, Program, Statement, StatementKind, UIElement,
 };
 
@@ -163,7 +163,7 @@ pub fn audit(program: &Program, config: &ProjectConfig, files: &[String]) -> Rep
     report
 }
 
-fn storage_of(state: &crate::parser::ast::StateDecl, scope: &str) -> String {
+fn storage_of(state: &crate::syntax::parser::ast::StateDecl, scope: &str) -> String {
     state
         .policy
         .as_ref()

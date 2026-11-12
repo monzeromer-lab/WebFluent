@@ -7,11 +7,11 @@
 //! writing files, and always stamps node ids (studio mode) so a preview click
 //! can resolve to code.
 
-use crate::codegen::node_id::{NodeMap, build_node_map};
 use crate::codegen::ssg::{SiteContext, render_page_html_studio};
 use crate::codegen::{JsCodegen, generate_css_with};
 use crate::config::ProjectConfig;
-use crate::parser::ast::{ComponentDecl, Declaration, Program, Statement};
+use crate::syntax::node_id::{NodeMap, build_node_map};
+use crate::syntax::parser::ast::{ComponentDecl, Declaration, Program, Statement};
 use std::collections::HashMap;
 
 /// A pre-rendered page keyed by its route.

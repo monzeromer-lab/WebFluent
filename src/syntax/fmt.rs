@@ -17,9 +17,9 @@
 //! indented, which normalises its layout the same way.
 
 use crate::diagnostics::error::{Diagnostic, Result, WebFluentError};
-use crate::layout::{to_braces, to_offside};
-use crate::lexer::v2::{Layout, LexerV2};
-use crate::lexer::{Token, TokenType};
+use crate::syntax::layout::{to_braces, to_offside};
+use crate::syntax::lexer::v2::{Layout, LexerV2};
+use crate::syntax::lexer::{Token, TokenType};
 
 const INDENT: &str = "    ";
 

@@ -6,7 +6,7 @@
 //! of its options.
 
 use crate::diagnostics::Diagnostic;
-use crate::parser::ast::*;
+use crate::syntax::parser::ast::*;
 use std::collections::{HashMap, HashSet};
 
 /// One segment of a route's path.
@@ -358,7 +358,7 @@ fn translations(program: &Program, file_of: &dyn Fn(usize) -> String, out: &mut 
         if reported.contains(&p.name.as_str()) {
             continue;
         }
-        let group = crate::parser::walk::translation_group(&p.name, program);
+        let group = crate::syntax::parser::walk::translation_group(&p.name, program);
         reported.extend(group.iter().map(|g| g.name.as_str()));
         for (i, later) in group.iter().enumerate() {
             let Some(earlier) = group[..i].iter().find(|e| e.lang == later.lang) else {

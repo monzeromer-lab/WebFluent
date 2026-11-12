@@ -8,9 +8,9 @@
 //! had already drifted on nine components and eleven modifiers.
 //!
 //! Adding a component or a modifier now means editing one table, the way
-//! [`crate::parser::MODIFIER_KEYWORDS`] did for the modifier vocabulary.
+//! [`crate::syntax::parser::MODIFIER_KEYWORDS`] did for the modifier vocabulary.
 
-use crate::parser::ast::{Arg, Expr};
+use crate::syntax::parser::ast::{Arg, Expr};
 
 /// The HTML tag and base class a built-in component renders as.
 ///
@@ -324,8 +324,8 @@ pub fn column_span(n: f64) -> Option<u8> {
 /// the author's own, and a `sandbox:` written out is theirs to choose.
 /// `None` when the call needs nothing added.
 pub fn sandboxed_frame(
-    ui: &crate::parser::ast::UIElement,
-) -> Option<crate::parser::ast::UIElement> {
+    ui: &crate::syntax::parser::ast::UIElement,
+) -> Option<crate::syntax::parser::ast::UIElement> {
     let from_value = ui.args.iter().any(
         |a| matches!(a, Arg::Named(k, v) if k == "srcdoc" && !matches!(v, Expr::StringLiteral(_))),
     );

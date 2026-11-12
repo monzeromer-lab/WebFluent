@@ -27,8 +27,8 @@ use crate::config::ProjectConfig;
 use crate::config::schema::{self, FieldType};
 use crate::diagnostics::error::{Result, WebFluentError};
 use crate::media::plan::{Plan, size_text};
-use crate::parser::ast::*;
 use crate::registry::FileKind;
+use crate::syntax::parser::ast::*;
 
 /// What a file is, by its extension.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]

@@ -2,13 +2,13 @@ use crate::codegen::builtin::{
     builtin_to_html, element_tag, implicit_role, input_type, is_void, landmark_label,
     layout_arg_classes, modifier_to_class,
 };
-use crate::codegen::node_id::NodeMap;
-use crate::parser::ast::*;
 pub(crate) use crate::registry::browser::is_root_attribute;
 pub use crate::registry::browser::{
     BROWSER_GLOBALS, BROWSER_VALUES, DRAG_PROPS, GESTURE_EVENTS, SCALAR_METHODS,
 };
 use crate::runtime;
+use crate::syntax::node_id::NodeMap;
+use crate::syntax::parser::ast::*;
 use std::collections::HashMap;
 
 /// A component's JavaScript name: a part's `Owner.Part` is `Owner_Part`.
@@ -1041,7 +1041,7 @@ impl JsCodegen {
             match decl {
                 Declaration::Script(script) => {
                     for n in &script.names {
-                        if matches!(n.kind, crate::project_js::scan::NameKind::Class { .. }) {
+                        if matches!(n.kind, crate::syntax::js_scan::NameKind::Class { .. }) {
                             self.script_classes.insert(n.name.clone());
                         }
                         self.script_names.insert(n.name.clone());
@@ -1573,7 +1573,7 @@ impl JsCodegen {
                 self.emit_line(&format!(
                     "{}: {}(store{}) => {{",
                     a.name,
-                    if crate::parser::ast::awaits(&a.body) {
+                    if crate::syntax::parser::ast::awaits(&a.body) {
                         "async "
                     } else {
                         ""
@@ -2325,7 +2325,7 @@ impl JsCodegen {
             _ => return,
         };
         let mut reads = Vec::new();
-        crate::codegen::node_id::reads(value, &mut Vec::new(), &mut reads);
+        crate::syntax::node_id::reads(value, &mut Vec::new(), &mut reads);
         for read in reads {
             self.emit_state_after_reads(owner, body, &read, parent, done, early);
         }
@@ -2780,7 +2780,7 @@ impl JsCodegen {
             StatementKind::Timer(t) => {
                 let interval = self.emit_expr(&t.interval);
                 let kind = if t.every { "every" } else { "after" };
-                let head = if crate::parser::ast::awaits(&t.body) {
+                let head = if crate::syntax::parser::ast::awaits(&t.body) {
                     "async () =>"
                 } else {
                     "() =>"
@@ -2799,7 +2799,7 @@ impl JsCodegen {
                 let params: Vec<String> = a.params.iter().map(|p| p.name.clone()).collect();
                 // An action that awaits is an async function, and `name.pending`
                 // is true while a call of it runs.
-                let is_async = crate::parser::ast::awaits(&a.body);
+                let is_async = crate::syntax::parser::ast::awaits(&a.body);
                 let kind = if is_async {
                     "async function"
                 } else {
@@ -7359,7 +7359,7 @@ impl JsCodegen {
             self.emit_line(&format!(
                 "on{}: {}({}) => {{",
                 capitalize_first(&handler.event),
-                if crate::parser::ast::awaits(&handler.body) {
+                if crate::syntax::parser::ast::awaits(&handler.body) {
                     "async "
                 } else {
                     ""
@@ -7752,7 +7752,7 @@ impl JsCodegen {
             };
             format!("{param}{}", self.implicit_handler_names(handler, &param))
         };
-        if crate::parser::ast::awaits(&handler.body) {
+        if crate::syntax::parser::ast::awaits(&handler.body) {
             format!("async ({params})")
         } else {
             format!("({params})")
@@ -7804,7 +7804,7 @@ impl JsCodegen {
         }
         let mut body = handler.body.clone();
         let (mut key, mut value) = (false, false);
-        crate::parser::ast::walk_exprs_mut(&mut body, &mut |e| match e {
+        crate::syntax::parser::ast::walk_exprs_mut(&mut body, &mut |e| match e {
             Expr::Identifier(n) if n == "key" => key = true,
             Expr::Identifier(n) if n == "value" => value = true,
             _ => {}
@@ -8723,7 +8723,7 @@ impl JsCodegen {
     fn emit_pending_signals(&mut self, body: &[Statement]) {
         for stmt in body {
             if let StatementKind::Action(a) = &stmt.kind
-                && crate::parser::ast::awaits(&a.body)
+                && crate::syntax::parser::ast::awaits(&a.body)
             {
                 self.emit_line(&format!(
                     "const {}_pending = WF.signal(false);",

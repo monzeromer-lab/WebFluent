@@ -17,8 +17,8 @@ pub(crate) mod script;
 pub mod types;
 
 use crate::diagnostics::error::Diagnostic;
-use crate::parser::ast::*;
 use crate::registry::{self, ComponentSig, Flag, Legacy, PropType, Sink};
+use crate::syntax::parser::ast::*;
 use std::collections::HashMap;
 
 /// What the resolver found: errors stop a build, warnings are printed.
@@ -2122,7 +2122,7 @@ fn single_root(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::parser::v2::parse_v2;
+    use crate::syntax::parser::v2::parse_v2;
 
     fn checked(src: &str) -> Findings {
         let program = parse_v2(src, "<t>").expect("parse");

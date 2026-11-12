@@ -4,7 +4,7 @@
 
 use crate::diagnostics::Diagnostic;
 use crate::linter::vocabulary::levenshtein;
-use crate::parser::ast::*;
+use crate::syntax::parser::ast::*;
 use std::collections::HashMap;
 
 /// Every style finding in the lowered `program`. `tokens` is the theme as

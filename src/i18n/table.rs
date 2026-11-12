@@ -11,7 +11,9 @@ use std::path::Path;
 
 use serde::Serialize;
 
-use crate::parser::ast::{Arg, Declaration, Expr, Program, Span, StatementKind, StringPart};
+use crate::syntax::parser::ast::{
+    Arg, Declaration, Expr, Program, Span, StatementKind, StringPart,
+};
 
 /// The forms a message may have, in CLDR's order.
 pub use super::plurals::CATEGORIES as FORMS;
@@ -169,14 +171,14 @@ pub fn uses(program: &Program, file_of: &dyn Fn(usize) -> String) -> Vec<Use> {
             }
             _ => {}
         }
-        let body: &[crate::parser::ast::Statement] = match d {
+        let body: &[crate::syntax::parser::ast::Statement] = match d {
             Declaration::Page(p) => &p.body,
             Declaration::Component(c) => &c.body,
             Declaration::App(a) => &a.body,
             Declaration::Store(s) => &s.body,
             _ => &[],
         };
-        crate::parser::walk::visit(body, &mut |e, at| walk_expr(e, at, &file, &mut out));
+        crate::syntax::parser::walk::visit(body, &mut |e, at| walk_expr(e, at, &file, &mut out));
     }
     out
 }
@@ -185,20 +187,23 @@ pub fn uses(program: &Program, file_of: &dyn Fn(usize) -> String) -> Vec<Use> {
 /// without a message shows `form.<rule>`.
 pub fn implied(program: &Program) -> BTreeMap<String, &'static str> {
     let mut out = BTreeMap::new();
-    fn walk(stmts: &[crate::parser::ast::Statement], out: &mut BTreeMap<String, &'static str>) {
+    fn walk(
+        stmts: &[crate::syntax::parser::ast::Statement],
+        out: &mut BTreeMap<String, &'static str>,
+    ) {
         for s in stmts {
             if let StatementKind::Validate(v) = &s.kind {
                 for r in v.rules.iter().filter(|r| r.message.is_none()) {
                     out.insert(format!("form.{}", r.name), "a validate rule's own message");
                 }
             }
-            for b in crate::parser::walk::child_bodies(s) {
+            for b in crate::syntax::parser::walk::child_bodies(s) {
                 walk(b, out);
             }
         }
     }
     for d in &program.declarations {
-        walk(crate::parser::walk::body_of(d), &mut out);
+        walk(crate::syntax::parser::walk::body_of(d), &mut out);
     }
     out
 }
@@ -608,7 +613,12 @@ pub fn call(e: &Expr, table: &Table) -> Option<Call> {
     let passed: Vec<(String, String)> = match args.get(1) {
         Some(Expr::MapLiteral(pairs)) => pairs
             .iter()
-            .map(|(k, v)| (k.trim_matches('"').to_string(), crate::print::expr(v)))
+            .map(|(k, v)| {
+                (
+                    k.trim_matches('"').to_string(),
+                    crate::syntax::print::expr(v),
+                )
+            })
             .collect(),
         _ => Vec::new(),
     };
@@ -634,7 +644,7 @@ pub fn call(e: &Expr, table: &Table) -> Option<Call> {
 /// A `t()` call as source: `t("greeting", { name: user.name })`, each
 /// value written as given.
 pub fn call_text(key: &str, args: &[(String, String)]) -> String {
-    let key = crate::print::string(key);
+    let key = crate::syntax::print::string(key);
     if args.is_empty() {
         return format!("t({key})");
     }

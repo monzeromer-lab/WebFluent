@@ -7,7 +7,7 @@
 //!
 //! [`apply_edits`] takes source and a batch of typed [`EditOp`]s (the AI's tool
 //! schema — serde-serializable), resolves each op's target node by the same id
-//! the studio shows (`Home:2.0.3`, via [`crate::codegen::node_id::visit_nodes`]),
+//! the studio shows (`Home:2.0.3`, via [`crate::syntax::node_id::visit_nodes`]),
 //! turns it into a `(byte range, replacement)` patch using the node's Slice-1
 //! sub-spans, applies the patches right-to-left, and **reparses the result** so a
 //! bad edit can never corrupt the file — it returns an error and the caller keeps
@@ -24,7 +24,7 @@
 //! other way in, and the one the builder takes: change the tree itself —
 //! an argument's value, a flag, a style declaration, a child added, moved
 //! or wrapped in an `if` — and the smallest edit that says so is worked out
-//! ([`crate::reprint`]) and printed from the tree ([`crate::print`]). What
+//! ([`crate::syntax::reprint`]) and printed from the tree ([`crate::syntax::print`]). What
 //! is written must read back as the tree that was asked for, or nothing is.
 //! [`rewrite_declaration`] and [`rewrite_program`] do the same for a
 //! declaration — a component's props, events, slots, parts and `///` — and
@@ -36,9 +36,9 @@
 //! migration moves clauses and respells arguments but adds and removes no
 //! element.
 
-use crate::codegen::node_id;
 use crate::diagnostics::error::{Result, WebFluentError};
-use crate::parser::ast::{
+use crate::syntax::node_id;
+use crate::syntax::parser::ast::{
     Arg, Declaration, Expr, Program, Span, Statement, StatementKind, UIElement,
 };
 use serde::{Deserialize, Serialize};
@@ -194,9 +194,9 @@ pub fn apply_edits(source: &str, ops: &[EditOp]) -> Result<String> {
 /// braced spelling, edited there, and written back by indentation.
 pub fn apply_edits_to(source: &str, file: &str, ops: &[EditOp]) -> Result<String> {
     if file.ends_with(".wfx") {
-        let braced = crate::layout::to_braces(source, file)?;
+        let braced = crate::syntax::layout::to_braces(source, file)?;
         let edited = apply_edits_braced(&braced, ops)?;
-        return crate::layout::to_offside(&edited, file);
+        return crate::syntax::layout::to_offside(&edited, file);
     }
     apply_edits_braced(source, ops)
 }
@@ -620,7 +620,7 @@ fn compute_patches(
             // Right after the name as written — `Card`, `Card.Header` —
             // and before its flags: `Card(animate: .fadeIn).elevated`.
             let start = ui.span.start as usize;
-            let name = crate::print::component(&ui.component);
+            let name = crate::syntax::print::component(&ui.component);
             let at = if source[start..].starts_with(&name) {
                 start + name.len()
             } else {
@@ -982,7 +982,7 @@ pub(crate) fn modifier_removal_range(source: &str, span: Span) -> (usize, usize)
 
 /// A declaration's value as written, without the spaces the lexer keeps
 /// after it before a `}`.
-fn value_of(source: &str, p: &crate::parser::ast::StyleProperty) -> Span {
+fn value_of(source: &str, p: &crate::syntax::parser::ast::StyleProperty) -> Span {
     let start = p.value_span.start as usize;
     let end = start + source[start..p.value_span.end as usize].trim_end().len();
     Span::new(
@@ -994,7 +994,7 @@ fn value_of(source: &str, p: &crate::parser::ast::StyleProperty) -> Span {
 }
 
 /// Where a declaration ends: its value's end, before a `;` or a space.
-fn declaration_end(source: &str, p: &crate::parser::ast::StyleProperty) -> usize {
+fn declaration_end(source: &str, p: &crate::syntax::parser::ast::StyleProperty) -> usize {
     value_of(source, p).end as usize
 }
 
@@ -1007,7 +1007,7 @@ fn is_multiline(source: &str, span: Span) -> bool {
 /// a `;` when the block is written on one line.
 fn after_declaration(
     source: &str,
-    last: &crate::parser::ast::StyleProperty,
+    last: &crate::syntax::parser::ast::StyleProperty,
     within: Span,
     text: String,
 ) -> Patch {
@@ -1037,9 +1037,9 @@ fn after_declaration(
 /// aside, or the original grammar's word for it (`hover` for `&:hover`) —
 /// with its declarations.
 fn rule_of<'a>(
-    sb: &'a crate::parser::ast::StyleBlock,
+    sb: &'a crate::syntax::parser::ast::StyleBlock,
     rule: &str,
-) -> Option<(Span, &'a [crate::parser::ast::StyleProperty])> {
+) -> Option<(Span, &'a [crate::syntax::parser::ast::StyleProperty])> {
     let bare = |s: &str| s.chars().filter(|c| !c.is_whitespace()).collect::<String>();
     let wanted = bare(rule);
     sb.media_queries
@@ -1059,7 +1059,7 @@ fn rule_of<'a>(
 
 /// The column (0-based) the last item of a style block starts at: a
 /// declaration or a rule, whichever is written last.
-fn block_items_last(sb: &crate::parser::ast::StyleBlock) -> Option<usize> {
+fn block_items_last(sb: &crate::syntax::parser::ast::StyleBlock) -> Option<usize> {
     sb.properties
         .iter()
         .map(|p| p.span)
@@ -1163,11 +1163,11 @@ enum Spelling {
 /// of the original grammar (`large` → `lg`), else the word as given.
 fn flag_spelling(ui: &UIElement, word: &str) -> Spelling {
     let sig = match &ui.component {
-        crate::parser::ast::ComponentRef::BuiltIn(name) => crate::registry::component(name),
-        crate::parser::ast::ComponentRef::SubComponent(owner, part) => {
+        crate::syntax::parser::ast::ComponentRef::BuiltIn(name) => crate::registry::component(name),
+        crate::syntax::parser::ast::ComponentRef::SubComponent(owner, part) => {
             crate::registry::part(owner, part)
         }
-        crate::parser::ast::ComponentRef::UserDefined(_) => None,
+        crate::syntax::parser::ast::ComponentRef::UserDefined(_) => None,
     };
     let Some(sig) = sig else {
         return Spelling::Flag(word.to_string());
@@ -1200,7 +1200,7 @@ fn raw_style_value(value: &str) -> String {
 /// Change the element `node` (its studio id, `Home:2.0.3`) with `change`,
 /// and write the smallest edit that says so: the argument, the flag, the
 /// style value or the child that differs, printed in its place, and every
-/// other byte of the file as it was ([`crate::reprint`]).
+/// other byte of the file as it was ([`crate::syntax::reprint`]).
 ///
 /// The result is held to what was asked for: it must parse to the program
 /// with that element as `change` left it, or nothing is written and the
@@ -1224,7 +1224,7 @@ pub fn rewrite_element(
         // — a slot's `children` — has no place of its own, but its
         // statement has.
         let mut span = None;
-        crate::print::each_statement(&program, &mut |stmts, i, _| {
+        crate::syntax::print::each_statement(&program, &mut |stmts, i, _| {
             if let StatementKind::UIElement(ui) = &stmts[i].kind
                 && std::ptr::eq(ui, target)
             {
@@ -1294,12 +1294,12 @@ pub fn rewrite_body(
         })?;
         let old = body.clone();
         change(body);
-        let patches = crate::reprint::body(
+        let patches = crate::syntax::reprint::body(
             braced,
             &old,
             body,
             (interior.start as usize, interior.end as usize),
-            crate::print::Block::Render,
+            crate::syntax::print::Block::Render,
         );
         written_as(braced, patches, &expected)
     })
@@ -1319,7 +1319,7 @@ pub fn rewrite_program(
         let program = parse_program(braced)?;
         let mut expected = program.clone();
         change(&mut expected);
-        let patches = crate::reprint::program(braced, &program, &expected);
+        let patches = crate::syntax::reprint::program(braced, &program, &expected);
         written_as(braced, patches, &expected)
     })
 }
@@ -1380,9 +1380,9 @@ fn in_braces(
     edit: impl FnOnce(&str) -> Result<String>,
 ) -> Result<String> {
     if file.ends_with(".wfx") {
-        let braced = crate::layout::to_braces(source, file)?;
+        let braced = crate::syntax::layout::to_braces(source, file)?;
         let edited = edit(&braced)?;
-        return crate::layout::to_offside(&edited, file);
+        return crate::syntax::layout::to_offside(&edited, file);
     }
     edit(source)
 }
@@ -1399,20 +1399,20 @@ fn rewrite_at(
         .ok_or_else(|| edit_err(format!("no statement is written at {start}..{end}")))?;
     let old = stmt.clone();
     change(stmt)?;
-    let patches = crate::reprint::statement(source, &old, stmt, block);
+    let patches = crate::syntax::reprint::statement(source, &old, stmt, block);
     written_as(source, patches, &expected)
 }
 
 /// The patches applied, and the result held to `expected`.
 fn written_as(
     source: &str,
-    patches: Vec<crate::reprint::Patch>,
+    patches: Vec<crate::syntax::reprint::Patch>,
     expected: &Program,
 ) -> Result<String> {
-    let result = crate::reprint::apply(source, patches).map_err(edit_err)?;
+    let result = crate::syntax::reprint::apply(source, patches).map_err(edit_err)?;
     let reread =
         parse_program(&result).map_err(|e| edit_err(format!("the edit does not parse: {e}")))?;
-    if crate::print::shape(&reread) != crate::print::shape(expected) {
+    if crate::syntax::print::shape(&reread) != crate::syntax::print::shape(expected) {
         return Err(edit_err(
             "the edit does not read back as the change asked for, so nothing was written",
         ));
@@ -1427,8 +1427,8 @@ fn statement_at_mut(
     program: &mut Program,
     start: usize,
     end: usize,
-) -> Option<(&mut Statement, crate::print::Block)> {
-    use crate::print::Block;
+) -> Option<(&mut Statement, crate::syntax::print::Block)> {
+    use crate::syntax::print::Block;
     fn find(
         stmts: &mut [Statement],
         block: Block,
@@ -2631,7 +2631,7 @@ mod tests {
     #[test]
     fn an_indented_file_is_edited_through_its_braced_spelling() {
         let src = "page P(path: \"/\")\n    Container\n        Heading(\"Welcome\").h1\n        Text(\"Body\")\n";
-        let braced = crate::layout::to_braces(src, "t.wfx").unwrap();
+        let braced = crate::syntax::layout::to_braces(src, "t.wfx").unwrap();
         let id = id_of(&braced, "Heading");
         let out = apply_edits_to(
             src,

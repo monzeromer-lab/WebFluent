@@ -17,7 +17,7 @@
 
 use serde::Serialize;
 
-use crate::parser::ast::{AnimationDecl, Declaration, Program};
+use crate::syntax::parser::ast::{AnimationDecl, Declaration, Program};
 
 /// One animation.
 #[derive(Debug, Clone, PartialEq, Serialize)]
@@ -260,7 +260,7 @@ pub fn duration_spelling(ms: u32) -> String {
 /// Why `stagger:` means nothing on this node, or nothing when it does: it
 /// is the delay between the items of a list, so only a node inside a `for`
 /// has something to stagger.
-pub fn stagger_unavailable(node: &crate::codegen::node_id::NodeInfo) -> Option<&'static str> {
+pub fn stagger_unavailable(node: &crate::syntax::node_id::NodeInfo) -> Option<&'static str> {
     (!node.template()).then_some("Only an element inside a `for` has items to stagger.")
 }
 

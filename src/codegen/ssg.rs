@@ -2,10 +2,10 @@ use crate::codegen::builtin::{
     builtin_to_html, class_list, element_tag, implicit_role, input_type, landmark_label,
     layout_arg_classes, span_class,
 };
-use crate::codegen::node_id::NodeMap;
 use crate::codegen::static_eval::{Scope, Static, case_of, eval};
 use crate::config::ProjectConfig;
-use crate::parser::ast::*;
+use crate::syntax::node_id::NodeMap;
+use crate::syntax::parser::ast::*;
 use std::collections::{BTreeMap, HashMap};
 
 /// Renders a page to static HTML for SSG (export mode — no studio attributes).

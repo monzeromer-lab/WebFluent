@@ -131,12 +131,12 @@
 /// that builds through the library says it built with.
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 
-pub mod lexer;
+pub use syntax::lexer;
 
 /// A project's sources, read and merged into one program.
 pub(crate) mod sources;
 
-pub mod parser;
+pub use syntax::parser;
 
 /// The front end's one entry point: [`syntax::parse_source`] reads a file in
 /// whichever grammar it is written in.
@@ -171,11 +171,9 @@ pub mod audit;
 /// `data` declarations: the JSON files and pictures a program names, read
 /// at build time and made constants.
 pub mod data;
-/// `wf fmt --to wfx|wf`: the one grammar in either layout, braces or
-/// indentation.
-pub mod fmt;
+pub use syntax::fmt;
 pub mod i18n;
-pub mod layout;
+pub use syntax::layout;
 
 /// `public/` as data: every file, its kind, size and dimensions, where
 /// the project names it, and what the media pipeline will make of an image.
@@ -223,13 +221,9 @@ pub mod template;
 
 pub mod edit;
 
-/// The tree written back as source, one node at a time: what an editor
-/// that changes a node writes in its place.
-pub mod print;
+pub use syntax::print;
 
-/// The smallest edit: the patches that turn one node's source into an
-/// edited copy's, touching nothing else.
-pub mod reprint;
+pub use syntax::reprint;
 
 /// Style values as data: what shape a property's value has, the value read
 /// into its parts, and the narrowest declaration written back.

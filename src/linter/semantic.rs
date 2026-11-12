@@ -27,8 +27,10 @@
 //! preview's runtime-error bridge, is the backstop for those.
 
 use crate::diagnostics::error::Diagnostic;
-use crate::parser::ast::{Arg, Expr, Span};
-use crate::parser::{ComponentRef, Declaration, Program, Statement, StatementKind, UIElement};
+use crate::syntax::parser::ast::{Arg, Expr, Span};
+use crate::syntax::parser::{
+    ComponentRef, Declaration, Program, Statement, StatementKind, UIElement,
+};
 use std::collections::HashSet;
 
 /// Run every semantic check over a parsed program, returning one [`Diagnostic`]
@@ -192,7 +194,7 @@ fn check_one_meaning(
     }
 
     for (index, decl) in program.declarations.iter().enumerate() {
-        let (props, prop_kind, body): (&[crate::parser::ast::PropDecl], _, &[Statement]) =
+        let (props, prop_kind, body): (&[crate::syntax::parser::ast::PropDecl], _, &[Statement]) =
             match decl {
                 Declaration::Page(p) => (&p.params, "a parameter", &p.body),
                 Declaration::Component(c) => (&c.props, "a prop", &c.body),

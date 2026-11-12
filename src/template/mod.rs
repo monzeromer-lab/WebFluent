@@ -5,8 +5,8 @@ use crate::codegen::builtin::{
 use crate::codegen::css::generate_css;
 use crate::config::project::{PdfConfig, SlidesConfig};
 use crate::diagnostics::error::{Result, WebFluentError};
-use crate::parser::ast::{ArmPattern, DerivedDecl, ForStmt, IfStmt, PropDecl};
-use crate::parser::{
+use crate::syntax::parser::ast::{ArmPattern, DerivedDecl, ForStmt, IfStmt, PropDecl};
+use crate::syntax::parser::{
     Arg, ComponentRef, Declaration, Expr, Program, Statement, StatementKind, StringPart, UIElement,
 };
 use serde::Serialize;
@@ -230,7 +230,7 @@ impl Template {
             // An indented file is read as its braced spelling, which is what
             // the renderers parse.
             let source = if label.ends_with(".wfx") {
-                crate::layout::to_braces(&source, &label)?
+                crate::syntax::layout::to_braces(&source, &label)?
             } else {
                 source
             };
@@ -611,7 +611,7 @@ impl Template {
         // render outlives it — a render that panics on a server's thread
         // leaves no ids behind for the next request.
         let mut nodes = HashMap::new();
-        crate::codegen::node_id::visit_nodes(&drawn, &mut |ui, id, _| {
+        crate::syntax::node_id::visit_nodes(&drawn, &mut |ui, id, _| {
             nodes.insert((ui.span.start, ui.span.end, ui.span.line), id.to_string());
         });
         render_program_with(
@@ -902,7 +902,7 @@ type DataFrame = Arc<HashMap<String, crate::codegen::static_eval::Static>>;
 struct Budget {
     /// Where the render is: the element being drawn, where a stop is
     /// reported.
-    at: std::cell::Cell<crate::parser::ast::Span>,
+    at: std::cell::Cell<crate::syntax::parser::ast::Span>,
     steps: std::cell::Cell<u64>,
     bytes: std::cell::Cell<usize>,
     failure: std::cell::RefCell<Option<crate::diagnostics::error::Diagnostic>>,
@@ -922,7 +922,7 @@ impl Budget {
 
     /// Stop the render with `code` and `message`, at `span`, unless it has
     /// stopped already.
-    fn stop(&self, code: &'static str, message: String, span: crate::parser::ast::Span) {
+    fn stop(&self, code: &'static str, message: String, span: crate::syntax::parser::ast::Span) {
         let mut failure = self.failure.borrow_mut();
         if failure.is_none() {
             *failure = Some(crate::diagnostics::error::Diagnostic::coded(
@@ -936,7 +936,7 @@ impl Budget {
     }
 
     /// Spend `n` steps at `span`; `false` once the render has stopped.
-    fn spend(&self, n: u64, span: crate::parser::ast::Span) -> bool {
+    fn spend(&self, n: u64, span: crate::syntax::parser::ast::Span) -> bool {
         if self.stopped() {
             return false;
         }
@@ -956,7 +956,7 @@ impl Budget {
     }
 
     /// Account for `n` bytes of markup written at `span`.
-    fn write(&self, n: usize, span: crate::parser::ast::Span) {
+    fn write(&self, n: usize, span: crate::syntax::parser::ast::Span) {
         let bytes = self.bytes.get().saturating_add(n);
         self.bytes.set(bytes);
         if bytes > RENDER_BYTES {
@@ -1206,8 +1206,8 @@ impl<'a> RenderContext<'a> {
             Expr::UnaryOp(op, operand) => {
                 let val = self.eval_expr(operand);
                 match op {
-                    crate::parser::ast::UnaryOp::Not => Value::Bool(!is_truthy(&val)),
-                    crate::parser::ast::UnaryOp::Neg => {
+                    crate::syntax::parser::ast::UnaryOp::Not => Value::Bool(!is_truthy(&val)),
+                    crate::syntax::parser::ast::UnaryOp::Neg => {
                         if let Some(n) = val.as_f64() {
                             Value::Number(
                                 serde_json::Number::from_f64(-n)
@@ -1655,13 +1655,13 @@ fn render_ui_element(ui: &UIElement, ctx: &mut RenderContext) -> String {
     // Elements inside elements, and the components they expand to — a
     // component that places itself, as deep as its data goes — are held to
     // the depth the parser holds a program to.
-    if ctx.depth >= crate::parser::MAX_NESTING {
+    if ctx.depth >= crate::syntax::parser::MAX_NESTING {
         ctx.budget.stop(
             "E120",
             format!(
                 "{}: elements and the components they place nest more than {} levels deep",
-                crate::parser::NESTING_MESSAGE,
-                crate::parser::MAX_NESTING
+                crate::syntax::parser::NESTING_MESSAGE,
+                crate::syntax::parser::MAX_NESTING
             ),
             ui.span,
         );
@@ -3102,9 +3102,9 @@ fn is_truthy(val: &Value) -> bool {
 /// `left op right`: what the build works out, where it does; else what
 /// JavaScript would — two strings compare as text, `"12" * 2` is `24`, and
 /// text that is no number is `NaN`, which compares false.
-fn eval_binary_op(left: &Value, op: &crate::parser::ast::BinOp, right: &Value) -> Value {
+fn eval_binary_op(left: &Value, op: &crate::syntax::parser::ast::BinOp, right: &Value) -> Value {
     use crate::codegen::static_eval::{Static, binary};
-    use crate::parser::ast::BinOp;
+    use crate::syntax::parser::ast::BinOp;
     if let Some(v) = binary(&Static::from_json(left), op, &Static::from_json(right)) {
         return v.to_json();
     }

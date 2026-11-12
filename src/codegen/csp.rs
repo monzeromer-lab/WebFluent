@@ -19,9 +19,9 @@
 /// own. The policy has to say so before the pages are written, so it is
 /// answered from the program rather than from the output — and the
 /// verifier reads the output afterwards and says whether the answer held.
-pub fn writes_inline_styles(program: &crate::parser::ast::Program) -> bool {
-    use crate::parser::ast::Declaration;
-    fn element(el: &crate::parser::ast::UIElement) -> bool {
+pub fn writes_inline_styles(program: &crate::syntax::parser::ast::Program) -> bool {
+    use crate::syntax::parser::ast::Declaration;
+    fn element(el: &crate::syntax::parser::ast::UIElement) -> bool {
         let own = el.style_block.as_ref().is_some_and(|sb| {
             sb.properties
                 .iter()
@@ -29,17 +29,16 @@ pub fn writes_inline_styles(program: &crate::parser::ast::Program) -> bool {
         });
         // An image's placeholder is a blurred copy or an average colour:
         // one value per picture, painted under it until it arrives.
-        let placeholder = matches!(&el.component, crate::parser::ast::ComponentRef::BuiltIn(n) if n == "Image")
-            && el
-                .args
-                .iter()
-                .any(|a| matches!(a, crate::parser::ast::Arg::Named(k, _) if k == "placeholder"));
+        let placeholder = matches!(&el.component, crate::syntax::parser::ast::ComponentRef::BuiltIn(n) if n == "Image")
+            && el.args.iter().any(
+                |a| matches!(a, crate::syntax::parser::ast::Arg::Named(k, _) if k == "placeholder"),
+            );
         own || placeholder
             || statements(&el.children)
             || el.slot_fills.iter().any(|f| statements(&f.body))
     }
-    fn statements(body: &[crate::parser::ast::Statement]) -> bool {
-        use crate::parser::ast::StatementKind as K;
+    fn statements(body: &[crate::syntax::parser::ast::Statement]) -> bool {
+        use crate::syntax::parser::ast::StatementKind as K;
         body.iter().any(|stmt| match &stmt.kind {
             K::UIElement(el) => element(el),
             K::If(i) => {
@@ -69,8 +68,8 @@ pub fn writes_inline_styles(program: &crate::parser::ast::Program) -> bool {
 /// `frame-ancestors 'none'`), which would refuse the site's own frame too.
 /// Only a project that shows itself inside itself is relaxed, and only to
 /// its own origin (`SAMEORIGIN`, `'self'`).
-pub fn frames_itself(program: &crate::parser::ast::Program) -> bool {
-    use crate::parser::ast::{Arg, ComponentRef, Declaration, Expr, StringPart};
+pub fn frames_itself(program: &crate::syntax::parser::ast::Program) -> bool {
+    use crate::syntax::parser::ast::{Arg, ComponentRef, Declaration, Expr, StringPart};
     fn site_relative(src: &Expr) -> bool {
         // What the address opens with: a literal, or the literal text an
         // interpolation starts with. A splice up front could be anything,
@@ -91,7 +90,7 @@ pub fn frames_itself(program: &crate::parser::ast::Program) -> bool {
         });
         !head.starts_with("//") && !scheme
     }
-    fn element(el: &crate::parser::ast::UIElement) -> bool {
+    fn element(el: &crate::syntax::parser::ast::UIElement) -> bool {
         let own = matches!(&el.component, ComponentRef::BuiltIn(n) if n == "Frame")
             && el.args.iter().any(|a| match a {
                 Arg::Named(k, v) if k == "src" => site_relative(v),
@@ -100,9 +99,9 @@ pub fn frames_itself(program: &crate::parser::ast::Program) -> bool {
             });
         own || statements(&el.children) || el.slot_fills.iter().any(|f| statements(&f.body))
     }
-    fn statements(body: &[crate::parser::ast::Statement]) -> bool {
+    fn statements(body: &[crate::syntax::parser::ast::Statement]) -> bool {
         body.iter().any(|stmt| {
-            matches!(&stmt.kind, crate::parser::ast::StatementKind::UIElement(el) if element(el))
+            matches!(&stmt.kind, crate::syntax::parser::ast::StatementKind::UIElement(el) if element(el))
                 || stmt.kind.bodies().into_iter().any(statements)
         })
     }
@@ -354,11 +353,11 @@ fn is_script(ty: &str) -> bool {
 /// read-back of the written HTML never sees them; the browser refuses them
 /// all the same.
 pub fn head_violations(
-    program: &crate::parser::ast::Program,
+    program: &crate::syntax::parser::ast::Program,
     policy: &str,
     file_of: &dyn Fn(usize) -> String,
 ) -> Vec<crate::diagnostics::Diagnostic> {
-    use crate::parser::ast::{Declaration, Expr};
+    use crate::syntax::parser::ast::{Declaration, Expr};
     let mut out = Vec::new();
     for (index, decl) in program.declarations.iter().enumerate() {
         let Declaration::Page(page) = decl else {

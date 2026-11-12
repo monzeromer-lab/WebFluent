@@ -27,7 +27,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 
 use crate::codegen::format;
-use crate::parser::ast::{
+use crate::syntax::parser::ast::{
     ActionDecl, BinOp, Declaration, Expr, Program, Statement, StatementKind, UnaryOp,
 };
 
@@ -400,7 +400,7 @@ impl Scope {
 /// which stands in for what an action would have put there — and is
 /// applied before the derived values, so they follow it.
 pub fn store_as_value(
-    store: &crate::parser::ast::StoreDecl,
+    store: &crate::syntax::parser::ast::StoreDecl,
     seed: Option<&serde_json::Value>,
 ) -> serde_json::Value {
     store_value_with(store, seed).to_json()
@@ -411,7 +411,7 @@ pub fn store_as_value(
 /// out. Worked out twice, so a store may read one declared after it.
 /// `seeds` are what a test's `data` names, by store.
 pub fn stores_as_values(
-    program: &crate::parser::ast::Program,
+    program: &crate::syntax::parser::ast::Program,
     seeds: Option<&serde_json::Map<String, serde_json::Value>>,
 ) -> Vec<(String, serde_json::Value)> {
     stores_with(program, seeds)
@@ -421,10 +421,10 @@ pub fn stores_as_values(
 }
 
 fn stores_with(
-    program: &crate::parser::ast::Program,
+    program: &crate::syntax::parser::ast::Program,
     seeds: Option<&serde_json::Map<String, serde_json::Value>>,
 ) -> Vec<(String, Static)> {
-    let stores: Vec<&crate::parser::ast::StoreDecl> = program
+    let stores: Vec<&crate::syntax::parser::ast::StoreDecl> = program
         .declarations
         .iter()
         .filter_map(|d| match d {
@@ -446,7 +446,7 @@ fn stores_with(
 }
 
 fn store_value_with(
-    store: &crate::parser::ast::StoreDecl,
+    store: &crate::syntax::parser::ast::StoreDecl,
     seed: Option<&serde_json::Value>,
 ) -> Static {
     store_value_in(store, seed, &HashMap::new())
@@ -456,7 +456,7 @@ fn store_value_with(
 /// its derived values worked out with `others` — the other stores — in
 /// reach.
 fn store_value_in(
-    store: &crate::parser::ast::StoreDecl,
+    store: &crate::syntax::parser::ast::StoreDecl,
     seed: Option<&serde_json::Value>,
     others: &HashMap<String, Static>,
 ) -> Static {
@@ -671,7 +671,7 @@ fn eval_in(expr: &Expr, scope: &Scope, fuel: &Fuel) -> Option<Static> {
         }
 
         Expr::InterpolatedString(parts) => {
-            use crate::parser::ast::StringPart;
+            use crate::syntax::parser::ast::StringPart;
             let mut out = String::new();
             for part in parts {
                 match part {
@@ -1770,7 +1770,7 @@ mod tests {
             unreachable!()
         };
         match &ui.args[0] {
-            crate::parser::ast::Arg::Positional(e) => e.clone(),
+            crate::syntax::parser::ast::Arg::Positional(e) => e.clone(),
             _ => unreachable!(),
         }
     }

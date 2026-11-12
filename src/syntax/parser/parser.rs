@@ -1,6 +1,6 @@
 use super::ast::*;
 use crate::diagnostics::error::{Diagnostic, Result, WebFluentError};
-use crate::lexer::{Token, TokenType};
+use crate::syntax::lexer::{Token, TokenType};
 
 /// The parsed `( … )` argument + modifier group of an element, with spans.
 /// Produced by [`Parser::parse_paren_args`].
@@ -1320,7 +1320,7 @@ impl Parser {
         // The vocabulary lives in `parser::vocabulary` as data (one source of
         // truth for the parser, the lint and the LSP), not as a match arm here.
         if let TokenType::Identifier(name) = self.current_type() {
-            crate::parser::vocabulary::is_modifier_keyword(name)
+            crate::syntax::parser::vocabulary::is_modifier_keyword(name)
                 && !self.declared_names.contains(name)
         } else {
             false
@@ -2292,8 +2292,8 @@ impl Parser {
             // to reach a page called `Menu` and used to be a parse error. Component
             // names lex as keyword tokens, which is right in element position and
             // wrong here; in expression position they are just names.
-            ref other if crate::lexer::token::component_name(other).is_some() => {
-                let name = crate::lexer::token::component_name(other)
+            ref other if crate::syntax::lexer::token::component_name(other).is_some() => {
+                let name = crate::syntax::lexer::token::component_name(other)
                     .expect("guarded by the match arm")
                     .to_string();
                 self.advance();
@@ -2331,7 +2331,7 @@ impl Parser {
                     }
                 }
                 // Parse the expression inside { }
-                let mut lexer = crate::lexer::Lexer::new(&expr_str, &self.file);
+                let mut lexer = crate::syntax::lexer::Lexer::new(&expr_str, &self.file);
                 let tokens = lexer.tokenize().map_err(|e| {
                     WebFluentError::ParseError(Box::new(Diagnostic::coded(
                         "E002",
@@ -2369,7 +2369,7 @@ impl Parser {
     /// resolves a builtin keyword to the builtin, so `Card { }` inside a page is
     /// unchanged whether or not a page named `Card` exists.
     fn expect_declaration_name(&mut self) -> Result<String> {
-        if let Some(name) = crate::lexer::token::component_name(self.current_type()) {
+        if let Some(name) = crate::syntax::lexer::token::component_name(self.current_type()) {
             self.advance();
             return Ok(name.to_string());
         }
@@ -2608,7 +2608,7 @@ mod theme_tests {
     //! writing the thing the keywords name was a parse error. The engine's design
     //! system lived in Rust maps selected from JSON; it lives here now.
     use super::*;
-    use crate::lexer::Lexer;
+    use crate::syntax::lexer::Lexer;
 
     fn parse(src: &str) -> Result<Program> {
         let tokens = Lexer::new(src, "<test>").tokenize().expect("lex failed");
@@ -2718,7 +2718,7 @@ mod builtin_name_tests {
     //! not be declared and `Route(path: "/menu", page: Menu)` could not be written
     //! — leaving the most obvious page a restaurant site could have unreachable.
     use super::*;
-    use crate::lexer::Lexer;
+    use crate::syntax::lexer::Lexer;
 
     fn parse(src: &str) -> Result<Program> {
         let tokens = Lexer::new(src, "<test>").tokenize().expect("lex failed");
@@ -2778,7 +2778,7 @@ mod span_tests {
     //! back to the exact text it was parsed from, and body spans are the precise
     //! `{ … }` interior. These guard the invariant the edit engine (§1.3) relies on.
     use super::*;
-    use crate::lexer::Lexer;
+    use crate::syntax::lexer::Lexer;
 
     fn parse(src: &str) -> Program {
         let tokens = Lexer::new(src, "<test>").tokenize().expect("lex failed");
@@ -3023,7 +3023,7 @@ mod named_arg_tests {
     //! `Minus`, so the look-ahead has to reassemble it without mistaking a
     //! subtraction for a name.
     use super::*;
-    use crate::lexer::Lexer;
+    use crate::syntax::lexer::Lexer;
 
     fn first_element(src: &str) -> UIElement {
         let tokens = Lexer::new(src, "<test>").tokenize().expect("lex failed");

@@ -16,7 +16,7 @@
 //! their existing behavior. Resolution is therefore zero-false-positive: only the
 //! documented token keywords are intercepted.
 
-use crate::parser::ast::Expr;
+use crate::syntax::parser::ast::Expr;
 
 /// Canonicalize a style property name, applying the card's aliases so the emitted CSS
 /// property is real: `radius` → `border-radius`, `shadow` → `box-shadow`. Everything

@@ -71,7 +71,7 @@ pub fn routes(
     // program says they are.
     if let Ok((program, _)) = crate::build::read_project(project_dir) {
         for decl in &program.declarations {
-            let crate::parser::ast::Declaration::Page(page) = decl else {
+            let crate::syntax::parser::ast::Declaration::Page(page) = decl else {
                 continue;
             };
             if page.path == "*" || page.path.is_empty() {

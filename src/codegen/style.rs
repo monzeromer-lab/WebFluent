@@ -5,7 +5,7 @@
 //! `StyleProps` value plus a list of unrecognized property names so each backend
 //! can emit consistent diagnostics.
 
-use crate::parser::{Expr, ast::StyleBlock};
+use crate::syntax::parser::{Expr, ast::StyleBlock};
 
 pub type Color = (f64, f64, f64);
 

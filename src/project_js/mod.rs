@@ -11,7 +11,7 @@
 //! ([`scan`]), puts them in scope, and the editor offers them.
 
 pub mod jsdoc;
-pub mod scan;
+pub use crate::syntax::js_scan as scan;
 
 use std::path::{Path, PathBuf};
 

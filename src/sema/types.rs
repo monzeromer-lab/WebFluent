@@ -22,8 +22,8 @@ use std::collections::{HashMap, HashSet};
 
 use super::Findings;
 use crate::diagnostics::error::Diagnostic;
-use crate::parser::ast::*;
 use crate::registry::{self, PropType};
+use crate::syntax::parser::ast::*;
 
 /// A type the checker reasons about.
 #[derive(Debug, Clone, PartialEq)]
@@ -338,7 +338,7 @@ struct World<'p> {
     apis: HashMap<&'p str, &'p ApiDecl>,
     /// What the project's scripts make global, by name, with the file each
     /// is in.
-    scripts: HashMap<&'p str, (&'p str, &'p crate::project_js::scan::Name)>,
+    scripts: HashMap<&'p str, (&'p str, &'p crate::syntax::js_scan::Name)>,
     /// The top-level names nothing may assign to, and what each is: a
     /// `const`, a `data` constant, an `image`.
     fixed: HashMap<String, &'static str>,
@@ -3083,13 +3083,13 @@ impl<'a, 'p> Checker<'a, 'p> {
     fn infer(&mut self, expr: &Expr, expected: Option<&Type>) -> Type {
         // The parser counts each link of a chain; a desugared form or a
         // lambda may add a few levels of its own.
-        const LIMIT: usize = crate::parser::MAX_NESTING + 32;
+        const LIMIT: usize = crate::syntax::parser::MAX_NESTING + 32;
         if self.depth >= LIMIT {
             if !self.too_deep {
                 self.too_deep = true;
                 self.error_at_current(
                     "E120",
-                    crate::parser::NESTING_MESSAGE.to_string(),
+                    crate::syntax::parser::NESTING_MESSAGE.to_string(),
                     "Name a part of it with `let` or `derived`",
                 );
             }
@@ -4845,10 +4845,10 @@ impl<'a, 'p> Checker<'a, 'p> {
     fn script_call(
         &mut self,
         file: &str,
-        script: &crate::project_js::scan::Name,
+        script: &crate::syntax::js_scan::Name,
         args: &[Expr],
     ) -> Type {
-        use crate::project_js::scan::NameKind;
+        use crate::syntax::js_scan::NameKind;
         let name = script.name.as_str();
         let params = match &script.kind {
             NameKind::Function { params, .. } | NameKind::Class { params, .. } => params,
@@ -4868,7 +4868,7 @@ impl<'a, 'p> Checker<'a, 'p> {
             .unwrap_or_default();
         // A default in the code or `[name]` in the comment: either says a
         // call may leave it out.
-        let optional = |p: &crate::project_js::scan::Param| {
+        let optional = |p: &crate::syntax::js_scan::Param| {
             p.optional || documented.param(&p.name).is_some_and(|d| d.optional)
         };
         let rest = params.last().is_some_and(|p| p.rest);
@@ -6968,7 +6968,7 @@ mod tests {
     }
 
     use super::*;
-    use crate::parser::v2::parse_v2;
+    use crate::syntax::parser::v2::parse_v2;
 
     fn errors(src: &str) -> Vec<String> {
         let program = parse_v2(src, "<t>").expect("parse");
@@ -7614,7 +7614,7 @@ mod once {
     #[test]
     fn a_mistake_in_an_argument_is_reported_once() {
         let src = "type User { name: String }\npage P(path: \"/\") {\n    state user = User(name: \"Ada\")\n    Heading(user.nmae).h1\n    Text(user.nmae).bold\n    Button(user.nmae) { on click { log(1) } }\n}\n";
-        let program = crate::parser::v2::parse_v2(src, "t").unwrap();
+        let program = crate::syntax::parser::v2::parse_v2(src, "t").unwrap();
         let info = super::check(&program, &|_| "t".into());
         let lines: Vec<usize> = info.findings.errors.iter().map(|e| e.line).collect();
         assert_eq!(lines, vec![4, 5, 6], "{:?}", info.findings.errors);

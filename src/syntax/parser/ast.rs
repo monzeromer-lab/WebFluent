@@ -1,6 +1,6 @@
 //! Abstract Syntax Tree (AST) node types for the WebFluent language.
 //!
-//! The AST is produced by the [`crate::parser::Parser`] and consumed by the
+//! The AST is produced by the [`crate::syntax::parser::Parser`] and consumed by the
 //! code generators in [`crate::codegen`].
 
 pub use crate::base::span::Span;
@@ -56,7 +56,7 @@ pub struct ScriptDecl {
     /// The file, relative to the project, `/`-separated.
     pub path: String,
     /// What it declares at its top level, or assigns to `window`.
-    pub names: Vec<crate::project_js::scan::Name>,
+    pub names: Vec<crate::syntax::js_scan::Name>,
 }
 
 // ─── A service ───────────────────────────────────────────

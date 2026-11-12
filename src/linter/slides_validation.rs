@@ -3,7 +3,9 @@
 //! that don't fit the slides model like `Header`/`Footer`).
 
 use super::pdf_validation::drawn_in_pdf;
-use crate::parser::{Arg, ComponentRef, Declaration, Program, Statement, StatementKind, UIElement};
+use crate::syntax::parser::{
+    Arg, ComponentRef, Declaration, Program, Statement, StatementKind, UIElement,
+};
 
 pub(crate) const SLIDE_KINDS: &[&str] = &[
     "Slide",
@@ -26,7 +28,7 @@ pub struct SlidesValidationError {
     pub reason: String,
     /// The declaration it is in, by index, and where.
     pub decl: usize,
-    pub span: crate::parser::ast::Span,
+    pub span: crate::syntax::parser::ast::Span,
 }
 
 impl std::fmt::Display for SlidesValidationError {

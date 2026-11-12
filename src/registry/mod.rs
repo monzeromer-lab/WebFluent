@@ -529,11 +529,11 @@ mod tests {
 
     use super::*;
     use crate::codegen::builtin::builtin_to_html;
-    use crate::parser::vocabulary::MODIFIER_KEYWORDS;
+    use crate::syntax::parser::vocabulary::MODIFIER_KEYWORDS;
 
     #[test]
     fn every_component_the_parser_accepts_is_described_and_vice_versa() {
-        for name in crate::lexer::token::ALL_COMPONENT_NAMES {
+        for name in crate::syntax::lexer::token::ALL_COMPONENT_NAMES {
             assert!(
                 component(name).is_some(),
                 "the parser accepts `{name}` but the registry does not describe it"
@@ -544,7 +544,7 @@ mod tests {
                 panic!("a top-level component is a BuiltIn: {}", sig.name)
             };
             assert!(
-                crate::lexer::token::ALL_COMPONENT_NAMES.contains(&ir),
+                crate::syntax::lexer::token::ALL_COMPONENT_NAMES.contains(&ir),
                 "the registry describes `{ir}`, which the parser does not accept"
             );
             // The HTML mapping knows every component that renders on the web.

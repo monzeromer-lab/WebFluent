@@ -4,7 +4,7 @@
 //!
 //! The two trees are compared from the node down. What is the same keeps
 //! its bytes, comments and spacing and all. Where they part, the narrowest
-//! piece that differs is printed ([`crate::print`]) in its place: one
+//! piece that differs is printed ([`crate::syntax::print`]) in its place: one
 //! argument of a call, one flag, one style value, the head of an `if`, one
 //! statement of a block. A statement added is written on its own line
 //! among its neighbours; one removed takes its line with it. Only where a
@@ -20,8 +20,8 @@
 //! [`crate::edit`] puts this behind its rewrites and holds the result to
 //! the tree the editor asked for.
 
-use crate::parser::ast::*;
-use crate::print::{self, Block};
+use crate::syntax::parser::ast::*;
+use crate::syntax::print::{self, Block};
 
 /// Replace `start..end` of the source with `text`.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -1741,7 +1741,7 @@ fn diff_page(source: &str, x: &PageDecl, y: &PageDecl, out: &mut Vec<Patch>) -> 
 #[cfg(test)]
 mod tests {
     use crate::edit::{rewrite_body, rewrite_element, rewrite_statement};
-    use crate::parser::ast::*;
+    use crate::syntax::parser::ast::*;
 
     const PAGE: &str = r#"page Home(path: "/", title: "Home", description: "Home.") {
     // The deploys, newest first.
@@ -1765,7 +1765,7 @@ mod tests {
     fn id_of(source: &str, needle: &str) -> String {
         let program = crate::syntax::parse_source(source, "t.wf").unwrap();
         let mut found = None;
-        crate::codegen::node_id::visit_nodes(&program, &mut |ui, id, _| {
+        crate::syntax::node_id::visit_nodes(&program, &mut |ui, id, _| {
             if found.is_none() && source[ui.span.start as usize..].starts_with(needle) {
                 found = Some(id.to_string());
             }

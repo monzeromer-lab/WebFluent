@@ -28,7 +28,7 @@ use std::collections::HashSet;
 
 use crate::codegen::builtin::{builtin_to_html, modifier_to_class};
 use crate::diagnostics::error::VocabWarning;
-use crate::parser::{
+use crate::syntax::parser::{
     Arg, ComponentRef, Declaration, Expr, Program, Statement, StatementKind, UIElement,
 };
 

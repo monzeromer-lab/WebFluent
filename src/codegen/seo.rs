@@ -14,11 +14,11 @@
 //! require it are omitted rather than guessed at, since Google's guidance is
 //! explicit that a relative canonical causes problems later.
 
-pub use crate::parser::walk::translation_group;
+pub use crate::syntax::parser::walk::translation_group;
 use std::path::Path;
 
 use crate::config::{CleanUrls, Owner, ProjectConfig};
-use crate::parser::ast::{
+use crate::syntax::parser::ast::{
     Arg, Declaration, Expr, PageDecl, Program, Statement, StatementKind, StringPart,
 };
 
@@ -783,7 +783,7 @@ pub fn directory_links(config: &ProjectConfig, program: &mut Program) {
             Declaration::App(a) => &mut a.body,
             _ => continue,
         };
-        crate::parser::ast::walk_statements_mut(body, &mut fix);
+        crate::syntax::parser::ast::walk_statements_mut(body, &mut fix);
     }
 }
 

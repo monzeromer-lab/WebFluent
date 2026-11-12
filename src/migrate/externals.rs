@@ -12,7 +12,7 @@
 
 use std::path::{Path, PathBuf};
 
-use crate::lexer::{Lexer, Token, TokenType};
+use crate::syntax::lexer::{Lexer, Token, TokenType};
 
 /// What the step decided, for the CLI to write and report.
 #[derive(Debug, Default)]
@@ -121,7 +121,7 @@ fn string_of(t: &Token) -> Option<String> {
 fn ident_of(t: &Token) -> Option<&str> {
     match &t.token_type {
         TokenType::Identifier(w) => Some(w.as_str()),
-        other => crate::lexer::token::component_name(other),
+        other => crate::syntax::lexer::token::component_name(other),
     }
 }
 
@@ -313,7 +313,7 @@ fn local_module(project_dir: &Path, d: &Declared, out: &mut Outcome) {
         ));
         return;
     };
-    let scan = crate::project_js::scan::scan(&text);
+    let scan = crate::syntax::js_scan::scan(&text);
     if text.lines().any(|l| l.trim_start().starts_with("import ")) {
         out.notes.push(format!(
             "`{}` imports other modules, so it cannot become a plain script by itself; it stays in `public/`, and `{}.…` calls need a script under `src/` that does what it did",
@@ -490,7 +490,7 @@ mod tests {
             source,
             "/**\n * @param {*} node\n * @param {number} max\n * @returns {string}\n */\nfunction initTilt(node, max) { return \"x\" }\nconst inner = 1\n"
         );
-        assert!(crate::project_js::scan::scan(source).module_at.is_none());
+        assert!(crate::syntax::js_scan::scan(source).module_at.is_none());
     }
 
     #[test]

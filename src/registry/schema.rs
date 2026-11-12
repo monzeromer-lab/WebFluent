@@ -19,7 +19,7 @@
 use serde::Serialize;
 
 use super::{AttrFamily, Children, ComponentSig, Legacy, PropSig, PropType, Sink};
-use crate::parser::ast::*;
+use crate::syntax::parser::ast::*;
 
 /// A component, built-in or the project's.
 #[derive(Debug, Clone, Serialize, PartialEq)]
@@ -403,7 +403,7 @@ fn kind_of(ty: &TypeRef, program: &Program) -> Kind {
 }
 
 fn written(ty: &TypeRef) -> String {
-    crate::print::type_ref(ty)
+    crate::syntax::print::type_ref(ty)
 }
 
 fn params(ps: &[ParamDecl]) -> Vec<Param> {
@@ -452,7 +452,7 @@ pub fn project(c: &ComponentDecl, program: &Program, file: Option<String>) -> Co
             declared: k.declared.clone(),
             item: k.item,
             range: k.range.clone(),
-            default: p.default.as_ref().map(crate::print::expr),
+            default: p.default.as_ref().map(crate::syntax::print::expr),
             required: p.default.is_none() && !k.optional && !p.optional,
             positional: p.positional,
             flag: p.prop_type == TypeRef::Bool,

@@ -3,14 +3,14 @@
 /// How a name a script declares reads to the person calling it:
 /// `money(n: Number, currency?: String) -> String`, its types as the
 /// checker reads its JSDoc.
-pub fn signature(n: &crate::project_js::scan::Name) -> String {
+pub fn signature(n: &crate::syntax::js_scan::Name) -> String {
     use crate::sema::types::jsdoc_type;
     let doc = n
         .doc
         .as_deref()
         .map(crate::project_js::jsdoc::parse)
         .unwrap_or_default();
-    let params = |params: &[crate::project_js::scan::Param]| {
+    let params = |params: &[crate::syntax::js_scan::Param]| {
         params
             .iter()
             .map(|p| {
@@ -36,7 +36,7 @@ pub fn signature(n: &crate::project_js::scan::Name) -> String {
         .map(|t| format!(" -> {}", jsdoc_type(t)))
         .unwrap_or_default();
     match &n.kind {
-        crate::project_js::scan::NameKind::Function {
+        crate::syntax::js_scan::NameKind::Function {
             params: p,
             is_async,
         } => format!(
@@ -45,9 +45,9 @@ pub fn signature(n: &crate::project_js::scan::Name) -> String {
             n.name,
             params(p)
         ),
-        crate::project_js::scan::NameKind::Class { params: p, .. } => {
+        crate::syntax::js_scan::NameKind::Class { params: p, .. } => {
             format!("class {}({})", n.name, params(p))
         }
-        crate::project_js::scan::NameKind::Value => n.name.clone(),
+        crate::syntax::js_scan::NameKind::Value => n.name.clone(),
     }
 }

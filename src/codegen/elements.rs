@@ -14,7 +14,7 @@
 //! leaves the document.
 
 use crate::config::ProjectConfig;
-use crate::parser::ast::{ComponentDecl, Declaration, Program, TypeRef};
+use crate::syntax::parser::ast::{ComponentDecl, Declaration, Program, TypeRef};
 
 /// `PriceTag` as a tag name is `price-tag`.
 ///

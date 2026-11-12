@@ -13,8 +13,8 @@
 //! refused rather than changed in meaning.
 
 use crate::diagnostics::error::{Diagnostic, Result, WebFluentError};
-use crate::lexer::v2::{Layout, LexerV2};
-use crate::lexer::{Token, TokenType};
+use crate::syntax::lexer::v2::{Layout, LexerV2};
+use crate::syntax::lexer::{Token, TokenType};
 
 /// The `.wfx` spelling of a `.wf` source.
 pub fn to_offside(source: &str, file: &str) -> Result<String> {

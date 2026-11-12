@@ -1,7 +1,7 @@
 //! Walking a program's tree: a declaration's body, a statement's nested
 //! bodies, and every expression with the place it is in.
 
-use crate::parser::ast::*;
+use crate::syntax::parser::ast::*;
 
 /// The statements a declaration's body holds.
 pub fn body_of(decl: &Declaration) -> &[Statement] {

@@ -10,7 +10,7 @@
 use serde_json::{Value, json};
 
 use super::{AttrFamily, Children, ComponentSig, Legacy, PropSig, PropType, Sink};
-use crate::parser::ast::*;
+use crate::syntax::parser::ast::*;
 
 /// Every built-in: components and parts, with their props, cases, flags,
 /// events, slots, parts and attribute families, plus the universal props
@@ -299,14 +299,14 @@ pub fn declarations_json(program: &Program, file_of: &dyn Fn(usize) -> String) -
 
 /// One name a project script makes global: what it is, what a call takes
 /// and gives back, and its documentation.
-fn script_name_json(file: &str, n: &crate::project_js::scan::Name) -> Value {
-    use crate::project_js::scan::NameKind;
+fn script_name_json(file: &str, n: &crate::syntax::js_scan::Name) -> Value {
+    use crate::syntax::js_scan::NameKind;
     let doc = n
         .doc
         .as_deref()
         .map(crate::project_js::jsdoc::parse)
         .unwrap_or_default();
-    let params = |params: &[crate::project_js::scan::Param]| {
+    let params = |params: &[crate::syntax::js_scan::Param]| {
         params
             .iter()
             .map(|p| {

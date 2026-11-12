@@ -1,5 +1,5 @@
 use crate::config::ProjectConfig;
-use crate::parser::ast::{Declaration, Program};
+use crate::syntax::parser::ast::{Declaration, Program};
 
 /// Generate the HTML entry point (`index.html`) for a WebFluent project.
 pub fn generate_html(config: &ProjectConfig, program: &Program) -> String {

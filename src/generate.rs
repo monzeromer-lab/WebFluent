@@ -152,7 +152,7 @@ pub fn write_source(dir: &Path, stem: &str, content: &str, indented: bool) -> Re
         let text = if content.is_empty() {
             String::new()
         } else {
-            crate::layout::to_offside(content, &path.to_string_lossy())?
+            crate::syntax::layout::to_offside(content, &path.to_string_lossy())?
         };
         (path, text)
     } else {

@@ -457,7 +457,7 @@ fn is_named_color(word: &str) -> bool {
 
 /// A number as the shortest text that reads back as itself.
 fn number(n: f64) -> String {
-    crate::print::number(n)
+    crate::syntax::print::number(n)
 }
 
 /// The words of `text` at its top level: split at spaces (and, with

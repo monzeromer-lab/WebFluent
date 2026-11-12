@@ -17,7 +17,9 @@
 use serde::Serialize;
 
 use crate::diagnostics::error::Result;
-use crate::parser::ast::{Declaration, Expr, Program, Rule, Statement, StatementKind, TypeRef};
+use crate::syntax::parser::ast::{
+    Declaration, Expr, Program, Rule, Statement, StatementKind, TypeRef,
+};
 
 /// What a rule takes between its parentheses.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
@@ -431,7 +433,7 @@ fn message_of(rule: &str, written: &Option<Expr>) -> Message {
             Message::Key { key: k.clone() }
         }
         Some(other) => Message::Expression {
-            source: crate::print::expr(other),
+            source: crate::syntax::print::expr(other),
         },
     }
 }
@@ -443,10 +445,10 @@ fn row(r: &Rule) -> Row {
     };
     Row {
         rule: r.name.clone(),
-        args: r.args.iter().map(crate::print::expr).collect(),
+        args: r.args.iter().map(crate::syntax::print::expr).collect(),
         pattern,
         message: message_of(&r.name, &r.message),
-        check: r.body.as_ref().map(crate::print::expr),
+        check: r.body.as_ref().map(crate::syntax::print::expr),
         line: r.span.line,
         start: r.span.start,
         end: r.span.end,
@@ -461,7 +463,7 @@ fn implied(ty: &TypeRef, at: (u32, u32, u32)) -> Vec<Row> {
         .filter(|(name, _)| rule_named(name).is_some())
         .map(|(name, bound)| Row {
             rule: name.clone(),
-            args: vec![crate::print::expr(bound)],
+            args: vec![crate::syntax::print::expr(bound)],
             pattern: match bound {
                 Expr::Regex(s, f) => named_pattern(s, f).map(|p| p.name),
                 _ => None,
@@ -504,7 +506,7 @@ pub fn must_be(program: &Program, owner: &str, state: &str, translated: bool) ->
     Some(Must {
         owner: owner.to_string(),
         state: state.to_string(),
-        ty: decl.0.ty.as_ref().map(crate::print::type_ref),
+        ty: decl.0.ty.as_ref().map(crate::syntax::print::type_ref),
         block: block.map(|(_, s)| (s.line, s.start, s.end)),
         checked: block.is_some(),
         rows,
@@ -542,9 +544,9 @@ pub fn must_be_via(
 }
 
 /// The state a control is bound to: `Input(bind: password)` is `password`.
-pub fn bound_state(el: &crate::parser::ast::UIElement) -> Option<&str> {
+pub fn bound_state(el: &crate::syntax::parser::ast::UIElement) -> Option<&str> {
     el.args.iter().find_map(|a| match a {
-        crate::parser::ast::Arg::Named(k, Expr::Identifier(name)) if k == "bind" => {
+        crate::syntax::parser::ast::Arg::Named(k, Expr::Identifier(name)) if k == "bind" => {
             Some(name.as_str())
         }
         _ => None,
@@ -723,7 +725,7 @@ pub fn write_rules(
                     return;
                 };
                 let stmt = Statement {
-                    kind: StatementKind::Validate(crate::parser::ast::ValidateDecl {
+                    kind: StatementKind::Validate(crate::syntax::parser::ast::ValidateDecl {
                         name: state.to_string(),
                         rules: new,
                         span: Default::default(),
@@ -820,9 +822,9 @@ pub fn rule_texts(source: &str, file: &str, owner: &str, state: &str) -> Result<
         .into_iter()
         .map(|r| RuleText {
             rule: r.name.clone(),
-            args: r.args.iter().map(crate::print::expr).collect(),
-            message: r.message.as_ref().map(crate::print::expr),
-            check: r.body.as_ref().map(crate::print::expr),
+            args: r.args.iter().map(crate::syntax::print::expr).collect(),
+            message: r.message.as_ref().map(crate::syntax::print::expr),
+            check: r.body.as_ref().map(crate::syntax::print::expr),
         })
         .collect())
 }

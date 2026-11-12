@@ -23,7 +23,7 @@
 //! target of a `data-wf-node` click), and it keeps the sidecar a faithful index
 //! of the source rather than only of the rendered subset.
 
-use crate::parser::ast::{
+use crate::syntax::parser::ast::{
     Arg, ArmPattern, Declaration, Expr, MatchArm, Program, Span, Statement, StatementKind,
     StringPart, UIElement,
 };
@@ -261,7 +261,7 @@ pub fn build_node_map_with(
             start: ui.span.start,
             end: ui.span.end,
             line: ui.span.line,
-            element: crate::print::component(&ui.component),
+            element: crate::syntax::print::component(&ui.component),
             parent: ctx.parent.clone(),
             within: ctx.within.clone(),
             bound: bound_args(ui, ctx),
@@ -496,12 +496,12 @@ fn walk_stmt<'a>(
             let key = f
                 .key
                 .as_ref()
-                .map(|k| format!(" by {}", crate::print::expr(k)))
+                .map(|k| format!(" by {}", crate::syntax::print::expr(k)))
                 .unwrap_or_default();
             let head = format!(
                 "for {} in {}{key}",
                 names.join(", "),
-                crate::print::expr(&f.iterable)
+                crate::syntax::print::expr(&f.iterable)
             );
             let inner = within(ctx, "for", head, stmt, &names);
             walk_body(&f.body, component, Some(seg), &inner, visit)
@@ -510,7 +510,7 @@ fn walk_stmt<'a>(
             let inner = within(
                 ctx,
                 "show",
-                format!("show {}", crate::print::expr(&s.condition)),
+                format!("show {}", crate::syntax::print::expr(&s.condition)),
                 stmt,
                 &[],
             );
@@ -518,8 +518,11 @@ fn walk_stmt<'a>(
         }
         StatementKind::If(if_stmt) => {
             let head = match &if_stmt.binding {
-                Some(b) => format!("if let {b} = {}", crate::print::expr(&if_stmt.condition)),
-                None => format!("if {}", crate::print::expr(&if_stmt.condition)),
+                Some(b) => format!(
+                    "if let {b} = {}",
+                    crate::syntax::print::expr(&if_stmt.condition)
+                ),
+                None => format!("if {}", crate::syntax::print::expr(&if_stmt.condition)),
             };
             let bound: Vec<&str> = if_stmt.binding.as_deref().into_iter().collect();
             walk_body(
@@ -530,7 +533,7 @@ fn walk_stmt<'a>(
                 visit,
             );
             for (k, (cond, body)) in if_stmt.else_if_branches.iter().enumerate() {
-                let head = format!("else if {}", crate::print::expr(cond));
+                let head = format!("else if {}", crate::syntax::print::expr(cond));
                 walk_body(
                     body,
                     component,
@@ -569,7 +572,7 @@ fn walk_stmt<'a>(
                 names.extend(arm.bindings.iter().map(String::as_str));
                 let head = format!(
                     "match {} {}",
-                    crate::print::expr(&m.scrutinee),
+                    crate::syntax::print::expr(&m.scrutinee),
                     arm_head(arm)
                 );
                 walk_body(
@@ -745,7 +748,7 @@ fn layer(s: &Statement, map: &NodeMap, owners: &[String], file: &Option<String>)
         line: body.first().map_or(s.span.line, |b| b.span.line),
         children: layer_body(body, map, owners, file),
     };
-    let ex = crate::print::expr;
+    let ex = crate::syntax::print::expr;
     match &s.kind {
         StatementKind::UIElement(ui) => {
             if let Some(slot) = ui.slot_name() {
@@ -782,7 +785,7 @@ fn layer(s: &Statement, map: &NodeMap, owners: &[String], file: &Option<String>)
             let id = map.id_among(owners, ui.span).map(str::to_string);
             at(
                 "element",
-                crate::print::component(&ui.component),
+                crate::syntax::print::component(&ui.component),
                 None,
                 id,
                 children,
@@ -921,7 +924,7 @@ fn layer(s: &Statement, map: &NodeMap, owners: &[String], file: &Option<String>)
         ),
         _ => at(
             "source",
-            crate::print::statement(s, crate::print::Block::Render, 0)
+            crate::syntax::print::statement(s, crate::syntax::print::Block::Render, 0)
                 .lines()
                 .next()
                 .unwrap_or("")
@@ -943,7 +946,7 @@ mod tests {
     use crate::codegen::ssg::SiteContext;
     use crate::codegen::ssg::{render_page_html, render_page_html_studio};
     use crate::config::ProjectConfig;
-    use crate::parser::ast::PageDecl;
+    use crate::syntax::parser::ast::PageDecl;
 
     fn program(src: &str) -> Program {
         crate::syntax::parse_source(src, "<test>")
@@ -1369,7 +1372,7 @@ mod tests {
 
     #[test]
     fn a_selection_follows_an_edit() {
-        use crate::reprint::{Patch, follow};
+        use crate::syntax::reprint::{Patch, follow};
         let p = |s, e, t: &str| Patch {
             start: s,
             end: e,
@@ -1384,7 +1387,7 @@ mod tests {
         let before = "abc Text(\"x\") def";
         let after = "abc Text(\"changed\") def";
         assert_eq!(
-            follow(4, 13, &[crate::reprint::between(before, after)]),
+            follow(4, 13, &[crate::syntax::reprint::between(before, after)]),
             Some((4, 19))
         );
     }
@@ -1395,7 +1398,10 @@ mod tests {
         let p = program(src);
         let map = build_node_map(&p);
         let cfg = config();
-        let components: std::collections::HashMap<String, crate::parser::ast::ComponentDecl> = p
+        let components: std::collections::HashMap<
+            String,
+            crate::syntax::parser::ast::ComponentDecl,
+        > = p
             .declarations
             .iter()
             .filter_map(|d| match d {

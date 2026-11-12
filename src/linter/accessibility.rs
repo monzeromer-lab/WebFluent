@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use crate::diagnostics::error::A11yWarning;
-use crate::parser::ast::*;
+use crate::syntax::parser::ast::*;
 
 /// Run all accessibility lint rules on the parsed program.
 /// Returns a list of warnings (non-fatal).
@@ -161,7 +161,7 @@ fn lint_persistence(program: &Program, file_of: &dyn Fn(usize) -> String) -> Vec
         let (body, route_scoped): (&[Statement], bool) = match decl {
             Declaration::Store(store) => (
                 &store.body,
-                store.scope == crate::parser::ast::StoreScope::Route,
+                store.scope == crate::syntax::parser::ast::StoreScope::Route,
             ),
             Declaration::Page(page) => (&page.body, false),
             Declaration::Component(component) => (&component.body, false),

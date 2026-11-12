@@ -5,7 +5,7 @@
 //! the old one could not lands in the fields the AST gained for it (enum
 //! cases, tokens, events, slots, resources, `match`, keys, bindings).
 //!
-//! The grammar is LL(1) over the tokens of [`crate::lexer::LexerV2`]: no
+//! The grammar is LL(1) over the tokens of [`crate::syntax::lexer::LexerV2`]: no
 //! word is a keyword to the lexer, so this parser reserves words by
 //! position. The rules that matter:
 //!
@@ -23,9 +23,9 @@
 //! the component's props. A `.word` in expression position is an enum case.
 
 use crate::diagnostics::error::{Diagnostic, Result, WebFluentError};
-use crate::lexer::v2::LexerV2;
-use crate::lexer::{StringKind, StringLit, Token, TokenType};
-use crate::parser::ast::*;
+use crate::syntax::lexer::v2::LexerV2;
+use crate::syntax::lexer::{StringKind, StringLit, Token, TokenType};
+use crate::syntax::parser::ast::*;
 
 /// Parse a WebFluent 3 source file, in the layout its name asks for: a
 /// `.wfx` file writes its blocks by indentation.
@@ -170,7 +170,7 @@ pub struct ParserV2 {
     /// How many imperative blocks are open.
     block_depth: usize,
     /// How deeply what is being read nests — expressions, blocks and the
-    /// links of a chain — held under [`crate::parser::MAX_NESTING`].
+    /// links of a chain — held under [`crate::syntax::parser::MAX_NESTING`].
     nesting: usize,
 }
 
@@ -404,20 +404,20 @@ impl ParserV2 {
         ))
     }
 
-    /// `E120`: what is being read nests past [`crate::parser::MAX_NESTING`].
+    /// `E120`: what is being read nests past [`crate::syntax::parser::MAX_NESTING`].
     fn too_deep(&self) -> WebFluentError {
         let t = self.current();
         WebFluentError::ParseError(Box::new(
             Diagnostic::coded(
                 "E120",
-                crate::parser::NESTING_MESSAGE,
+                crate::syntax::parser::NESTING_MESSAGE,
                 &self.file,
                 t.line,
                 t.column,
             )
             .with_hint(format!(
                 "Nothing may nest more than {} levels deep — brackets, blocks and the links of a chain counted together; name a part of it with `let` or `derived`",
-                crate::parser::MAX_NESTING
+                crate::syntax::parser::MAX_NESTING
             )),
         ))
     }
@@ -427,7 +427,7 @@ impl ParserV2 {
     fn nested<T>(&mut self, f: impl FnOnce(&mut Self) -> Result<T>) -> Result<T> {
         let level = self.nesting;
         self.nesting += 1;
-        let result = if self.nesting > crate::parser::MAX_NESTING {
+        let result = if self.nesting > crate::syntax::parser::MAX_NESTING {
             Err(self.too_deep())
         } else {
             f(self)
@@ -440,7 +440,7 @@ impl ParserV2 {
     /// The [`ParserV2::nested`] call around it restores the level.
     fn link(&mut self) -> Result<()> {
         self.nesting += 1;
-        if self.nesting > crate::parser::MAX_NESTING {
+        if self.nesting > crate::syntax::parser::MAX_NESTING {
             return Err(self.too_deep());
         }
         Ok(())
@@ -2732,7 +2732,7 @@ impl ParserV2 {
             self.advance();
             let part = self.expect_ident("a part name")?;
             ComponentRef::SubComponent(name, part)
-        } else if crate::lexer::token::ALL_COMPONENT_NAMES.contains(&name.as_str()) {
+        } else if crate::syntax::lexer::token::ALL_COMPONENT_NAMES.contains(&name.as_str()) {
             ComponentRef::BuiltIn(name)
         } else {
             ComponentRef::UserDefined(name)
@@ -3219,13 +3219,14 @@ impl ParserV2 {
                     "Keep what the page shows in the page's body and change state here",
                 ))
             }
-            _ if crate::lexer::token::ALL_COMPONENT_NAMES.contains(&word.as_str()) => Err(self
-                .error_with_hint(
+            _ if crate::syntax::lexer::token::ALL_COMPONENT_NAMES.contains(&word.as_str()) => {
+                Err(self.error_with_hint(
                     format!(
                         "`{word}` is an element; it cannot appear inside an action or a handler"
                     ),
                     "Keep what the page shows in the page's body and change state here",
-                )),
+                ))
+            }
             _ => {
                 let target = self.parse_expression()?;
                 if self.eat(&TokenType::Equals) {
@@ -4659,7 +4660,7 @@ mod tests {
 
         // The indented layout keeps them where the braced one does.
         let src = "store S {\n    /// The count.\n    state n = 0\n    /// Up one.\n    action up() {\n        n = n + 1\n    }\n}\n";
-        let wfx = crate::layout::to_offside(src, "t.wf").expect("to the indented layout");
+        let wfx = crate::syntax::layout::to_offside(src, "t.wf").expect("to the indented layout");
         let program =
             crate::syntax::parse_source(&wfx, "t.wfx").unwrap_or_else(|e| panic!("{e}\n{wfx}"));
         let Declaration::Store(store) = &program.declarations[0] else {

@@ -12,7 +12,7 @@
 //! just before code generation, so the checks read the source as written;
 //! [`uses`] lists them for the translations table, as `t()` calls are.
 
-use crate::parser::ast::{
+use crate::syntax::parser::ast::{
     Arg, Declaration, Expr, Program, Span, Statement, StatementKind, StringPart, UIElement,
 };
 
@@ -70,7 +70,7 @@ fn name_of(e: &Expr) -> Option<String> {
             Some(n.clone())
         }
         // A path with what it falls back to: `{item?.name ?? ""}`.
-        Expr::BinaryOp(left, crate::parser::ast::BinOp::NullCoalesce, right)
+        Expr::BinaryOp(left, crate::syntax::parser::ast::BinOp::NullCoalesce, right)
             if matches!(**right, Expr::StringLiteral(_) | Expr::NumberLiteral(_)) =>
         {
             name_of(left)
@@ -120,7 +120,8 @@ pub fn key_of(e: &Expr) -> Option<(String, Vec<(String, Expr)>)> {
                         let mut name = base.clone();
                         let mut n = 2;
                         while args.iter().any(|(a, v)| {
-                            *a == name && crate::print::expr(v) != crate::print::expr(x)
+                            *a == name
+                                && crate::syntax::print::expr(v) != crate::syntax::print::expr(x)
                         }) {
                             name = format!("{base}{n}");
                             n += 1;
@@ -166,7 +167,9 @@ fn each_shown(e: &mut Expr, f: &mut dyn FnMut(&mut Expr)) {
                 }
             }
         }
-        Expr::BinaryOp(_, crate::parser::ast::BinOp::NullCoalesce, right) => each_shown(right, f),
+        Expr::BinaryOp(_, crate::syntax::parser::ast::BinOp::NullCoalesce, right) => {
+            each_shown(right, f)
+        }
         // `labels: ["Light", "Dark"]`: each a string a reader sees.
         Expr::ListLiteral(items) => {
             for item in items {
@@ -179,9 +182,9 @@ fn each_shown(e: &mut Expr, f: &mut dyn FnMut(&mut Expr)) {
 
 fn element_name(ui: &UIElement) -> &str {
     match &ui.component {
-        crate::parser::ast::ComponentRef::BuiltIn(n)
-        | crate::parser::ast::ComponentRef::UserDefined(n) => n,
-        crate::parser::ast::ComponentRef::SubComponent(_, n) => n,
+        crate::syntax::parser::ast::ComponentRef::BuiltIn(n)
+        | crate::syntax::parser::ast::ComponentRef::UserDefined(n) => n,
+        crate::syntax::parser::ast::ComponentRef::SubComponent(_, n) => n,
     }
 }
 
@@ -414,7 +417,7 @@ pub fn untranslated(
                     .any(|p| matches!(p, StringPart::Literal(t) if prose(t)));
                 parts.iter().find_map(|p| match p {
                     StringPart::Expression(x) if words && name_of(x).is_none() => {
-                        Some(Untranslated::Splices(crate::print::expr(x)))
+                        Some(Untranslated::Splices(crate::syntax::print::expr(x)))
                     }
                     StringPart::Expression(x) => unnamed(x, i).map(Untranslated::Unnamed),
                     _ => None,
@@ -474,7 +477,7 @@ mod tests {
         page.body
             .iter()
             .filter_map(|s| match &s.kind {
-                StatementKind::UIElement(ui) => Some(crate::print::element(ui, 0)),
+                StatementKind::UIElement(ui) => Some(crate::syntax::print::element(ui, 0)),
                 _ => None,
             })
             .collect::<Vec<_>>()
@@ -533,7 +536,7 @@ mod tests {
         assert_eq!(key, "{missing} missing in {code}");
         assert_eq!(
             args.iter()
-                .map(|(n, e)| (n.as_str(), crate::print::expr(e)))
+                .map(|(n, e)| (n.as_str(), crate::syntax::print::expr(e)))
                 .collect::<Vec<_>>(),
             [
                 ("missing", "l.missing".to_string()),
@@ -554,7 +557,7 @@ mod tests {
     fn a_path_with_its_fallback_is_named_by_the_path() {
         let (key, args) = key_of(&expr("\"Delete {item?.name ?? \\\"\\\"}?\"")).unwrap();
         assert_eq!(key, "Delete {name}?");
-        assert_eq!(crate::print::expr(&args[0].1), "item?.name ?? \"\"");
+        assert_eq!(crate::syntax::print::expr(&args[0].1), "item?.name ?? \"\"");
         assert!(
             key_of(&expr("\"{a ?? b} left\"")).is_none(),
             "a fallback that is not a value"
@@ -661,7 +664,7 @@ mod tests {
             .body
             .iter()
             .filter_map(|s| match &s.kind {
-                StatementKind::Derived(d) => Some(crate::print::expr(&d.value)),
+                StatementKind::Derived(d) => Some(crate::syntax::print::expr(&d.value)),
                 _ => None,
             })
             .collect();

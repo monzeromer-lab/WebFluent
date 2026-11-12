@@ -11,7 +11,9 @@
 //! boundaries of user interface components.
 
 use crate::diagnostics::error::A11yWarning;
-use crate::parser::ast::{ComponentRef, Declaration, Expr, Program, Statement, StatementKind};
+use crate::syntax::parser::ast::{
+    ComponentRef, Declaration, Expr, Program, Statement, StatementKind,
+};
 
 /// WCAG AA for body text.
 const AA_TEXT: f64 = 4.5;
@@ -284,7 +286,7 @@ pub fn lint_contrast_in(
     warnings
 }
 
-fn line_of(theme: &crate::parser::ast::ThemeDecl, token: &str) -> usize {
+fn line_of(theme: &crate::syntax::parser::ast::ThemeDecl, token: &str) -> usize {
     theme
         .tokens
         .iter()

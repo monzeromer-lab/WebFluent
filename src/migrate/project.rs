@@ -151,7 +151,8 @@ pub fn plan(path: &Path, wfx: bool) -> Result<Plan> {
                 // `wfx`: the migrated text in the indented layout, under the
                 // `.wfx` name; the `.wf` file goes.
                 let (text, written_to, error) = if wfx {
-                    match crate::layout::to_offside(&migrated.text, &file.to_string_lossy()) {
+                    match crate::syntax::layout::to_offside(&migrated.text, &file.to_string_lossy())
+                    {
                         Ok(text) => (text, offside_path(&file), None),
                         Err(e) => (migrated.text.clone(), file.clone(), Some(e.to_string())),
                     }

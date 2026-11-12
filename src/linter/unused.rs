@@ -13,7 +13,7 @@
 use std::collections::{HashMap, HashSet};
 
 use crate::diagnostics::error::A11yWarning;
-use crate::parser::ast::*;
+use crate::syntax::parser::ast::*;
 
 /// The unused declarations of a program, as warnings.
 pub fn lint_unused(program: &Program) -> Vec<A11yWarning> {
@@ -385,7 +385,7 @@ fn placed_components(stmts: &[Statement], out: &mut HashSet<String>) {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::parser::v2::parse_v2;
+    use crate::syntax::parser::v2::parse_v2;
 
     fn codes(src: &str) -> Vec<String> {
         let program = parse_v2(src, "<t>").expect("parse");

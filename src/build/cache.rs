@@ -27,8 +27,8 @@ use std::path::PathBuf;
 use std::sync::Mutex;
 
 use crate::config::ProjectConfig;
-use crate::parser::ast::PageDecl;
-use crate::parser::{Declaration, Program};
+use crate::syntax::parser::ast::PageDecl;
+use crate::syntax::parser::{Declaration, Program};
 
 /// The compiler, as built: its version and a digest of its sources (the
 /// crate's build script), so a cache never outlives the code that made it.

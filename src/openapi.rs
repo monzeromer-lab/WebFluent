@@ -22,7 +22,7 @@
 use std::collections::{BTreeMap, HashMap, HashSet};
 
 use crate::diagnostics::error::{Diagnostic, Result, WebFluentError};
-use crate::parser::ast::{
+use crate::syntax::parser::ast::{
     ApiDecl, Declaration, Endpoint, EnumCase, EnumDecl, FieldDecl, PropDecl, Span, TypeDecl,
     TypeRef,
 };
@@ -781,7 +781,7 @@ fn pascal(name: &str) -> String {
 /// Fill in every service that names a specification, before anything else
 /// reads the program.
 pub fn expand(
-    program: &mut crate::parser::Program,
+    program: &mut crate::syntax::parser::Program,
     read_file: &dyn Fn(&str) -> Option<String>,
 ) -> Result<()> {
     let mut added: BTreeMap<String, Declaration> = BTreeMap::new();

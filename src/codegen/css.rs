@@ -91,7 +91,7 @@ pub fn dark_css(tokens: &HashMap<String, String>) -> String {
 pub fn generate_css_for(
     tokens: &HashMap<String, String>,
     builtin: BuiltinCss,
-    program: &crate::parser::Program,
+    program: &crate::syntax::parser::Program,
 ) -> String {
     let usage = themes::Usage::of(program);
     themes::prune_css(&generate_css_with(tokens, builtin), &usage)

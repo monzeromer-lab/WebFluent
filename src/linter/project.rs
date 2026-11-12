@@ -3,8 +3,8 @@
 //! holds, and a persisted value whose shape changed since the last build.
 
 use crate::diagnostics::Diagnostic;
-use crate::parser::ast::*;
-pub(crate) use crate::parser::walk::visit;
+use crate::syntax::parser::ast::*;
+pub(crate) use crate::syntax::parser::walk::visit;
 use std::collections::{BTreeMap, HashMap};
 use std::path::Path;
 

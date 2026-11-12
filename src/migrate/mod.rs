@@ -25,10 +25,10 @@ use std::path::{Path, PathBuf};
 
 use crate::diagnostics::error::{Result, WebFluentError};
 use crate::edit::{Patch, apply_patches, modifier_removal_range};
-use crate::lexer::Lexer;
-use crate::parser::Parser;
-use crate::parser::ast::*;
 use crate::registry;
+use crate::syntax::lexer::Lexer;
+use crate::syntax::parser::Parser;
+use crate::syntax::parser::ast::*;
 // Every statement list nested in a statement: the one list the editor's
 // scope reads too, so neither misses a body the other walks.
 use crate::scope::child_bodies;
@@ -196,7 +196,7 @@ pub fn migrate_file(source: &str, file: &str, ctx: &ProjectContext) -> Result<Mi
     };
 
     // The result must be WebFluent 3.
-    if let Err(e) = crate::parser::v2::parse_v2(&text, file) {
+    if let Err(e) = crate::syntax::parser::v2::parse_v2(&text, file) {
         return Err(WebFluentError::EditError(format!(
             "the migration of {file} produced text WebFluent 3 rejects — a bug in wf migrate, not in the project: {e}"
         )));

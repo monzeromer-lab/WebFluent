@@ -5,7 +5,7 @@
 //!
 //! WebFluent 3 has one grammar (see `spec/SYNTAX_V2.md`), written with
 //! braces in a `.wf` file and by indentation in a `.wfx` file
-//! ([`crate::lexer::v2::Layout`]). The grammar
+//! ([`crate::syntax::lexer::v2::Layout`]). The grammar
 //! WebFluent 2 had is read by `wf migrate` alone, through
 //! [`crate::migrate`]; a file written in it is refused here with a pointer
 //! to the migration. The dialect is read from a file's first word: the
@@ -13,9 +13,23 @@
 //! `store`, `theme`, `app`, `type`, `enum`); the old grammar's were
 //! capitalised.
 
+/// `wf fmt --to wfx|wf`: the one grammar in either layout, braces or
+/// indentation.
+pub mod fmt;
+pub mod js_scan;
+pub mod layout;
+pub mod lexer;
+pub mod node_id;
+pub mod parser;
+/// The tree written back as source, one node at a time: what an editor
+/// that changes a node writes in its place.
+pub mod print;
+/// The smallest edit: the patches that turn one node's source into an
+/// edited copy's, touching nothing else.
+pub mod reprint;
 use crate::diagnostics::error::{Diagnostic, Result, WebFluentError};
-use crate::lexer::Token;
-use crate::parser::Program;
+use crate::syntax::lexer::Token;
+use crate::syntax::parser::Program;
 
 /// Which grammar a source text is written in.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -90,7 +104,7 @@ pub fn parse_source(source: &str, file: &str) -> Result<Program> {
                 .with_hint("Run `wf migrate` to convert the project to the current grammar"),
             )))
         }
-        Dialect::V2 => crate::parser::v2::parse_v2(source, file),
+        Dialect::V2 => crate::syntax::parser::v2::parse_v2(source, file),
     }
 }
 
@@ -109,8 +123,8 @@ pub fn parse_source_recovering(source: &str, file: &str) -> (Program, Vec<Diagno
             .unwrap_or_default();
         return (empty(), err);
     }
-    match crate::lexer::LexerV2::for_file(source, file).tokenize() {
-        Ok(tokens) => crate::parser::v2::ParserV2::new(tokens, file).parse_recovering(),
+    match crate::syntax::lexer::LexerV2::for_file(source, file).tokenize() {
+        Ok(tokens) => crate::syntax::parser::v2::ParserV2::new(tokens, file).parse_recovering(),
         Err(e) => (empty(), e.diagnostics()),
     }
 }
@@ -128,14 +142,14 @@ fn position_of_first_word(source: &str) -> (usize, usize) {
 /// The token stream of `source`, for tools that work at the token level
 /// (the language server's cursor context).
 pub fn tokens(source: &str, file: &str) -> Result<Vec<Token>> {
-    crate::lexer::LexerV2::for_file(source, file).tokenize()
+    crate::syntax::lexer::LexerV2::for_file(source, file).tokenize()
 }
 
 /// The `//` comments of `source` — line, column and the text after the
 /// slashes — as the lexer finds them, so text in a string, a raw string or
 /// a splice is never one. A file that does not lex has none.
 pub fn comments(source: &str, file: &str) -> Vec<(usize, usize, String)> {
-    let mut lexer = crate::lexer::LexerV2::for_file(source, file);
+    let mut lexer = crate::syntax::lexer::LexerV2::for_file(source, file);
     match lexer.tokenize() {
         Ok(_) => lexer.comments().to_vec(),
         Err(_) => Vec::new(),

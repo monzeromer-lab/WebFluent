@@ -27,7 +27,7 @@ use crate::config::project::OutputType;
 use crate::diagnostics::Severity;
 use crate::diagnostics::error::{Diagnostic, Result, WebFluentError};
 use crate::diagnostics::format::Format;
-use crate::parser::{Declaration, Program, Statement};
+use crate::syntax::parser::{Declaration, Program, Statement};
 use std::cell::RefCell;
 use std::collections::{BTreeMap, HashMap};
 use std::path::{Path, PathBuf};
@@ -137,7 +137,7 @@ pub struct RouteInfo {
 #[derive(Clone, Debug, Default)]
 pub struct BuildReport {
     /// For a studio build: every element's node id and where it is written.
-    pub nodes: Option<crate::codegen::node_id::NodeMap>,
+    pub nodes: Option<crate::syntax::node_id::NodeMap>,
     /// Every line `wf build` prints, in order. The error a failed build
     /// ends with is not among them: it is [`BuildFailure::error`].
     pub lines: Vec<BuildLine>,
@@ -814,7 +814,7 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
     // An editor's preview: each element stamped with the id its source has.
     let nodes = options.studio.then(|| {
         let files = declaration_files.clone();
-        crate::codegen::node_id::build_node_map_with(&program, &|i| files.get(i).cloned())
+        crate::syntax::node_id::build_node_map_with(&program, &|i| files.get(i).cloned())
     });
     if let Some(map) = &nodes {
         js_codegen.set_studio(map.clone());
@@ -897,15 +897,17 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
         let app_stmts = app_body.as_deref();
         // Expand user components into the static paint, so an exported site is a
         // genuine static site rather than a page of placeholder comments.
-        let components: std::collections::HashMap<String, crate::parser::ast::ComponentDecl> =
-            program
-                .declarations
-                .iter()
-                .filter_map(|d| match d {
-                    Declaration::Component(c) => Some((c.name.clone(), c.clone())),
-                    _ => None,
-                })
-                .collect();
+        let components: std::collections::HashMap<
+            String,
+            crate::syntax::parser::ast::ComponentDecl,
+        > = program
+            .declarations
+            .iter()
+            .filter_map(|d| match d {
+                Declaration::Component(c) => Some((c.name.clone(), c.clone())),
+                _ => None,
+            })
+            .collect();
         // The program's part of every page's build-time scope — `env`, the
         // stores' values, the constants — is the same for all of them:
         // worked out once rather than twice a page, it was most of what an
@@ -916,7 +918,7 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
             let sheets: Vec<&String> = page_sheets.keys().collect();
             cache::PageKeys::new(&program, &config, &translations, &sheets, options.studio)
         });
-        let render = |page: &crate::parser::ast::PageDecl,
+        let render = |page: &crate::syntax::parser::ast::PageDecl,
                       route: &str,
                       params: &dyn std::fmt::Debug,
                       make: &dyn Fn() -> String|
@@ -1861,12 +1863,12 @@ fn inline_styled_pages(output_dir: &Path, written: &[PathBuf]) -> Vec<String> {
 /// The page a route a static build wrote belongs to: its own `path`, or the
 /// `:param` pattern it was rendered from.
 fn page_for_route<'a>(
-    program: &'a crate::parser::ast::Program,
+    program: &'a crate::syntax::parser::ast::Program,
     route: &str,
-) -> Option<&'a crate::parser::ast::PageDecl> {
+) -> Option<&'a crate::syntax::parser::ast::PageDecl> {
     let segments: Vec<&str> = route.split('/').filter(|s| !s.is_empty()).collect();
     program.declarations.iter().find_map(|d| {
-        let crate::parser::ast::Declaration::Page(page) = d else {
+        let crate::syntax::parser::ast::Declaration::Page(page) = d else {
             return None;
         };
         let pattern: Vec<&str> = page.path.split('/').filter(|s| !s.is_empty()).collect();
@@ -1887,7 +1889,7 @@ fn write_service_worker(
     output_dir: &Path,
     config: &ProjectConfig,
     offline: &crate::config::OfflineConfig,
-    program: &crate::parser::ast::Program,
+    program: &crate::syntax::parser::ast::Program,
     written_html: &[PathBuf],
 ) -> Result<()> {
     use crate::codegen::offline::{Worker, route_matches, service_worker, version_of};
@@ -1907,7 +1909,7 @@ fn write_service_worker(
             add(shell, &mut precache);
         }
     }
-    let chunks_of = |page: &crate::parser::ast::PageDecl, list: &mut Vec<String>| {
+    let chunks_of = |page: &crate::syntax::parser::ast::PageDecl, list: &mut Vec<String>| {
         for ext in ["js", "css"] {
             let rel = format!("pages/{}.{ext}", page.name);
             if exists(&rel) {
@@ -1957,7 +1959,7 @@ fn write_service_worker(
         add("index.html", &mut precache);
         shell = Some(site("index.html"));
         for d in &program.declarations {
-            let crate::parser::ast::Declaration::Page(page) = d else {
+            let crate::syntax::parser::ast::Declaration::Page(page) = d else {
                 continue;
             };
             if page.path.contains(':') || page.path == "*" {

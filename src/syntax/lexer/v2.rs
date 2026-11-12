@@ -863,7 +863,7 @@ impl LexerV2 {
     /// followed by a name, a `[` or a `(`, with any string inside it kept
     /// whole — else `None`.
     fn splice_end(&self) -> Option<usize> {
-        crate::parser::v2::splice_end(&self.source, self.pos)
+        crate::syntax::parser::v2::splice_end(&self.source, self.pos)
     }
 
     fn read_number(&mut self) -> Result<Token> {

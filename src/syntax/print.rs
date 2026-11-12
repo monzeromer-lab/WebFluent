@@ -18,10 +18,10 @@
 //! on, so the lines after its first sit where `wf fmt` would put them.
 //!
 //! Comments are not in the tree, so a node printed from it has none. That
-//! is why an editor prints only the node it changed — [`crate::reprint`]
+//! is why an editor prints only the node it changed — [`crate::syntax::reprint`]
 //! keeps every other byte, comments and all.
 
-use crate::parser::ast::*;
+use crate::syntax::parser::ast::*;
 
 const INDENT: &str = "    ";
 
@@ -1929,7 +1929,7 @@ pub struct Mismatch {
 /// parse at all is one `Mismatch` at line 0.
 pub fn prove(source: &str, file: &str) -> Result<usize, Vec<Mismatch>> {
     let braced = if file.ends_with(".wfx") {
-        match crate::layout::to_braces(source, file) {
+        match crate::syntax::layout::to_braces(source, file) {
             Ok(b) => b,
             Err(e) => {
                 return Err(vec![Mismatch {
@@ -2085,7 +2085,8 @@ pub fn declaration_span(source: &str, d: &Declaration) -> Option<(usize, usize)>
             let [at] = apps[..] else {
                 return None;
             };
-            let &(_, close) = crate::reprint::blocks_in(source, at, source.len()).first()?;
+            let &(_, close) =
+                crate::syntax::reprint::blocks_in(source, at, source.len()).first()?;
             return Some((doc_start(source, at), close + 1));
         }
         Declaration::Script(_) => return None,
@@ -2100,7 +2101,7 @@ pub fn declaration_span(source: &str, d: &Declaration) -> Option<(usize, usize)>
 /// was not — a file that does not parse is one `Mismatch` at line 0.
 pub fn prove_declarations(source: &str, file: &str) -> Result<usize, Vec<Mismatch>> {
     let braced = if file.ends_with(".wfx") {
-        crate::layout::to_braces(source, file).unwrap_or_default()
+        crate::syntax::layout::to_braces(source, file).unwrap_or_default()
     } else {
         source.to_string()
     };

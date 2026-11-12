@@ -6,7 +6,7 @@
 use crate::base::vfs::{FsVfs, Vfs};
 use crate::config::ProjectConfig;
 use crate::diagnostics::error::{Diagnostic, Result, WebFluentError};
-use crate::parser::{Declaration, Program};
+use crate::syntax::parser::{Declaration, Program};
 use std::path::{Path, PathBuf};
 
 /// Every source file under the project's `src/`, parsed and merged into
@@ -103,22 +103,24 @@ pub fn read_project_collecting_via(
             continue;
         }
         declaration_files.push(script.path.clone());
-        all_declarations.push(Declaration::Script(crate::parser::ast::ScriptDecl {
-            path: script.path,
-            names: script.scan.names,
-        }));
+        all_declarations.push(Declaration::Script(
+            crate::syntax::parser::ast::ScriptDecl {
+                path: script.path,
+                names: script.scan.names,
+            },
+        ));
     }
     // And what `meta.scripts` says a library defines: the compiler cannot
     // read a file on another origin, so each name is in scope as `Any`.
     if let Ok(config) = ProjectConfig::load_via(vfs, project_dir) {
-        let names: Vec<crate::project_js::scan::Name> = config
+        let names: Vec<crate::syntax::js_scan::Name> = config
             .meta
             .scripts
             .iter()
             .flat_map(|s| s.names())
-            .map(|name| crate::project_js::scan::Name {
+            .map(|name| crate::syntax::js_scan::Name {
                 name: name.to_string(),
-                kind: crate::project_js::scan::NameKind::Value,
+                kind: crate::syntax::js_scan::NameKind::Value,
                 line: 1,
                 col: 1,
                 doc: None,
@@ -126,10 +128,12 @@ pub fn read_project_collecting_via(
             .collect();
         if !names.is_empty() {
             declaration_files.push("webfluent.app.json".to_string());
-            all_declarations.push(Declaration::Script(crate::parser::ast::ScriptDecl {
-                path: "webfluent.app.json".to_string(),
-                names,
-            }));
+            all_declarations.push(Declaration::Script(
+                crate::syntax::parser::ast::ScriptDecl {
+                    path: "webfluent.app.json".to_string(),
+                    names,
+                },
+            ));
         }
     }
     let mut program = Program {

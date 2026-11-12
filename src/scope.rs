@@ -4,8 +4,8 @@
 //! props, state, derived values and actions, then the stores it `use`s —
 //! and, in `paths`, the same list typed, for a picker.
 
-use crate::parser::ast::*;
-pub use crate::parser::walk::{body_of, child_bodies};
+use crate::syntax::parser::ast::*;
+pub use crate::syntax::parser::walk::{body_of, child_bodies};
 
 /// Whether `offset` falls inside `span`.
 pub fn contains(span: Span, offset: usize) -> bool {
@@ -499,8 +499,8 @@ pub mod paths {
     use serde::Serialize;
 
     use super::{Binding, BindingKind, hoisted, scope_at, store_members};
-    use crate::parser::ast::{Declaration, Program, StatementKind, TypeDecl};
     use crate::sema::types::{Scalar, Type, TypeInfo};
+    use crate::syntax::parser::ast::{Declaration, Program, StatementKind, TypeDecl};
 
     /// Which part of the list a row is in.
     #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize)]
@@ -824,7 +824,7 @@ pub mod paths {
                     format!(
                         "for {}{index} in {}",
                         f.item,
-                        crate::print::expr(&f.iterable)
+                        crate::syntax::print::expr(&f.iterable)
                     )
                 }
                 _ => "a loop".to_string(),

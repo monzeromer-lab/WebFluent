@@ -16,7 +16,7 @@ use serde::Serialize;
 
 use crate::config::project::ThemeConfig;
 use crate::linter::contrast::{Pairing, pairings};
-use crate::parser::ast::*;
+use crate::syntax::parser::ast::*;
 
 /// One token.
 #[derive(Debug, Clone, PartialEq, Serialize)]
@@ -162,7 +162,7 @@ fn select<'a>(
 }
 
 fn literal(e: &Expr) -> String {
-    crate::print::style_value(e)
+    crate::syntax::print::style_value(e)
 }
 
 /// Every place each token is named in `program` (and in `stylesheets`, the
@@ -200,7 +200,7 @@ fn uses_of(
         }
     }
     for (i, d) in program.declarations.iter().enumerate() {
-        let Some(body) = crate::print::body_of(d) else {
+        let Some(body) = crate::syntax::print::body_of(d) else {
             continue;
         };
         let file = file_of(i);

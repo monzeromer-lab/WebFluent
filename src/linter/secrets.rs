@@ -100,8 +100,8 @@ fn may_read_env(text: &str) -> bool {
 /// shadows the build's for as long as the declaration that holds it. A
 /// real project had both on the first run, and each one reported as a
 /// leaked secret is a reason to stop reading the warnings.
-fn env_names(tokens: &[crate::lexer::Token]) -> Vec<(String, usize, usize)> {
-    use crate::lexer::TokenType;
+fn env_names(tokens: &[crate::syntax::lexer::Token]) -> Vec<(String, usize, usize)> {
+    use crate::syntax::lexer::TokenType;
     let mut out = Vec::new();
     // The brace depth a shadowing declaration was made at; `env` is the
     // program's own until the block that declared it closes.
@@ -121,7 +121,7 @@ fn env_names(tokens: &[crate::lexer::Token]) -> Vec<(String, usize, usize)> {
         // A string keeps its splices inside it until the parser splits
         // them, and a splice is a page reading the value.
         if let TokenType::StringLiteral(lit) = &token.token_type {
-            if lit.kind != crate::lexer::token::StringKind::Raw && shadowed_at.is_none() {
+            if lit.kind != crate::syntax::lexer::token::StringKind::Raw && shadowed_at.is_none() {
                 for name in spliced(&lit.spelling) {
                     out.push((name, token.line, token.column));
                 }
@@ -166,8 +166,8 @@ fn env_names(tokens: &[crate::lexer::Token]) -> Vec<(String, usize, usize)> {
 }
 
 /// Whether the token at `i` is a declaration of a name called `env`.
-fn declares_env(tokens: &[crate::lexer::Token], i: usize) -> bool {
-    use crate::lexer::TokenType;
+fn declares_env(tokens: &[crate::syntax::lexer::Token], i: usize) -> bool {
+    use crate::syntax::lexer::TokenType;
     let word = |at: usize| match tokens.get(at).map(|t| &t.token_type) {
         Some(TokenType::Identifier(w)) => Some(w.as_str()),
         _ => None,

@@ -16,8 +16,8 @@
 
 use std::collections::HashSet;
 
-use crate::parser::ast::{Arg, Expr, Statement, StatementKind, UIElement};
-use crate::parser::{ComponentRef, Declaration, Program};
+use crate::syntax::parser::ast::{Arg, Expr, Statement, StatementKind, UIElement};
+use crate::syntax::parser::{ComponentRef, Declaration, Program};
 
 /// What a program draws on, read from its elements.
 #[derive(Debug, Default, Clone)]

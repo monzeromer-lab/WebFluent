@@ -12,7 +12,7 @@
 //!   is not a whole number of the twelve columns.
 
 use crate::diagnostics::error::A11yWarning;
-use crate::parser::ast::*;
+use crate::syntax::parser::ast::*;
 
 /// Every finding of this module in `program`.
 pub fn lint_output(program: &Program, file_of: &dyn Fn(usize) -> String) -> Vec<A11yWarning> {

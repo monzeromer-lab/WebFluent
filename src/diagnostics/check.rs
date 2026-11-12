@@ -11,13 +11,13 @@ use super::{Diagnostic, dedupe};
 use crate::base::vfs::{FsVfs, Vfs};
 use crate::config::ProjectConfig;
 use crate::config::project::OutputType;
-use crate::parser::ast::{Declaration, Program};
 use crate::project_js::Script;
+use crate::syntax::parser::ast::{Declaration, Program};
 use std::path::Path;
 
 /// The stack each check's thread is given. A thread's default (2 MB) is
 /// less than the checker needs to walk a program nested as deeply as the
-/// parser allows ([`crate::parser::MAX_NESTING`]) in a debug build; the
+/// parser allows ([`crate::syntax::parser::MAX_NESTING`]) in a debug build; the
 /// memory is only reserved, and touched as deep as a program goes.
 #[cfg(not(target_arch = "wasm32"))]
 const CHECK_STACK: usize = 16 * 1024 * 1024;
@@ -857,13 +857,13 @@ pub fn output_checks(
 fn unknown_graphic_args<'s>(
     program: &Program,
     scope: &dyn Fn() -> &'s crate::codegen::static_eval::Scope,
-) -> Vec<(usize, crate::parser::ast::Span, String, String)> {
-    use crate::parser::{Arg, ComponentRef, Declaration, Statement, StatementKind};
+) -> Vec<(usize, crate::syntax::parser::ast::Span, String, String)> {
+    use crate::syntax::parser::{Arg, ComponentRef, Declaration, Statement, StatementKind};
     fn walk<'s>(
         stmts: &[Statement],
         decl: usize,
         scope: &dyn Fn() -> &'s crate::codegen::static_eval::Scope,
-        out: &mut Vec<(usize, crate::parser::ast::Span, String, String)>,
+        out: &mut Vec<(usize, crate::syntax::parser::ast::Span, String, String)>,
     ) {
         for stmt in stmts {
             if let StatementKind::UIElement(ui) = &stmt.kind

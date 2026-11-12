@@ -25,7 +25,7 @@
 use std::collections::{BTreeMap, BTreeSet};
 
 use crate::codegen::style_tokens::{canonical_style_prop, resolve_style_token};
-use crate::parser::ast::{
+use crate::syntax::parser::ast::{
     Arg, ComponentRef, Declaration, Expr, Program, Statement, StatementKind, StringPart,
     StyleBlock, StyleProperty,
 };
@@ -86,7 +86,7 @@ pub fn animations_css(program: &Program) -> String {
 }
 
 /// One declared animation's `@keyframes` rule, and the class that plays it.
-pub fn animation_css(a: &crate::parser::ast::AnimationDecl) -> (String, String) {
+pub fn animation_css(a: &crate::syntax::parser::ast::AnimationDecl) -> (String, String) {
     let frames: Vec<String> = a
         .frames
         .iter()
@@ -623,7 +623,7 @@ pub fn responsive_rules(
 /// The responsive classes an element carries, in the order they were
 /// written. The rules themselves are in `styles.css`; this is only the
 /// name each one is carried by.
-pub fn responsive_classes(ui: &crate::parser::ast::UIElement) -> Vec<String> {
+pub fn responsive_classes(ui: &crate::syntax::parser::ast::UIElement) -> Vec<String> {
     let points = BTreeMap::new();
     ui.args
         .iter()

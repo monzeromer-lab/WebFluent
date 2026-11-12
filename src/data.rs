@@ -7,7 +7,7 @@ pub use crate::base::vfs::stays_inside;
 use std::path::Path;
 
 use crate::diagnostics::error::{Result, WebFluentError};
-use crate::parser::ast::*;
+use crate::syntax::parser::ast::*;
 
 /// The finding for a path a project names that leads out of it.
 pub fn outside_project(
@@ -297,7 +297,7 @@ pub fn markdown_page(source: &str, file: &str) -> Result<Program> {
     // `lang:` is held to what a `.wf` page's is: a language tag.
     let lang = get("lang").filter(|l| !l.is_empty());
     if let Some(tag) = &lang
-        && !crate::parser::v2::is_language_tag(tag)
+        && !crate::syntax::parser::v2::is_language_tag(tag)
     {
         return Err(WebFluentError::ParseError(Box::new(
             crate::diagnostics::error::Diagnostic::coded(
