@@ -280,22 +280,24 @@ pub fn render_page_html_studio(
         .with_messages(&default_messages);
 
     let mut ctx = SsgContext {
-        images: 0,
-        row_limit: None,
-        fields: 0,
-        dialogs: 0,
-        default_messages,
-        indent: 2,
-        link_base,
-        app_schemes: crate::project::config::project::app_schemes(config),
-        studio,
-        node_map: node_map.clone(),
-        owners: vec![page.name.clone(), "App".to_string()],
+        paint: PaintState {
+            images: 0,
+            row_limit: None,
+            fields: 0,
+            dialogs: 0,
+            default_messages,
+            indent: 2,
+            link_base,
+            app_schemes: crate::project::config::project::app_schemes(config),
+            studio,
+            node_map: node_map.clone(),
+            owners: vec![page.name.clone(), "App".to_string()],
+            scope,
+            in_thead: false,
+            current_path: page.path.clone(),
+        },
         components: components.clone(),
-        scope,
         depth: 0,
-        in_thead: false,
-        current_path: page.path.clone(),
     };
 
     // A page with a layout is that component with the page as its default
@@ -502,44 +504,81 @@ pub fn render_page_html_studio(
     )
 }
 
-struct SsgContext {
+/// What drawing a built-in reads and keeps: the names in reach, where the
+/// page is, and the counters ids are made from. The build's static paint
+/// and the template engine each hold one, and draw built-ins with the same
+/// code ([`Paint`]).
+pub(crate) struct PaintState {
     /// Images painted so far on this page; the first is fetched eagerly.
-    images: usize,
+    pub(crate) images: usize,
     /// A `VirtualList`'s `for` paints a screenful, not all of its rows: the
     /// runtime draws the window once it takes over.
-    row_limit: Option<usize>,
+    pub(crate) row_limit: Option<usize>,
     /// Fields painted so far, for their ids.
-    fields: usize,
+    pub(crate) fields: usize,
     /// Modals and dialogs painted so far, for their headings' ids.
-    dialogs: usize,
-    default_messages: HashMap<String, String>,
-    indent: usize,
-    link_base: String, // Config base_path for links (e.g., "/WebFluent")
+    pub(crate) dialogs: usize,
+    pub(crate) default_messages: HashMap<String, String>,
+    pub(crate) indent: usize,
+    /// Config base_path for links (e.g., "/WebFluent").
+    pub(crate) link_base: String,
     /// The app's own schemes a frame's address may use (`meta.frame`).
-    app_schemes: Vec<String>,
+    pub(crate) app_schemes: Vec<String>,
     /// Studio mode: stamp `data-wf-node` on element roots.
-    studio: bool,
+    pub(crate) studio: bool,
     /// Node ids keyed by element span (empty unless in studio mode). Matches the
     /// JS codegen's ids because both consult the same map.
-    node_map: NodeMap,
+    pub(crate) node_map: NodeMap,
     /// The page, the app and the components being painted, outermost first:
     /// whose element a span may be.
-    owners: Vec<String>,
+    pub(crate) owners: Vec<String>,
+    /// What the compiler could work out about this page's data, so lists and
+    /// conditionals over seeded values paint statically instead of waiting for
+    /// JavaScript. Anything it could not resolve is simply absent.
+    pub(crate) scope: Scope,
+    /// Inside a `Thead`, a `Tcell` is a column header (`<th scope="col">`).
+    pub(crate) in_thead: bool,
+    /// The route of the page being painted, so a link to it can be marked
+    /// current in the static HTML as the runtime marks it after hydration.
+    pub(crate) current_path: String,
+}
+
+/// An engine that draws built-ins with this module's code: it holds a
+/// [`PaintState`] and draws a block of statements its own way — the build's
+/// paint leaves what only the page knows to the page, the template engine
+/// works everything out.
+pub(crate) trait Paint: std::ops::DerefMut<Target = PaintState> {
+    /// A block of statements inside a built-in, drawn by this engine.
+    fn statements(&mut self, stmts: &[Statement]) -> String;
+}
+
+struct SsgContext {
+    paint: PaintState,
     /// The program's `Component` declarations, so a call to one can be expanded
     /// into the static paint instead of a placeholder comment.
     components: HashMap<String, ComponentDecl>,
     /// Component-expansion depth, so a component that (directly or mutually)
     /// calls itself stops instead of recursing forever.
     depth: usize,
-    /// What the compiler could work out about this page's data, so lists and
-    /// conditionals over seeded values paint statically instead of waiting for
-    /// JavaScript. Anything it could not resolve is simply absent.
-    scope: Scope,
-    /// Inside a `Thead`, a `Tcell` is a column header (`<th scope="col">`).
-    in_thead: bool,
-    /// The route of the page being painted, so a link to it can be marked
-    /// current in the static HTML as the runtime marks it after hydration.
-    current_path: String,
+}
+
+impl std::ops::Deref for SsgContext {
+    type Target = PaintState;
+    fn deref(&self) -> &PaintState {
+        &self.paint
+    }
+}
+
+impl std::ops::DerefMut for SsgContext {
+    fn deref_mut(&mut self) -> &mut PaintState {
+        &mut self.paint
+    }
+}
+
+impl Paint for SsgContext {
+    fn statements(&mut self, stmts: &[Statement]) -> String {
+        render_statements(stmts, self)
+    }
 }
 
 /// Whether a link to `href` points at `current` — exactly, or, with `prefix`,
@@ -562,21 +601,21 @@ fn link_is_current(href: &str, current: &str, prefix: bool) -> bool {
 /// cycle, and a static renderer must terminate whatever the source says.
 const MAX_COMPONENT_DEPTH: usize = 12;
 
-impl SsgContext {
-    fn next_field_id(&mut self) -> usize {
+impl PaintState {
+    pub(crate) fn next_field_id(&mut self) -> usize {
         self.fields += 1;
         self.fields
     }
 
-    fn indent_str(&self) -> String {
+    pub(crate) fn indent_str(&self) -> String {
         "    ".repeat(self.indent)
     }
 
     /// The bare `data-wf-node="<id>"` HTML attribute for this element's root, or
     /// `None` when not in studio mode / the node has no id. Callers building an
     /// attribute list push it directly; callers building a tag inline prepend a
-    /// space (see [`SsgContext::wf_node_attr_inline`]).
-    fn wf_node_attr(&self, ui: &UIElement) -> Option<String> {
+    /// space (see [`PaintState::wf_node_attr_inline`]).
+    pub(crate) fn wf_node_attr(&self, ui: &UIElement) -> Option<String> {
         if !self.studio {
             return None;
         }
@@ -586,7 +625,7 @@ impl SsgContext {
     }
 
     /// Space-prefixed form for embedding directly inside a `<tag …>` (empty when absent).
-    fn wf_node_attr_inline(&self, ui: &UIElement) -> String {
+    pub(crate) fn wf_node_attr_inline(&self, ui: &UIElement) -> String {
         self.wf_node_attr(ui)
             .map(|a| format!(" {}", a))
             .unwrap_or_default()
@@ -1226,7 +1265,7 @@ fn render_ui_element(ui: &UIElement, ctx: &mut SsgContext) -> String {
     }
 }
 
-fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
+pub(crate) fn render_builtin<C: Paint>(name: &str, ui: &UIElement, ctx: &mut C) -> String {
     if name == "Frame"
         && let Some(framed) = crate::project::builtin::sandboxed_frame(ui)
     {
@@ -1311,7 +1350,7 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
             let indent = ctx.indent_str();
             let mut out = format!("{indent}<{tag}{class}{attrs}{wf}{inline_style}>\n");
             ctx.indent += 1;
-            out.push_str(&render_statements(&ui.children, ctx));
+            out.push_str(&ctx.statements(&ui.children));
             ctx.indent -= 1;
             out.push_str(&format!("{indent}</{tag}>\n"));
             return out;
@@ -1373,7 +1412,7 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
                 let mut out =
                     format!("{indent}<ul class=\"{classes}\"{role}{aria}{own}{wf} hidden>\n");
                 ctx.indent += 1;
-                out.push_str(&render_statements(&ui.children, ctx));
+                out.push_str(&ctx.statements(&ui.children));
                 ctx.indent -= 1;
                 out.push_str(&format!("{indent}</ul>\n"));
                 return out;
@@ -1390,7 +1429,7 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
                 "{inner}<ul class=\"{items_class}\" role=\"menu\"{aria} hidden>\n"
             ));
             ctx.indent += 1;
-            out.push_str(&render_statements(&ui.children, ctx));
+            out.push_str(&ctx.statements(&ui.children));
             ctx.indent -= 1;
             out.push_str(&format!("{inner}</ul>\n"));
             ctx.indent -= 1;
@@ -1429,12 +1468,12 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
                     && matches!(&part.component, ComponentRef::SubComponent(p, s) if p == name && s == "Footer")
                 {
                     let wf = ctx.wf_node_attr_inline(part);
-                    footer = Some((wf, render_statements(&part.children, ctx)));
+                    footer = Some((wf, ctx.statements(&part.children)));
                     continue;
                 }
                 body.push(child.clone());
             }
-            let body = render_statements(&body, ctx);
+            let body = ctx.statements(&body);
             ctx.indent -= 3;
             return static_dialog(
                 &indent,
@@ -1468,7 +1507,7 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
             let indent = ctx.indent_str();
             let mut out = format!("{indent}<div class=\"{class_str}\"{own}{wf}{inline_style}>\n");
             ctx.indent += 1;
-            out.push_str(&render_statements(&ui.children, ctx));
+            out.push_str(&ctx.statements(&ui.children));
             out.push_str(&format!(
                 "{}<span class=\"wf-tooltip__text\" role=\"tooltip\" hidden>{}</span>\n",
                 ctx.indent_str(),
@@ -2051,7 +2090,7 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
         } else {
             let inner = {
                 ctx.indent += 1;
-                let r = render_statements(&ui.children, ctx);
+                let r = ctx.statements(&ui.children);
                 ctx.indent -= 1;
                 r
             };
@@ -2127,7 +2166,7 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
     } else if name == "Tbody" {
         ctx.in_thead = false;
     }
-    result.push_str(&render_statements(&ui.children, ctx));
+    result.push_str(&ctx.statements(&ui.children));
     ctx.in_thead = was_in_thead;
     ctx.indent -= 1;
 
@@ -2235,7 +2274,7 @@ pub fn static_field(indent: &str, id: &str, control: &str, parts: &FieldParts) -
 /// The twin of `WF.picture` in the runtime: the same element, so a page
 /// that hydrates does not repaint what it was already showing.
 /// A `Video` with captions, or an `Audio` with a transcript.
-fn render_media(name: &str, class: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
+fn render_media<C: Paint>(name: &str, class: &str, ui: &UIElement, ctx: &mut C) -> String {
     let tag = crate::project::builtin::builtin_to_html(name).0;
     let named = |key: &str| {
         ui.args.iter().find_map(|a| match a {
@@ -2297,7 +2336,7 @@ fn render_media(name: &str, class: &str, ui: &UIElement, ctx: &mut SsgContext) -
     out
 }
 
-fn render_picture(class: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
+fn render_picture<C: Paint>(class: &str, ui: &UIElement, ctx: &mut C) -> String {
     let named = |key: &str| {
         ui.args.iter().find_map(|a| match a {
             Arg::Named(k, v) if k == key => Some(v),
@@ -2430,13 +2469,13 @@ fn render_picture(class: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
     out
 }
 
-fn render_labelled_input(
+fn render_labelled_input<C: Paint>(
     name: &str,
     class_str: &str,
     wf: &str,
     inline_style: &str,
     ui: &UIElement,
-    ctx: &mut SsgContext,
+    ctx: &mut C,
 ) -> String {
     let named = |key: &str| -> Option<String> {
         ui.args.iter().find_map(|a| match a {
@@ -2567,12 +2606,12 @@ fn render_for_static(for_stmt: &ForStmt, ctx: &mut SsgContext) -> Option<String>
 }
 
 /// A navigation item that carries a destination: an `<a>`, as the SPA builds it.
-fn render_linked_item(
+fn render_linked_item<C: Paint>(
     class: &str,
     href: &str,
     current: bool,
     ui: &UIElement,
-    ctx: &mut SsgContext,
+    ctx: &mut C,
 ) -> String {
     let indent = ctx.indent_str();
     let wf = ctx.wf_node_attr_inline(ui);
@@ -2590,13 +2629,13 @@ fn render_linked_item(
         wf
     );
     ctx.indent += 1;
-    out.push_str(&render_statements(&ui.children, ctx));
+    out.push_str(&ctx.statements(&ui.children));
     ctx.indent -= 1;
     out.push_str(&format!("{}</a>\n", indent));
     out
 }
 
-fn render_tag(tag: &str, class: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
+fn render_tag<C: Paint>(tag: &str, class: &str, ui: &UIElement, ctx: &mut C) -> String {
     let indent = ctx.indent_str();
     let wf = ctx.wf_node_attr_inline(ui);
     let class = std::iter::once(class.to_string())
@@ -2615,7 +2654,7 @@ fn render_tag(tag: &str, class: &str, ui: &UIElement, ctx: &mut SsgContext) -> S
         indent, tag, class, wf, style_attr
     );
     ctx.indent += 1;
-    result.push_str(&render_statements(&ui.children, ctx));
+    result.push_str(&ctx.statements(&ui.children));
     ctx.indent -= 1;
     result.push_str(&format!("{}</{}>\n", indent, tag));
     result
@@ -2649,7 +2688,7 @@ fn style_block_decls(ui: &UIElement) -> Vec<String> {
 /// The classes an element carries beyond its base and modifier classes: the
 /// one its style block's rules live under, and the ones its `class:`
 /// argument names when the value is known at build time.
-fn extra_classes(ui: &UIElement, ctx: &SsgContext) -> Vec<String> {
+fn extra_classes(ui: &UIElement, ctx: &PaintState) -> Vec<String> {
     let mut classes: Vec<String> = ui
         .style_block
         .as_ref()
@@ -2764,8 +2803,8 @@ pub struct DialogPaint<'a> {
 /// footer. The browser keeps it hidden until it is opened.
 /// Statements painted on one line, as a heading holds them: each piece's
 /// own line breaks and indent taken out.
-fn render_inline(stmts: &[Statement], ctx: &mut SsgContext) -> String {
-    let painted = render_statements(stmts, ctx);
+fn render_inline<C: Paint>(stmts: &[Statement], ctx: &mut C) -> String {
+    let painted = ctx.statements(stmts);
     painted.lines().map(str::trim).collect::<Vec<_>>().join("")
 }
 
@@ -2911,7 +2950,7 @@ fn painted(expr: &Expr, scope: &Scope) -> Option<Painted> {
 /// What the root of a built-in drawn by its own branch above carries as
 /// any element does (`painted_attrs`): `reads` names what the branch
 /// draws itself.
-fn own_attrs(name: &str, ui: &UIElement, ctx: &SsgContext, reads: &[&str]) -> String {
+fn own_attrs(name: &str, ui: &UIElement, ctx: &PaintState, reads: &[&str]) -> String {
     painted_attrs(
         crate::registry::component(name),
         ui,
