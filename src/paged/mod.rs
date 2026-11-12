@@ -243,7 +243,14 @@ const NO_PDF: &str = "this build of the compiler has no PDF engine (a WebAssembl
 
 /// Render a page's HTML (with its `<style>` elements) and any further CSS to
 /// a PDF.
-#[cfg_attr(not(wf_pdf), allow(unreachable_code, unused_variables))]
+#[cfg_attr(
+    not(wf_pdf),
+    allow(
+        unreachable_code,
+        unused_variables,
+        reason = "without the PDF engine every render refuses before reading its arguments"
+    )
+)]
 pub fn render(html: &str, css: &str, opts: &Options) -> Result<Output, String> {
     #[cfg(not(wf_pdf))]
     {
@@ -856,7 +863,14 @@ fn luminance(c: Rgba) -> f32 {
 
 /// Render a deck: every slide of the page's `Presentation` on a page of its
 /// own, the slide's size, its content clipped at the edge.
-#[cfg_attr(not(wf_pdf), allow(unreachable_code, unused_variables))]
+#[cfg_attr(
+    not(wf_pdf),
+    allow(
+        unreachable_code,
+        unused_variables,
+        reason = "without the PDF engine every render refuses before reading its arguments"
+    )
+)]
 pub fn render_slides(
     html: &str,
     css: &str,

@@ -119,6 +119,10 @@ pub fn private_dir(prefix: &str) -> std::io::Result<PathBuf> {
         );
         hasher.write_u64(MADE.fetch_add(1, Ordering::Relaxed));
         let dir = tmp.join(format!("{prefix}{:016x}", hasher.finish()));
+        #[cfg_attr(
+            not(unix),
+            allow(unused_mut, reason = "only a Unix system sets the directory's mode")
+        )]
         let mut builder = std::fs::DirBuilder::new();
         #[cfg(unix)]
         std::os::unix::fs::DirBuilderExt::mode(&mut builder, 0o700);
@@ -193,7 +197,7 @@ fn launch(binary: &str, args: &[String], profile: &Path) -> std::io::Result<Chil
 fn abandon(child: &mut Child, profile: &Path) {
     // Closing the watcher's input is what stops it all; it gets a moment
     // to do so, then whatever is left is killed.
-    drop(child.stdin.take());
+    child.stdin = None;
     let until = Instant::now() + Duration::from_secs(8);
     while Instant::now() < until && !matches!(child.try_wait(), Ok(Some(_))) {
         std::thread::sleep(Duration::from_millis(20));

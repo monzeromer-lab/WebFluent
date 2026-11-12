@@ -53,9 +53,35 @@ pub fn capture_from<T>(files: Files, body: impl FnOnce() -> T) -> (T, Files) {
         memory.files.insert(path, bytes);
     }
     let outer = CAPTURE.with(|c| c.replace(Some(memory)));
+    // What was capturing before comes back however `body` ends: a panic a
+    // server or an editor catches must not leave this thread's writes
+    // going to memory for good.
+    let mut restore = Restore { outer: Some(outer) };
     let result = body();
-    let memory = CAPTURE.with(|c| c.replace(outer)).unwrap_or_default();
+    let memory = restore.finish().unwrap_or_default();
     (result, memory.files)
+}
+
+/// Puts back what was capturing before a [`capture_from`], when it ends or
+/// when its body panics.
+struct Restore {
+    outer: Option<Option<Memory>>,
+}
+
+impl Restore {
+    /// End the capture, returning what it kept.
+    fn finish(&mut self) -> Option<Memory> {
+        let outer = self.outer.take().flatten();
+        CAPTURE.with(|c| c.replace(outer))
+    }
+}
+
+impl Drop for Restore {
+    fn drop(&mut self) {
+        if self.outer.is_some() {
+            self.finish();
+        }
+    }
 }
 
 /// Whether writes are going to memory.
@@ -253,6 +279,18 @@ pub fn read_dir(path: impl AsRef<Path>) -> io::Result<Vec<PathBuf>> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn a_capture_whose_body_panics_leaves_the_thread_writing_to_the_disk() {
+        let panicked = std::panic::catch_unwind(|| {
+            capture(|| {
+                assert!(capturing());
+                panic!("the build failed");
+            })
+        });
+        assert!(panicked.is_err());
+        assert!(!capturing(), "the capture outlived its panic");
+    }
 
     #[test]
     fn an_error_on_the_disk_names_the_file_and_keeps_its_kind() {

@@ -841,6 +841,21 @@ and the template engine (they take outside input). A reachable one becomes
 a diagnostic or an `Err`; an invariant gets `expect("why it holds")`, not
 `expect("just checked")`; check-then-unwrap becomes `if let`/`let else`.
 
+**State: done, differently from the step above (2026-11-12).**
+- **The output capture** (`outfs::capture`) stays scoped, since the browser
+  playground builds through it. It is now panic-safe: what was capturing
+  before comes back however the body ends. Before this, a caught panic
+  left the thread writing to memory for good.
+- **The clock** is read in one place (`ago` in the static paint).
+  Natively it honours `SOURCE_DATE_EPOCH`, the convention for a
+  reproducible build, rather than being threaded through the build as a
+  context.
+- **The media cache** is the playground's, kept between builds in its one
+  worker thread on purpose, so it stays.
+- **The studio node ids** were made per render during the bug fixes.
+- The crate's WebAssembly build is now clean under clippy too: four lints
+  only that target hit were fixed.
+
 **Panics, first pass (2026-11-12).** The parser cannot panic on any
 input: a part that does not parse as a component is a parse error, and the
 string-parts `unwrap` is gone by construction. The printer's

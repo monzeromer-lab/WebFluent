@@ -84,19 +84,34 @@ pub fn set_unix_now(_seconds: i64) {
     NOW.with(|now| now.set(_seconds));
 }
 
-/// Seconds since the Unix epoch.
+/// Seconds since the Unix epoch: the system's clock, or, when the
+/// environment names one, `SOURCE_DATE_EPOCH` — the convention for a
+/// reproducible build, so what a page says of the time it was built (an
+/// `ago(…)` in the static paint) is the same on every run.
 pub fn unix_now() -> i64 {
     #[cfg(not(target_arch = "wasm32"))]
     {
-        std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .map(|d| d.as_secs() as i64)
-            .unwrap_or(0)
+        fixed_now(std::env::var("SOURCE_DATE_EPOCH").ok().as_deref()).unwrap_or_else(|| {
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .map(|d| d.as_secs() as i64)
+                .unwrap_or(0)
+        })
     }
     #[cfg(target_arch = "wasm32")]
     {
         NOW.with(|now| now.get())
     }
+}
+
+/// The time a `SOURCE_DATE_EPOCH` value fixes, when it is one: whole
+/// seconds since the Unix epoch.
+#[cfg_attr(
+    target_arch = "wasm32",
+    allow(dead_code, reason = "a WebAssembly host hands its clock over instead")
+)]
+fn fixed_now(epoch: Option<&str>) -> Option<i64> {
+    epoch?.trim().parse().ok()
 }
 
 /// The process's environment, as [`std::env::vars`] gives it — which panics
@@ -109,5 +124,18 @@ pub fn env_vars() -> Vec<(String, String)> {
     #[cfg(target_arch = "wasm32")]
     {
         Vec::new()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn source_date_epoch_fixes_the_time_when_it_is_a_number() {
+        assert_eq!(fixed_now(Some("1700000000")), Some(1_700_000_000));
+        assert_eq!(fixed_now(Some(" 42 ")), Some(42));
+        assert_eq!(fixed_now(Some("yesterday")), None);
+        assert_eq!(fixed_now(None), None);
     }
 }
