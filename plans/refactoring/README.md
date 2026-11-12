@@ -807,6 +807,18 @@ corpus **before** merging, so every difference is seen and decided.
   that name the right variant; one `.expect("…lock poisoned")` policy for the
   font registry; errors that are not "absent" stop being swallowed by
   `.ok()` and `let Ok(..) else { continue }`.
+- **Done (2026-11-12):**
+  - Every I/O error names its file. The file layer the build uses
+    (`outfs`, the disk `Vfs`) puts the path in, keeping the error's kind;
+    the tools that call `std::fs` directly add it with `.at(path)`.
+  - A config or a translation that is there but cannot be read or parsed
+    is an error, never the defaults or a locale with no messages
+    (`ProjectConfig::load_if_present_via`), held by `tests/io_errors.rs`.
+    A file that is not there is still "absent".
+  - The build cache recovers a poisoned lock, as the font registry
+    already did.
+  - Left for the lint-debt work: the 151 public functions with no
+    `# Errors` section (`missing_errors_doc`).
 - Each layer gets its own error type with `thiserror`, one variant per
   cause: `IoError { path, #[source] io::Error }`, `ConfigError`, `PdfError`,
   `RenderError`, `EditError`. The 16 `Result<_, String>` sites get them.
