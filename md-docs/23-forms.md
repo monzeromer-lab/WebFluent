@@ -382,7 +382,7 @@ can carry.
 - every state the project holds to a rule, in order, including the rules its
   type implies.
 
-The Rust library has the same data as `webfluent::validation`, which can
+The Rust library has the same data as `webfluent::validation` (with the `internals` feature, outside semver), which can
 also write a state's `validate` block back one rule at a time.
 
 ### Show what the server said

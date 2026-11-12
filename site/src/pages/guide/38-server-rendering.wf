@@ -106,7 +106,7 @@ page ServerRenderingGuide(path: "/docs/guide/server-rendering", title: "Server r
         Markdown("The template engine is the `webfluent` crate. To use it without the `wf` command's own dependencies (its argument parser and dev server), turn off the default features:")
 
         CodeBlock(#"[dependencies]
-webfluent = { version = "5", default-features = false }
+webfluent = { version = "6", default-features = false }
 serde = { version = "1", features = ["derive"] }"#, title: "toml")
 
         Markdown("Load the templates once, at start-up, and render on every request. This code loads a directory of templates and renders its `Invoice` page three ways:")

@@ -23,7 +23,7 @@ review, kept out of the repository) — is fixed with a regression test.
   `cargo xtask` runs the checks.
 
 - **6.0, prepared:** the documented surface is a facade, the internals
-  are `#[doc(hidden)]`, findings are one `Diagnostic`, errors are typed
+  are the crate's own (public with the `internals` feature), findings are one `Diagnostic`, errors are typed
   with sources, and the public enums that grow are `#[non_exhaustive]`.
   The version is bumped by `just ship 6.0.0`.
 
@@ -948,8 +948,18 @@ waits for 6.0.
   `NameKind`, `memory::Contents`, `EditOp` and `ArgRef`. The closed ones
   (`Arg`, `ComponentRef`, `Severity`, `Stream`, `Dialect`) stay
   exhaustive, so a match on them still proves it covers everything.
-- **Not done:** `pub(crate)` for the internals (it needs the `ide` module
-  for `wf-lsp`), `Type` (in `sema`, now hidden), and `cli` on `anyhow`.
+- **The internals are the crate's own.** An `internal!` macro declares
+  each hidden part `pub(crate)`, or public and hidden with the
+  `internals` feature, which wf-lsp, wf-wasm and the tests (through a
+  dev-dependency on the crate itself) turn on. One feature, rather than
+  the `ide` module first planned, since the tests and the WebAssembly
+  build need the same parts the server does. The `wf` command moved into
+  the library behind `cli` (`webfluent::cli::main`), so it reaches them
+  without the feature. Without it, dead-code warnings are allowed, since
+  most of those parts serve the server and the tests.
+- **Decided against:** `#[non_exhaustive]` on `Type`, which is internal
+  now and protects nobody; and the CLI on `anyhow`, since every message
+  already carries its cause and a printed chain would say it twice.
 
 **Lint sweep, first pass (2026-11-12).** Clippy's own machine-applicable
 fixes took eleven pedantic lints to zero, each now `"warn"` in

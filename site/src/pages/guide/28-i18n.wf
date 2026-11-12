@@ -216,7 +216,7 @@ page HomeEn(path: "/en", title: "Monzer Omer", description: "Engineer.",
             }
         }
 
-        Markdown("From Rust the table is `webfluent::i18n::table`, which can also write one message back into its file with every other byte as it was.")
+        Markdown("From Rust the table is `webfluent::i18n::table` (with the `internals` feature, outside semver), which can also write one message back into its file with every other byte as it was.")
 
         Heading("Checklist", id: "checklist").h2
 

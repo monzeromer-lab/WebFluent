@@ -654,7 +654,7 @@ what it takes (`nothing` for a flag, a `word` from the values it lists, a
 the flag that shows it first and writes nothing (`fmt --check`,
 `migrate --check`, `fix --dry-run`). Build a tool page, a command palette or
 a script from this output instead of from a copy of this chapter. The
-library has the same as `webfluent::commands`.
+library has the same as `webfluent::commands` (with the `internals` feature, outside semver).
 
 ### `wf assets`
 
@@ -759,7 +759,7 @@ It lists:
 - `data-wf-motion="reduce"`, the attribute an editor sets on the page's
   root to show the page as a reader who asked for less motion sees it.
 
-The library has it as `webfluent::motion::catalogue`.
+The library has it as `webfluent::motion::catalogue` (with the `internals` feature, outside semver).
 
 See also: [Motion](20-motion.md).
 
@@ -798,7 +798,7 @@ It includes:
   `--guide full` the chapters whole;
 - what was withheld, and why.
 
-The library has it as `webfluent::agent::context`. An agent's edits go
+The library has it as `webfluent::agent::context` (with the `internals` feature, outside semver). An agent's edits go
 through `webfluent::agent::changeset::ChangeSet`: a layer over the editor's
 buffers that the compiler builds before anyone reads it. It refuses paths
 outside the project, in `.git/`, in the build's output and `.env` files;
@@ -847,7 +847,7 @@ names the key, and the calls that name a key no locale has (`I01`).
 `--plurals` prints each locale's forms; with `--json`, also the form each of
 a run of counts takes.
 
-The library has it as `webfluent::i18n::table`, whose `set_message` writes
+The library has it as `webfluent::i18n::table` (with the `internals` feature, outside semver), whose `set_message` writes
 one message back and keeps every other byte of the file.
 
 See also: [Internationalisation](28-i18n.md).
@@ -887,7 +887,7 @@ Each row has its type as the checker infers it, its shape (`bool`,
 `number`, `text`, `moment`, `list`, `record`, `enum` …), whether it may be
 `null`, where it comes from (`for d in live`, `member of Deploys`), and a
 record's fields to go on into (`d.region.code`). The library has it as
-`webfluent::scope`.
+`webfluent::scope` (with the `internals` feature, outside semver).
 
 ### `wf rules`
 
@@ -922,7 +922,7 @@ It lists:
   its type implies first) and whether the page checks them as the reader
   types.
 
-The library has it as `webfluent::validation`.
+The library has it as `webfluent::validation` (with the `internals` feature, outside semver).
 
 See also: [Forms](23-forms.md).
 
@@ -954,7 +954,7 @@ children.
 
 This is the table the checker reads a call against. An inspector draws a
 control per prop from it, and an Insert panel knows what may go where. The
-library has it as `webfluent::registry::schema::of_project_via`.
+library has it as `webfluent::registry::schema::of_project_via` (with the `internals` feature, outside semver).
 
 ### `wf docs`
 

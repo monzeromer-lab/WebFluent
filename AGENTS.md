@@ -3409,7 +3409,7 @@ wf render template.wf --data data.json --theme Brand --token color-primary=#8B5C
 ### Rust API
 
 ```toml
-webfluent = { version = "5", default-features = false }   # the engine, without the `wf` command's deps
+webfluent = { version = "6", default-features = false }   # the engine, without the `wf` command's deps
 ```
 
 ```rust

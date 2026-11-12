@@ -350,7 +350,7 @@ validate nights { required }"#, title: "wf")
 
         Heading("Read the rules as data", id: "read-the-rules-as-data").h3
 
-        Markdown("`wf rules --json` lists, for a tool to read:\n\n- every rule, what it takes, its own message and the translation key that replaces it;\n- the patterns people write, by name: `a number`, `a letter` (in any script), `no spaces` …;\n- the `show:` choices;\n- every state the project holds to a rule, in order, including the rules its type implies.\n\nThe Rust library has the same data as `webfluent::validation`, which can also write a state's `validate` block back one rule at a time.")
+        Markdown("`wf rules --json` lists, for a tool to read:\n\n- every rule, what it takes, its own message and the translation key that replaces it;\n- the patterns people write, by name: `a number`, `a letter` (in any script), `no spaces` …;\n- the `show:` choices;\n- every state the project holds to a rule, in order, including the rules its type implies.\n\nThe Rust library has the same data as `webfluent::validation` (with the `internals` feature, outside semver), which can also write a state's `validate` block back one rule at a time.")
 
         Heading("Show what the server said", id: "show-what-the-server-said").h3
 

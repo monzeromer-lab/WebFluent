@@ -110,7 +110,7 @@ the default features:
 
 ```toml
 [dependencies]
-webfluent = { version = "5", default-features = false }
+webfluent = { version = "6", default-features = false }
 serde = { version = "1", features = ["derive"] }
 ```
 
