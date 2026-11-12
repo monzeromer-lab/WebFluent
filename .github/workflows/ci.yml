@@ -77,6 +77,48 @@ jobs:
       - name: Findings per held lint
         run: scripts/lint-debt.sh | tee -a "$GITHUB_STEP_SUMMARY"
 
+  # Every item of the published crate's public API, held to
+  # tests/public-api.txt, so a change to it is seen in review. Written with
+  # this nightly and this cargo-public-api; rustdoc's output can differ
+  # between nightlies, so CI uses the same ones.
+  public-api:
+    name: Public API
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
+        with:
+          toolchain: nightly-2026-09-29
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+      - name: Install cargo-public-api
+        run: cargo install --locked cargo-public-api@0.52.0
+      - name: The public API is as tests/public-api.txt lists it
+        env:
+          WF_API_TOOLCHAIN: nightly-2026-09-29
+        run: scripts/public-api.sh
+
+  # What a release would have to be called, against the last one on
+  # crates.io. It reports and never fails: the public API is wide, and the
+  # release that narrows it is a major one.
+  semver:
+    name: Semver against the last release (report only)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
+        with:
+          toolchain: stable
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+      - name: Install cargo-semver-checks
+        run: cargo install --locked cargo-semver-checks@0.51.0
+      - name: Changes since the last release
+        run: cargo semver-checks -p webfluent 2>&1 | tee -a "$GITHUB_STEP_SUMMARY"
+
   # What only a real browser has — a service worker, WebRTC — is driven in a
   # real Chrome: `offline` (the site stored, served with the server gone, a
   # write kept and sent once, an update taken with one reload, pre-rendered

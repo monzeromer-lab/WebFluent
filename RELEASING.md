@@ -1,5 +1,11 @@
 # Releasing
 
+First pick the version from what changed. CI's **Semver against the last
+release** job (or `cargo semver-checks -p webfluent` locally) says whether
+the public API changed in a way that needs a minor or a major version, and
+`tests/public-api.txt` lists that API item by item; a change to it is in the
+release's diff.
+
 Write the version's section at the top of `RELEASE_NOTES.md`, then:
 
 ```bash
