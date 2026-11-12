@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Write src/i18n/plurals_data.rs from CLDR's cardinal plural rules.
+"""Write src/project/i18n/plurals_data.rs from CLDR's cardinal plural rules.
 
     curl -sSfLO https://raw.githubusercontent.com/unicode-org/cldr-json/main/cldr-json/cldr-core/supplemental/plurals.json
     python3 scripts/cldr-plurals.py plurals.json
@@ -47,7 +47,7 @@ def main(path):
                 pairs.append("(" + rust_str(cat) + ", " + rust_str(rule.strip()) + ")")
         out.append("    (" + rust_str(locale) + ", &[" + ", ".join(pairs) + "]),")
     out.append("];")
-    open("src/i18n/plurals_data.rs", "w", encoding="utf-8").write("\n".join(out) + "\n")
+    open("src/project/i18n/plurals_data.rs", "w", encoding="utf-8").write("\n".join(out) + "\n")
 
 
 if __name__ == "__main__":

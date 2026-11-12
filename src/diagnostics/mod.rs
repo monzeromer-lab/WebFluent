@@ -10,7 +10,7 @@
 //! same list, so the editor shows exactly what the build refuses.
 
 pub use crate::check::allow;
-pub mod check;
+pub use crate::web::check;
 pub mod codes;
 /// Error types and diagnostics.
 ///

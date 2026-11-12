@@ -4,7 +4,7 @@
 use std::collections::HashMap;
 use std::sync::OnceLock;
 
-const SOURCE: &str = include_str!("../runtime/modules/icons.js");
+const SOURCE: &str = include_str!("../web/runtime/modules/icons.js");
 
 /// Icon name → the SVG elements inside its 24×24 view box.
 fn table() -> &'static HashMap<String, String> {

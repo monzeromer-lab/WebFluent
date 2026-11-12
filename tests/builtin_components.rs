@@ -30,8 +30,8 @@ struct Spec {
 const S: &[Backend] = &[];
 
 /// Every built-in component the lexer knows, with the tag and class it is
-/// documented to produce. Sources: `src/lexer/token.rs` (the keyword table) and
-/// `src/themes/components.rs` (the stylesheet each class must match).
+/// documented to produce. Sources: `src/syntax/lexer/token.rs` (the keyword table) and
+/// `src/project/themes/components.rs` (the stylesheet each class must match).
 const SPECS: &[Spec] = &[
     // ─── Layout ──────────────────────────────────────────
     Spec {

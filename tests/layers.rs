@@ -550,7 +550,7 @@ fn an_html_argument_is_an_attribute_and_never_markup() {
 /// spells `attr:…` for an author, so no attribute can become markup.
 #[test]
 fn every_runtime_hook_is_a_key_an_author_cannot_reach() {
-    let dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("src/runtime/modules");
+    let dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("src/web/runtime/modules");
     let mut hooks = Vec::new();
     for entry in std::fs::read_dir(&dir).unwrap() {
         let path = entry.unwrap().path();

@@ -174,25 +174,14 @@ pub use syntax::layout;
 /// the project names it, and what the media pipeline will make of an image.
 pub mod assets;
 pub mod browser;
-/// Code generation — compiles the AST to various output formats.
-///
-/// Supports HTML ([`codegen::generate_html`]), CSS ([`codegen::generate_css`]),
-/// JavaScript ([`codegen::JsCodegen`]), static site generation ([`codegen::render_page_html`]),
-/// and PDF (the [`paged`] engine lays the HTML out on paper).
-pub mod codegen;
+pub use web::codegen;
 pub mod commands;
 pub use project::media;
 pub use project::openapi;
 
 pub use project::project_js;
 
-/// JavaScript runtime — embedded runtime for reactivity, routing, and DOM helpers.
-///
-/// The runtime provides signal-based reactivity, conditional/list rendering,
-/// client-side routing, store management, i18n, animations, and toast notifications.
-/// It is a set of feature modules, and a build ships only the ones its program
-/// reaches ([`runtime::assemble`]); [`runtime::full`] is every module at once.
-pub mod runtime;
+pub use web::runtime;
 
 pub use project::themes;
 
@@ -220,9 +209,7 @@ pub use syntax::reprint;
 /// into its parts, and the narrowest declaration written back.
 pub mod style_value;
 
-/// Motion as data: the animations, eases and speeds an element can take,
-/// the route transition, the project's default, and how each is written.
-pub mod motion;
+pub use web::motion;
 
 pub use check::validation;
 
@@ -260,6 +247,7 @@ pub(crate) mod check;
 /// what the browser's playground runs.
 pub mod memory;
 pub(crate) mod project;
+pub(crate) mod web;
 
 pub use codegen::node_id::{NodeInfo, NodeMap};
 pub use config::project::{PdfConfig, PdfMargins, SlidesConfig};

@@ -1520,7 +1520,7 @@ test("a router with a transition plays the old page out and the new one in, then
 
 test("the language's own types do the same arithmetic in the browser as at build time", () => {
   const { WF } = loadRuntime();
-  // The answers are `src/codegen/static_eval.rs`'s, which paints them into
+  // The answers are `src/project/static_eval.rs`'s, which paints them into
   // the static HTML: a page must not change when it hydrates.
   assert.equal(WF.plus("2026-03-14", { days: 5 }), "2026-03-19");
   assert.equal(WF.plus("2026-01-31", { months: 1 }), "2026-02-28", "a month lands on a real day");

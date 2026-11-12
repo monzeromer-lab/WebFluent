@@ -7,8 +7,8 @@
 //! one before it found — a type error does not hide an accessibility
 //! warning — and the findings come back coded, de-duplicated and in order.
 
-use super::{Diagnostic, dedupe};
 use crate::base::vfs::{FsVfs, Vfs};
+use crate::diagnostics::{Diagnostic, dedupe};
 use crate::project::config::ProjectConfig;
 use crate::project::config::project::OutputType;
 use crate::project::project_js::Script;
@@ -176,9 +176,9 @@ pub fn check_project_via(vfs: &dyn Vfs, p: &Project) -> Checked {
             .and_then(|(_, s)| s.clone())
     };
     let files: Vec<String> = sources.iter().map(|(f, _)| f.clone()).collect();
-    super::allow::apply(&mut out, &files, &text_of);
+    crate::check::allow::apply(&mut out, &files, &text_of);
     for d in out.iter_mut().filter(|d| !d.plans.is_empty()) {
-        super::fixes::realise_with(d, &text_of);
+        crate::diagnostics::fixes::realise_with(d, &text_of);
         d.plans.clear();
     }
 
@@ -300,7 +300,7 @@ fn lowered_checks(
             let output = p.config.map(|config| {
                 let mut out = output_checks(lowered, config, file_of);
                 if config.build.csp {
-                    out.extend(crate::codegen::csp::head_violations(
+                    out.extend(crate::web::codegen::csp::head_violations(
                         p.program,
                         &crate::project::config::project::csp_meta_policy(config),
                         file_of,
@@ -470,8 +470,8 @@ pub fn script_checks_via(vfs: &dyn Vfs, dir: &Path, scripts: &[Script]) -> Vec<D
 fn config_finding(code: &'static str, message: String, text: &str, needle: &str) -> Diagnostic {
     let place = text.find(needle).and_then(|at| {
         Some((
-            super::line_col(text, at)?,
-            super::line_col(text, at + needle.len())?,
+            crate::diagnostics::line_col(text, at)?,
+            crate::diagnostics::line_col(text, at + needle.len())?,
         ))
     });
     match place {
@@ -496,8 +496,8 @@ fn config_finding_after(
         return config_finding(code, message, text, anchor);
     };
     match (
-        super::line_col(text, at),
-        super::line_col(text, at + needle.len()),
+        crate::diagnostics::line_col(text, at),
+        crate::diagnostics::line_col(text, at + needle.len()),
     ) {
         (Some((line, col)), Some((end_line, end_col))) => {
             Diagnostic::coded(code, message, CONFIG, line, col).with_end(end_line, end_col)
@@ -663,7 +663,7 @@ pub fn config_checks_via(
                 format!("`meta.preload` names `{path}`, on another origin"),
                 "Serve the file from this site (`public/`), or declare a font stylesheet in `meta.fonts` and a script in `meta.scripts`",
             ))
-        } else if crate::codegen::html::preload_kind(path).is_none() {
+        } else if crate::web::codegen::html::preload_kind(path).is_none() {
             Some((
                 format!(
                     "`meta.preload` names `{path}`, which is no kind of file a preload can name"
@@ -755,7 +755,7 @@ pub fn config_checks_via(
     }
 
     if config.build.output_type == OutputType::Elements {
-        for problem in crate::codegen::elements::check(program, config) {
+        for problem in crate::web::codegen::elements::check(program, config) {
             out.push(config_finding("E111", problem, &text, "\"elements\""));
         }
     }
@@ -929,9 +929,9 @@ pub fn apply_lints(
     }
     let mut problems = Vec::new();
     for (key, value) in lints {
-        let known = super::codes::info(key).is_some()
+        let known = crate::diagnostics::codes::info(key).is_some()
             || (key.len() == 1
-                && super::codes::CODES
+                && crate::diagnostics::codes::CODES
                     .iter()
                     .any(|c| c.code.starts_with(key.as_str())));
         if !known {
@@ -951,8 +951,8 @@ pub fn apply_lints(
             ));
         }
         if matches!(value.as_str(), "off" | "warn")
-            && let Some(info) = super::codes::info(key)
-            && !super::codes::lowerable(key)
+            && let Some(info) = crate::diagnostics::codes::info(key)
+            && !crate::diagnostics::codes::lowerable(key)
         {
             let _ = info;
             problems.push(
@@ -969,15 +969,15 @@ pub fn apply_lints(
     out.retain_mut(|d| {
         let setting = lints
             .get(d.code)
-            .or_else(|| lints.get(super::codes::family(d.code)));
+            .or_else(|| lints.get(crate::diagnostics::codes::family(d.code)));
         match setting.map(String::as_str) {
-            Some("off") if super::codes::lowerable(d.code) => false,
-            Some("warn") if super::codes::lowerable(d.code) => {
-                d.severity = super::Severity::Warning;
+            Some("off") if crate::diagnostics::codes::lowerable(d.code) => false,
+            Some("warn") if crate::diagnostics::codes::lowerable(d.code) => {
+                d.severity = crate::diagnostics::Severity::Warning;
                 true
             }
             Some("error") => {
-                d.severity = super::Severity::Error;
+                d.severity = crate::diagnostics::Severity::Error;
                 true
             }
             _ => true,

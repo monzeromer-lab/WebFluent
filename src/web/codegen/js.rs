@@ -6,9 +6,9 @@ pub(crate) use crate::registry::browser::is_root_attribute;
 pub use crate::registry::browser::{
     BROWSER_GLOBALS, BROWSER_VALUES, DRAG_PROPS, GESTURE_EVENTS, SCALAR_METHODS,
 };
-use crate::runtime;
 use crate::syntax::node_id::NodeMap;
 use crate::syntax::parser::ast::*;
+use crate::web::runtime;
 use std::collections::HashMap;
 
 /// A component's JavaScript name: a part's `Owner.Part` is `Owner_Part`.
@@ -836,7 +836,7 @@ impl JsCodegen {
     fn map_end(&mut self) {
         if self.map_files.is_some() {
             self.map_file = None;
-            self.pending_mark = Some(crate::codegen::sourcemap::end_marker());
+            self.pending_mark = Some(crate::web::codegen::sourcemap::end_marker());
         }
     }
 
@@ -845,7 +845,9 @@ impl JsCodegen {
         if let Some(file) = self.map_file
             && span.line > 0
         {
-            self.pending_mark = Some(crate::codegen::sourcemap::marker(file, span.line, span.col));
+            self.pending_mark = Some(crate::web::codegen::sourcemap::marker(
+                file, span.line, span.col,
+            ));
         }
     }
 
@@ -1002,7 +1004,7 @@ impl JsCodegen {
                 }
             }
         }
-        crate::codegen::charts::graphic(name, positional.as_ref(), &named, &ui.modifiers)
+        crate::web::codegen::charts::graphic(name, positional.as_ref(), &named, &ui.modifiers)
     }
 
     pub fn generate(&mut self, program: &Program) -> String {
@@ -8320,7 +8322,7 @@ impl JsCodegen {
         if !self.ssg_mode {
             return;
         }
-        let held = crate::codegen::capture::captured_elements(&self.output[start..]);
+        let held = crate::web::codegen::capture::captured_elements(&self.output[start..]);
         if !held.is_empty() {
             self.emit_line(&format!("WF.live({});", held.join(", ")));
         }

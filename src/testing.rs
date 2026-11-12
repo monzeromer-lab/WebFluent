@@ -250,7 +250,7 @@ pub fn collect(path: &Path) -> Result<Tests> {
     let public = project_dir.join("public");
     let public = public.canonicalize().unwrap_or(public);
     let styles = Styles {
-        css: crate::codegen::project_css::bundle(&project_dir, &project_dir.join("src"))?,
+        css: crate::web::codegen::project_css::bundle(&project_dir, &project_dir.join("src"))?,
         linked: config
             .as_ref()
             .map(|c| c.meta.stylesheets.clone())
@@ -982,7 +982,7 @@ pub fn write_site(program: &Program, dir: &Path, site: &Site) -> Result<()> {
     // One page, one file: a split build links a chunk that this does not
     // write, and the shell would be served in its place.
     config.build.split = false;
-    let mut js = crate::codegen::JsCodegen::new();
+    let mut js = crate::web::codegen::JsCodegen::new();
     js.set_split_pages(false);
     if let Some((c, tables)) = site.i18n {
         js.set_i18n(c.default_locale.clone(), tables.clone());
@@ -993,9 +993,9 @@ pub fn write_site(program: &Program, dir: &Path, site: &Site) -> Result<()> {
     // tokens, the dark theme's, the project's own stylesheets, then what
     // its `style { }` blocks compile to.
     let tokens = crate::project::themes::resolve_tokens(program, &config.theme)?;
-    let mut css = crate::codegen::generate_css_for(&tokens, config.theme.builtin, program);
+    let mut css = crate::web::codegen::generate_css_for(&tokens, config.theme.builtin, program);
     if let Some(dark) = crate::project::themes::resolve_dark_tokens(program, &config.theme)? {
-        css.push_str(&crate::codegen::dark_css(&dark));
+        css.push_str(&crate::web::codegen::dark_css(&dark));
     }
     css.push_str(&site.styles.css);
     css.push_str(&crate::project::scoped_css::scoped_rules(program));
@@ -1007,7 +1007,7 @@ pub fn write_site(program: &Program, dir: &Path, site: &Site) -> Result<()> {
 
     std::fs::write(
         dir.join("index.html"),
-        crate::codegen::generate_html(&config, program),
+        crate::web::codegen::generate_html(&config, program),
     )?;
     // `public/` beside the page, as the build copies it: a site-relative
     // sheet, or a font a sheet names, is found where it is on the site.

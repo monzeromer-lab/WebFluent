@@ -1,7 +1,7 @@
 //! Abstract Syntax Tree (AST) node types for the WebFluent language.
 //!
 //! The AST is produced by the [`crate::syntax::parser::Parser`] and consumed by the
-//! code generators in [`crate::codegen`].
+//! code generators in [`crate::web::codegen`].
 
 pub use crate::base::span::Span;
 

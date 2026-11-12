@@ -29,10 +29,10 @@ pub fn generate_html(config: &ProjectConfig, program: &Program) -> String {
     // it shows.
     let lang = entry_page.map_or_else(
         || config.page_lang(),
-        |page| crate::codegen::seo::page_lang(page, config),
+        |page| crate::web::codegen::seo::page_lang(page, config),
     );
     let description_meta = entry_page
-        .map(|page| crate::codegen::seo::head_tags(page, config, program))
+        .map(|page| crate::web::codegen::seo::head_tags(page, config, program))
         .unwrap_or_default();
 
     // The shell is served for every route, at any depth, so its assets are
@@ -92,11 +92,11 @@ pub fn generate_html(config: &ProjectConfig, program: &Program) -> String {
 </body>
 </html>"#,
         lang,
-        crate::codegen::seo::dir_attr(&lang),
+        crate::web::codegen::seo::dir_attr(&lang),
         // The policy first: a meta policy governs only what is parsed
         // after it.
         csp_meta(config),
-        crate::codegen::markdown::escape(title),
+        crate::web::codegen::markdown::escape(title),
         description_meta,
         head_links,
         entry_sheet,
@@ -136,7 +136,7 @@ pub fn script_tags(config: &ProjectConfig, root: &str) -> String {
             integrity_attrs(config, entry.src())
         ));
     }
-    let modules = crate::codegen::js::external_modules(config);
+    let modules = crate::web::codegen::js::external_modules(config);
     for (url, integrity) in &modules {
         if !url.contains("://") {
             continue;
@@ -151,7 +151,7 @@ pub fn script_tags(config: &ProjectConfig, root: &str) -> String {
             "    <link rel=\"modulepreload\" href=\"{url}\"{hash}>\n"
         ));
     }
-    if crate::codegen::js::externals_module(config).is_some() {
+    if crate::web::codegen::js::externals_module(config).is_some() {
         out.push_str(&format!(
             "    <script type=\"module\" src=\"{root}/externals.js\"></script>\n"
         ));

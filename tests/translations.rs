@@ -653,7 +653,7 @@ fn the_build_paints_the_locale_s_form() {
 
 #[test]
 fn the_runtime_writes_right_to_left_for_the_same_languages() {
-    let js = include_str!("../src/runtime/modules/i18n.js");
+    let js = include_str!("../src/web/runtime/modules/i18n.js");
     let line = js
         .lines()
         .find(|l| l.contains("const RTL_LOCALES"))

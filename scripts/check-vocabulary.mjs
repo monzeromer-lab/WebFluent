@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // The built-in component names the grammar knows (`BUILTIN_COMPONENTS` in
 // `grammar.js`) must be exactly the names the compiler knows
-// (`ALL_COMPONENT_NAMES` in `src/lexer/token.rs`, which the registry is
+// (`ALL_COMPONENT_NAMES` in `src/syntax/lexer/token.rs`, which the registry is
 // pinned to): a name missing here is drawn as a user component, one the
 // compiler dropped is drawn as built in. The keywords the highlight query
 // colours must all be words the grammar has, or the query fails to compile
@@ -54,13 +54,13 @@ const checks = [
   {
     what: "built-in component names",
     file: "grammar.js",
-    expected: rustList(read("src/lexer/token.rs"), "ALL_COMPONENT_NAMES"),
+    expected: rustList(read("src/syntax/lexer/token.rs"), "ALL_COMPONENT_NAMES"),
     actual: jsList(read("editors/tree-sitter-webfluent/webfluent/grammar.js"), "BUILTIN_COMPONENTS"),
   },
   {
     what: "built-in component names",
     file: "the VS Code grammar",
-    expected: rustList(read("src/lexer/token.rs"), "ALL_COMPONENT_NAMES"),
+    expected: rustList(read("src/syntax/lexer/token.rs"), "ALL_COMPONENT_NAMES"),
     actual: vscodeComponents,
   },
   {

@@ -342,7 +342,7 @@ fn each_message_is_said_as_the_page_will_say_it() {
 
 #[test]
 fn the_messages_are_the_runtime_s() {
-    let js = include_str!("../src/runtime/modules/form.js");
+    let js = include_str!("../src/web/runtime/modules/form.js");
     let table = &js[js.find("const RULE_MESSAGES = {").unwrap()..];
     let table = &table[..table.find("};").unwrap()];
     let re = regex::Regex::new(r#"(?m)^\s*(\w+): "([^"]*)","#).unwrap();

@@ -1,14 +1,14 @@
 //! Assemble the runtime the way the compiler does.
 //!
-//! The runtime is a set of feature modules under `src/runtime/modules/`, and a
+//! The runtime is a set of feature modules under `src/web/runtime/modules/`, and a
 //! build carries only the ones its program reaches. `modules/manifest.json` is
-//! written by `src/runtime/mod.rs` — a Rust test fails when it goes stale — so
+//! written by `src/web/runtime/mod.rs` — a Rust test fails when it goes stale — so
 //! the whole runtime a test loads here is assembled by the same rules.
 
 import { readFileSync } from "node:fs";
 
 const MANIFEST = JSON.parse(
-  readFileSync(new URL("../../src/runtime/modules/manifest.json", import.meta.url), "utf8"),
+  readFileSync(new URL("../../src/web/runtime/modules/manifest.json", import.meta.url), "utf8"),
 );
 
 /// Every module, in one closure, exporting everything it holds.
@@ -16,7 +16,7 @@ export function fullRuntime() {
   let out = MANIFEST.header;
   for (const m of MANIFEST.modules) {
     let src = readFileSync(
-      new URL(`../../src/runtime/modules/${m.name}.js`, import.meta.url),
+      new URL(`../../src/web/runtime/modules/${m.name}.js`, import.meta.url),
       "utf8",
     );
     if (!src.endsWith("\n")) src += "\n";
@@ -49,7 +49,7 @@ export function runtimeFor(name) {
   let out = MANIFEST.header;
   const kept = MANIFEST.modules.filter((m) => want.has(m.name));
   for (const m of kept) {
-    let src = readFileSync(new URL(`../../src/runtime/modules/${m.name}.js`, import.meta.url), "utf8");
+    let src = readFileSync(new URL(`../../src/web/runtime/modules/${m.name}.js`, import.meta.url), "utf8");
     if (!src.endsWith("\n")) src += "\n";
     out += src;
   }

@@ -29,7 +29,7 @@ fn root() -> &'static Path {
 /// The names the runtime exports, as `WF.<name>`.
 fn runtime_exports() -> BTreeSet<String> {
     let manifest: serde_json::Value = serde_json::from_str(
-        &std::fs::read_to_string(root().join("src/runtime/modules/manifest.json")).unwrap(),
+        &std::fs::read_to_string(root().join("src/web/runtime/modules/manifest.json")).unwrap(),
     )
     .unwrap();
     manifest["modules"]
@@ -44,11 +44,27 @@ fn runtime_exports() -> BTreeSet<String> {
 /// `WF.<name>` in the code generator's source, outside its tests.
 fn emitted_runtime_calls() -> BTreeSet<String> {
     let mut names = BTreeSet::new();
-    for entry in std::fs::read_dir(root().join("src/codegen"))
+    // The code generator, and the files of it that sit in lower layers.
+    let mut paths: Vec<std::path::PathBuf> = std::fs::read_dir(root().join("src/web/codegen"))
         .unwrap()
         .flatten()
-    {
-        let path = entry.path();
+        .map(|entry| entry.path())
+        .collect();
+    paths.extend(
+        [
+            "src/syntax/node_id.rs",
+            "src/registry/style_tokens.rs",
+            "src/project/builtin.rs",
+            "src/project/format.rs",
+            "src/project/sanitize.rs",
+            "src/project/scoped_css.rs",
+            "src/project/static_eval.rs",
+            "src/project/url.rs",
+            "src/build/offline.rs",
+        ]
+        .map(|p| root().join(p)),
+    );
+    for path in paths {
         if path.extension().is_none_or(|e| e != "rs") {
             continue;
         }
@@ -94,7 +110,7 @@ fn every_runtime_function_the_compiler_can_call_exists() {
 /// The methods `method_to_js` maps by name, read from its source: `push`,
 /// `remove`, `filter`, `toUpper`, `contains`, …
 fn mapped_methods() -> Vec<String> {
-    let source = std::fs::read_to_string(root().join("src/codegen/js.rs")).unwrap();
+    let source = std::fs::read_to_string(root().join("src/web/codegen/js.rs")).unwrap();
     let start = source.find("pub fn method_to_js").expect("method_to_js");
     let body = &source[start..start + source[start..].find("\n}\n").unwrap()];
     let mut names = Vec::new();
@@ -566,7 +582,7 @@ console.log(JSON.stringify(inputs.map(([text, inert, base]) => {{
 /// its script runs.
 #[test]
 fn the_runtime_names_the_entities_the_compiler_does() {
-    let source = std::fs::read_to_string(root().join("src/runtime/modules/text.js")).unwrap();
+    let source = std::fs::read_to_string(root().join("src/web/runtime/modules/text.js")).unwrap();
     let table = source
         .split("const MD_NAMED = {")
         .nth(1)
@@ -593,7 +609,7 @@ fn the_runtime_names_the_entities_the_compiler_does() {
 #[test]
 fn no_two_runtime_modules_declare_the_same_name() {
     let manifest: serde_json::Value = serde_json::from_str(
-        &std::fs::read_to_string(root().join("src/runtime/modules/manifest.json")).unwrap(),
+        &std::fs::read_to_string(root().join("src/web/runtime/modules/manifest.json")).unwrap(),
     )
     .unwrap();
     let mut seen: std::collections::BTreeMap<String, String> = Default::default();
@@ -601,7 +617,8 @@ fn no_two_runtime_modules_declare_the_same_name() {
     for module in manifest["modules"].as_array().unwrap() {
         let name = module["name"].as_str().unwrap();
         let source =
-            std::fs::read_to_string(root().join(format!("src/runtime/modules/{name}.js"))).unwrap();
+            std::fs::read_to_string(root().join(format!("src/web/runtime/modules/{name}.js")))
+                .unwrap();
         for line in source.lines() {
             // A module's top level sits two spaces into the shared closure.
             let Some(rest) = line.strip_prefix("  ") else {

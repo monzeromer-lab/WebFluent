@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Write src/codegen/browser_globals.txt: every name a browser's global
+# Write src/web/codegen/browser_globals.txt: every name a browser's global
 # object has — its own properties and those of each prototype above it —
 # read from a headless Chrome. A program's top-level name (a `const`, a
 # `data` or `image` constant, a store, a service) that is one of these is
@@ -23,5 +23,5 @@ HTML
   echo "# Every name a browser's global object has. Written by scripts/browser-globals.sh."
   "$chrome" --headless=new --disable-gpu --no-sandbox --dump-dom "file://$page" 2>/dev/null \
     | sed -n '/<pre id="o">/,/<\/pre>/p' | sed 's/<[^>]*>//g' | grep -v '^$' | LC_ALL=C sort -u
-} > src/codegen/browser_globals.txt
-echo "$(($(wc -l < src/codegen/browser_globals.txt) - 1)) names"
+} > src/web/codegen/browser_globals.txt
+echo "$(($(wc -l < src/web/codegen/browser_globals.txt) - 1)) names"

@@ -1,4 +1,3 @@
-use crate::codegen::css::generate_css;
 use crate::diagnostics::error::{Result, WebFluentError};
 use crate::project::builtin::{
     builtin_to_html, class_list, element_tag, implicit_role, input_type, landmark_label,
@@ -9,6 +8,7 @@ use crate::syntax::parser::ast::{ArmPattern, DerivedDecl, ForStmt, IfStmt, PropD
 use crate::syntax::parser::{
     Arg, ComponentRef, Declaration, Expr, Program, Statement, StatementKind, StringPart, UIElement,
 };
+use crate::web::codegen::css::generate_css;
 use serde::Serialize;
 use serde_json::Value;
 use std::collections::HashMap;
@@ -284,11 +284,10 @@ impl Template {
                 .cloned()
                 .unwrap_or_else(|| "<template>".to_string())
         };
-        let errors: Vec<_> =
-            crate::diagnostics::check::program_checks(&program, &file_of, &|_| None)
-                .into_iter()
-                .filter(|d| d.is_error() && d.code != "T13")
-                .collect();
+        let errors: Vec<_> = crate::web::check::program_checks(&program, &file_of, &|_| None)
+            .into_iter()
+            .filter(|d| d.is_error() && d.code != "T13")
+            .collect();
         if !errors.is_empty() {
             return Err(WebFluentError::Diagnostics(errors));
         }
@@ -1915,9 +1914,9 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
             }
             let body = render_statements(&body, ctx);
             ctx.indent -= 3;
-            return crate::codegen::ssg::static_dialog(
+            return crate::web::codegen::ssg::static_dialog(
                 &indent,
-                &crate::codegen::ssg::DialogPaint {
+                &crate::web::codegen::ssg::DialogPaint {
                     root_class: &class_str,
                     class: base_class,
                     attrs: &format!("{own}{style_attr}"),
@@ -1957,7 +1956,7 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
                 .unwrap_or_default();
             // What any element takes is the menu's root's, as on the live
             // page.
-            let own = own_attrs(name, ui, ctx, crate::codegen::js::MENU_READS);
+            let own = own_attrs(name, ui, ctx, crate::web::codegen::js::MENU_READS);
             let gives = |key: &str| {
                 ui.args
                     .iter()
@@ -2016,7 +2015,7 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
             let inert = ui.args.iter().any(
                 |a| matches!(a, Arg::Named(k, v) if k == "inert" && is_truthy(&ctx.eval_expr(v))),
             );
-            let options = crate::codegen::markdown::Options {
+            let options = crate::web::codegen::markdown::Options {
                 inert,
                 ..Default::default()
             };
@@ -2025,7 +2024,7 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
                 ctx.indent_str(),
                 class_str,
                 style_attr,
-                crate::codegen::markdown::render_with(&text, options),
+                crate::web::codegen::markdown::render_with(&text, options),
                 ctx.indent_str()
             );
         }
@@ -2167,7 +2166,7 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
                 // writes it: `true` is `"true"`, `false` none but an ARIA
                 // state's, `null` none.
                 k if k.contains('-') => {
-                    if let Some(one) = crate::codegen::ssg::paint_attr(
+                    if let Some(one) = crate::web::codegen::ssg::paint_attr(
                         k,
                         val,
                         &|e| painted_value(ctx.eval_expr(e)),
@@ -2181,7 +2180,7 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
                 // global attributes (`id`, `tabindex`, `lang`, `dir`,
                 // `hidden`), `target:`, `colspan:`, an author's own.
                 k if crate::registry::component(name).is_none_or(|s| s.prop(k).is_none()) => {
-                    if let Some(one) = crate::codegen::ssg::paint_attr(
+                    if let Some(one) = crate::web::codegen::ssg::paint_attr(
                         k,
                         val,
                         &|e| painted_value(ctx.eval_expr(e)),
@@ -2287,8 +2286,8 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
     // A field: label, control, hint, error — the shape the bundle builds.
     if matches!(name, "Input" | "Select") {
         let resolve = |e: &Expr| Some(value_to_string(&ctx.eval_expr(e)));
-        if let Some(mut parts) = crate::codegen::ssg::field_parts(ui, resolve) {
-            let (id, own_attr) = match crate::codegen::ssg::own_id(&attrs) {
+        if let Some(mut parts) = crate::web::codegen::ssg::field_parts(ui, resolve) {
+            let (id, own_attr) = match crate::web::codegen::ssg::own_id(&attrs) {
                 Some(own) => (own, String::new()),
                 None => {
                     ctx.fields += 1;
@@ -2321,7 +2320,7 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
                     actual_tag
                 )
             };
-            return crate::codegen::ssg::static_field(&indent, &id, &control, &parts);
+            return crate::web::codegen::ssg::static_field(&indent, &id, &control, &parts);
         }
     }
 
@@ -2358,7 +2357,7 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
             None
         };
         let inner = match language {
-            Some(lang) => crate::codegen::highlight::highlight(text, &lang),
+            Some(lang) => crate::web::codegen::highlight::highlight(text, &lang),
             None => html_escape(text),
         };
         return format!(
@@ -2492,7 +2491,7 @@ fn render_labelled_input(
     // What is the whole control's is its box's; every other attribute is
     // its input's, as on the live page.
     let own = |keep: &dyn Fn(&str) -> bool| {
-        crate::codegen::ssg::painted_attrs(
+        crate::web::codegen::ssg::painted_attrs(
             crate::registry::component(name),
             ui,
             keep,
@@ -2500,9 +2499,9 @@ fn render_labelled_input(
             &[],
         )
     };
-    let on_box = own(&|k| crate::codegen::js::BOX_ATTRS.contains(&k));
+    let on_box = own(&|k| crate::web::codegen::js::BOX_ATTRS.contains(&k));
     let on_input = own(&|k| {
-        !crate::codegen::js::BOX_ATTRS.contains(&k)
+        !crate::web::codegen::js::BOX_ATTRS.contains(&k)
             && !matches!(k, "min" | "max" | "accept" | "value" | "multiple")
     });
     let mut out = format!(
@@ -2594,12 +2593,15 @@ fn call_root_attrs(
             class_names(&ctx.eval_expr(value), &mut classes);
             continue;
         }
-        if !crate::codegen::js::is_root_attribute(key) {
+        if !crate::web::codegen::js::is_root_attribute(key) {
             continue;
         }
-        if let Some(one) =
-            crate::codegen::ssg::paint_attr(key, value, &|e| painted_value(ctx.eval_expr(e)), &[])
-        {
+        if let Some(one) = crate::web::codegen::ssg::paint_attr(
+            key,
+            value,
+            &|e| painted_value(ctx.eval_expr(e)),
+            &[],
+        ) {
             attrs.push(' ');
             attrs.push_str(&one);
         }
@@ -2613,7 +2615,7 @@ fn on_root(html: String, attrs: &str, classes: &[String]) -> String {
     if attrs.is_empty() && classes.is_empty() {
         return html;
     }
-    let Some(at) = crate::codegen::ssg::first_tag_end(&html) else {
+    let Some(at) = crate::web::codegen::ssg::first_tag_end(&html) else {
         return html;
     };
     let close = html[at..].find('>').map_or(html.len(), |i| at + i);
@@ -2635,8 +2637,8 @@ fn on_root(html: String, attrs: &str, classes: &[String]) -> String {
 
 /// What the data gives an attribute, for `painted_attrs`: text, a boolean,
 /// or nothing.
-fn painted_value(v: Value) -> Option<crate::codegen::ssg::Painted> {
-    use crate::codegen::ssg::Painted;
+fn painted_value(v: Value) -> Option<crate::web::codegen::ssg::Painted> {
+    use crate::web::codegen::ssg::Painted;
     match v {
         Value::Bool(on) => Some(Painted::Flag(on)),
         Value::Null | Value::Array(_) | Value::Object(_) => None,
@@ -2648,7 +2650,7 @@ fn painted_value(v: Value) -> Option<crate::codegen::ssg::Painted> {
 /// element does, as the live page writes it (`painted_attrs`): `reads`
 /// names what the branch draws itself.
 fn own_attrs(name: &str, ui: &UIElement, ctx: &RenderContext, reads: &[&str]) -> String {
-    crate::codegen::ssg::painted_attrs(
+    crate::web::codegen::ssg::painted_attrs(
         crate::registry::component(name),
         ui,
         &|k| !reads.contains(&k),
@@ -2695,7 +2697,7 @@ const PAGED: &str = "\u{0}paged";
 const RECEIVER: &str = "\u{0}receiver";
 
 /// A `Chart`'s arguments, read from the data.
-fn chart_of(ui: &UIElement, ctx: &mut RenderContext) -> crate::codegen::charts::Chart {
+fn chart_of(ui: &UIElement, ctx: &mut RenderContext) -> crate::web::codegen::charts::Chart {
     let named: Vec<(String, Value)> = ui
         .args
         .iter()
@@ -2704,7 +2706,7 @@ fn chart_of(ui: &UIElement, ctx: &mut RenderContext) -> crate::codegen::charts::
             _ => None,
         })
         .collect();
-    crate::codegen::charts::chart_from(&named, &ui.modifiers)
+    crate::web::codegen::charts::chart_from(&named, &ui.modifiers)
 }
 
 /// The paged and slide elements: their markup, with what the engine reads
@@ -2849,7 +2851,8 @@ fn render_paged(
                 .unwrap_or_default();
             let dark = named(ctx, "color").unwrap_or_else(|| "#000000".to_string());
             let light = named(ctx, "background").unwrap_or_else(|| "#ffffff".to_string());
-            let svg = crate::codegen::charts::qr_svg(&value, &dark, &light).unwrap_or_default();
+            let svg =
+                crate::web::codegen::charts::qr_svg(&value, &dark, &light).unwrap_or_default();
             let mut out = with_own(open(ctx, "figure", Vec::new()), "figure", name, ui, ctx);
             out.push_str(&svg);
             out.push_str(&format!("\n{indent}</figure>\n"));

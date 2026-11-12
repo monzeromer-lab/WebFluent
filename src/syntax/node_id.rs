@@ -942,11 +942,11 @@ mod tests {
     //! studio compiles stamp `data-wf-node`; export compiles do not; and the JS
     //! and SSG generators agree on the id for any node they both stamp.
     use super::*;
-    use crate::codegen::JsCodegen;
-    use crate::codegen::ssg::SiteContext;
-    use crate::codegen::ssg::{render_page_html, render_page_html_studio};
     use crate::project::config::ProjectConfig;
     use crate::syntax::parser::ast::PageDecl;
+    use crate::web::codegen::JsCodegen;
+    use crate::web::codegen::ssg::SiteContext;
+    use crate::web::codegen::ssg::{render_page_html, render_page_html_studio};
 
     fn program(src: &str) -> Program {
         crate::syntax::parse_source(src, "<test>")

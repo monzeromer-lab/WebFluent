@@ -21,13 +21,13 @@ pub use cache::BuildCache;
 
 use crate::base::outfs as fs;
 use crate::base::vfs::{Confined, FsVfs, Vfs};
-use crate::codegen::{JsCodegen, dark_css, generate_css_for, generate_html};
 use crate::diagnostics::Severity;
 use crate::diagnostics::error::{Diagnostic, Result, WebFluentError};
 use crate::diagnostics::format::Format;
 use crate::project::config::ProjectConfig;
 use crate::project::config::project::OutputType;
 use crate::syntax::parser::{Declaration, Program, Statement};
+use crate::web::codegen::{JsCodegen, dark_css, generate_css_for, generate_html};
 use std::cell::RefCell;
 use std::collections::{BTreeMap, HashMap};
 use std::path::{Path, PathBuf};
@@ -474,14 +474,14 @@ pub fn analyse_via(
         read_project_collecting_via(vfs, project_dir, media)?;
     // What the pages will contain, decided before any of them is written:
     // the policy each one ships has to describe that page.
-    config.build.inline_styles = crate::codegen::csp::writes_inline_styles(&program);
-    config.build.frames_itself = crate::codegen::csp::frames_itself(&program);
+    config.build.inline_styles = crate::web::codegen::csp::writes_inline_styles(&program);
+    config.build.frames_itself = crate::web::codegen::csp::frames_itself(&program);
     // The project's own scripts: every `.js` under `src/`, a plain browser
     // script each, copied as written and linked before the compiled code.
     let scripts = crate::project::project_js::load_via(vfs, project_dir, &project_dir.join("src"))?;
     config.build.scripts = scripts.iter().map(|s| s.href.clone()).collect();
     // The size of each sharing image under `public/`, for the card.
-    crate::codegen::seo::measure_images(project_dir, config, &program);
+    crate::web::codegen::seo::measure_images(project_dir, config, &program);
     let file_of = |index: usize| {
         declaration_files
             .get(index)
@@ -498,14 +498,14 @@ pub fn analyse_via(
     // The author's own stylesheets — every `.css` under `src/` — ship in
     // `styles.css`, and a modifier class one of them defines is a real one.
     let project_css =
-        crate::codegen::project_css::bundle_via(vfs, project_dir, &project_dir.join("src"))?;
+        crate::web::codegen::project_css::bundle_via(vfs, project_dir, &project_dir.join("src"))?;
 
     // Every check, over everything that parsed: the scripts and the config,
     // the structure, the registry's vocabulary, the types, the lints, and
     // what this output can draw. A stage's errors no longer stop the next.
-    let checked = crate::diagnostics::check::check_project_via(
+    let checked = crate::web::check::check_project_via(
         vfs,
-        &crate::diagnostics::check::Project {
+        &crate::web::check::Project {
             program: &program,
             file_of: &file_of,
             source_of: &source_of,
@@ -612,7 +612,7 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
     }
     // Under `clean_urls: "directory"`, every link to a page names the
     // address with the slash, as the canonical does.
-    crate::codegen::seo::directory_links(&config, &mut program);
+    crate::web::codegen::seo::directory_links(&config, &mut program);
 
     // A PDF document or a slide deck: the page's markup and the site's
     // stylesheet, laid out on paper by the paged engine — so the document
@@ -644,7 +644,7 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
                     config.meta.lang.clone()
                 }
             });
-        let title = crate::codegen::markdown::escape(&config.name);
+        let title = crate::web::codegen::markdown::escape(&config.name);
         let dir = if crate::template::is_rtl(&lang) {
             " dir=\"rtl\""
         } else {
@@ -786,7 +786,7 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
         let mut keys = HashMap::new();
         for (i, decl) in program.declarations.iter().enumerate() {
             let (Some(key), Some(file)) = (
-                crate::codegen::js::JsCodegen::map_key(decl),
+                crate::web::codegen::js::JsCodegen::map_key(decl),
                 declaration_files.get(i),
             ) else {
                 continue;
@@ -828,7 +828,7 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
     if config.build.output_type == OutputType::Elements {
         let bundle = format!(
             "{js}{}",
-            crate::codegen::elements::definitions(&program, &config)
+            crate::web::codegen::elements::definitions(&program, &config)
         );
         let base = config.build.base_path.trim_end_matches('/');
         let shrink = |text: String, js: bool| {
@@ -836,16 +836,16 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
                 return text;
             }
             if js {
-                crate::codegen::minify::minify_js(&text)
+                crate::web::codegen::minify::minify_js(&text)
             } else {
-                crate::codegen::minify::minify_css(&text)
+                crate::web::codegen::minify::minify_css(&text)
             }
         };
         read_back(out, "elements.js", &bundle, false)?;
         let small = shrink(bundle, true);
         // `build.sourcemap`: the markers out, into `elements.js.map`.
         let small = if sourcemap {
-            let (code, map) = crate::codegen::sourcemap::extract(
+            let (code, map) = crate::web::codegen::sourcemap::extract(
                 &small,
                 "elements.js",
                 &map_sources,
@@ -860,7 +860,7 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
         fs::write(output_dir.join("styles.css"), shrink(css.clone(), false))?;
         fs::write(
             output_dir.join("index.html"),
-            crate::codegen::elements::demo_page(&program, &config, base),
+            crate::web::codegen::elements::demo_page(&program, &config, base),
         )?;
         let public_dir = project_dir.join("public");
         if vfs.exists(&public_dir) {
@@ -870,7 +870,7 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
             .build
             .elements
             .iter()
-            .map(|n| format!("<{}>", crate::codegen::elements::tag_name(n)))
+            .map(|n| format!("<{}>", crate::web::codegen::elements::tag_name(n)))
             .collect();
         out.say(format!("  Elements: {}", tags.join(" ")));
         out.say(format!("  Output: {}/elements.js", config.build.output));
@@ -948,7 +948,7 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
 
         for decl in &program.declarations {
             if let Declaration::Page(page) = decl {
-                let site = crate::codegen::ssg::SiteContext {
+                let site = crate::web::codegen::ssg::SiteContext {
                     config: &config,
                     app_body: app_stmts,
                     translations: &translations,
@@ -962,11 +962,11 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
                 // names, and not at all without them.
                 if page.path.contains(':') {
                     for (route, params) in
-                        crate::codegen::ssg::static_routes(page, &program, &config.env)?
+                        crate::web::codegen::ssg::static_routes(page, &program, &config.env)?
                     {
                         let sorted: std::collections::BTreeMap<_, _> = params.iter().collect();
                         let page_html = render(page, &route, &sorted, &|| {
-                            crate::codegen::ssg::render_page_html_with_params(
+                            crate::web::codegen::ssg::render_page_html_with_params(
                                 page, &site, &route, &params,
                             )
                         });
@@ -979,7 +979,7 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
                     continue;
                 }
                 let page_html = render(page, &page.path, &(), &|| {
-                    crate::codegen::render_page_html(page, &site)
+                    crate::web::codegen::render_page_html(page, &site)
                 });
 
                 // Determine output path
@@ -1017,7 +1017,7 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
     // The modules a program's `external` declarations import, in a file of
     // their own — a module, so `import` works, and separate so the page
     // chunks keep reading the bundle's names from the global scope.
-    if let Some(module) = crate::codegen::js::externals_module(&config) {
+    if let Some(module) = crate::web::codegen::js::externals_module(&config) {
         fs::write(output_dir.join("externals.js"), module)?;
     }
 
@@ -1039,7 +1039,7 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
     let minify_js = |name: &str, src: String| -> Result<String> {
         read_back(out, name, &src, false)?;
         let done = if config.build.minify {
-            let small = crate::codegen::minify::minify_js(&src);
+            let small = crate::web::codegen::minify::minify_js(&src);
             read_back(out, name, &small, true)?;
             small
         } else {
@@ -1050,13 +1050,13 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
         }
         let base = name.rsplit('/').next().unwrap_or(name);
         let (code, map) =
-            crate::codegen::sourcemap::extract(&done, base, &map_sources, &map_contents);
+            crate::web::codegen::sourcemap::extract(&done, base, &map_sources, &map_contents);
         fs::write(output_dir.join(format!("{name}.map")), map)?;
         Ok(format!("{code}\n//# sourceMappingURL={base}.map\n"))
     };
     let minify_css = |src: String| {
         if config.build.minify {
-            crate::codegen::minify::minify_css(&src)
+            crate::web::codegen::minify::minify_css(&src)
         } else {
             src
         }
@@ -1142,13 +1142,13 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
     // knows every route, so a sitemap is something it can write rather than
     // something the author has to keep in step by hand.
     if config.meta.sitemap {
-        let map = crate::codegen::seo::sitemap(&config, &program);
+        let map = crate::web::codegen::seo::sitemap(&config, &program);
         if let Some(xml) = &map {
             fs::write(output_dir.join("sitemap.xml"), xml)?;
         }
         fs::write(
             output_dir.join("robots.txt"),
-            crate::codegen::seo::robots_txt(&config, map.is_some()),
+            crate::web::codegen::seo::robots_txt(&config, map.is_some()),
         )?;
     }
 
@@ -1522,7 +1522,7 @@ fn gzipped_sizes(
                 continue;
             }
             let bytes = fs::read(&path)?;
-            sizes.insert(name, crate::codegen::gzip::gzip(&bytes).len());
+            sizes.insert(name, crate::web::codegen::gzip::gzip(&bytes).len());
         }
     }
     Ok(sizes)
@@ -1599,7 +1599,7 @@ fn parse_size(text: &str) -> Option<usize> {
 fn print_stats(
     out: &Out,
     output_dir: &Path,
-    modules: &[crate::runtime::Kept],
+    modules: &[crate::web::runtime::Kept],
     runtime_bytes: usize,
     tokens_dropped: usize,
     sizes: &BTreeMap<String, usize>,
@@ -1668,8 +1668,8 @@ fn print_stats(
     out.say(format!("    {:<34} {:>9}", "total", kb(total)));
 
     let names: Vec<&str> = modules.iter().map(|m| m.name).collect();
-    let left_out = crate::runtime::dropped(&names);
-    let all = crate::runtime::full().len();
+    let left_out = crate::web::runtime::dropped(&names);
+    let all = crate::web::runtime::full().len();
     out.say(format!(
         "\n  Runtime: {} of {} modules, {} of {} (before minifying)",
         modules.len(),
@@ -1677,7 +1677,7 @@ fn print_stats(
         kb(runtime_bytes),
         kb(all)
     ));
-    let mut by_size: Vec<&crate::runtime::Kept> = modules.iter().collect();
+    let mut by_size: Vec<&crate::web::runtime::Kept> = modules.iter().collect();
     by_size.sort_by_key(|m| std::cmp::Reverse(m.bytes));
     for m in by_size {
         out.say(format!(
@@ -1749,13 +1749,13 @@ fn precompress(
             }
             continue;
         }
-        if !crate::codegen::gzip::is_text_extension(ext) {
+        if !crate::web::codegen::gzip::is_text_extension(ext) {
             continue;
         }
         let data = fs::read(&path)?;
         let gz_path = PathBuf::from(format!("{}.gz", path.display()));
         let gz = (data.len() >= 1024)
-            .then(|| crate::codegen::gzip::gzip(&data))
+            .then(|| crate::web::codegen::gzip::gzip(&data))
             .filter(|gz| gz.len() < data.len());
         match gz {
             Some(gz) => {
@@ -1803,7 +1803,7 @@ fn check_csp(
     output_dir: &Path,
     written: &[PathBuf],
     config: &ProjectConfig,
-) -> Vec<crate::codegen::csp::Violation> {
+) -> Vec<crate::web::codegen::csp::Violation> {
     let policy = crate::project::config::project::csp_meta_policy(config);
     let mut found = Vec::new();
     for path in written {
@@ -1815,7 +1815,7 @@ fn check_csp(
             .unwrap_or(path)
             .display()
             .to_string();
-        found.extend(crate::codegen::csp::check(&page, &html, &policy));
+        found.extend(crate::web::codegen::csp::check(&page, &html, &policy));
     }
     found.sort_by(|a, b| a.page.cmp(&b.page).then(a.what.cmp(&b.what)));
     found.dedup();
@@ -1895,7 +1895,7 @@ fn write_service_worker(
     program: &crate::syntax::parser::ast::Program,
     written_html: &[PathBuf],
 ) -> Result<()> {
-    use crate::codegen::offline::{Worker, route_matches, service_worker, version_of};
+    use crate::web::codegen::offline::{Worker, route_matches, service_worker, version_of};
     let base = config.build.base_path.trim_end_matches('/').to_string();
     let site = |rel: &str| format!("{base}/{}", rel.trim_start_matches('/'));
     let exists = |rel: &str| fs::is_file(output_dir.join(rel));
@@ -2041,7 +2041,7 @@ fn collect_files(root: &Path, dir: &Path, out: &mut Vec<(String, Vec<u8>)>) -> R
 /// refuse stops the build, as the compiler's fault rather than the author's.
 /// It used to ship, and the page died before it drew.
 fn read_back(out: &Out, name: &str, source: &str, minified: bool) -> Result<()> {
-    let Err(fault) = crate::codegen::jscheck::check_js(source) else {
+    let Err(fault) = crate::web::codegen::jscheck::check_js(source) else {
         return Ok(());
     };
     let stage = if minified { ", after minifying" } else { "" };
@@ -2057,7 +2057,7 @@ fn read_back(out: &Out, name: &str, source: &str, minified: bool) -> Result<()> 
     )
     .with_hint(format!(
         "It wrote `{}`. This is a bug in WebFluent, not in your program. Please report it with the source that produced it: https://github.com/monzeromer-lab/WebFluent/issues",
-        crate::codegen::jscheck::line_of(source, fault.line)
+        crate::web::codegen::jscheck::line_of(source, fault.line)
     ));
     out.findings(std::slice::from_ref(&d));
     Err(WebFluentError::Diagnostics(vec![d]))

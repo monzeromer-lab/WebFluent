@@ -37,7 +37,7 @@ pub fn for_project(project_dir: &Path) -> (String, usize, Option<usize>) {
 }
 
 fn esc(text: &str) -> String {
-    crate::codegen::markdown::escape(text)
+    crate::web::codegen::markdown::escape(text)
 }
 
 fn s(v: &Value) -> String {

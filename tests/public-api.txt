@@ -1075,35 +1075,35 @@ impl core::marker::UnsafeUnpin for webfluent::codegen::js::Holder
 impl core::panic::unwind_safe::RefUnwindSafe for webfluent::codegen::js::Holder
 impl core::panic::unwind_safe::UnwindSafe for webfluent::codegen::js::Holder
 pub struct webfluent::codegen::js::JsCodegen
-impl webfluent::codegen::js::JsCodegen
-pub fn webfluent::codegen::js::JsCodegen::generate(&mut self, &webfluent::syntax::parser::Program) -> alloc::string::String
-pub fn webfluent::codegen::js::JsCodegen::map_key(&webfluent::syntax::parser::Declaration) -> core::option::Option<alloc::string::String>
-pub fn webfluent::codegen::js::JsCodegen::new() -> Self
-pub fn webfluent::codegen::js::JsCodegen::runtime_report(&self) -> &[webfluent::runtime::Kept]
-pub fn webfluent::codegen::js::JsCodegen::runtime_stats(&self) -> (&[&'static str], usize)
-pub fn webfluent::codegen::js::JsCodegen::set_app_schemes(&mut self, alloc::vec::Vec<alloc::string::String>)
-pub fn webfluent::codegen::js::JsCodegen::set_base_path(&mut self, alloc::string::String)
-pub fn webfluent::codegen::js::JsCodegen::set_dev(&mut self, bool)
-pub fn webfluent::codegen::js::JsCodegen::set_env(&mut self, alloc::collections::btree::map::BTreeMap<alloc::string::String, serde_json::value::Value>)
-pub fn webfluent::codegen::js::JsCodegen::set_full_runtime(&mut self, bool)
-pub fn webfluent::codegen::js::JsCodegen::set_i18n(&mut self, alloc::string::String, std::collections::hash::map::HashMap<alloc::string::String, std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>>)
-pub fn webfluent::codegen::js::JsCodegen::set_later_scripts(&mut self, alloc::vec::Vec<(alloc::string::String, core::option::Option<alloc::string::String>)>)
-pub fn webfluent::codegen::js::JsCodegen::set_offline(&mut self, bool)
-pub fn webfluent::codegen::js::JsCodegen::set_site_lang(&mut self, alloc::string::String)
-pub fn webfluent::codegen::js::JsCodegen::set_sourcemap(&mut self, std::collections::hash::map::HashMap<alloc::string::String, usize>)
-pub fn webfluent::codegen::js::JsCodegen::set_split_pages(&mut self, bool)
-pub fn webfluent::codegen::js::JsCodegen::set_ssg(&mut self, bool)
-pub fn webfluent::codegen::js::JsCodegen::set_studio(&mut self, webfluent::syntax::node_id::NodeMap)
-pub fn webfluent::codegen::js::JsCodegen::take_chunks(&mut self) -> alloc::vec::Vec<(alloc::string::String, alloc::string::String)>
-impl core::default::Default for webfluent::codegen::js::JsCodegen
-pub fn webfluent::codegen::js::JsCodegen::default() -> Self
-impl !core::marker::Freeze for webfluent::codegen::js::JsCodegen
-impl core::marker::Send for webfluent::codegen::js::JsCodegen
-impl !core::marker::Sync for webfluent::codegen::js::JsCodegen
-impl core::marker::Unpin for webfluent::codegen::js::JsCodegen
-impl core::marker::UnsafeUnpin for webfluent::codegen::js::JsCodegen
-impl !core::panic::unwind_safe::RefUnwindSafe for webfluent::codegen::js::JsCodegen
-impl core::panic::unwind_safe::UnwindSafe for webfluent::codegen::js::JsCodegen
+impl webfluent::codegen::JsCodegen
+pub fn webfluent::codegen::JsCodegen::generate(&mut self, &webfluent::syntax::parser::Program) -> alloc::string::String
+pub fn webfluent::codegen::JsCodegen::map_key(&webfluent::syntax::parser::Declaration) -> core::option::Option<alloc::string::String>
+pub fn webfluent::codegen::JsCodegen::new() -> Self
+pub fn webfluent::codegen::JsCodegen::runtime_report(&self) -> &[webfluent::runtime::Kept]
+pub fn webfluent::codegen::JsCodegen::runtime_stats(&self) -> (&[&'static str], usize)
+pub fn webfluent::codegen::JsCodegen::set_app_schemes(&mut self, alloc::vec::Vec<alloc::string::String>)
+pub fn webfluent::codegen::JsCodegen::set_base_path(&mut self, alloc::string::String)
+pub fn webfluent::codegen::JsCodegen::set_dev(&mut self, bool)
+pub fn webfluent::codegen::JsCodegen::set_env(&mut self, alloc::collections::btree::map::BTreeMap<alloc::string::String, serde_json::value::Value>)
+pub fn webfluent::codegen::JsCodegen::set_full_runtime(&mut self, bool)
+pub fn webfluent::codegen::JsCodegen::set_i18n(&mut self, alloc::string::String, std::collections::hash::map::HashMap<alloc::string::String, std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>>)
+pub fn webfluent::codegen::JsCodegen::set_later_scripts(&mut self, alloc::vec::Vec<(alloc::string::String, core::option::Option<alloc::string::String>)>)
+pub fn webfluent::codegen::JsCodegen::set_offline(&mut self, bool)
+pub fn webfluent::codegen::JsCodegen::set_site_lang(&mut self, alloc::string::String)
+pub fn webfluent::codegen::JsCodegen::set_sourcemap(&mut self, std::collections::hash::map::HashMap<alloc::string::String, usize>)
+pub fn webfluent::codegen::JsCodegen::set_split_pages(&mut self, bool)
+pub fn webfluent::codegen::JsCodegen::set_ssg(&mut self, bool)
+pub fn webfluent::codegen::JsCodegen::set_studio(&mut self, webfluent::syntax::node_id::NodeMap)
+pub fn webfluent::codegen::JsCodegen::take_chunks(&mut self) -> alloc::vec::Vec<(alloc::string::String, alloc::string::String)>
+impl core::default::Default for webfluent::codegen::JsCodegen
+pub fn webfluent::codegen::JsCodegen::default() -> Self
+impl !core::marker::Freeze for webfluent::codegen::JsCodegen
+impl core::marker::Send for webfluent::codegen::JsCodegen
+impl !core::marker::Sync for webfluent::codegen::JsCodegen
+impl core::marker::Unpin for webfluent::codegen::JsCodegen
+impl core::marker::UnsafeUnpin for webfluent::codegen::JsCodegen
+impl !core::panic::unwind_safe::RefUnwindSafe for webfluent::codegen::JsCodegen
+impl core::panic::unwind_safe::UnwindSafe for webfluent::codegen::JsCodegen
 pub const webfluent::codegen::js::BOX_ATTRS: &[&str]
 pub const webfluent::codegen::js::BROWSER_GLOBALS: &[&str]
 pub const webfluent::codegen::js::BROWSER_VALUES: &[&str]
@@ -1741,35 +1741,35 @@ pub fn webfluent::codegen::url::is_safe_with(&str, &[alloc::string::String]) -> 
 pub fn webfluent::codegen::url::join_address(&[webfluent::codegen::url::AddressPart]) -> alloc::string::String
 pub fn webfluent::codegen::url::scheme_of(&str) -> core::option::Option<alloc::string::String>
 pub struct webfluent::codegen::JsCodegen
-impl webfluent::codegen::js::JsCodegen
-pub fn webfluent::codegen::js::JsCodegen::generate(&mut self, &webfluent::syntax::parser::Program) -> alloc::string::String
-pub fn webfluent::codegen::js::JsCodegen::map_key(&webfluent::syntax::parser::Declaration) -> core::option::Option<alloc::string::String>
-pub fn webfluent::codegen::js::JsCodegen::new() -> Self
-pub fn webfluent::codegen::js::JsCodegen::runtime_report(&self) -> &[webfluent::runtime::Kept]
-pub fn webfluent::codegen::js::JsCodegen::runtime_stats(&self) -> (&[&'static str], usize)
-pub fn webfluent::codegen::js::JsCodegen::set_app_schemes(&mut self, alloc::vec::Vec<alloc::string::String>)
-pub fn webfluent::codegen::js::JsCodegen::set_base_path(&mut self, alloc::string::String)
-pub fn webfluent::codegen::js::JsCodegen::set_dev(&mut self, bool)
-pub fn webfluent::codegen::js::JsCodegen::set_env(&mut self, alloc::collections::btree::map::BTreeMap<alloc::string::String, serde_json::value::Value>)
-pub fn webfluent::codegen::js::JsCodegen::set_full_runtime(&mut self, bool)
-pub fn webfluent::codegen::js::JsCodegen::set_i18n(&mut self, alloc::string::String, std::collections::hash::map::HashMap<alloc::string::String, std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>>)
-pub fn webfluent::codegen::js::JsCodegen::set_later_scripts(&mut self, alloc::vec::Vec<(alloc::string::String, core::option::Option<alloc::string::String>)>)
-pub fn webfluent::codegen::js::JsCodegen::set_offline(&mut self, bool)
-pub fn webfluent::codegen::js::JsCodegen::set_site_lang(&mut self, alloc::string::String)
-pub fn webfluent::codegen::js::JsCodegen::set_sourcemap(&mut self, std::collections::hash::map::HashMap<alloc::string::String, usize>)
-pub fn webfluent::codegen::js::JsCodegen::set_split_pages(&mut self, bool)
-pub fn webfluent::codegen::js::JsCodegen::set_ssg(&mut self, bool)
-pub fn webfluent::codegen::js::JsCodegen::set_studio(&mut self, webfluent::syntax::node_id::NodeMap)
-pub fn webfluent::codegen::js::JsCodegen::take_chunks(&mut self) -> alloc::vec::Vec<(alloc::string::String, alloc::string::String)>
-impl core::default::Default for webfluent::codegen::js::JsCodegen
-pub fn webfluent::codegen::js::JsCodegen::default() -> Self
-impl !core::marker::Freeze for webfluent::codegen::js::JsCodegen
-impl core::marker::Send for webfluent::codegen::js::JsCodegen
-impl !core::marker::Sync for webfluent::codegen::js::JsCodegen
-impl core::marker::Unpin for webfluent::codegen::js::JsCodegen
-impl core::marker::UnsafeUnpin for webfluent::codegen::js::JsCodegen
-impl !core::panic::unwind_safe::RefUnwindSafe for webfluent::codegen::js::JsCodegen
-impl core::panic::unwind_safe::UnwindSafe for webfluent::codegen::js::JsCodegen
+impl webfluent::codegen::JsCodegen
+pub fn webfluent::codegen::JsCodegen::generate(&mut self, &webfluent::syntax::parser::Program) -> alloc::string::String
+pub fn webfluent::codegen::JsCodegen::map_key(&webfluent::syntax::parser::Declaration) -> core::option::Option<alloc::string::String>
+pub fn webfluent::codegen::JsCodegen::new() -> Self
+pub fn webfluent::codegen::JsCodegen::runtime_report(&self) -> &[webfluent::runtime::Kept]
+pub fn webfluent::codegen::JsCodegen::runtime_stats(&self) -> (&[&'static str], usize)
+pub fn webfluent::codegen::JsCodegen::set_app_schemes(&mut self, alloc::vec::Vec<alloc::string::String>)
+pub fn webfluent::codegen::JsCodegen::set_base_path(&mut self, alloc::string::String)
+pub fn webfluent::codegen::JsCodegen::set_dev(&mut self, bool)
+pub fn webfluent::codegen::JsCodegen::set_env(&mut self, alloc::collections::btree::map::BTreeMap<alloc::string::String, serde_json::value::Value>)
+pub fn webfluent::codegen::JsCodegen::set_full_runtime(&mut self, bool)
+pub fn webfluent::codegen::JsCodegen::set_i18n(&mut self, alloc::string::String, std::collections::hash::map::HashMap<alloc::string::String, std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>>)
+pub fn webfluent::codegen::JsCodegen::set_later_scripts(&mut self, alloc::vec::Vec<(alloc::string::String, core::option::Option<alloc::string::String>)>)
+pub fn webfluent::codegen::JsCodegen::set_offline(&mut self, bool)
+pub fn webfluent::codegen::JsCodegen::set_site_lang(&mut self, alloc::string::String)
+pub fn webfluent::codegen::JsCodegen::set_sourcemap(&mut self, std::collections::hash::map::HashMap<alloc::string::String, usize>)
+pub fn webfluent::codegen::JsCodegen::set_split_pages(&mut self, bool)
+pub fn webfluent::codegen::JsCodegen::set_ssg(&mut self, bool)
+pub fn webfluent::codegen::JsCodegen::set_studio(&mut self, webfluent::syntax::node_id::NodeMap)
+pub fn webfluent::codegen::JsCodegen::take_chunks(&mut self) -> alloc::vec::Vec<(alloc::string::String, alloc::string::String)>
+impl core::default::Default for webfluent::codegen::JsCodegen
+pub fn webfluent::codegen::JsCodegen::default() -> Self
+impl !core::marker::Freeze for webfluent::codegen::JsCodegen
+impl core::marker::Send for webfluent::codegen::JsCodegen
+impl !core::marker::Sync for webfluent::codegen::JsCodegen
+impl core::marker::Unpin for webfluent::codegen::JsCodegen
+impl core::marker::UnsafeUnpin for webfluent::codegen::JsCodegen
+impl !core::panic::unwind_safe::RefUnwindSafe for webfluent::codegen::JsCodegen
+impl core::panic::unwind_safe::UnwindSafe for webfluent::codegen::JsCodegen
 pub fn webfluent::codegen::dark_css(&std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>) -> alloc::string::String
 pub fn webfluent::codegen::generate_css(&std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>) -> alloc::string::String
 pub fn webfluent::codegen::generate_css_for(&std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>, webfluent::themes::BuiltinCss, &webfluent::syntax::parser::Program) -> alloc::string::String

@@ -42,7 +42,7 @@
 /// Returns the layout-and-mechanics CSS, without the engine's baseline design.
 ///
 /// Paired with the `:root` token block by
-/// [`generate_css_with`](crate::codegen::generate_css_with) under
+/// [`generate_css_with`](crate::web::codegen::generate_css_with) under
 /// [`BuiltinCss::Structural`](super::BuiltinCss::Structural).
 pub fn structural_css() -> &'static str {
     concat!(

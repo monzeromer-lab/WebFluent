@@ -259,7 +259,7 @@ pub fn render_page_html_studio(
         ..
     } = *site;
     let title = page.title.as_deref().unwrap_or(&config.name);
-    let lang = crate::codegen::seo::page_lang(page, config);
+    let lang = crate::web::codegen::seo::page_lang(page, config);
 
     let default_locale = config
         .i18n
@@ -372,7 +372,7 @@ pub fn render_page_html_studio(
 
     // Description, canonical, sharing card, language alternates and JSON-LD, all
     // derived from what the page and the config already say.
-    let mut description_meta = crate::codegen::seo::head_tags(page, config, program);
+    let mut description_meta = crate::web::codegen::seo::head_tags(page, config, program);
     // The page's own `head { }` tags, with what is known at build time; the
     // runtime replaces them once live, so each is marked as its own.
     let head_scope = if page.head.is_empty() {
@@ -480,23 +480,23 @@ pub fn render_page_html_studio(
 </body>
 </html>"#,
         lang,
-        crate::codegen::seo::dir_attr(&lang),
+        crate::web::codegen::seo::dir_attr(&lang),
         // The policy first: a meta policy governs only what is parsed after
         // it, so nothing a page's data reaches — the title, the sharing
         // tags, the page's own head tags — may come before it.
-        crate::codegen::html::csp_meta(config),
-        crate::codegen::markdown::escape(title),
+        crate::web::codegen::html::csp_meta(config),
+        crate::web::codegen::markdown::escape(title),
         description_meta,
-        crate::codegen::html::head_links(config, &base),
+        crate::web::codegen::html::head_links(config, &base),
         base,
         page_sheet,
-        crate::codegen::html::script_tags(config, &base),
+        crate::web::codegen::html::script_tags(config, &base),
         base,
         page_chunk,
         if skip_to_content {
-            crate::codegen::html::SKIP_LINK.replace("#wf-main", "#wf-content")
+            crate::web::codegen::html::SKIP_LINK.replace("#wf-main", "#wf-content")
         } else {
-            crate::codegen::html::SKIP_LINK.to_string()
+            crate::web::codegen::html::SKIP_LINK.to_string()
         },
         body_html
     )
@@ -854,7 +854,7 @@ fn render_user_component(name: &str, call: &UIElement, ctx: &mut SsgContext) -> 
             known_classes(value, &ctx.scope, &mut extra_class);
             continue;
         }
-        if !crate::codegen::js::is_root_attribute(key) {
+        if !crate::web::codegen::js::is_root_attribute(key) {
             continue;
         }
         // As the same attribute written on an element is painted.
@@ -1281,7 +1281,7 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
                         | "trapFocus"
                         | "shared"
                         | "count"
-                ) || crate::codegen::js::DRAG_PROPS.contains(&key.as_str())
+                ) || crate::web::codegen::js::DRAG_PROPS.contains(&key.as_str())
                     || key.starts_with("data-wf-")
                 {
                     continue;
@@ -1348,7 +1348,7 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
             };
             // `id:`, `role:`, `aria-*`, `data-*`: on the menu's root, as the
             // live page writes them.
-            let own = own_attrs(name, ui, ctx, crate::codegen::js::MENU_READS);
+            let own = own_attrs(name, ui, ctx, crate::web::codegen::js::MENU_READS);
             let items_class = format!("wf-{}__items", name.to_lowercase());
             let aria = label
                 .map(|l| format!(" aria-label=\"{}\"", html_escape(&l)))
@@ -1533,8 +1533,13 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
                 }
             }
             let svg = if all {
-                crate::codegen::charts::graphic(name, positional.as_ref(), &named, &ui.modifiers)
-                    .unwrap_or_default()
+                crate::web::codegen::charts::graphic(
+                    name,
+                    positional.as_ref(),
+                    &named,
+                    &ui.modifiers,
+                )
+                .unwrap_or_default()
             } else {
                 String::new()
             };
@@ -1565,7 +1570,7 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
                 Arg::Named(k, v) if k == "inert" => eval(v, &ctx.scope).is_none_or(|v| v.truthy()),
                 _ => false,
             });
-            let options = crate::codegen::markdown::Options {
+            let options = crate::web::codegen::markdown::Options {
                 base: &ctx.link_base,
                 schemes: &ctx.app_schemes,
                 inert,
@@ -1576,7 +1581,7 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
                 class_str,
                 wf,
                 inline_style,
-                crate::codegen::markdown::render_with(&text, options),
+                crate::web::codegen::markdown::render_with(&text, options),
                 ctx.indent_str()
             );
         }
@@ -1994,7 +1999,7 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
         let on_label = |a: &str| {
             let key = key(a);
             matches!(key.as_str(), "class" | "data-wf-node")
-                || crate::codegen::js::BOX_ATTRS.contains(&key.as_str())
+                || crate::web::codegen::js::BOX_ATTRS.contains(&key.as_str())
         };
         // The input's value, whether it is checked and whether it is
         // disabled are written above.
@@ -2102,7 +2107,7 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
             None
         };
         let inner = match language {
-            Some(lang) => crate::codegen::highlight::highlight(text, &lang),
+            Some(lang) => crate::web::codegen::highlight::highlight(text, &lang),
             None => html_escape(text),
         };
         // Inline text
@@ -2446,7 +2451,7 @@ fn render_labelled_input(
     let own = painted_attrs(
         crate::registry::component(name),
         ui,
-        &|k| crate::codegen::js::BOX_ATTRS.contains(&k),
+        &|k| crate::web::codegen::js::BOX_ATTRS.contains(&k),
         &|e| painted(e, &ctx.scope),
         &ctx.app_schemes,
     );
@@ -2493,7 +2498,7 @@ fn render_labelled_input(
         crate::registry::component(name),
         ui,
         &|k| {
-            !crate::codegen::js::BOX_ATTRS.contains(&k)
+            !crate::web::codegen::js::BOX_ATTRS.contains(&k)
                 && !matches!(k, "min" | "max" | "accept" | "value" | "multiple")
         },
         &|e| painted(e, &ctx.scope),

@@ -159,7 +159,11 @@ pub fn apply(
 
 /// The allow with its `k`th code taken out: the others kept, or — when it
 /// was the only one — the comment gone, with its line when it stands alone.
-fn without(source: &str, allow: &Allow, k: usize) -> Option<(String, crate::diagnostics::fixes::Plan)> {
+fn without(
+    source: &str,
+    allow: &Allow,
+    k: usize,
+) -> Option<(String, crate::diagnostics::fixes::Plan)> {
     let line_start = source
         .split_inclusive('\n')
         .take(allow.line.saturating_sub(1))

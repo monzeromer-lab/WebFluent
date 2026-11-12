@@ -17,7 +17,7 @@
 //! function. It errs one way only: a name it is unsure of is reported, and
 //! an element reported needlessly is drawn again rather than kept.
 
-use crate::codegen::minify::{
+use crate::web::codegen::minify::{
     is_expression_keyword, is_word_byte, regex_end, string_end, template_end,
 };
 use std::collections::BTreeSet;

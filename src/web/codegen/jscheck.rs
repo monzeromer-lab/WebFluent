@@ -16,7 +16,7 @@
 //! produces. A fault it finds is the compiler's,
 //! never the author's, and is reported as one.
 
-use crate::codegen::minify::{
+use crate::web::codegen::minify::{
     is_expression_keyword, is_word_byte, regex_end, string_end, template_end,
 };
 use std::collections::HashMap;

@@ -81,7 +81,7 @@ pub fn routes(
                 found.insert(page.path.clone());
                 continue;
             }
-            match crate::codegen::ssg::static_routes(page, &program, &config.env) {
+            match crate::web::codegen::ssg::static_routes(page, &program, &config.env) {
                 Ok(listed) if !listed.is_empty() => {
                     found.extend(listed.into_iter().map(|(route, _)| route));
                 }

@@ -55,7 +55,7 @@ pub fn minify_js(source: &str) -> String {
                 .find("*/")
                 .map(|e| i + 2 + e + 2)
                 .unwrap_or(bytes.len());
-            if source[i..].starts_with(crate::codegen::sourcemap::MARK) {
+            if source[i..].starts_with(crate::web::codegen::sourcemap::MARK) {
                 marks.push_str(&source[i..end]);
             }
             i = end;
@@ -362,7 +362,7 @@ mod tests {
 
     #[test]
     fn a_source_map_marker_is_kept_before_the_token_it_marks() {
-        use crate::codegen::sourcemap::{end_marker, marker};
+        use crate::web::codegen::sourcemap::{end_marker, marker};
         let src = format!(
             "function f() {{\n  {}const x = 1; // one\n  {}\n  return x;\n}}\n/* gone */ {}g();\n",
             marker(0, 2, 5),
@@ -380,7 +380,7 @@ mod tests {
             )
         );
         // Without its markers it is what the minifier writes without them.
-        let (code, _) = crate::codegen::sourcemap::extract(&small, "app.js", &[], &[]);
+        let (code, _) = crate::web::codegen::sourcemap::extract(&small, "app.js", &[], &[]);
         let plain = "function f() {\n  const x = 1; // one\n  \n  return x;\n}\n/* gone */ g();\n";
         assert_eq!(code, minify_js(plain));
     }

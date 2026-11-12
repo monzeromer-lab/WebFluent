@@ -673,7 +673,7 @@ mod tests {
 
     #[test]
     fn the_runtime_round_trips_and_shrinks() {
-        let full = crate::runtime::full();
+        let full = crate::web::runtime::full();
         let src = full.as_bytes();
         let gz = gzip(src);
         assert_eq!(round_trip(src), src);

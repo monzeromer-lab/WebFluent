@@ -7,11 +7,11 @@
 //! writing files, and always stamps node ids (studio mode) so a preview click
 //! can resolve to code.
 
-use crate::codegen::ssg::{SiteContext, render_page_html_studio};
-use crate::codegen::{JsCodegen, generate_css_with};
 use crate::project::config::ProjectConfig;
 use crate::syntax::node_id::{NodeMap, build_node_map};
 use crate::syntax::parser::ast::{ComponentDecl, Declaration, Program, Statement};
+use crate::web::codegen::ssg::{SiteContext, render_page_html_studio};
+use crate::web::codegen::{JsCodegen, generate_css_with};
 use std::collections::HashMap;
 
 /// A pre-rendered page keyed by its route.
@@ -118,7 +118,7 @@ pub fn compile_studio(
     crate::project::themes::apply_motion(&mut tokens, &config.motion);
     let mut css = generate_css_with(&tokens, config.theme.builtin);
     if let Ok(Some(dark)) = crate::project::themes::resolve_dark_tokens(program, &config.theme) {
-        css.push_str(&crate::codegen::dark_css(&dark));
+        css.push_str(&crate::web::codegen::dark_css(&dark));
     }
     css.push_str(&crate::project::scoped_css::scoped_rules(program));
 
@@ -138,7 +138,7 @@ pub fn compile_studio(
 
     // What `wf build` would say about the program, from the one pipeline the
     // build and the editor run.
-    let checked = crate::diagnostics::check::check_project(&crate::diagnostics::check::Project {
+    let checked = crate::web::check::check_project(&crate::web::check::Project {
         program: source_program,
         file_of: &|_| String::new(),
         source_of: &|_| None,

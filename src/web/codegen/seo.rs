@@ -380,7 +380,7 @@ pub fn head_tags(page: &PageDecl, config: &ProjectConfig, program: &Program) -> 
                 // build writes — one of its `paths:` — never a 404.
                 translated_route(pattern, &page.path, &member.path).filter(|r| {
                     !member.path.contains(':')
-                        || crate::codegen::ssg::static_routes(member, program, &config.env)
+                        || crate::web::codegen::ssg::static_routes(member, program, &config.env)
                             .is_ok_and(|routes| routes.iter().any(|(built, _)| built == r))
                 })
             };
@@ -876,7 +876,7 @@ pub fn sitemap(config: &ProjectConfig, program: &Program) -> Option<String> {
             continue;
         }
         let routes: Vec<String> = if page.path.contains(':') {
-            crate::codegen::ssg::static_routes(page, program, &config.env)
+            crate::web::codegen::ssg::static_routes(page, program, &config.env)
                 .map(|rs| rs.into_iter().map(|(r, _)| r).collect())
                 .unwrap_or_default()
         } else {

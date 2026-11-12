@@ -483,13 +483,13 @@ mod tests {
     fn the_manifest_json_is_current() {
         let path = concat!(
             env!("CARGO_MANIFEST_DIR"),
-            "/src/runtime/modules/manifest.json"
+            "/src/web/runtime/modules/manifest.json"
         );
         let want = manifest_json();
         let have = std::fs::read_to_string(path).unwrap_or_default();
         if have != want {
             std::fs::write(path, &want).expect("write the manifest");
-            panic!("src/runtime/modules/manifest.json was stale; it has been rewritten");
+            panic!("src/web/runtime/modules/manifest.json was stale; it has been rewritten");
         }
     }
 }
