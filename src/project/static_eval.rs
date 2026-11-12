@@ -90,6 +90,28 @@ impl Static {
         }
     }
 
+    /// The text JavaScript makes of this value, as `${v}` does: a list is
+    /// its items joined with commas, a map `[object Object]`, and a number
+    /// that is no number `NaN`.
+    pub fn js_text(&self) -> String {
+        match self {
+            Static::List(items) => items
+                .iter()
+                .map(|v| match v {
+                    Static::Null => String::new(),
+                    v => v.js_text(),
+                })
+                .collect::<Vec<_>>()
+                .join(","),
+            Static::Map(_) => "[object Object]".to_string(),
+            Static::Num(n) if n.is_nan() => "NaN".to_string(),
+            Static::Num(n) if n.is_infinite() => {
+                if *n > 0.0 { "Infinity" } else { "-Infinity" }.to_string()
+            }
+            other => other.to_text(),
+        }
+    }
+
     /// JavaScript truthiness, so a resolved `if` takes the same branch the
     /// runtime would.
     pub fn truthy(&self) -> bool {
@@ -139,6 +161,10 @@ pub struct Scope {
     frames: Vec<Arc<HashMap<String, Static>>>,
     functions: Arc<HashMap<String, ActionDecl>>,
     depth: u32,
+    /// How a template reads: what cannot be worked out is `null` where it
+    /// stands, and an operator the build would not guess at does what
+    /// JavaScript does. The build's paint leaves such a value to the page.
+    lenient: bool,
 }
 
 impl Static {
@@ -165,6 +191,11 @@ impl Static {
         match self {
             Static::Null => serde_json::Value::Null,
             Static::Bool(b) => serde_json::Value::Bool(*b),
+            // A whole number is written as one, as the data had it: `3`,
+            // not `3.0`.
+            Static::Num(n) if n.fract() == 0.0 && n.abs() < 9_007_199_254_740_992.0 => {
+                serde_json::Value::Number(serde_json::Number::from(*n as i64))
+            }
             Static::Num(n) => serde_json::Number::from_f64(*n)
                 .map(serde_json::Value::Number)
                 .unwrap_or(serde_json::Value::Null),
@@ -192,6 +223,7 @@ impl Scope {
             frames: vec![Arc::new(values.into_iter().collect())],
             functions: Arc::default(),
             depth: 0,
+            lenient: false,
         }
     }
 
@@ -206,7 +238,25 @@ impl Scope {
             frames: vec![base.clone(), Arc::new(values.into_iter().collect())],
             functions: Arc::default(),
             depth: 0,
+            lenient: false,
         }
+    }
+
+    /// A scope of shared frames, outermost first: a template's data and
+    /// the names a place in it binds, none of them copied.
+    pub fn over_frames(frames: Vec<Arc<HashMap<String, Static>>>) -> Self {
+        Scope {
+            frames,
+            functions: Arc::default(),
+            depth: 0,
+            lenient: false,
+        }
+    }
+
+    /// The scope as a template reads it: see [`Scope::lenient`]'s field.
+    pub fn lenient(mut self) -> Self {
+        self.lenient = true;
+        self
     }
 
     /// The scope a page starts with: every store's seeded state, keyed
@@ -261,6 +311,7 @@ impl Scope {
             frames: vec![Arc::new(frame)],
             functions: Arc::default(),
             depth: 0,
+            lenient: false,
         };
         // Constants, in order: one may read another.
         for decl in &program.declarations {
@@ -472,6 +523,7 @@ fn store_value_in(
         frames: vec![Arc::new(others.clone())],
         functions: Arc::default(),
         depth: 0,
+        lenient: false,
     }
     .with_functions(&actions);
     let mut fields = Vec::new();
@@ -591,6 +643,15 @@ pub fn eval_metered(expr: &Expr, scope: &Scope) -> Metered {
 }
 
 fn eval_in(expr: &Expr, scope: &Scope, fuel: &Fuel) -> Option<Static> {
+    match eval_node(expr, scope, fuel) {
+        // A template reads what is not there as `null`, where it stands —
+        // unless the evaluation ran out of fuel, which stops it.
+        None if scope.lenient && !fuel.exhausted() => Some(Static::Null),
+        value => value,
+    }
+}
+
+fn eval_node(expr: &Expr, scope: &Scope, fuel: &Fuel) -> Option<Static> {
     fuel.spend()?;
     match expr {
         Expr::StringLiteral(s) => Some(Static::Str(s.clone())),
@@ -676,7 +737,14 @@ fn eval_in(expr: &Expr, scope: &Scope, fuel: &Fuel) -> Option<Static> {
             for part in parts {
                 match part {
                     StringPart::Literal(s) => out.push_str(s),
-                    StringPart::Expression(e) => out.push_str(&eval_in(e, scope, fuel)?.to_text()),
+                    StringPart::Expression(e) => {
+                        let v = eval_in(e, scope, fuel)?;
+                        out.push_str(&if scope.lenient {
+                            v.js_text()
+                        } else {
+                            v.to_text()
+                        });
+                    }
                 }
             }
             fuel.text(out.len())?;
@@ -761,7 +829,11 @@ fn eval_in(expr: &Expr, scope: &Scope, fuel: &Fuel) -> Option<Static> {
                 _ => return None,
             };
             let r = eval_in(right, scope, fuel)?;
-            let out = binary(&l, op, &r)?;
+            let out = match binary(&l, op, &r) {
+                Some(out) => out,
+                None if scope.lenient => binary_js(&l, op, &r),
+                None => return None,
+            };
             // Text joined with `+` is paid for, as any text made is.
             if let Static::Str(s) = &out {
                 fuel.text(s.len())?;
@@ -845,8 +917,13 @@ fn eval_in(expr: &Expr, scope: &Scope, fuel: &Fuel) -> Option<Static> {
                         Some(Static::Map(params)) => params.clone(),
                         Some(_) => return None,
                     };
+                    // A template's messages say which locale they are in.
+                    let locale = match scope.get("__messages_locale") {
+                        Some(Static::Str(l)) => l.clone(),
+                        _ => scope.locale(),
+                    };
                     Some(Static::Str(crate::project::i18n::message(
-                        &scope.locale(),
+                        &locale,
                         &scope.messages(),
                         key,
                         &params,
@@ -1732,6 +1809,58 @@ pub fn binary(l: &Static, op: &BinOp, r: &Static) -> Option<Static> {
         } else {
             l.clone()
         }),
+    }
+}
+
+/// `l op r` as JavaScript works it out where [`binary`] would not guess:
+/// two strings compare by their UTF-16 code units, `"12" * 2` is `24`, text
+/// that is no number is `NaN`, and `+` with a list or a map joins their
+/// text. Dividing by zero is `null`, as a template has always shown it.
+pub fn binary_js(l: &Static, op: &BinOp, r: &Static) -> Static {
+    use BinOp::*;
+    if let (Static::Str(a), Static::Str(b)) = (l, r)
+        && matches!(op, Lt | Gt | Lte | Gte)
+    {
+        let order = a.encode_utf16().cmp(b.encode_utf16());
+        return Static::Bool(match op {
+            Lt => order.is_lt(),
+            Gt => order.is_gt(),
+            Lte => order.is_le(),
+            _ => order.is_ge(),
+        });
+    }
+    let (a, b) = (js_number(l), js_number(r));
+    match op {
+        Add if matches!(l, Static::List(_) | Static::Map(_))
+            || matches!(r, Static::List(_) | Static::Map(_)) =>
+        {
+            Static::Str(format!("{}{}", l.js_text(), r.js_text()))
+        }
+        Add => Static::Num(a + b),
+        Sub => Static::Num(a - b),
+        Mul => Static::Num(a * b),
+        Div | Mod if b == 0.0 => Static::Null,
+        Div => Static::Num(a / b),
+        Mod => Static::Num(a % b),
+        Lt => Static::Bool(a < b),
+        Gt => Static::Bool(a > b),
+        Lte => Static::Bool(a <= b),
+        Gte => Static::Bool(a >= b),
+        // `binary` answers these for any two values.
+        Eq | Neq | And | Or | NullCoalesce => binary(l, op, r).unwrap_or(Static::Null),
+    }
+}
+
+/// A value as JavaScript's `Number(v)` reads it: text that is no number is
+/// `NaN`, empty text and `null` are `0`, a list or a map is `NaN`.
+fn js_number(v: &Static) -> f64 {
+    match v {
+        Static::Num(n) => *n,
+        Static::Str(s) if s.trim().is_empty() => 0.0,
+        Static::Str(s) => s.trim().parse::<f64>().unwrap_or(f64::NAN),
+        Static::Bool(true) => 1.0,
+        Static::Bool(false) | Static::Null => 0.0,
+        _ => f64::NAN,
     }
 }
 

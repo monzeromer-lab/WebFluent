@@ -1,0 +1,31 @@
+{
+  "name": "Ada",
+  "n": 3,
+  "f": 1.5,
+  "big": 12345678.9,
+  "s12": "12",
+  "s9": "9",
+  "word": "abc",
+  "empty": "",
+  "space": "  7 ",
+  "xs": [1, 2, 3],
+  "words": ["pear", "apple", "fig"],
+  "nested": [[1, 2], [3]],
+  "obj": { "a": 1, "b": { "c": "deep" } },
+  "emptyObj": {},
+  "emptyList": [],
+  "nul": null,
+  "ar": "مرحبا",
+  "yes": true,
+  "no": false,
+  "rows": [
+    { "id": 1, "title": "Write", "done": true, "team": "a", "score": 5 },
+    { "id": 2, "title": "Read", "done": false, "team": "b", "score": 9 },
+    { "id": 3, "title": "Ship", "done": false, "team": "a", "score": 7 }
+  ],
+  "status": ["failed", "timed out"],
+  "calm": "calm",
+  "price": { "amount": 1299, "currency": "EUR" },
+  "day": "2026-03-14",
+  "locale": "en"
+}

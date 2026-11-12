@@ -13,6 +13,9 @@ use serde::Serialize;
 use serde_json::Value;
 use std::collections::HashMap;
 use std::fs;
+
+#[cfg(test)]
+mod corpus_tests;
 use std::path::Path;
 use std::sync::Arc;
 
@@ -813,6 +816,9 @@ fn render_program_with(program: &Program, data: &Value, how: Rendering) -> Resul
     } else {
         how.locale.as_str()
     });
+    // The constants were worked out before the messages were known; the
+    // data frame is built again with them.
+    ctx.data_static = Default::default();
     ctx.studio = how.studio;
     if how.paged {
         ctx.locals.insert(PAGED.to_string(), Value::Bool(true));
@@ -841,7 +847,7 @@ struct Fill {
     body: Vec<Statement>,
     /// The names in reach where the block was written: the caller's, not
     /// the component's that draws it.
-    scope: HashMap<String, Value>,
+    scope: Locals,
 }
 
 /// A component as the template engine expands it: its body, its props,
@@ -856,10 +862,10 @@ struct TemplateComponent {
 #[derive(Clone)]
 struct RenderContext<'a> {
     data: &'a Value,
-    locals: HashMap<String, Value>,
+    locals: Locals,
     /// The `derived` values that are functions — `derived countOf = (id) =>
     /// …` — by name, applied where they are called.
-    functions: HashMap<String, Expr>,
+    functions: Functions,
     components: HashMap<String, TemplateComponent>,
     indent: usize,
     /// Inside a `Thead`, a `Tcell` is a column header (`<th scope="col">`).
@@ -887,6 +893,105 @@ struct RenderContext<'a> {
     /// The data as the build-time evaluator reads it, converted once per
     /// render rather than once per evaluation.
     data_static: std::rc::Rc<std::cell::OnceCell<DataFrame>>,
+}
+
+/// The names a place in a render binds — loop items, props, states — in
+/// layers, innermost last: a component's props are a layer of their own,
+/// so keeping the caller's names for its blocks copies pointers, not
+/// values. Each layer is held as JSON for the renderer and, converted once
+/// when a name is bound, as the build-time evaluator's frame.
+#[derive(Debug, Clone)]
+struct Locals {
+    values: Vec<Arc<HashMap<String, Value>>>,
+    frames: Vec<Arc<HashMap<String, crate::project::static_eval::Static>>>,
+}
+
+impl Default for Locals {
+    fn default() -> Self {
+        Self {
+            values: vec![Arc::default()],
+            frames: vec![Arc::default()],
+        }
+    }
+}
+
+impl Locals {
+    /// Bind `name` in the innermost layer, returning what it held.
+    fn insert(&mut self, name: String, value: Value) -> Option<Value> {
+        let old = self.get(&name).cloned();
+        if let Some(frame) = self.frames.last_mut() {
+            Arc::make_mut(frame).insert(
+                name.clone(),
+                crate::project::static_eval::Static::from_json(&value),
+            );
+        }
+        if let Some(values) = self.values.last_mut() {
+            Arc::make_mut(values).insert(name, value);
+        }
+        old
+    }
+
+    /// Unbind `name` from the innermost layer, returning what it held.
+    fn remove(&mut self, name: &str) -> Option<Value> {
+        if let Some(frame) = self.frames.last_mut() {
+            Arc::make_mut(frame).remove(name);
+        }
+        self.values
+            .last_mut()
+            .and_then(|values| Arc::make_mut(values).remove(name))
+    }
+
+    /// What `name` holds, from the innermost layer that binds it.
+    fn get(&self, name: &str) -> Option<&Value> {
+        self.values.iter().rev().find_map(|layer| layer.get(name))
+    }
+
+    fn contains_key(&self, name: &str) -> bool {
+        self.get(name).is_some()
+    }
+
+    fn extend(&mut self, names: impl IntoIterator<Item = (String, Value)>) {
+        for (name, value) in names {
+            self.insert(name, value);
+        }
+    }
+
+    /// Open a layer of names over these.
+    fn push(&mut self) {
+        self.values.push(Arc::default());
+        self.frames.push(Arc::default());
+    }
+
+    /// Close the innermost layer.
+    fn pop(&mut self) {
+        self.values.pop();
+        self.frames.pop();
+    }
+}
+
+/// The `derived` values and constants that are functions, by name, and the
+/// same as the evaluator's frame of lambdas.
+#[derive(Debug, Clone, Default)]
+struct Functions {
+    exprs: HashMap<String, Expr>,
+    frame: Arc<HashMap<String, crate::project::static_eval::Static>>,
+}
+
+impl Functions {
+    fn insert(&mut self, name: String, lambda: Expr) -> Option<Expr> {
+        Arc::make_mut(&mut self.frame).insert(
+            name.clone(),
+            crate::project::static_eval::Static::Lambda(crate::project::static_eval::Lambda(
+                Arc::new(lambda.clone()),
+            )),
+        );
+        self.exprs.insert(name, lambda)
+    }
+
+    fn remove(&mut self, name: &str) -> Option<Expr> {
+        Arc::make_mut(&mut self.frame).remove(name);
+        self.exprs.remove(name)
+    }
 }
 
 /// The data, as the build-time evaluator's outermost scope.
@@ -1051,8 +1156,8 @@ impl<'a> RenderContext<'a> {
     fn new(data: &'a Value) -> Self {
         Self {
             data,
-            locals: HashMap::new(),
-            functions: HashMap::new(),
+            locals: Locals::default(),
+            functions: Functions::default(),
             components: HashMap::new(),
             indent: 1,
             in_thead: false,
@@ -1070,39 +1175,6 @@ impl<'a> RenderContext<'a> {
 
     fn indent_str(&self) -> String {
         "    ".repeat(self.indent)
-    }
-
-    /// A context for an expression that binds a name: the same data and
-    /// locals, to add to without touching this one.
-    fn child(&self) -> RenderContext<'a> {
-        RenderContext {
-            data: self.data,
-            locals: self.locals.clone(),
-            functions: self.functions.clone(),
-            components: self.components.clone(),
-            indent: self.indent,
-            in_thead: self.in_thead,
-            slots: self.slots.clone(),
-            fields: self.fields,
-            dialogs: self.dialogs,
-            messages: self.messages.clone(),
-            locale: self.locale.clone(),
-            budget: self.budget.clone(),
-            depth: self.depth,
-            studio: self.studio.clone(),
-            data_static: self.data_static.clone(),
-        }
-    }
-
-    /// Look up a variable: first in locals (loop vars), then in data context.
-    fn resolve_var(&self, name: &str) -> Value {
-        if let Some(val) = self.locals.get(name) {
-            return val.clone();
-        }
-        if let Some(val) = self.data.get(name) {
-            return val.clone();
-        }
-        Value::Null
     }
 
     /// Evaluate an expression against the data context.
@@ -1126,299 +1198,59 @@ impl<'a> RenderContext<'a> {
         }
     }
 
+    /// What `expr` comes to over the data and the names in reach: the
+    /// build's evaluator, reading as a template reads ([`Scope::lenient`]),
+    /// so an expression means one thing in a template, a build and a page.
+    ///
+    /// [`Scope::lenient`]: crate::project::static_eval::Scope::lenient
     fn eval_expr(&self, expr: &Expr) -> Value {
-        match expr {
-            // What a string says is settled by the parser, which resolved
-            // its escapes and split its splices out; a `{` left in one is
-            // a brace the author wrote.
-            Expr::StringLiteral(s) => Value::String(s.clone()),
-            Expr::InterpolatedString(parts) => {
-                let mut result = String::new();
-                for part in parts {
-                    match part {
-                        StringPart::Literal(s) => result.push_str(s),
-                        StringPart::Expression(e) => {
-                            let val = self.eval_expr(e);
-                            result.push_str(&value_to_string(&val));
-                        }
-                    }
-                }
-                Value::String(result)
-            }
-            Expr::NumberLiteral(n) => Value::Number(
-                serde_json::Number::from_f64(*n).unwrap_or(serde_json::Number::from(0)),
-            ),
-            Expr::BoolLiteral(b) => Value::Bool(*b),
-            Expr::Null => Value::Null,
-            Expr::Identifier(name) => self.resolve_var(name),
-            Expr::PropertyAccess(obj, prop) => {
-                let parent = self.eval_expr(obj);
-                match &parent {
-                    Value::Object(map) => map.get(prop).cloned().unwrap_or(Value::Null),
-                    Value::Array(arr) if prop == "length" => {
-                        Value::Number(serde_json::Number::from(arr.len()))
-                    }
-                    // A string's length in characters, as the build counts it.
-                    Value::String(s) if prop == "length" => {
-                        Value::Number(serde_json::Number::from(s.chars().count()))
-                    }
-                    _ => Value::Null,
-                }
-            }
-            // `?.` in a template: null is null, and a null base reads as null.
-            Expr::OptionalProperty(obj, prop) => match self.eval_expr(obj) {
-                Value::Null => Value::Null,
-                _ => self.eval_expr(&Expr::PropertyAccess(obj.clone(), prop.clone())),
-            },
-            Expr::OptionalIndex(obj, idx) => match self.eval_expr(obj) {
-                Value::Null => Value::Null,
-                _ => self.eval_expr(&Expr::IndexAccess(obj.clone(), idx.clone())),
-            },
-            Expr::OptionalMethod(obj, method, args) => match self.eval_expr(obj) {
-                Value::Null => Value::Null,
-                _ => self.eval_expr(&Expr::MethodCall(obj.clone(), method.clone(), args.clone())),
-            },
-            Expr::IndexAccess(arr_expr, idx_expr) => {
-                let arr = self.eval_expr(arr_expr);
-                let idx = self.eval_expr(idx_expr);
-                match (&arr, &idx) {
-                    // A literal index is a float here (`0` lexes as `0.0`);
-                    // only a whole number from 0 names an item — `xs[1.5]`
-                    // is nothing, as it is in the browser and the build.
-                    (Value::Array(a), Value::Number(n)) => match n.as_f64() {
-                        Some(i) if i >= 0.0 && i.fract() == 0.0 => {
-                            a.get(i as usize).cloned().unwrap_or(Value::Null)
-                        }
-                        _ => Value::Null,
-                    },
-                    (Value::Object(map), Value::String(key)) => {
-                        map.get(key).cloned().unwrap_or(Value::Null)
-                    }
-                    _ => Value::Null,
-                }
-            }
-            Expr::BinaryOp(left, op, right) => {
-                let l = self.eval_expr(left);
-                let r = self.eval_expr(right);
-                eval_binary_op(&l, op, &r)
-            }
-            Expr::UnaryOp(op, operand) => {
-                let val = self.eval_expr(operand);
-                match op {
-                    crate::syntax::parser::ast::UnaryOp::Not => Value::Bool(!is_truthy(&val)),
-                    crate::syntax::parser::ast::UnaryOp::Neg => {
-                        if let Some(n) = val.as_f64() {
-                            Value::Number(
-                                serde_json::Number::from_f64(-n)
-                                    .unwrap_or(serde_json::Number::from(0)),
-                            )
-                        } else {
-                            Value::Null
-                        }
-                    }
-                }
-            }
-            // `if c { a } else { b }` and `if let x = e { a } else { b }` as
-            // values.
-            Expr::MethodCall(cond, method, args) if method == "__if" && args.len() == 2 => {
-                if is_truthy(&self.eval_expr(cond)) {
-                    self.eval_expr(&args[0])
-                } else {
-                    self.eval_expr(&args[1])
-                }
-            }
-            Expr::MethodCall(value, method, args) if method == "__iflet" && args.len() == 2 => {
-                let v = self.eval_expr(value);
-                match (&v, &args[0]) {
-                    (Value::Null, _) => self.eval_expr(&args[1]),
-                    (_, Expr::Lambda(name, body)) => {
-                        let mut inner = self.child();
-                        inner.locals.insert(name.clone(), v.clone());
-                        inner.eval_expr(body)
-                    }
-                    _ => Value::Null,
-                }
-            }
-            Expr::MethodCall(_, method, _) if method == "__exhaustive" => Value::Null,
-            Expr::MethodCall(subject, method, args) if method == "__case" && args.is_empty() => {
-                case_of(&self.eval_expr(subject))
-            }
-            Expr::MethodCall(subject, method, args) if method == "__is" && args.len() == 1 => {
-                let v = self.eval_expr(subject);
-                Value::Bool(case_of(&v) == self.eval_expr(&args[0]))
-            }
-            Expr::MethodCall(subject, method, args) if method == "__payload" && args.len() == 1 => {
-                let v = self.eval_expr(subject);
-                let case = self.eval_expr(&args[0]);
-                payload_of(&v, &case)
-            }
-            // A method is the build-time evaluator's, over the receiver this
-            // context works out: one meaning for `name.length()`,
-            // `xs.includes(2)` and `xs.join()` in a template and a build.
-            // `Math.max(…)` and the like are globals, not receivers.
-            Expr::MethodCall(obj, method, args) => match obj.as_ref() {
-                Expr::Identifier(global)
-                    if !self.locals.contains_key(global) && self.data.get(global).is_none() =>
-                {
-                    self.eval_static(expr)
-                }
-                // A regular expression is no JSON value: the evaluator
-                // works the whole call out, `/…/.test(x)` and the like.
-                Expr::Regex(..) => self.eval_static(expr),
-                _ => {
-                    let receiver = self.eval_expr(obj);
-                    self.eval_static_with(
-                        &Expr::MethodCall(
-                            Box::new(Expr::Identifier(RECEIVER.to_string())),
-                            method.clone(),
-                            args.clone(),
-                        ),
-                        Some(receiver),
-                    )
-                }
-            },
-            Expr::Regex(..) => self.eval_static(expr),
-            // A derived function: its parameters bound to what it is called
-            // with, its body worked out.
-            Expr::FunctionCall(name, args) if self.functions.contains_key(name) => {
-                let Some(Expr::Lambda(params, body)) = self.functions.get(name).cloned() else {
-                    return Value::Null;
-                };
-                let values: Vec<Value> = args.iter().map(|a| self.eval_expr(a)).collect();
-                let mut inner = self.child();
-                for (i, param) in params
-                    .split(',')
-                    .map(str::trim)
-                    .filter(|p| !p.is_empty())
-                    .enumerate()
-                {
-                    inner.locals.insert(
-                        param.to_string(),
-                        values.get(i).cloned().unwrap_or(Value::Null),
-                    );
-                }
-                inner.eval_expr(&body)
-            }
-            Expr::FunctionCall(name, _args) => {
-                // `t("key", { name: v, count: n })`: the message, its plural
-                // form picked by `count` (`key.one` for exactly one, else
-                // `key.other`, then `key`), its placeholders filled. Without
-                // a table, the key.
-                if name == "t" {
-                    // The message as the build and the page pick it: the
-                    // locale's plural form, exactly none `zero`, then
-                    // `other`, then the key itself.
-                    let Some(Value::String(key)) = _args.first().map(|a| self.eval_expr(a)) else {
-                        return Value::Null;
-                    };
-                    let params: Vec<(String, crate::project::static_eval::Static)> =
-                        match _args.get(1).map(|a| self.eval_expr(a)) {
-                            Some(Value::Object(map)) => map
-                                .iter()
-                                .map(|(k, v)| {
-                                    (k.clone(), crate::project::static_eval::Static::from_json(v))
-                                })
-                                .collect(),
-                            _ => Vec::new(),
-                        };
-                    Value::String(crate::project::i18n::message(
-                        &self.locale,
-                        &self.messages,
-                        &key,
-                        &params,
-                    ))
-                } else if name == "format" || name == "ago" || name == "keyLabel" {
-                    // Formatting speaks the data's `locale`, or English.
-                    self.eval_static(expr)
-                } else {
-                    Value::Null
-                }
-            }
-            Expr::ListLiteral(items) => {
-                let mut out = Vec::new();
-                for e in items {
-                    match e {
-                        Expr::Spread(inner) => {
-                            if let Value::Array(more) = self.eval_expr(inner) {
-                                out.extend(more);
-                            }
-                        }
-                        _ => out.push(self.eval_expr(e)),
-                    }
-                }
-                Value::Array(out)
-            }
-            Expr::MapLiteral(pairs) | Expr::Record(_, pairs) => {
-                let mut map = serde_json::Map::new();
-                for (k, v) in pairs {
-                    if k == "..." {
-                        if let Value::Object(more) = self.eval_expr(v) {
-                            map.extend(more);
-                        }
-                    } else {
-                        map.insert(k.trim_matches('"').to_string(), self.eval_expr(v));
-                    }
-                }
-                Value::Object(map)
-            }
-            Expr::Range(..) => self.eval_static(expr),
-            Expr::EnumCase(case) => Value::String(case.clone()),
-            Expr::CaseValue(case, args) => {
-                let mut items = vec![Value::String(case.clone())];
-                items.extend(args.iter().map(|a| self.eval_expr(a)));
-                Value::Array(items)
-            }
-            Expr::Token(name) => Value::String(format!("var(--{name})")),
-            // `@2026-02-01`, `$12.50`, `3.days`: the carrier is the value.
-            Expr::Typed(_, carrier) => self.eval_expr(carrier),
-            // Anything else the build-time evaluator knows — a regex test,
-            // a range — it works out over the data.
-            _ => self.eval_static(expr),
-        }
+        self.eval_static(expr)
     }
 
     /// Evaluate `expr` with the static evaluator, over this context's data
-    /// and locals; `Null` when it cannot.
+    /// and locals. What it spends comes out of the render's budget; an
+    /// evaluation that runs out of its own fuel stops the render, rather
+    /// than showing nothing where a value was asked for.
     fn eval_static(&self, expr: &Expr) -> Value {
-        self.eval_static_with(expr, None)
-    }
-
-    /// [`RenderContext::eval_static`], with [`RECEIVER`] bound to
-    /// `receiver` when there is one. What it spends comes out of the
-    /// render's budget; an evaluation that runs out of its own fuel stops
-    /// the render, rather than showing nothing where a value was asked for.
-    fn eval_static_with(&self, expr: &Expr, receiver: Option<Value>) -> Value {
         use crate::project::static_eval::{Scope, Static, eval_metered};
         if self.budget.stopped() {
             return Value::Null;
         }
         let data = self.data_static.get_or_init(|| {
-            Arc::new(match self.data {
+            let mut frame: HashMap<String, Static> = match self.data {
                 Value::Object(map) => map
                     .iter()
                     .map(|(k, v)| (k.clone(), Static::from_json(v)))
                     .collect(),
                 _ => HashMap::new(),
-            })
+            };
+            // What `t(…)` reads, and the locale a render was asked for.
+            frame.insert(
+                "__messages".to_string(),
+                Static::Map(
+                    self.messages
+                        .iter()
+                        .map(|(k, v)| (k.clone(), Static::Str(v.clone())))
+                        .collect(),
+                ),
+            );
+            // The locale those messages are in, whose plural rules pick a
+            // form; `format` and `ago` speak the data's `locale`.
+            frame.insert(
+                "__messages_locale".to_string(),
+                Static::Str(self.locale.to_string()),
+            );
+            Arc::new(frame)
         });
-        let mut names: Vec<(String, Static)> = Vec::new();
-        for (k, v) in &self.locals {
-            names.push((k.clone(), Static::from_json(v)));
-        }
-        if let Some(receiver) = receiver {
-            names.push((RECEIVER.to_string(), Static::from_json(&receiver)));
-        }
-        // The derived functions in reach, so a lambda handed to a method —
-        // `rows.every((r) => countOf(r) == 0)` — may call one.
-        for (k, f) in &self.functions {
-            names.push((
-                k.clone(),
-                Static::Lambda(crate::project::static_eval::Lambda(std::sync::Arc::new(
-                    f.clone(),
-                ))),
-            ));
-        }
-        let metered = eval_metered(expr, &Scope::over(data, names));
+        // The locals and the derived functions are frames of their own,
+        // converted once when each name is bound: an evaluation copies
+        // none of them, however long a list a prop holds.
+        let mut frames = Vec::with_capacity(self.locals.frames.len() + 2);
+        frames.push(data.clone());
+        frames.extend(self.locals.frames.iter().cloned());
+        frames.push(self.functions.frame.clone());
+        let scope = Scope::over_frames(frames).lenient();
+        let metered = eval_metered(expr, &scope);
         let span = self.budget.at.get();
         if metered.exhausted {
             self.budget.stop(
@@ -1734,24 +1566,14 @@ fn render_ui_element_unmarked(ui: &UIElement, ctx: &mut RenderContext) -> String
                 // The caller's names, for its blocks: what it fills a slot
                 // with reads them, not the component's props.
                 let caller = ctx.locals.clone();
-                // The props as locals, restored afterwards.
-                let mut old_locals = Vec::new();
-                for (key, resolved) in ctx.props_of(&component, ui) {
-                    let old = ctx.locals.insert(key.clone(), resolved);
-                    old_locals.push((key, old));
-                }
+                // The props as a layer of names, closed afterwards.
+                let props = ctx.props_of(&component, ui);
+                ctx.locals.push();
+                ctx.locals.extend(props);
                 ctx.slots.push(slot_fills(&component, ui, caller));
                 let html = render_statements(&component.body, ctx);
                 ctx.slots.pop();
-
-                // Restore locals
-                for (key, old) in old_locals {
-                    if let Some(v) = old {
-                        ctx.locals.insert(key, v);
-                    } else {
-                        ctx.locals.remove(&key);
-                    }
-                }
+                ctx.locals.pop();
 
                 on_root(html, &root_attrs, &root_classes)
             } else {
@@ -1790,6 +1612,7 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
                 // names and with the caller's own slots, then the
                 // component's are put back.
                 let mut scope = fill.scope.clone();
+                scope.push();
                 scope.extend(handed);
                 let inner = std::mem::replace(&mut ctx.locals, scope);
                 let frame = ctx.slots.pop();
@@ -2692,10 +2515,6 @@ pub fn is_rtl(lang: &str) -> bool {
 /// `pages` are the marks the engine replaces on each page.
 const PAGED: &str = "\u{0}paged";
 
-/// The name a method's receiver is bound to when the build-time evaluator
-/// calls the method: no program can write it.
-const RECEIVER: &str = "\u{0}receiver";
-
 /// A `Chart`'s arguments, read from the data.
 fn chart_of(ui: &UIElement, ctx: &mut RenderContext) -> crate::web::codegen::charts::Chart {
     let named: Vec<(String, Value)> = ui
@@ -2996,7 +2815,7 @@ fn render_tag(tag: &str, class: &str, ui: &UIElement, ctx: &mut RenderContext) -
 fn slot_fills(
     component: &TemplateComponent,
     ui: &UIElement,
-    scope: HashMap<String, Value>,
+    scope: Locals,
 ) -> HashMap<String, Fill> {
     let mut slots: HashMap<String, Fill> = HashMap::new();
     slots.insert(
@@ -3054,20 +2873,10 @@ fn class_names(val: &Value, out: &mut Vec<String>) {
     }
 }
 
+/// The text a value shows as, as JavaScript writes it: a whole number with
+/// no fraction, a list as its items joined with commas.
 fn value_to_string(val: &Value) -> String {
-    match val {
-        Value::String(s) => s.clone(),
-        // A whole number prints without a fraction, as the browser prints it:
-        // `8 / 2` is `4`, not `4.0`.
-        Value::Number(n) => match (n.as_i64(), n.as_f64()) {
-            (Some(i), _) => format!("{}", i),
-            (None, Some(f)) if f == f.trunc() && f.abs() < 1e15 => format!("{}", f as i64),
-            _ => format!("{}", n),
-        },
-        Value::Bool(b) => format!("{}", b),
-        Value::Null => String::new(),
-        Value::Array(_) | Value::Object(_) => serde_json::to_string(val).unwrap_or_default(),
-    }
+    crate::project::static_eval::Static::from_json(val).js_text()
 }
 
 /// The case of an enum value: a bare case is its name, a case with a payload
@@ -3079,127 +2888,9 @@ fn case_of(v: &Value) -> Value {
     }
 }
 
-/// The payload of `v` where its case is `case`: the one value of a single
-/// payload, the list of a longer one, null otherwise.
-fn payload_of(v: &Value, case: &Value) -> Value {
-    match v {
-        Value::Array(items) if items.first() == Some(case) => match items.len() {
-            2 => items[1].clone(),
-            _ => Value::Array(items[1..].to_vec()),
-        },
-        _ => Value::Null,
-    }
-}
-
+/// Whether a value counts as true, as JavaScript decides it.
 fn is_truthy(val: &Value) -> bool {
-    match val {
-        Value::Null => false,
-        Value::Bool(b) => *b,
-        Value::Number(n) => n.as_f64().map(|f| f != 0.0).unwrap_or(false),
-        Value::String(s) => !s.is_empty(),
-        Value::Array(a) => !a.is_empty(),
-        Value::Object(m) => !m.is_empty(),
-    }
-}
-
-/// `left op right`: what the build works out, where it does; else what
-/// JavaScript would — two strings compare as text, `"12" * 2` is `24`, and
-/// text that is no number is `NaN`, which compares false.
-fn eval_binary_op(left: &Value, op: &crate::syntax::parser::ast::BinOp, right: &Value) -> Value {
-    use crate::project::static_eval::{Static, binary};
-    use crate::syntax::parser::ast::BinOp;
-    if let Some(v) = binary(&Static::from_json(left), op, &Static::from_json(right)) {
-        return v.to_json();
-    }
-    // Two strings compare by their UTF-16 code units, as JavaScript does.
-    if let (Value::String(l), Value::String(r)) = (left, right)
-        && matches!(op, BinOp::Lt | BinOp::Gt | BinOp::Lte | BinOp::Gte)
-    {
-        let order = l.encode_utf16().cmp(r.encode_utf16());
-        return Value::Bool(match op {
-            BinOp::Lt => order.is_lt(),
-            BinOp::Gt => order.is_gt(),
-            BinOp::Lte => order.is_le(),
-            _ => order.is_ge(),
-        });
-    }
-
-    // `2` from the data and `2.0` from a literal are the same number.
-    let same = |l: &Value, r: &Value| match (l, r) {
-        (Value::Number(a), Value::Number(b)) => a.as_f64() == b.as_f64(),
-        _ => l == r,
-    };
-    match op {
-        BinOp::Eq => Value::Bool(same(left, right)),
-        BinOp::Neq => Value::Bool(!same(left, right)),
-        BinOp::Lt => Value::Bool(as_f64(left) < as_f64(right)),
-        BinOp::Gt => Value::Bool(as_f64(left) > as_f64(right)),
-        BinOp::Lte => Value::Bool(as_f64(left) <= as_f64(right)),
-        BinOp::Gte => Value::Bool(as_f64(left) >= as_f64(right)),
-        BinOp::And => Value::Bool(is_truthy(left) && is_truthy(right)),
-        BinOp::Or => Value::Bool(is_truthy(left) || is_truthy(right)),
-        BinOp::NullCoalesce => {
-            if left.is_null() {
-                right.clone()
-            } else {
-                left.clone()
-            }
-        }
-        BinOp::Add => {
-            // String concatenation or numeric addition
-            match (left, right) {
-                (Value::String(l), _) => Value::String(format!("{}{}", l, value_to_string(right))),
-                (_, Value::String(r)) => Value::String(format!("{}{}", value_to_string(left), r)),
-                _ => Value::Number(
-                    serde_json::Number::from_f64(as_f64(left) + as_f64(right))
-                        .unwrap_or(serde_json::Number::from(0)),
-                ),
-            }
-        }
-        BinOp::Sub => Value::Number(
-            serde_json::Number::from_f64(as_f64(left) - as_f64(right))
-                .unwrap_or(serde_json::Number::from(0)),
-        ),
-        BinOp::Mul => Value::Number(
-            serde_json::Number::from_f64(as_f64(left) * as_f64(right))
-                .unwrap_or(serde_json::Number::from(0)),
-        ),
-        BinOp::Div => {
-            let r = as_f64(right);
-            if r == 0.0 {
-                Value::Null
-            } else {
-                Value::Number(
-                    serde_json::Number::from_f64(as_f64(left) / r)
-                        .unwrap_or(serde_json::Number::from(0)),
-                )
-            }
-        }
-        BinOp::Mod => {
-            let r = as_f64(right);
-            if r == 0.0 {
-                Value::Null
-            } else {
-                Value::Number(
-                    serde_json::Number::from_f64(as_f64(left) % r)
-                        .unwrap_or(serde_json::Number::from(0)),
-                )
-            }
-        }
-    }
-}
-
-/// A value as JavaScript's `Number(v)` reads it: text that is no number is
-/// `NaN`, empty text and `null` are `0`, a list or a map is `NaN`.
-fn as_f64(val: &Value) -> f64 {
-    match val {
-        Value::Number(n) => n.as_f64().unwrap_or(0.0),
-        Value::String(s) if s.trim().is_empty() => 0.0,
-        Value::String(s) => s.trim().parse::<f64>().unwrap_or(f64::NAN),
-        Value::Bool(true) => 1.0,
-        Value::Bool(false) | Value::Null => 0.0,
-        Value::Array(_) | Value::Object(_) => f64::NAN,
-    }
+    crate::project::static_eval::Static::from_json(val).truthy()
 }
 
 fn html_escape(s: &str) -> String {

@@ -1647,6 +1647,7 @@ impl webfluent::codegen::static_eval::Static
 pub fn webfluent::codegen::static_eval::Static::from_json(&serde_json::value::Value) -> webfluent::codegen::static_eval::Static
 pub fn webfluent::codegen::static_eval::Static::to_json(&self) -> serde_json::value::Value
 impl webfluent::codegen::static_eval::Static
+pub fn webfluent::codegen::static_eval::Static::js_text(&self) -> alloc::string::String
 pub fn webfluent::codegen::static_eval::Static::to_text(&self) -> alloc::string::String
 pub fn webfluent::codegen::static_eval::Static::truthy(&self) -> bool
 impl core::clone::Clone for webfluent::codegen::static_eval::Static
@@ -1701,9 +1702,11 @@ pub fn webfluent::codegen::static_eval::Scope::for_page(&webfluent::codegen::sta
 pub fn webfluent::codegen::static_eval::Scope::for_program(&webfluent::syntax::parser::Program, &alloc::collections::btree::map::BTreeMap<alloc::string::String, serde_json::value::Value>) -> Self
 pub fn webfluent::codegen::static_eval::Scope::from_program(&webfluent::syntax::parser::Program, &[webfluent::syntax::parser::Statement]) -> Self
 pub fn webfluent::codegen::static_eval::Scope::from_program_with_env(&webfluent::syntax::parser::Program, &[webfluent::syntax::parser::Statement], &alloc::collections::btree::map::BTreeMap<alloc::string::String, serde_json::value::Value>) -> Self
+pub fn webfluent::codegen::static_eval::Scope::lenient(self) -> Self
 pub fn webfluent::codegen::static_eval::Scope::locale(&self) -> alloc::string::String
 pub fn webfluent::codegen::static_eval::Scope::of(impl core::iter::traits::collect::IntoIterator<Item = (alloc::string::String, webfluent::codegen::static_eval::Static)>) -> Self
 pub fn webfluent::codegen::static_eval::Scope::over(&alloc::rcs::arc::Arc<std::collections::hash::map::HashMap<alloc::string::String, webfluent::codegen::static_eval::Static>>, impl core::iter::traits::collect::IntoIterator<Item = (alloc::string::String, webfluent::codegen::static_eval::Static)>) -> Self
+pub fn webfluent::codegen::static_eval::Scope::over_frames(alloc::vec::Vec<alloc::rcs::arc::Arc<std::collections::hash::map::HashMap<alloc::string::String, webfluent::codegen::static_eval::Static>>>) -> Self
 pub fn webfluent::codegen::static_eval::Scope::push_state(&mut self, &[webfluent::syntax::parser::Statement])
 pub fn webfluent::codegen::static_eval::Scope::with(&self, &str, webfluent::codegen::static_eval::Static) -> Self
 pub fn webfluent::codegen::static_eval::Scope::with_locale(self, &str) -> Self
@@ -1722,6 +1725,7 @@ impl core::marker::UnsafeUnpin for webfluent::codegen::static_eval::Scope
 impl core::panic::unwind_safe::RefUnwindSafe for webfluent::codegen::static_eval::Scope
 impl core::panic::unwind_safe::UnwindSafe for webfluent::codegen::static_eval::Scope
 pub fn webfluent::codegen::static_eval::binary(&webfluent::codegen::static_eval::Static, &webfluent::syntax::parser::BinOp, &webfluent::codegen::static_eval::Static) -> core::option::Option<webfluent::codegen::static_eval::Static>
+pub fn webfluent::codegen::static_eval::binary_js(&webfluent::codegen::static_eval::Static, &webfluent::syntax::parser::BinOp, &webfluent::codegen::static_eval::Static) -> webfluent::codegen::static_eval::Static
 pub fn webfluent::codegen::static_eval::case_of(&webfluent::codegen::static_eval::Static) -> webfluent::codegen::static_eval::Static
 pub fn webfluent::codegen::static_eval::eval(&webfluent::syntax::parser::Expr, &webfluent::codegen::static_eval::Scope) -> core::option::Option<webfluent::codegen::static_eval::Static>
 pub fn webfluent::codegen::static_eval::eval_metered(&webfluent::syntax::parser::Expr, &webfluent::codegen::static_eval::Scope) -> webfluent::codegen::static_eval::Metered

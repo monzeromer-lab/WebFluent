@@ -1,0 +1,325 @@
+# One expression a line, evaluated by the template engine over data.json.
+# Literals
+42
+    => 42  |42|
+1.5
+    => 1.5  |1.5|
+-3
+    => -3  |-3|
+"plain"
+    => "plain"  |plain|
+"with {name} spliced"
+    => "with Ada spliced"  |with Ada spliced|
+"two {n} and {f}"
+    => "two 3 and 1.5"  |two 3 and 1.5|
+"a list {xs} and a map {obj}"
+    => "a list 1,2,3 and a map [object Object]"  |a list 1,2,3 and a map [object Object]|
+"null {nul} and missing {missing}"
+    => "null  and missing "  |null  and missing |
+true
+    => true  |true|
+null
+    => null  ||
+[1, 2, 3]
+    => [1,2,3]  |1,2,3|
+{ a: 1, "b-c": 2 }
+    => {"a":1,"b-c":2}  |[object Object]|
+[...xs, 4]
+    => [1,2,3,4]  |1,2,3,4|
+{ ...obj, a: 9 }
+    => {"a":9,"b":{"c":"deep"}}  |[object Object]|
+1..=3
+    => [1,2,3]  |1,2,3|
+0..3
+    => [0,1,2]  |0,1,2|
+.calm
+    => "calm"  |calm|
+$color-primary
+    => "var(--color-primary)"  |var(--color-primary)|
+@2026-03-14
+    => "2026-03-14"  |2026-03-14|
+3.days
+    => 259200000  |259200000|
+€12.99
+    => {"amount":1299,"currency":"EUR"}  |[object Object]|
+# Names and reads
+name
+    => "Ada"  |Ada|
+missing
+    => null  ||
+obj.a
+    => 1  |1|
+obj.b.c
+    => "deep"  |deep|
+obj.missing
+    => null  ||
+obj.missing.deeper
+    => null  ||
+nul.anything
+    => null  ||
+name.length
+    => 3  |3|
+ar.length
+    => 5  |5|
+xs.length
+    => 3  |3|
+emptyList.length
+    => 0  |0|
+obj.length
+    => null  ||
+xs[0]
+    => 1  |1|
+xs[2]
+    => 3  |3|
+xs[3]
+    => null  ||
+xs[1.5]
+    => null  ||
+xs[-1]
+    => null  ||
+obj["a"]
+    => 1  |1|
+obj["zz"]
+    => null  ||
+rows[1].title
+    => "Read"  |Read|
+missing?.a
+    => null  ||
+nul?.a
+    => null  ||
+obj?.b?.c
+    => "deep"  |deep|
+nul?.length
+    => null  ||
+xs?.[0]
+    => 1  |1|
+nul?.[0]
+    => null  ||
+# Arithmetic
+n + 1
+    => 4  |4|
+n * f
+    => 4.5  |4.5|
+n / 0
+    => null  ||
+n % 0
+    => null  ||
+n % 2
+    => 1  |1|
+7 / 2
+    => 3.5  |3.5|
+s12 * 2
+    => 24  |24|
+s12 + 1
+    => "121"  |121|
+1 + s12
+    => "112"  |112|
+s12 - 2
+    => 10  |10|
+word * 2
+    => null  ||
+name + n
+    => "Ada3"  |Ada3|
+nul + 1
+    => 1  |1|
+xs + 1
+    => "1,2,31"  |1,2,31|
+-name
+    => null  ||
+-n
+    => -3  |-3|
+n - nul
+    => 3  |3|
+big * 3
+    => 37037036.7  |37037036.7|
+0.1 + 0.2
+    => 0.30000000000000004  |0.30000000000000004|
+# Comparison
+n == 3
+    => true  |true|
+n == 3.0
+    => true  |true|
+s12 == 12
+    => false  |false|
+s12 < s9
+    => true  |true|
+s12 > s9
+    => false  |false|
+"b" < "a"
+    => false  |false|
+word < n
+    => false  |false|
+n < s9
+    => true  |true|
+nul == null
+    => true  |true|
+missing == null
+    => true  |true|
+nul != null
+    => false  |false|
+obj == obj
+    => true  |true|
+xs == [1, 2, 3]
+    => true  |true|
+.calm == calm
+    => true  |true|
+# Logic
+yes && no
+    => false  |false|
+yes || no
+    => true  |true|
+!yes
+    => false  |false|
+!empty
+    => true  |true|
+!emptyObj
+    => false  |false|
+!emptyList
+    => true  |true|
+!nul
+    => true  |true|
+nul ?? "fallback"
+    => "fallback"  |fallback|
+missing ?? "fallback"
+    => "fallback"  |fallback|
+empty ?? "fallback"
+    => ""  ||
+xs[9] ?? "none"
+    => "none"  |none|
+obj["q"] ?? "none"
+    => "none"  |none|
+n > 2 && name
+    => true  |true|
+no || name
+    => true  |true|
+# Values from if and match
+if yes { "y" } else { "n" }
+    => "y"  |y|
+if empty { "y" } else { "n" }
+    => "n"  |n|
+if emptyObj { "y" } else { "n" }
+    => "y"  |y|
+if no { "y" }
+    => null  ||
+if let v = nul { v } else { "none" }
+    => "none"  |none|
+if let v = name { v + "!" } else { "none" }
+    => "Ada!"  |Ada!|
+match status { .failed(r) { r } else { "fine" } }
+    => "timed out"  |timed out|
+match calm { .calm { "c" } .loud { "l" } }
+    => "c"  |c|
+# Methods
+name.toUpperCase()
+    => "ADA"  |ADA|
+name.toLowerCase()
+    => "ada"  |ada|
+name.length()
+    => null  ||
+ar.length()
+    => null  ||
+word.includes("b")
+    => true  |true|
+xs.includes(2)
+    => true  |true|
+xs.join("-")
+    => "1-2-3"  |1-2-3|
+xs.join()
+    => "1,2,3"  |1,2,3|
+words.sort()
+    => ["apple","fig","pear"]  |apple,fig,pear|
+words.sortBy(w => w.length)
+    => ["fig","pear","apple"]  |fig,pear,apple|
+xs.map(x => x * 2)
+    => [2,4,6]  |2,4,6|
+xs.filter(x => x > 1)
+    => [2,3]  |2,3|
+xs.sum()
+    => 6  |6|
+xs.first()
+    => 1  |1|
+xs.last()
+    => 3  |3|
+xs.take(2)
+    => [1,2]  |1,2|
+emptyList.first()
+    => null  ||
+rows.map(r => r.title).join(", ")
+    => "Write, Read, Ship"  |Write, Read, Ship|
+rows.filter(r => !r.done).length
+    => 2  |2|
+rows.groupBy(r => r.team)
+    => {"a":[{"done":true,"id":1,"score":5,"team":"a","title":"Write"},{"done":false,"id":3,"score":7,"team":"a","title":"Ship"}],"b":[{"done":false,"id":2,"score":9,"team":"b","title":"Read"}]}  |[object Object]|
+rows.sortBy(r => -r.score).take(2).map(r => r.id)
+    => [2,3]  |2,3|
+words.unique()
+    => ["pear","apple","fig"]  |pear,apple,fig|
+"a,b".split(",")
+    => ["a","b"]  |a,b|
+"hello world".capitalize()
+    => "Hello world"  |Hello world|
+"hello world".truncate(5)
+    => "hello…"  |hello…|
+name.replace(/a/i, "e")
+    => "eda"  |eda|
+/^A/.test(name)
+    => true  |true|
+space.trim()
+    => "7"  |7|
+nested.flat()
+    => null  ||
+xs.indexOf(3)
+    => 2  |2|
+xs.at(-1)
+    => null  ||
+missing.length()
+    => null  ||
+nul.toUpperCase()
+    => null  ||
+obj.keys()
+    => null  ||
+Math.max(1, n, 2)
+    => 3  |3|
+Math.floor(f)
+    => 1  |1|
+Math.round(2.5)
+    => 3  |3|
+Number("12")
+    => 12  |12|
+Number(space)
+    => 7  |7|
+Number(word)
+    => null  ||
+String(n)
+    => "3"  |3|
+# Calls
+format(1234.5, .currency)
+    => "$1,234.50"  |$1,234.50|
+format(1234.5, .currency, "EUR")
+    => "€1,234.50"  |€1,234.50|
+format(0.256, .percent, 1)
+    => "25.6%"  |25.6%|
+format(1234.5)
+    => "1,234.5"  |1,234.5|
+format(price)
+    => "€12.99"  |€12.99|
+format(nul)
+    => ""  ||
+format(day, .date, "long")
+    => "March 14, 2026"  |March 14, 2026|
+t("missing.key")
+    => "missing.key"  |missing.key|
+t("greeting", { name: name })
+    => "greeting"  |greeting|
+keyLabel("mod+s")
+    => "Ctrl+S"  |Ctrl+S|
+sanitize("<b>x</b><script>y</script>")
+    => "<b>x</b>"  |<b>x</b>|
+unknownFn(1)
+    => null  ||
+dbl(n)
+    => 6  |6|
+dbl(missing)
+    => 0  |0|
+LIMIT + 1
+    => 4  |4|

@@ -1,0 +1,167 @@
+# One expression a line, evaluated by the template engine over data.json.
+# Literals
+42
+1.5
+-3
+"plain"
+"with {name} spliced"
+"two {n} and {f}"
+"a list {xs} and a map {obj}"
+"null {nul} and missing {missing}"
+true
+null
+[1, 2, 3]
+{ a: 1, "b-c": 2 }
+[...xs, 4]
+{ ...obj, a: 9 }
+1..=3
+0..3
+.calm
+$color-primary
+@2026-03-14
+3.days
+€12.99
+# Names and reads
+name
+missing
+obj.a
+obj.b.c
+obj.missing
+obj.missing.deeper
+nul.anything
+name.length
+ar.length
+xs.length
+emptyList.length
+obj.length
+xs[0]
+xs[2]
+xs[3]
+xs[1.5]
+xs[-1]
+obj["a"]
+obj["zz"]
+rows[1].title
+missing?.a
+nul?.a
+obj?.b?.c
+nul?.length
+xs?.[0]
+nul?.[0]
+# Arithmetic
+n + 1
+n * f
+n / 0
+n % 0
+n % 2
+7 / 2
+s12 * 2
+s12 + 1
+1 + s12
+s12 - 2
+word * 2
+name + n
+nul + 1
+xs + 1
+-name
+-n
+n - nul
+big * 3
+0.1 + 0.2
+# Comparison
+n == 3
+n == 3.0
+s12 == 12
+s12 < s9
+s12 > s9
+"b" < "a"
+word < n
+n < s9
+nul == null
+missing == null
+nul != null
+obj == obj
+xs == [1, 2, 3]
+.calm == calm
+# Logic
+yes && no
+yes || no
+!yes
+!empty
+!emptyObj
+!emptyList
+!nul
+nul ?? "fallback"
+missing ?? "fallback"
+empty ?? "fallback"
+xs[9] ?? "none"
+obj["q"] ?? "none"
+n > 2 && name
+no || name
+# Values from if and match
+if yes { "y" } else { "n" }
+if empty { "y" } else { "n" }
+if emptyObj { "y" } else { "n" }
+if no { "y" }
+if let v = nul { v } else { "none" }
+if let v = name { v + "!" } else { "none" }
+match status { .failed(r) { r } else { "fine" } }
+match calm { .calm { "c" } .loud { "l" } }
+# Methods
+name.toUpperCase()
+name.toLowerCase()
+name.length()
+ar.length()
+word.includes("b")
+xs.includes(2)
+xs.join("-")
+xs.join()
+words.sort()
+words.sortBy(w => w.length)
+xs.map(x => x * 2)
+xs.filter(x => x > 1)
+xs.sum()
+xs.first()
+xs.last()
+xs.take(2)
+emptyList.first()
+rows.map(r => r.title).join(", ")
+rows.filter(r => !r.done).length
+rows.groupBy(r => r.team)
+rows.sortBy(r => -r.score).take(2).map(r => r.id)
+words.unique()
+"a,b".split(",")
+"hello world".capitalize()
+"hello world".truncate(5)
+name.replace(/a/i, "e")
+/^A/.test(name)
+space.trim()
+nested.flat()
+xs.indexOf(3)
+xs.at(-1)
+missing.length()
+nul.toUpperCase()
+obj.keys()
+Math.max(1, n, 2)
+Math.floor(f)
+Math.round(2.5)
+Number("12")
+Number(space)
+Number(word)
+String(n)
+# Calls
+format(1234.5, .currency)
+format(1234.5, .currency, "EUR")
+format(0.256, .percent, 1)
+format(1234.5)
+format(price)
+format(nul)
+format(day, .date, "long")
+t("missing.key")
+t("greeting", { name: name })
+keyLabel("mod+s")
+sanitize("<b>x</b><script>y</script>")
+unknownFn(1)
+dbl(n)
+dbl(missing)
+LIMIT + 1
