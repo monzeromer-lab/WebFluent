@@ -172,6 +172,10 @@ jobs:
         working-directory: tests/browser
         run: node redirects.mjs
 
+      - name: What a page writes from a value
+        working-directory: tests/browser
+        run: node output_security.mjs
+
       # What the compiler once compiled wrong, clicked and typed into.
       - name: Behaviour
         run: target/release/wf test tests/fixtures/behaviour
