@@ -1085,7 +1085,7 @@ fn lint_aria_structure(
             Some(None) => continue,
             Some(Some(role)) => Some(role),
             None => named_arg_literal(&inner.args, "role").or_else(|| {
-                crate::codegen::builtin::implicit_role(name, &inner.modifiers).map(str::to_string)
+                crate::project::builtin::implicit_role(name, &inner.modifiers).map(str::to_string)
             }),
         };
         let Some(child_role) = child_role else {

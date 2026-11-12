@@ -17,7 +17,7 @@
 pub use crate::syntax::parser::walk::translation_group;
 use std::path::Path;
 
-use crate::config::{CleanUrls, Owner, ProjectConfig};
+use crate::project::config::{CleanUrls, Owner, ProjectConfig};
 use crate::syntax::parser::ast::{
     Arg, Declaration, Expr, PageDecl, Program, Statement, StatementKind, StringPart,
 };
@@ -103,7 +103,7 @@ pub fn page_lang(page: &PageDecl, config: &ProjectConfig) -> String {
 
 /// ` dir="rtl"` for a language written right to left, empty otherwise.
 pub fn dir_attr(lang: &str) -> &'static str {
-    if crate::i18n::table::is_rtl(lang) {
+    if crate::project::i18n::table::is_rtl(lang) {
         " dir=\"rtl\""
     } else {
         ""

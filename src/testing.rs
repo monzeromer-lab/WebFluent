@@ -20,8 +20,8 @@
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 
-use crate::config::project::ThemeConfig;
 use crate::diagnostics::error::Result;
+use crate::project::config::project::ThemeConfig;
 use crate::syntax::parser::ast::*;
 
 /// A project's tests, read and ready to run.
@@ -44,7 +44,7 @@ pub struct Tests {
     /// The project's own scripts, linked on every page a test that acts
     /// builds as a site links them, so a test that clicks runs the code
     /// they define.
-    pub scripts: Vec<crate::project_js::Script>,
+    pub scripts: Vec<crate::project::project_js::Script>,
     /// The project's translations, so `t("key")` in a test reads the same
     /// messages the site does.
     pub i18n: Option<I18n>,
@@ -71,7 +71,7 @@ pub struct Styles {
 
 /// A project's `i18n` settings and every locale's messages.
 pub type I18n = (
-    crate::config::project::I18nConfig,
+    crate::project::config::project::I18nConfig,
     HashMap<String, HashMap<String, String>>,
 );
 
@@ -236,16 +236,16 @@ pub fn collect(path: &Path) -> Result<Tests> {
             ));
         }
     }
-    let config = crate::config::ProjectConfig::load(&project_dir).ok();
+    let config = crate::project::config::ProjectConfig::load(&project_dir).ok();
     // The project's translations: a test draws `t("key")` as the site does,
     // in its default locale.
     let i18n = config.as_ref().and_then(|c| c.i18n.clone()).and_then(|i| {
-        crate::i18n::load(&project_dir, &i)
+        crate::project::i18n::load(&project_dir, &i)
             .ok()
             .map(|tables| (i, tables))
     });
-    let scripts =
-        crate::project_js::load(&project_dir, &project_dir.join("src")).unwrap_or_default();
+    let scripts = crate::project::project_js::load(&project_dir, &project_dir.join("src"))
+        .unwrap_or_default();
     // Absolute: the test's site links to it from somewhere else.
     let public = project_dir.join("public");
     let public = public.canonicalize().unwrap_or(public);
@@ -463,12 +463,12 @@ pub fn render_test(
     // Translated by its own words, as the build translates the page: the
     // default locale's table, its plural forms too, are what a test sees.
     if literals {
-        crate::i18n::literals::translate(&mut program);
+        crate::project::i18n::literals::translate(&mut program);
     }
     // The data: the test's own, and the body's initial state on top.
     let mut data = match &test.data {
         Some(expr) => {
-            crate::codegen::static_eval::eval(expr, &crate::codegen::static_eval::Scope::of([]))
+            crate::project::static_eval::eval(expr, &crate::project::static_eval::Scope::of([]))
                 .map(|v| v.to_json())
                 .unwrap_or(serde_json::Value::Object(Default::default()))
         }
@@ -480,16 +480,16 @@ pub fn render_test(
     // declarations, so without this a `Cart.count` in a test rendered as
     // nothing.
     if let serde_json::Value::Object(map) = &mut data {
-        let seeds = crate::codegen::static_eval::stores_as_values(&program, Some(map));
+        let seeds = crate::project::static_eval::stores_as_values(&program, Some(map));
         for (name, value) in seeds {
             map.insert(name, value);
         }
     }
-    let scope = crate::codegen::static_eval::Scope::from_program(&program, &test.body);
+    let scope = crate::project::static_eval::Scope::from_program(&program, &test.body);
     if let serde_json::Value::Object(map) = &mut data {
         for stmt in &test.body {
             if let StatementKind::State(s) = &stmt.kind
-                && let Some(v) = crate::codegen::static_eval::eval(&s.value, &scope)
+                && let Some(v) = crate::project::static_eval::eval(&s.value, &scope)
             {
                 map.entry(s.name.clone()).or_insert(v.to_json());
             }
@@ -714,7 +714,7 @@ fn run_one(
     let html =
         render_test(shared, test, messages, locale, literals).map_err(|e| vec![e.to_string()])?;
     let mut reasons = Vec::new();
-    let empty = crate::codegen::static_eval::Scope::of([]);
+    let empty = crate::project::static_eval::Scope::of([]);
     // What a reader sees: the text, not the markup — `expect "wf-text"` is
     // not satisfied by a class name.
     let visible = rendered_text(&html);
@@ -722,7 +722,7 @@ fn run_one(
         let Step::Expect { text, negated, .. } = step else {
             continue; // a test that acts does not come this way
         };
-        let text = crate::codegen::static_eval::eval(text, &empty)
+        let text = crate::project::static_eval::eval(text, &empty)
             .map(|v| v.to_text())
             .unwrap_or_default();
         let found = squeeze(&visible).contains(&squeeze(&text));
@@ -824,7 +824,7 @@ pub trait Browser {
 #[derive(Clone, Copy)]
 pub struct Site<'a> {
     pub theme: &'a ThemeConfig,
-    pub scripts: &'a [crate::project_js::Script],
+    pub scripts: &'a [crate::project::project_js::Script],
     pub i18n: Option<&'a I18n>,
     pub styles: &'a Styles,
 }
@@ -847,7 +847,7 @@ pub fn act(
     // compiler takes the tree.
     let mut program = crate::sema::lower(as_program(shared, test));
     if site.i18n.is_some_and(|(i, _)| i.literals) {
-        crate::i18n::literals::translate(&mut program);
+        crate::project::i18n::literals::translate(&mut program);
     }
     write_site(&program, &dir, site)?;
     let outcome = match browser.open(&dir, 600) {
@@ -892,7 +892,7 @@ pub fn visible_text(page: &mut dyn Page) -> Result<String> {
 /// One step, against the open page.
 fn step_one(page: &mut dyn Page, step: &Step) -> Result<std::result::Result<(), String>> {
     let text = |e: &Expr| {
-        crate::codegen::static_eval::eval(e, &crate::codegen::static_eval::Scope::of([]))
+        crate::project::static_eval::eval(e, &crate::project::static_eval::Scope::of([]))
             .map(|v| v.to_text())
             .unwrap_or_default()
     };
@@ -968,7 +968,7 @@ fn step_one(page: &mut dyn Page, step: &Step) -> Result<std::result::Result<(), 
 /// already in hand, for a page that exists for one test and is then thrown
 /// away.
 pub fn write_site(program: &Program, dir: &Path, site: &Site) -> Result<()> {
-    let mut config = crate::config::ProjectConfig::default_config("test");
+    let mut config = crate::project::config::ProjectConfig::default_config("test");
     config.theme = site.theme.clone();
     config.i18n = site.i18n.map(|(c, _)| c.clone());
     for script in site.scripts {
@@ -992,13 +992,13 @@ pub fn write_site(program: &Program, dir: &Path, site: &Site) -> Result<()> {
     // The sheet in the build's order: the engine's rules and the theme's
     // tokens, the dark theme's, the project's own stylesheets, then what
     // its `style { }` blocks compile to.
-    let tokens = crate::themes::resolve_tokens(program, &config.theme)?;
+    let tokens = crate::project::themes::resolve_tokens(program, &config.theme)?;
     let mut css = crate::codegen::generate_css_for(&tokens, config.theme.builtin, program);
-    if let Some(dark) = crate::themes::resolve_dark_tokens(program, &config.theme)? {
+    if let Some(dark) = crate::project::themes::resolve_dark_tokens(program, &config.theme)? {
         css.push_str(&crate::codegen::dark_css(&dark));
     }
     css.push_str(&site.styles.css);
-    css.push_str(&crate::codegen::scoped_css::scoped_rules(program));
+    css.push_str(&crate::project::scoped_css::scoped_rules(program));
     std::fs::write(dir.join("styles.css"), css)?;
     // The stylesheets the project links, linked as the built page links
     // them.

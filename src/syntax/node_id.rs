@@ -945,7 +945,7 @@ mod tests {
     use crate::codegen::JsCodegen;
     use crate::codegen::ssg::SiteContext;
     use crate::codegen::ssg::{render_page_html, render_page_html_studio};
-    use crate::config::ProjectConfig;
+    use crate::project::config::ProjectConfig;
     use crate::syntax::parser::ast::PageDecl;
 
     fn program(src: &str) -> Program {

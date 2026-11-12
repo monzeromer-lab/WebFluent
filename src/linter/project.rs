@@ -200,7 +200,7 @@ fn placeholders(message: &str) -> Vec<String> {
 /// hold.
 pub fn translations(
     program: &Program,
-    config: &crate::config::project::I18nConfig,
+    config: &crate::project::config::project::I18nConfig,
     messages: &HashMap<String, HashMap<String, String>>,
     file_of: &dyn Fn(usize) -> String,
 ) -> Vec<Diagnostic> {
@@ -211,7 +211,7 @@ pub fn translations(
     let messages = if config.literals {
         let mut m = messages.clone();
         let own = m.entry(config.default_locale.clone()).or_default();
-        for u in crate::i18n::literals::uses(program, file_of) {
+        for u in crate::project::i18n::literals::uses(program, file_of) {
             own.entry(u.key.clone()).or_insert(u.key);
         }
         with_literals = m;
@@ -232,7 +232,7 @@ pub fn translations(
     let default = messages.get(&config.default_locale);
     // Every `t()` the program writes — in bodies, and in a page's header,
     // layout and head — as the translations table counts them.
-    for u in crate::i18n::table::uses(program, file_of) {
+    for u in crate::project::i18n::table::uses(program, file_of) {
         if u.dynamic {
             continue;
         }
@@ -428,8 +428,8 @@ pub fn translations(
     }
     // I05: words a reader sees that no table can translate.
     if config.literals {
-        use crate::i18n::literals::Untranslated;
-        for (file, span, why) in crate::i18n::literals::untranslated(program, file_of) {
+        use crate::project::i18n::literals::Untranslated;
+        for (file, span, why) in crate::project::i18n::literals::untranslated(program, file_of) {
             let (message, hint) = match why {
                 Untranslated::Splices(x) => (
                     format!("this text is not translated: it splices `{x}`, which is more than a name"),
@@ -465,7 +465,7 @@ pub fn persisted_values(
     program: &Program,
     env: &BTreeMap<String, serde_json::Value>,
 ) -> BTreeMap<String, serde_json::Value> {
-    let scope = crate::codegen::static_eval::Scope::from_program_with_env(program, &[], env);
+    let scope = crate::project::static_eval::Scope::from_program_with_env(program, &[], env);
     let mut out = BTreeMap::new();
     for decl in &program.declarations {
         let (owner, body) = match decl {
@@ -481,7 +481,7 @@ pub fn persisted_values(
             if !st.persist || st.policy.as_ref().is_some_and(|p| p.key.is_some()) {
                 continue;
             }
-            let Some(value) = crate::codegen::static_eval::eval(&st.value, &scope) else {
+            let Some(value) = crate::project::static_eval::eval(&st.value, &scope) else {
                 continue;
             };
             let value = value.to_json();

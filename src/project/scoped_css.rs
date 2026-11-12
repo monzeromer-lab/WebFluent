@@ -480,7 +480,7 @@ pub fn media_condition(condition: &str, points: &BTreeMap<String, String>) -> St
 /// choice.
 pub fn breakpoints(program: &Program) -> BTreeMap<String, String> {
     let mut out: BTreeMap<String, String> = BTreeMap::new();
-    for (name, value) in crate::themes::tokens::default_tokens() {
+    for (name, value) in crate::project::themes::tokens::default_tokens() {
         if let Some(step) = name.strip_prefix("screen-") {
             out.insert(step.to_string(), value);
         }

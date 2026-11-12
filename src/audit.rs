@@ -12,8 +12,8 @@
 
 use std::path::Path;
 
-use crate::config::ProjectConfig;
 use crate::diagnostics::error::Result;
+use crate::project::config::ProjectConfig;
 use crate::syntax::parser::ast::{
     Arg, ComponentRef, Declaration, Expr, Program, Statement, StatementKind, UIElement,
 };
@@ -24,7 +24,7 @@ pub fn audit_project(project_dir: &Path) -> Result<Report> {
     config.resolve_env(project_dir);
     let (program, files) = crate::build::read_project_with(project_dir, None)?;
     let mut report = audit(&program, &config, &files);
-    report.scripts = crate::project_js::load(project_dir, &project_dir.join("src"))
+    report.scripts = crate::project::project_js::load(project_dir, &project_dir.join("src"))
         .unwrap_or_default()
         .into_iter()
         .map(|s| Script {
@@ -85,7 +85,7 @@ pub struct EnvName {
 pub fn audit(program: &Program, config: &ProjectConfig, files: &[String]) -> Report {
     let mut report = Report {
         csp: if config.build.csp {
-            crate::config::project::csp_policy(config)
+            crate::project::config::project::csp_policy(config)
         } else {
             "none — `build.csp` is off, so the pages ship no policy".to_string()
         },

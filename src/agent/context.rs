@@ -352,7 +352,7 @@ pub fn context_via(
     let config_text = vfs
         .read_to_string(&dir.join("webfluent.app.json"))
         .unwrap_or_else(|_| "{}".into());
-    let config = crate::config::ProjectConfig::load_via(vfs, dir).ok();
+    let config = crate::project::config::ProjectConfig::load_via(vfs, dir).ok();
     // The config, each private `env` value withheld.
     let mut shown: serde_json::Value =
         serde_json::from_str(&config_text).unwrap_or(serde_json::json!({}));
@@ -422,7 +422,7 @@ pub fn context_via(
             hint: d.hint.clone(),
         })
         .collect();
-    let tokens = crate::themes::view::view_via(vfs, dir)
+    let tokens = crate::project::themes::view::view_via(vfs, dir)
         .map(|v| v.tokens.into_iter().map(|t| (t.name, t.value)).collect())
         .unwrap_or_default();
     Ok(Context {

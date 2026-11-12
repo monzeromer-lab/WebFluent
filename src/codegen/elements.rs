@@ -13,7 +13,7 @@
 //! component's props, re-renders when one changes, and cleans up when it
 //! leaves the document.
 
-use crate::config::ProjectConfig;
+use crate::project::config::ProjectConfig;
 use crate::syntax::parser::ast::{ComponentDecl, Declaration, Program, TypeRef};
 
 /// `PriceTag` as a tag name is `price-tag`.

@@ -26,8 +26,8 @@
 
 use std::collections::HashMap;
 
-use crate::config::project::ThemeConfig;
 use crate::diagnostics::error::{Result, WebFluentError};
+use crate::project::config::project::ThemeConfig;
 use crate::syntax::parser::ast::{Declaration, Expr, Program, ThemeDecl};
 
 /// The palettes that used to ship with the engine, and where each went.
@@ -87,7 +87,10 @@ pub fn resolve_tokens(program: &Program, config: &ThemeConfig) -> Result<HashMap
 /// It sets what an animation does when the element says nothing, so it
 /// goes on top of the theme for the same reason `theme.tokens` does: it is
 /// the build's decision, not the design's.
-pub fn apply_motion(tokens: &mut HashMap<String, String>, motion: &crate::config::MotionConfig) {
+pub fn apply_motion(
+    tokens: &mut HashMap<String, String>,
+    motion: &crate::project::config::MotionConfig,
+) {
     for (name, value) in motion.tokens(tokens) {
         tokens.insert(name, value);
     }

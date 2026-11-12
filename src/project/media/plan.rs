@@ -451,7 +451,7 @@ mod tests {
         // Small enough to encode outright.
         assert!(!before.estimated());
         assert_eq!(before.widths, [320, 640, 680]);
-        let asset = crate::media::process(
+        let asset = crate::project::media::process(
             "pic",
             &source,
             &dir.join("out"),

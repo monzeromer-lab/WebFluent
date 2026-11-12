@@ -171,11 +171,12 @@ impl ChangeSet {
         let Some(text) = self.on_disk(CONFIG) else {
             return Vec::new();
         };
-        let Ok(config) = serde_json::from_str::<crate::config::ProjectConfig>(&text) else {
+        let Ok(config) = serde_json::from_str::<crate::project::config::ProjectConfig>(&text)
+        else {
             return Vec::new();
         };
         let Ok(Some(serde_json::Value::Object(env))) =
-            crate::config::json_edit::get(&text, &["env"])
+            crate::project::config::json_edit::get(&text, &["env"])
         else {
             return Vec::new();
         };
@@ -474,7 +475,7 @@ fn hash(text: &str) -> u64 {
 fn withhold(text: &str, private: &[(String, serde_json::Value)]) -> String {
     let mut out = text.to_string();
     for (name, _) in private {
-        if let Ok(t) = crate::config::json_edit::set(
+        if let Ok(t) = crate::project::config::json_edit::set(
             &out,
             &["env", name],
             &serde_json::Value::String(WITHHELD.into()),
@@ -491,7 +492,7 @@ fn withhold(text: &str, private: &[(String, serde_json::Value)]) -> String {
 fn restore(text: &str, private: &[(String, serde_json::Value)]) -> Result<String> {
     let mut out = text.to_string();
     for (name, value) in private {
-        let now = crate::config::json_edit::get(&out, &["env", name])
+        let now = crate::project::config::json_edit::get(&out, &["env", name])
             .map_err(|e| refused(e.to_string()))?;
         let keep = match now {
             Some(serde_json::Value::String(s)) => s == WITHHELD,
@@ -500,7 +501,7 @@ fn restore(text: &str, private: &[(String, serde_json::Value)]) -> Result<String
             Some(_) => false,
         };
         if keep {
-            out = crate::config::json_edit::set(&out, &["env", name], value)
+            out = crate::project::config::json_edit::set(&out, &["env", name], value)
                 .map_err(|e| refused(e.to_string()))?;
         }
     }

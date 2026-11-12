@@ -25,7 +25,7 @@ pub fn writes_inline_styles(program: &crate::syntax::parser::ast::Program) -> bo
         let own = el.style_block.as_ref().is_some_and(|sb| {
             sb.properties
                 .iter()
-                .any(|p| crate::codegen::scoped_css::static_declaration(p).is_none())
+                .any(|p| crate::project::scoped_css::static_declaration(p).is_none())
         });
         // An image's placeholder is a blurred copy or an average colour:
         // one value per picture, painted under it until it arrives.
@@ -301,7 +301,7 @@ enum Source {
 }
 
 fn source_of(url: &str) -> Source {
-    match crate::codegen::url::scheme_of(url) {
+    match crate::project::url::scheme_of(url) {
         Some(scheme) if scheme != "http" && scheme != "https" => Source::Scheme(scheme),
         _ => match external_origin(url.trim()) {
             Some(origin) => Source::Origin(origin),
@@ -322,7 +322,7 @@ fn refresh_leaves(content: &str) -> bool {
         return false;
     };
     let url = rest.trim().trim_matches(|c| c == '\'' || c == '"');
-    crate::codegen::url::scheme_of(url).is_some()
+    crate::project::url::scheme_of(url).is_some()
         || url.starts_with("//")
         || url.starts_with("\\\\")
         || url.starts_with("/\\")

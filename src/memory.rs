@@ -106,7 +106,7 @@ fn base64_map<S: serde::Serializer>(
     use serde::ser::SerializeMap;
     let mut out = serializer.serialize_map(Some(map.len()))?;
     for (path, bytes) in map {
-        out.serialize_entry(path, &crate::media::probe::base64(bytes))?;
+        out.serialize_entry(path, &crate::project::media::probe::base64(bytes))?;
     }
     out.end()
 }

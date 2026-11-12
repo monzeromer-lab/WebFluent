@@ -23,10 +23,10 @@ use std::collections::{BTreeMap, BTreeSet};
 use std::path::{Path, PathBuf};
 
 use crate::base::vfs::Vfs;
-use crate::config::ProjectConfig;
-use crate::config::schema::{self, FieldType};
 use crate::diagnostics::error::{Result, WebFluentError};
-use crate::media::plan::{Plan, size_text};
+use crate::project::config::ProjectConfig;
+use crate::project::config::schema::{self, FieldType};
+use crate::project::media::plan::{Plan, size_text};
 use crate::registry::FileKind;
 use crate::syntax::parser::ast::*;
 
@@ -401,7 +401,7 @@ impl Finder<'_> {
                     // `Image(src: "/hero.png")`: re-encoded, as an `image` is.
                     let processed = self
                         .literal
-                        .then(|| crate::data::processed_src(ui).map(|(i, _)| i))
+                        .then(|| crate::project::data::processed_src(ui).map(|(i, _)| i))
                         .flatten();
                     for (i, arg) in ui.args.iter().enumerate() {
                         let at = ui.arg_spans.get(i).copied().unwrap_or(ui.span);
@@ -712,7 +712,8 @@ pub fn list_via(vfs: &dyn Vfs, root: &Path) -> Result<Listing> {
         && config.as_ref().is_none_or(|c| {
             !matches!(
                 c.build.output_type,
-                crate::config::OutputType::Pdf | crate::config::OutputType::Slides
+                crate::project::config::OutputType::Pdf
+                    | crate::project::config::OutputType::Slides
             )
         });
     let mut finder = Finder {
@@ -732,7 +733,7 @@ pub fn list_via(vfs: &dyn Vfs, root: &Path) -> Result<Listing> {
         };
         let file = relative(root, &path);
         let program = if file.ends_with(".md") {
-            match crate::data::markdown_page(&text, &file) {
+            match crate::project::data::markdown_page(&text, &file) {
                 Ok(p) => p,
                 Err(_) => continue,
             }
@@ -864,7 +865,7 @@ pub fn plan_via(vfs: &dyn Vfs, root: &Path, path: &str) -> Result<Plan> {
     let bytes = vfs
         .read(&file)
         .map_err(|e| WebFluentError::IoError(format!("{}: {e}", file.display())))?;
-    crate::media::plan::plan(
+    crate::project::media::plan::plan(
         &bytes,
         &file,
         &settings,

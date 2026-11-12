@@ -43,7 +43,7 @@ pub fn resolve_data(program: &mut Program, root: &Path) -> Result<()> {
 pub fn resolve_data_with(
     program: &mut Program,
     root: &Path,
-    media: Option<(&Path, &crate::media::Settings, &str)>,
+    media: Option<(&Path, &crate::project::media::Settings, &str)>,
 ) -> Result<()> {
     resolve_data_via(&crate::base::vfs::FsVfs, program, root, media)
 }
@@ -53,7 +53,7 @@ pub fn resolve_data_via(
     vfs: &dyn crate::base::vfs::Vfs,
     program: &mut Program,
     root: &Path,
-    media: Option<(&Path, &crate::media::Settings, &str)>,
+    media: Option<(&Path, &crate::project::media::Settings, &str)>,
 ) -> Result<()> {
     for decl in &mut program.declarations {
         let Declaration::Data(d) = decl else {
@@ -100,7 +100,7 @@ pub fn resolve_data_via(
                     continue;
                 }
             };
-            let asset = crate::media::process_via(
+            let asset = crate::project::media::process_via(
                 vfs,
                 &d.name,
                 path,
@@ -200,7 +200,7 @@ fn lower_image_src(
     ui: &mut UIElement,
     root: &Path,
     out_dir: &Path,
-    settings: &crate::media::Settings,
+    settings: &crate::project::media::Settings,
     base_path: &str,
     made: &mut std::collections::HashMap<String, Option<serde_json::Value>>,
 ) {
@@ -218,7 +218,7 @@ fn lower_image_src(
                 .file_stem()
                 .map(|s| s.to_string_lossy().to_string())
                 .unwrap_or_default();
-            crate::media::process_via(
+            crate::project::media::process_via(
                 vfs,
                 &stem,
                 &source,

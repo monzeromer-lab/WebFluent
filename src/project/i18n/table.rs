@@ -307,7 +307,7 @@ fn line_of(text: &str, key: &str) -> Option<u32> {
 pub fn build(
     program: &Program,
     file_of: &dyn Fn(usize) -> String,
-    config: &crate::config::project::I18nConfig,
+    config: &crate::project::config::project::I18nConfig,
     files: &HashMap<String, Option<String>>,
 ) -> Table {
     let dir = config.dir.trim_end_matches('/').to_string();
@@ -525,11 +525,11 @@ pub fn table_via(
     vfs: &dyn crate::base::vfs::Vfs,
     dir: &Path,
 ) -> crate::diagnostics::error::Result<Option<Table>> {
-    let config = crate::config::ProjectConfig::load_via(vfs, dir)?;
+    let config = crate::project::config::ProjectConfig::load_via(vfs, dir)?;
     let Some(i18n) = &config.i18n else {
         return Ok(None);
     };
-    let (program, files, _) = crate::sources::read_project_collecting_via(vfs, dir, None)?;
+    let (program, files, _) = crate::project::sources::read_project_collecting_via(vfs, dir, None)?;
     let texts: HashMap<String, Option<String>> = i18n
         .locales
         .iter()
@@ -569,7 +569,7 @@ pub fn set_message(
                 + "\n",
         );
     }
-    crate::config::json_edit::set(
+    crate::project::config::json_edit::set(
         text,
         &[entry],
         &serde_json::Value::String(message.to_string()),
@@ -579,7 +579,7 @@ pub fn set_message(
 
 /// `text` without the message at `entry`.
 pub fn remove_message(text: &str, entry: &str) -> crate::diagnostics::error::Result<String> {
-    crate::config::json_edit::remove(text, &[entry]).map_err(edit_error)
+    crate::project::config::json_edit::remove(text, &[entry]).map_err(edit_error)
 }
 
 /// What a `Text(t(…))` binding is, for the inspector: its key, what it

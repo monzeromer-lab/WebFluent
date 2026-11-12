@@ -801,7 +801,7 @@ mod tests {
         else {
             return;
         };
-        let src = crate::themes::component_css().as_bytes();
+        let src = crate::project::themes::component_css().as_bytes();
         child.stdin.take().unwrap().write_all(&gzip(src)).unwrap();
         let out = child.wait_with_output().unwrap();
         assert!(out.status.success(), "gzip -dc rejected the stream");

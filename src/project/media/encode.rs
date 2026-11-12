@@ -4,7 +4,7 @@ use image::imageops::FilterType;
 
 use super::probe::Probed;
 use crate::diagnostics::error::{Result, WebFluentError};
-use crate::media::Settings;
+use crate::project::media::Settings;
 
 /// Which encoders made a file: part of its hash, so a file an older
 /// encoder wrote (a lossless WebP) is never taken from the cache for one

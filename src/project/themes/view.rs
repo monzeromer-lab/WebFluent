@@ -14,8 +14,8 @@ use std::collections::{BTreeMap, HashMap};
 
 use serde::Serialize;
 
-use crate::config::project::ThemeConfig;
 use crate::linter::contrast::{Pairing, pairings};
+use crate::project::config::project::ThemeConfig;
 use crate::syntax::parser::ast::*;
 
 /// One token.
@@ -394,8 +394,8 @@ pub fn view_of_via(
     dir: &std::path::Path,
     name: Option<&str>,
 ) -> crate::diagnostics::error::Result<View> {
-    let (program, files, _) = crate::sources::read_project_collecting_via(vfs, dir, None)?;
-    let mut config = crate::config::ProjectConfig::load_via(vfs, dir)?;
+    let (program, files, _) = crate::project::sources::read_project_collecting_via(vfs, dir, None)?;
+    let mut config = crate::project::config::ProjectConfig::load_via(vfs, dir)?;
     if let Some(n) = name.filter(|n| !n.is_empty())
         && config.theme.name.as_deref() != Some(n)
     {

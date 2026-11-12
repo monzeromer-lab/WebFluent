@@ -234,7 +234,7 @@ pub fn builtin(name: &str) -> Option<Component> {
 fn builtin_of(sig: &'static ComponentSig) -> Component {
     let (tag, class) = match sig.ir {
         super::Ir::BuiltIn(name) => {
-            let (t, c) = crate::codegen::builtin::builtin_to_html(name);
+            let (t, c) = crate::project::builtin::builtin_to_html(name);
             (Some(t), Some(c))
         }
         super::Ir::Sub(..) => (None, None),
@@ -578,7 +578,7 @@ impl Catalog {
 /// does not parse leaves out only what it declares; a folder that is no
 /// project gives the built-ins alone.
 pub fn of_project_via(vfs: &dyn crate::base::vfs::Vfs, dir: &std::path::Path) -> Catalog {
-    match crate::sources::read_project_collecting_via(vfs, dir, None) {
+    match crate::project::sources::read_project_collecting_via(vfs, dir, None) {
         Ok((program, files, _)) => {
             let file_of = |i: usize| files.get(i).cloned().unwrap_or_default();
             catalog(Some((&program, &file_of)))

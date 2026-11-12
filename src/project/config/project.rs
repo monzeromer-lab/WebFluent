@@ -1,5 +1,5 @@
 use crate::diagnostics::error::{Result, WebFluentError};
-use crate::themes::BuiltinCss;
+use crate::project::themes::BuiltinCss;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::Path;
@@ -344,8 +344,8 @@ impl Default for MediaConfig {
 
 impl MediaConfig {
     /// The settings, as the pipeline takes them.
-    pub fn settings(&self) -> crate::media::Settings {
-        crate::media::Settings {
+    pub fn settings(&self) -> crate::project::media::Settings {
+        crate::project::media::Settings {
             formats: self.formats.clone(),
             widths: self.widths.clone(),
             quality: self.quality,
@@ -1192,7 +1192,7 @@ impl ProjectConfig {
     /// ` dir="rtl"` for a page in a language written right to left, so it
     /// reads that way before its script runs; empty otherwise.
     pub fn page_dir_attr(&self) -> &'static str {
-        if crate::i18n::table::is_rtl(&self.page_lang()) {
+        if crate::project::i18n::table::is_rtl(&self.page_lang()) {
             " dir=\"rtl\""
         } else {
             ""
@@ -1717,15 +1717,15 @@ mod head_asset_tests {
         ];
         assert_eq!(app_schemes(&config), ["wfpreview"]);
         let also = app_schemes(&config);
-        assert!(crate::codegen::url::is_safe_with(
+        assert!(crate::project::url::is_safe_with(
             "wfpreview://localhost/site/",
             &also
         ));
-        assert!(!crate::codegen::url::is_safe_with(
+        assert!(!crate::project::url::is_safe_with(
             "javascript:alert(1)",
             &also
         ));
-        assert!(!crate::codegen::url::is_safe("wfpreview://localhost/site/"));
+        assert!(!crate::project::url::is_safe("wfpreview://localhost/site/"));
     }
 
     #[test]

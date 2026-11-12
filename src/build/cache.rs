@@ -26,7 +26,7 @@ use std::hash::{DefaultHasher, Hasher};
 use std::path::PathBuf;
 use std::sync::Mutex;
 
-use crate::config::ProjectConfig;
+use crate::project::config::ProjectConfig;
 use crate::syntax::parser::ast::PageDecl;
 use crate::syntax::parser::{Declaration, Program};
 

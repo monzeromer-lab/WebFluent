@@ -113,7 +113,7 @@ fn element(el: &UIElement, file: &str, out: &mut Vec<A11yWarning>) {
         }
         "Carousel" => {
             if let Some(n) = named(el, "interval").and_then(number)
-                && !(1.0..=crate::codegen::builtin::LONGEST_INTERVAL).contains(&n)
+                && !(1.0..=crate::project::builtin::LONGEST_INTERVAL).contains(&n)
             {
                 out.push(A11yWarning::new(
                     "T01",
@@ -129,7 +129,7 @@ fn element(el: &UIElement, file: &str, out: &mut Vec<A11yWarning>) {
         }
         "Column" => {
             if let Some(n) = named(el, "span").and_then(number)
-                && crate::codegen::builtin::column_span(n).is_none()
+                && crate::project::builtin::column_span(n).is_none()
             {
                 out.push(A11yWarning::new(
                     "T01",
@@ -171,14 +171,14 @@ fn head_tags(tags: &[HeadTag], file: &str, out: &mut Vec<A11yWarning>) {
         // A literal address with a scheme a browser runs.
         for (key, value) in &tag.attrs {
             if let Expr::StringLiteral(url) = value
-                && crate::codegen::url::URL_ATTRS.contains(&key.to_ascii_lowercase().as_str())
-                && !crate::codegen::url::is_safe(url)
+                && crate::project::url::URL_ATTRS.contains(&key.to_ascii_lowercase().as_str())
+                && !crate::project::url::is_safe(url)
             {
                 refuse(
                     format!(
                         "`head {{ {}({key}:) }}` names the `{}` scheme, which a browser runs",
                         tag.tag,
-                        crate::codegen::url::scheme_of(url).unwrap_or_default()
+                        crate::project::url::scheme_of(url).unwrap_or_default()
                     ),
                     "An address here may be relative, or name http, https, mailto, tel, sms or ftp",
                 );
@@ -212,12 +212,12 @@ fn head_tags(tags: &[HeadTag], file: &str, out: &mut Vec<A11yWarning>) {
                 match attr("content") {
                     Some(Expr::StringLiteral(content)) => {
                         if let Some(url) = refresh_target(content)
-                            && !crate::codegen::url::is_safe(url)
+                            && !crate::project::url::is_safe(url)
                         {
                             refuse(
                                 format!(
                                     "`head {{ meta(http-equiv: \"refresh\") }}` sends the reader to the `{}` scheme, which a browser runs",
-                                    crate::codegen::url::scheme_of(url).unwrap_or_default()
+                                    crate::project::url::scheme_of(url).unwrap_or_default()
                                 ),
                                 "A refresh may name a relative address, or http or https",
                             );

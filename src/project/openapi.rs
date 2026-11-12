@@ -793,7 +793,7 @@ pub fn expand(
             continue;
         };
         if !crate::base::vfs::stays_inside(&file) {
-            return Err(crate::data::outside_project(
+            return Err(crate::project::data::outside_project(
                 &format!("`api {} from`", api.name),
                 &file,
                 &file,

@@ -2931,7 +2931,7 @@ impl<'a, 'p> Checker<'a, 'p> {
             // `columns: { base: 1, md: 2 }` is one value per breakpoint,
             // each checked as the prop itself; the widths are the
             // stylesheet's, not a type's.
-            if crate::codegen::scoped_css::is_responsive(value)
+            if crate::project::scoped_css::is_responsive(value)
                 && !matches!(arg, Arg::Named(k, _) if k == "class")
                 && let Some(prop) = prop
             {
@@ -4864,7 +4864,7 @@ impl<'a, 'p> Checker<'a, 'p> {
         let documented = script
             .doc
             .as_deref()
-            .map(crate::project_js::jsdoc::parse)
+            .map(crate::project::project_js::jsdoc::parse)
             .unwrap_or_default();
         // A default in the code or `[name]` in the comment: either says a
         // call may leave it out.
@@ -4915,7 +4915,7 @@ impl<'a, 'p> Checker<'a, 'p> {
         let doc = script
             .doc
             .as_deref()
-            .map(crate::project_js::jsdoc::parse)
+            .map(crate::project::project_js::jsdoc::parse)
             .unwrap_or_default();
         for (i, arg) in args.iter().enumerate() {
             let param = params.get(i).or_else(|| params.last().filter(|p| p.rest));
@@ -6487,7 +6487,7 @@ fn month_name(m: u32) -> &'static str {
 }
 
 pub fn refinement_fault(ty: &TypeRef, value: &Expr) -> Option<String> {
-    use crate::codegen::static_eval::{Scope, Static, eval};
+    use crate::project::static_eval::{Scope, Static, eval};
     let args = ty.refinement();
     if args.is_empty() {
         return None;
@@ -6509,7 +6509,7 @@ pub fn refinement_fault(ty: &TypeRef, value: &Expr) -> Option<String> {
             "after" => got.to_text().as_str() <= want.to_text().as_str(),
             "before" => got.to_text().as_str() >= want.to_text().as_str(),
             "pattern" => match &want {
-                Static::Regex(p, f) => !crate::codegen::static_eval::matches(&got.to_text(), p, f)?,
+                Static::Regex(p, f) => !crate::project::static_eval::matches(&got.to_text(), p, f)?,
                 _ => false,
             },
             _ => false,

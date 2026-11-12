@@ -580,7 +580,7 @@ impl core::marker::Unpin for webfluent::audit::Script
 impl core::marker::UnsafeUnpin for webfluent::audit::Script
 impl core::panic::unwind_safe::RefUnwindSafe for webfluent::audit::Script
 impl core::panic::unwind_safe::UnwindSafe for webfluent::audit::Script
-pub fn webfluent::audit::audit(&webfluent::syntax::parser::Program, &webfluent::config::project::ProjectConfig, &[alloc::string::String]) -> webfluent::audit::Report
+pub fn webfluent::audit::audit(&webfluent::syntax::parser::Program, &webfluent::config::ProjectConfig, &[alloc::string::String]) -> webfluent::audit::Report
 pub fn webfluent::audit::audit_project(&std::path::Path) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::audit::Report>
 pub mod webfluent::browser
 pub mod webfluent::browser::chrome
@@ -847,11 +847,11 @@ impl core::marker::Unpin for webfluent::build::RouteInfo
 impl core::marker::UnsafeUnpin for webfluent::build::RouteInfo
 impl core::panic::unwind_safe::RefUnwindSafe for webfluent::build::RouteInfo
 impl core::panic::unwind_safe::UnwindSafe for webfluent::build::RouteInfo
-pub fn webfluent::build::analyse(&std::path::Path, &mut webfluent::config::project::ProjectConfig, core::option::Option<(&std::path::Path, &webfluent::media::Settings, &str)>) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::build::Analysis>
-pub fn webfluent::build::analyse_via(&dyn webfluent::vfs::Vfs, &std::path::Path, &mut webfluent::config::project::ProjectConfig, core::option::Option<(&std::path::Path, &webfluent::media::Settings, &str)>) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::build::Analysis>
+pub fn webfluent::build::analyse(&std::path::Path, &mut webfluent::config::ProjectConfig, core::option::Option<(&std::path::Path, &webfluent::media::Settings, &str)>) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::build::Analysis>
+pub fn webfluent::build::analyse_via(&dyn webfluent::vfs::Vfs, &std::path::Path, &mut webfluent::config::ProjectConfig, core::option::Option<(&std::path::Path, &webfluent::media::Settings, &str)>) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::build::Analysis>
 pub fn webfluent::build::build(&webfluent::build::BuildOptions<'_>) -> core::result::Result<webfluent::build::BuildReport, webfluent::build::BuildFailure>
 pub fn webfluent::build::check(&webfluent::build::BuildOptions<'_>) -> core::result::Result<webfluent::build::BuildReport, webfluent::build::BuildFailure>
-pub fn webfluent::build::output_dir_of(&webfluent::build::BuildOptions<'_>, &webfluent::config::project::ProjectConfig) -> webfluent::diagnostics::error::diagnostic::Result<std::path::PathBuf>
+pub fn webfluent::build::output_dir_of(&webfluent::build::BuildOptions<'_>, &webfluent::config::ProjectConfig) -> webfluent::diagnostics::error::diagnostic::Result<std::path::PathBuf>
 pub fn webfluent::build::project_output(&std::path::Path, &str, bool) -> webfluent::diagnostics::error::diagnostic::Result<std::path::PathBuf>
 pub fn webfluent::build::read_project(&std::path::Path) -> webfluent::diagnostics::error::diagnostic::Result<(webfluent::syntax::parser::Program, alloc::vec::Vec<alloc::string::String>)>
 pub fn webfluent::build::read_project_collecting(&std::path::Path, core::option::Option<(&std::path::Path, &webfluent::media::Settings, &str)>) -> webfluent::diagnostics::error::diagnostic::Result<(webfluent::syntax::parser::Program, alloc::vec::Vec<alloc::string::String>, alloc::vec::Vec<webfluent::diagnostics::Diagnostic>)>
@@ -978,9 +978,9 @@ pub fn webfluent::codegen::css::generate_css_with(&std::collections::hash::map::
 pub fn webfluent::codegen::css::is_token_name(&str) -> bool
 pub fn webfluent::codegen::css::is_token_value(&str) -> bool
 pub mod webfluent::codegen::elements
-pub fn webfluent::codegen::elements::check(&webfluent::syntax::parser::Program, &webfluent::config::project::ProjectConfig) -> alloc::vec::Vec<alloc::string::String>
-pub fn webfluent::codegen::elements::definitions(&webfluent::syntax::parser::Program, &webfluent::config::project::ProjectConfig) -> alloc::string::String
-pub fn webfluent::codegen::elements::demo_page(&webfluent::syntax::parser::Program, &webfluent::config::project::ProjectConfig, &str) -> alloc::string::String
+pub fn webfluent::codegen::elements::check(&webfluent::syntax::parser::Program, &webfluent::config::ProjectConfig) -> alloc::vec::Vec<alloc::string::String>
+pub fn webfluent::codegen::elements::definitions(&webfluent::syntax::parser::Program, &webfluent::config::ProjectConfig) -> alloc::string::String
+pub fn webfluent::codegen::elements::demo_page(&webfluent::syntax::parser::Program, &webfluent::config::ProjectConfig, &str) -> alloc::string::String
 pub fn webfluent::codegen::elements::tag_name(&str) -> alloc::string::String
 pub mod webfluent::codegen::format
 pub enum webfluent::codegen::format::Input
@@ -1050,11 +1050,11 @@ impl core::marker::UnsafeUnpin for webfluent::codegen::html::PreloadKind
 impl core::panic::unwind_safe::RefUnwindSafe for webfluent::codegen::html::PreloadKind
 impl core::panic::unwind_safe::UnwindSafe for webfluent::codegen::html::PreloadKind
 pub const webfluent::codegen::html::SKIP_LINK: &str
-pub fn webfluent::codegen::html::csp_meta(&webfluent::config::project::ProjectConfig) -> alloc::string::String
-pub fn webfluent::codegen::html::generate_html(&webfluent::config::project::ProjectConfig, &webfluent::syntax::parser::Program) -> alloc::string::String
-pub fn webfluent::codegen::html::head_links(&webfluent::config::project::ProjectConfig, &str) -> alloc::string::String
+pub fn webfluent::codegen::html::csp_meta(&webfluent::config::ProjectConfig) -> alloc::string::String
+pub fn webfluent::codegen::html::generate_html(&webfluent::config::ProjectConfig, &webfluent::syntax::parser::Program) -> alloc::string::String
+pub fn webfluent::codegen::html::head_links(&webfluent::config::ProjectConfig, &str) -> alloc::string::String
 pub fn webfluent::codegen::html::preload_kind(&str) -> core::option::Option<webfluent::codegen::html::PreloadKind>
-pub fn webfluent::codegen::html::script_tags(&webfluent::config::project::ProjectConfig, &str) -> alloc::string::String
+pub fn webfluent::codegen::html::script_tags(&webfluent::config::ProjectConfig, &str) -> alloc::string::String
 pub mod webfluent::codegen::js
 pub enum webfluent::codegen::js::Holder
 pub webfluent::codegen::js::Holder::Plain
@@ -1115,8 +1115,8 @@ pub const webfluent::codegen::js::MENU_READS: &[&str]
 pub const webfluent::codegen::js::RESOURCE_SIGNALS: &[&str]
 pub const webfluent::codegen::js::RUNTIME_KEYS: &[&str]
 pub const webfluent::codegen::js::SCALAR_METHODS: &[(&str, &str)]
-pub fn webfluent::codegen::js::external_modules(&webfluent::config::project::ProjectConfig) -> alloc::vec::Vec<(alloc::string::String, core::option::Option<alloc::string::String>)>
-pub fn webfluent::codegen::js::externals_module(&webfluent::config::project::ProjectConfig) -> core::option::Option<alloc::string::String>
+pub fn webfluent::codegen::js::external_modules(&webfluent::config::ProjectConfig) -> alloc::vec::Vec<(alloc::string::String, core::option::Option<alloc::string::String>)>
+pub fn webfluent::codegen::js::externals_module(&webfluent::config::ProjectConfig) -> core::option::Option<alloc::string::String>
 pub fn webfluent::codegen::js::method_to_js(&str, &str, &[alloc::string::String], webfluent::codegen::js::Holder) -> alloc::string::String
 pub fn webfluent::codegen::js::scalar_method(&str) -> core::option::Option<&'static str>
 pub mod webfluent::codegen::jscheck
@@ -1384,17 +1384,17 @@ pub fn webfluent::codegen::scoped_css::split_rules(&webfluent::syntax::parser::P
 pub fn webfluent::codegen::scoped_css::static_declaration(&webfluent::syntax::parser::StyleProperty) -> core::option::Option<(alloc::string::String, alloc::string::String)>
 pub fn webfluent::codegen::scoped_css::static_value(&webfluent::syntax::parser::Expr) -> core::option::Option<alloc::string::String>
 pub mod webfluent::codegen::seo
-pub fn webfluent::codegen::seo::absolute_url(&webfluent::config::project::ProjectConfig, &str) -> core::option::Option<alloc::string::String>
+pub fn webfluent::codegen::seo::absolute_url(&webfluent::config::ProjectConfig, &str) -> core::option::Option<alloc::string::String>
 pub fn webfluent::codegen::seo::dir_attr(&str) -> &'static str
-pub fn webfluent::codegen::seo::directory_links(&webfluent::config::project::ProjectConfig, &mut webfluent::syntax::parser::Program)
-pub fn webfluent::codegen::seo::head_tags(&webfluent::syntax::parser::PageDecl, &webfluent::config::project::ProjectConfig, &webfluent::syntax::parser::Program) -> alloc::string::String
-pub fn webfluent::codegen::seo::measure_images(&std::path::Path, &mut webfluent::config::project::ProjectConfig, &webfluent::syntax::parser::Program)
+pub fn webfluent::codegen::seo::directory_links(&webfluent::config::ProjectConfig, &mut webfluent::syntax::parser::Program)
+pub fn webfluent::codegen::seo::head_tags(&webfluent::syntax::parser::PageDecl, &webfluent::config::ProjectConfig, &webfluent::syntax::parser::Program) -> alloc::string::String
+pub fn webfluent::codegen::seo::measure_images(&std::path::Path, &mut webfluent::config::ProjectConfig, &webfluent::syntax::parser::Program)
 pub fn webfluent::codegen::seo::og_locale(&str) -> alloc::string::String
-pub fn webfluent::codegen::seo::page_lang(&webfluent::syntax::parser::PageDecl, &webfluent::config::project::ProjectConfig) -> alloc::string::String
-pub fn webfluent::codegen::seo::robots_txt(&webfluent::config::project::ProjectConfig, bool) -> alloc::string::String
-pub fn webfluent::codegen::seo::route_address(&webfluent::config::project::ProjectConfig, &str) -> alloc::string::String
-pub fn webfluent::codegen::seo::site_origin(&webfluent::config::project::ProjectConfig) -> core::option::Option<&str>
-pub fn webfluent::codegen::seo::sitemap(&webfluent::config::project::ProjectConfig, &webfluent::syntax::parser::Program) -> core::option::Option<alloc::string::String>
+pub fn webfluent::codegen::seo::page_lang(&webfluent::syntax::parser::PageDecl, &webfluent::config::ProjectConfig) -> alloc::string::String
+pub fn webfluent::codegen::seo::robots_txt(&webfluent::config::ProjectConfig, bool) -> alloc::string::String
+pub fn webfluent::codegen::seo::route_address(&webfluent::config::ProjectConfig, &str) -> alloc::string::String
+pub fn webfluent::codegen::seo::site_origin(&webfluent::config::ProjectConfig) -> core::option::Option<&str>
+pub fn webfluent::codegen::seo::sitemap(&webfluent::config::ProjectConfig, &webfluent::syntax::parser::Program) -> core::option::Option<alloc::string::String>
 pub fn webfluent::codegen::seo::translation_group<'a>(&str, &'a webfluent::syntax::parser::Program) -> alloc::vec::Vec<&'a webfluent::syntax::parser::PageDecl>
 pub mod webfluent::codegen::sourcemap
 pub struct webfluent::codegen::sourcemap::Origin
@@ -1474,14 +1474,14 @@ impl core::panic::unwind_safe::UnwindSafe for webfluent::codegen::ssg::FieldPart
 pub struct webfluent::codegen::ssg::SiteContext<'a>
 pub webfluent::codegen::ssg::SiteContext::app_body: core::option::Option<&'a [webfluent::syntax::parser::Statement]>
 pub webfluent::codegen::ssg::SiteContext::components: &'a std::collections::hash::map::HashMap<alloc::string::String, webfluent::syntax::parser::ComponentDecl>
-pub webfluent::codegen::ssg::SiteContext::config: &'a webfluent::config::project::ProjectConfig
+pub webfluent::codegen::ssg::SiteContext::config: &'a webfluent::config::ProjectConfig
 pub webfluent::codegen::ssg::SiteContext::node_map: core::option::Option<&'a webfluent::syntax::node_id::NodeMap>
 pub webfluent::codegen::ssg::SiteContext::page_sheets: core::option::Option<&'a alloc::collections::btree::map::BTreeMap<alloc::string::String, alloc::string::String>>
 pub webfluent::codegen::ssg::SiteContext::program: &'a webfluent::syntax::parser::Program
 pub webfluent::codegen::ssg::SiteContext::program_scope: core::option::Option<&'a webfluent::codegen::static_eval::Scope>
 pub webfluent::codegen::ssg::SiteContext::translations: &'a std::collections::hash::map::HashMap<alloc::string::String, std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>>
 impl<'a> webfluent::codegen::ssg::SiteContext<'a>
-pub fn webfluent::codegen::ssg::SiteContext<'a>::bare(&'a webfluent::config::project::ProjectConfig, &'a webfluent::syntax::parser::Program) -> Self
+pub fn webfluent::codegen::ssg::SiteContext<'a>::bare(&'a webfluent::config::ProjectConfig, &'a webfluent::syntax::parser::Program) -> Self
 impl<'a> core::marker::Freeze for webfluent::codegen::ssg::SiteContext<'a>
 impl<'a> core::marker::Send for webfluent::codegen::ssg::SiteContext<'a>
 impl<'a> core::marker::Sync for webfluent::codegen::ssg::SiteContext<'a>
@@ -1774,7 +1774,7 @@ pub fn webfluent::codegen::dark_css(&std::collections::hash::map::HashMap<alloc:
 pub fn webfluent::codegen::generate_css(&std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>) -> alloc::string::String
 pub fn webfluent::codegen::generate_css_for(&std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>, webfluent::themes::BuiltinCss, &webfluent::syntax::parser::Program) -> alloc::string::String
 pub fn webfluent::codegen::generate_css_with(&std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>, webfluent::themes::BuiltinCss) -> alloc::string::String
-pub fn webfluent::codegen::generate_html(&webfluent::config::project::ProjectConfig, &webfluent::syntax::parser::Program) -> alloc::string::String
+pub fn webfluent::codegen::generate_html(&webfluent::config::ProjectConfig, &webfluent::syntax::parser::Program) -> alloc::string::String
 pub fn webfluent::codegen::render_page_html(&webfluent::syntax::parser::PageDecl, &webfluent::codegen::ssg::SiteContext<'_>) -> alloc::string::String
 pub mod webfluent::commands
 pub struct webfluent::commands::Effect
@@ -1829,104 +1829,104 @@ pub mod webfluent::config::project
 pub enum webfluent::config::project::CleanUrls
 pub webfluent::config::project::CleanUrls::Directory
 pub webfluent::config::project::CleanUrls::File
-impl core::clone::Clone for webfluent::config::project::CleanUrls
-pub fn webfluent::config::project::CleanUrls::clone(&self) -> Self
-impl core::cmp::Eq for webfluent::config::project::CleanUrls
-impl core::cmp::PartialEq for webfluent::config::project::CleanUrls
-pub fn webfluent::config::project::CleanUrls::eq(&self, &Self) -> bool
-impl core::fmt::Debug for webfluent::config::project::CleanUrls
-pub fn webfluent::config::project::CleanUrls::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl core::marker::Copy for webfluent::config::project::CleanUrls
-impl core::marker::StructuralPartialEq for webfluent::config::project::CleanUrls
-impl serde_core::ser::Serialize for webfluent::config::project::CleanUrls
-pub fn webfluent::config::project::CleanUrls::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
-impl<'de> serde_core::de::Deserialize<'de> for webfluent::config::project::CleanUrls
-pub fn webfluent::config::project::CleanUrls::deserialize<__D>(__D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
-impl core::marker::Freeze for webfluent::config::project::CleanUrls
-impl core::marker::Send for webfluent::config::project::CleanUrls
-impl core::marker::Sync for webfluent::config::project::CleanUrls
-impl core::marker::Unpin for webfluent::config::project::CleanUrls
-impl core::marker::UnsafeUnpin for webfluent::config::project::CleanUrls
-impl core::panic::unwind_safe::RefUnwindSafe for webfluent::config::project::CleanUrls
-impl core::panic::unwind_safe::UnwindSafe for webfluent::config::project::CleanUrls
+impl core::clone::Clone for webfluent::config::CleanUrls
+pub fn webfluent::config::CleanUrls::clone(&self) -> Self
+impl core::cmp::Eq for webfluent::config::CleanUrls
+impl core::cmp::PartialEq for webfluent::config::CleanUrls
+pub fn webfluent::config::CleanUrls::eq(&self, &Self) -> bool
+impl core::fmt::Debug for webfluent::config::CleanUrls
+pub fn webfluent::config::CleanUrls::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for webfluent::config::CleanUrls
+impl core::marker::StructuralPartialEq for webfluent::config::CleanUrls
+impl serde_core::ser::Serialize for webfluent::config::CleanUrls
+pub fn webfluent::config::CleanUrls::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for webfluent::config::CleanUrls
+pub fn webfluent::config::CleanUrls::deserialize<__D>(__D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for webfluent::config::CleanUrls
+impl core::marker::Send for webfluent::config::CleanUrls
+impl core::marker::Sync for webfluent::config::CleanUrls
+impl core::marker::Unpin for webfluent::config::CleanUrls
+impl core::marker::UnsafeUnpin for webfluent::config::CleanUrls
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::config::CleanUrls
+impl core::panic::unwind_safe::UnwindSafe for webfluent::config::CleanUrls
 pub enum webfluent::config::project::OutputType
 pub webfluent::config::project::OutputType::Elements
 pub webfluent::config::project::OutputType::Pdf
 pub webfluent::config::project::OutputType::Slides
 pub webfluent::config::project::OutputType::Spa
 pub webfluent::config::project::OutputType::Static
-impl core::clone::Clone for webfluent::config::project::OutputType
-pub fn webfluent::config::project::OutputType::clone(&self) -> Self
-impl core::cmp::Eq for webfluent::config::project::OutputType
-impl core::cmp::PartialEq for webfluent::config::project::OutputType
-pub fn webfluent::config::project::OutputType::eq(&self, &Self) -> bool
-impl core::default::Default for webfluent::config::project::OutputType
-pub fn webfluent::config::project::OutputType::default() -> Self
-impl core::fmt::Debug for webfluent::config::project::OutputType
-pub fn webfluent::config::project::OutputType::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl core::marker::Copy for webfluent::config::project::OutputType
-impl core::marker::StructuralPartialEq for webfluent::config::project::OutputType
-impl serde_core::ser::Serialize for webfluent::config::project::OutputType
-pub fn webfluent::config::project::OutputType::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
-impl<'de> serde_core::de::Deserialize<'de> for webfluent::config::project::OutputType
-pub fn webfluent::config::project::OutputType::deserialize<__D>(__D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
-impl core::marker::Freeze for webfluent::config::project::OutputType
-impl core::marker::Send for webfluent::config::project::OutputType
-impl core::marker::Sync for webfluent::config::project::OutputType
-impl core::marker::Unpin for webfluent::config::project::OutputType
-impl core::marker::UnsafeUnpin for webfluent::config::project::OutputType
-impl core::panic::unwind_safe::RefUnwindSafe for webfluent::config::project::OutputType
-impl core::panic::unwind_safe::UnwindSafe for webfluent::config::project::OutputType
+impl core::clone::Clone for webfluent::config::OutputType
+pub fn webfluent::config::OutputType::clone(&self) -> Self
+impl core::cmp::Eq for webfluent::config::OutputType
+impl core::cmp::PartialEq for webfluent::config::OutputType
+pub fn webfluent::config::OutputType::eq(&self, &Self) -> bool
+impl core::default::Default for webfluent::config::OutputType
+pub fn webfluent::config::OutputType::default() -> Self
+impl core::fmt::Debug for webfluent::config::OutputType
+pub fn webfluent::config::OutputType::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for webfluent::config::OutputType
+impl core::marker::StructuralPartialEq for webfluent::config::OutputType
+impl serde_core::ser::Serialize for webfluent::config::OutputType
+pub fn webfluent::config::OutputType::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for webfluent::config::OutputType
+pub fn webfluent::config::OutputType::deserialize<__D>(__D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for webfluent::config::OutputType
+impl core::marker::Send for webfluent::config::OutputType
+impl core::marker::Sync for webfluent::config::OutputType
+impl core::marker::Unpin for webfluent::config::OutputType
+impl core::marker::UnsafeUnpin for webfluent::config::OutputType
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::config::OutputType
+impl core::panic::unwind_safe::UnwindSafe for webfluent::config::OutputType
 pub enum webfluent::config::project::Owner
 pub webfluent::config::project::Owner::Organization
 pub webfluent::config::project::Owner::Person
-impl core::clone::Clone for webfluent::config::project::Owner
-pub fn webfluent::config::project::Owner::clone(&self) -> Self
-impl core::cmp::Eq for webfluent::config::project::Owner
-impl core::cmp::PartialEq for webfluent::config::project::Owner
-pub fn webfluent::config::project::Owner::eq(&self, &Self) -> bool
-impl core::default::Default for webfluent::config::project::Owner
-pub fn webfluent::config::project::Owner::default() -> Self
-impl core::fmt::Debug for webfluent::config::project::Owner
-pub fn webfluent::config::project::Owner::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl core::marker::Copy for webfluent::config::project::Owner
-impl core::marker::StructuralPartialEq for webfluent::config::project::Owner
-impl serde_core::ser::Serialize for webfluent::config::project::Owner
-pub fn webfluent::config::project::Owner::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
-impl<'de> serde_core::de::Deserialize<'de> for webfluent::config::project::Owner
-pub fn webfluent::config::project::Owner::deserialize<__D>(__D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
-impl core::marker::Freeze for webfluent::config::project::Owner
-impl core::marker::Send for webfluent::config::project::Owner
-impl core::marker::Sync for webfluent::config::project::Owner
-impl core::marker::Unpin for webfluent::config::project::Owner
-impl core::marker::UnsafeUnpin for webfluent::config::project::Owner
-impl core::panic::unwind_safe::RefUnwindSafe for webfluent::config::project::Owner
-impl core::panic::unwind_safe::UnwindSafe for webfluent::config::project::Owner
+impl core::clone::Clone for webfluent::config::Owner
+pub fn webfluent::config::Owner::clone(&self) -> Self
+impl core::cmp::Eq for webfluent::config::Owner
+impl core::cmp::PartialEq for webfluent::config::Owner
+pub fn webfluent::config::Owner::eq(&self, &Self) -> bool
+impl core::default::Default for webfluent::config::Owner
+pub fn webfluent::config::Owner::default() -> Self
+impl core::fmt::Debug for webfluent::config::Owner
+pub fn webfluent::config::Owner::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for webfluent::config::Owner
+impl core::marker::StructuralPartialEq for webfluent::config::Owner
+impl serde_core::ser::Serialize for webfluent::config::Owner
+pub fn webfluent::config::Owner::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for webfluent::config::Owner
+pub fn webfluent::config::Owner::deserialize<__D>(__D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for webfluent::config::Owner
+impl core::marker::Send for webfluent::config::Owner
+impl core::marker::Sync for webfluent::config::Owner
+impl core::marker::Unpin for webfluent::config::Owner
+impl core::marker::UnsafeUnpin for webfluent::config::Owner
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::config::Owner
+impl core::panic::unwind_safe::UnwindSafe for webfluent::config::Owner
 pub enum webfluent::config::project::RuntimeMode
 pub webfluent::config::project::RuntimeMode::Auto
 pub webfluent::config::project::RuntimeMode::Full
-impl core::clone::Clone for webfluent::config::project::RuntimeMode
-pub fn webfluent::config::project::RuntimeMode::clone(&self) -> Self
-impl core::cmp::Eq for webfluent::config::project::RuntimeMode
-impl core::cmp::PartialEq for webfluent::config::project::RuntimeMode
-pub fn webfluent::config::project::RuntimeMode::eq(&self, &Self) -> bool
-impl core::default::Default for webfluent::config::project::RuntimeMode
-pub fn webfluent::config::project::RuntimeMode::default() -> Self
-impl core::fmt::Debug for webfluent::config::project::RuntimeMode
-pub fn webfluent::config::project::RuntimeMode::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl core::marker::Copy for webfluent::config::project::RuntimeMode
-impl core::marker::StructuralPartialEq for webfluent::config::project::RuntimeMode
-impl serde_core::ser::Serialize for webfluent::config::project::RuntimeMode
-pub fn webfluent::config::project::RuntimeMode::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
-impl<'de> serde_core::de::Deserialize<'de> for webfluent::config::project::RuntimeMode
-pub fn webfluent::config::project::RuntimeMode::deserialize<__D>(__D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
-impl core::marker::Freeze for webfluent::config::project::RuntimeMode
-impl core::marker::Send for webfluent::config::project::RuntimeMode
-impl core::marker::Sync for webfluent::config::project::RuntimeMode
-impl core::marker::Unpin for webfluent::config::project::RuntimeMode
-impl core::marker::UnsafeUnpin for webfluent::config::project::RuntimeMode
-impl core::panic::unwind_safe::RefUnwindSafe for webfluent::config::project::RuntimeMode
-impl core::panic::unwind_safe::UnwindSafe for webfluent::config::project::RuntimeMode
+impl core::clone::Clone for webfluent::config::RuntimeMode
+pub fn webfluent::config::RuntimeMode::clone(&self) -> Self
+impl core::cmp::Eq for webfluent::config::RuntimeMode
+impl core::cmp::PartialEq for webfluent::config::RuntimeMode
+pub fn webfluent::config::RuntimeMode::eq(&self, &Self) -> bool
+impl core::default::Default for webfluent::config::RuntimeMode
+pub fn webfluent::config::RuntimeMode::default() -> Self
+impl core::fmt::Debug for webfluent::config::RuntimeMode
+pub fn webfluent::config::RuntimeMode::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for webfluent::config::RuntimeMode
+impl core::marker::StructuralPartialEq for webfluent::config::RuntimeMode
+impl serde_core::ser::Serialize for webfluent::config::RuntimeMode
+pub fn webfluent::config::RuntimeMode::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for webfluent::config::RuntimeMode
+pub fn webfluent::config::RuntimeMode::deserialize<__D>(__D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for webfluent::config::RuntimeMode
+impl core::marker::Send for webfluent::config::RuntimeMode
+impl core::marker::Sync for webfluent::config::RuntimeMode
+impl core::marker::Unpin for webfluent::config::RuntimeMode
+impl core::marker::UnsafeUnpin for webfluent::config::RuntimeMode
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::config::RuntimeMode
+impl core::panic::unwind_safe::UnwindSafe for webfluent::config::RuntimeMode
 pub enum webfluent::config::project::ScriptEntry
 pub webfluent::config::project::ScriptEntry::Spec(webfluent::config::project::ScriptSpec)
 pub webfluent::config::project::ScriptEntry::Url(alloc::string::String)
@@ -1982,7 +1982,7 @@ impl core::panic::unwind_safe::UnwindSafe for webfluent::config::project::Script
 pub struct webfluent::config::project::BuildConfig
 pub webfluent::config::project::BuildConfig::base_path: alloc::string::String
 pub webfluent::config::project::BuildConfig::budget: alloc::collections::btree::map::BTreeMap<alloc::string::String, alloc::string::String>
-pub webfluent::config::project::BuildConfig::clean_urls: core::option::Option<webfluent::config::project::CleanUrls>
+pub webfluent::config::project::BuildConfig::clean_urls: core::option::Option<webfluent::config::CleanUrls>
 pub webfluent::config::project::BuildConfig::compress: bool
 pub webfluent::config::project::BuildConfig::csp: bool
 pub webfluent::config::project::BuildConfig::elements: alloc::vec::Vec<alloc::string::String>
@@ -1991,11 +1991,11 @@ pub webfluent::config::project::BuildConfig::inline_styles: bool
 pub webfluent::config::project::BuildConfig::media: webfluent::config::project::MediaConfig
 pub webfluent::config::project::BuildConfig::minify: bool
 pub webfluent::config::project::BuildConfig::output: alloc::string::String
-pub webfluent::config::project::BuildConfig::output_type: webfluent::config::project::OutputType
-pub webfluent::config::project::BuildConfig::pdf: webfluent::config::project::PdfConfig
-pub webfluent::config::project::BuildConfig::runtime: webfluent::config::project::RuntimeMode
+pub webfluent::config::project::BuildConfig::output_type: webfluent::config::OutputType
+pub webfluent::config::project::BuildConfig::pdf: webfluent::PdfConfig
+pub webfluent::config::project::BuildConfig::runtime: webfluent::config::RuntimeMode
 pub webfluent::config::project::BuildConfig::scripts: alloc::vec::Vec<alloc::string::String>
-pub webfluent::config::project::BuildConfig::slides: webfluent::config::project::SlidesConfig
+pub webfluent::config::project::BuildConfig::slides: webfluent::SlidesConfig
 pub webfluent::config::project::BuildConfig::sourcemap: bool
 pub webfluent::config::project::BuildConfig::split: bool
 pub webfluent::config::project::BuildConfig::ssg: bool
@@ -2095,7 +2095,7 @@ pub webfluent::config::project::MetaConfig::img: alloc::vec::Vec<alloc::string::
 pub webfluent::config::project::MetaConfig::integrity: std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>
 pub webfluent::config::project::MetaConfig::job_title: alloc::string::String
 pub webfluent::config::project::MetaConfig::lang: alloc::string::String
-pub webfluent::config::project::MetaConfig::owner: webfluent::config::project::Owner
+pub webfluent::config::project::MetaConfig::owner: webfluent::config::Owner
 pub webfluent::config::project::MetaConfig::owner_details: serde_json::map::Map<alloc::string::String, serde_json::value::Value>
 pub webfluent::config::project::MetaConfig::preload: alloc::vec::Vec<alloc::string::String>
 pub webfluent::config::project::MetaConfig::same_as: alloc::vec::Vec<alloc::string::String>
@@ -2128,94 +2128,94 @@ impl core::panic::unwind_safe::UnwindSafe for webfluent::config::project::MetaCo
 pub struct webfluent::config::project::MotionConfig
 pub webfluent::config::project::MotionConfig::duration: core::option::Option<alloc::string::String>
 pub webfluent::config::project::MotionConfig::easing: core::option::Option<alloc::string::String>
-impl webfluent::config::project::MotionConfig
-pub fn webfluent::config::project::MotionConfig::tokens(&self, &std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>) -> alloc::vec::Vec<(alloc::string::String, alloc::string::String)>
-impl core::clone::Clone for webfluent::config::project::MotionConfig
-pub fn webfluent::config::project::MotionConfig::clone(&self) -> Self
-impl core::default::Default for webfluent::config::project::MotionConfig
-pub fn webfluent::config::project::MotionConfig::default() -> Self
-impl core::fmt::Debug for webfluent::config::project::MotionConfig
-pub fn webfluent::config::project::MotionConfig::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl serde_core::ser::Serialize for webfluent::config::project::MotionConfig
-pub fn webfluent::config::project::MotionConfig::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
-impl<'de> serde_core::de::Deserialize<'de> for webfluent::config::project::MotionConfig
-pub fn webfluent::config::project::MotionConfig::deserialize<__D>(__D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
-impl core::marker::Freeze for webfluent::config::project::MotionConfig
-impl core::marker::Send for webfluent::config::project::MotionConfig
-impl core::marker::Sync for webfluent::config::project::MotionConfig
-impl core::marker::Unpin for webfluent::config::project::MotionConfig
-impl core::marker::UnsafeUnpin for webfluent::config::project::MotionConfig
-impl core::panic::unwind_safe::RefUnwindSafe for webfluent::config::project::MotionConfig
-impl core::panic::unwind_safe::UnwindSafe for webfluent::config::project::MotionConfig
+impl webfluent::config::MotionConfig
+pub fn webfluent::config::MotionConfig::tokens(&self, &std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>) -> alloc::vec::Vec<(alloc::string::String, alloc::string::String)>
+impl core::clone::Clone for webfluent::config::MotionConfig
+pub fn webfluent::config::MotionConfig::clone(&self) -> Self
+impl core::default::Default for webfluent::config::MotionConfig
+pub fn webfluent::config::MotionConfig::default() -> Self
+impl core::fmt::Debug for webfluent::config::MotionConfig
+pub fn webfluent::config::MotionConfig::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl serde_core::ser::Serialize for webfluent::config::MotionConfig
+pub fn webfluent::config::MotionConfig::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for webfluent::config::MotionConfig
+pub fn webfluent::config::MotionConfig::deserialize<__D>(__D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for webfluent::config::MotionConfig
+impl core::marker::Send for webfluent::config::MotionConfig
+impl core::marker::Sync for webfluent::config::MotionConfig
+impl core::marker::Unpin for webfluent::config::MotionConfig
+impl core::marker::UnsafeUnpin for webfluent::config::MotionConfig
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::config::MotionConfig
+impl core::panic::unwind_safe::UnwindSafe for webfluent::config::MotionConfig
 pub struct webfluent::config::project::OfflineConfig
 pub webfluent::config::project::OfflineConfig::cache: alloc::collections::btree::map::BTreeMap<alloc::string::String, alloc::string::String>
 pub webfluent::config::project::OfflineConfig::fallback: core::option::Option<alloc::string::String>
 pub webfluent::config::project::OfflineConfig::precache: alloc::vec::Vec<alloc::string::String>
 pub webfluent::config::project::OfflineConfig::sync: bool
-impl core::clone::Clone for webfluent::config::project::OfflineConfig
-pub fn webfluent::config::project::OfflineConfig::clone(&self) -> Self
-impl core::default::Default for webfluent::config::project::OfflineConfig
-pub fn webfluent::config::project::OfflineConfig::default() -> Self
-impl core::fmt::Debug for webfluent::config::project::OfflineConfig
-pub fn webfluent::config::project::OfflineConfig::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl serde_core::ser::Serialize for webfluent::config::project::OfflineConfig
-pub fn webfluent::config::project::OfflineConfig::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
-impl<'de> serde_core::de::Deserialize<'de> for webfluent::config::project::OfflineConfig
-pub fn webfluent::config::project::OfflineConfig::deserialize<__D>(__D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
-impl core::marker::Freeze for webfluent::config::project::OfflineConfig
-impl core::marker::Send for webfluent::config::project::OfflineConfig
-impl core::marker::Sync for webfluent::config::project::OfflineConfig
-impl core::marker::Unpin for webfluent::config::project::OfflineConfig
-impl core::marker::UnsafeUnpin for webfluent::config::project::OfflineConfig
-impl core::panic::unwind_safe::RefUnwindSafe for webfluent::config::project::OfflineConfig
-impl core::panic::unwind_safe::UnwindSafe for webfluent::config::project::OfflineConfig
+impl core::clone::Clone for webfluent::config::OfflineConfig
+pub fn webfluent::config::OfflineConfig::clone(&self) -> Self
+impl core::default::Default for webfluent::config::OfflineConfig
+pub fn webfluent::config::OfflineConfig::default() -> Self
+impl core::fmt::Debug for webfluent::config::OfflineConfig
+pub fn webfluent::config::OfflineConfig::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl serde_core::ser::Serialize for webfluent::config::OfflineConfig
+pub fn webfluent::config::OfflineConfig::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for webfluent::config::OfflineConfig
+pub fn webfluent::config::OfflineConfig::deserialize<__D>(__D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for webfluent::config::OfflineConfig
+impl core::marker::Send for webfluent::config::OfflineConfig
+impl core::marker::Sync for webfluent::config::OfflineConfig
+impl core::marker::Unpin for webfluent::config::OfflineConfig
+impl core::marker::UnsafeUnpin for webfluent::config::OfflineConfig
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::config::OfflineConfig
+impl core::panic::unwind_safe::UnwindSafe for webfluent::config::OfflineConfig
 pub struct webfluent::config::project::PdfConfig
 pub webfluent::config::project::PdfConfig::default_font: alloc::string::String
 pub webfluent::config::project::PdfConfig::default_font_size: f64
 pub webfluent::config::project::PdfConfig::fonts: alloc::vec::Vec<alloc::string::String>
-pub webfluent::config::project::PdfConfig::margins: webfluent::config::project::PdfMargins
+pub webfluent::config::project::PdfConfig::margins: webfluent::PdfMargins
 pub webfluent::config::project::PdfConfig::output_filename: core::option::Option<alloc::string::String>
 pub webfluent::config::project::PdfConfig::page_size: alloc::string::String
 pub webfluent::config::project::PdfConfig::system_fonts: bool
-impl core::clone::Clone for webfluent::config::project::PdfConfig
-pub fn webfluent::config::project::PdfConfig::clone(&self) -> Self
-impl core::default::Default for webfluent::config::project::PdfConfig
-pub fn webfluent::config::project::PdfConfig::default() -> Self
-impl core::fmt::Debug for webfluent::config::project::PdfConfig
-pub fn webfluent::config::project::PdfConfig::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl serde_core::ser::Serialize for webfluent::config::project::PdfConfig
-pub fn webfluent::config::project::PdfConfig::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
-impl<'de> serde_core::de::Deserialize<'de> for webfluent::config::project::PdfConfig
-pub fn webfluent::config::project::PdfConfig::deserialize<__D>(__D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
-impl core::marker::Freeze for webfluent::config::project::PdfConfig
-impl core::marker::Send for webfluent::config::project::PdfConfig
-impl core::marker::Sync for webfluent::config::project::PdfConfig
-impl core::marker::Unpin for webfluent::config::project::PdfConfig
-impl core::marker::UnsafeUnpin for webfluent::config::project::PdfConfig
-impl core::panic::unwind_safe::RefUnwindSafe for webfluent::config::project::PdfConfig
-impl core::panic::unwind_safe::UnwindSafe for webfluent::config::project::PdfConfig
+impl core::clone::Clone for webfluent::PdfConfig
+pub fn webfluent::PdfConfig::clone(&self) -> Self
+impl core::default::Default for webfluent::PdfConfig
+pub fn webfluent::PdfConfig::default() -> Self
+impl core::fmt::Debug for webfluent::PdfConfig
+pub fn webfluent::PdfConfig::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl serde_core::ser::Serialize for webfluent::PdfConfig
+pub fn webfluent::PdfConfig::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for webfluent::PdfConfig
+pub fn webfluent::PdfConfig::deserialize<__D>(__D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for webfluent::PdfConfig
+impl core::marker::Send for webfluent::PdfConfig
+impl core::marker::Sync for webfluent::PdfConfig
+impl core::marker::Unpin for webfluent::PdfConfig
+impl core::marker::UnsafeUnpin for webfluent::PdfConfig
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::PdfConfig
+impl core::panic::unwind_safe::UnwindSafe for webfluent::PdfConfig
 pub struct webfluent::config::project::PdfMargins
 pub webfluent::config::project::PdfMargins::bottom: f64
 pub webfluent::config::project::PdfMargins::left: f64
 pub webfluent::config::project::PdfMargins::right: f64
 pub webfluent::config::project::PdfMargins::top: f64
-impl core::clone::Clone for webfluent::config::project::PdfMargins
-pub fn webfluent::config::project::PdfMargins::clone(&self) -> Self
-impl core::default::Default for webfluent::config::project::PdfMargins
-pub fn webfluent::config::project::PdfMargins::default() -> Self
-impl core::fmt::Debug for webfluent::config::project::PdfMargins
-pub fn webfluent::config::project::PdfMargins::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl serde_core::ser::Serialize for webfluent::config::project::PdfMargins
-pub fn webfluent::config::project::PdfMargins::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
-impl<'de> serde_core::de::Deserialize<'de> for webfluent::config::project::PdfMargins
-pub fn webfluent::config::project::PdfMargins::deserialize<__D>(__D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
-impl core::marker::Freeze for webfluent::config::project::PdfMargins
-impl core::marker::Send for webfluent::config::project::PdfMargins
-impl core::marker::Sync for webfluent::config::project::PdfMargins
-impl core::marker::Unpin for webfluent::config::project::PdfMargins
-impl core::marker::UnsafeUnpin for webfluent::config::project::PdfMargins
-impl core::panic::unwind_safe::RefUnwindSafe for webfluent::config::project::PdfMargins
-impl core::panic::unwind_safe::UnwindSafe for webfluent::config::project::PdfMargins
+impl core::clone::Clone for webfluent::PdfMargins
+pub fn webfluent::PdfMargins::clone(&self) -> Self
+impl core::default::Default for webfluent::PdfMargins
+pub fn webfluent::PdfMargins::default() -> Self
+impl core::fmt::Debug for webfluent::PdfMargins
+pub fn webfluent::PdfMargins::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl serde_core::ser::Serialize for webfluent::PdfMargins
+pub fn webfluent::PdfMargins::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for webfluent::PdfMargins
+pub fn webfluent::PdfMargins::deserialize<__D>(__D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for webfluent::PdfMargins
+impl core::marker::Send for webfluent::PdfMargins
+impl core::marker::Sync for webfluent::PdfMargins
+impl core::marker::Unpin for webfluent::PdfMargins
+impl core::marker::UnsafeUnpin for webfluent::PdfMargins
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::PdfMargins
+impl core::panic::unwind_safe::UnwindSafe for webfluent::PdfMargins
 pub struct webfluent::config::project::ProjectConfig
 pub webfluent::config::project::ProjectConfig::author: alloc::string::String
 pub webfluent::config::project::ProjectConfig::build: webfluent::config::project::BuildConfig
@@ -2224,41 +2224,41 @@ pub webfluent::config::project::ProjectConfig::env: alloc::collections::btree::m
 pub webfluent::config::project::ProjectConfig::i18n: core::option::Option<webfluent::config::project::I18nConfig>
 pub webfluent::config::project::ProjectConfig::lints: alloc::collections::btree::map::BTreeMap<alloc::string::String, alloc::string::String>
 pub webfluent::config::project::ProjectConfig::meta: webfluent::config::project::MetaConfig
-pub webfluent::config::project::ProjectConfig::motion: webfluent::config::project::MotionConfig
+pub webfluent::config::project::ProjectConfig::motion: webfluent::config::MotionConfig
 pub webfluent::config::project::ProjectConfig::name: alloc::string::String
-pub webfluent::config::project::ProjectConfig::offline: core::option::Option<webfluent::config::project::OfflineConfig>
+pub webfluent::config::project::ProjectConfig::offline: core::option::Option<webfluent::config::OfflineConfig>
 pub webfluent::config::project::ProjectConfig::public_env: alloc::vec::Vec<alloc::string::String>
 pub webfluent::config::project::ProjectConfig::theme: webfluent::config::project::ThemeConfig
 pub webfluent::config::project::ProjectConfig::version: alloc::string::String
-impl webfluent::config::project::ProjectConfig
-pub fn webfluent::config::project::ProjectConfig::default_config(&str) -> Self
-pub fn webfluent::config::project::ProjectConfig::env_is_public(&self, &str) -> bool
-pub fn webfluent::config::project::ProjectConfig::load(&std::path::Path) -> webfluent::diagnostics::error::diagnostic::Result<Self>
-pub fn webfluent::config::project::ProjectConfig::load_via(&dyn webfluent::vfs::Vfs, &std::path::Path) -> webfluent::diagnostics::error::diagnostic::Result<Self>
-pub fn webfluent::config::project::ProjectConfig::page_dir_attr(&self) -> &'static str
-pub fn webfluent::config::project::ProjectConfig::page_lang(&self) -> alloc::string::String
-pub fn webfluent::config::project::ProjectConfig::public_env_values(&self) -> alloc::collections::btree::map::BTreeMap<alloc::string::String, serde_json::value::Value>
-pub fn webfluent::config::project::ProjectConfig::resolve_env(&mut self, &std::path::Path)
-pub fn webfluent::config::project::ProjectConfig::resolve_env_from(&mut self, &std::path::Path, impl core::iter::traits::collect::IntoIterator<Item = (alloc::string::String, alloc::string::String)>)
-pub fn webfluent::config::project::ProjectConfig::resolve_env_via(&mut self, &dyn webfluent::vfs::Vfs, &std::path::Path, impl core::iter::traits::collect::IntoIterator<Item = (alloc::string::String, alloc::string::String)>)
-pub fn webfluent::config::project::ProjectConfig::unknown_keys(&std::path::Path) -> alloc::vec::Vec<alloc::string::String>
-pub fn webfluent::config::project::ProjectConfig::unknown_keys_via(&dyn webfluent::vfs::Vfs, &std::path::Path) -> alloc::vec::Vec<alloc::string::String>
-pub fn webfluent::config::project::ProjectConfig::unprefixed_public_env(&self) -> alloc::vec::Vec<alloc::string::String>
-impl core::clone::Clone for webfluent::config::project::ProjectConfig
-pub fn webfluent::config::project::ProjectConfig::clone(&self) -> Self
-impl core::fmt::Debug for webfluent::config::project::ProjectConfig
-pub fn webfluent::config::project::ProjectConfig::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl serde_core::ser::Serialize for webfluent::config::project::ProjectConfig
-pub fn webfluent::config::project::ProjectConfig::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
-impl<'de> serde_core::de::Deserialize<'de> for webfluent::config::project::ProjectConfig
-pub fn webfluent::config::project::ProjectConfig::deserialize<__D>(__D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
-impl core::marker::Freeze for webfluent::config::project::ProjectConfig
-impl core::marker::Send for webfluent::config::project::ProjectConfig
-impl core::marker::Sync for webfluent::config::project::ProjectConfig
-impl core::marker::Unpin for webfluent::config::project::ProjectConfig
-impl core::marker::UnsafeUnpin for webfluent::config::project::ProjectConfig
-impl core::panic::unwind_safe::RefUnwindSafe for webfluent::config::project::ProjectConfig
-impl core::panic::unwind_safe::UnwindSafe for webfluent::config::project::ProjectConfig
+impl webfluent::config::ProjectConfig
+pub fn webfluent::config::ProjectConfig::default_config(&str) -> Self
+pub fn webfluent::config::ProjectConfig::env_is_public(&self, &str) -> bool
+pub fn webfluent::config::ProjectConfig::load(&std::path::Path) -> webfluent::diagnostics::error::diagnostic::Result<Self>
+pub fn webfluent::config::ProjectConfig::load_via(&dyn webfluent::vfs::Vfs, &std::path::Path) -> webfluent::diagnostics::error::diagnostic::Result<Self>
+pub fn webfluent::config::ProjectConfig::page_dir_attr(&self) -> &'static str
+pub fn webfluent::config::ProjectConfig::page_lang(&self) -> alloc::string::String
+pub fn webfluent::config::ProjectConfig::public_env_values(&self) -> alloc::collections::btree::map::BTreeMap<alloc::string::String, serde_json::value::Value>
+pub fn webfluent::config::ProjectConfig::resolve_env(&mut self, &std::path::Path)
+pub fn webfluent::config::ProjectConfig::resolve_env_from(&mut self, &std::path::Path, impl core::iter::traits::collect::IntoIterator<Item = (alloc::string::String, alloc::string::String)>)
+pub fn webfluent::config::ProjectConfig::resolve_env_via(&mut self, &dyn webfluent::vfs::Vfs, &std::path::Path, impl core::iter::traits::collect::IntoIterator<Item = (alloc::string::String, alloc::string::String)>)
+pub fn webfluent::config::ProjectConfig::unknown_keys(&std::path::Path) -> alloc::vec::Vec<alloc::string::String>
+pub fn webfluent::config::ProjectConfig::unknown_keys_via(&dyn webfluent::vfs::Vfs, &std::path::Path) -> alloc::vec::Vec<alloc::string::String>
+pub fn webfluent::config::ProjectConfig::unprefixed_public_env(&self) -> alloc::vec::Vec<alloc::string::String>
+impl core::clone::Clone for webfluent::config::ProjectConfig
+pub fn webfluent::config::ProjectConfig::clone(&self) -> Self
+impl core::fmt::Debug for webfluent::config::ProjectConfig
+pub fn webfluent::config::ProjectConfig::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl serde_core::ser::Serialize for webfluent::config::ProjectConfig
+pub fn webfluent::config::ProjectConfig::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for webfluent::config::ProjectConfig
+pub fn webfluent::config::ProjectConfig::deserialize<__D>(__D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for webfluent::config::ProjectConfig
+impl core::marker::Send for webfluent::config::ProjectConfig
+impl core::marker::Sync for webfluent::config::ProjectConfig
+impl core::marker::Unpin for webfluent::config::ProjectConfig
+impl core::marker::UnsafeUnpin for webfluent::config::ProjectConfig
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::config::ProjectConfig
+impl core::panic::unwind_safe::UnwindSafe for webfluent::config::ProjectConfig
 pub struct webfluent::config::project::ScriptSpec
 pub webfluent::config::project::ScriptSpec::as_name: core::option::Option<alloc::string::String>
 pub webfluent::config::project::ScriptSpec::globals: alloc::vec::Vec<alloc::string::String>
@@ -2298,23 +2298,23 @@ pub webfluent::config::project::SlidesConfig::show_slide_numbers: bool
 pub webfluent::config::project::SlidesConfig::size: alloc::string::String
 pub webfluent::config::project::SlidesConfig::system_fonts: bool
 pub webfluent::config::project::SlidesConfig::width: core::option::Option<f64>
-impl core::clone::Clone for webfluent::config::project::SlidesConfig
-pub fn webfluent::config::project::SlidesConfig::clone(&self) -> Self
-impl core::default::Default for webfluent::config::project::SlidesConfig
-pub fn webfluent::config::project::SlidesConfig::default() -> Self
-impl core::fmt::Debug for webfluent::config::project::SlidesConfig
-pub fn webfluent::config::project::SlidesConfig::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl serde_core::ser::Serialize for webfluent::config::project::SlidesConfig
-pub fn webfluent::config::project::SlidesConfig::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
-impl<'de> serde_core::de::Deserialize<'de> for webfluent::config::project::SlidesConfig
-pub fn webfluent::config::project::SlidesConfig::deserialize<__D>(__D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
-impl core::marker::Freeze for webfluent::config::project::SlidesConfig
-impl core::marker::Send for webfluent::config::project::SlidesConfig
-impl core::marker::Sync for webfluent::config::project::SlidesConfig
-impl core::marker::Unpin for webfluent::config::project::SlidesConfig
-impl core::marker::UnsafeUnpin for webfluent::config::project::SlidesConfig
-impl core::panic::unwind_safe::RefUnwindSafe for webfluent::config::project::SlidesConfig
-impl core::panic::unwind_safe::UnwindSafe for webfluent::config::project::SlidesConfig
+impl core::clone::Clone for webfluent::SlidesConfig
+pub fn webfluent::SlidesConfig::clone(&self) -> Self
+impl core::default::Default for webfluent::SlidesConfig
+pub fn webfluent::SlidesConfig::default() -> Self
+impl core::fmt::Debug for webfluent::SlidesConfig
+pub fn webfluent::SlidesConfig::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl serde_core::ser::Serialize for webfluent::SlidesConfig
+pub fn webfluent::SlidesConfig::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for webfluent::SlidesConfig
+pub fn webfluent::SlidesConfig::deserialize<__D>(__D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for webfluent::SlidesConfig
+impl core::marker::Send for webfluent::SlidesConfig
+impl core::marker::Sync for webfluent::SlidesConfig
+impl core::marker::Unpin for webfluent::SlidesConfig
+impl core::marker::UnsafeUnpin for webfluent::SlidesConfig
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::SlidesConfig
+impl core::panic::unwind_safe::UnwindSafe for webfluent::SlidesConfig
 pub struct webfluent::config::project::ThemeConfig
 pub webfluent::config::project::ThemeConfig::builtin: webfluent::themes::BuiltinCss
 pub webfluent::config::project::ThemeConfig::dark: core::option::Option<alloc::string::String>
@@ -2340,12 +2340,12 @@ impl core::panic::unwind_safe::UnwindSafe for webfluent::config::project::ThemeC
 pub const webfluent::config::project::ALLOW_SHELL_ENV: &str
 pub const webfluent::config::project::CSP_POLICY: &str
 pub const webfluent::config::project::OFFLINE_STRATEGIES: &[&str]
-pub fn webfluent::config::project::app_schemes(&webfluent::config::project::ProjectConfig) -> alloc::vec::Vec<alloc::string::String>
+pub fn webfluent::config::project::app_schemes(&webfluent::config::ProjectConfig) -> alloc::vec::Vec<alloc::string::String>
 pub fn webfluent::config::project::connect_origin(&str) -> core::option::Option<alloc::string::String>
 pub fn webfluent::config::project::connect_source(&str) -> core::option::Option<alloc::string::String>
-pub fn webfluent::config::project::csp_meta_policy(&webfluent::config::project::ProjectConfig) -> alloc::string::String
-pub fn webfluent::config::project::csp_policy(&webfluent::config::project::ProjectConfig) -> alloc::string::String
-pub fn webfluent::config::project::frame_options(&webfluent::config::project::ProjectConfig) -> &'static str
+pub fn webfluent::config::project::csp_meta_policy(&webfluent::config::ProjectConfig) -> alloc::string::String
+pub fn webfluent::config::project::csp_policy(&webfluent::config::ProjectConfig) -> alloc::string::String
+pub fn webfluent::config::project::frame_options(&webfluent::config::ProjectConfig) -> &'static str
 pub fn webfluent::config::project::frame_source(&str) -> core::option::Option<alloc::string::String>
 pub fn webfluent::config::project::img_origin(&str) -> core::option::Option<alloc::string::String>
 pub fn webfluent::config::project::scheme_source(&str) -> core::option::Option<alloc::string::String>
@@ -2412,148 +2412,148 @@ pub fn webfluent::config::schema::to_json() -> serde_json::value::Value
 pub enum webfluent::config::CleanUrls
 pub webfluent::config::CleanUrls::Directory
 pub webfluent::config::CleanUrls::File
-impl core::clone::Clone for webfluent::config::project::CleanUrls
-pub fn webfluent::config::project::CleanUrls::clone(&self) -> Self
-impl core::cmp::Eq for webfluent::config::project::CleanUrls
-impl core::cmp::PartialEq for webfluent::config::project::CleanUrls
-pub fn webfluent::config::project::CleanUrls::eq(&self, &Self) -> bool
-impl core::fmt::Debug for webfluent::config::project::CleanUrls
-pub fn webfluent::config::project::CleanUrls::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl core::marker::Copy for webfluent::config::project::CleanUrls
-impl core::marker::StructuralPartialEq for webfluent::config::project::CleanUrls
-impl serde_core::ser::Serialize for webfluent::config::project::CleanUrls
-pub fn webfluent::config::project::CleanUrls::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
-impl<'de> serde_core::de::Deserialize<'de> for webfluent::config::project::CleanUrls
-pub fn webfluent::config::project::CleanUrls::deserialize<__D>(__D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
-impl core::marker::Freeze for webfluent::config::project::CleanUrls
-impl core::marker::Send for webfluent::config::project::CleanUrls
-impl core::marker::Sync for webfluent::config::project::CleanUrls
-impl core::marker::Unpin for webfluent::config::project::CleanUrls
-impl core::marker::UnsafeUnpin for webfluent::config::project::CleanUrls
-impl core::panic::unwind_safe::RefUnwindSafe for webfluent::config::project::CleanUrls
-impl core::panic::unwind_safe::UnwindSafe for webfluent::config::project::CleanUrls
+impl core::clone::Clone for webfluent::config::CleanUrls
+pub fn webfluent::config::CleanUrls::clone(&self) -> Self
+impl core::cmp::Eq for webfluent::config::CleanUrls
+impl core::cmp::PartialEq for webfluent::config::CleanUrls
+pub fn webfluent::config::CleanUrls::eq(&self, &Self) -> bool
+impl core::fmt::Debug for webfluent::config::CleanUrls
+pub fn webfluent::config::CleanUrls::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for webfluent::config::CleanUrls
+impl core::marker::StructuralPartialEq for webfluent::config::CleanUrls
+impl serde_core::ser::Serialize for webfluent::config::CleanUrls
+pub fn webfluent::config::CleanUrls::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for webfluent::config::CleanUrls
+pub fn webfluent::config::CleanUrls::deserialize<__D>(__D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for webfluent::config::CleanUrls
+impl core::marker::Send for webfluent::config::CleanUrls
+impl core::marker::Sync for webfluent::config::CleanUrls
+impl core::marker::Unpin for webfluent::config::CleanUrls
+impl core::marker::UnsafeUnpin for webfluent::config::CleanUrls
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::config::CleanUrls
+impl core::panic::unwind_safe::UnwindSafe for webfluent::config::CleanUrls
 pub enum webfluent::config::OutputType
 pub webfluent::config::OutputType::Elements
 pub webfluent::config::OutputType::Pdf
 pub webfluent::config::OutputType::Slides
 pub webfluent::config::OutputType::Spa
 pub webfluent::config::OutputType::Static
-impl core::clone::Clone for webfluent::config::project::OutputType
-pub fn webfluent::config::project::OutputType::clone(&self) -> Self
-impl core::cmp::Eq for webfluent::config::project::OutputType
-impl core::cmp::PartialEq for webfluent::config::project::OutputType
-pub fn webfluent::config::project::OutputType::eq(&self, &Self) -> bool
-impl core::default::Default for webfluent::config::project::OutputType
-pub fn webfluent::config::project::OutputType::default() -> Self
-impl core::fmt::Debug for webfluent::config::project::OutputType
-pub fn webfluent::config::project::OutputType::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl core::marker::Copy for webfluent::config::project::OutputType
-impl core::marker::StructuralPartialEq for webfluent::config::project::OutputType
-impl serde_core::ser::Serialize for webfluent::config::project::OutputType
-pub fn webfluent::config::project::OutputType::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
-impl<'de> serde_core::de::Deserialize<'de> for webfluent::config::project::OutputType
-pub fn webfluent::config::project::OutputType::deserialize<__D>(__D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
-impl core::marker::Freeze for webfluent::config::project::OutputType
-impl core::marker::Send for webfluent::config::project::OutputType
-impl core::marker::Sync for webfluent::config::project::OutputType
-impl core::marker::Unpin for webfluent::config::project::OutputType
-impl core::marker::UnsafeUnpin for webfluent::config::project::OutputType
-impl core::panic::unwind_safe::RefUnwindSafe for webfluent::config::project::OutputType
-impl core::panic::unwind_safe::UnwindSafe for webfluent::config::project::OutputType
+impl core::clone::Clone for webfluent::config::OutputType
+pub fn webfluent::config::OutputType::clone(&self) -> Self
+impl core::cmp::Eq for webfluent::config::OutputType
+impl core::cmp::PartialEq for webfluent::config::OutputType
+pub fn webfluent::config::OutputType::eq(&self, &Self) -> bool
+impl core::default::Default for webfluent::config::OutputType
+pub fn webfluent::config::OutputType::default() -> Self
+impl core::fmt::Debug for webfluent::config::OutputType
+pub fn webfluent::config::OutputType::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for webfluent::config::OutputType
+impl core::marker::StructuralPartialEq for webfluent::config::OutputType
+impl serde_core::ser::Serialize for webfluent::config::OutputType
+pub fn webfluent::config::OutputType::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for webfluent::config::OutputType
+pub fn webfluent::config::OutputType::deserialize<__D>(__D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for webfluent::config::OutputType
+impl core::marker::Send for webfluent::config::OutputType
+impl core::marker::Sync for webfluent::config::OutputType
+impl core::marker::Unpin for webfluent::config::OutputType
+impl core::marker::UnsafeUnpin for webfluent::config::OutputType
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::config::OutputType
+impl core::panic::unwind_safe::UnwindSafe for webfluent::config::OutputType
 pub enum webfluent::config::Owner
 pub webfluent::config::Owner::Organization
 pub webfluent::config::Owner::Person
-impl core::clone::Clone for webfluent::config::project::Owner
-pub fn webfluent::config::project::Owner::clone(&self) -> Self
-impl core::cmp::Eq for webfluent::config::project::Owner
-impl core::cmp::PartialEq for webfluent::config::project::Owner
-pub fn webfluent::config::project::Owner::eq(&self, &Self) -> bool
-impl core::default::Default for webfluent::config::project::Owner
-pub fn webfluent::config::project::Owner::default() -> Self
-impl core::fmt::Debug for webfluent::config::project::Owner
-pub fn webfluent::config::project::Owner::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl core::marker::Copy for webfluent::config::project::Owner
-impl core::marker::StructuralPartialEq for webfluent::config::project::Owner
-impl serde_core::ser::Serialize for webfluent::config::project::Owner
-pub fn webfluent::config::project::Owner::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
-impl<'de> serde_core::de::Deserialize<'de> for webfluent::config::project::Owner
-pub fn webfluent::config::project::Owner::deserialize<__D>(__D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
-impl core::marker::Freeze for webfluent::config::project::Owner
-impl core::marker::Send for webfluent::config::project::Owner
-impl core::marker::Sync for webfluent::config::project::Owner
-impl core::marker::Unpin for webfluent::config::project::Owner
-impl core::marker::UnsafeUnpin for webfluent::config::project::Owner
-impl core::panic::unwind_safe::RefUnwindSafe for webfluent::config::project::Owner
-impl core::panic::unwind_safe::UnwindSafe for webfluent::config::project::Owner
+impl core::clone::Clone for webfluent::config::Owner
+pub fn webfluent::config::Owner::clone(&self) -> Self
+impl core::cmp::Eq for webfluent::config::Owner
+impl core::cmp::PartialEq for webfluent::config::Owner
+pub fn webfluent::config::Owner::eq(&self, &Self) -> bool
+impl core::default::Default for webfluent::config::Owner
+pub fn webfluent::config::Owner::default() -> Self
+impl core::fmt::Debug for webfluent::config::Owner
+pub fn webfluent::config::Owner::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for webfluent::config::Owner
+impl core::marker::StructuralPartialEq for webfluent::config::Owner
+impl serde_core::ser::Serialize for webfluent::config::Owner
+pub fn webfluent::config::Owner::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for webfluent::config::Owner
+pub fn webfluent::config::Owner::deserialize<__D>(__D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for webfluent::config::Owner
+impl core::marker::Send for webfluent::config::Owner
+impl core::marker::Sync for webfluent::config::Owner
+impl core::marker::Unpin for webfluent::config::Owner
+impl core::marker::UnsafeUnpin for webfluent::config::Owner
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::config::Owner
+impl core::panic::unwind_safe::UnwindSafe for webfluent::config::Owner
 pub enum webfluent::config::RuntimeMode
 pub webfluent::config::RuntimeMode::Auto
 pub webfluent::config::RuntimeMode::Full
-impl core::clone::Clone for webfluent::config::project::RuntimeMode
-pub fn webfluent::config::project::RuntimeMode::clone(&self) -> Self
-impl core::cmp::Eq for webfluent::config::project::RuntimeMode
-impl core::cmp::PartialEq for webfluent::config::project::RuntimeMode
-pub fn webfluent::config::project::RuntimeMode::eq(&self, &Self) -> bool
-impl core::default::Default for webfluent::config::project::RuntimeMode
-pub fn webfluent::config::project::RuntimeMode::default() -> Self
-impl core::fmt::Debug for webfluent::config::project::RuntimeMode
-pub fn webfluent::config::project::RuntimeMode::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl core::marker::Copy for webfluent::config::project::RuntimeMode
-impl core::marker::StructuralPartialEq for webfluent::config::project::RuntimeMode
-impl serde_core::ser::Serialize for webfluent::config::project::RuntimeMode
-pub fn webfluent::config::project::RuntimeMode::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
-impl<'de> serde_core::de::Deserialize<'de> for webfluent::config::project::RuntimeMode
-pub fn webfluent::config::project::RuntimeMode::deserialize<__D>(__D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
-impl core::marker::Freeze for webfluent::config::project::RuntimeMode
-impl core::marker::Send for webfluent::config::project::RuntimeMode
-impl core::marker::Sync for webfluent::config::project::RuntimeMode
-impl core::marker::Unpin for webfluent::config::project::RuntimeMode
-impl core::marker::UnsafeUnpin for webfluent::config::project::RuntimeMode
-impl core::panic::unwind_safe::RefUnwindSafe for webfluent::config::project::RuntimeMode
-impl core::panic::unwind_safe::UnwindSafe for webfluent::config::project::RuntimeMode
+impl core::clone::Clone for webfluent::config::RuntimeMode
+pub fn webfluent::config::RuntimeMode::clone(&self) -> Self
+impl core::cmp::Eq for webfluent::config::RuntimeMode
+impl core::cmp::PartialEq for webfluent::config::RuntimeMode
+pub fn webfluent::config::RuntimeMode::eq(&self, &Self) -> bool
+impl core::default::Default for webfluent::config::RuntimeMode
+pub fn webfluent::config::RuntimeMode::default() -> Self
+impl core::fmt::Debug for webfluent::config::RuntimeMode
+pub fn webfluent::config::RuntimeMode::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for webfluent::config::RuntimeMode
+impl core::marker::StructuralPartialEq for webfluent::config::RuntimeMode
+impl serde_core::ser::Serialize for webfluent::config::RuntimeMode
+pub fn webfluent::config::RuntimeMode::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for webfluent::config::RuntimeMode
+pub fn webfluent::config::RuntimeMode::deserialize<__D>(__D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for webfluent::config::RuntimeMode
+impl core::marker::Send for webfluent::config::RuntimeMode
+impl core::marker::Sync for webfluent::config::RuntimeMode
+impl core::marker::Unpin for webfluent::config::RuntimeMode
+impl core::marker::UnsafeUnpin for webfluent::config::RuntimeMode
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::config::RuntimeMode
+impl core::panic::unwind_safe::UnwindSafe for webfluent::config::RuntimeMode
 pub struct webfluent::config::MotionConfig
 pub webfluent::config::MotionConfig::duration: core::option::Option<alloc::string::String>
 pub webfluent::config::MotionConfig::easing: core::option::Option<alloc::string::String>
-impl webfluent::config::project::MotionConfig
-pub fn webfluent::config::project::MotionConfig::tokens(&self, &std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>) -> alloc::vec::Vec<(alloc::string::String, alloc::string::String)>
-impl core::clone::Clone for webfluent::config::project::MotionConfig
-pub fn webfluent::config::project::MotionConfig::clone(&self) -> Self
-impl core::default::Default for webfluent::config::project::MotionConfig
-pub fn webfluent::config::project::MotionConfig::default() -> Self
-impl core::fmt::Debug for webfluent::config::project::MotionConfig
-pub fn webfluent::config::project::MotionConfig::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl serde_core::ser::Serialize for webfluent::config::project::MotionConfig
-pub fn webfluent::config::project::MotionConfig::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
-impl<'de> serde_core::de::Deserialize<'de> for webfluent::config::project::MotionConfig
-pub fn webfluent::config::project::MotionConfig::deserialize<__D>(__D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
-impl core::marker::Freeze for webfluent::config::project::MotionConfig
-impl core::marker::Send for webfluent::config::project::MotionConfig
-impl core::marker::Sync for webfluent::config::project::MotionConfig
-impl core::marker::Unpin for webfluent::config::project::MotionConfig
-impl core::marker::UnsafeUnpin for webfluent::config::project::MotionConfig
-impl core::panic::unwind_safe::RefUnwindSafe for webfluent::config::project::MotionConfig
-impl core::panic::unwind_safe::UnwindSafe for webfluent::config::project::MotionConfig
+impl webfluent::config::MotionConfig
+pub fn webfluent::config::MotionConfig::tokens(&self, &std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>) -> alloc::vec::Vec<(alloc::string::String, alloc::string::String)>
+impl core::clone::Clone for webfluent::config::MotionConfig
+pub fn webfluent::config::MotionConfig::clone(&self) -> Self
+impl core::default::Default for webfluent::config::MotionConfig
+pub fn webfluent::config::MotionConfig::default() -> Self
+impl core::fmt::Debug for webfluent::config::MotionConfig
+pub fn webfluent::config::MotionConfig::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl serde_core::ser::Serialize for webfluent::config::MotionConfig
+pub fn webfluent::config::MotionConfig::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for webfluent::config::MotionConfig
+pub fn webfluent::config::MotionConfig::deserialize<__D>(__D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for webfluent::config::MotionConfig
+impl core::marker::Send for webfluent::config::MotionConfig
+impl core::marker::Sync for webfluent::config::MotionConfig
+impl core::marker::Unpin for webfluent::config::MotionConfig
+impl core::marker::UnsafeUnpin for webfluent::config::MotionConfig
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::config::MotionConfig
+impl core::panic::unwind_safe::UnwindSafe for webfluent::config::MotionConfig
 pub struct webfluent::config::OfflineConfig
 pub webfluent::config::OfflineConfig::cache: alloc::collections::btree::map::BTreeMap<alloc::string::String, alloc::string::String>
 pub webfluent::config::OfflineConfig::fallback: core::option::Option<alloc::string::String>
 pub webfluent::config::OfflineConfig::precache: alloc::vec::Vec<alloc::string::String>
 pub webfluent::config::OfflineConfig::sync: bool
-impl core::clone::Clone for webfluent::config::project::OfflineConfig
-pub fn webfluent::config::project::OfflineConfig::clone(&self) -> Self
-impl core::default::Default for webfluent::config::project::OfflineConfig
-pub fn webfluent::config::project::OfflineConfig::default() -> Self
-impl core::fmt::Debug for webfluent::config::project::OfflineConfig
-pub fn webfluent::config::project::OfflineConfig::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl serde_core::ser::Serialize for webfluent::config::project::OfflineConfig
-pub fn webfluent::config::project::OfflineConfig::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
-impl<'de> serde_core::de::Deserialize<'de> for webfluent::config::project::OfflineConfig
-pub fn webfluent::config::project::OfflineConfig::deserialize<__D>(__D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
-impl core::marker::Freeze for webfluent::config::project::OfflineConfig
-impl core::marker::Send for webfluent::config::project::OfflineConfig
-impl core::marker::Sync for webfluent::config::project::OfflineConfig
-impl core::marker::Unpin for webfluent::config::project::OfflineConfig
-impl core::marker::UnsafeUnpin for webfluent::config::project::OfflineConfig
-impl core::panic::unwind_safe::RefUnwindSafe for webfluent::config::project::OfflineConfig
-impl core::panic::unwind_safe::UnwindSafe for webfluent::config::project::OfflineConfig
+impl core::clone::Clone for webfluent::config::OfflineConfig
+pub fn webfluent::config::OfflineConfig::clone(&self) -> Self
+impl core::default::Default for webfluent::config::OfflineConfig
+pub fn webfluent::config::OfflineConfig::default() -> Self
+impl core::fmt::Debug for webfluent::config::OfflineConfig
+pub fn webfluent::config::OfflineConfig::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl serde_core::ser::Serialize for webfluent::config::OfflineConfig
+pub fn webfluent::config::OfflineConfig::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for webfluent::config::OfflineConfig
+pub fn webfluent::config::OfflineConfig::deserialize<__D>(__D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for webfluent::config::OfflineConfig
+impl core::marker::Send for webfluent::config::OfflineConfig
+impl core::marker::Sync for webfluent::config::OfflineConfig
+impl core::marker::Unpin for webfluent::config::OfflineConfig
+impl core::marker::UnsafeUnpin for webfluent::config::OfflineConfig
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::config::OfflineConfig
+impl core::panic::unwind_safe::UnwindSafe for webfluent::config::OfflineConfig
 pub struct webfluent::config::ProjectConfig
 pub webfluent::config::ProjectConfig::author: alloc::string::String
 pub webfluent::config::ProjectConfig::build: webfluent::config::project::BuildConfig
@@ -2562,41 +2562,41 @@ pub webfluent::config::ProjectConfig::env: alloc::collections::btree::map::BTree
 pub webfluent::config::ProjectConfig::i18n: core::option::Option<webfluent::config::project::I18nConfig>
 pub webfluent::config::ProjectConfig::lints: alloc::collections::btree::map::BTreeMap<alloc::string::String, alloc::string::String>
 pub webfluent::config::ProjectConfig::meta: webfluent::config::project::MetaConfig
-pub webfluent::config::ProjectConfig::motion: webfluent::config::project::MotionConfig
+pub webfluent::config::ProjectConfig::motion: webfluent::config::MotionConfig
 pub webfluent::config::ProjectConfig::name: alloc::string::String
-pub webfluent::config::ProjectConfig::offline: core::option::Option<webfluent::config::project::OfflineConfig>
+pub webfluent::config::ProjectConfig::offline: core::option::Option<webfluent::config::OfflineConfig>
 pub webfluent::config::ProjectConfig::public_env: alloc::vec::Vec<alloc::string::String>
 pub webfluent::config::ProjectConfig::theme: webfluent::config::project::ThemeConfig
 pub webfluent::config::ProjectConfig::version: alloc::string::String
-impl webfluent::config::project::ProjectConfig
-pub fn webfluent::config::project::ProjectConfig::default_config(&str) -> Self
-pub fn webfluent::config::project::ProjectConfig::env_is_public(&self, &str) -> bool
-pub fn webfluent::config::project::ProjectConfig::load(&std::path::Path) -> webfluent::diagnostics::error::diagnostic::Result<Self>
-pub fn webfluent::config::project::ProjectConfig::load_via(&dyn webfluent::vfs::Vfs, &std::path::Path) -> webfluent::diagnostics::error::diagnostic::Result<Self>
-pub fn webfluent::config::project::ProjectConfig::page_dir_attr(&self) -> &'static str
-pub fn webfluent::config::project::ProjectConfig::page_lang(&self) -> alloc::string::String
-pub fn webfluent::config::project::ProjectConfig::public_env_values(&self) -> alloc::collections::btree::map::BTreeMap<alloc::string::String, serde_json::value::Value>
-pub fn webfluent::config::project::ProjectConfig::resolve_env(&mut self, &std::path::Path)
-pub fn webfluent::config::project::ProjectConfig::resolve_env_from(&mut self, &std::path::Path, impl core::iter::traits::collect::IntoIterator<Item = (alloc::string::String, alloc::string::String)>)
-pub fn webfluent::config::project::ProjectConfig::resolve_env_via(&mut self, &dyn webfluent::vfs::Vfs, &std::path::Path, impl core::iter::traits::collect::IntoIterator<Item = (alloc::string::String, alloc::string::String)>)
-pub fn webfluent::config::project::ProjectConfig::unknown_keys(&std::path::Path) -> alloc::vec::Vec<alloc::string::String>
-pub fn webfluent::config::project::ProjectConfig::unknown_keys_via(&dyn webfluent::vfs::Vfs, &std::path::Path) -> alloc::vec::Vec<alloc::string::String>
-pub fn webfluent::config::project::ProjectConfig::unprefixed_public_env(&self) -> alloc::vec::Vec<alloc::string::String>
-impl core::clone::Clone for webfluent::config::project::ProjectConfig
-pub fn webfluent::config::project::ProjectConfig::clone(&self) -> Self
-impl core::fmt::Debug for webfluent::config::project::ProjectConfig
-pub fn webfluent::config::project::ProjectConfig::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl serde_core::ser::Serialize for webfluent::config::project::ProjectConfig
-pub fn webfluent::config::project::ProjectConfig::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
-impl<'de> serde_core::de::Deserialize<'de> for webfluent::config::project::ProjectConfig
-pub fn webfluent::config::project::ProjectConfig::deserialize<__D>(__D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
-impl core::marker::Freeze for webfluent::config::project::ProjectConfig
-impl core::marker::Send for webfluent::config::project::ProjectConfig
-impl core::marker::Sync for webfluent::config::project::ProjectConfig
-impl core::marker::Unpin for webfluent::config::project::ProjectConfig
-impl core::marker::UnsafeUnpin for webfluent::config::project::ProjectConfig
-impl core::panic::unwind_safe::RefUnwindSafe for webfluent::config::project::ProjectConfig
-impl core::panic::unwind_safe::UnwindSafe for webfluent::config::project::ProjectConfig
+impl webfluent::config::ProjectConfig
+pub fn webfluent::config::ProjectConfig::default_config(&str) -> Self
+pub fn webfluent::config::ProjectConfig::env_is_public(&self, &str) -> bool
+pub fn webfluent::config::ProjectConfig::load(&std::path::Path) -> webfluent::diagnostics::error::diagnostic::Result<Self>
+pub fn webfluent::config::ProjectConfig::load_via(&dyn webfluent::vfs::Vfs, &std::path::Path) -> webfluent::diagnostics::error::diagnostic::Result<Self>
+pub fn webfluent::config::ProjectConfig::page_dir_attr(&self) -> &'static str
+pub fn webfluent::config::ProjectConfig::page_lang(&self) -> alloc::string::String
+pub fn webfluent::config::ProjectConfig::public_env_values(&self) -> alloc::collections::btree::map::BTreeMap<alloc::string::String, serde_json::value::Value>
+pub fn webfluent::config::ProjectConfig::resolve_env(&mut self, &std::path::Path)
+pub fn webfluent::config::ProjectConfig::resolve_env_from(&mut self, &std::path::Path, impl core::iter::traits::collect::IntoIterator<Item = (alloc::string::String, alloc::string::String)>)
+pub fn webfluent::config::ProjectConfig::resolve_env_via(&mut self, &dyn webfluent::vfs::Vfs, &std::path::Path, impl core::iter::traits::collect::IntoIterator<Item = (alloc::string::String, alloc::string::String)>)
+pub fn webfluent::config::ProjectConfig::unknown_keys(&std::path::Path) -> alloc::vec::Vec<alloc::string::String>
+pub fn webfluent::config::ProjectConfig::unknown_keys_via(&dyn webfluent::vfs::Vfs, &std::path::Path) -> alloc::vec::Vec<alloc::string::String>
+pub fn webfluent::config::ProjectConfig::unprefixed_public_env(&self) -> alloc::vec::Vec<alloc::string::String>
+impl core::clone::Clone for webfluent::config::ProjectConfig
+pub fn webfluent::config::ProjectConfig::clone(&self) -> Self
+impl core::fmt::Debug for webfluent::config::ProjectConfig
+pub fn webfluent::config::ProjectConfig::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl serde_core::ser::Serialize for webfluent::config::ProjectConfig
+pub fn webfluent::config::ProjectConfig::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for webfluent::config::ProjectConfig
+pub fn webfluent::config::ProjectConfig::deserialize<__D>(__D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for webfluent::config::ProjectConfig
+impl core::marker::Send for webfluent::config::ProjectConfig
+impl core::marker::Sync for webfluent::config::ProjectConfig
+impl core::marker::Unpin for webfluent::config::ProjectConfig
+impl core::marker::UnsafeUnpin for webfluent::config::ProjectConfig
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::config::ProjectConfig
+impl core::panic::unwind_safe::UnwindSafe for webfluent::config::ProjectConfig
 pub const webfluent::config::OFFLINE_STRATEGIES: &[&str]
 pub mod webfluent::data
 pub const webfluent::data::PROCESSED: &[&str]
@@ -2646,7 +2646,7 @@ impl core::marker::UnsafeUnpin for webfluent::diagnostics::check::Checked
 impl core::panic::unwind_safe::RefUnwindSafe for webfluent::diagnostics::check::Checked
 impl core::panic::unwind_safe::UnwindSafe for webfluent::diagnostics::check::Checked
 pub struct webfluent::diagnostics::check::Project<'a>
-pub webfluent::diagnostics::check::Project::config: core::option::Option<&'a webfluent::config::project::ProjectConfig>
+pub webfluent::diagnostics::check::Project::config: core::option::Option<&'a webfluent::config::ProjectConfig>
 pub webfluent::diagnostics::check::Project::declaration_files: &'a [alloc::string::String]
 pub webfluent::diagnostics::check::Project::dir: core::option::Option<&'a std::path::Path>
 pub webfluent::diagnostics::check::Project::file_of: &'a dyn core::ops::function::Fn(usize) -> alloc::string::String
@@ -2665,10 +2665,10 @@ impl<'a> !core::panic::unwind_safe::UnwindSafe for webfluent::diagnostics::check
 pub fn webfluent::diagnostics::check::apply_lints(&mut alloc::vec::Vec<webfluent::diagnostics::Diagnostic>, &alloc::collections::btree::map::BTreeMap<alloc::string::String, alloc::string::String>, &str)
 pub fn webfluent::diagnostics::check::check_project(&webfluent::diagnostics::check::Project<'_>) -> webfluent::diagnostics::check::Checked
 pub fn webfluent::diagnostics::check::check_project_via(&dyn webfluent::vfs::Vfs, &webfluent::diagnostics::check::Project<'_>) -> webfluent::diagnostics::check::Checked
-pub fn webfluent::diagnostics::check::config_checks(&std::path::Path, &webfluent::config::project::ProjectConfig, &webfluent::syntax::parser::Program) -> alloc::vec::Vec<webfluent::diagnostics::Diagnostic>
-pub fn webfluent::diagnostics::check::config_checks_via(&dyn webfluent::vfs::Vfs, &std::path::Path, &webfluent::config::project::ProjectConfig, &webfluent::syntax::parser::Program) -> alloc::vec::Vec<webfluent::diagnostics::Diagnostic>
+pub fn webfluent::diagnostics::check::config_checks(&std::path::Path, &webfluent::config::ProjectConfig, &webfluent::syntax::parser::Program) -> alloc::vec::Vec<webfluent::diagnostics::Diagnostic>
+pub fn webfluent::diagnostics::check::config_checks_via(&dyn webfluent::vfs::Vfs, &std::path::Path, &webfluent::config::ProjectConfig, &webfluent::syntax::parser::Program) -> alloc::vec::Vec<webfluent::diagnostics::Diagnostic>
 pub fn webfluent::diagnostics::check::hidden_directions(&str, &str) -> alloc::vec::Vec<webfluent::diagnostics::Diagnostic>
-pub fn webfluent::diagnostics::check::output_checks(&webfluent::syntax::parser::Program, &webfluent::config::project::ProjectConfig, &dyn core::ops::function::Fn(usize) -> alloc::string::String) -> alloc::vec::Vec<webfluent::diagnostics::Diagnostic>
+pub fn webfluent::diagnostics::check::output_checks(&webfluent::syntax::parser::Program, &webfluent::config::ProjectConfig, &dyn core::ops::function::Fn(usize) -> alloc::string::String) -> alloc::vec::Vec<webfluent::diagnostics::Diagnostic>
 pub fn webfluent::diagnostics::check::program_checks(&webfluent::syntax::parser::Program, &dyn core::ops::function::Fn(usize) -> alloc::string::String, &dyn core::ops::function::Fn(usize) -> core::option::Option<alloc::string::String>) -> alloc::vec::Vec<webfluent::diagnostics::Diagnostic>
 pub fn webfluent::diagnostics::check::script_checks(&std::path::Path, &[webfluent::project_js::Script]) -> alloc::vec::Vec<webfluent::diagnostics::Diagnostic>
 pub fn webfluent::diagnostics::check::script_checks_via(&dyn webfluent::vfs::Vfs, &std::path::Path, &[webfluent::project_js::Script]) -> alloc::vec::Vec<webfluent::diagnostics::Diagnostic>
@@ -4599,9 +4599,9 @@ impl core::marker::Unpin for webfluent::linter::pdf_validation::PdfValidationErr
 impl core::marker::UnsafeUnpin for webfluent::linter::pdf_validation::PdfValidationError
 impl core::panic::unwind_safe::RefUnwindSafe for webfluent::linter::pdf_validation::PdfValidationError
 impl core::panic::unwind_safe::UnwindSafe for webfluent::linter::pdf_validation::PdfValidationError
-pub fn webfluent::linter::pdf_validation::drawn_in(webfluent::config::project::OutputType, &str) -> core::result::Result<(), &'static str>
+pub fn webfluent::linter::pdf_validation::drawn_in(webfluent::config::OutputType, &str) -> core::result::Result<(), &'static str>
 pub fn webfluent::linter::pdf_validation::is_slide(&str) -> bool
-pub fn webfluent::linter::pdf_validation::offered_in(webfluent::config::project::OutputType, &str) -> bool
+pub fn webfluent::linter::pdf_validation::offered_in(webfluent::config::OutputType, &str) -> bool
 pub fn webfluent::linter::pdf_validation::validate_for_pdf(&webfluent::syntax::parser::Program) -> alloc::vec::Vec<webfluent::linter::pdf_validation::PdfValidationError>
 pub mod webfluent::linter::project
 pub const webfluent::linter::project::PERSIST_CACHE: &str
@@ -4615,8 +4615,8 @@ pub fn webfluent::linter::project::persist_shapes(&webfluent::syntax::parser::Pr
 pub fn webfluent::linter::project::persisted_values(&webfluent::syntax::parser::Program, &alloc::collections::btree::map::BTreeMap<alloc::string::String, serde_json::value::Value>) -> alloc::collections::btree::map::BTreeMap<alloc::string::String, serde_json::value::Value>
 pub fn webfluent::linter::project::translations(&webfluent::syntax::parser::Program, &webfluent::config::project::I18nConfig, &std::collections::hash::map::HashMap<alloc::string::String, std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>>, &dyn core::ops::function::Fn(usize) -> alloc::string::String) -> alloc::vec::Vec<webfluent::diagnostics::Diagnostic>
 pub mod webfluent::linter::secrets
-pub fn webfluent::linter::secrets::lint_env(&std::path::Path, &webfluent::config::project::ProjectConfig, &[alloc::string::String]) -> alloc::vec::Vec<webfluent::diagnostics::Diagnostic>
-pub fn webfluent::linter::secrets::lint_env_via(&dyn webfluent::vfs::Vfs, &std::path::Path, &webfluent::config::project::ProjectConfig, &[alloc::string::String]) -> alloc::vec::Vec<webfluent::diagnostics::Diagnostic>
+pub fn webfluent::linter::secrets::lint_env(&std::path::Path, &webfluent::config::ProjectConfig, &[alloc::string::String]) -> alloc::vec::Vec<webfluent::diagnostics::Diagnostic>
+pub fn webfluent::linter::secrets::lint_env_via(&dyn webfluent::vfs::Vfs, &std::path::Path, &webfluent::config::ProjectConfig, &[alloc::string::String]) -> alloc::vec::Vec<webfluent::diagnostics::Diagnostic>
 pub mod webfluent::linter::semantic
 pub const webfluent::linter::semantic::OBJECT_NAMES: &[&str]
 pub fn webfluent::linter::semantic::validate_semantics(&webfluent::syntax::parser::Program, &str) -> alloc::vec::Vec<webfluent::diagnostics::Diagnostic>
@@ -4652,20 +4652,20 @@ pub mod webfluent::linter::vocabulary
 pub fn webfluent::linter::vocabulary::lint_vocabulary(&webfluent::syntax::parser::Program, &str) -> alloc::vec::Vec<webfluent::diagnostics::error::diagnostic::VocabWarning>
 pub fn webfluent::linter::vocabulary::lint_vocabulary_in(&webfluent::syntax::parser::Program, &dyn core::ops::function::Fn(usize) -> alloc::string::String) -> alloc::vec::Vec<webfluent::diagnostics::error::diagnostic::VocabWarning>
 pub fn webfluent::linter::vocabulary::lint_vocabulary_with(&webfluent::syntax::parser::Program, &str, &dyn core::ops::function::Fn(usize) -> alloc::string::String) -> alloc::vec::Vec<webfluent::diagnostics::error::diagnostic::VocabWarning>
-pub fn webfluent::linter::drawn_in(webfluent::config::project::OutputType, &str) -> core::result::Result<(), &'static str>
+pub fn webfluent::linter::drawn_in(webfluent::config::OutputType, &str) -> core::result::Result<(), &'static str>
 pub fn webfluent::linter::is_slide(&str) -> bool
 pub fn webfluent::linter::lint_accessibility(&webfluent::syntax::parser::Program) -> alloc::vec::Vec<webfluent::diagnostics::error::diagnostic::A11yWarning>
 pub fn webfluent::linter::lint_accessibility_in(&webfluent::syntax::parser::Program, &dyn core::ops::function::Fn(usize) -> alloc::string::String) -> alloc::vec::Vec<webfluent::diagnostics::error::diagnostic::A11yWarning>
 pub fn webfluent::linter::lint_contrast(&webfluent::syntax::parser::Program, &std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>) -> alloc::vec::Vec<webfluent::diagnostics::error::diagnostic::A11yWarning>
 pub fn webfluent::linter::lint_contrast_in(&webfluent::syntax::parser::Program, &std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>, &dyn core::ops::function::Fn(usize) -> alloc::string::String) -> alloc::vec::Vec<webfluent::diagnostics::error::diagnostic::A11yWarning>
-pub fn webfluent::linter::lint_env(&std::path::Path, &webfluent::config::project::ProjectConfig, &[alloc::string::String]) -> alloc::vec::Vec<webfluent::diagnostics::Diagnostic>
-pub fn webfluent::linter::lint_env_via(&dyn webfluent::vfs::Vfs, &std::path::Path, &webfluent::config::project::ProjectConfig, &[alloc::string::String]) -> alloc::vec::Vec<webfluent::diagnostics::Diagnostic>
+pub fn webfluent::linter::lint_env(&std::path::Path, &webfluent::config::ProjectConfig, &[alloc::string::String]) -> alloc::vec::Vec<webfluent::diagnostics::Diagnostic>
+pub fn webfluent::linter::lint_env_via(&dyn webfluent::vfs::Vfs, &std::path::Path, &webfluent::config::ProjectConfig, &[alloc::string::String]) -> alloc::vec::Vec<webfluent::diagnostics::Diagnostic>
 pub fn webfluent::linter::lint_unused(&webfluent::syntax::parser::Program) -> alloc::vec::Vec<webfluent::diagnostics::error::diagnostic::A11yWarning>
 pub fn webfluent::linter::lint_unused_in(&webfluent::syntax::parser::Program, &dyn core::ops::function::Fn(usize) -> alloc::string::String, &[alloc::string::String]) -> alloc::vec::Vec<webfluent::diagnostics::error::diagnostic::A11yWarning>
 pub fn webfluent::linter::lint_vocabulary(&webfluent::syntax::parser::Program, &str) -> alloc::vec::Vec<webfluent::diagnostics::error::diagnostic::VocabWarning>
 pub fn webfluent::linter::lint_vocabulary_in(&webfluent::syntax::parser::Program, &dyn core::ops::function::Fn(usize) -> alloc::string::String) -> alloc::vec::Vec<webfluent::diagnostics::error::diagnostic::VocabWarning>
 pub fn webfluent::linter::lint_vocabulary_with(&webfluent::syntax::parser::Program, &str, &dyn core::ops::function::Fn(usize) -> alloc::string::String) -> alloc::vec::Vec<webfluent::diagnostics::error::diagnostic::VocabWarning>
-pub fn webfluent::linter::offered_in(webfluent::config::project::OutputType, &str) -> bool
+pub fn webfluent::linter::offered_in(webfluent::config::OutputType, &str) -> bool
 pub fn webfluent::linter::renders_slides(&[webfluent::syntax::parser::Statement]) -> bool
 pub fn webfluent::linter::validate_for_pdf(&webfluent::syntax::parser::Program) -> alloc::vec::Vec<webfluent::linter::pdf_validation::PdfValidationError>
 pub fn webfluent::linter::validate_for_slides(&webfluent::syntax::parser::Program) -> alloc::vec::Vec<webfluent::linter::slides_validation::SlidesValidationError>
@@ -5173,7 +5173,7 @@ impl core::marker::UnsafeUnpin for webfluent::motion::Speed
 impl core::panic::unwind_safe::RefUnwindSafe for webfluent::motion::Speed
 impl core::panic::unwind_safe::UnwindSafe for webfluent::motion::Speed
 pub const webfluent::motion::REDUCED: &str
-pub fn webfluent::motion::catalogue(core::option::Option<&webfluent::syntax::parser::Program>, &webfluent::config::project::MotionConfig) -> webfluent::motion::Motion
+pub fn webfluent::motion::catalogue(core::option::Option<&webfluent::syntax::parser::Program>, &webfluent::config::MotionConfig) -> webfluent::motion::Motion
 pub fn webfluent::motion::duration_spelling(u32) -> alloc::string::String
 pub fn webfluent::motion::spelling(&str, &str, &[&str]) -> alloc::string::String
 pub fn webfluent::motion::stagger_unavailable(&webfluent::syntax::node_id::NodeInfo) -> core::option::Option<&'static str>
@@ -6647,10 +6647,10 @@ pub webfluent::paged::Options::paper: webfluent::paged::Paper
 pub webfluent::paged::Options::system_fonts: bool
 pub webfluent::paged::Options::vfs: &'a dyn webfluent::vfs::Vfs
 impl<'a> webfluent::paged::Options<'a>
-pub fn webfluent::paged::Options<'a>::from_pdf(&webfluent::config::project::PdfConfig, &'a webfluent::paged::boxes::AssetReader<'a>, core::option::Option<&std::path::Path>) -> webfluent::paged::Options<'a>
-pub fn webfluent::paged::Options<'a>::from_pdf_via(&'a dyn webfluent::vfs::Vfs, &webfluent::config::project::PdfConfig, &'a webfluent::paged::boxes::AssetReader<'a>, core::option::Option<&std::path::Path>) -> webfluent::paged::Options<'a>
-pub fn webfluent::paged::Options<'a>::from_slides(&webfluent::config::project::SlidesConfig, &'a webfluent::paged::boxes::AssetReader<'a>, core::option::Option<&std::path::Path>) -> (webfluent::paged::Options<'a>, webfluent::paged::SlideChrome)
-pub fn webfluent::paged::Options<'a>::from_slides_via(&'a dyn webfluent::vfs::Vfs, &webfluent::config::project::SlidesConfig, &'a webfluent::paged::boxes::AssetReader<'a>, core::option::Option<&std::path::Path>) -> (webfluent::paged::Options<'a>, webfluent::paged::SlideChrome)
+pub fn webfluent::paged::Options<'a>::from_pdf(&webfluent::PdfConfig, &'a webfluent::paged::boxes::AssetReader<'a>, core::option::Option<&std::path::Path>) -> webfluent::paged::Options<'a>
+pub fn webfluent::paged::Options<'a>::from_pdf_via(&'a dyn webfluent::vfs::Vfs, &webfluent::PdfConfig, &'a webfluent::paged::boxes::AssetReader<'a>, core::option::Option<&std::path::Path>) -> webfluent::paged::Options<'a>
+pub fn webfluent::paged::Options<'a>::from_slides(&webfluent::SlidesConfig, &'a webfluent::paged::boxes::AssetReader<'a>, core::option::Option<&std::path::Path>) -> (webfluent::paged::Options<'a>, webfluent::paged::SlideChrome)
+pub fn webfluent::paged::Options<'a>::from_slides_via(&'a dyn webfluent::vfs::Vfs, &webfluent::SlidesConfig, &'a webfluent::paged::boxes::AssetReader<'a>, core::option::Option<&std::path::Path>) -> (webfluent::paged::Options<'a>, webfluent::paged::SlideChrome)
 impl<'a> core::marker::Freeze for webfluent::paged::Options<'a>
 impl<'a> !core::marker::Send for webfluent::paged::Options<'a>
 impl<'a> !core::marker::Sync for webfluent::paged::Options<'a>
@@ -10805,7 +10805,7 @@ impl core::marker::Unpin for webfluent::studio::ThemeInfo
 impl core::marker::UnsafeUnpin for webfluent::studio::ThemeInfo
 impl core::panic::unwind_safe::RefUnwindSafe for webfluent::studio::ThemeInfo
 impl core::panic::unwind_safe::UnwindSafe for webfluent::studio::ThemeInfo
-pub fn webfluent::studio::compile_studio(&webfluent::syntax::parser::Program, &webfluent::config::project::ProjectConfig, &std::collections::hash::map::HashMap<alloc::string::String, std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>>) -> webfluent::studio::CompiledSite
+pub fn webfluent::studio::compile_studio(&webfluent::syntax::parser::Program, &webfluent::config::ProjectConfig, &std::collections::hash::map::HashMap<alloc::string::String, std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>>) -> webfluent::studio::CompiledSite
 pub mod webfluent::style_value
 pub enum webfluent::style_value::Line
 pub webfluent::style_value::Line::At
@@ -14832,8 +14832,8 @@ pub fn webfluent::template::Template::render_pdf_with_notes<T: serde_core::ser::
 pub fn webfluent::template::Template::render_slides<T: serde_core::ser::Serialize + ?core::marker::Sized>(&self, &T) -> webfluent::diagnostics::error::diagnostic::Result<alloc::vec::Vec<u8>>
 pub fn webfluent::template::Template::render_slides_report<T: serde_core::ser::Serialize + ?core::marker::Sized>(&self, &T) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::template::PdfReport>
 pub fn webfluent::template::Template::with_lang(self, &str) -> Self
-pub fn webfluent::template::Template::with_pdf(self, webfluent::config::project::PdfConfig) -> Self
-pub fn webfluent::template::Template::with_slides(self, webfluent::config::project::SlidesConfig) -> Self
+pub fn webfluent::template::Template::with_pdf(self, webfluent::PdfConfig) -> Self
+pub fn webfluent::template::Template::with_slides(self, webfluent::SlidesConfig) -> Self
 pub fn webfluent::template::Template::with_studio(self, bool) -> Self
 pub fn webfluent::template::Template::with_theme(self, &str) -> Self
 pub fn webfluent::template::Template::with_tokens(self, &[(&str, &str)]) -> Self
@@ -14954,25 +14954,25 @@ pub struct webfluent::themes::prune::Usage
 pub webfluent::themes::prune::Usage::animation: bool
 pub webfluent::themes::prune::Usage::components: std::collections::hash::set::HashSet<alloc::string::String>
 pub webfluent::themes::prune::Usage::icon_arg: bool
-impl webfluent::themes::prune::Usage
-pub fn webfluent::themes::prune::Usage::of(&webfluent::syntax::parser::Program) -> webfluent::themes::prune::Usage
-impl core::clone::Clone for webfluent::themes::prune::Usage
-pub fn webfluent::themes::prune::Usage::clone(&self) -> Self
-impl core::default::Default for webfluent::themes::prune::Usage
-pub fn webfluent::themes::prune::Usage::default() -> Self
-impl core::fmt::Debug for webfluent::themes::prune::Usage
-pub fn webfluent::themes::prune::Usage::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl core::marker::Freeze for webfluent::themes::prune::Usage
-impl core::marker::Send for webfluent::themes::prune::Usage
-impl core::marker::Sync for webfluent::themes::prune::Usage
-impl core::marker::Unpin for webfluent::themes::prune::Usage
-impl core::marker::UnsafeUnpin for webfluent::themes::prune::Usage
-impl core::panic::unwind_safe::RefUnwindSafe for webfluent::themes::prune::Usage
-impl core::panic::unwind_safe::UnwindSafe for webfluent::themes::prune::Usage
+impl webfluent::themes::Usage
+pub fn webfluent::themes::Usage::of(&webfluent::syntax::parser::Program) -> webfluent::themes::Usage
+impl core::clone::Clone for webfluent::themes::Usage
+pub fn webfluent::themes::Usage::clone(&self) -> Self
+impl core::default::Default for webfluent::themes::Usage
+pub fn webfluent::themes::Usage::default() -> Self
+impl core::fmt::Debug for webfluent::themes::Usage
+pub fn webfluent::themes::Usage::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for webfluent::themes::Usage
+impl core::marker::Send for webfluent::themes::Usage
+impl core::marker::Sync for webfluent::themes::Usage
+impl core::marker::Unpin for webfluent::themes::Usage
+impl core::marker::UnsafeUnpin for webfluent::themes::Usage
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::themes::Usage
+impl core::panic::unwind_safe::UnwindSafe for webfluent::themes::Usage
 pub const webfluent::themes::prune::ANIMATIONS: &[&str]
-pub fn webfluent::themes::prune::prune_css(&str, &webfluent::themes::prune::Usage) -> alloc::string::String
+pub fn webfluent::themes::prune::prune_css(&str, &webfluent::themes::Usage) -> alloc::string::String
 pub mod webfluent::themes::resolve
-pub fn webfluent::themes::resolve::apply_motion(&mut std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>, &webfluent::config::project::MotionConfig)
+pub fn webfluent::themes::resolve::apply_motion(&mut std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>, &webfluent::config::MotionConfig)
 pub fn webfluent::themes::resolve::declared_themes(&webfluent::syntax::parser::Program) -> alloc::vec::Vec<&webfluent::syntax::parser::ThemeDecl>
 pub fn webfluent::themes::resolve::resolve_dark_tokens(&webfluent::syntax::parser::Program, &webfluent::config::project::ThemeConfig) -> webfluent::diagnostics::error::diagnostic::Result<core::option::Option<std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>>>
 pub fn webfluent::themes::resolve::resolve_tokens(&webfluent::syntax::parser::Program, &webfluent::config::project::ThemeConfig) -> webfluent::diagnostics::error::diagnostic::Result<std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>>
@@ -15095,24 +15095,24 @@ pub struct webfluent::themes::Usage
 pub webfluent::themes::Usage::animation: bool
 pub webfluent::themes::Usage::components: std::collections::hash::set::HashSet<alloc::string::String>
 pub webfluent::themes::Usage::icon_arg: bool
-impl webfluent::themes::prune::Usage
-pub fn webfluent::themes::prune::Usage::of(&webfluent::syntax::parser::Program) -> webfluent::themes::prune::Usage
-impl core::clone::Clone for webfluent::themes::prune::Usage
-pub fn webfluent::themes::prune::Usage::clone(&self) -> Self
-impl core::default::Default for webfluent::themes::prune::Usage
-pub fn webfluent::themes::prune::Usage::default() -> Self
-impl core::fmt::Debug for webfluent::themes::prune::Usage
-pub fn webfluent::themes::prune::Usage::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl core::marker::Freeze for webfluent::themes::prune::Usage
-impl core::marker::Send for webfluent::themes::prune::Usage
-impl core::marker::Sync for webfluent::themes::prune::Usage
-impl core::marker::Unpin for webfluent::themes::prune::Usage
-impl core::marker::UnsafeUnpin for webfluent::themes::prune::Usage
-impl core::panic::unwind_safe::RefUnwindSafe for webfluent::themes::prune::Usage
-impl core::panic::unwind_safe::UnwindSafe for webfluent::themes::prune::Usage
-pub fn webfluent::themes::apply_motion(&mut std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>, &webfluent::config::project::MotionConfig)
+impl webfluent::themes::Usage
+pub fn webfluent::themes::Usage::of(&webfluent::syntax::parser::Program) -> webfluent::themes::Usage
+impl core::clone::Clone for webfluent::themes::Usage
+pub fn webfluent::themes::Usage::clone(&self) -> Self
+impl core::default::Default for webfluent::themes::Usage
+pub fn webfluent::themes::Usage::default() -> Self
+impl core::fmt::Debug for webfluent::themes::Usage
+pub fn webfluent::themes::Usage::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for webfluent::themes::Usage
+impl core::marker::Send for webfluent::themes::Usage
+impl core::marker::Sync for webfluent::themes::Usage
+impl core::marker::Unpin for webfluent::themes::Usage
+impl core::marker::UnsafeUnpin for webfluent::themes::Usage
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::themes::Usage
+impl core::panic::unwind_safe::UnwindSafe for webfluent::themes::Usage
+pub fn webfluent::themes::apply_motion(&mut std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>, &webfluent::config::MotionConfig)
 pub fn webfluent::themes::component_css() -> &'static str
-pub fn webfluent::themes::prune_css(&str, &webfluent::themes::prune::Usage) -> alloc::string::String
+pub fn webfluent::themes::prune_css(&str, &webfluent::themes::Usage) -> alloc::string::String
 pub fn webfluent::themes::resolve_dark_tokens(&webfluent::syntax::parser::Program, &webfluent::config::project::ThemeConfig) -> webfluent::diagnostics::error::diagnostic::Result<core::option::Option<std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>>>
 pub fn webfluent::themes::resolve_tokens(&webfluent::syntax::parser::Program, &webfluent::config::project::ThemeConfig) -> webfluent::diagnostics::error::diagnostic::Result<std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>>
 pub fn webfluent::themes::structural_css() -> &'static str
@@ -15379,7 +15379,7 @@ pub const webfluent::verify::PAGE_REPORT: &str
 pub fn webfluent::verify::judge(&mut webfluent::browser::chrome::Visit, &str, core::option::Option<u64>)
 pub fn webfluent::verify::read_report(&mut webfluent::browser::chrome::Visit, &str)
 pub fn webfluent::verify::returning_storage(&std::path::Path) -> alloc::string::String
-pub fn webfluent::verify::routes(&std::path::Path, &std::path::Path, &webfluent::config::project::ProjectConfig) -> webfluent::diagnostics::error::diagnostic::Result<alloc::vec::Vec<alloc::string::String>>
+pub fn webfluent::verify::routes(&std::path::Path, &std::path::Path, &webfluent::config::ProjectConfig) -> webfluent::diagnostics::error::diagnostic::Result<alloc::vec::Vec<alloc::string::String>>
 pub fn webfluent::verify::undrawn(&alloc::collections::btree::set::BTreeSet<alloc::string::String>) -> alloc::vec::Vec<alloc::string::String>
 pub mod webfluent::vfs
 pub struct webfluent::vfs::Confined<'a>
@@ -15845,49 +15845,49 @@ pub struct webfluent::PdfConfig
 pub webfluent::PdfConfig::default_font: alloc::string::String
 pub webfluent::PdfConfig::default_font_size: f64
 pub webfluent::PdfConfig::fonts: alloc::vec::Vec<alloc::string::String>
-pub webfluent::PdfConfig::margins: webfluent::config::project::PdfMargins
+pub webfluent::PdfConfig::margins: webfluent::PdfMargins
 pub webfluent::PdfConfig::output_filename: core::option::Option<alloc::string::String>
 pub webfluent::PdfConfig::page_size: alloc::string::String
 pub webfluent::PdfConfig::system_fonts: bool
-impl core::clone::Clone for webfluent::config::project::PdfConfig
-pub fn webfluent::config::project::PdfConfig::clone(&self) -> Self
-impl core::default::Default for webfluent::config::project::PdfConfig
-pub fn webfluent::config::project::PdfConfig::default() -> Self
-impl core::fmt::Debug for webfluent::config::project::PdfConfig
-pub fn webfluent::config::project::PdfConfig::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl serde_core::ser::Serialize for webfluent::config::project::PdfConfig
-pub fn webfluent::config::project::PdfConfig::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
-impl<'de> serde_core::de::Deserialize<'de> for webfluent::config::project::PdfConfig
-pub fn webfluent::config::project::PdfConfig::deserialize<__D>(__D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
-impl core::marker::Freeze for webfluent::config::project::PdfConfig
-impl core::marker::Send for webfluent::config::project::PdfConfig
-impl core::marker::Sync for webfluent::config::project::PdfConfig
-impl core::marker::Unpin for webfluent::config::project::PdfConfig
-impl core::marker::UnsafeUnpin for webfluent::config::project::PdfConfig
-impl core::panic::unwind_safe::RefUnwindSafe for webfluent::config::project::PdfConfig
-impl core::panic::unwind_safe::UnwindSafe for webfluent::config::project::PdfConfig
+impl core::clone::Clone for webfluent::PdfConfig
+pub fn webfluent::PdfConfig::clone(&self) -> Self
+impl core::default::Default for webfluent::PdfConfig
+pub fn webfluent::PdfConfig::default() -> Self
+impl core::fmt::Debug for webfluent::PdfConfig
+pub fn webfluent::PdfConfig::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl serde_core::ser::Serialize for webfluent::PdfConfig
+pub fn webfluent::PdfConfig::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for webfluent::PdfConfig
+pub fn webfluent::PdfConfig::deserialize<__D>(__D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for webfluent::PdfConfig
+impl core::marker::Send for webfluent::PdfConfig
+impl core::marker::Sync for webfluent::PdfConfig
+impl core::marker::Unpin for webfluent::PdfConfig
+impl core::marker::UnsafeUnpin for webfluent::PdfConfig
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::PdfConfig
+impl core::panic::unwind_safe::UnwindSafe for webfluent::PdfConfig
 pub struct webfluent::PdfMargins
 pub webfluent::PdfMargins::bottom: f64
 pub webfluent::PdfMargins::left: f64
 pub webfluent::PdfMargins::right: f64
 pub webfluent::PdfMargins::top: f64
-impl core::clone::Clone for webfluent::config::project::PdfMargins
-pub fn webfluent::config::project::PdfMargins::clone(&self) -> Self
-impl core::default::Default for webfluent::config::project::PdfMargins
-pub fn webfluent::config::project::PdfMargins::default() -> Self
-impl core::fmt::Debug for webfluent::config::project::PdfMargins
-pub fn webfluent::config::project::PdfMargins::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl serde_core::ser::Serialize for webfluent::config::project::PdfMargins
-pub fn webfluent::config::project::PdfMargins::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
-impl<'de> serde_core::de::Deserialize<'de> for webfluent::config::project::PdfMargins
-pub fn webfluent::config::project::PdfMargins::deserialize<__D>(__D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
-impl core::marker::Freeze for webfluent::config::project::PdfMargins
-impl core::marker::Send for webfluent::config::project::PdfMargins
-impl core::marker::Sync for webfluent::config::project::PdfMargins
-impl core::marker::Unpin for webfluent::config::project::PdfMargins
-impl core::marker::UnsafeUnpin for webfluent::config::project::PdfMargins
-impl core::panic::unwind_safe::RefUnwindSafe for webfluent::config::project::PdfMargins
-impl core::panic::unwind_safe::UnwindSafe for webfluent::config::project::PdfMargins
+impl core::clone::Clone for webfluent::PdfMargins
+pub fn webfluent::PdfMargins::clone(&self) -> Self
+impl core::default::Default for webfluent::PdfMargins
+pub fn webfluent::PdfMargins::default() -> Self
+impl core::fmt::Debug for webfluent::PdfMargins
+pub fn webfluent::PdfMargins::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl serde_core::ser::Serialize for webfluent::PdfMargins
+pub fn webfluent::PdfMargins::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for webfluent::PdfMargins
+pub fn webfluent::PdfMargins::deserialize<__D>(__D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for webfluent::PdfMargins
+impl core::marker::Send for webfluent::PdfMargins
+impl core::marker::Sync for webfluent::PdfMargins
+impl core::marker::Unpin for webfluent::PdfMargins
+impl core::marker::UnsafeUnpin for webfluent::PdfMargins
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::PdfMargins
+impl core::panic::unwind_safe::UnwindSafe for webfluent::PdfMargins
 pub struct webfluent::PdfReport
 pub webfluent::PdfReport::bytes: alloc::vec::Vec<u8>
 pub webfluent::PdfReport::notes: alloc::vec::Vec<alloc::string::String>
@@ -15918,23 +15918,23 @@ pub webfluent::SlidesConfig::show_slide_numbers: bool
 pub webfluent::SlidesConfig::size: alloc::string::String
 pub webfluent::SlidesConfig::system_fonts: bool
 pub webfluent::SlidesConfig::width: core::option::Option<f64>
-impl core::clone::Clone for webfluent::config::project::SlidesConfig
-pub fn webfluent::config::project::SlidesConfig::clone(&self) -> Self
-impl core::default::Default for webfluent::config::project::SlidesConfig
-pub fn webfluent::config::project::SlidesConfig::default() -> Self
-impl core::fmt::Debug for webfluent::config::project::SlidesConfig
-pub fn webfluent::config::project::SlidesConfig::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl serde_core::ser::Serialize for webfluent::config::project::SlidesConfig
-pub fn webfluent::config::project::SlidesConfig::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
-impl<'de> serde_core::de::Deserialize<'de> for webfluent::config::project::SlidesConfig
-pub fn webfluent::config::project::SlidesConfig::deserialize<__D>(__D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
-impl core::marker::Freeze for webfluent::config::project::SlidesConfig
-impl core::marker::Send for webfluent::config::project::SlidesConfig
-impl core::marker::Sync for webfluent::config::project::SlidesConfig
-impl core::marker::Unpin for webfluent::config::project::SlidesConfig
-impl core::marker::UnsafeUnpin for webfluent::config::project::SlidesConfig
-impl core::panic::unwind_safe::RefUnwindSafe for webfluent::config::project::SlidesConfig
-impl core::panic::unwind_safe::UnwindSafe for webfluent::config::project::SlidesConfig
+impl core::clone::Clone for webfluent::SlidesConfig
+pub fn webfluent::SlidesConfig::clone(&self) -> Self
+impl core::default::Default for webfluent::SlidesConfig
+pub fn webfluent::SlidesConfig::default() -> Self
+impl core::fmt::Debug for webfluent::SlidesConfig
+pub fn webfluent::SlidesConfig::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl serde_core::ser::Serialize for webfluent::SlidesConfig
+pub fn webfluent::SlidesConfig::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl<'de> serde_core::de::Deserialize<'de> for webfluent::SlidesConfig
+pub fn webfluent::SlidesConfig::deserialize<__D>(__D) -> core::result::Result<Self, <__D as serde_core::de::Deserializer>::Error> where __D: serde_core::de::Deserializer<'de>
+impl core::marker::Freeze for webfluent::SlidesConfig
+impl core::marker::Send for webfluent::SlidesConfig
+impl core::marker::Sync for webfluent::SlidesConfig
+impl core::marker::Unpin for webfluent::SlidesConfig
+impl core::marker::UnsafeUnpin for webfluent::SlidesConfig
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::SlidesConfig
+impl core::panic::unwind_safe::UnwindSafe for webfluent::SlidesConfig
 pub struct webfluent::StudioDiagnostic
 pub webfluent::StudioDiagnostic::file: alloc::string::String
 pub webfluent::StudioDiagnostic::hint: alloc::string::String
@@ -15970,8 +15970,8 @@ pub fn webfluent::template::Template::render_pdf_with_notes<T: serde_core::ser::
 pub fn webfluent::template::Template::render_slides<T: serde_core::ser::Serialize + ?core::marker::Sized>(&self, &T) -> webfluent::diagnostics::error::diagnostic::Result<alloc::vec::Vec<u8>>
 pub fn webfluent::template::Template::render_slides_report<T: serde_core::ser::Serialize + ?core::marker::Sized>(&self, &T) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::template::PdfReport>
 pub fn webfluent::template::Template::with_lang(self, &str) -> Self
-pub fn webfluent::template::Template::with_pdf(self, webfluent::config::project::PdfConfig) -> Self
-pub fn webfluent::template::Template::with_slides(self, webfluent::config::project::SlidesConfig) -> Self
+pub fn webfluent::template::Template::with_pdf(self, webfluent::PdfConfig) -> Self
+pub fn webfluent::template::Template::with_slides(self, webfluent::SlidesConfig) -> Self
 pub fn webfluent::template::Template::with_studio(self, bool) -> Self
 pub fn webfluent::template::Template::with_theme(self, &str) -> Self
 pub fn webfluent::template::Template::with_tokens(self, &[(&str, &str)]) -> Self
@@ -16004,7 +16004,7 @@ impl core::panic::unwind_safe::RefUnwindSafe for webfluent::studio::ThemeInfo
 impl core::panic::unwind_safe::UnwindSafe for webfluent::studio::ThemeInfo
 pub const webfluent::VERSION: &str
 pub fn webfluent::apply_edits(&str, &[webfluent::edit::EditOp]) -> webfluent::diagnostics::error::diagnostic::Result<alloc::string::String>
-pub fn webfluent::compile_studio(&webfluent::syntax::parser::Program, &webfluent::config::project::ProjectConfig, &std::collections::hash::map::HashMap<alloc::string::String, std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>>) -> webfluent::studio::CompiledSite
+pub fn webfluent::compile_studio(&webfluent::syntax::parser::Program, &webfluent::config::ProjectConfig, &std::collections::hash::map::HashMap<alloc::string::String, std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>>) -> webfluent::studio::CompiledSite
 pub fn webfluent::detect_dialect(&str) -> webfluent::syntax::Dialect
 pub fn webfluent::parse_source(&str, &str) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::syntax::parser::Program>
 pub fn webfluent::validate_semantics(&webfluent::syntax::parser::Program, &str) -> alloc::vec::Vec<webfluent::diagnostics::Diagnostic>

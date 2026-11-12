@@ -128,7 +128,7 @@ fn cases(prop: &str) -> &'static [crate::registry::CaseSig] {
 
 /// The project's own animation, as the build's stylesheet writes it.
 fn project_animation(a: &AnimationDecl) -> Animation {
-    let (keyframes, rule) = crate::codegen::scoped_css::animation_css(a);
+    let (keyframes, rule) = crate::project::scoped_css::animation_css(a);
     Animation {
         name: a.name.clone(),
         summary: a.doc.clone().unwrap_or_default(),
@@ -142,9 +142,12 @@ fn project_animation(a: &AnimationDecl) -> Animation {
 
 /// What a Motion section offers in `program`, with `config` for the
 /// project's default.
-pub fn catalogue(program: Option<&Program>, config: &crate::config::MotionConfig) -> Motion {
-    let css = crate::themes::components::component_css();
-    let tokens = crate::themes::tokens::default_tokens();
+pub fn catalogue(
+    program: Option<&Program>,
+    config: &crate::project::config::MotionConfig,
+) -> Motion {
+    let css = crate::project::themes::components::component_css();
+    let tokens = crate::project::themes::tokens::default_tokens();
     let mut animations: Vec<Animation> = cases("animate")
         .iter()
         .map(|c| {
@@ -171,7 +174,7 @@ pub fn catalogue(program: Option<&Program>, config: &crate::config::MotionConfig
     let eases = cases("easing")
         .iter()
         .map(|c| {
-            let css = crate::codegen::builtin::easing_css(c.name).to_string();
+            let css = crate::project::builtin::easing_css(c.name).to_string();
             let value = css
                 .strip_prefix("var(--")
                 .and_then(|n| n.strip_suffix(')'))
@@ -233,7 +236,7 @@ pub fn catalogue(program: Option<&Program>, config: &crate::config::MotionConfig
 /// `exit:` for one it leaves with). The project's own animation has no
 /// flag: it is always `animate: .Drop`.
 pub fn spelling(prop: &str, animation: &str, other_cases: &[&str]) -> String {
-    let built_in = crate::themes::prune::ANIMATIONS.contains(&animation);
+    let built_in = crate::project::themes::prune::ANIMATIONS.contains(&animation);
     if prop == "animate" && built_in && !other_cases.contains(&animation) {
         format!(".{animation}")
     } else {
@@ -244,7 +247,7 @@ pub fn spelling(prop: &str, animation: &str, other_cases: &[&str]) -> String {
 /// How a duration is written: `.fast` or `.slow` where it is that speed,
 /// otherwise `duration: "240ms"`.
 pub fn duration_spelling(ms: u32) -> String {
-    let tokens = crate::themes::tokens::default_tokens();
+    let tokens = crate::project::themes::tokens::default_tokens();
     for s in ["fast", "slow"] {
         if tokens
             .get(&format!("animation-duration-{s}"))
@@ -335,8 +338,8 @@ mod tests {
         );
     }
 
-    fn default_config() -> crate::config::MotionConfig {
-        crate::config::MotionConfig::default()
+    fn default_config() -> crate::project::config::MotionConfig {
+        crate::project::config::MotionConfig::default()
     }
 
     #[test]
@@ -351,7 +354,7 @@ mod tests {
         assert_eq!(duration_spelling(150), ".fast");
         assert_eq!(duration_spelling(500), ".slow");
         assert_eq!(duration_spelling(240), "duration: \"240ms\"");
-        let config: crate::config::MotionConfig =
+        let config: crate::project::config::MotionConfig =
             serde_json::from_str(r#"{ "duration": "180ms" }"#).unwrap();
         let m = catalogue(None, &config);
         assert_eq!(

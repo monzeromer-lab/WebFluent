@@ -1051,7 +1051,7 @@ fn rule_of<'a>(
                 .iter()
                 .find(|b| {
                     bare(&b.state) == wanted
-                        || format!("&{}", crate::codegen::scoped_css::selector(&b.state)) == wanted
+                        || format!("&{}", crate::project::scoped_css::selector(&b.state)) == wanted
                 })
                 .map(|b| (b.span, b.properties.as_slice()))
         })

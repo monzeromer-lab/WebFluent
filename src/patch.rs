@@ -25,10 +25,10 @@
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 
 use crate::codegen::js::JsCodegen;
-use crate::codegen::scoped_css::{
+use crate::project::data::each_element_mut;
+use crate::project::scoped_css::{
     breakpoints, rules_for, scoped_class, scoped_rules, static_declaration,
 };
-use crate::data::each_element_mut;
 use crate::syntax::node_id::{build_node_map, visit_nodes};
 use crate::syntax::parser::ast::{Arg, Declaration, Expr, Program, Span, StyleBlock, UIElement};
 use serde::Serialize;

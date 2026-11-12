@@ -133,9 +133,6 @@ pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 
 pub use syntax::lexer;
 
-/// A project's sources, read and merged into one program.
-pub(crate) mod sources;
-
 pub use syntax::parser;
 
 /// The front end's one entry point: [`syntax::parse_source`] reads a file in
@@ -168,11 +165,9 @@ pub mod init;
 /// policy and its dependencies.
 pub mod audit;
 
-/// `data` declarations: the JSON files and pictures a program names, read
-/// at build time and made constants.
-pub mod data;
+pub use project::data;
+pub use project::i18n;
 pub use syntax::fmt;
-pub mod i18n;
 pub use syntax::layout;
 
 /// `public/` as data: every file, its kind, size and dimensions, where
@@ -186,10 +181,10 @@ pub mod browser;
 /// and PDF (the [`paged`] engine lays the HTML out on paper).
 pub mod codegen;
 pub mod commands;
-pub mod media;
-pub mod openapi;
+pub use project::media;
+pub use project::openapi;
 
-pub mod project_js;
+pub use project::project_js;
 
 /// JavaScript runtime — embedded runtime for reactivity, routing, and DOM helpers.
 ///
@@ -199,13 +194,9 @@ pub mod project_js;
 /// reaches ([`runtime::assemble`]); [`runtime::full`] is every module at once.
 pub mod runtime;
 
-pub mod themes;
+pub use project::themes;
 
-/// Project configuration — loads and manages `webfluent.app.json`.
-///
-/// The [`config::ProjectConfig`] struct holds all project settings: theme, build options,
-/// dev server config, meta tags, and i18n settings.
-pub mod config;
+pub use project::config;
 
 pub mod diagnostics;
 pub use diagnostics::error;
@@ -272,6 +263,7 @@ pub(crate) mod base;
 /// A project built from memory, with nothing read from or written to a disk:
 /// what the browser's playground runs.
 pub mod memory;
+pub(crate) mod project;
 
 pub use codegen::node_id::{NodeInfo, NodeMap};
 pub use config::project::{PdfConfig, PdfMargins, SlidesConfig};

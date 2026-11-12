@@ -4,8 +4,8 @@
 //! expanded.
 
 use crate::base::vfs::{FsVfs, Vfs};
-use crate::config::ProjectConfig;
 use crate::diagnostics::error::{Diagnostic, Result, WebFluentError};
+use crate::project::config::ProjectConfig;
 use crate::syntax::parser::{Declaration, Program};
 use std::path::{Path, PathBuf};
 
@@ -23,7 +23,7 @@ pub fn read_project(project_dir: &Path) -> Result<(Program, Vec<String>)> {
 /// nothing, and an `image` resolves to the file as it stands.
 pub fn read_project_with(
     project_dir: &Path,
-    media: Option<(&Path, &crate::media::Settings, &str)>,
+    media: Option<(&Path, &crate::project::media::Settings, &str)>,
 ) -> Result<(Program, Vec<String>)> {
     read_project_via(&FsVfs, project_dir, media)
 }
@@ -32,7 +32,7 @@ pub fn read_project_with(
 pub fn read_project_via(
     vfs: &dyn Vfs,
     project_dir: &Path,
-    media: Option<(&Path, &crate::media::Settings, &str)>,
+    media: Option<(&Path, &crate::project::media::Settings, &str)>,
 ) -> Result<(Program, Vec<String>)> {
     let (program, files, mut errors) = read_project_collecting_via(vfs, project_dir, media)?;
     match errors.len() {
@@ -49,7 +49,7 @@ pub fn read_project_via(
 /// file that cannot be read at all.
 pub fn read_project_collecting(
     project_dir: &Path,
-    media: Option<(&Path, &crate::media::Settings, &str)>,
+    media: Option<(&Path, &crate::project::media::Settings, &str)>,
 ) -> Result<(Program, Vec<String>, Vec<Diagnostic>)> {
     read_project_collecting_via(&FsVfs, project_dir, media)
 }
@@ -58,7 +58,7 @@ pub fn read_project_collecting(
 pub fn read_project_collecting_via(
     vfs: &dyn Vfs,
     project_dir: &Path,
-    media: Option<(&Path, &crate::media::Settings, &str)>,
+    media: Option<(&Path, &crate::project::media::Settings, &str)>,
 ) -> Result<(Program, Vec<String>, Vec<Diagnostic>)> {
     let mut parse_errors: Vec<Diagnostic> = Vec::new();
     let src_dir = project_dir.join("src");
@@ -80,7 +80,7 @@ pub fn read_project_collecting_via(
         let relative = file_path.strip_prefix(project_dir).unwrap_or(file_path);
         let file_name = relative.to_string_lossy().to_string();
         let program = if file_name.ends_with(".md") {
-            match crate::data::markdown_page(&source, &file_name) {
+            match crate::project::data::markdown_page(&source, &file_name) {
                 Ok(program) => program,
                 Err(e) if !e.diagnostics().is_empty() => {
                     parse_errors.extend(e.diagnostics());
@@ -98,7 +98,7 @@ pub fn read_project_collecting_via(
     }
     // The names the project's scripts make global, one declaration per
     // file, so the checker, the codegen and the editor read the same ones.
-    for script in crate::project_js::load_via(vfs, project_dir, &src_dir)? {
+    for script in crate::project::project_js::load_via(vfs, project_dir, &src_dir)? {
         if script.scan.module_at.is_some() || !script.scan.problems.is_empty() {
             continue;
         }
@@ -141,7 +141,7 @@ pub fn read_project_collecting_via(
     };
     // `data x = "file.json"` is a constant once the file is read, and
     // `image hero = "…"` once the picture is.
-    if let Err(e) = crate::data::resolve_data_via(vfs, &mut program, project_dir, media) {
+    if let Err(e) = crate::project::data::resolve_data_via(vfs, &mut program, project_dir, media) {
         if e.diagnostics().is_empty() {
             return Err(e);
         }
@@ -149,7 +149,7 @@ pub fn read_project_collecting_via(
     }
     // `api B from "openapi.json"` is its endpoints once the spec is read,
     // so every reader of a project sees the same service.
-    if let Err(e) = crate::openapi::expand(&mut program, &|file| {
+    if let Err(e) = crate::project::openapi::expand(&mut program, &|file| {
         for at in [project_dir.join(file), project_dir.join("src").join(file)] {
             if let Ok(text) = vfs.read_to_string(&at) {
                 return Some(text);

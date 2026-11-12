@@ -1054,7 +1054,8 @@ pub mod paths {
         file: &str,
         offset: usize,
     ) -> crate::diagnostics::error::Result<Vec<Entry>> {
-        let (program, files, _) = crate::sources::read_project_collecting_via(vfs, dir, None)?;
+        let (program, files, _) =
+            crate::project::sources::read_project_collecting_via(vfs, dir, None)?;
         let info =
             crate::sema::types::check(&program, &|i| files.get(i).cloned().unwrap_or_default());
         let decl = program.declarations.iter().enumerate().find_map(|(i, d)| {

@@ -125,7 +125,7 @@ pub fn guard_picture(url: &str) -> &str {
 }
 
 /// [`is_safe`], with the app's own schemes allowed as well — those the
-/// config names in `meta.frame` ([`crate::config::project::app_schemes`]).
+/// config names in `meta.frame` ([`crate::project::config::project::app_schemes`]).
 pub fn is_safe_with(url: &str, also: &[String]) -> bool {
     is_safe(url) || scheme_of(url).is_some_and(|s| also.contains(&s))
 }

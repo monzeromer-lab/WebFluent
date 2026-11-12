@@ -381,7 +381,7 @@ mod tests {
             "{theme_src}\npage P(path: \"/\") {{ Text(\"x\") }}"
         ));
         let resolved =
-            crate::themes::resolve_tokens(&program, &Default::default()).expect("resolve");
+            crate::project::themes::resolve_tokens(&program, &Default::default()).expect("resolve");
         lint_contrast(&program, &resolved)
     }
 
@@ -444,7 +444,7 @@ mod tests {
             "theme T {\n  color-primary: #FFE066\n}\npage P(path: \"/\") { Button(\"Go\").primary }",
         );
         let resolved =
-            crate::themes::resolve_tokens(&program, &Default::default()).expect("resolve");
+            crate::project::themes::resolve_tokens(&program, &Default::default()).expect("resolve");
         let warnings = lint_contrast(&program, &resolved);
         assert!(
             warnings
@@ -470,7 +470,8 @@ mod tests {
     #[test]
     fn a_project_with_no_theme_is_not_lectured_about_the_baseline() {
         let program = parse("page P(path: \"/\") { Text(\"x\") }");
-        let resolved = crate::themes::resolve_tokens(&program, &Default::default()).unwrap();
+        let resolved =
+            crate::project::themes::resolve_tokens(&program, &Default::default()).unwrap();
         assert!(lint_contrast(&program, &resolved).is_empty());
     }
 

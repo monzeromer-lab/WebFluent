@@ -1,9 +1,9 @@
-use crate::codegen::builtin::{
+use crate::project::builtin::{
     builtin_to_html, class_list, element_tag, implicit_role, input_type, landmark_label,
     layout_arg_classes, span_class,
 };
-use crate::codegen::static_eval::{Scope, Static, case_of, eval};
-use crate::config::ProjectConfig;
+use crate::project::config::ProjectConfig;
+use crate::project::static_eval::{Scope, Static, case_of, eval};
 use crate::syntax::node_id::NodeMap;
 use crate::syntax::parser::ast::*;
 use std::collections::{BTreeMap, HashMap};
@@ -163,7 +163,7 @@ pub fn static_routes(
 
 /// A static value as the expression that writes it.
 fn static_expr(value: &Static) -> Expr {
-    crate::data::json_expr(&value.to_json())
+    crate::project::data::json_expr(&value.to_json())
 }
 
 /// Everything a page render needs that is a property of the *site* rather than
@@ -287,7 +287,7 @@ pub fn render_page_html_studio(
         default_messages,
         indent: 2,
         link_base,
-        app_schemes: crate::config::project::app_schemes(config),
+        app_schemes: crate::project::config::project::app_schemes(config),
         studio,
         node_map: node_map.clone(),
         owners: vec![page.name.clone(), "App".to_string()],
@@ -390,7 +390,7 @@ pub fn render_page_html_studio(
                 // applies (`WF.safeUrl`): one a browser would run is not
                 // written at all.
                 Some(value) if matches!(k.to_ascii_lowercase().as_str(), "src" | "href") => {
-                    let url = crate::codegen::url::guard(&value.to_text()).to_string();
+                    let url = crate::project::url::guard(&value.to_text()).to_string();
                     if !url.is_empty() {
                         attrs.push_str(&format!(" {k}=\"{}\"", html_escape(&url)));
                     }
@@ -421,7 +421,7 @@ pub fn render_page_html_studio(
     // depths cannot address its assets relatively: from the root they are
     // the same from both.
     let route = page.path.trim_start_matches('/');
-    let from_root = config.build.clean_urls == Some(crate::config::CleanUrls::File);
+    let from_root = config.build.clean_urls == Some(crate::project::config::CleanUrls::File);
     let base = if route == "*" || (from_root && !route.is_empty() && route != "/") {
         let root = config.build.base_path.trim_end_matches('/');
         if root.is_empty() {
@@ -451,7 +451,7 @@ pub fn render_page_html_studio(
     let has_sheet = config.build.split
         && match site.page_sheets {
             Some(sheets) => sheets.contains_key(&page.name),
-            None => crate::codegen::scoped_css::split_rules(program)
+            None => crate::project::scoped_css::split_rules(program)
                 .pages
                 .contains_key(&page.name),
         };
@@ -867,7 +867,7 @@ fn render_user_component(name: &str, call: &UIElement, ctx: &mut SsgContext) -> 
     if let Some(class) = call
         .style_block
         .as_ref()
-        .and_then(crate::codegen::scoped_css::scoped_class)
+        .and_then(crate::project::scoped_css::scoped_class)
     {
         extra_class.push(class);
     }
@@ -1228,7 +1228,7 @@ fn render_ui_element(ui: &UIElement, ctx: &mut SsgContext) -> String {
 
 fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
     if name == "Frame"
-        && let Some(framed) = crate::codegen::builtin::sandboxed_frame(ui)
+        && let Some(framed) = crate::project::builtin::sandboxed_frame(ui)
     {
         return render_builtin(name, &framed, ctx);
     }
@@ -1293,8 +1293,8 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
                     Some(Static::List(_) | Static::Map(_)) => {}
                     Some(v) => {
                         let text = v.to_text();
-                        let text = if crate::codegen::url::URL_ATTRS.contains(&attribute.as_str()) {
-                            crate::codegen::url::guard(&text).to_string()
+                        let text = if crate::project::url::URL_ATTRS.contains(&attribute.as_str()) {
+                            crate::project::url::guard(&text).to_string()
                         } else {
                             text
                         };
@@ -1359,7 +1359,7 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
             // author's `role:` and `aria-label:` take the place of its own.
             if trigger.is_none() && given("visible").is_some() {
                 let classes =
-                    crate::codegen::builtin::class_list(&items_class, &ui.modifiers).join(" ");
+                    crate::project::builtin::class_list(&items_class, &ui.modifiers).join(" ");
                 let role = if given("role").is_some() {
                     ""
                 } else {
@@ -1522,11 +1522,11 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
             let mut all = true;
             for arg in &ui.args {
                 match arg {
-                    Arg::Named(k, e) => match crate::codegen::static_eval::eval(e, &ctx.scope) {
+                    Arg::Named(k, e) => match crate::project::static_eval::eval(e, &ctx.scope) {
                         Some(v) => named.push((k.clone(), v.to_json())),
                         None => all = false,
                     },
-                    Arg::Positional(e) => match crate::codegen::static_eval::eval(e, &ctx.scope) {
+                    Arg::Positional(e) => match crate::project::static_eval::eval(e, &ctx.scope) {
                         Some(v) => positional = Some(v.to_json()),
                         None => all = false,
                     },
@@ -1676,12 +1676,12 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
                             // An image's may be a picture carried in its
                             // address (`data:image/…`), as on the live page.
                             let s = if key == "src"
-                                && crate::codegen::url::draws_picture(name)
-                                && crate::codegen::url::is_picture(&s)
+                                && crate::project::url::draws_picture(name)
+                                && crate::project::url::is_picture(&s)
                             {
                                 s
-                            } else if crate::codegen::url::URL_ATTRS.contains(&key.as_str()) {
-                                crate::codegen::url::guard_with(&s, &ctx.app_schemes).to_string()
+                            } else if crate::project::url::URL_ATTRS.contains(&key.as_str()) {
+                                crate::project::url::guard_with(&s, &ctx.app_schemes).to_string()
                             } else {
                                 s
                             };
@@ -1699,7 +1699,7 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
                         if let Some(s) =
                             address_text(val, &ctx.scope).or_else(|| static_attr(val, &ctx.scope))
                         {
-                            let s = crate::codegen::url::guard(&s).to_string();
+                            let s = crate::project::url::guard(&s).to_string();
                             // Use config base_path for absolute links
                             let href = if ctx.link_base.is_empty() {
                                 s.clone()
@@ -2231,7 +2231,7 @@ pub fn static_field(indent: &str, id: &str, control: &str, parts: &FieldParts) -
 /// that hydrates does not repaint what it was already showing.
 /// A `Video` with captions, or an `Audio` with a transcript.
 fn render_media(name: &str, class: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
-    let tag = crate::codegen::builtin::builtin_to_html(name).0;
+    let tag = crate::project::builtin::builtin_to_html(name).0;
     let named = |key: &str| {
         ui.args.iter().find_map(|a| match a {
             Arg::Named(k, v) if k == key => Some(v),
@@ -2242,7 +2242,7 @@ fn render_media(name: &str, class: &str, ui: &UIElement, ctx: &mut SsgContext) -
     for key in ["src", "poster", "width", "height"] {
         if let Some(value) = named(key).and_then(|v| static_attr(v, &ctx.scope)) {
             let value = if matches!(key, "src" | "poster") {
-                crate::codegen::url::guard(&value).to_string()
+                crate::project::url::guard(&value).to_string()
             } else {
                 value
             };
@@ -2276,7 +2276,7 @@ fn render_media(name: &str, class: &str, ui: &UIElement, ctx: &mut SsgContext) -
     if let Some(captions) = named("captions").and_then(|v| static_attr(v, &ctx.scope)) {
         out.push_str(&format!(
             "<track kind=\"captions\" src=\"{}\" srclang=\"{}\" default />",
-            html_escape(crate::codegen::url::guard(&captions)),
+            html_escape(crate::project::url::guard(&captions)),
             // The captions are in the page's language; the browser reads
             // the document's own when this says nothing more.
             "en"
@@ -2286,7 +2286,7 @@ fn render_media(name: &str, class: &str, ui: &UIElement, ctx: &mut SsgContext) -
     if let Some(transcript) = named("transcript").and_then(|v| static_attr(v, &ctx.scope)) {
         out.push_str(&format!(
             "<a class=\"wf-transcript\" href=\"{}\">Read the transcript</a>",
-            html_escape(crate::codegen::url::guard(&transcript))
+            html_escape(crate::project::url::guard(&transcript))
         ));
     }
     out
@@ -2325,7 +2325,7 @@ fn render_picture(class: &str, ui: &UIElement, ctx: &mut SsgContext) -> String {
     let mut img = vec![format!("class=\"{class}\"")];
     img.push(format!(
         "src=\"{}\"",
-        html_escape(crate::codegen::url::guard(&text("src")))
+        html_escape(crate::project::url::guard(&text("src")))
     ));
     img.push(format!("alt=\"{}\"", html_escape(&alt)));
     for key in ["width", "height"] {
@@ -2580,7 +2580,7 @@ fn render_linked_item(
         "{}<a class=\"{}\" href=\"{}\"{}{}>\n",
         indent,
         class,
-        html_escape(crate::codegen::url::guard(href)),
+        html_escape(crate::project::url::guard(href)),
         aria,
         wf
     );
@@ -2648,11 +2648,11 @@ fn extra_classes(ui: &UIElement, ctx: &SsgContext) -> Vec<String> {
     let mut classes: Vec<String> = ui
         .style_block
         .as_ref()
-        .and_then(crate::codegen::scoped_css::scoped_class)
+        .and_then(crate::project::scoped_css::scoped_class)
         .into_iter()
         .collect();
     // The rules a responsive prop compiled to, carried by name.
-    classes.extend(crate::codegen::scoped_css::responsive_classes(ui));
+    classes.extend(crate::project::scoped_css::responsive_classes(ui));
     // A string, a map of class to condition, or a list of either — what
     // the build can evaluate, painted as the live page will have it.
     if let Some(Arg::Named(_, value)) = ui
@@ -2699,7 +2699,7 @@ fn known_class_names(value: &Expr, scope: &Scope, classes: &mut Vec<String>) {
         }
         other => {
             if let Some(v) = eval(other, scope) {
-                crate::codegen::builtin::static_classes(&v, classes);
+                crate::project::builtin::static_classes(&v, classes);
             }
         }
     }
@@ -2724,13 +2724,13 @@ fn address_text(expr: &Expr, scope: &Scope) -> Option<String> {
     let mut pieces = Vec::new();
     for part in parts {
         pieces.push(match part {
-            StringPart::Literal(t) => crate::codegen::url::AddressPart::Text(t.clone()),
+            StringPart::Literal(t) => crate::project::url::AddressPart::Text(t.clone()),
             StringPart::Expression(e) => {
-                crate::codegen::url::AddressPart::Value(eval(e, scope)?.to_text())
+                crate::project::url::AddressPart::Value(eval(e, scope)?.to_text())
             }
         });
     }
-    Some(crate::codegen::url::join_address(&pieces))
+    Some(crate::project::url::join_address(&pieces))
 }
 
 /// A modal or a dialog as a static renderer paints it (`static_dialog`).
@@ -2874,7 +2874,7 @@ pub(crate) fn paint_attr(
     value: &dyn Fn(&Expr) -> Option<Painted>,
     schemes: &[String],
 ) -> Option<String> {
-    if crate::codegen::scoped_css::is_responsive(val) {
+    if crate::project::scoped_css::is_responsive(val) {
         return None;
     }
     match value(val)? {
@@ -2883,8 +2883,8 @@ pub(crate) fn paint_attr(
         Painted::Flag(true) => Some(format!("{key}=\"true\"")),
         Painted::Flag(false) => None,
         Painted::Text(text) => {
-            let text = if crate::codegen::url::URL_ATTRS.contains(&key) {
-                crate::codegen::url::guard_with(&text, schemes).to_string()
+            let text = if crate::project::url::URL_ATTRS.contains(&key) {
+                crate::project::url::guard_with(&text, schemes).to_string()
             } else {
                 text
             };
@@ -2949,7 +2949,7 @@ fn resolve_text_scoped(
         && let Some(Expr::StringLiteral(key)) = args.first()
         && let Some(Static::Map(params)) = eval(&args[1], scope)
     {
-        return Some(crate::i18n::message(
+        return Some(crate::project::i18n::message(
             &scope.locale(),
             messages,
             key,

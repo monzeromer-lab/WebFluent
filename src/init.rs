@@ -344,7 +344,7 @@ fn project_files(template: Template, locales: &[String]) -> Result<Vec<(String, 
 /// The config with `i18n` naming `locales`, the first the default, and the
 /// page's language that default — every other byte as it was.
 fn translated_config(text: &str, locales: &[String]) -> Result<String> {
-    use crate::config::json_edit;
+    use crate::project::config::json_edit;
     let i18n = serde_json::json!({
         "default_locale": locales[0],
         "locales": locales,

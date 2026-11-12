@@ -77,7 +77,7 @@ pub struct ProjectContext {
 pub fn project_context(files: &[(PathBuf, String)]) -> ProjectContext {
     let mut ctx = ProjectContext::default();
     ctx.tokens
-        .extend(crate::themes::tokens::default_tokens().into_keys());
+        .extend(crate::project::themes::tokens::default_tokens().into_keys());
     for (path, source) in files {
         if detect_dialect(source) != Dialect::V1 {
             continue;

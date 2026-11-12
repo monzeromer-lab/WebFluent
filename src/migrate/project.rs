@@ -12,8 +12,8 @@
 
 use std::path::{Path, PathBuf};
 
-use crate::config::ProjectConfig;
 use crate::diagnostics::error::{Result, WebFluentError};
+use crate::project::config::ProjectConfig;
 
 use super::{Migrated, Note, migrate_project, source_files};
 
@@ -135,7 +135,7 @@ pub fn plan(path: &Path, wfx: bool) -> Result<Plan> {
     // 4 → 4.2 first: `external` is gone, and nothing after this step can
     // parse a file that still has one.
     let (files, four_two) = if path.is_dir() {
-        let already = crate::project_js::find_scripts(&path.join("src"))
+        let already = crate::project::project_js::find_scripts(&path.join("src"))
             .into_iter()
             .map(|p| p.strip_prefix(path).map(Path::to_path_buf).unwrap_or(p))
             .collect();

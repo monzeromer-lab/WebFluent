@@ -1,10 +1,10 @@
-use crate::codegen::builtin::{
+use crate::codegen::css::generate_css;
+use crate::diagnostics::error::{Result, WebFluentError};
+use crate::project::builtin::{
     builtin_to_html, class_list, element_tag, implicit_role, input_type, landmark_label,
     layout_arg_classes, span_class,
 };
-use crate::codegen::css::generate_css;
-use crate::config::project::{PdfConfig, SlidesConfig};
-use crate::diagnostics::error::{Result, WebFluentError};
+use crate::project::config::project::{PdfConfig, SlidesConfig};
 use crate::syntax::parser::ast::{ArmPattern, DerivedDecl, ForStmt, IfStmt, PropDecl};
 use crate::syntax::parser::{
     Arg, ComponentRef, Declaration, Expr, Program, Statement, StatementKind, StringPart, UIElement,
@@ -293,7 +293,7 @@ impl Template {
             return Err(WebFluentError::Diagnostics(errors));
         }
         match root {
-            Some(root) => crate::data::resolve_data(&mut program, root)?,
+            Some(root) => crate::project::data::resolve_data(&mut program, root)?,
             None => {
                 if let Some(Declaration::Data(d)) = program
                     .declarations
@@ -428,19 +428,19 @@ impl Template {
     /// compile to.
     fn stylesheet(&self) -> Result<String> {
         let mut css = generate_css(&self.tokens()?);
-        css.push_str(&crate::codegen::scoped_css::scoped_rules(&self.program));
+        css.push_str(&crate::project::scoped_css::scoped_rules(&self.program));
         Ok(css)
     }
 
     /// The design tokens this template renders with.
     fn tokens(&self) -> Result<HashMap<String, String>> {
-        let config = crate::config::project::ThemeConfig {
+        let config = crate::project::config::project::ThemeConfig {
             name: self.theme.clone(),
             tokens: self.custom_tokens.clone(),
             builtin: Default::default(),
             dark: None,
         };
-        crate::themes::resolve_tokens(&self.program, &config)
+        crate::project::themes::resolve_tokens(&self.program, &config)
     }
 
     /// The program a render draws: every page, or the one chosen.
@@ -891,7 +891,7 @@ struct RenderContext<'a> {
 }
 
 /// The data, as the build-time evaluator's outermost scope.
-type DataFrame = Arc<HashMap<String, crate::codegen::static_eval::Static>>;
+type DataFrame = Arc<HashMap<String, crate::project::static_eval::Static>>;
 
 /// What one render may do: draw so many elements and loop items, work so
 /// much out, and write so much markup. A render past any of them stops
@@ -1112,16 +1112,16 @@ impl<'a> RenderContext<'a> {
     fn address(&self, expr: &Expr) -> String {
         match expr {
             Expr::InterpolatedString(parts) => {
-                let pieces: Vec<crate::codegen::url::AddressPart> = parts
+                let pieces: Vec<crate::project::url::AddressPart> = parts
                     .iter()
                     .map(|p| match p {
-                        StringPart::Literal(t) => crate::codegen::url::AddressPart::Text(t.clone()),
-                        StringPart::Expression(e) => crate::codegen::url::AddressPart::Value(
+                        StringPart::Literal(t) => crate::project::url::AddressPart::Text(t.clone()),
+                        StringPart::Expression(e) => crate::project::url::AddressPart::Value(
                             value_to_string(&self.eval_expr(e)),
                         ),
                     })
                     .collect();
-                crate::codegen::url::join_address(&pieces)
+                crate::project::url::join_address(&pieces)
             }
             other => value_to_string(&self.eval_expr(other)),
         }
@@ -1312,17 +1312,17 @@ impl<'a> RenderContext<'a> {
                     let Some(Value::String(key)) = _args.first().map(|a| self.eval_expr(a)) else {
                         return Value::Null;
                     };
-                    let params: Vec<(String, crate::codegen::static_eval::Static)> =
+                    let params: Vec<(String, crate::project::static_eval::Static)> =
                         match _args.get(1).map(|a| self.eval_expr(a)) {
                             Some(Value::Object(map)) => map
                                 .iter()
                                 .map(|(k, v)| {
-                                    (k.clone(), crate::codegen::static_eval::Static::from_json(v))
+                                    (k.clone(), crate::project::static_eval::Static::from_json(v))
                                 })
                                 .collect(),
                             _ => Vec::new(),
                         };
-                    Value::String(crate::i18n::message(
+                    Value::String(crate::project::i18n::message(
                         &self.locale,
                         &self.messages,
                         &key,
@@ -1389,7 +1389,7 @@ impl<'a> RenderContext<'a> {
     /// render's budget; an evaluation that runs out of its own fuel stops
     /// the render, rather than showing nothing where a value was asked for.
     fn eval_static_with(&self, expr: &Expr, receiver: Option<Value>) -> Value {
-        use crate::codegen::static_eval::{Scope, Static, eval_metered};
+        use crate::project::static_eval::{Scope, Static, eval_metered};
         if self.budget.stopped() {
             return Value::Null;
         }
@@ -1414,7 +1414,7 @@ impl<'a> RenderContext<'a> {
         for (k, f) in &self.functions {
             names.push((
                 k.clone(),
-                Static::Lambda(crate::codegen::static_eval::Lambda(std::sync::Arc::new(
+                Static::Lambda(crate::project::static_eval::Lambda(std::sync::Arc::new(
                     f.clone(),
                 ))),
             ));
@@ -1707,7 +1707,7 @@ fn render_ui_element_unmarked(ui: &UIElement, ctx: &mut RenderContext) -> String
             }) {
                 // A destination from the data is followed by the browser,
                 // so it is held to the scheme check the live page applies.
-                let href = crate::codegen::url::guard(&ctx.address(&dest)).to_string();
+                let href = crate::project::url::guard(&ctx.address(&dest)).to_string();
                 let indent = ctx.indent_str();
                 let mut out = format!(
                     "{}<a class=\"{}\" href=\"{}\">\n",
@@ -1828,8 +1828,8 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
                 Value::Bool(false) | Value::Null | Value::Array(_) | Value::Object(_) => {}
                 v => {
                     let text = value_to_string(&v);
-                    let text = if crate::codegen::url::URL_ATTRS.contains(&attribute.as_str()) {
-                        crate::codegen::url::guard(&text).to_string()
+                    let text = if crate::project::url::URL_ATTRS.contains(&attribute.as_str()) {
+                        crate::project::url::guard(&text).to_string()
                     } else {
                         text
                     };
@@ -1970,7 +1970,7 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
             // own.
             if trigger.is_none() && visible {
                 let classes =
-                    crate::codegen::builtin::class_list(&items_class, &ui.modifiers).join(" ");
+                    crate::project::builtin::class_list(&items_class, &ui.modifiers).join(" ");
                 let role = if gives("role") { "" } else { " role=\"menu\"" };
                 let aria = if gives("aria-label") {
                     ""
@@ -2095,10 +2095,10 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
                     // dropped, as `WF.safeUrl` drops them on a live page.
                     // An image's may be a picture carried in its address
                     // (`data:image/…`), as on the live page.
-                    let resolved = if key == "src" && crate::codegen::url::draws_picture(name) {
-                        crate::codegen::url::guard_picture(&resolved).to_string()
-                    } else if crate::codegen::url::URL_ATTRS.contains(&key.as_str()) {
-                        crate::codegen::url::guard(&resolved).to_string()
+                    let resolved = if key == "src" && crate::project::url::draws_picture(name) {
+                        crate::project::url::guard_picture(&resolved).to_string()
+                    } else if crate::project::url::URL_ATTRS.contains(&key.as_str()) {
+                        crate::project::url::guard(&resolved).to_string()
                     } else {
                         resolved
                     };
@@ -2108,7 +2108,7 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
                     let resolved = ctx.address(val);
                     attrs.push(format!(
                         "href=\"{}\"",
-                        html_escape(crate::codegen::url::guard(&resolved))
+                        html_escape(crate::project::url::guard(&resolved))
                     ));
                 }
                 // What a long list, a splitter or a carousel is, for a
@@ -2230,7 +2230,7 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext) -> String
     if let Some(style_block) = &ui.style_block {
         let mut style_parts = Vec::new();
         for prop in &style_block.properties {
-            if crate::codegen::scoped_css::static_declaration(prop).is_some() {
+            if crate::project::scoped_css::static_declaration(prop).is_some() {
                 continue;
             }
             if let Some(val) = style_value(&prop.value, ctx) {
@@ -2404,7 +2404,7 @@ fn style_block_attr(ui: &UIElement, ctx: &mut RenderContext) -> String {
     let decls: Vec<String> = block
         .properties
         .iter()
-        .filter(|p| crate::codegen::scoped_css::static_declaration(p).is_none())
+        .filter(|p| crate::project::scoped_css::static_declaration(p).is_none())
         .filter_map(|p| Some(format!("{}: {}", p.name, style_value(&p.value, ctx)?)))
         .collect();
     if decls.is_empty() {
@@ -2665,12 +2665,12 @@ fn extra_classes(ui: &UIElement, ctx: &RenderContext) -> Vec<String> {
     let mut classes: Vec<String> = ui
         .style_block
         .as_ref()
-        .and_then(crate::codegen::scoped_css::scoped_class)
+        .and_then(crate::project::scoped_css::scoped_class)
         .into_iter()
         .collect();
     // The rules were written into the page's CSS; without the class that
     // names them, a responsive layout stayed at its narrowest.
-    classes.extend(crate::codegen::scoped_css::responsive_classes(ui));
+    classes.extend(crate::project::scoped_css::responsive_classes(ui));
     if let Some(Arg::Named(_, value)) = ui
         .args
         .iter()
@@ -2683,7 +2683,7 @@ fn extra_classes(ui: &UIElement, ctx: &RenderContext) -> Vec<String> {
 
 /// Whether a language is written right to left.
 pub fn is_rtl(lang: &str) -> bool {
-    crate::i18n::table::is_rtl(lang)
+    crate::project::i18n::table::is_rtl(lang)
 }
 
 /// A local only a paged render sets: inside a running element, `page` and
@@ -2875,7 +2875,7 @@ fn render_paged(
             let mut out = with_own(open(ctx, "div", Vec::new()), "div", name, ui, ctx);
             if let Some(src) = named(ctx, "src") {
                 let alt = named(ctx, "alt").unwrap_or_default();
-                let src = crate::codegen::url::guard_picture(&src).to_string();
+                let src = crate::project::url::guard_picture(&src).to_string();
                 out.push_str(&format!(
                     "{indent}  <img src=\"{}\" alt=\"{}\">\n",
                     html_escape(&src),
@@ -2952,7 +2952,7 @@ fn render_paged(
         }
         "ImageSlide" => {
             let src = named(ctx, "src")
-                .map(|s| crate::codegen::url::guard(&s).to_string())
+                .map(|s| crate::project::url::guard(&s).to_string())
                 .unwrap_or_default();
             let caption = named(ctx, "caption");
             let mut out = open(ctx, "section", Vec::new());
@@ -3103,7 +3103,7 @@ fn is_truthy(val: &Value) -> bool {
 /// JavaScript would — two strings compare as text, `"12" * 2` is `24`, and
 /// text that is no number is `NaN`, which compares false.
 fn eval_binary_op(left: &Value, op: &crate::syntax::parser::ast::BinOp, right: &Value) -> Value {
-    use crate::codegen::static_eval::{Static, binary};
+    use crate::project::static_eval::{Static, binary};
     use crate::syntax::parser::ast::BinOp;
     if let Some(v) = binary(&Static::from_json(left), op, &Static::from_json(right)) {
         return v.to_json();

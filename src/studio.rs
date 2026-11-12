@@ -9,7 +9,7 @@
 
 use crate::codegen::ssg::{SiteContext, render_page_html_studio};
 use crate::codegen::{JsCodegen, generate_css_with};
-use crate::config::ProjectConfig;
+use crate::project::config::ProjectConfig;
 use crate::syntax::node_id::{NodeMap, build_node_map};
 use crate::syntax::parser::ast::{ComponentDecl, Declaration, Program, Statement};
 use std::collections::HashMap;
@@ -107,16 +107,20 @@ pub fn compile_studio(
     // the baseline and let `wf build` be the one that refuses. The reason is
     // handed back rather than swallowed, so the studio can say why the page does
     // not look the way the source says it should.
-    let (mut tokens, theme_error) = match crate::themes::resolve_tokens(program, &config.theme) {
-        Ok(tokens) => (tokens, None),
-        Err(e) => (crate::themes::tokens::default_tokens(), Some(e.to_string())),
-    };
-    crate::themes::apply_motion(&mut tokens, &config.motion);
+    let (mut tokens, theme_error) =
+        match crate::project::themes::resolve_tokens(program, &config.theme) {
+            Ok(tokens) => (tokens, None),
+            Err(e) => (
+                crate::project::themes::tokens::default_tokens(),
+                Some(e.to_string()),
+            ),
+        };
+    crate::project::themes::apply_motion(&mut tokens, &config.motion);
     let mut css = generate_css_with(&tokens, config.theme.builtin);
-    if let Ok(Some(dark)) = crate::themes::resolve_dark_tokens(program, &config.theme) {
+    if let Ok(Some(dark)) = crate::project::themes::resolve_dark_tokens(program, &config.theme) {
         css.push_str(&crate::codegen::dark_css(&dark));
     }
-    css.push_str(&crate::codegen::scoped_css::scoped_rules(program));
+    css.push_str(&crate::project::scoped_css::scoped_rules(program));
 
     let themes: Vec<ThemeInfo> = program
         .declarations
@@ -167,7 +171,7 @@ pub fn compile_studio(
     if !config.build.base_path.is_empty() {
         js_gen.set_base_path(config.build.base_path.clone());
     }
-    js_gen.set_app_schemes(crate::config::project::app_schemes(config));
+    js_gen.set_app_schemes(crate::project::config::project::app_schemes(config));
     js_gen.set_site_lang(config.page_lang());
     js_gen.set_studio(node_map.clone());
     let js = js_gen.generate(program);
@@ -194,7 +198,7 @@ pub fn compile_studio(
         .collect();
 
     // The program's part of each page's build-time scope, once.
-    let program_scope = crate::codegen::static_eval::Scope::for_program(program, &config.env);
+    let program_scope = crate::project::static_eval::Scope::for_program(program, &config.env);
     let mut pages = Vec::new();
     for decl in &program.declarations {
         if let Declaration::Page(page) = decl {

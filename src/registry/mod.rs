@@ -529,7 +529,7 @@ mod tests {
     }
 
     use super::*;
-    use crate::codegen::builtin::builtin_to_html;
+    use crate::project::builtin::builtin_to_html;
     use crate::syntax::parser::vocabulary::MODIFIER_KEYWORDS;
 
     #[test]

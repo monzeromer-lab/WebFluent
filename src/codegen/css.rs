@@ -1,4 +1,4 @@
-use crate::themes::{self, BuiltinCss};
+use crate::project::themes::{self, BuiltinCss};
 use std::collections::HashMap;
 
 /// Generate the CSS stylesheet from resolved design tokens, with the full

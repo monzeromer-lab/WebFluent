@@ -411,8 +411,8 @@ pub fn literal_classes(value: &Expr) -> Option<Vec<String>> {
 
 /// The classes a `class:` value names, from what the build knows of it:
 /// a string, a map (each key whose value is truthy) or a list of either.
-pub fn static_classes(value: &crate::codegen::static_eval::Static, out: &mut Vec<String>) {
-    use crate::codegen::static_eval::Static;
+pub fn static_classes(value: &crate::project::static_eval::Static, out: &mut Vec<String>) {
+    use crate::project::static_eval::Static;
     match value {
         Static::Null | Static::Bool(false) => {}
         Static::List(items) => {

@@ -1,4 +1,4 @@
-use crate::codegen::builtin::{
+use crate::project::builtin::{
     builtin_to_html, element_tag, implicit_role, input_type, is_void, landmark_label,
     layout_arg_classes, modifier_to_class,
 };
@@ -346,7 +346,7 @@ pub struct JsCodegen {
     consts: Vec<String>,
     /// The program's constants as build-time values, for what is drawn when
     /// the page is built (a chart, a QR code).
-    static_scope: Option<crate::codegen::static_eval::Scope>,
+    static_scope: Option<crate::project::static_eval::Scope>,
     /// `env.NAME` values from the project's config, emitted once.
     env: std::collections::BTreeMap<String, serde_json::Value>,
     /// The menu lists being drawn, innermost last: a `Menu.Sub` opens
@@ -757,7 +757,7 @@ impl JsCodegen {
         Some(format!(
             "lang: {}, dir: \"{}\"",
             serde_json::to_string(lang).unwrap_or_default(),
-            if crate::i18n::table::is_rtl(lang) {
+            if crate::project::i18n::table::is_rtl(lang) {
                 "rtl"
             } else {
                 "ltr"
@@ -766,7 +766,7 @@ impl JsCodegen {
     }
 
     /// The app's own schemes a frame's address may use
-    /// ([`crate::config::project::app_schemes`]).
+    /// ([`crate::project::config::project::app_schemes`]).
     pub fn set_app_schemes(&mut self, schemes: Vec<String>) {
         self.app_schemes = schemes;
     }
@@ -933,7 +933,7 @@ impl JsCodegen {
             Some(lang) => format!(
                 "{title}lang: {}, dir: \"{}\", ",
                 serde_json::to_string(lang).unwrap_or_default(),
-                if crate::i18n::table::is_rtl(lang) {
+                if crate::project::i18n::table::is_rtl(lang) {
                     "rtl"
                 } else {
                     "ltr"
@@ -994,11 +994,11 @@ impl JsCodegen {
         for arg in &ui.args {
             match arg {
                 Arg::Named(k, e) => {
-                    let v = crate::codegen::static_eval::eval(e, scope)?;
+                    let v = crate::project::static_eval::eval(e, scope)?;
                     named.push((k.clone(), v.to_json()));
                 }
                 Arg::Positional(e) => {
-                    positional = Some(crate::codegen::static_eval::eval(e, scope)?.to_json())
+                    positional = Some(crate::project::static_eval::eval(e, scope)?.to_json())
                 }
             }
         }
@@ -1006,13 +1006,13 @@ impl JsCodegen {
     }
 
     pub fn generate(&mut self, program: &Program) -> String {
-        self.static_scope = Some(crate::codegen::static_eval::Scope::from_program_with_env(
+        self.static_scope = Some(crate::project::static_eval::Scope::from_program_with_env(
             program,
             &[],
             &self.env,
         ));
         if self.split_pages {
-            self.page_sheets = crate::codegen::scoped_css::split_rules(program)
+            self.page_sheets = crate::project::scoped_css::split_rules(program)
                 .pages
                 .into_keys()
                 .collect();
@@ -2633,7 +2633,7 @@ impl JsCodegen {
                         classes.push(format!("{}--{}", class, m));
                     }
                     classes.extend(layout_arg_classes(&ui.args));
-                    classes.extend(crate::codegen::scoped_css::responsive_classes(ui));
+                    classes.extend(crate::project::scoped_css::responsive_classes(ui));
                     self.emit_line(&format!(
                         "const {} = WF.el(\"{}\", {{ className: \"{}\"{} }});",
                         var,
@@ -2907,7 +2907,7 @@ impl JsCodegen {
 
     fn emit_ui_element(&mut self, ui: &UIElement, parent: &str) {
         if matches!(&ui.component, ComponentRef::BuiltIn(n) if n == "Frame")
-            && let Some(framed) = crate::codegen::builtin::sandboxed_frame(ui)
+            && let Some(framed) = crate::project::builtin::sandboxed_frame(ui)
         {
             return self.emit_ui_element(&framed, parent);
         }
@@ -2977,7 +2977,7 @@ impl JsCodegen {
                     "th"
                 } else if name == "Host" {
                     // The library asked for a canvas, or a div by default.
-                    crate::codegen::builtin::host_tag(ui.args.iter().find_map(|a| match a {
+                    crate::project::builtin::host_tag(ui.args.iter().find_map(|a| match a {
                         Arg::Named(k, Expr::StringLiteral(t)) if k == "tag" => Some(t.as_str()),
                         _ => None,
                     }))
@@ -3026,7 +3026,7 @@ impl JsCodegen {
                         // A value per breakpoint is carried by its class
                         // (`responsive_classes`, below), not an attribute.
                         Arg::Named(key, val)
-                            if key != "class" && crate::codegen::scoped_css::is_responsive(val) => {
+                            if key != "class" && crate::project::scoped_css::is_responsive(val) => {
                         }
                         Arg::Named(key, val) => {
                             match key.as_str() {
@@ -3130,10 +3130,10 @@ impl JsCodegen {
                                     // `placeholder` or `disabled` bound to a
                                     // store used to be painted once.
                                     let v = if key == "src"
-                                        && crate::codegen::url::draws_picture(name)
+                                        && crate::project::url::draws_picture(name)
                                     {
                                         self.picture_url_value(val)
-                                    } else if crate::codegen::url::URL_ATTRS.contains(&key.as_str())
+                                    } else if crate::project::url::URL_ATTRS.contains(&key.as_str())
                                     {
                                         self.url_value(val)
                                     } else {
@@ -3166,7 +3166,7 @@ impl JsCodegen {
                                 }
                                 "span" => {
                                     if let Expr::NumberLiteral(n) = val
-                                        && let Some(n) = crate::codegen::builtin::column_span(*n)
+                                        && let Some(n) = crate::project::builtin::column_span(*n)
                                     {
                                         classes.push(format!("{}--{}", class, n));
                                     }
@@ -3245,7 +3245,7 @@ impl JsCodegen {
                                     // it; and one the browser follows goes
                                     // through the scheme check first.
                                     let v =
-                                        if crate::codegen::url::URL_ATTRS.contains(&key.as_str()) {
+                                        if crate::project::url::URL_ATTRS.contains(&key.as_str()) {
                                             self.url_value(val)
                                         } else {
                                             self.emit_expr(val)
@@ -3337,7 +3337,7 @@ impl JsCodegen {
                 // `Grid(columns: { base: 1, md: 2 })`: the class its rules
                 // live under, as the pre-rendered page carries it. Without
                 // it, hydrating the page took the layout away.
-                classes.extend(crate::codegen::scoped_css::responsive_classes(ui));
+                classes.extend(crate::project::scoped_css::responsive_classes(ui));
 
                 // Handle input type modifiers
                 for m in &ui.modifiers {
@@ -4064,7 +4064,7 @@ impl JsCodegen {
                 if let Some(class) = ui
                     .style_block
                     .as_ref()
-                    .and_then(crate::codegen::scoped_css::scoped_class)
+                    .and_then(crate::project::scoped_css::scoped_class)
                 {
                     self.emit_line(&format!(
                         "WF.rootAttrs({}, {{ \"class\": \"{}\" }});",
@@ -4220,7 +4220,7 @@ impl JsCodegen {
                 continue;
             }
             let attribute = kebab_case(key);
-            let emitted = if crate::codegen::url::URL_ATTRS.contains(&attribute.as_str()) {
+            let emitted = if crate::project::url::URL_ATTRS.contains(&attribute.as_str()) {
                 self.url_value(value)
             } else {
                 self.emit_expr(value)
@@ -4474,10 +4474,10 @@ impl JsCodegen {
     /// modifier on a `Card` worked.
     fn class_attr(&self, name: &str, ui: &UIElement) -> String {
         let (_, base) = builtin_to_html(name);
-        let mut classes = crate::codegen::builtin::class_list(base, &ui.modifiers);
+        let mut classes = crate::project::builtin::class_list(base, &ui.modifiers);
         // `Grid(columns: { base: 1, md: 2 })` carries the class its rules
         // live under, and nothing else: the widths are the stylesheet's.
-        classes.extend(crate::codegen::scoped_css::responsive_classes(ui));
+        classes.extend(crate::project::scoped_css::responsive_classes(ui));
         classes.join(" ")
     }
 
@@ -4495,7 +4495,7 @@ impl JsCodegen {
             // reads state is assigned here, inside an effect, so
             // `width: "{pct}%"` follows `pct` rather than painting once.
             for prop in &style.properties {
-                if crate::codegen::scoped_css::static_declaration(prop).is_some() {
+                if crate::project::scoped_css::static_declaration(prop).is_some() {
                     continue;
                 }
                 let (css_prop, val) = self.emit_style_decl(prop);
@@ -4511,7 +4511,7 @@ impl JsCodegen {
                     self.emit_line(&assign);
                 }
             }
-            if let Some(class) = crate::codegen::scoped_css::scoped_class(style) {
+            if let Some(class) = crate::project::scoped_css::scoped_class(style) {
                 self.emit_line(&format!("{}.classList.add(\"{}\");", var, class));
             }
         }
@@ -4525,9 +4525,9 @@ impl JsCodegen {
         });
         // Written out in full — a string, `{ "x": true }`, `["a", "b"]` — it
         // is a fixed list; anything that reads a value is followed.
-        match class_value.map(|v| crate::codegen::builtin::literal_classes(v).is_some()) {
+        match class_value.map(|v| crate::project::builtin::literal_classes(v).is_some()) {
             Some(true) => {
-                let classes = crate::codegen::builtin::author_classes(&ui.args);
+                let classes = crate::project::builtin::author_classes(&ui.args);
                 if !classes.is_empty() {
                     let list = classes
                         .iter()
@@ -4552,7 +4552,7 @@ impl JsCodegen {
                     let easing = p
                         .easing
                         .as_deref()
-                        .map(crate::codegen::builtin::easing_css)
+                        .map(crate::project::builtin::easing_css)
                         .unwrap_or("ease");
                     format!("{} {} {}", p.property, p.duration, easing)
                 })
@@ -5382,7 +5382,7 @@ impl JsCodegen {
         // opens: the list is the whole of it.
         if let (None, Some((read, write))) = (&label, &visible) {
             let classes =
-                crate::codegen::builtin::class_list(&items_class, &ui.modifiers).join(" ");
+                crate::project::builtin::class_list(&items_class, &ui.modifiers).join(" ");
             let role = if Self::gives(ui, "role") {
                 ""
             } else {
@@ -5541,10 +5541,10 @@ impl JsCodegen {
                 continue;
             }
             // A value per breakpoint is carried by a class, not an attribute.
-            if crate::codegen::scoped_css::is_responsive(val) {
+            if crate::project::scoped_css::is_responsive(val) {
                 continue;
             }
-            let value = if crate::codegen::url::URL_ATTRS.contains(&key.as_str()) {
+            let value = if crate::project::url::URL_ATTRS.contains(&key.as_str()) {
                 self.url_value(val)
             } else {
                 self.emit_expr(val)
@@ -5586,7 +5586,7 @@ impl JsCodegen {
     /// `shortcut:` is drawn at its end.
     fn emit_menu_item(&mut self, owner: &str, var: &str, ui: &UIElement, parent: &str) {
         let base = format!("wf-{}__item", owner.to_lowercase());
-        let class = crate::codegen::builtin::class_list(&base, &ui.modifiers).join(" ");
+        let class = crate::project::builtin::class_list(&base, &ui.modifiers).join(" ");
         let mut attrs = vec![format!("className: \"{class}\"")];
         let mut shortcut = None;
         let mut role = "menuitem";
@@ -6217,7 +6217,7 @@ impl JsCodegen {
             .iter()
             .find_map(|a| match a {
                 Arg::Named(k, Expr::NumberLiteral(n)) if k == "interval" => {
-                    Some(crate::codegen::builtin::carousel_interval(*n))
+                    Some(crate::project::builtin::carousel_interval(*n))
                 }
                 _ => None,
             })
@@ -6280,7 +6280,7 @@ impl JsCodegen {
         // A `class:` joins the engine's classes; it used to replace them, so
         // the button lost its size and shape. One that reads a value is
         // followed by the generic path, never written as an attribute.
-        for extra in crate::codegen::builtin::author_classes(&ui.args) {
+        for extra in crate::project::builtin::author_classes(&ui.args) {
             cls.push(' ');
             cls.push_str(&extra);
         }
@@ -7156,7 +7156,7 @@ impl JsCodegen {
     /// A `Video` with captions, or an `Audio` with a transcript: what a
     /// reader who cannot hear it needs, beside it rather than instead.
     fn emit_media(&mut self, name: &str, var: &str, attrs: &str, ui: &UIElement, parent: &str) {
-        let tag = crate::codegen::builtin::builtin_to_html(name).0;
+        let tag = crate::project::builtin::builtin_to_html(name).0;
         self.emit_line(&format!("const {var} = WF.el(\"{tag}\", {attrs});"));
         // `on ended`, `on timeupdate`: the player's, as on one without
         // captions.
@@ -7220,7 +7220,7 @@ impl JsCodegen {
         if let Some(kind) = placeholder {
             opts.push(format!("placeholder: \"{kind}\""));
         }
-        let classes = crate::codegen::builtin::builtin_to_html("Image").1;
+        let classes = crate::project::builtin::builtin_to_html("Image").1;
         opts.push(format!("className: \"{classes}\""));
         // What any element takes — an `id:`, `aria-*`, `data-*`, a `ref:`
         // — and its handlers are the image's, inside the `<picture>`, where
@@ -9201,7 +9201,7 @@ fn animation_of(ui: &UIElement) -> Option<String> {
     }
     ui.modifiers
         .iter()
-        .find(|m| crate::themes::prune::ANIMATIONS.contains(&m.as_str()))
+        .find(|m| crate::project::themes::prune::ANIMATIONS.contains(&m.as_str()))
         .cloned()
 }
 
@@ -9272,8 +9272,8 @@ fn camel_to_kebab(s: &str) -> String {
 /// the project's own, and a module script and a deferred classic script
 /// run in the order they appear in the document, so it has run before
 /// anything that reads it.
-pub fn externals_module(config: &crate::config::ProjectConfig) -> Option<String> {
-    use crate::config::project::ScriptEntry;
+pub fn externals_module(config: &crate::project::config::ProjectConfig) -> Option<String> {
+    use crate::project::config::project::ScriptEntry;
     let modules: Vec<(&str, &str)> = config
         .meta
         .scripts
@@ -9331,7 +9331,9 @@ pub fn externals_module(config: &crate::config::ProjectConfig) -> Option<String>
 
 /// Every module `meta.scripts` imports, with the hash `meta.integrity`
 /// gives it.
-pub fn external_modules(config: &crate::config::ProjectConfig) -> Vec<(String, Option<String>)> {
+pub fn external_modules(
+    config: &crate::project::config::ProjectConfig,
+) -> Vec<(String, Option<String>)> {
     config
         .meta
         .scripts

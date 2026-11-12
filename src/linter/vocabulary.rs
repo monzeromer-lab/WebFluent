@@ -26,8 +26,8 @@
 pub(crate) use crate::base::text::levenshtein;
 use std::collections::HashSet;
 
-use crate::codegen::builtin::{builtin_to_html, modifier_to_class};
 use crate::diagnostics::error::VocabWarning;
+use crate::project::builtin::{builtin_to_html, modifier_to_class};
 use crate::syntax::parser::{
     Arg, ComponentRef, Declaration, Expr, Program, Statement, StatementKind, UIElement,
 };
@@ -37,7 +37,7 @@ use crate::syntax::parser::{
 /// Structural builds carry fewer rules, so checking against the full sheet is
 /// the conservative choice: it reports only classes *no* mode defines.
 fn stylesheet() -> &'static str {
-    crate::themes::component_css()
+    crate::project::themes::component_css()
 }
 
 /// Lint every UI element's positional arguments against the modifier vocabulary
@@ -321,14 +321,14 @@ fn check_engine_classes(el: &UIElement, file: &str, out: &mut Vec<VocabWarning>)
     // built-in's rule.
     let own: Vec<String> = match &el.component {
         ComponentRef::BuiltIn(name) => {
-            let base = crate::codegen::builtin::builtin_to_html(name).1;
+            let base = crate::project::builtin::builtin_to_html(name).1;
             crate::registry::component(name)
                 .map(|sig| {
                     sig.props
                         .iter()
                         .filter_map(|p| match p.legacy {
                             crate::registry::Legacy::Modifier(w) => {
-                                Some(crate::codegen::builtin::modifier_to_class(base, w))
+                                Some(crate::project::builtin::modifier_to_class(base, w))
                             }
                             _ => None,
                         })
@@ -341,8 +341,9 @@ fn check_engine_classes(el: &UIElement, file: &str, out: &mut Vec<VocabWarning>)
     // `animate: .Drop` is lowered to `wf-animate-Drop`, the project's own
     // animation's class: no built-in's rule comes with it.
     let project_animation = |c: &str| {
-        c.strip_prefix("wf-animate-")
-            .is_some_and(|n| !n.starts_with('-') && !crate::themes::prune::ANIMATIONS.contains(&n))
+        c.strip_prefix("wf-animate-").is_some_and(|n| {
+            !n.starts_with('-') && !crate::project::themes::prune::ANIMATIONS.contains(&n)
+        })
     };
     for class in found
         .iter()

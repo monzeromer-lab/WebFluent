@@ -171,9 +171,9 @@ pub fn sanitize(html: &str) -> String {
                 // An img's source may be a picture carried in its address;
                 // a link's may not.
                 let guarded = if name == "img" && key == "src" {
-                    crate::codegen::url::guard_picture(&value).to_string()
+                    crate::project::url::guard_picture(&value).to_string()
                 } else {
-                    crate::codegen::url::guard(&value).to_string()
+                    crate::project::url::guard(&value).to_string()
                 };
                 if guarded.is_empty() {
                     continue;

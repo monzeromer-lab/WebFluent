@@ -12,8 +12,8 @@
 
 pub mod cache;
 
-pub(crate) use crate::sources::find_wf_files;
-pub use crate::sources::{
+pub(crate) use crate::project::sources::find_wf_files;
+pub use crate::project::sources::{
     read_project, read_project_collecting, read_project_collecting_via, read_project_via,
     read_project_with,
 };
@@ -22,11 +22,11 @@ pub use cache::BuildCache;
 use crate::base::outfs as fs;
 use crate::base::vfs::{Confined, FsVfs, Vfs};
 use crate::codegen::{JsCodegen, dark_css, generate_css_for, generate_html};
-use crate::config::ProjectConfig;
-use crate::config::project::OutputType;
 use crate::diagnostics::Severity;
 use crate::diagnostics::error::{Diagnostic, Result, WebFluentError};
 use crate::diagnostics::format::Format;
+use crate::project::config::ProjectConfig;
+use crate::project::config::project::OutputType;
 use crate::syntax::parser::{Declaration, Program, Statement};
 use std::cell::RefCell;
 use std::collections::{BTreeMap, HashMap};
@@ -446,7 +446,7 @@ pub struct Analysis {
     pub lowered: Program,
     /// The file of each declaration.
     pub declaration_files: Vec<String>,
-    pub scripts: Vec<crate::project_js::Script>,
+    pub scripts: Vec<crate::project::project_js::Script>,
     /// The project's own stylesheets, bundled.
     pub project_css: String,
     /// Every finding: the files that did not parse, then every check.
@@ -458,7 +458,7 @@ pub struct Analysis {
 pub fn analyse(
     project_dir: &Path,
     config: &mut ProjectConfig,
-    media: Option<(&Path, &crate::media::Settings, &str)>,
+    media: Option<(&Path, &crate::project::media::Settings, &str)>,
 ) -> Result<Analysis> {
     analyse_via(&FsVfs, project_dir, config, media)
 }
@@ -468,7 +468,7 @@ pub fn analyse_via(
     vfs: &dyn Vfs,
     project_dir: &Path,
     config: &mut ProjectConfig,
-    media: Option<(&Path, &crate::media::Settings, &str)>,
+    media: Option<(&Path, &crate::project::media::Settings, &str)>,
 ) -> Result<Analysis> {
     let (program, declaration_files, parse_errors) =
         read_project_collecting_via(vfs, project_dir, media)?;
@@ -478,7 +478,7 @@ pub fn analyse_via(
     config.build.frames_itself = crate::codegen::csp::frames_itself(&program);
     // The project's own scripts: every `.js` under `src/`, a plain browser
     // script each, copied as written and linked before the compiled code.
-    let scripts = crate::project_js::load_via(vfs, project_dir, &project_dir.join("src"))?;
+    let scripts = crate::project::project_js::load_via(vfs, project_dir, &project_dir.join("src"))?;
     config.build.scripts = scripts.iter().map(|s| s.href.clone()).collect();
     // The size of each sharing image under `public/`, for the card.
     crate::codegen::seo::measure_images(project_dir, config, &program);
@@ -557,12 +557,12 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
     // What this build reads of the image cache, from here on: the rest is
     // pruned once it has finished.
     let media_cache = project_dir.join(".wf-cache/media");
-    crate::media::take_used(&media_cache);
+    crate::project::media::take_used(&media_cache);
     let mut media = config.build.media.settings();
     // A PDF or a deck embeds the picture it names, not a `<picture>`.
     media.literal_src = !matches!(
         config.build.output_type,
-        crate::config::OutputType::Pdf | crate::config::OutputType::Slides
+        crate::project::config::OutputType::Pdf | crate::project::config::OutputType::Slides
     );
     let base_path = config.build.base_path.clone();
     let Analysis {
@@ -608,7 +608,7 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
     // A project translated by its own words: each string a reader sees is
     // the `t()` it stands for, from here to the code it is written as.
     if config.i18n.as_ref().is_some_and(|i| i.literals) {
-        crate::i18n::literals::translate(&mut program);
+        crate::project::i18n::literals::translate(&mut program);
     }
     // Under `clean_urls: "directory"`, every link to a page names the
     // address with the slash, as the canonical does.
@@ -622,11 +622,11 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
         OutputType::Pdf | OutputType::Slides
     ) {
         let deck = config.build.output_type == OutputType::Slides;
-        let mut tokens = crate::themes::resolve_tokens(&program, &config.theme)?;
-        crate::themes::apply_motion(&mut tokens, &config.motion);
+        let mut tokens = crate::project::themes::resolve_tokens(&program, &config.theme)?;
+        crate::project::themes::apply_motion(&mut tokens, &config.motion);
         let mut css = generate_css_for(&tokens, config.theme.builtin, &program);
         css.push_str(&project_css);
-        css.push_str(&crate::codegen::scoped_css::scoped_rules(&program));
+        css.push_str(&crate::project::scoped_css::scoped_rules(&program));
         let fragment = crate::template::render_program_paged(&program, &serde_json::json!({}))?;
         // The document's language: the first page's own `lang:`, as
         // `wf render` reads it, else the site's.
@@ -728,10 +728,10 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
     // `theme.builtin` decides how much of the engine's own design ships. The
     // build used to call the always-full entry point, so a project that asked
     // for `structural` still received the baseline it was trying to avoid.
-    let mut tokens = crate::themes::resolve_tokens(&program, &config.theme)?;
-    crate::themes::apply_motion(&mut tokens, &config.motion);
+    let mut tokens = crate::project::themes::resolve_tokens(&program, &config.theme)?;
+    crate::project::themes::apply_motion(&mut tokens, &config.motion);
     let mut css = generate_css_for(&tokens, config.theme.builtin, &program);
-    if let Some(dark) = crate::themes::resolve_dark_tokens(&program, &config.theme)? {
+    if let Some(dark) = crate::project::themes::resolve_dark_tokens(&program, &config.theme)? {
         css.push_str(&dark_css(&dark));
     }
     css.push_str(&project_css);
@@ -739,11 +739,11 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
     // compiled into the sheet under content-named classes. With `build.split`
     // the rules only one page reaches go to that page's own sheet.
     let page_sheets = if config.build.split {
-        let split = crate::codegen::scoped_css::split_rules(&program);
+        let split = crate::project::scoped_css::split_rules(&program);
         css.push_str(&split.shared);
         split.pages
     } else {
-        css.push_str(&crate::codegen::scoped_css::scoped_rules(&program));
+        css.push_str(&crate::project::scoped_css::scoped_rules(&program));
         Default::default()
     };
     let mut js_codegen = JsCodegen::new();
@@ -755,7 +755,7 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
     }
     js_codegen.set_dev(options.dev);
     js_codegen.set_split_pages(config.build.split);
-    js_codegen.set_full_runtime(config.build.runtime == crate::config::RuntimeMode::Full);
+    js_codegen.set_full_runtime(config.build.runtime == crate::project::config::RuntimeMode::Full);
     js_codegen.set_env(config.public_env_values());
     js_codegen.set_later_scripts(
         config
@@ -776,7 +776,7 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
     if !config.build.base_path.is_empty() {
         js_codegen.set_base_path(config.build.base_path.clone());
     }
-    js_codegen.set_app_schemes(crate::config::project::app_schemes(&config));
+    js_codegen.set_app_schemes(crate::project::config::project::app_schemes(&config));
     js_codegen.set_site_lang(config.page_lang());
     // `build.sourcemap`: each declaration's file, as the map's sources name
     // it (the project's own path, `src/pages/home.wf`).
@@ -912,7 +912,7 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
         // stores' values, the constants — is the same for all of them:
         // worked out once rather than twice a page, it was most of what an
         // SSG build of a project with many pages cost.
-        let program_scope = crate::codegen::static_eval::Scope::for_program(&program, &config.env);
+        let program_scope = crate::project::static_eval::Scope::for_program(&program, &config.env);
         // A page whose inputs are what they were is taken from the cache.
         let keys = options.cache.map(|_| {
             let sheets: Vec<&String> = page_sheets.keys().collect();
@@ -1228,7 +1228,10 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
         )?;
     }
     warning_count += say_skipped(out, &confined);
-    crate::media::prune_cache(&media_cache, &crate::media::take_used(&media_cache));
+    crate::project::media::prune_cache(
+        &media_cache,
+        &crate::project::media::take_used(&media_cache),
+    );
     if warning_count == 0 {
         out.say("Build complete.");
     } else {
@@ -1478,7 +1481,7 @@ const SIZES_FILE: &str = ".wf-sizes.json";
 /// the canonical address would be one that redirects. The page addresses its
 /// assets from the site root under this setting, so the copy is exact.
 fn write_beside(config: &ProjectConfig, dir: &Path, page_html: &str) -> Result<()> {
-    if config.build.clean_urls != Some(crate::config::CleanUrls::File) {
+    if config.build.clean_urls != Some(crate::project::config::CleanUrls::File) {
         return Ok(());
     }
     let (Some(parent), Some(name)) = (dir.parent(), dir.file_name()) else {
@@ -1701,7 +1704,7 @@ fn load_translations(
     vfs: &dyn Vfs,
     out: &Out,
     project_dir: &Path,
-    i18n_config: &crate::config::project::I18nConfig,
+    i18n_config: &crate::project::config::project::I18nConfig,
 ) -> Result<HashMap<String, HashMap<String, String>>> {
     let dir = project_dir.join(&i18n_config.dir);
     if !vfs.exists(&dir) {
@@ -1710,7 +1713,7 @@ fn load_translations(
             i18n_config.dir
         ));
     }
-    crate::i18n::load_via(vfs, project_dir, i18n_config)
+    crate::project::i18n::load_via(vfs, project_dir, i18n_config)
 }
 
 /// Write `<file>.gz` beside every text file under `dir` that is worth it —
@@ -1801,7 +1804,7 @@ fn check_csp(
     written: &[PathBuf],
     config: &ProjectConfig,
 ) -> Vec<crate::codegen::csp::Violation> {
-    let policy = crate::config::project::csp_meta_policy(config);
+    let policy = crate::project::config::project::csp_meta_policy(config);
     let mut found = Vec::new();
     for path in written {
         let Ok(html) = fs::read_to_string(path) else {
@@ -1831,8 +1834,8 @@ fn headers_file(config: &ProjectConfig) -> String {
          \x20 X-Content-Type-Options: nosniff\n\
          \x20 Referrer-Policy: strict-origin-when-cross-origin\n\
          \x20 X-Frame-Options: {}\n",
-        crate::config::project::csp_policy(config),
-        crate::config::project::frame_options(config)
+        crate::project::config::project::csp_policy(config),
+        crate::project::config::project::frame_options(config)
     );
     // A browser checks the worker for a new version on every visit; a host
     // that let it be cached would keep a deploy from reaching anyone.
@@ -1888,7 +1891,7 @@ fn write_service_worker(
     out: &Out,
     output_dir: &Path,
     config: &ProjectConfig,
-    offline: &crate::config::OfflineConfig,
+    offline: &crate::project::config::OfflineConfig,
     program: &crate::syntax::parser::ast::Program,
     written_html: &[PathBuf],
 ) -> Result<()> {

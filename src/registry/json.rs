@@ -34,7 +34,7 @@ pub fn registry_json() -> Value {
 
 fn component_json(sig: &'static ComponentSig) -> Value {
     let (tag, class) = match sig.ir {
-        crate::registry::Ir::BuiltIn(name) => crate::codegen::builtin::builtin_to_html(name),
+        crate::registry::Ir::BuiltIn(name) => crate::project::builtin::builtin_to_html(name),
         crate::registry::Ir::Sub(..) => ("", ""),
     };
     let flags: Vec<Value> = sig.all_props().flat_map(|p| flags_of(sig, p)).collect();
@@ -304,7 +304,7 @@ fn script_name_json(file: &str, n: &crate::syntax::js_scan::Name) -> Value {
     let doc = n
         .doc
         .as_deref()
-        .map(crate::project_js::jsdoc::parse)
+        .map(crate::project::project_js::jsdoc::parse)
         .unwrap_or_default();
     let params = |params: &[crate::syntax::js_scan::Param]| {
         params

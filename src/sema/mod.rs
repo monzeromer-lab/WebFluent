@@ -571,18 +571,18 @@ impl Checker<'_, '_> {
                     // reaches the output. A value only known at run time is
                     // checked by `WF.safeUrl` at the moment it is used.
                     if let Expr::StringLiteral(text) = value
-                        && crate::codegen::url::URL_ATTRS.contains(&key.as_str())
-                        && !crate::codegen::url::is_safe(text)
+                        && crate::project::url::URL_ATTRS.contains(&key.as_str())
+                        && !crate::project::url::is_safe(text)
                         && !(key == "src"
-                            && crate::codegen::url::draws_picture(&name)
-                            && crate::codegen::url::is_picture(text))
+                            && crate::project::url::draws_picture(&name)
+                            && crate::project::url::is_picture(text))
                     {
                         self.error(
                             at,
                             "E107",
                             format!(
                                 "`{key}` on {name} names the `{}` scheme, which a browser runs",
-                                crate::codegen::url::scheme_of(text).unwrap_or_default()
+                                crate::project::url::scheme_of(text).unwrap_or_default()
                             ),
                             "A URL here may be relative, or name http, https, mailto, tel, sms or ftp",
                         );
@@ -694,7 +694,7 @@ impl Checker<'_, '_> {
                     Arg::Named(k, v) if k == "tag" => Some((v, *s)),
                     _ => None,
                 })
-            && !crate::codegen::builtin::HOST_TAGS.contains(&tag.as_str())
+            && !crate::project::builtin::HOST_TAGS.contains(&tag.as_str())
         {
             self.warning(
                 span,
@@ -702,7 +702,7 @@ impl Checker<'_, '_> {
                 format!("`Host` makes no `{tag}`, so it is a `div`"),
                 &format!(
                     "It makes {}",
-                    crate::codegen::builtin::HOST_TAGS
+                    crate::project::builtin::HOST_TAGS
                         .iter()
                         .map(|t| format!("`{t}`"))
                         .collect::<Vec<_>>()
@@ -1501,7 +1501,8 @@ fn lift_animation(
         let own = own_props(el, user);
         let is_motion_word = |m: &str| {
             !own.iter().any(|p| p == m)
-                && (crate::themes::prune::ANIMATIONS.contains(&m) || matches!(m, "fast" | "slow"))
+                && (crate::project::themes::prune::ANIMATIONS.contains(&m)
+                    || matches!(m, "fast" | "slow"))
         };
         let named = |key: &str| {
             if own.iter().any(|p| p == key) {
@@ -1516,7 +1517,7 @@ fn lift_animation(
         let enter = el
             .modifiers
             .iter()
-            .find(|m| crate::themes::prune::ANIMATIONS.contains(&m.as_str()))
+            .find(|m| crate::project::themes::prune::ANIMATIONS.contains(&m.as_str()))
             .cloned()
             .or_else(|| named("animate"));
         let speed = el
@@ -1528,7 +1529,7 @@ fn lift_animation(
         let exit = named("exit");
         let delay = named("delay");
         let stagger = named("stagger");
-        let easing = named("easing").map(|e| crate::codegen::builtin::easing_css(&e).to_string());
+        let easing = named("easing").map(|e| crate::project::builtin::easing_css(&e).to_string());
         let duration = named("duration").or_else(|| match speed.as_deref() {
             Some("fast") => Some("150ms".to_string()),
             Some("slow") => Some("500ms".to_string()),
@@ -1647,7 +1648,7 @@ fn lower_element(el: &mut UIElement, user: &HashMap<String, UserSig>) {
                 ),
                 ("easing", Expr::StringLiteral(e)) => (
                     k.clone(),
-                    Expr::StringLiteral(crate::codegen::builtin::easing_css(e).to_string()),
+                    Expr::StringLiteral(crate::project::builtin::easing_css(e).to_string()),
                 ),
                 _ => (k.clone(), value),
             };
@@ -1712,7 +1713,7 @@ fn lower_mount_timing(el: &mut UIElement) {
     let plays_here = el
         .modifiers
         .iter()
-        .any(|m| crate::themes::prune::ANIMATIONS.contains(&m.as_str()))
+        .any(|m| crate::project::themes::prune::ANIMATIONS.contains(&m.as_str()))
         || el
             .args
             .iter()
@@ -1772,7 +1773,7 @@ fn lower_enter_view(el: &mut UIElement) {
         .modifiers
         .iter()
         .map(|m| {
-            if enter.is_none() && crate::themes::prune::ANIMATIONS.contains(&m.as_str()) {
+            if enter.is_none() && crate::project::themes::prune::ANIMATIONS.contains(&m.as_str()) {
                 enter = Some(m.clone());
                 return false;
             }
@@ -1943,11 +1944,11 @@ fn lower_builtin(el: &mut UIElement, sig: &'static ComponentSig) {
                     _ => {
                         let base = match sig.ir {
                             registry::Ir::BuiltIn(name) => {
-                                crate::codegen::builtin::builtin_to_html(name).1
+                                crate::project::builtin::builtin_to_html(name).1
                             }
                             _ => "",
                         };
-                        let class = crate::codegen::builtin::modifier_to_class(base, word);
+                        let class = crate::project::builtin::modifier_to_class(base, word);
                         if class.is_empty() {
                             continue;
                         }
@@ -2052,7 +2053,7 @@ fn lower_user_flags(el: &mut UIElement, us: &UserSig) {
         // A universal flag — an enter animation, a speed — is a motion
         // marker on the component's root; the rest are errors the check
         // reported, kept as words.
-        if crate::themes::prune::ANIMATIONS.contains(&word.as_str()) {
+        if crate::project::themes::prune::ANIMATIONS.contains(&word.as_str()) {
             el.args.push(Arg::Named(
                 "data-wf-animate".to_string(),
                 Expr::StringLiteral(word.clone()),

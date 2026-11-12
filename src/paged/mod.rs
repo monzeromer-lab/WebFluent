@@ -754,7 +754,7 @@ pub fn font_dirs_via(
 
 impl<'a> Options<'a> {
     pub fn from_pdf(
-        config: &crate::config::project::PdfConfig,
+        config: &crate::project::config::project::PdfConfig,
         assets: &'a AssetReader<'a>,
         root: Option<&std::path::Path>,
     ) -> Options<'a> {
@@ -765,7 +765,7 @@ impl<'a> Options<'a> {
     /// `vfs`.
     pub fn from_pdf_via(
         vfs: &'a dyn crate::base::vfs::Vfs,
-        config: &crate::config::project::PdfConfig,
+        config: &crate::project::config::project::PdfConfig,
         assets: &'a AssetReader<'a>,
         root: Option<&std::path::Path>,
     ) -> Options<'a> {
@@ -787,7 +787,7 @@ impl<'a> Options<'a> {
     }
 
     pub fn from_slides(
-        config: &crate::config::project::SlidesConfig,
+        config: &crate::project::config::project::SlidesConfig,
         assets: &'a AssetReader<'a>,
         root: Option<&std::path::Path>,
     ) -> (Options<'a>, SlideChrome) {
@@ -798,7 +798,7 @@ impl<'a> Options<'a> {
     /// through `vfs`.
     pub fn from_slides_via(
         vfs: &'a dyn crate::base::vfs::Vfs,
-        config: &crate::config::project::SlidesConfig,
+        config: &crate::project::config::project::SlidesConfig,
         assets: &'a AssetReader<'a>,
         root: Option<&std::path::Path>,
     ) -> (Options<'a>, SlideChrome) {

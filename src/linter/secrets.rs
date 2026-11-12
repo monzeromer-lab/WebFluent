@@ -11,8 +11,8 @@
 //! an `api` block is an error at the line that reads it. The values are
 //! still there for `wf render`, which runs on a server.
 
-use crate::config::ProjectConfig;
 use crate::diagnostics::error::Diagnostic;
+use crate::project::config::ProjectConfig;
 use std::path::Path;
 
 /// Every `env.NAME` in the project's sources that a page may not read.

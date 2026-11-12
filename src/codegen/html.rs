@@ -1,4 +1,4 @@
-use crate::config::ProjectConfig;
+use crate::project::config::ProjectConfig;
 use crate::syntax::parser::ast::{Declaration, Program};
 
 /// Generate the HTML entry point (`index.html`) for a WebFluent project.
@@ -65,7 +65,7 @@ pub fn generate_html(config: &ProjectConfig, program: &Program) -> String {
     // every rule it needs.
     let entry_sheet = entry
         .filter(|name| {
-            crate::codegen::scoped_css::split_rules(program)
+            crate::project::scoped_css::split_rules(program)
                 .pages
                 .contains_key(*name)
         })
@@ -203,7 +203,7 @@ pub fn preload_kind(path: &str) -> Option<PreloadKind> {
 }
 
 pub fn head_links(config: &ProjectConfig, base: &str) -> String {
-    use crate::config::project::url_origin;
+    use crate::project::config::project::url_origin;
     let mut out = String::new();
     // The icons, from the site's root under its `base_path` — `/favicon.svg`
     // is the base's, not the host's — and not from this page's depth: a
@@ -333,14 +333,14 @@ pub fn csp_meta(config: &ProjectConfig) -> String {
     }
     format!(
         "    <meta http-equiv=\"Content-Security-Policy\" content=\"{}\">\n",
-        crate::config::project::csp_meta_policy(config)
+        crate::project::config::project::csp_meta_policy(config)
     )
 }
 
 #[cfg(test)]
 mod head_link_tests {
     use super::*;
-    use crate::config::project::MetaConfig;
+    use crate::project::config::project::MetaConfig;
 
     fn config(fonts: &[&str], sheets: &[&str]) -> ProjectConfig {
         let mut config: ProjectConfig = serde_json::from_str(r#"{"name":"t"}"#).unwrap();
@@ -387,9 +387,9 @@ mod head_link_tests {
         );
         // Its origin is still the policy's, for the runtime to load it from.
         assert!(
-            crate::config::project::csp_policy(&config).contains("https://tags.example"),
+            crate::project::config::project::csp_policy(&config).contains("https://tags.example"),
             "{}",
-            crate::config::project::csp_policy(&config)
+            crate::project::config::project::csp_policy(&config)
         );
     }
 

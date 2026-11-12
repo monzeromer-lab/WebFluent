@@ -8,7 +8,7 @@ pub fn signature(n: &crate::syntax::js_scan::Name) -> String {
     let doc = n
         .doc
         .as_deref()
-        .map(crate::project_js::jsdoc::parse)
+        .map(crate::project::project_js::jsdoc::parse)
         .unwrap_or_default();
     let params = |params: &[crate::syntax::js_scan::Param]| {
         params

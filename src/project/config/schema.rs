@@ -525,7 +525,7 @@ pub const FIELDS: &[Field] = &[
     f(
         "offline.cache",
         StringMap {
-            values: Some(crate::config::project::OFFLINE_STRATEGIES),
+            values: Some(crate::project::config::project::OFFLINE_STRATEGIES),
         },
         "How a path the build did not write is fetched, by glob: `network-first`, `cache-first`, `stale-while-revalidate` or `network-only`.",
     ),
@@ -584,7 +584,7 @@ pub fn field(path: &str) -> Option<&'static Field> {
 /// What a file that sets nothing reads as — with `i18n` and `offline`,
 /// which are absent until set, as they read once they are.
 pub fn defaults() -> Value {
-    let empty: crate::config::project::ProjectConfig =
+    let empty: crate::project::config::project::ProjectConfig =
         serde_json::from_str(r#"{ "name": "", "i18n": {}, "offline": {} }"#)
             .expect("an empty config reads");
     serde_json::to_value(&empty).expect("a config writes")
@@ -702,7 +702,7 @@ pub fn edit(
         }
         None => remove(text, &keys)?,
     };
-    serde_json::from_str::<crate::config::project::ProjectConfig>(&out)
+    serde_json::from_str::<crate::project::config::project::ProjectConfig>(&out)
         .map_err(|e| EditError(format!("the file would not read as a config: {e}")))?;
     Ok(out)
 }
@@ -778,7 +778,7 @@ mod tests {
                     .or_insert(serde_json::json!({}));
             }
             at_[keys[keys.len() - 1]] = value.clone();
-            let read: crate::config::project::ProjectConfig = serde_json::from_value(doc)
+            let read: crate::project::config::project::ProjectConfig = serde_json::from_value(doc)
                 .unwrap_or_else(|e| panic!("`{}` set to {value} is refused: {e}", f.path));
             let back = serde_json::to_value(&read).unwrap();
             // An enum's value is written as it was read; a script is

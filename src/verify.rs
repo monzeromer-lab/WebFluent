@@ -15,8 +15,8 @@
 use std::collections::BTreeSet;
 use std::path::Path;
 
-use crate::config::ProjectConfig;
 use crate::diagnostics::error::Result;
+use crate::project::config::ProjectConfig;
 
 // For the mobile editor's visits; `wf verify` reads them in the driver.
 pub use crate::browser::chrome::{PAGE_REPORT, Visit, read_report};
@@ -171,7 +171,7 @@ pub fn undrawn(drew: &BTreeSet<String>) -> Vec<String> {
             ) {
                 return false;
             }
-            let (_, class) = crate::codegen::builtin::builtin_to_html(name);
+            let (_, class) = crate::project::builtin::builtin_to_html(name);
             // `wf-input wf-textarea`: the last class is the one that names it.
             let Some(base) = class.split_whitespace().last() else {
                 return false;

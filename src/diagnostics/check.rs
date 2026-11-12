@@ -9,9 +9,9 @@
 
 use super::{Diagnostic, dedupe};
 use crate::base::vfs::{FsVfs, Vfs};
-use crate::config::ProjectConfig;
-use crate::config::project::OutputType;
-use crate::project_js::Script;
+use crate::project::config::ProjectConfig;
+use crate::project::config::project::OutputType;
+use crate::project::project_js::Script;
 use crate::syntax::parser::ast::{Declaration, Program};
 use std::path::Path;
 
@@ -239,7 +239,7 @@ fn project_checks_via(
             p.declaration_files,
         ));
         if let Some(i18n) = &config.i18n
-            && let Ok(messages) = crate::i18n::load_via(vfs, dir, i18n)
+            && let Ok(messages) = crate::project::i18n::load_via(vfs, dir, i18n)
         {
             out.extend(crate::linter::project::translations(
                 p.program, i18n, &messages, file_of,
@@ -266,21 +266,23 @@ fn lowered_checks(
     let (accessibility, (contrast, styles), unused, vocabulary, output) =
         crate::base::platform::scope(|s| {
             let accessibility = deep(s, || crate::linter::lint_accessibility_in(lowered, file_of));
-            let painted = deep(s, || match crate::themes::resolve_tokens(lowered, &theme) {
-                Ok(mut tokens) => {
-                    let contrast = crate::linter::lint_contrast_in(lowered, &tokens, file_of);
-                    if let Some(config) = p.config {
-                        crate::themes::apply_motion(&mut tokens, &config.motion);
+            let painted = deep(s, || {
+                match crate::project::themes::resolve_tokens(lowered, &theme) {
+                    Ok(mut tokens) => {
+                        let contrast = crate::linter::lint_contrast_in(lowered, &tokens, file_of);
+                        if let Some(config) = p.config {
+                            crate::project::themes::apply_motion(&mut tokens, &config.motion);
+                        }
+                        (
+                            contrast,
+                            crate::linter::styles::lint_styles(lowered, Some(&tokens), file_of),
+                        )
                     }
-                    (
-                        contrast,
-                        crate::linter::styles::lint_styles(lowered, Some(&tokens), file_of),
-                    )
+                    Err(_) => (
+                        Vec::new(),
+                        crate::linter::styles::lint_styles(lowered, None, file_of),
+                    ),
                 }
-                Err(_) => (
-                    Vec::new(),
-                    crate::linter::styles::lint_styles(lowered, None, file_of),
-                ),
             });
             let unused = deep(s, || {
                 crate::linter::lint_unused_in(lowered, file_of, &published)
@@ -293,7 +295,7 @@ fn lowered_checks(
                 if config.build.csp {
                     out.extend(crate::codegen::csp::head_violations(
                         p.program,
-                        &crate::config::project::csp_meta_policy(config),
+                        &crate::project::config::project::csp_meta_policy(config),
                         file_of,
                     ));
                 }
@@ -565,7 +567,7 @@ pub fn config_checks_via(
     // A module is imported and put on a global; without one to put it on,
     // nothing could reach it.
     for entry in &config.meta.scripts {
-        if let crate::config::project::ScriptEntry::Spec(spec) = entry
+        if let crate::project::config::project::ScriptEntry::Spec(spec) = entry
             && spec.module
             && spec.as_name.is_none()
         {
@@ -589,8 +591,8 @@ pub fn config_checks_via(
     // rather than linked, so it cannot be either, and `.wf` code could call
     // its globals before they exist.
     for entry in &config.meta.scripts {
-        if let crate::config::project::ScriptEntry::Spec(spec) = entry
-            && spec.load == crate::config::project::ScriptLoad::After
+        if let crate::project::config::project::ScriptEntry::Spec(spec) = entry
+            && spec.load == crate::project::config::project::ScriptLoad::After
         {
             let problem = if spec.module {
                 Some((
@@ -616,7 +618,7 @@ pub fn config_checks_via(
             }
             continue;
         }
-        if let crate::config::project::ScriptEntry::Spec(spec) = entry
+        if let crate::project::config::project::ScriptEntry::Spec(spec) = entry
             && spec.is_async
         {
             let problem = if spec.module {
@@ -673,7 +675,7 @@ pub fn config_checks_via(
     // path is no narrower in a policy than its host, and `'unsafe-…'` has no
     // place in a list of where requests may go.
     for entry in &config.meta.connect {
-        if crate::config::project::connect_source(entry).is_none() {
+        if crate::project::config::project::connect_source(entry).is_none() {
             out.push(
                 config_finding(
                     "E111",
@@ -689,7 +691,7 @@ pub fn config_checks_via(
     // An `img-src` source is likewise an origin, and one a picture can be
     // fetched from.
     for entry in &config.meta.img {
-        if crate::config::project::img_origin(entry).is_none() {
+        if crate::project::config::project::img_origin(entry).is_none() {
             out.push(
                 config_finding(
                     "E111",
@@ -704,7 +706,7 @@ pub fn config_checks_via(
 
     // A `frame-src` source is an origin a page can be framed from.
     for entry in &config.meta.frame {
-        if crate::config::project::frame_source(entry).is_none() {
+        if crate::project::config::project::frame_source(entry).is_none() {
             out.push(
                 config_finding(
                     "E111",
@@ -759,10 +761,10 @@ pub fn config_checks_via(
             problem("`offline` is for a web build; this one writes a document".to_string());
         }
         for (path, strategy) in &offline.cache {
-            if !crate::config::OFFLINE_STRATEGIES.contains(&strategy.as_str()) {
+            if !crate::project::config::OFFLINE_STRATEGIES.contains(&strategy.as_str()) {
                 problem(format!(
                     "`offline.cache` asks for `{strategy}` on `{path}`; the policies are {}",
-                    crate::config::OFFLINE_STRATEGIES
+                    crate::project::config::OFFLINE_STRATEGIES
                         .iter()
                         .map(|s| format!("`{s}`"))
                         .collect::<Vec<_>>()
@@ -828,7 +830,7 @@ pub fn output_checks(
             let worked_out = std::cell::OnceCell::new();
             let scope = || {
                 worked_out.get_or_init(|| {
-                    crate::codegen::static_eval::Scope::from_program_with_env(
+                    crate::project::static_eval::Scope::from_program_with_env(
                         lowered,
                         &[],
                         &config.env,
@@ -856,13 +858,13 @@ pub fn output_checks(
 /// declaration, the element's place, its name and the argument's.
 fn unknown_graphic_args<'s>(
     program: &Program,
-    scope: &dyn Fn() -> &'s crate::codegen::static_eval::Scope,
+    scope: &dyn Fn() -> &'s crate::project::static_eval::Scope,
 ) -> Vec<(usize, crate::syntax::parser::ast::Span, String, String)> {
     use crate::syntax::parser::{Arg, ComponentRef, Declaration, Statement, StatementKind};
     fn walk<'s>(
         stmts: &[Statement],
         decl: usize,
-        scope: &dyn Fn() -> &'s crate::codegen::static_eval::Scope,
+        scope: &dyn Fn() -> &'s crate::project::static_eval::Scope,
         out: &mut Vec<(usize, crate::syntax::parser::ast::Span, String, String)>,
     ) {
         for stmt in stmts {
@@ -875,7 +877,7 @@ fn unknown_graphic_args<'s>(
                         Arg::Named(k, e) => (k.clone(), e),
                         Arg::Positional(e) => ("value".to_string(), e),
                     };
-                    if crate::codegen::static_eval::eval(e, scope()).is_none() {
+                    if crate::project::static_eval::eval(e, scope()).is_none() {
                         out.push((decl, ui.span, name.clone(), label));
                         break;
                     }

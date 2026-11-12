@@ -26,7 +26,7 @@ use std::cell::Cell;
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use crate::codegen::format;
+use crate::project::format;
 use crate::syntax::parser::ast::{
     ActionDecl, BinOp, Declaration, Expr, Program, Statement, StatementKind, UnaryOp,
 };
@@ -845,7 +845,7 @@ fn eval_in(expr: &Expr, scope: &Scope, fuel: &Fuel) -> Option<Static> {
                         Some(Static::Map(params)) => params.clone(),
                         Some(_) => return None,
                     };
-                    Some(Static::Str(crate::i18n::message(
+                    Some(Static::Str(crate::project::i18n::message(
                         &scope.locale(),
                         &scope.messages(),
                         key,
@@ -867,7 +867,7 @@ fn eval_in(expr: &Expr, scope: &Scope, fuel: &Fuel) -> Option<Static> {
                     let Some(Static::Str(html)) = args.first() else {
                         return None;
                     };
-                    Some(Static::Str(crate::codegen::sanitize::sanitize(html)))
+                    Some(Static::Str(crate::project::sanitize::sanitize(html)))
                 }
                 // `format(value, .style, option)` and `ago(date)`, as the
                 // browser would spell them, in the project's locale.
