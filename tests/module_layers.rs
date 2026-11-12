@@ -5,9 +5,11 @@
 //! reaches up, naming the file and line. A cycle between two modules is
 //! always one reach upward, so the layers also keep the graph acyclic.
 //!
-//! Today's reaches upward are listed in `EXCEPTIONS`, each with what it is
-//! waiting on; a change that removes one removes its line, and a line that
-//! matches nothing any more fails too, so the list only ever shrinks.
+//! A module's layer is its folder under `src/` (`src/web/codegen/js.rs` is in
+//! `web`), and the crate's own code names a module by that path, not by the
+//! old public path `lib.rs` keeps for users. A reach upward that has to
+//! stay for a while is listed in `EXCEPTIONS` with what it waits on; a line
+//! that matches nothing any more fails too, so the list only ever shrinks.
 
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
@@ -27,83 +29,6 @@ const ORDER: &[&str] = &[
     "tools",
 ];
 
-/// Each module's layer, by its path in the crate; the longest prefix wins,
-/// so `diagnostics::check` sits apart from the rest of `diagnostics`.
-const GROUPS: &[(&str, &str)] = &[
-    ("base", "base"),
-    ("project", "project"),
-    ("check", "check"),
-    ("web", "web"),
-    ("tools", "tools"),
-    ("vfs", "base"),
-    ("outfs", "base"),
-    ("platform", "base"),
-    ("span", "base"),
-    ("text", "base"),
-    ("error", "diagnostics"),
-    ("diagnostics", "diagnostics"),
-    ("diagnostics::allow", "check"),
-    ("diagnostics::check", "template"),
-    ("lexer", "syntax"),
-    ("parser", "syntax"),
-    ("syntax", "syntax"),
-    ("layout", "syntax"),
-    ("print", "syntax"),
-    ("reprint", "syntax"),
-    ("fmt", "syntax"),
-    ("project_js::scan", "syntax"),
-    ("codegen::node_id", "syntax"),
-    ("registry", "registry"),
-    ("registry::json", "tools"),
-    ("registry::schema", "tools"),
-    ("codegen::style_tokens", "registry"),
-    ("config", "project"),
-    ("themes", "project"),
-    ("themes::view", "tools"),
-    ("project::themes::view", "tools"),
-    ("i18n", "project"),
-    ("project_js", "project"),
-    ("project_js::jsdoc", "check"),
-    ("project::project_js::jsdoc", "check"),
-    ("data", "project"),
-    ("media", "project"),
-    ("openapi", "project"),
-    ("sources", "project"),
-    ("codegen::url", "project"),
-    ("codegen::format", "project"),
-    ("codegen::sanitize", "project"),
-    ("codegen::static_eval", "project"),
-    ("codegen::builtin", "project"),
-    ("codegen::scoped_css", "project"),
-    ("sema", "check"),
-    ("scope", "check"),
-    ("linter", "check"),
-    ("validation", "check"),
-    ("edit", "check"),
-    ("codegen", "web"),
-    ("runtime", "web"),
-    ("motion", "web"),
-    ("codegen::offline", "build"),
-    ("paged", "paged"),
-    ("style_value", "paged"),
-    ("template", "template"),
-    ("build", "build"),
-    ("assets", "build"),
-    ("migrate", "tools"),
-    ("testing", "tools"),
-    ("verify", "tools"),
-    ("browser", "tools"),
-    ("audit", "tools"),
-    ("studio", "tools"),
-    ("agent", "tools"),
-    ("patch", "tools"),
-    ("init", "tools"),
-    ("generate", "tools"),
-    ("gallery", "tools"),
-    ("memory", "tools"),
-    ("commands", "tools"),
-];
-
 /// Today's reaches upward: the file, the path it reaches (a prefix), and
 /// what it is waiting on.
 const EXCEPTIONS: &[(&str, &str, &str)] = &[];
@@ -112,12 +37,11 @@ fn root() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR"))
 }
 
+/// A module's layer is the first part of its path: `web::codegen::js` is in
+/// `web`. Anything else at the root (the facade's own items) has none.
 fn group_of(path: &str) -> Option<&'static str> {
-    let parts: Vec<&str> = path.split("::").collect();
-    (1..=parts.len()).rev().find_map(|n| {
-        let key = parts[..n].join("::");
-        GROUPS.iter().find(|(m, _)| *m == key).map(|(_, g)| *g)
-    })
+    let first = path.split("::").next()?;
+    ORDER.iter().find(|layer| **layer == first).copied()
 }
 
 fn rank(group: &str) -> usize {
@@ -127,7 +51,7 @@ fn rank(group: &str) -> usize {
         .unwrap_or_else(|| panic!("{group} is not a layer"))
 }
 
-/// `src/codegen/js.rs` → `codegen::js`; `src/build/mod.rs` → `build`.
+/// `src/web/codegen/js.rs` → `web::codegen::js`; `src/build/mod.rs` → `build`.
 fn module_of(file: &Path) -> String {
     let rel = file
         .strip_prefix(root().join("src"))
@@ -213,7 +137,7 @@ fn no_module_reaches_a_layer_above_its_own() {
         }
         let module = module_of(file);
         let Some(from) = group_of(&module) else {
-            panic!("{module} has no layer; add it to GROUPS");
+            panic!("src/{module} is in no layer; move it into one of {ORDER:?}");
         };
         let text = std::fs::read_to_string(file).expect("a source file");
         let rel = file
@@ -229,7 +153,17 @@ fn no_module_reaches_a_layer_above_its_own() {
                 continue;
             }
             for path in crate_paths(line) {
-                let Some(to) = group_of(&path) else { continue };
+                let Some(to) = group_of(&path) else {
+                    // A module reached through the facade (`crate::codegen::js`)
+                    // hides its layer; a root item (`crate::parse_source`) is fine.
+                    if path.contains("::") {
+                        reaches.push(format!(
+                            "{rel}:{}  {from} → ?  crate::{path} (use the layer's path)",
+                            n + 1
+                        ));
+                    }
+                    continue;
+                };
                 if to == from || rank(to) < rank(from) {
                     continue;
                 }
