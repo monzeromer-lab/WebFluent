@@ -641,9 +641,36 @@ describes the layers). What differs from the steps above:
   per folder for now; moving each test beside its code comes with the
   semantic changes below.
 
-Still to do in this phase: everything below the two splits (the special
-emitter table, one expression emitter, `js_str`, `with_locals`,
-`JsOptions`, the evaluator and renderer merges, the checker's borrow and
+**One evaluator: done (2026-11-12).** The template engine works out every
+expression with `static_eval`, in a template mode (`Scope::lenient`):
+- what cannot be worked out is `null` where it stands
+- an operator the build would not guess at does what JavaScript does
+  (`binary_js`)
+- a value shows as JavaScript writes it (`Static::js_text`)
+
+`tests/eval-corpus/` holds 158 expressions over one data file. Its
+snapshot was taken before the merge, and every difference was decided:
+- lists and maps show as `1,2,3` and `[object Object]`, not JSON
+- `{}` is truthy
+- `xs + 1` is `"1,2,31"`
+- `Number`, `String` and `sanitize` work in templates
+- JSON writes whole numbers as integers
+
+`format` and `ago` still speak the data's `locale`, and `t()` the render's.
+The template engine's own interpreter, `eval_binary_op` and their helpers
+are gone.
+
+The locals are now a stack of shared layers, each converted to the
+evaluator's form once, when a name is bound. That fixes B7's cost:
+- 2,000 rows through a component: 3.7 s before, 21 ms after
+- the same with a component placed once per row: linear too
+
+Left as found: `a && b` and `a || b` give a boolean in both evaluators,
+where JavaScript gives an operand. A `NaN` shown on its own (not spliced)
+shows nothing.
+
+Still to do in this phase: the special emitter table, one expression
+emitter, `js_str`, `with_locals`, `JsOptions`, the renderer merge, the checker's borrow and
 `ProgramIndex` work, errors, state, panics, public surface and API shape).
 
 These can run in any order once their layer exists. Each PR is
