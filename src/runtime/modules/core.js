@@ -24,6 +24,8 @@
     get.set = set;
     get.update = (fn) => set(fn(value));
     get.subscribe = (fn) => { subs.add(fn); return () => subs.delete(fn); };
+    // Who is listening, for a value that pays to stay current (`now`).
+    get._subs = subs;
     return get;
   }
 

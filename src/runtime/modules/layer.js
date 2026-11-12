@@ -450,7 +450,16 @@
       if (item.focus) item.focus();
     });
     layer(list, open, set, { anchor: item, placement: "right-start", offset: 2, focus: false });
-    if (owner) owner.subs.push({ item, close: () => set(false) });
+    if (owner) {
+      // Its place in its menu goes with it: a submenu a changing `for`
+      // draws is not kept, with its item, by the menu that stays.
+      const entry = { item, close: () => set(false) };
+      owner.subs.push(entry);
+      onCleanup(() => {
+        const at = owner.subs.indexOf(entry);
+        if (at >= 0) owner.subs.splice(at, 1);
+      });
+    }
     const show = (focus) => {
       set(true);
       if (focus) setTimeout(() => _focusItem(list, 0), 0);

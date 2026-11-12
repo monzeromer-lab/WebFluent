@@ -86,7 +86,7 @@
   /// through every item, and must land back where they were.
   function popup(root, trigger, openSignal) {
     live(root, trigger);
-    document.addEventListener("click", (e) => {
+    listen(document, "click", (e) => {
       if (!root.contains(e.target)) openSignal.set(false);
     });
     root.addEventListener("keydown", (e) => {

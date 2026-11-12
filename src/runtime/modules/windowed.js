@@ -209,6 +209,10 @@
         items = list;
         keys = list.map((item, i) => key(item, i));
         where = new Map(keys.map((k, i) => [k, i]));
+        // A row that left the list is measured again if it comes back, so
+        // what it measured is not kept: keys that churn — a log, a search
+        // — would grow the map for as long as the page is open.
+        for (const k of heights.keys()) if (!where.has(k)) heights.delete(k);
         // Drawn once, a change waits for the frame: a list fed an item at
         // a time — a log a build writes into — is laid out once for all
         // of them, not once for each (each layout measures what it drew).
