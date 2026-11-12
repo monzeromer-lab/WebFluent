@@ -1,0 +1,51 @@
+# What every dependency must be, checked by `cargo deny check` (CI's
+# `deny` job; locally `cargo install --locked cargo-deny` first).
+#
+#   advisories  no crate with a RustSec advisory, unless listed below
+#   bans        no crate pulled in twice at clashing versions without a reason,
+#               and no wildcard requirements
+#   licenses    only the licences listed here
+#   sources     crates come from crates.io and nowhere else
+
+[graph]
+all-features = true
+
+[advisories]
+# Every advisory fails the check, unmaintained ones included, except these.
+# Each entry says why it is accepted and what would end it.
+ignore = [
+    # ttf-parser is unmaintained. It parses font files for the PDF and slides
+    # engine, and a font can come from a project (fonts/, pdf.fonts) or the
+    # machine. Its successor is `skrifa`/`read-fonts`; the PDF engine moves
+    # when rustybuzz does. Tracked at https://rustsec.org/advisories/RUSTSEC-2026-0192
+    { id = "RUSTSEC-2026-0192", reason = "unmaintained font parser behind the PDF engine; replace together with rustybuzz (see S46 in the security plan)" },
+    # rustybuzz is unmaintained. It shapes text for the PDF engine (Arabic
+    # joining, kerning). Its successor is `harfrust`. Tracked at
+    # https://rustsec.org/advisories/RUSTSEC-2026-0206
+    { id = "RUSTSEC-2026-0206", reason = "unmaintained shaper behind the PDF engine; move to harfrust (see S46 in the security plan)" },
+]
+
+[bans]
+multiple-versions = "allow"
+wildcards = "deny"
+# The workspace's own crates refer to each other by path.
+allow-wildcard-paths = true
+
+[licenses]
+confidence-threshold = 0.9
+allow = [
+    "MPL-2.0",
+    "MIT",
+    "Apache-2.0",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "Zlib",
+    "Unicode-3.0",
+    "BSL-1.0",
+    "Unlicense",
+]
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]
