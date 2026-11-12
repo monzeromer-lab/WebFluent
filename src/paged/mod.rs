@@ -674,6 +674,48 @@ fn stays_under(vfs: &dyn crate::vfs::Vfs, base: &std::path::Path, file: &std::pa
     }
 }
 
+#[cfg(test)]
+mod reader_tests {
+    use super::*;
+
+    #[test]
+    fn an_address_reads_a_file_under_the_project_and_nothing_else() {
+        let base = std::env::temp_dir().join(format!("wf-reader-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&base);
+        let root = base.join("site/templates");
+        std::fs::create_dir_all(root.join("public")).unwrap();
+        std::fs::create_dir_all(base.join("site/public")).unwrap();
+        std::fs::create_dir_all(base.join("private")).unwrap();
+        std::fs::write(base.join("private/scan.png"), "SECRET").unwrap();
+        std::fs::write(root.join("public/logo.png"), "logo").unwrap();
+        std::fs::write(base.join("site/public/shared.png"), "shared").unwrap();
+        let read = reader(Some(root.clone()));
+        assert_eq!(read("/logo.png").as_deref(), Some(&b"logo"[..]));
+        assert_eq!(read("logo.png?v=2").as_deref(), Some(&b"logo"[..]));
+        // The project's parent's `public/`, as a template beside its site has.
+        assert_eq!(read("/shared.png").as_deref(), Some(&b"shared"[..]));
+        for bad in [
+            "../../private/scan.png",
+            "/../../private/scan.png",
+            "public/../../../private/scan.png",
+            "..\\..\\private\\scan.png",
+            "logo.png\0",
+        ] {
+            assert_eq!(read(bad), None, "{bad}");
+        }
+        let abs = base.join("private/scan.png");
+        assert_eq!(read(&abs.to_string_lossy()), None);
+        #[cfg(unix)]
+        {
+            std::os::unix::fs::symlink(&abs, root.join("public/linked.png")).unwrap();
+            std::os::unix::fs::symlink(base.join("private"), base.join("site/public/dir")).unwrap();
+            assert_eq!(read("/linked.png"), None);
+            assert_eq!(read("/dir/scan.png"), None);
+        }
+        let _ = std::fs::remove_dir_all(&base);
+    }
+}
+
 /// The directories a project's fonts are kept in.
 pub fn font_dirs(root: Option<&std::path::Path>, extra: &[String]) -> Vec<PathBuf> {
     font_dirs_via(&crate::vfs::FsVfs, root, extra)

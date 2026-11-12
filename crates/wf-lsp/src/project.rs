@@ -179,6 +179,15 @@ impl Project {
             .unwrap_or_else(|_| PathBuf::from(uri.path()));
 
         let root = find_root(vfs, &path);
+        // The project is read as the build reads it: a link out of it is
+        // not there, and a link that loops back is not walked forever.
+        let confined = root
+            .as_ref()
+            .map(|root| webfluent::vfs::Confined::new(vfs, root));
+        let vfs: &dyn Vfs = match &confined {
+            Some(confined) => confined,
+            None => vfs,
+        };
         let mut stylesheet_files: Vec<(PathBuf, Arc<str>)> = Vec::new();
         let mut script_paths: Vec<PathBuf> = Vec::new();
         // What `meta.scripts` says its libraries define, in scope as `Any`.

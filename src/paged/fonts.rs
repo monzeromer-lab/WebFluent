@@ -688,6 +688,14 @@ mod tests {
     use super::*;
 
     #[test]
+    fn a_font_that_inflates_without_end_is_refused() {
+        // 80 MB of nothing, compressed to almost nothing.
+        let bomb = miniz_oxide::deflate::compress_to_vec_zlib(&vec![0u8; 80 << 20], 1);
+        assert!(bomb.len() < 1 << 20);
+        assert_eq!(register_font(bomb), None);
+    }
+
+    #[test]
     fn a_font_is_registered_as_it_is_or_compressed() {
         let raw = miniz_oxide::inflate::decompress_to_vec_zlib(BUNDLED_FOR_TEST).unwrap();
         assert_eq!(
