@@ -1,12 +1,12 @@
 # WebFluent refactoring: the plan
 
-Status: **Phase 1 and Phase 0b done.** The editors are their own
+Status: **Phases 0, 0b and 1 done.** The editors are their own
 repositories, linked as submodules. Every bug the two reviews found —
 B1–B14 ([review.md](review.md)) and S1–S47, M1–M28 (the security and
 memory review, kept out of the repository) — is fixed with a regression
 test; see Phase 0b for the few that are partial or wait on the
-maintainer. Phase 0 (the golden-output safety net) is next, then the
-refactor itself. No module has moved yet.
+maintainer. The safety net is in place (Phase 0). Phase 2 is next, then
+the refactor itself. No module has moved yet.
 Last updated: 2026-11-12.
 
 This file is the single source of truth for the refactor. It records what
@@ -251,6 +251,24 @@ sitting. The phases are in dependency order. Phase 1 (editors) is
 independent of Phases 2–6 and can run alongside them.
 
 ### Phase 0 — The safety net (first, 2–3 PRs)
+
+**Done (2026-11-12).** `tests/golden.rs` builds all 44 projects (examples,
+test fixtures, the site) and holds every output file's SHA-256 and every
+finding to `tests/golden/*.json` (`UPDATE_GOLDEN=1` rewrites them); findings
+ride in the same manifests instead of separate `insta` snapshots.
+`tests/public-api.txt` lists the published crate's API (11,996 items),
+checked by `scripts/public-api.sh` in CI; `cargo semver-checks` reports
+against the last release without failing CI. BeautifulRust's lints are in
+`[workspace.lints]` with a counted allow-list (`scripts/lint-debt.sh`, a
+report-only CI job). Build times are in [build-times.md](build-times.md).
+
+The semver check finds the next release must be **major** as things stand:
+fields were added to `BuildOptions` and `PageDecl`, structs a user can build
+field by field (and `#[must_use]` on `Template`'s builders, a minor change).
+Either release 6.0, or make those structs `#[non_exhaustive]` with
+constructors in 6.0 and keep 5.x additive from there.
+
+The original items:
 
 1. **Output golden files.** A test (`tests/it/golden.rs`) builds every
    project in the repository and compares a manifest of output paths and
