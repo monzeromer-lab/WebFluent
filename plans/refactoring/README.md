@@ -1,14 +1,35 @@
 # WebFluent refactoring: the plan
 
-Status: **Phases 0, 0b, 1, 2, 3 and 4 done.** The editors are their own
-repositories, linked as submodules. Every bug the two reviews found —
-B1–B14 ([review.md](review.md)) and S1–S47, M1–M28 (the security and
-memory review, kept out of the repository) — is fixed with a regression
-test; see Phase 0b for the few that are partial or wait on the
-maintainer. The safety net is in place (Phase 0) and the repository is
-tidied (Phase 2). The module graph is layered and acyclic, held there by
-`tests/module_layers.rs` with no exceptions (Phase 3), and `src/` is the
-layer folders (Phase 4). Phase 5, inside the layers, is next.
+Status: **Phases 0–4 done; Phases 5 and 6 done to the agreed scope;
+Phase 7 started.** The editors are their own repositories, linked as
+submodules. Every bug the two reviews found — B1–B14
+([review.md](review.md)) and S1–S47, M1–M28 (the security and memory
+review, kept out of the repository) — is fixed with a regression test.
+
+- **Phases 0–4:** the safety net is in place (golden output, public API
+  list, lint config), and the repository is tidied. The module graph is
+  layered and acyclic (`tests/module_layers.rs`), and `src/` is the layer
+  folders.
+- **Phase 5:**
+  - the two largest files are folders
+  - templates use the build's evaluator and renderer
+  - pages and stores share one expression emitter and one statement
+    emitter
+  - I/O errors name their file
+  - the parser and the PDF engine cannot panic on what they read
+  - every public `Result` documents its errors
+- **Phase 6:** the integration tests are one binary, CI runs them with
+  nextest (about 10 minutes a run), the fuzz targets are in `fuzz/`, and
+  `cargo xtask` runs the checks.
+
+Left, on purpose:
+- **Breaking, so for 6.0:** `#[non_exhaustive]`, hiding the internal
+  modules, and an error type per layer.
+- **Phase 7's long tail:** about 5,000 lint findings, mostly
+  `missing_docs` on internal items and `as` casts.
+- **Small leftovers:** splitting `element_parts`' argument loop, and the
+  DOM's hand-paired scope pushes.
+
 Last updated: 2026-11-12.
 
 This file is the single source of truth for the refactor. It records what
@@ -724,8 +745,9 @@ written once over `scope_mark`, `bind` and `scope_reset`.
   `match` emitters. They work on `&mut self`, where the mark/reset
   helpers fit, not a closure.
 
-Still to do in this phase: splitting `element_parts`' argument loop, the checker's borrow and
-`ProgramIndex` work, errors, state, panics, public surface and API shape).
+Still to do in this phase: splitting `element_parts`' argument loop, and
+the `ProgramIndex` shared by the checker and the linters. The other items
+below are done as far as 5.x allows; what is left of them is for 6.0.
 
 These can run in any order once their layer exists. Each PR is
 behaviour-preserving, held by Phase 0. The findings behind each item, with
