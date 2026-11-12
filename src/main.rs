@@ -1,48 +1,10 @@
-#![allow(dead_code)]
-
-mod agent;
-mod assets;
-mod audit;
-mod browser;
-mod build;
 mod cli;
-mod codegen;
-mod config;
-mod data;
-mod diagnostics;
-mod edit;
-mod error;
-mod fmt;
-mod gallery;
-mod generate;
-mod i18n;
-mod init;
-mod layout;
-mod lexer;
-mod linter;
-mod media;
-mod migrate;
-mod motion;
-mod openapi;
-mod outfs;
-mod paged;
-mod parser;
-mod platform;
-mod print;
-mod project_js;
-mod registry;
-mod reprint;
-mod runtime;
-mod scope;
-mod sema;
-mod style_value;
-mod syntax;
-mod template;
-mod testing;
-mod themes;
-mod validation;
-mod verify;
-mod vfs;
+
+use webfluent::{
+    agent, assets, audit, browser, build, codegen, config, diagnostics, error, fmt, gallery,
+    generate, i18n, init, layout, media, migrate, motion, registry, scope, template, testing,
+    themes, validation, verify, vfs,
+};
 
 use clap::{Parser, Subcommand};
 use std::path::PathBuf;
@@ -57,7 +19,6 @@ struct Cli {
 }
 
 // `wf commands` is a command too: its variant is named as it is typed.
-#[allow(clippy::enum_variant_names)]
 #[derive(Subcommand)]
 enum Commands {
     /// Create a new WebFluent project
@@ -235,6 +196,10 @@ enum Commands {
         json: bool,
     },
     /// Every `wf` command, its options and what it writes, as data
+    #[expect(
+        clippy::enum_variant_names,
+        reason = "the variant is the `wf commands` subcommand, named as it is typed"
+    )]
     Commands {
         /// Print JSON, for tools
         #[arg(long)]

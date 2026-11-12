@@ -8,22 +8,6 @@ use std::path::Path;
 
 pub use crate::build::read_project;
 
-pub fn run_build(project_dir: &Path) -> Result<()> {
-    run_build_with(project_dir, false)
-}
-
-/// Build, and with `stats` print what the output weighs and which runtime
-/// modules it carries.
-pub fn run_build_with(project_dir: &Path, stats: bool) -> Result<()> {
-    run_build_opts(
-        project_dir,
-        Options {
-            stats,
-            ..Options::default()
-        },
-    )
-}
-
 /// How a build, or a check, reports.
 #[derive(Debug, Clone, Copy, Default)]
 pub struct Options {

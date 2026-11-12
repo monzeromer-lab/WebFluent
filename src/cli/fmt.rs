@@ -143,9 +143,3 @@ fn change_layout(files: &[(PathBuf, String)], to: &str, stdout: bool) -> Result<
     }
     Ok(())
 }
-
-/// The path a migrated file is written to when `--wfx` asks for the
-/// indented layout: the same name with the `.wfx` extension.
-pub fn offside_path(file: &Path) -> PathBuf {
-    file.with_extension("wfx")
-}
