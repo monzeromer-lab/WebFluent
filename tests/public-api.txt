@@ -1231,6 +1231,7 @@ pub fn webfluent::codegen::JsCodegen::set_split_pages(&mut self, bool)
 pub fn webfluent::codegen::JsCodegen::set_ssg(&mut self, bool)
 pub fn webfluent::codegen::JsCodegen::set_studio(&mut self, webfluent::syntax::node_id::NodeMap)
 pub fn webfluent::codegen::JsCodegen::take_chunks(&mut self) -> alloc::vec::Vec<(alloc::string::String, alloc::string::String)>
+pub fn webfluent::codegen::JsCodegen::with_options(self, webfluent::codegen::JsOptions) -> Self
 impl core::default::Default for webfluent::codegen::JsCodegen
 pub fn webfluent::codegen::JsCodegen::default() -> Self
 impl !core::marker::Freeze for webfluent::codegen::JsCodegen
@@ -1240,6 +1241,29 @@ impl core::marker::Unpin for webfluent::codegen::JsCodegen
 impl core::marker::UnsafeUnpin for webfluent::codegen::JsCodegen
 impl !core::panic::unwind_safe::RefUnwindSafe for webfluent::codegen::JsCodegen
 impl core::panic::unwind_safe::UnwindSafe for webfluent::codegen::JsCodegen
+#[non_exhaustive] pub struct webfluent::codegen::js::JsOptions
+pub webfluent::codegen::js::JsOptions::dev: bool
+pub webfluent::codegen::js::JsOptions::full_runtime: bool
+pub webfluent::codegen::js::JsOptions::offline: core::option::Option<bool>
+pub webfluent::codegen::js::JsOptions::split_pages: bool
+pub webfluent::codegen::js::JsOptions::ssg: bool
+impl core::clone::Clone for webfluent::codegen::JsOptions
+pub fn webfluent::codegen::JsOptions::clone(&self) -> Self
+impl core::cmp::Eq for webfluent::codegen::JsOptions
+impl core::cmp::PartialEq for webfluent::codegen::JsOptions
+pub fn webfluent::codegen::JsOptions::eq(&self, &Self) -> bool
+impl core::default::Default for webfluent::codegen::JsOptions
+pub fn webfluent::codegen::JsOptions::default() -> Self
+impl core::fmt::Debug for webfluent::codegen::JsOptions
+pub fn webfluent::codegen::JsOptions::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for webfluent::codegen::JsOptions
+impl core::marker::Freeze for webfluent::codegen::JsOptions
+impl core::marker::Send for webfluent::codegen::JsOptions
+impl core::marker::Sync for webfluent::codegen::JsOptions
+impl core::marker::Unpin for webfluent::codegen::JsOptions
+impl core::marker::UnsafeUnpin for webfluent::codegen::JsOptions
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::codegen::JsOptions
+impl core::panic::unwind_safe::UnwindSafe for webfluent::codegen::JsOptions
 pub const webfluent::codegen::js::BOX_ATTRS: &[&str]
 pub const webfluent::codegen::js::BROWSER_GLOBALS: &[&str]
 pub const webfluent::codegen::js::BROWSER_VALUES: &[&str]
@@ -1903,6 +1927,7 @@ pub fn webfluent::codegen::JsCodegen::set_split_pages(&mut self, bool)
 pub fn webfluent::codegen::JsCodegen::set_ssg(&mut self, bool)
 pub fn webfluent::codegen::JsCodegen::set_studio(&mut self, webfluent::syntax::node_id::NodeMap)
 pub fn webfluent::codegen::JsCodegen::take_chunks(&mut self) -> alloc::vec::Vec<(alloc::string::String, alloc::string::String)>
+pub fn webfluent::codegen::JsCodegen::with_options(self, webfluent::codegen::JsOptions) -> Self
 impl core::default::Default for webfluent::codegen::JsCodegen
 pub fn webfluent::codegen::JsCodegen::default() -> Self
 impl !core::marker::Freeze for webfluent::codegen::JsCodegen
@@ -1912,6 +1937,29 @@ impl core::marker::Unpin for webfluent::codegen::JsCodegen
 impl core::marker::UnsafeUnpin for webfluent::codegen::JsCodegen
 impl !core::panic::unwind_safe::RefUnwindSafe for webfluent::codegen::JsCodegen
 impl core::panic::unwind_safe::UnwindSafe for webfluent::codegen::JsCodegen
+#[non_exhaustive] pub struct webfluent::codegen::JsOptions
+pub webfluent::codegen::JsOptions::dev: bool
+pub webfluent::codegen::JsOptions::full_runtime: bool
+pub webfluent::codegen::JsOptions::offline: core::option::Option<bool>
+pub webfluent::codegen::JsOptions::split_pages: bool
+pub webfluent::codegen::JsOptions::ssg: bool
+impl core::clone::Clone for webfluent::codegen::JsOptions
+pub fn webfluent::codegen::JsOptions::clone(&self) -> Self
+impl core::cmp::Eq for webfluent::codegen::JsOptions
+impl core::cmp::PartialEq for webfluent::codegen::JsOptions
+pub fn webfluent::codegen::JsOptions::eq(&self, &Self) -> bool
+impl core::default::Default for webfluent::codegen::JsOptions
+pub fn webfluent::codegen::JsOptions::default() -> Self
+impl core::fmt::Debug for webfluent::codegen::JsOptions
+pub fn webfluent::codegen::JsOptions::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for webfluent::codegen::JsOptions
+impl core::marker::Freeze for webfluent::codegen::JsOptions
+impl core::marker::Send for webfluent::codegen::JsOptions
+impl core::marker::Sync for webfluent::codegen::JsOptions
+impl core::marker::Unpin for webfluent::codegen::JsOptions
+impl core::marker::UnsafeUnpin for webfluent::codegen::JsOptions
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::codegen::JsOptions
+impl core::panic::unwind_safe::UnwindSafe for webfluent::codegen::JsOptions
 pub fn webfluent::codegen::dark_css(&std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>) -> alloc::string::String
 pub fn webfluent::codegen::generate_css(&std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>) -> alloc::string::String
 pub fn webfluent::codegen::generate_css_for(&std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>, webfluent::themes::BuiltinCss, &webfluent::syntax::parser::Program) -> alloc::string::String

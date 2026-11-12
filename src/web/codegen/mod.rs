@@ -46,7 +46,7 @@ pub use crate::registry::style_tokens;
 
 pub use css::{dark_css, generate_css, generate_css_for, generate_css_with};
 pub use html::generate_html;
-pub use js::JsCodegen;
+pub use js::{JsCodegen, JsOptions};
 pub use ssg::render_page_html;
 // The studio node-identity API (`node_id::{NodeMap, NodeInfo, build_node_map}`
 // and `ssg::render_page_html_studio`) is reachable via `pub mod node_id` and

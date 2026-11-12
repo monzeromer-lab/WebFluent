@@ -287,8 +287,10 @@ pub fn agrees(before: &Program, after: &Program, patch: &Patch) -> Result<(), St
 }
 
 fn generated(program: &Program, ssg: bool) -> String {
-    let mut js = JsCodegen::new();
-    js.set_ssg(ssg);
+    let mut js = JsCodegen::new().with_options(crate::web::codegen::JsOptions {
+        ssg,
+        ..Default::default()
+    });
     js.set_studio(build_node_map(program));
     js.generate(program)
 }

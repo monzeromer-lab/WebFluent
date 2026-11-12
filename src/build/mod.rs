@@ -748,16 +748,16 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
         css.push_str(&crate::project::scoped_css::scoped_rules(&program));
         Default::default()
     };
-    let mut js_codegen = JsCodegen::new();
+    let mut js_codegen = JsCodegen::new().with_options(crate::web::codegen::JsOptions {
+        ssg: config.build.pre_renders(),
+        dev: options.dev,
+        split_pages: config.build.split,
+        full_runtime: config.build.runtime == crate::project::config::RuntimeMode::Full,
+        offline: config.offline.as_ref().map(|offline| offline.sync),
+    });
     if let Some(i18n_config) = &config.i18n {
         js_codegen.set_i18n(i18n_config.default_locale.clone(), translations.clone());
     }
-    if config.build.pre_renders() {
-        js_codegen.set_ssg(true);
-    }
-    js_codegen.set_dev(options.dev);
-    js_codegen.set_split_pages(config.build.split);
-    js_codegen.set_full_runtime(config.build.runtime == crate::project::config::RuntimeMode::Full);
     js_codegen.set_env(config.public_env_values());
     js_codegen.set_later_scripts(
         config
@@ -772,9 +772,6 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
             })
             .collect(),
     );
-    if let Some(offline) = &config.offline {
-        js_codegen.set_offline(offline.sync);
-    }
     if !config.build.base_path.is_empty() {
         js_codegen.set_base_path(config.build.base_path.clone());
     }

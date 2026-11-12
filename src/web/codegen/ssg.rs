@@ -1,3 +1,4 @@
+use crate::base::text::camel_to_kebab;
 use crate::project::builtin::{
     builtin_to_html, class_list, element_tag, implicit_role, input_type, landmark_label,
     layout_arg_classes, span_class,
@@ -3091,17 +3092,6 @@ fn html_escape(s: &str) -> String {
         // invariant nothing enforced, and one single-quoted attribute would have
         // turned this into an injection point.
         .replace('\'', "&#x27;")
-}
-
-fn camel_to_kebab(s: &str) -> String {
-    let mut result = String::new();
-    for (i, ch) in s.chars().enumerate() {
-        if ch.is_uppercase() && i > 0 {
-            result.push('-');
-        }
-        result.push(ch.to_lowercase().next().unwrap());
-    }
-    result
 }
 
 /// The `id="…"` an element's attributes already carry, as written there.

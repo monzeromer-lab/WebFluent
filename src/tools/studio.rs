@@ -165,11 +165,14 @@ pub fn compile_studio(
         .collect();
     diagnostics.sort_by(|a, b| a.rule.cmp(&b.rule).then(a.line.cmp(&b.line)));
 
-    let mut js_gen = JsCodegen::new();
+    // The preview boots from the static paint, then takes it over.
+    let mut js_gen = JsCodegen::new().with_options(crate::web::codegen::JsOptions {
+        ssg: true,
+        ..Default::default()
+    });
     if let Some(i18n) = &config.i18n {
         js_gen.set_i18n(i18n.default_locale.clone(), translations.clone());
     }
-    js_gen.set_ssg(true); // preview boots from the SSG paint, then hydrates
     js_gen.set_env(config.public_env_values());
     if !config.build.base_path.is_empty() {
         js_gen.set_base_path(config.build.base_path.clone());

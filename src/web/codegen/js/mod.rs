@@ -12,7 +12,6 @@ use crate::web::runtime;
 use std::collections::HashMap;
 
 mod body;
-mod case;
 mod dom;
 mod expr;
 mod externals;
@@ -25,7 +24,7 @@ mod store;
 mod tests;
 mod widgets;
 
-use case::*;
+use crate::base::text::{camel_to_kebab, capitalize_first, kebab_case, to_camel_case};
 use expr::*;
 pub use expr::{Holder, LIST_AND_STRING_HELPERS, method_to_js, scalar_method};
 use externals::*;
@@ -66,6 +65,27 @@ pub const MENU_READS: &[&str] = &[
 /// what is the whole control's, its label and its input together. Every
 /// other attribute is its input's, where its handlers are.
 pub const BOX_ATTRS: &[&str] = &["hidden", "lang", "dir"];
+
+/// The modes a bundle is built in, chosen once before
+/// [`JsCodegen::generate`]. Each is off by default.
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+#[non_exhaustive]
+pub struct JsOptions {
+    /// The pages were pre-rendered: the bundle takes each over in place
+    /// rather than drawing it.
+    pub ssg: bool,
+    /// A build for the dev server: responses are held to their declared
+    /// types at the network boundary.
+    pub dev: bool,
+    /// Each page is its own chunk, loaded when its route shows.
+    pub split_pages: bool,
+    /// Every runtime module ships, for a site whose own scripts reach for
+    /// `WF` in ways a build cannot see.
+    pub full_runtime: bool,
+    /// The service worker `offline` in the config asks for is registered;
+    /// `Some(true)` also keeps writes made offline (`sync`).
+    pub offline: Option<bool>,
+}
 
 /// JavaScript code generator — compiles the AST to a JS bundle with reactivity and routing.
 pub struct JsCodegen {
@@ -392,7 +412,26 @@ impl JsCodegen {
         }
     }
 
-    /// Write each page as its own chunk, loaded when its route shows.
+    /// A generator for a bundle built in `options`' modes.
+    #[must_use]
+    pub fn with_options(mut self, options: JsOptions) -> Self {
+        let JsOptions {
+            ssg,
+            dev,
+            split_pages,
+            full_runtime,
+            offline,
+        } = options;
+        self.ssg_mode = ssg;
+        self.dev = dev;
+        self.split_pages = split_pages;
+        self.full_runtime = full_runtime;
+        self.offline = offline;
+        self
+    }
+
+    /// Write each page as its own chunk, loaded when its route shows
+    /// ([`JsOptions::split_pages`]).
     pub fn set_split_pages(&mut self, enabled: bool) {
         self.split_pages = enabled;
     }
@@ -411,12 +450,13 @@ impl JsCodegen {
         self.i18n_translations = translations;
     }
 
+    /// Take pre-rendered pages over in place ([`JsOptions::ssg`]).
     pub fn set_ssg(&mut self, enabled: bool) {
         self.ssg_mode = enabled;
     }
 
     /// A build for the dev server: responses are held to their declared
-    /// types at the network boundary.
+    /// types at the network boundary ([`JsOptions::dev`]).
     pub fn set_dev(&mut self, enabled: bool) {
         self.dev = enabled;
     }
@@ -529,9 +569,8 @@ impl JsCodegen {
         self.app_schemes = schemes;
     }
 
-    /// The values `env.NAME` reads, from the project's config.
     /// Register the service worker `offline` in the config asks for, and
-    /// whether writes made offline are kept (`sync`).
+    /// whether writes made offline are kept (`sync`) ([`JsOptions::offline`]).
     pub fn set_offline(&mut self, sync: bool) {
         self.offline = Some(sync);
     }
@@ -542,14 +581,13 @@ impl JsCodegen {
         self.later = scripts;
     }
 
+    /// The values `env.NAME` reads, from the project's config.
     pub fn set_env(&mut self, env: std::collections::BTreeMap<String, serde_json::Value>) {
         self.env = env;
     }
 
-    /// Enable studio mode and supply the node-identity map. When enabled, each
-    /// element's root gets `data-wf-node="<id>"`.
     /// Ship the whole runtime, for a site whose own scripts reach for `WF`
-    /// in ways a build cannot see.
+    /// in ways a build cannot see ([`JsOptions::full_runtime`]).
     pub fn set_full_runtime(&mut self, full: bool) {
         self.full_runtime = full;
     }
@@ -609,6 +647,8 @@ impl JsCodegen {
         }
     }
 
+    /// Enable studio mode and supply the node-identity map. When enabled, each
+    /// element's root gets `data-wf-node="<id>"`.
     pub fn set_studio(&mut self, node_ids: NodeMap) {
         self.studio = true;
         self.node_ids = node_ids;

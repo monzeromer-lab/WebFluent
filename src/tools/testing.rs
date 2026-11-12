@@ -986,7 +986,6 @@ pub fn write_site(program: &Program, dir: &Path, site: &Site) -> Result<()> {
     // write, and the shell would be served in its place.
     config.build.split = false;
     let mut js = crate::web::codegen::JsCodegen::new();
-    js.set_split_pages(false);
     if let Some((c, tables)) = site.i18n {
         js.set_i18n(c.default_locale.clone(), tables.clone());
     }
