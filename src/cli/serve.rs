@@ -626,7 +626,7 @@ fn answer(shared: &Shared, request: tiny_http::Request) {
     }
     // Anything that is not rewritten or compressed goes out as it is read,
     // never whole in memory.
-    if !dev_page && (!compress || size < 1024 || size > GZIP_LIMIT) {
+    if !dev_page && (!compress || !(1024..=GZIP_LIMIT).contains(&size)) {
         match fs::File::open(&served) {
             Ok(file) => respond(request, tiny_http::Response::from_file(file), &with(&[])),
             Err(_) => not_found(request),
@@ -746,6 +746,31 @@ fn is_text(content_type: &str) -> bool {
         )
 }
 
+fn guess_content_type(path: &Path) -> &'static str {
+    match path.extension().and_then(|e| e.to_str()) {
+        Some("html") => "text/html; charset=utf-8",
+        Some("css") => "text/css; charset=utf-8",
+        Some("js") | Some("mjs") => "application/javascript; charset=utf-8",
+        Some("json") => "application/json",
+        Some("xml") => "application/xml",
+        Some("txt") => "text/plain; charset=utf-8",
+        Some("gz") => "application/gzip",
+        Some("webp") => "image/webp",
+        Some("avif") => "image/avif",
+        Some("mp4") => "video/mp4",
+        Some("webm") => "video/webm",
+        Some("png") => "image/png",
+        Some("jpg") | Some("jpeg") => "image/jpeg",
+        Some("gif") => "image/gif",
+        Some("svg") => "image/svg+xml",
+        Some("ico") => "image/x-icon",
+        Some("woff") => "font/woff",
+        Some("woff2") => "font/woff2",
+        Some("ttf") => "font/ttf",
+        _ => "application/octet-stream",
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -789,30 +814,5 @@ mod tests {
     fn a_control_character_is_printed_as_its_code() {
         assert_eq!(printable("/a\u{1b}[2Jb\u{7}"), "/a\\u{1b}[2Jb\\u{7}");
         assert_eq!(printable("/ünïcode"), "/ünïcode");
-    }
-}
-
-fn guess_content_type(path: &Path) -> &'static str {
-    match path.extension().and_then(|e| e.to_str()) {
-        Some("html") => "text/html; charset=utf-8",
-        Some("css") => "text/css; charset=utf-8",
-        Some("js") | Some("mjs") => "application/javascript; charset=utf-8",
-        Some("json") => "application/json",
-        Some("xml") => "application/xml",
-        Some("txt") => "text/plain; charset=utf-8",
-        Some("gz") => "application/gzip",
-        Some("webp") => "image/webp",
-        Some("avif") => "image/avif",
-        Some("mp4") => "video/mp4",
-        Some("webm") => "video/webm",
-        Some("png") => "image/png",
-        Some("jpg") | Some("jpeg") => "image/jpeg",
-        Some("gif") => "image/gif",
-        Some("svg") => "image/svg+xml",
-        Some("ico") => "image/x-icon",
-        Some("woff") => "font/woff",
-        Some("woff2") => "font/woff2",
-        Some("ttf") => "font/ttf",
-        _ => "application/octet-stream",
     }
 }

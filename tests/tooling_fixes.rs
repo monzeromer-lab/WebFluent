@@ -264,6 +264,35 @@ fn a_killed_verify_leaves_no_browser_and_no_profile_behind() {
     }
 }
 
+/// A test that acts is served `public/` beside its page, through the links
+/// its site makes to the project's files — and nothing a link inside
+/// `public/` leads to beyond the project.
+#[cfg(target_os = "linux")]
+#[test]
+fn an_acting_test_reads_public_but_not_past_it() {
+    let s = Scratch::new("act-public");
+    std::fs::write(s.0.join("public/data.json"), r#"{ "word": "hello" }"#).unwrap();
+    let secret = s.0.join("secret.json");
+    std::fs::write(&secret, r#"{ "word": "SECRET" }"#).unwrap();
+    std::os::unix::fs::symlink(&secret, s.0.join("public/leak.json")).unwrap();
+    std::fs::create_dir_all(s.0.join("tests")).unwrap();
+    std::fs::write(
+        s.0.join("tests/public.wf"),
+        "test \"public is served\" {\n    state got = \"\"\n    Button(\"Load\") { on click { let r = await fetch(\"/data.json\")  got = r.word } }\n    Text(\"got {got}\")\n    click \"Load\"\n    expect \"got hello\"\n}\ntest \"a link out is not\" {\n    state got = \"none\"\n    Button(\"Load\") { on click { try { let r = await fetch(\"/leak.json\")  got = r.word } catch e { got = \"refused\" } } }\n    Text(\"got {got}\")\n    click \"Load\"\n    expect not \"SECRET\"\n}\n",
+    )
+    .unwrap();
+    let (_, out) = s.wf(&["test"]);
+    if out.contains("no Chrome or Chromium") {
+        assert!(std::env::var_os("WF_REQUIRE_CHROME").is_none(), "{out}");
+        return;
+    }
+    assert!(out.contains("ok    tests/public.wf — public is served"), "{out}");
+    // The link out is a 404, which fails that test: what matters is that
+    // nothing past `public/` reached the page.
+    assert!(out.contains("404") && out.contains("/leak.json"), "{out}");
+    assert!(!out.contains("SECRET"), "{out}");
+}
+
 #[cfg(target_os = "linux")]
 #[test]
 fn wf_test_leaves_no_work_directory_behind() {

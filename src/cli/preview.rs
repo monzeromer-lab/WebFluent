@@ -33,6 +33,16 @@ impl Preview {
 
 /// Serve `dir` on a port the operating system picks.
 pub fn serve_directory(dir: PathBuf, base_path: &str) -> Result<Preview> {
+    serve_directory_within(dir, base_path, Vec::new())
+}
+
+/// [`serve_directory`], where a link in `dir` may also lead into one of
+/// `also`: a test's site, whose `public/` files are links to the project's.
+pub fn serve_directory_within(
+    dir: PathBuf,
+    base_path: &str,
+    also: Vec<PathBuf>,
+) -> Result<Preview> {
     let server = Arc::new(
         tiny_http::Server::http("127.0.0.1:0")
             .map_err(|e| WebFluentError::IoError(format!("could not open a port: {e}")))?,
@@ -61,7 +71,7 @@ pub fn serve_directory(dir: PathBuf, base_path: &str) -> Result<Preview> {
             }
             let url = request.url().split('?').next().unwrap_or("/").to_string();
             let path = url.strip_prefix(&base).unwrap_or(&url);
-            let Some(mut file) = resolve(&dir, path) else {
+            let Some(mut file) = resolve_within(&dir, &also, path) else {
                 let _ = request
                     .respond(tiny_http::Response::from_string("Not Found").with_status_code(404));
                 continue;
@@ -116,6 +126,12 @@ pub fn serve_directory(dir: PathBuf, base_path: &str) -> Result<Preview> {
 /// names nothing on the disk is returned as it is, for the caller's 404 or
 /// its shell.
 pub fn resolve(root: &Path, url_path: &str) -> Option<PathBuf> {
+    resolve_within(root, &[], url_path)
+}
+
+/// [`resolve`], where a link may also lead into one of `also` (each
+/// resolved already).
+pub fn resolve_within(root: &Path, also: &[PathBuf], url_path: &str) -> Option<PathBuf> {
     let decoded = percent_decode(url_path)?;
     for text in [url_path, decoded.as_str()] {
         if text.contains(['\\', '\0']) || text.split('/').any(|segment| segment == "..") {
@@ -133,7 +149,7 @@ pub fn resolve(root: &Path, url_path: &str) -> Option<PathBuf> {
     if std::fs::symlink_metadata(&file).is_ok() {
         let real_root = std::fs::canonicalize(root).ok()?;
         let real = std::fs::canonicalize(&file).ok()?;
-        if !real.starts_with(&real_root) {
+        if !real.starts_with(&real_root) && !also.iter().any(|a| real.starts_with(a)) {
             return None;
         }
     }
