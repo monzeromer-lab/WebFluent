@@ -937,6 +937,15 @@ quiet the borrow checker go.
     `e2e_rendered` makes of the same fixtures, since the two now run at
     once.
 
+- **Fuzzing**: `fuzz/` (cargo-fuzz, outside the workspace) has five
+  targets: `parse` (lexer and recovering parser), `fmt` (formatted source
+  still parses, and formatting is idempotent), `layout` (`.wf` → `.wfx` →
+  `.wf` still parses), `markdown` and `sanitize` (no `<script>`, no `on…`
+  attribute survives, and sanitising is idempotent). `just fuzz <target>
+  [seconds]` runs one. A first minute each, seeded from the repository's
+  `.wf` files and the case tables, found nothing in the compiler; the one
+  failure was the target's own attribute reader, now quote-aware.
+
 ### Phase 7 — Empty the lint allow-list
 
 Remove the §5.1 temporary allow-list one line at a time, mechanical ones

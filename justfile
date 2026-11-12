@@ -149,6 +149,12 @@ zip-windows:
 test:
     cargo test
 
+# Fuzz one target for `seconds` (parse, fmt, layout, markdown, sanitize).
+# Needs cargo-fuzz and the nightly the project pins; a crash lands in
+# fuzz/artifacts/<target>/, and `cargo fuzz run <target> <file>` replays it.
+fuzz target seconds="60":
+    cd fuzz && cargo +nightly-2026-09-30 fuzz run {{target}} -- -max_total_time={{seconds}}
+
 # `typo` must fail `wf check`, with the T05 its video shows.
 # Build every launch-video project under examples/videos, as CI does
 examples: release

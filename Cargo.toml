@@ -26,6 +26,7 @@ exclude = [
     "/.github",
     "/.claude",
     "/.config",
+    "/fuzz",
     # The reference documents and the fonts they are set in: tests and
     # examples, not the compiler.
     "/examples/documents",
@@ -77,7 +78,7 @@ webp = { version = "0.3.1", default-features = false }
 
 [workspace]
 members = [".", "crates/wf-lsp", "crates/wf-wasm"]
-exclude = ["editors/zed"]
+exclude = ["editors/zed", "fuzz"]
 
 # What every crate here shares. `just bump` sets the version once, here.
 [workspace.package]

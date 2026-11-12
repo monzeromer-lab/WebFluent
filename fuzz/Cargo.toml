@@ -1,0 +1,52 @@
+# Fuzz targets for what reads outside input: `cargo +nightly fuzz run
+# <target>` (or `just fuzz <target>`), with cargo-fuzz installed. Kept out
+# of the main workspace, as cargo-fuzz expects.
+[package]
+name = "webfluent-fuzz"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+libfuzzer-sys = "0.4"
+webfluent = { path = "..", default-features = false }
+
+[workspace]
+
+[[bin]]
+name = "parse"
+path = "fuzz_targets/parse.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "fmt"
+path = "fuzz_targets/fmt.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "layout"
+path = "fuzz_targets/layout.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "markdown"
+path = "fuzz_targets/markdown.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "sanitize"
+path = "fuzz_targets/sanitize.rs"
+test = false
+doc = false
+bench = false
