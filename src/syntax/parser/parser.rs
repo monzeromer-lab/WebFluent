@@ -81,7 +81,7 @@ impl Parser {
     }
 
     fn is_at_end(&self) -> bool {
-        matches!(self.current_type(), TokenType::EOF)
+        matches!(self.current_type(), TokenType::Eof)
     }
 
     fn advance(&mut self) -> &Token {

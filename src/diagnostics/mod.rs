@@ -1,6 +1,6 @@
 //! What the compiler says about a program: one [`Diagnostic`] type for every
 //! finding, a registry of the codes they carry ([`codes`]), the pipeline that
-//! runs every check over a project ([`check`]), and the renderers that show
+//! runs every check over a project (`check`), and the renderers that show
 //! them to a person or a tool ([`render`]).
 //!
 //! Every finding has a code, a severity, a place — a start and, where the
@@ -10,8 +10,9 @@
 //! same list, so the editor shows exactly what the build refuses.
 
 pub use crate::check::allow;
-#[doc(hidden)]
-pub use crate::web::check;
+internal! {
+    pub use crate::web::check;
+}
 pub mod codes;
 pub mod error;
 pub mod fixes;

@@ -1,6 +1,6 @@
 use std::path::Path;
 
-use crate::error::Result;
+use crate::diagnostics::error::Result;
 
 /// `wf registry --json`: every built-in, as a tool reads it.
 pub fn run_registry(json: bool) -> Result<()> {

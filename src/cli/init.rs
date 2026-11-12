@@ -1,7 +1,7 @@
 //! `wf init <name> [--template spa|static|pdf|slides] [--locales en,ar]`: a new project
 //! ([`crate::init`]) in the current directory.
 
-use crate::error::Result;
+use crate::diagnostics::error::Result;
 use crate::init::{Options, Template, create_with, parse_locales};
 use std::path::Path;
 
@@ -9,7 +9,7 @@ pub fn run_init(name: &str, template: &str, locales: Option<&str>) -> Result<()>
     let project_dir = Path::new(name);
 
     if project_dir.exists() {
-        return Err(crate::error::WebFluentError::io(format!(
+        return Err(crate::diagnostics::error::WebFluentError::io(format!(
             "Directory '{name}' already exists"
         )));
     }

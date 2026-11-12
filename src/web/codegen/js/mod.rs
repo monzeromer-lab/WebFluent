@@ -26,7 +26,9 @@ mod widgets;
 
 use crate::base::text::{camel_to_kebab, capitalize_first, kebab_case, to_camel_case};
 use expr::*;
-pub use expr::{Holder, LIST_AND_STRING_HELPERS, method_to_js, scalar_method};
+internal! {
+    pub use expr::{Holder, LIST_AND_STRING_HELPERS, method_to_js, scalar_method};
+}
 use externals::*;
 pub use externals::{external_modules, externals_module};
 use names::*;

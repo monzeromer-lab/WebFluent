@@ -1,5 +1,5 @@
 use crate::config::ProjectConfig;
-use crate::error::Result;
+use crate::diagnostics::error::Result;
 use std::fs;
 use std::path::{Path, PathBuf};
 
@@ -12,7 +12,7 @@ struct DevState {
     error: Option<String>,
     /// Every finding of the last build — warnings too — as the overlay and
     /// `/__wf/status` read them.
-    diagnostics: Vec<crate::error::Diagnostic>,
+    diagnostics: Vec<crate::diagnostics::error::Diagnostic>,
     /// Whether the project frames a page of its own (a `Frame` with a
     /// site-relative `src:`), so its pages are served `SAMEORIGIN` rather
     /// than `DENY`, as the built `_headers` asks.
@@ -34,7 +34,7 @@ impl DevState {
             }
             Err(e) => {
                 // A build's findings were printed as they were found.
-                if !matches!(e, crate::error::WebFluentError::Diagnostics(_)) {
+                if !matches!(e, crate::diagnostics::error::WebFluentError::Diagnostics(_)) {
                     eprintln!("{e}");
                 }
                 self.diagnostics = e.diagnostics();
@@ -322,7 +322,7 @@ pub fn run_serve(project_dir: &Path, host: &str, allow_output_outside: bool) -> 
         s.version = 0;
     }
     if !output_dir.exists() {
-        return Err(crate::error::WebFluentError::io(format!(
+        return Err(crate::diagnostics::error::WebFluentError::io(format!(
             "nothing to serve: the build failed and {} does not exist",
             output_dir.display()
         )));
@@ -330,7 +330,7 @@ pub fn run_serve(project_dir: &Path, host: &str, allow_output_outside: bool) -> 
 
     let port = config.dev.port;
     let ip: std::net::IpAddr = host.parse().map_err(|_| {
-        crate::error::WebFluentError::io(format!(
+        crate::diagnostics::error::WebFluentError::io(format!(
             "`--host {host}` is not an address to listen on: give one such as 127.0.0.1 or 0.0.0.0"
         ))
     })?;
@@ -341,8 +341,9 @@ pub fn run_serve(project_dir: &Path, host: &str, allow_output_outside: bool) -> 
     // its absolute links then resolve, and a visit to `/` is sent there.
     let base_path = config.build.base_path.trim_end_matches('/').to_string();
 
-    let server = tiny_http::Server::http(addr)
-        .map_err(|e| crate::error::WebFluentError::io(format!("Failed to start server: {e}")))?;
+    let server = tiny_http::Server::http(addr).map_err(|e| {
+        crate::diagnostics::error::WebFluentError::io(format!("Failed to start server: {e}"))
+    })?;
     let port = server.server_addr().to_ip().map_or(port, |a| a.port());
     let shown = if ip.is_loopback() || ip.is_unspecified() {
         "localhost".to_string()

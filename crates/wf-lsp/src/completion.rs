@@ -417,7 +417,7 @@ fn tokens_until_error(source: &str) -> Vec<Token> {
     let mut base = 0;
     for line in source.split_inclusive('\n') {
         if let Ok(mut line_tokens) = webfluent::syntax::lexer::LexerV2::new(line, "").tokenize() {
-            line_tokens.retain(|t| !matches!(t.token_type, TokenType::EOF));
+            line_tokens.retain(|t| !matches!(t.token_type, TokenType::Eof));
             for t in &mut line_tokens {
                 t.offset += base;
                 t.end += base;

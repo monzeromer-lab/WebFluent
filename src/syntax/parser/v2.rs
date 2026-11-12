@@ -248,14 +248,14 @@ pub const IMPERATIVE_KEYWORDS: &[&str] = &["let", "return", "if", "else", "for",
 
 impl ParserV2 {
     /// A parser over `tokens`. A list that does not end in an
-    /// [`TokenType::EOF`] (an empty one included) is given one, so the
+    /// [`TokenType::Eof`] (an empty one included) is given one, so the
     /// parser always has a token to look at.
     pub fn new(mut tokens: Vec<Token>, file: &str) -> Self {
-        if !matches!(tokens.last().map(|t| &t.token_type), Some(TokenType::EOF)) {
+        if !matches!(tokens.last().map(|t| &t.token_type), Some(TokenType::Eof)) {
             let (line, column, end) = tokens
                 .last()
                 .map_or((1, 1, 0), |t| (t.line, t.column, t.end));
-            let mut eof = Token::new(TokenType::EOF, line, column);
+            let mut eof = Token::new(TokenType::Eof, line, column);
             eof.offset = end;
             eof.end = end;
             tokens.push(eof);
@@ -288,7 +288,7 @@ impl ParserV2 {
     }
 
     fn at_end(&self) -> bool {
-        matches!(self.kind(), TokenType::EOF)
+        matches!(self.kind(), TokenType::Eof)
     }
 
     fn advance(&mut self) -> Token {
@@ -380,7 +380,7 @@ impl ParserV2 {
             TokenType::Identifier(w) => format!("`{w}`"),
             TokenType::StringLiteral(s) => format!("the string \"{}\"", s.spelling),
             TokenType::NumberLiteral(n) => format!("the number {n}"),
-            TokenType::EOF => "the end of the file".to_string(),
+            TokenType::Eof => "the end of the file".to_string(),
             TokenType::OpenBrace => "`{`".to_string(),
             TokenType::CloseBrace => "`}`".to_string(),
             TokenType::OpenParen => "`(`".to_string(),
@@ -1916,7 +1916,7 @@ impl ParserV2 {
                         break;
                     }
                 }
-                TokenType::EOF => return false,
+                TokenType::Eof => return false,
                 _ => {}
             }
             i += 1;

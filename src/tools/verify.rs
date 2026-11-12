@@ -23,7 +23,9 @@ use crate::diagnostics::error::Result;
 use crate::project::config::ProjectConfig;
 
 // For the mobile editor's visits; `wf verify` reads them in the driver.
-pub use crate::tools::browser::chrome::{PAGE_REPORT, Visit, read_report};
+internal! {
+    pub use crate::tools::browser::chrome::{PAGE_REPORT, Visit, read_report};
+}
 
 /// Hold a visit to what a page must do: show some text (a 404 page may
 /// not), and paint within `budget_ms` when there is one.

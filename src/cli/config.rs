@@ -3,7 +3,7 @@ use std::path::Path;
 use serde_json::Value;
 
 use crate::config::schema;
-use crate::error::{Result, WebFluentError};
+use crate::diagnostics::error::{Result, WebFluentError};
 
 const CONFIG: &str = "webfluent.app.json";
 

@@ -1,29 +1,34 @@
 //! Parsing — builds an abstract syntax tree from tokens.
 //!
-//! Consumes a token stream from the [`crate::syntax::lexer`] and produces a [`Program`] AST
+//! Consumes a token stream from the `crate::syntax::lexer` and produces a [`Program`] AST
 //! containing page declarations, components, stores, and an optional app declaration.
 
 pub mod ast;
 // `parser::parser` mirrors the crate layout the rest of the tree uses;
 // flattening it would move every public path for no gain.
-#[doc(hidden)]
-pub mod parser;
-#[doc(hidden)]
-pub mod v2;
-#[doc(hidden)]
-pub mod vocabulary;
+internal! {
+    pub mod parser;
+}
+internal! {
+    pub mod v2;
+}
+internal! {
+    pub mod vocabulary;
+}
 pub(crate) mod walk;
 
 pub use ast::*;
 
-#[doc(hidden)]
-pub use parser::Parser;
+internal! {
+    pub use parser::Parser;
+}
 // These are public API — a consumer reaches them as `webfluent::…`, and the LSP,
 // the studio and the docs all do. Nothing inside this crate calls them, which is
 // why `cargo clippy --fix` removed them; `#[allow]` records that the emptiness is
 // expected rather than leaving the next person to delete them again.
-#[doc(hidden)]
-pub use vocabulary::{MODIFIER_KEYWORDS, is_modifier_keyword};
+internal! {
+    pub use vocabulary::{MODIFIER_KEYWORDS, is_modifier_keyword};
+}
 
 /// How deeply a program may nest: expressions inside expressions, blocks
 /// inside blocks, and the links of one chain (`a.b.c`, `1 + 2 + 3`), which

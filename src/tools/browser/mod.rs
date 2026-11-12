@@ -3,4 +3,6 @@
 pub mod chrome;
 pub mod ws;
 
-pub use chrome::Browser;
+internal! {
+    pub use chrome::Browser;
+}

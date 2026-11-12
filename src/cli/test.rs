@@ -3,7 +3,7 @@
 
 use std::path::Path;
 
-use crate::error::{Result, WebFluentError};
+use crate::diagnostics::error::{Result, WebFluentError};
 use crate::testing::{self, Outcome};
 
 pub fn run_test(path: &Path, update: bool) -> Result<()> {

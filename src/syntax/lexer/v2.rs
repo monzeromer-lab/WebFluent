@@ -159,7 +159,7 @@ impl LexerV2 {
         while self.indents.pop().is_some() {
             self.synthetic(TokenType::CloseBrace, &mut tokens);
         }
-        let mut eof = Token::new(TokenType::EOF, self.line, self.column);
+        let mut eof = Token::new(TokenType::Eof, self.line, self.column);
         eof.offset = self.byte_pos;
         eof.end = self.byte_pos;
         tokens.push(eof);
@@ -1278,7 +1278,7 @@ mod tests {
             .expect("lex")
             .into_iter()
             .map(|t| t.token_type)
-            .filter(|t| !matches!(t, TokenType::EOF))
+            .filter(|t| !matches!(t, TokenType::Eof))
             .collect()
     }
 
@@ -1420,7 +1420,7 @@ mod tests {
             .expect("lex")
             .into_iter()
             .map(|t| t.token_type)
-            .filter(|t| !matches!(t, TokenType::EOF))
+            .filter(|t| !matches!(t, TokenType::Eof))
             .collect()
     }
 

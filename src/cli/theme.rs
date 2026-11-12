@@ -1,6 +1,6 @@
 use std::path::Path;
 
-use crate::error::Result;
+use crate::diagnostics::error::Result;
 
 /// `wf theme [-d DIR] [--json]`: the theme the build uses — every token,
 /// declared or inherited, where each is used — and its contrast pairs.

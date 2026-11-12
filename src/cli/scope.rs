@@ -1,6 +1,6 @@
 use std::path::Path;
 
-use crate::error::{Result, WebFluentError};
+use crate::diagnostics::error::{Result, WebFluentError};
 
 /// `wf scope FILE:LINE[:COL] [-d DIR] [--data JSON] [--json]`: what a path
 /// picker lists at that place — the declaration's own state and derived

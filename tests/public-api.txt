@@ -1,6 +1,5 @@
 pub mod webfluent
 pub mod webfluent::build
-pub use webfluent::build::BuildCache
 pub enum webfluent::build::Stream
 pub webfluent::build::Stream::Stderr
 pub webfluent::build::Stream::Stdout
@@ -34,6 +33,21 @@ impl core::marker::Unpin for webfluent::build::Analysis
 impl core::marker::UnsafeUnpin for webfluent::build::Analysis
 impl core::panic::unwind_safe::RefUnwindSafe for webfluent::build::Analysis
 impl core::panic::unwind_safe::UnwindSafe for webfluent::build::Analysis
+pub struct webfluent::build::BuildCache
+impl webfluent::build::BuildCache
+pub fn webfluent::build::BuildCache::in_memory() -> Self
+pub fn webfluent::build::BuildCache::on_disk(impl core::convert::Into<std::path::PathBuf>) -> Self
+impl core::default::Default for webfluent::build::BuildCache
+pub fn webfluent::build::BuildCache::default() -> Self
+impl core::fmt::Debug for webfluent::build::BuildCache
+pub fn webfluent::build::BuildCache::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl !core::marker::Freeze for webfluent::build::BuildCache
+impl core::marker::Send for webfluent::build::BuildCache
+impl core::marker::Sync for webfluent::build::BuildCache
+impl core::marker::Unpin for webfluent::build::BuildCache
+impl core::marker::UnsafeUnpin for webfluent::build::BuildCache
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::build::BuildCache
+impl core::panic::unwind_safe::UnwindSafe for webfluent::build::BuildCache
 pub struct webfluent::build::BuildFailure
 pub webfluent::build::BuildFailure::error: webfluent::diagnostics::error::diagnostic::WebFluentError
 pub webfluent::build::BuildFailure::report: alloc::boxed::Box<webfluent::build::BuildReport>
@@ -69,7 +83,7 @@ impl core::panic::unwind_safe::RefUnwindSafe for webfluent::build::BuildLine
 impl core::panic::unwind_safe::UnwindSafe for webfluent::build::BuildLine
 pub struct webfluent::build::BuildOptions<'a>
 pub webfluent::build::BuildOptions::allow_output_outside: bool
-pub webfluent::build::BuildOptions::cache: core::option::Option<&'a BuildCache>
+pub webfluent::build::BuildOptions::cache: core::option::Option<&'a webfluent::build::BuildCache>
 pub webfluent::build::BuildOptions::color: bool
 pub webfluent::build::BuildOptions::deny_warnings: bool
 pub webfluent::build::BuildOptions::dev: bool

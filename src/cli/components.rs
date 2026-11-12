@@ -1,6 +1,6 @@
 use std::path::Path;
 
-use crate::error::Result;
+use crate::diagnostics::error::Result;
 use crate::registry::schema;
 
 /// `wf components [-d DIR] [--json]`: every component a call can name, the

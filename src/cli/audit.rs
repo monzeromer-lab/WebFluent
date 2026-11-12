@@ -1,7 +1,7 @@
 //! `wf audit` — what this project trusts ([`crate::audit`]), printed.
 
 use crate::audit::Report;
-use crate::error::Result;
+use crate::diagnostics::error::Result;
 use std::path::Path;
 
 pub fn run_audit(project_dir: &Path, json: bool) -> Result<()> {

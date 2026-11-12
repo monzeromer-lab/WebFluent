@@ -43,17 +43,27 @@ mod tests;
 mod ty;
 mod walk;
 
-pub use handles::{browser_value_type, form_names, form_type, image_type, ref_names};
+internal! {
+    pub use handles::{browser_value_type, form_names, form_type, image_type, ref_names};
+}
 pub use jsdoc::jsdoc_type;
-pub use members::{Member, members};
+internal! {
+    pub use members::{Member, members};
+}
 pub(crate) use names::BUILT_IN_FUNCTIONS;
 use names::*;
-pub use names::{built_in_functions, language_name};
+internal! {
+    pub use names::{built_in_functions, language_name};
+}
 use refine::*;
-pub use refine::{VALIDATE_RULES, refinement_fault};
+internal! {
+    pub use refine::{VALIDATE_RULES, refinement_fault};
+}
 use tables::*;
 use ty::*;
-pub use ty::{PRIMITIVE_TYPES, Scalar, Type};
+internal! {
+    pub use ty::{PRIMITIVE_TYPES, Scalar, Type};
+}
 pub use walk::expr_text;
 use walk::*;
 

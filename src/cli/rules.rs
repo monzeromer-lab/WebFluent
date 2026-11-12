@@ -1,6 +1,6 @@
 use std::path::Path;
 
-use crate::error::Result;
+use crate::diagnostics::error::Result;
 
 /// `wf rules [-d DIR] [--json]`: every rule a `validate` block may hold,
 /// the named patterns and when a form shows its messages; then every state

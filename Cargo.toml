@@ -74,6 +74,10 @@ pdf = []
 # and the Liberation faces built in (2.4 MB). Without them a page hands them
 # over at run time (`paged::fonts::register_font`).
 bundled-fonts = []
+# The compiler's internals, as `webfluent::internals`: for this
+# repository's own tools (the language server, the WebAssembly build, the
+# tests). Not covered by semver; anything there may change in any release.
+internals = []
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
 webp = { version = "0.3.1", default-features = false }
@@ -199,6 +203,8 @@ name = "it"
 path = "tests/it.rs"
 
 [dev-dependencies]
+# The tests reach the internals.
+webfluent = { path = ".", features = ["internals"] }
 # The golden-output test hashes every file a build writes.
 sha2 = "0.10"
 

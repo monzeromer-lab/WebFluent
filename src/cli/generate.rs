@@ -1,4 +1,4 @@
-use crate::error::Result;
+use crate::diagnostics::error::Result;
 use crate::generate::{Kind, Written, is_indented, source, write_source};
 use std::fs;
 use std::path::Path;

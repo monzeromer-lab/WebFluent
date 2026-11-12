@@ -17,13 +17,17 @@
 //! SPA bundle, the static paint and the template engine cannot disagree about
 //! what a `Card` or a `Heading` is.
 
-pub use crate::project::builtin;
+internal! {
+    pub use crate::project::builtin;
+}
 pub mod capture;
 pub mod charts;
 pub mod csp;
 pub mod css;
 pub mod elements;
-pub use crate::project::format;
+internal! {
+    pub use crate::project::format;
+}
 pub mod gzip;
 pub mod highlight;
 pub mod html;
@@ -31,20 +35,30 @@ pub mod js;
 pub mod jscheck;
 pub mod markdown;
 pub mod minify;
-pub use crate::build::offline;
-pub use crate::syntax::node_id;
+internal! {
+    pub use crate::build::offline;
+}
+internal! {
+    pub use crate::syntax::node_id;
+}
 pub mod project_css;
-pub use crate::project::sanitize;
+internal! {
+    pub use crate::project::sanitize;
+}
 pub use crate::project::scoped_css;
 pub mod seo;
 pub mod sourcemap;
 pub mod ssg;
-pub use crate::project::static_eval;
+internal! {
+    pub use crate::project::static_eval;
+}
 pub mod style;
 pub use crate::project::url;
 pub use crate::registry::style_tokens;
 
-pub use css::{dark_css, generate_css, generate_css_for, generate_css_with};
+internal! {
+    pub use css::{dark_css, generate_css, generate_css_for, generate_css_with};
+}
 pub use html::generate_html;
 pub use js::{JsCodegen, JsOptions};
 pub use ssg::render_page_html;

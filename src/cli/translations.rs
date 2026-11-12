@@ -1,6 +1,6 @@
 use std::path::Path;
 
-use crate::error::Result;
+use crate::diagnostics::error::Result;
 
 /// `wf translations [-d DIR] [--missing LOCALE] [--unused] [--json]`: the
 /// translations as a table — each locale with its plural forms and what it

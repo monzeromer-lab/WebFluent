@@ -2,9 +2,9 @@ use std::collections::BTreeMap;
 use std::path::Path;
 
 use crate::build::{BuildOptions, BuildReport};
+use crate::diagnostics::error::{Result, WebFluentError};
 use crate::diagnostics::fixes::{apply, merge};
 use crate::diagnostics::{Diagnostic, Edit, Fix};
-use crate::error::{Result, WebFluentError};
 use crate::vfs::FsVfs;
 
 /// How many times `wf fix` looks again: a fix left out because it overlapped

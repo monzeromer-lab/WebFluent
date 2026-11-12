@@ -193,7 +193,7 @@ impl Lexer {
             tokens.push(token);
         }
 
-        let mut eof = Token::new(TokenType::EOF, self.line, self.column);
+        let mut eof = Token::new(TokenType::Eof, self.line, self.column);
         eof.offset = self.byte_pos;
         eof.end = self.byte_pos;
         tokens.push(eof);

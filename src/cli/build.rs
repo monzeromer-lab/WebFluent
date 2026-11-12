@@ -1,8 +1,8 @@
 //! `wf build` and `wf check`: the library's build, printed as it goes.
 
 use crate::build::{BuildCache, BuildFailure, BuildLine, BuildOptions, BuildReport, Stream};
+use crate::diagnostics::error::Result;
 use crate::diagnostics::format::Format;
-use crate::error::Result;
 use crate::vfs::FsVfs;
 use std::path::Path;
 
@@ -82,7 +82,9 @@ fn run(
             &path,
             serde_json::to_string_pretty(&nodes.to_json()).unwrap_or_default(),
         )
-        .map_err(|e| crate::error::WebFluentError::io(format!("{}: {e}", path.display())))?;
+        .map_err(|e| {
+            crate::diagnostics::error::WebFluentError::io(format!("{}: {e}", path.display()))
+        })?;
     }
     Ok(())
 }

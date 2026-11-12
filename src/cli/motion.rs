@@ -1,6 +1,6 @@
 use std::path::Path;
 
-use crate::error::Result;
+use crate::diagnostics::error::Result;
 
 /// `wf motion [-d DIR] [--json]`: the animations an element can play — the
 /// engine's and the project's — the eases, the speeds, the route

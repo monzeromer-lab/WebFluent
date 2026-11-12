@@ -1,7 +1,7 @@
 use std::path::Path;
 
 use crate::agent::context::{Depth, context_via, guide};
-use crate::error::{Result, WebFluentError};
+use crate::diagnostics::error::{Result, WebFluentError};
 
 /// `wf context [-d DIR] [--open FILE[:START-END]] [--guide index|full]
 /// [--json]`: what an agent is given — the files, the open file and its

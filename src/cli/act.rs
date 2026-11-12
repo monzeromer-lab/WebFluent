@@ -6,7 +6,7 @@ use std::path::{Path, PathBuf};
 
 use crate::browser::Browser;
 use crate::browser::chrome::Page;
-use crate::error::Result;
+use crate::diagnostics::error::Result;
 
 /// A browser, kept for as long as there are tests that need one.
 pub struct Stage {
@@ -20,7 +20,7 @@ impl Stage {
         // A directory of this run's own, which nobody else could have made
         // first, and which goes with the stage.
         let work = crate::browser::chrome::private_dir("wf-act-").map_err(|e| {
-            crate::error::WebFluentError::io(format!(
+            crate::diagnostics::error::WebFluentError::io(format!(
                 "could not make a directory for the tests' sites: {e}"
             ))
         })?;

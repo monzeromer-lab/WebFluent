@@ -10,14 +10,18 @@
 //! level is simply there for them: the compiler reads those names
 //! ([`scan`]), puts them in scope, and the editor offers them.
 
-pub use crate::check::jsdoc;
+internal! {
+    pub use crate::check::jsdoc;
+}
 pub use crate::syntax::js_scan as scan;
 
 use std::path::{Path, PathBuf};
 
 use crate::base::vfs::{FsVfs, Vfs};
 
-pub use crate::check::sema::script::signature;
+internal! {
+    pub use crate::check::sema::script::signature;
+}
 pub use scan::Scan;
 
 /// One script under `src/`, and what reading it found.

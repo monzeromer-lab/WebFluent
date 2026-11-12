@@ -3,7 +3,7 @@
 
 use std::path::{Path, PathBuf};
 
-use crate::error::{Result, WebFluentError};
+use crate::diagnostics::error::{Result, WebFluentError};
 use crate::migrate::project::{self, Plan};
 
 pub fn run_migrate(path: &Path, check: bool, stdout: bool, layout: super::Layout) -> Result<()> {

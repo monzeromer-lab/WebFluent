@@ -1,7 +1,7 @@
 use std::path::Path;
 
-use crate::assets::{self, Kind};
-use crate::error::Result;
+use crate::build::assets::{self, Kind};
+use crate::diagnostics::error::Result;
 use crate::media::plan::size_text;
 
 /// `wf assets [--unused] [--plan PATH] [--json]`: what `public/` holds and

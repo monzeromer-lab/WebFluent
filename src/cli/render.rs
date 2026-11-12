@@ -1,4 +1,4 @@
-use crate::error::{Result, WebFluentError};
+use crate::diagnostics::error::{Result, WebFluentError};
 use crate::template::Template;
 use std::fs;
 use std::io::{self, IsTerminal, Read};

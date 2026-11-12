@@ -129,9 +129,37 @@
 //! For most uses the [`Template`] API is the entry point; [`parse_source`]
 //! and [`build`] are there for a tool that needs the tree or a whole site.
 
+// Much of the compiler is there for the language server and the tests,
+// which reach it through the `internals` feature; without it, those parts
+// look unused. With it, everything is public, as it always was.
+#![cfg_attr(
+    not(feature = "internals"),
+    allow(dead_code, reason = "the language server and the tests use these")
+)]
+
 /// The compiler's version, as `wf --version` prints it: what a program
 /// that builds through the library says it built with.
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
+
+/// Declares one of the compiler's own parts: public, and hidden from the
+/// docs, with the `internals` feature (the language server, the WebAssembly
+/// build and the tests turn it on); the crate's own otherwise. Either way it
+/// is outside what semver covers.
+macro_rules! internal {
+    ($(#[$meta:meta])* pub $($item:tt)*) => {
+        #[cfg(feature = "internals")]
+        $(#[$meta])*
+        #[doc(hidden)]
+        pub $($item)*
+
+        #[cfg(not(feature = "internals"))]
+        $(#[$meta])*
+        // A re-export that only the language server, the WebAssembly build
+        // or the tests read is unused without the feature.
+        #[allow(unused_imports, reason = "read only through the feature")]
+        pub(crate) $($item)*
+    };
+}
 
 // The layers, bottom first: base, diagnostics, syntax, registry, project,
 // check, web, paged, template, build, tools. A module uses only its own
@@ -143,11 +171,17 @@ pub(crate) mod base;
 pub mod build;
 pub(crate) mod check;
 pub mod diagnostics;
-#[doc(hidden)]
-pub mod paged;
+internal! {
+    pub mod paged;
+}
 pub(crate) mod project;
+internal! {
+    pub mod registry;
+}
+/// The `wf` command, run by `src/main.rs`.
+#[cfg(feature = "cli")]
 #[doc(hidden)]
-pub mod registry;
+pub mod cli;
 /// The front end's one entry point: [`syntax::parse_source`] reads a file in
 /// whichever grammar it is written in.
 pub mod syntax;
@@ -169,18 +203,23 @@ pub use tools::{init, memory, studio};
 // The compiler's own parts. They stay reachable — the `wf` command and the
 // language server are built on them — but they are not documented, and a
 // release may change them without a major version.
-#[doc(hidden)]
-pub use base::platform;
-#[doc(hidden)]
-pub use check::{edit, linter, scope, sema, validation};
-#[doc(hidden)]
-pub use project::{data, i18n, media, openapi, project_js, themes};
-#[doc(hidden)]
-pub use tools::{
-    agent, audit, browser, commands, gallery, generate, migrate, patch, testing, verify,
-};
-#[doc(hidden)]
-pub use web::{codegen, motion, runtime};
+internal! {
+    pub use base::platform;
+}
+internal! {
+    pub use check::{edit, linter, scope, sema, validation};
+}
+internal! {
+    pub use project::{data, i18n, media, openapi, project_js, themes};
+}
+internal! {
+    pub use tools::{
+        agent, audit, browser, commands, gallery, generate, migrate, patch, testing, verify,
+    };
+}
+internal! {
+    pub use web::{codegen, motion, runtime};
+}
 
 pub use check::edit::{ArgRef, EditOp, apply_edits};
 pub use check::linter::lint_vocabulary as validate_vocabulary;

@@ -8,7 +8,7 @@
 use std::path::{Component, Path, PathBuf};
 use std::sync::Arc;
 
-use crate::error::{Result, WebFluentError};
+use crate::diagnostics::error::{Result, WebFluentError};
 
 pub struct Preview {
     /// `http://127.0.0.1:<port>`, as a browser would ask for it.

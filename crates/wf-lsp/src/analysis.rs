@@ -138,7 +138,7 @@ pub fn token_index_at(tokens: &[Token], offset: usize) -> Option<usize> {
     tokens
         .iter()
         .position(|t| {
-            !matches!(t.token_type, TokenType::EOF) && t.offset <= offset && offset < t.end
+            !matches!(t.token_type, TokenType::Eof) && t.offset <= offset && offset < t.end
         })
         .or_else(|| {
             tokens
@@ -186,7 +186,7 @@ pub fn token_before(tokens: &[Token], offset: usize) -> Option<&Token> {
     tokens
         .iter()
         .rev()
-        .find(|t| !matches!(t.token_type, TokenType::EOF) && t.end <= offset)
+        .find(|t| !matches!(t.token_type, TokenType::Eof) && t.end <= offset)
 }
 
 /// Whether `offset` lies inside a comment: between tokens, in text the lexer

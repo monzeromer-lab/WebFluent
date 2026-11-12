@@ -3,7 +3,7 @@
 
 use std::path::Path;
 
-use crate::error::Result;
+use crate::diagnostics::error::Result;
 
 pub fn run_docs(project_dir: &Path, out: &Path) -> Result<()> {
     let (html, builtins, declared) = crate::gallery::for_project(project_dir);

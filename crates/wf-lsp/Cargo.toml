@@ -26,7 +26,8 @@ default = ["server"]
 server = ["dep:tower-lsp", "dep:tokio"]
 
 [dependencies]
-webfluent = { path = "../.." }
+# The analysis is built on the compiler's own parts.
+webfluent = { path = "../..", features = ["internals"] }
 # The version tower-lsp 0.20 re-exports, so the types are the same with the
 # server and without it.
 lsp-types = "0.94.1"

@@ -62,7 +62,7 @@ fn format_braced(source: &str, file: &str) -> Result<String> {
     let mut line_of_last = 0usize;
     let mut first_on_line: Vec<bool> = vec![true; lines.len() + 1];
     for token in &tokens {
-        if matches!(token.token_type, TokenType::EOF) {
+        if matches!(token.token_type, TokenType::Eof) {
             break;
         }
         let line = token.line;
@@ -167,7 +167,7 @@ fn space_braces(body: &str, tokens: &[Token], n: usize, source: &str) -> String 
     let mut fixes: Vec<(usize, bool)> = Vec::new();
     let mut prev: Option<&Token> = None;
     for token in tokens {
-        if matches!(token.token_type, TokenType::EOF) {
+        if matches!(token.token_type, TokenType::Eof) {
             break;
         }
         if token.line == n {

@@ -14,7 +14,7 @@ use std::path::Path;
 
 use crate::browser::Browser;
 use crate::config::ProjectConfig;
-use crate::error::{Result, WebFluentError};
+use crate::diagnostics::error::{Result, WebFluentError};
 
 pub fn run_verify(
     project_dir: &Path,

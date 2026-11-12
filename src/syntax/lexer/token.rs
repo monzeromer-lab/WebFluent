@@ -54,7 +54,6 @@ impl From<String> for StringLit {
 
 /// All token types produced by the WebFluent lexer.
 #[derive(Debug, Clone, PartialEq)]
-// `EOF` is the conventional spelling in a lexer, and this enum is public.
 pub enum TokenType {
     // Top-level declarations
     Page,
@@ -265,7 +264,7 @@ pub enum TokenType {
 
     // Special
     Children,
-    EOF,
+    Eof,
 
     // ─── WebFluent 3 (the `v2` lexer) ───
     /// `$name`: a design token.
@@ -320,7 +319,7 @@ impl fmt::Display for TokenType {
             TokenType::Null => write!(f, "null"),
             TokenType::Identifier(s) => write!(f, "{s}"),
             TokenType::Event(s) => write!(f, "on:{s}"),
-            TokenType::EOF => write!(f, "EOF"),
+            TokenType::Eof => write!(f, "EOF"),
             TokenType::TypeList => write!(f, "List"),
             other => write!(f, "{other:?}"),
         }

@@ -1,8 +1,8 @@
 use std::path::{Path, PathBuf};
 
-use crate::error::{Result, WebFluentError};
-use crate::layout::{to_braces, to_offside};
+use crate::diagnostics::error::{Result, WebFluentError};
 use crate::migrate::source_files;
+use crate::syntax::layout::{to_braces, to_offside};
 
 /// `wf fmt [path] [--check] [--stdout]`: every source file of a project (or
 /// the one file named) in its canonical spelling, written back; `--check`
@@ -38,7 +38,7 @@ fn format_files(files: &[(PathBuf, String)], check: bool, stdout: bool) -> Resul
     let mut would_change: Vec<String> = Vec::new();
     for (file, text) in files {
         let name = file.to_string_lossy();
-        match crate::fmt::format_source(text, &name) {
+        match crate::syntax::fmt::format_source(text, &name) {
             Ok(out) => {
                 if stdout {
                     print!("{out}");

@@ -3,8 +3,8 @@
 //! code, every code and its title.
 
 use crate::diagnostics::codes::{self, CODES};
+use crate::diagnostics::error::{Result, WebFluentError};
 use crate::diagnostics::fixes::nearest;
-use crate::error::{Result, WebFluentError};
 
 pub fn run_explain(code: Option<&str>) -> Result<()> {
     match code {
