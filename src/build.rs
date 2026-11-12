@@ -538,6 +538,13 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
     let mut config = load_config(options)?;
 
     out.say(format!("Building {}...", config.name));
+    // A value whose name does not say it is public, in the bundle because
+    // `public_env` lists it: said on every build, so nobody is surprised.
+    for name in config.unprefixed_public_env() {
+        out.say(format!(
+            "  Warning: env.{name} goes into the bundle: `public_env` lists it, so anyone who opens the site can read it"
+        ));
+    }
 
     // The images the program names are written at every width a page will
     // ask for, before anything checks the program — so a name resolves to
