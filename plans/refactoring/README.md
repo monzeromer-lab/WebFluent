@@ -784,6 +784,23 @@ corpus **before** merging, so every difference is seen and decided.
   by hand.
 - **The non-empty-list proof compares `Expr`s**, not a lossy text rendering.
 
+**The type checker, first pass (2026-11-12).**
+- It borrows each file's source (`check_sources`, `Option<&str>`) rather
+  than taking a copy of the whole file for every declaration in it: 50
+  declarations of a 50 kB file were 2.5 MB copied on every check, and an
+  editor checks on every keystroke. `check_in` and `program_checks` keep
+  their signatures; the project check, the build's and the editor's
+  path, borrows.
+- `own_actions` borrows the action bodies rather than cloning them.
+- A finding is filed as an error or a warning by its code's severity in
+  `diagnostics::codes`, whichever helper reported it, and a fix attaches
+  to the finding reported last wherever it was filed.
+- The non-empty-list proof compares expressions (`Expr: PartialEq`), not
+  their printed text.
+- Left as found: `unwrapped()` and `lookup()` returning `&Type`. About 25
+  call sites need the owned type or compare by value, so they would clone
+  anyway; the gain is too small.
+
 **Errors** ([review.md §2.1](review.md#21-errors-whole-crate)).
 
 - In 5.x (non-breaking): paths in I/O error messages; `# Errors` sections
