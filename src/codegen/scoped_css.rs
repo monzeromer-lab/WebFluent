@@ -218,10 +218,6 @@ pub fn split_rules(program: &Program) -> SplitRules {
     split
 }
 
-fn collect(stmts: &[Statement], rules: &mut BTreeMap<String, String>, uses: &mut Uses) {
-    collect_in(stmts, rules, uses, &BTreeMap::new());
-}
-
 /// [`collect`], with the breakpoints a responsive prop is written against.
 fn collect_in(
     stmts: &[Statement],

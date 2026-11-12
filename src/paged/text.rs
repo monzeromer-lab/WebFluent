@@ -551,7 +551,10 @@ impl Shaped {
         lines
     }
 
-    #[allow(clippy::too_many_arguments)]
+    #[expect(
+        clippy::too_many_arguments,
+        reason = "the line state the breaker carries; grouped into a struct when the paged engine is split"
+    )]
     fn build_line(
         &self,
         a: usize,
@@ -785,7 +788,10 @@ fn is_default_ignorable(ch: char) -> bool {
     matches!(ch, '\u{200b}'..='\u{200f}' | '\u{2028}'..='\u{202e}' | '\u{2060}'..='\u{2064}' | '\u{fe00}'..='\u{fe0f}' | '\u{feff}')
 }
 
-#[allow(clippy::too_many_arguments)]
+#[expect(
+    clippy::too_many_arguments,
+    reason = "the run and its font context; grouped into a struct when the paged engine is split"
+)]
 fn shape_run(
     db: &FontDb,
     text: &str,

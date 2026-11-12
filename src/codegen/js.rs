@@ -2002,7 +2002,6 @@ impl JsCodegen {
     // `action_params` is scope threaded through the recursion: a nested statement
     // needs to know which names are the enclosing action's parameters, even
     // though this level never reads it.
-    #[allow(clippy::only_used_in_recursion)]
     fn emit_store_statement(
         &mut self,
         stmt: &Statement,
@@ -2533,7 +2532,7 @@ impl JsCodegen {
         let has_router = Self::has_router(&app.body);
 
         // Recursively emit the app tree, replacing the Router with the route setup
-        self.emit_app_tree(&app.body, "_app", has_router);
+        self.emit_app_tree(&app.body, "_app");
 
         if has_router {
             let mut routes: Vec<(String, String)> = Vec::new();
@@ -2608,10 +2607,7 @@ impl JsCodegen {
     }
 
     /// Recursively emit App body statements, replacing Router with a router element
-    // `has_router` is the same: it tells a deeper level whether a Router has
-    // already been placed, which only matters below this one.
-    #[allow(clippy::only_used_in_recursion)]
-    fn emit_app_tree(&mut self, stmts: &[Statement], parent: &str, has_router: bool) {
+    fn emit_app_tree(&mut self, stmts: &[Statement], parent: &str) {
         for stmt in stmts {
             if let StatementKind::UIElement(ui) = &stmt.kind {
                 let name = match &ui.component {
@@ -2653,7 +2649,7 @@ impl JsCodegen {
                     self.emit_host(&var, ui);
                     self.emit_line(&format!("{}.appendChild({});", parent, var));
                     // Recurse into children
-                    self.emit_app_tree(&ui.children, &var, has_router);
+                    self.emit_app_tree(&ui.children, &var);
                     continue;
                 }
             }
@@ -7130,11 +7126,7 @@ impl JsCodegen {
     }
 
     /// `.focus`, `.reconnect`, `.interval(30.seconds)`, `.never` — when to
-    /// look again.
-    fn refetch_policy(&self, value: &Expr) -> String {
-        self.refetch_policy_in(value, None)
-    }
-
+    /// look again; `store` reads it in a store's terms.
     fn refetch_policy_in(&self, value: &Expr, store: Option<&[String]>) -> String {
         let one = |e: &Expr| -> Option<String> {
             match e {

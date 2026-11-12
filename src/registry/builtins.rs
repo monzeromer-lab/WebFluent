@@ -104,7 +104,10 @@ const fn required(prop: PropSig) -> PropSig {
     }
 }
 
-#[allow(clippy::too_many_arguments)]
+#[expect(
+    clippy::too_many_arguments,
+    reason = "a const constructor for the built-ins table, one argument per column"
+)]
 const fn comp(
     name: &'static str,
     group: &'static str,
@@ -130,7 +133,10 @@ const fn comp(
     }
 }
 
-#[allow(clippy::too_many_arguments)]
+#[expect(
+    clippy::too_many_arguments,
+    reason = "a const constructor for the built-ins table, one argument per column"
+)]
 const fn part(
     owner: &'static str,
     name: &'static str,

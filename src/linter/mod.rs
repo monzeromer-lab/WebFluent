@@ -29,25 +29,17 @@ pub mod vocabulary;
 
 pub use accessibility::lint_accessibility_in;
 pub use contrast::lint_contrast_in;
-#[allow(unused_imports)]
 pub use pdf_validation::{drawn_in, is_slide, offered_in, validate_for_pdf};
 pub use semantic::validate_semantics_in;
-#[allow(unused_imports)]
 pub use slides_validation::{renders_slides, validate_for_slides};
-#[allow(unused_imports)]
 pub use unused::lint_unused;
 pub use unused::lint_unused_in;
 pub use vocabulary::lint_vocabulary_with;
 // The single-file forms are public API — the studio and the docs reach them
 // as `webfluent::…` — while the build and the LSP use the per-file forms.
-#[allow(unused_imports)]
 pub use accessibility::lint_accessibility;
-#[allow(unused_imports)]
 pub use contrast::lint_contrast;
-#[allow(unused_imports)]
 pub use semantic::validate_semantics;
-#[allow(unused_imports)]
 pub use vocabulary::lint_vocabulary;
 // The LSP lints a project it has no stylesheets for.
-#[allow(unused_imports)]
 pub use vocabulary::lint_vocabulary_in;

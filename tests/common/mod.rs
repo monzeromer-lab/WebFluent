@@ -10,7 +10,10 @@
 //! flat list of [`Elem`] — so a test can state one expectation and hold every
 //! backend to it.
 
-#![allow(dead_code)]
+#![allow(
+    dead_code,
+    reason = "shared by many test binaries, each using a part; an expect would be unfulfilled in some"
+)]
 
 use std::collections::HashMap;
 
@@ -73,7 +76,10 @@ pub fn page(body: &str) -> String {
 
 /// The same source in the new grammar, as `wf migrate` writes it. A source
 /// the migrator cannot rewrite is a bug in the migrator, so this panics.
-#[allow(dead_code)]
+#[allow(
+    dead_code,
+    reason = "used by some of the test binaries that share this module"
+)]
 pub fn migrated(src: &str) -> String {
     let files = vec![(std::path::PathBuf::from("<test>.wf"), src.to_string())];
     let (_, result) = webfluent::migrate::migrate_project(&files).remove(0);

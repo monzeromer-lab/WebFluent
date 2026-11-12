@@ -127,8 +127,6 @@
 //! is the simplest entry point. For full control, use [`parse_source`], [`sema`] and the
 //! codegen modules directly.
 
-#![allow(dead_code)]
-
 /// The compiler's version, as `wf --version` prints it: what a program
 /// that builds through the library says it built with.
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");

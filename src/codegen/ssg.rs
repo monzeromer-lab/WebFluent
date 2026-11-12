@@ -272,16 +272,6 @@ pub fn render_page_html_studio(
         .cloned()
         .unwrap_or_default();
 
-    // Calculate relative base path from page route depth
-    let route = page.path.trim_start_matches('/');
-    // The catch-all page is written to the root as 404.html.
-    let base_path = if route.is_empty() || route == "/" || route == "*" {
-        ".".to_string()
-    } else {
-        let depth = route.split('/').filter(|s| !s.is_empty()).count();
-        (0..depth).map(|_| "..").collect::<Vec<_>>().join("/")
-    };
-
     let link_base = config.build.base_path.clone();
 
     let scope = site
@@ -296,7 +286,6 @@ pub fn render_page_html_studio(
         dialogs: 0,
         default_messages,
         indent: 2,
-        base_path,
         link_base,
         app_schemes: crate::config::project::app_schemes(config),
         studio,
@@ -525,7 +514,6 @@ struct SsgContext {
     dialogs: usize,
     default_messages: HashMap<String, String>,
     indent: usize,
-    base_path: String, // Relative path to root for assets (e.g., ".." for /about)
     link_base: String, // Config base_path for links (e.g., "/WebFluent")
     /// The app's own schemes a frame's address may use (`meta.frame`).
     app_schemes: Vec<String>,

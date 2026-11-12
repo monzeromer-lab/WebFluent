@@ -361,7 +361,10 @@ fn diff_statement(
 
 /// A statement of one block — `for`, `show` — whose head and body are
 /// each compared on their own.
-#[allow(clippy::too_many_arguments)]
+#[expect(
+    clippy::too_many_arguments,
+    reason = "the two trees' heads and bodies, compared side by side"
+)]
 fn one_block(
     source: &str,
     old: &Statement,

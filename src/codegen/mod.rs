@@ -38,7 +38,6 @@ pub mod style;
 pub mod style_tokens;
 pub mod url;
 
-#[allow(unused_imports)]
 pub use css::{dark_css, generate_css, generate_css_for, generate_css_with};
 pub use html::generate_html;
 pub use js::JsCodegen;

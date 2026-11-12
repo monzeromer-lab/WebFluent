@@ -19,7 +19,6 @@ use crate::config::ProjectConfig;
 use crate::error::Result;
 
 // For the mobile editor's visits; `wf verify` reads them in the driver.
-#[allow(unused_imports)]
 pub use crate::browser::chrome::{PAGE_REPORT, Visit, read_report};
 
 /// Hold a visit to what a page must do: show some text (a 404 page may

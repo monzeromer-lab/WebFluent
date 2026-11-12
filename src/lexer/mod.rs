@@ -7,7 +7,6 @@
 
 // `lexer::lexer` mirrors the crate layout the rest of the tree uses;
 // flattening it would move every public path for no gain.
-#[allow(clippy::module_inception)]
 pub mod lexer;
 pub mod token;
 pub mod v2;

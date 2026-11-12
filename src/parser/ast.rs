@@ -63,8 +63,11 @@ pub struct Program {
 /// A top-level declaration in a WebFluent program.
 // A page carries its header, its route parameters and its body; the tree is
 // walked, not moved, so the size difference costs nothing.
-#[allow(clippy::large_enum_variant)]
 #[derive(Debug, Clone)]
+#[expect(
+    clippy::large_enum_variant,
+    reason = "the tree is walked, not moved, so the size difference costs nothing; boxing the page changes the public AST"
+)]
 pub enum Declaration {
     /// `const NAME = value`.
     Const(ConstDecl),

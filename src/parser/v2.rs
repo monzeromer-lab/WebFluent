@@ -174,7 +174,6 @@ pub struct ParserV2 {
     nesting: usize,
 }
 
-const CLAUSE_WORDS: &[&str] = &["style", "transition", "on"];
 /// The words a declaration begins with, where the parser picks up again
 /// after an error.
 pub const DECLARATION_WORDS: &[&str] = &[
@@ -325,10 +324,6 @@ impl ParserV2 {
 
     fn is_word(&self, word: &str) -> bool {
         matches!(self.kind(), TokenType::Identifier(w) if w == word)
-    }
-
-    fn is_word_at(&self, ahead: usize, word: &str) -> bool {
-        matches!(self.kind_at(ahead), TokenType::Identifier(w) if w == word)
     }
 
     fn eat_word(&mut self, word: &str) -> bool {

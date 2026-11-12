@@ -113,7 +113,6 @@ impl std::fmt::Debug for Template {
 // `Template::from_str` is documented public API used throughout the README and
 // the docs site; it predates any `FromStr` impl and renaming it would break every
 // consumer to satisfy a naming lint.
-#[allow(clippy::should_implement_trait)]
 impl Template {
     /// Create a template from a `.wf` source string.
     ///
@@ -128,6 +127,10 @@ impl Template {
     /// several declarations do not parse), and
     /// [`WebFluentError::Diagnostics`] with every error finding if it does
     /// not check.
+    #[expect(
+        clippy::should_implement_trait,
+        reason = "documented API since 1.0; `FromStr` cannot return the crate's own error kinds by this name"
+    )]
     pub fn from_str(source: &str) -> Result<Self> {
         Self::from_sources(&[("<template>", source)])
     }
@@ -1429,23 +1432,6 @@ impl<'a> RenderContext<'a> {
         }
         self.budget.spend(u64::from(metered.spent), span);
         metered.value.map(|v| v.to_json()).unwrap_or(Value::Null)
-    }
-
-    /// Resolve a dotted path like "user.address.city" from data context.
-    fn resolve_path(&self, path: &str) -> Value {
-        let parts: Vec<&str> = path.split('.').collect();
-        if parts.is_empty() {
-            return Value::Null;
-        }
-
-        let mut current = self.resolve_var(parts[0]);
-        for &part in &parts[1..] {
-            current = match &current {
-                Value::Object(map) => map.get(part).cloned().unwrap_or(Value::Null),
-                _ => Value::Null,
-            };
-        }
-        current
     }
 }
 

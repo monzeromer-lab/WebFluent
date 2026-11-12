@@ -270,7 +270,7 @@ mod tests {
 
     #[test]
     fn the_animations_are_the_registry_s_with_what_plays_them() {
-        let m = catalogue(None, &Default_config());
+        let m = catalogue(None, &default_config());
         let names: Vec<&str> = m.animations.iter().map(|a| a.name.as_str()).collect();
         for n in [
             "fadeIn",
@@ -335,8 +335,7 @@ mod tests {
         );
     }
 
-    #[allow(non_snake_case)]
-    fn Default_config() -> crate::config::MotionConfig {
+    fn default_config() -> crate::config::MotionConfig {
         crate::config::MotionConfig::default()
     }
 
@@ -360,7 +359,7 @@ mod tests {
             ("180ms", true)
         );
         let p = crate::syntax::parse_source("animation Wobble {\n    from {\n        rotate: 0deg\n    }\n    to {\n        rotate: 8deg\n    }\n}\n", "t.wf").unwrap();
-        let m = catalogue(Some(&p), &Default_config());
+        let m = catalogue(Some(&p), &default_config());
         let w = m.animations.last().unwrap();
         assert_eq!((w.name.as_str(), w.project), ("Wobble", true));
         assert_eq!(

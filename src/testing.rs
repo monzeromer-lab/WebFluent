@@ -693,7 +693,10 @@ fn squeeze(text: &str) -> String {
 
 /// One test that looks: `Ok(true)` when it passed and its snapshot was
 /// written, `Ok(false)` when it passed against the one there.
-#[allow(clippy::too_many_arguments)]
+#[expect(
+    clippy::too_many_arguments,
+    reason = "the project context a test renders in; grouped into a struct when the tools layer is split"
+)]
 fn run_one(
     shared: &[Declaration],
     test: &TestDecl,

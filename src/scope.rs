@@ -740,7 +740,10 @@ pub mod paths {
             }
         }
 
-        #[allow(clippy::too_many_arguments)]
+        #[expect(
+            clippy::too_many_arguments,
+            reason = "one row of the paths table, each column a field"
+        )]
         fn entry(
             &self,
             path: &str,

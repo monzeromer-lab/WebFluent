@@ -6,7 +6,6 @@
 pub mod ast;
 // `parser::parser` mirrors the crate layout the rest of the tree uses;
 // flattening it would move every public path for no gain.
-#[allow(clippy::module_inception)]
 pub mod parser;
 pub mod v2;
 pub mod vocabulary;
@@ -18,7 +17,6 @@ pub use parser::Parser;
 // the studio and the docs all do. Nothing inside this crate calls them, which is
 // why `cargo clippy --fix` removed them; `#[allow]` records that the emptiness is
 // expected rather than leaving the next person to delete them again.
-#[allow(unused_imports)]
 pub use vocabulary::{MODIFIER_KEYWORDS, is_modifier_keyword};
 
 /// How deeply a program may nest: expressions inside expressions, blocks

@@ -8,7 +8,6 @@ pub use crate::diagnostics::Diagnostic;
 #[derive(Debug)]
 // Every variant names the stage it came from — `LexerError`, `ParseError`.
 // The shared suffix is the point, and these are public API.
-#[allow(clippy::enum_variant_names)]
 pub enum WebFluentError {
     /// Tokenization error (invalid characters, unterminated strings, etc.).
     LexerError(Box<Diagnostic>),

@@ -55,7 +55,6 @@ impl From<String> for StringLit {
 /// All token types produced by the WebFluent lexer.
 #[derive(Debug, Clone, PartialEq)]
 // `EOF` is the conventional spelling in a lexer, and this enum is public.
-#[allow(clippy::upper_case_acronyms)]
 pub enum TokenType {
     // Top-level declarations
     Page,

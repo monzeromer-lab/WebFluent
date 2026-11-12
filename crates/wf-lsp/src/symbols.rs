@@ -1,5 +1,9 @@
 //! Document symbols (the outline of one file) and workspace symbols (every
 //! declaration in the project, for "go to symbol in project").
+#![expect(
+    deprecated,
+    reason = "lsp-types 0.94 still requires the `deprecated` field when building a symbol; it is set to None"
+)]
 
 use lsp_types::*;
 use webfluent::parser::ast::*;
@@ -7,7 +11,6 @@ use webfluent::parser::ast::*;
 use crate::line_index::LineIndex;
 use crate::project::{Project, SourceFile};
 
-#[allow(deprecated)]
 fn symbol(
     name: String,
     detail: &str,
@@ -387,7 +390,6 @@ fn statement_symbols(stmts: &[Statement], source: &str, index: &LineIndex) -> Ve
     symbols
 }
 
-#[allow(deprecated)]
 fn flatten(
     symbols: &[DocumentSymbol],
     uri: &Url,
@@ -414,7 +416,6 @@ fn flatten(
 
 /// Every declaration in the project whose name contains `query`
 /// (case-insensitively); an empty query lists them all.
-#[allow(deprecated)]
 pub fn workspace_symbols(project: &Project, query: &str) -> Vec<SymbolInformation> {
     let query = query.to_lowercase();
     let mut out = Vec::new();
