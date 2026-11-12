@@ -12,7 +12,9 @@ cargo-fuzz = true
 
 [dependencies]
 libfuzzer-sys = "0.4"
-webfluent = { path = "..", default-features = false }
+# The targets reach the parser's tokens, Markdown and the sanitiser,
+# which are the compiler's own parts.
+webfluent = { path = "..", default-features = false, features = ["internals"] }
 
 [workspace]
 
