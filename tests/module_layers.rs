@@ -33,9 +33,12 @@ const GROUPS: &[(&str, &str)] = &[
     ("vfs", "base"),
     ("outfs", "base"),
     ("platform", "base"),
+    ("span", "base"),
+    ("text", "base"),
     ("error", "diagnostics"),
     ("diagnostics", "diagnostics"),
-    ("diagnostics::check", "check"),
+    ("diagnostics::allow", "check"),
+    ("diagnostics::check", "template"),
     ("lexer", "syntax"),
     ("parser", "syntax"),
     ("syntax", "syntax"),
@@ -43,28 +46,42 @@ const GROUPS: &[(&str, &str)] = &[
     ("print", "syntax"),
     ("reprint", "syntax"),
     ("fmt", "syntax"),
-    ("edit", "syntax"),
+    ("project_js::scan", "syntax"),
+    ("codegen::node_id", "syntax"),
     ("registry", "registry"),
+    ("registry::json", "tools"),
+    ("registry::schema", "tools"),
+    ("codegen::style_tokens", "registry"),
     ("config", "project"),
     ("themes", "project"),
+    ("themes::view", "tools"),
     ("i18n", "project"),
     ("project_js", "project"),
+    ("project_js::jsdoc", "check"),
     ("data", "project"),
-    ("style_value", "project"),
+    ("media", "project"),
+    ("openapi", "project"),
+    ("sources", "project"),
+    ("codegen::url", "project"),
+    ("codegen::format", "project"),
+    ("codegen::sanitize", "project"),
+    ("codegen::static_eval", "project"),
+    ("codegen::builtin", "project"),
+    ("codegen::scoped_css", "project"),
     ("sema", "check"),
     ("scope", "check"),
     ("linter", "check"),
     ("validation", "check"),
+    ("edit", "check"),
     ("codegen", "web"),
     ("runtime", "web"),
     ("motion", "web"),
     ("codegen::offline", "build"),
     ("paged", "paged"),
+    ("style_value", "paged"),
     ("template", "template"),
     ("build", "build"),
-    ("media", "build"),
     ("assets", "build"),
-    ("openapi", "build"),
     ("migrate", "tools"),
     ("testing", "tools"),
     ("verify", "tools"),
@@ -82,185 +99,7 @@ const GROUPS: &[(&str, &str)] = &[
 
 /// Today's reaches upward: the file, the path it reaches (a prefix), and
 /// what it is waiting on.
-const EXCEPTIONS: &[(&str, &str, &str)] = &[
-    ("src/build.rs", "agent::escapes", "to untangle"),
-    (
-        "src/config/project.rs",
-        "linter::vocabulary::levenshtein",
-        "levenshtein moves to base",
-    ),
-    (
-        "src/config/project.rs",
-        "media::Settings",
-        "image metadata, read for `image` and `data`",
-    ),
-    (
-        "src/data.rs",
-        "media::Settings",
-        "image metadata, read for `image` and `data`",
-    ),
-    (
-        "src/data.rs",
-        "media::process_via",
-        "image metadata, read for `image` and `data`",
-    ),
-    (
-        "src/diagnostics/allow.rs",
-        "syntax::comments",
-        "to untangle",
-    ),
-    ("src/diagnostics/check.rs", "codegen::csp", "to untangle"),
-    (
-        "src/diagnostics/check.rs",
-        "codegen::elements",
-        "to untangle",
-    ),
-    ("src/diagnostics/check.rs", "codegen::html", "to untangle"),
-    (
-        "src/diagnostics/check.rs",
-        "codegen::static_eval",
-        "the evaluator moves below check",
-    ),
-    (
-        "src/diagnostics/fixes.rs",
-        "linter::vocabulary::levenshtein",
-        "levenshtein moves to base",
-    ),
-    ("src/diagnostics/mod.rs", "parser::ast", "to untangle"),
-    ("src/edit.rs", "codegen::node_id", "to untangle"),
-    ("src/edit.rs", "codegen::scoped_css", "to untangle"),
-    ("src/edit.rs", "registry::Flag", "to untangle"),
-    ("src/edit.rs", "registry::component", "to untangle"),
-    ("src/edit.rs", "registry::part", "to untangle"),
-    (
-        "src/i18n/mod.rs",
-        "codegen::static_eval",
-        "the evaluator moves below check",
-    ),
-    (
-        "src/i18n/table.rs",
-        "build::read_project",
-        "reading a project moves to project",
-    ),
-    ("src/i18n/table.rs", "linter::project", "to untangle"),
-    ("src/i18n/table.rs", "scope::body_of", "to untangle"),
-    ("src/i18n/table.rs", "scope::child_bodies", "to untangle"),
-    (
-        "src/linter/accessibility.rs",
-        "codegen::builtin",
-        "the built-ins' HTML facts move to registry",
-    ),
-    (
-        "src/linter/output.rs",
-        "codegen::builtin",
-        "the built-ins' HTML facts move to registry",
-    ),
-    (
-        "src/linter/output.rs",
-        "codegen::url",
-        "the URL scheme check moves to base",
-    ),
-    (
-        "src/linter/project.rs",
-        "codegen::static_eval",
-        "the evaluator moves below check",
-    ),
-    (
-        "src/linter/semantic.rs",
-        "codegen::js",
-        "the browser name tables move to registry",
-    ),
-    ("src/linter/structure.rs", "codegen::seo", "to untangle"),
-    (
-        "src/linter/styles.rs",
-        "codegen::style_tokens",
-        "the style vocabulary moves to registry",
-    ),
-    (
-        "src/linter/vocabulary.rs",
-        "codegen::builtin",
-        "the built-ins' HTML facts move to registry",
-    ),
-    ("src/parser/ast.rs", "project_js::scan", "to untangle"),
-    ("src/project_js/mod.rs", "sema::types", "to untangle"),
-    (
-        "src/registry/json.rs",
-        "codegen::builtin",
-        "the built-ins' HTML facts move to registry",
-    ),
-    ("src/registry/json.rs", "project_js::jsdoc", "to untangle"),
-    ("src/registry/json.rs", "project_js::scan", "to untangle"),
-    ("src/registry/json.rs", "sema::types", "to untangle"),
-    (
-        "src/registry/schema.rs",
-        "build::read_project",
-        "reading a project moves to project",
-    ),
-    (
-        "src/registry/schema.rs",
-        "codegen::builtin",
-        "the built-ins' HTML facts move to registry",
-    ),
-    (
-        "src/scope.rs",
-        "build::read_project",
-        "reading a project moves to project",
-    ),
-    (
-        "src/sema/mod.rs",
-        "codegen::builtin",
-        "the built-ins' HTML facts move to registry",
-    ),
-    (
-        "src/sema/mod.rs",
-        "codegen::js",
-        "the browser name tables move to registry",
-    ),
-    (
-        "src/sema/mod.rs",
-        "codegen::style_tokens",
-        "the style vocabulary moves to registry",
-    ),
-    (
-        "src/sema/mod.rs",
-        "codegen::url",
-        "the URL scheme check moves to base",
-    ),
-    (
-        "src/sema/types.rs",
-        "codegen::js",
-        "the browser name tables move to registry",
-    ),
-    ("src/sema/types.rs", "codegen::scoped_css", "to untangle"),
-    (
-        "src/sema/types.rs",
-        "codegen::static_eval",
-        "the evaluator moves below check",
-    ),
-    (
-        "src/style_value.rs",
-        "codegen::style_tokens",
-        "the style vocabulary moves to registry",
-    ),
-    ("src/style_value.rs", "paged::cascade", "to untangle"),
-    ("src/style_value.rs", "paged::style", "to untangle"),
-    (
-        "src/themes/view.rs",
-        "build::read_project",
-        "reading a project moves to project",
-    ),
-    (
-        "src/themes/view.rs",
-        "codegen::style_tokens",
-        "the style vocabulary moves to registry",
-    ),
-    ("src/themes/view.rs", "linter::contrast", "to untangle"),
-    (
-        "src/validation.rs",
-        "build::read_project",
-        "reading a project moves to project",
-    ),
-];
+const EXCEPTIONS: &[(&str, &str, &str)] = &[];
 
 fn root() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR"))
@@ -376,7 +215,10 @@ fn no_module_reaches_a_layer_above_its_own() {
             .to_string_lossy()
             .replace('\\', "/");
         for (n, line) in without_tests(&text).lines().enumerate() {
-            if line.trim_start().starts_with("//") {
+            let trimmed = line.trim_start();
+            // A comment, or a re-export that keeps an old public path where
+            // users find it: neither is a dependency.
+            if trimmed.starts_with("//") || trimmed.starts_with("pub use ") {
                 continue;
             }
             for path in crate_paths(line) {
