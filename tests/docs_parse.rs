@@ -1182,6 +1182,9 @@ fn every_diagnostic_example_draws_its_code() {
 const EXAMPLE_EXEMPT: &[&str] = &[
     "E003", "E005", "E108", "E109", "E110", "E111", "E112", "E115", "E119", "E901", "E902", "D05",
     "D01", "D04", "I01", "I02", "I03", "I04", "I05", "A13", "V02",
+    // E120 needs a hundred levels of nesting to show, and E121 is a
+    // template render's, which no check draws.
+    "E120", "E121",
 ];
 
 /// The anchor a heading gets on the site and on GitHub, as the generator

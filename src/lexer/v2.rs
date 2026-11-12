@@ -75,6 +75,10 @@ pub struct LexerV2 {
     /// text after the slashes — what `// wf-allow(…)` is read from, so a
     /// `//` inside a string is never taken for one.
     comments: Vec<(usize, usize, String)>,
+    /// The width in characters of the last token pushed (zero for a brace
+    /// the layout implied), so a synthetic brace finds its column without
+    /// walking the source again.
+    last_width: usize,
 }
 
 impl LexerV2 {
@@ -104,6 +108,7 @@ impl LexerV2 {
             parens: 0,
             explicit: 0,
             comments: Vec::new(),
+            last_width: 0,
         }
     }
 
@@ -121,13 +126,23 @@ impl LexerV2 {
                 break;
             }
             let start_byte = self.byte_pos;
+            let start_pos = self.pos;
             let mut token = if self.style_from.is_some() {
                 self.style_token()?
             } else {
                 self.normal_token(&tokens)?
             };
+            // Every token consumes at least one character; one that did not
+            // would be read again forever.
+            if self.pos == start_pos {
+                return Err(self.error(&format!(
+                    "Unexpected character '{}'",
+                    self.current().escape_default()
+                )));
+            }
             token.offset = start_byte;
             token.end = self.byte_pos;
+            self.last_width = self.pos - start_pos;
             self.track_layout(&token);
             self.track_braces(&token, &tokens);
             tokens.push(token);
@@ -165,7 +180,7 @@ impl LexerV2 {
     /// line).
     fn synthetic(&mut self, kind: TokenType, tokens: &mut Vec<Token>) {
         let (line, column, at) = match tokens.last() {
-            Some(t) => (t.line, t.column + self.source_width(t), t.end),
+            Some(t) => (t.line, t.column + self.last_width, t.end),
             None => (1, 1, 0),
         };
         let mut token = Token::new(kind, line, column);
@@ -173,22 +188,7 @@ impl LexerV2 {
         token.end = at;
         self.track_braces(&token, tokens);
         tokens.push(token);
-    }
-
-    /// The width of a token in characters, for the column after it.
-    fn source_width(&self, token: &Token) -> usize {
-        let mut chars = 0;
-        let mut bytes = 0;
-        for ch in &self.source {
-            if bytes >= token.end {
-                break;
-            }
-            if bytes >= token.offset {
-                chars += 1;
-            }
-            bytes += ch.len_utf8();
-        }
-        chars
+        self.last_width = 0;
     }
 
     /// Offside: a line of code starts here, indented by `indent`. Deeper
@@ -379,7 +379,11 @@ impl LexerV2 {
     /// A word: an identifier, or one of the three literal words.
     fn read_word(&mut self) -> Token {
         let (line, column) = (self.line, self.column);
-        let mut word = String::new();
+        // The first character was vetted by the caller (a letter, `_`, or
+        // what UAX #31 lets a name start with — `℘` too, which is no
+        // letter to `is_alphanumeric`).
+        let mut word = String::from(self.current());
+        self.advance();
         while self.pos < self.source.len() {
             let ch = self.current();
             // After the first letter, what UAX #31 lets an identifier go on
@@ -903,12 +907,14 @@ impl LexerV2 {
                 self.pending_value = false;
                 self.skip_inline_space();
                 let start_byte = self.byte_pos;
+                let start_pos = self.pos;
                 let (line, column) = (self.line, self.column);
                 let text = self.read_raw_value();
                 let mut token = Token::new(TokenType::RawValue(text), line, column);
                 token.offset = start_byte;
                 token.end = self.byte_pos;
                 tokens.push(token);
+                self.last_width = self.pos - start_pos;
                 continue;
             }
             let mut new_line = self.pos == 0 && self.layout == Layout::Offside;
@@ -934,6 +940,7 @@ impl LexerV2 {
                 let third = self.source.get(self.pos + 2).copied();
                 if third == Some('/') && self.style_from.is_none() {
                     let start_byte = self.byte_pos;
+                    let start_pos = self.pos;
                     let (line, column) = (self.line, self.column);
                     self.advance();
                     self.advance();
@@ -948,6 +955,7 @@ impl LexerV2 {
                     token.offset = start_byte;
                     token.end = self.byte_pos;
                     tokens.push(token);
+                    self.last_width = self.pos - start_pos;
                     continue;
                 }
                 let (line, column) = (self.line, self.column);

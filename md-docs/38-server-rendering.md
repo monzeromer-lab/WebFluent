@@ -212,6 +212,29 @@ microseconds.
 > `href` and `src`, as the browser build drops it. An `Image`'s `src` keeps
 > a picture carried in its address (`data:image/png;base64,…`), as the
 > browser build keeps it.
+>
+> A value the data puts in a `style { }` block is one value, as the live
+> page sets one property at a time: a piece with a `;`, a brace or a
+> backslash, or one that fetches something (`url(…)`, `image-set(…)`),
+> leaves its declaration out. What the template writes around a splice —
+> `background: url({img})` — is the template's own. A `class:` from the
+> data is escaped inside its attribute.
+
+### Limits of one render
+
+A render is bounded, so one request cannot take a server with it:
+
+| Limit | What is past it |
+|---|---|
+| 100 levels of nesting — elements, and the components they place, counted together | `E120` |
+| 10,000,000 steps — elements drawn, loop items, units of working a value out | `E121` |
+| 256 MB of markup | `E121` |
+| About 500,000 list items or 32 MB of text made by one expression | `E121` |
+| `>` quotes in `Markdown` nested 32 deep | The deeper `>` is shown as text |
+| A precision past 100 digits (`toFixed`, `format(…, .decimal, n)`) | `toFixed` shows nothing, as the browser throws; `format` writes 100 |
+
+Each error is a `WebFluentError::Diagnostics` naming the code and the
+element where the render stopped.
 
 ## Render from Node
 
@@ -293,6 +316,7 @@ it runs on your server, where a secret stays secret.
 | `WebFluent CLI (wf) not found` from Node | Install `wf`, or set `WF_BIN` to the binary's path |
 | A `{name}` renders empty | The data has no top-level key `name`; check the JSON's spelling and nesting |
 | `format` writes the wrong language | Add a `locale` key to the data |
+| The render fails with `E120` or `E121` | The template nests too deeply, or the render does too much; see [Limits of one render](#limits-of-one-render) |
 
 ## Next
 

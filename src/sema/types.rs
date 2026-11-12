@@ -837,6 +837,11 @@ struct Checker<'a, 'p> {
     written: HashSet<String>,
     /// The body's own actions, by name, for what they write.
     own_actions: HashMap<String, Vec<Statement>>,
+    /// How deeply [`Checker::infer`] is nested in itself — held under the
+    /// parser's limit, for a tree that did not come from the parser.
+    depth: usize,
+    /// Whether `E120` has been reported for this declaration.
+    too_deep: bool,
 }
 
 impl<'a, 'p> Checker<'a, 'p> {
@@ -869,6 +874,8 @@ impl<'a, 'p> Checker<'a, 'p> {
             bound: HashSet::new(),
             written: HashSet::new(),
             own_actions: HashMap::new(),
+            depth: 0,
+            too_deep: false,
             source,
         }
     }
@@ -1084,7 +1091,10 @@ impl<'a, 'p> Checker<'a, 'p> {
         let last = start + open + 1 + inside.trim_end().len();
         let before = &source[..first];
         let line = before.matches('\n').count() as u32 + 1;
-        let col = (first - before.rfind('\n').map_or(0, |n| n + 1)) as u32 + 1;
+        // A column counts characters, as every other column does: on a
+        // line of Arabic names a byte count lands far to the right.
+        let line_start = before.rfind('\n').map_or(0, |n| n + 1);
+        let col = before[line_start..].chars().count() as u32 + 1;
         Span::new(first as u32, last.max(first) as u32, line, col)
     }
 
@@ -3067,7 +3077,31 @@ impl<'a, 'p> Checker<'a, 'p> {
     // ─── Expressions ─────────────────────────────────────
 
     /// The type of `expr`; `expected` guides a case or a lambda.
+    /// The type of `expr`. An expression nested past what the parser lets
+    /// a program write — a tree made some other way — is `Any`, with one
+    /// `E120`, rather than a recursion that runs out of stack.
     fn infer(&mut self, expr: &Expr, expected: Option<&Type>) -> Type {
+        // The parser counts each link of a chain; a desugared form or a
+        // lambda may add a few levels of its own.
+        const LIMIT: usize = crate::parser::MAX_NESTING + 32;
+        if self.depth >= LIMIT {
+            if !self.too_deep {
+                self.too_deep = true;
+                self.error_at_current(
+                    "E120",
+                    crate::parser::NESTING_MESSAGE.to_string(),
+                    "Name a part of it with `let` or `derived`",
+                );
+            }
+            return Type::Any;
+        }
+        self.depth += 1;
+        let ty = self.infer_nested(expr, expected);
+        self.depth -= 1;
+        ty
+    }
+
+    fn infer_nested(&mut self, expr: &Expr, expected: Option<&Type>) -> Type {
         match expr {
             // A literal written where one of the language's own types is
             // wanted is read as one, and held to its shape — so a `Url`
@@ -4024,6 +4058,21 @@ impl<'a, 'p> Checker<'a, 'p> {
                         }
                     }
                     returns
+                }
+                // `Backend.invalidate()`: forget everything the service's
+                // cache holds — on logout, say. It returns nothing.
+                None if method == "invalidate" => {
+                    for arg in args {
+                        self.infer(arg, None);
+                    }
+                    if !args.is_empty() {
+                        self.error_at_current(
+                            "T10",
+                            format!("`{api}.invalidate()` takes no arguments"),
+                            &format!("It forgets everything the service's cache holds; to forget one endpoint's, call `{api}.endpoint.invalidate()`"),
+                        );
+                    }
+                    Type::Null
                 }
                 None => {
                     let names: Vec<String> = self
@@ -5016,12 +5065,15 @@ impl<'a, 'p> Checker<'a, 'p> {
         // A store's own action, called where the store is not built yet —
         // its initial values are worked out before its actions exist.
         if called
+            // The first store by name that has it, so the finding is the
+            // same on every run, whatever order the map holds them in.
             && let Some(store) = self
                 .world
                 .store_actions
                 .iter()
-                .find(|(_, actions)| actions.contains_key(name))
+                .filter(|(_, actions)| actions.contains_key(name))
                 .map(|(s, _)| s.to_string())
+                .min()
         {
             let message = format!(
                 "`{name}(…)` is an action of `{store}`, which nothing here reaches by that name"
@@ -5100,7 +5152,10 @@ impl<'a, 'p> Checker<'a, 'p> {
         let errors = self.info.findings.errors.len();
         let warnings = self.info.findings.warnings.len();
         let unresolved = self.info.unresolved.len();
+        let too_deep = self.too_deep;
         let ty = self.infer(e, None);
+        // What was found here is dropped, so it may be found again.
+        self.too_deep = too_deep;
         self.info.findings.errors.truncate(errors);
         self.info.findings.warnings.truncate(warnings);
         self.info.unresolved.truncate(unresolved);

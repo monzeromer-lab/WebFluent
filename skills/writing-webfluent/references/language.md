@@ -3094,6 +3094,8 @@ the editor's quick fix and the JSON's `fixes`: the nearest name for `T05`,
 | `E114` | `emit` outside a component |
 | `E116` | `Element`'s tag is not a custom element's |
 | `E118` | A name the language already has, declared as the program's own — `state env`, `for t in …`, a prop `query`, a `const format` |
+| `E120` | Something nests more than 100 levels deep — brackets, blocks, the links of one chain (`a.b.c`), splices, or in a template components that place one another |
+| `E121` | A template render that would do too much: more than ten million elements, loop items and units of evaluation, 256 MB of markup, or an expression that makes more than one evaluation may |
 | `E901` | The compiler wrote JavaScript a browser would refuse (it reads back every script it writes — a WebFluent bug) |
 | `E902` | A page the content security policy shipped beside it would block |
 | `C02` | A prop your component does not declare |
@@ -3522,6 +3524,11 @@ page Invoice(path: "/", title: "Invoice") {
 **Supported in templates**: all layout, typography, data display components, `for` loops, `if/else`, string interpolation, style blocks, flags, themes. A `state` is its first value and a `derived` value what that works out to (data handed to the render wins over either) — so a page may work its figures out once and show them anywhere.
 
 **Not supported**: `effect`, handlers (`on click`), navigation, stores, animations, `resource` — nothing runs after the render.
+
+A render is bounded: 100 levels of nesting (`E120`), ten million steps and
+256 MB of markup (`E121`). A `style { }` value from the data is one value —
+a piece with `;`, a brace, a backslash or `url(…)` leaves its declaration
+out — and a `class:` from the data is escaped.
 
 <!-- core -->
 ## For agents

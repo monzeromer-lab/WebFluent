@@ -121,7 +121,7 @@
 //! - **`cli`** (default) — the `wf` command's own dependencies: its argument
 //!   parser and the dev server. A program that only compiles or renders
 //!   templates turns it off:
-//!   `webfluent = { version = "4", default-features = false }`.
+//!   `webfluent = { version = "5", default-features = false }`.
 //!
 //! This crate exposes the full compiler pipeline. For most use cases, the [`Template`] API
 //! is the simplest entry point. For full control, use [`parse_source`], [`sema`] and the
@@ -167,9 +167,11 @@ pub mod init;
 /// policy and its dependencies.
 pub mod audit;
 
+/// `data` declarations: the JSON files and pictures a program names, read
+/// at build time and made constants.
+pub mod data;
 /// `wf fmt --to wfx|wf`: the one grammar in either layout, braces or
 /// indentation.
-pub mod data;
 pub mod fmt;
 pub mod i18n;
 pub mod layout;

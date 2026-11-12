@@ -53,8 +53,20 @@ pub fn render(text: &str) -> String {
     render_with(text, Options::default())
 }
 
+/// How many `>` quotes may open inside one another. A `>` deeper than
+/// this is text: each level is drawn by a call of its own and copies what
+/// it quotes, and text from a template's data could otherwise nest deeply
+/// enough to run the renderer out of stack.
+pub const MAX_QUOTE_DEPTH: usize = 32;
+
 /// The HTML of `text`, drawn as `options` say.
 pub fn render_with(text: &str, options: Options) -> String {
+    render_nested(text, options, 0)
+}
+
+/// [`render_with`], inside `depth` quotes.
+fn render_nested(text: &str, options: Options, depth: usize) -> String {
+    let quotes = depth < MAX_QUOTE_DEPTH;
     // The two characters the renderer marks its own places with (a held
     // code span, a line break) cannot arrive in the text it is given.
     let text: std::borrow::Cow<str> = if text.contains(['\u{0}', '\u{1}']) {
@@ -111,7 +123,7 @@ pub fn render_with(text: &str, options: Options) -> String {
             i += 1;
             continue;
         }
-        if trimmed.starts_with('>') {
+        if quotes && trimmed.starts_with('>') {
             let mut quoted: Vec<String> = Vec::new();
             while i < lines.len() && lines[i].trim().starts_with('>') {
                 quoted.push(lines[i].trim()[1..].trim_start().to_string());
@@ -119,7 +131,7 @@ pub fn render_with(text: &str, options: Options) -> String {
             }
             out.push_str(&format!(
                 "<blockquote>\n{}</blockquote>\n",
-                render_with(&quoted.join("\n"), options)
+                render_nested(&quoted.join("\n"), options, depth + 1)
             ));
             continue;
         }
@@ -153,7 +165,7 @@ pub fn render_with(text: &str, options: Options) -> String {
                 || t == "---"
                 || t == "***"
                 || heading(t).is_some()
-                || t.starts_with('>')
+                || (quotes && t.starts_with('>'))
                 || list_item(t).is_some()
                 || table_at(&lines, i).is_some()
             {

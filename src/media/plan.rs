@@ -279,6 +279,12 @@ pub fn plan_probed(
             let mut error = None;
             for w in &widths {
                 let h = height_at(*w);
+                // As the build decides: a file the format cannot hold is
+                // not made, and the original serves.
+                if !encode::fits(format, *w, h) {
+                    dropped.push(*w);
+                    continue;
+                }
                 let name = format!("{stem}.{hash}.{w}.{format}");
                 let cached = cache
                     .map(|c| c.join(&name))

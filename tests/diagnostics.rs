@@ -183,9 +183,8 @@ fn the_config_the_scripts_and_the_output_mode_have_places_too() {
 
 #[test]
 fn a_template_s_errors_are_coded_findings() {
-    let err = webfluent::Template::from_str("page P(path: \"/\") { Buton(\"x\") }")
-        .err()
-        .expect("refused");
+    let err =
+        webfluent::Template::from_str("page P(path: \"/\") { Buton(\"x\") }").expect_err("refused");
     let found = err.diagnostics();
     assert_eq!(found.len(), 1, "{found:?}");
     assert_eq!(found[0].code, "E101");

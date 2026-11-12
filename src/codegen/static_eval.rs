@@ -32,8 +32,14 @@ use crate::parser::ast::{
 };
 
 /// How much evaluation one expression may do: enough for a few thousand rows
-/// through a few methods, not enough to hang a build.
+/// through a few methods, not enough to hang a build. Work is paid for by
+/// the step, and what a step makes or copies by its size — an item of a
+/// list or a map for a unit, and [`TEXT_PER_UNIT`] bytes of text for one —
+/// so the fuel bounds the memory an evaluation can take as well as its
+/// time.
 const FUEL: u32 = 500_000;
+/// The bytes of text one unit of fuel pays for.
+const TEXT_PER_UNIT: usize = 64;
 /// Nested action calls a value may go through.
 const MAX_DEPTH: u32 = 32;
 
@@ -189,6 +195,20 @@ impl Scope {
         }
     }
 
+    /// A scope over `base`, shared rather than copied, with `values` over
+    /// it: a template's data, converted once per render, and the names a
+    /// place in it adds.
+    pub fn over(
+        base: &Arc<HashMap<String, Static>>,
+        values: impl IntoIterator<Item = (String, Static)>,
+    ) -> Self {
+        Scope {
+            frames: vec![base.clone(), Arc::new(values.into_iter().collect())],
+            functions: Arc::default(),
+            depth: 0,
+        }
+    }
+
     /// The scope a page starts with: every store's seeded state, keyed
     /// `Store.field`, plus the page's own literal `state` declarations.
     ///
@@ -294,6 +314,16 @@ impl Scope {
 
     fn get(&self, name: &str) -> Option<&Static> {
         self.frames.iter().rev().find_map(|f| f.get(name))
+    }
+
+    /// The value of `name` where it is held, to change in place.
+    fn get_mut(&mut self, name: &str) -> Option<&mut Static> {
+        let frame = self
+            .frames
+            .iter_mut()
+            .rev()
+            .find(|f| f.contains_key(name))?;
+        Arc::make_mut(frame).get_mut(name)
     }
 
     /// The scope with the locale `format` and `ago` speak, the project's
@@ -478,12 +508,86 @@ impl Fuel {
         self.0.set(left - 1);
         Some(())
     }
+
+    /// Pay `units` at once; with less left, the evaluation stops here.
+    fn charge(&self, units: usize) -> Option<()> {
+        let left = self.0.get() as usize;
+        if units > left {
+            self.0.set(0);
+            return None;
+        }
+        self.0.set((left - units) as u32);
+        Some(())
+    }
+
+    /// Pay for `bytes` of text made.
+    fn text(&self, bytes: usize) -> Option<()> {
+        self.charge(bytes / TEXT_PER_UNIT)
+    }
+
+    /// Pay for a copy of `value`: a unit for each item of each list and
+    /// map in it, and its text by [`Fuel::text`]. The count stops once it
+    /// passes what is left, so pricing a copy costs no more than the fuel.
+    fn copy(&self, value: &Static) -> Option<()> {
+        let left = self.0.get() as usize;
+        let mut units = 0usize;
+        let mut text = 0usize;
+        let mut stack = vec![value];
+        while let Some(v) = stack.pop() {
+            match v {
+                Static::Str(s) => text += s.len(),
+                Static::List(items) => {
+                    units += items.len();
+                    stack.extend(items.iter());
+                }
+                Static::Map(fields) => {
+                    units += fields.len();
+                    stack.extend(fields.iter().map(|(_, v)| v));
+                }
+                _ => {}
+            }
+            if units + text / TEXT_PER_UNIT > left {
+                self.0.set(0);
+                return None;
+            }
+        }
+        self.charge(units + text / TEXT_PER_UNIT)
+    }
+
+    fn exhausted(&self) -> bool {
+        self.0.get() == 0
+    }
 }
 
 /// Work out an expression's value, or `None` if it depends on something only the
 /// running page knows.
 pub fn eval(expr: &Expr, scope: &Scope) -> Option<Static> {
     eval_in(expr, scope, &Fuel(Cell::new(FUEL)))
+}
+
+/// What [`eval_metered`] worked out, and what it cost.
+#[derive(Debug, Clone, PartialEq)]
+pub struct Metered {
+    /// The value, or `None` when it could not be worked out.
+    pub value: Option<Static>,
+    /// The fuel the evaluation spent.
+    pub spent: u32,
+    /// Whether it stopped because its fuel ran out, rather than because it
+    /// read something only the running page knows.
+    pub exhausted: bool,
+}
+
+/// [`eval`], saying what it spent and whether the fuel ran out — for a
+/// caller that holds many evaluations to one budget, as a template's render
+/// does.
+pub fn eval_metered(expr: &Expr, scope: &Scope) -> Metered {
+    let fuel = Fuel(Cell::new(FUEL));
+    let value = eval_in(expr, scope, &fuel);
+    Metered {
+        exhausted: value.is_none() && fuel.exhausted(),
+        spent: FUEL - fuel.0.get(),
+        value,
+    }
 }
 
 fn eval_in(expr: &Expr, scope: &Scope, fuel: &Fuel) -> Option<Static> {
@@ -496,14 +600,21 @@ fn eval_in(expr: &Expr, scope: &Scope, fuel: &Fuel) -> Option<Static> {
         Expr::Null => Some(Static::Null),
         Expr::Regex(p, f) => Some(Static::Regex(p.clone(), f.clone())),
 
-        Expr::Identifier(name) => scope.get(name).cloned(),
+        Expr::Identifier(name) => {
+            let value = scope.get(name)?;
+            fuel.copy(value)?;
+            Some(value.clone())
+        }
 
         Expr::ListLiteral(items) => {
             let mut out = Vec::new();
             for e in items {
                 match e {
                     Expr::Spread(inner) => match eval_in(inner, scope, fuel)? {
-                        Static::List(more) => out.extend(more),
+                        Static::List(more) => {
+                            fuel.charge(more.len())?;
+                            out.extend(more)
+                        }
                         _ => return None,
                     },
                     _ => out.push(eval_in(e, scope, fuel)?),
@@ -522,7 +633,11 @@ fn eval_in(expr: &Expr, scope: &Scope, fuel: &Fuel) -> Option<Static> {
             let end = if *inclusive { b } else { b - 1.0 };
             let mut out = Vec::new();
             let mut i = a;
-            while i <= end && out.len() < 100_000 {
+            // Each item is paid for as it is made: a range longer than the
+            // fuel is not worked out (it used to be cut at 100,000 items,
+            // which is a different list).
+            while i <= end {
+                fuel.spend()?;
                 out.push(Static::Num(i));
                 i += 1.0;
             }
@@ -537,6 +652,7 @@ fn eval_in(expr: &Expr, scope: &Scope, fuel: &Fuel) -> Option<Static> {
                     let Static::Map(more) = value else {
                         return None;
                     };
+                    fuel.charge(more.len())?;
                     for (mk, mv) in more {
                         match out.iter_mut().find(|(key, _)| *key == mk) {
                             Some(slot) => slot.1 = mv,
@@ -563,6 +679,7 @@ fn eval_in(expr: &Expr, scope: &Scope, fuel: &Fuel) -> Option<Static> {
                     StringPart::Expression(e) => out.push_str(&eval_in(e, scope, fuel)?.to_text()),
                 }
             }
+            fuel.text(out.len())?;
             Some(Static::Str(out))
         }
 
@@ -608,7 +725,10 @@ fn eval_in(expr: &Expr, scope: &Scope, fuel: &Fuel) -> Option<Static> {
             let index = eval_in(index, scope, fuel)?;
             match (base, index) {
                 (Static::Null, _) if in_optional_chain(base_expr) => Some(Static::Null),
-                (Static::List(items), Static::Num(n)) => items.get(n as usize).cloned(),
+                // A list has items at whole numbers from 0: `xs[1.5]` and
+                // `xs[-1]` are nothing in JavaScript, never `xs[1]` and
+                // `xs[0]`.
+                (Static::List(items), Static::Num(n)) => list_item(&items, n).cloned(),
                 (Static::Map(fields), Static::Str(k)) => fields
                     .iter()
                     .find(|(key, _)| *key == k)
@@ -641,7 +761,12 @@ fn eval_in(expr: &Expr, scope: &Scope, fuel: &Fuel) -> Option<Static> {
                 _ => return None,
             };
             let r = eval_in(right, scope, fuel)?;
-            binary(&l, op, &r)
+            let out = binary(&l, op, &r)?;
+            // Text joined with `+` is paid for, as any text made is.
+            if let Static::Str(s) = &out {
+                fuel.text(s.len())?;
+            }
+            Some(out)
         }
 
         // `if c { a } else { b }` as a value.
@@ -840,12 +965,20 @@ fn js_replacement(to: &str) -> String {
 /// that index, or an object without that key, both worked out.
 fn missing(base: &Expr, index: &Expr, scope: &Scope, fuel: &Fuel) -> bool {
     match (eval_in(base, scope, fuel), eval_in(index, scope, fuel)) {
-        (Some(Static::List(items)), Some(Static::Num(n))) => n < 0.0 || n as usize >= items.len(),
+        (Some(Static::List(items)), Some(Static::Num(n))) => list_item(&items, n).is_none(),
         (Some(Static::Map(fields)), Some(Static::Str(k))) => {
             !fields.iter().any(|(key, _)| *key == k)
         }
         _ => false,
     }
+}
+
+/// The item of `items` at index `n`, when `n` is a whole number in range.
+pub fn list_item(items: &[Static], n: f64) -> Option<&Static> {
+    if n < 0.0 || n.fract() != 0.0 {
+        return None;
+    }
+    items.get(n as usize)
 }
 
 /// Apply a lambda to `args`, with its parameters bound over `scope`.
@@ -907,10 +1040,14 @@ fn method_call(
                     match method {
                         "filter" => {
                             if r.truthy() {
+                                fuel.copy(item)?;
                                 out.push(item.clone());
                             }
                         }
-                        "map" => out.push(r),
+                        "map" => {
+                            fuel.spend()?;
+                            out.push(r)
+                        }
                         "some" => {
                             if r.truthy() {
                                 return Some(Static::Bool(true));
@@ -947,14 +1084,23 @@ fn method_call(
                     Some(_) => clamp_index(number(1)?, items.len())?,
                     None => items.len(),
                 };
-                Some(Static::List(items[start..end.max(start)].to_vec()))
+                let slice = Static::List(items[start..end.max(start)].to_vec());
+                fuel.copy(&slice)?;
+                Some(slice)
             }
             "concat" => {
+                fuel.copy(receiver)?;
                 let mut out = items.clone();
                 for i in 0..args.len() {
                     match value(i)? {
-                        Static::List(more) => out.extend(more),
-                        other => out.push(other),
+                        Static::List(more) => {
+                            fuel.charge(more.len())?;
+                            out.extend(more)
+                        }
+                        other => {
+                            fuel.spend()?;
+                            out.push(other)
+                        }
                     }
                 }
                 Some(Static::List(out))
@@ -982,25 +1128,30 @@ fn method_call(
                 let sep = args
                     .first()
                     .map(|_| value(0))
-                    .unwrap_or(Some(Static::Str(",".into())))?;
-                Some(Static::Str(
-                    items
-                        .iter()
-                        .map(Static::to_text)
-                        .collect::<Vec<_>>()
-                        .join(&sep.to_text()),
-                ))
+                    .unwrap_or(Some(Static::Str(",".into())))?
+                    .to_text();
+                // What the joined text will weigh, paid before it is made.
+                let parts: Vec<String> = items.iter().map(Static::to_text).collect();
+                let len = parts.iter().map(String::len).sum::<usize>()
+                    + sep.len().saturating_mul(items.len().saturating_sub(1));
+                fuel.text(len)?;
+                Some(Static::Str(parts.join(&sep)))
             }
             "reverse" => {
+                fuel.copy(receiver)?;
                 let mut out = items.clone();
                 out.reverse();
                 Some(Static::List(out))
             }
-            "sort" => Some(Static::List(sorted(items, args.first(), scope, fuel)?)),
+            "sort" => {
+                fuel.copy(receiver)?;
+                Some(Static::List(sorted(items, args.first(), scope, fuel)?))
+            }
             // The helpers the runtime adds to a list.
             "sortBy" => {
                 let f = args.first()?;
                 let mut keyed = Vec::new();
+                fuel.copy(receiver)?;
                 for item in items {
                     keyed.push((
                         apply(f, std::slice::from_ref(item), scope, fuel)?,
@@ -1018,6 +1169,7 @@ fn method_call(
             "groupBy" => {
                 let f = args.first()?;
                 let mut groups: Vec<(String, Static)> = Vec::new();
+                fuel.copy(receiver)?;
                 for item in items {
                     let key = apply(f, std::slice::from_ref(item), scope, fuel)?.to_text();
                     match groups.iter_mut().find(|(k, _)| *k == key) {
@@ -1030,7 +1182,9 @@ fn method_call(
             "unique" => {
                 let mut out: Vec<Static> = Vec::new();
                 for item in items {
+                    fuel.spend()?;
                     if !out.contains(item) {
+                        fuel.copy(item)?;
                         out.push(item.clone());
                     }
                 }
@@ -1038,7 +1192,9 @@ fn method_call(
             }
             "take" => {
                 let n = number(0)?.max(0.0) as usize;
-                Some(Static::List(items.iter().take(n).cloned().collect()))
+                let taken = Static::List(items.iter().take(n).cloned().collect());
+                fuel.copy(&taken)?;
+                Some(taken)
             }
             "first" => Some(items.first().cloned().unwrap_or(Static::Null)),
             "last" => Some(items.last().cloned().unwrap_or(Static::Null)),
@@ -1051,8 +1207,14 @@ fn method_call(
                 let mut out = Vec::new();
                 for (i, item) in items.iter().enumerate() {
                     match apply(f, &[item.clone(), Static::Num(i as f64)], scope, fuel)? {
-                        Static::List(more) => out.extend(more),
-                        other => out.push(other),
+                        Static::List(more) => {
+                            fuel.charge(more.len())?;
+                            out.extend(more)
+                        }
+                        other => {
+                            fuel.spend()?;
+                            out.push(other)
+                        }
                     }
                 }
                 Some(Static::List(out))
@@ -1069,8 +1231,14 @@ fn method_call(
             _ => None,
         },
         Static::Str(s) => match method {
-            "toLowerCase" | "toLower" => Some(Static::Str(s.to_lowercase())),
-            "toUpperCase" | "toUpper" => Some(Static::Str(s.to_uppercase())),
+            "toLowerCase" | "toLower" => {
+                fuel.text(s.len())?;
+                Some(Static::Str(s.to_lowercase()))
+            }
+            "toUpperCase" | "toUpper" => {
+                fuel.text(s.len())?;
+                Some(Static::Str(s.to_uppercase()))
+            }
             "trim" => Some(Static::Str(s.trim().to_string())),
             "indexOf" => {
                 let needle = value(0)?.to_text();
@@ -1084,6 +1252,7 @@ fn method_call(
             "startsWith" => Some(Static::Bool(s.starts_with(&value(0)?.to_text()))),
             "endsWith" => Some(Static::Bool(s.ends_with(&value(0)?.to_text()))),
             "split" => {
+                fuel.text(s.len())?;
                 let parts: Vec<Static> = match value(0)? {
                     Static::Regex(p, f) => compile_regex(&p, &f)?
                         .split(s)
@@ -1098,6 +1267,7 @@ fn method_call(
                         }
                     }
                 };
+                fuel.charge(parts.len())?;
                 Some(Static::List(parts))
             }
             "replace" | "replaceAll" => {
@@ -1106,7 +1276,17 @@ fn method_call(
                     Static::Regex(p, f) => {
                         let re = compile_regex(&p, &f)?;
                         let to = js_replacement(&to);
-                        let out = if f.contains('g') || method == "replaceAll" {
+                        // A replacement may be longer than what it replaces,
+                        // at every match, and `$&` repeats the match: the
+                        // most the result can weigh is paid before it is
+                        // made.
+                        let all = f.contains('g') || method == "replaceAll";
+                        let mut most = s.len();
+                        for m in re.find_iter(s).take(if all { usize::MAX } else { 1 }) {
+                            most = most.saturating_add(to.len().saturating_mul(m.len().max(1)));
+                        }
+                        fuel.text(most)?;
+                        let out = if all {
                             re.replace_all(s, to.as_str()).to_string()
                         } else {
                             re.replacen(s, 1, to.as_str()).to_string()
@@ -1115,6 +1295,12 @@ fn method_call(
                     }
                     from => {
                         let from = from.to_text();
+                        let matches = if from.is_empty() {
+                            s.chars().count() + 1
+                        } else {
+                            s.matches(from.as_str()).count()
+                        };
+                        fuel.text(s.len().saturating_add(matches.saturating_mul(to.len())))?;
                         Some(Static::Str(if method == "replaceAll" {
                             s.replace(&from, &to)
                         } else {
@@ -1232,9 +1418,15 @@ fn method_call(
             _ => None,
         },
         Static::Num(n) => match method {
+            // JavaScript takes 0 to 100 digits and throws a RangeError for
+            // anything else, which the running page shows; the build does
+            // not guess at it.
             "toFixed" => {
-                let digits = number(0).unwrap_or(0.0) as usize;
-                Some(Static::Str(format!("{:.*}", digits, n)))
+                let digits = number(0).unwrap_or(0.0).trunc();
+                if !(0.0..=100.0).contains(&digits) {
+                    return None;
+                }
+                Some(Static::Str(format!("{:.*}", digits as usize, n)))
             }
             "toString" => Some(Static::Str(Static::Num(*n).to_text())),
             _ => None,
@@ -1448,21 +1640,31 @@ fn run(stmts: &[Statement], scope: &mut Scope, fuel: &Fuel) -> Option<Flow> {
                 let Expr::Identifier(name) = base else {
                     return None;
                 };
-                let Some(Static::List(items)) = scope.get(name).cloned() else {
+                if !matches!(scope.get(name), Some(Static::List(_))) {
                     return None;
+                }
+                // `push` adds to the list where it is held, rather than
+                // copying it whole for every item a loop adds.
+                if method == "push" {
+                    let mut pushed = Vec::with_capacity(args.len());
+                    for a in args {
+                        pushed.push(eval_in(a, scope, fuel)?);
+                    }
+                    fuel.charge(pushed.len())?;
+                    if let Some(Static::List(items)) = scope.get_mut(name) {
+                        items.extend(pushed);
+                    }
+                    continue;
+                }
+                let items = match scope.get(name) {
+                    Some(Static::List(items)) => items.clone(),
+                    _ => return None,
                 };
                 let updated = match method {
                     "sort" => sorted(&items, args.first(), scope, fuel)?,
                     "reverse" => {
                         let mut out = items;
                         out.reverse();
-                        out
-                    }
-                    "push" => {
-                        let mut out = items;
-                        for a in args {
-                            out.push(eval_in(a, scope, fuel)?);
-                        }
                         out
                     }
                     _ => return None,
@@ -1476,7 +1678,9 @@ fn run(stmts: &[Statement], scope: &mut Scope, fuel: &Fuel) -> Option<Flow> {
     Some(Flow::Continue)
 }
 
-fn binary(l: &Static, op: &BinOp, r: &Static) -> Option<Static> {
+/// `l op r` as JavaScript works it out, or `None` where the build does not
+/// know or will not guess (a comparison of two strings, a division by zero).
+pub fn binary(l: &Static, op: &BinOp, r: &Static) -> Option<Static> {
     use BinOp::*;
     match op {
         Add => match (l, r) {
