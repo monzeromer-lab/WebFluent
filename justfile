@@ -49,13 +49,13 @@ browser-features: release
 # Build and serve the docs site locally
 site:
     cargo build --release
-    target/release/wf build -d site
-    target/release/wf dev -d site
+    target/release/wf build -d site --allow-output-outside
+    target/release/wf serve -d site --allow-output-outside
 
 # Build the docs site for production
 site-build:
     cargo build --release
-    target/release/wf build -d site
+    target/release/wf build -d site --allow-output-outside
 
 # PDFs and previews go to site/public/showcase/, the list to
 # site/src/showcase.json; needs pdftoppm, pdfinfo and magick. `--hero` also

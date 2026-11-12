@@ -139,7 +139,7 @@ python3 scripts/site-data.py >/dev/null
 # The gallery (/showcase): every example rendered by this compiler, with
 # previews. Needs pdftoppm and pdfinfo (poppler-utils) and magick.
 python3 scripts/showcase.py | tail -n1
-target/release/wf build -d site | tail -n1
+target/release/wf build -d site --allow-output-outside | tail -n1
 
 step "Release preflight"
 scripts/release-preflight.sh "$tag" || { restore; stop "the preflight failed; every file is back as it was"; }

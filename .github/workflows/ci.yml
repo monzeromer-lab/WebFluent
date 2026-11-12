@@ -284,7 +284,7 @@ jobs:
       # The documentation site is a real WebFluent project; if the compiler
       # breaks it, the compiler is broken.
       - name: Documentation site builds
-        run: cargo run --release -- build -d site
+        run: cargo run --release -- build -d site --allow-output-outside
 
       # The printer and the smallest edit, over every project in the
       # repository: `cargo test` in a debug build reads a quarter of it.

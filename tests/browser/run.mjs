@@ -23,7 +23,7 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = fileURLToPath(new URL("../..", import.meta.url));
-const WF = ["target/release/wf", "target/debug/wf"].map((p) => join(ROOT, p)).find(existsSync);
+const WF = process.env.WF || ["target/release/wf", "target/debug/wf"].map((p) => join(ROOT, p)).find(existsSync);
 const CHROME = [
   "/usr/bin/google-chrome",
   "/usr/bin/google-chrome-stable",
@@ -60,7 +60,7 @@ function prepare(subject, work) {
     cpSync(subject.dir, dir, { recursive: true, filter: (p) => !p.includes("/.git") });
     rmSync(join(dir, "build"), { recursive: true, force: true });
   }
-  execFileSync(WF, ["build", "-d", dir], { stdio: "pipe" });
+  execFileSync(WF, ["build", "-d", dir, "--allow-output-outside"], { stdio: "pipe" });
   return dir;
 }
 
@@ -89,7 +89,7 @@ function main() {
       let report;
       try {
         report = JSON.parse(
-          execFileSync(WF, ["verify", dir, "--json"], { stdio: "pipe", maxBuffer: 64e6 }),
+          execFileSync(WF, ["verify", dir, "--json", "--allow-output-outside"], { stdio: "pipe", maxBuffer: 64e6 }),
         );
       } catch (e) {
         // A failing verify still prints its report, and the report is
