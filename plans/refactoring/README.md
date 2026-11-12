@@ -1,11 +1,12 @@
 # WebFluent refactoring: the plan
 
-Status: **Phase 1 done** (the editors are their own repositories, linked
-as submodules). A full Rust review of the code is in
-[review.md](review.md) (14 bugs, B1–B14), and a security and memory review
-in `security-and-memory.md` (S1–S47, M1–M28; confidential until fixed).
-Both feed Phase 0b.
-Phase 0 is next. No compiler code has moved yet.
+Status: **Phase 1 and Phase 0b done.** The editors are their own
+repositories, linked as submodules. Every bug the two reviews found —
+B1–B14 ([review.md](review.md)) and S1–S47, M1–M28 (the security and
+memory review, kept out of the repository) — is fixed with a regression
+test; see Phase 0b for the few that are partial or wait on the
+maintainer. Phase 0 (the golden-output safety net) is next, then the
+refactor itself. No module has moved yet.
 Last updated: 2026-11-12.
 
 This file is the single source of truth for the refactor. It records what
@@ -269,6 +270,38 @@ independent of Phases 2–6 and can run alongside them.
 Done when: CI runs the golden, snapshot and semver checks on every PR.
 
 ### Phase 0b — Fix the bugs the reviews found (one PR each)
+
+**Done (2026-11-12).** Fixed in five areas, each its own branch merged into
+`master`: the browser runtime and service worker; files, `wf serve`, the
+language server and tooling; generated output; the front end, checker,
+template engine and images; supply chain, CI and the editors. Each fix has
+a regression test written first; the merged tree passes `cargo fmt`,
+`clippy -D warnings`, 2,516 Rust tests, 720 JavaScript tests, every
+browser test (three new: `leaks.mjs`, `redirects.mjs`, `output_security.mjs`)
+and `cargo deny`, and a replay of every original reproduction (27 checks)
+passes against the fixed build.
+
+New on the command line: `--allow-output-outside` (`build`, `serve`,
+`verify`), `wf serve --host` (loopback by default),
+`WF_ALLOW_SHELL_ENV`, `WF_CHROME_NO_SANDBOX`; new codes `E120` (nesting
+deeper than 100) and `E121` (a render that would do too much).
+
+Partial or waiting on the maintainer:
+
+- **Font folders** (`pdf.fonts`) may still point outside the project: the
+  shipped examples share `../fonts`, and only font files are read there.
+- **Two apps on one origin** are kept apart by `base_path`, which their
+  assets already need; the app name is not part of storage names.
+- **Trusted publishing** (crates.io, npm): the workflows try OIDC first and
+  fall back to the tokens until the publishers are configured
+  (RELEASING.md says how).
+- **The editors pin server `v5.15.0`**, the first release that publishes
+  `SHA256SUMS` and the bare `wf-lsp` assets. Release it under that tag, or
+  change `SERVER_VERSION` in both extensions.
+- **Unmaintained font crates** (`rustybuzz`, `ttf-parser`) are listed in
+  `deny.toml` until krilla/usvg move off them.
+
+The original plan for this phase follows.
 
 Two reviews found behaviour bugs: the Rust review
 ([review.md §1](review.md#1-bugs-found--fix-these-before-refactoring), B1–B14)
