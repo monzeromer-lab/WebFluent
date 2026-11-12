@@ -76,7 +76,9 @@
           if (nu && v === count && typeof Intl !== "undefined") {
             try { shown = new Intl.NumberFormat(spoken, { useGrouping: false }).format(v); } catch (e) { /* unknown digits */ }
           }
-          text = text.replace(new RegExp("\\{" + k + "\\}", "g"), shown);
+          // Split and joined, not `replace`: a value with `$&` or `$'` in
+          // it is put in as written, not read as a replacement pattern.
+          text = text.split("{" + k + "}").join(shown);
         }
       }
       return text;

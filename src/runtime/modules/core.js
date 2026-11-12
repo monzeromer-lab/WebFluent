@@ -916,13 +916,35 @@
     return true;
   }
 
+  /// Whether an address, as the browser would resolve it from this page,
+  /// is on this site. `navigate()` moves within the site: a value the page
+  /// was handed — `?next=//elsewhere` after a login — must not take the
+  /// reader to another one. A page with no address to compare against (a
+  /// test, a worker) is not judged.
+  function _onThisSite(address) {
+    if (typeof window === "undefined" || !window.location) return true;
+    const here = window.location.href;
+    if (typeof here !== "string" || !/^[a-z][a-z0-9+.-]*:/i.test(here)) return true;
+    try {
+      return new URL(String(address), here).origin === new URL(here).origin;
+    } catch (e) {
+      return false;
+    }
+  }
+
   function navigate(path) {
     if (_ssgMode) {
       // SSG: full page load to the pre-rendered HTML file
-      window.location.href = _basePath + path;
+      const to = _basePath + path;
+      if (!_onThisSite(to)) {
+        if (devMode()) console.warn("WF: navigate() stays on the site; " + JSON.stringify(String(path)) + " is another one.");
+        return;
+      }
+      window.location.href = to;
     } else if (routerInstance) {
       routerInstance.navigate(path);
     } else {
+      if (!_onThisSite(path)) return;
       window.location.href = path;
     }
   }
