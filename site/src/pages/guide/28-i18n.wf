@@ -159,7 +159,8 @@ page Home(path: "/", title: "Home", description: "The home page.") {
     Heading("مرحباً").h1
 }
 
-page HomeEn(path: "/en", title: "Monzer Omer", description: "Engineer.", lang: "en", translates: Home) {
+page HomeEn(path: "/en", title: "Monzer Omer", description: "Engineer.",
+            lang: "en", translates: Home) {
     Heading("Hello").h1
 }"#, title: "wf")
 
