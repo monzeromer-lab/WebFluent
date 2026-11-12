@@ -850,13 +850,24 @@ fn corpus_name(path: &str) -> String {
     path.trim_end_matches(".md").replace('/', "--")
 }
 
-/// The committed corpus is what the guide's blocks are now. Run with
-/// `WF_WRITE_GUIDE_CORPUS=1` to rewrite it after the guide changes.
+/// The grammar's corpus is what the guide's blocks are now. The grammars
+/// are the `editors/tree-sitter-webfluent` submodule; without it checked
+/// out there is nothing to compare, and CI checks it out. After the guide
+/// changes, run with `WF_WRITE_GUIDE_CORPUS=1`, then commit the corpus in
+/// the submodule and bump it here.
 #[test]
 fn the_editor_grammar_corpus_is_current_with_the_guide() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR"));
-    let wf_dir = root.join("editors/tree-sitter-webfluent/test/guide");
-    let wfx_dir = root.join("editors/tree-sitter-webfluentx/test/guide");
+    let grammars = root.join("editors/tree-sitter-webfluent");
+    if !grammars.join("tree-sitter.json").exists() {
+        eprintln!(
+            "skipped: the grammar submodule is not checked out \
+             (git submodule update --init editors/tree-sitter-webfluent)"
+        );
+        return;
+    }
+    let wf_dir = grammars.join("webfluent/test/guide");
+    let wfx_dir = grammars.join("webfluentx/test/guide");
     let write = std::env::var_os("WF_WRITE_GUIDE_CORPUS").is_some();
     if write {
         for dir in [&wf_dir, &wfx_dir] {
@@ -894,7 +905,8 @@ fn the_editor_grammar_corpus_is_current_with_the_guide() {
     assert!(
         stale.is_empty(),
         "the editor grammar's corpus is behind the guide; rewrite it with \
-         `WF_WRITE_GUIDE_CORPUS=1 cargo test --test docs_parse the_editor_grammar_corpus`: {stale:?}"
+         `WF_WRITE_GUIDE_CORPUS=1 cargo test --test docs_parse the_editor_grammar_corpus` \
+         and commit it in the submodule: {stale:?}"
     );
 }
 

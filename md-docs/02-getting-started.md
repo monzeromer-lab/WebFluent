@@ -174,14 +174,13 @@ cargo install --path crates/wf-lsp
 
 Then connect your editor:
 
-- **VS Code** — the extension in `editors/vscode` brings highlighting and
-  the language server. Until it is on the Marketplace, run
-  `npm ci && npm run package` in that folder and install the `.vsix` it
-  writes with **Extensions: Install from VSIX**.
-- **Zed** — the extension in `editors/zed` brings Tree-sitter highlighting,
+- **VS Code** — the extension, [webfluent-vscode](https://github.com/monzeromer-lab/webfluent-vscode), brings highlighting and
+  the language server. Until it is on the Marketplace, install the `.vsix`
+  from its latest release with **Extensions: Install from VSIX**.
+- **Zed** — the extension, [webfluent-zed](https://github.com/monzeromer-lab/webfluent-zed), brings Tree-sitter highlighting,
   the outline, snippets and the language server (found on `PATH`, or
   downloaded from the latest release). Install it with
-  **zed: install dev extension**, pointed at that folder.
+  **zed: install dev extension**, pointed at a clone of it.
 - **Neovim, Helix, Emacs, or any other editor with LSP** — run `wf-lsp`
   over stdio for the `webfluent` file type (`*.wf`, `*.wfx`).
   [Editors](41-cli.md#editors) has the configuration for each.

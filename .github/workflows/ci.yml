@@ -38,36 +38,6 @@ jobs:
           shellcheck scripts/*.sh
           actionlint .github/workflows/*.yml
 
-  # The VS Code extension, built and packaged as the marketplace would take
-  # it. Its 0.2.0 package could not start — the language client was left out
-  # of it — and nothing before this built or loaded what it carried.
-  vscode:
-    name: VS Code extension
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: editors/vscode
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-          cache-dependency-path: editors/vscode/package-lock.json
-
-      - run: npm ci --no-audit --no-fund
-      - run: npm run typecheck
-      - run: npm run build
-
-      # With the network: the latest release's server is downloaded and
-      # answers `initialize`, as a reader's first start would do.
-      - run: npm test
-        env:
-          WF_NETWORK_TESTS: "1"
-
-      - run: npx vsce package --out webfluent.vsix
-
   # What only a real browser has — a service worker, WebRTC — is driven in a
   # real Chrome: `offline` (the site stored, served with the server gone, a
   # write kept and sent once, an update taken with one reload, pre-rendered
@@ -176,7 +146,11 @@ jobs:
     name: Build, lint and test
     runs-on: ubuntu-latest
     steps:
+      # The grammar submodule: tests/docs_parse.rs holds its corpus to the
+      # guide, and the printer reads its tests.
       - uses: actions/checkout@v4
+        with:
+          submodules: true
 
       - uses: dtolnay/rust-toolchain@stable
         with:
@@ -237,6 +211,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: true
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
 
@@ -278,7 +254,12 @@ jobs:
     name: Zed extension and grammar
     runs-on: ubuntu-latest
     steps:
+      # Every editor is a submodule; this job checks the pinned commits still
+      # agree with this compiler: the grammar parses everything here, the
+      # queries compile, and the vocabularies match.
       - uses: actions/checkout@v4
+        with:
+          submodules: true
       - uses: dtolnay/rust-toolchain@stable
         with:
           targets: wasm32-wasip2
@@ -300,5 +281,5 @@ jobs:
       - name: Grammar corpus, every .wf in the repo, queries, crate, vocabulary
         run: just zed-check
 
-      - name: Generated parser is committed
-        run: git diff --exit-code -- editors/tree-sitter-webfluent/src
+      - name: Generated parsers are committed
+        run: git -C editors/tree-sitter-webfluent diff --exit-code -- webfluent/src webfluentx/src

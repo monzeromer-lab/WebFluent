@@ -31,15 +31,10 @@ fn sources(dir: &Path, out: &mut Vec<PathBuf>) {
 fn every_statement_prints_back_as_itself() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR"));
     let mut files: Vec<PathBuf> = Vec::new();
-    // `editors/zed/` holds copies of this repository; the grammars' own
-    // tests are what is new there.
-    for dir in [
-        "examples",
-        "site",
-        "tests",
-        "editors/tree-sitter-webfluent",
-        "editors/tree-sitter-webfluentx",
-    ] {
+    // The grammars' tests are in their submodule, read when it is checked
+    // out (`git submodule update --init`); `editors/zed/` holds copies of
+    // this repository.
+    for dir in ["examples", "site", "tests", "editors/tree-sitter-webfluent"] {
         sources(&root.join(dir), &mut files);
     }
     if let Ok(more) = std::env::var("WF_PRINT_CORPUS") {
@@ -131,13 +126,7 @@ fn every_statement_prints_back_as_itself() {
 fn every_declaration_prints_back_as_itself() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR"));
     let mut files: Vec<PathBuf> = Vec::new();
-    for dir in [
-        "examples",
-        "site",
-        "tests",
-        "editors/tree-sitter-webfluent",
-        "editors/tree-sitter-webfluentx",
-    ] {
+    for dir in ["examples", "site", "tests", "editors/tree-sitter-webfluent"] {
         sources(&root.join(dir), &mut files);
     }
     if let Ok(more) = std::env::var("WF_PRINT_CORPUS") {

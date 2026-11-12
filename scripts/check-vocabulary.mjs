@@ -10,7 +10,9 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const root = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
+// The compiler's repository, with the editors' submodules checked out
+// (`git submodule update --init`).
+const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const read = (path) => readFileSync(join(root, path), "utf8");
 
 function rustList(source, name) {
@@ -53,7 +55,7 @@ const checks = [
     what: "built-in component names",
     file: "grammar.js",
     expected: rustList(read("src/lexer/token.rs"), "ALL_COMPONENT_NAMES"),
-    actual: jsList(read("editors/tree-sitter-webfluent/grammar.js"), "BUILTIN_COMPONENTS"),
+    actual: jsList(read("editors/tree-sitter-webfluent/webfluent/grammar.js"), "BUILTIN_COMPONENTS"),
   },
   {
     what: "built-in component names",

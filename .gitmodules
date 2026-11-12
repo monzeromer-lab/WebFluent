@@ -1,0 +1,12 @@
+[submodule "editors/tree-sitter-webfluent"]
+	path = editors/tree-sitter-webfluent
+	url = https://github.com/monzeromer-lab/tree-sitter-webfluent.git
+	shallow = true
+[submodule "editors/zed"]
+	path = editors/zed
+	url = https://github.com/monzeromer-lab/webfluent-zed.git
+	shallow = true
+[submodule "editors/vscode"]
+	path = editors/vscode
+	url = https://github.com/monzeromer-lab/webfluent-vscode.git
+	shallow = true

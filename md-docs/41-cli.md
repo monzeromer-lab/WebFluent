@@ -1049,18 +1049,17 @@ It provides:
 
 ### Zed
 
-The extension is in `editors/zed`. It is not in Zed's extension registry
-yet, so install it with `zed: install dev extension`, pointing at that
-folder. It provides Tree-sitter highlighting, the outline, brackets,
+The extension is [webfluent-zed](https://github.com/monzeromer-lab/webfluent-zed). It is not in Zed's extension registry
+yet, so clone it and install it with `zed: install dev extension`, pointing
+at the clone. It provides Tree-sitter highlighting, the outline, brackets,
 indentation, snippets and the language server (found on `PATH`, or
 downloaded from the latest release), for `.wf` and `.wfx`.
 
 ### VS Code
 
-The extension is in `editors/vscode`: TextMate highlighting and the
-language server. Until it is on the Marketplace, run `npm ci && npm run
-package` in that folder, then install the `.vsix` with **Extensions: Install
-from VSIX**.
+The extension is [webfluent-vscode](https://github.com/monzeromer-lab/webfluent-vscode): TextMate highlighting and the
+language server. Until it is on the Marketplace, install the `.vsix` from
+its latest release with **Extensions: Install from VSIX**.
 
 ### Neovim
 
@@ -1110,8 +1109,7 @@ With Eglot, define a mode and register the server:
 Any editor with LSP support can run `wf-lsp` over standard input and output;
 the project root is the folder that holds `webfluent.app.json`. For
 highlighting in an editor that reads Tree-sitter, use the grammars in
-`editors/tree-sitter-webfluent` (braces) and
-`editors/tree-sitter-webfluentx` (indentation).
+[tree-sitter-webfluent](https://github.com/monzeromer-lab/tree-sitter-webfluent): `webfluent/` (braces) and `webfluentx/` (indentation).
 
 ## Building a tool on the compiler
 

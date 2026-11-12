@@ -561,8 +561,9 @@ fn every_edit_changes_only_its_own_bytes() {
         "examples",
         "site",
         "tests/fixtures",
-        "editors/zed/grammars/webfluent/examples",
-        "editors/tree-sitter-webfluentx/test/guide",
+        // The guide's blocks in the indented layout, in the grammar
+        // submodule when it is checked out.
+        "editors/tree-sitter-webfluent/webfluentx/test/guide",
     ] {
         sources(&root.join(dir), &mut files);
     }

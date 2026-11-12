@@ -113,11 +113,15 @@ restore() {
 }
 
 step "The Zed extension's grammar"
-rev=$(sed -n 's/^rev = "\([0-9a-f]*\)"/\1/p' editors/zed/extension.toml | head -n1)
-if git diff --quiet "$rev" HEAD -- editors/tree-sitter-webfluent editors/tree-sitter-webfluentx; then
-    echo "  ok  the pinned grammar (${rev:0:7}) is current"
+# The extension and the grammar are submodules, released from their own
+# repositories; a release here only checks they agree.
+grammar=$(git ls-tree HEAD editors/tree-sitter-webfluent | awk '{print $3}')
+rev=$(sed -n 's/^rev = "\([0-9a-f]*\)"/\1/p' editors/zed/extension.toml 2>/dev/null | head -n1)
+if [ "$rev" = "$grammar" ]; then
+    echo "  ok  the Zed extension pins the linked grammar (${rev:0:7})"
 else
-    just zed-pin-grammar
+    restore
+    stop "the Zed extension pins grammar ${rev:0:7}, but editors/tree-sitter-webfluent is ${grammar:0:7}: run \`just zed-pin-grammar\`, push it in editors/zed, and commit the bumped submodule here"
 fi
 
 step "Version $version"
@@ -156,7 +160,7 @@ fi
 
 step "Commit, push, tag"
 git add -A -- Cargo.toml Cargo.lock crates/wf-lsp/Cargo.toml crates/wf-wasm/Cargo.toml \
-    bindings/node/package.json skills RELEASE_NOTES.md editors/zed/extension.toml site docs md-docs
+    bindings/node/package.json skills RELEASE_NOTES.md site docs md-docs
 if git diff --cached --quiet; then
     [ "$resume" = 1 ] || { restore; stop "nothing to commit — the tree is already at $version but HEAD is not \"Release $version\""; }
     echo "  ..  the release commit is already made"

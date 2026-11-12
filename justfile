@@ -182,12 +182,25 @@ fmt-check:
     cargo fmt --all -- --check
 
 # ── Editors ──────────────────────────────────────────
+#
+# The editors are submodules, each its own repository:
+#   editors/tree-sitter-webfluent  both grammars (webfluent/, webfluentx/)
+#   editors/zed                    the Zed extension
+#   editors/vscode                 the VS Code extension
+# Nothing in the compiler's build needs them; these recipes do.
 
 grammar_dir := "editors/tree-sitter-webfluent"
-# The `.wfx` grammar: the same grammar.js generated with its layout tokens on.
-grammarx_dir := "editors/tree-sitter-webfluentx"
-tree_sitter := "../tree-sitter-webfluent/node_modules/.bin/tree-sitter"
+tree_sitter := "../node_modules/.bin/tree-sitter"
 zed_dir := "editors/zed"
+
+# Check out the editors' submodules at the commits this repository pins
+editors-init:
+    git submodule update --init
+
+# Move every editor submodule to its repository's latest commit
+editors-bump:
+    git submodule update --remote
+    git status --short editors
 
 # Install the tree-sitter CLI the grammars are generated with
 grammar-setup:
@@ -195,30 +208,28 @@ grammar-setup:
 
 # Regenerate both parsers from grammar.js; the scanner is one file, included
 grammar-generate:
-    cd {{grammar_dir}} && ./node_modules/.bin/tree-sitter generate
-    cd {{grammarx_dir}} && {{tree_sitter}} generate
+    cd {{grammar_dir}} && npm run generate
 
 # Regenerate, run both corpora, and parse every .wf in the repo with the
 # braced grammar and its .wfx spelling with the indented one
 grammar-test: grammar-generate
-    cd {{grammar_dir}} && ./node_modules/.bin/tree-sitter test
-    cd {{grammarx_dir}} && {{tree_sitter}} test
-    cd {{grammar_dir}} && ./node_modules/.bin/tree-sitter parse --stat -q \
-        $(find ../../site ../../tests ../../examples -name '*.wf' -not -path '*/tests/migrate/corpus/*' 2>/dev/null) \
+    cd {{grammar_dir}} && npm test
+    cd {{grammar_dir}}/webfluent && {{tree_sitter}} parse --stat -q \
+        $(find ../../../site ../../../tests ../../../examples -name '*.wf' -not -path '*/tests/migrate/corpus/*' 2>/dev/null) \
         | tee /dev/stderr | grep -q 'failed parses: 0;'
     # Every block of the guide the compiler accepts (tests/docs_parse.rs keeps
     # `test/guide` current): the files above use a fraction of the language.
-    cd {{grammar_dir}} && ./node_modules/.bin/tree-sitter parse --stat -q test/guide/*.wf \
+    cd {{grammar_dir}}/webfluent && {{tree_sitter}} parse --stat -q test/guide/*.wf \
         | tee /dev/stderr | grep -q 'failed parses: 0;'
     rm -rf target/grammar-wfx && mkdir -p target/grammar-wfx && cp -r site target/grammar-wfx/site \
         && cargo run -q -- fmt --to wfx target/grammar-wfx/site > /dev/null
     # The guide in the indented layout: its `.wfx` blocks as written, and its
     # braced ones converted. A file the converter refuses — one that indents
     # a line deeper without opening a block — keeps its braced spelling.
-    mkdir -p target/grammar-wfx/guide && cp {{grammar_dir}}/test/guide/*.wf target/grammar-wfx/guide/ \
+    mkdir -p target/grammar-wfx/guide && cp {{grammar_dir}}/webfluent/test/guide/*.wf target/grammar-wfx/guide/ \
         && (cargo run -q -- fmt --to wfx target/grammar-wfx/guide > /dev/null 2>&1 || true) \
-        && rm -f target/grammar-wfx/guide/*.wf && cp {{grammarx_dir}}/test/guide/*.wfx target/grammar-wfx/guide/
-    cd {{grammarx_dir}} && {{tree_sitter}} parse --stat -q $(find ../../target/grammar-wfx -name '*.wfx') \
+        && rm -f target/grammar-wfx/guide/*.wf && cp {{grammar_dir}}/webfluentx/test/guide/*.wfx target/grammar-wfx/guide/
+    cd {{grammar_dir}}/webfluentx && {{tree_sitter}} parse --stat -q $(find ../../../target/grammar-wfx -name '*.wfx') \
         | tee /dev/stderr | grep -q 'failed parses: 0;'
 
 # Build the Zed extension's Rust crate for the target Zed uses
@@ -229,21 +240,23 @@ zed-build:
 zed-check: grammar-test zed-build
     cd {{zed_dir}} && cargo clippy --target wasm32-wasip2 -- -D warnings
     cd {{zed_dir}} && cargo fmt -- --check
-    cd {{grammar_dir}} && for q in highlights brackets outline indents injections overrides textobjects; do \
-        ./node_modules/.bin/tree-sitter query ../zed/languages/webfluent/$q.scm ../../site/src/App.wf > /dev/null || exit 1; \
+    cd {{grammar_dir}}/webfluent && for q in highlights brackets outline indents injections overrides textobjects; do \
+        {{tree_sitter}} query ../../zed/languages/webfluent/$q.scm ../../../site/src/App.wf > /dev/null || exit 1; \
     done
-    cd {{grammarx_dir}} && for q in highlights brackets outline indents injections overrides textobjects; do \
-        {{tree_sitter}} query ../zed/languages/webfluentx/$q.scm ../../target/grammar-wfx/site/src/App.wfx > /dev/null || exit 1; \
+    cd {{grammar_dir}}/webfluentx && for q in highlights brackets outline indents injections overrides textobjects; do \
+        {{tree_sitter}} query ../../zed/languages/webfluentx/$q.scm ../../../target/grammar-wfx/site/src/App.wfx > /dev/null || exit 1; \
     done
     for q in highlights brackets outline injections overrides textobjects; do \
         cmp {{zed_dir}}/languages/webfluent/$q.scm {{zed_dir}}/languages/webfluentx/$q.scm || exit 1; \
     done
-    node {{zed_dir}}/scripts/check-vocabulary.mjs
+    node scripts/check-vocabulary.mjs
 
-# Point the Zed extension at the grammar in the current HEAD commit
+# The commit of the grammar submodule, to put in the Zed extension's
+# extension.toml (Zed clones tree-sitter-webfluent at that `rev`)
 zed-pin-grammar:
-    sed -i 's/^rev = "[0-9a-f]*"/rev = "'"$(git rev-parse HEAD)"'"/' {{zed_dir}}/extension.toml
+    sed -i 's/^rev = "[0-9a-f]*"/rev = "'"$(git -C {{grammar_dir}} rev-parse HEAD)"'"/' {{zed_dir}}/extension.toml
     @grep '^rev' {{zed_dir}}/extension.toml
+    @echo "Commit and push this in {{zed_dir}}, then bump the submodule here."
 
 # ── Clean ────────────────────────────────────────────
 

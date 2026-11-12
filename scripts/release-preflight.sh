@@ -59,18 +59,20 @@ else
 fi
 
 # 3. The Zed extension builds the grammar at the commit it pins, so that
-#    commit's grammar has to be this one's.
-rev=$(sed -n 's/^rev = "\([0-9a-f]*\)"/\1/p' editors/zed/extension.toml | sort -u)
-if [ "$(echo "$rev" | wc -l)" -ne 1 ] || [ -z "$rev" ]; then
-    fail "editors/zed/extension.toml pins more than one grammar commit: $rev"
-elif ! git cat-file -e "$rev^{commit}" 2>/dev/null; then
-    fail "editors/zed/extension.toml pins $rev, which this checkout does not have."
-elif git diff --quiet "$rev" HEAD -- \
-        editors/tree-sitter-webfluent/grammar.js editors/tree-sitter-webfluent/src \
-        editors/tree-sitter-webfluentx/grammar.js editors/tree-sitter-webfluentx/src; then
-    ok "the Zed extension pins the current grammar (${rev:0:7})"
+#    has to be the grammar this release links (the tree-sitter-webfluent
+#    submodule). Both are submodules; `just editors-init` checks them out.
+grammar=$(git ls-tree HEAD editors/tree-sitter-webfluent | awk '{print $3}')
+if [ ! -f editors/zed/extension.toml ]; then
+    fail "editors/zed is not checked out. Run \`just editors-init\`."
 else
-    fail "the grammar changed after ${rev:0:7}, the commit the Zed extension pins. Run \`just zed-pin-grammar\` and commit it."
+    rev=$(sed -n 's/^rev = "\([0-9a-f]*\)"/\1/p' editors/zed/extension.toml | sort -u)
+    if [ "$(echo "$rev" | wc -l)" -ne 1 ] || [ -z "$rev" ]; then
+        fail "editors/zed/extension.toml pins more than one grammar commit: $rev"
+    elif [ "$rev" = "$grammar" ]; then
+        ok "the Zed extension pins the linked grammar (${rev:0:7})"
+    else
+        fail "the Zed extension pins grammar ${rev:0:7}, but this repository links ${grammar:0:7}. Run \`just zed-pin-grammar\`, commit and push it in editors/zed, then commit the bumped submodule here."
+    fi
 fi
 
 # 4. The docs site states the release it documents: the header's pill.

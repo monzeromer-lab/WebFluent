@@ -80,12 +80,24 @@ src/
   style_value.rs             a style value's shape, read into its parts and written narrowest
   cli/                       each `wf` command
 crates/wf-lsp/               the language server
-editors/                     VS Code, Zed and the Tree-sitter grammars
+editors/                     VS Code, Zed and the Tree-sitter grammars: submodules, each its own repository
 md-docs/                     this guide
 site/                        the documentation site, written in WebFluent
 tests/                       Rust integration tests, tests/js (runtime), tests/browser (Chrome)
 spec/                        design notes and plans
 ```
+
+The editors live in their own repositories — [tree-sitter-webfluent](https://github.com/monzeromer-lab/tree-sitter-webfluent),
+[webfluent-zed](https://github.com/monzeromer-lab/webfluent-zed) and [webfluent-vscode](https://github.com/monzeromer-lab/webfluent-vscode) — linked here as submodules under `editors/`. Building and
+testing the compiler needs none of them. To work on one, or to run the
+checks that hold them to the compiler (`just zed-check`), check them out:
+
+```bash
+git submodule update --init
+```
+
+A change there is committed and pushed in its own repository; then the
+submodule's new commit is committed here (`git add editors/zed`).
 
 ## The pipeline
 
@@ -121,7 +133,8 @@ A change to the grammar touches every place that reads or writes source:
 - the parser, in `src/parser/v2.rs`;
 - the formatter and the `.wfx` layout;
 - the printer, in `src/print.rs`;
-- both Tree-sitter grammars, in `editors/`.
+- both Tree-sitter grammars, in [tree-sitter-webfluent](https://github.com/monzeromer-lab/tree-sitter-webfluent) (checked out here as the
+  `editors/tree-sitter-webfluent` submodule).
 
 The guide's own code blocks are the grammar's test corpus.
 `tests/printer_corpus.rs` prints every statement of every project in the

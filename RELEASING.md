@@ -30,39 +30,39 @@ The Node binding (`bindings/node`) goes to npm as `webfluent`, at the same
 version — `just bump` sets it. It needs an npm automation token saved as
 `NPM_TOKEN`; without it that job warns and passes, the same way.
 
-If the grammar changed since the last release, point the Zed extension at
-it before tagging: commit the grammar, then `just zed-pin-grammar` and
-commit that. The preflight refuses a tag whose pinned grammar is stale.
+The editors are released from their own repositories, which this one
+links as submodules under `editors/`. The one tie a release here checks:
+the Zed extension must pin the grammar commit this repository links. The
+preflight refuses a tag where they differ. To bring them together, in
+`editors/tree-sitter-webfluent` push the grammar change; then
+`just zed-pin-grammar`, commit and push that in `editors/zed`, and commit
+both bumped submodules here.
 
 ## The editor extensions
 
-Each release attaches the VS Code extension as a `.vsix`, built from the
-tagged commit; it installs from a file with *Extensions: Install from
-VSIX…*. Its version is its own (`editors/vscode/package.json`): bump it
-when the extension changes, and add its `CHANGELOG.md` entry.
+- **VS Code** — [webfluent-vscode](https://github.com/monzeromer-lab/webfluent-vscode). Tag `v<version>` there (its own version, in its
+  `package.json`) and its release workflow attaches the `.vsix` and
+  publishes it to the marketplaces once their tokens exist, as secrets of
+  *that* repository:
+  - **VS Code Marketplace**: a publisher named `monzeromer-lab`, and an
+    Azure DevOps personal access token with *Marketplace › Manage*, saved
+    as `VSCE_PAT`.
+  - **Open VSX** (VSCodium, Cursor, Gitpod): the namespace created once with
+    `npx ovsx create-namespace monzeromer-lab -p <token>`, and the token
+    saved as `OVSX_PAT`.
 
-The same release publishes it to the marketplaces once their tokens exist:
+  A version already published is skipped.
+- **Zed** — [webfluent-zed](https://github.com/monzeromer-lab/webfluent-zed) (version in `extension.toml`), listed by a pull request
+  to `zed-industries/extensions`: a submodule `extensions/webfluent`
+  pointing at that repository, and
 
-- **VS Code Marketplace** — a publisher named `monzeromer-lab`, and an Azure
-  DevOps personal access token with *Marketplace › Manage*, saved as the
-  secret `VSCE_PAT`.
-- **Open VSX** (VSCodium, Cursor, Gitpod) — an account, the namespace
-  created once with `npx ovsx create-namespace monzeromer-lab -p <token>`,
-  and the token saved as `OVSX_PAT`.
+  ```toml
+  [webfluent]
+  submodule = "extensions/webfluent"
+  version = "3.2.0"
+  ```
 
-A version already published is skipped, so a release that leaves the
-extension alone leaves the marketplaces alone.
-
-The Zed extension (`editors/zed`, version in `extension.toml`) is listed by
-a pull request to `zed-industries/extensions`: a submodule
-`extensions/webfluent` pointing at this repository, and
-
-```toml
-[webfluent]
-submodule = "extensions/webfluent"
-path = "editors/zed"
-version = "3.0.0"
-```
-
-A later version is the same pull request with the submodule moved to the
-new commit and `version` raised.
+  A later version is the same pull request with the submodule moved to the
+  new commit and `version` raised.
+- **Grammars** — [tree-sitter-webfluent](https://github.com/monzeromer-lab/tree-sitter-webfluent). Zed takes them by commit; nothing else is
+  published yet.

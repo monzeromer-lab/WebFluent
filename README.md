@@ -96,7 +96,7 @@ Studio is a separate, closed-source app at **0.1**. Linux, macOS and Windows com
 - **Batteries included** — routing, stores, forms and validation, `fetch` as a typed `api`, i18n with automatic RTL, animations, dark mode.
 - **A template engine for Rust and Node** — render a `.wf` template with your own data to HTML, a fragment or a PDF: `Template::from_dir("templates")?.page("Invoice")?.render_pdf(&invoice)` with any `Serialize` struct, or `npm install webfluent`. Untrusted data is escaped, and a URL that would run script is dropped.
 - **Your own JavaScript, by name** — a plain `.js` file under `src/` is linked as written, and `.wf` code calls its functions directly, checked against their JSDoc. Libraries load from a CDN through `meta.scripts`; any element can be handed to a script with `mount:` and `cleanup:`.
-- **Editor support** — a language server for [Zed](editors/zed) and [VS Code](editors/vscode): completion, hover, signature help, go to definition, references, rename, formatting, inlay types, semantic highlighting, quick fixes. Or all of it in one window, with a preview and a designer: [WebFluent Studio](#webfluent-studio).
+- **Editor support** — a language server for [Zed](https://github.com/monzeromer-lab/webfluent-zed) and [VS Code](https://github.com/monzeromer-lab/webfluent-vscode): completion, hover, signature help, go to definition, references, rename, formatting, inlay types, semantic highlighting, quick fixes. Or all of it in one window, with a preview and a designer: [WebFluent Studio](#webfluent-studio).
 
 ## A taste
 
