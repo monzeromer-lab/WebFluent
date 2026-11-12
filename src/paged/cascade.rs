@@ -1052,8 +1052,8 @@ fn inherit_one(s: &mut Style, parent: &Style, name: &str) {
         "text-align" => s.text_align = parent.text_align,
         "background" | "background-color" => s.background_color = parent.background_color,
         "border-color" => {
-            for i in 0..4 {
-                s.border[i].color = Some(parent.color);
+            for side in &mut s.border {
+                side.color = Some(parent.color);
             }
         }
         _ => {}
