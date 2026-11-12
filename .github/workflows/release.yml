@@ -71,13 +71,16 @@ jobs:
           cargo install --locked cargo-deb@3.8.0
           cargo deb --no-build
 
-      # The `wf-lsp-<tag>-<arch>-<os>.tar.gz` name is what the Zed extension
-      # asks a release for (src/webfluent.rs in webfluent-zed); keep them in step.
+      # `wf-lsp-<tag>-<arch>-<os>.tar.gz` is what the VS Code extension asks
+      # a release for (src/server.ts in webfluent-vscode), and the bare
+      # `wf-lsp-<tag>-<arch>-<os>` what the Zed extension asks for and hashes
+      # itself (src/webfluent.rs in webfluent-zed); keep them in step.
       - name: Create tarballs
         run: |
           mkdir -p dist
           tar czf "dist/wf-$TAG-x86_64-linux.tar.gz" -C target/release wf
           tar czf "dist/wf-lsp-$TAG-x86_64-linux.tar.gz" -C target/release wf-lsp
+          cp target/release/wf-lsp "dist/wf-lsp-$TAG-x86_64-linux"
 
       - name: Collect artifacts
         run: |
@@ -124,6 +127,7 @@ jobs:
           Copy-Item target\release\wf.exe target\release\webfluent.exe
           Compress-Archive -Path target\release\wf.exe,target\release\webfluent.exe -DestinationPath "dist\wf-$env:TAG-x86_64-windows.zip"
           Compress-Archive -Path target\release\wf-lsp.exe -DestinationPath "dist\wf-lsp-$env:TAG-x86_64-windows.zip"
+          Copy-Item target\release\wf-lsp.exe "dist\wf-lsp-$env:TAG-x86_64-windows.exe"
 
       - name: Collect MSI
         run: |
@@ -168,6 +172,7 @@ jobs:
           mkdir -p dist
           tar czf "dist/wf-$TAG-$ARCH-macos.tar.gz" -C "target/$TARGET/release" wf
           tar czf "dist/wf-lsp-$TAG-$ARCH-macos.tar.gz" -C "target/$TARGET/release" wf-lsp
+          cp "target/$TARGET/release/wf-lsp" "dist/wf-lsp-$TAG-$ARCH-macos"
 
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
@@ -196,7 +201,7 @@ jobs:
       - name: SHA256SUMS
         working-directory: dist
         run: |
-          sha256sum -- *.deb *.tar.gz *.msi *.zip > ../SHA256SUMS
+          sha256sum -- *.deb *.tar.gz *.msi *.zip wf-lsp-*-linux wf-lsp-*-macos wf-lsp-*-windows.exe > ../SHA256SUMS
           mv ../SHA256SUMS SHA256SUMS
           cat SHA256SUMS
 
@@ -244,6 +249,9 @@ jobs:
             dist/*.tar.gz
             dist/*.msi
             dist/*.zip
+            dist/wf-lsp-*-linux
+            dist/wf-lsp-*-macos
+            dist/wf-lsp-*-windows.exe
             dist/SHA256SUMS
 
   # After the release exists, so a crate is never published for a release
