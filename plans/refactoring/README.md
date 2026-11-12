@@ -1,7 +1,10 @@
 # WebFluent refactoring: the plan
 
 Status: **Phase 1 done** (the editors are their own repositories, linked
-as submodules). Phase 0 is next. No compiler code has moved yet.
+as submodules). A full Rust review of the code is in
+[review.md](review.md); it found 14 bugs (Phase 0b): 6 reproduced by running, the rest
+confirmed by reading the code.
+Phase 0 is next. No compiler code has moved yet.
 Last updated: 2026-11-12.
 
 This file is the single source of truth for the refactor. It records what
@@ -10,10 +13,13 @@ there. Every phase ends in a state that builds, passes `cargo test`, and
 can be released.
 
 The rules it applies come from the `rust-best-practices` and `rust-review`
-skills (Rust API Guidelines, Effective Rust, Microsoft's Pragmatic Rust
-Guidelines, the Google Rust Style Guide) and from how comparable Rust
-toolchains are laid out: rust-analyzer, Ruff/ty, Typst, oxc, swc, Biome
-and Gleam. Sources are in §12.
+skills installed from BeautifulRust (Rust API Guidelines, Effective Rust,
+Microsoft's Pragmatic Rust Guidelines, the Google Rust Style Guide, Rust
+Design Patterns), applied to this code in [review.md](review.md), and from
+how comparable Rust toolchains are laid out: rust-analyzer, Ruff/ty, Typst,
+oxc, swc, Biome and Gleam. Sources are in §12. Rule citations use the
+skills' codes: `C-*` (API Guidelines), `M-*` (Microsoft), "Item N"
+(Effective Rust), "§N" (the `rust-best-practices` skill).
 
 ---
 
@@ -101,10 +107,10 @@ fixing them is the real work of the split.
 
 - `WebFluentError` mixes structured variants with five `String` variants
   (`CodegenError`, `ConfigError`, `IoError`, `EditError`, `NotFound`), and
-  10 functions return `Result<_, String>` (`paged/mod.rs:246,794`,
-  `patch.rs:259,298`, `reprint.rs:46`, `registry/schema.rs:557`,
-  `linter/structure.rs:47`, …). `IoError(String)` drops the `io::Error`
-  and its path.
+  16 signatures outside `src/cli` use `Result<_, String>`, 5 of them public
+  (`paged/mod.rs:246,794`, `patch.rs:259`, `reprint.rs:46`,
+  `registry/schema.rs:557`). `IoError(String)` drops the `io::Error` and
+  its path. Details in [review.md §2.1](review.md#21-errors-whole-crate).
 - Hidden state: `thread_local!`s for the clock (`platform.rs:72`), output
   capture (`outfs.rs:30`), the media cache (`memory.rs:27`) and studio node
   ids (`template/mod.rs:1468`). These make the library's output depend on
@@ -214,6 +220,12 @@ What we lose by staying one crate, and how we make up for it:
 | Narrow public surfaces | `pub(crate)` per layer, `unreachable_pub` lint, semver checks |
 | Parallel, incremental builds | Smaller files and functions (Phase 5) help incremental builds; measure with `--timings` |
 
+**This departs from the skill.** `rust-best-practices` §9 says "prefer
+small, single-purpose crates in a flat `crates/` workspace". We follow its
+module rules instead (§9: leaf modules named after their item, non-leaf
+modules only declare and re-export, group by use case) because its crate
+rule would force publishing internal crates, which we decided against.
+
 If `webfluent` ever stops being published to crates.io (shipped only as
 the `wf` binary through GitHub releases and `install.sh`), the layers can
 become crates with one `git mv` per layer, because Phase 3 already made
@@ -254,6 +266,34 @@ independent of Phases 2–6 and can run alongside them.
    incremental after touching `codegen/js.rs`) so Phase 4 can show it helped.
 
 Done when: CI runs the golden, snapshot and semver checks on every PR.
+
+### Phase 0b — Fix the bugs the review found (one PR each)
+
+The review ([review.md §1](review.md#1-bugs-found--fix-these-before-refactoring))
+found behaviour bugs. They are fixed **before** the refactor, each with a
+failing test first (skill §11), because the refactor must not change
+behaviour and these must change it. Each fix updates the Phase 0 golden
+files on purpose and says so.
+
+| Order | Bug | Fix in one line |
+|---|---|---|
+| 1 | B1 `℘` hangs the lexer until memory runs out | `read_word` takes the character the dispatcher vetted; a progress assertion in `tokenize` |
+| 2 | B2 deep nesting overflows the stack | A depth limit (256) in the parser, the checker's `infer` and the template's component expansion, reported as a diagnostic; a `cargo fuzz` target on `parse_source` |
+| 3 | B5 a page's state leaks into `app` | Per-body state in one `BodyCx` struct, replaced whole for each page, component, store and the app |
+| 4 | B3 non-Latin state never repaints | `is_reactive_expr` scans chars with `unicode_ident::is_xid_continue`; later, reactivity from the `Expr` |
+| 5 | B4 `\` and `${` in a spliced string | One `template_text` escape used at the three template-literal sites |
+| 6 | B6 CSS injection from template data | Refuse `;`, `{`, `}` and `url(` in a data-driven style value, as the live page's per-property set does |
+| 7 | B8 thread-local render state leaks after a panic | Drop guards now; the studio map moves into `RenderContext` (Phase 5 removes the thread-locals) |
+| 8 | B9 diagnostic depends on `HashMap` order | Pick the store by declaration order |
+| 9 | B10, B11 editor scope and byte column | `child_bodies` from `StatementKind::bodies`; columns in chars |
+| 10 | B12, B14 silent clamps; first error only | Checked conversions with a diagnostic; `ParserV2::parse` returns `Diagnostics`; `ParserV2::new` adds `EOF` |
+| 11 | B13 quadratic `.wfx` lexing | Track the last token's end |
+| 12 | B7 `Template` and `wf build` disagree | Not fixed alone: it is Phase 5's "one evaluator", which snapshots both first |
+
+Also in this phase, since they are wrong today and cost nothing to fix:
+`lib.rs:124` says `version = "4"`; misplaced doc comments
+(`with_theme`/`with_studio`, `pub mod data`, `JsCodegen` setters,
+`TokenType`); `Template::from_str`'s `# Errors` names the wrong variant.
 
 ### Phase 1 — The editors move to their own repositories (independent)
 
@@ -420,70 +460,102 @@ semver checks still pass.
 ### Phase 5 — Inside the layers (parallel, one concern per PR)
 
 These can run in any order once their layer exists. Each PR is
-behaviour-preserving, held by Phase 0.
+behaviour-preserving, held by Phase 0. The findings behind each item, with
+their file:line citations and rules, are in [review.md §2](review.md#2-findings-by-area).
 
-**`web`: break up `codegen/js.rs`.**
+**`web`: break up `codegen/js.rs`** into `src/web/js/` as laid out in
+[review.md §3](review.md#3-file-splits-proposed-by-the-reviews) (`mod.rs`,
+`names.rs`, `expr.rs`, `statement.rs`, `store.rs`, `body.rs`, `dom/`,
+`widgets/`, `net.rs`, `reactive.rs`), one `impl JsCodegen` spread over the
+files. With it:
 
-```
-src/web/js/
-  mod.rs          JsCodegen struct, `generate` (the entry point)
-  expr.rs         emit_expr and friends
-  statement.rs    emit_statement, emit_statement_dom
-  store.rs        emit_store, emit_store_expr, emit_store_statement
-  element.rs      emit_ui_element: a dispatch on the built-in's name
-  builtins/       one file per built-in family (forms, overlays, navigation, media, layout)
-  tables.rs       BROWSER_GLOBALS, BROWSER_VALUES and other constant tables
-```
-
-`emit_ui_element` (1,177 lines) becomes a `match` that calls one function
-per built-in, each next to its siblings. The same treatment applies to
-`ssg::render_builtin` (898 lines).
+- `emit_ui_element` (1,182 lines) looks up a **table of special emitters**
+  before the generic attribute pass, instead of a 900-line `match` on names;
+  `ssg::render_builtin` (898 lines) gets the same treatment.
+- **One expression emitter and one statement emitter** taking an
+  `ExprCx { Page, Store { members } }`, instead of two pairs that have
+  drifted.
+- **One `js_str` escape** (via `serde_json`) for every JS string literal;
+  today titles, redirects, route paths, base paths, OpenAPI paths and
+  locale names are escaped by hand or not at all.
+- **Scopes through a `with_locals` closure** instead of 30+ hand-paired
+  `RefCell` push/truncate calls; build modes as an options struct
+  (`JsOptions`) instead of four `set_*(bool)` setters.
+- **Output through `line(format_args!(…))` and `block(open, close, f)`**,
+  replacing 303 `emit_line(&format!(…))` and 55 hand-paired indents.
+- **Borrow-checker clones go**: the translations map, each page's AST into
+  `current_body`, a whole `UIElement` to swap its args, the quadratic
+  `else if` rebuild.
+- One `case.rs` replaces the three copies of `camel_to_kebab`.
 
 **One evaluator.** `static_eval` becomes `web::eval`. The template engine
-converts its `serde_json::Value` data into `eval`'s value type once at the
-boundary and stops interpreting expressions itself. Snapshot both paths
-over the same expression corpus **before** merging, so any difference is
-seen, not guessed.
+converts its `serde_json::Value` data into `eval`'s scope **once per render**
+and stops interpreting expressions itself (B7; today it also costs
+O(rows × data) per render). Snapshot both paths over the same expression
+corpus **before** merging, so every difference is seen and decided.
 
 **One built-in renderer.** `template` calls `ssg`'s renderer with a
 "no hydration markers" option instead of carrying its own
 `render_builtin`, `render_ui_element` and `render_labelled_input`.
 
-**`check`: split `sema/types.rs`.** `Checker` becomes
-`types/{mod, infer, methods, statement, element, match_, property}.rs`.
-`linter/semantic.rs` merges into `sema` (it re-checks what `sema::check`
-already checks); its tests move with it.
+**`check`: split `sema/types.rs`** into `src/check/types/` as in
+[review.md §3](review.md#3-file-splits-proposed-by-the-reviews). With it:
 
-**Errors.**
+- **Borrow, don't copy**: the checker reads the source as `&str` (today one
+  copy per declaration per check), `own_actions` holds `&[Statement]`, and
+  `unwrapped()`/`lookup()` return `&Type`.
+- **One `ProgramIndex`** built once in `check_project` and handed to
+  `sema::check`, the type checker and the linters, replacing three indexes;
+  `linter/semantic.rs` merges into `sema` with one E101 wording.
+- **Codes and severities from the registry**: a `report(span, code, …)`
+  that reads the severity from `diagnostics::codes`, instead of 113 string
+  literals and a choice of helper.
+- **Desugared forms as `Expr` variants** (`IfValue`, `CaseIs`, …) instead of
+  `"__if"`-style method names matched as strings in seven files.
+- **Context flags as a saved-and-restored `Ctx`**, not bools set and reset
+  by hand.
+- **The non-empty-list proof compares `Expr`s**, not a lossy text rendering.
 
-- Each layer gets its own error type with `thiserror`, one variant
-  per cause, `#[non_exhaustive]`, `source()` for wrapped causes.
-  `IoError(String)` becomes `Io { path: PathBuf, source: io::Error }`.
-- The facade's `WebFluentError` keeps its public variants (semver) and
-  converts from the layer errors with `From`.
-- The 10 `Result<_, String>` sites get real error types.
-- `A11yWarning`, `VocabWarning` and studio's second `Diagnostic` are
-  replaced by `diagnostics::Diagnostic`.
-- `cli` uses `anyhow` with `.context(…)` and maps diagnostics to
-  exit codes as today (1 = findings, 2 = could not run).
+**Errors** ([review.md §2.1](review.md#21-errors-whole-crate)).
+
+- In 5.x (non-breaking): paths in I/O error messages; `# Errors` sections
+  that name the right variant; one `.expect("…lock poisoned")` policy for the
+  font registry; errors that are not "absent" stop being swallowed by
+  `.ok()` and `let Ok(..) else { continue }`.
+- Each layer gets its own error type with `thiserror`, one variant per
+  cause: `IoError { path, #[source] io::Error }`, `ConfigError`, `PdfError`,
+  `RenderError`, `EditError`. The 16 `Result<_, String>` sites get them.
+- `A11yWarning`, `VocabWarning` and `StudioDiagnostic` are replaced by
+  `Diagnostic`.
+- `cli` uses `anyhow` with `.context(…)`; `exit_code()` moves into `cli`.
+- **The next major version (6.0)** makes `WebFluentError`
+  `#[non_exhaustive]`, keeps its variant names, and makes each
+  `#[error(transparent)]` over its layer's error so `source()` walks the
+  chain; `Send + Sync + 'static` is pinned by a const assertion. Breaking
+  changes land together in that release.
 
 **State.** The four `thread_local!`s become fields of a context passed in:
 `Clock` (for `now`), the output sink (`OutFs` already exists), the media
-cache, and the studio id counter. The font database stays a `OnceLock`
-(read-only after load; that is fine).
+cache, and the studio node map (already guarded in Phase 0b). The font
+database stays a `OnceLock`, documented as process-wide.
 
 **Panics.** Audit `unwrap`/`expect` per layer, starting with the parser
 and the template engine (they take outside input). A reachable one becomes
-a diagnostic or an `Err`; an invariant gets `expect("why it holds")`.
-Turn on `clippy::unwrap_used` per layer (`#![warn]` in its `mod.rs`) once its audit is done.
+a diagnostic or an `Err`; an invariant gets `expect("why it holds")`, not
+`expect("just checked")`; check-then-unwrap becomes `if let`/`let else`.
 
-**API shape** (from the skill's checklist, applied per layer): `bool`
-parameters in shared signatures become two-variant enums; `&String` /
-`&Vec<T>` parameters become `&str` / `&[T]`; `get_` prefixes go; public
-types derive `Debug` and the applicable std traits; magic numbers become
-named `const`s; `format!` replaces `+` string building; clones that only
-quiet the borrow checker go (audit the 1,241 in hot paths only: codegen,
-eval, layout).
+**Public surface.** Every internal module becomes `#[doc(hidden)]` now and
+`pub(crate)` in 6.0 (with `wf-lsp` reaching what it needs through a small
+`webfluent::ide` module). The AST, `Type` and the public enums get
+`#[non_exhaustive]` in 6.0; `pub use ast::*` becomes an explicit list.
+`Template`, `LexerV2`, `ParserV2`, `JsCodegen`, `TypeInfo` derive `Debug`;
+`with_*` builders get `#[must_use]`; doc examples use `?`.
+
+**API shape** (the skill's checklist, per layer): `bool` parameters in
+shared signatures become two-variant enums (94 today, `max-fn-params-bools
+= 0`); public types derive `Debug` and the applicable std traits; magic
+numbers become named `const`s; `format!` replaces `+`; clones that only
+quiet the borrow checker go.
 
 ### Phase 6 — Tests and tooling
 
@@ -503,48 +575,95 @@ eval, layout).
 - **Dev profile** as Ruff uses: `opt-level = 1`,
   `debug = "line-tables-only"`, `opt-level = 3` for `insta` and `similar`.
 
-### Phase 7 — Pedantic lints to `deny` in CI
+### Phase 7 — Empty the lint allow-list
 
-Raise the §5.1 table from `warn` to CI-enforced (`cargo clippy -- -D
-warnings`) one lint group at a time, mechanical ones first:
-`uninlined_format_args` and `redundant_closure` (`cargo clippy --fix`),
-then casts (`cast_possible_truncation` etc.: each one is a real question),
-then docs (`missing_errors_doc`, `missing_panics_doc`) on the facade and
-the template engine. Never `#![deny(warnings)]` in source.
+Remove the §5.1 temporary allow-list one line at a time, mechanical ones
+first: `uninlined_format_args` and `redundant_closure` (`cargo clippy
+--fix`), then casts (each one is a real question), then docs
+(`missing_errors_doc`, `missing_panics_doc`) on the facade and the template
+engine. Each lint is CI-enforced (`-D warnings`) the day it reaches zero.
 
 ---
 
 ## 5. Settings
 
-### 5.1 Workspace lints
+### 5.1 Lints: BeautifulRust's config
+
+The `rust-best-practices` skill says a project without a `[lints]` table
+should take BeautifulRust's `lints/lints.toml` and `lints/clippy.toml`. We
+take both as written, plus a **temporary allow-list** that each phase
+shrinks, because on today's code the config reports 7,251 findings
+([review.md §4](review.md#4-the-lint-config)) and would bury the real ones.
+
+In `Cargo.toml`, as `[workspace.lints]` (with `[lints] workspace = true`
+in `webfluent`, `wf-lsp` and `xtask`):
 
 ```toml
 [workspace.lints.rust]
-unsafe_code = "warn"            # paged/ and fonts may need it; each use gets // SAFETY:
-unreachable_pub = "warn"
+unsafe_op_in_unsafe_fn = "warn"
 missing_debug_implementations = "warn"
-unused_qualifications = "warn"
+missing_docs = "warn"
+unreachable_pub = "warn"
+rust_2018_idioms = { level = "warn", priority = -1 }
 
 [workspace.lints.clippy]
+all = { level = "warn", priority = -1 }
 pedantic = { level = "warn", priority = -1 }
-# Pedantic lints that cost more than they give here:
-module_name_repetitions = "allow"
-too_many_lines = "allow"        # until Phase 5 splits the giants; then remove
-must_use_candidate = "allow"    # 633 hits; add #[must_use] by hand where discarding is a bug
-missing_errors_doc = "allow"    # turned on for the facade and template in Phase 7
-similar_names = "allow"
-# Restriction lints worth having:
-dbg_macro = "warn"
-print_stdout = "warn"           # allowed in the cli layer only
-print_stderr = "warn"
-exit = "warn"                   # allowed in the cli layer only
-get_unwrap = "warn"
+unwrap_used = "warn"
+expect_used = "allow"
+panic_in_result_fn = "warn"
+missing_panics_doc = "warn"
+missing_errors_doc = "warn"
+missing_assert_message = "warn"
+allow_attributes = "warn"
 allow_attributes_without_reason = "warn"
+undocumented_unsafe_blocks = "warn"
+multiple_unsafe_ops_per_block = "warn"
+fn_params_excessive_bools = "warn"
+struct_excessive_bools = "warn"
+clone_on_ref_ptr = "warn"
+redundant_clone = "warn"
+rc_buffer = "warn"
+exhaustive_enums = "warn"
+string_add = "warn"
+wildcard_imports = "warn"
+dbg_macro = "warn"
+todo = "warn"
+print_stdout = "warn"
+print_stderr = "warn"
+as_conversions = "warn"
+cast_possible_truncation = "warn"
+cast_sign_loss = "warn"
+module_name_repetitions = "allow"
+must_use_candidate = "allow"
+module_inception = "allow"
+enum_glob_use = "allow"
 ```
 
-Every member: `[lints] workspace = true`. The `cli` module allows
-`print_stdout`/`exit` with `#![expect(…, reason = …)]`. Suppressions use
-`#[expect(lint, reason = "…")]` on the narrowest item.
+And `clippy.toml` beside it, as written:
+
+```toml
+max-fn-params-bools = 0
+allow-unwrap-in-tests = true
+allow-expect-in-tests = true
+allow-print-in-tests = true
+```
+
+**The temporary allow-list**, each line removed by the phase that clears it:
+
+| Lint (findings today) | Allowed until |
+|---|---|
+| `unreachable_pub` (1,629), `missing_docs` (1,571) | Phase 4/5 narrows the public surface; then `missing_docs` warns on what stays public |
+| `as_conversions` (882), `cast_possible_truncation` (229), `cast_sign_loss` (84) | Phase 0b's checked conversion at the source boundary, then per layer in Phase 7 |
+| `exhaustive_enums` (103) | The 6.0 API pass |
+| `too_many_lines` (111) | Phase 5's splits |
+| `missing_errors_doc` (151) | Phase 7, facade and template first |
+
+Everything else warns from day one and is fixed as it is touched; CI runs
+`cargo clippy --all-targets -- -D warnings` once a lint reaches zero. The
+`cli` layer allows `print_stdout`/`print_stderr` with
+`#![expect(…, reason = "the CLI's output is its job")]`. Never
+`#![deny(warnings)]` in source.
 
 ### 5.2 MSRV and edition
 
@@ -572,8 +691,9 @@ recursively after the moves (it does).
 | Phase | PRs (estimate) | Can start | Blocks |
 |---|---|---|---|
 | 0 Safety net | 2–3 | now | everything after it |
+| 0b Review's bugs | ~11, one per bug | after 0 | 3 |
 | 1 Editors out | 5–6 here + set-up of 3 repos | now, alongside 0 | nothing |
-| 2 Hygiene | 1–2 | after 0 | 3 |
+| 2 Hygiene | 1–2 | after 0, alongside 0b | 3 |
 | 3 Break cycles | 5–8 | after 2 | 4 |
 | 4 Layer folders | ~12 (one per layer) | after 3 | 5 |
 | 5 Inside the layers | ~15, parallel | per layer, after 4 | 7 |
@@ -613,8 +733,10 @@ this is a few hours per PR, not a freeze.
   tables.
 - One `Diagnostic`, one evaluator, one built-in renderer, one grammar in
   the compiler.
-- `cargo clippy --workspace --all-targets -- -D warnings` clean with the
-  §5.1 table.
+- `cargo clippy --workspace --all-targets -- -D warnings` clean with
+  BeautifulRust's config and an empty allow-list (§5.1).
+- The 14 bugs in review.md §1 fixed, each with its test; fuzz targets for
+  the lexer, parser and `fmt` round-trip running nightly.
 - No `Result<_, String>`, no `thread_local!` below the `cli` layer.
 - One integration test binary, fixtures under nextest, fuzz targets running
   nightly.
@@ -626,9 +748,9 @@ this is a few hours per PR, not a freeze.
 
 ## 9. Where to start
 
-Phase 0, item 1 (the golden-file test), and in parallel Phase 1, step 1
-(cutting the editor couplings in this repository). Neither changes the
-compiler, and both make every later step safe.
+Phase 0, item 1 (the golden-file test), then Phase 0b in the order of its
+table: B1 and B2 first, since one character or a long expression takes
+down anything that parses `.wf` text (the LSP, a template server).
 
 ---
 
@@ -656,7 +778,8 @@ compiler, and both make every later step safe.
 
 ## 12. Sources
 
-- Rust skills used: `rust-best-practices` and `rust-review` (beautiful-rust 1.5.0), digests of the Rust API Guidelines, Effective Rust, Rust Design Patterns, Microsoft's Pragmatic Rust Guidelines and the Google Rust Style Guide.
+- Rust skills used: `rust-best-practices` and `rust-review`, installed with `npx skills` from [morganlinton/BeautifulRust](https://github.com/morganlinton/BeautifulRust) (identical to the `beautiful-rust` 1.5.0 plugin), with their digests of the Rust API Guidelines, Effective Rust, Rust Design Patterns, Microsoft's Pragmatic Rust Guidelines and the Google Rust Style Guide. Applied in [review.md](review.md).
+- BeautifulRust lint config — https://github.com/morganlinton/BeautifulRust/tree/main/lints
 - matklad, *Large Rust Workspaces* — https://matklad.github.io/2021/08/22/large-rust-workspaces.html
 - rust-analyzer architecture — https://rust-analyzer.github.io/book/contributing/architecture.html
 - matklad, *Delete Cargo Integration Tests* — https://matklad.github.io/2021/02/27/delete-cargo-integration-tests.html
