@@ -179,56 +179,91 @@ fn longest_match(data: &[u8], pos: usize, head: &[usize], prev: &[usize]) -> (us
     best
 }
 
-fn tokenize(data: &[u8]) -> Vec<Token> {
-    let mut tokens = Vec::with_capacity(data.len() / 2);
-    let mut head = vec![usize::MAX; WINDOW];
-    let mut prev = vec![usize::MAX; WINDOW];
-    let insert = |i: usize, head: &mut [usize], prev: &mut [usize]| {
-        if i + 2 < data.len() {
-            let h = hash(data, i);
-            prev[i & (WINDOW - 1)] = head[h];
-            head[h] = i;
-        }
-    };
-    let mut i = 0;
-    while i < data.len() {
-        let (len, dist) = longest_match(data, i, &head, &prev);
-        if len >= MIN_MATCH {
-            // Lazy matching: a longer match one byte on is worth a literal.
-            insert(i, &mut head, &mut prev);
-            let (next_len, next_dist) = if i + 1 < data.len() {
-                longest_match(data, i + 1, &head, &prev)
-            } else {
-                (0, 0)
-            };
-            if next_len > len + 1 {
-                tokens.push(Token::Literal(data[i]));
-                i += 1;
-                tokens.push(Token::Match {
-                    len: next_len as u16,
-                    dist: next_dist as u16,
-                });
-                for j in i..i + next_len {
-                    insert(j, &mut head, &mut prev);
-                }
-                i += next_len;
-            } else {
-                tokens.push(Token::Match {
-                    len: len as u16,
-                    dist: dist as u16,
-                });
-                for j in i + 1..i + len {
-                    insert(j, &mut head, &mut prev);
-                }
-                i += len;
-            }
-        } else {
-            tokens.push(Token::Literal(data[i]));
-            insert(i, &mut head, &mut prev);
-            i += 1;
+/// LZ77 over `data`, a block's worth of tokens at a time: the window's
+/// hash chains carry on from one block to the next, so the stream is the
+/// one a whole-file pass makes, and at most one block of tokens is held at
+/// once — a large file costs its own size and a little, not seven times it.
+struct Tokenizer<'a> {
+    data: &'a [u8],
+    at: usize,
+    head: Vec<usize>,
+    prev: Vec<usize>,
+    /// Tokens made and not yet written.
+    pending: Vec<Token>,
+}
+
+impl<'a> Tokenizer<'a> {
+    fn new(data: &'a [u8]) -> Self {
+        Tokenizer {
+            data,
+            at: 0,
+            head: vec![usize::MAX; WINDOW],
+            prev: vec![usize::MAX; WINDOW],
+            pending: Vec::with_capacity(BLOCK_TOKENS + 1),
         }
     }
-    tokens
+
+    fn done(&self) -> bool {
+        self.at >= self.data.len()
+    }
+
+    fn insert(&mut self, i: usize) {
+        if i + 2 < self.data.len() {
+            let h = hash(self.data, i);
+            self.prev[i & (WINDOW - 1)] = self.head[h];
+            self.head[h] = i;
+        }
+    }
+
+    /// Make tokens until `n` are pending or the data has run out.
+    fn fill(&mut self, n: usize) {
+        let data = self.data;
+        while self.pending.len() < n && self.at < data.len() {
+            let i = self.at;
+            let (len, dist) = longest_match(data, i, &self.head, &self.prev);
+            if len >= MIN_MATCH {
+                // Lazy matching: a longer match one byte on is worth a literal.
+                self.insert(i);
+                let (next_len, next_dist) = if i + 1 < data.len() {
+                    longest_match(data, i + 1, &self.head, &self.prev)
+                } else {
+                    (0, 0)
+                };
+                if next_len > len + 1 {
+                    self.pending.push(Token::Literal(data[i]));
+                    self.pending.push(Token::Match {
+                        len: next_len as u16,
+                        dist: next_dist as u16,
+                    });
+                    for j in i + 1..i + 1 + next_len {
+                        self.insert(j);
+                    }
+                    self.at = i + 1 + next_len;
+                } else {
+                    self.pending.push(Token::Match {
+                        len: len as u16,
+                        dist: dist as u16,
+                    });
+                    for j in i + 1..i + len {
+                        self.insert(j);
+                    }
+                    self.at = i + len;
+                }
+            } else {
+                self.pending.push(Token::Literal(data[i]));
+                self.insert(i);
+                self.at = i + 1;
+            }
+        }
+    }
+}
+
+/// Every token of `data` at once: what the blocks are cut from.
+#[cfg(test)]
+fn tokenize(data: &[u8]) -> Vec<Token> {
+    let mut t = Tokenizer::new(data);
+    t.fill(usize::MAX);
+    t.pending
 }
 
 // ─── Huffman ────────────────────────────────────────────────────────────
@@ -343,10 +378,18 @@ fn deflate(data: &[u8], bits: &mut BitWriter) {
         bits.bits(0xffff, 16);
         return;
     }
-    let tokens = tokenize(data);
-    let blocks: Vec<&[Token]> = tokens.chunks(BLOCK_TOKENS).collect();
-    for (i, block) in blocks.iter().enumerate() {
-        dynamic_block(block, i + 1 == blocks.len(), bits);
+    // One block per `BLOCK_TOKENS` tokens, the last one marked: the tokens
+    // are made a block ahead, never all at once.
+    let mut tokens = Tokenizer::new(data);
+    loop {
+        tokens.fill(BLOCK_TOKENS);
+        let take = tokens.pending.len().min(BLOCK_TOKENS);
+        let last = tokens.done() && tokens.pending.len() == take;
+        dynamic_block(&tokens.pending[..take], last, bits);
+        tokens.pending.drain(..take);
+        if last {
+            break;
+        }
     }
 }
 
@@ -667,6 +710,76 @@ mod tests {
         let data: Vec<u8> = unit.iter().cycle().take(600_000).copied().collect();
         assert_eq!(round_trip(&data), data);
         assert!(gzip(&data).len() < 8_000, "{}", gzip(&data).len());
+    }
+
+    /// The stream as one pass over every token made it: what the blocks
+    /// written a block at a time must equal, byte for byte, so a build's
+    /// `.gz` files do not change.
+    fn gzip_whole(data: &[u8]) -> Vec<u8> {
+        let mut out = vec![0x1f, 0x8b, 8, 0, 0, 0, 0, 0, 0, 255];
+        let mut bits = BitWriter { out, acc: 0, n: 0 };
+        if data.is_empty() {
+            deflate(data, &mut bits);
+        } else {
+            let tokens = tokenize(data);
+            let blocks: Vec<&[Token]> = tokens.chunks(BLOCK_TOKENS).collect();
+            for (i, block) in blocks.iter().enumerate() {
+                dynamic_block(block, i + 1 == blocks.len(), &mut bits);
+            }
+        }
+        out = bits.finish();
+        out.extend_from_slice(&crc32(data).to_le_bytes());
+        out.extend_from_slice(&(data.len() as u32).to_le_bytes());
+        out
+    }
+
+    #[test]
+    fn a_block_at_a_time_writes_what_one_pass_wrote() {
+        let mut seed = 11u32;
+        let mut noise = Vec::new();
+        for _ in 0..400_000 {
+            seed = seed.wrapping_mul(1103515245).wrapping_add(12345);
+            noise.push(b'a' + (seed >> 16) as u8 % 7);
+        }
+        let unit = b"<div class=\"wf-row\"><span>row</span></div>\n";
+        let text: Vec<u8> = unit.iter().cycle().take(900_000).copied().collect();
+        for data in [
+            &b""[..],
+            b"a",
+            b"abcabcabcabc",
+            &noise,
+            &text,
+            &noise[..BLOCK_TOKENS],
+        ] {
+            assert_eq!(gzip(data), gzip_whole(data), "{} bytes", data.len());
+        }
+        // Inputs whose token count falls on and around a block's edge.
+        for n in [
+            BLOCK_TOKENS - 1,
+            BLOCK_TOKENS,
+            BLOCK_TOKENS + 1,
+            2 * BLOCK_TOKENS,
+        ] {
+            let data: Vec<u8> = (0..n).map(|i| (i * 7919 % 251) as u8).collect();
+            assert_eq!(gzip(&data), gzip_whole(&data), "{n} bytes");
+            assert_eq!(round_trip(&data), data);
+        }
+    }
+
+    #[test]
+    fn the_tokens_held_at_once_are_a_block_at_most() {
+        let data: Vec<u8> = (0..1_000_000u32)
+            .map(|i| (i % 253) as u8 ^ (i >> 9) as u8)
+            .collect();
+        let mut tokens = Tokenizer::new(&data);
+        let mut most = 0;
+        while !tokens.done() {
+            tokens.fill(BLOCK_TOKENS);
+            most = most.max(tokens.pending.len());
+            let take = tokens.pending.len().min(BLOCK_TOKENS);
+            tokens.pending.drain(..take);
+        }
+        assert!(most <= BLOCK_TOKENS + 1, "{most}");
     }
 
     #[test]

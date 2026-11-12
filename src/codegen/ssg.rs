@@ -80,6 +80,10 @@ pub fn render_page_html_with_params(
     }
 }
 
+/// The most pages one `paths:` may name: a list from data can be any
+/// length, and each is a page written to disk.
+pub const MAX_PATHS: usize = 100_000;
+
 /// The concrete routes of a `:param` page with `paths:`, each with its
 /// parameters: one value fills a route's one parameter; a map fills
 /// several by name.
@@ -99,6 +103,13 @@ pub fn static_routes(
             page.name
         )));
     };
+    if values.len() > MAX_PATHS {
+        return Err(WebFluentError::CodegenError(format!(
+            "page {}: `paths:` names {} pages, more than the {MAX_PATHS} one build writes",
+            page.name,
+            values.len()
+        )));
+    }
     let names: Vec<String> = page
         .path
         .split('/')
@@ -134,6 +145,15 @@ pub fn static_routes(
         let mut route = page.path.clone();
         for name in &names {
             let text = params.get(name).map(|v| v.to_text()).unwrap_or_default();
+            // Each value is one part of an address, and a directory of the
+            // output: never empty, `.` or `..`, never more than one part.
+            if text.is_empty() || text == "." || text == ".." || text.contains(['/', '\\', '\0']) {
+                return Err(WebFluentError::CodegenError(format!(
+                    "page {}: `{}` is not a value `paths:` can give `:{name}`: each is one part of an address (not empty, `.` or `..`, with no `/`, `\\` or NUL)",
+                    page.name,
+                    text.escape_debug()
+                )));
+            }
             route = route.replace(&format!(":{name}"), &text);
         }
         out.push((route, params));

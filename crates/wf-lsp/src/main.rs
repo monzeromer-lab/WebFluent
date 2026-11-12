@@ -34,5 +34,10 @@ async fn main() {
 
     let (service, socket) = LspService::new(Backend::new);
 
-    Server::new(stdin, stdout, socket).serve(service).await;
+    // Room for a burst of edits to wait out their pause side by side, with
+    // requests still answered beside them.
+    Server::new(stdin, stdout, socket)
+        .concurrency_level(32)
+        .serve(service)
+        .await;
 }

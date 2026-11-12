@@ -21,9 +21,13 @@ pub fn run_verify(
     json: bool,
     budget_ms: Option<u64>,
     returning: bool,
+    allow_output_outside: bool,
 ) -> Result<()> {
     let config = ProjectConfig::load(project_dir)?;
-    let output_dir = project_dir.join(&config.build.output);
+    // What is served to the browser is the project's own output: a config
+    // that names a directory elsewhere would serve that to the page.
+    let output_dir =
+        crate::build::project_output(project_dir, &config.build.output, allow_output_outside)?;
     if !output_dir.exists() {
         return Err(WebFluentError::IoError(format!(
             "nothing to verify: {} does not exist. Run `wf build` first",

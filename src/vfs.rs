@@ -65,6 +65,19 @@ pub trait Vfs: Send + Sync {
     fn copy_out(&self, from: &Path, to: &Path) -> io::Result<()> {
         crate::outfs::write(to, self.read(from)?)
     }
+
+    /// Whether `path` is itself a symbolic link. A file system with no
+    /// links has none.
+    fn is_link(&self, _path: &Path) -> bool {
+        false
+    }
+
+    /// Where `path` really is — every link on the way resolved — when it is
+    /// on a disk and there; `None` for a file system with no links, or a
+    /// path that is not there.
+    fn canonical(&self, _path: &Path) -> Option<PathBuf> {
+        None
+    }
 }
 
 /// The disk.
@@ -109,6 +122,14 @@ impl Vfs for FsVfs {
     fn copy_out(&self, from: &Path, to: &Path) -> io::Result<()> {
         // `fs::copy` keeps the file's permissions, as `wf build` always has.
         crate::outfs::copy(from, to)
+    }
+
+    fn is_link(&self, path: &Path) -> bool {
+        std::fs::symlink_metadata(path).is_ok_and(|m| m.file_type().is_symlink())
+    }
+
+    fn canonical(&self, path: &Path) -> Option<PathBuf> {
+        std::fs::canonicalize(path).ok()
     }
 }
 
@@ -342,6 +363,202 @@ impl Vfs for OverlayVfs {
             _ if self.hidden(&at) => Err(Self::gone(from)),
             _ => self.base.copy_out(from, to),
         }
+    }
+
+    fn is_link(&self, path: &Path) -> bool {
+        let at = key(path);
+        !self.layers.contains_key(&at) && !self.hidden(&at) && self.base.is_link(path)
+    }
+
+    fn canonical(&self, path: &Path) -> Option<PathBuf> {
+        let at = key(path);
+        if self.layers.contains_key(&at) || self.hidden(&at) {
+            return None;
+        }
+        self.base.canonical(path)
+    }
+}
+
+/// How many links one path may pass through below the project's root: a
+/// walk that follows more is going round, or near enough.
+const MAX_LINKS: usize = 8;
+
+/// A project read through another file system, kept inside it.
+///
+/// What a build reads is the project's: a file, or a directory it walks,
+/// that leads out of the project through a symbolic link (`public/x`
+/// pointing at a key in the home folder), or a path that climbs out of it,
+/// is not there; and a walk enters no directory a link brings it back to
+/// (`src/a -> .`), so a loop cannot run it forever. A link that stays
+/// inside is followed, as it always was. What a walk left out is kept, for
+/// the build to say.
+///
+/// A file system with no links (a test's, the browser's) is read as it is.
+pub struct Confined<'a> {
+    inner: &'a dyn Vfs,
+    root: PathBuf,
+    /// The root, resolved: `None` where it is not on a disk.
+    real_root: Option<PathBuf>,
+    skipped: std::sync::Mutex<BTreeMap<PathBuf, &'static str>>,
+}
+
+impl<'a> Confined<'a> {
+    pub fn new(inner: &'a dyn Vfs, root: &Path) -> Self {
+        Confined {
+            inner,
+            root: root.to_path_buf(),
+            real_root: inner.canonical(root),
+            skipped: Default::default(),
+        }
+    }
+
+    /// The links a walk left out, relative to the root where they are
+    /// under it, each with why.
+    pub fn skipped(&self) -> Vec<(PathBuf, &'static str)> {
+        let skipped = self.skipped.lock().unwrap_or_else(|e| e.into_inner());
+        skipped
+            .iter()
+            .map(|(path, why)| {
+                let shown = path.strip_prefix(&self.root).unwrap_or(path);
+                (shown.to_path_buf(), *why)
+            })
+            .collect()
+    }
+
+    fn skip(&self, path: &Path, why: &'static str) {
+        self.skipped
+            .lock()
+            .unwrap_or_else(|e| e.into_inner())
+            .insert(path.to_path_buf(), why);
+    }
+
+    /// Whether `path` leads out of the root on the disk: the deepest part
+    /// of it that is there, resolved, is somewhere else.
+    pub fn escapes(&self, path: &Path) -> bool {
+        let Some(root) = &self.real_root else {
+            return false;
+        };
+        let mut at = path.to_path_buf();
+        loop {
+            if let Some(real) = self.inner.canonical(&at) {
+                return !real.starts_with(root);
+            }
+            if self.inner.is_link(&at) {
+                // A link to nothing: whatever it names is not the project's.
+                return true;
+            }
+            if !at.pop() || at.as_os_str().is_empty() {
+                return false;
+            }
+        }
+    }
+
+    /// Whether a walk may go on into `entry`, read from a directory.
+    fn admits(&self, entry: &Path) -> bool {
+        let Some(root) = &self.real_root else {
+            return true;
+        };
+        if !self.inner.is_link(entry) {
+            return true;
+        }
+        let Some(target) = self.inner.canonical(entry) else {
+            self.skip(entry, "a link to nothing");
+            return false;
+        };
+        if !target.starts_with(root) {
+            self.skip(entry, "a link that leads outside the project");
+            return false;
+        }
+        if self.inner.is_dir(entry) {
+            // Back into a directory the walk is already inside: a loop.
+            let mut links = 0;
+            for above in entry.ancestors().skip(1) {
+                if self.inner.canonical(above).as_ref() == Some(&target) {
+                    self.skip(entry, "a link back into a directory above it, a loop");
+                    return false;
+                }
+                if self.inner.is_link(above) {
+                    links += 1;
+                }
+                if above == self.root || above.as_os_str().is_empty() {
+                    break;
+                }
+            }
+            if links >= MAX_LINKS {
+                self.skip(entry, "a link under too many others");
+                return false;
+            }
+        }
+        true
+    }
+
+    fn refused(path: &Path) -> io::Error {
+        io::Error::new(
+            io::ErrorKind::NotFound,
+            format!(
+                "{} leads outside the project, so it is not read",
+                path.display()
+            ),
+        )
+    }
+}
+
+impl Vfs for Confined<'_> {
+    fn read(&self, path: &Path) -> io::Result<Vec<u8>> {
+        if self.escapes(path) {
+            return Err(Self::refused(path));
+        }
+        self.inner.read(path)
+    }
+
+    fn read_to_string(&self, path: &Path) -> io::Result<String> {
+        if self.escapes(path) {
+            return Err(Self::refused(path));
+        }
+        self.inner.read_to_string(path)
+    }
+
+    fn is_file(&self, path: &Path) -> bool {
+        !self.escapes(path) && self.inner.is_file(path)
+    }
+
+    fn is_dir(&self, path: &Path) -> bool {
+        !self.escapes(path) && self.inner.is_dir(path)
+    }
+
+    fn exists(&self, path: &Path) -> bool {
+        !self.escapes(path) && self.inner.exists(path)
+    }
+
+    fn read_dir(&self, path: &Path) -> io::Result<Vec<PathBuf>> {
+        if self.escapes(path) {
+            return Err(Self::refused(path));
+        }
+        let mut entries = self.inner.read_dir(path)?;
+        entries.retain(|entry| self.admits(entry));
+        Ok(entries)
+    }
+
+    fn metadata(&self, path: &Path) -> io::Result<Metadata> {
+        if self.escapes(path) {
+            return Err(Self::refused(path));
+        }
+        self.inner.metadata(path)
+    }
+
+    fn copy_out(&self, from: &Path, to: &Path) -> io::Result<()> {
+        if self.escapes(from) {
+            return Err(Self::refused(from));
+        }
+        self.inner.copy_out(from, to)
+    }
+
+    fn is_link(&self, path: &Path) -> bool {
+        self.inner.is_link(path)
+    }
+
+    fn canonical(&self, path: &Path) -> Option<PathBuf> {
+        self.inner.canonical(path)
     }
 }
 

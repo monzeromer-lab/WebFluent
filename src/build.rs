@@ -22,7 +22,7 @@ use crate::diagnostics::format::Format;
 use crate::error::{Diagnostic, Result, WebFluentError};
 use crate::outfs as fs;
 use crate::parser::{Declaration, Program, Statement};
-use crate::vfs::{FsVfs, Vfs};
+use crate::vfs::{Confined, FsVfs, Vfs};
 use std::cell::RefCell;
 use std::collections::{BTreeMap, HashMap};
 use std::path::{Path, PathBuf};
@@ -38,6 +38,11 @@ pub struct BuildOptions<'a> {
     /// Where to write the site instead of the config's `build.output`,
     /// relative to the project or absolute.
     pub output_dir: Option<PathBuf>,
+    /// Let the config's `build.output` name a directory outside the
+    /// project (`wf build --allow-output-outside`). Without it, a project
+    /// can only ever write inside itself: a config is part of what is
+    /// cloned, and a build follows it.
+    pub allow_output_outside: bool,
     /// Report what the output weighs, as `wf build --stats` does.
     pub stats: bool,
     /// How the findings are written: for a person, or for a tool.
@@ -81,6 +86,7 @@ impl<'a> BuildOptions<'a> {
             project_dir,
             vfs,
             output_dir: None,
+            allow_output_outside: false,
             stats: false,
             format: Format::Human,
             deny_warnings: false,
@@ -361,9 +367,31 @@ fn routes(program: &Program, declaration_files: &[String]) -> Vec<RouteInfo> {
         .collect()
 }
 
+/// The paths the config names that the build reads as they are — the
+/// translations — each inside the project, or the finding that one is not.
+///
+/// The font directories of a document and a deck may be elsewhere (a
+/// folder of fonts several projects share, `../fonts`): only font files are
+/// read there, and only the glyphs a document uses are embedded.
+fn check_config_paths(config: &ProjectConfig) -> Result<()> {
+    let mut named: Vec<(&str, &str)> = Vec::new();
+    if let Some(i18n) = &config.i18n {
+        named.push(("`i18n.dir`", &i18n.dir));
+    }
+    for (what, path) in named {
+        if !crate::data::stays_inside(path) {
+            return Err(WebFluentError::ConfigError(format!(
+                "{what} names `{path}`, which is outside the project: a build reads only the project's own files, by a path inside it (no absolute path, no `..`)"
+            )));
+        }
+    }
+    Ok(())
+}
+
 /// The config, with `env` from a `.env` file and the shell on top of its own.
 fn load_config(options: &BuildOptions) -> Result<ProjectConfig> {
     let mut config = ProjectConfig::load_via(options.vfs, options.project_dir)?;
+    check_config_paths(&config)?;
     config.resolve_env_via(
         options.vfs,
         options.project_dir,
@@ -377,8 +405,11 @@ fn load_config(options: &BuildOptions) -> Result<ProjectConfig> {
 
 /// `wf check`: every finding of a build, with nothing written.
 fn run_check(options: &BuildOptions, out: &Out) -> Result<()> {
+    let confined = Confined::new(options.vfs, options.project_dir);
     let mut config = load_config(options)?;
-    let analysis = analyse_via(options.vfs, options.project_dir, &mut config, None)?;
+    output_dir_of(options, &config)?;
+    let analysis = analyse_via(&confined, options.project_dir, &mut config, None)?;
+    say_skipped(out, &confined);
     out.program(&analysis.program, &analysis.declaration_files);
     let diagnostics = analysis.diagnostics;
     out.findings(&diagnostics);
@@ -496,18 +527,32 @@ pub fn analyse_via(
 
 fn run(options: &BuildOptions, out: &Out) -> Result<()> {
     let project_dir = options.project_dir;
-    let vfs = options.vfs;
+    // The project is read through a view that keeps it inside itself: a
+    // link out of it, or a path that climbs out, is not there.
+    let confined = Confined::new(options.vfs, project_dir);
+    let vfs: &dyn Vfs = &confined;
     let stats = options.stats;
     let mut config = load_config(options)?;
 
     out.say(format!("Building {}...", config.name));
+    // A value whose name does not say it is public, in the bundle because
+    // `public_env` lists it: said on every build, so nobody is surprised.
+    for name in config.unprefixed_public_env() {
+        out.say(format!(
+            "  Warning: env.{name} goes into the bundle: `public_env` lists it, so anyone who opens the site can read it"
+        ));
+    }
 
     // The images the program names are written at every width a page will
     // ask for, before anything checks the program — so a name resolves to
     // the asset it became, with its real size and colour.
-    let output_dir = project_dir.join(&config.build.output);
+    let output_dir = output_dir_of(options, &config)?;
     out.report.borrow_mut().output_dir = output_dir.clone();
     fs::create_dir_all(&output_dir)?;
+    // What this build reads of the image cache, from here on: the rest is
+    // pruned once it has finished.
+    let media_cache = project_dir.join(".wf-cache/media");
+    crate::media::take_used(&media_cache);
     let mut media = config.build.media.settings();
     // A PDF or a deck embeds the picture it names, not a `<picture>`.
     media.literal_src = !matches!(
@@ -614,7 +659,12 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
                     .next()
                     .unwrap_or(src)
                     .trim_start_matches('/');
-                fs::read(built.join(rel)).ok()
+                // Only what this build wrote, under its output.
+                let inside = !rel.contains(['\\', '\0'])
+                    && Path::new(rel)
+                        .components()
+                        .all(|c| matches!(c, std::path::Component::Normal(_)));
+                inside.then(|| fs::read(built.join(rel)).ok()).flatten()
             })
         };
         let rendered = if deck {
@@ -819,6 +869,7 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
             .collect();
         out.say(format!("  Elements: {}", tags.join(" ")));
         out.say(format!("  Output: {}/elements.js", config.build.output));
+        warning_count += say_skipped(out, &confined);
         if warning_count == 0 {
             out.say("Build complete.");
         } else {
@@ -912,7 +963,7 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
                                 page, &site, &route, &params,
                             )
                         });
-                        let dir = output_dir.join(route.trim_start_matches('/'));
+                        let dir = page_dir(&output_dir, &page.name, &route)?;
                         fs::create_dir_all(&dir)?;
                         fs::write(dir.join("index.html"), &page_html)?;
                         written_html.push(dir.join("index.html"));
@@ -937,7 +988,7 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
                     fs::write(output_dir.join("404.html"), &page_html)?;
                     written_html.push(output_dir.join("404.html"));
                 } else {
-                    let dir = output_dir.join(route);
+                    let dir = page_dir(&output_dir, &page.name, route)?;
                     fs::create_dir_all(&dir)?;
                     fs::write(dir.join("index.html"), &page_html)?;
                     written_html.push(dir.join("index.html"));
@@ -1115,7 +1166,20 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
     // An editor's preview is served by the editor, which never asks for one,
     // and has a reader waiting on it.
     if config.build.compress && !options.studio {
-        precompress(&output_dir)?;
+        let manifest = project_dir.join(PRECOMPRESSED);
+        let mut all = read_precompressed(&manifest);
+        let key = output_dir.to_string_lossy().to_string();
+        let before = all.remove(&key).unwrap_or_default();
+        let mut wrote = std::collections::BTreeSet::new();
+        precompress(&output_dir, &output_dir, &before, &mut wrote)?;
+        all.insert(key, wrote);
+        if let Some(parent) = manifest.parent() {
+            let _ = fs::create_dir_all(parent);
+        }
+        let _ = fs::write(
+            &manifest,
+            serde_json::to_string_pretty(&all).unwrap_or_default(),
+        );
     }
 
     let (page_count, comp_count, store_count) = counts(&program);
@@ -1156,6 +1220,8 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
             previous.as_ref(),
         )?;
     }
+    warning_count += say_skipped(out, &confined);
+    crate::media::prune_cache(&media_cache, &crate::media::take_used(&media_cache));
     if warning_count == 0 {
         out.say("Build complete.");
     } else {
@@ -1163,6 +1229,128 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
     }
 
     Ok(())
+}
+
+/// Say each link a walk of the project left out, and how many.
+fn say_skipped(out: &Out, confined: &Confined) -> usize {
+    let skipped = confined.skipped();
+    for (path, why) in &skipped {
+        out.say(format!("  Warning: {} was left out: {why}", path.display()));
+    }
+    skipped.len()
+}
+
+/// Where the build writes: the config's `build.output`, inside the
+/// project. A directory the caller named (`BuildOptions::output_dir`) is
+/// the caller's to choose, and so is one outside the project with
+/// `--allow-output-outside`; a config's is not, since the config comes with
+/// the project and a build writes, copies and deletes there.
+pub fn output_dir_of(options: &BuildOptions, config: &ProjectConfig) -> Result<PathBuf> {
+    let output = project_output(
+        options.project_dir,
+        &config.build.output,
+        options.output_dir.is_some() || options.allow_output_outside,
+    )?;
+    Ok(output)
+}
+
+/// `output` (the config's `build.output`) under `project_dir`, refused when
+/// it leads out of the project — by an absolute path, a `..`, or a link on
+/// the way — unless `allow_outside`. A link already inside the output is
+/// refused too: the build would write through it.
+pub fn project_output(project_dir: &Path, output: &str, allow_outside: bool) -> Result<PathBuf> {
+    let joined = project_dir.join(output);
+    if allow_outside {
+        return Ok(joined);
+    }
+    let refuse = |why: &str| {
+        WebFluentError::ConfigError(format!(
+            "`build.output` is `{output}`, which {why}. A build writes only inside its project; \
+             to write elsewhere, run it with `--allow-output-outside`"
+        ))
+    };
+    let path = Path::new(output);
+    if path.is_absolute() || output.starts_with('\\') {
+        return Err(refuse("is an absolute path"));
+    }
+    if output.contains('\0') {
+        return Err(refuse("holds a NUL character"));
+    }
+    if path.components().any(|c| {
+        !matches!(
+            c,
+            std::path::Component::Normal(_) | std::path::Component::CurDir
+        )
+    }) || output.split(['/', '\\']).any(|part| part == "..")
+    {
+        return Err(refuse("climbs out of the project with `..`"));
+    }
+    if crate::agent::escapes(project_dir, &joined) {
+        return Err(refuse("leads out of the project through a link"));
+    }
+    if let Some(link) = link_inside(&joined) {
+        return Err(WebFluentError::ConfigError(format!(
+            "the output holds a link, {}, which a build would write through. \
+             Remove it, or run the build with `--allow-output-outside`",
+            link.display()
+        )));
+    }
+    Ok(joined)
+}
+
+/// The first symbolic link under `dir`, walked without following one.
+fn link_inside(dir: &Path) -> Option<PathBuf> {
+    if crate::outfs::capturing() {
+        return None;
+    }
+    let mut walk = vec![dir.to_path_buf()];
+    while let Some(at) = walk.pop() {
+        let Ok(entries) = std::fs::read_dir(&at) else {
+            continue;
+        };
+        for entry in entries.flatten() {
+            let Ok(kind) = entry.file_type() else {
+                continue;
+            };
+            if kind.is_symlink() {
+                return Some(entry.path());
+            }
+            if kind.is_dir() {
+                walk.push(entry.path());
+            }
+        }
+    }
+    None
+}
+
+/// The directory a page's route is written to, under `output_dir`. A route
+/// is the page's `path:` with its `paths:` values in place; each of its
+/// parts must name a directory below the output, never `..` or the root.
+fn page_dir(output_dir: &Path, page: &str, route: &str) -> Result<PathBuf> {
+    let rel = route.trim_start_matches('/');
+    let fine = !rel.contains(['\\', '\0'])
+        && Path::new(rel)
+            .components()
+            .all(|c| matches!(c, std::path::Component::Normal(_)));
+    if !fine {
+        return Err(WebFluentError::CodegenError(format!(
+            "page {page}: the route `{route}` does not name a directory inside the output"
+        )));
+    }
+    Ok(output_dir.join(rel))
+}
+
+/// Where a build records the `.gz` files it wrote, by output directory, so
+/// the next one removes only those: a `.gz` it did not write — copied from
+/// `public/`, or anybody's in a directory it was pointed at — is not its to
+/// delete.
+const PRECOMPRESSED: &str = ".wf-cache/precompressed.json";
+
+fn read_precompressed(manifest: &Path) -> BTreeMap<String, std::collections::BTreeSet<String>> {
+    fs::read_to_string(manifest)
+        .ok()
+        .and_then(|text| serde_json::from_str(&text).ok())
+        .unwrap_or_default()
 }
 
 /// What the build weighs: every text file with its gzipped size, and the
@@ -1710,20 +1898,33 @@ fn load_translations(
 
 /// Write `<file>.gz` beside every text file under `dir` that is worth it —
 /// a file a few hundred bytes long fits in one packet either way, and one
-/// gzip does not shrink is left alone. A stale `.gz` from an earlier build
-/// whose source no longer exists is removed, so a host never serves it.
-fn precompress(dir: &Path) -> Result<()> {
+/// gzip does not shrink is left alone. A stale `.gz` an earlier build wrote
+/// (`before`, by its path under `root`) whose source no longer exists is
+/// removed, so a host never serves it; any other `.gz` is left as it is.
+/// What this one writes goes in `wrote`.
+fn precompress(
+    root: &Path,
+    dir: &Path,
+    before: &std::collections::BTreeSet<String>,
+    wrote: &mut std::collections::BTreeSet<String>,
+) -> Result<()> {
+    let ours = |path: &Path| {
+        path.strip_prefix(root)
+            .ok()
+            .map(|rel| rel.to_string_lossy().replace('\\', "/"))
+            .is_some_and(|rel| before.contains(&rel))
+    };
     for entry in fs::read_dir(dir)? {
         let path = entry;
         if fs::is_dir(&path) {
-            precompress(&path)?;
+            precompress(root, &path, before, wrote)?;
             continue;
         }
         let Some(ext) = path.extension().and_then(|e| e.to_str()) else {
             continue;
         };
         if ext == "gz" {
-            if !fs::exists(path.with_extension("")) {
+            if !fs::exists(path.with_extension("")) && ours(&path) {
                 fs::remove_file(&path)?;
             }
             continue;
@@ -1733,15 +1934,20 @@ fn precompress(dir: &Path) -> Result<()> {
         }
         let data = fs::read(&path)?;
         let gz_path = PathBuf::from(format!("{}.gz", path.display()));
-        if data.len() < 1024 {
-            let _ = fs::remove_file(&gz_path);
-            continue;
-        }
-        let gz = crate::codegen::gzip::gzip(&data);
-        if gz.len() < data.len() {
-            fs::write(&gz_path, gz)?;
-        } else {
-            let _ = fs::remove_file(&gz_path);
+        let gz = (data.len() >= 1024)
+            .then(|| crate::codegen::gzip::gzip(&data))
+            .filter(|gz| gz.len() < data.len());
+        match gz {
+            Some(gz) => {
+                fs::write(&gz_path, gz)?;
+                if let Ok(rel) = gz_path.strip_prefix(root) {
+                    wrote.insert(rel.to_string_lossy().replace('\\', "/"));
+                }
+            }
+            None if ours(&gz_path) => {
+                let _ = fs::remove_file(&gz_path);
+            }
+            None => {}
         }
     }
     Ok(())

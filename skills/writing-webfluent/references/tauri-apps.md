@@ -138,8 +138,9 @@ reloads the window. On a phone too.
 - **`devUrl`** must match `dev.port` (3000 unless you changed it).
   - On a phone, `cargo tauri android dev` / `ios dev` replaces `localhost`
     in it with your machine's network address.
-  - `wf serve` already listens on every interface (`0.0.0.0`), so the phone
-    reaches it with no change. If it can't, a firewall is blocking the port.
+  - `wf serve` listens on this machine only by default; run it as
+    `wf serve --host 0.0.0.0` (in `beforeDevCommand` too) so the phone can
+    reach it. If it still can't, a firewall is blocking the port.
 - **`decorations: false`** gives you your own title bar on the desktop
   (below). A phone has no window decorations, and the setting is ignored
   there.

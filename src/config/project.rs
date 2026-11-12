@@ -115,6 +115,12 @@ impl Default for OfflineConfig {
 }
 
 /// The ways a path `offline.cache` names may be fetched.
+/// The shell variable that lets a build take the shell's value of a name
+/// `public_env` makes public without the `PUBLIC_` prefix: the names,
+/// comma-separated. It is the person running the build who sets it, never
+/// the project.
+pub const ALLOW_SHELL_ENV: &str = "WF_ALLOW_SHELL_ENV";
+
 pub const OFFLINE_STRATEGIES: &[&str] = &[
     "network-first",
     "cache-first",
@@ -1272,10 +1278,17 @@ impl ProjectConfig {
     /// staging and production different values without editing a file.
     ///
     /// The later source wins: the config, then `.env`, then the shell. The
-    /// shell supplies a name the config or `.env` already declares, or one
-    /// that is public (`PUBLIC_…`, or listed in `public_env`) — not every
-    /// variable the build happens to run with, which would put `PATH` and
-    /// `HOME` in `wf audit` and in reach of `wf render`.
+    /// shell supplies a name that is public by its spelling (`PUBLIC_…`), or
+    /// one the config or `.env` already declares and keeps private — not
+    /// every variable the build happens to run with, which would put `PATH`
+    /// and `HOME` in `wf audit` and in reach of `wf render`.
+    ///
+    /// A name `public_env` makes public without the prefix goes into the
+    /// bundle, and `public_env` is the project's to write: a cloned project
+    /// could list `AWS_SECRET_ACCESS_KEY` there. So the shell's value of
+    /// such a name is taken only when the person running the build says so,
+    /// by naming it in [`ALLOW_SHELL_ENV`] (`WF_ALLOW_SHELL_ENV=API_URL,…`);
+    /// otherwise the value the config or `.env` gives stands.
     pub fn resolve_env(&mut self, project_dir: &Path) {
         self.resolve_env_from(project_dir, crate::platform::env_vars());
     }
@@ -1302,11 +1315,34 @@ impl ProjectConfig {
                 self.env.insert(name, serde_json::Value::String(value));
             }
         }
+        let shell: Vec<(String, String)> = shell.into_iter().collect();
+        let allowed: Vec<String> = shell
+            .iter()
+            .filter(|(name, _)| name == ALLOW_SHELL_ENV)
+            .flat_map(|(_, list)| list.split(',').map(|n| n.trim().to_string()))
+            .filter(|n| !n.is_empty())
+            .collect();
         for (name, value) in shell {
-            if self.env.contains_key(&name) || self.env_is_public(&name) {
+            let take = if name.starts_with("PUBLIC_") {
+                true
+            } else if self.env_is_public(&name) {
+                allowed.contains(&name)
+            } else {
+                self.env.contains_key(&name)
+            };
+            if take {
                 self.env.insert(name, serde_json::Value::String(value));
             }
         }
+    }
+
+    /// The names whose values go into the bundle although they do not begin
+    /// `PUBLIC_`: `public_env` made them public, and a build says so.
+    pub fn unprefixed_public_env(&self) -> Vec<String> {
+        self.public_env_values()
+            .into_keys()
+            .filter(|name| !name.starts_with("PUBLIC_"))
+            .collect()
     }
 
     pub fn default_config(name: &str) -> Self {
@@ -1478,6 +1514,55 @@ mod env_and_key_tests {
             !config.env.contains_key("HOME"),
             "an undeclared, non-public shell variable stays out"
         );
+    }
+
+    #[test]
+    fn public_env_does_not_publish_the_shell_unless_the_shell_says_so() {
+        let dir = project(
+            r#"{ "name": "t", "env": { "API_URL": "/config", "PRIVATE_TOKEN": "x" },
+                 "public_env": ["API_URL", "AWS_SECRET_ACCESS_KEY", "HOME"] }"#,
+            Some("FROM_DOTENV=d\n"),
+        );
+        let shell = || {
+            vec![
+                (
+                    "AWS_SECRET_ACCESS_KEY".to_string(),
+                    "shellsecret".to_string(),
+                ),
+                ("HOME".to_string(), "/home/someone".to_string()),
+                ("API_URL".to_string(), "/shell".to_string()),
+                (
+                    "PRIVATE_TOKEN".to_string(),
+                    "private-from-shell".to_string(),
+                ),
+                ("PUBLIC_MODE".to_string(), "on".to_string()),
+            ]
+        };
+        let mut config = ProjectConfig::load(dir.path()).unwrap();
+        config.resolve_env_from(dir.path(), shell());
+        let bundled = config.public_env_values();
+        assert!(
+            !bundled.contains_key("AWS_SECRET_ACCESS_KEY"),
+            "{bundled:?}"
+        );
+        assert!(!bundled.contains_key("HOME"), "{bundled:?}");
+        assert_eq!(bundled["API_URL"], "/config", "the config's value stands");
+        assert_eq!(bundled["PUBLIC_MODE"], "on");
+        // A private name the config declares still takes the shell's value:
+        // it never reaches the bundle.
+        assert_eq!(config.env["PRIVATE_TOKEN"], "private-from-shell");
+        assert!(!bundled.contains_key("PRIVATE_TOKEN"));
+        assert_eq!(config.unprefixed_public_env(), ["API_URL"]);
+
+        // The person running the build may let one through, by name.
+        let mut config = ProjectConfig::load(dir.path()).unwrap();
+        let mut with = shell();
+        with.push((ALLOW_SHELL_ENV.to_string(), "API_URL, HOME".to_string()));
+        config.resolve_env_from(dir.path(), with);
+        let bundled = config.public_env_values();
+        assert_eq!(bundled["API_URL"], "/shell");
+        assert_eq!(bundled["HOME"], "/home/someone");
+        assert!(!bundled.contains_key("AWS_SECRET_ACCESS_KEY"));
     }
 
     #[test]

@@ -167,7 +167,7 @@ page ConfigGuide(path: "/docs/guide/config", title: "Configuration", description
                     Table.Cell { Markdown("`output`") }
                     Table.Cell("string")
                     Table.Cell { Markdown("`\"./build\"`") }
-                    Table.Cell("Where the build is written, relative to the project.")
+                    Table.Cell { Markdown("Where the build is written, relative to the project and inside it: a path that climbs out (`../site`, `/var/www`) or a link to somewhere else is refused unless the command line says `--allow-output-outside` ([CLI](/docs/guide/cli#wf-build)).") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`output_type`") }

@@ -635,18 +635,84 @@ pub fn reader_via(
             .unwrap_or(src)
             .trim_start_matches('/');
         let rel = rel.trim_start_matches("./");
-        let mut candidates = vec![
-            root.join(rel),
-            root.join("public").join(rel),
-            root.join("src").join(rel),
-        ];
-        if let Some(parent) = root.parent() {
-            candidates.push(parent.join("public").join(rel));
+        // An address names a file under one of the places below, and only
+        // there: it may come from a template's data, and `../../x` would
+        // embed whatever the process can read.
+        if rel.contains(['\\', '\0'])
+            || std::path::Path::new(rel).components().any(|c| {
+                !matches!(
+                    c,
+                    std::path::Component::Normal(_) | std::path::Component::CurDir
+                )
+            })
+        {
+            return None;
         }
-        candidates
+        let mut bases = vec![root.clone(), root.join("public"), root.join("src")];
+        if let Some(parent) = root.parent() {
+            bases.push(parent.join("public"));
+        }
+        bases
             .into_iter()
-            .find(|p| vfs.is_file(p))
-            .and_then(|p| vfs.read(&p).ok())
+            .map(|base| {
+                let file = base.join(rel);
+                (base, file)
+            })
+            .find(|(base, file)| vfs.is_file(file) && stays_under(vfs, base, file))
+            .and_then(|(_, file)| vfs.read(&file).ok())
+    }
+}
+
+/// Whether `file` is under `base` once every link is resolved — on a file
+/// system that has links; one that has none keeps a path where it says.
+fn stays_under(vfs: &dyn crate::vfs::Vfs, base: &std::path::Path, file: &std::path::Path) -> bool {
+    match (vfs.canonical(base), vfs.canonical(file)) {
+        (Some(base), Some(file)) => file.starts_with(base),
+        // Not on a disk (a buffer, a file system with no links).
+        (_, None) => true,
+        (None, Some(_)) => false,
+    }
+}
+
+#[cfg(test)]
+mod reader_tests {
+    use super::*;
+
+    #[test]
+    fn an_address_reads_a_file_under_the_project_and_nothing_else() {
+        let base = std::env::temp_dir().join(format!("wf-reader-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&base);
+        let root = base.join("site/templates");
+        std::fs::create_dir_all(root.join("public")).unwrap();
+        std::fs::create_dir_all(base.join("site/public")).unwrap();
+        std::fs::create_dir_all(base.join("private")).unwrap();
+        std::fs::write(base.join("private/scan.png"), "SECRET").unwrap();
+        std::fs::write(root.join("public/logo.png"), "logo").unwrap();
+        std::fs::write(base.join("site/public/shared.png"), "shared").unwrap();
+        let read = reader(Some(root.clone()));
+        assert_eq!(read("/logo.png").as_deref(), Some(&b"logo"[..]));
+        assert_eq!(read("logo.png?v=2").as_deref(), Some(&b"logo"[..]));
+        // The project's parent's `public/`, as a template beside its site has.
+        assert_eq!(read("/shared.png").as_deref(), Some(&b"shared"[..]));
+        for bad in [
+            "../../private/scan.png",
+            "/../../private/scan.png",
+            "public/../../../private/scan.png",
+            "..\\..\\private\\scan.png",
+            "logo.png\0",
+        ] {
+            assert_eq!(read(bad), None, "{bad}");
+        }
+        let abs = base.join("private/scan.png");
+        assert_eq!(read(&abs.to_string_lossy()), None);
+        #[cfg(unix)]
+        {
+            std::os::unix::fs::symlink(&abs, root.join("public/linked.png")).unwrap();
+            std::os::unix::fs::symlink(base.join("private"), base.join("site/public/dir")).unwrap();
+            assert_eq!(read("/linked.png"), None);
+            assert_eq!(read("/dir/scan.png"), None);
+        }
+        let _ = std::fs::remove_dir_all(&base);
     }
 }
 

@@ -652,10 +652,20 @@ fn dimensions(bytes: &[u8], path: &str) -> Option<(u32, u32)> {
         let text = std::str::from_utf8(bytes).ok()?;
         let tag_at = text.find("<svg")?;
         let tag = &text[tag_at..tag_at + text[tag_at..].find('>')?];
+        // An attribute's value between its quotes. A quote is `"` or `'`;
+        // anything else (a typographic quote, which is several bytes) is no
+        // value, rather than a slice through the middle of a character.
+        let quoted = |i: usize| -> Option<&str> {
+            let q = tag[i..]
+                .chars()
+                .next()
+                .filter(|q| matches!(q, '"' | '\''))?;
+            let rest = &tag[i + 1..];
+            Some(&rest[..rest.find(q)?])
+        };
         let attr = |name: &str| -> Option<f64> {
             let i = tag.find(&format!(" {name}="))? + name.len() + 2;
-            let q = tag[i..].chars().next()?;
-            let value = &tag[i + 1..i + 1 + tag[i + 1..].find(q)?];
+            let value = quoted(i)?;
             let number: String = value
                 .chars()
                 .take_while(|c| c.is_ascii_digit() || *c == '.')
@@ -670,8 +680,7 @@ fn dimensions(bytes: &[u8], path: &str) -> Option<(u32, u32)> {
             return Some((w.round() as u32, h.round() as u32));
         }
         let i = tag.find("viewBox=")? + 8;
-        let q = tag[i..].chars().next()?;
-        let vb = &tag[i + 1..i + 1 + tag[i + 1..].find(q)?];
+        let vb = quoted(i)?;
         let n: Vec<f64> = vb
             .split([' ', ','])
             .filter(|s| !s.is_empty())

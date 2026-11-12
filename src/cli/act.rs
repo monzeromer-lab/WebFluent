@@ -16,10 +16,15 @@ pub struct Stage {
 
 impl Stage {
     pub fn open() -> Result<Self> {
-        Ok(Stage {
-            browser: Browser::start()?,
-            work: std::env::temp_dir().join(format!("wf-act-{}", std::process::id())),
-        })
+        let browser = Browser::start()?;
+        // A directory of this run's own, which nobody else could have made
+        // first, and which goes with the stage.
+        let work = crate::browser::chrome::private_dir("wf-act-").map_err(|e| {
+            crate::error::WebFluentError::IoError(format!(
+                "could not make a directory for the tests' sites: {e}"
+            ))
+        })?;
+        Ok(Stage { browser, work })
     }
 
     /// Where the tests' sites are built.
@@ -30,7 +35,11 @@ impl Stage {
 
 impl crate::testing::Browser for Stage {
     fn open(&mut self, dir: &Path, settle_ms: u64) -> Result<Box<dyn crate::testing::Page + '_>> {
-        let server = super::preview::serve_directory(dir.to_path_buf(), "")?;
+        // The site links the project's `public/` files in; what those links
+        // lead to is served, and nothing a link inside `public/` leads to
+        // beyond it.
+        let server =
+            super::preview::serve_directory_within(dir.to_path_buf(), "", link_roots(dir))?;
         let page = self
             .browser
             .open(&format!("{}/", server.origin), settle_ms)?;
@@ -39,6 +48,40 @@ impl crate::testing::Browser for Stage {
             page: Some(page),
             server: Some(server),
         }))
+    }
+}
+
+/// The folders the links under `dir` were made to point into, resolved:
+/// for a test's site, the project's `public/` and the folders under it.
+fn link_roots(dir: &Path) -> Vec<PathBuf> {
+    let mut roots: Vec<PathBuf> = Vec::new();
+    let mut walk = vec![dir.to_path_buf()];
+    while let Some(at) = walk.pop() {
+        let Ok(entries) = std::fs::read_dir(&at) else {
+            continue;
+        };
+        for entry in entries.flatten() {
+            let Ok(kind) = entry.file_type() else {
+                continue;
+            };
+            if kind.is_dir() {
+                walk.push(entry.path());
+            } else if kind.is_symlink()
+                && let Ok(target) = std::fs::read_link(entry.path())
+                && let Some(parent) = at.join(target).parent().map(Path::to_path_buf)
+                && let Ok(real) = std::fs::canonicalize(parent)
+                && !roots.contains(&real)
+            {
+                roots.push(real);
+            }
+        }
+    }
+    roots
+}
+
+impl Drop for Stage {
+    fn drop(&mut self) {
+        let _ = std::fs::remove_dir_all(&self.work);
     }
 }
 

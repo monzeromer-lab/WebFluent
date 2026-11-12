@@ -27,7 +27,7 @@ Files in `public/` are copied to the **root** of the build output (not nested un
 
 ```bash
 wf init <name> -t spa|static|pdf|slides [--locales en,ar]   # Create a project (with this AGENTS.md in it); --locales: translated, the default first
-wf build [-d DIR] [--stats] [--cache] [--studio] [--format F] [--deny-warnings]  # Compile (--stats: what it weighs; --cache: only the pages an edit changed; --studio: node ids for an editor's preview, nodes.json)
+wf build [-d DIR] [--stats] [--cache] [--studio] [--format F] [--deny-warnings] [--allow-output-outside]  # Compile (--stats: what it weighs; --cache: only the pages an edit changed; --studio: node ids for an editor's preview, nodes.json)
 wf check [-d DIR] [--format F] [--deny-warnings]  # Every finding, nothing written
 wf fix [-d DIR] [--code C] [--dry-run]            # Apply every finding's fix (or one code's)
 wf config schema [--json] | get PATH | set PATH VALUE | unset PATH   # Every setting; edit webfluent.app.json keeping its shape
@@ -41,14 +41,14 @@ wf translations [--missing L] [--unused] [--plurals] [--json] # The translations
 wf context [--open FILE] [--guide full] [--json] # Everything an agent is given about the project, private env withheld
 wf components [--json]                    # Every component a call can name, built-in and the project's: props and their kinds, events, slots, parts
 wf explain [CODE]                         # A diagnostic's entry: meaning, example, fix
-wf serve [-d DIR]                         # Dev server (localhost:3000): rebuilds on save, reloads the page, shows a failed build's error over it
+wf serve [-d DIR] [--host ADDR]           # Dev server (localhost:3000, this machine only; --host 0.0.0.0 for a phone): rebuilds on save, reloads the page, shows a failed build's error over it
 wf generate page|component|store <name> [-d DIR]  # Scaffold a file, in the project's layout
 wf fmt [path] [--check] [--stdout]        # Format a project's sources (--check fails when one would change)
 wf fmt --to wfx|wf [path] [--stdout]      # Switch a project between .wf and .wfx
 wf test [path] [--update]                 # Run the `test "…" { }` declarations under tests/
 wf docs [-d DIR] [-o OUT]                 # A component gallery: every built-in, and what the project declares
 wf migrate [path] [--check] [--stdout] [--wfx]  # WebFluent 2 → 3 (and to .wfx), 3 → 4, and 4 → 4.2 (`external` rewritten)
-wf verify [path] [--json] [--budget MS] [--returning-visitor]  # Load every page in a real browser: errors, failed requests, paint timing
+wf verify [path] [--json] [--budget MS] [--returning-visitor] [--allow-output-outside]  # Load every page in a real browser: errors, failed requests, paint timing
 wf audit [path] [--json]                  # What the project trusts: markup, origins, storage, env, policy, dependencies
 wf render TEMPLATE [--data D] [-f html|html-fragment|pdf|slides] [-o OUT] [--page P] [--lang L]  # A template rendered with JSON data (see Template Engine)
 wf registry [--json]                      # Every built-in: props, cases, flags, events, slots, parts
@@ -1650,9 +1650,10 @@ works offline. The guide's "Desktop apps" chapter is the step-by-step,
 Electron included.
 
 The same project runs on Android and iOS (`cargo tauri android init`,
-`cargo tauri android dev`; `ios` on a Mac). `wf serve` listens on every
-interface, so a phone reaches the dev server when Tauri points `devUrl` at
-the machine's address. A phone has no window chrome: draw a title bar only
+`cargo tauri android dev`; `ios` on a Mac). `wf serve --host 0.0.0.0`
+listens on every interface (by default it is this machine's only), so a
+phone reaches the dev server when Tauri points `devUrl` at the machine's
+address. A phone has no window chrome: draw a title bar only
 on a desktop. Its page is drawn edge to edge, so a shell pads by
 `env(safe-area-inset-*)` once the script sets `viewport-fit=cover` on the
 viewport tag. Android's back gesture goes back through the router's
@@ -2598,6 +2599,19 @@ the line; the values still reach `wf render`, which runs on a server.
 ```json
 { "env": { "PUBLIC_API": "/api/v1", "STRIPE_SECRET": "sk_…" }, "public_env": [] }
 ```
+
+A name `public_env` lists without the prefix takes its value from the
+config or `.env`, never the shell — unless `WF_ALLOW_SHELL_ENV` names it —
+since a cloned project could list a shell secret there; each build warns of
+every such value it bundles.
+
+**A build stays in its project.** `data`, `image`, `api … from`,
+and `i18n.dir` are paths inside it (an absolute path or a
+`..` is an error); a link out of the project, to nothing, or looping back is
+left out of every walk with a warning; `build.output` outside the project,
+or a link in it, is refused unless the command line says
+`--allow-output-outside`; and the build removes only the `.gz` files it
+wrote itself.
 
 `wf audit` prints what a review asks for: every `Unsafe.*` and whether it
 is sanitised, the project's scripts and what each declares, every other

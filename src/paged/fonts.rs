@@ -159,6 +159,9 @@ static BUNDLED: &[(&str, u16, bool, &[u8])] = &[];
 /// them when a document asks for one.
 static REGISTERED: Mutex<Vec<Face>> = Mutex::new(Vec::new());
 
+/// The most a font handed in at run time may inflate to.
+const MAX_FONT_BYTES: usize = 64 * 1024 * 1024;
+
 /// Take a font file — as it is, or zlib-compressed as the bundled ones are
 /// kept — as one of the built-in faces, under the family its tables name.
 /// The family, or `None` when the bytes are not a font.
@@ -167,10 +170,12 @@ pub fn register_font(bytes: Vec<u8>) -> Option<String> {
         && bytes[0] & 0x0f == 8
         && (u16::from(bytes[0]) << 8 | u16::from(bytes[1])) % 31 == 0;
     let gzip = bytes.starts_with(&[0x1f, 0x8b, 8]);
+    // A font is a few megabytes at most; what inflates past this is not one.
     let data = if zlib {
-        miniz_oxide::inflate::decompress_to_vec_zlib(&bytes).ok()?
+        miniz_oxide::inflate::decompress_to_vec_zlib_with_limit(&bytes, MAX_FONT_BYTES).ok()?
     } else if gzip {
-        miniz_oxide::inflate::decompress_to_vec(gzip_body(&bytes)?).ok()?
+        miniz_oxide::inflate::decompress_to_vec_with_limit(gzip_body(&bytes)?, MAX_FONT_BYTES)
+            .ok()?
     } else {
         bytes
     };
@@ -208,13 +213,19 @@ fn gzip_body(bytes: &[u8]) -> Option<&[u8]> {
 
 /// How many faces have been registered: what a cache of them is keyed by.
 fn registered_count() -> usize {
-    REGISTERED.lock().map_or(0, |r| r.len())
+    REGISTERED.lock().unwrap_or_else(|e| e.into_inner()).len()
 }
 
 /// The bundled faces, inflated once per process, and those registered.
 fn bundled_faces() -> Vec<Face> {
     let mut faces = embedded_faces().clone();
-    faces.extend(REGISTERED.lock().map(|r| r.clone()).unwrap_or_default());
+    faces.extend(
+        REGISTERED
+            .lock()
+            .unwrap_or_else(|e| e.into_inner())
+            .iter()
+            .cloned(),
+    );
     faces
 }
 
@@ -675,6 +686,14 @@ pub fn is_font_file(path: &Path) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn a_font_that_inflates_without_end_is_refused() {
+        // 80 MB of nothing, compressed to almost nothing.
+        let bomb = miniz_oxide::deflate::compress_to_vec_zlib(&vec![0u8; 80 << 20], 1);
+        assert!(bomb.len() < 1 << 20);
+        assert_eq!(register_font(bomb), None);
+    }
 
     #[test]
     fn a_font_is_registered_as_it_is_or_compressed() {

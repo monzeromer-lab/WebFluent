@@ -162,7 +162,7 @@ How the project is compiled, and what the build writes.
 
 | Key | Type | Default | Meaning |
 |---|---|---|---|
-| `output` | string | `"./build"` | Where the build is written, relative to the project. |
+| `output` | string | `"./build"` | Where the build is written, relative to the project and inside it: a path that climbs out (`../site`, `/var/www`) or a link to somewhere else is refused unless the command line says `--allow-output-outside` ([CLI](41-cli.md#wf-build)). |
 | `output_type` | `spa`, `static`, `pdf`, `slides`, `elements` | `"spa"` | What the project builds: `spa` is a website; `static` is a website whose every page is pre-rendered, as `ssg: true` builds it; `pdf` a document; `slides` a deck; `elements` custom elements ([PDF and slides](37-pdf-and-slides.md), [custom elements](39-javascript-interop.md#publish-your-components-as-custom-elements)). |
 | `ssg` | boolean | `false` | Pre-renders every page to its own HTML file, so it is read before any script runs ([Static sites and SPAs](33-static-and-spa.md)). |
 | `base_path` | string | `""` | The sub-path the site is served under, such as `"/docs"`. Every link and asset is prefixed with it. |

@@ -215,25 +215,101 @@ const DEV_SCRIPT: &str = r##"(() => {
 })();
 "##;
 
-pub fn run_serve(project_dir: &Path) -> Result<()> {
+/// How many requests the dev server answers at once: one slow client — a
+/// phone on a weak network, a stalled download — no longer holds up every
+/// other request behind it.
+const WORKERS: usize = 8;
+
+/// The most compressed text the dev server keeps, in bytes, so a page
+/// asked for again is not compressed again.
+const GZIP_CACHE_BYTES: usize = 32 * 1024 * 1024;
+
+/// A text response larger than this is sent as it is, streamed, rather
+/// than read whole to be compressed.
+const GZIP_LIMIT: u64 = 8 * 1024 * 1024;
+
+/// What every worker of the dev server shares.
+struct Shared {
+    state: std::sync::Arc<std::sync::Mutex<DevState>>,
+    output_dir: PathBuf,
+    base_path: String,
+    hot_reload: bool,
+    /// The address it listens on, as given: what a `Host` may name.
+    host: String,
+    /// What was compressed, by file and its change time, so it is
+    /// compressed once.
+    gzipped: std::sync::Mutex<GzipCache>,
+}
+
+/// What a file is, to the cache: where it is, when it last changed and how
+/// long it is, and — for a page with the dev script in it — the build.
+type GzipKey = (PathBuf, Option<std::time::SystemTime>, u64, Option<u64>);
+
+#[derive(Default)]
+struct GzipCache {
+    held: std::collections::HashMap<GzipKey, std::sync::Arc<Vec<u8>>>,
+    bytes: usize,
+}
+
+impl Shared {
+    fn state(&self) -> std::sync::MutexGuard<'_, DevState> {
+        self.state.lock().unwrap_or_else(|e| e.into_inner())
+    }
+
+    /// `content`, the text of `file` (with the dev script when `dev_page`),
+    /// compressed — from the cache when the file has not changed since.
+    fn gzip(&self, file: &Path, dev_page: bool, content: &[u8]) -> std::sync::Arc<Vec<u8>> {
+        let meta = fs::metadata(file).ok();
+        // A dev page is drawn again on every build: the build is its key.
+        let key: GzipKey = (
+            file.to_path_buf(),
+            meta.as_ref().and_then(|m| m.modified().ok()),
+            meta.as_ref().map_or(0, |m| m.len()),
+            dev_page.then(|| self.state().version),
+        );
+        if let Some(gz) = self
+            .gzipped
+            .lock()
+            .unwrap_or_else(|e| e.into_inner())
+            .held
+            .get(&key)
+        {
+            return gz.clone();
+        }
+        // Compressed outside the lock, so other requests go on meanwhile.
+        let gz = std::sync::Arc::new(crate::codegen::gzip::gzip(content));
+        let mut cache = self.gzipped.lock().unwrap_or_else(|e| e.into_inner());
+        if cache.bytes + gz.len() > GZIP_CACHE_BYTES {
+            cache.held.clear();
+            cache.bytes = 0;
+        }
+        cache.bytes += gz.len();
+        if let Some(old) = cache.held.insert(key, gz.clone()) {
+            cache.bytes = cache.bytes.saturating_sub(old.len());
+        }
+        gz
+    }
+}
+
+pub fn run_serve(project_dir: &Path, host: &str, allow_output_outside: bool) -> Result<()> {
     let config = ProjectConfig::load(project_dir)?;
-    let output_dir = project_dir.join(&config.build.output);
+    let output_dir =
+        crate::build::project_output(project_dir, &config.build.output, allow_output_outside)?;
+    let build_options = crate::cli::build::Options {
+        dev: true,
+        cache: true,
+        allow_output_outside,
+        ..Default::default()
+    };
 
     // A build first, so what is served is what the source says; a build
     // that fails leaves the last output in place and its error on show.
     let state = std::sync::Arc::new(std::sync::Mutex::new(DevState::default()));
     {
-        let mut s = state.lock().unwrap();
+        let mut s = state.lock().unwrap_or_else(|e| e.into_inner());
         s.record(
             project_dir,
-            crate::cli::build::run_build_opts(
-                project_dir,
-                crate::cli::build::Options {
-                    dev: true,
-                    cache: true,
-                    ..Default::default()
-                },
-            ),
+            crate::cli::build::run_build_opts(project_dir, build_options),
         );
         // The first build is version 0, whether it passed or not.
         s.version = 0;
@@ -246,20 +322,36 @@ pub fn run_serve(project_dir: &Path) -> Result<()> {
     }
 
     let port = config.dev.port;
-    let addr = format!("0.0.0.0:{}", port);
+    let ip: std::net::IpAddr = host.parse().map_err(|_| {
+        crate::error::WebFluentError::IoError(format!(
+            "`--host {host}` is not an address to listen on: give one such as 127.0.0.1 or 0.0.0.0"
+        ))
+    })?;
+    let addr = std::net::SocketAddr::new(ip, port);
 
     // A site built for a sub-path (`build.base_path`, as on a GitHub Pages
     // project site) is served under that path, as its host will serve it:
     // its absolute links then resolve, and a visit to `/` is sent there.
     let base_path = config.build.base_path.trim_end_matches('/').to_string();
-    println!(
-        "Starting dev server at http://localhost:{}{}/",
-        port, base_path
-    );
 
-    let server = tiny_http::Server::http(&addr).map_err(|e| {
+    let server = tiny_http::Server::http(addr).map_err(|e| {
         crate::error::WebFluentError::IoError(format!("Failed to start server: {}", e))
     })?;
+    let port = server.server_addr().to_ip().map_or(port, |a| a.port());
+    let shown = if ip.is_loopback() || ip.is_unspecified() {
+        "localhost".to_string()
+    } else if ip.is_ipv6() {
+        format!("[{ip}]")
+    } else {
+        ip.to_string()
+    };
+    println!("Starting dev server at http://{shown}:{port}{base_path}/");
+    if ip.is_unspecified() {
+        match lan_address() {
+            Some(lan) => println!("  On your network: http://{lan}:{port}{base_path}/"),
+            None => println!("  Listening on every interface of this machine"),
+        }
+    }
 
     // Rebuild when a source file changes: the tree's newest change time is
     // read every half second, which needs no watcher and misses nothing.
@@ -276,180 +368,301 @@ pub fn run_serve(project_dir: &Path) -> Result<()> {
                 }
                 last = now;
                 println!("Change detected, rebuilding...");
-                let outcome = crate::cli::build::run_build_opts(
-                    &root,
-                    crate::cli::build::Options {
-                        dev: true,
-                        cache: true,
-                        ..Default::default()
-                    },
-                );
-                state.lock().unwrap().record(&root, outcome);
+                let outcome = crate::cli::build::run_build_opts(&root, build_options);
+                state
+                    .lock()
+                    .unwrap_or_else(|e| e.into_inner())
+                    .record(&root, outcome);
             }
         });
     }
 
-    for request in server.incoming_requests() {
-        let url = request.url().to_string();
-        // The query string names nothing on disk.
-        let url = url.split('?').next().unwrap_or("").to_string();
-        let url = if base_path.is_empty() {
-            url
-        } else if let Some(rest) = url.strip_prefix(base_path.as_str())
-            && (rest.is_empty() || rest.starts_with('/'))
-        {
-            if rest.is_empty() {
-                "/".to_string()
-            } else {
-                rest.to_string()
-            }
-        } else if url.starts_with("/__wf/") {
-            url
+    let shared = std::sync::Arc::new(Shared {
+        state,
+        output_dir,
+        base_path,
+        hot_reload: config.dev.hot_reload,
+        host: host.to_string(),
+        gzipped: Default::default(),
+    });
+    let server = std::sync::Arc::new(server);
+    let workers: Vec<_> = (0..WORKERS)
+        .map(|_| {
+            let server = server.clone();
+            let shared = shared.clone();
+            std::thread::spawn(move || {
+                while let Ok(request) = server.recv() {
+                    answer(&shared, request);
+                }
+            })
+        })
+        .collect();
+    for worker in workers {
+        let _ = worker.join();
+    }
+    Ok(())
+}
+
+/// This machine's address on its network, as a phone beside it would reach
+/// it: the one a datagram to the outside would leave from. Nothing is sent.
+fn lan_address() -> Option<std::net::IpAddr> {
+    let socket = std::net::UdpSocket::bind("0.0.0.0:0").ok()?;
+    socket.connect("192.0.2.1:9").ok()?;
+    socket.local_addr().ok().map(|a| a.ip())
+}
+
+/// A header, built from a name and a value that are known to be fine.
+fn header(name: &str, value: &str) -> Option<tiny_http::Header> {
+    tiny_http::Header::from_bytes(name, value).ok()
+}
+
+fn respond<R: std::io::Read + Send + 'static>(
+    request: tiny_http::Request,
+    mut response: tiny_http::Response<R>,
+    headers: &[(&str, &str)],
+) {
+    for (name, value) in headers {
+        if let Some(h) = header(name, value) {
+            response.add_header(h);
+        }
+    }
+    let _ = request.respond(response.boxed());
+}
+
+fn not_found(request: tiny_http::Request) {
+    respond(
+        request,
+        tiny_http::Response::from_string("Not Found").with_status_code(404),
+        &[("Cache-Control", "no-store")],
+    );
+}
+
+/// Answer one request.
+fn answer(shared: &Shared, request: tiny_http::Request) {
+    // A page on another site may point a name it owns at this machine, and
+    // then read what is served here as its own (DNS rebinding): only a
+    // name this server is reached by is answered.
+    let host = request
+        .headers()
+        .iter()
+        .find(|h| h.field.equiv("Host"))
+        .map(|h| h.value.as_str().to_string());
+    if !super::preview::host_allowed(host.as_deref(), &shared.host) {
+        eprintln!(
+            "  421 {}: refused a request for another host, {}",
+            printable(request.url()),
+            printable(host.as_deref().unwrap_or(""))
+        );
+        respond(
+            request,
+            tiny_http::Response::from_string("Misdirected Request").with_status_code(421),
+            &[("Cache-Control", "no-store")],
+        );
+        return;
+    }
+    let base_path = shared.base_path.as_str();
+    let url = request.url().to_string();
+    // The query string names nothing on disk.
+    let url = url.split('?').next().unwrap_or("").to_string();
+    let url = if base_path.is_empty() {
+        url
+    } else if let Some(rest) = url.strip_prefix(base_path)
+        && (rest.is_empty() || rest.starts_with('/'))
+    {
+        if rest.is_empty() {
+            "/".to_string()
         } else {
-            let response = tiny_http::Response::empty(302).with_header(
-                tiny_http::Header::from_bytes("Location", format!("{base_path}{url}")).unwrap(),
-            );
-            let _ = request.respond(response);
-            continue;
-        };
-        // The dev server's own routes.
-        if url == "/__wf/status" {
-            let s = state.lock().unwrap();
-            let body = serde_json::json!({
+            rest.to_string()
+        }
+    } else if url.starts_with("/__wf/") {
+        url
+    } else {
+        let location = format!("{base_path}{url}");
+        respond(
+            request,
+            tiny_http::Response::empty(302),
+            &[("Location", &location)],
+        );
+        return;
+    };
+    // The dev server's own routes.
+    if url == "/__wf/status" {
+        let body = {
+            let s = shared.state();
+            serde_json::json!({
                 "version": s.version,
                 "error": s.error,
                 "diagnostics": s.diagnostics,
             })
-            .to_string();
-            drop(s);
-            let response = tiny_http::Response::from_string(body)
-                .with_header(
-                    tiny_http::Header::from_bytes("Content-Type", "application/json").unwrap(),
-                )
-                .with_header(tiny_http::Header::from_bytes("Cache-Control", "no-store").unwrap());
-            let _ = request.respond(response);
-            continue;
-        }
-        if url == "/__wf/mode.js" {
-            let response = tiny_http::Response::from_string("window.__WF_DEV__ = true;\n")
-                .with_header(
-                    tiny_http::Header::from_bytes("Content-Type", "application/javascript")
-                        .unwrap(),
-                );
-            let _ = request.respond(response);
-            continue;
-        }
-        if url == "/__wf/dev.js" {
-            let response = tiny_http::Response::from_string(DEV_SCRIPT).with_header(
-                tiny_http::Header::from_bytes("Content-Type", "application/javascript").unwrap(),
-            );
-            let _ = request.respond(response);
-            continue;
-        }
-        let url_path = if url == "/" { "/index.html" } else { &url };
-        let accepts_gzip = request
-            .headers()
-            .iter()
-            .any(|h| h.field.equiv("Accept-Encoding") && h.value.as_str().contains("gzip"));
-
-        // Try to serve the file. A static build writes each route as
-        // `<route>/index.html`, which is what a host serves for `/<route>`;
-        // the server used to fall through to the root index for those, so a
-        // pre-rendered page was never the one seen in development.
-        let mut file_path = output_dir.join(url_path.trim_start_matches('/'));
-        if file_path.is_dir() {
-            file_path = file_path.join("index.html");
-        }
-
-        // A fetch or a file the build did not write: a 404, as a host would
-        // send, and a line saying so. The shell used to answer it, so a
-        // missing API handed the page HTML to parse and nothing said why.
-        if !file_path.is_file() && url == "/favicon.ico" {
-            let _ = request.respond(tiny_http::Response::empty(204));
-            continue;
-        }
-        if !file_path.is_file() && !super::preview::is_page_request(&url, request.headers()) {
-            eprintln!(
-                "  404 {} {url}: no file in the build answers it, and a fetch is not a page (an API the dev server does not serve?)",
-                request.method()
-            );
-            let response = tiny_http::Response::from_string("Not Found")
-                .with_status_code(404)
-                .with_header(tiny_http::Header::from_bytes("Cache-Control", "no-store").unwrap());
-            let _ = request.respond(response);
-            continue;
-        }
-        let (content, content_type) = if file_path.exists() && file_path.is_file() {
-            let content = fs::read(&file_path).unwrap_or_default();
-            let ct = guess_content_type(&file_path);
-            (content, ct)
-        } else {
-            // A static build's catch-all page, else the SPA entry for all routes.
-            let not_found = output_dir.join("404.html");
-            let index_path = output_dir.join("index.html");
-            if not_found.exists() {
-                let content = fs::read(&not_found).unwrap_or_default();
-                (content, "text/html")
-            } else if index_path.exists() {
-                let content = fs::read(&index_path).unwrap_or_default();
-                (content, "text/html")
-            } else {
-                (b"Not Found".to_vec(), "text/plain")
-            }
+            .to_string()
         };
+        respond(
+            request,
+            tiny_http::Response::from_string(body),
+            &[
+                ("Content-Type", "application/json"),
+                ("Cache-Control", "no-store"),
+            ],
+        );
+        return;
+    }
+    if url == "/__wf/mode.js" {
+        respond(
+            request,
+            tiny_http::Response::from_string("window.__WF_DEV__ = true;\n"),
+            &[("Content-Type", "application/javascript")],
+        );
+        return;
+    }
+    if url == "/__wf/dev.js" {
+        respond(
+            request,
+            tiny_http::Response::from_string(DEV_SCRIPT),
+            &[("Content-Type", "application/javascript")],
+        );
+        return;
+    }
+    let url_path = if url == "/" { "/index.html" } else { &url };
+    let accepts_gzip = request
+        .headers()
+        .iter()
+        .any(|h| h.field.equiv("Accept-Encoding") && h.value.as_str().contains("gzip"));
 
-        // A page carries the dev script, which reloads it on a new build and
-        // shows a failed build's error over it.
-        let dev_page = config.dev.hot_reload && content_type.starts_with("text/html");
-        let content = if dev_page {
-            inject_dev_script(content)
-        } else {
-            content
-        };
-
-        // What a host does: send the `.gz` the build wrote when the browser
-        // takes it, or compress a text response on the way out, so the bytes
-        // measured here are the bytes a deployed site sends.
-        let (content, encoding) = if accepts_gzip && is_text(content_type) {
-            let prebuilt = PathBuf::from(format!("{}.gz", file_path.display()));
-            match fs::read(&prebuilt) {
-                Ok(gz) if file_path.is_file() && !dev_page => (gz, Some("gzip")),
-                _ if content.len() >= 1024 => (crate::codegen::gzip::gzip(&content), Some("gzip")),
-                _ => (content, None),
-            }
-        } else {
-            (content, None)
-        };
-
-        // The same headers the built output asks a host for, so a policy problem
-        // surfaces in development rather than on the deployed site.
-        let mut response = tiny_http::Response::from_data(content)
-            .with_header(tiny_http::Header::from_bytes("Content-Type", content_type).unwrap());
-        if let Some(encoding) = encoding {
-            response
-                .add_header(tiny_http::Header::from_bytes("Content-Encoding", encoding).unwrap());
-        }
-        // A site that frames its own pages lets its own origin do so.
-        let frame_options = if state.lock().unwrap().frames_itself {
-            "SAMEORIGIN"
-        } else {
-            "DENY"
-        };
-        for (name, value) in [
-            ("Vary", "Accept-Encoding"),
-            ("X-Content-Type-Options", "nosniff"),
-            ("Referrer-Policy", "strict-origin-when-cross-origin"),
-            ("X-Frame-Options", frame_options),
-        ] {
-            if let Ok(header) = tiny_http::Header::from_bytes(name, value) {
-                response.add_header(header);
-            }
-        }
-
-        let _ = request.respond(response);
+    // The file the address names, inside the output and nowhere else: an
+    // address that climbs out (`..`, plain or percent-encoded), names the
+    // root, or reaches a link out of the output names nothing.
+    let Some(mut file_path) = super::preview::resolve(&shared.output_dir, url_path) else {
+        eprintln!(
+            "  404 {} {}: the address leads outside the build",
+            printable(&request.method().to_string()),
+            printable(&url)
+        );
+        not_found(request);
+        return;
+    };
+    // A static build writes each route as `<route>/index.html`, which is
+    // what a host serves for `/<route>`.
+    if file_path.is_dir() {
+        file_path = file_path.join("index.html");
     }
 
-    Ok(())
+    // A fetch or a file the build did not write: a 404, as a host would
+    // send, and a line saying so. The shell used to answer it, so a
+    // missing API handed the page HTML to parse and nothing said why.
+    if !file_path.is_file() && url == "/favicon.ico" {
+        let _ = request.respond(tiny_http::Response::empty(204));
+        return;
+    }
+    if !file_path.is_file() && !super::preview::is_page_request(&url, request.headers()) {
+        eprintln!(
+            "  404 {} {}: no file in the build answers it, and a fetch is not a page (an API the dev server does not serve?)",
+            printable(&request.method().to_string()),
+            printable(&url)
+        );
+        not_found(request);
+        return;
+    }
+    let served = if file_path.is_file() {
+        file_path.clone()
+    } else {
+        // A static build's catch-all page, else the SPA entry for all routes.
+        let not_found = shared.output_dir.join("404.html");
+        let index_path = shared.output_dir.join("index.html");
+        if not_found.is_file() {
+            not_found
+        } else if index_path.is_file() {
+            index_path
+        } else {
+            respond(
+                request,
+                tiny_http::Response::from_string("Not Found"),
+                &[("Content-Type", "text/plain")],
+            );
+            return;
+        }
+    };
+    let content_type = guess_content_type(&served);
+
+    // The same headers the built output asks a host for, so a policy problem
+    // surfaces in development rather than on the deployed site. A site that
+    // frames its own pages lets its own origin do so.
+    let frame_options = if shared.state().frames_itself {
+        "SAMEORIGIN"
+    } else {
+        "DENY"
+    };
+    let common = [
+        ("Vary", "Accept-Encoding"),
+        ("X-Content-Type-Options", "nosniff"),
+        ("Referrer-Policy", "strict-origin-when-cross-origin"),
+        ("X-Frame-Options", frame_options),
+    ];
+    let with = |extra: &[(&'static str, &'static str)]| -> Vec<(&str, &str)> {
+        let mut all: Vec<(&str, &str)> = vec![("Content-Type", content_type)];
+        all.extend_from_slice(extra);
+        all.extend_from_slice(&common);
+        all
+    };
+
+    // A page carries the dev script, which reloads it on a new build and
+    // shows a failed build's error over it.
+    let dev_page = shared.hot_reload && content_type.starts_with("text/html");
+    let size = fs::metadata(&served).map_or(0, |m| m.len());
+    let compress = accepts_gzip && is_text(content_type);
+
+    // What a host does: send the `.gz` the build wrote when the browser
+    // takes it, or compress a text response on the way out, so the bytes
+    // measured here are the bytes a deployed site sends.
+    if compress && !dev_page && served == file_path {
+        let prebuilt = PathBuf::from(format!("{}.gz", served.display()));
+        if let Ok(gz) = fs::File::open(&prebuilt) {
+            respond(
+                request,
+                tiny_http::Response::from_file(gz),
+                &with(&[("Content-Encoding", "gzip")]),
+            );
+            return;
+        }
+    }
+    // Anything that is not rewritten or compressed goes out as it is read,
+    // never whole in memory.
+    if !dev_page && (!compress || !(1024..=GZIP_LIMIT).contains(&size)) {
+        match fs::File::open(&served) {
+            Ok(file) => respond(request, tiny_http::Response::from_file(file), &with(&[])),
+            Err(_) => not_found(request),
+        }
+        return;
+    }
+    let content = fs::read(&served).unwrap_or_default();
+    let content = if dev_page {
+        inject_dev_script(content)
+    } else {
+        content
+    };
+    if compress && content.len() >= 1024 {
+        let gz = shared.gzip(&served, dev_page, &content);
+        respond(
+            request,
+            tiny_http::Response::from_data(gz.as_slice().to_vec()),
+            &with(&[("Content-Encoding", "gzip")]),
+        );
+    } else {
+        respond(request, tiny_http::Response::from_data(content), &with(&[]));
+    }
+}
+
+/// `text` as it may be printed to a terminal: a control character — an
+/// escape sequence a request smuggled in — is written as its code.
+pub(crate) fn printable(text: &str) -> String {
+    text.chars()
+        .flat_map(|c| {
+            if c.is_control() {
+                c.escape_default().collect::<Vec<_>>()
+            } else {
+                vec![c]
+            }
+        })
+        .collect()
 }
 
 /// The page with `<script src="/__wf/dev.js">` before `</body>`.
@@ -473,17 +686,36 @@ fn inject_dev_script(content: Vec<u8>) -> Vec<u8> {
     }
 }
 
-/// The newest change time under `src/`, the config and the translations.
+/// The newest change time under `src/`, `public/` and the config.
+///
+/// The walk enters no directory twice, so a link that loops (`src/a -> .`)
+/// cannot run it forever, and follows no link out of the project.
 fn newest_change(root: &Path) -> Option<std::time::SystemTime> {
-    fn walk(dir: &Path, newest: &mut Option<std::time::SystemTime>) {
+    fn walk(
+        root: &Path,
+        dir: &Path,
+        seen: &mut std::collections::HashSet<PathBuf>,
+        newest: &mut Option<std::time::SystemTime>,
+    ) {
+        match fs::canonicalize(dir) {
+            Ok(real) if real.starts_with(root) && seen.insert(real.clone()) => {}
+            _ => return,
+        }
         let Ok(entries) = fs::read_dir(dir) else {
             return;
         };
         for entry in entries.flatten() {
             let path = entry.path();
+            let Ok(kind) = entry.file_type() else {
+                continue;
+            };
+            let linked = kind.is_symlink();
+            if linked && fs::canonicalize(&path).map_or(true, |real| !real.starts_with(root)) {
+                continue;
+            }
             if path.is_dir() {
-                walk(&path, newest);
-            } else if let Ok(meta) = entry.metadata()
+                walk(root, &path, seen, newest);
+            } else if let Ok(meta) = fs::metadata(&path)
                 && let Ok(modified) = meta.modified()
                 && newest.is_none_or(|n| modified > n)
             {
@@ -491,9 +723,11 @@ fn newest_change(root: &Path) -> Option<std::time::SystemTime> {
             }
         }
     }
+    let real_root = fs::canonicalize(root).ok()?;
     let mut newest = None;
-    walk(&root.join("src"), &mut newest);
-    walk(&root.join("public"), &mut newest);
+    let mut seen = std::collections::HashSet::new();
+    walk(&real_root, &root.join("src"), &mut seen, &mut newest);
+    walk(&real_root, &root.join("public"), &mut seen, &mut newest);
     if let Ok(meta) = fs::metadata(root.join("webfluent.app.json"))
         && let Ok(modified) = meta.modified()
         && newest.is_none_or(|n| modified > n)
@@ -534,5 +768,51 @@ fn guess_content_type(path: &Path) -> &'static str {
         Some("woff2") => "font/woff2",
         Some("ttf") => "font/ttf",
         _ => "application/octet-stream",
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn a_file_is_compressed_once_until_it_changes() {
+        let dir = std::env::temp_dir().join(format!("wf-servegz-{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        let file = dir.join("app.js");
+        std::fs::write(&file, "x".repeat(4096)).unwrap();
+        let shared = Shared {
+            state: Default::default(),
+            output_dir: dir.clone(),
+            base_path: String::new(),
+            hot_reload: true,
+            host: "127.0.0.1".into(),
+            gzipped: Default::default(),
+        };
+        let first = shared.gzip(&file, false, &std::fs::read(&file).unwrap());
+        let again = shared.gzip(&file, false, b"not what is on disk");
+        assert!(std::sync::Arc::ptr_eq(&first, &again), "compressed twice");
+        // A changed file is compressed again.
+        std::fs::write(&file, "y".repeat(5000)).unwrap();
+        let changed = shared.gzip(&file, false, &std::fs::read(&file).unwrap());
+        assert!(!std::sync::Arc::ptr_eq(&first, &changed));
+        // A page with the dev script is the build's: a new build, a new one.
+        let page = shared.gzip(&file, true, b"<p>one</p>");
+        assert!(std::sync::Arc::ptr_eq(
+            &page,
+            &shared.gzip(&file, true, b"<p>one</p>")
+        ));
+        shared.state().version += 1;
+        assert!(!std::sync::Arc::ptr_eq(
+            &page,
+            &shared.gzip(&file, true, b"<p>two</p>")
+        ));
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn a_control_character_is_printed_as_its_code() {
+        assert_eq!(printable("/a\u{1b}[2Jb\u{7}"), "/a\\u{1b}[2Jb\\u{7}");
+        assert_eq!(printable("/ünïcode"), "/ünïcode");
     }
 }

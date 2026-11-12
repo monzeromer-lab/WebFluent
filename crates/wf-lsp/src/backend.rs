@@ -9,7 +9,8 @@
 
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
-use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
+use std::time::Duration;
 
 use dashmap::DashMap;
 use tower_lsp::jsonrpc::Result;
@@ -43,7 +44,16 @@ pub struct Backend {
     /// What was last published for each open file: a family's other
     /// findings, for "fix all of these in this file".
     published: DashMap<Url, Vec<Diagnostic>>,
+    /// Every edit is numbered; each open file keeps the number of its
+    /// latest. A check that finds a later number than its own has been
+    /// overtaken, and leaves the reporting to the later one.
+    edits: AtomicU64,
+    latest: DashMap<PathBuf, u64>,
 }
+
+/// How long an edit waits for the next before the project is checked: a
+/// run of keystrokes is checked once, after it, rather than once a key.
+const SETTLE: Duration = Duration::from_millis(75);
 
 impl Backend {
     pub fn new(client: Client) -> Self {
@@ -54,7 +64,14 @@ impl Backend {
             hierarchical_symbols: AtomicBool::new(true),
             watch_files: AtomicBool::new(false),
             published: DashMap::new(),
+            edits: AtomicU64::new(0),
+            latest: DashMap::new(),
         }
+    }
+
+    /// Whether `ticket` is still the latest edit of `path`.
+    fn current(&self, path: &Path, ticket: u64) -> bool {
+        self.latest.get(path).is_some_and(|t| *t == ticket)
     }
 
     fn path_of(uri: &Url) -> PathBuf {
@@ -81,9 +98,13 @@ impl Backend {
         Some((project, ix))
     }
 
-    /// Records the buffer's text and re-reports the project's open files.
-    async fn changed(&self, uri: Url, text: String) {
+    /// Records the buffer's text and re-reports the project's open files —
+    /// once the edits have paused (`settle`), and only if no later edit has
+    /// come in by the time the check is done.
+    async fn changed(&self, uri: Url, text: String, settle: bool) {
         let path = Self::path_of(&uri);
+        let ticket = self.edits.fetch_add(1, Ordering::Relaxed) + 1;
+        self.latest.insert(path.clone(), ticket);
         let text: Arc<str> = text.into();
         let previous = self
             .documents
@@ -96,6 +117,12 @@ impl Backend {
                 last_valid: previous,
             },
         );
+        if settle {
+            tokio::time::sleep(SETTLE).await;
+            if !self.current(&path, ticket) {
+                return;
+            }
+        }
 
         let project = self.project(&uri);
 
@@ -104,9 +131,13 @@ impl Backend {
             && let Ok(program) = &file.parsed
             && let Some(mut doc) = self.documents.get_mut(&path)
         {
-            doc.last_valid = Some(Arc::new(program.clone()));
+            doc.last_valid = Some(program.clone());
         }
 
+        // An edit that came in while this one was checked will report.
+        if !self.current(&path, ticket) {
+            return;
+        }
         self.publish(&project).await;
     }
 
@@ -254,13 +285,14 @@ impl LanguageServer for Backend {
     }
 
     async fn did_open(&self, params: DidOpenTextDocumentParams) {
-        self.changed(params.text_document.uri, params.text_document.text)
+        self.changed(params.text_document.uri, params.text_document.text, false)
             .await;
     }
 
     async fn did_change(&self, params: DidChangeTextDocumentParams) {
         if let Some(change) = params.content_changes.into_iter().last() {
-            self.changed(params.text_document.uri, change.text).await;
+            self.changed(params.text_document.uri, change.text, true)
+                .await;
         }
     }
 
@@ -293,7 +325,17 @@ impl LanguageServer for Backend {
 
     async fn did_close(&self, params: DidCloseTextDocumentParams) {
         let uri = params.text_document.uri;
-        self.documents.remove(&Self::path_of(&uri));
+        let path = Self::path_of(&uri);
+        self.documents.remove(&path);
+        self.latest.remove(&path);
+        self.published.remove(&uri);
+        // What was read for projects nothing is open in any more goes.
+        let roots: Vec<PathBuf> = self
+            .documents
+            .iter()
+            .map(|d| crate::project::root_of(d.key()))
+            .collect();
+        self.cache.retain_under(&roots);
         self.client.publish_diagnostics(uri, Vec::new(), None).await;
     }
 

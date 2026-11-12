@@ -158,6 +158,50 @@ pub fn process(
     )
 }
 
+/// The files of each cache directory the builds of this process have read
+/// or written since [`take_used`] last asked: what the next build keeps.
+static USED: std::sync::Mutex<BTreeMap<std::path::PathBuf, std::collections::BTreeSet<String>>> =
+    std::sync::Mutex::new(BTreeMap::new());
+
+fn used(cache_dir: &Path, file: &str) {
+    USED.lock()
+        .unwrap_or_else(|e| e.into_inner())
+        .entry(cache_dir.to_path_buf())
+        .or_default()
+        .insert(file.to_string());
+}
+
+/// The files of `cache_dir` used since the last call, which forgets them.
+pub fn take_used(cache_dir: &Path) -> std::collections::BTreeSet<String> {
+    USED.lock()
+        .unwrap_or_else(|e| e.into_inner())
+        .remove(cache_dir)
+        .unwrap_or_default()
+}
+
+/// Remove from `cache_dir` every file a build did not use (`used`): an
+/// image that was replaced, resized or dropped leaves its encodings behind
+/// otherwise, and the cache only grows. Only plain files directly in it
+/// go; the cache is the build's own.
+pub fn prune_cache(cache_dir: &Path, used: &std::collections::BTreeSet<String>) -> usize {
+    let Ok(entries) = crate::outfs::read_dir(cache_dir) else {
+        return 0;
+    };
+    let mut removed = 0;
+    for path in entries {
+        let Some(name) = path.file_name().map(|n| n.to_string_lossy().to_string()) else {
+            continue;
+        };
+        if used.contains(&name) || !crate::outfs::is_file(&path) {
+            continue;
+        }
+        if crate::outfs::remove_file(&path).is_ok() {
+            removed += 1;
+        }
+    }
+    removed
+}
+
 /// [`process`], reading the picture through `vfs`. What it writes — the
 /// output and the cache — goes to the disk.
 pub fn process_via(
@@ -206,6 +250,7 @@ pub fn process_via(
                 let file = format!("{stem}.{hash}.{width}.{format}");
                 let at = img_dir.join(&file);
                 let cached = cache_dir.join(&file);
+                used(cache_dir, &file);
                 // Encoded once, and kept in the cache whether it is shipped
                 // or not, so the next build knows without encoding again.
                 let fresh = if crate::outfs::exists(&cached) {

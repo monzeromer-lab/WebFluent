@@ -227,7 +227,14 @@ With this config:
 
 - a page may read `env.PUBLIC_API` and `env.ANALYTICS_ID`;
 - `env.STRIPE_SECRET`, read from a page, a component, a store or an `api`
-  block, is an `E108` compile error naming the file and the line.
+  block, is an `E108` compile error naming the file and the line;
+- every build warns that `env.ANALYTICS_ID` goes into the bundle, since its
+  name does not say so.
+
+`public_env` comes with the project, so it cannot reach into the shell of
+whoever builds it: a name it lists without the `PUBLIC_` prefix takes its
+value from the config or `.env`, and from the shell only when
+`WF_ALLOW_SHELL_ENV` names it ([Environments](35-environments.md)).
 
 The value of `STRIPE_SECRET` is still there for `wf render`, which runs on
 a server where a secret stays secret

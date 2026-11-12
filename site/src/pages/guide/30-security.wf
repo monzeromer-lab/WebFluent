@@ -76,7 +76,7 @@ store Session {
   "public_env": ["ANALYTICS_ID"]
 }"#, title: "json")
 
-        Markdown("With this config:\n\n- a page may read `env.PUBLIC_API` and `env.ANALYTICS_ID`;\n- `env.STRIPE_SECRET`, read from a page, a component, a store or an `api` block, is an `E108` compile error naming the file and the line.\n\nThe value of `STRIPE_SECRET` is still there for `wf render`, which runs on a server where a secret stays secret ([Server rendering](/docs/guide/server-rendering)). A secret that has to reach a third party belongs in a request your server makes, not in a page. [Environments](/docs/guide/environments) covers where `env` values come from.")
+        Markdown("With this config:\n\n- a page may read `env.PUBLIC_API` and `env.ANALYTICS_ID`;\n- `env.STRIPE_SECRET`, read from a page, a component, a store or an `api` block, is an `E108` compile error naming the file and the line;\n- every build warns that `env.ANALYTICS_ID` goes into the bundle, since its name does not say so.\n\n`public_env` comes with the project, so it cannot reach into the shell of whoever builds it: a name it lists without the `PUBLIC_` prefix takes its value from the config or `.env`, and from the shell only when `WF_ALLOW_SHELL_ENV` names it ([Environments](/docs/guide/environments)).\n\nThe value of `STRIPE_SECRET` is still there for `wf render`, which runs on a server where a secret stays secret ([Server rendering](/docs/guide/server-rendering)). A secret that has to reach a third party belongs in a request your server makes, not in a page. [Environments](/docs/guide/environments) covers where `env` values come from.")
 
         Heading("Check uploads on the server", id: "check-uploads-on-the-server").h2
 
