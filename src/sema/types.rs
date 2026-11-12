@@ -3785,7 +3785,24 @@ impl<'a, 'p> Checker<'a, 'p> {
                 "data" => Type::optional((**inner).clone()),
                 "state" => Type::String,
                 "error" => Type::optional(Type::Any),
-                "refreshing" | "pending" => Type::Bool,
+                "refreshing" | "pending" | "hasMore" => Type::Bool,
+                // `paginate:`'s pages, gathered: each answer if it is a list,
+                // or its `items` if it carries them.
+                "items" => match &**inner {
+                    Type::List(_) => (**inner).clone(),
+                    Type::Shape(fields) => match fields.iter().find(|(n, _)| n == "items") {
+                        Some((_, ty @ Type::List(_))) => ty.clone(),
+                        _ => Type::Any,
+                    },
+                    Type::Record(name) => match self.world.record_field(name, "items") {
+                        Some(ty) => match self.world.resolve(ty) {
+                            list @ Type::List(_) => list,
+                            _ => Type::Any,
+                        },
+                        None => Type::Any,
+                    },
+                    _ => Type::Any,
+                },
                 _ => Type::Any,
             },
             // `save.pending`: whether a call of the action is under way —

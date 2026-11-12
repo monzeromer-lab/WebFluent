@@ -171,8 +171,11 @@ What happens when a request fails, or changes:
 - A request that changed is a first load again, shown as `loading`. A
   request changes when an address or an argument that reads state now names
   something else — another environment, another page — because the data on
-  screen would be the wrong data. With `paginate:`, the next page is a
-  refresh instead.
+  screen would be the wrong data. What the last request brought goes with
+  it: `name.data` is `null` (and a paged resource's `name.items` empty)
+  until the answer arrives, and stays so if it fails, so a `derived` value
+  over it never reads the other request's answer. With `paginate:`, the
+  next page is a refresh instead.
 
 Pressing **Production** above changes `stage`, so the list shows its
 `loading` arm and then the production servers.
@@ -507,7 +510,9 @@ page Items(path: "/items", title: "Items", description: "Everything, a page at a
 }
 ```
 
-- `.items` gathers every page loaded so far.
+- `.items` gathers every page loaded so far. It is a list of what a page
+  holds — the answer, when the endpoint returns a list, or its `items`
+  field — so `item.name` is checked against `Item`.
 - `.loadMore()` moves `page` on by one and fetches the next page, as a
   refresh.
 - `.hasMore` turns false when a page comes back empty.

@@ -239,7 +239,10 @@
   /// while it runs, with `refreshing()` true; what it brings replaces the
   /// data in place, sharing what did not change (`reconcile`). A refresh
   /// that fails keeps the data and "ready", and sets `error()` — until the
-  /// next answer clears it — so a page can say the data is stale.
+  /// next answer clears it — so a page can say the data is stale. A first
+  /// load for another request drops what the last one brought: `data()` is
+  /// null (and a paged resource's `items()` empty) until it answers, and
+  /// stays so if it fails.
   /// `pending()` is true while any request of it runs, either kind.
   /// The arm an editor's preview holds every resource in — the page's root
   /// carrying `data-wf-resource="loading"` or `"error"` — so a page can be
@@ -324,9 +327,21 @@
       if (again) {
         refreshing.set(true);
       } else {
+        // Another request: what the last one brought is not its answer,
+        // so it goes — a derived value over `data` read the old answer
+        // while the new one loaded, and still read it if that failed.
         refreshing.set(false);
         state.set("loading");
         error.set(null);
+        if (arrived) {
+          arrived = false;
+          data.set(null);
+          if (paging) {
+            items.set([]);
+            hasMore.set(true);
+            extraPage = null;
+          }
+        }
       }
       pending.set(true);
       // An endpoint is a call; an address is a request.

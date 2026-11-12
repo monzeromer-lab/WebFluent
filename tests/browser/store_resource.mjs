@@ -110,6 +110,7 @@ async function scenario(label, ssg, port) {
     await page.click("#next");
     check("an address with nothing there is the resource's error", await is("state", "error") && await is("rows", "failed"), `${await text("state")} ${await text("rows")}`);
     check("and a derived value over its state follows it", await is("loaded", "false"), await text("loaded"));
+    check("and one over its data: the last page's answer is not this one's", await is("count", "0"), await text("count"));
 
     check("nothing threw", problems.length === 0, problems.join(" | "));
   } catch (e) {

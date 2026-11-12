@@ -98,6 +98,29 @@ test("an address that reads the store's state asks again when it changes", async
   assert.equal(Feed.count, 3);
 });
 
+test("another address drops the last answer while it loads, and after it fails", async () => {
+  const { WF, asked } = load();
+  const Feed = feed(WF);
+  Feed.rows.state();
+  asked[0].answer([{ name: "a" }, { name: "b" }]);
+  await settle();
+  assert.equal(Feed.count, 2);
+  Feed.next();
+  assert.equal(Feed.rows.state(), "loading");
+  assert.equal(Feed.rows.data(), null, "page 1's rows are not page 2's");
+  assert.equal(Feed.count, 0, "and a derived value over them says so");
+  asked[1].fail(404);
+  await settle();
+  assert.equal(Feed.rows.state(), "error");
+  assert.equal(Feed.rows.data(), null);
+  assert.equal(Feed.count, 0);
+  Feed.again();
+  assert.equal(Feed.rows.state(), "loading", "asking again after a failure is still a first load");
+  asked[2].answer([{ name: "c" }]);
+  await settle();
+  assert.equal(Feed.count, 1);
+});
+
 test("it outlives the page that first read it", async () => {
   const { WF, asked } = load();
   const Feed = feed(WF);

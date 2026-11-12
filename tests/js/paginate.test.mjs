@@ -53,3 +53,22 @@ test("a page number that is not a state still moves on", async () => {
   await tick();
   assert.deepEqual(list.items(), ["a", "b", "c"]);
 });
+
+test("another request starts again from its first page, with nothing gathered", async () => {
+  const WF = load();
+  const asked = [];
+  const answers = { a: { 1: ["a1", "a2"], 2: ["a3"] }, b: { 1: ["b1"], 2: [] } };
+  const endpoint = (args) => { asked.push(`${args.q}${args.page}`); return Promise.resolve(answers[args.q][args.page]); };
+  const q = WF.signal("a");
+  const list = WF.resource(endpoint, { call: true, args: () => ({ q: q(), page: 1 }), paginate: { by: "page" } });
+  await tick();
+  list.loadMore();
+  await tick();
+  assert.deepEqual(list.items(), ["a1", "a2", "a3"]);
+  q.set("b");
+  assert.deepEqual(list.items(), [], "what the other request gathered is not this one's");
+  assert.equal(list.hasMore(), true);
+  await tick();
+  assert.deepEqual(list.items(), ["b1"]);
+  assert.deepEqual(asked, ["a1", "a2", "b1"], "it asked for its first page, not the page the other had reached");
+});

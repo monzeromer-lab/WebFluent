@@ -192,3 +192,24 @@ fn a_pre_rendered_page_shows_a_store_s_resource_loading() {
         "{html}"
     );
 }
+
+#[test]
+fn a_paged_resource_s_items_are_what_its_pages_hold() {
+    // `.items` was `Any`, so a misspelt field of a gathered item was found
+    // only in the browser. It is a list of what a page holds: the answer,
+    // when that is a list, or its `items`.
+    let src = "type Item { id: String, name: String }\ntype Page { items: [Item], total: Number }\napi Catalog(base: \"/api\") {\n    get items(page: Number = 1) -> [Item]\n    get paged(page: Number = 1) -> Page\n}\nstore Shelf {\n    state page = 1\n    resource list = Catalog.items(page: page, paginate: .page)\n}\npage P(path: \"/\", title: \"T\") {\n    Heading(\"Shelf\").h1\n    state n = 1\n    resource more = Catalog.paged(page: n, paginate: .page)\n    for item in Shelf.list.items by item.id { Text(item.nme) }\n    for item in more.items by item.id { Text(item.titl) }\n    if Shelf.list.hasMore && more.hasMore { Text(\"More\") }\n}\n";
+    let found = diagnostics(src, "T05");
+    assert!(
+        found.iter().any(|d| d == "[T05] `Item` has no field `nme`"),
+        "a store's paged resource: {found:?}"
+    );
+    assert!(
+        found
+            .iter()
+            .any(|d| d == "[T05] `Item` has no field `titl`"),
+        "a page's, whose answer carries its items: {found:?}"
+    );
+    assert_eq!(found.len(), 2, "{found:?}");
+    assert!(diagnostics(src, "T01").is_empty(), "`hasMore` is a Bool");
+}
