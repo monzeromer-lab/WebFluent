@@ -122,20 +122,35 @@ pub(super) fn null_side(left: &Expr, right: &Expr) -> bool {
     matches!(left, Expr::Null) || matches!(right, Expr::Null)
 }
 
+/// Where an expression is written: on a page, or in a store whose own
+/// members are `store_states` and are read through `store.`.
+#[derive(Clone, Copy)]
+pub(super) enum Cx<'s> {
+    Page,
+    Store(&'s [String]),
+}
+
 impl JsCodegen {
+    /// An expression on a page.
     pub(super) fn emit_expr(&self, expr: &Expr) -> String {
-        match expr {
-            // A scalar is its carrier: a plain JSON value, and nothing else.
-            Expr::Typed(_, carrier) => self.emit_expr(carrier),
-            Expr::StringLiteral(s) => js_str(s),
-            Expr::InterpolatedString(parts) => {
+        self.emit_expr_in(expr, Cx::Page)
+    }
+
+    /// An expression where `cx` says it is written: what is the same on a
+    /// page and in a store is written once, and a name, a property read, a
+    /// method's holder and a call each resolve as their place reads them.
+    pub(super) fn emit_expr_in(&self, expr: &Expr, cx: Cx<'_>) -> String {
+        match (expr, cx) {
+            (Expr::Typed(_, carrier), _) => self.emit_expr_in(carrier, cx),
+            (Expr::StringLiteral(s), _) => js_str(s),
+            (Expr::InterpolatedString(parts), _) => {
                 let mut out = String::from("`");
                 for part in parts {
                     match part {
                         StringPart::Literal(s) => out.push_str(&template_text(s)),
                         StringPart::Expression(e) => {
                             out.push_str("${");
-                            out.push_str(&self.emit_expr(e));
+                            out.push_str(&self.emit_expr_in(e, cx));
                             out.push('}');
                         }
                     }
@@ -143,24 +158,24 @@ impl JsCodegen {
                 out.push('`');
                 out
             }
-            Expr::Regex(pattern, flags) => format!("/{pattern}/{flags}"),
-            Expr::Spread(inner) => format!("...{}", self.emit_expr(inner)),
-            Expr::Range(a, b, inclusive) => format!(
+            (Expr::Regex(pattern, flags), _) => format!("/{pattern}/{flags}"),
+            (Expr::Spread(inner), _) => format!("...{}", self.emit_expr_in(inner, cx)),
+            (Expr::Range(a, b, inclusive), _) => format!(
                 "WF.range({}, {}, {})",
-                self.emit_expr(a),
-                self.emit_expr(b),
+                self.emit_expr_in(a, cx),
+                self.emit_expr_in(b, cx),
                 inclusive
             ),
-            Expr::NumberLiteral(n) => {
+            (Expr::NumberLiteral(n), _) => {
                 if *n == (*n as i64) as f64 {
                     format!("{}", *n as i64)
                 } else {
                     format!("{}", n)
                 }
             }
-            Expr::BoolLiteral(b) => format!("{}", b),
-            Expr::Null => "null".to_string(),
-            Expr::Identifier(name) => {
+            (Expr::BoolLiteral(b), _) => format!("{}", b),
+            (Expr::Null, _) => "null".to_string(),
+            (Expr::Identifier(name), Cx::Page) => {
                 // A live binding — an arm's, an `if let`'s, a keyed loop's —
                 // is read through its accessor, wherever it is read.
                 if self.is_live(name) {
@@ -264,9 +279,27 @@ impl JsCodegen {
                     format!("{}()", sig(name))
                 }
             }
+            (Expr::Identifier(name), Cx::Store(store_states)) => {
+                if self.is_own_member(name, store_states) {
+                    format!("store.{}", name)
+                } else if self.store_locals.borrow().contains(name) {
+                    bare(name)
+                } else if self.consts.contains(name) || self.stores.contains(name) {
+                    top_level(name)
+                } else if BROWSER_VALUES.contains(&name.as_str())
+                    && !self.body.own_names.contains(name)
+                {
+                    format!("WF.{name}()")
+                } else {
+                    name.to_string()
+                }
+            }
+
             // `save.pending` and `Store.save.pending`: whether a call of an
             // async action is under way, a signal.
-            Expr::PropertyAccess(base, prop) if prop == "pending" && self.is_action_ref(base) => {
+            (Expr::PropertyAccess(base, prop), Cx::Page)
+                if prop == "pending" && self.is_action_ref(base) =>
+            {
                 match base.as_ref() {
                     Expr::Identifier(name) => format!("{}_pending()", sig(name)),
                     other => format!("{}.pending()", self.emit_expr(other)),
@@ -280,7 +313,7 @@ impl JsCodegen {
             // `Text("{rows.state}")` shows the state and follows it; it used to
             // show the signal's own source, once.
             // A store's connection, `Lang.css.pending`: the same.
-            Expr::PropertyAccess(base, prop)
+            (Expr::PropertyAccess(base, prop), Cx::Page)
                 if CONNECTION_SIGNALS.contains(&prop.as_str())
                     && matches!(base.as_ref(), Expr::PropertyAccess(owner, name)
                         if matches!(owner.as_ref(), Expr::Identifier(store)
@@ -289,7 +322,7 @@ impl JsCodegen {
                 format!("{}.{}()", self.emit_expr(base), prop)
             }
             // A store's resource, `Feed.rows.state`: the same.
-            Expr::PropertyAccess(base, prop)
+            (Expr::PropertyAccess(base, prop), Cx::Page)
                 if RESOURCE_SIGNALS.contains(&prop.as_str())
                     && matches!(base.as_ref(), Expr::PropertyAccess(owner, name)
                         if matches!(owner.as_ref(), Expr::Identifier(store)
@@ -297,7 +330,7 @@ impl JsCodegen {
             {
                 format!("{}.{}()", self.emit_expr(base), prop)
             }
-            Expr::PropertyAccess(base, prop)
+            (Expr::PropertyAccess(base, prop), Cx::Page)
                 if matches!(
                     prop.as_str(),
                     "state"
@@ -316,27 +349,64 @@ impl JsCodegen {
             {
                 format!("{}.{}()", self.emit_expr(base), prop)
             }
-            Expr::PropertyAccess(base, prop) => {
+            (Expr::PropertyAccess(base, prop), Cx::Page) => {
                 let base_str = self.emit_expr(base);
                 format!("{}.{}", base_str, prop)
             }
-            Expr::IndexAccess(base, index) => {
-                let base_str = self.emit_expr(base);
-                let idx_str = self.emit_expr(index);
+            // A connection of this store's: what it holds is a signal.
+            (Expr::PropertyAccess(base, prop), Cx::Store(store_states))
+                if CONNECTION_SIGNALS.contains(&prop.as_str())
+                    && matches!(base.as_ref(), Expr::Identifier(n)
+                        if self.own_connections.contains(n) && self.is_own_member(n, store_states)) =>
+            {
+                format!("{}.{prop}()", self.emit_store_expr(base, store_states))
+            }
+            // A resource of this store's: what it holds is a signal.
+            (Expr::PropertyAccess(base, prop), Cx::Store(store_states))
+                if RESOURCE_SIGNALS.contains(&prop.as_str())
+                    && matches!(base.as_ref(), Expr::Identifier(n)
+                        if self.own_resources.contains(n) && self.is_own_member(n, store_states)) =>
+            {
+                format!("{}.{prop}()", self.emit_store_expr(base, store_states))
+            }
+            (Expr::PropertyAccess(base, prop), Cx::Store(store_states))
+                if prop == "pending" && self.is_action_ref(base) =>
+            {
+                format!("{}.pending()", self.emit_store_expr(base, store_states))
+            }
+            (Expr::PropertyAccess(base, prop), Cx::Store(store_states)) => {
+                let base_str = self.emit_store_expr(base, store_states);
+                format!("{}.{}", base_str, prop)
+            }
+
+            (Expr::IndexAccess(base, index), _) => {
+                let base_str = self.emit_expr_in(base, cx);
+                let idx_str = self.emit_expr_in(index, cx);
                 format!("{}[{}]", base_str, idx_str)
             }
             // `?.` is JavaScript's own.
-            Expr::OptionalProperty(base, prop) => format!("{}?.{}", self.emit_expr(base), prop),
-            Expr::OptionalIndex(base, index) => {
-                format!("{}?.[{}]", self.emit_expr(base), self.emit_expr(index))
+            (Expr::OptionalProperty(base, prop), _) => {
+                format!("{}?.{}", self.emit_expr_in(base, cx), prop)
             }
-            Expr::OptionalMethod(obj, method, args) => {
-                let args: Vec<String> = args.iter().map(|a| self.emit_expr(a)).collect();
-                format!("{}?.{}({})", self.emit_expr(obj), method, args.join(", "))
+            (Expr::OptionalIndex(base, index), _) => {
+                format!(
+                    "{}?.[{}]",
+                    self.emit_expr_in(base, cx),
+                    self.emit_expr_in(index, cx)
+                )
             }
-            Expr::BinaryOp(left, op, right) => {
-                let l = self.emit_expr(left);
-                let r = self.emit_expr(right);
+            (Expr::OptionalMethod(obj, method, args), _) => {
+                let args: Vec<String> = args.iter().map(|a| self.emit_expr_in(a, cx)).collect();
+                format!(
+                    "{}?.{}({})",
+                    self.emit_expr_in(obj, cx),
+                    method,
+                    args.join(", ")
+                )
+            }
+            (Expr::BinaryOp(left, op, right), _) => {
+                let l = self.emit_expr_in(left, cx);
+                let r = self.emit_expr_in(right, cx);
                 let op_str = match op {
                     BinOp::Add => "+",
                     BinOp::Sub => "-",
@@ -360,14 +430,14 @@ impl JsCodegen {
                 };
                 format!("({} {} {})", l, op_str, r)
             }
-            Expr::UnaryOp(op, expr) => {
-                let e = self.emit_expr(expr);
+            (Expr::UnaryOp(op, expr), _) => {
+                let e = self.emit_expr_in(expr, cx);
                 match op {
                     UnaryOp::Not => format!("!{}", e),
                     UnaryOp::Neg => format!("-{}", e),
                 }
             }
-            Expr::MethodCall(obj, method, args) => {
+            (Expr::MethodCall(obj, method, args), _) => {
                 // The arm a `match` with no `else` cannot reach: the checker
                 // proved every case has one.
                 if method == "__exhaustive" {
@@ -375,13 +445,13 @@ impl JsCodegen {
                 }
                 // The case of an enum value, its payload aside.
                 if method == "__case" && args.is_empty() {
-                    return format!("WF.caseOf({})", self.emit_expr(obj));
+                    return format!("WF.caseOf({})", self.emit_expr_in(obj, cx));
                 }
                 // `match` over an enum as a value: the case, and the payload
                 // where the case is the one asked for.
                 if (method == "__is" || method == "__payload") && args.len() == 1 {
-                    let subject = self.emit_expr(obj);
-                    let case = self.emit_expr(&args[0]);
+                    let subject = self.emit_expr_in(obj, cx);
+                    let case = self.emit_expr_in(&args[0], cx);
                     return if method == "__is" {
                         format!("(WF.caseOf({subject}) === {case})")
                     } else {
@@ -390,9 +460,9 @@ impl JsCodegen {
                 }
                 if method == "__if" && args.len() == 2 {
                     // Conditional expression
-                    let cond = self.emit_expr(obj);
-                    let then_val = self.emit_expr(&args[0]);
-                    let else_val = self.emit_expr(&args[1]);
+                    let cond = self.emit_expr_in(obj, cx);
+                    let then_val = self.emit_expr_in(&args[0], cx);
+                    let else_val = self.emit_expr_in(&args[1], cx);
                     return format!("({} ? {} : {})", cond, then_val, else_val);
                 }
                 // `if let x = e { a } else { b }`: the value is bound once,
@@ -401,11 +471,10 @@ impl JsCodegen {
                     && args.len() == 2
                     && let Expr::Lambda(name, then_expr) = &args[0]
                 {
-                    let value = self.emit_expr(obj);
-                    self.lambda_params.borrow_mut().push(name.clone());
-                    let then_val = self.emit_expr(then_expr);
-                    self.lambda_params.borrow_mut().pop();
-                    let else_val = self.emit_expr(&args[1]);
+                    let value = self.emit_expr_in(obj, cx);
+                    let then_val =
+                        self.with_locals(cx, [name.clone()], || self.emit_expr_in(then_expr, cx));
+                    let else_val = self.emit_expr_in(&args[1], cx);
                     let name = bare(name);
                     // A branch that awaits needs its arrow to be async, and
                     // the arrow awaited, or the page's code doesn't parse.
@@ -419,31 +488,71 @@ impl JsCodegen {
                     );
                 }
 
-                let obj_str = self.emit_expr(obj);
-                let args_str: Vec<String> = args.iter().map(|a| self.emit_expr(a)).collect();
+                match cx {
+                    Cx::Page => {
+                        let obj_str = self.emit_expr(obj);
+                        let args_str: Vec<String> =
+                            args.iter().map(|a| self.emit_expr(a)).collect();
 
-                // A store's own actions come first. `Todos.remove(id)` calls
-                // the action the store declares, not the list method of the
-                // name; a store is an object, and mapping the call onto a
-                // list's `splice` leaves it calling something that is not
-                // there. The list methods stay for `Todos.items.remove(0)`,
-                // which reaches the list rather than the store.
-                if matches!(obj.as_ref(), Expr::Identifier(s) if self.stores.contains(s)) {
-                    return format!("{}.{}({})", obj_str, method, args_str.join(", "));
+                        // A store's own actions come first. `Todos.remove(id)` calls
+                        // the action the store declares, not the list method of the
+                        // name; a store is an object, and mapping the call onto a
+                        // list's `splice` leaves it calling something that is not
+                        // there. The list methods stay for `Todos.items.remove(0)`,
+                        // which reaches the list rather than the store.
+                        if matches!(obj.as_ref(), Expr::Identifier(s) if self.stores.contains(s)) {
+                            return format!("{}.{}({})", obj_str, method, args_str.join(", "));
+                        }
+
+                        // Map WebFluent methods to JS, through the one table the
+                        // store emitter reads too.
+                        let holder = if self.is_state_signal(obj) {
+                            Holder::Signal
+                        } else if self.is_store_member(obj, &obj_str) {
+                            Holder::StoreMember
+                        } else {
+                            Holder::Plain
+                        };
+                        method_to_js(method, &obj_str, &args_str, holder)
+                    }
+                    Cx::Store(store_states) => {
+                        let obj_str = self.emit_store_expr(obj, store_states);
+                        let args_str: Vec<String> = args
+                            .iter()
+                            .map(|a| self.emit_store_expr(a, store_states))
+                            .collect();
+                        // Another store's own actions come first, as they do on a
+                        // page: `OpenFiles.preview(path)` calls the action the
+                        // store declares. Through the table it was the runtime's
+                        // `WF.preview(OpenFiles, path)`, and the action never ran
+                        // with its arguments.
+                        if let Expr::Identifier(s) = obj.as_ref()
+                            && self.stores.contains(s)
+                            && !store_states.contains(s)
+                            && !self.store_locals.borrow().contains(s)
+                        {
+                            return format!("{}.{}({})", obj_str, method, args_str.join(", "));
+                        }
+                        // The same table the page emitter reads. A bare name that
+                        // is one of the store's own states is held by the store, so
+                        // a mutating method assigns back through it.
+                        let holder = match obj.as_ref() {
+                            Expr::Identifier(n) if self.is_own_member(n, store_states) => {
+                                Holder::StoreMember
+                            }
+                            Expr::PropertyAccess(base, _) => match base.as_ref() {
+                                Expr::Identifier(s) if self.stores.contains(s) => {
+                                    Holder::StoreMember
+                                }
+                                _ => Holder::Plain,
+                            },
+                            _ => Holder::Plain,
+                        };
+                        method_to_js(method, &obj_str, &args_str, holder)
+                    }
                 }
-
-                // Map WebFluent methods to JS, through the one table the
-                // store emitter reads too.
-                let holder = if self.is_state_signal(obj) {
-                    Holder::Signal
-                } else if self.is_store_member(obj, &obj_str) {
-                    Holder::StoreMember
-                } else {
-                    Holder::Plain
-                };
-                method_to_js(method, &obj_str, &args_str, holder)
             }
-            Expr::FunctionCall(name, args) => {
+            (Expr::FunctionCall(name, args), Cx::Page) => {
                 // i18n: t("key") or t("key", name: value, ...)
                 if name == "t" && self.has_i18n() {
                     if args.is_empty() {
@@ -550,45 +659,106 @@ impl JsCodegen {
                     format!("{}({})", name, args_str.join(", "))
                 }
             }
-            Expr::ListLiteral(items) => {
-                let items_str: Vec<String> = items.iter().map(|i| self.emit_expr(i)).collect();
+            (Expr::FunctionCall(name, args), Cx::Store(store_states)) => {
+                let args_str: Vec<String> = args
+                    .iter()
+                    .map(|a| self.emit_store_expr(a, store_states))
+                    .collect();
+                // A call to one of the store's own actions goes through the
+                // store; anything else is a global (`Math.round` is a method
+                // call, but `parseInt` is a plain function).
+                if self.is_own_member(name, store_states) {
+                    format!("store.{}({})", name, args_str.join(", "))
+                } else if (name == "t" || name == "setLocale") && self.has_i18n() {
+                    // A store's words, translated as a page's are.
+                    format!("WF.i18n.{}({})", name, args_str.join(", "))
+                } else if matches!(
+                    name.as_str(),
+                    // The same set a page reaches: a store's action is where
+                    // `optimistic` belongs, and `uuid` where an id is made.
+                    "format"
+                        | "ago"
+                        | "setTheme"
+                        | "beacon"
+                        | "optimistic"
+                        | "sanitize"
+                        | "uuid"
+                        | "keyIs"
+                        | "keyLabel"
+                ) {
+                    format!("WF.{}({})", name, args_str.join(", "))
+                } else if name == "fetch" {
+                    format!("WF.request({})", args_str.join(", "))
+                } else if self.store_locals.borrow().contains(name) {
+                    format!("{}({})", bare(name), args_str.join(", "))
+                } else if self.consts.contains(name) {
+                    format!("{}({})", top_level(name), args_str.join(", "))
+                } else if self.script_classes.contains(name)
+                    || BROWSER_CLASSES.contains(&name.as_str())
+                {
+                    format!("new {}({})", name, args_str.join(", "))
+                } else {
+                    format!("{}({})", name, args_str.join(", "))
+                }
+            }
+
+            (Expr::ListLiteral(items), _) => {
+                let items_str: Vec<String> =
+                    items.iter().map(|i| self.emit_expr_in(i, cx)).collect();
                 format!("[{}]", items_str.join(", "))
             }
-            Expr::MapLiteral(entries) | Expr::Record(_, entries) => {
+            (Expr::MapLiteral(entries) | Expr::Record(_, entries), _) => {
                 let entries_str: Vec<String> = entries
                     .iter()
                     .map(|(k, v)| match k.as_str() {
-                        "..." => format!("...{}", self.emit_expr(v)),
-                        _ => format!("{}: {}", k, self.emit_expr(v)),
+                        "..." => format!("...{}", self.emit_expr_in(v, cx)),
+                        _ => format!("{}: {}", k, self.emit_expr_in(v, cx)),
                     })
                     .collect();
                 // Parenthesised, so a map literal is an object wherever it
                 // lands — as an arrow function's body a bare `{` is a block.
                 format!("({{ {} }})", entries_str.join(", "))
             }
-            Expr::Lambda(param, body) => {
-                // `param` is one name or several joined by ", ".
-                let names: Vec<String> = param.split(", ").map(|n| n.to_string()).collect();
-                let count = names.len();
-                self.lambda_params.borrow_mut().extend(names);
-                let body_str = self.emit_expr(body);
-                for _ in 0..count {
-                    self.lambda_params.borrow_mut().pop();
-                }
+            // A lambda's parameters shadow what a program or a store declares
+            // of their names, in its body.
+            (Expr::Lambda(param, body), _) => {
+                let names = param
+                    .split(',')
+                    .map(str::trim)
+                    .filter(|p| !p.is_empty())
+                    .map(str::to_string);
+                let body_str = self.with_locals(cx, names, || self.emit_expr_in(body, cx));
                 format!("(({}) => {})", bare_list(param), body_str)
             }
-            // An enum case is its name: the code generators read cases as
-            // the words they always were (`"primary"`), and a user enum's
-            // case is a string at run time.
-            Expr::EnumCase(case) => format!("\"{}\"", case),
-            Expr::CaseValue(case, args) => {
+            (Expr::EnumCase(case), _) => format!("\"{}\"", case),
+            (Expr::CaseValue(case, args), _) => {
                 let mut items = vec![format!("\"{case}\"")];
-                items.extend(args.iter().map(|a| self.emit_expr(a)));
+                items.extend(args.iter().map(|a| self.emit_expr_in(a, cx)));
                 format!("[{}]", items.join(", "))
             }
             // A design token is its custom property.
-            Expr::Token(name) => format!("\"var(--{})\"", name),
-            Expr::Await(inner) => format!("(await {})", self.emit_expr(inner)),
+            (Expr::Token(name), _) => format!("\"var(--{})\"", name),
+            (Expr::Await(inner), _) => format!("(await {})", self.emit_expr_in(inner, cx)),
         }
+    }
+
+    /// Run `f` with `names` shadowing what a program or a store declares,
+    /// in the stack `cx` reads: a lambda's parameters, an `if let`'s
+    /// binding. They are unbound when `f` returns.
+    pub(super) fn with_locals<R>(
+        &self,
+        cx: Cx<'_>,
+        names: impl IntoIterator<Item = String>,
+        f: impl FnOnce() -> R,
+    ) -> R {
+        let stack = match cx {
+            Cx::Page => &self.lambda_params,
+            Cx::Store(_) => &self.store_locals,
+        };
+        let bound = stack.borrow().len();
+        stack.borrow_mut().extend(names);
+        let out = f();
+        stack.borrow_mut().truncate(bound);
+        out
     }
 }

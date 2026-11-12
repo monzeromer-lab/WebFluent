@@ -27,11 +27,82 @@ pub(super) fn emitted(stmt: &Statement, early: &[String]) -> bool {
     }
 }
 
+/// Where a statement is written: in a handler or a page's action, or in
+/// a store's action, with the store's own members and the action's
+/// parameters.
+#[derive(Clone, Copy)]
+pub(super) enum StmtCx<'s> {
+    Page,
+    Store {
+        states: &'s [String],
+        params: &'s [String],
+    },
+}
+
+impl<'s> StmtCx<'s> {
+    /// Where an expression in the statement is written.
+    fn expr(self) -> Cx<'s> {
+        match self {
+            StmtCx::Page => Cx::Page,
+            StmtCx::Store { states, .. } => Cx::Store(states),
+        }
+    }
+}
+
 impl JsCodegen {
+    /// A statement in a handler or a page's action.
     pub(super) fn emit_statement(&mut self, stmt: &Statement) {
-        self.map_at(stmt.span);
-        match &stmt.kind {
-            StatementKind::Assignment(a) => {
+        self.emit_statement_in(stmt, StmtCx::Page);
+    }
+
+    /// Where a statement's bindings go: the names a block binds and
+    /// declares, as a mark to come back to.
+    fn scope_mark(&self, cx: StmtCx<'_>) -> (usize, usize) {
+        match cx {
+            StmtCx::Page => (self.loop_bindings.len(), self.block_lets.len()),
+            StmtCx::Store { .. } => (self.store_locals.borrow().len(), 0),
+        }
+    }
+
+    /// Unbind what was bound since `mark`.
+    fn scope_reset(&mut self, cx: StmtCx<'_>, mark: (usize, usize)) {
+        match cx {
+            StmtCx::Page => {
+                self.loop_bindings.truncate(mark.0);
+                self.block_lets.truncate(mark.1);
+            }
+            StmtCx::Store { .. } => self.store_locals.borrow_mut().truncate(mark.0),
+        }
+    }
+
+    /// Bind `name` as a plain name for what follows: an `if let`'s value, a
+    /// loop's item, a caught error.
+    fn bind(&mut self, cx: StmtCx<'_>, name: String) {
+        match cx {
+            StmtCx::Page => self.loop_bindings.push(name),
+            StmtCx::Store { .. } => self.store_locals.borrow_mut().push(name),
+        }
+    }
+
+    /// The statements of a block, each where `cx` says.
+    fn emit_block_in(&mut self, stmts: &[Statement], cx: StmtCx<'_>) {
+        self.indent += 1;
+        for s in stmts {
+            self.emit_statement_in(s, cx);
+        }
+        self.indent -= 1;
+    }
+
+    /// A statement where `cx` says it is written: `if`, `for`, `try`,
+    /// `return` and a log are written once, and what assigns, declares or
+    /// calls is written as its place reads it.
+    pub(super) fn emit_statement_in(&mut self, stmt: &Statement, cx: StmtCx<'_>) {
+        if matches!(cx, StmtCx::Page) {
+            self.map_at(stmt.span);
+        }
+        let ecx = cx.expr();
+        match (&stmt.kind, cx) {
+            (StatementKind::Assignment(a), StmtCx::Page) => {
                 let target = self.emit_expr(&a.target);
                 let value = self.emit_expr(&a.value);
                 if let Some(update) = self.immutable_update(&a.target, &value) {
@@ -48,20 +119,187 @@ impl JsCodegen {
                     self.emit_line(&format!("{} = {};", target, value));
                 }
             }
-            StatementKind::MethodCall(mc) => {
-                let obj = self.emit_expr(&mc.object);
-                let args: Vec<String> = mc.args.iter().map(|a| self.emit_expr(a)).collect();
-                self.emit_line(&format!("{}.{}({});", obj, mc.method, args.join(", ")));
+            (
+                StatementKind::Assignment(a),
+                StmtCx::Store {
+                    states: store_states,
+                    params: action_params,
+                },
+            ) => {
+                let value = self.emit_store_expr(&a.value, store_states);
+                if let Expr::Identifier(name) = &a.target {
+                    if self.is_own_member(name, store_states) {
+                        self.emit_line(&format!("store.{} = {};", name, value));
+                    } else if action_params.contains(name)
+                        || self.store_locals.borrow().contains(name)
+                    {
+                        self.emit_line(&format!("{} = {};", bare(name), value));
+                    } else {
+                        // A name that is neither state nor a parameter is a
+                        // local of this action. It used to be assigned bare,
+                        // which the bundle's strict mode refuses.
+                        self.store_locals.borrow_mut().push(name.clone());
+                        self.emit_line(&format!("let {} = {};", bare(name), value));
+                    }
+                } else if let Some((Expr::Identifier(root), steps)) = path_of(&a.target)
+                    && self.is_own_member(root, store_states)
+                    && !steps.is_empty()
+                {
+                    // `items[0].done = v` in a store action: the state
+                    // assigned a copy with that place changed, so what reads
+                    // it repaints.
+                    let path = self.path_js(&steps, &|e| self.emit_store_expr(e, store_states));
+                    self.emit_line(&format!(
+                        "store.{root} = WF.setIn(store.{root}, {path}, {value});"
+                    ));
+                } else {
+                    let target = self.emit_store_expr(&a.target, store_states);
+                    self.emit_line(&format!("{} = {};", target, value));
+                }
             }
-            StatementKind::Navigate(expr) => {
+            (StatementKind::State(s), StmtCx::Page) => {
+                let val = self.emit_expr(&s.value);
+                self.emit_line(&format!("const {} = WF.signal({});", sig(&s.name), val));
+                self.block_lets.push(s.name.clone());
+            }
+            // `let n = x` in an action: a local the action may reassign. It
+            // was emitted `const` and never recorded, so `n = n * 2` became a
+            // second declaration — a SyntaxError that blanked the site, or a
+            // TDZ error inside a loop.
+            (StatementKind::State(s), StmtCx::Store { states, .. }) => {
+                let val = self.emit_store_expr(&s.value, states);
+                self.store_locals.borrow_mut().push(s.name.clone());
+                self.emit_line(&format!("let {} = {};", bare(&s.name), val));
+            }
+            (StatementKind::ExprStatement(expr), StmtCx::Page) => {
+                if let Some(update) = self.mutating_call(expr) {
+                    self.emit_line(&update);
+                    return;
+                }
+                let val = self.emit_expr(expr);
+                self.emit_line(&format!("{};", val));
+            }
+            (StatementKind::ExprStatement(expr), StmtCx::Store { states, .. }) => {
+                // `items.sort(f)` on the store's state: run on a copy, which
+                // is assigned back.
+                if let Expr::MethodCall(obj, method, args) = expr
+                    && MUTATORS.contains(&method.as_str())
+                    && let Expr::Identifier(name) = obj.as_ref()
+                    && self.is_own_member(name, states)
+                {
+                    let args: Vec<String> = args
+                        .iter()
+                        .map(|a| self.emit_store_expr(a, states))
+                        .collect();
+                    self.emit_line(&format!(
+                        "store.{name} = WF.mutated(store.{name}, \"{method}\", [{}]);",
+                        args.join(", ")
+                    ));
+                    return;
+                }
+                let val = self.emit_store_expr(expr, states);
+                self.emit_line(&format!("{};", val));
+            }
+            (StatementKind::Navigate(expr), StmtCx::Page) => {
                 let path = self.route_value(expr);
                 self.emit_line(&format!("WF.navigate({});", path));
             }
-            StatementKind::Log(expr) => {
-                let val = self.emit_expr(expr);
+            (StatementKind::Navigate(expr), StmtCx::Store { states, .. }) => {
+                let path = self.emit_store_expr(expr, states);
+                self.emit_line(&format!("WF.navigate({});", path));
+            }
+            (StatementKind::MethodCall(mc), _) => {
+                let obj = self.emit_expr_in(&mc.object, ecx);
+                let args: Vec<String> = mc.args.iter().map(|a| self.emit_expr_in(a, ecx)).collect();
+                self.emit_line(&format!("{}.{}({});", obj, mc.method, args.join(", ")));
+            }
+            (StatementKind::Log(expr), _) => {
+                let val = self.emit_expr_in(expr, ecx);
                 self.emit_line(&format!("console.log({});", val));
             }
-            StatementKind::Animate(anim) => {
+            (StatementKind::Return(expr), _) => match expr {
+                Some(e) => {
+                    let val = self.emit_expr_in(e, ecx);
+                    self.emit_line(&format!("return {};", val));
+                }
+                None => self.emit_line("return;"),
+            },
+            (StatementKind::If(if_stmt), _) => {
+                // `if let x = e` binds the value for the branch, which runs
+                // when it is not null.
+                let mark = self.scope_mark(cx);
+                let cond = match &if_stmt.binding {
+                    Some(name) => {
+                        let value = self.emit_expr_in(&if_stmt.condition, ecx);
+                        // In a block of its own, so two `if let x` in one
+                        // action do not declare `x` twice.
+                        self.emit_line("{");
+                        self.indent += 1;
+                        self.emit_line(&format!("const {} = {};", bare(name), value));
+                        // The branch reads it as a plain name — it is a
+                        // `const` here, not a signal of the body's own.
+                        self.bind(cx, name.clone());
+                        format!("{} != null", bare(name))
+                    }
+                    None => self.emit_expr_in(&if_stmt.condition, ecx),
+                };
+                self.emit_line(&format!("if ({}) {{", cond));
+                // Each branch is a block: what it declares ends with it.
+                self.emit_block_in(&if_stmt.then_body, cx);
+                self.scope_reset(cx, mark);
+                // An `else if` chain used to be dropped here.
+                for (cond, body) in &if_stmt.else_if_branches {
+                    let cond = self.emit_expr_in(cond, ecx);
+                    self.emit_line(&format!("}} else if ({}) {{", cond));
+                    self.emit_block_in(body, cx);
+                    self.scope_reset(cx, mark);
+                }
+                if let Some(else_body) = &if_stmt.else_body {
+                    self.emit_line("} else {");
+                    self.emit_block_in(else_body, cx);
+                    self.scope_reset(cx, mark);
+                }
+                self.emit_line("}");
+                if if_stmt.binding.is_some() {
+                    self.indent -= 1;
+                    self.emit_line("}");
+                }
+            }
+            // `for x in xs { … }` in an action: the loop runs once, in order;
+            // the item and the index are plain names inside it.
+            (StatementKind::For(f), _) => {
+                let list = self.emit_expr_in(&f.iterable, ecx);
+                match &f.index {
+                    Some(index) => self.emit_line(&format!(
+                        "for (const [{}, {}] of Array.from({list}).entries()) {{",
+                        bare(index),
+                        bare(&f.item)
+                    )),
+                    None => self.emit_line(&format!("for (const {} of {list}) {{", bare(&f.item))),
+                }
+                // The bindings, and what the body declares, are the loop's.
+                let mark = self.scope_mark(cx);
+                self.bind(cx, f.item.clone());
+                if let Some(index) = &f.index {
+                    self.bind(cx, index.clone());
+                }
+                self.emit_block_in(&f.body, cx);
+                self.scope_reset(cx, mark);
+                self.emit_line("}");
+            }
+            (StatementKind::Try(t), _) => {
+                let mark = self.scope_mark(cx);
+                self.emit_line("try {");
+                self.emit_block_in(&t.body, cx);
+                self.scope_reset(cx, mark);
+                let param = t.param.clone().unwrap_or_else(|| "_error".to_string());
+                self.emit_line(&format!("}} catch ({}) {{", bare(&param)));
+                self.bind(cx, param);
+                self.emit_block_in(&t.catch_body, cx);
+                self.scope_reset(cx, mark);
+                self.emit_line("}");
+            }
+            (StatementKind::Animate(anim), _) => {
                 let dur = anim
                     .duration
                     .as_deref()
@@ -74,134 +312,10 @@ impl JsCodegen {
                     dur
                 ));
             }
-            StatementKind::ExprStatement(expr) => {
-                if let Some(update) = self.mutating_call(expr) {
-                    self.emit_line(&update);
-                    return;
-                }
-                let val = self.emit_expr(expr);
-                self.emit_line(&format!("{};", val));
-            }
-            StatementKind::State(s) => {
-                let val = self.emit_expr(&s.value);
-                self.emit_line(&format!("const {} = WF.signal({});", sig(&s.name), val));
-                self.block_lets.push(s.name.clone());
-            }
-            StatementKind::If(if_stmt) => {
-                // `if let x = e` binds the value for the branch, which runs
-                // when it is not null.
-                let bound = self.loop_bindings.len();
-                let cond = match &if_stmt.binding {
-                    Some(name) => {
-                        let value = self.emit_expr(&if_stmt.condition);
-                        // In a block of its own, so two `if let x` in one
-                        // action do not declare `x` twice.
-                        self.emit_line("{");
-                        self.indent += 1;
-                        self.emit_line(&format!("const {} = {};", bare(name), value));
-                        // The branch reads it as a plain name — it is a
-                        // `const` here, not a signal of the body's own.
-                        self.loop_bindings.push(name.clone());
-                        format!("{} != null", bare(name))
-                    }
-                    None => self.emit_expr(&if_stmt.condition),
-                };
-                self.emit_line(&format!("if ({}) {{", cond));
-                self.indent += 1;
-                // Each branch is a block: its `let`s end with it.
-                let lets = self.block_lets.len();
-                for s in &if_stmt.then_body {
-                    self.emit_statement(s);
-                }
-                self.indent -= 1;
-                self.loop_bindings.truncate(bound);
-                self.block_lets.truncate(lets);
-                // An `else if` chain used to be dropped here.
-                for (cond, body) in &if_stmt.else_if_branches {
-                    let cond = self.emit_expr(cond);
-                    self.emit_line(&format!("}} else if ({}) {{", cond));
-                    self.indent += 1;
-                    for s in body {
-                        self.emit_statement(s);
-                    }
-                    self.indent -= 1;
-                    self.block_lets.truncate(lets);
-                }
-                if let Some(else_body) = &if_stmt.else_body {
-                    self.emit_line("} else {");
-                    self.indent += 1;
-                    for s in else_body {
-                        self.emit_statement(s);
-                    }
-                    self.indent -= 1;
-                    self.block_lets.truncate(lets);
-                }
-                self.emit_line("}");
-                if if_stmt.binding.is_some() {
-                    self.indent -= 1;
-                    self.emit_line("}");
-                }
-            }
-            StatementKind::Fetch(_) => {}
-            // `for x in xs { … }` in an action: the loop runs once, in order;
-            // the item and the index are plain names inside it.
-            StatementKind::For(f) => {
-                let list = self.emit_expr(&f.iterable);
-                match &f.index {
-                    Some(index) => self.emit_line(&format!(
-                        "for (const [{}, {}] of Array.from({list}).entries()) {{",
-                        bare(index),
-                        bare(&f.item)
-                    )),
-                    None => self.emit_line(&format!("for (const {} of {list}) {{", bare(&f.item))),
-                }
-                let (bound, lets) = (self.loop_bindings.len(), self.block_lets.len());
-                self.loop_bindings.push(f.item.clone());
-                if let Some(index) = &f.index {
-                    self.loop_bindings.push(index.clone());
-                }
-                self.indent += 1;
-                for s in &f.body {
-                    self.emit_statement(s);
-                }
-                self.indent -= 1;
-                self.loop_bindings.truncate(bound);
-                self.block_lets.truncate(lets);
-                self.emit_line("}");
-            }
-            StatementKind::Return(expr) => {
-                if let Some(e) = expr {
-                    let val = self.emit_expr(e);
-                    self.emit_line(&format!("return {};", val));
-                } else {
-                    self.emit_line("return;");
-                }
-            }
-            StatementKind::Try(t) => {
-                let lets = self.block_lets.len();
-                self.emit_line("try {");
-                self.indent += 1;
-                for s in &t.body {
-                    self.emit_statement(s);
-                }
-                self.indent -= 1;
-                self.block_lets.truncate(lets);
-                let param = t.param.clone().unwrap_or_else(|| "_error".to_string());
-                self.emit_line(&format!("}} catch ({}) {{", bare(&param)));
-                self.loop_bindings.push(param);
-                self.indent += 1;
-                for s in &t.catch_body {
-                    self.emit_statement(s);
-                }
-                self.indent -= 1;
-                self.loop_bindings.pop();
-                self.block_lets.truncate(lets);
-                self.emit_line("}");
-            }
             // `emit toggle(id)`: the handler the caller passed for the
             // event, when it passed one.
-            StatementKind::Emit(e) => {
-                let args: Vec<String> = e.args.iter().map(|a| self.emit_expr(a)).collect();
+            (StatementKind::Emit(e), _) => {
+                let args: Vec<String> = e.args.iter().map(|a| self.emit_expr_in(a, ecx)).collect();
                 let rest = if args.is_empty() {
                     String::new()
                 } else {
