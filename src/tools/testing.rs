@@ -91,6 +91,15 @@ pub enum Outcome {
 }
 
 /// The tests of the project at `path`, or of the one test file `path` names.
+///
+/// # Errors
+///
+/// What [`read_project`](crate::project::sources::read_project) returns;
+/// [`IoError`](crate::diagnostics::error::WebFluentError::IoError) when a test file cannot be read or the config cannot
+/// be, [`ConfigError`](crate::diagnostics::error::WebFluentError::ConfigError) when the config is not one,
+/// [`LexerError`](crate::diagnostics::error::WebFluentError::LexerError) or [`ParseError`](crate::diagnostics::error::WebFluentError::ParseError) when a test file does not
+/// parse, and [`Diagnostics`](crate::diagnostics::error::WebFluentError::Diagnostics) (`E102`) when a test file declares a
+/// name the project already has.
 pub fn collect(path: &Path) -> Result<Tests> {
     // A file's project is the nearest folder above it with a
     // `webfluent.app.json` — `wf test tests/cart.wf` runs that file's tests
@@ -435,6 +444,11 @@ fn draws_portal<'a>(
 
 /// The rendered fragment of one test: its body as a page over the shared
 /// declarations, seeded with its `state` and its `data`.
+///
+/// # Errors
+///
+/// What [`render_program_fragment_in`](crate::template::render_program_fragment_in)
+/// returns.
 pub fn render_test(
     shared: &[Declaration],
     test: &TestDecl,
@@ -816,8 +830,16 @@ fn indent(text: &str) -> String {
 /// A page of a test's site, open in a browser.
 pub trait Page {
     /// Run `script` in the page and hand back what it gave.
+    ///
+    /// # Errors
+    ///
+    /// The browser's error when `script` throws or the page cannot be reached.
     fn eval(&mut self, script: &str) -> Result<serde_json::Value>;
     /// Give the page `ms` to react, listening to what it says meanwhile.
+    ///
+    /// # Errors
+    ///
+    /// The browser's error when the page cannot be reached.
     fn settle(&mut self, ms: u64) -> Result<()>;
     /// Anything the page said went wrong, in the order it said it: an
     /// exception, a `console.error`.
@@ -830,6 +852,10 @@ pub trait Browser {
     /// Serve the site in `dir` (`index.html`, `app.js`, `styles.css`), open
     /// its root and let it settle for `settle_ms`. The page closes when it is
     /// dropped.
+    ///
+    /// # Errors
+    ///
+    /// The browser's error when the site cannot be served or its page opened.
     fn open(&mut self, dir: &Path, settle_ms: u64) -> Result<Box<dyn Page + '_>>;
 }
 
@@ -845,6 +871,12 @@ pub struct Site<'a> {
 
 /// Build a test that acts as a site of one page under `work`, open it in
 /// `browser`, and play its steps: what went wrong, if anything.
+///
+/// # Errors
+///
+/// What [`write_site`] and [`Browser::open`] return, what a step's
+/// [`Page::eval`] or [`Page::settle`] returns, and [`IoError`](crate::diagnostics::error::WebFluentError::IoError) when the
+/// site's folder cannot be made. A step that fails is `Ok(Err(reasons))`.
 pub fn act(
     browser: &mut dyn Browser,
     shared: &[Declaration],
@@ -898,6 +930,10 @@ fn play(page: &mut dyn Page, test: &TestDecl) -> Result<std::result::Result<(), 
 }
 
 /// The text a reader would see, for an `expect`.
+///
+/// # Errors
+///
+/// What [`Page::eval`] returns.
 pub fn visible_text(page: &mut dyn Page) -> Result<String> {
     let value = page.eval("((document.querySelector('main') || document.body).innerText || '')")?;
     Ok(value.as_str().unwrap_or_default().to_string())
@@ -981,6 +1017,13 @@ fn step_one(page: &mut dyn Page, step: &Step) -> Result<std::result::Result<(), 
 /// everything a site has. This is the same code generators over a program
 /// already in hand, for a page that exists for one test and is then thrown
 /// away.
+///
+/// # Errors
+///
+/// [`IoError`](crate::diagnostics::error::WebFluentError::IoError) when a file of the site cannot be written or `public/`
+/// cannot be served beside it, [`ConfigError`](crate::diagnostics::error::WebFluentError::ConfigError) when the theme config
+/// names a dark theme nothing declares, and [`CodegenError`](crate::diagnostics::error::WebFluentError::CodegenError) when a
+/// theme's token is not a literal.
 pub fn write_site(program: &Program, dir: &Path, site: &Site) -> Result<()> {
     let mut config = crate::project::config::ProjectConfig::default_config("test");
     config.theme = site.theme.clone();

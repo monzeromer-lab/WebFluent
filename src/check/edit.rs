@@ -186,12 +186,24 @@ impl EditOp {
 /// Every op is resolved and validated before any bytes change; the patched result
 /// is reparsed as a final guard. On any error the original `source` is untouched
 /// (the caller still holds it) — a malformed edit never corrupts the file.
+///
+/// # Errors
+///
+/// [`WebFluentError::LexerError`] or [`WebFluentError::ParseError`] when
+/// the source does not read, and [`WebFluentError::EditError`] when an
+/// op names an unknown node or cannot apply, two edits overlap, or the
+/// result does not parse.
 pub fn apply_edits(source: &str, ops: &[EditOp]) -> Result<String> {
     apply_edits_to(source, "<edit>.wf", ops)
 }
 
 /// [`apply_edits`] for a file by name: a `.wfx` source is converted to its
 /// braced spelling, edited there, and written back by indentation.
+///
+/// # Errors
+///
+/// What [`apply_edits`] returns, and a lexer or parse error when a `.wfx`
+/// source cannot change layout.
 pub fn apply_edits_to(source: &str, file: &str, ops: &[EditOp]) -> Result<String> {
     if file.ends_with(".wfx") {
         let braced = crate::syntax::layout::to_braces(source, file)?;
@@ -1200,6 +1212,13 @@ fn raw_style_value(value: &str) -> String {
 /// The result is held to what was asked for: it must parse to the program
 /// with that element as `change` left it, or nothing is written and the
 /// error says so — the builder writes nothing it cannot read back.
+///
+/// # Errors
+///
+/// [`WebFluentError::LexerError`] or [`WebFluentError::ParseError`] when
+/// the source does not read, and [`WebFluentError::EditError`] when
+/// `node` names no element written in the source or the edit does not read
+/// back as the changed tree.
 pub fn rewrite_element(
     source: &str,
     file: &str,
@@ -1248,6 +1267,13 @@ pub fn rewrite_element(
 /// `for`, a `state`, a handler's line — with `change`, and write the
 /// smallest edit that says so, held to the tree as [`rewrite_element`] is.
 /// A `.wfx` file is addressed through its braced spelling.
+///
+/// # Errors
+///
+/// [`WebFluentError::LexerError`] or [`WebFluentError::ParseError`] when
+/// the source does not read, and [`WebFluentError::EditError`] when no
+/// statement is written at `start..end` or the edit does not read back as
+/// the changed tree.
 pub fn rewrite_statement(
     source: &str,
     file: &str,
@@ -1267,6 +1293,13 @@ pub fn rewrite_statement(
 /// Change the body of the page, component or store called `declaration` —
 /// add a statement, take one out, wrap some in an `if` — and write the
 /// smallest edit that says so.
+///
+/// # Errors
+///
+/// [`WebFluentError::LexerError`] or [`WebFluentError::ParseError`] when
+/// the source does not read, and [`WebFluentError::EditError`] when
+/// nothing of that kind is called `declaration` or the edit does not read
+/// back as the changed tree.
 pub fn rewrite_body(
     source: &str,
     file: &str,
@@ -1305,6 +1338,12 @@ pub fn rewrite_body(
 /// smallest edit that says so: a declaration changed in its narrowest
 /// piece, one added after the one before it, one removed with its comment
 /// and the blank line after it. Held to the tree as [`rewrite_element`] is.
+///
+/// # Errors
+///
+/// [`WebFluentError::LexerError`] or [`WebFluentError::ParseError`] when
+/// the source does not read, and [`WebFluentError::EditError`] when the
+/// edit does not read back as the changed tree.
 pub fn rewrite_program(
     source: &str,
     file: &str,
@@ -1322,6 +1361,11 @@ pub fn rewrite_program(
 /// Change the declaration called `name` — a page, a component or one of
 /// its parts (`Card.Header`), a store, a type, an enum, a theme, a
 /// constant, an `api` — with `change`, as [`rewrite_program`] writes it.
+///
+/// # Errors
+///
+/// What [`rewrite_program`] returns, and [`WebFluentError::EditError`]
+/// when nothing is declared as `name`.
 pub fn rewrite_declaration(
     source: &str,
     file: &str,

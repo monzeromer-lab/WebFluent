@@ -954,6 +954,14 @@ quiet the borrow checker go.
   already print a diff) and `datatest` (one binary under nextest already
   filters and parallelises per test).
 
+- **Bool parameters**: `max-fn-params-bools = 2`, held by
+  `fn_params_excessive_bools` (on). The nine functions that took more now
+  take a choice as an enum (`cli::Report` for `--json`, `cli::Layout` for
+  `--wfx`) or named fields; one `bool` reads plainly at its call.
+- **`# Errors` on every public function that returns a `Result`**: 153
+  sections, each naming the error and when it comes, held by
+  `missing_errors_doc` (on).
+
 ### Phase 7 — Empty the lint allow-list
 
 Remove the §5.1 temporary allow-list one line at a time, mechanical ones

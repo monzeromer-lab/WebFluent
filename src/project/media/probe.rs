@@ -40,6 +40,11 @@ fn reader<'a>(bytes: &'a [u8], source: &Path) -> Result<ImageReader<std::io::Cur
 }
 
 /// The width and height `bytes` say they hold, read from the header alone.
+///
+/// # Errors
+///
+/// [`WebFluentError::IoError`] when the header is no picture's the build
+/// reads.
 pub fn dimensions(bytes: &[u8], source: &Path) -> Result<(u32, u32)> {
     reader(bytes, source)?.into_dimensions().map_err(|e| {
         WebFluentError::IoError(format!("{} could not be read: {e}", source.display()))

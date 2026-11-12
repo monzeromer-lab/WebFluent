@@ -46,6 +46,11 @@ pub fn judge(visit: &mut Visit, route: &str, budget_ms: Option<u64>) {
 /// `:param` route — at the values its `paths:` names, or, without them, at
 /// a placeholder (`1`), which shows how the page meets a value it may not
 /// know.
+///
+/// # Errors
+///
+/// [`IoError`](crate::diagnostics::error::WebFluentError::IoError) when a
+/// directory of `output_dir` cannot be read.
 pub fn routes(
     output_dir: &Path,
     project_dir: &Path,

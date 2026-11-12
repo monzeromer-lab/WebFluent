@@ -45,6 +45,13 @@ pub fn prepare_rename(
 }
 
 /// The edits that rename the name at `position` to `new_name` everywhere.
+///
+/// # Errors
+///
+/// A message for the editor to show when `new_name` is not a name, when
+/// there is no name at `position` or it is not one the project declares,
+/// and when the rename would change its case (a declaration's name is
+/// capitalised, a value's is not).
 pub fn rename(
     project: &Project,
     file_ix: usize,

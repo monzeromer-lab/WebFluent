@@ -109,6 +109,12 @@ impl std::error::Error for EditError {}
 
 /// `text` with every edit made, in order; or the first that could not be,
 /// and `text` is left as it was.
+///
+/// # Errors
+///
+/// An [`EditError`] naming the first edit that could not be made and why
+/// ([`Miss`]): its `old_text` is empty, the same as its `new_text`, found
+/// nowhere, or found more than once.
 pub fn apply(text: &str, edits: &[Edit]) -> Result<String, EditError> {
     let mut out = text.to_owned();
     for (index, e) in edits.iter().enumerate() {

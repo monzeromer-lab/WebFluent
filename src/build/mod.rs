@@ -199,11 +199,29 @@ impl std::fmt::Display for BuildFailure {
 impl std::error::Error for BuildFailure {}
 
 /// Build the project, as `wf build` does.
+///
+/// # Errors
+///
+/// A [`BuildFailure`] when the build stops, holding what it reported until
+/// then: its error is [`WebFluentError::Diagnostics`] when a finding stops it
+/// (an error, or a warning under `--deny-warnings`),
+/// [`WebFluentError::ConfigError`] when the config is missing, is not one, or its
+/// output leads out of the project, and [`WebFluentError::IoError`] when a
+/// file cannot be read or written.
 pub fn build(options: &BuildOptions) -> std::result::Result<BuildReport, BuildFailure> {
     finish(options, |out| run(options, out))
 }
 
 /// Every finding of a build, with nothing written, as `wf check` does.
+///
+/// # Errors
+///
+/// A [`BuildFailure`] when the check stops, holding what it reported until
+/// then: its error is [`WebFluentError::Diagnostics`] when a finding stops it
+/// (an error, or a warning under `--deny-warnings`),
+/// [`WebFluentError::ConfigError`] when the config is missing, is not one, or its
+/// output leads out of the project, and [`WebFluentError::IoError`] when a
+/// file cannot be read.
 pub fn check(options: &BuildOptions) -> std::result::Result<BuildReport, BuildFailure> {
     finish(options, |out| run_check(options, out))
 }
@@ -457,6 +475,12 @@ pub struct Analysis {
 
 /// Read and check a project, writing nothing but the images `media` names
 /// (a build's output directory, its media settings and base path).
+///
+/// # Errors
+///
+/// [`WebFluentError::IoError`] when `src/` is missing, holds no source file,
+/// or has a file that cannot be read. What the checks find is in the
+/// [`Analysis`], not an error.
 pub fn analyse(
     project_dir: &Path,
     config: &mut ProjectConfig,
@@ -466,6 +490,12 @@ pub fn analyse(
 }
 
 /// [`analyse`], reading the project through `vfs`.
+///
+/// # Errors
+///
+/// [`WebFluentError::IoError`] when `src/` is missing, holds no source file,
+/// or has a file that cannot be read. What the checks find is in the
+/// [`Analysis`], not an error.
 pub fn analyse_via(
     vfs: &dyn Vfs,
     project_dir: &Path,
@@ -1252,6 +1282,10 @@ fn say_skipped(out: &Out, confined: &Confined) -> usize {
 /// the caller's to choose, and so is one outside the project with
 /// `--allow-output-outside`; a config's is not, since the config comes with
 /// the project and a build writes, copies and deletes there.
+///
+/// # Errors
+///
+/// What [`project_output`] returns for the config's `build.output`.
 pub fn output_dir_of(options: &BuildOptions, config: &ProjectConfig) -> Result<PathBuf> {
     let output = project_output(
         options.project_dir,
@@ -1265,6 +1299,11 @@ pub fn output_dir_of(options: &BuildOptions, config: &ProjectConfig) -> Result<P
 /// it leads out of the project — by an absolute path, a `..`, or a link on
 /// the way — unless `allow_outside`. A link already inside the output is
 /// refused too: the build would write through it.
+///
+/// # Errors
+///
+/// [`WebFluentError::ConfigError`] when `output` leads out of the project
+/// or the output holds a link, unless `allow_outside`.
 pub fn project_output(project_dir: &Path, output: &str, allow_outside: bool) -> Result<PathBuf> {
     let joined = project_dir.join(output);
     if allow_outside {

@@ -38,6 +38,12 @@ struct Block {
 }
 
 /// Check `source`; `Ok` when nothing is wrong that a scanner can see.
+///
+/// # Errors
+///
+/// The first [`JsFault`]: a string, template, regular expression or comment
+/// that never closes, a bracket that closes the wrong one, or a name declared
+/// twice in one block.
 pub fn check_js(source: &str) -> Result<(), JsFault> {
     let bytes = source.as_bytes();
     let mut i = 0;

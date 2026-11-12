@@ -521,6 +521,12 @@ pub fn build(
 /// The table of the project at `dir`, as the editor holds it: an unsaved
 /// translation, or an unsaved page, is the one read. None when the project
 /// has no `i18n`.
+///
+/// # Errors
+///
+/// [`IoError`](crate::diagnostics::error::WebFluentError::IoError) when the config or a source file cannot be read
+/// (or `src/` holds none), and [`ConfigError`](crate::diagnostics::error::WebFluentError::ConfigError) when the config is
+/// missing or is not one.
 pub fn table_via(
     vfs: &dyn crate::base::vfs::Vfs,
     dir: &Path,
@@ -553,6 +559,10 @@ fn edit_error(e: impl std::fmt::Display) -> crate::diagnostics::error::WebFluent
 /// `text` (a locale's file; empty when there is none yet) with the message
 /// at `entry` set to `message`, every other byte as it was: an existing
 /// message changed in place, a new one added at the end.
+///
+/// # Errors
+///
+/// [`EditError`](crate::diagnostics::error::WebFluentError::EditError) when `text` is not JSON, or is not an object.
 pub fn set_message(
     text: &str,
     entry: &str,
@@ -578,6 +588,10 @@ pub fn set_message(
 }
 
 /// `text` without the message at `entry`.
+///
+/// # Errors
+///
+/// [`EditError`](crate::diagnostics::error::WebFluentError::EditError) when `text` is not JSON.
 pub fn remove_message(text: &str, entry: &str) -> crate::diagnostics::error::Result<String> {
     crate::project::config::json_edit::remove(text, &[entry]).map_err(edit_error)
 }

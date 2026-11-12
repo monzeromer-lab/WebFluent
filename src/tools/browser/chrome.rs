@@ -104,6 +104,11 @@ static MADE: AtomicU64 = AtomicU64::new(0);
 /// name is not reused if something is there already (`mkdir` fails rather
 /// than open what another user put in its place), and only this user may
 /// read or write it.
+///
+/// # Errors
+///
+/// The [`std::io::Error`] of making the directory when it cannot be made,
+/// or an `AlreadyExists` one when 64 names in a row were taken.
 pub fn private_dir(prefix: &str) -> std::io::Result<PathBuf> {
     use std::hash::{BuildHasher, Hasher};
     let tmp = std::env::temp_dir();
@@ -284,6 +289,12 @@ impl Browser {
     /// scripts they name. Where the sandbox cannot start (a container that
     /// gives it none) it is started again without one, and that is said;
     /// `WF_CHROME_NO_SANDBOX=1` starts it so from the outset.
+    ///
+    /// # Errors
+    ///
+    /// [`WebFluentError::IoError`] when there is no Chrome or Chromium, when it
+    /// will not start even without its sandbox, or when its debugging connection
+    /// cannot be opened.
     pub fn start() -> Result<Self> {
         let binary = find().ok_or_else(|| {
             WebFluentError::IoError(
@@ -352,6 +363,11 @@ impl Browser {
 
     /// Open `url` and wait for it to settle. The page stays open until
     /// it is closed, so a caller can act on it.
+    ///
+    /// # Errors
+    ///
+    /// [`WebFluentError::IoError`] when the browser refuses a command or the
+    /// connection to it fails.
     pub fn open(&mut self, url: &str, settle_ms: u64) -> Result<Page> {
         let target = self.call("Target.createTarget", json!({ "url": "about:blank" }), None)?;
         let target_id = target["targetId"].as_str().unwrap_or_default().to_string();
@@ -396,6 +412,10 @@ impl Browser {
     ///
     /// The events arrive on the same socket as the answers, so this is
     /// also how a page is given time: it is spent listening.
+    ///
+    /// # Errors
+    ///
+    /// [`WebFluentError::IoError`] when the connection to the browser fails.
     pub fn settle(&mut self, page: &mut Page, ms: u64) -> Result<()> {
         // What was said while something else was being asked.
         for event in std::mem::take(&mut self.heard) {
@@ -422,6 +442,11 @@ impl Browser {
     }
 
     /// Run `expression` in the page and hand back what it gave.
+    ///
+    /// # Errors
+    ///
+    /// [`WebFluentError::IoError`] when `expression` throws in the page, the
+    /// browser refuses it, or the connection to the browser fails.
     pub fn eval(&mut self, page: &Page, expression: &str) -> Result<Value> {
         let result = self.call(
             "Runtime.evaluate",
@@ -443,6 +468,11 @@ impl Browser {
     }
 
     /// Close the page and hand back what it did.
+    ///
+    /// # Errors
+    ///
+    /// [`WebFluentError::IoError`] when the browser refuses to close the page or
+    /// the connection to it fails.
     pub fn close(&mut self, page: Page) -> Result<Visit> {
         self.call(
             "Target.closeTarget",
@@ -453,6 +483,11 @@ impl Browser {
     }
 
     /// Open `url`, let it settle, and say what happened.
+    ///
+    /// # Errors
+    ///
+    /// What [`open`](Self::open) and [`close`](Self::close) return, and
+    /// [`WebFluentError::IoError`] when the page's report cannot be asked for.
     pub fn visit(&mut self, url: &str, settle_ms: u64) -> Result<Visit> {
         let mut page = self.open(url, settle_ms)?;
         let session = page.session.clone();
@@ -471,6 +506,10 @@ impl Browser {
     }
 
     /// The text a reader would see, for an `expect`.
+    ///
+    /// # Errors
+    ///
+    /// What [`eval`](Self::eval) returns.
     pub fn visible_text(&mut self, page: &Page) -> Result<String> {
         let value = self.eval(
             page,

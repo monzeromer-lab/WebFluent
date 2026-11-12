@@ -379,6 +379,10 @@ pub fn view(
 
 /// [`view`] of the project at `dir`, read through `vfs`: an unsaved theme
 /// is the theme it reads.
+///
+/// # Errors
+///
+/// What [`view_of_via`] returns.
 pub fn view_via(
     vfs: &dyn crate::base::vfs::Vfs,
     dir: &std::path::Path,
@@ -389,6 +393,12 @@ pub fn view_via(
 /// `view_via`, of the theme `name` the project declares (another palette,
 /// open on its own) rather than the one its config selects. Its dark pair
 /// is the config's only when `name` is the config's own theme.
+///
+/// # Errors
+///
+/// [`IoError`](crate::diagnostics::error::WebFluentError::IoError) when `src/` is missing or a source or the config cannot
+/// be read, and [`ConfigError`](crate::diagnostics::error::WebFluentError::ConfigError) when there is no config or it is not
+/// one.
 pub fn view_of_via(
     vfs: &dyn crate::base::vfs::Vfs,
     dir: &std::path::Path,
@@ -433,6 +443,11 @@ pub fn view_of_via(
 /// The token `name` of `theme` set to `value` (a style value, as written:
 /// `#0F766E`, `14px`) — changed where it is declared, or declared after the
 /// theme's last token — and nothing else in `source` moved.
+///
+/// # Errors
+///
+/// [`EditError`](crate::diagnostics::error::WebFluentError::EditError) when `name: value` is not a token, and what
+/// [`rewrite_declaration`](crate::check::edit::rewrite_declaration) returns.
 pub fn set_token(
     source: &str,
     file: &str,
@@ -463,6 +478,11 @@ pub fn set_token(
 }
 
 /// The token `name` taken out of `theme`, so it is the baseline's again.
+///
+/// # Errors
+///
+/// What [`rewrite_declaration`](crate::check::edit::rewrite_declaration)
+/// returns.
 pub fn reset_token(
     source: &str,
     file: &str,

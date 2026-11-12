@@ -62,11 +62,19 @@ pub fn find_scripts_via(vfs: &dyn Vfs, dir: &Path) -> Vec<PathBuf> {
 }
 
 /// Read every script under `src_dir`.
+///
+/// # Errors
+///
+/// The [`std::io::Error`] of a script that cannot be read.
 pub fn load(project_dir: &Path, src_dir: &Path) -> std::io::Result<Vec<Script>> {
     load_via(&FsVfs, project_dir, src_dir)
 }
 
 /// [`load`], reading through `vfs`.
+///
+/// # Errors
+///
+/// The [`std::io::Error`] of a script that cannot be read.
 pub fn load_via(vfs: &dyn Vfs, project_dir: &Path, src_dir: &Path) -> std::io::Result<Vec<Script>> {
     let mut out = Vec::new();
     for file in find_scripts_via(vfs, src_dir) {

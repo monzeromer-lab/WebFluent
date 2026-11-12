@@ -148,6 +148,10 @@ impl Asset {
 /// What is already in the cache is not made again: the hash is of the
 /// file's bytes and the settings, so a build that changes no image and no
 /// setting does no work.
+///
+/// # Errors
+///
+/// What [`process_via`] returns.
 pub fn process(
     name: &str,
     source: &Path,
@@ -213,6 +217,12 @@ pub fn prune_cache(cache_dir: &Path, used: &std::collections::BTreeSet<String>) 
 
 /// [`process`], reading the picture through `vfs`. What it writes — the
 /// output and the cache — goes to the disk.
+///
+/// # Errors
+///
+/// [`IoError`](crate::diagnostics::error::WebFluentError::IoError) when the picture cannot be read,
+/// is no picture the build reads or is too large to decode, an encoder
+/// refuses it, or a file of the output cannot be written.
 pub fn process_via(
     vfs: &dyn crate::base::vfs::Vfs,
     name: &str,

@@ -296,6 +296,11 @@ fn render_as(value: &Value, indent: &str, unit: &str, lay: Lay) -> String {
 
 /// `value` at `path` of `text`: the value there replaced, or the members it
 /// needs added — at the end of their object, in its style.
+///
+/// # Errors
+///
+/// An [`EditError`] when `path` is empty, `text` is not JSON, or a key
+/// before the last names something that is not an object.
 pub fn set(text: &str, path: &[&str], value: &Value) -> Result<String, EditError> {
     if path.is_empty() {
         return Err(EditError("an edit names a key".into()));
@@ -417,6 +422,10 @@ fn insert(
 
 /// `text` without the member at `path`, and the comma that joined it; an
 /// object left empty is `{}`. A path that is not there leaves it as it is.
+///
+/// # Errors
+///
+/// An [`EditError`] when `text` is not JSON.
 pub fn remove(text: &str, path: &[&str]) -> Result<String, EditError> {
     let root = parse(text)?;
     let mut node = &root;
@@ -488,6 +497,10 @@ fn remove_keeping(text: &str, path: &[&str]) -> Result<String, EditError> {
 }
 
 /// The value at `path` of `text`, read as JSON.
+///
+/// # Errors
+///
+/// An [`EditError`] holding the parser's message when `text` is not JSON.
 pub fn get(text: &str, path: &[&str]) -> Result<Option<Value>, EditError> {
     let value: Value = serde_json::from_str(text).map_err(|e| EditError(e.to_string()))?;
     Ok(path.iter().try_fold(&value, |v, k| v.get(*k)).cloned())

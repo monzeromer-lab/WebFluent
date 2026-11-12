@@ -88,6 +88,13 @@ pub const MAX_PATHS: usize = 100_000;
 /// The concrete routes of a `:param` page with `paths:`, each with its
 /// parameters: one value fills a route's one parameter; a map fills
 /// several by name.
+///
+/// # Errors
+///
+/// [`CodegenError`](crate::diagnostics::error::WebFluentError::CodegenError)
+/// when `paths:` is not a list known at build time, names more than
+/// [`MAX_PATHS`] pages, or has a value that does not fill the route's
+/// parameters with one part of an address each.
 pub fn static_routes(
     page: &PageDecl,
     program: &Program,

@@ -536,6 +536,13 @@ impl Template {
     /// `data` is anything `serde` serializes — a `serde_json::Value`, or a
     /// struct of your own with `#[derive(Serialize)]`. Its top-level fields
     /// are the names the template reads.
+    ///
+    /// # Errors
+    ///
+    /// [`WebFluentError::ConfigError`] when `data` does not serialize or the
+    /// theme asked for is not declared, and [`WebFluentError::Diagnostics`]
+    /// holding an `E120` or `E121` when the render nests too deep or does too
+    /// much.
     pub fn render_html<T: Serialize + ?Sized>(&self, data: &T) -> Result<String> {
         let data = to_value(data)?;
         let fragment = self.render_fragment(&data)?;
@@ -587,6 +594,13 @@ impl Template {
     /// assert!(css.contains(":root"));
     /// assert!(body.contains("Hi"));
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// [`WebFluentError::ConfigError`] when `data` does not serialize or the
+    /// theme asked for is not declared, and [`WebFluentError::Diagnostics`]
+    /// holding an `E120` or `E121` when the render nests too deep or does too
+    /// much.
     pub fn render_html_parts<T: Serialize + ?Sized>(&self, data: &T) -> Result<(String, String)> {
         let data = to_value(data)?;
         Ok((self.stylesheet()?, self.render_fragment(&data)?))
@@ -598,6 +612,13 @@ impl Template {
     /// Does not include CSS — use [`render_html`](Template::render_html) for a complete
     /// document, or [`render_html_parts`](Template::render_html_parts) to serve the CSS
     /// separately.
+    ///
+    /// # Errors
+    ///
+    /// [`WebFluentError::ConfigError`] when `data` does not serialize or the
+    /// theme asked for is not declared, and [`WebFluentError::Diagnostics`]
+    /// holding an `E120` or `E121` when the render nests too deep or does too
+    /// much.
     pub fn render_html_fragment<T: Serialize + ?Sized>(&self, data: &T) -> Result<String> {
         self.render_fragment(&to_value(data)?)
     }
@@ -634,6 +655,12 @@ impl Template {
     /// (the template's `fonts/` directory, then Liberation, built in), and
     /// pictures read from beside the template. A4 with 72pt margins unless
     /// [`with_pdf`](Template::with_pdf) says otherwise.
+    ///
+    /// # Errors
+    ///
+    /// As [`render_html`](Template::render_html), and
+    /// [`WebFluentError::CodegenError`] when the paged engine cannot lay the
+    /// page out.
     pub fn render_pdf<T: Serialize + ?Sized>(&self, data: &T) -> Result<Vec<u8>> {
         Ok(self.render_pdf_with_notes(data)?.0)
     }
@@ -641,6 +668,12 @@ impl Template {
     /// [`render_pdf`](Template::render_pdf), with what the reader of the
     /// render should know: a character no font had, a font taken from this
     /// machine rather than the template's.
+    ///
+    /// # Errors
+    ///
+    /// As [`render_html`](Template::render_html), and
+    /// [`WebFluentError::CodegenError`] when the paged engine cannot lay the
+    /// page out.
     pub fn render_pdf_with_notes<T: Serialize + ?Sized>(
         &self,
         data: &T,
@@ -653,6 +686,12 @@ impl Template {
     /// the text of each page a line at a time in reading order, and the
     /// notes — for a test that holds a document to what it should say, or
     /// a server that logs what it sent.
+    ///
+    /// # Errors
+    ///
+    /// As [`render_html`](Template::render_html), and
+    /// [`WebFluentError::CodegenError`] when the paged engine cannot lay the
+    /// page out.
     pub fn render_pdf_report<T: Serialize + ?Sized>(&self, data: &T) -> Result<PdfReport> {
         let data = to_value(data)?;
         let html = self.paged_document(&data)?;
@@ -670,6 +709,12 @@ impl Template {
 
     /// [`render_slides`](Template::render_slides), reported as
     /// [`render_pdf_report`](Template::render_pdf_report) reports a document.
+    ///
+    /// # Errors
+    ///
+    /// As [`render_html`](Template::render_html), and
+    /// [`WebFluentError::CodegenError`] when the paged engine cannot lay the
+    /// page out.
     pub fn render_slides_report<T: Serialize + ?Sized>(&self, data: &T) -> Result<PdfReport> {
         let data = to_value(data)?;
         let html = self.paged_document(&data)?;
@@ -694,6 +739,12 @@ impl Template {
     ///
     /// Uses 16:9 (960×540pt) unless [`with_slides`](Template::with_slides) says
     /// otherwise.
+    ///
+    /// # Errors
+    ///
+    /// As [`render_html`](Template::render_html), and
+    /// [`WebFluentError::CodegenError`] when the paged engine cannot lay the
+    /// page out.
     pub fn render_slides<T: Serialize + ?Sized>(&self, data: &T) -> Result<Vec<u8>> {
         let data = to_value(data)?;
         let html = self.paged_document(&data)?;
@@ -732,12 +783,22 @@ fn to_value<T: Serialize + ?Sized>(data: &T) -> Result<Value> {
 
 /// The HTML fragment of every page of a lowered program, over `data`:
 /// what a template renders, and what `wf test` holds a test to.
+///
+/// # Errors
+///
+/// [`WebFluentError::Diagnostics`] holding an `E120` or `E121` when the
+/// render nests too deep or does too much.
 pub fn render_program_fragment(program: &Program, data: &Value) -> Result<String> {
     render_program(program, data, false, Default::default())
 }
 
 /// As [`render_program_fragment`], with the messages `t("key")` reads,
 /// in English.
+///
+/// # Errors
+///
+/// [`WebFluentError::Diagnostics`] holding an `E120` or `E121` when the
+/// render nests too deep or does too much.
 pub fn render_program_fragment_with(
     program: &Program,
     data: &Value,
@@ -748,6 +809,11 @@ pub fn render_program_fragment_with(
 
 /// As [`render_program_fragment_with`], the messages being `locale`'s: a
 /// `t()` with a `count` picks the form that locale's plural rules give it.
+///
+/// # Errors
+///
+/// [`WebFluentError::Diagnostics`] holding an `E120` or `E121` when the
+/// render nests too deep or does too much.
 pub fn render_program_fragment_in(
     program: &Program,
     data: &Value,
@@ -764,6 +830,11 @@ pub fn render_program_fragment_in(
 /// The markup a paged output lays out: as [`render_program_fragment`], with
 /// `page` and `pages` in a running element written as the marks each page
 /// replaces with its number.
+///
+/// # Errors
+///
+/// [`WebFluentError::Diagnostics`] holding an `E120` or `E121` when the
+/// render nests too deep or does too much.
 pub fn render_program_paged(program: &Program, data: &Value) -> Result<String> {
     render_program(program, data, true, Default::default())
 }

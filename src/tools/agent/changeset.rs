@@ -193,6 +193,12 @@ impl ChangeSet {
     /// The file at `rel` as the agent may see it: through the set, with
     /// each private `env` value of the config withheld. It is recorded as
     /// read.
+    ///
+    /// # Errors
+    ///
+    /// [`WebFluentError::EditError`] when `rel` is not a path the set may touch,
+    /// and [`WebFluentError::NotFound`] when there is no such file or the set
+    /// deletes it.
     pub fn read(&mut self, rel: &str) -> Result<String> {
         let rel = self.within(rel)?;
         let text = self.through(&rel)?;
@@ -247,6 +253,11 @@ impl ChangeSet {
 
     /// Write `text` to `rel` in the set. A private `env` value the agent
     /// was shown as withheld is kept as it is.
+    ///
+    /// # Errors
+    ///
+    /// [`WebFluentError::EditError`] when `rel` is not a path the set may touch,
+    /// or the config's text cannot be read as JSON to put its private values back.
     pub fn write(&mut self, rel: &str, text: &str) -> Result<()> {
         let rel = self.within(rel)?;
         let mut text = text.to_string();
@@ -271,6 +282,10 @@ impl ChangeSet {
     /// shown it (a private value withheld), and how many. The file must
     /// have been read, or written, by the set, and not have changed under
     /// it since; every edit is made, or none.
+    ///
+    /// # Errors
+    ///
+    /// What [`edited`](Self::edited) and [`write`](Self::write) return.
     pub fn edit(&mut self, rel: &str, edits: &[super::edit::Edit]) -> Result<usize> {
         let (_, new) = self.edited(rel, edits)?;
         self.write(rel, &new)?;
@@ -279,6 +294,12 @@ impl ChangeSet {
 
     /// What `edits` would make of `rel`, the set unchanged: the text as the
     /// agent was shown it, and after. The same checks as `edit`.
+    ///
+    /// # Errors
+    ///
+    /// [`WebFluentError::EditError`] when `rel` is not a path the set may touch,
+    /// and [`WebFluentError::NotFound`] when the file was not read, changed on
+    /// disk since, is not there, or an `old_text` does not match.
     pub fn edited(&self, rel: &str, edits: &[super::edit::Edit]) -> Result<(String, String)> {
         let rel = self.within(rel)?;
         if !self.has_read(&rel) {
@@ -301,6 +322,11 @@ impl ChangeSet {
     }
 
     /// Delete `rel` in the set.
+    ///
+    /// # Errors
+    ///
+    /// [`WebFluentError::EditError`] when `rel` is not a path the set may touch,
+    /// or is the project's config.
     pub fn delete(&mut self, rel: &str) -> Result<()> {
         let rel = self.within(rel)?;
         if rel == CONFIG {

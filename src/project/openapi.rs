@@ -38,6 +38,10 @@ pub struct Imported {
 type Schemas = serde_json::Map<String, serde_json::Value>;
 
 /// Read `text` as an OpenAPI document, for the service `api`.
+///
+/// # Errors
+///
+/// [`WebFluentError::ParseError`] (`E111`) when `text` is not JSON.
 pub fn read(text: &str, api: &ApiDecl, file: &str) -> Result<Imported> {
     let doc: serde_json::Value = serde_json::from_str(text).map_err(|e| {
         WebFluentError::ParseError(Box::new(Diagnostic::coded(
@@ -780,6 +784,12 @@ fn pascal(name: &str) -> String {
 
 /// Fill in every service that names a specification, before anything else
 /// reads the program.
+///
+/// # Errors
+///
+/// [`WebFluentError::Diagnostics`] (`E111`) when a specification's path
+/// leaves the project, [`WebFluentError::ParseError`] (`E111`) when it is not
+/// found, and what [`read`] returns.
 pub fn expand(
     program: &mut crate::syntax::parser::Program,
     read_file: &dyn Fn(&str) -> Option<String>,

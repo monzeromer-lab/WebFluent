@@ -202,6 +202,11 @@ pub fn size_text(bytes: u64) -> String {
 /// (whose name the files are named after). `cache` is the project's
 /// `.wf-cache/media/`, where a file the build already wrote is found and
 /// its size read exactly.
+///
+/// # Errors
+///
+/// [`IoError`](crate::diagnostics::error::WebFluentError::IoError) when the
+/// bytes are no picture the build reads, or one too large to decode.
 pub fn plan(
     bytes: &[u8],
     source: &Path,

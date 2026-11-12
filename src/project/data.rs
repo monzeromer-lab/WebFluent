@@ -33,6 +33,10 @@ pub fn outside_project(
 
 /// Every `data` declaration of `program` replaced by a `const` holding
 /// the file's JSON, read relative to `root`, then `root/src`.
+///
+/// # Errors
+///
+/// What [`resolve_data_via`] returns.
 pub fn resolve_data(program: &mut Program, root: &Path) -> Result<()> {
     resolve_data_with(program, root, None)
 }
@@ -43,6 +47,10 @@ pub fn resolve_data(program: &mut Program, root: &Path) -> Result<()> {
 /// that writes files; without it an image is read for its size and colour
 /// but nothing is written, which is what the language server and `wf
 /// types` want.
+///
+/// # Errors
+///
+/// What [`resolve_data_via`] returns.
 pub fn resolve_data_with(
     program: &mut Program,
     root: &Path,
@@ -52,6 +60,13 @@ pub fn resolve_data_with(
 }
 
 /// [`resolve_data_with`], reading the files through `vfs`.
+///
+/// # Errors
+///
+/// [`WebFluentError::Diagnostics`] (`E111`) when a declaration names a
+/// path outside the project, and [`WebFluentError::IoError`] when its file
+/// is missing, cannot be read, or is not JSON (for `data`) or a picture the
+/// build reads (for `image`).
 pub fn resolve_data_via(
     vfs: &dyn crate::base::vfs::Vfs,
     program: &mut Program,
@@ -263,6 +278,11 @@ pub(crate) fn each_element_mut(stmts: &mut [Statement], f: &mut dyn FnMut(&mut U
 /// `noindex`, `lang`, `translates` — and the rest is the page's Markdown. The page's name is the
 /// file's stem, capitalised; its route the `path`, or `/<stem>` (`/` for
 /// `index`).
+///
+/// # Errors
+///
+/// [`WebFluentError::ParseError`] (`E002`) when the front matter is never
+/// closed or its `lang:` is not a language tag.
 pub fn markdown_page(source: &str, file: &str) -> Result<Program> {
     let stem = std::path::Path::new(file)
         .file_stem()

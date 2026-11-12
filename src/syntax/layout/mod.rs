@@ -17,6 +17,12 @@ use crate::syntax::lexer::v2::{Layout, LexerV2};
 use crate::syntax::lexer::{Token, TokenType};
 
 /// The `.wfx` spelling of a `.wf` source.
+///
+/// # Errors
+///
+/// [`WebFluentError::LexerError`] when `source` cannot be lexed, and
+/// [`WebFluentError::ParseError`] (`E003`) when its indentation does not
+/// follow its braces, so the layout cannot change without changing its meaning.
 pub fn to_offside(source: &str, file: &str) -> Result<String> {
     let tokens = LexerV2::with_layout(source, file, Layout::Braces).tokenize()?;
     let removed = block_braces(&tokens, source);
@@ -75,6 +81,12 @@ pub fn to_offside(source: &str, file: &str) -> Result<String> {
 }
 
 /// The `.wf` spelling of a `.wfx` source.
+///
+/// # Errors
+///
+/// [`WebFluentError::LexerError`] when `source` cannot be lexed, and
+/// [`WebFluentError::ParseError`] (`E003`) when the braced text does not lex
+/// to the same tokens.
 pub fn to_braces(source: &str, file: &str) -> Result<String> {
     let tokens = LexerV2::with_layout(source, file, Layout::Offside).tokenize()?;
     // Every synthetic brace, with the indentation of the line that opened

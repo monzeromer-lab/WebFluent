@@ -38,6 +38,12 @@ pub struct Ran<T>(T);
 
 #[cfg(target_arch = "wasm32")]
 impl<T> Ran<T> {
+    /// What the closure returned, as a thread's `join` hands it back.
+    ///
+    /// # Errors
+    ///
+    /// Never: the closure ran on this thread, and a panic in it unwound
+    /// here already. The `Result` matches [`std::thread::ScopedJoinHandle::join`].
     pub fn join(self) -> std::thread::Result<T> {
         Ok(self.0)
     }

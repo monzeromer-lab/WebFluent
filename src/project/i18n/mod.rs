@@ -19,6 +19,11 @@ use crate::project::static_eval::Static;
 
 /// Every locale's messages, read from `<dir>/<locale>.json`. A locale with
 /// no file has none; a file that is not a JSON map of strings is an error.
+///
+/// # Errors
+///
+/// [`IoError`](crate::diagnostics::error::WebFluentError::IoError) when a locale's file is there but cannot be read, and
+/// [`ConfigError`](crate::diagnostics::error::WebFluentError::ConfigError) when it is not a JSON map of strings.
 pub fn load(
     project_dir: &Path,
     config: &crate::project::config::project::I18nConfig,
@@ -27,6 +32,11 @@ pub fn load(
 }
 
 /// [`load`], reading through `vfs`.
+///
+/// # Errors
+///
+/// [`IoError`](crate::diagnostics::error::WebFluentError::IoError) when a locale's file is there but cannot be read, and
+/// [`ConfigError`](crate::diagnostics::error::WebFluentError::ConfigError) when it is not a JSON map of strings.
 pub fn load_via(
     vfs: &dyn crate::base::vfs::Vfs,
     project_dir: &Path,

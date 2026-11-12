@@ -664,6 +664,12 @@ pub fn path_of(dotted: &str) -> Option<(Vec<std::string::String>, &'static Field
 /// or removed when it is `None` — its shape kept ([`super::json_edit`]),
 /// the value held to the field's type, and the result read back as a
 /// config before it is handed back, so what is written is what builds.
+///
+/// # Errors
+///
+/// An [`EditError`](super::json_edit::EditError) when `dotted` is not a
+/// setting, `value` is not of its type, the text is not JSON, or the result
+/// would not read as a config.
 pub fn edit(
     text: &str,
     dotted: &str,

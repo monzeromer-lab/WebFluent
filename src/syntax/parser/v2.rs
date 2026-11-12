@@ -29,6 +29,12 @@ use crate::syntax::parser::ast::*;
 
 /// Parse a WebFluent 3 source file, in the layout its name asks for: a
 /// `.wfx` file writes its blocks by indentation.
+///
+/// # Errors
+///
+/// [`WebFluentError::LexerError`] when `source` cannot be lexed,
+/// [`WebFluentError::ParseError`] for the one syntax error it has, and
+/// [`WebFluentError::Diagnostics`] for several.
 pub fn parse_v2(source: &str, file: &str) -> Result<Program> {
     let tokens = LexerV2::for_file(source, file).tokenize()?;
     ParserV2::new(tokens, file).parse()
@@ -3520,6 +3526,12 @@ impl ParserV2 {
 
     // ─── Expressions ─────────────────────────────────────
 
+    /// An expression, from the current token.
+    ///
+    /// # Errors
+    ///
+    /// [`WebFluentError::ParseError`] when the tokens are not an expression
+    /// (`E002`), or nest more than 100 levels deep (`E120`).
     pub fn parse_expression(&mut self) -> Result<Expr> {
         self.nested(Self::parse_range)
     }

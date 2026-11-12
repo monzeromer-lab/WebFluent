@@ -1936,6 +1936,12 @@ pub struct Mismatch {
 /// at a time: each time the file must parse to the same tree. Returns how
 /// many statements were proven, or what was not — a file that does not
 /// parse at all is one `Mismatch` at line 0.
+///
+/// # Errors
+///
+/// Every [`Mismatch`]: a statement that printed to something else, or one
+/// at line 0 (line 1 for a `.wfx` that does not convert) when the file
+/// does not parse.
 pub fn prove(source: &str, file: &str) -> Result<usize, Vec<Mismatch>> {
     let braced = if file.ends_with(".wfx") {
         match crate::syntax::layout::to_braces(source, file) {
@@ -2108,6 +2114,11 @@ pub fn declaration_span(source: &str, d: &Declaration) -> Option<(usize, usize)>
 /// place, one at a time, and then the whole file printed: each time the
 /// file must parse to the same tree. Returns how many were proven, or what
 /// was not — a file that does not parse is one `Mismatch` at line 0.
+///
+/// # Errors
+///
+/// Every [`Mismatch`]: a declaration, or the whole file, that printed to
+/// something else, or one at line 0 when the file does not parse.
 pub fn prove_declarations(source: &str, file: &str) -> Result<usize, Vec<Mismatch>> {
     let braced = if file.ends_with(".wfx") {
         crate::syntax::layout::to_braces(source, file).unwrap_or_default()

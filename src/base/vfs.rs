@@ -37,8 +37,19 @@ pub struct Metadata {
 /// The methods are the few that reading a project takes, each with the
 /// meaning of its `std::fs` or [`Path`] namesake.
 pub trait Vfs: Send + Sync {
+    /// Read the whole file at `path`.
+    ///
+    /// # Errors
+    ///
+    /// The [`io::Error`] when the file is not there or cannot be read.
     fn read(&self, path: &Path) -> io::Result<Vec<u8>>;
 
+    /// Read the whole file at `path` as text.
+    ///
+    /// # Errors
+    ///
+    /// What [`read`](Self::read) returns, and an [`io::ErrorKind::InvalidData`]
+    /// error when the file is not UTF-8.
     fn read_to_string(&self, path: &Path) -> io::Result<String> {
         String::from_utf8(self.read(path)?).map_err(|_| {
             io::Error::new(
@@ -59,12 +70,25 @@ pub trait Vfs: Send + Sync {
     /// The entries of the directory at `path`, each as `path` joined with
     /// its name, in no particular order: a reader that needs an order — and
     /// a build does, so it is the same wherever the project sits — sorts.
+    ///
+    /// # Errors
+    ///
+    /// The [`io::Error`] when `path` is not a directory or cannot be read.
     fn read_dir(&self, path: &Path) -> io::Result<Vec<PathBuf>>;
 
+    /// The size of the file at `path`, and when it last changed.
+    ///
+    /// # Errors
+    ///
+    /// The [`io::Error`] when `path` is not there or cannot be read.
     fn metadata(&self, path: &Path) -> io::Result<Metadata>;
 
     /// Copy the file at `from` to `to` on the disk: how a build copies
     /// `public/` into its output.
+    ///
+    /// # Errors
+    ///
+    /// The [`io::Error`] when `from` cannot be read or `to` cannot be written.
     fn copy_out(&self, from: &Path, to: &Path) -> io::Result<()> {
         crate::base::outfs::write(to, self.read(from)?)
     }

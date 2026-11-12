@@ -167,6 +167,13 @@ pub fn migrate_project(files: &[(PathBuf, String)]) -> Vec<(PathBuf, Result<Migr
 }
 
 /// Migrate one file.
+///
+/// # Errors
+///
+/// [`WebFluentError::LexerError`] or [`WebFluentError::ParseError`] when
+/// the file does not read in the grammar it is migrated from, and
+/// [`WebFluentError::EditError`] when the rewrite produces text the next
+/// grammar rejects — a bug in the migration, not in the project.
 pub fn migrate_file(source: &str, file: &str, ctx: &ProjectContext) -> Result<Migrated> {
     if detect_dialect(source) == Dialect::V2 {
         return Ok(Migrated {
@@ -1373,6 +1380,11 @@ fn route_page(route: &UIElement) -> Option<&str> {
 /// link that leads out of `dir` is left out — writing through it would
 /// change a file somewhere else — and no directory is entered twice, so a
 /// link that loops ends the walk rather than running it forever.
+///
+/// # Errors
+///
+/// The [`std::io::Error`] of a directory that cannot be listed or a file
+/// that cannot be read.
 pub fn source_files(dir: &Path) -> std::io::Result<Vec<(PathBuf, String)>> {
     let mut paths = Vec::new();
     fn walk(

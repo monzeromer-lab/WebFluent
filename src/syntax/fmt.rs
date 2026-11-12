@@ -27,6 +27,12 @@ use crate::syntax::lexer::{Token, TokenType};
 const INDENT: &str = "    ";
 
 /// The canonical spelling of `source`, which is `file`'s text.
+///
+/// # Errors
+///
+/// What [`parse_source`](crate::syntax::parse_source) returns when `source`
+/// does not parse, and [`WebFluentError::ParseError`] (`E003`, `E005`) when
+/// formatting would change what it says.
 pub fn format_source(source: &str, file: &str) -> Result<String> {
     // Only a file the compiler reads is formatted: a WebFluent 2 file is
     // refused with the migration hint, a broken one with its error.

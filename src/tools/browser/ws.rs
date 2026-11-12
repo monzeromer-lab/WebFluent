@@ -28,6 +28,11 @@ pub struct Socket {
 
 impl Socket {
     /// Connect to `ws://host:port/path`.
+    ///
+    /// # Errors
+    ///
+    /// [`WebFluentError::IoError`] when `url` is not a `ws://` address, the
+    /// connection cannot be made, or the endpoint refuses the upgrade.
     pub fn connect(url: &str) -> Result<Self> {
         let rest = url
             .strip_prefix("ws://")
@@ -80,6 +85,10 @@ impl Socket {
     }
 
     /// Send one text message. A client's frame is always masked.
+    ///
+    /// # Errors
+    ///
+    /// [`WebFluentError::IoError`] when the frame cannot be written.
     pub fn send(&mut self, text: &str) -> Result<()> {
         let payload = text.as_bytes();
         let mut frame = vec![0x81u8]; // FIN + text
@@ -104,6 +113,12 @@ impl Socket {
 
     /// The next text message, answering a ping and stepping over
     /// everything else on the way.
+    ///
+    /// # Errors
+    ///
+    /// [`WebFluentError::IoError`] when the stream cannot be read (a read timeout
+    /// set by [`deadline`](Self::deadline) included), a message is not UTF-8,
+    /// or the browser closes the connection.
     pub fn receive(&mut self) -> Result<String> {
         loop {
             let mut head = [0u8; 2];
@@ -156,10 +171,14 @@ impl Socket {
         self.stream.flush().map_err(oops)
     }
 
-    /// How long to wait for a message before giving up.
     /// Whether a frame begins within `wait`: what is already read counts,
     /// and nothing is taken off the stream, so a frame is never cut by the
     /// wait running out in the middle of it.
+    ///
+    /// # Errors
+    ///
+    /// [`WebFluentError::IoError`] when the stream cannot be read for a reason
+    /// other than the wait running out.
     pub fn ready_within(&mut self, wait: std::time::Duration) -> Result<bool> {
         if !self.reader.buffer().is_empty() {
             return Ok(true);
@@ -181,6 +200,11 @@ impl Socket {
         Ok(ready)
     }
 
+    /// How long to wait for a message before giving up.
+    ///
+    /// # Errors
+    ///
+    /// [`WebFluentError::IoError`] when the socket refuses the read timeout.
     pub fn deadline(&self, seconds: u64) -> Result<()> {
         self.stream
             .set_read_timeout(Some(std::time::Duration::from_secs(seconds)))

@@ -80,6 +80,13 @@ fn first_word_at(source: &str) -> Option<(&str, usize)> {
 ///
 /// `file` names the source in diagnostics. A file in the grammar of
 /// WebFluent 2 is an error that names the migration.
+///
+/// # Errors
+///
+/// [`WebFluentError::LexerError`] when the source does not lex,
+/// [`WebFluentError::ParseError`] when it does not parse (or is in the
+/// WebFluent 2 grammar, `E004`), and [`WebFluentError::Diagnostics`] when
+/// several declarations do not parse.
 pub fn parse_source(source: &str, file: &str) -> Result<Program> {
     match detect_dialect(source) {
         Dialect::V1 => {
@@ -135,6 +142,10 @@ fn position_of_first_word(source: &str) -> (usize, usize) {
 
 /// The token stream of `source`, for tools that work at the token level
 /// (the language server's cursor context).
+///
+/// # Errors
+///
+/// [`WebFluentError::LexerError`] when the source does not lex.
 pub fn tokens(source: &str, file: &str) -> Result<Vec<Token>> {
     crate::syntax::lexer::LexerV2::for_file(source, file).tokenize()
 }

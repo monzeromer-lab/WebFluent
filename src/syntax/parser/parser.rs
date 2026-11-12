@@ -59,7 +59,9 @@ impl Parser {
 
     /// Parse the token stream into a [`Program`] AST.
     ///
-    /// Returns an error if the token stream contains syntax errors.
+    /// # Errors
+    ///
+    /// [`WebFluentError::ParseError`] at the first syntax error.
     pub fn parse(&mut self) -> Result<Program> {
         let mut declarations = Vec::new();
         while !self.is_at_end() {
@@ -1934,6 +1936,12 @@ impl Parser {
 
     // ─── Expressions ─────────────────────────────────────
 
+    /// One expression, from the current token.
+    ///
+    /// # Errors
+    ///
+    /// [`WebFluentError::ParseError`] when the tokens do not read as an
+    /// expression.
     pub fn parse_expression(&mut self) -> Result<Expr> {
         self.parse_or()
     }

@@ -700,6 +700,11 @@ fn dimensions(bytes: &[u8], path: &str) -> Option<(u32, u32)> {
 
 /// What `public/` holds, read through `vfs` (an editor's buffers over the
 /// disk), and where the project names each file.
+///
+/// # Errors
+///
+/// [`WebFluentError::IoError`] when the config cannot be read, and
+/// [`WebFluentError::ConfigError`] when it is not a config.
 pub fn list_via(vfs: &dyn Vfs, root: &Path) -> Result<Listing> {
     let public = root.join("public");
     let mut files = Vec::new();
@@ -839,6 +844,10 @@ pub fn list_via(vfs: &dyn Vfs, root: &Path) -> Result<Listing> {
 }
 
 /// [`list_via`], from the disk.
+///
+/// # Errors
+///
+/// What [`list_via`] returns.
 pub fn list(root: &Path) -> Result<Listing> {
     list_via(&crate::base::vfs::FsVfs, root)
 }
@@ -847,6 +856,12 @@ pub fn list(root: &Path) -> Result<Listing> {
 /// `path`, with the project's `build.media` settings: every file, its
 /// width, its name and its size — exact where the build has written it
 /// already (`.wf-cache/media/`), estimated where it has not.
+///
+/// # Errors
+///
+/// [`WebFluentError::IoError`] when `path` is not a path of the site, names
+/// no file in `public/`, names one the pipeline does not re-encode, or one
+/// that cannot be read or decoded.
 pub fn plan_via(vfs: &dyn Vfs, root: &Path, path: &str) -> Result<Plan> {
     let site = site_path(path)
         .or_else(|| (!path.contains("://")).then(|| site_path(&format!("/{path}")))?)
@@ -877,6 +892,10 @@ pub fn plan_via(vfs: &dyn Vfs, root: &Path, path: &str) -> Result<Plan> {
 }
 
 /// [`plan_via`], from the disk.
+///
+/// # Errors
+///
+/// What [`plan_via`] returns.
 pub fn plan(root: &Path, path: &str) -> Result<Plan> {
     plan_via(&crate::base::vfs::FsVfs, root, path)
 }

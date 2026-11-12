@@ -259,6 +259,10 @@ fn live_text(block: Option<&StyleBlock>) -> Vec<String> {
 /// Whether a patch and a full build agree: `after`'s generated pages are
 /// `before`'s with the patch applied, and its stylesheet rules are what the
 /// patch adds. `Err` says how they differ.
+///
+/// # Errors
+///
+/// How the generated pages or the stylesheet rules differ.
 pub fn agrees(before: &Program, after: &Program, patch: &Patch) -> Result<(), String> {
     for ssg in [false, true] {
         let old = generated(before, ssg);

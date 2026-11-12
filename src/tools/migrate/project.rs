@@ -116,6 +116,12 @@ pub const WITHOUT_AN_EDIT: &[&str] = &[
 
 /// Migrate `path` (a project, or one `.wf` file) in memory; `wfx` writes
 /// the result in the indented layout, as `.wfx`.
+///
+/// # Errors
+///
+/// [`WebFluentError::IoError`] when a file cannot be read or there is no
+/// `.wf` file to migrate. A file that cannot be migrated is a
+/// [`FileChange`] with an error, not an error of the plan.
 pub fn plan(path: &Path, wfx: bool) -> Result<Plan> {
     let files = if path.is_file() {
         vec![(path.to_path_buf(), std::fs::read_to_string(path).at(path)?)]
@@ -248,6 +254,12 @@ pub fn four(project_dir: &Path, files: &[(PathBuf, String)]) -> Option<Four> {
 ///
 /// The files are written as the step left them; [`write()`] then writes any
 /// that the rest of the migration changed further.
+///
+/// # Errors
+///
+/// [`WebFluentError::IoError`] when a file would be written through a link
+/// out of the project or cannot be read, written or removed, and
+/// [`WebFluentError::ConfigError`] when the config is not JSON.
 pub fn write_four_two(project_dir: &Path, step: &FourTwo) -> Result<Option<PathBuf>> {
     let outcome = &step.outcome;
     // Nothing is written through a link out of the project.
@@ -312,6 +324,11 @@ pub fn write_four_two(project_dir: &Path, step: &FourTwo) -> Result<Option<PathB
 
 /// Write one file's migration: its text where it goes, and the old file
 /// gone when it was renamed (`.wf` → `.wfx`).
+///
+/// # Errors
+///
+/// [`WebFluentError::IoError`] when the file cannot be written, or the old
+/// one removed.
 pub fn write(change: &FileChange) -> Result<()> {
     std::fs::write(&change.written_to, &change.text).at(&change.written_to)?;
     if change.written_to != change.path {
@@ -323,6 +340,11 @@ pub fn write(change: &FileChange) -> Result<()> {
 /// Add `names` to the project's `public_env`, leaving everything else in
 /// its config — including the order it was written in — alone. Returns the
 /// config's path.
+///
+/// # Errors
+///
+/// [`WebFluentError::IoError`] when the config cannot be read or written,
+/// and [`WebFluentError::ConfigError`] when it is not a config.
 pub fn write_public_env(project_dir: &Path, names: &[String]) -> Result<PathBuf> {
     let mut config = ProjectConfig::load(project_dir)?;
     config.public_env.extend(names.iter().cloned());
@@ -353,6 +375,11 @@ pub fn write_public_env(project_dir: &Path, names: &[String]) -> Result<PathBuf>
 
 /// Write a whole plan: every file that changes, and the names 4 needs in
 /// `public_env`. What it wrote, in order.
+///
+/// # Errors
+///
+/// What [`write_four_two`], [`write()`] or [`write_public_env`] returns,
+/// at the first that fails; what was written before it stays written.
 pub fn apply(plan: &Plan) -> Result<Vec<PathBuf>> {
     let mut written = Vec::new();
     if let (Some(dir), Some(step)) = (&plan.project_dir, &plan.four_two)

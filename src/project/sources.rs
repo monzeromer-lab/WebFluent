@@ -15,6 +15,13 @@ use std::path::{Path, PathBuf};
 /// one program, with the file each declaration came from (relative to the
 /// project) so a diagnostic over the merged program can still name a file
 /// the reader can open.
+///
+/// # Errors
+///
+/// [`WebFluentError::IoError`] when `src/` is missing, holds no source file,
+/// or has a file (a source, a script, a `data` or `image` file) that cannot
+/// be read; [`WebFluentError::ParseError`] when one file does not parse, and
+/// [`WebFluentError::Diagnostics`] when several do.
 pub fn read_project(project_dir: &Path) -> Result<(Program, Vec<String>)> {
     read_project_with(project_dir, None)
 }
@@ -23,6 +30,13 @@ pub fn read_project(project_dir: &Path) -> Result<(Program, Vec<String>)> {
 ///
 /// A reader that writes no files — `wf types`, the language server — passes
 /// nothing, and an `image` resolves to the file as it stands.
+///
+/// # Errors
+///
+/// [`WebFluentError::IoError`] when `src/` is missing, holds no source file,
+/// or has a file (a source, a script, a `data` or `image` file) that cannot
+/// be read; [`WebFluentError::ParseError`] when one file does not parse, and
+/// [`WebFluentError::Diagnostics`] when several do.
 pub fn read_project_with(
     project_dir: &Path,
     media: Option<(&Path, &crate::project::media::Settings, &str)>,
@@ -31,6 +45,13 @@ pub fn read_project_with(
 }
 
 /// [`read_project_with`], reading every file through `vfs`.
+///
+/// # Errors
+///
+/// [`WebFluentError::IoError`] when `src/` is missing, holds no source file,
+/// or has a file (a source, a script, a `data` or `image` file) that cannot
+/// be read; [`WebFluentError::ParseError`] when one file does not parse, and
+/// [`WebFluentError::Diagnostics`] when several do.
 pub fn read_project_via(
     vfs: &dyn Vfs,
     project_dir: &Path,
@@ -49,6 +70,12 @@ pub fn read_project_via(
 /// diagnostic for each mistake in the files that do not — so one typo in
 /// one file does not hide every finding in the others. An error is only a
 /// file that cannot be read at all.
+///
+/// # Errors
+///
+/// [`WebFluentError::IoError`] when `src/` is missing, holds no source file,
+/// or has a file (a source, a script, a `data` or `image` file) that cannot
+/// be read. A file that does not parse is a diagnostic in the result.
 pub fn read_project_collecting(
     project_dir: &Path,
     media: Option<(&Path, &crate::project::media::Settings, &str)>,
@@ -57,6 +84,12 @@ pub fn read_project_collecting(
 }
 
 /// [`read_project_collecting`], reading every file through `vfs`.
+///
+/// # Errors
+///
+/// [`WebFluentError::IoError`] when `src/` is missing, holds no source file,
+/// or has a file (a source, a script, a `data` or `image` file) that cannot
+/// be read. A file that does not parse is a diagnostic in the result.
 pub fn read_project_collecting_via(
     vfs: &dyn Vfs,
     project_dir: &Path,

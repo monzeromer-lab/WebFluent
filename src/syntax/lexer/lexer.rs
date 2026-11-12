@@ -31,7 +31,10 @@ impl Lexer {
 
     /// Tokenize the source code into a vector of [`Token`]s.
     ///
-    /// Returns an error if the source contains invalid characters or unterminated strings.
+    /// # Errors
+    ///
+    /// [`WebFluentError::LexerError`] at the first character the lexer cannot
+    /// read, or a string or comment that does not close.
     pub fn tokenize(&mut self) -> Result<Vec<Token>> {
         let mut tokens = Vec::new();
 

@@ -558,6 +558,11 @@ impl Catalog {
 
     /// Whether `child` may be dropped directly inside `parent`: a part only
     /// inside its owner, nothing inside what takes no children.
+    ///
+    /// # Errors
+    ///
+    /// A sentence saying why not: either is no component, `parent` takes no
+    /// children, or `child` is a part of another component.
     pub fn may_hold(&self, parent: &str, child: &str) -> Result<(), String> {
         let p = self
             .get(parent)

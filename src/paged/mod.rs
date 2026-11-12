@@ -241,6 +241,11 @@ const NO_PDF: &str = "this build of the compiler has no PDF engine (a WebAssembl
 
 /// Render a page's HTML (with its `<style>` elements) and any further CSS to
 /// a PDF.
+///
+/// # Errors
+///
+/// A message when the paper has no size or the PDF cannot be written, and
+/// in a build without the `pdf` feature always.
 #[cfg_attr(
     not(wf_pdf),
     allow(
@@ -860,6 +865,11 @@ fn luminance(c: Rgba) -> f32 {
 
 /// Render a deck: every slide of the page's `Presentation` on a page of its
 /// own, the slide's size, its content clipped at the edge.
+///
+/// # Errors
+///
+/// A message when a slide has no size or the PDF cannot be written, and in
+/// a build without the `pdf` feature always.
 #[cfg_attr(
     not(wf_pdf),
     allow(

@@ -145,6 +145,11 @@ pub enum Written {
 
 /// Write `content`, a braced source, as `<dir>/<stem>.wf` — or as a
 /// `.wfx` in the indented layout when `indented`.
+///
+/// # Errors
+///
+/// What [`to_offside`](crate::syntax::layout::to_offside) returns when
+/// `indented`, and [`IoError`](crate::diagnostics::error::WebFluentError::IoError) when the file cannot be written.
 pub fn write_source(dir: &Path, stem: &str, content: &str, indented: bool) -> Result<Written> {
     let (path, text) = if indented {
         let path = dir.join(format!("{stem}.wfx"));
@@ -172,6 +177,11 @@ pub fn write_source(dir: &Path, stem: &str, content: &str, indented: bool) -> Re
 ///
 /// `dir` can be anywhere under the project: the kind's usual folder is
 /// where `wf generate` puts it, not a rule. It is created if need be.
+///
+/// # Errors
+///
+/// [`IoError`](crate::diagnostics::error::WebFluentError::IoError) when `dir` cannot be made, and what [`write_source`]
+/// returns.
 pub fn create(kind: Kind, dir: &Path, file_stem: &str) -> Result<Written> {
     let src = dir
         .ancestors()

@@ -23,6 +23,12 @@ use crate::syntax::parser::ast::{
 };
 
 /// The audit of the project in `project_dir`.
+///
+/// # Errors
+///
+/// What [`ProjectConfig::load`] and
+/// [`read_project_with`](crate::build::read_project_with) return: the
+/// config or the sources cannot be read, or the sources do not parse.
 pub fn audit_project(project_dir: &Path) -> Result<Report> {
     let mut config = ProjectConfig::load(project_dir)?;
     config.resolve_env(project_dir);

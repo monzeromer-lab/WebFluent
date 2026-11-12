@@ -119,6 +119,13 @@ impl LexerV2 {
         &self.comments
     }
 
+    /// The tokens of the whole source, ending in an end-of-file token.
+    ///
+    /// # Errors
+    ///
+    /// [`WebFluentError::LexerError`] at the first text it cannot read
+    /// (`E001`), or, in the indented layout, a line indented to no
+    /// enclosing block (`E003`).
     pub fn tokenize(&mut self) -> Result<Vec<Token>> {
         let mut tokens: Vec<Token> = Vec::new();
         loop {

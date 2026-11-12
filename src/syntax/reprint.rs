@@ -46,6 +46,10 @@ impl Patch {
 
 /// The source with `patches` applied. Two that overlap are a mistake in
 /// whoever made them, and nothing is changed.
+///
+/// # Errors
+///
+/// Why, when two patches overlap or one falls outside `source`.
 pub fn apply(source: &str, mut patches: Vec<Patch>) -> Result<String, String> {
     patches.sort_by_key(|p| (p.start, p.end));
     for pair in patches.windows(2) {

@@ -73,12 +73,23 @@ impl Options {
 }
 
 /// Write a new project named `name` into `dir`, which must not exist yet.
+///
+/// # Errors
+///
+/// [`WebFluentError::IoError`] when `dir` exists or a file cannot be written.
 pub fn create(dir: &Path, name: &str, template: Template) -> Result<()> {
     create_with(dir, name, &Options::new(template))
 }
 
 /// Write a new project named `name` into `dir`, which must not exist yet,
 /// as `options` say — translated into `options.locales` when it names any.
+///
+/// # Errors
+///
+/// [`WebFluentError::ConfigError`] when `options.locales` names a locale
+/// that is not one, names one twice, or is given to a PDF or slides
+/// template; [`WebFluentError::IoError`] when `dir` exists or a file
+/// cannot be written.
 pub fn create_with(dir: &Path, name: &str, options: &Options) -> Result<()> {
     let template = options.template;
     let locales = if options.locales.is_empty() {
@@ -205,6 +216,10 @@ pub fn skill_files() -> Vec<(&'static str, &'static str)> {
 }
 
 /// The locales of `wf init --locales en,ar`, checked: the default first.
+///
+/// # Errors
+///
+/// What [`check_locales`] returns for the list.
 pub fn parse_locales(list: &str) -> Result<Vec<String>> {
     let locales: Vec<String> = list
         .split(',')
@@ -218,6 +233,11 @@ pub fn parse_locales(list: &str) -> Result<Vec<String>> {
 /// `en`, `ar`, `pt-BR`, `zh-Hant` — written the usual way (the language in
 /// lower case, a region in upper, a script in title case), none twice, and
 /// at least one. The first is the default.
+///
+/// # Errors
+///
+/// [`WebFluentError::ConfigError`] when there is none, one is not a
+/// language tag, or one is named twice.
 pub fn check_locales(locales: &[String]) -> Result<Vec<String>> {
     if locales.is_empty() {
         return Err(WebFluentError::ConfigError(

@@ -88,6 +88,10 @@ pub(crate) fn drawn_in_pdf(name: &str) -> bool {
 /// Whether an output draws a built-in, and why not when it does not — what
 /// a build refuses with `E109`, asked of one name. A web page draws every
 /// built-in.
+///
+/// # Errors
+///
+/// Why `output` does not draw `name`, when it does not.
 pub fn drawn_in(
     output: crate::project::config::OutputType,
     name: &str,

@@ -217,6 +217,10 @@ pub fn reference_core() -> String {
 /// A section of the reference by its heading's title (`Data Fetching`),
 /// from its heading to the next of its level or higher, and the titles
 /// of all of them when none is named so.
+///
+/// # Errors
+///
+/// The title of every section, when none is called `title`.
 pub fn reference_section(title: &str) -> std::result::Result<String, Vec<String>> {
     let lines: Vec<&str> = reference().lines().collect();
     let mut fenced = false;
@@ -336,6 +340,12 @@ fn tree(vfs: &dyn Vfs, dir: &Path) -> Vec<String> {
 /// it (`vfs`: an unsaved buffer is the one read), with `open` the file in
 /// the editor (a path inside the project) and its selection, and the guide
 /// to the given depth.
+///
+/// # Errors
+///
+/// What [`ProjectConfig::load_if_present_via`](crate::project::config::ProjectConfig::load_if_present_via)
+/// returns: the project's `webfluent.app.json` is there but cannot be read
+/// or is not a config.
 pub fn context_via(
     vfs: &dyn Vfs,
     dir: &Path,

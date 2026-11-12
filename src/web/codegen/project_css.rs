@@ -47,11 +47,20 @@ fn walk(vfs: &dyn Vfs, dir: &Path, files: &mut Vec<PathBuf>) {
 
 /// The author's stylesheets under `src_dir`, bundled in path order, each
 /// under a marker that names its file. Empty when there are none.
+///
+/// # Errors
+///
+/// What [`bundle_via`] returns.
 pub fn bundle(project_dir: &Path, src_dir: &Path) -> Result<String> {
     bundle_via(&FsVfs, project_dir, src_dir)
 }
 
 /// [`bundle`], reading through `vfs`.
+///
+/// # Errors
+///
+/// [`IoError`](crate::diagnostics::error::WebFluentError::IoError), naming
+/// the file, when a stylesheet cannot be read as text.
 pub fn bundle_via(vfs: &dyn Vfs, project_dir: &Path, src_dir: &Path) -> Result<String> {
     let mut out = String::new();
     for path in find_stylesheets_via(vfs, src_dir) {

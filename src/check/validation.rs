@@ -534,6 +534,12 @@ pub fn all(program: &Program, translated: bool) -> Vec<Must> {
 
 /// The rules `state` in `owner` is held to, in the project at `dir` as the
 /// editor holds it: an unsaved edit is the one read.
+///
+/// # Errors
+///
+/// What [`read_project_collecting_via`](crate::project::sources::read_project_collecting_via)
+/// and [`ProjectConfig::load_via`](crate::project::config::ProjectConfig::load_via)
+/// return: the project's sources or its config cannot be read.
 pub fn must_be_via(
     vfs: &dyn crate::base::vfs::Vfs,
     dir: &std::path::Path,
@@ -694,6 +700,12 @@ fn place_for(body: &[Statement], at: usize) -> usize {
 /// changing the block in its narrowest piece, creating it after the state
 /// when there is none, and taking it out when `rules` is empty. Every
 /// other byte of the file stays as it was.
+///
+/// # Errors
+///
+/// [`EditError`](crate::diagnostics::error::WebFluentError::EditError) when a rule is not one a `validate` block may
+/// hold or its text does not read, or `owner` declares no state `state`;
+/// and what [`rewrite_body`](crate::check::edit::rewrite_body) returns.
 pub fn write_rules(
     source: &str,
     file: &str,
@@ -799,6 +811,11 @@ fn keep_one_line(
 }
 
 /// The block's rules as source text, to edit one and write them back.
+///
+/// # Errors
+///
+/// A lexer or parse error when `source` does not read, and [`EditError`](crate::diagnostics::error::WebFluentError::EditError)
+/// when `owner` declares no state `state`.
 pub fn rule_texts(source: &str, file: &str, owner: &str, state: &str) -> Result<Vec<RuleText>> {
     let program = crate::syntax::parse_source(source, file)?;
     if must_be(&program, owner, state, false).is_none() {
@@ -834,6 +851,11 @@ pub fn rule_texts(source: &str, file: &str, owner: &str, state: &str) -> Result<
 /// Set the rule at `index` of the block (the rules the block writes, not
 /// the ones the type implies) to `rule`, or add it at the end when `index`
 /// is none.
+///
+/// # Errors
+///
+/// What [`rule_texts`] and [`write_rules`] return, and [`EditError`](crate::diagnostics::error::WebFluentError::EditError)
+/// when the block has no rule at `index`.
 pub fn set_rule(
     source: &str,
     file: &str,
@@ -856,6 +878,11 @@ pub fn set_rule(
 }
 
 /// Take out the rule at `index`; the block goes with its last rule.
+///
+/// # Errors
+///
+/// What [`rule_texts`] and [`write_rules`] return, and [`EditError`](crate::diagnostics::error::WebFluentError::EditError)
+/// when the block has no rule at `index`.
 pub fn remove_rule(
     source: &str,
     file: &str,
@@ -875,6 +902,11 @@ pub fn remove_rule(
 
 /// Move the rule at `from` to `to`: the rules are checked, and their
 /// messages shown, in order.
+///
+/// # Errors
+///
+/// What [`rule_texts`] and [`write_rules`] return, and [`EditError`](crate::diagnostics::error::WebFluentError::EditError)
+/// when the block has no rule at `from` or `to`.
 pub fn move_rule(
     source: &str,
     file: &str,

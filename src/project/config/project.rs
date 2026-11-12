@@ -1222,11 +1222,21 @@ impl ProjectConfig {
             .collect()
     }
 
+    /// The config of the project in `project_dir`, read from the disk.
+    ///
+    /// # Errors
+    ///
+    /// What [`load_via`](Self::load_via) returns.
     pub fn load(project_dir: &Path) -> Result<Self> {
         Self::load_via(&crate::base::vfs::FsVfs, project_dir)
     }
 
     /// [`load`](Self::load), reading through `vfs`.
+    ///
+    /// # Errors
+    ///
+    /// [`WebFluentError::ConfigError`] when there is no `webfluent.app.json` or
+    /// it is not a config, and [`WebFluentError::IoError`] when it cannot be read.
     pub fn load_via(vfs: &dyn crate::base::vfs::Vfs, project_dir: &Path) -> Result<Self> {
         let config_path = project_dir.join("webfluent.app.json");
         if !vfs.exists(&config_path) {

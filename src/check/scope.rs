@@ -1050,6 +1050,12 @@ pub mod paths {
     /// What a path picker lists at `offset` in `file` (relative to `dir`,
     /// as `src/pages/Signup.wf`), in the project as the editor holds it: an
     /// unsaved edit is the one read.
+    ///
+    /// # Errors
+    ///
+    /// [`IoError`](crate::diagnostics::error::WebFluentError::IoError) when
+    /// `src/` is missing, holds no source file, or has a file that cannot be
+    /// read.
     pub fn at_via(
         vfs: &dyn crate::base::vfs::Vfs,
         dir: &std::path::Path,

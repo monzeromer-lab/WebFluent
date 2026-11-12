@@ -58,6 +58,13 @@ pub fn declared_themes(program: &Program) -> Vec<&ThemeDecl> {
 /// `config.name` selects among several declared themes. With exactly one
 /// declaration it can be left unset — the obvious case should not need
 /// ceremony. With none, the baseline is used.
+///
+/// # Errors
+///
+/// [`WebFluentError::ConfigError`] when `config.name` names no declared
+/// theme, or is unset and several are declared; and
+/// [`WebFluentError::CodegenError`] when a token of the theme is not a
+/// literal.
 pub fn resolve_tokens(program: &Program, config: &ThemeConfig) -> Result<HashMap<String, String>> {
     let mut tokens = super::tokens::default_tokens();
 
@@ -98,6 +105,12 @@ pub fn apply_motion(
 
 /// The tokens of the dark theme the config names, as written: what the
 /// sheet overrides when the reader prefers dark, or asked for it.
+///
+/// # Errors
+///
+/// [`WebFluentError::ConfigError`] when `config.dark` names no declared
+/// theme, and [`WebFluentError::CodegenError`] when a token of it is not a
+/// literal.
 pub fn resolve_dark_tokens(
     program: &Program,
     config: &ThemeConfig,

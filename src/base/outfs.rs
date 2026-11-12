@@ -135,6 +135,12 @@ impl Memory {
     }
 }
 
+/// Writes `contents` to the file at `path`, as [`std::fs::write`] does.
+///
+/// # Errors
+///
+/// The disk's [`io::Error`] when the file cannot be written, naming the
+/// path. A capture never fails.
 pub fn write(path: impl AsRef<Path>, contents: impl AsRef<[u8]>) -> io::Result<()> {
     let path = path.as_ref();
     let contents = contents.as_ref();
@@ -150,6 +156,12 @@ pub fn write(path: impl AsRef<Path>, contents: impl AsRef<[u8]>) -> io::Result<(
     )
 }
 
+/// Makes the directory at `path` and every one above it that is missing.
+///
+/// # Errors
+///
+/// The disk's [`io::Error`] when a directory cannot be made, naming the
+/// path. A capture never fails.
 pub fn create_dir_all(path: impl AsRef<Path>) -> io::Result<()> {
     let path = path.as_ref();
     with(
@@ -161,6 +173,12 @@ pub fn create_dir_all(path: impl AsRef<Path>) -> io::Result<()> {
     )
 }
 
+/// The bytes of the file at `path`.
+///
+/// # Errors
+///
+/// An [`io::Error`] naming the path when the file cannot be read; in a
+/// capture, [`io::ErrorKind::NotFound`] when nothing was written there.
 pub fn read(path: impl AsRef<Path>) -> io::Result<Vec<u8>> {
     let path = path.as_ref();
     with(
@@ -169,6 +187,12 @@ pub fn read(path: impl AsRef<Path>) -> io::Result<Vec<u8>> {
     )
 }
 
+/// The text of the file at `path`.
+///
+/// # Errors
+///
+/// What [`read`] returns, and [`io::ErrorKind::InvalidData`] when the
+/// file is not UTF-8.
 pub fn read_to_string(path: impl AsRef<Path>) -> io::Result<String> {
     let path = path.as_ref();
     let bytes = read(path)?;
@@ -180,6 +204,12 @@ pub fn read_to_string(path: impl AsRef<Path>) -> io::Result<String> {
     })
 }
 
+/// Removes the file at `path`.
+///
+/// # Errors
+///
+/// An [`io::Error`] naming the path when the file cannot be removed; in a
+/// capture, [`io::ErrorKind::NotFound`] when nothing was written there.
 pub fn remove_file(path: impl AsRef<Path>) -> io::Result<()> {
     let path = path.as_ref();
     with(
@@ -193,6 +223,12 @@ pub fn remove_file(path: impl AsRef<Path>) -> io::Result<()> {
     )
 }
 
+/// Copies the file at `from` to `to`.
+///
+/// # Errors
+///
+/// An [`io::Error`] naming `from` when the copy fails; in a capture, what
+/// [`read`] returns for `from`.
 pub fn copy(from: impl AsRef<Path>, to: impl AsRef<Path>) -> io::Result<()> {
     let (from, to) = (from.as_ref(), to.as_ref());
     if capturing() {
@@ -202,6 +238,12 @@ pub fn copy(from: impl AsRef<Path>, to: impl AsRef<Path>) -> io::Result<()> {
     }
 }
 
+/// Moves the file at `from` to `to`.
+///
+/// # Errors
+///
+/// An [`io::Error`] naming `from` when the move fails; in a capture, what
+/// [`read`] and [`remove_file`] return for `from`.
 pub fn rename(from: impl AsRef<Path>, to: impl AsRef<Path>) -> io::Result<()> {
     let (from, to) = (from.as_ref(), to.as_ref());
     if capturing() {
@@ -214,6 +256,11 @@ pub fn rename(from: impl AsRef<Path>, to: impl AsRef<Path>) -> io::Result<()> {
 }
 
 /// The length of the file at `path`.
+///
+/// # Errors
+///
+/// An [`io::Error`] naming the path when the file cannot be read; in a
+/// capture, [`io::ErrorKind::NotFound`] when nothing was written there.
 pub fn len(path: impl AsRef<Path>) -> io::Result<u64> {
     let path = path.as_ref();
     with(
@@ -247,6 +294,12 @@ pub fn is_dir(path: impl AsRef<Path>) -> bool {
 
 /// The entries of the directory at `path`, each as `path` joined with its
 /// name, sorted.
+///
+/// # Errors
+///
+/// An [`io::Error`] when the directory or one of its entries cannot be
+/// read; in a capture, [`io::ErrorKind::NotFound`] when `path` is no
+/// directory written there.
 pub fn read_dir(path: impl AsRef<Path>) -> io::Result<Vec<PathBuf>> {
     let path = path.as_ref();
     with(
