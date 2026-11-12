@@ -119,7 +119,7 @@ pub fn group_of(name: &str, in_baseline: bool) -> &'static str {
 /// a bare `$name` (`style_tokens`): every curated property, and its sides.
 pub fn drawn_by(group: &str) -> Vec<&'static str> {
     let mut out: Vec<&'static str> = Vec::new();
-    for (_, props) in crate::style_value::CURATED {
+    for (_, props) in crate::paged::style_value::CURATED {
         for p in *props {
             if crate::registry::style_tokens::token_group(p) == Some(group) && !out.contains(p) {
                 out.push(p);

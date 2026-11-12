@@ -205,9 +205,7 @@ pub use syntax::print;
 
 pub use syntax::reprint;
 
-/// Style values as data: what shape a property's value has, the value read
-/// into its parts, and the narrowest declaration written back.
-pub mod style_value;
+pub use paged::style_value;
 
 pub use web::motion;
 

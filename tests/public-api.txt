@@ -6468,6 +6468,228 @@ pub fn webfluent::paged::style::parse_family_list(&str) -> alloc::vec::Vec<alloc
 pub fn webfluent::paged::style::shadows(&str, &webfluent::paged::style::Units) -> alloc::vec::Vec<webfluent::paged::style::Shadow>
 pub fn webfluent::paged::style::substitute_vars(&str, &std::collections::hash::map::HashMap<alloc::string::String, alloc::string::String>) -> alloc::string::String
 pub fn webfluent::paged::style::tracks(&str, &webfluent::paged::style::Units) -> alloc::vec::Vec<webfluent::paged::style::Track>
+pub mod webfluent::paged::style_value
+pub enum webfluent::paged::style_value::Line
+pub webfluent::paged::style_value::Line::At
+pub webfluent::paged::style_value::Line::At::n: i64
+pub webfluent::paged::style_value::Line::Auto
+pub webfluent::paged::style_value::Line::Named
+pub webfluent::paged::style_value::Line::Named::name: alloc::string::String
+pub webfluent::paged::style_value::Line::Span
+pub webfluent::paged::style_value::Line::Span::n: u32
+impl webfluent::paged::style_value::Line
+pub fn webfluent::paged::style_value::Line::text(&self) -> alloc::string::String
+impl core::clone::Clone for webfluent::paged::style_value::Line
+pub fn webfluent::paged::style_value::Line::clone(&self) -> Self
+impl core::cmp::Eq for webfluent::paged::style_value::Line
+impl core::cmp::PartialEq for webfluent::paged::style_value::Line
+pub fn webfluent::paged::style_value::Line::eq(&self, &Self) -> bool
+impl core::fmt::Debug for webfluent::paged::style_value::Line
+pub fn webfluent::paged::style_value::Line::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for webfluent::paged::style_value::Line
+impl serde_core::ser::Serialize for webfluent::paged::style_value::Line
+pub fn webfluent::paged::style_value::Line::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl core::marker::Freeze for webfluent::paged::style_value::Line
+impl core::marker::Send for webfluent::paged::style_value::Line
+impl core::marker::Sync for webfluent::paged::style_value::Line
+impl core::marker::Unpin for webfluent::paged::style_value::Line
+impl core::marker::UnsafeUnpin for webfluent::paged::style_value::Line
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::paged::style_value::Line
+impl core::panic::unwind_safe::UnwindSafe for webfluent::paged::style_value::Line
+pub enum webfluent::paged::style_value::Part
+pub webfluent::paged::style_value::Part::Call
+pub webfluent::paged::style_value::Part::Call::text: alloc::string::String
+pub webfluent::paged::style_value::Part::Hex
+pub webfluent::paged::style_value::Part::Hex::text: alloc::string::String
+pub webfluent::paged::style_value::Part::Number
+pub webfluent::paged::style_value::Part::Number::unit: alloc::string::String
+pub webfluent::paged::style_value::Part::Number::value: f64
+pub webfluent::paged::style_value::Part::Splice
+pub webfluent::paged::style_value::Part::Splice::text: alloc::string::String
+pub webfluent::paged::style_value::Part::Token
+pub webfluent::paged::style_value::Part::Token::name: alloc::string::String
+pub webfluent::paged::style_value::Part::Word
+pub webfluent::paged::style_value::Part::Word::text: alloc::string::String
+impl webfluent::paged::style_value::Part
+pub fn webfluent::paged::style_value::Part::text(&self) -> alloc::string::String
+impl core::clone::Clone for webfluent::paged::style_value::Part
+pub fn webfluent::paged::style_value::Part::clone(&self) -> Self
+impl core::cmp::PartialEq for webfluent::paged::style_value::Part
+pub fn webfluent::paged::style_value::Part::eq(&self, &Self) -> bool
+impl core::fmt::Debug for webfluent::paged::style_value::Part
+pub fn webfluent::paged::style_value::Part::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for webfluent::paged::style_value::Part
+impl serde_core::ser::Serialize for webfluent::paged::style_value::Part
+pub fn webfluent::paged::style_value::Part::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl core::marker::Freeze for webfluent::paged::style_value::Part
+impl core::marker::Send for webfluent::paged::style_value::Part
+impl core::marker::Sync for webfluent::paged::style_value::Part
+impl core::marker::Unpin for webfluent::paged::style_value::Part
+impl core::marker::UnsafeUnpin for webfluent::paged::style_value::Part
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::paged::style_value::Part
+impl core::panic::unwind_safe::UnwindSafe for webfluent::paged::style_value::Part
+pub enum webfluent::paged::style_value::Shape
+pub webfluent::paged::style_value::Shape::Box
+pub webfluent::paged::style_value::Shape::Color
+pub webfluent::paged::style_value::Shape::Composite
+pub webfluent::paged::style_value::Shape::Corners
+pub webfluent::paged::style_value::Shape::Easing
+pub webfluent::paged::style_value::Shape::Enum
+pub webfluent::paged::style_value::Shape::Free
+pub webfluent::paged::style_value::Shape::Length
+pub webfluent::paged::style_value::Shape::List
+pub webfluent::paged::style_value::Shape::Number
+pub webfluent::paged::style_value::Shape::Paint
+pub webfluent::paged::style_value::Shape::Pair
+pub webfluent::paged::style_value::Shape::Placement
+pub webfluent::paged::style_value::Shape::Time
+pub webfluent::paged::style_value::Shape::Tracks
+impl core::clone::Clone for webfluent::paged::style_value::Shape
+pub fn webfluent::paged::style_value::Shape::clone(&self) -> Self
+impl core::cmp::Eq for webfluent::paged::style_value::Shape
+impl core::cmp::PartialEq for webfluent::paged::style_value::Shape
+pub fn webfluent::paged::style_value::Shape::eq(&self, &Self) -> bool
+impl core::fmt::Debug for webfluent::paged::style_value::Shape
+pub fn webfluent::paged::style_value::Shape::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for webfluent::paged::style_value::Shape
+impl core::marker::StructuralPartialEq for webfluent::paged::style_value::Shape
+impl serde_core::ser::Serialize for webfluent::paged::style_value::Shape
+pub fn webfluent::paged::style_value::Shape::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl core::marker::Freeze for webfluent::paged::style_value::Shape
+impl core::marker::Send for webfluent::paged::style_value::Shape
+impl core::marker::Sync for webfluent::paged::style_value::Shape
+impl core::marker::Unpin for webfluent::paged::style_value::Shape
+impl core::marker::UnsafeUnpin for webfluent::paged::style_value::Shape
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::paged::style_value::Shape
+impl core::panic::unwind_safe::UnwindSafe for webfluent::paged::style_value::Shape
+pub enum webfluent::paged::style_value::StyleEdit
+pub webfluent::paged::style_value::StyleEdit::Remove
+pub webfluent::paged::style_value::StyleEdit::Remove::name: alloc::string::String
+pub webfluent::paged::style_value::StyleEdit::Set
+pub webfluent::paged::style_value::StyleEdit::Set::name: alloc::string::String
+pub webfluent::paged::style_value::StyleEdit::Set::value: alloc::string::String
+impl core::clone::Clone for webfluent::paged::style_value::StyleEdit
+pub fn webfluent::paged::style_value::StyleEdit::clone(&self) -> Self
+impl core::cmp::Eq for webfluent::paged::style_value::StyleEdit
+impl core::cmp::PartialEq for webfluent::paged::style_value::StyleEdit
+pub fn webfluent::paged::style_value::StyleEdit::eq(&self, &Self) -> bool
+impl core::fmt::Debug for webfluent::paged::style_value::StyleEdit
+pub fn webfluent::paged::style_value::StyleEdit::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for webfluent::paged::style_value::StyleEdit
+impl serde_core::ser::Serialize for webfluent::paged::style_value::StyleEdit
+pub fn webfluent::paged::style_value::StyleEdit::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl core::marker::Freeze for webfluent::paged::style_value::StyleEdit
+impl core::marker::Send for webfluent::paged::style_value::StyleEdit
+impl core::marker::Sync for webfluent::paged::style_value::StyleEdit
+impl core::marker::Unpin for webfluent::paged::style_value::StyleEdit
+impl core::marker::UnsafeUnpin for webfluent::paged::style_value::StyleEdit
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::paged::style_value::StyleEdit
+impl core::panic::unwind_safe::UnwindSafe for webfluent::paged::style_value::StyleEdit
+pub enum webfluent::paged::style_value::Value
+pub webfluent::paged::style_value::Value::Box
+pub webfluent::paged::style_value::Value::Box::sides: [webfluent::paged::style_value::Part; 4]
+pub webfluent::paged::style_value::Value::Composite
+pub webfluent::paged::style_value::Value::Composite::parts: alloc::vec::Vec<webfluent::paged::style_value::Part>
+pub webfluent::paged::style_value::Value::Corners
+pub webfluent::paged::style_value::Value::Corners::corners: [webfluent::paged::style_value::Part; 4]
+pub webfluent::paged::style_value::Value::Free
+pub webfluent::paged::style_value::Value::Free::text: alloc::string::String
+pub webfluent::paged::style_value::Value::Gradient
+pub webfluent::paged::style_value::Value::Gradient::direction: core::option::Option<alloc::string::String>
+pub webfluent::paged::style_value::Value::Gradient::kind: alloc::string::String
+pub webfluent::paged::style_value::Value::Gradient::stops: alloc::vec::Vec<webfluent::paged::style_value::Stop>
+pub webfluent::paged::style_value::Value::Layers
+pub webfluent::paged::style_value::Value::Layers::layers: alloc::vec::Vec<alloc::vec::Vec<webfluent::paged::style_value::Part>>
+pub webfluent::paged::style_value::Value::One
+pub webfluent::paged::style_value::Value::One::part: webfluent::paged::style_value::Part
+pub webfluent::paged::style_value::Value::Pair
+pub webfluent::paged::style_value::Value::Pair::end: webfluent::paged::style_value::Part
+pub webfluent::paged::style_value::Value::Pair::start: webfluent::paged::style_value::Part
+pub webfluent::paged::style_value::Value::Placement
+pub webfluent::paged::style_value::Value::Placement::end: core::option::Option<webfluent::paged::style_value::Line>
+pub webfluent::paged::style_value::Value::Placement::start: webfluent::paged::style_value::Line
+pub webfluent::paged::style_value::Value::Tracks
+pub webfluent::paged::style_value::Value::Tracks::tracks: alloc::vec::Vec<webfluent::paged::style_value::Part>
+impl core::clone::Clone for webfluent::paged::style_value::Value
+pub fn webfluent::paged::style_value::Value::clone(&self) -> Self
+impl core::cmp::PartialEq for webfluent::paged::style_value::Value
+pub fn webfluent::paged::style_value::Value::eq(&self, &Self) -> bool
+impl core::fmt::Debug for webfluent::paged::style_value::Value
+pub fn webfluent::paged::style_value::Value::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for webfluent::paged::style_value::Value
+impl serde_core::ser::Serialize for webfluent::paged::style_value::Value
+pub fn webfluent::paged::style_value::Value::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl core::marker::Freeze for webfluent::paged::style_value::Value
+impl core::marker::Send for webfluent::paged::style_value::Value
+impl core::marker::Sync for webfluent::paged::style_value::Value
+impl core::marker::Unpin for webfluent::paged::style_value::Value
+impl core::marker::UnsafeUnpin for webfluent::paged::style_value::Value
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::paged::style_value::Value
+impl core::panic::unwind_safe::UnwindSafe for webfluent::paged::style_value::Value
+pub struct webfluent::paged::style_value::Property
+pub webfluent::paged::style_value::Property::cases: &'static [&'static str]
+pub webfluent::paged::style_value::Property::group: &'static str
+pub webfluent::paged::style_value::Property::name: alloc::string::String
+pub webfluent::paged::style_value::Property::on_paper: bool
+pub webfluent::paged::style_value::Property::range: core::option::Option<(f64, f64)>
+pub webfluent::paged::style_value::Property::shape: webfluent::paged::style_value::Shape
+pub webfluent::paged::style_value::Property::suffixes: &'static [&'static str]
+pub webfluent::paged::style_value::Property::tokens: core::option::Option<&'static str>
+impl core::clone::Clone for webfluent::paged::style_value::Property
+pub fn webfluent::paged::style_value::Property::clone(&self) -> Self
+impl core::cmp::PartialEq for webfluent::paged::style_value::Property
+pub fn webfluent::paged::style_value::Property::eq(&self, &Self) -> bool
+impl core::fmt::Debug for webfluent::paged::style_value::Property
+pub fn webfluent::paged::style_value::Property::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for webfluent::paged::style_value::Property
+impl serde_core::ser::Serialize for webfluent::paged::style_value::Property
+pub fn webfluent::paged::style_value::Property::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl core::marker::Freeze for webfluent::paged::style_value::Property
+impl core::marker::Send for webfluent::paged::style_value::Property
+impl core::marker::Sync for webfluent::paged::style_value::Property
+impl core::marker::Unpin for webfluent::paged::style_value::Property
+impl core::marker::UnsafeUnpin for webfluent::paged::style_value::Property
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::paged::style_value::Property
+impl core::panic::unwind_safe::UnwindSafe for webfluent::paged::style_value::Property
+pub struct webfluent::paged::style_value::Stop
+pub webfluent::paged::style_value::Stop::at: core::option::Option<webfluent::paged::style_value::Part>
+pub webfluent::paged::style_value::Stop::color: webfluent::paged::style_value::Part
+impl core::clone::Clone for webfluent::paged::style_value::Stop
+pub fn webfluent::paged::style_value::Stop::clone(&self) -> Self
+impl core::cmp::PartialEq for webfluent::paged::style_value::Stop
+pub fn webfluent::paged::style_value::Stop::eq(&self, &Self) -> bool
+impl core::fmt::Debug for webfluent::paged::style_value::Stop
+pub fn webfluent::paged::style_value::Stop::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for webfluent::paged::style_value::Stop
+impl serde_core::ser::Serialize for webfluent::paged::style_value::Stop
+pub fn webfluent::paged::style_value::Stop::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl core::marker::Freeze for webfluent::paged::style_value::Stop
+impl core::marker::Send for webfluent::paged::style_value::Stop
+impl core::marker::Sync for webfluent::paged::style_value::Stop
+impl core::marker::Unpin for webfluent::paged::style_value::Stop
+impl core::marker::UnsafeUnpin for webfluent::paged::style_value::Stop
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::paged::style_value::Stop
+impl core::panic::unwind_safe::UnwindSafe for webfluent::paged::style_value::Stop
+pub const webfluent::paged::style_value::CURATED: &[(&str, &[&str])]
+pub const webfluent::paged::style_value::NOT_ON_PAPER: &str
+pub fn webfluent::paged::style_value::box_declarations(&str, &[core::option::Option<webfluent::paged::style_value::Part>; 4]) -> alloc::vec::Vec<(alloc::string::String, alloc::string::String)>
+pub fn webfluent::paged::style_value::catalogue() -> alloc::vec::Vec<webfluent::paged::style_value::Property>
+pub fn webfluent::paged::style_value::cell(i64, u32) -> webfluent::paged::style_value::Value
+pub fn webfluent::paged::style_value::edit_box(&[(&str, &str)], &str, usize, webfluent::paged::style_value::Part) -> alloc::vec::Vec<webfluent::paged::style_value::StyleEdit>
+pub fn webfluent::paged::style_value::edit_pair(&[(&str, &str)], &str, usize, webfluent::paged::style_value::Part) -> alloc::vec::Vec<webfluent::paged::style_value::StyleEdit>
+pub fn webfluent::paged::style_value::edit_placement(&[(&str, &str)], &str, &webfluent::paged::style_value::Value) -> alloc::vec::Vec<webfluent::paged::style_value::StyleEdit>
+pub fn webfluent::paged::style_value::logical(&str, bool) -> core::option::Option<alloc::string::String>
+pub fn webfluent::paged::style_value::narrowest(&[webfluent::paged::style_value::Part; 4]) -> alloc::vec::Vec<webfluent::paged::style_value::Part>
+pub fn webfluent::paged::style_value::pair_of(&str) -> core::option::Option<[alloc::string::String; 2]>
+pub fn webfluent::paged::style_value::parse(&str, &str) -> webfluent::paged::style_value::Value
+pub fn webfluent::paged::style_value::part(&str) -> core::option::Option<webfluent::paged::style_value::Part>
+pub fn webfluent::paged::style_value::physical(&str, bool) -> core::option::Option<alloc::string::String>
+pub fn webfluent::paged::style_value::print(&str, &webfluent::paged::style_value::Value) -> alloc::string::String
+pub fn webfluent::paged::style_value::property(&str) -> webfluent::paged::style_value::Property
+pub fn webfluent::paged::style_value::read_box(&[(&str, &str)], &str) -> [core::option::Option<webfluent::paged::style_value::Part>; 4]
+pub fn webfluent::paged::style_value::read_pair(&[(&str, &str)], &str) -> [core::option::Option<webfluent::paged::style_value::Part>; 2]
+pub fn webfluent::paged::style_value::read_placement(&[(&str, &str)], &str) -> core::option::Option<webfluent::paged::style_value::Value>
+pub fn webfluent::paged::style_value::sides_of(&str) -> core::option::Option<[alloc::string::String; 4]>
 pub mod webfluent::paged::text
 pub enum webfluent::paged::text::Item
 pub webfluent::paged::text::Item::Atom
@@ -10815,25 +11037,25 @@ pub webfluent::style_value::Line::Named
 pub webfluent::style_value::Line::Named::name: alloc::string::String
 pub webfluent::style_value::Line::Span
 pub webfluent::style_value::Line::Span::n: u32
-impl webfluent::style_value::Line
-pub fn webfluent::style_value::Line::text(&self) -> alloc::string::String
-impl core::clone::Clone for webfluent::style_value::Line
-pub fn webfluent::style_value::Line::clone(&self) -> Self
-impl core::cmp::Eq for webfluent::style_value::Line
-impl core::cmp::PartialEq for webfluent::style_value::Line
-pub fn webfluent::style_value::Line::eq(&self, &Self) -> bool
-impl core::fmt::Debug for webfluent::style_value::Line
-pub fn webfluent::style_value::Line::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl core::marker::StructuralPartialEq for webfluent::style_value::Line
-impl serde_core::ser::Serialize for webfluent::style_value::Line
-pub fn webfluent::style_value::Line::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
-impl core::marker::Freeze for webfluent::style_value::Line
-impl core::marker::Send for webfluent::style_value::Line
-impl core::marker::Sync for webfluent::style_value::Line
-impl core::marker::Unpin for webfluent::style_value::Line
-impl core::marker::UnsafeUnpin for webfluent::style_value::Line
-impl core::panic::unwind_safe::RefUnwindSafe for webfluent::style_value::Line
-impl core::panic::unwind_safe::UnwindSafe for webfluent::style_value::Line
+impl webfluent::paged::style_value::Line
+pub fn webfluent::paged::style_value::Line::text(&self) -> alloc::string::String
+impl core::clone::Clone for webfluent::paged::style_value::Line
+pub fn webfluent::paged::style_value::Line::clone(&self) -> Self
+impl core::cmp::Eq for webfluent::paged::style_value::Line
+impl core::cmp::PartialEq for webfluent::paged::style_value::Line
+pub fn webfluent::paged::style_value::Line::eq(&self, &Self) -> bool
+impl core::fmt::Debug for webfluent::paged::style_value::Line
+pub fn webfluent::paged::style_value::Line::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for webfluent::paged::style_value::Line
+impl serde_core::ser::Serialize for webfluent::paged::style_value::Line
+pub fn webfluent::paged::style_value::Line::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl core::marker::Freeze for webfluent::paged::style_value::Line
+impl core::marker::Send for webfluent::paged::style_value::Line
+impl core::marker::Sync for webfluent::paged::style_value::Line
+impl core::marker::Unpin for webfluent::paged::style_value::Line
+impl core::marker::UnsafeUnpin for webfluent::paged::style_value::Line
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::paged::style_value::Line
+impl core::panic::unwind_safe::UnwindSafe for webfluent::paged::style_value::Line
 pub enum webfluent::style_value::Part
 pub webfluent::style_value::Part::Call
 pub webfluent::style_value::Part::Call::text: alloc::string::String
@@ -10848,24 +11070,24 @@ pub webfluent::style_value::Part::Token
 pub webfluent::style_value::Part::Token::name: alloc::string::String
 pub webfluent::style_value::Part::Word
 pub webfluent::style_value::Part::Word::text: alloc::string::String
-impl webfluent::style_value::Part
-pub fn webfluent::style_value::Part::text(&self) -> alloc::string::String
-impl core::clone::Clone for webfluent::style_value::Part
-pub fn webfluent::style_value::Part::clone(&self) -> Self
-impl core::cmp::PartialEq for webfluent::style_value::Part
-pub fn webfluent::style_value::Part::eq(&self, &Self) -> bool
-impl core::fmt::Debug for webfluent::style_value::Part
-pub fn webfluent::style_value::Part::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl core::marker::StructuralPartialEq for webfluent::style_value::Part
-impl serde_core::ser::Serialize for webfluent::style_value::Part
-pub fn webfluent::style_value::Part::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
-impl core::marker::Freeze for webfluent::style_value::Part
-impl core::marker::Send for webfluent::style_value::Part
-impl core::marker::Sync for webfluent::style_value::Part
-impl core::marker::Unpin for webfluent::style_value::Part
-impl core::marker::UnsafeUnpin for webfluent::style_value::Part
-impl core::panic::unwind_safe::RefUnwindSafe for webfluent::style_value::Part
-impl core::panic::unwind_safe::UnwindSafe for webfluent::style_value::Part
+impl webfluent::paged::style_value::Part
+pub fn webfluent::paged::style_value::Part::text(&self) -> alloc::string::String
+impl core::clone::Clone for webfluent::paged::style_value::Part
+pub fn webfluent::paged::style_value::Part::clone(&self) -> Self
+impl core::cmp::PartialEq for webfluent::paged::style_value::Part
+pub fn webfluent::paged::style_value::Part::eq(&self, &Self) -> bool
+impl core::fmt::Debug for webfluent::paged::style_value::Part
+pub fn webfluent::paged::style_value::Part::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for webfluent::paged::style_value::Part
+impl serde_core::ser::Serialize for webfluent::paged::style_value::Part
+pub fn webfluent::paged::style_value::Part::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl core::marker::Freeze for webfluent::paged::style_value::Part
+impl core::marker::Send for webfluent::paged::style_value::Part
+impl core::marker::Sync for webfluent::paged::style_value::Part
+impl core::marker::Unpin for webfluent::paged::style_value::Part
+impl core::marker::UnsafeUnpin for webfluent::paged::style_value::Part
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::paged::style_value::Part
+impl core::panic::unwind_safe::UnwindSafe for webfluent::paged::style_value::Part
 pub enum webfluent::style_value::Shape
 pub webfluent::style_value::Shape::Box
 pub webfluent::style_value::Shape::Color
@@ -10882,151 +11104,151 @@ pub webfluent::style_value::Shape::Pair
 pub webfluent::style_value::Shape::Placement
 pub webfluent::style_value::Shape::Time
 pub webfluent::style_value::Shape::Tracks
-impl core::clone::Clone for webfluent::style_value::Shape
-pub fn webfluent::style_value::Shape::clone(&self) -> Self
-impl core::cmp::Eq for webfluent::style_value::Shape
-impl core::cmp::PartialEq for webfluent::style_value::Shape
-pub fn webfluent::style_value::Shape::eq(&self, &Self) -> bool
-impl core::fmt::Debug for webfluent::style_value::Shape
-pub fn webfluent::style_value::Shape::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl core::marker::Copy for webfluent::style_value::Shape
-impl core::marker::StructuralPartialEq for webfluent::style_value::Shape
-impl serde_core::ser::Serialize for webfluent::style_value::Shape
-pub fn webfluent::style_value::Shape::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
-impl core::marker::Freeze for webfluent::style_value::Shape
-impl core::marker::Send for webfluent::style_value::Shape
-impl core::marker::Sync for webfluent::style_value::Shape
-impl core::marker::Unpin for webfluent::style_value::Shape
-impl core::marker::UnsafeUnpin for webfluent::style_value::Shape
-impl core::panic::unwind_safe::RefUnwindSafe for webfluent::style_value::Shape
-impl core::panic::unwind_safe::UnwindSafe for webfluent::style_value::Shape
+impl core::clone::Clone for webfluent::paged::style_value::Shape
+pub fn webfluent::paged::style_value::Shape::clone(&self) -> Self
+impl core::cmp::Eq for webfluent::paged::style_value::Shape
+impl core::cmp::PartialEq for webfluent::paged::style_value::Shape
+pub fn webfluent::paged::style_value::Shape::eq(&self, &Self) -> bool
+impl core::fmt::Debug for webfluent::paged::style_value::Shape
+pub fn webfluent::paged::style_value::Shape::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Copy for webfluent::paged::style_value::Shape
+impl core::marker::StructuralPartialEq for webfluent::paged::style_value::Shape
+impl serde_core::ser::Serialize for webfluent::paged::style_value::Shape
+pub fn webfluent::paged::style_value::Shape::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl core::marker::Freeze for webfluent::paged::style_value::Shape
+impl core::marker::Send for webfluent::paged::style_value::Shape
+impl core::marker::Sync for webfluent::paged::style_value::Shape
+impl core::marker::Unpin for webfluent::paged::style_value::Shape
+impl core::marker::UnsafeUnpin for webfluent::paged::style_value::Shape
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::paged::style_value::Shape
+impl core::panic::unwind_safe::UnwindSafe for webfluent::paged::style_value::Shape
 pub enum webfluent::style_value::StyleEdit
 pub webfluent::style_value::StyleEdit::Remove
 pub webfluent::style_value::StyleEdit::Remove::name: alloc::string::String
 pub webfluent::style_value::StyleEdit::Set
 pub webfluent::style_value::StyleEdit::Set::name: alloc::string::String
 pub webfluent::style_value::StyleEdit::Set::value: alloc::string::String
-impl core::clone::Clone for webfluent::style_value::StyleEdit
-pub fn webfluent::style_value::StyleEdit::clone(&self) -> Self
-impl core::cmp::Eq for webfluent::style_value::StyleEdit
-impl core::cmp::PartialEq for webfluent::style_value::StyleEdit
-pub fn webfluent::style_value::StyleEdit::eq(&self, &Self) -> bool
-impl core::fmt::Debug for webfluent::style_value::StyleEdit
-pub fn webfluent::style_value::StyleEdit::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl core::marker::StructuralPartialEq for webfluent::style_value::StyleEdit
-impl serde_core::ser::Serialize for webfluent::style_value::StyleEdit
-pub fn webfluent::style_value::StyleEdit::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
-impl core::marker::Freeze for webfluent::style_value::StyleEdit
-impl core::marker::Send for webfluent::style_value::StyleEdit
-impl core::marker::Sync for webfluent::style_value::StyleEdit
-impl core::marker::Unpin for webfluent::style_value::StyleEdit
-impl core::marker::UnsafeUnpin for webfluent::style_value::StyleEdit
-impl core::panic::unwind_safe::RefUnwindSafe for webfluent::style_value::StyleEdit
-impl core::panic::unwind_safe::UnwindSafe for webfluent::style_value::StyleEdit
+impl core::clone::Clone for webfluent::paged::style_value::StyleEdit
+pub fn webfluent::paged::style_value::StyleEdit::clone(&self) -> Self
+impl core::cmp::Eq for webfluent::paged::style_value::StyleEdit
+impl core::cmp::PartialEq for webfluent::paged::style_value::StyleEdit
+pub fn webfluent::paged::style_value::StyleEdit::eq(&self, &Self) -> bool
+impl core::fmt::Debug for webfluent::paged::style_value::StyleEdit
+pub fn webfluent::paged::style_value::StyleEdit::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for webfluent::paged::style_value::StyleEdit
+impl serde_core::ser::Serialize for webfluent::paged::style_value::StyleEdit
+pub fn webfluent::paged::style_value::StyleEdit::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl core::marker::Freeze for webfluent::paged::style_value::StyleEdit
+impl core::marker::Send for webfluent::paged::style_value::StyleEdit
+impl core::marker::Sync for webfluent::paged::style_value::StyleEdit
+impl core::marker::Unpin for webfluent::paged::style_value::StyleEdit
+impl core::marker::UnsafeUnpin for webfluent::paged::style_value::StyleEdit
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::paged::style_value::StyleEdit
+impl core::panic::unwind_safe::UnwindSafe for webfluent::paged::style_value::StyleEdit
 pub enum webfluent::style_value::Value
 pub webfluent::style_value::Value::Box
-pub webfluent::style_value::Value::Box::sides: [webfluent::style_value::Part; 4]
+pub webfluent::style_value::Value::Box::sides: [webfluent::paged::style_value::Part; 4]
 pub webfluent::style_value::Value::Composite
-pub webfluent::style_value::Value::Composite::parts: alloc::vec::Vec<webfluent::style_value::Part>
+pub webfluent::style_value::Value::Composite::parts: alloc::vec::Vec<webfluent::paged::style_value::Part>
 pub webfluent::style_value::Value::Corners
-pub webfluent::style_value::Value::Corners::corners: [webfluent::style_value::Part; 4]
+pub webfluent::style_value::Value::Corners::corners: [webfluent::paged::style_value::Part; 4]
 pub webfluent::style_value::Value::Free
 pub webfluent::style_value::Value::Free::text: alloc::string::String
 pub webfluent::style_value::Value::Gradient
 pub webfluent::style_value::Value::Gradient::direction: core::option::Option<alloc::string::String>
 pub webfluent::style_value::Value::Gradient::kind: alloc::string::String
-pub webfluent::style_value::Value::Gradient::stops: alloc::vec::Vec<webfluent::style_value::Stop>
+pub webfluent::style_value::Value::Gradient::stops: alloc::vec::Vec<webfluent::paged::style_value::Stop>
 pub webfluent::style_value::Value::Layers
-pub webfluent::style_value::Value::Layers::layers: alloc::vec::Vec<alloc::vec::Vec<webfluent::style_value::Part>>
+pub webfluent::style_value::Value::Layers::layers: alloc::vec::Vec<alloc::vec::Vec<webfluent::paged::style_value::Part>>
 pub webfluent::style_value::Value::One
-pub webfluent::style_value::Value::One::part: webfluent::style_value::Part
+pub webfluent::style_value::Value::One::part: webfluent::paged::style_value::Part
 pub webfluent::style_value::Value::Pair
-pub webfluent::style_value::Value::Pair::end: webfluent::style_value::Part
-pub webfluent::style_value::Value::Pair::start: webfluent::style_value::Part
+pub webfluent::style_value::Value::Pair::end: webfluent::paged::style_value::Part
+pub webfluent::style_value::Value::Pair::start: webfluent::paged::style_value::Part
 pub webfluent::style_value::Value::Placement
-pub webfluent::style_value::Value::Placement::end: core::option::Option<webfluent::style_value::Line>
-pub webfluent::style_value::Value::Placement::start: webfluent::style_value::Line
+pub webfluent::style_value::Value::Placement::end: core::option::Option<webfluent::paged::style_value::Line>
+pub webfluent::style_value::Value::Placement::start: webfluent::paged::style_value::Line
 pub webfluent::style_value::Value::Tracks
-pub webfluent::style_value::Value::Tracks::tracks: alloc::vec::Vec<webfluent::style_value::Part>
-impl core::clone::Clone for webfluent::style_value::Value
-pub fn webfluent::style_value::Value::clone(&self) -> Self
-impl core::cmp::PartialEq for webfluent::style_value::Value
-pub fn webfluent::style_value::Value::eq(&self, &Self) -> bool
-impl core::fmt::Debug for webfluent::style_value::Value
-pub fn webfluent::style_value::Value::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl core::marker::StructuralPartialEq for webfluent::style_value::Value
-impl serde_core::ser::Serialize for webfluent::style_value::Value
-pub fn webfluent::style_value::Value::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
-impl core::marker::Freeze for webfluent::style_value::Value
-impl core::marker::Send for webfluent::style_value::Value
-impl core::marker::Sync for webfluent::style_value::Value
-impl core::marker::Unpin for webfluent::style_value::Value
-impl core::marker::UnsafeUnpin for webfluent::style_value::Value
-impl core::panic::unwind_safe::RefUnwindSafe for webfluent::style_value::Value
-impl core::panic::unwind_safe::UnwindSafe for webfluent::style_value::Value
+pub webfluent::style_value::Value::Tracks::tracks: alloc::vec::Vec<webfluent::paged::style_value::Part>
+impl core::clone::Clone for webfluent::paged::style_value::Value
+pub fn webfluent::paged::style_value::Value::clone(&self) -> Self
+impl core::cmp::PartialEq for webfluent::paged::style_value::Value
+pub fn webfluent::paged::style_value::Value::eq(&self, &Self) -> bool
+impl core::fmt::Debug for webfluent::paged::style_value::Value
+pub fn webfluent::paged::style_value::Value::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for webfluent::paged::style_value::Value
+impl serde_core::ser::Serialize for webfluent::paged::style_value::Value
+pub fn webfluent::paged::style_value::Value::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl core::marker::Freeze for webfluent::paged::style_value::Value
+impl core::marker::Send for webfluent::paged::style_value::Value
+impl core::marker::Sync for webfluent::paged::style_value::Value
+impl core::marker::Unpin for webfluent::paged::style_value::Value
+impl core::marker::UnsafeUnpin for webfluent::paged::style_value::Value
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::paged::style_value::Value
+impl core::panic::unwind_safe::UnwindSafe for webfluent::paged::style_value::Value
 pub struct webfluent::style_value::Property
 pub webfluent::style_value::Property::cases: &'static [&'static str]
 pub webfluent::style_value::Property::group: &'static str
 pub webfluent::style_value::Property::name: alloc::string::String
 pub webfluent::style_value::Property::on_paper: bool
 pub webfluent::style_value::Property::range: core::option::Option<(f64, f64)>
-pub webfluent::style_value::Property::shape: webfluent::style_value::Shape
+pub webfluent::style_value::Property::shape: webfluent::paged::style_value::Shape
 pub webfluent::style_value::Property::suffixes: &'static [&'static str]
 pub webfluent::style_value::Property::tokens: core::option::Option<&'static str>
-impl core::clone::Clone for webfluent::style_value::Property
-pub fn webfluent::style_value::Property::clone(&self) -> Self
-impl core::cmp::PartialEq for webfluent::style_value::Property
-pub fn webfluent::style_value::Property::eq(&self, &Self) -> bool
-impl core::fmt::Debug for webfluent::style_value::Property
-pub fn webfluent::style_value::Property::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl core::marker::StructuralPartialEq for webfluent::style_value::Property
-impl serde_core::ser::Serialize for webfluent::style_value::Property
-pub fn webfluent::style_value::Property::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
-impl core::marker::Freeze for webfluent::style_value::Property
-impl core::marker::Send for webfluent::style_value::Property
-impl core::marker::Sync for webfluent::style_value::Property
-impl core::marker::Unpin for webfluent::style_value::Property
-impl core::marker::UnsafeUnpin for webfluent::style_value::Property
-impl core::panic::unwind_safe::RefUnwindSafe for webfluent::style_value::Property
-impl core::panic::unwind_safe::UnwindSafe for webfluent::style_value::Property
+impl core::clone::Clone for webfluent::paged::style_value::Property
+pub fn webfluent::paged::style_value::Property::clone(&self) -> Self
+impl core::cmp::PartialEq for webfluent::paged::style_value::Property
+pub fn webfluent::paged::style_value::Property::eq(&self, &Self) -> bool
+impl core::fmt::Debug for webfluent::paged::style_value::Property
+pub fn webfluent::paged::style_value::Property::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for webfluent::paged::style_value::Property
+impl serde_core::ser::Serialize for webfluent::paged::style_value::Property
+pub fn webfluent::paged::style_value::Property::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl core::marker::Freeze for webfluent::paged::style_value::Property
+impl core::marker::Send for webfluent::paged::style_value::Property
+impl core::marker::Sync for webfluent::paged::style_value::Property
+impl core::marker::Unpin for webfluent::paged::style_value::Property
+impl core::marker::UnsafeUnpin for webfluent::paged::style_value::Property
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::paged::style_value::Property
+impl core::panic::unwind_safe::UnwindSafe for webfluent::paged::style_value::Property
 pub struct webfluent::style_value::Stop
-pub webfluent::style_value::Stop::at: core::option::Option<webfluent::style_value::Part>
-pub webfluent::style_value::Stop::color: webfluent::style_value::Part
-impl core::clone::Clone for webfluent::style_value::Stop
-pub fn webfluent::style_value::Stop::clone(&self) -> Self
-impl core::cmp::PartialEq for webfluent::style_value::Stop
-pub fn webfluent::style_value::Stop::eq(&self, &Self) -> bool
-impl core::fmt::Debug for webfluent::style_value::Stop
-pub fn webfluent::style_value::Stop::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
-impl core::marker::StructuralPartialEq for webfluent::style_value::Stop
-impl serde_core::ser::Serialize for webfluent::style_value::Stop
-pub fn webfluent::style_value::Stop::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
-impl core::marker::Freeze for webfluent::style_value::Stop
-impl core::marker::Send for webfluent::style_value::Stop
-impl core::marker::Sync for webfluent::style_value::Stop
-impl core::marker::Unpin for webfluent::style_value::Stop
-impl core::marker::UnsafeUnpin for webfluent::style_value::Stop
-impl core::panic::unwind_safe::RefUnwindSafe for webfluent::style_value::Stop
-impl core::panic::unwind_safe::UnwindSafe for webfluent::style_value::Stop
+pub webfluent::style_value::Stop::at: core::option::Option<webfluent::paged::style_value::Part>
+pub webfluent::style_value::Stop::color: webfluent::paged::style_value::Part
+impl core::clone::Clone for webfluent::paged::style_value::Stop
+pub fn webfluent::paged::style_value::Stop::clone(&self) -> Self
+impl core::cmp::PartialEq for webfluent::paged::style_value::Stop
+pub fn webfluent::paged::style_value::Stop::eq(&self, &Self) -> bool
+impl core::fmt::Debug for webfluent::paged::style_value::Stop
+pub fn webfluent::paged::style_value::Stop::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::StructuralPartialEq for webfluent::paged::style_value::Stop
+impl serde_core::ser::Serialize for webfluent::paged::style_value::Stop
+pub fn webfluent::paged::style_value::Stop::serialize<__S>(&self, __S) -> core::result::Result<<__S as serde_core::ser::Serializer>::Ok, <__S as serde_core::ser::Serializer>::Error> where __S: serde_core::ser::Serializer
+impl core::marker::Freeze for webfluent::paged::style_value::Stop
+impl core::marker::Send for webfluent::paged::style_value::Stop
+impl core::marker::Sync for webfluent::paged::style_value::Stop
+impl core::marker::Unpin for webfluent::paged::style_value::Stop
+impl core::marker::UnsafeUnpin for webfluent::paged::style_value::Stop
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::paged::style_value::Stop
+impl core::panic::unwind_safe::UnwindSafe for webfluent::paged::style_value::Stop
 pub const webfluent::style_value::CURATED: &[(&str, &[&str])]
 pub const webfluent::style_value::NOT_ON_PAPER: &str
-pub fn webfluent::style_value::box_declarations(&str, &[core::option::Option<webfluent::style_value::Part>; 4]) -> alloc::vec::Vec<(alloc::string::String, alloc::string::String)>
-pub fn webfluent::style_value::catalogue() -> alloc::vec::Vec<webfluent::style_value::Property>
-pub fn webfluent::style_value::cell(i64, u32) -> webfluent::style_value::Value
-pub fn webfluent::style_value::edit_box(&[(&str, &str)], &str, usize, webfluent::style_value::Part) -> alloc::vec::Vec<webfluent::style_value::StyleEdit>
-pub fn webfluent::style_value::edit_pair(&[(&str, &str)], &str, usize, webfluent::style_value::Part) -> alloc::vec::Vec<webfluent::style_value::StyleEdit>
-pub fn webfluent::style_value::edit_placement(&[(&str, &str)], &str, &webfluent::style_value::Value) -> alloc::vec::Vec<webfluent::style_value::StyleEdit>
+pub fn webfluent::style_value::box_declarations(&str, &[core::option::Option<webfluent::paged::style_value::Part>; 4]) -> alloc::vec::Vec<(alloc::string::String, alloc::string::String)>
+pub fn webfluent::style_value::catalogue() -> alloc::vec::Vec<webfluent::paged::style_value::Property>
+pub fn webfluent::style_value::cell(i64, u32) -> webfluent::paged::style_value::Value
+pub fn webfluent::style_value::edit_box(&[(&str, &str)], &str, usize, webfluent::paged::style_value::Part) -> alloc::vec::Vec<webfluent::paged::style_value::StyleEdit>
+pub fn webfluent::style_value::edit_pair(&[(&str, &str)], &str, usize, webfluent::paged::style_value::Part) -> alloc::vec::Vec<webfluent::paged::style_value::StyleEdit>
+pub fn webfluent::style_value::edit_placement(&[(&str, &str)], &str, &webfluent::paged::style_value::Value) -> alloc::vec::Vec<webfluent::paged::style_value::StyleEdit>
 pub fn webfluent::style_value::logical(&str, bool) -> core::option::Option<alloc::string::String>
-pub fn webfluent::style_value::narrowest(&[webfluent::style_value::Part; 4]) -> alloc::vec::Vec<webfluent::style_value::Part>
+pub fn webfluent::style_value::narrowest(&[webfluent::paged::style_value::Part; 4]) -> alloc::vec::Vec<webfluent::paged::style_value::Part>
 pub fn webfluent::style_value::pair_of(&str) -> core::option::Option<[alloc::string::String; 2]>
-pub fn webfluent::style_value::parse(&str, &str) -> webfluent::style_value::Value
-pub fn webfluent::style_value::part(&str) -> core::option::Option<webfluent::style_value::Part>
+pub fn webfluent::style_value::parse(&str, &str) -> webfluent::paged::style_value::Value
+pub fn webfluent::style_value::part(&str) -> core::option::Option<webfluent::paged::style_value::Part>
 pub fn webfluent::style_value::physical(&str, bool) -> core::option::Option<alloc::string::String>
-pub fn webfluent::style_value::print(&str, &webfluent::style_value::Value) -> alloc::string::String
-pub fn webfluent::style_value::property(&str) -> webfluent::style_value::Property
-pub fn webfluent::style_value::read_box(&[(&str, &str)], &str) -> [core::option::Option<webfluent::style_value::Part>; 4]
-pub fn webfluent::style_value::read_pair(&[(&str, &str)], &str) -> [core::option::Option<webfluent::style_value::Part>; 2]
-pub fn webfluent::style_value::read_placement(&[(&str, &str)], &str) -> core::option::Option<webfluent::style_value::Value>
+pub fn webfluent::style_value::print(&str, &webfluent::paged::style_value::Value) -> alloc::string::String
+pub fn webfluent::style_value::property(&str) -> webfluent::paged::style_value::Property
+pub fn webfluent::style_value::read_box(&[(&str, &str)], &str) -> [core::option::Option<webfluent::paged::style_value::Part>; 4]
+pub fn webfluent::style_value::read_pair(&[(&str, &str)], &str) -> [core::option::Option<webfluent::paged::style_value::Part>; 2]
+pub fn webfluent::style_value::read_placement(&[(&str, &str)], &str) -> core::option::Option<webfluent::paged::style_value::Value>
 pub fn webfluent::style_value::sides_of(&str) -> core::option::Option<[alloc::string::String; 4]>
 pub mod webfluent::syntax
 pub mod webfluent::syntax::fmt

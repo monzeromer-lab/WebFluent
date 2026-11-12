@@ -1617,7 +1617,7 @@ mod tests {
         assert!(drawn_on_paper("--brand"));
         // And every property the style inspector curates that is not in
         // DRAWN is one the engine leaves alone.
-        for (_, props) in crate::style_value::CURATED {
+        for (_, props) in crate::paged::style_value::CURATED {
             for p in props.iter().filter(|p| !drawn_on_paper(p)) {
                 assert_eq!(
                     set(p, sample(p)),
