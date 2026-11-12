@@ -707,8 +707,24 @@ built-in. The build's output, PDFs included, is unchanged.
   attribute pass would change what is generated, because several of
   them read its attributes, so it was not done.
 
-Still to do in this phase: splitting `element_parts`' argument loop, one
-expression emitter (`emit_expr` and `emit_store_expr`), `with_locals`, the checker's borrow and
+**One expression and one statement emitter (2026-11-12).**
+`emit_expr_in(expr, Cx)` matches on the expression and its place
+(`Cx::Page` or `Cx::Store(states)`). What both share is written once:
+literals, operators, `?.` chains, the `match` and `if` value forms, lists,
+maps and cases. Each place keeps its own name resolution, property
+signals, method holder and calls. `emit_statement_in(stmt, StmtCx)` does
+the same for statements, so `if`, `for`, `try`, `return` and a log are
+written once over `scope_mark`, `bind` and `scope_reset`.
+- `with_locals(cx, names, f)` binds a lambda's parameters or an `if let`'s
+  value for one place.
+- `emit_expr` and `emit_store_expr` (and the two statement emitters) stay
+  as thin wrappers, so no caller changed.
+- The output is byte-identical.
+- Left as found: about 17 push/truncate pairs in the DOM's `if`, `for` and
+  `match` emitters. They work on `&mut self`, where the mark/reset
+  helpers fit, not a closure.
+
+Still to do in this phase: splitting `element_parts`' argument loop, the checker's borrow and
 `ProgramIndex` work, errors, state, panics, public surface and API shape).
 
 These can run in any order once their layer exists. Each PR is
