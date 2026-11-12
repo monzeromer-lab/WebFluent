@@ -315,14 +315,14 @@ impl fmt::Display for TokenType {
             TokenType::TemporalLiteral(t) => write!(f, "@{t}"),
             TokenType::ColorLiteral(c) => write!(f, "#{c}"),
             TokenType::MoneyLiteral(symbol, amount) => write!(f, "{symbol}{amount}"),
-            TokenType::NumberLiteral(n) => write!(f, "{}", n),
-            TokenType::BoolLiteral(b) => write!(f, "{}", b),
+            TokenType::NumberLiteral(n) => write!(f, "{n}"),
+            TokenType::BoolLiteral(b) => write!(f, "{b}"),
             TokenType::Null => write!(f, "null"),
-            TokenType::Identifier(s) => write!(f, "{}", s),
-            TokenType::Event(s) => write!(f, "on:{}", s),
+            TokenType::Identifier(s) => write!(f, "{s}"),
+            TokenType::Event(s) => write!(f, "on:{s}"),
             TokenType::EOF => write!(f, "EOF"),
             TokenType::TypeList => write!(f, "List"),
-            other => write!(f, "{:?}", other),
+            other => write!(f, "{other:?}"),
         }
     }
 }

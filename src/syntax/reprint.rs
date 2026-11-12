@@ -562,10 +562,10 @@ pub fn body(
     interior: (usize, usize),
     block: Block,
 ) -> Vec<Patch> {
-    let depth = old
-        .first()
-        .map(|s| depth_at(source, s.span.start as usize))
-        .unwrap_or_else(|| depth_at(source, interior.0) + 1);
+    let depth = old.first().map_or_else(
+        || depth_at(source, interior.0) + 1,
+        |s| depth_at(source, s.span.start as usize),
+    );
     let mut out = Vec::new();
     diff_body(source, old, new, interior, block, depth, &mut out);
     out
@@ -589,8 +589,7 @@ fn diff_body(
     let new_units = regroup(new, new_units);
     let depth = old_units
         .first()
-        .map(|u| depth_at(source, u[0].span.start as usize))
-        .unwrap_or(depth);
+        .map_or(depth, |u| depth_at(source, u[0].span.start as usize));
     let pairs = lcs(&old_units, &new_units);
 
     // Walk the two in step: between two units that match, what is left of
@@ -830,7 +829,7 @@ fn diff_element(source: &str, a: &UIElement, b: &UIElement, out: &mut Vec<Patch>
             };
             match a.paren_span {
                 Some(p) if inside_parens => {
-                    out.push(Patch::new(p.start as usize, p.end as usize, text))
+                    out.push(Patch::new(p.start as usize, p.end as usize, text));
                 }
                 None if a.args.is_empty() => out.push(Patch::new(name_end, name_end, text)),
                 _ => return false,
@@ -1175,11 +1174,11 @@ fn diff_style(
     match last_end {
         Some(at) if a.media_queries.is_empty() && a.pseudo_blocks.is_empty() => {
             let at = end_of_line(source, at);
-            out.push(Patch::new(at, at, text))
+            out.push(Patch::new(at, at, text));
         }
         Some(_) | None => {
             out.retain(|p| p.start < span.0 || p.end > span.1);
-            whole(out)
+            whole(out);
         }
     }
 }
@@ -1620,7 +1619,7 @@ fn diff_component(
         .map(|i| i.text.as_str())
         .ne(slots_new.iter().map(String::as_str))
     {
-        let front = events_old.last().map(|i| i.end).unwrap_or(interior.0);
+        let front = events_old.last().map_or(interior.0, |i| i.end);
         diff_items(source, &slots_old, &slots_new, front, inner, out);
     }
     let parts_a = parts_of(pa, &x.name);

@@ -168,7 +168,7 @@ impl LexerV2 {
         match &token.token_type {
             TokenType::OpenParen | TokenType::OpenBracket => self.parens += 1,
             TokenType::CloseParen | TokenType::CloseBracket => {
-                self.parens = self.parens.saturating_sub(1)
+                self.parens = self.parens.saturating_sub(1);
             }
             TokenType::OpenBrace => self.explicit += 1,
             TokenType::CloseBrace => self.explicit = self.explicit.saturating_sub(1),
@@ -736,7 +736,7 @@ impl LexerV2 {
         while self
             .source
             .get(self.pos + 1 + n)
-            .is_some_and(|c| c.is_ascii_hexdigit())
+            .is_some_and(char::is_ascii_hexdigit)
         {
             n += 1;
         }

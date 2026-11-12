@@ -193,7 +193,7 @@ impl Type {
     /// Whether a value of `self` may be given where `to` is expected.
     pub(super) fn assignable_to(&self, to: &Type) -> bool {
         match (self, to) {
-            (Type::Any, _) | (_, Type::Any) | (Type::Never, _) => true,
+            (Type::Any | Type::Never, _) | (_, Type::Any) => true,
             (Type::Case(_), Type::Enum(_)) => true,
             (Type::Null, Type::Optional(_)) => true,
             (Type::Null, Type::Null) => true,
@@ -285,7 +285,10 @@ impl std::fmt::Display for Type {
             Type::Case(name) => write!(f, ".{name}"),
             Type::Optional(inner) => write!(f, "{inner}?"),
             Type::Func(params, ret) => {
-                let params: Vec<String> = params.iter().map(|p| p.to_string()).collect();
+                let params: Vec<String> = params
+                    .iter()
+                    .map(std::string::ToString::to_string)
+                    .collect();
                 if **ret == Type::Null {
                     write!(f, "action({})", params.join(", "))
                 } else {
@@ -336,12 +339,12 @@ pub(super) fn disjoint(a: &Type, b: &Type) -> bool {
     // string at run time.
     let a_fam = match a {
         Type::Scalar(Scalar::Duration) => Some(1),
-        Type::Scalar(Scalar::Money) | Type::Scalar(Scalar::File) => Some(4),
+        Type::Scalar(Scalar::Money | Scalar::File) => Some(4),
         other => family(other),
     };
     let b_fam = match b {
         Type::Scalar(Scalar::Duration) => Some(1),
-        Type::Scalar(Scalar::Money) | Type::Scalar(Scalar::File) => Some(4),
+        Type::Scalar(Scalar::Money | Scalar::File) => Some(4),
         other => family(other),
     };
     match (a_fam, b_fam) {

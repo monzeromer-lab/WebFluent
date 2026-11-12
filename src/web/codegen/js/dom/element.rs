@@ -30,7 +30,7 @@ impl JsCodegen {
                 self.emit_menu_sub(parent_name, &var, ui, parent);
             }
             ComponentRef::SubComponent(parent_name, sub_name) => {
-                self.emit_part(parent_name, sub_name, &var, ui, parent)
+                self.emit_part(parent_name, sub_name, &var, ui, parent);
             }
             ComponentRef::UserDefined(name) => self.emit_component_call(name, &var, ui, parent),
         }
@@ -56,8 +56,7 @@ impl JsCodegen {
                     .collect();
                 if handed.is_empty() {
                     self.emit_line(&format!(
-                        "if (typeof _slots.{slot} === 'function') {}.appendChild(_slots.{slot}());",
-                        parent
+                        "if (typeof _slots.{slot} === 'function') {parent}.appendChild(_slots.{slot}());"
                     ));
                 } else {
                     self.emit_line(&format!(
@@ -167,18 +166,18 @@ impl JsCodegen {
             "Toast" => {
                 // Imperative, not DOM-based: there is no element to style.
                 if let Some(text) = &inner_text {
-                    let variant = ui.modifiers.first().map(|m| m.as_str()).unwrap_or("info");
-                    self.emit_line(&format!("WF.toast({}, \"{}\");", text, variant));
+                    let variant = ui
+                        .modifiers
+                        .first()
+                        .map_or("info", std::string::String::as_str);
+                    self.emit_line(&format!("WF.toast({text}, \"{variant}\");"));
                 }
                 return;
             }
             "Spacer" => {
-                self.emit_line(&format!(
-                    "const {} = WF.el(\"{}\", {});",
-                    var, tag, attrs_str
-                ));
+                self.emit_line(&format!("const {var} = WF.el(\"{tag}\", {attrs_str});"));
                 self.emit_root_handlers(var, ui, false);
-                self.emit_line(&format!("{}.appendChild({});", parent, var));
+                self.emit_line(&format!("{parent}.appendChild({var});"));
                 true
             }
             "Sidebar" => {
@@ -254,7 +253,7 @@ impl JsCodegen {
         // took it into its `highlight` attribute above.
         if let Some(text) = &inner_text {
             if self.is_reactive(text) {
-                children_arr.push(format!("() => {}", text));
+                children_arr.push(format!("() => {text}"));
             } else {
                 children_arr.push(text.clone());
             }
@@ -275,10 +274,7 @@ impl JsCodegen {
         }
 
         if children_arr.is_empty() && ui.children.is_empty() {
-            self.emit_line(&format!(
-                "const {} = WF.el(\"{}\", {});",
-                var, tag, attrs_str
-            ));
+            self.emit_line(&format!("const {var} = WF.el(\"{tag}\", {attrs_str});"));
         } else if !children_arr.is_empty() && ui.children.is_empty() {
             self.emit_line(&format!(
                 "const {} = WF.el(\"{}\", {}, {});",
@@ -294,8 +290,7 @@ impl JsCodegen {
                 format!(", {}", children_arr.join(", "))
             };
             self.emit_line(&format!(
-                "const {} = WF.el(\"{}\", {}{});",
-                var, tag, attrs_str, extra
+                "const {var} = WF.el(\"{tag}\", {attrs_str}{extra});"
             ));
         }
 
@@ -327,11 +322,10 @@ impl JsCodegen {
         if name == "Navbar" && has_subcomponent(ui, "Navbar", "Links") {
             let toggle_var = self.fresh_var();
             self.emit_line(&format!(
-                        "const {} = WF.el(\"button\", {{ className: \"wf-navbar__toggle\",                          type: \"button\", \"aria-label\": \"Menu\", \"aria-expanded\": \"false\" }}, \"\\u2630\");",
-                        toggle_var
+                        "const {toggle_var} = WF.el(\"button\", {{ className: \"wf-navbar__toggle\",                          type: \"button\", \"aria-label\": \"Menu\", \"aria-expanded\": \"false\" }}, \"\\u2630\");"
                     ));
-            self.emit_line(&format!("{}.appendChild({});", var, toggle_var));
-            self.emit_line(&format!("WF.drawer({}, {}, null);", var, toggle_var));
+            self.emit_line(&format!("{var}.appendChild({toggle_var});"));
+            self.emit_line(&format!("WF.drawer({var}, {toggle_var}, null);"));
         }
 
         for handler in &ui.events {
@@ -422,7 +416,7 @@ impl JsCodegen {
                 opts.join(", ")
             ));
         } else {
-            self.emit_line(&format!("{}.appendChild({});", parent, var));
+            self.emit_line(&format!("{parent}.appendChild({var});"));
         }
     }
 
@@ -485,9 +479,9 @@ impl JsCodegen {
                 let value = self.emit_expr(v);
                 let key = attr_key(k);
                 if self.is_reactive(&value) {
-                    attrs.push(format!("{}: () => {}", key, value));
+                    attrs.push(format!("{key}: () => {value}"));
                 } else {
-                    attrs.push(format!("{}: {}", key, value));
+                    attrs.push(format!("{key}: {value}"));
                 }
             }
         }
@@ -519,7 +513,7 @@ impl JsCodegen {
         self.emit_style_and_transition(var, ui);
         self.emit_motion(var, ui);
         self.emit_host(var, ui);
-        self.emit_line(&format!("{}.appendChild({});", parent, var));
+        self.emit_line(&format!("{parent}.appendChild({var});"));
     }
 
     /// A call of a component the program declares: its props, its slots,
@@ -565,7 +559,7 @@ impl JsCodegen {
                 .collect();
             let on = format!("on: {{ {} }}", handlers.join(", "));
             args_obj = if args_obj == "{}" {
-                format!("{{ {} }}", on)
+                format!("{{ {on} }}")
             } else {
                 format!("{}, {} }}", &args_obj[..args_obj.len() - 2], on)
             };
@@ -603,9 +597,9 @@ impl JsCodegen {
                 .unwrap_or_default();
             for (slot, params, body) in fills {
                 if params.is_empty() {
-                    self.emit_line(&format!("{}: () => {{", slot));
+                    self.emit_line(&format!("{slot}: () => {{"));
                 } else {
-                    self.emit_line(&format!("{}: (_s) => {{", slot));
+                    self.emit_line(&format!("{slot}: (_s) => {{"));
                 }
                 self.indent += 1;
                 // A fill's names stand for what the slot hands over,
@@ -688,8 +682,7 @@ impl JsCodegen {
             .and_then(crate::project::scoped_css::scoped_class)
         {
             self.emit_line(&format!(
-                "WF.rootAttrs({}, {{ \"class\": \"{}\" }});",
-                var, class
+                "WF.rootAttrs({var}, {{ \"class\": \"{class}\" }});"
             ));
         }
         if !root_attrs.is_empty() {
@@ -713,7 +706,7 @@ impl JsCodegen {
                 attrs.join(", ")
             ));
         }
-        self.emit_line(&format!("{}.appendChild({});", parent, var));
+        self.emit_line(&format!("{parent}.appendChild({var});"));
     }
 
     /// The generic pass over a built-in's arguments: its tag, the attributes
@@ -830,7 +823,7 @@ impl JsCodegen {
                                 attrs.push(format!("checked: () => {}()", sig(state_name)));
                             } else {
                                 let v = self.emit_expr(val);
-                                attrs.push(format!("checked: {}", v));
+                                attrs.push(format!("checked: {v}"));
                             }
                         }
                         "visible" => {
@@ -884,9 +877,9 @@ impl JsCodegen {
                                 self.emit_expr(val)
                             };
                             if self.is_reactive(&v) {
-                                attrs.push(format!("{}: () => {}", key, v));
+                                attrs.push(format!("{key}: () => {v}"));
                             } else {
-                                attrs.push(format!("{}: {}", key, v));
+                                attrs.push(format!("{key}: {v}"));
                             }
                         }
                         "to" => {
@@ -894,12 +887,11 @@ impl JsCodegen {
                             link_to = Some(v.clone());
                             if self.ssg_mode {
                                 // SSG: plain links with base path prepended
-                                attrs.push(format!("href: WF._basePath + {}", v));
+                                attrs.push(format!("href: WF._basePath + {v}"));
                             } else {
-                                attrs.push(format!("href: {}", v));
+                                attrs.push(format!("href: {v}"));
                                 attrs.push(format!(
-                                            "\"on:click\": ($$e) => {{ $$e.preventDefault(); WF.navigate({}); }}",
-                                            v
+                                            "\"on:click\": ($$e) => {{ $$e.preventDefault(); WF.navigate({v}); }}"
                                         ));
                             }
                         }
@@ -911,7 +903,7 @@ impl JsCodegen {
                             if let Expr::NumberLiteral(n) = val
                                 && let Some(n) = crate::project::builtin::column_span(*n)
                             {
-                                classes.push(format!("{}--{}", class, n));
+                                classes.push(format!("{class}--{n}"));
                             }
                         }
                         "gap" | "align" | "justify" => {
@@ -941,7 +933,7 @@ impl JsCodegen {
                         // global attribute — the tooltip a pointer shows.
                         "title" if matches!(name, "Modal" | "Dialog") => {
                             let v = self.emit_expr(val);
-                            attrs.push(format!("\"data-title\": {}", v));
+                            attrs.push(format!("\"data-title\": {v}"));
                         }
                         "title" => {
                             let v = self.emit_expr(val);
@@ -961,17 +953,17 @@ impl JsCodegen {
                             // used to be painted once and never move.
                             let v = self.emit_expr(val);
                             if self.is_reactive(&v) {
-                                attrs.push(format!("value: () => {}", v));
+                                attrs.push(format!("value: () => {v}"));
                             } else {
-                                attrs.push(format!("value: {}", v));
+                                attrs.push(format!("value: {v}"));
                             }
                         }
                         "icon" => {
                             let v = self.emit_expr(val);
                             if self.is_reactive(&v) {
-                                attrs.push(format!("\"data-icon\": () => {}", v));
+                                attrs.push(format!("\"data-icon\": () => {v}"));
                             } else {
-                                attrs.push(format!("\"data-icon\": {}", v));
+                                attrs.push(format!("\"data-icon\": {v}"));
                             }
                         }
                         // `Code(…, language: "wf")`: paired with the
@@ -994,9 +986,9 @@ impl JsCodegen {
                             };
                             let k = attr_key(key);
                             if self.is_reactive(&v) {
-                                attrs.push(format!("{}: () => {}", k, v));
+                                attrs.push(format!("{k}: () => {v}"));
                             } else {
-                                attrs.push(format!("{}: {}", k, v));
+                                attrs.push(format!("{k}: {v}"));
                             }
                         }
                     }
@@ -1012,9 +1004,9 @@ impl JsCodegen {
                             // { "clock" })` was drawn once and kept.
                             let v = self.emit_expr(expr);
                             if self.is_reactive(&v) {
-                                attrs.push(format!("\"data-icon\": () => {}", v));
+                                attrs.push(format!("\"data-icon\": () => {v}"));
                             } else {
-                                attrs.push(format!("\"data-icon\": {}", v));
+                                attrs.push(format!("\"data-icon\": {v}"));
                             }
                         }
                         continue;
@@ -1045,7 +1037,7 @@ impl JsCodegen {
                         match self.markdown_inert(ui) {
                             None => attrs.push(format!("markdown: {getter}")),
                             Some(inert) => {
-                                attrs.push(format!("markdown: {{text: {getter}, inert: {inert}}}"))
+                                attrs.push(format!("markdown: {{text: {getter}, inert: {inert}}}"));
                             }
                         }
                         continue;
@@ -1057,7 +1049,7 @@ impl JsCodegen {
                     if name == "Option" && inner_text.is_some() {
                         if !attrs.iter().any(|a| a.starts_with("value:")) {
                             let v = inner_text.take().unwrap_or_default();
-                            attrs.push(format!("value: {}", v));
+                            attrs.push(format!("value: {v}"));
                             inner_text = Some(self.emit_expr(expr));
                         }
                         continue;
@@ -1084,7 +1076,7 @@ impl JsCodegen {
         // Handle input type modifiers
         for m in &ui.modifiers {
             if let Some(t) = input_type(m) {
-                attrs.push(format!("type: \"{}\"", t));
+                attrs.push(format!("type: \"{t}\""));
             } else if m == "required" {
                 attrs.push("required: true".to_string());
             } else if m == "multiple" {
@@ -1110,7 +1102,7 @@ impl JsCodegen {
             // Check if we already have a className (from visible binding)
             let has_class = attrs.iter().any(|a| a.starts_with("className:"));
             if !has_class {
-                attrs.insert(0, format!("className: \"{}\"", class_str));
+                attrs.insert(0, format!("className: \"{class_str}\""));
             }
         }
 
@@ -1153,7 +1145,7 @@ impl JsCodegen {
         if let Some(role) = implicit_role(name, &ui.modifiers)
             && !attrs.iter().any(|a| a.starts_with("role:"))
         {
-            attrs.push(format!("role: \"{}\"", role));
+            attrs.push(format!("role: \"{role}\""));
         }
 
         // Two `<nav>` landmarks on a page are two entries called
@@ -1162,7 +1154,7 @@ impl JsCodegen {
         if let Some(label) = landmark_label(name)
             && !attrs.iter().any(|a| a.starts_with("\"aria-label\":"))
         {
-            attrs.push(format!("\"aria-label\": \"{}\"", label));
+            attrs.push(format!("\"aria-label\": \"{label}\""));
         }
 
         // A void element cannot hold text. `WF.el("hr", {}, "label")` asks
@@ -1174,7 +1166,7 @@ impl JsCodegen {
                 .iter()
                 .any(|a| a.starts_with("alt:") || a.starts_with("title:"))
         {
-            attrs.push(format!("title: {}", text));
+            attrs.push(format!("title: {text}"));
         }
 
         if tag == "th" {
@@ -1390,11 +1382,8 @@ impl JsCodegen {
         if plays_on.as_deref() == Some("enterView")
             && let Some(animation) = animation_of(ui)
         {
-            let timing = |key: &str| {
-                named(key)
-                    .map(|v| self.emit_expr(v))
-                    .unwrap_or_else(|| "null".to_string())
-            };
+            let timing =
+                |key: &str| named(key).map_or_else(|| "null".to_string(), |v| self.emit_expr(v));
             self.emit_line(&format!(
                 "WF.onEnterView({var}, \"{animation}\", {}, {}, {});",
                 timing("duration"),
@@ -1441,16 +1430,16 @@ impl JsCodegen {
                 let assign = if prop.name.starts_with("--") {
                     format!("{}.style.setProperty(\"{}\", {});", var, prop.name, val)
                 } else {
-                    format!("{}.style.{} = {};", var, css_prop, val)
+                    format!("{var}.style.{css_prop} = {val};")
                 };
                 if self.is_reactive(&val) {
-                    self.emit_line(&format!("WF.effect(() => {{ {} }});", assign));
+                    self.emit_line(&format!("WF.effect(() => {{ {assign} }});"));
                 } else {
                     self.emit_line(&assign);
                 }
             }
             if let Some(class) = crate::project::scoped_css::scoped_class(style) {
-                self.emit_line(&format!("{}.classList.add(\"{}\");", var, class));
+                self.emit_line(&format!("{var}.classList.add(\"{class}\");"));
             }
         }
 
@@ -1472,12 +1461,12 @@ impl JsCodegen {
                         .map(|c| js_str(c))
                         .collect::<Vec<_>>()
                         .join(", ");
-                    self.emit_line(&format!("{}.classList.add({});", var, list));
+                    self.emit_line(&format!("{var}.classList.add({list});"));
                 }
             }
             Some(false) => {
                 let expr = class_value.map(|v| self.emit_expr(v)).unwrap_or_default();
-                self.emit_line(&format!("WF.classes({}, () => {});", var, expr));
+                self.emit_line(&format!("WF.classes({var}, () => {expr});"));
             }
             None => {}
         }
@@ -1490,8 +1479,7 @@ impl JsCodegen {
                     let easing = p
                         .easing
                         .as_deref()
-                        .map(crate::project::builtin::easing_css)
-                        .unwrap_or("ease");
+                        .map_or("ease", crate::project::builtin::easing_css);
                     format!("{} {} {}", p.property, p.duration, easing)
                 })
                 .collect();

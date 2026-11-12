@@ -2467,7 +2467,7 @@ test "home" {
     /// itself; and so does the file printed from its tree alone.
     #[test]
     fn every_kind_of_declaration_prints_back_as_itself() {
-        let source = r##"/// A record.
+        let source = r#"/// A record.
 type Note {
     /// Its id.
     id: String
@@ -2569,7 +2569,7 @@ test "a note"(data: { id: "1" }) {
     expect "1"
     click "Save"
 }
-"##;
+"#;
         let proven = prove_declarations(source, "t.wf").unwrap_or_else(|w| {
             panic!(
                 "{}",

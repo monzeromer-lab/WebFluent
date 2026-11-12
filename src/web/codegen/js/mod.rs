@@ -659,9 +659,9 @@ impl JsCodegen {
     /// by name in studio mode. Export builds emit the plain signal (unchanged).
     fn signal_init(&self, name: &str, value: &str) -> String {
         if self.studio {
-            format!("WF.__reg(\"{}\", WF.signal({}))", name, value)
+            format!("WF.__reg(\"{name}\", WF.signal({value}))")
         } else {
-            format!("WF.signal({})", value)
+            format!("WF.signal({value})")
         }
     }
 
@@ -694,9 +694,9 @@ impl JsCodegen {
     /// A `WF.computed(() => body)` initializer, registered in studio mode.
     fn computed_init(&self, name: &str, body: &str) -> String {
         if self.studio {
-            format!("WF.__reg(\"{}\", WF.computed(() => {}))", name, body)
+            format!("WF.__reg(\"{name}\", WF.computed(() => {body}))")
         } else {
-            format!("WF.computed(() => {})", body)
+            format!("WF.computed(() => {body})")
         }
     }
 
@@ -709,7 +709,7 @@ impl JsCodegen {
         }
         self.node_ids
             .id_in(&self.node_owner, ui.span)
-            .map(|id| format!("\"data-wf-node\": \"{}\"", id))
+            .map(|id| format!("\"data-wf-node\": \"{id}\""))
     }
 
     /// Leading-comma form (`, "data-wf-node": "<id>"`) for splicing into an
@@ -717,7 +717,7 @@ impl JsCodegen {
     /// when not in studio mode / the node has no id.
     fn wf_node_inline(&self, ui: &UIElement) -> String {
         self.wf_node_entry(ui)
-            .map(|e| format!(", {}", e))
+            .map(|e| format!(", {e}"))
             .unwrap_or_default()
     }
 
@@ -763,7 +763,7 @@ impl JsCodegen {
         };
         if self.split_pages {
             let css = if self.page_sheets.contains(page) {
-                format!("css: \"{}\", ", page)
+                format!("css: \"{page}\", ")
             } else {
                 String::new()
             };
@@ -799,7 +799,7 @@ impl JsCodegen {
                     named.push((k.clone(), v.to_json()));
                 }
                 Arg::Positional(e) => {
-                    positional = Some(crate::project::static_eval::eval(e, scope)?.to_json())
+                    positional = Some(crate::project::static_eval::eval(e, scope)?.to_json());
                 }
             }
         }
@@ -1112,7 +1112,7 @@ impl JsCodegen {
                 }
                 match self.router_lang_option() {
                     Some(lang) => {
-                        self.emit_line(&format!("WF.router(routes, container, {{ {lang} }});"))
+                        self.emit_line(&format!("WF.router(routes, container, {{ {lang} }});"));
                     }
                     None => self.emit_line("WF.router(routes, container);"),
                 }
@@ -1184,14 +1184,13 @@ impl JsCodegen {
     fn emit_line(&mut self, text: &str) {
         let indent = "  ".repeat(self.indent);
         let mark = self.pending_mark.take().unwrap_or_default();
-        self.output
-            .push_str(&format!("{}{}{}\n", indent, mark, text));
+        self.output.push_str(&format!("{indent}{mark}{text}\n"));
     }
 
     fn fresh_var(&self) -> String {
         let n = self.next_var.get();
         self.next_var.set(n + 1);
-        format!("_e{}", n)
+        format!("_e{n}")
     }
 
     fn emit_component_args(&self, component: &str, args: &[Arg]) -> String {
@@ -1202,7 +1201,7 @@ impl JsCodegen {
                 Arg::Named(name, _) if name.starts_with("data-wf-") => {}
                 Arg::Named(name, expr) => {
                     let key = if name.contains('-') {
-                        format!("\"{}\"", name)
+                        format!("\"{name}\"")
                     } else {
                         name.clone()
                     };
@@ -1210,9 +1209,9 @@ impl JsCodegen {
                     // A value that reads state is handed over as a getter, so
                     // the component tracks it instead of copying it once.
                     if self.is_reactive(&value) {
-                        parts.push(format!("get {}() {{ return {}; }}", key, value));
+                        parts.push(format!("get {key}() {{ return {value}; }}"));
                     } else {
-                        parts.push(format!("{}: {}", key, value));
+                        parts.push(format!("{key}: {value}"));
                     }
                 }
                 // A positional argument binds to the component's positional
@@ -1222,9 +1221,9 @@ impl JsCodegen {
                     if let Some(prop) = self.component_positional.get(component) {
                         let value = self.emit_expr(expr);
                         if self.is_reactive(&value) {
-                            parts.push(format!("get {}() {{ return {}; }}", prop, value));
+                            parts.push(format!("get {prop}() {{ return {value}; }}"));
                         } else {
-                            parts.push(format!("{}: {}", prop, value));
+                            parts.push(format!("{prop}: {value}"));
                         }
                     }
                 }

@@ -356,7 +356,7 @@ fn parse_box_shadow(s: &str) -> Option<BoxShadow> {
 fn parse_linear_gradient(s: &str) -> Option<LinearGradient> {
     let s = s.trim();
     let inner = s.strip_prefix("linear-gradient(")?.strip_suffix(')')?;
-    let parts: Vec<&str> = inner.split(',').map(|p| p.trim()).collect();
+    let parts: Vec<&str> = inner.split(',').map(str::trim).collect();
     if parts.len() < 2 {
         return None;
     }

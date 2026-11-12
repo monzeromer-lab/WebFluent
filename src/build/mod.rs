@@ -714,7 +714,7 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
         if warning_count == 0 {
             out.say("Build complete.");
         } else {
-            out.say(format!("Build complete with {} warning(s).", warning_count));
+            out.say(format!("Build complete with {warning_count} warning(s)."));
         }
         return Ok(());
     }
@@ -877,7 +877,7 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
         if warning_count == 0 {
             out.say("Build complete.");
         } else {
-            out.say(format!("Build complete with {} warning(s).", warning_count));
+            out.say(format!("Build complete with {warning_count} warning(s)."));
         }
         return Ok(());
     }
@@ -1193,13 +1193,11 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
     let locale_count = config.i18n.as_ref().map_or(0, |i| i.locales.len());
     if locale_count > 0 {
         out.say(format!(
-            "  {} pages, {} components, {} stores, {} locales",
-            page_count, comp_count, store_count, locale_count
+            "  {page_count} pages, {comp_count} components, {store_count} stores, {locale_count} locales"
         ));
     } else {
         out.say(format!(
-            "  {} pages, {} components, {} stores",
-            page_count, comp_count, store_count
+            "  {page_count} pages, {comp_count} components, {store_count} stores"
         ));
     }
     out.say(format!("  Output: {}/", config.build.output));
@@ -1234,7 +1232,7 @@ fn run(options: &BuildOptions, out: &Out) -> Result<()> {
     if warning_count == 0 {
         out.say("Build complete.");
     } else {
-        out.say(format!("Build complete with {} warning(s).", warning_count));
+        out.say(format!("Build complete with {warning_count} warning(s)."));
     }
 
     Ok(())
@@ -1628,9 +1626,7 @@ fn print_stats(
                 continue;
             }
             let bytes = fs::len(&path)? as usize;
-            let gz = fs::len(path.with_extension(format!("{ext}.gz")))
-                .map(|n| n as usize)
-                .unwrap_or(0);
+            let gz = fs::len(path.with_extension(format!("{ext}.gz"))).map_or(0, |n| n as usize);
             files.push((name.to_string(), bytes, gz));
         }
     }

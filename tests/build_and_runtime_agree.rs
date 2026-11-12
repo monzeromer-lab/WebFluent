@@ -108,7 +108,11 @@ fn every_runtime_function_the_compiler_can_call_exists() {
             .iter()
             .map(|(_, runtime)| runtime.to_string()),
     );
-    wanted.extend(LIST_AND_STRING_HELPERS.iter().map(|h| h.to_string()));
+    wanted.extend(
+        LIST_AND_STRING_HELPERS
+            .iter()
+            .map(std::string::ToString::to_string),
+    );
     let missing: Vec<&String> = wanted
         .iter()
         .filter(|n| !exported.contains(*n) && !NOT_FUNCTIONS.contains(&n.as_str()))
@@ -333,7 +337,11 @@ const SAMPLES: &[(&str, &str, &str)] = &[
 #[test]
 fn every_method_has_a_sample_or_a_reason() {
     let mut methods: BTreeSet<String> = SCALAR_METHODS.iter().map(|(m, _)| m.to_string()).collect();
-    methods.extend(LIST_AND_STRING_HELPERS.iter().map(|h| h.to_string()));
+    methods.extend(
+        LIST_AND_STRING_HELPERS
+            .iter()
+            .map(std::string::ToString::to_string),
+    );
     methods.extend(mapped_methods());
     let sampled: BTreeSet<&str> = SAMPLES.iter().map(|(m, _, _)| *m).collect();
     let runtime_only: BTreeSet<&str> = RUNTIME_ONLY.iter().map(|(m, _)| *m).collect();

@@ -152,7 +152,7 @@ fn prove_file(path: &Path, root: &Path) -> Tally {
     // Every element.
     let mut nodes: Vec<(String, UIElement)> = Vec::new();
     webfluent::codegen::node_id::visit_nodes(&program, &mut |ui, id, _| {
-        nodes.push((id.to_string(), ui.clone()))
+        nodes.push((id.to_string(), ui.clone()));
     });
     // A debug build edits some forty elements of a file, spread through
     // it: every edit reads the whole file again, and a debug build is slow.
@@ -189,7 +189,7 @@ fn prove_file(path: &Path, root: &Path) -> Tally {
         }
         // An argument.
         if let Some(i) = ui.args.iter().position(|a| matches!(a, Arg::Named(..))) {
-            let within = ui.arg_spans.get(i).map(span).unwrap_or(el);
+            let within = ui.arg_spans.get(i).map_or(el, span);
             let r = rewrite_element(&source, &name, id, |e| {
                 if let Arg::Named(_, v) = &mut e.args[i] {
                     *v = text("changed");
@@ -200,8 +200,7 @@ fn prove_file(path: &Path, root: &Path) -> Tally {
         // A flag.
         let header_end = ui
             .body_span
-            .map(|b| b.start as usize)
-            .unwrap_or(ui.span.end as usize);
+            .map_or(ui.span.end as usize, |b| b.start as usize);
         let r = rewrite_element(&source, &name, id, |e| e.modifiers.push("zz".into()));
         check(
             &mut t,
@@ -263,7 +262,7 @@ fn prove_file(path: &Path, root: &Path) -> Tally {
             });
             check(&mut t, &file, "a child taken out", line, &source, r, within);
             let r = rewrite_element(&source, &name, id, |x| {
-                x.children.push(text_element("added"))
+                x.children.push(text_element("added"));
             });
             check(
                 &mut t,
@@ -275,12 +274,12 @@ fn prove_file(path: &Path, root: &Path) -> Tally {
                 if braced { (e, el.1) } else { whole },
             );
             let r = rewrite_element(&source, &name, id, |x| {
-                x.children.insert(0, text_element("first"))
+                x.children.insert(0, text_element("first"));
             });
             check(&mut t, &file, "a child added first", line, &source, r, el);
         } else if ui.body_span.is_some() || ui.events.is_empty() {
             let r = rewrite_element(&source, &name, id, |x| {
-                x.children.push(text_element("added"))
+                x.children.push(text_element("added"));
             });
             check(&mut t, &file, "a first child", line, &source, r, el);
         }
@@ -295,8 +294,7 @@ fn prove_file(path: &Path, root: &Path) -> Tally {
             if let StatementKind::If(_) | StatementKind::For(_) | StatementKind::Show(_) = &s.kind {
                 let open = webfluent::reprint::blocks_in(&source, start, end)
                     .first()
-                    .map(|b| b.0)
-                    .unwrap_or(end);
+                    .map_or(end, |b| b.0);
                 heads.push((start, end, s.span.line, open));
             }
         });
@@ -336,7 +334,7 @@ fn prove_file(path: &Path, root: &Path) -> Tally {
                 value: text("x"),
                 doc: Some("Added.".into()),
                 span: Span::dummy(),
-            }))
+            }));
         });
         check(
             &mut t,
@@ -497,7 +495,7 @@ fn prove_file(path: &Path, root: &Path) -> Tally {
             }
             let r = webfluent::edit::rewrite_program(&source, &name, |p| {
                 p.declarations
-                    .retain(|x| webfluent::edit::declaration_name(x) != Some(dname.as_str()))
+                    .retain(|x| webfluent::edit::declaration_name(x) != Some(dname.as_str()));
             });
             // Its own lines, and a blank line beside them.
             let from = source[..ds].trim_end_matches(['\n', ' ']).len();
@@ -577,7 +575,7 @@ fn every_edit_changes_only_its_own_bytes() {
     if cfg!(debug_assertions) {
         files = files.into_iter().step_by(4).collect();
     }
-    let threads = std::thread::available_parallelism().map_or(4, |n| n.get());
+    let threads = std::thread::available_parallelism().map_or(4, std::num::NonZero::get);
     let chunks: Vec<Vec<PathBuf>> = (0..threads)
         .map(|k| files.iter().skip(k).step_by(threads).cloned().collect())
         .collect();

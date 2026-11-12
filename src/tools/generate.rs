@@ -56,35 +56,32 @@ pub fn source(kind: Kind, name: &str) -> String {
         Kind::Page => {
             let path_slug = name.to_lowercase();
             format!(
-                r#"page {}(path: "/{}", title: "{}", description: "What the {} page is for, in a sentence.") {{
+                r#"page {name}(path: "/{path_slug}", title: "{name}", description: "What the {name} page is for, in a sentence.") {{
     Container {{
-        Heading("{}").h1
-        Text("This is the {} page.")
+        Heading("{name}").h1
+        Text("This is the {name} page.")
     }}
 }}
-"#,
-                name, path_slug, name, name, name, name
+"#
             )
         }
         Kind::Component => format!(
-            r#"component {} {{
+            r#"component {name} {{
     Card {{
-        Text("{} component")
+        Text("{name} component")
     }}
 }}
-"#,
-            name, name
+"#
         ),
         Kind::Store => format!(
-            r#"store {} {{
+            r"store {name} {{
     state items = []
 
     action add(item: String) {{
         items.push(item)
     }}
 }}
-"#,
-            name
+"
         ),
         Kind::Empty => String::new(),
     }
@@ -179,8 +176,10 @@ pub fn create(kind: Kind, dir: &Path, file_stem: &str) -> Result<Written> {
     let src = dir
         .ancestors()
         .find(|at| at.join("webfluent.app.json").is_file())
-        .map(|root| root.join("src"))
-        .unwrap_or_else(|| dir.parent().unwrap_or(dir).to_path_buf());
+        .map_or_else(
+            || dir.parent().unwrap_or(dir).to_path_buf(),
+            |root| root.join("src"),
+        );
     std::fs::create_dir_all(dir)?;
     let content = source(kind, &declaration_name(file_stem));
     write_source(dir, file_stem, &content, is_indented(&src))

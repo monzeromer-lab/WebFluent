@@ -64,7 +64,8 @@ fn every_option_the_data_names_is_one_the_binary_takes() {
             // The flag, with a value it takes when it takes one, before
             // `--help`: an option the binary did not know would be an error
             // before the help is printed.
-            let mut args: Vec<String> = words.iter().map(|w| w.to_string()).collect();
+            let mut args: Vec<String> =
+                words.iter().map(std::string::ToString::to_string).collect();
             args.push(format!("--{long}"));
             if !o["flag"].as_bool().unwrap() {
                 let value = match o["takes"].as_str().unwrap() {
@@ -91,7 +92,8 @@ fn every_option_the_data_names_is_one_the_binary_takes() {
             if o["values"].as_array().is_some_and(|v| !v.is_empty())
                 && let Some(long) = o["long"].as_str()
             {
-                let mut args: Vec<String> = words.iter().map(|w| w.to_string()).collect();
+                let mut args: Vec<String> =
+                    words.iter().map(std::string::ToString::to_string).collect();
                 args.push(format!("--{long}"));
                 args.push("not-a-value".to_string());
                 let argv: Vec<&str> = args.iter().map(String::as_str).collect();

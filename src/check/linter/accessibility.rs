@@ -688,11 +688,11 @@ fn lint_ui_element(
                     warnings.push(
                         A11yWarning::new(
                             "A04",
-                            format!("{} missing \"label\" attribute", name),
+                            format!("{name} missing \"label\" attribute"),
                             file,
                             line,
                             col,
-                            format!("Add a label: {}(bind: value, label: \"Description\")", name),
+                            format!("Add a label: {name}(bind: value, label: \"Description\")"),
                         )
                         .with_plans(add_named("label", bound_words(&ui.args))),
                     );
@@ -796,8 +796,7 @@ fn lint_ui_element(
                                 warnings.push(A11yWarning::new(
                                     "A11",
                                     format!(
-                                        "Heading level skips from h{} to h{}",
-                                        prev_level, level
+                                        "Heading level skips from h{prev_level} to h{level}"
                                     ),
                                     file,
                                     line,
@@ -856,14 +855,11 @@ fn lint_ui_element(
                     warnings.push(
                         A11yWarning::new(
                             "A08",
-                            format!("{} missing \"title\" attribute", name),
+                            format!("{name} missing \"title\" attribute"),
                             file,
                             line,
                             col,
-                            format!(
-                                "Add a title: {}(visible: state, title: \"Dialog Title\")",
-                                name
-                            ),
+                            format!("Add a title: {name}(visible: state, title: \"Dialog Title\")"),
                         )
                         .with_plans(add_named("title", opened_by)),
                     );

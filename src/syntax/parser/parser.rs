@@ -253,7 +253,7 @@ impl Parser {
                         _ => true,
                     };
                 }
-                _ => return Err(self.error(format!("Unknown page attribute '{}'", attr_name))),
+                _ => return Err(self.error(format!("Unknown page attribute '{attr_name}'"))),
             }
             if !self.check(&TokenType::CloseParen) {
                 self.expect(&TokenType::Comma)?;
@@ -1303,7 +1303,7 @@ impl Parser {
         while self.check(&TokenType::Minus) {
             self.advance();
             let part = self.expect_property_name()?;
-            name = format!("{}-{}", name, part);
+            name = format!("{name}-{part}");
         }
         Ok(name)
     }
@@ -1396,7 +1396,7 @@ impl Parser {
         ) {
             (Some(TokenType::OpenBrace), _) => (first.clone(), self.pos + 1),
             (Some(TokenType::Minus), Some(TokenType::Identifier(second))) => {
-                (format!("{}-{}", first, second), self.pos + 3)
+                (format!("{first}-{second}"), self.pos + 3)
             }
             _ => return None,
         };
@@ -1457,11 +1457,11 @@ impl Parser {
                     part.push_str(&id);
                     self.advance();
                 }
-                name = format!("{}-{}", name, part);
+                name = format!("{name}-{part}");
                 continue;
             }
             let part = self.expect_css_property_name()?;
-            name = format!("{}-{}", name, part);
+            name = format!("{name}-{part}");
         }
         Ok(name)
     }
@@ -1477,10 +1477,7 @@ impl Parser {
                 n
             }
             other => {
-                return Err(self.error(format!(
-                    "Expected a theme name after `Theme`, got {}",
-                    other
-                )));
+                return Err(self.error(format!("Expected a theme name after `Theme`, got {other}")));
             }
         };
 
@@ -1616,14 +1613,14 @@ impl Parser {
                     if *n == (*n as i64) as f64 {
                         format!("{}", *n as i64)
                     } else {
-                        format!("{}", n)
+                        format!("{n}")
                     }
                 }
                 TokenType::OpenParen => "(".to_string(),
                 TokenType::CloseParen => ")".to_string(),
                 TokenType::Colon => ":".to_string(),
                 TokenType::Minus => "-".to_string(),
-                _ => format!("{}", tok),
+                _ => format!("{tok}"),
             };
             parts.push(text);
             self.advance();
@@ -1634,7 +1631,7 @@ impl Parser {
         for (i, part) in parts.iter().enumerate() {
             if i > 0 {
                 let prev = &parts[i - 1];
-                let is_unit = part.chars().next().is_some_and(|c| c.is_alphabetic())
+                let is_unit = part.chars().next().is_some_and(char::is_alphabetic)
                     && prev.chars().all(|c| c.is_ascii_digit() || c == '.');
                 // No space: around hyphens, inside parens, before colon, number+unit (768px)
                 // No space around hyphens, inside parens, before a colon, or
@@ -1876,7 +1873,7 @@ impl Parser {
         if self.check(&TokenType::OpenParen) {
             // Could be a user-defined component or a function call
             // Treat uppercase-starting names as components
-            if name.chars().next().is_some_and(|c| c.is_uppercase()) {
+            if name.chars().next().is_some_and(char::is_uppercase) {
                 // User-defined component with a `( … )` argument group.
                 let p = self.parse_paren_args()?;
                 let body = self.parse_element_body()?;
@@ -1912,7 +1909,7 @@ impl Parser {
         }
 
         // Bare identifier — could be a component usage without parens
-        if name.chars().next().is_some_and(|c| c.is_uppercase()) {
+        if name.chars().next().is_some_and(char::is_uppercase) {
             let body = self.parse_element_body()?;
             return Ok(StatementKind::UIElement(UIElement {
                 component: ComponentRef::UserDefined(name),
@@ -2335,7 +2332,7 @@ impl Parser {
                 let tokens = lexer.tokenize().map_err(|e| {
                     WebFluentError::ParseError(Box::new(Diagnostic::coded(
                         "E002",
-                        format!("Error in string interpolation: {}", e),
+                        format!("Error in string interpolation: {e}"),
                         &self.file,
                         0,
                         0,
@@ -2424,7 +2421,7 @@ impl Parser {
             let s = s.spelling;
             self.advance();
             // Wrap in quotes to distinguish from identifier keys during codegen
-            return Ok(format!("\"{}\"", s));
+            return Ok(format!("\"{s}\""));
         }
         // Identifier keys
         if let TokenType::Identifier(name) = self.current_type().clone() {

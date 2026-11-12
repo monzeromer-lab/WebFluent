@@ -22,7 +22,7 @@ pub fn inlay_hints(project: &Project, file_ix: usize, range: Range) -> Vec<Inlay
         for stmt in stmts {
             match &stmt.kind {
                 StatementKind::State(s) if s.ty.is_none() && !s.name.starts_with("d__") => {
-                    found.push((stmt, &s.name))
+                    found.push((stmt, &s.name));
                 }
                 StatementKind::Derived(d) if d.ty.is_none() => found.push((stmt, &d.name)),
                 _ => {}

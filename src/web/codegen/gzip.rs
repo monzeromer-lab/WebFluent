@@ -279,7 +279,7 @@ fn code_lengths(freqs: &[u32], limit: u8) -> Vec<u8> {
         if lengths.iter().all(|&l| l <= limit) {
             return lengths;
         }
-        for f in freqs.iter_mut() {
+        for f in &mut freqs {
             if *f > 0 {
                 *f = f.div_ceil(2);
             }

@@ -85,7 +85,8 @@ impl fmt::Display for EditError {
                 )
             }
             Miss::Ambiguous { lines } => {
-                let names: Vec<String> = lines.iter().map(|n| n.to_string()).collect();
+                let names: Vec<String> =
+                    lines.iter().map(std::string::ToString::to_string).collect();
                 let listed = match names.len() {
                     0 | 1 => names.join(""),
                     _ => format!(

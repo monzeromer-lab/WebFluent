@@ -114,9 +114,9 @@ impl JsCodegen {
                     self.emit_line(&format!("{}.set({});", sig(name), value));
                 } else if let Expr::PropertyAccess(base, prop) = &a.target {
                     let base_str = self.emit_expr(base);
-                    self.emit_line(&format!("{}.{} = {};", base_str, prop, value));
+                    self.emit_line(&format!("{base_str}.{prop} = {value};"));
                 } else {
-                    self.emit_line(&format!("{} = {};", target, value));
+                    self.emit_line(&format!("{target} = {value};"));
                 }
             }
             (
@@ -129,7 +129,7 @@ impl JsCodegen {
                 let value = self.emit_store_expr(&a.value, store_states);
                 if let Expr::Identifier(name) = &a.target {
                     if self.is_own_member(name, store_states) {
-                        self.emit_line(&format!("store.{} = {};", name, value));
+                        self.emit_line(&format!("store.{name} = {value};"));
                     } else if action_params.contains(name)
                         || self.store_locals.borrow().contains(name)
                     {
@@ -154,7 +154,7 @@ impl JsCodegen {
                     ));
                 } else {
                     let target = self.emit_store_expr(&a.target, store_states);
-                    self.emit_line(&format!("{} = {};", target, value));
+                    self.emit_line(&format!("{target} = {value};"));
                 }
             }
             (StatementKind::State(s), StmtCx::Page) => {
@@ -177,7 +177,7 @@ impl JsCodegen {
                     return;
                 }
                 let val = self.emit_expr(expr);
-                self.emit_line(&format!("{};", val));
+                self.emit_line(&format!("{val};"));
             }
             (StatementKind::ExprStatement(expr), StmtCx::Store { states, .. }) => {
                 // `items.sort(f)` on the store's state: run on a copy, which
@@ -198,15 +198,15 @@ impl JsCodegen {
                     return;
                 }
                 let val = self.emit_store_expr(expr, states);
-                self.emit_line(&format!("{};", val));
+                self.emit_line(&format!("{val};"));
             }
             (StatementKind::Navigate(expr), StmtCx::Page) => {
                 let path = self.route_value(expr);
-                self.emit_line(&format!("WF.navigate({});", path));
+                self.emit_line(&format!("WF.navigate({path});"));
             }
             (StatementKind::Navigate(expr), StmtCx::Store { states, .. }) => {
                 let path = self.emit_store_expr(expr, states);
-                self.emit_line(&format!("WF.navigate({});", path));
+                self.emit_line(&format!("WF.navigate({path});"));
             }
             (StatementKind::MethodCall(mc), _) => {
                 let obj = self.emit_expr_in(&mc.object, ecx);
@@ -215,12 +215,12 @@ impl JsCodegen {
             }
             (StatementKind::Log(expr), _) => {
                 let val = self.emit_expr_in(expr, ecx);
-                self.emit_line(&format!("console.log({});", val));
+                self.emit_line(&format!("console.log({val});"));
             }
             (StatementKind::Return(expr), _) => match expr {
                 Some(e) => {
                     let val = self.emit_expr_in(e, ecx);
-                    self.emit_line(&format!("return {};", val));
+                    self.emit_line(&format!("return {val};"));
                 }
                 None => self.emit_line("return;"),
             },
@@ -243,14 +243,14 @@ impl JsCodegen {
                     }
                     None => self.emit_expr_in(&if_stmt.condition, ecx),
                 };
-                self.emit_line(&format!("if ({}) {{", cond));
+                self.emit_line(&format!("if ({cond}) {{"));
                 // Each branch is a block: what it declares ends with it.
                 self.emit_block_in(&if_stmt.then_body, cx);
                 self.scope_reset(cx, mark);
                 // An `else if` chain used to be dropped here.
                 for (cond, body) in &if_stmt.else_if_branches {
                     let cond = self.emit_expr_in(cond, ecx);
-                    self.emit_line(&format!("}} else if ({}) {{", cond));
+                    self.emit_line(&format!("}} else if ({cond}) {{"));
                     self.emit_block_in(body, cx);
                     self.scope_reset(cx, mark);
                 }

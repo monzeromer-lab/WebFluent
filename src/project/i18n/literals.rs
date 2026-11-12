@@ -88,8 +88,8 @@ fn prose(t: &str) -> bool {
         .trim_start()
         .chars()
         .next()
-        .is_some_and(|c| c.is_uppercase())
-        && t.chars().any(|c| c.is_lowercase());
+        .is_some_and(char::is_uppercase)
+        && t.chars().any(char::is_lowercase);
     letters >= 1 && (t.contains(char::is_whitespace) || capital || !t.is_ascii())
 }
 
@@ -97,7 +97,7 @@ fn prose(t: &str) -> bool {
 /// `"Problems"`, or `"{count} missing"` with `count`. None for a string
 /// that is not words, or that splices more than a plain path.
 pub fn key_of(e: &Expr) -> Option<(String, Vec<(String, Expr)>)> {
-    let words = |s: &str| s.chars().any(|c| c.is_alphabetic());
+    let words = |s: &str| s.chars().any(char::is_alphabetic);
     match e {
         Expr::StringLiteral(s) if words(s) => Some((s.clone(), Vec::new())),
         Expr::InterpolatedString(parts) => {
@@ -168,7 +168,7 @@ fn each_shown(e: &mut Expr, f: &mut dyn FnMut(&mut Expr)) {
             }
         }
         Expr::BinaryOp(_, crate::syntax::parser::ast::BinOp::NullCoalesce, right) => {
-            each_shown(right, f)
+            each_shown(right, f);
         }
         // `labels: ["Light", "Dark"]`: each a string a reader sees.
         Expr::ListLiteral(items) => {
@@ -287,7 +287,7 @@ fn each_text(program: &mut Program, f: &mut dyn FnMut(&mut Expr, usize, Span)) {
                     for a in &mut ui.args {
                         match a {
                             Arg::Positional(e) | Arg::Named(_, e) => {
-                                each_field(e, &mut |x| f(x, i, span))
+                                each_field(e, &mut |x| f(x, i, span));
                             }
                         }
                     }
@@ -306,7 +306,7 @@ fn each_text(program: &mut Program, f: &mut dyn FnMut(&mut Expr, usize, Span)) {
     }
     for (i, body) in bodies(program) {
         each_element(body, &mut |ui, span| {
-            each_text_arg(ui, &mut |e| f(e, i, span))
+            each_text_arg(ui, &mut |e| f(e, i, span));
         });
         values(body, i, f);
     }
@@ -329,7 +329,7 @@ fn holds_words(e: &Expr) -> bool {
         Expr::InterpolatedString(parts) => {
             found |= parts
                 .iter()
-                .any(|p| matches!(p, StringPart::Literal(t) if prose(t)))
+                .any(|p| matches!(p, StringPart::Literal(t) if prose(t)));
         }
         _ => {}
     });

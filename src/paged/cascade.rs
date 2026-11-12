@@ -439,7 +439,7 @@ impl Styler {
                     Some(Length::Pt(p)) => s.font_size = p.max(0.5),
                     Some(Length::Pct(p)) => s.font_size = parent.font_size * p / 100.0,
                     Some(Length::Mix(v, p)) => {
-                        s.font_size = (v + parent.font_size * p / 100.0).max(0.5)
+                        s.font_size = (v + parent.font_size * p / 100.0).max(0.5);
                     }
                     _ => {}
                 }
@@ -801,14 +801,14 @@ impl Styler {
                     .and_then(|p| p.parse::<f32>().ok().map(|p| p / 100.0))
                     .or_else(|| value.parse().ok())
                     .unwrap_or(1.0)
-                    .clamp(0.0, 1.0)
+                    .clamp(0.0, 1.0);
             }
             // On paper nothing scrolls: `auto` and `scroll` show everything,
             // as the box grows to hold it; only `hidden` and `clip` clip.
             "overflow" | "overflow-x" | "overflow-y" => {
                 s.clip = split_spaces(value)
                     .iter()
-                    .all(|w| matches!(*w, "hidden" | "clip"))
+                    .all(|w| matches!(*w, "hidden" | "clip"));
             }
             "transform" => {
                 s.rotate = 0.0;
@@ -955,7 +955,7 @@ impl Styler {
             }
             "row-gap" | "grid-row-gap" => s.row_gap = len(value).unwrap_or(Length::Pt(0.0)),
             "column-gap" | "grid-column-gap" => {
-                s.column_gap = len(value).unwrap_or(Length::Pt(0.0))
+                s.column_gap = len(value).unwrap_or(Length::Pt(0.0));
             }
             "grid-template-columns" => s.grid_columns = tracks(value, &u),
             "grid-template-rows" => s.grid_rows = tracks(value, &u),

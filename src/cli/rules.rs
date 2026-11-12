@@ -7,9 +7,7 @@ use crate::error::Result;
 /// in the project held to a rule, with its rules in order.
 pub fn run_rules(dir: &Path, json: bool) -> Result<()> {
     let catalogue = crate::validation::catalogue();
-    let translated = crate::config::ProjectConfig::load(dir)
-        .map(|c| c.i18n.is_some())
-        .unwrap_or(false);
+    let translated = crate::config::ProjectConfig::load(dir).is_ok_and(|c| c.i18n.is_some());
     let states = crate::build::read_project(dir)
         .ok()
         .map(|(p, _)| crate::validation::all(&p, translated))

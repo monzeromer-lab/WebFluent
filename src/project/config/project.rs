@@ -818,7 +818,7 @@ pub fn url_origin(url: &str) -> Option<String> {
     if host.is_empty() {
         return None;
     }
-    Some(format!("{}://{}", scheme, host))
+    Some(format!("{scheme}://{host}"))
 }
 
 /// The origins a font or stylesheet URL needs the policy to allow: its own,
@@ -1236,7 +1236,7 @@ impl ProjectConfig {
         }
         let content = vfs.read_to_string(&config_path)?;
         let config: ProjectConfig = serde_json::from_str(&content).map_err(|e| {
-            WebFluentError::ConfigError(format!("Failed to parse webfluent.app.json: {}", e))
+            WebFluentError::ConfigError(format!("Failed to parse webfluent.app.json: {e}"))
         })?;
         Ok(config)
     }
@@ -1625,8 +1625,11 @@ mod head_asset_tests {
     fn meta(fonts: &[&str], sheets: &[&str]) -> ProjectConfig {
         let mut config = ProjectConfig::default_config("t");
         config.meta = MetaConfig {
-            fonts: fonts.iter().map(|s| s.to_string()).collect(),
-            stylesheets: sheets.iter().map(|s| s.to_string()).collect(),
+            fonts: fonts.iter().map(std::string::ToString::to_string).collect(),
+            stylesheets: sheets
+                .iter()
+                .map(std::string::ToString::to_string)
+                .collect(),
             scripts: Vec::new(),
             ..MetaConfig::default()
         };

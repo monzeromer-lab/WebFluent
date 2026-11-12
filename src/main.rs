@@ -573,7 +573,7 @@ fn main() {
                 eprintln!("{}", diagnostics::summary(list));
             }
             error::WebFluentError::Diagnostics(_) => {}
-            _ => eprintln!("{}", e),
+            _ => eprintln!("{e}"),
         }
         std::process::exit(e.exit_code());
     }
@@ -637,10 +637,10 @@ fn describe_commands() -> serde_json::Value {
                     "flag": flag && values.iter().all(|v| v == "true" || v == "false"),
                     "repeats": matches!(a.get_action(), clap::ArgAction::Append),
                     "required": a.is_required_set(),
-                    "value_name": a.get_value_names().and_then(|n| n.first()).map(|n| n.to_string()),
+                    "value_name": a.get_value_names().and_then(|n| n.first()).map(std::string::ToString::to_string),
                     "default": defaults.first(),
                     "values": if flag { Vec::new() } else { values },
-                    "help": a.get_help().map(|h| h.to_string()).unwrap_or_default(),
+                    "help": a.get_help().map(std::string::ToString::to_string).unwrap_or_default(),
                 })
             })
             .collect()
@@ -649,8 +649,8 @@ fn describe_commands() -> serde_json::Value {
         let effect = webfluent::commands::effect(path);
         let mut out = serde_json::json!({
             "name": cmd.get_name(),
-            "summary": cmd.get_about().map(|h| h.to_string()).unwrap_or_default(),
-            "writes": effect.map(|e| e.writes).unwrap_or(""),
+            "summary": cmd.get_about().map(std::string::ToString::to_string).unwrap_or_default(),
+            "writes": effect.map_or("", |e| e.writes),
             "preview": effect.and_then(|e| e.preview),
             "options": options(cmd),
         });

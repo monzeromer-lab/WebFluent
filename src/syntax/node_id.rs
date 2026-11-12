@@ -278,7 +278,7 @@ pub fn build_node_map_with(
 /// through it, so their ids can never drift apart.
 pub fn visit_nodes<'a>(program: &'a Program, visit: &mut dyn FnMut(&'a UIElement, &str, &str)) {
     walk_program(program, &|_| None, &mut |ui, id, component, _| {
-        visit(ui, id, component)
+        visit(ui, id, component);
     });
 }
 
@@ -346,7 +346,7 @@ fn walk_program<'a>(
             | Declaration::Data(_) => continue,
         };
         let owner = if name_counts.get(name).copied().unwrap_or(0) > 1 {
-            format!("{}#{}", name, kind)
+            format!("{name}#{kind}")
         } else {
             name.to_string()
         };
@@ -421,8 +421,8 @@ fn walk_body<'a>(
 ) {
     for (i, stmt) in stmts.iter().enumerate() {
         let seg = match prefix {
-            None => format!("{}:{}", component, i),
-            Some(p) => format!("{}.{}", p, i),
+            None => format!("{component}:{i}"),
+            Some(p) => format!("{p}.{i}"),
         };
         walk_stmt(stmt, component, &seg, ctx, visit);
     }
@@ -504,7 +504,7 @@ fn walk_stmt<'a>(
                 crate::syntax::print::expr(&f.iterable)
             );
             let inner = within(ctx, "for", head, stmt, &names);
-            walk_body(&f.body, component, Some(seg), &inner, visit)
+            walk_body(&f.body, component, Some(seg), &inner, visit);
         }
         StatementKind::Show(s) => {
             let inner = within(
@@ -514,7 +514,7 @@ fn walk_stmt<'a>(
                 stmt,
                 &[],
             );
-            walk_body(&s.body, component, Some(seg), &inner, visit)
+            walk_body(&s.body, component, Some(seg), &inner, visit);
         }
         StatementKind::If(if_stmt) => {
             let head = match &if_stmt.binding {
@@ -528,7 +528,7 @@ fn walk_stmt<'a>(
             walk_body(
                 &if_stmt.then_body,
                 component,
-                Some(&format!("{}.t", seg)),
+                Some(&format!("{seg}.t")),
                 &within(ctx, "if", head, stmt, &bound),
                 visit,
             );
@@ -537,7 +537,7 @@ fn walk_stmt<'a>(
                 walk_body(
                     body,
                     component,
-                    Some(&format!("{}.ei{}", seg, k)),
+                    Some(&format!("{seg}.ei{k}")),
                     &within(ctx, "else if", head, stmt, &[]),
                     visit,
                 );
@@ -546,7 +546,7 @@ fn walk_stmt<'a>(
                 walk_body(
                     else_body,
                     component,
-                    Some(&format!("{}.e", seg)),
+                    Some(&format!("{seg}.e")),
                     &within(ctx, "else", "else".into(), stmt, &[]),
                     visit,
                 );
@@ -555,15 +555,15 @@ fn walk_stmt<'a>(
         StatementKind::Fetch(f) => {
             let inner = within(ctx, "match", format!("fetch {}", f.variable), stmt, &[]);
             if let Some(b) = &f.loading_block {
-                walk_body(b, component, Some(&format!("{}.l", seg)), &inner, visit);
+                walk_body(b, component, Some(&format!("{seg}.l")), &inner, visit);
             }
             if let Some((name, b)) = &f.error_block {
                 let mut e = inner.clone();
                 e.scope.insert(name.clone(), "loop");
-                walk_body(b, component, Some(&format!("{}.err", seg)), &e, visit);
+                walk_body(b, component, Some(&format!("{seg}.err")), &e, visit);
             }
             if let Some(b) = &f.success_block {
-                walk_body(b, component, Some(&format!("{}.s", seg)), &inner, visit);
+                walk_body(b, component, Some(&format!("{seg}.s")), &inner, visit);
             }
         }
         StatementKind::Match(m) => {
@@ -578,7 +578,7 @@ fn walk_stmt<'a>(
                 walk_body(
                     &arm.body,
                     component,
-                    Some(&format!("{}.m{}", seg, k)),
+                    Some(&format!("{seg}.m{k}")),
                     &within(ctx, "match", head, stmt, &names),
                     visit,
                 );
@@ -1077,13 +1077,10 @@ mod tests {
             let id = map
                 .iter()
                 .find(|(_, info)| info.span.slice(src).starts_with(comp))
-                .map(|(id, _)| id.clone())
-                .unwrap_or_else(|| panic!("no map entry for {}", comp));
+                .map_or_else(|| panic!("no map entry for {comp}"), |(id, _)| id.clone());
             assert!(
-                js.contains(&format!("\"data-wf-node\": \"{}\"", id)),
-                "{} root (id {}) not stamped",
-                comp,
-                id
+                js.contains(&format!("\"data-wf-node\": \"{id}\"")),
+                "{comp} root (id {id}) not stamped"
             );
         }
     }
@@ -1102,14 +1099,12 @@ mod tests {
         // The Heading's id is produced by the one shared map, so both stamp the same string.
         for id in ["Home:0", "Home:0.0", "Home:0.1"] {
             assert!(
-                js.contains(&format!("\"data-wf-node\": \"{}\"", id)),
-                "js missing {}",
-                id
+                js.contains(&format!("\"data-wf-node\": \"{id}\"")),
+                "js missing {id}"
             );
             assert!(
-                html.contains(&format!("data-wf-node=\"{}\"", id)),
-                "html missing {}",
-                id
+                html.contains(&format!("data-wf-node=\"{id}\"")),
+                "html missing {id}"
             );
         }
     }
@@ -1148,7 +1143,7 @@ mod tests {
         jsgen.set_studio(map.clone());
         let js = jsgen.generate(&p);
         assert!(
-            js.contains(&format!("\"data-wf-node\": \"{}\"", row_id)),
+            js.contains(&format!("\"data-wf-node\": \"{row_id}\"")),
             "JS app wrapper not stamped"
         );
 
@@ -1180,7 +1175,7 @@ mod tests {
             &map,
         );
         assert!(
-            html.contains(&format!("data-wf-node=\"{}\"", row_id)),
+            html.contains(&format!("data-wf-node=\"{row_id}\"")),
             "SSG app wrapper not stamped"
         );
     }
@@ -1207,13 +1202,10 @@ mod tests {
             let id = map
                 .iter()
                 .find(|(_, i)| i.span.slice(src).starts_with(needle))
-                .map(|(id, _)| id.clone())
-                .unwrap_or_else(|| panic!("no map entry for {}", needle));
+                .map_or_else(|| panic!("no map entry for {needle}"), |(id, _)| id.clone());
             assert!(
-                js.contains(&format!("\"data-wf-node\": \"{}\"", id)),
-                "{} not stamped in JS (id {})",
-                needle,
-                id
+                js.contains(&format!("\"data-wf-node\": \"{id}\"")),
+                "{needle} not stamped in JS (id {id})"
             );
         }
     }

@@ -333,8 +333,7 @@ fn extract_component_edit(
             _ => {
                 if !props.iter().any(|(n, _)| n == name) {
                     let ty = crate::hover::type_of_binding(project, decl_ix, binding)
-                        .map(|t| type_text(&t))
-                        .unwrap_or_else(|| "Any".to_string());
+                        .map_or_else(|| "Any".to_string(), |t| type_text(&t));
                     props.push((name.clone(), ty));
                 }
             }

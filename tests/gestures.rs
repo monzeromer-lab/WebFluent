@@ -14,7 +14,7 @@ fn checks(src: &str) -> String {
     .findings
     .errors
     .iter()
-    .map(|e| e.to_string())
+    .map(std::string::ToString::to_string)
     .collect()
 }
 

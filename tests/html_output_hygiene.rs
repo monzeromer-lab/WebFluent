@@ -110,7 +110,7 @@ fn void_elements_are_emitted_without_children_or_closing_tags() {
         for backend in Backend::ALL {
             let out = raw_output(backend, &src);
             for void in VOID_ELEMENTS {
-                let close = format!("</{}>", void);
+                let close = format!("</{void}>");
                 if out.contains(&close) {
                     failures.push(format!(
                         "`{}` in {} emitted a closing {}",
@@ -139,7 +139,7 @@ fn void_elements_are_emitted_without_children_or_closing_tags() {
             // The static renderers must not put text inside a void element either.
             if backend != Backend::Spa {
                 for void in VOID_ELEMENTS {
-                    let open = format!("<{}", void);
+                    let open = format!("<{void}");
                     if let Some(p) = out.find(&open) {
                         let tail = &out[p..];
                         if let Some(gt) = tail.find('>') {
@@ -252,8 +252,8 @@ fn check_balanced(html: &str) -> Result<(), String> {
             let name = name.trim().to_ascii_lowercase();
             match stack.pop() {
                 Some(open) if open == name => {}
-                Some(open) => return Err(format!("</{}> closed while <{}> was open", name, open)),
-                None => return Err(format!("</{}> with nothing open", name)),
+                Some(open) => return Err(format!("</{name}> closed while <{open}> was open")),
+                None => return Err(format!("</{name}> with nothing open")),
             }
         } else {
             let name = inner
@@ -270,7 +270,7 @@ fn check_balanced(html: &str) -> Result<(), String> {
         rest = after;
     }
     if !stack.is_empty() {
-        return Err(format!("never closed: {:?}", stack));
+        return Err(format!("never closed: {stack:?}"));
     }
     Ok(())
 }

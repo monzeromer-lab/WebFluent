@@ -262,7 +262,7 @@ fn validate_ui_element(
     // Check for event handlers on allowed elements
     if !ui.events.is_empty() {
         errors.push(PdfValidationError {
-            component: format!("{} (events)", name),
+            component: format!("{name} (events)"),
             context: context.to_string(),
             reason: "event handlers are not supported in PDF".to_string(),
             decl,

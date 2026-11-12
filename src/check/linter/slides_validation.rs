@@ -179,7 +179,7 @@ fn validate_presentation_children(
             }
             // Slides made from data: a `for` or an `if` whose body is slides.
             StatementKind::For(f) => {
-                validate_presentation_children(program, &f.body, context, decl, errors)
+                validate_presentation_children(program, &f.body, context, decl, errors);
             }
             StatementKind::If(i) => {
                 validate_presentation_children(program, &i.then_body, context, decl, errors);
@@ -210,7 +210,7 @@ fn validate_slide_kind(
     decl: usize,
     errors: &mut Vec<SlidesValidationError>,
 ) {
-    let slide_ctx = format!("{} > {}", context, name);
+    let slide_ctx = format!("{context} > {name}");
 
     match name {
         "TwoColumn" => {
@@ -387,7 +387,7 @@ fn validate_outside_presentation(
 fn display_name(c: &ComponentRef) -> String {
     match c {
         ComponentRef::BuiltIn(n) => n.clone(),
-        ComponentRef::SubComponent(p, s) => format!("{}.{}", p, s),
+        ComponentRef::SubComponent(p, s) => format!("{p}.{s}"),
         ComponentRef::UserDefined(n) => n.clone(),
     }
 }

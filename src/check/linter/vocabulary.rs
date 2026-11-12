@@ -398,8 +398,9 @@ fn check_dead_variants(el: &UIElement, file: &str, sheets: &Sheets, out: &mut Ve
         let (line, column) = el
             .modifier_spans
             .get(i)
-            .map(|s| (s.line as usize, s.col as usize))
-            .unwrap_or((el.span.line as usize, el.span.col as usize));
+            .map_or((el.span.line as usize, el.span.col as usize), |s| {
+                (s.line as usize, s.col as usize)
+            });
         out.push(VocabWarning {
             rule_id: "V02".to_string(),
             message: format!(

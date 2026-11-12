@@ -204,7 +204,7 @@ pub fn apply(old: &str, hunks: &[Hunk], accepted: &[usize]) -> String {
         for l in &h.lines {
             match (l.kind, take) {
                 (LineKind::Context, _) | (LineKind::Added, true) | (LineKind::Removed, false) => {
-                    out.push_str(&l.text)
+                    out.push_str(&l.text);
                 }
                 _ => {}
             }

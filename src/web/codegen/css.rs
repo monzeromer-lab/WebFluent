@@ -33,7 +33,7 @@ pub fn generate_css_with(tokens: &HashMap<String, String>, builtin: BuiltinCss) 
         BuiltinCss::Structural => themes::structural_css(),
     };
 
-    format!("{}\n{}", root_block, component_styles)
+    format!("{root_block}\n{component_styles}")
 }
 
 /// Each token as a custom property, `  --name: value;`, leaving out one
@@ -49,7 +49,7 @@ fn declarations(tokens: &HashMap<String, String>) -> Vec<String> {
     tokens
         .iter()
         .filter(|(k, v)| is_token_name(k) && is_token_value(v))
-        .map(|(k, v)| format!("  --{}: {};", k, v))
+        .map(|(k, v)| format!("  --{k}: {v};"))
         .collect()
 }
 

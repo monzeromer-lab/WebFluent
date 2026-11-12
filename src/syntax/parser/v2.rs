@@ -365,7 +365,7 @@ impl ParserV2 {
     fn is_capitalized(&self) -> bool {
         self.ident()
             .and_then(|w| w.chars().next())
-            .is_some_and(|c| c.is_uppercase())
+            .is_some_and(char::is_uppercase)
     }
 
     /// The current token, for a message.
@@ -670,7 +670,7 @@ impl ParserV2 {
                     }
                     "image" => page.image = Some(self.expect_string("the image")?),
                     "image_alt" => {
-                        page.image_alt = Some(self.expect_string("the image's description")?)
+                        page.image_alt = Some(self.expect_string("the image's description")?);
                     }
                     "type" => page.page_type = Some(self.expect_string("the page type")?),
                     "redirect" => page.redirect = Some(self.expect_string("the redirect")?),
@@ -4031,17 +4031,16 @@ impl ParserV2 {
         self.expect(&TokenType::CloseBrace, "`}`")?;
         // With no `else`, the arm no value reaches: the checker proves every
         // case of the enum has its own, and refuses the `match` otherwise.
-        let fallback = arms
-            .iter()
-            .find(|(c, _)| c.is_none())
-            .map(|(_, e)| e.clone())
-            .unwrap_or_else(|| {
+        let fallback = arms.iter().find(|(c, _)| c.is_none()).map_or_else(
+            || {
                 Expr::MethodCall(
                     Box::new(subject.clone()),
                     "__exhaustive".to_string(),
                     vec![],
                 )
-            });
+            },
+            |(_, e)| e.clone(),
+        );
         let mut expr = fallback;
         for (case, value) in arms.into_iter().rev() {
             let Some((case, binding)) = case else {

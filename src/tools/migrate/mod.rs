@@ -275,7 +275,7 @@ impl<'a> Rewriter<'a> {
 
     /// The indentation of the line `pos` is on.
     fn indent_at(&self, pos: usize) -> String {
-        let line_start = self.source[..pos].rfind('\n').map(|i| i + 1).unwrap_or(0);
+        let line_start = self.source[..pos].rfind('\n').map_or(0, |i| i + 1);
         self.source[line_start..pos]
             .chars()
             .take_while(|c| *c == ' ' || *c == '\t')
@@ -810,11 +810,10 @@ impl<'a> Rewriter<'a> {
             None => String::new(),
         };
         // The head runs from the statement's start to the `{` of the block.
-        let head_end = f.options_span.map(|s| s.end).unwrap_or(f.url_span.end) as usize;
+        let head_end = f.options_span.map_or(f.url_span.end, |s| s.end) as usize;
         let brace = self.source[head_end..]
             .find('{')
-            .map(|i| head_end + i)
-            .unwrap_or(head_end);
+            .map_or(head_end, |i| head_end + i);
         let indent = self.indent_at(span.start as usize);
         self.patch(
             span.start as usize,
@@ -942,8 +941,10 @@ impl<'a> Rewriter<'a> {
                             span,
                             format!(
                                 "`{word}` has no spelling on {}; it was dropped",
-                                sig.map(|s| s.qualified())
-                                    .unwrap_or_else(|| "this element".into())
+                                sig.map_or_else(
+                                    || "this element".into(),
+                                    super::super::registry::ComponentSig::qualified
+                                )
                             ),
                         );
                     }
@@ -1235,7 +1236,7 @@ impl<'a> Rewriter<'a> {
         let rest = &self.source[prop.value_span.end as usize..];
         let gap = rest.len() - rest.trim_start_matches([' ', '\t']).len();
         let next = rest[gap..].chars().next();
-        let terminator = if matches!(next, None | Some('\n') | Some('\r') | Some('}') | Some(';')) {
+        let terminator = if matches!(next, None | Some('\n' | '\r' | '}' | ';')) {
             ""
         } else {
             // `a: 1;  b: 2` — one space after the semicolon reads best.

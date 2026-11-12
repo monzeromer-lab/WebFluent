@@ -44,8 +44,7 @@ impl Socket {
             reader,
             seed: SystemTime::now()
                 .duration_since(UNIX_EPOCH)
-                .map(|d| d.as_nanos() as u64)
-                .unwrap_or(0x2545F4914F6CDD1D),
+                .map_or(0x2545F4914F6CDD1D, |d| d.as_nanos() as u64),
         };
         socket.handshake(authority, path)?;
         Ok(socket)

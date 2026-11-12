@@ -130,7 +130,7 @@ fn format_braced(source: &str, file: &str) -> Result<String> {
         line.push_str(&space_braces(body, &tokens, n, source));
         out.push(line);
     }
-    while out.last().is_some_and(|l| l.is_empty()) {
+    while out.last().is_some_and(std::string::String::is_empty) {
         out.pop();
     }
     let mut text = out.join("\n");
@@ -215,8 +215,7 @@ fn space_braces(body: &str, tokens: &[Token], n: usize, source: &str) -> String 
     let lead = source
         .lines()
         .nth(n - 1)
-        .map(|l| l.len() - l.trim_start().len())
-        .unwrap_or(0);
+        .map_or(0, |l| l.len() - l.trim_start().len());
     let mut text = body.to_string();
     fixes.sort_unstable();
     for (col, _) in fixes.into_iter().rev() {

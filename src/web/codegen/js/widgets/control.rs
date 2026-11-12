@@ -254,7 +254,7 @@ impl JsCodegen {
                 Self::control_input_attrs(attrs),
                 extra
             ));
-            self.emit_line(&format!("{}.appendChild({});", var, input_var));
+            self.emit_line(&format!("{var}.appendChild({input_var});"));
         } else if let Some(checked) = ui.args.iter().find_map(|a| match a {
             Arg::Named(k, v) if k == "checked" => Some(v),
             _ => None,
@@ -272,15 +272,14 @@ impl JsCodegen {
                 Self::control_input_attrs(attrs),
                 extra
             ));
-            self.emit_line(&format!("{}.appendChild({});", var, input_var));
+            self.emit_line(&format!("{var}.appendChild({input_var});"));
         }
 
         let track_var = self.fresh_var();
         self.emit_line(&format!(
-            "const {} = WF.el(\"span\", {{ className: \"wf-switch__track\" }}, WF.el(\"span\", {{ className: \"wf-switch__thumb\" }}));",
-            track_var
+            "const {track_var} = WF.el(\"span\", {{ className: \"wf-switch__track\" }}, WF.el(\"span\", {{ className: \"wf-switch__thumb\" }}));"
         ));
-        self.emit_line(&format!("{}.appendChild({});", var, track_var));
+        self.emit_line(&format!("{var}.appendChild({track_var});"));
 
         if let Some(l) = label {
             // A label that reads state — `t("…")`, which follows the locale,
@@ -291,10 +290,10 @@ impl JsCodegen {
             } else {
                 l
             };
-            self.emit_line(&format!("{}.appendChild(WF.text({}));", var, l));
+            self.emit_line(&format!("{var}.appendChild(WF.text({l}));"));
         }
 
-        self.emit_line(&format!("{}.appendChild({});", parent, var));
+        self.emit_line(&format!("{parent}.appendChild({var});"));
         self.emit_choice_message(ui, var, parent);
     }
 
@@ -349,7 +348,7 @@ impl JsCodegen {
         ));
 
         let input_var = self.fresh_var();
-        let mut input_attrs = format!("type: \"{}\"", input_type);
+        let mut input_attrs = format!("type: \"{input_type}\"");
         input_attrs.push_str(&Self::control_input_attrs(attrs));
         // Radios bound to one state are one group: the arrow keys move
         // between them only when they share a `name`.
@@ -392,9 +391,9 @@ impl JsCodegen {
             && let Some(cv) = checked_val
         {
             if self.is_reactive(&cv) {
-                input_attrs.push_str(&format!(", checked: () => {}", cv));
+                input_attrs.push_str(&format!(", checked: () => {cv}"));
             } else {
-                input_attrs.push_str(&format!(", checked: {}", cv));
+                input_attrs.push_str(&format!(", checked: {cv}"));
             }
         }
 
@@ -404,10 +403,9 @@ impl JsCodegen {
         input_attrs.push_str(&self.control_handlers(ui, bound_change));
 
         self.emit_line(&format!(
-            "const {} = WF.el(\"input\", {{ {} }});",
-            input_var, input_attrs
+            "const {input_var} = WF.el(\"input\", {{ {input_attrs} }});"
         ));
-        self.emit_line(&format!("{}.appendChild({});", var, input_var));
+        self.emit_line(&format!("{var}.appendChild({input_var});"));
 
         if let Some(l) = label {
             // A label that reads state — `t("…")`, which follows the locale,
@@ -418,10 +416,10 @@ impl JsCodegen {
             } else {
                 l
             };
-            self.emit_line(&format!("{}.appendChild(WF.text({}));", var, l));
+            self.emit_line(&format!("{var}.appendChild(WF.text({l}));"));
         }
 
-        self.emit_line(&format!("{}.appendChild({});", parent, var));
+        self.emit_line(&format!("{parent}.appendChild({var});"));
         if name == "Checkbox" {
             self.emit_choice_message(ui, var, parent);
         }
@@ -502,14 +500,12 @@ impl JsCodegen {
                 label_var,
                 self.live(l)
             ));
-            self.emit_line(&format!("{}.appendChild({});", var, label_var));
+            self.emit_line(&format!("{var}.appendChild({label_var});"));
         }
 
         let input_var = self.fresh_var();
-        let mut input_attrs = format!(
-            "type: \"range\", min: {}, max: {}, step: {}",
-            min_val, max_val, step
-        );
+        let mut input_attrs =
+            format!("type: \"range\", min: {min_val}, max: {max_val}, step: {step}");
         if let Some(target) = &bind_var {
             // An author's own on:input runs after the binding has written the
             // state, in one handler: two "on:input" keys in one attribute
@@ -545,9 +541,9 @@ impl JsCodegen {
                     announces_value = true;
                 }
                 if self.is_reactive(&value) {
-                    input_attrs.push_str(&format!(", \"{}\": () => {}", k, value));
+                    input_attrs.push_str(&format!(", \"{k}\": () => {value}"));
                 } else {
-                    input_attrs.push_str(&format!(", \"{}\": {}", k, value));
+                    input_attrs.push_str(&format!(", \"{k}\": {value}"));
                 }
             }
         }
@@ -571,10 +567,9 @@ impl JsCodegen {
             ));
         }
         self.emit_line(&format!(
-            "const {} = WF.el(\"input\", {{ {} }});",
-            input_var, input_attrs
+            "const {input_var} = WF.el(\"input\", {{ {input_attrs} }});"
         ));
-        self.emit_line(&format!("{}.appendChild({});", var, input_var));
+        self.emit_line(&format!("{var}.appendChild({input_var});"));
 
         // Show current value if bound
         if bind_var.is_some() && announces_value {
@@ -585,10 +580,10 @@ impl JsCodegen {
                 "const {} = WF.el(\"span\", {{ className: \"wf-slider__value\" }}, () => String({}));",
                 val_var, target.read
             ));
-            self.emit_line(&format!("{}.appendChild({});", var, val_var));
+            self.emit_line(&format!("{var}.appendChild({val_var});"));
         }
 
-        self.emit_line(&format!("{}.appendChild({});", parent, var));
+        self.emit_line(&format!("{parent}.appendChild({var});"));
     }
 
     pub(in super::super) fn emit_datepicker(&mut self, var: &str, ui: &UIElement, parent: &str) {
@@ -647,7 +642,7 @@ impl JsCodegen {
                 label_var,
                 self.live(l)
             ));
-            self.emit_line(&format!("{}.appendChild({});", wrapper_var, label_var));
+            self.emit_line(&format!("{wrapper_var}.appendChild({label_var});"));
         }
 
         let input_var = self.fresh_var();
@@ -660,10 +655,10 @@ impl JsCodegen {
             ));
         }
         if let Some(mn) = min {
-            input_attrs.push_str(&format!(", min: {}", mn));
+            input_attrs.push_str(&format!(", min: {mn}"));
         }
         if let Some(mx) = max {
-            input_attrs.push_str(&format!(", max: {}", mx));
+            input_attrs.push_str(&format!(", max: {mx}"));
         }
         // What any element takes is the control's, where its handlers go.
         input_attrs.push_str(&self.root_attrs("DatePicker", ui, BOX_ATTRS));
@@ -677,13 +672,12 @@ impl JsCodegen {
             ));
         }
         self.emit_line(&format!(
-            "const {} = WF.el(\"input\", {{ {} }});",
-            input_var, input_attrs
+            "const {input_var} = WF.el(\"input\", {{ {input_attrs} }});"
         ));
-        self.emit_line(&format!("{}.appendChild({});", wrapper_var, input_var));
+        self.emit_line(&format!("{wrapper_var}.appendChild({input_var});"));
 
-        self.emit_line(&format!("const {} = {};", var, wrapper_var));
-        self.emit_line(&format!("{}.appendChild({});", parent, var));
+        self.emit_line(&format!("const {var} = {wrapper_var};"));
+        self.emit_line(&format!("{parent}.appendChild({var});"));
     }
 
     pub(in super::super) fn emit_file_upload(&mut self, var: &str, ui: &UIElement, parent: &str) {
@@ -728,13 +722,13 @@ impl JsCodegen {
                 label_var,
                 self.live(l)
             ));
-            self.emit_line(&format!("{}.appendChild({});", wrapper_var, label_var));
+            self.emit_line(&format!("{wrapper_var}.appendChild({label_var});"));
         }
 
         let input_var = self.fresh_var();
         let mut input_attrs = "type: \"file\", className: \"wf-input\"".to_string();
         if let Some(acc) = &accept {
-            input_attrs.push_str(&format!(", accept: {}", acc));
+            input_attrs.push_str(&format!(", accept: {acc}"));
         }
         if multiple {
             input_attrs.push_str(", multiple: true");
@@ -755,13 +749,12 @@ impl JsCodegen {
             ));
         }
         self.emit_line(&format!(
-            "const {} = WF.el(\"input\", {{ {} }});",
-            input_var, input_attrs
+            "const {input_var} = WF.el(\"input\", {{ {input_attrs} }});"
         ));
-        self.emit_line(&format!("{}.appendChild({});", wrapper_var, input_var));
+        self.emit_line(&format!("{wrapper_var}.appendChild({input_var});"));
 
-        self.emit_line(&format!("const {} = {};", var, wrapper_var));
-        self.emit_line(&format!("{}.appendChild({});", parent, var));
+        self.emit_line(&format!("const {var} = {wrapper_var};"));
+        self.emit_line(&format!("{parent}.appendChild({var});"));
     }
 
     /// `validate email { required  email }`: the rules, registered against

@@ -142,7 +142,13 @@ pub fn audit(program: &Program, config: &ProjectConfig, files: &[String]) -> Rep
         .iter()
         .chain(config.meta.stylesheets.iter())
         .map(String::as_str)
-        .chain(config.meta.scripts.iter().map(|s| s.src()))
+        .chain(
+            config
+                .meta
+                .scripts
+                .iter()
+                .map(super::super::project::config::project::ScriptEntry::src),
+        )
     {
         if let Some(origin) = origin_of(url) {
             push_once(&mut report.origins, origin);

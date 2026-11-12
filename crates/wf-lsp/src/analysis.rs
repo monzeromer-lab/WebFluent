@@ -193,12 +193,11 @@ pub fn token_before(tokens: &[Token], offset: usize) -> Option<&Token> {
 /// skipped. Whitespace between tokens is not a comment; the check reads the
 /// gap.
 pub fn in_comment(source: &str, tokens: &[Token], offset: usize) -> bool {
-    let gap_start = token_before(tokens, offset).map(|t| t.end).unwrap_or(0);
+    let gap_start = token_before(tokens, offset).map_or(0, |t| t.end);
     let gap_end = tokens
         .iter()
         .find(|t| t.offset >= offset)
-        .map(|t| t.offset)
-        .unwrap_or(source.len());
+        .map_or(source.len(), |t| t.offset);
     let gap = source.get(gap_start..gap_end).unwrap_or("");
     let before = source.get(gap_start..offset).unwrap_or("");
     gap.trim_start().starts_with("//") && before.contains("//")

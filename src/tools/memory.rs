@@ -167,7 +167,7 @@ pub fn compile_files(
     // The pictures earlier builds encoded, so an edit that leaves a picture
     // alone does not encode it again.
     let media_cache = root.join(".wf-cache/media");
-    let seed = MEDIA_CACHE.with(|c| c.take());
+    let seed = MEDIA_CACHE.with(std::cell::RefCell::take);
     let (outcome, written) = crate::base::outfs::capture_from(seed, || {
         if options.check_only {
             crate::build::check(&build_options)

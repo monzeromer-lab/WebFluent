@@ -10,16 +10,12 @@ pub fn run_init(name: &str, template: &str, locales: Option<&str>) -> Result<()>
 
     if project_dir.exists() {
         return Err(crate::error::WebFluentError::IoError(format!(
-            "Directory '{}' already exists",
-            name
+            "Directory '{name}' already exists"
         )));
     }
 
     let Some(kind) = Template::parse(template) else {
-        eprintln!(
-            "Unknown template '{}'. Use 'spa', 'static', 'pdf', or 'slides'.",
-            template
-        );
+        eprintln!("Unknown template '{template}'. Use 'spa', 'static', 'pdf', or 'slides'.");
         std::process::exit(1);
     };
     let mut options = Options::new(kind);
@@ -28,10 +24,7 @@ pub fn run_init(name: &str, template: &str, locales: Option<&str>) -> Result<()>
     }
     create_with(project_dir, name, &options)?;
 
-    println!(
-        "Created new WebFluent project: {} (template: {})",
-        name, template
-    );
+    println!("Created new WebFluent project: {name} (template: {template})");
     if let Some((default, others)) = options.locales.split_first() {
         let others = if others.is_empty() {
             String::new()
@@ -43,7 +36,7 @@ pub fn run_init(name: &str, template: &str, locales: Option<&str>) -> Result<()>
     println!("  AGENTS.md is the language reference, for you and your coding agent");
     println!("  .agents/skills/ and .claude/skills/ teach your coding agent to write it well");
     println!();
-    println!("  cd {}", name);
+    println!("  cd {name}");
     println!("  wf build");
     println!("  wf serve");
 

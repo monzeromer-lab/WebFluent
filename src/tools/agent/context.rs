@@ -139,12 +139,7 @@ pub fn chapters(files: &[(&str, &str)], depth: Depth) -> Vec<Chapter> {
             }
             if let Some(t) = line.strip_prefix("# ") {
                 if title.is_empty() {
-                    title = t
-                        .split_once(". ")
-                        .map(|(_, t)| t)
-                        .unwrap_or(t)
-                        .trim()
-                        .to_string();
+                    title = t.split_once(". ").map_or(t, |(_, t)| t).trim().to_string();
                 }
             } else if let Some(t) = line.strip_prefix("## ")
                 // `## Next` is the link to the next chapter, not a section.

@@ -79,13 +79,13 @@ pub fn provide_completions(
             )
         })
         .filter(|t| t.offset < offset && t.end >= offset);
-    let anchor = typing.map(|t| t.offset).unwrap_or(offset);
+    let anchor = typing.map_or(offset, |t| t.offset);
     let previous: Vec<&Token> = tokens.iter().filter(|t| t.end <= anchor).collect();
     let last = previous.last().copied();
     let before_last = previous.len().checked_sub(2).map(|i| previous[i]);
 
     let line_prefix = &source[..offset];
-    let line_prefix = &line_prefix[line_prefix.rfind('\n').map(|i| i + 1).unwrap_or(0)..];
+    let line_prefix = &line_prefix[line_prefix.rfind('\n').map_or(0, |i| i + 1)..];
     let typed = line_prefix.trim_end_matches(|c: char| c.is_alphanumeric() || c == '_' || c == '-');
     let in_style = matches!(enclosing_block(&previous), Some(Block::Style));
 

@@ -130,6 +130,19 @@ print_stderr = "allow"                           # 24
 as_conversions = "allow"                         # 981
 cast_possible_truncation = "allow"               # 262
 cast_sign_loss = "allow"                         # 86
+# Pedantic lints the code satisfies, held there: each was swept to zero
+# with clippy's own fixes.
+uninlined_format_args = "warn"
+redundant_closure_for_method_calls = "warn"
+semicolon_if_nothing_returned = "warn"
+explicit_iter_loop = "warn"
+explicit_into_iter_loop = "warn"
+cloned_instead_of_copied = "warn"
+implicit_clone = "warn"
+single_char_pattern = "warn"
+needless_raw_string_hashes = "warn"
+unnested_or_patterns = "warn"
+ignored_unit_patterns = "warn"
 module_name_repetitions = "allow"
 must_use_candidate = "allow"
 module_inception = "allow"

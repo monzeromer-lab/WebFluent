@@ -318,9 +318,7 @@ impl ChangeSet {
 
     /// Take `rel`'s change out of the set: what rejecting one file does.
     pub fn revert(&mut self, rel: &str) -> bool {
-        inside(rel)
-            .map(|r| self.changes.remove(&r).is_some())
-            .unwrap_or(false)
+        inside(rel).is_ok_and(|r| self.changes.remove(&r).is_some())
     }
 
     /// Whether it changes anything.

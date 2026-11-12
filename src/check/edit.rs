@@ -222,8 +222,7 @@ fn apply_edits_braced(source: &str, ops: &[EditOp]) -> Result<String> {
     let result = apply_patches(source, patches)?;
 
     // Final guard: the edited source must still parse.
-    parse_program(&result)
-        .map_err(|e| edit_err(format!("edits produced invalid source: {}", e)))?;
+    parse_program(&result).map_err(|e| edit_err(format!("edits produced invalid source: {e}")))?;
     Ok(result)
 }
 
@@ -254,15 +253,15 @@ fn compute_patches(
         EditOp::SetArg { arg, value, .. } => match arg {
             ArgRef::Positional(i) => {
                 let k = nth_positional(ui, *i).ok_or_else(|| {
-                    edit_err(format!("set_arg: node has no positional argument #{}", i))
+                    edit_err(format!("set_arg: node has no positional argument #{i}"))
                 })?;
                 one(replace(ui.arg_spans[k], value.clone()))
             }
             ArgRef::Named(name) => {
                 let k = named_arg_index(ui, name).ok_or_else(|| {
-                    edit_err(format!("set_arg: node has no named argument '{}'", name))
+                    edit_err(format!("set_arg: node has no named argument '{name}'"))
                 })?;
-                one(replace(ui.arg_spans[k], format!("{}: {}", name, value)))
+                one(replace(ui.arg_spans[k], format!("{name}: {value}")))
             }
         },
         EditOp::AddModifier { modifier, .. } => {
@@ -318,7 +317,7 @@ fn compute_patches(
                 let text = if empty {
                     modifier.clone()
                 } else {
-                    format!(", {}", modifier)
+                    format!(", {modifier}")
                 };
                 one(Patch {
                     start: close,
@@ -331,7 +330,7 @@ fn compute_patches(
                 one(Patch {
                     start: at,
                     end: at,
-                    text: format!("({})", modifier),
+                    text: format!("({modifier})"),
                 })
             }
         }
@@ -351,8 +350,7 @@ fn compute_patches(
                 .position(|m| *m == wanted)
                 .ok_or_else(|| {
                     edit_err(format!(
-                        "remove_modifier: node has no modifier '{}'",
-                        modifier
+                        "remove_modifier: node has no modifier '{modifier}'"
                     ))
                 })?;
             let (start, end) = if v2 {
@@ -381,7 +379,7 @@ fn compute_patches(
                     one(replace(value_of(source, p), value.clone()))
                 } else {
                     // After the last declaration, before any rule.
-                    let text = format!("{}: {}", prop, value);
+                    let text = format!("{prop}: {value}");
                     match sb.properties.last() {
                         Some(last) => one(after_declaration(source, last, sb.body_span, text)),
                         None => {
@@ -424,7 +422,7 @@ fn compute_patches(
                     ui,
                     None,
                     "style",
-                    &format!("{}: {}", prop, value),
+                    &format!("{prop}: {value}"),
                     source,
                 ))
             }
@@ -439,10 +437,7 @@ fn compute_patches(
                 .iter()
                 .find(|p| &p.name == prop)
                 .ok_or_else(|| {
-                    edit_err(format!(
-                        "remove_style: node has no style property '{}'",
-                        prop
-                    ))
+                    edit_err(format!("remove_style: node has no style property '{prop}'"))
                 })?;
             let (start, end) = removal_range(source, p.span);
             one(Patch {
@@ -513,7 +508,7 @@ fn compute_patches(
                     source,
                     last,
                     span,
-                    format!("{}: {}", prop, value),
+                    format!("{prop}: {value}"),
                 )),
                 None => {
                     let indent = line_indent(source, span.start as usize);
@@ -722,9 +717,9 @@ fn compute_patches(
             index: idx,
             ..
         } => {
-            let parent = index.get(new_parent.as_str()).ok_or_else(|| {
-                edit_err(format!("move_node: unknown new_parent '{}'", new_parent))
-            })?;
+            let parent = index
+                .get(new_parent.as_str())
+                .ok_or_else(|| edit_err(format!("move_node: unknown new_parent '{new_parent}'")))?;
             let node_text = ui.span.slice(source).to_string();
             let (rm_start, rm_end) = removal_range(source, ui.span);
             let insert = insert_child_patch(parent, *idx, &node_text, source);
@@ -839,7 +834,7 @@ fn append_child_patch(ui: &UIElement, wf: &str, source: &str) -> Patch {
         Patch {
             start: at,
             end: at,
-            text: format!(" {{ {} }}", wf),
+            text: format!(" {{ {wf} }}"),
         }
     }
 }
@@ -853,7 +848,7 @@ fn insert_child_patch(ui: &UIElement, index: usize, wf: &str, source: &str) -> P
             Patch {
                 start: at,
                 end: at,
-                text: format!("{}\n{}", wf, indent),
+                text: format!("{wf}\n{indent}"),
             }
         }
         None => append_child_patch(ui, wf, source),
@@ -1097,7 +1092,7 @@ fn before_closing(source: &str, close: usize, text: String) -> Patch {
 
 /// The leading whitespace of the line containing byte offset `pos`.
 fn line_indent(source: &str, pos: usize) -> String {
-    let line_start = source[..pos].rfind('\n').map(|i| i + 1).unwrap_or(0);
+    let line_start = source[..pos].rfind('\n').map_or(0, |i| i + 1);
     source[line_start..pos]
         .chars()
         .take_while(|c| *c == ' ' || *c == '\t')
@@ -1112,7 +1107,7 @@ fn removal_range(source: &str, span: Span) -> (usize, usize) {
     let end = span.end as usize;
     let bytes = source.as_bytes();
 
-    let line_start = source[..start].rfind('\n').map(|i| i + 1).unwrap_or(0);
+    let line_start = source[..start].rfind('\n').map_or(0, |i| i + 1);
     let lead_is_ws = source[line_start..start]
         .bytes()
         .all(|b| b == b' ' || b == b'\t');
@@ -1139,15 +1134,15 @@ fn parse_program(source: &str) -> Result<Program> {
 fn validate_snippet(wf: &str, dialect: crate::syntax::Dialect) -> Result<()> {
     let wrapped = match dialect {
         crate::syntax::Dialect::V2 => {
-            format!("page __EditValidate(path: \"/\") {{\n{}\n}}", wf)
+            format!("page __EditValidate(path: \"/\") {{\n{wf}\n}}")
         }
         crate::syntax::Dialect::V1 => {
-            format!("Page __EditValidate (path: \"/\") {{\n{}\n}}", wf)
+            format!("Page __EditValidate (path: \"/\") {{\n{wf}\n}}")
         }
     };
     parse_program(&wrapped)
         .map(|_| ())
-        .map_err(|e| edit_err(format!("invalid wf snippet: {}", e)))
+        .map_err(|e| edit_err(format!("invalid wf snippet: {e}")))
 }
 
 /// How a modifier word is written on an element of the new grammar.
@@ -1486,7 +1481,7 @@ fn statement_at_mut(
         }
         None
     }
-    for decl in program.declarations.iter_mut() {
+    for decl in &mut program.declarations {
         let body = match decl {
             Declaration::Page(p) => &mut p.body,
             Declaration::Component(c) => &mut c.body,
@@ -1516,8 +1511,10 @@ mod tests {
         let map = node_id::build_node_map(&program);
         map.iter()
             .find(|(_, info)| info.span.slice(source).starts_with(needle))
-            .map(|(id, _)| id.clone())
-            .unwrap_or_else(|| panic!("no node starting with {:?}", needle))
+            .map_or_else(
+                || panic!("no node starting with {needle:?}"),
+                |(id, _)| id.clone(),
+            )
     }
 
     const SRC: &str = "page Home(path: \"/\") {\n\
@@ -1724,7 +1721,7 @@ mod tests {
             }],
         )
         .unwrap();
-        assert!(out.contains("Button(\"Go\").lg"), "got: {}", out);
+        assert!(out.contains("Button(\"Go\").lg"), "got: {out}");
         parse_program(&out).unwrap();
         // last modifier
         let out2 = apply_edits(
@@ -1735,7 +1732,7 @@ mod tests {
             }],
         )
         .unwrap();
-        assert!(out2.contains("Button(\"Go\").primary"), "got: {}", out2);
+        assert!(out2.contains("Button(\"Go\").primary"), "got: {out2}");
         parse_program(&out2).unwrap();
     }
 
@@ -2066,7 +2063,7 @@ mod tests {
         let a = out.find("Text(\"a\")").unwrap();
         let btn = out.find("Button(\"x\")").unwrap();
         let b = out.find("Text(\"b\")").unwrap();
-        assert!(a < btn && btn < b, "order wrong: {}", out);
+        assert!(a < btn && btn < b, "order wrong: {out}");
         parse_program(&out).unwrap();
     }
 
@@ -2089,11 +2086,7 @@ mod tests {
         let col = &out[out.find("Column").unwrap()..];
         assert!(col.contains("Text(\"item\")"));
         let row_block = &out[out.find("Row").unwrap()..out.find("Column").unwrap()];
-        assert!(
-            !row_block.contains("Text(\"item\")"),
-            "still in row: {}",
-            out
-        );
+        assert!(!row_block.contains("Text(\"item\")"), "still in row: {out}");
     }
 
     #[test]
@@ -2122,7 +2115,7 @@ mod tests {
             }],
         )
         .unwrap();
-        assert!(out.contains("Text(\"münchen 🍺\")"), "got: {}", out);
+        assert!(out.contains("Text(\"münchen 🍺\")"), "got: {out}");
         parse_program(&out).unwrap();
     }
 
@@ -2150,8 +2143,7 @@ mod tests {
         .unwrap();
         assert!(
             out.contains("Button(\"héllo café 🎉\").primary.lg"),
-            "got: {}",
-            out
+            "got: {out}"
         );
         parse_program(&out).unwrap();
     }
@@ -2168,7 +2160,7 @@ mod tests {
             }],
         )
         .unwrap();
-        assert!(out.contains("Button.lg"), "got: {}", out);
+        assert!(out.contains("Button.lg"), "got: {out}");
         parse_program(&out).unwrap();
     }
 
@@ -2184,11 +2176,7 @@ mod tests {
             }],
         )
         .unwrap();
-        assert!(
-            out.contains("Image(src: \"/a.png\").rounded"),
-            "got: {}",
-            out
-        );
+        assert!(out.contains("Image(src: \"/a.png\").rounded"), "got: {out}");
         parse_program(&out).unwrap();
     }
 
@@ -2223,7 +2211,7 @@ mod tests {
                 }],
             )
             .unwrap();
-            assert!(out.contains("Button(\"b\")"), "got: {}", out);
+            assert!(out.contains("Button(\"b\")"), "got: {out}");
             parse_program(&out).unwrap();
         }
     }
@@ -2258,7 +2246,7 @@ mod tests {
             }],
         )
         .unwrap();
-        assert!(out.contains("Text(\"bye\", weight: bold)"), "got: {}", out);
+        assert!(out.contains("Text(\"bye\", weight: bold)"), "got: {out}");
         parse_program(&out).unwrap();
     }
 
@@ -2303,8 +2291,7 @@ mod tests {
         assert_eq!(
             out.matches("Text(\"a\")").count(),
             1,
-            "a duplicated/lost: {}",
-            out
+            "a duplicated/lost: {out}"
         );
         assert_eq!(out.matches("Text(\"b\")").count(), 1);
         assert_eq!(out.matches("Text(\"c\")").count(), 1);

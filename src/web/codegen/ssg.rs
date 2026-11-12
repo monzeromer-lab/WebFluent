@@ -145,7 +145,10 @@ pub fn static_routes(
         }
         let mut route = page.path.clone();
         for name in &names {
-            let text = params.get(name).map(|v| v.to_text()).unwrap_or_default();
+            let text = params
+                .get(name)
+                .map(crate::project::static_eval::Static::to_text)
+                .unwrap_or_default();
             // Each value is one part of an address, and a directory of the
             // output: never empty, `.` or `..`, never more than one part.
             if text.is_empty() || text == "." || text == ".." || text.contains(['/', '\\', '\0']) {
@@ -265,8 +268,7 @@ pub fn render_page_html_studio(
     let default_locale = config
         .i18n
         .as_ref()
-        .map(|i| i.default_locale.as_str())
-        .unwrap_or("en");
+        .map_or("en", |i| i.default_locale.as_str());
 
     let default_messages = translations
         .get(default_locale)
@@ -388,7 +390,7 @@ pub fn render_page_html_studio(
         for (k, v) in &tag.attrs {
             match eval(v, &head_scope) {
                 Some(Static::Bool(true)) => attrs.push_str(&format!(" {k}")),
-                Some(Static::Bool(false)) | Some(Static::Null) | None => {}
+                Some(Static::Bool(false) | Static::Null) | None => {}
                 // An address goes through the scheme check the live page
                 // applies (`WF.safeUrl`): one a browser would run is not
                 // written at all.
@@ -399,7 +401,7 @@ pub fn render_page_html_studio(
                     }
                 }
                 Some(value) => {
-                    attrs.push_str(&format!(" {k}=\"{}\"", html_escape(&value.to_text())))
+                    attrs.push_str(&format!(" {k}=\"{}\"", html_escape(&value.to_text())));
                 }
             }
         }
@@ -602,7 +604,7 @@ fn link_is_current(href: &str, current: &str, prefix: bool) -> bool {
         }
     };
     let (href, current) = (norm(href), norm(current));
-    href == current || (prefix && href != "/" && current.starts_with(&format!("{}/", href)))
+    href == current || (prefix && href != "/" && current.starts_with(&format!("{href}/")))
 }
 
 /// How deep component expansion may nest before it gives up and emits the old
@@ -630,13 +632,13 @@ impl PaintState {
         }
         self.node_map
             .id_among(&self.owners, ui.span)
-            .map(|id| format!("data-wf-node=\"{}\"", id))
+            .map(|id| format!("data-wf-node=\"{id}\""))
     }
 
     /// Space-prefixed form for embedding directly inside a `<tag …>` (empty when absent).
     pub(crate) fn wf_node_attr_inline(&self, ui: &UIElement) -> String {
         self.wf_node_attr(ui)
-            .map(|a| format!(" {}", a))
+            .map(|a| format!(" {a}"))
             .unwrap_or_default()
     }
 }
@@ -677,7 +679,7 @@ fn render_app_shell_ssg(
                 ctx.indent += 1;
                 render_app_shell_ssg(&ui.children, page_body, ctx, html);
                 ctx.indent -= 1;
-                html.push_str(&format!("{}</{}>\n", indent, tag));
+                html.push_str(&format!("{indent}</{tag}>\n"));
             } else {
                 html.push_str(&render_ui_element(ui, ctx));
             }
@@ -1337,7 +1339,7 @@ pub(crate) fn render_builtin<C: Paint>(name: &str, ui: &UIElement, ctx: &mut C) 
                 let attribute = camel_to_kebab(key);
                 match eval(value, &ctx.scope) {
                     Some(Static::Bool(true)) => attrs.push_str(&format!(" {attribute}")),
-                    Some(Static::Bool(false)) | Some(Static::Null) | None => {}
+                    Some(Static::Bool(false) | Static::Null) | None => {}
                     Some(Static::List(_) | Static::Map(_)) => {}
                     Some(v) => {
                         let text = v.to_text();
@@ -1346,7 +1348,7 @@ pub(crate) fn render_builtin<C: Paint>(name: &str, ui: &UIElement, ctx: &mut C) 
                         } else {
                             text
                         };
-                        attrs.push_str(&format!(" {attribute}=\"{}\"", html_escape(&text)))
+                        attrs.push_str(&format!(" {attribute}=\"{}\"", html_escape(&text)));
                     }
                 }
             }
@@ -1715,7 +1717,7 @@ pub(crate) fn render_builtin<C: Paint>(name: &str, ui: &UIElement, ctx: &mut C) 
     let mut text_content: Option<String> = None;
 
     if let Some(role) = implicit_role(name, &ui.modifiers) {
-        attrs.push(format!("role=\"{}\"", role));
+        attrs.push(format!("role=\"{role}\""));
     }
     // A layer is in the top layer only when shown, and hidden until then.
     // It is a dialog unless its author says what it is.
@@ -1736,11 +1738,11 @@ pub(crate) fn render_builtin<C: Paint>(name: &str, ui: &UIElement, ctx: &mut C) 
             .iter()
             .any(|a| matches!(a, Arg::Named(k, _) if k == "aria-label"))
     {
-        attrs.push(format!("aria-label=\"{}\"", label));
+        attrs.push(format!("aria-label=\"{label}\""));
     }
 
     if !class_str.is_empty() {
-        attrs.push(format!("class=\"{}\"", class_str));
+        attrs.push(format!("class=\"{class_str}\""));
     }
 
     // Studio: stamp the node id on this element's root (must match the JS codegen id).
@@ -1821,7 +1823,7 @@ pub(crate) fn render_builtin<C: Paint>(name: &str, ui: &UIElement, ctx: &mut C) 
                     // cannot know — the script sets it as it starts.
                     "required" | "disabled" | "controls" => {
                         if matches!(eval(val, &ctx.scope), Some(Static::Bool(true))) {
-                            attrs.push(key.to_string());
+                            attrs.push(key.clone());
                         }
                     }
                     "title" => {
@@ -1957,7 +1959,7 @@ pub(crate) fn render_builtin<C: Paint>(name: &str, ui: &UIElement, ctx: &mut C) 
     // A link to the page being painted is the current one: the runtime adds
     // the same class after hydration, so the static paint must agree with it.
     if current_link {
-        for a in attrs.iter_mut() {
+        for a in &mut attrs {
             if a.starts_with("class=\"") {
                 a.insert_str(a.len() - 1, " active");
             }
@@ -1995,7 +1997,7 @@ pub(crate) fn render_builtin<C: Paint>(name: &str, ui: &UIElement, ctx: &mut C) 
     // Handle input type from modifiers
     for m in &ui.modifiers {
         if let Some(t) = input_type(m) {
-            attrs.push(format!("type=\"{}\"", t));
+            attrs.push(format!("type=\"{t}\""));
         } else if m == "multiple" {
             attrs.push("multiple".to_string());
         }
@@ -2158,7 +2160,7 @@ pub(crate) fn render_builtin<C: Paint>(name: &str, ui: &UIElement, ctx: &mut C) 
 
     // Self-closing tags
     if matches!(actual_tag, "input" | "img" | "hr" | "br") {
-        return format!("{}<{}{}>\n", indent, actual_tag, attrs_str);
+        return format!("{indent}<{actual_tag}{attrs_str}>\n");
     }
 
     // Has children?
@@ -2168,10 +2170,10 @@ pub(crate) fn render_builtin<C: Paint>(name: &str, ui: &UIElement, ctx: &mut C) 
     let has_caption =
         name == "Table" && table_caption(ui, |e| static_attr(e, &ctx.scope)).is_some();
     if !has_children && !has_text && !has_caption {
-        return format!("{}<{}{}></{}>\n", indent, actual_tag, attrs_str, actual_tag);
+        return format!("{indent}<{actual_tag}{attrs_str}></{actual_tag}>\n");
     }
 
-    let mut result = format!("{}<{}{}>\n", indent, actual_tag, attrs_str);
+    let mut result = format!("{indent}<{actual_tag}{attrs_str}>\n");
 
     if name == "Table"
         && let Some(cap) = table_caption(ui, |e| static_attr(e, &ctx.scope))
@@ -2199,10 +2201,7 @@ pub(crate) fn render_builtin<C: Paint>(name: &str, ui: &UIElement, ctx: &mut C) 
         };
         // Inline text
         if !has_children {
-            return format!(
-                "{}<{}{}>{}</{}>\n",
-                indent, actual_tag, attrs_str, inner, actual_tag
-            );
+            return format!("{indent}<{actual_tag}{attrs_str}>{inner}</{actual_tag}>\n");
         }
         result.push_str(&format!("{}    {}\n", indent, html_escape(text)));
     }
@@ -2218,7 +2217,7 @@ pub(crate) fn render_builtin<C: Paint>(name: &str, ui: &UIElement, ctx: &mut C) 
     ctx.in_thead = was_in_thead;
     ctx.indent -= 1;
 
-    result.push_str(&format!("{}</{}>\n", indent, actual_tag));
+    result.push_str(&format!("{indent}</{actual_tag}>\n"));
     result
 }
 
@@ -2255,7 +2254,7 @@ impl FieldParts {
         }
         if let Some(error) = &self.error {
             let invalid = error.as_deref().is_some_and(|e| !e.is_empty());
-            out.push_str(&format!(" aria-invalid=\"{}\"", invalid));
+            out.push_str(&format!(" aria-invalid=\"{invalid}\""));
         }
         out
     }
@@ -2542,10 +2541,7 @@ fn render_labelled_input<C: Paint>(
         &|e| painted(e, &ctx.scope),
         &ctx.app_schemes,
     );
-    let mut out = format!(
-        "{}<div class=\"{}\"{}{}{}>\n",
-        indent, class_str, own, wf, inline_style
-    );
+    let mut out = format!("{indent}<div class=\"{class_str}\"{own}{wf}{inline_style}>\n");
 
     if let Some(label) = named("label") {
         out.push_str(&format!(
@@ -2598,7 +2594,7 @@ fn render_labelled_input<C: Paint>(
         input_attrs.join(" "),
         own
     ));
-    out.push_str(&format!("{}</div>\n", indent));
+    out.push_str(&format!("{indent}</div>\n"));
     out
 }
 
@@ -2664,7 +2660,7 @@ fn render_linked_item<C: Paint>(
     let indent = ctx.indent_str();
     let wf = ctx.wf_node_attr_inline(ui);
     let (class, aria) = if current {
-        (format!("{} active", class), " aria-current=\"page\"")
+        (format!("{class} active"), " aria-current=\"page\"")
     } else {
         (class.to_string(), "")
     };
@@ -2679,7 +2675,7 @@ fn render_linked_item<C: Paint>(
     ctx.indent += 1;
     out.push_str(&ctx.statements(&ui.children));
     ctx.indent -= 1;
-    out.push_str(&format!("{}</a>\n", indent));
+    out.push_str(&format!("{indent}</a>\n"));
     out
 }
 
@@ -2697,14 +2693,11 @@ fn render_tag<C: Paint>(tag: &str, class: &str, ui: &UIElement, ctx: &mut C) -> 
     } else {
         format!(" style=\"{}\"", html_escape(&decls.join("; ")))
     };
-    let mut result = format!(
-        "{}<{} class=\"{}\"{}{}>\n",
-        indent, tag, class, wf, style_attr
-    );
+    let mut result = format!("{indent}<{tag} class=\"{class}\"{wf}{style_attr}>\n");
     ctx.indent += 1;
     result.push_str(&ctx.statements(&ui.children));
     ctx.indent -= 1;
-    result.push_str(&format!("{}</{}>\n", indent, tag));
+    result.push_str(&format!("{indent}</{tag}>\n"));
     result
 }
 
@@ -3019,8 +3012,8 @@ fn static_attr(expr: &Expr, scope: &Scope) -> Option<String> {
 fn expr_to_static_string(expr: &Expr) -> Option<String> {
     match expr {
         Expr::StringLiteral(s) => Some(s.clone()),
-        Expr::NumberLiteral(n) => Some(format!("{}", n)),
-        Expr::BoolLiteral(b) => Some(format!("{}", b)),
+        Expr::NumberLiteral(n) => Some(format!("{n}")),
+        Expr::BoolLiteral(b) => Some(format!("{b}")),
         _ => None, // Dynamic — can't resolve
     }
 }
@@ -3067,10 +3060,10 @@ fn resolve_text(expr: &Expr, messages: &HashMap<String, String>) -> Option<Strin
             if *n == (*n as i64) as f64 {
                 Some(format!("{}", *n as i64))
             } else {
-                Some(format!("{}", n))
+                Some(format!("{n}"))
             }
         }
-        Expr::BoolLiteral(b) => Some(format!("{}", b)),
+        Expr::BoolLiteral(b) => Some(format!("{b}")),
         Expr::FunctionCall(name, args) if name == "t" => {
             // i18n: resolve from default locale
             if let Some(Expr::StringLiteral(key)) = args.first() {

@@ -133,7 +133,7 @@ pub fn sanitize(html: &str) -> String {
         }
         let name: String = body
             .chars()
-            .take_while(|c| c.is_ascii_alphanumeric())
+            .take_while(char::is_ascii_alphanumeric)
             .collect::<String>()
             .to_ascii_lowercase();
         if name.is_empty() || !SAFE_TAGS.contains(&name.as_str()) {
@@ -266,7 +266,7 @@ fn skip_to_close(chars: &[char], from: usize, name: &str) -> usize {
     match text.to_ascii_lowercase().find(&close) {
         Some(at) => {
             let start = from + text[..at].chars().count();
-            tag_end(chars, start).map(|e| e + 1).unwrap_or(chars.len())
+            tag_end(chars, start).map_or(chars.len(), |e| e + 1)
         }
         None => chars.len(),
     }

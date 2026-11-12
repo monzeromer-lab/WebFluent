@@ -129,7 +129,7 @@ fn position_of_first_word(source: &str) -> (usize, usize) {
         return (1, 1);
     };
     let line = source[..at].matches('\n').count() + 1;
-    let col = at - source[..at].rfind('\n').map(|i| i + 1).unwrap_or(0) + 1;
+    let col = at - source[..at].rfind('\n').map_or(0, |i| i + 1) + 1;
     (line, col)
 }
 

@@ -56,8 +56,7 @@ pub fn generate_html(config: &ProjectConfig, program: &Program) -> String {
     let entry_chunk = entry
         .map(|name| {
             format!(
-                "    <script src=\"{root}/pages/{}.js\" data-wf-page=\"{}\" defer></script>\n",
-                name, name
+                "    <script src=\"{root}/pages/{name}.js\" data-wf-page=\"{name}\" defer></script>\n"
             )
         })
         .unwrap_or_default();
@@ -71,8 +70,7 @@ pub fn generate_html(config: &ProjectConfig, program: &Program) -> String {
         })
         .map(|name| {
             format!(
-                "    <link rel=\"stylesheet\" href=\"{root}/pages/{}.css\" data-wf-page-css=\"{}\">\n",
-                name, name
+                "    <link rel=\"stylesheet\" href=\"{root}/pages/{name}.css\" data-wf-page-css=\"{name}\">\n"
             )
         })
         .unwrap_or_default();
@@ -219,7 +217,7 @@ pub fn head_links(config: &ProjectConfig, base: &str) -> String {
     };
     if !config.meta.favicon.is_empty() {
         let icon = &config.meta.favicon;
-        let kind = match icon.rsplit('.').next().map(|e| e.to_ascii_lowercase()) {
+        let kind = match icon.rsplit('.').next().map(str::to_ascii_lowercase) {
             Some(e) if e == "svg" => " type=\"image/svg+xml\"",
             Some(e) if e == "png" => " type=\"image/png\"",
             Some(e) if e == "ico" => " type=\"image/x-icon\"",
@@ -261,8 +259,7 @@ pub fn head_links(config: &ProjectConfig, base: &str) -> String {
     let mut preconnect = |origin: String, out: &mut String| {
         if !preconnected.contains(&origin) {
             out.push_str(&format!(
-                "    <link rel=\"preconnect\" href=\"{}\" crossorigin>\n",
-                origin
+                "    <link rel=\"preconnect\" href=\"{origin}\" crossorigin>\n"
             ));
             preconnected.push(origin);
         }
@@ -345,8 +342,11 @@ mod head_link_tests {
     fn config(fonts: &[&str], sheets: &[&str]) -> ProjectConfig {
         let mut config: ProjectConfig = serde_json::from_str(r#"{"name":"t"}"#).unwrap();
         config.meta = MetaConfig {
-            fonts: fonts.iter().map(|s| s.to_string()).collect(),
-            stylesheets: sheets.iter().map(|s| s.to_string()).collect(),
+            fonts: fonts.iter().map(std::string::ToString::to_string).collect(),
+            stylesheets: sheets
+                .iter()
+                .map(std::string::ToString::to_string)
+                .collect(),
             ..MetaConfig::default()
         };
         config

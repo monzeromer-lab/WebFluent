@@ -130,7 +130,7 @@ fn translated_route(pattern: &str, route: &str, translation: &str) -> Option<Str
     translation
         .split('/')
         .map(|seg| match seg.strip_prefix(':') {
-            Some(name) => values.get(name).map(|v| v.to_string()),
+            Some(name) => values.get(name).map(std::string::ToString::to_string),
             None => Some(seg.to_string()),
         })
         .collect::<Option<Vec<_>>>()

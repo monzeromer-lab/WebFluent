@@ -210,7 +210,7 @@ impl Template {
             )));
         }
         files.sort();
-        let files: Vec<&Path> = files.iter().map(|p| p.as_path()).collect();
+        let files: Vec<&Path> = files.iter().map(std::path::PathBuf::as_path).collect();
         // `data` files are read from the directory itself.
         Self::load(&files, Some(dir))
     }
@@ -315,7 +315,7 @@ impl Template {
             lang: None,
             pdf: PdfConfig::default(),
             slides: SlidesConfig::default(),
-            root: root.map(|r| r.to_path_buf()),
+            root: root.map(std::path::Path::to_path_buf),
             studio: false,
         })
     }
@@ -1274,7 +1274,7 @@ impl<'a> RenderContext<'a> {
             return Value::Null;
         }
         self.budget.spend(u64::from(metered.spent), span);
-        metered.value.map(|v| v.to_json()).unwrap_or(Value::Null)
+        metered.value.map_or(Value::Null, |v| v.to_json())
     }
 }
 
@@ -1591,7 +1591,7 @@ fn render_ui_element_unmarked(ui: &UIElement, ctx: &mut RenderContext) -> String
                 ctx.indent += 1;
                 out.push_str(&render_statements(&ui.children, ctx));
                 ctx.indent -= 1;
-                out.push_str(&format!("{}</a>\n", indent));
+                out.push_str(&format!("{indent}</a>\n"));
                 return out;
             }
             let tag = match sub.as_str() {
@@ -1933,7 +1933,7 @@ fn render_paged(
     let open = |ctx: &mut RenderContext, tag: &str, attrs: Vec<(String, String)>| -> String {
         let mut a = String::new();
         if !class_str.is_empty() {
-            a.push_str(&format!(" class=\"{}\"", class_str));
+            a.push_str(&format!(" class=\"{class_str}\""));
         }
         for (k, v) in attrs {
             a.push_str(&format!(" {k}=\"{}\"", html_escape(&v)));
@@ -2173,11 +2173,11 @@ fn render_tag(tag: &str, class: &str, ui: &UIElement, ctx: &mut RenderContext) -
         .chain(extra_classes(ui, ctx))
         .collect::<Vec<_>>()
         .join(" ");
-    let mut result = format!("{}<{} class=\"{}\">\n", indent, tag, class);
+    let mut result = format!("{indent}<{tag} class=\"{class}\">\n");
     ctx.indent += 1;
     result.push_str(&render_statements(&ui.children, ctx));
     ctx.indent -= 1;
-    result.push_str(&format!("{}</{}>\n", indent, tag));
+    result.push_str(&format!("{indent}</{tag}>\n"));
     result
 }
 

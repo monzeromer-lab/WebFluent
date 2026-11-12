@@ -34,7 +34,7 @@ impl<'a, 'p> Checker<'a, 'p> {
             // wanted is read as one, and held to its shape — so a `Url`
             // that is not a URL is caught where it is written, not where
             // it is used.
-            Expr::StringLiteral(text) => match expected.map(|t| t.unwrapped()) {
+            Expr::StringLiteral(text) => match expected.map(super::ty::Type::unwrapped) {
                 Some(Type::Scalar(s)) if s.is_text() => {
                     if let Some(shape) = ill_formed(s, text) {
                         let name = s.name();
@@ -126,7 +126,7 @@ impl<'a, 'p> Checker<'a, 'p> {
             Expr::Null => Type::Null,
             Expr::Token(_) => Type::Token,
             Expr::Regex(..) => Type::Regex,
-            Expr::EnumCase(case) => match expected.map(|t| t.unwrapped()) {
+            Expr::EnumCase(case) => match expected.map(super::ty::Type::unwrapped) {
                 Some(Type::Enum(name)) => {
                     let known = self.world.enums.get(name.as_str()).map(|e| e.case_names());
                     if let Some(cases) = known
@@ -163,7 +163,7 @@ impl<'a, 'p> Checker<'a, 'p> {
             },
             // `.failed("x")`: the case with its payload, checked against the
             // enum's declaration when the position names one.
-            Expr::CaseValue(case, args) => match expected.map(|t| t.unwrapped()) {
+            Expr::CaseValue(case, args) => match expected.map(super::ty::Type::unwrapped) {
                 Some(Type::Enum(name)) => {
                     let known = self.world.enums.get(name.as_str()).map(|e| e.case_names());
                     match self.payload_of(&name, case) {
@@ -447,7 +447,7 @@ impl<'a, 'p> Checker<'a, 'p> {
                 // key it does not have, or a field it needs and lacks, is
                 // a fault here, where it is written.
                 if !spread
-                    && let Some(Type::Record(record)) = expected.map(|t| t.unwrapped())
+                    && let Some(Type::Record(record)) = expected.map(super::ty::Type::unwrapped)
                     && self.world.record_fields(&record).is_some()
                 {
                     let keys: Vec<String> = shape.iter().map(|(k, _)| k.clone()).collect();

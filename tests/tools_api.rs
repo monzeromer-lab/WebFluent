@@ -22,9 +22,10 @@ fn scratch(name: &str) -> PathBuf {
 
 fn build(dir: &Path) {
     let options = webfluent::build::BuildOptions::new(dir, &webfluent::vfs::FsVfs);
-    webfluent::build::build(&options)
-        .map(|_| ())
-        .unwrap_or_else(|f| panic!("{} does not build: {}", dir.display(), f.error));
+    webfluent::build::build(&options).map_or_else(
+        |f| panic!("{} does not build: {}", dir.display(), f.error),
+        |_| (),
+    );
 }
 
 #[test]
@@ -470,7 +471,7 @@ fn an_expect_reads_a_page_still_moving_again_until_it_holds() {
             assert_eq!(
                 reasons[0],
                 "expected not to find \"Leaving\", and the page shows it"
-            )
+            );
         }
         other => panic!("{other:?}"),
     }

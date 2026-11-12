@@ -197,7 +197,7 @@ fn literal_value(expr: &Expr) -> Option<String> {
         Expr::NumberLiteral(n) => Some(if *n == (*n as i64) as f64 {
             format!("{}", *n as i64)
         } else {
-            format!("{}", n)
+            format!("{n}")
         }),
         _ => None,
     }

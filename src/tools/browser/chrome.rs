@@ -37,7 +37,7 @@ pub fn find() -> Option<String> {
     BINARIES
         .iter()
         .find(|p| std::path::Path::new(p).exists())
-        .map(|p| p.to_string())
+        .map(std::string::ToString::to_string)
 }
 
 /// What one page did.
@@ -238,7 +238,7 @@ fn open_browser(binary: &str, sandbox: bool) -> Result<(Child, PathBuf, String)>
         "--disable-sync",
     ]
     .iter()
-    .map(|a| a.to_string())
+    .map(std::string::ToString::to_string)
     .collect();
     if !sandbox {
         args.push("--no-sandbox".to_string());

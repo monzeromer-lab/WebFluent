@@ -63,7 +63,7 @@ impl Elem {
         self.classes.iter().any(|x| x == c)
     }
     pub fn attr(&self, k: &str) -> Option<&str> {
-        self.attrs.get(k).map(|s| s.as_str())
+        self.attrs.get(k).map(std::string::String::as_str)
     }
 }
 
@@ -71,7 +71,7 @@ impl Elem {
 
 /// Wrap a body snippet in a minimal page.
 pub fn page(body: &str) -> String {
-    format!("page P(path: \"/\", title: \"T\") {{\n{}\n}}\n", body)
+    format!("page P(path: \"/\", title: \"T\") {{\n{body}\n}}\n")
 }
 
 /// The same source in the new grammar, as `wf migrate` writes it. A source
@@ -252,8 +252,7 @@ fn strip_document(html: &str) -> String {
     let body = match html.split_once("<div id=\"app\">") {
         Some((_, rest)) => rest
             .rsplit_once("</div>")
-            .map(|(body, _)| body.to_string())
-            .unwrap_or_else(|| rest.to_string()),
+            .map_or_else(|| rest.to_string(), |(body, _)| body.to_string()),
         None => html.to_string(),
     };
     match body.split_once("<main id=\"wf-main\">") {
@@ -462,7 +461,7 @@ fn parse_html(html: &str) -> Vec<Elem> {
             tag,
             classes,
             attrs,
-            raw: format!("<{}>", inner),
+            raw: format!("<{inner}>"),
         });
         rest = after;
     }
@@ -526,7 +525,9 @@ fn parse_html_attrs(s: &str) -> HashMap<String, String> {
 }
 
 fn split_classes(s: &str) -> Vec<String> {
-    s.split_whitespace().map(|c| c.to_string()).collect()
+    s.split_whitespace()
+        .map(std::string::ToString::to_string)
+        .collect()
 }
 
 // ─── Reference data ─────────────────────────────────────────────────────
@@ -577,7 +578,7 @@ pub fn built_in_css() -> String {
 
 /// Whether the built-in stylesheet defines a rule for `class`.
 pub fn css_defines_class(css: &str, class: &str) -> bool {
-    let needle = format!(".{}", class);
+    let needle = format!(".{class}");
     let mut rest = css;
     while let Some(i) = rest.find(&needle) {
         let after = &rest[i + needle.len()..];

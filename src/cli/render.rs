@@ -55,7 +55,7 @@ pub fn run_render(
         let mut buf = String::new();
         io::stdin()
             .read_to_string(&mut buf)
-            .map_err(|e| WebFluentError::IoError(format!("Failed to read stdin: {}", e)))?;
+            .map_err(|e| WebFluentError::IoError(format!("Failed to read stdin: {e}")))?;
         // An empty pipe (`< /dev/null`, a script's unset variable) is no data.
         if buf.trim().is_empty() {
             "{}".to_string()
@@ -65,7 +65,7 @@ pub fn run_render(
     };
 
     let data: serde_json::Value = serde_json::from_str(&json_str)
-        .map_err(|e| WebFluentError::ConfigError(format!("Invalid JSON data: {}", e)))?;
+        .map_err(|e| WebFluentError::ConfigError(format!("Invalid JSON data: {e}")))?;
 
     // From the file, so an indented `.wfx` template reads and a `data` file
     // it names is found beside it.
@@ -107,8 +107,7 @@ pub fn run_render(
         }
         _ => {
             return Err(WebFluentError::ConfigError(format!(
-                "Unknown format '{}'. Use 'html', 'html-fragment', 'pdf', or 'slides'.",
-                format
+                "Unknown format '{format}'. Use 'html', 'html-fragment', 'pdf', or 'slides'."
             )));
         }
     }
@@ -130,7 +129,7 @@ fn write_output(path: Option<&Path>, data: &[u8]) -> Result<()> {
         use std::io::Write;
         io::stdout()
             .write_all(data)
-            .map_err(|e| WebFluentError::IoError(format!("Failed to write stdout: {}", e)))?;
+            .map_err(|e| WebFluentError::IoError(format!("Failed to write stdout: {e}")))?;
     }
     Ok(())
 }

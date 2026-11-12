@@ -374,8 +374,7 @@ pub fn property(name: &str) -> Property {
     let group = CURATED
         .iter()
         .find(|(_, props)| props.contains(&name.as_str()))
-        .map(|(g, _)| *g)
-        .unwrap_or(OTHER);
+        .map_or(OTHER, |(g, _)| *g);
     let tokens = crate::registry::style_tokens::token_group(&name);
     Property {
         group,
@@ -775,7 +774,7 @@ pub fn parse(property: &str, text: &str) -> Value {
                             if t.is_length()
                                 || matches!(t, Part::Call { .. } | Part::Word { .. }) =>
                         {
-                            tracks.push(t)
+                            tracks.push(t);
                         }
                         _ => return free(),
                     },

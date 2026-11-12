@@ -64,23 +64,20 @@ impl JsCodegen {
         if let Some(img_src) = src {
             let alt_val = alt.unwrap_or_else(|| "\"\"".to_string());
             self.emit_line(&format!(
-                "const {} = WF.el(\"div\", {{ className: \"{}\"{} }}, WF.el(\"img\", {{ src: {}, alt: {} }}));",
-                var, cls, own, img_src, alt_val
+                "const {var} = WF.el(\"div\", {{ className: \"{cls}\"{own} }}, WF.el(\"img\", {{ src: {img_src}, alt: {alt_val} }}));"
             ));
         } else if let Some(init) = initials {
             self.emit_line(&format!(
-                "const {} = WF.el(\"div\", {{ className: \"{}\"{} }}, {});",
-                var, cls, own, init
+                "const {var} = WF.el(\"div\", {{ className: \"{cls}\"{own} }}, {init});"
             ));
         } else {
             self.emit_line(&format!(
-                "const {} = WF.el(\"div\", {{ className: \"{}\"{} }});",
-                var, cls, own
+                "const {var} = WF.el(\"div\", {{ className: \"{cls}\"{own} }});"
             ));
         }
 
         self.emit_root_handlers(var, ui, false);
-        self.emit_line(&format!("{}.appendChild({});", parent, var));
+        self.emit_line(&format!("{parent}.appendChild({var});"));
     }
 
     pub(in super::super) fn emit_skeleton(&mut self, var: &str, ui: &UIElement, parent: &str) {
@@ -157,7 +154,7 @@ impl JsCodegen {
             }
         }
         self.emit_root_handlers(var, ui, false);
-        self.emit_line(&format!("{}.appendChild({});", parent, var));
+        self.emit_line(&format!("{parent}.appendChild({var});"));
     }
 
     pub(in super::super) fn emit_carousel(&mut self, var: &str, ui: &UIElement, parent: &str) {
@@ -174,8 +171,7 @@ impl JsCodegen {
 
         let track_var = self.fresh_var();
         self.emit_line(&format!(
-            "const {} = WF.el(\"div\", {{ className: \"wf-carousel__track\" }});",
-            track_var
+            "const {track_var} = WF.el(\"div\", {{ className: \"wf-carousel__track\" }});"
         ));
 
         // The slides are the structure; everything else — the controls, the
@@ -204,7 +200,7 @@ impl JsCodegen {
                     for c in &ui_child.children {
                         self.emit_statement_dom(c, &slide_var);
                     }
-                    self.emit_line(&format!("{}.appendChild({});", track_var, slide_var));
+                    self.emit_line(&format!("{track_var}.appendChild({slide_var});"));
                 } else {
                     self.emit_statement_dom(child, &track_var);
                 }
@@ -213,7 +209,7 @@ impl JsCodegen {
             }
         }
 
-        self.emit_line(&format!("{}.appendChild({});", var, track_var));
+        self.emit_line(&format!("{var}.appendChild({track_var});"));
 
         let autoplay = ui.args.iter().any(|a| {
             matches!(a, Arg::Named(k, v) if k == "autoplay" && matches!(v, Expr::BoolLiteral(true)))
@@ -241,7 +237,7 @@ impl JsCodegen {
         ));
 
         self.emit_root_handlers(var, ui, false);
-        self.emit_line(&format!("{}.appendChild({});", parent, var));
+        self.emit_line(&format!("{parent}.appendChild({var});"));
     }
 
     pub(in super::super) fn emit_icon_button(&mut self, var: &str, ui: &UIElement, parent: &str) {
@@ -296,14 +292,14 @@ impl JsCodegen {
         } else {
             icon.clone()
         };
-        let mut btn_attrs = format!("className: \"{}\", \"data-icon\": {}", cls, icon_attr);
+        let mut btn_attrs = format!("className: \"{cls}\", \"data-icon\": {icon_attr}");
         if let Some(l) = &label {
             let l = if self.is_reactive(l) {
                 format!("() => {l}")
             } else {
                 l.clone()
             };
-            btn_attrs.push_str(&format!(", \"aria-label\": {}", l));
+            btn_attrs.push_str(&format!(", \"aria-label\": {l}"));
         }
         // Its label is its tooltip too, unless its author writes one: two
         // `title` keys kept the last on the live page and the first in the
@@ -336,14 +332,13 @@ impl JsCodegen {
             ));
         }
         if let Some(entry) = self.wf_node_entry(ui) {
-            btn_attrs.push_str(&format!(", {}", entry));
+            btn_attrs.push_str(&format!(", {entry}"));
         }
 
         self.emit_line(&format!(
-            "const {} = WF.el(\"button\", {{ {} }}, WF.el(\"span\", {{ className: \"wf-icon\", \"data-icon\": {} }}));",
-            var, btn_attrs, icon
+            "const {var} = WF.el(\"button\", {{ {btn_attrs} }}, WF.el(\"span\", {{ className: \"wf-icon\", \"data-icon\": {icon} }}));"
         ));
-        self.emit_line(&format!("{}.appendChild({});", parent, var));
+        self.emit_line(&format!("{parent}.appendChild({var});"));
     }
 
     /// A `Video` with captions, or an `Audio` with a transcript: what a

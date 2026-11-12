@@ -253,7 +253,9 @@ struct GzipCache {
 
 impl Shared {
     fn state(&self) -> std::sync::MutexGuard<'_, DevState> {
-        self.state.lock().unwrap_or_else(|e| e.into_inner())
+        self.state
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
     }
 
     /// `content`, the text of `file` (with the dev script when `dev_page`),
@@ -264,13 +266,13 @@ impl Shared {
         let key: GzipKey = (
             file.to_path_buf(),
             meta.as_ref().and_then(|m| m.modified().ok()),
-            meta.as_ref().map_or(0, |m| m.len()),
+            meta.as_ref().map_or(0, std::fs::Metadata::len),
             dev_page.then(|| self.state().version),
         );
         if let Some(gz) = self
             .gzipped
             .lock()
-            .unwrap_or_else(|e| e.into_inner())
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
             .held
             .get(&key)
         {
@@ -278,7 +280,10 @@ impl Shared {
         }
         // Compressed outside the lock, so other requests go on meanwhile.
         let gz = std::sync::Arc::new(crate::codegen::gzip::gzip(content));
-        let mut cache = self.gzipped.lock().unwrap_or_else(|e| e.into_inner());
+        let mut cache = self
+            .gzipped
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
         if cache.bytes + gz.len() > GZIP_CACHE_BYTES {
             cache.held.clear();
             cache.bytes = 0;
@@ -306,7 +311,9 @@ pub fn run_serve(project_dir: &Path, host: &str, allow_output_outside: bool) -> 
     // that fails leaves the last output in place and its error on show.
     let state = std::sync::Arc::new(std::sync::Mutex::new(DevState::default()));
     {
-        let mut s = state.lock().unwrap_or_else(|e| e.into_inner());
+        let mut s = state
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
         s.record(
             project_dir,
             crate::cli::build::run_build_opts(project_dir, build_options),
@@ -335,7 +342,7 @@ pub fn run_serve(project_dir: &Path, host: &str, allow_output_outside: bool) -> 
     let base_path = config.build.base_path.trim_end_matches('/').to_string();
 
     let server = tiny_http::Server::http(addr).map_err(|e| {
-        crate::error::WebFluentError::IoError(format!("Failed to start server: {}", e))
+        crate::error::WebFluentError::IoError(format!("Failed to start server: {e}"))
     })?;
     let port = server.server_addr().to_ip().map_or(port, |a| a.port());
     let shown = if ip.is_loopback() || ip.is_unspecified() {
@@ -371,7 +378,7 @@ pub fn run_serve(project_dir: &Path, host: &str, allow_output_outside: bool) -> 
                 let outcome = crate::cli::build::run_build_opts(&root, build_options);
                 state
                     .lock()
-                    .unwrap_or_else(|e| e.into_inner())
+                    .unwrap_or_else(std::sync::PoisonError::into_inner)
                     .record(&root, outcome);
             }
         });
@@ -750,7 +757,7 @@ fn guess_content_type(path: &Path) -> &'static str {
     match path.extension().and_then(|e| e.to_str()) {
         Some("html") => "text/html; charset=utf-8",
         Some("css") => "text/css; charset=utf-8",
-        Some("js") | Some("mjs") => "application/javascript; charset=utf-8",
+        Some("js" | "mjs") => "application/javascript; charset=utf-8",
         Some("json") => "application/json",
         Some("xml") => "application/xml",
         Some("txt") => "text/plain; charset=utf-8",
@@ -760,7 +767,7 @@ fn guess_content_type(path: &Path) -> &'static str {
         Some("mp4") => "video/mp4",
         Some("webm") => "video/webm",
         Some("png") => "image/png",
-        Some("jpg") | Some("jpeg") => "image/jpeg",
+        Some("jpg" | "jpeg") => "image/jpeg",
         Some("gif") => "image/gif",
         Some("svg") => "image/svg+xml",
         Some("ico") => "image/x-icon",

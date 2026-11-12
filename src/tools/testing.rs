@@ -101,8 +101,10 @@ pub fn collect(path: &Path) -> Result<Tests> {
             .ancestors()
             .skip(1)
             .find(|dir| dir.join("webfluent.app.json").is_file())
-            .map(Path::to_path_buf)
-            .unwrap_or_else(|| path.parent().unwrap_or(Path::new(".")).to_path_buf())
+            .map_or_else(
+                || path.parent().unwrap_or(Path::new(".")).to_path_buf(),
+                Path::to_path_buf,
+            )
     } else {
         path.to_path_buf()
     };
@@ -370,8 +372,7 @@ impl Tests {
     pub fn locale(&self) -> String {
         self.i18n
             .as_ref()
-            .map(|(i, _)| i.default_locale.clone())
-            .unwrap_or_else(|| "en".to_string())
+            .map_or_else(|| "en".to_string(), |(i, _)| i.default_locale.clone())
     }
 
     /// The messages of the default locale, which a test that looks reads.
@@ -476,8 +477,9 @@ pub fn render_test(
     let mut data = match &test.data {
         Some(expr) => {
             crate::project::static_eval::eval(expr, &crate::project::static_eval::Scope::of([]))
-                .map(|v| v.to_json())
-                .unwrap_or(serde_json::Value::Object(Default::default()))
+                .map_or(serde_json::Value::Object(Default::default()), |v| {
+                    v.to_json()
+                })
         }
         None => serde_json::Value::Object(Default::default()),
     };
@@ -555,7 +557,7 @@ fn rendered_text(html: &str) -> String {
         let name: String = tag
             .trim_start_matches('/')
             .chars()
-            .take_while(|c| c.is_ascii_alphanumeric())
+            .take_while(char::is_ascii_alphanumeric)
             .collect::<String>()
             .to_ascii_lowercase();
         if name.is_empty() {
@@ -774,8 +776,7 @@ fn run_one(
 pub fn snapshot_path(snapshots: &Path, file: &str, test: &TestDecl) -> PathBuf {
     let stem = Path::new(file)
         .file_stem()
-        .map(|s| s.to_string_lossy().to_string())
-        .unwrap_or_else(|| "tests".to_string());
+        .map_or_else(|| "tests".to_string(), |s| s.to_string_lossy().to_string());
     snapshots
         .join(stem)
         .join(format!("{}.html", slug(&test.name)))

@@ -248,7 +248,7 @@ pub fn check(page: &str, html: &str, policy: &str) -> Vec<Violation> {
                     "default-src",
                     "a refresh".to_string(),
                     "A refresh may reload the page or name an address on this site; anything else is a redirect",
-                )
+                );
             }
             _ => {}
         }
@@ -455,7 +455,7 @@ impl Tag {
 /// as `&lt;`.
 fn elements(html: &str) -> Vec<Tag> {
     let chars: Vec<char> = html.chars().collect();
-    let lower: Vec<char> = chars.iter().map(|c| c.to_ascii_lowercase()).collect();
+    let lower: Vec<char> = chars.iter().map(char::to_ascii_lowercase).collect();
     let starts = |at: usize, text: &str| {
         text.chars()
             .enumerate()
@@ -474,7 +474,7 @@ fn elements(html: &str) -> Vec<Tag> {
                 .map_or(chars.len(), |j| j + 3);
             continue;
         }
-        if !chars.get(i + 1).is_some_and(|c| c.is_ascii_alphabetic()) {
+        if !chars.get(i + 1).is_some_and(char::is_ascii_alphabetic) {
             i += 1;
             continue;
         }
@@ -497,7 +497,7 @@ fn elements(html: &str) -> Vec<Tag> {
                 None if (c == '"' || c == '\'')
                     && chars[j..k].iter().rev().find(|c| !c.is_whitespace()) == Some(&'=') =>
                 {
-                    quote = Some(c)
+                    quote = Some(c);
                 }
                 None => {}
             }

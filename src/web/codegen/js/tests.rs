@@ -1390,7 +1390,7 @@ fn a_store_action_keeps_its_own_names_inside_try_for_and_else_if() {
         "store S { state user: Map? = null\n state error = \"\"\n state n = 0\n action login(email: String, rows: [Map]) { try { let r = await fetch(\"/x\")\n user = r.user\n for row, i in rows { if row.ok { n = n + i } else if row.bad { log(row) } else { n = 0 } } } catch e { error = e.message } } }\npage P(path: \"/\") { use S\n Text(\"x\") }",
     );
     let i = out.find("login: async").unwrap();
-    let action = &out[i..out[i..].find("},\n").map(|j| i + j).unwrap_or(out.len())];
+    let action = &out[i..out[i..].find("},\n").map_or(out.len(), |j| i + j)];
     for expected in [
         "let r = (await WF.request(\"/x\"));",
         "store.user = r.user;",

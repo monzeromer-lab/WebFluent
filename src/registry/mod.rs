@@ -638,7 +638,7 @@ mod tests {
 
     #[test]
     fn every_case_of_an_enum_has_a_distinct_name_and_a_known_legacy_word() {
-        for sig in COMPONENTS.iter() {
+        for sig in COMPONENTS {
             for p in sig.all_props() {
                 if let PropType::Enum(cases) = p.ty {
                     let mut names: Vec<&str> = cases.iter().map(|c| c.name).collect();

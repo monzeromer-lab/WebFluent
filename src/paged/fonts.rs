@@ -187,7 +187,9 @@ pub fn register_font(bytes: Vec<u8>) -> Option<String> {
     let same =
         |f: &Face| f.family == face.family && f.weights == face.weights && f.italic == face.italic;
     // A face already built in, or already registered, is not taken twice.
-    let mut registered = REGISTERED.lock().unwrap_or_else(|e| e.into_inner());
+    let mut registered = REGISTERED
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner);
     if !embedded_faces().iter().any(same) && !registered.iter().any(same) {
         registered.push(face);
     }
@@ -216,7 +218,10 @@ fn gzip_body(bytes: &[u8]) -> Option<&[u8]> {
 
 /// How many faces have been registered: what a cache of them is keyed by.
 fn registered_count() -> usize {
-    REGISTERED.lock().unwrap_or_else(|e| e.into_inner()).len()
+    REGISTERED
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner)
+        .len()
 }
 
 /// The bundled faces, inflated once per process, and those registered.
@@ -225,7 +230,7 @@ fn bundled_faces() -> Vec<Face> {
     faces.extend(
         REGISTERED
             .lock()
-            .unwrap_or_else(|e| e.into_inner())
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
             .iter()
             .cloned(),
     );
@@ -258,7 +263,7 @@ fn embedded_faces() -> &'static Vec<Face> {
 pub fn svg_fontdb() -> Arc<fontdb::Database> {
     // Made again only when a face is registered after it was made.
     static DB: Mutex<Option<(usize, Arc<fontdb::Database>)>> = Mutex::new(None);
-    let mut cached = DB.lock().unwrap_or_else(|e| e.into_inner());
+    let mut cached = DB.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
     let count = registered_count();
     if let Some((made_with, db)) = cached.as_ref()
         && *made_with == count
@@ -311,8 +316,9 @@ fn read_face(data: Arc<Vec<u8>>, index: u32, source: Source) -> Option<Face> {
         ttf.variation_axes()
             .into_iter()
             .find(|a| a.tag == ttf_parser::Tag::from_bytes(b"wght"))
-            .map(|a| (a.min_value as u16, a.max_value as u16))
-            .unwrap_or((weight, weight))
+            .map_or((weight, weight), |a| {
+                (a.min_value as u16, a.max_value as u16)
+            })
     } else {
         (weight, weight)
     };
@@ -446,7 +452,7 @@ impl FontDb {
 
     /// Every `.ttf`, `.otf` and `.ttc` under a directory.
     pub fn add_dir(&mut self, dir: &Path) {
-        self.add_dir_via(&crate::base::vfs::FsVfs, dir)
+        self.add_dir_via(&crate::base::vfs::FsVfs, dir);
     }
 
     /// [`add_dir`](Self::add_dir), read through `vfs`.
@@ -716,7 +722,7 @@ pub fn is_font_file(path: &Path) -> bool {
     matches!(
         path.extension()
             .and_then(|e| e.to_str())
-            .map(|e| e.to_ascii_lowercase())
+            .map(str::to_ascii_lowercase)
             .as_deref(),
         Some("ttf" | "otf" | "ttc" | "otc")
     )
@@ -786,7 +792,7 @@ mod tests {
     const BUNDLED_FOR_TEST: &[u8] = include_bytes!("fonts/LiberationSans-Regular.ttf.z");
 
     fn fam(names: &[&str]) -> Vec<String> {
-        names.iter().map(|s| s.to_string()).collect()
+        names.iter().map(std::string::ToString::to_string).collect()
     }
 
     #[test]

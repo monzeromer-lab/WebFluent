@@ -884,6 +884,18 @@ silent no-op. What is left (`#[doc(hidden)]`/`pub(crate)` internals,
 `#[non_exhaustive]`, `pub use ast::*` as a list) changes the API and
 waits for 6.0.
 
+**Lint sweep, first pass (2026-11-12).** Clippy's own machine-applicable
+fixes took eleven pedantic lints to zero, each now `"warn"` in
+`Cargo.toml` so CI holds it there: `uninlined_format_args` (387),
+`redundant_closure_for_method_calls`, `semicolon_if_nothing_returned`,
+`explicit_iter_loop`, `explicit_into_iter_loop`,
+`cloned_instead_of_copied`, `implicit_clone`, `single_char_pattern`,
+`needless_raw_string_hashes`, `unnested_or_patterns` and
+`ignored_unit_patterns`. The output is byte-identical. Left for a person,
+since clippy marks their fixes "maybe incorrect": `elided_lifetimes_in_paths`
+(91), `default_trait_access`, `match_wildcard_for_single_variants`,
+`map_unwrap_or` and `manual_let_else` (a few each).
+
 **API shape** (the skill's checklist, per layer): `bool` parameters in
 shared signatures become two-variant enums (94 today, `max-fn-params-bools
 = 0`); public types derive `Debug` and the applicable std traits; magic

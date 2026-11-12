@@ -94,8 +94,7 @@ pub fn parse(comment: &str) -> Doc {
                             }
                             depth == 0
                         })
-                        .map(|(i, _)| i)
-                        .unwrap_or(after.len());
+                        .map_or(after.len(), |(i, _)| i);
                     (
                         format!("[{}]", &after[..end]),
                         after.get(end + 1..).unwrap_or("").trim(),

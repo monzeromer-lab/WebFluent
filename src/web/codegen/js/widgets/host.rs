@@ -271,7 +271,7 @@ impl JsCodegen {
             }
         }
         self.emit_root_handlers(var, ui, false);
-        self.emit_line(&format!("{}.appendChild({});", parent, var));
+        self.emit_line(&format!("{parent}.appendChild({var});"));
     }
 
     /// `Splitter(bind: width, min:, max:, reset:)`: a handle `WF.splitter`
@@ -324,6 +324,6 @@ impl JsCodegen {
             opts.join(", ")
         ));
         self.emit_root_handlers(var, ui, false);
-        self.emit_line(&format!("{}.appendChild({});", parent, var));
+        self.emit_line(&format!("{parent}.appendChild({var});"));
     }
 }

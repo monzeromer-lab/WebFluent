@@ -305,7 +305,7 @@ fn resolve(reference: &str, from: &str) -> Option<String> {
     if r.starts_with('/') {
         return site_path(r);
     }
-    let dir = from.rsplit_once('/').map(|(d, _)| d).unwrap_or("");
+    let dir = from.rsplit_once('/').map_or("", |(d, _)| d);
     site_path(&format!("{dir}/{r}"))
 }
 
@@ -456,7 +456,7 @@ impl Finder<'_> {
                 Declaration::Store(s) => self.statements(&s.body, file),
                 Declaration::App(a) => self.statements(&a.body, file),
                 Declaration::Const(c) => {
-                    self.expr(&c.value, file, c.span, &format!("const {}", c.name))
+                    self.expr(&c.value, file, c.span, &format!("const {}", c.name));
                 }
                 Declaration::Theme(t) => {
                     for token in &t.tokens {
@@ -800,7 +800,7 @@ pub fn list_via(vfs: &dyn Vfs, root: &Path) -> Result<Listing> {
     let mut assets = Vec::new();
     for (site, path) in files {
         let kind = Kind::of(&site);
-        let bytes = vfs.metadata(&path).map(|m| m.len).unwrap_or(0);
+        let bytes = vfs.metadata(&path).map_or(0, |m| m.len);
         let (width, height) = if kind == Kind::Image {
             vfs.read(&path)
                 .ok()

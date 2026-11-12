@@ -182,21 +182,20 @@ impl JsCodegen {
         // `if let x = e`: the branch shows while the value is not null, and
         // reads it as a plain name.
         let cond = match &if_stmt.binding {
-            Some(_) => format!("{} != null", value),
+            Some(_) => format!("{value} != null"),
             None => value.clone(),
         };
 
-        self.emit_line(&format!("WF.when({},", parent));
+        self.emit_line(&format!("WF.when({parent},"));
         self.indent += 1;
-        self.emit_line(&format!("() => {},", cond));
+        self.emit_line(&format!("() => {cond},"));
 
         // Then branch
         self.emit_line("() => {");
         self.indent += 1;
         let then_var = self.fresh_var();
         self.emit_line(&format!(
-            "const {} = document.createDocumentFragment();",
-            then_var
+            "const {then_var} = document.createDocumentFragment();"
         ));
         // `if let x = v`: the branch reads `x` as `v` is now — a new value
         // reaches what it drew in place — and the branch is drawn again
@@ -210,7 +209,7 @@ impl JsCodegen {
             self.emit_statement_dom(stmt, &then_var);
         }
         self.unbind(bound);
-        self.emit_line(&format!("return {};", then_var));
+        self.emit_line(&format!("return {then_var};"));
         self.indent -= 1;
         self.emit_line("},");
 
@@ -223,8 +222,7 @@ impl JsCodegen {
             self.indent += 1;
             let elif_var = self.fresh_var();
             self.emit_line(&format!(
-                "const {} = document.createDocumentFragment();",
-                elif_var
+                "const {elif_var} = document.createDocumentFragment();"
             ));
             let elif = IfStmt {
                 condition: if_stmt.else_if_branches[0].0.clone(),
@@ -236,7 +234,7 @@ impl JsCodegen {
                 else_body: if_stmt.else_body.clone(),
             };
             self.emit_if_dom(&elif, &elif_var);
-            self.emit_line(&format!("return {};", elif_var));
+            self.emit_line(&format!("return {elif_var};"));
             self.indent -= 1;
             self.emit_line("},");
         } else if let Some(else_body) = &if_stmt.else_body {
@@ -244,13 +242,12 @@ impl JsCodegen {
             self.indent += 1;
             let else_var = self.fresh_var();
             self.emit_line(&format!(
-                "const {} = document.createDocumentFragment();",
-                else_var
+                "const {else_var} = document.createDocumentFragment();"
             ));
             for stmt in else_body {
                 self.emit_statement_dom(stmt, &else_var);
             }
-            self.emit_line(&format!("return {};", else_var));
+            self.emit_line(&format!("return {else_var};"));
             self.indent -= 1;
             self.emit_line("},");
         } else {
@@ -270,9 +267,9 @@ impl JsCodegen {
         let window = self.window_opts.take();
         let draw = if window.is_some() { "windowed" } else { "each" };
 
-        self.emit_line(&format!("WF.{draw}({},", parent));
+        self.emit_line(&format!("WF.{draw}({parent},"));
         self.indent += 1;
-        self.emit_line(&format!("() => {},", list));
+        self.emit_line(&format!("() => {list},"));
 
         // A keyed loop's item keeps its nodes for as long as its key is in
         // the list: its body is handed the item and the index as accessors
@@ -316,13 +313,12 @@ impl JsCodegen {
 
         let item_var = self.fresh_var();
         self.emit_line(&format!(
-            "const {} = document.createDocumentFragment();",
-            item_var
+            "const {item_var} = document.createDocumentFragment();"
         ));
         for stmt in &for_stmt.body {
             self.emit_statement_dom(stmt, &item_var);
         }
-        self.emit_line(&format!("return {};", item_var));
+        self.emit_line(&format!("return {item_var};"));
 
         self.loop_sources.pop();
         self.unbind(bound);
@@ -368,20 +364,19 @@ impl JsCodegen {
     pub(in super::super) fn emit_show_dom(&mut self, show_stmt: &ShowStmt, parent: &str) {
         let cond = self.emit_expr(&show_stmt.condition);
 
-        self.emit_line(&format!("WF.show({},", parent));
+        self.emit_line(&format!("WF.show({parent},"));
         self.indent += 1;
-        self.emit_line(&format!("() => {},", cond));
+        self.emit_line(&format!("() => {cond},"));
         self.emit_line("() => {");
         self.indent += 1;
         let content_var = self.fresh_var();
         self.emit_line(&format!(
-            "const {} = document.createDocumentFragment();",
-            content_var
+            "const {content_var} = document.createDocumentFragment();"
         ));
         for stmt in &show_stmt.body {
             self.emit_statement_dom(stmt, &content_var);
         }
-        self.emit_line(&format!("return {};", content_var));
+        self.emit_line(&format!("return {content_var};"));
         self.indent -= 1;
         self.emit_line("},");
 
@@ -450,20 +445,19 @@ impl JsCodegen {
             )
         } else if over_resource {
             (
-                format!("() => {}.state()", subject),
+                format!("() => {subject}.state()"),
                 format!(
-                    "() => {}.state() === \"error\" ? {}.error() : {}.data()",
-                    subject, subject, subject
+                    "() => {subject}.state() === \"error\" ? {subject}.error() : {subject}.data()"
                 ),
             )
         } else {
             // An enum: the arm is chosen by the case, and handed the payload.
             (
-                format!("() => WF.caseOf({})", subject),
-                format!("() => {}", subject),
+                format!("() => WF.caseOf({subject})"),
+                format!("() => {subject}"),
             )
         };
-        self.emit_line(&format!("WF.match({}, {}, {}, {{", parent, key, arg));
+        self.emit_line(&format!("WF.match({parent}, {key}, {arg}, {{"));
         self.indent += 1;
         for arm in &m.arms {
             let name = match &arm.pattern {
@@ -494,14 +488,11 @@ impl JsCodegen {
                 self.bind_live(bound_name);
             }
             let var = self.fresh_var();
-            self.emit_line(&format!(
-                "const {} = document.createDocumentFragment();",
-                var
-            ));
+            self.emit_line(&format!("const {var} = document.createDocumentFragment();"));
             for stmt in &arm.body {
                 self.emit_statement_dom(stmt, &var);
             }
-            self.emit_line(&format!("return {};", var));
+            self.emit_line(&format!("return {var};"));
             self.unbind(bound);
             self.indent -= 1;
             self.emit_line("},");

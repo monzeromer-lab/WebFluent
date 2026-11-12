@@ -364,7 +364,7 @@ pub fn build(
         .map(|code| Locale {
             code: code.clone(),
             file: format!("{dir}/{code}.json"),
-            exists: files.get(code).is_some_and(|t| t.is_some()),
+            exists: files.get(code).is_some_and(std::option::Option::is_some),
             default: *code == rtl_default,
             rtl: is_rtl(code),
             forms: super::plurals::categories(code),

@@ -1083,8 +1083,7 @@ fn case_doc(project: &Project, component: &ComponentRef, key: &str, case: &str) 
         let doc = cases
             .iter()
             .find(|c| c.name == case)
-            .map(|c| c.summary)
-            .unwrap_or("Not one of its cases.");
+            .map_or("Not one of its cases.", |c| c.summary);
         return format!("**.{case}** — `{key}` of `{component_name}`\n\n{doc}");
     }
     if let ComponentRef::UserDefined(user) = component
@@ -1167,8 +1166,10 @@ fn style_doc(word: &str, token: Option<&TokenType>) -> Option<String> {
         let doc = reference::SELECTORS
             .iter()
             .find(|(s, _)| *s == selector)
-            .map(|(_, d)| *d)
-            .unwrap_or("A nested rule, in CSS nesting syntax: `&` is the element");
+            .map_or(
+                "A nested rule, in CSS nesting syntax: `&` is the element",
+                |(_, d)| *d,
+            );
         return Some(format!(
             "**{selector}** — nested rule\n\n{doc}. Its values must be literals or tokens, not state."
         ));
@@ -1242,8 +1243,7 @@ fn event_doc(project: &Project, file_ix: usize, offset: usize, name: &str) -> St
     let what = reference::events()
         .iter()
         .find(|(e, _)| *e == name)
-        .map(|(_, d)| *d)
-        .unwrap_or("A DOM event of this name");
+        .map_or("A DOM event of this name", |(_, d)| *d);
     format!(
         "**on {name}** — event handler\n\n{what}. `on {name}(event) {{ }}` names the DOM event (`event.target`, `event.key`)."
     )

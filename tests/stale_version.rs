@@ -79,7 +79,7 @@ fn stale_mentions(line: &str, major: u32) -> Vec<String> {
     while let Some(at) = rest.find("WebFluent ") {
         let after = &rest[at + "WebFluent ".len()..];
         let after = after.strip_prefix('v').unwrap_or(after);
-        let digits: String = after.chars().take_while(|c| c.is_ascii_digit()).collect();
+        let digits: String = after.chars().take_while(char::is_ascii_digit).collect();
         if let Ok(n) = digits.parse::<u32>() {
             let tail =
                 after[digits.len()..].trim_start_matches(|c: char| c == '.' || c.is_ascii_digit());
@@ -94,7 +94,7 @@ fn stale_mentions(line: &str, major: u32) -> Vec<String> {
     // after `webfluent`.
     if let Some(at) = line.find("webfluent = { version = \"") {
         let v = &line[at + "webfluent = { version = \"".len()..];
-        let digits: String = v.chars().take_while(|c| c.is_ascii_digit()).collect();
+        let digits: String = v.chars().take_while(char::is_ascii_digit).collect();
         if digits.parse::<u32>().is_ok_and(|n| n < major) {
             found.push(format!("webfluent = {{ version = \"{digits}\" }}"));
         }

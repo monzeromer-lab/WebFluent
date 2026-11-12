@@ -176,7 +176,7 @@ impl Project {
     ) -> Project {
         let path = uri
             .to_file_path()
-            .unwrap_or_else(|_| PathBuf::from(uri.path()));
+            .unwrap_or_else(|()| PathBuf::from(uri.path()));
 
         let root = find_root(vfs, &path);
         // The project is read as the build reads it: a link out of it is
@@ -253,7 +253,7 @@ impl Project {
 
         let mut files = Vec::new();
         let mut fallbacks: Vec<Option<Arc<Program>>> = Vec::new();
-        for file_path in paths.into_iter() {
+        for file_path in paths {
             let (source, open, last_valid): (Arc<str>, bool, Option<Arc<Program>>) =
                 match open_text(&file_path) {
                     Some(open) => (open.text, true, open.last_valid),
@@ -262,7 +262,7 @@ impl Project {
                         None => continue,
                     },
                 };
-            let file_uri = Url::from_file_path(&file_path).unwrap_or_else(|_| uri.clone());
+            let file_uri = Url::from_file_path(&file_path).unwrap_or_else(|()| uri.clone());
             let label = root
                 .as_ref()
                 .and_then(|root| file_path.strip_prefix(root).ok())
@@ -309,7 +309,7 @@ impl Project {
             });
             fallbacks.push(None);
             files.push(SourceFile {
-                uri: Url::from_file_path(&script_path).unwrap_or_else(|_| uri.clone()),
+                uri: Url::from_file_path(&script_path).unwrap_or_else(|()| uri.clone()),
                 path: script_path,
                 index: LineIndex::new(&source),
                 source,
@@ -340,7 +340,7 @@ impl Project {
                 .collect();
             fallbacks.push(None);
             files.push(SourceFile {
-                uri: Url::from_file_path(&config_path).unwrap_or_else(|_| uri.clone()),
+                uri: Url::from_file_path(&config_path).unwrap_or_else(|()| uri.clone()),
                 path: config_path,
                 index: LineIndex::new(&source),
                 source,
@@ -438,7 +438,7 @@ impl Project {
     pub fn file_index(&self, uri: &Url) -> Option<usize> {
         match uri.to_file_path() {
             Ok(path) => self.files.iter().position(|file| file.path == path),
-            Err(_) => self.files.iter().position(|file| &file.uri == uri),
+            Err(()) => self.files.iter().position(|file| &file.uri == uri),
         }
     }
 

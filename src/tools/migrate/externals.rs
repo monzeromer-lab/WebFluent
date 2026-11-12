@@ -170,7 +170,7 @@ fn declarations(text: &str, file: &str) -> Vec<Declared> {
         // The body, to its matching brace.
         let mut integrity = None;
         let mut functions = Vec::new();
-        let mut end = toks.get(j).map(|t| t.end).unwrap_or(text.len());
+        let mut end = toks.get(j).map_or(text.len(), |t| t.end);
         if matches!(
             toks.get(j).map(|t| &t.token_type),
             Some(TokenType::OpenBrace)
@@ -242,7 +242,7 @@ fn declarations(text: &str, file: &str) -> Vec<Declared> {
 fn signature(text: &str, toks: &[Token], at: usize, name: &str) -> Signature {
     let mut params = Vec::new();
     let mut k = at + 2;
-    let mut close = toks.get(at + 1).map(|t| t.end).unwrap_or(0);
+    let mut close = toks.get(at + 1).map_or(0, |t| t.end);
     let mut depth = 1;
     let mut current: Option<String> = None;
     let mut ty_from: Option<usize> = None;

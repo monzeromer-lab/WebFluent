@@ -354,7 +354,7 @@ impl Vfs for OverlayVfs {
         let at = key(path);
         match self.layers.get(&at) {
             Some(layer) if layer.is_file() => Ok(Metadata {
-                len: layer.bytes().map_or(0, |b| b.len()) as u64,
+                len: layer.bytes().map_or(0, <[u8]>::len) as u64,
                 modified: None,
             }),
             _ if self.hidden(&at) => Err(Self::gone(path)),
@@ -423,7 +423,10 @@ impl<'a> Confined<'a> {
     /// The links a walk left out, relative to the root where they are
     /// under it, each with why.
     pub fn skipped(&self) -> Vec<(PathBuf, &'static str)> {
-        let skipped = self.skipped.lock().unwrap_or_else(|e| e.into_inner());
+        let skipped = self
+            .skipped
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
         skipped
             .iter()
             .map(|(path, why)| {
@@ -436,7 +439,7 @@ impl<'a> Confined<'a> {
     fn skip(&self, path: &Path, why: &'static str) {
         self.skipped
             .lock()
-            .unwrap_or_else(|e| e.into_inner())
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
             .insert(path.to_path_buf(), why);
     }
 

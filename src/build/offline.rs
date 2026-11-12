@@ -50,11 +50,9 @@ pub fn glob_regex(glob: &str) -> String {
 
 /// Whether a route falls under one of the globs `offline.precache` names.
 pub fn route_matches(globs: &[String], route: &str) -> bool {
-    globs.iter().any(|g| {
-        regex::Regex::new(&glob_regex(g))
-            .map(|r| r.is_match(route))
-            .unwrap_or(false)
-    })
+    globs
+        .iter()
+        .any(|g| regex::Regex::new(&glob_regex(g)).is_ok_and(|r| r.is_match(route)))
 }
 
 /// A version for everything the build wrote: FNV-1a over each file's path

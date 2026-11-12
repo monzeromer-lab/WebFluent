@@ -40,7 +40,7 @@ app {{ Router }}
 /// The action bodies, which is where the broken calls appeared.
 fn actions_of(js: &str) -> String {
     let at = js.find("actions:").expect("the store has actions");
-    let end = js[at..].find("}),").map(|e| at + e).unwrap_or(js.len());
+    let end = js[at..].find("}),").map_or(js.len(), |e| at + e);
     js[at..end].to_string()
 }
 

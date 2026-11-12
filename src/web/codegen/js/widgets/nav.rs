@@ -17,8 +17,7 @@ impl JsCodegen {
         // of unrelated buttons next to unrelated divs.
         let nav_var = self.fresh_var();
         self.emit_line(&format!(
-            "const {} = WF.el(\"div\", {{ className: \"wf-tabs__nav\", role: \"tablist\" }});",
-            nav_var
+            "const {nav_var} = WF.el(\"div\", {{ className: \"wf-tabs__nav\", role: \"tablist\" }});"
         ));
         let group = var.trim_start_matches("_e").to_string();
 
@@ -38,34 +37,32 @@ impl JsCodegen {
             .collect();
 
         let active_var = self.fresh_var();
-        self.emit_line(&format!("const {} = WF.signal(0);", active_var));
+        self.emit_line(&format!("const {active_var} = WF.signal(0);"));
 
         // Create tab buttons
         for (i, (tab, _)) in tab_pages.iter().enumerate() {
-            let label = tab
-                .args
-                .first()
-                .map(|a| {
+            let label = tab.args.first().map_or_else(
+                || format!("\"Tab {i}\""),
+                |a| {
                     if let Arg::Positional(expr) = a {
                         self.emit_expr(expr)
                     } else {
-                        format!("\"Tab {}\"", i)
+                        format!("\"Tab {i}\"")
                     }
-                })
-                .unwrap_or_else(|| format!("\"Tab {}\"", i));
+                },
+            );
             let label = self.live(&label);
 
             // Roving tabindex: only the selected tab is in the tab order, and
             // the arrow keys move between them (see `WF.tabs`).
             let btn_var = self.fresh_var();
             self.emit_line(&format!(
-                "const {} = WF.el(\"button\", {{ className: () => {}() === {} ? \"wf-tabs__tab active\" : \"wf-tabs__tab\",                  role: \"tab\", type: \"button\", id: \"wf-tab-{}-{}\",                  \"aria-controls\": \"wf-tabpanel-{}-{}\",                  \"aria-selected\": () => {}() === {} ? \"true\" : \"false\",                  tabindex: () => {}() === {} ? 0 : -1,                  \"on:click\": () => {}.set({}) }}, {});",
-                btn_var, active_var, i, group, i, group, i, active_var, i, active_var, i, active_var, i, label
+                "const {btn_var} = WF.el(\"button\", {{ className: () => {active_var}() === {i} ? \"wf-tabs__tab active\" : \"wf-tabs__tab\",                  role: \"tab\", type: \"button\", id: \"wf-tab-{group}-{i}\",                  \"aria-controls\": \"wf-tabpanel-{group}-{i}\",                  \"aria-selected\": () => {active_var}() === {i} ? \"true\" : \"false\",                  tabindex: () => {active_var}() === {i} ? 0 : -1,                  \"on:click\": () => {active_var}.set({i}) }}, {label});"
             ));
-            self.emit_line(&format!("{}.appendChild({});", nav_var, btn_var));
+            self.emit_line(&format!("{nav_var}.appendChild({btn_var});"));
         }
 
-        self.emit_line(&format!("{}.appendChild({});", var, nav_var));
+        self.emit_line(&format!("{var}.appendChild({nav_var});"));
 
         // Create tab content
         for (i, (tab, _)) in tab_pages.iter().enumerate() {
@@ -78,18 +75,17 @@ impl JsCodegen {
                 self.emit_statement_dom(child, &page_var);
             }
             self.emit_line(&format!(
-                "WF.effect(() => {{ {}.style.display = {}() === {} ? 'block' : 'none'; }});",
-                page_var, active_var, i
+                "WF.effect(() => {{ {page_var}.style.display = {active_var}() === {i} ? 'block' : 'none'; }});"
             ));
-            self.emit_line(&format!("{}.appendChild({});", var, page_var));
+            self.emit_line(&format!("{var}.appendChild({page_var});"));
         }
 
         // Arrow keys, Home and End move between tabs, which is what the WAI-ARIA
         // pattern requires and what a keyboard user will try.
-        self.emit_line(&format!("WF.tabs({}, {});", nav_var, active_var));
+        self.emit_line(&format!("WF.tabs({nav_var}, {active_var});"));
 
         self.emit_root_handlers(var, ui, false);
-        self.emit_line(&format!("{}.appendChild({});", parent, var));
+        self.emit_line(&format!("{parent}.appendChild({var});"));
     }
 
     pub(in super::super) fn emit_sidebar(&mut self, var: &str, ui: &UIElement, parent: &str) {
@@ -134,7 +130,7 @@ impl JsCodegen {
                             for c in &ui_child.children {
                                 self.emit_statement_dom(c, &h_var);
                             }
-                            self.emit_line(&format!("{}.appendChild({});", var, h_var));
+                            self.emit_line(&format!("{var}.appendChild({h_var});"));
                         }
                         "Item" => {
                             let item_var = self.fresh_var();
@@ -173,8 +169,7 @@ impl JsCodegen {
                                     String::new()
                                 } else {
                                     format!(
-                                        ", \"on:click\": ($$e) => {{ $$e.preventDefault(); WF.navigate({}); }}",
-                                        href
+                                        ", \"on:click\": ($$e) => {{ $$e.preventDefault(); WF.navigate({href}); }}"
                                     )
                                 };
                                 self.emit_line(&format!(
@@ -193,14 +188,13 @@ impl JsCodegen {
                             }
                             if let Some(ic) = icon {
                                 self.emit_line(&format!(
-                                        "{}.appendChild(WF.el(\"span\", {{ className: \"wf-icon\", \"data-icon\": {} }}));",
-                                        item_var, ic
+                                        "{item_var}.appendChild(WF.el(\"span\", {{ className: \"wf-icon\", \"data-icon\": {ic} }}));"
                                     ));
                             }
                             for c in &ui_child.children {
                                 self.emit_statement_dom(c, &item_var);
                             }
-                            self.emit_line(&format!("{}.appendChild({});", var, item_var));
+                            self.emit_line(&format!("{var}.appendChild({item_var});"));
                         }
                         "Divider" => {
                             self.emit_line(&format!(
@@ -222,7 +216,7 @@ impl JsCodegen {
         }
 
         self.emit_root_handlers(var, ui, false);
-        self.emit_line(&format!("{}.appendChild({});", parent, var));
+        self.emit_line(&format!("{parent}.appendChild({var});"));
 
         // Below the sidebar breakpoint the panel slides over the page, so it
         // needs something to open it — without a control the 768px rule simply
@@ -232,19 +226,14 @@ impl JsCodegen {
         let scrim_var = self.fresh_var();
         let toggle_var = self.fresh_var();
         self.emit_line(&format!(
-            "const {} = WF.el(\"div\", {{ className: \"wf-sidebar__scrim\", hidden: true }});",
-            scrim_var
+            "const {scrim_var} = WF.el(\"div\", {{ className: \"wf-sidebar__scrim\", hidden: true }});"
         ));
         self.emit_line(&format!(
-            "const {} = WF.el(\"button\", {{ className: \"wf-sidebar__toggle\", type: \"button\", \"aria-label\": \"Open navigation\", \"aria-expanded\": \"false\", \"aria-controls\": {} }}, \"\\u2630\");",
-            toggle_var, controls
+            "const {toggle_var} = WF.el(\"button\", {{ className: \"wf-sidebar__toggle\", type: \"button\", \"aria-label\": \"Open navigation\", \"aria-expanded\": \"false\", \"aria-controls\": {controls} }}, \"\\u2630\");"
         ));
-        self.emit_line(&format!("{}.appendChild({});", parent, scrim_var));
-        self.emit_line(&format!("{}.appendChild({});", parent, toggle_var));
-        self.emit_line(&format!(
-            "WF.drawer({}, {}, {});",
-            var, toggle_var, scrim_var
-        ));
+        self.emit_line(&format!("{parent}.appendChild({scrim_var});"));
+        self.emit_line(&format!("{parent}.appendChild({toggle_var});"));
+        self.emit_line(&format!("WF.drawer({var}, {toggle_var}, {scrim_var});"));
     }
 
     pub(in super::super) fn emit_breadcrumb(&mut self, var: &str, ui: &UIElement, parent: &str) {
@@ -299,7 +288,7 @@ impl JsCodegen {
                     for c in &ui_child.children {
                         self.emit_statement_dom(c, &item_var);
                     }
-                    self.emit_line(&format!("{}.appendChild({});", var, item_var));
+                    self.emit_line(&format!("{var}.appendChild({item_var});"));
                 } else {
                     self.emit_statement_dom(child, var);
                 }
@@ -309,6 +298,6 @@ impl JsCodegen {
         }
 
         self.emit_root_handlers(var, ui, false);
-        self.emit_line(&format!("{}.appendChild({});", parent, var));
+        self.emit_line(&format!("{parent}.appendChild({var});"));
     }
 }

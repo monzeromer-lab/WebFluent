@@ -170,10 +170,10 @@ impl JsCodegen {
                 if *n == (*n as i64) as f64 {
                     format!("{}", *n as i64)
                 } else {
-                    format!("{}", n)
+                    format!("{n}")
                 }
             }
-            (Expr::BoolLiteral(b), _) => format!("{}", b),
+            (Expr::BoolLiteral(b), _) => format!("{b}"),
             (Expr::Null, _) => "null".to_string(),
             (Expr::Identifier(name), Cx::Page) => {
                 // A live binding — an arm's, an `if let`'s, a keyed loop's —
@@ -183,7 +183,7 @@ impl JsCodegen {
                 }
                 // i18n: locale and dir are reactive i18n signals
                 if self.has_i18n() && (name == "locale" || name == "dir") {
-                    return format!("WF.i18n.{}()", name);
+                    return format!("WF.i18n.{name}()");
                 }
                 // Browser globals should NOT be prefixed
                 // `BROWSER_GLOBALS`, below: shared with the type checker.
@@ -199,7 +199,7 @@ impl JsCodegen {
                     && !self.body.refs.contains(name)
                     && !self.stores.contains(name)
                 {
-                    return name.to_string();
+                    return name.clone();
                 }
                 // The browser as values, kept current by the runtime, unless
                 // the name is the writer's own.
@@ -226,13 +226,13 @@ impl JsCodegen {
                 }
                 // Store references, component props, and built-in names stay as-is
                 if self.body.current_props.contains(name) {
-                    return format!("_p.{}", name);
+                    return format!("_p.{name}");
                 }
                 if self.body.resources.contains(name) {
                     return sig(name);
                 }
                 if self.body.page_params.contains(name) {
-                    return format!("params.{}", name);
+                    return format!("params.{name}");
                 }
                 // The names the generated code uses for a route's
                 // parameters, a handler's event and a keyed loop's
@@ -271,9 +271,9 @@ impl JsCodegen {
                 (name == "env" && !self.body.own_names.contains(name))
                     || (IMPLICIT.contains(&name.as_str()) && !self.body.own_names.contains(name))
                     || (self.script_names.contains(name) && !self.body.own_names.contains(name))
-                    || name.starts_with("_")
+                    || name.starts_with('_')
                 {
-                    name.to_string()
+                    name.clone()
                 } else {
                     // State variable (signal) — access via _name()
                     format!("{}()", sig(name))
@@ -281,7 +281,7 @@ impl JsCodegen {
             }
             (Expr::Identifier(name), Cx::Store(store_states)) => {
                 if self.is_own_member(name, store_states) {
-                    format!("store.{}", name)
+                    format!("store.{name}")
                 } else if self.store_locals.borrow().contains(name) {
                     bare(name)
                 } else if self.consts.contains(name) || self.stores.contains(name) {
@@ -291,7 +291,7 @@ impl JsCodegen {
                 {
                     format!("WF.{name}()")
                 } else {
-                    name.to_string()
+                    name.clone()
                 }
             }
 
@@ -351,7 +351,7 @@ impl JsCodegen {
             }
             (Expr::PropertyAccess(base, prop), Cx::Page) => {
                 let base_str = self.emit_expr(base);
-                format!("{}.{}", base_str, prop)
+                format!("{base_str}.{prop}")
             }
             // A connection of this store's: what it holds is a signal.
             (Expr::PropertyAccess(base, prop), Cx::Store(store_states))
@@ -376,13 +376,13 @@ impl JsCodegen {
             }
             (Expr::PropertyAccess(base, prop), Cx::Store(store_states)) => {
                 let base_str = self.emit_store_expr(base, store_states);
-                format!("{}.{}", base_str, prop)
+                format!("{base_str}.{prop}")
             }
 
             (Expr::IndexAccess(base, index), _) => {
                 let base_str = self.emit_expr_in(base, cx);
                 let idx_str = self.emit_expr_in(index, cx);
-                format!("{}[{}]", base_str, idx_str)
+                format!("{base_str}[{idx_str}]")
             }
             // `?.` is JavaScript's own.
             (Expr::OptionalProperty(base, prop), _) => {
@@ -428,13 +428,13 @@ impl JsCodegen {
                     BinOp::Or => "||",
                     BinOp::NullCoalesce => "??",
                 };
-                format!("({} {} {})", l, op_str, r)
+                format!("({l} {op_str} {r})")
             }
             (Expr::UnaryOp(op, expr), _) => {
                 let e = self.emit_expr_in(expr, cx);
                 match op {
-                    UnaryOp::Not => format!("!{}", e),
-                    UnaryOp::Neg => format!("-{}", e),
+                    UnaryOp::Not => format!("!{e}"),
+                    UnaryOp::Neg => format!("-{e}"),
                 }
             }
             (Expr::MethodCall(obj, method, args), _) => {
@@ -463,7 +463,7 @@ impl JsCodegen {
                     let cond = self.emit_expr_in(obj, cx);
                     let then_val = self.emit_expr_in(&args[0], cx);
                     let else_val = self.emit_expr_in(&args[1], cx);
-                    return format!("({} ? {} : {})", cond, then_val, else_val);
+                    return format!("({cond} ? {then_val} : {else_val})");
                 }
                 // `if let x = e { a } else { b }`: the value is bound once,
                 // and read as a plain name in `a`.
@@ -560,7 +560,7 @@ impl JsCodegen {
                     }
                     let key = self.emit_expr(&args[0]);
                     if args.len() == 1 {
-                        return format!("WF.i18n.t({})", key);
+                        return format!("WF.i18n.t({key})");
                     }
                     // Remaining args are named params for interpolation
                     // They come as FunctionCall args — could be positional expressions
@@ -730,14 +730,14 @@ impl JsCodegen {
                 let body_str = self.with_locals(cx, names, || self.emit_expr_in(body, cx));
                 format!("(({}) => {})", bare_list(param), body_str)
             }
-            (Expr::EnumCase(case), _) => format!("\"{}\"", case),
+            (Expr::EnumCase(case), _) => format!("\"{case}\""),
             (Expr::CaseValue(case, args), _) => {
                 let mut items = vec![format!("\"{case}\"")];
                 items.extend(args.iter().map(|a| self.emit_expr_in(a, cx)));
                 format!("[{}]", items.join(", "))
             }
             // A design token is its custom property.
-            (Expr::Token(name), _) => format!("\"var(--{})\"", name),
+            (Expr::Token(name), _) => format!("\"var(--{name})\""),
             (Expr::Await(inner), _) => format!("(await {})", self.emit_expr_in(inner, cx)),
         }
     }

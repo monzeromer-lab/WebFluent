@@ -422,7 +422,7 @@ impl JsCodegen {
                     self.emit_line("const _routerEl = document.createElement('main');");
                     self.emit_line("_routerEl.id = 'wf-main';");
                     self.emit_line("_routerEl.style.flex = '1';");
-                    self.emit_line(&format!("{}.appendChild(_routerEl);", parent));
+                    self.emit_line(&format!("{parent}.appendChild(_routerEl);"));
                     continue;
                 }
 
@@ -433,7 +433,7 @@ impl JsCodegen {
                     let (tag, class) = builtin_to_html(&comp_name);
                     let mut classes: Vec<String> = vec![class.to_string()];
                     for m in &ui.modifiers {
-                        classes.push(format!("{}--{}", class, m));
+                        classes.push(format!("{class}--{m}"));
                     }
                     classes.extend(layout_arg_classes(&ui.args));
                     classes.extend(crate::project::scoped_css::responsive_classes(ui));
@@ -447,7 +447,7 @@ impl JsCodegen {
                     self.emit_style_and_transition(&var, ui);
                     self.emit_motion(&var, ui);
                     self.emit_host(&var, ui);
-                    self.emit_line(&format!("{}.appendChild({});", parent, var));
+                    self.emit_line(&format!("{parent}.appendChild({var});"));
                     // Recurse into children
                     self.emit_app_tree(&ui.children, &var);
                     continue;
@@ -526,7 +526,7 @@ impl JsCodegen {
         match comp {
             ComponentRef::BuiltIn(n) => n.clone(),
             ComponentRef::UserDefined(n) => n.clone(),
-            ComponentRef::SubComponent(p, s) => format!("{}.{}", p, s),
+            ComponentRef::SubComponent(p, s) => format!("{p}.{s}"),
         }
     }
 }

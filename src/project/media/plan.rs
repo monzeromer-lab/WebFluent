@@ -227,8 +227,7 @@ pub fn plan_probed(
         .unwrap_or_default();
     let extension = source
         .extension()
-        .map(|e| e.to_string_lossy().to_lowercase())
-        .unwrap_or_else(|| "png".into());
+        .map_or_else(|| "png".into(), |e| e.to_string_lossy().to_lowercase());
     let original = PlannedFile {
         width: probed.width,
         height: probed.height,

@@ -291,8 +291,7 @@ fn line_of(theme: &crate::syntax::parser::ast::ThemeDecl, token: &str) -> usize 
         .tokens
         .iter()
         .find(|t| t.name == token)
-        .map(|t| t.span.line as usize)
-        .unwrap_or(theme.span.line as usize)
+        .map_or(theme.span.line as usize, |t| t.span.line as usize)
 }
 
 /// Parse `#rgb`, `#rrggbb` or `rgb(r, g, b)`.
@@ -422,7 +421,7 @@ mod tests {
         assert_eq!(warnings.len(), 2, "{warnings:?}");
         let joined = warnings
             .iter()
-            .map(|w| w.to_string())
+            .map(std::string::ToString::to_string)
             .collect::<Vec<_>>()
             .join("\n");
         assert!(

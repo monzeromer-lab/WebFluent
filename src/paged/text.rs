@@ -331,7 +331,7 @@ impl Shaped {
                 }
                 j += 1;
             }
-            let end = char_picks.get(j).map(|c| c.0).unwrap_or(text.len());
+            let end = char_picks.get(j).map_or(text.len(), |c| c.0);
             match &items[item] {
                 Item::Atom { boxed, .. } => clusters.push(Cluster {
                     range: start..end,
@@ -851,8 +851,7 @@ fn shape_run(
         let start = range.start + cluster;
         let end = groups
             .get(n + 1)
-            .map(|(c, _)| range.start + c)
-            .unwrap_or(range.end);
+            .map_or(range.end, |(c, _)| range.start + c);
         let piece = &text[start..end];
         let space = piece
             .chars()

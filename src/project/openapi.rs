@@ -235,8 +235,7 @@ impl<'a> Spec<'a> {
         let name = operation
             .get("operationId")
             .and_then(|v| v.as_str())
-            .map(camel)
-            .unwrap_or_else(|| name_of(method, path));
+            .map_or_else(|| name_of(method, path), camel);
         let mut params = Vec::new();
         // A path's own parameters count for every operation under it.
         for source in [item.get("parameters"), operation.get("parameters")] {
@@ -248,7 +247,7 @@ impl<'a> Spec<'a> {
                 };
                 let required = parameter
                     .get("required")
-                    .and_then(|v| v.as_bool())
+                    .and_then(serde_json::Value::as_bool)
                     .unwrap_or(false);
                 let ty = self.type_of(
                     parameter.get("schema").unwrap_or(&serde_json::Value::Null),
@@ -266,13 +265,11 @@ impl<'a> Spec<'a> {
                 .as_object()
                 .and_then(|m| m.values().next())
                 .and_then(|v| v.get("schema"));
-            let ty = schema
-                .map(|s| self.type_of(s, Way::Sent))
-                .unwrap_or(TypeRef::Map);
+            let ty = schema.map_or(TypeRef::Map, |s| self.type_of(s, Way::Sent));
             // OpenAPI's default: a body is not required unless it says so.
             let required = request
                 .and_then(|b| b.get("required"))
-                .and_then(|v| v.as_bool())
+                .and_then(serde_json::Value::as_bool)
                 .unwrap_or(false);
             params.push(prop("body", ty, !required, span));
         }
@@ -293,7 +290,7 @@ impl<'a> Spec<'a> {
             let status: u16 = code.parse().unwrap_or(0);
             match status {
                 200..=299 if returns.is_none() => {
-                    returns = schema.map(|s| self.type_of(s, Way::Received))
+                    returns = schema.map(|s| self.type_of(s, Way::Received));
                 }
                 400..=599 => {
                     if let Some(schema) = schema {
@@ -369,13 +366,12 @@ impl<'a> Spec<'a> {
                 ["string"] => self.format_of(schema, way).unwrap_or(TypeRef::String),
                 // Cases with no `type` are strings all the same.
                 [] if string_cases(schema) => TypeRef::String,
-                ["integer"] | ["number"] => TypeRef::Number,
+                ["integer" | "number"] => TypeRef::Number,
                 ["boolean"] => TypeRef::Bool,
                 ["array"] => TypeRef::List(Box::new(
                     schema
                         .get("items")
-                        .map(|items| self.type_at(items, way, depth + 1))
-                        .unwrap_or(TypeRef::Any),
+                        .map_or(TypeRef::Any, |items| self.type_at(items, way, depth + 1)),
                 )),
                 ["object"] => TypeRef::Map,
                 _ => TypeRef::Any,
@@ -421,7 +417,7 @@ impl<'a> Spec<'a> {
         let only_null_cases = schema
             .get("enum")
             .and_then(|v| v.as_array())
-            .is_some_and(|cases| !cases.is_empty() && cases.iter().all(|c| c.is_null()));
+            .is_some_and(|cases| !cases.is_empty() && cases.iter().all(serde_json::Value::is_null));
         (kinds.is_empty() && nullable && schema.get("type").is_some()) || only_null_cases
     }
 
@@ -468,8 +464,8 @@ fn kinds_of(schema: &serde_json::Value) -> (Vec<&str>, bool) {
         Some(serde_json::Value::Array(list)) => list.iter().filter_map(|v| v.as_str()).collect(),
         _ => Vec::new(),
     };
-    let nullable =
-        kinds.contains(&"null") || schema.get("nullable").and_then(|v| v.as_bool()) == Some(true);
+    let nullable = kinds.contains(&"null")
+        || schema.get("nullable").and_then(serde_json::Value::as_bool) == Some(true);
     kinds.retain(|kind| *kind != "null");
     (kinds, nullable)
 }
@@ -481,7 +477,7 @@ fn may_be_null(schema: &serde_json::Value) -> bool {
         || schema
             .get("enum")
             .and_then(|v| v.as_array())
-            .is_some_and(|cases| cases.iter().any(|c| c.is_null()))
+            .is_some_and(|cases| cases.iter().any(serde_json::Value::is_null))
 }
 
 /// The options of a `oneOf`, an `anyOf` or an `allOf`.
@@ -497,7 +493,7 @@ fn string_cases(schema: &serde_json::Value) -> bool {
         .get("enum")
         .and_then(|v| v.as_array())
         .is_some_and(|cases| {
-            cases.iter().any(|c| c.is_string())
+            cases.iter().any(serde_json::Value::is_string)
                 && cases.iter().all(|c| c.is_string() || c.is_null())
         })
 }
@@ -677,7 +673,11 @@ impl Record<'_, '_> {
         {
             // A `readOnly` field is one only the server sends, whichever way
             // the record travels.
-            let way = if property.get("readOnly").and_then(|v| v.as_bool()) == Some(true) {
+            let way = if property
+                .get("readOnly")
+                .and_then(serde_json::Value::as_bool)
+                == Some(true)
+            {
                 Way::Received
             } else {
                 self.way

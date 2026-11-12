@@ -17,8 +17,7 @@ pub fn signature(n: &crate::syntax::js_scan::Name) -> String {
                 let documented = doc.param(&p.name);
                 let ty = documented
                     .and_then(|d| d.ty.as_deref())
-                    .map(|t| jsdoc_type(t).to_string())
-                    .unwrap_or_else(|| "Any".to_string());
+                    .map_or_else(|| "Any".to_string(), |t| jsdoc_type(t).to_string());
                 let optional = p.optional || documented.is_some_and(|d| d.optional);
                 format!(
                     "{}{}{}: {ty}",

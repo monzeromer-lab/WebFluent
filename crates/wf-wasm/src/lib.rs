@@ -148,9 +148,7 @@ pub fn check(files: &str, config: Option<String>) -> String {
 /// docs }`, or `null` for a code there is not.
 #[wasm_bindgen]
 pub fn explain(code: &str) -> String {
-    memory::explain(code)
-        .map(|v| v.to_string())
-        .unwrap_or_else(|| "null".to_string())
+    memory::explain(code).map_or_else(|| "null".to_string(), |v| v.to_string())
 }
 
 /// Take a font file (as it is, or zlib-compressed) as one of the faces a

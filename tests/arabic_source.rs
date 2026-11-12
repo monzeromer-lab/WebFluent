@@ -42,7 +42,7 @@ fn a_name_in_arabic_keeps_the_marks_of_its_letters() {
     assert!(
         found
             .iter()
-            .all(|f| !f.starts_with('E') && !f.starts_with("T")),
+            .all(|f| !f.starts_with('E') && !f.starts_with('T')),
         "{found:?}"
     );
 }
@@ -58,7 +58,7 @@ fn a_name_is_one_name_however_its_hamza_was_typed() {
     assert!(
         found
             .iter()
-            .all(|f| !f.starts_with('E') && !f.starts_with("T")),
+            .all(|f| !f.starts_with('E') && !f.starts_with('T')),
         "{found:?}"
     );
 }

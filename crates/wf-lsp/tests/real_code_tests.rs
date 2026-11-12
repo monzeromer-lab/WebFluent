@@ -125,8 +125,7 @@ fn an_open_buffer_overrides_the_disk_and_keeps_its_last_good_parse() {
                 diags
                     .iter()
                     .all(|d| !d.message.contains("unknown component `Nudge`")),
-                "{:?}",
-                diags
+                "{diags:?}"
             );
         }
     }

@@ -226,7 +226,10 @@ fn a_condition_on_a_type_is_checked_where_the_value_is_written() {
         })
         .findings
         .errors;
-        let text = errors.iter().map(|e| e.to_string()).collect::<String>();
+        let text = errors
+            .iter()
+            .map(std::string::ToString::to_string)
+            .collect::<String>();
         assert!(text.contains(said), "`{source}` must be refused: {text}");
         assert!(text.contains("[T01]"), "{text}");
     }
@@ -264,7 +267,10 @@ fn a_secret_cannot_reach_the_page_the_log_or_the_browser_store() {
         })
         .findings
         .errors;
-        let text = errors.iter().map(|e| e.to_string()).collect::<String>();
+        let text = errors
+            .iter()
+            .map(std::string::ToString::to_string)
+            .collect::<String>();
         assert!(text.contains(said), "`{body}` must be refused: {text}");
         assert!(text.contains("[T12]"), "{text}");
     }
@@ -294,7 +300,10 @@ fn the_checker_knows_what_each_type_can_do() {
     })
     .findings
     .errors;
-    let text = errors.iter().map(|e| e.to_string()).collect::<String>();
+    let text = errors
+        .iter()
+        .map(std::string::ToString::to_string)
+        .collect::<String>();
     assert!(
         text.contains("`Date` has no method `hostname`"),
         "got: {text:?}"
@@ -311,7 +320,10 @@ fn the_checker_knows_what_each_type_can_do() {
     })
     .findings
     .errors;
-    let text = errors.iter().map(|e| e.to_string()).collect::<String>();
+    let text = errors
+        .iter()
+        .map(std::string::ToString::to_string)
+        .collect::<String>();
     assert!(text.contains("`bind:` on `DatePicker`"), "{text}");
     assert!(
         text.contains("holds a `Date?`"),
@@ -333,7 +345,10 @@ fn a_literal_is_held_to_the_shape_of_the_type_it_is_written_for() {
         })
         .findings
         .errors;
-        let text = errors.iter().map(|e| e.to_string()).collect::<String>();
+        let text = errors
+            .iter()
+            .map(std::string::ToString::to_string)
+            .collect::<String>();
         assert!(text.contains(said), "`{source}` must be refused: {text}");
     }
     // The well-formed ones pass, and a string is not silently a URL.
@@ -379,7 +394,7 @@ fn errors_of(src: &str) -> String {
         .findings
         .errors
         .iter()
-        .map(|e| e.to_string())
+        .map(std::string::ToString::to_string)
         .collect()
 }
 
@@ -935,11 +950,11 @@ fn a_string_format_is_the_type_the_language_has_for_it() {
     // A specification that declares a schema of the same name means that
     // one, so a format no longer names the language's type: it is a string.
     let program = with_spec(
-        r##"{ "openapi": "3.1.0", "components": { "schemas": {
+        r#"{ "openapi": "3.1.0", "components": { "schemas": {
             "Url": { "type": "object", "properties": { "href": { "type": "string" } } },
             "Link": { "type": "object", "required": ["to"],
                 "properties": { "to": { "type": "string", "format": "uri" } } }
-        } }, "paths": {} }"##,
+        } }, "paths": {} }"#,
         "Heading(\"Ops\").h1",
     );
     assert_eq!(field(record(&program, "Link"), "to"), TypeRef::String);
@@ -1774,7 +1789,7 @@ fn a_version_with_a_gap_in_its_chain_is_a_warning() {
     let program = parse_source(&src, "t.wf").unwrap();
     let text: String = webfluent::linter::lint_accessibility_in(&program, &|_| "t.wf".to_string())
         .iter()
-        .map(|w| w.to_string())
+        .map(std::string::ToString::to_string)
         .collect();
     assert!(text.contains("P01") && text.contains("version 1"), "{text}");
 
@@ -1783,7 +1798,7 @@ fn a_version_with_a_gap_in_its_chain_is_a_warning() {
     let program = parse_source(&src, "t.wf").unwrap();
     let text: String = webfluent::linter::lint_accessibility_in(&program, &|_| "t.wf".to_string())
         .iter()
-        .map(|w| w.to_string())
+        .map(std::string::ToString::to_string)
         .collect();
     assert!(text.contains("P02"), "{text}");
 }
@@ -1990,7 +2005,7 @@ fn markup_goes_in_through_one_door_and_the_build_says_where() {
     let program = parse_source(&src, "t.wf").unwrap();
     let text: String = webfluent::linter::lint_accessibility_in(&program, &|_| "t.wf".to_string())
         .iter()
-        .map(|w| w.to_string())
+        .map(std::string::ToString::to_string)
         .collect();
     assert!(text.contains("V03") && text.contains("sanitize"), "{text}");
     // Markup that skips the sanitiser still goes in: the runtime keeps only
@@ -2005,7 +2020,7 @@ fn markup_goes_in_through_one_door_and_the_build_says_where() {
     let bare = parse_source(&page("Unsafe.Html(\"<p>ours</p>\")"), "t.wf").unwrap();
     let text: String = webfluent::linter::lint_accessibility_in(&bare, &|_| "t.wf".to_string())
         .iter()
-        .map(|w| w.to_string())
+        .map(std::string::ToString::to_string)
         .collect();
     assert!(
         text.contains("NOT") || text.contains("belongs in `sanitize"),
@@ -2147,7 +2162,7 @@ fn sema_errors(src: &str) -> String {
     webfluent::sema::check(&parse_source(src, "t.wf").unwrap(), &|_| "t.wf".to_string())
         .errors
         .iter()
-        .map(|e| e.to_string())
+        .map(std::string::ToString::to_string)
         .collect()
 }
 
@@ -2408,7 +2423,7 @@ fn a_route_store_that_persists_says_so() {
     let program = parse_source(&src, "t.wf").unwrap();
     let text: String = webfluent::linter::lint_accessibility_in(&program, &|_| "t.wf".to_string())
         .iter()
-        .map(|w| w.to_string())
+        .map(std::string::ToString::to_string)
         .collect();
     assert!(text.contains("P03"), "{text}");
     // A `state` in the same store says nothing: that is what the scope is for.
@@ -2417,7 +2432,7 @@ fn a_route_store_that_persists_says_so() {
     let program = parse_source(&src, "t.wf").unwrap();
     let text: String = webfluent::linter::lint_accessibility_in(&program, &|_| "t.wf".to_string())
         .iter()
-        .map(|w| w.to_string())
+        .map(std::string::ToString::to_string)
         .collect();
     assert!(!text.contains("P03"), "{text}");
 }

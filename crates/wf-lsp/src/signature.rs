@@ -199,7 +199,7 @@ fn describe(
                 doc: Some(p.summary.to_string()),
             });
         }
-        for p in sig.props.iter() {
+        for p in sig.props {
             let ty = match p.ty {
                 PropType::Enum(cases) => cases
                     .iter()

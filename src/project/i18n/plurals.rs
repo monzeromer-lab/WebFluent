@@ -211,8 +211,7 @@ pub fn select(locale: &str, x: &Operands) -> &'static str {
     rules(locale)
         .iter()
         .find(|(cat, rule)| *cat != "other" && holds(rule, x))
-        .map(|(c, _)| *c)
-        .unwrap_or("other")
+        .map_or("other", |(c, _)| *c)
 }
 
 /// The form the number `n` takes in `locale`, as the page picks it.
@@ -240,7 +239,7 @@ pub fn samples(locale: &str, category: &str) -> Vec<String> {
             match item.split_once('~') {
                 Some((a, b)) => {
                     // `0.0~1.5` steps by the last place; `2~16` by one.
-                    let places = a.split_once('.').map(|(_, f)| f.len()).unwrap_or(0);
+                    let places = a.split_once('.').map_or(0, |(_, f)| f.len());
                     let step = 10f64.powi(-(places as i32));
                     let (Ok(from), Ok(to)) = (a.parse::<f64>(), b.parse::<f64>()) else {
                         out.push(a.to_string());

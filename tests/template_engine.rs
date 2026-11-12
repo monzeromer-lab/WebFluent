@@ -391,7 +391,7 @@ fn a_render_for_the_studio_marks_each_element_with_its_node_id() {
     let id = |el: &str| {
         map.iter()
             .find(|(_, i)| i.element == el)
-            .map(|(id, _)| id.to_string())
+            .map(|(id, _)| id.clone())
             .unwrap()
     };
     assert!(

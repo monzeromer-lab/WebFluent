@@ -159,7 +159,7 @@ impl JsCodegen {
             None => self.is_reactive(&url),
         };
         let url_js = if reactive {
-            format!("() => {}", url)
+            format!("() => {url}")
         } else {
             url
         };
@@ -203,8 +203,7 @@ impl JsCodegen {
             Expr::CaseValue(name, args) => {
                 let ttl = args
                     .first()
-                    .map(|a| self.term(a, store))
-                    .unwrap_or_else(|| "0".to_string());
+                    .map_or_else(|| "0".to_string(), |a| self.term(a, store));
                 format!("{{ kind: \"{name}\", ttl: {ttl} }}")
             }
             other => self.term(other, store),
@@ -263,8 +262,7 @@ impl JsCodegen {
                 Expr::CaseValue(name, args) => Some(format!(
                     "{name}: {}",
                     args.first()
-                        .map(|a| self.term(a, store))
-                        .unwrap_or_else(|| "0".to_string())
+                        .map_or_else(|| "0".to_string(), |a| self.term(a, store))
                 )),
                 _ => None,
             }

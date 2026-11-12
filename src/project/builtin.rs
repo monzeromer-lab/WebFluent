@@ -175,17 +175,17 @@ pub fn easing_css(name: &str) -> &str {
 pub fn modifier_to_class(base_class: &str, modifier: &str) -> String {
     match modifier {
         // ─── Size ────────────────────────────────────────
-        "small" => format!("{}--small", base_class),
+        "small" => format!("{base_class}--small"),
         "medium" => String::new(), // the default; no class needed
-        "large" => format!("{}--large", base_class),
+        "large" => format!("{base_class}--large"),
 
         // ─── Colour ──────────────────────────────────────
-        "primary" => format!("{}--primary", base_class),
-        "secondary" => format!("{}--secondary", base_class),
-        "success" => format!("{}--success", base_class),
-        "danger" => format!("{}--danger", base_class),
-        "warning" => format!("{}--warning", base_class),
-        "info" => format!("{}--info", base_class),
+        "primary" => format!("{base_class}--primary"),
+        "secondary" => format!("{base_class}--secondary"),
+        "success" => format!("{base_class}--success"),
+        "danger" => format!("{base_class}--danger"),
+        "warning" => format!("{base_class}--warning"),
+        "info" => format!("{base_class}--info"),
 
         // A layout that asks to reflow on a narrow screen. One class,
         // shared by every layout, because the rule is the same for all of
@@ -193,24 +193,24 @@ pub fn modifier_to_class(base_class: &str, modifier: &str) -> String {
         "stacks" => "wf-stacks".to_string(),
 
         // ─── Shape ───────────────────────────────────────
-        "rounded" => format!("{}--rounded", base_class),
-        "pill" => format!("{}--pill", base_class),
-        "square" => format!("{}--square", base_class),
-        "circle" => format!("{}--circle", base_class),
+        "rounded" => format!("{base_class}--rounded"),
+        "pill" => format!("{base_class}--pill"),
+        "square" => format!("{base_class}--square"),
+        "circle" => format!("{base_class}--circle"),
 
         // ─── Spacer sizes ────────────────────────────────
-        "xs" | "sm" | "lg" | "xl" => format!("{}--{}", base_class, modifier),
+        "xs" | "sm" | "lg" | "xl" => format!("{base_class}--{modifier}"),
         "md" => String::new(), // the default height
 
         // ─── Elevation ───────────────────────────────────
-        "flat" => format!("{}--flat", base_class),
-        "elevated" => format!("{}--elevated", base_class),
-        "outlined" => format!("{}--outlined", base_class),
+        "flat" => format!("{base_class}--flat"),
+        "elevated" => format!("{base_class}--elevated"),
+        "outlined" => format!("{base_class}--outlined"),
 
         // ─── Width ───────────────────────────────────────
-        "full" => format!("{}--full", base_class),
-        "fit" => format!("{}--fit", base_class),
-        "fluid" => format!("{}--fluid", base_class),
+        "full" => format!("{base_class}--full"),
+        "fit" => format!("{base_class}--fit"),
+        "fluid" => format!("{base_class}--fluid"),
 
         // ─── Text ────────────────────────────────────────
         // These style the text of whatever they are put on, so they always name
@@ -234,13 +234,13 @@ pub fn modifier_to_class(base_class: &str, modifier: &str) -> String {
         "h1" | "h2" | "h3" | "h4" | "h5" | "h6" => String::new(),
 
         // ─── Other variants ──────────────────────────────
-        "dismissible" => format!("{}--dismissible", base_class),
-        "block" => format!("{}--block", base_class),
-        "bordered" => format!("{}--bordered", base_class),
+        "dismissible" => format!("{base_class}--dismissible"),
+        "block" => format!("{base_class}--block"),
+        "bordered" => format!("{base_class}--bordered"),
         // A layer's point toward its anchor.
-        "arrow" => format!("{}--arrow", base_class),
+        "arrow" => format!("{base_class}--arrow"),
         // A splitter between regions one above the other.
-        "horizontal" => format!("{}--horizontal", base_class),
+        "horizontal" => format!("{base_class}--horizontal"),
 
         // ─── Attributes, not classes ─────────────────────
         "text" | "email" | "password" | "number" | "search" | "tel" | "url" | "date" | "time"
@@ -256,7 +256,7 @@ pub fn modifier_to_class(base_class: &str, modifier: &str) -> String {
         // renderer used to drop them on the grounds that it emits no JS.
         "fadeIn" | "fadeOut" | "slideUp" | "slideDown" | "slideLeft" | "slideRight" | "scaleIn"
         | "scaleOut" | "bounce" | "shake" | "pulse" | "spin" | "expand" | "collapse" => {
-            format!("wf-animate-{}", modifier)
+            format!("wf-animate-{modifier}")
         }
         "fast" => "wf-animate--fast".to_string(),
         "slow" => "wf-animate--slow".to_string(),
@@ -291,7 +291,7 @@ pub fn layout_arg_classes(args: &[Arg]) -> Vec<String> {
             _ => false,
         };
         if ok {
-            classes.push(format!("wf-{}--{}", key, value));
+            classes.push(format!("wf-{key}--{value}"));
         }
     }
     classes

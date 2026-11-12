@@ -621,7 +621,7 @@ pub fn to_json() -> Value {
                         row["max"] = serde_json::json!(max);
                     }
                     Strings if f.path == "build.media.formats" => {
-                        row["values"] = serde_json::json!(FORMATS)
+                        row["values"] = serde_json::json!(FORMATS);
                     }
                     _ => {}
                 }
@@ -642,11 +642,16 @@ pub fn path_of(dotted: &str) -> Option<(Vec<std::string::String>, &'static Field
             continue;
         };
         if n == parts.len() {
-            return Some((parts.iter().map(|p| p.to_string()).collect(), field));
+            return Some((
+                parts.iter().map(std::string::ToString::to_string).collect(),
+                field,
+            ));
         }
         if matches!(field.ty, StringMap { .. } | Map) {
-            let mut keys: Vec<std::string::String> =
-                parts[..n].iter().map(|p| p.to_string()).collect();
+            let mut keys: Vec<std::string::String> = parts[..n]
+                .iter()
+                .map(std::string::ToString::to_string)
+                .collect();
             keys.push(parts[n..].join("."));
             return Some((keys, field));
         }

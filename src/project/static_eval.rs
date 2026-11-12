@@ -78,10 +78,10 @@ impl Static {
                 if *n == (*n as i64) as f64 {
                     format!("{}", *n as i64)
                 } else {
-                    format!("{}", n)
+                    format!("{n}")
                 }
             }
-            Static::Bool(b) => format!("{}", b),
+            Static::Bool(b) => format!("{b}"),
             Static::Null => String::new(),
             Static::Regex(p, f) => format!("/{p}/{f}"),
             // A list or map has no sensible text form; the renderer should be
@@ -197,8 +197,7 @@ impl Static {
                 serde_json::Value::Number(serde_json::Number::from(*n as i64))
             }
             Static::Num(n) => serde_json::Number::from_f64(*n)
-                .map(serde_json::Value::Number)
-                .unwrap_or(serde_json::Value::Null),
+                .map_or(serde_json::Value::Null, serde_json::Value::Number),
             Static::Str(s) => serde_json::Value::String(s.clone()),
             Static::Regex(p, f) => serde_json::Value::String(format!("/{p}/{f}")),
             Static::Lambda(_) => serde_json::Value::Null,
@@ -690,7 +689,7 @@ fn eval_node(expr: &Expr, scope: &Scope, fuel: &Fuel) -> Option<Static> {
                     Expr::Spread(inner) => match eval_in(inner, scope, fuel)? {
                         Static::List(more) => {
                             fuel.charge(more.len())?;
-                            out.extend(more)
+                            out.extend(more);
                         }
                         _ => return None,
                     },
@@ -1111,7 +1110,7 @@ fn method_call(
                 "exec" => Some(match re.captures(&text) {
                     Some(caps) => Static::List(
                         caps.iter()
-                            .map(|c| Static::Str(c.map(|m| m.as_str()).unwrap_or("").into()))
+                            .map(|c| Static::Str(c.map_or("", |m| m.as_str()).into()))
                             .collect(),
                     ),
                     None => Static::Null,
@@ -1134,7 +1133,7 @@ fn method_call(
                         }
                         "map" => {
                             fuel.spend()?;
-                            out.push(r)
+                            out.push(r);
                         }
                         "some" => {
                             if r.truthy() {
@@ -1183,11 +1182,11 @@ fn method_call(
                     match value(i)? {
                         Static::List(more) => {
                             fuel.charge(more.len())?;
-                            out.extend(more)
+                            out.extend(more);
                         }
                         other => {
                             fuel.spend()?;
-                            out.push(other)
+                            out.push(other);
                         }
                     }
                 }
@@ -1199,8 +1198,7 @@ fn method_call(
                     items
                         .iter()
                         .position(|v| *v == needle)
-                        .map(|i| i as f64)
-                        .unwrap_or(-1.0),
+                        .map_or(-1.0, |i| i as f64),
                 ))
             }
             // `contains` is what WebFluent calls it; `includes` is the
@@ -1215,8 +1213,7 @@ fn method_call(
             "join" => {
                 let sep = args
                     .first()
-                    .map(|_| value(0))
-                    .unwrap_or(Some(Static::Str(",".into())))?
+                    .map_or(Some(Static::Str(",".into())), |_| value(0))?
                     .to_text();
                 // What the joined text will weigh, paid before it is made.
                 let parts: Vec<String> = items.iter().map(Static::to_text).collect();
@@ -1297,11 +1294,11 @@ fn method_call(
                     match apply(f, &[item.clone(), Static::Num(i as f64)], scope, fuel)? {
                         Static::List(more) => {
                             fuel.charge(more.len())?;
-                            out.extend(more)
+                            out.extend(more);
                         }
                         other => {
                             fuel.spend()?;
-                            out.push(other)
+                            out.push(other);
                         }
                     }
                 }
@@ -1332,8 +1329,7 @@ fn method_call(
                 let needle = value(0)?.to_text();
                 Some(Static::Num(
                     s.find(&needle)
-                        .map(|b| s[..b].chars().count() as f64)
-                        .unwrap_or(-1.0),
+                        .map_or(-1.0, |b| s[..b].chars().count() as f64),
                 ))
             }
             "includes" | "contains" => Some(Static::Bool(s.contains(&value(0)?.to_text()))),
@@ -1414,9 +1410,7 @@ fn method_call(
                         Some(match re.captures(s) {
                             Some(caps) => Static::List(
                                 caps.iter()
-                                    .map(|c| {
-                                        Static::Str(c.map(|m| m.as_str()).unwrap_or("").into())
-                                    })
+                                    .map(|c| Static::Str(c.map_or("", |m| m.as_str()).into()))
                                     .collect(),
                             ),
                             None => Static::Null,
@@ -1429,8 +1423,7 @@ fn method_call(
                 Static::Regex(p, f) => Some(Static::Num(
                     compile_regex(&p, &f)?
                         .find(s)
-                        .map(|m| s[..m.start()].chars().count() as f64)
-                        .unwrap_or(-1.0),
+                        .map_or(-1.0, |m| s[..m.start()].chars().count() as f64),
                 )),
                 _ => None,
             },
@@ -1548,7 +1541,7 @@ fn sorted(
     let mut out = items.to_vec();
     match comparator {
         None => {
-            out.sort_by_key(|a| a.to_text());
+            out.sort_by_key(Static::to_text);
             Some(out)
         }
         Some(cmp) => {
@@ -1604,7 +1597,7 @@ fn global_method(global: &str, method: &str, args: &[Static]) -> Option<Static> 
         ("Math", "floor") => Some(Static::Num(n(0)?.floor())),
         ("Math", "ceil") => Some(Static::Num(n(0)?.ceil())),
         ("Math", "abs") => Some(Static::Num(n(0)?.abs())),
-        ("Math", "max") | ("Math", "min") => {
+        ("Math", "max" | "min") => {
             let mut best: Option<f64> = None;
             for i in 0..args.len() {
                 let v = n(i)?;
@@ -2133,7 +2126,7 @@ mod interpreter_tests {
     #[test]
     fn a_store_mutation_or_an_unknown_call_stops_the_evaluation() {
         let s = store_scope(
-            r#"store S {
+            r"store S {
                 state n = 1
                 state items = [1, 2]
                 derived bumped = bump()
@@ -2147,7 +2140,7 @@ mod interpreter_tests {
                     data = fetchSomething()
                     return data
                 }
-            }"#,
+            }",
         );
         assert_eq!(
             field(&s, "S", "bumped"),
@@ -2161,10 +2154,10 @@ mod interpreter_tests {
     #[test]
     fn runaway_recursion_runs_out_of_fuel_rather_than_hanging() {
         let s = store_scope(
-            r#"store S {
+            r"store S {
                 derived forever = again(0)
                 action again(i: Number) { return again(i + 1) }
-            }"#,
+            }",
         );
         assert_eq!(field(&s, "S", "forever"), None);
     }
@@ -2357,7 +2350,7 @@ mod scalars {
 
     /// The part of a URL after the scheme and before the path, and the path.
     fn url_parts(text: &str) -> Option<(String, String)> {
-        let rest = text.split_once("://").map(|(_, r)| r).unwrap_or(text);
+        let rest = text.split_once("://").map_or(text, |(_, r)| r);
         let (host, path) = match rest.find('/') {
             Some(at) => (&rest[..at], &rest[at..]),
             None => (rest, "/"),
@@ -2413,7 +2406,7 @@ mod scalars {
         for byte in text.bytes() {
             match byte {
                 b'A'..=b'Z' | b'a'..=b'z' | b'0'..=b'9' | b'*' | b'-' | b'.' | b'_' => {
-                    out.push(byte as char)
+                    out.push(byte as char);
                 }
                 b' ' => out.push('+'),
                 other => out.push_str(&format!("%{other:02X}")),

@@ -736,7 +736,7 @@ fn element(ui: &UIElement, cx: &mut Ctx, ancestors: &[&UIElement], in_component:
                         && !url.starts_with('.')
                         && !lower.contains(':');
                     if relative {
-                        let base = path.rsplit_once('/').map(|(b, _)| b).unwrap_or("");
+                        let base = path.rsplit_once('/').map_or("", |(b, _)| b);
                         let (line, col) = at(ui);
                         cx.out.push(
                             Diagnostic::coded(
@@ -763,7 +763,7 @@ fn element(ui: &UIElement, cx: &mut Ctx, ancestors: &[&UIElement], in_component:
     // F04: shows a state, never changes it.
     let bindable = matches!(
         named(ui, "checked"),
-        Some(Expr::Identifier(_)) | Some(Expr::PropertyAccess(..))
+        Some(Expr::Identifier(_) | Expr::PropertyAccess(..))
     );
     // A box that is always disabled cannot be clicked, so it shows a state
     // and is right not to change it.

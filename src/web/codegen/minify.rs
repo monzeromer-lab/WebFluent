@@ -53,8 +53,7 @@ pub fn minify_js(source: &str) -> String {
         if c == '/' && i + 1 < bytes.len() && bytes[i + 1] == b'*' {
             let end = source[i + 2..]
                 .find("*/")
-                .map(|e| i + 2 + e + 2)
-                .unwrap_or(bytes.len());
+                .map_or(bytes.len(), |e| i + 2 + e + 2);
             if source[i..].starts_with(crate::web::codegen::sourcemap::MARK) {
                 marks.push_str(&source[i..end]);
             }
@@ -270,8 +269,7 @@ pub fn minify_css(source: &str) -> String {
         if c == '/' && i + 1 < bytes.len() && bytes[i + 1] == b'*' {
             let end = source[i + 2..]
                 .find("*/")
-                .map(|e| i + 2 + e + 2)
-                .unwrap_or(bytes.len());
+                .map_or(bytes.len(), |e| i + 2 + e + 2);
             i = end;
             continue;
         }

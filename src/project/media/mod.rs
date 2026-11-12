@@ -131,7 +131,7 @@ impl Asset {
             "height": self.height,
             "color": self.color,
             "placeholder": self.placeholder,
-            "srcset": self.srcset(self.sources.keys().next().map(String::as_str).unwrap_or("")).unwrap_or_default(),
+            "srcset": self.srcset(self.sources.keys().next().map_or("", String::as_str)).unwrap_or_default(),
             "sources": self.sources.iter().map(|(format, widths)| {
                 serde_json::json!({
                     "type": format!("image/{format}"),
@@ -174,7 +174,7 @@ static USED: std::sync::Mutex<BTreeMap<std::path::PathBuf, std::collections::BTr
 
 fn used(cache_dir: &Path, file: &str) {
     USED.lock()
-        .unwrap_or_else(|e| e.into_inner())
+        .unwrap_or_else(std::sync::PoisonError::into_inner)
         .entry(cache_dir.to_path_buf())
         .or_default()
         .insert(file.to_string());
@@ -183,7 +183,7 @@ fn used(cache_dir: &Path, file: &str) {
 /// The files of `cache_dir` used since the last call, which forgets them.
 pub fn take_used(cache_dir: &Path) -> std::collections::BTreeSet<String> {
     USED.lock()
-        .unwrap_or_else(|e| e.into_inner())
+        .unwrap_or_else(std::sync::PoisonError::into_inner)
         .remove(cache_dir)
         .unwrap_or_default()
 }
@@ -229,12 +229,10 @@ pub fn process_via(
     let hash = encode::hash(&bytes, settings);
     let stem = source
         .file_stem()
-        .map(|s| s.to_string_lossy().to_string())
-        .unwrap_or_else(|| name.to_string());
+        .map_or_else(|| name.to_string(), |s| s.to_string_lossy().to_string());
     let extension = source
         .extension()
-        .map(|e| e.to_string_lossy().to_lowercase())
-        .unwrap_or_else(|| "png".into());
+        .map_or_else(|| "png".into(), |e| e.to_string_lossy().to_lowercase());
 
     let img_dir = out_dir.join("img");
     crate::base::outfs::create_dir_all(&img_dir).ok();
@@ -288,7 +286,7 @@ pub fn process_via(
                 if !crate::base::outfs::exists(&at) {
                     let written = match &fresh {
                         Some(encoded) => crate::base::outfs::write(&at, encoded),
-                        None => crate::base::outfs::copy(&cached, &at).map(|_| ()),
+                        None => crate::base::outfs::copy(&cached, &at),
                     };
                     written.map_err(|e| {
                         crate::diagnostics::error::WebFluentError::IoError(e.to_string())

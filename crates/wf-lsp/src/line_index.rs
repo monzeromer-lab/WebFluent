@@ -44,8 +44,7 @@ impl LineIndex {
         let end = self
             .line_starts
             .get(line + 1)
-            .map(|&next| next.saturating_sub(1))
-            .unwrap_or(self.total_len);
+            .map_or(self.total_len, |&next| next.saturating_sub(1));
         Some((start, end.max(start)))
     }
 
@@ -87,8 +86,7 @@ impl LineIndex {
         let byte = text
             .char_indices()
             .nth(target)
-            .map(|(b, _)| b)
-            .unwrap_or(text.len());
+            .map_or(text.len(), |(b, _)| b);
         Some(start + byte)
     }
 
@@ -114,8 +112,7 @@ impl LineIndex {
             source[start..]
                 .chars()
                 .next()
-                .map(|c| start + c.len_utf8())
-                .unwrap_or(start)
+                .map_or(start, |c| start + c.len_utf8())
         } else {
             end
         };

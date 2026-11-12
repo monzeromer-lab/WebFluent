@@ -247,13 +247,15 @@ pub fn translations(
                 .map(|k| (crate::check::linter::vocabulary::levenshtein(key, k), *k))
                 .filter(|(d, _)| *d <= 3)
                 .min()
-                .map(|(_, k)| format!("Did you mean `{k}`?"))
-                .unwrap_or_else(|| {
-                    format!(
-                        "Add `\"{key}\": \"…\"` to `{}/{}.json`",
-                        config.dir, config.default_locale
-                    )
-                });
+                .map_or_else(
+                    || {
+                        format!(
+                            "Add `\"{key}\": \"…\"` to `{}/{}.json`",
+                            config.dir, config.default_locale
+                        )
+                    },
+                    |(_, k)| format!("Did you mean `{k}`?"),
+                );
             out.push(
                             Diagnostic::coded(
                                 "I01",

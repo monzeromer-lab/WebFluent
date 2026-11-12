@@ -67,13 +67,13 @@ impl WebFluentError {
 impl fmt::Display for WebFluentError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            WebFluentError::LexerError(d) => write!(f, "{}", d),
-            WebFluentError::ParseError(d) => write!(f, "{}", d),
-            WebFluentError::CodegenError(msg) => write!(f, "Codegen Error: {}", msg),
-            WebFluentError::ConfigError(msg) => write!(f, "Config Error: {}", msg),
-            WebFluentError::IoError(msg) => write!(f, "IO Error: {}", msg),
-            WebFluentError::EditError(msg) => write!(f, "Edit Error: {}", msg),
-            WebFluentError::NotFound(msg) => write!(f, "{}", msg),
+            WebFluentError::LexerError(d) => write!(f, "{d}"),
+            WebFluentError::ParseError(d) => write!(f, "{d}"),
+            WebFluentError::CodegenError(msg) => write!(f, "Codegen Error: {msg}"),
+            WebFluentError::ConfigError(msg) => write!(f, "Config Error: {msg}"),
+            WebFluentError::IoError(msg) => write!(f, "IO Error: {msg}"),
+            WebFluentError::EditError(msg) => write!(f, "Edit Error: {msg}"),
+            WebFluentError::NotFound(msg) => write!(f, "{msg}"),
             WebFluentError::Diagnostics(list) => {
                 for d in list.iter().filter(|d| d.is_error()) {
                     writeln!(f, "{d}")?;
@@ -206,7 +206,7 @@ impl fmt::Display for VocabWarning {
             self.rule_id, self.message, self.file, self.line, self.column
         )?;
         if let Some(hint) = &self.hint {
-            write!(f, "\n    {}", hint)?;
+            write!(f, "\n    {hint}")?;
         }
         Ok(())
     }
@@ -214,9 +214,7 @@ impl fmt::Display for VocabWarning {
 
 impl From<A11yWarning> for Diagnostic {
     fn from(w: A11yWarning) -> Self {
-        let code = crate::diagnostics::codes::info(&w.rule_id)
-            .map(|c| c.code)
-            .unwrap_or("");
+        let code = crate::diagnostics::codes::info(&w.rule_id).map_or("", |c| c.code);
         let mut d = Diagnostic::coded(code, w.message, w.file, w.line, w.column).with_hint(w.hint);
         d.plans = w.plans;
         d
@@ -225,9 +223,7 @@ impl From<A11yWarning> for Diagnostic {
 
 impl From<VocabWarning> for Diagnostic {
     fn from(w: VocabWarning) -> Self {
-        let code = crate::diagnostics::codes::info(&w.rule_id)
-            .map(|c| c.code)
-            .unwrap_or("");
+        let code = crate::diagnostics::codes::info(&w.rule_id).map_or("", |c| c.code);
         let mut d = Diagnostic::coded(code, w.message, w.file, w.line, w.column);
         d.plans = w.plans;
         match w.hint {

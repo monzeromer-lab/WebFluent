@@ -305,8 +305,7 @@ pub fn check_sources<'s>(
                 image_type()
             } else {
                 d.ty.as_ref()
-                    .map(|t| world.resolve(Type::from_ref(t)))
-                    .unwrap_or(Type::Any)
+                    .map_or(Type::Any, |t| world.resolve(Type::from_ref(t)))
             };
             info.bindings.push(Typed {
                 decl: index,
@@ -853,8 +852,9 @@ impl<'a, 'p> Checker<'a, 'p> {
                                         .world
                                         .endpoint(api, method)
                                         .and_then(|e| e.returns.as_ref())
-                                        .map(|t| self.world.resolve(Type::from_ref(t)))
-                                        .unwrap_or(Type::Any),
+                                        .map_or(Type::Any, |t| {
+                                            self.world.resolve(Type::from_ref(t))
+                                        }),
                                     _ => Type::Any,
                                 }
                             }

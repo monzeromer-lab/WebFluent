@@ -141,8 +141,7 @@ fn navigation_is_never_hidden_without_a_control() {
                     let after = &css[i + hidden.len()..];
                     after
                         .find('}')
-                        .map(|end| after[..end].contains("display: none"))
-                        .unwrap_or(false)
+                        .is_some_and(|end| after[..end].contains("display: none"))
                 })
                 .count();
             if hides == 0 {
@@ -391,7 +390,7 @@ fn pointer_targets_meet_the_minimum_size() {
                     let num: String = tail
                         .trim_start()
                         .chars()
-                        .take_while(|c| c.is_ascii_digit())
+                        .take_while(char::is_ascii_digit)
                         .collect();
                     num.parse::<u32>().ok()
                 })
@@ -431,7 +430,7 @@ fn the_stacking_order_is_coherent() {
                         && let Ok(v) = body[at + 8..]
                             .trim_start()
                             .chars()
-                            .take_while(|c| c.is_ascii_digit())
+                            .take_while(char::is_ascii_digit)
                             .collect::<String>()
                             .parse::<u32>()
                     {

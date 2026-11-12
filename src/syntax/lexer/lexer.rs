@@ -177,7 +177,7 @@ impl Lexer {
                 _ => {
                     return Err(WebFluentError::LexerError(Box::new(Diagnostic::coded(
                         "E001",
-                        format!("Unexpected character '{}'", ch),
+                        format!("Unexpected character '{ch}'"),
                         &self.file,
                         self.line,
                         self.column,
@@ -366,7 +366,7 @@ impl Lexer {
         let value: f64 = num_str.parse().map_err(|_| {
             WebFluentError::LexerError(Box::new(Diagnostic::coded(
                 "E001",
-                format!("Invalid number '{}'", num_str),
+                format!("Invalid number '{num_str}'"),
                 &self.file,
                 start_line,
                 start_col,

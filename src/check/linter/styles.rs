@@ -87,9 +87,10 @@ fn property(
             .filter(|(d, _)| *d <= 2)
             .min()
             .map(|(_, p)| p);
-        let near = nearest
-            .map(|p| format!("Did you mean `{p}`?"))
-            .unwrap_or_else(|| "A custom property is written `--name`".to_string());
+        let near = nearest.map_or_else(
+            || "A custom property is written `--name`".to_string(),
+            |p| format!("Did you mean `{p}`?"),
+        );
         // As CSS spells it — a style block's properties are CSS's.
         let fix = nearest.map(|p| {
             let to = p.to_string();
@@ -134,12 +135,10 @@ fn property(
             .filter(|(d, _)| *d <= 3)
             .min()
             .map(|(_, n)| n.clone());
-        let near = nearest
-            .as_ref()
-            .map(|n| format!("Did you mean `${n}`?"))
-            .unwrap_or_else(|| {
-                "Declare it in your `theme { … }`, or use one the theme has".to_string()
-            });
+        let near = nearest.as_ref().map_or_else(
+            || "Declare it in your `theme { … }`, or use one the theme has".to_string(),
+            |n| format!("Did you mean `${n}`?"),
+        );
         let fix = nearest.map(|n| {
             (
                 format!("Change to `${n}`"),

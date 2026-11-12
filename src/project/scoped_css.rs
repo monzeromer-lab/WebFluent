@@ -226,7 +226,7 @@ fn collect_in(
     points: &BTreeMap<String, String>,
 ) {
     let collect = |stmts: &[Statement], rules: &mut BTreeMap<String, String>, uses: &mut Uses| {
-        collect_in(stmts, rules, uses, points)
+        collect_in(stmts, rules, uses, points);
     };
     for stmt in stmts {
         match &stmt.kind {
@@ -331,7 +331,7 @@ pub fn static_declaration(prop: &StyleProperty) -> Option<(String, String)> {
 pub fn static_value(value: &Expr) -> Option<String> {
     match value {
         Expr::StringLiteral(s) => Some(s.clone()),
-        Expr::NumberLiteral(n) => Some(format!("{}", n)),
+        Expr::NumberLiteral(n) => Some(format!("{n}")),
         Expr::Token(name) => Some(format!("var(--{name})")),
         Expr::InterpolatedString(parts) => {
             let mut out = String::new();
@@ -371,7 +371,7 @@ fn declaration(prop: &StyleProperty) -> Option<String> {
     // override the base while its condition holds, so it has to be important;
     // the rules for one element are ordered pseudo-states first, media
     // queries last, so a viewport rule wins a conflict with a state rule.
-    Some(format!("{}: {} !important;", name, value))
+    Some(format!("{name}: {value} !important;"))
 }
 
 /// The rules of a block in one canonical string, which names the class: two
@@ -687,8 +687,7 @@ mod tests {
         assert_eq!(
             css.trim(),
             format!(
-                ".{c}.{c}.{c} {{ padding: 1rem; border-radius: var(--radius-md); --gap: 4; }}",
-                c = class
+                ".{class}.{class}.{class} {{ padding: 1rem; border-radius: var(--radius-md); --gap: 4; }}"
             )
         );
     }
@@ -726,7 +725,7 @@ mod tests {
 
     #[test]
     fn states_map_to_their_selectors_and_tokens_resolve() {
-        let src = r##"page P(path: "/") {
+        let src = r#"page P(path: "/") {
             Input(placeholder: "p").text {
                 style {
                     &:focus-visible { border-color: $primary }
@@ -736,7 +735,7 @@ mod tests {
                     &:active { transform: translateY(1px) }
                 }
             }
-        }"##;
+        }"#;
         let css = scoped_rules(&program(src));
         assert!(
             css.contains(":focus-visible { border-color: var(--color-primary) !important; }"),
@@ -762,10 +761,10 @@ mod tests {
 
     #[test]
     fn aria_states_are_attribute_selectors() {
-        let src = r##"page P(path: "/") {
+        let src = r#"page P(path: "/") {
             Link("Home", to: "/") { style { &[aria-current="page"] { background: #222 } } }
             Button("x", aria-pressed: "true") { style { &[aria-pressed="true"] { color: red }  &[aria-invalid="true"] { color: blue } } }
-        }"##;
+        }"#;
         let css = scoped_rules(&program(src));
         assert!(
             css.contains("[aria-current=\"page\"] { background: #222 !important; }"),
@@ -796,10 +795,10 @@ mod tests {
 
     #[test]
     fn a_runtime_value_is_left_out_of_the_stylesheet() {
-        let src = r##"page P(path: "/") {
+        let src = r#"page P(path: "/") {
             state c = "red"
             Card { style { &:hover { color: {c}; background: #fff } } }
-        }"##;
+        }"#;
         let css = scoped_rules(&program(src));
         assert!(css.contains("background: #fff !important"), "{css}");
         assert!(!css.contains("color:"), "{css}");

@@ -449,8 +449,7 @@ impl<'a, 'p> Checker<'a, 'p> {
                 Some(e) => e
                     .case_names()
                     .first()
-                    .map(|c| format!(".{c}"))
-                    .unwrap_or_else(|| "null".to_string()),
+                    .map_or_else(|| "null".to_string(), |c| format!(".{c}")),
                 None => format!("{name}()"),
             },
         }

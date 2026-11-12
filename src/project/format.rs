@@ -387,7 +387,7 @@ pub fn format(
         Some("time") => {
             let m = parse_moment(value)?;
             Some(match option_text(option).as_deref() {
-                Some("medium") | Some("long") | Some("full") => m.pattern("h:mm:ss a"),
+                Some("medium" | "long" | "full") => m.pattern("h:mm:ss a"),
                 _ => m.pattern("h:mm a"),
             })
         }

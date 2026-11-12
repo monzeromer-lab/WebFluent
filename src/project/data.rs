@@ -154,7 +154,7 @@ pub fn resolve_data_via(
     {
         let mut made = std::collections::HashMap::new();
         let mut lower = |ui: &mut UIElement| {
-            lower_image_src(vfs, ui, root, out_dir, settings, base_path, &mut made)
+            lower_image_src(vfs, ui, root, out_dir, settings, base_path, &mut made);
         };
         for decl in &mut program.declarations {
             let body = match decl {
@@ -266,8 +266,7 @@ pub(crate) fn each_element_mut(stmts: &mut [Statement], f: &mut dyn FnMut(&mut U
 pub fn markdown_page(source: &str, file: &str) -> Result<Program> {
     let stem = std::path::Path::new(file)
         .file_stem()
-        .map(|s| s.to_string_lossy().to_string())
-        .unwrap_or_else(|| "Page".to_string());
+        .map_or_else(|| "Page".to_string(), |s| s.to_string_lossy().to_string());
     let mut front: Vec<(String, String)> = Vec::new();
     let body = if let Some(rest) = source.strip_prefix("---") {
         let rest = rest

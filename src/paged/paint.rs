@@ -447,7 +447,7 @@ impl<'a> Painter<'a> {
 
     fn border(&mut self, s: &mut Surface, f: &Frag, style: &Style, r: [f32; 4]) {
         let b = &style.border;
-        if !b.iter().any(|side| side.visible()) {
+        if !b.iter().any(super::style::BorderSide::visible) {
             return;
         }
         let uniform = b.iter().all(|side| {
@@ -660,10 +660,7 @@ impl<'a> Painter<'a> {
         };
         let style = &self.tree.boxes[f.boxed].style;
         let (cx, cy, _, _) = Self::content_box(f, style);
-        let baseline = f
-            .first_baseline()
-            .map(|b| f.y + b)
-            .unwrap_or(cy + line.baseline);
+        let baseline = f.first_baseline().map_or(cy + line.baseline, |b| f.y + b);
         // Outside the item, on the side its text starts from.
         let (_, _, cw, _) = Self::content_box(f, style);
         let x = if style.direction == super::style::Direction::Rtl {
@@ -734,7 +731,7 @@ impl<'a> Painter<'a> {
                 s.set_fill(Some(fill(st.background_color)));
                 s.draw_path(&p);
             }
-            if st.border.iter().any(|b| b.visible()) {
+            if st.border.iter().any(super::style::BorderSide::visible) {
                 let fr = Frag {
                     boxed: 0,
                     x,

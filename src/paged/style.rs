@@ -626,8 +626,8 @@ pub fn length(value: &str, u: &Units) -> Option<Length> {
             }
             return Some(Length::Pt(match f {
                 "clamp(" => *pts.last().unwrap(),
-                "max(" => pts.iter().cloned().fold(f32::MIN, f32::max),
-                _ => pts.iter().cloned().fold(f32::MAX, f32::min),
+                "max(" => pts.iter().copied().fold(f32::MIN, f32::max),
+                _ => pts.iter().copied().fold(f32::MAX, f32::min),
             }));
         }
     }
@@ -700,7 +700,7 @@ struct Calc<'a, 'u> {
 
 impl Calc<'_, '_> {
     fn space(&mut self) {
-        while self.s.get(self.at).is_some_and(|c| c.is_ascii_whitespace()) {
+        while self.s.get(self.at).is_some_and(u8::is_ascii_whitespace) {
             self.at += 1;
         }
     }
@@ -875,7 +875,12 @@ pub fn color(value: &str) -> Option<Rgba> {
             .strip_prefix('(')?
             .strip_suffix(')')?;
         let inner = inner.replace(['/', ','], " ");
-        Some(inner.split_whitespace().map(|s| s.to_string()).collect())
+        Some(
+            inner
+                .split_whitespace()
+                .map(std::string::ToString::to_string)
+                .collect(),
+        )
     };
     let channel = |s: &str, scale: f32| -> Option<f32> {
         if let Some(p) = s.strip_suffix('%') {
@@ -887,7 +892,7 @@ pub fn color(value: &str) -> Option<Rgba> {
     if let Some(parts) = func("rgba").or_else(|| func("rgb"))
         && parts.len() >= 3
     {
-        let a = parts.get(3).map(|s| channel(s, 1.0)).unwrap_or(Some(1.0))?;
+        let a = parts.get(3).map_or(Some(1.0), |s| channel(s, 1.0))?;
         return Some(Rgba {
             r: channel(&parts[0], 255.0)?,
             g: channel(&parts[1], 255.0)?,
@@ -901,7 +906,7 @@ pub fn color(value: &str) -> Option<Rgba> {
         let h = parts[0].trim_end_matches("deg").parse::<f32>().ok()? / 360.0;
         let s = channel(&parts[1], 100.0)?;
         let l = channel(&parts[2], 100.0)?;
-        let a = parts.get(3).map(|s| channel(s, 1.0)).unwrap_or(Some(1.0))?;
+        let a = parts.get(3).map_or(Some(1.0), |s| channel(s, 1.0))?;
         let (r, g, b) = hsl_to_rgb(h, s, l);
         return Some(Rgba { r, g, b, a });
     }
@@ -1233,7 +1238,7 @@ pub fn grid_placement(value: &str) -> (GridLine, GridLine) {
         if let Some(n) = s.strip_prefix("span") {
             return GridLine::Span(n.trim().parse().unwrap_or(1));
         }
-        s.parse().map(GridLine::Line).unwrap_or(GridLine::Auto)
+        s.parse().map_or(GridLine::Auto, GridLine::Line)
     };
     match value.split_once('/') {
         Some((a, b)) => (one(a), one(b)),

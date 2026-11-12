@@ -283,7 +283,7 @@ fn verify_leaves_no_browser_profile_behind() {
     assert!(out.status.success(), "{err}");
     let left: Vec<String> = std::fs::read_dir(&tmp)
         .unwrap()
-        .filter_map(|e| e.ok())
+        .filter_map(std::result::Result::ok)
         .map(|e| e.file_name().to_string_lossy().to_string())
         .filter(|name| name.starts_with("wf-chrome"))
         .collect();

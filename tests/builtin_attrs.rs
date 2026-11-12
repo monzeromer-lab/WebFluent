@@ -56,7 +56,7 @@ fn findings(src: &str) -> Vec<String> {
         .errors
         .iter()
         .chain(checked.findings.warnings.iter())
-        .map(|e| e.to_string())
+        .map(std::string::ToString::to_string)
         .filter(|e| e.contains("C04") || e.contains("V09"))
         .collect()
 }

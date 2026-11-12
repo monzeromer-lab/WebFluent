@@ -90,7 +90,8 @@ pub fn check(program: &Program, file_of: &dyn Fn(usize) -> String) -> Findings {
                 if let Some(layout) = &p.layout {
                     match decls.components.get(layout.name.as_str()) {
                         None => findings.errors.push(
-                            Diagnostic::coded("E101",
+                            Diagnostic::coded(
+                                "E101",
                                 format!("`{}` is not a declared component", layout.name),
                                 &file,
                                 layout.span.line as usize,
@@ -107,7 +108,7 @@ pub fn check(program: &Program, file_of: &dyn Fn(usize) -> String) -> Findings {
                                     layout.span.col as usize,
                                 )
                                 .with_hint("Add `slot` to the component and place `children` where the page belongs"),
-                            )
+                            );
                         }
                         Some(_) => {}
                     }
@@ -1073,8 +1074,11 @@ pub fn lower(mut program: Program) -> Program {
         .filter(|e| e.cases.iter().any(|c| !c.fields.is_empty()))
         .map(|e| e.name.clone())
         .collect();
-    let enum_names: std::collections::HashSet<String> =
-        owned.enums.keys().map(|k| k.to_string()).collect();
+    let enum_names: std::collections::HashSet<String> = owned
+        .enums
+        .keys()
+        .map(std::string::ToString::to_string)
+        .collect();
     drop(owned);
     // What a record's construction leaves out: each field's default, and
     // `null` for an optional one, so `Todo(id: "a", title: "b")` carries
@@ -1622,7 +1626,7 @@ fn lower_element(el: &mut UIElement, user: &HashMap<String, UserSig>) {
     let own = own_props(el, user);
     // The Router's `duration` times its route transition, not a marker.
     let router = matches!(&el.component, ComponentRef::BuiltIn(n) if n == "Router");
-    for arg in el.args.iter_mut() {
+    for arg in &mut el.args {
         if !router
             && let Arg::Named(k, v) = arg
             && !own.iter().any(|p| p == k)
@@ -2229,7 +2233,11 @@ mod tests {
         let f = checked(
             "page P(path: \"/\") { Button(\"x\").huge  Row.center { }  Card.Nope { }  Button(\"y\", tone: .purple) }",
         );
-        let messages: Vec<String> = f.errors.iter().map(|d| d.to_string()).collect();
+        let messages: Vec<String> = f
+            .errors
+            .iter()
+            .map(std::string::ToString::to_string)
+            .collect();
         assert!(
             messages[0].contains("no flag or enum case `huge`") && messages[0].contains(".primary"),
             "{messages:?}"
@@ -2254,7 +2262,11 @@ mod tests {
     fn a_declared_animation_is_a_case_of_animate_and_exit() {
         let src = "animation Pulse { from { opacity: 1 } to { opacity: 0 } }\npage P(path: \"/\") { Card(animate: .Pulse, exit: .Pulse) { Text(\"x\") }  Card(animate: .Wobble) { Text(\"y\") } }";
         let f = checked(src);
-        let messages: Vec<String> = f.errors.iter().map(|d| d.to_string()).collect();
+        let messages: Vec<String> = f
+            .errors
+            .iter()
+            .map(std::string::ToString::to_string)
+            .collect();
         assert_eq!(messages.len(), 1, "{messages:?}");
         assert!(
             messages[0].contains("`animate` on Card has no case `.Wobble`")
@@ -2267,7 +2279,11 @@ mod tests {
     fn a_part_is_a_component_of_its_owner() {
         let src = "component Panel(_ title: String) { part Header(_ text: String) { Text(text) }  Text(title)  children }\npage P(path: \"/\") { Panel(\"p\") { Panel.Header(\"h\")  Panel.Header(\"h\", extra: 1)  Panel.Nope } }";
         let f = checked(src);
-        let messages: Vec<String> = f.errors.iter().map(|d| d.to_string()).collect();
+        let messages: Vec<String> = f
+            .errors
+            .iter()
+            .map(std::string::ToString::to_string)
+            .collect();
         assert!(
             messages
                 .iter()
@@ -2276,7 +2292,11 @@ mod tests {
             "{messages:?}"
         );
         assert_eq!(f.errors.len(), 1, "{messages:?}");
-        let warnings: Vec<String> = f.warnings.iter().map(|d| d.to_string()).collect();
+        let warnings: Vec<String> = f
+            .warnings
+            .iter()
+            .map(std::string::ToString::to_string)
+            .collect();
         assert!(
             warnings
                 .iter()
@@ -2295,7 +2315,11 @@ mod tests {
     fn a_scoped_slot_hands_over_what_it_declares() {
         let src = "component Rows(items: [Any]) { slot row(item: Any, index: Number)  slot empty  for it, i in items { row(item: it, index: i) }  row(item: 1)  row(item: 1, index: 2, extra: 3)  gone(item: 1) }\npage P(path: \"/\") {  Rows(items: [1]) { row(n, i) { Text(\"{i}: {n}\") } }   Rows(items: [1]) { row(a, b, c) { Text(a) }  empty(x) { Text(x) } } }";
         let f = checked(src);
-        let messages: Vec<String> = f.errors.iter().map(|d| d.to_string()).collect();
+        let messages: Vec<String> = f
+            .errors
+            .iter()
+            .map(std::string::ToString::to_string)
+            .collect();
         for expected in [
             "`row` is used without `index`",
             "`row` hands no `extra`",
@@ -2315,7 +2339,11 @@ mod tests {
     fn events_slots_and_layouts_are_checked_against_the_declaration() {
         let src = "component Entry(_ label: String) { event pick  slot trailing  Button(label) { on click { emit pick } }  Button(\"y\") { on click { emit nope } } }\npage P(path: \"/\", layout: Shell) { Entry(\"x\") { on chosen { go() }  on pick { go() }  side { Text(\"s\") } } }";
         let f = checked(src);
-        let messages: Vec<String> = f.errors.iter().map(|d| d.to_string()).collect();
+        let messages: Vec<String> = f
+            .errors
+            .iter()
+            .map(std::string::ToString::to_string)
+            .collect();
         assert!(
             messages
                 .iter()

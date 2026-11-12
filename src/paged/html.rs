@@ -81,10 +81,7 @@ impl Dom {
             let opens = rest.starts_with("<!")
                 || rest.starts_with("<?")
                 || rest.starts_with("</")
-                || rest
-                    .as_bytes()
-                    .get(1)
-                    .is_some_and(|c| c.is_ascii_alphabetic());
+                || rest.as_bytes().get(1).is_some_and(u8::is_ascii_alphabetic);
             if !opens {
                 i += 1;
                 continue;
@@ -94,13 +91,13 @@ impl Dom {
                 dom.push_text(stack.last().copied().unwrap_or(0), &html[text_start..i]);
             }
             if rest.starts_with("<!--") {
-                let end = rest.find("-->").map(|e| i + e + 3).unwrap_or(bytes.len());
+                let end = rest.find("-->").map_or(bytes.len(), |e| i + e + 3);
                 i = end;
                 text_start = i;
                 continue;
             }
             if rest.starts_with("<!") || rest.starts_with("<?") {
-                let end = rest.find('>').map(|e| i + e + 1).unwrap_or(bytes.len());
+                let end = rest.find('>').map_or(bytes.len(), |e| i + e + 1);
                 i = end;
                 text_start = i;
                 continue;
@@ -110,7 +107,7 @@ impl Dom {
                     .find(|c: char| c == '>' || c.is_whitespace())
                     .unwrap_or(after.len());
                 let name = after[..name_len].to_ascii_lowercase();
-                let end = rest.find('>').map(|e| i + e + 1).unwrap_or(bytes.len());
+                let end = rest.find('>').map_or(bytes.len(), |e| i + e + 1);
                 // Close the nearest open element of that name, and whatever
                 // was left open inside it; an end tag nothing opened is noise.
                 if let Some(pos) = stack
@@ -139,16 +136,12 @@ impl Dom {
                 let end = html[i..]
                     .to_ascii_lowercase()
                     .find(&close)
-                    .map(|e| i + e)
-                    .unwrap_or(bytes.len());
+                    .map_or(bytes.len(), |e| i + e);
                 if end > i {
                     let text = html[i..end].to_string();
                     dom.push(id, NodeKind::Text(text));
                 }
-                i = html[end..]
-                    .find('>')
-                    .map(|e| end + e + 1)
-                    .unwrap_or(bytes.len());
+                i = html[end..].find('>').map_or(bytes.len(), |e| end + e + 1);
                 text_start = i;
             } else if !self_closing && !VOID.contains(&tag.as_str()) {
                 stack.push(id);
@@ -375,8 +368,7 @@ fn parse_start_tag(s: &str) -> Option<(Element, bool, usize)> {
                 let start = i + 1;
                 let end = s[start..]
                     .find(quote as char)
-                    .map(|e| start + e)
-                    .unwrap_or(b.len());
+                    .map_or(b.len(), |e| start + e);
                 value = decode_entities(&s[start..end]);
                 i = (end + 1).min(b.len());
             } else {

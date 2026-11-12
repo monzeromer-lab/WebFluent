@@ -30,8 +30,7 @@ pub fn run_scope(dir: &Path, place: &str, data: Option<&Path>, json: bool) -> Re
             offset += text
                 .char_indices()
                 .nth(col.saturating_sub(1))
-                .map(|(b, _)| b)
-                .unwrap_or(0);
+                .map_or(0, |(b, _)| b);
             break;
         }
         offset += text.len();

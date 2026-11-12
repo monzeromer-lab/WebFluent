@@ -311,7 +311,7 @@ fn list_item(line: &str) -> Option<(&str, bool)> {
     if let Some(rest) = line.strip_prefix("- ").or_else(|| line.strip_prefix("* ")) {
         return Some((rest.trim(), false));
     }
-    let digits = line.chars().take_while(|c| c.is_ascii_digit()).count();
+    let digits = line.chars().take_while(char::is_ascii_digit).count();
     if digits > 0 && line[digits..].starts_with(". ") {
         return Some((line[digits + 2..].trim(), true));
     }

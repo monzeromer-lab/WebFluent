@@ -222,8 +222,7 @@ fn unit_of(text: &str) -> String {
     text.lines()
         .map(|l| &l[..l.len() - l.trim_start_matches([' ', '\t']).len()])
         .find(|w| !w.is_empty())
-        .map(str::to_string)
-        .unwrap_or_else(|| "  ".to_string())
+        .map_or_else(|| "  ".to_string(), str::to_string)
 }
 
 /// How a list or an object is laid out: as the value it replaces was, or —

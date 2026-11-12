@@ -49,13 +49,10 @@ pub(super) fn sig(name: &str) -> String {
     // `_e3` and what hangs off it (`_e3_drawn`) are the elements the
     // generated code makes; `_x_check` and `_x_pending` are what it keeps
     // for a validated state and an async action.
-    let element = name
-        .strip_prefix('e')
-        .map(|rest| {
-            let digits = rest.len() - rest.trim_start_matches(|c: char| c.is_ascii_digit()).len();
-            digits > 0 && (digits == rest.len() || rest[digits..].starts_with('_'))
-        })
-        .unwrap_or(false);
+    let element = name.strip_prefix('e').is_some_and(|rest| {
+        let digits = rest.len() - rest.trim_start_matches(|c: char| c.is_ascii_digit()).len();
+        digits > 0 && (digits == rest.len() || rest[digits..].starts_with('_'))
+    });
     if element
         || RESERVED_SIGNALS.contains(&name)
         || name.ends_with("_check")

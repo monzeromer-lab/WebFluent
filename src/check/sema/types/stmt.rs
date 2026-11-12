@@ -151,7 +151,7 @@ impl<'a, 'p> Checker<'a, 'p> {
                 }
                 // A secret must not outlive the visit.
                 if s.persist
-                    && declared.as_ref().map(|t| t.unwrapped())
+                    && declared.as_ref().map(super::ty::Type::unwrapped)
                         == Some(Type::Scalar(Scalar::Secret))
                 {
                     self.error(
@@ -261,7 +261,10 @@ impl<'a, 'p> Checker<'a, 'p> {
                         continue;
                     };
                     if !ty.is_any() && !wanted.iter().any(|w| ty.assignable_to(w)) {
-                        let names: Vec<String> = wanted.iter().map(|w| w.to_string()).collect();
+                        let names: Vec<String> = wanted
+                            .iter()
+                            .map(std::string::ToString::to_string)
+                            .collect();
                         self.error(
                             rule.span,
                             "T01",
@@ -688,10 +691,10 @@ impl<'a, 'p> Checker<'a, 'p> {
                     self.push_scope();
                     match (&arm.pattern, &arm.binding) {
                         (ArmPattern::Ready, Some(name)) => {
-                            self.bind_fixed(name, (**inner).clone(), arm.span, ARM)
+                            self.bind_fixed(name, (**inner).clone(), arm.span, ARM);
                         }
                         (ArmPattern::Error, Some(name)) => {
-                            self.bind_fixed(name, Type::NetError, arm.span, ARM)
+                            self.bind_fixed(name, Type::NetError, arm.span, ARM);
                         }
                         (ArmPattern::Case(case), _) => self.error(
                             arm.span,
@@ -770,7 +773,7 @@ impl<'a, 'p> Checker<'a, 'p> {
                     if let ArmPattern::Case(case) = &arm.pattern {
                         let fields = self.payload_of(name, case).unwrap_or_default();
                         for (i, bound) in arm.bindings.iter().enumerate() {
-                            let ty = fields.get(i).map(|(_, t)| t.clone()).unwrap_or(Type::Any);
+                            let ty = fields.get(i).map_or(Type::Any, |(_, t)| t.clone());
                             self.bind_fixed(bound, ty, arm.span, ARM);
                         }
                     }
@@ -811,7 +814,7 @@ impl<'a, 'p> Checker<'a, 'p> {
                             "offline", "timeout", "aborted", "parse", "network", "status",
                         ]
                         .iter()
-                        .map(|w| w.to_string())
+                        .map(std::string::ToString::to_string)
                         .collect();
                         self.plan_nearest_case(case, &ways);
                     }

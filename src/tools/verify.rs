@@ -66,8 +66,7 @@ pub fn routes(
             let route = path
                 .parent()
                 .and_then(|p| p.strip_prefix(output_dir).ok())
-                .map(|p| format!("/{}", p.display()))
-                .unwrap_or_else(|| "/".to_string());
+                .map_or_else(|| "/".to_string(), |p| format!("/{}", p.display()));
             found.insert(route);
         }
     }

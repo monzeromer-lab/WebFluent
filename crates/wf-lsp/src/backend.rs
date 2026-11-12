@@ -76,7 +76,7 @@ impl Backend {
 
     fn path_of(uri: &Url) -> PathBuf {
         uri.to_file_path()
-            .unwrap_or_else(|_| PathBuf::from(uri.path()))
+            .unwrap_or_else(|()| PathBuf::from(uri.path()))
     }
 
     /// The project `uri` belongs to, with every open buffer's text.

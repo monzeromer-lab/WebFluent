@@ -213,15 +213,14 @@ impl<'a, 'p> Checker<'a, 'p> {
             let wanted = param
                 .and_then(|p| doc.param(&p.name))
                 .and_then(|d| d.ty.as_deref())
-                .map(jsdoc_type)
-                .unwrap_or(Type::Any);
+                .map_or(Type::Any, jsdoc_type);
             let given = self.infer(arg, Some(&wanted));
             if !given.assignable_to(&wanted) {
                 self.error_at_current(
                     "T01",
                     format!(
                         "`{}` of `{name}` is `{wanted}`, but `{}` is `{given}`",
-                        param.map(|p| p.name.as_str()).unwrap_or("an argument"),
+                        param.map_or("an argument", |p| p.name.as_str()),
                         expr_text(arg)
                     ),
                     &format!(
@@ -235,7 +234,7 @@ impl<'a, 'p> Checker<'a, 'p> {
             // A class's call is the instance, which the checker takes as
             // given.
             NameKind::Class { .. } => Type::Any,
-            _ => doc.returns.as_deref().map(jsdoc_type).unwrap_or(Type::Any),
+            _ => doc.returns.as_deref().map_or(Type::Any, jsdoc_type),
         }
     }
 

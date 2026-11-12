@@ -37,10 +37,10 @@ use style::{Rgba, Style, Units};
 
 /// What a paged output adds to the browser's defaults: how its own
 /// elements look before a page's sheets say otherwise.
-pub const PAGED_SHEET: &str = r#"
+pub const PAGED_SHEET: &str = r"
 .wf-document, .wf-page-break { display: block }
 .wf-watermark { font-size: 72pt; font-weight: bold; color: rgba(0, 0, 0, 0.08); white-space: nowrap; display: block }
-"#;
+";
 
 /// The paper.
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -149,9 +149,7 @@ fn sheets(dom: &Dom, defaults: &str, extra: &str) -> Sheet {
 fn root_style(opts: &Options) -> Style {
     let family = match opts.font_family.as_str() {
         "" => "sans-serif".to_string(),
-        f => fonts::alias(f)
-            .map(|a| a.to_string())
-            .unwrap_or_else(|| f.to_string()),
+        f => fonts::alias(f).map_or_else(|| f.to_string(), std::string::ToString::to_string),
     };
     Style::root(opts.font_size, &family)
 }
@@ -196,7 +194,7 @@ fn metadata(dom: &Dom, doc: Option<usize>) -> krilla::metadata::Metadata {
     let el = doc.and_then(|d| dom.element(d));
     let get = |name: &str| {
         el.and_then(|e| e.attr(name))
-            .map(|s| s.to_string())
+            .map(std::string::ToString::to_string)
             .filter(|s| !s.is_empty())
     };
     let mut m = krilla::metadata::Metadata::new().creator("WebFluent".to_string());
@@ -221,7 +219,7 @@ fn metadata(dom: &Dom, doc: Option<usize>) -> krilla::metadata::Metadata {
         dom.find_tag("html")
             .and_then(|h| dom.element(h))
             .and_then(|e| e.attr("lang"))
-            .map(|s| s.to_string())
+            .map(std::string::ToString::to_string)
     });
     if let Some(l) = lang {
         m = m.language(l);
@@ -303,8 +301,7 @@ pub fn render(html: &str, css: &str, opts: &Options) -> Result<Output, String> {
     );
     let rem = dom
         .find_tag("html")
-        .map(|h| first.compute(&dom, h, &base).font_size)
-        .unwrap_or(opts.font_size);
+        .map_or(opts.font_size, |h| first.compute(&dom, h, &base).font_size);
     let doc = dom
         .descendants(0)
         .into_iter()
@@ -373,7 +370,7 @@ pub fn render(html: &str, css: &str, opts: &Options) -> Result<Output, String> {
     ];
     for page in 1..=count {
         for (kind, list) in lists {
-            for (on, node) in list.iter() {
+            for (on, node) in list {
                 if !on.applies(page) {
                     continue;
                 }
@@ -417,7 +414,7 @@ pub fn render(html: &str, css: &str, opts: &Options) -> Result<Output, String> {
             .find_tag("html")
             .map(|h| styler.compute(&dom, h, &base).background_color);
         let body_bg = tree.boxes[tree.flow].style.background_color;
-        html_bg.filter(|c| c.is_visible()).unwrap_or(body_bg)
+        html_bg.filter(style::Rgba::is_visible).unwrap_or(body_bg)
     };
     if canvas.is_visible() {
         let mut body = (*tree.boxes[tree.flow].style).clone();

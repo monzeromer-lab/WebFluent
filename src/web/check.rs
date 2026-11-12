@@ -552,7 +552,13 @@ pub fn config_checks_via(
         .iter()
         .chain(config.meta.stylesheets.iter())
         .map(String::as_str)
-        .chain(config.meta.scripts.iter().map(|s| s.src()))
+        .chain(
+            config
+                .meta
+                .scripts
+                .iter()
+                .map(super::super::project::config::project::ScriptEntry::src),
+        )
         .collect::<std::collections::BTreeSet<_>>()
     {
         // A Google Fonts stylesheet is written per user-agent, so its bytes

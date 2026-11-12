@@ -172,7 +172,7 @@ fn code_like(code: &str, keywords: bool) -> String {
             span("tok", &chars[start..i].iter().collect::<String>(), &mut out);
             continue;
         }
-        if c == '#' && chars.get(i + 1).is_some_and(|c| c.is_ascii_hexdigit()) {
+        if c == '#' && chars.get(i + 1).is_some_and(char::is_ascii_hexdigit) {
             flush(&mut plain, &mut out);
             let start = i;
             i += 1;
@@ -291,8 +291,7 @@ fn json(code: &str) -> String {
             span(kind, &chars[start..i].iter().collect::<String>(), &mut out);
             continue;
         }
-        if c.is_ascii_digit() || (c == '-' && chars.get(i + 1).is_some_and(|c| c.is_ascii_digit()))
-        {
+        if c.is_ascii_digit() || (c == '-' && chars.get(i + 1).is_some_and(char::is_ascii_digit)) {
             if !plain.is_empty() {
                 out.push_str(&escape(&plain));
                 plain.clear();

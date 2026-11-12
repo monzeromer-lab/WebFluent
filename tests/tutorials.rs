@@ -102,7 +102,7 @@ fn file_blocks(markdown: &str) -> Vec<(usize, String, String)> {
                 }
             }
             None if matches!(line.trim_end(), "```wf" | "```wfx" | "```css" | "```json") => {
-                current = Some((ix + 1, Vec::new()))
+                current = Some((ix + 1, Vec::new()));
             }
             None => {}
         }

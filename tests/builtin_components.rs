@@ -584,7 +584,7 @@ fn backends_agree_on_tag_and_class() {
 fn heading_modifier_sets_the_heading_level() {
     let mut failures = Vec::new();
     for level in ["h1", "h2", "h3", "h4", "h5", "h6"] {
-        let src = page(&format!("Heading(\"x\").{}", level));
+        let src = page(&format!("Heading(\"x\").{level}"));
         for backend in Backend::ALL {
             let Some(e) = root(backend, &src) else {
                 continue;
@@ -861,7 +861,7 @@ fn heading_level_modifiers_do_not_emit_a_dead_class() {
     let css = built_in_css();
     let mut failures = Vec::new();
     for level in ["h1", "h2", "h3", "h4", "h5", "h6"] {
-        let src = page(&format!("Heading(\"x\").{}", level));
+        let src = page(&format!("Heading(\"x\").{level}"));
         for backend in Backend::ALL {
             let Some(e) = root(backend, &src) else {
                 continue;
@@ -981,21 +981,18 @@ fn modifiers_outside_a_components_variant_set_do_not_become_classes() {
             SPECS
                 .iter()
                 .find(|s| s.class.ends_with(component))
-                .map(|spec| {
+                .is_some_and(|spec| {
                     let src = page(
                         &spec
                             .body
                             .replace("(\"x\")", &format!("(\"x\", {modifier})")),
                     );
-                    parse_program(&src)
-                        .map(|p| {
-                            webfluent::validate_vocabulary(&p, "<t>")
-                                .iter()
-                                .any(|w| w.message.contains(class.as_str()))
-                        })
-                        .unwrap_or(false)
+                    parse_program(&src).is_ok_and(|p| {
+                        webfluent::validate_vocabulary(&p, "<t>")
+                            .iter()
+                            .any(|w| w.message.contains(class.as_str()))
+                    })
                 })
-                .unwrap_or(false)
         })
         .cloned()
         .collect();
@@ -1218,7 +1215,7 @@ fn layout_arguments_become_utility_classes() {
     let mut failures = Vec::new();
     for (body, want) in cases {
         let src = page(body);
-        for class in want.iter() {
+        for class in *want {
             if !css_defines_class(&css, class) {
                 failures.push(format!("stylesheet has no rule for .{class}"));
             }
@@ -1228,7 +1225,7 @@ fn layout_arguments_become_utility_classes() {
                 failures.push(format!("`{body}` rendered nothing in {}", backend.name()));
                 continue;
             };
-            for class in want.iter() {
+            for class in *want {
                 if !e.has_class(class) {
                     failures.push(format!(
                         "`{}` in {}: missing .{} in {:?}",
@@ -1431,7 +1428,7 @@ fn input_type_modifiers_set_the_type_attribute() {
 
     let mut failures = Vec::new();
     for (modifier, want) in cases {
-        let src = page(&format!("Input(placeholder: \"p\").{}", modifier));
+        let src = page(&format!("Input(placeholder: \"p\").{modifier}"));
         for backend in Backend::ALL {
             let Some(e) = root(backend, &src) else {
                 continue;
@@ -1644,8 +1641,7 @@ fn the_template_and_the_static_paint_draw_the_same_html() {
         let body = match html.split_once("<main id=\"wf-main\">") {
             Some((_, rest)) => rest
                 .rsplit_once("</main>")
-                .map(|(inner, _)| inner.to_string())
-                .unwrap_or_else(|| rest.to_string()),
+                .map_or_else(|| rest.to_string(), |(inner, _)| inner.to_string()),
             None => html.to_string(),
         };
         body.lines()

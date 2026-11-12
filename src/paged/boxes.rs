@@ -309,7 +309,9 @@ impl<'a> Builder<'a> {
             return;
         };
         let text = ps.content.clone().unwrap_or_default();
-        if text.is_empty() && ps.background_color.a == 0.0 && !ps.border.iter().any(|b| b.visible())
+        if text.is_empty()
+            && ps.background_color.a == 0.0
+            && !ps.border.iter().any(super::style::BorderSide::visible)
         {
             return;
         }
@@ -464,7 +466,7 @@ impl<'a> Builder<'a> {
                 let inline = style.display == Display::Inline && !replaced;
                 if inline && ctx == Ctx::Flow {
                     // An inline element: its text joins the paragraph, styled.
-                    let href = el.attr("href").map(|h| h.to_string());
+                    let href = el.attr("href").map(std::string::ToString::to_string);
                     let st = Rc::new(style.clone());
                     self.tree.spans.push(Span {
                         style: st,

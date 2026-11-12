@@ -323,7 +323,7 @@ fn project_files(template: Template, locales: &[String]) -> Result<Vec<(String, 
     // switch to.
     let arabic = locales[1..].iter().any(|l| l == "ar");
     files.retain(|(path, _)| path != "tests/arabic.wf" || arabic);
-    for (path, text) in files.iter_mut() {
+    for (path, text) in &mut files {
         if path.ends_with(".wf") {
             *text = one_line_per_locale(text, locales);
         } else if path == "webfluent.app.json" {
@@ -337,8 +337,7 @@ fn project_files(template: Template, locales: &[String]) -> Result<Vec<(String, 
         let table = tables
             .iter()
             .find(|(l, _)| i > 0 && l == locale)
-            .map(|(_, t)| t.clone())
-            .unwrap_or_else(|| english.clone());
+            .map_or_else(|| english.clone(), |(_, t)| t.clone());
         files.push((format!("src/translations/{locale}.json"), table));
     }
     Ok(files)
@@ -697,7 +696,7 @@ mod tests {
     }
 
     fn locales(list: &[&str]) -> Vec<String> {
-        list.iter().map(|l| l.to_string()).collect()
+        list.iter().map(std::string::ToString::to_string).collect()
     }
 
     fn read(dir: &Path, path: &str) -> String {

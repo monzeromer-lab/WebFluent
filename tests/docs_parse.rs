@@ -636,7 +636,7 @@ fn the_sidebar_lists_every_chapter_of_the_guide() {
     // The chapters, from the directory the guide actually is.
     let mut chapters: Vec<(String, String)> = std::fs::read_dir(root.join("md-docs"))
         .expect("md-docs")
-        .filter_map(|e| e.ok())
+        .filter_map(std::result::Result::ok)
         .filter_map(|e| {
             let name = e.file_name().to_string_lossy().to_string();
             let (num, rest) = name.split_once('-')?;
@@ -725,7 +725,7 @@ fn the_sites_guide_pages_are_current_with_the_guide() {
     let names = |dir: &Path| {
         let mut v: Vec<String> = std::fs::read_dir(dir)
             .unwrap()
-            .filter_map(|e| e.ok())
+            .filter_map(std::result::Result::ok)
             .map(|e| e.file_name().to_string_lossy().to_string())
             .filter(|n| n.ends_with(".wf"))
             .collect();
@@ -1017,7 +1017,10 @@ fn findings(src: &str) -> Vec<webfluent::diagnostics::Diagnostic> {
 
 /// [`findings`], as text.
 fn every_finding(src: &str) -> Vec<String> {
-    findings(src).iter().map(|d| d.to_string()).collect()
+    findings(src)
+        .iter()
+        .map(std::string::ToString::to_string)
+        .collect()
 }
 
 /// Each example's ```` ```text ```` block is what the compiler prints for
@@ -1156,7 +1159,7 @@ fn every_diagnostic_example_draws_its_code() {
                     let b = piece.as_bytes();
                     let looks = (piece.len() == 3 || piece.len() == 4)
                         && b"ETCRFXIDASPUV".contains(&b[0])
-                        && b[1..].iter().all(|c| c.is_ascii_digit());
+                        && b[1..].iter().all(u8::is_ascii_digit);
                     if looks && !named.contains(&piece.to_string()) {
                         named.push(piece.to_string());
                     }
@@ -1290,7 +1293,7 @@ fn a_link_that_names_a_chapter_number_goes_to_that_chapter() {
         let mut rest = text.as_str();
         while let Some(at) = rest.find("[chapter ").or_else(|| rest.find("[Chapter ")) {
             let after = &rest[at + 9..];
-            let number: String = after.chars().take_while(|c| c.is_ascii_digit()).collect();
+            let number: String = after.chars().take_while(char::is_ascii_digit).collect();
             if let Some(close) = after.find("](") {
                 let target = &after[close + 2..];
                 if target.len() > 2 && target[..2].chars().all(|c| c.is_ascii_digit()) {

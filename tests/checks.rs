@@ -44,7 +44,7 @@ fn page(body: &str) -> String {
 fn clean(src: &str) {
     let errors: Vec<String> = findings(src)
         .into_iter()
-        .filter(|d| d.is_error())
+        .filter(webfluent::Diagnostic::is_error)
         .map(|d| d.to_string())
         .collect();
     assert!(errors.is_empty(), "{}", errors.join("\n"));

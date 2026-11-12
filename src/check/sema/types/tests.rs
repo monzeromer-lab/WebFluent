@@ -173,8 +173,10 @@ fn type_of(src: &str, name: &str) -> String {
         .iter()
         .rev()
         .find(|b| b.name == name)
-        .map(|b| b.ty.to_string())
-        .unwrap_or_else(|| panic!("{name} has no type; bindings: {:?}", info.bindings))
+        .map_or_else(
+            || panic!("{name} has no type; bindings: {:?}", info.bindings),
+            |b| b.ty.to_string(),
+        )
 }
 
 const TODOS: &str = "enum Tone { calm, loud }\ntype Todo { id: String, title: String, done: Bool = false, tone: Tone = .calm, note: String? = null }\n";

@@ -232,7 +232,7 @@ fn short(v: f64) -> String {
 }
 
 fn trim(v: f64) -> String {
-    let s = format!("{:.1}", v);
+    let s = format!("{v:.1}");
     s.trim_end_matches('0').trim_end_matches('.').to_string()
 }
 
@@ -299,11 +299,11 @@ impl Chart {
     fn value(&self, row: &Value, key: &str) -> f64 {
         if key.is_empty() {
             return match row {
-                Value::Object(m) => m.values().find(|v| v.is_number()).map(num).unwrap_or(0.0),
+                Value::Object(m) => m.values().find(|v| v.is_number()).map_or(0.0, num),
                 other => num(other),
             };
         }
-        row.get(key).map(num).unwrap_or(0.0)
+        row.get(key).map_or(0.0, num)
     }
 
     fn row_label(&self, row: &Value, i: usize) -> String {
@@ -312,8 +312,7 @@ impl Chart {
             (None, Value::Object(m)) => m
                 .values()
                 .find(|v| v.is_string())
-                .map(label)
-                .unwrap_or_else(|| format!("{}", i + 1)),
+                .map_or_else(|| format!("{}", i + 1), label),
             _ => format!("{}", i + 1),
         }
     }
@@ -375,7 +374,7 @@ impl Chart {
                 if self.stacked {
                     vs.iter().sum()
                 } else {
-                    vs.iter().cloned().fold(0.0, f64::max)
+                    vs.iter().copied().fold(0.0, f64::max)
                 }
             })
             .fold(0.0f64, f64::max);

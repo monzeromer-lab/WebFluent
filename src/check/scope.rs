@@ -992,8 +992,7 @@ pub mod paths {
                     let item = items
                         .iter()
                         .find(|i| !i.is_null())
-                        .map(|i| shape_of(i).1)
-                        .unwrap_or_else(|| "Any".into());
+                        .map_or_else(|| "Any".into(), |i| shape_of(i).1);
                     (Shape::List, format!("[{item}]"), Some(item))
                 }
                 V::Object(_) => (Shape::Record, "Map".into(), None),

@@ -1254,7 +1254,7 @@ fn a_theme_leaves_the_tokens_it_does_not_name_alone() {
         css.contains("--spacing-md:1rem"),
         "an unnamed token lost its baseline value"
     );
-    let root = css.split_once('}').map(|(r, _)| r).unwrap_or("");
+    let root = css.split_once('}').map_or("", |(r, _)| r);
     let declared = root.matches("--").count();
     // `:root` carries the tokens the output names, so this is not the whole
     // baseline — but it is far more than the handful the theme declares, which

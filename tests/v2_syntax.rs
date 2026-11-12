@@ -256,14 +256,14 @@ fn a_short_token_resolves_through_the_propertys_group() {
     );
     // A name the theme declares is itself, whatever the property.
     same(
-        r##"Theme T { token md: "4px" }
+        r#"Theme T { token md: "4px" }
         Page P (path: "/", title: "T") {
             Card { style { padding: "var(--md)" } Text("x") }
-        }"##,
-        r##"theme T { md: 4px }
+        }"#,
+        r#"theme T { md: 4px }
         page P(path: "/", title: "T") {
             Card { style { padding: $md } Text("x") }
-        }"##,
+        }"#,
     );
 }
 
@@ -291,12 +291,12 @@ fn a_theme_and_tokens() {
         Page P (path: "/", title: "T") {
             Button("x", primary) { style { border-radius: "var(--radius-md)" } }
         }"##,
-        r##"theme Brand {
+        r#"theme Brand {
             color-primary: #8B5CF6
             radius-md: 10px
         }
         page P(path: "/", title: "T") {
             Button("x").primary { style { border-radius: $radius-md } }
-        }"##,
+        }"#,
     );
 }

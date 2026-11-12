@@ -98,7 +98,7 @@ fn element(el: &UIElement, file: &str, out: &mut Vec<A11yWarning>) {
                         line,
                         col,
                         "Drop one of the two, or put the HTML through `sanitize(…)` first",
-                    ))
+                    ));
                 }
                 Some(Expr::StringLiteral(_)) => {}
                 Some(_) => out.push(A11yWarning::new(

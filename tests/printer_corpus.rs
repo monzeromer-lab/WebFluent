@@ -47,7 +47,7 @@ fn every_statement_prints_back_as_itself() {
     if cfg!(debug_assertions) {
         files = files.into_iter().step_by(4).collect();
     }
-    let threads = std::thread::available_parallelism().map_or(4, |n| n.get());
+    let threads = std::thread::available_parallelism().map_or(4, std::num::NonZero::get);
     let results: Vec<(usize, Vec<String>, Vec<PathBuf>)> = std::thread::scope(|s| {
         let handles: Vec<_> = (0..threads)
             .map(|k| {
@@ -61,7 +61,7 @@ fn every_statement_prints_back_as_itself() {
                             // A file written not to parse — a fixture of an
                             // error, the old grammar — has nothing to print.
                             Err(wrong) if wrong.len() == 1 && wrong[0].line == 0 => {
-                                unparsed.push(f.clone())
+                                unparsed.push(f.clone());
                             }
                             Err(wrong) => {
                                 for w in wrong {

@@ -335,14 +335,14 @@ fn a_project_translated_by_its_own_words() {
     );
     let js: String = std::fs::read_dir(dir.join("build"))
         .unwrap()
-        .filter_map(|e| e.ok())
+        .filter_map(std::result::Result::ok)
         .filter(|e| e.path().extension().is_some_and(|x| x == "js"))
         .map(|e| std::fs::read_to_string(e.path()).unwrap_or_default())
         .chain(
             std::fs::read_dir(dir.join("build/pages"))
                 .into_iter()
                 .flatten()
-                .filter_map(|e| e.ok())
+                .filter_map(std::result::Result::ok)
                 .map(|e| std::fs::read_to_string(e.path()).unwrap_or_default()),
         )
         .collect();

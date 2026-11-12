@@ -319,9 +319,7 @@ fn script_name_json(file: &str, n: &crate::syntax::js_scan::Name) -> Value {
                 json!({
                     "name": p.name,
                     "type": documented
-                        .and_then(|d| d.ty.as_deref())
-                        .map(|t| crate::check::sema::types::jsdoc_type(t).to_string())
-                        .unwrap_or_else(|| "Any".to_string()),
+                        .and_then(|d| d.ty.as_deref()).map_or_else(|| "Any".to_string(), |t| crate::check::sema::types::jsdoc_type(t).to_string()),
                     "optional": p.optional || documented.is_some_and(|d| d.optional),
                     "rest": p.rest,
                 })

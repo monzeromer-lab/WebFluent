@@ -382,13 +382,7 @@ impl State<'_> {
             Kind::Cell { row, .. } => row,
             _ => 0,
         };
-        let rows = f
-            .children
-            .iter()
-            .map(row_of)
-            .max()
-            .map(|r| r + 1)
-            .unwrap_or(0);
+        let rows = f.children.iter().map(row_of).max().map_or(0, |r| r + 1);
         // The header as it stands, before anything moves.
         let header: Vec<Frag> = f
             .children

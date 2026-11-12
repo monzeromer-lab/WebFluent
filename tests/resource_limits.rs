@@ -172,7 +172,10 @@ fn a_picture_wider_than_webp_holds_is_served_as_it_is_at_that_width() {
         process(&dir, "tall.png", &noise_png(8, 16_400)).unwrap()
     });
     assert!(
-        asset.sources.get("webp").is_none_or(|s| s.is_empty()),
+        asset
+            .sources
+            .get("webp")
+            .is_none_or(std::vec::Vec::is_empty),
         "{asset:?}"
     );
 }

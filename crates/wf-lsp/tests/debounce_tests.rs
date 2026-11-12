@@ -106,8 +106,7 @@ fn a_burst_of_edits_is_checked_once_and_reports_the_last() {
     let until = Instant::now() + Duration::from_secs(20);
     while rx
         .recv_timeout(Duration::from_secs(20))
-        .map(|m| m["id"] != 1)
-        .unwrap_or(false)
+        .is_ok_and(|m| m["id"] != 1)
     {
         assert!(Instant::now() < until, "no answer to initialize");
     }

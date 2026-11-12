@@ -22,19 +22,21 @@ pub fn for_project(project_dir: &Path) -> (String, usize, Option<usize>) {
             let file_of = |index: usize| files.get(index).cloned().unwrap_or_default();
             Some((
                 crate::tools::registry_json::declarations_json(&program, &file_of),
-                project_dir
-                    .file_name()
-                    .map(|n| n.to_string_lossy().to_string())
-                    .unwrap_or_else(|| "project".to_string()),
+                project_dir.file_name().map_or_else(
+                    || "project".to_string(),
+                    |n| n.to_string_lossy().to_string(),
+                ),
             ))
         }
         Err(_) => None,
     };
     let html = render(&registry, project.as_ref());
-    let builtins = registry["components"].as_array().map_or(0, |c| c.len());
+    let builtins = registry["components"]
+        .as_array()
+        .map_or(0, std::vec::Vec::len);
     let declared = project
         .as_ref()
-        .map(|(p, _)| p["components"].as_array().map_or(0, |c| c.len()));
+        .map(|(p, _)| p["components"].as_array().map_or(0, std::vec::Vec::len));
     (html, builtins, declared)
 }
 
@@ -355,7 +357,7 @@ fn slug(text: &str) -> String {
         .collect()
 }
 
-const CSS: &str = r#"
+const CSS: &str = r"
 :root { --ink: #1a1a1a; --muted: #6b7280; --line: #e5e7eb; --bg: #fff; --card: #f9fafb; --accent: #2563eb; }
 @media (prefers-color-scheme: dark) { :root { --ink: #e5e7eb; --muted: #9ca3af; --line: #374151; --bg: #111827; --card: #1f2937; --accent: #60a5fa; } }
 * { box-sizing: border-box; }
@@ -370,4 +372,4 @@ table { border-collapse: collapse; width: 100%; margin: 8px 0; font-size: 14px; 
 th { text-align: left; color: var(--muted); font-weight: 500; } td, th { padding: 4px 8px 4px 0; border-top: 1px solid var(--line); vertical-align: top; }
 code { font: 13px ui-monospace, monospace; background: rgba(127,127,127,.12); padding: 1px 5px; border-radius: 4px; }
 .part { margin: 6px 0 6px 12px; padding-left: 12px; border-left: 2px solid var(--line); }
-"#;
+";

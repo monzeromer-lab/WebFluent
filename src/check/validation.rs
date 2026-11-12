@@ -422,9 +422,7 @@ fn body_of(d: &Declaration) -> Option<(&str, &[Statement])> {
 fn message_of(rule: &str, written: &Option<Expr>) -> Message {
     match written {
         None => Message::Rule {
-            text: rule_named(rule)
-                .map(|r| r.message)
-                .unwrap_or("That is not right"),
+            text: rule_named(rule).map_or("That is not right", |r| r.message),
             key: format!("form.{rule}"),
         },
         Some(Expr::StringLiteral(s)) => Message::Written { text: s.clone() },
@@ -778,7 +776,7 @@ fn keep_one_line(
             .join("  ")
     );
     let (s1, e1) = (s1 as usize, e1 as usize);
-    let column = s1 - out[..s1].rfind('\n').map(|i| i + 1).unwrap_or(0);
+    let column = s1 - out[..s1].rfind('\n').map_or(0, |i| i + 1);
     if column + line.chars().count() > 100 {
         return out;
     }

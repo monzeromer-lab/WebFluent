@@ -37,7 +37,7 @@ impl JsCodegen {
         // rest of the page inert, closes on Escape and exposes `aria-modal`.
         let title_id = format!("wf-dlg-{}", var.trim_start_matches("_e"));
         let labelled = if title.is_some() {
-            format!(", \"aria-labelledby\": \"{}\"", title_id)
+            format!(", \"aria-labelledby\": \"{title_id}\"")
         } else {
             String::new()
         };
@@ -52,10 +52,9 @@ impl JsCodegen {
         ));
 
         let content_var = self.fresh_var();
-        let content_class = format!("{}__content", class);
+        let content_class = format!("{class}__content");
         self.emit_line(&format!(
-            "const {} = WF.el(\"div\", {{ className: \"{}\" }});",
-            content_var, content_class
+            "const {content_var} = WF.el(\"div\", {{ className: \"{content_class}\" }});"
         ));
 
         // `Modal.Title { … }`: what the heading draws, in place of the
@@ -86,8 +85,7 @@ impl JsCodegen {
                     t
                 };
                 self.emit_line(&format!(
-                    "const {} = WF.el(\"div\", {{ className: \"{}__header\" }}, WF.el(\"h3\", {{ id: \"{}\" }}, {}));",
-                    header_var, class, title_id, t
+                    "const {header_var} = WF.el(\"div\", {{ className: \"{class}__header\" }}, WF.el(\"h3\", {{ id: \"{title_id}\" }}, {t}));"
                 ));
             }
             // `.closable`: a close button in the heading row, closing it as
@@ -97,13 +95,12 @@ impl JsCodegen {
                     "{header_var}.appendChild(WF.el(\"button\", {{ className: \"{class}__close\", type: \"button\", \"aria-label\": \"Close\", \"on:click\": () => ({var}._wfShut ? {var}._wfShut() : {var}.close()) }}, WF.el(\"i\", {{ className: \"wf-icon\", \"data-icon\": \"close\" }})));"
                 ));
             }
-            self.emit_line(&format!("{}.appendChild({});", content_var, header_var));
+            self.emit_line(&format!("{content_var}.appendChild({header_var});"));
         }
 
         let body_var = self.fresh_var();
         self.emit_line(&format!(
-            "const {} = WF.el(\"div\", {{ className: \"{}__body\" }});",
-            body_var, class
+            "const {body_var} = WF.el(\"div\", {{ className: \"{class}__body\" }});"
         ));
 
         // Check for Modal.Footer
@@ -129,21 +126,20 @@ impl JsCodegen {
         for child in &body_stmts {
             self.emit_statement_dom(child, &body_var);
         }
-        self.emit_line(&format!("{}.appendChild({});", content_var, body_var));
+        self.emit_line(&format!("{content_var}.appendChild({body_var});"));
 
         if !footer_stmts.is_empty() {
             let footer_var = self.fresh_var();
             self.emit_line(&format!(
-                "const {} = WF.el(\"div\", {{ className: \"{}__footer\"{} }});",
-                footer_var, class, footer_wf
+                "const {footer_var} = WF.el(\"div\", {{ className: \"{class}__footer\"{footer_wf} }});"
             ));
             for child in &footer_stmts {
                 self.emit_statement_dom(child, &footer_var);
             }
-            self.emit_line(&format!("{}.appendChild({});", content_var, footer_var));
+            self.emit_line(&format!("{content_var}.appendChild({footer_var});"));
         }
 
-        self.emit_line(&format!("{}.appendChild({});", var, content_var));
+        self.emit_line(&format!("{var}.appendChild({content_var});"));
         self.emit_root_handlers(var, ui, false);
 
         // Visibility binding. `WF.dialog` drives `showModal()`/`close()` and
@@ -154,7 +150,7 @@ impl JsCodegen {
             self.emit_line(&format!("WF.dialog({var}, {binding});"));
         }
 
-        self.emit_line(&format!("{}.appendChild({});", parent, var));
+        self.emit_line(&format!("{parent}.appendChild({var});"));
     }
 
     /// `visible:` as a read, and the write that follows the screen when the
@@ -266,7 +262,7 @@ impl JsCodegen {
             "WF.layer({var}, {binding}, {{ {} }});",
             opts.join(", ")
         ));
-        self.emit_line(&format!("{}.appendChild({});", parent, var));
+        self.emit_line(&format!("{parent}.appendChild({var});"));
     }
 
     pub(in super::super) fn emit_dropdown_menu(
@@ -306,7 +302,7 @@ impl JsCodegen {
         let mut opts = self.layer_options(ui);
         opts.extend(self.close_handler(ui));
         let opts = format!("{{ {} }}", opts.join(", "));
-        let items_class = format!("{}__items", class);
+        let items_class = format!("{class}__items");
 
         // Opened by state alone — a context menu, or a menu a menu bar
         // opens: the list is the whole of it.
@@ -337,7 +333,7 @@ impl JsCodegen {
             }
             self.menu_lists.pop();
             self.emit_root_handlers(var, ui, true);
-            self.emit_line(&format!("{}.appendChild({});", parent, var));
+            self.emit_line(&format!("{parent}.appendChild({var});"));
             return;
         }
 
@@ -358,7 +354,7 @@ impl JsCodegen {
             Some((read, write)) if write != "null" => (read, write),
             _ => {
                 let open_var = self.fresh_var();
-                self.emit_line(&format!("const {} = WF.signal(false);", open_var));
+                self.emit_line(&format!("const {open_var} = WF.signal(false);"));
                 (open_var.clone(), format!("(v) => {open_var}.set(v)"))
             }
         };
@@ -384,21 +380,19 @@ impl JsCodegen {
         self.emit_line(&format!("const {items_id} = WF.uid(\"wf-menu\");"));
         let trigger_var = self.fresh_var();
         self.emit_line(&format!(
-            "const {} = WF.el(\"button\", {{ className: \"wf-btn wf-menu__trigger\", type: \"button\", \
-             \"aria-haspopup\": \"menu\", \"aria-controls\": {}, \
-             \"aria-expanded\": () => ({})() ? \"true\" : \"false\", \
-             \"on:click\": () => ({})(!({})()) }}, {});",
-            trigger_var, items_id, read, write, read, label
+            "const {trigger_var} = WF.el(\"button\", {{ className: \"wf-btn wf-menu__trigger\", type: \"button\", \
+             \"aria-haspopup\": \"menu\", \"aria-controls\": {items_id}, \
+             \"aria-expanded\": () => ({read})() ? \"true\" : \"false\", \
+             \"on:click\": () => ({write})(!({read})()) }}, {label});"
         ));
-        self.emit_line(&format!("{}.appendChild({});", var, trigger_var));
+        self.emit_line(&format!("{var}.appendChild({trigger_var});"));
 
         // The items are `li`s, so their container is a list; `role="menu"`
         // gives it the menu semantics. It is drawn in the top layer, at the
         // button, so no `overflow` above it clips it.
         let items_var = self.fresh_var();
         self.emit_line(&format!(
-            "const {} = WF.el(\"ul\", {{ className: \"{}\", id: {}, role: \"menu\"{} }});",
-            items_var, items_class, items_id, aria_name
+            "const {items_var} = WF.el(\"ul\", {{ className: \"{items_class}\", id: {items_id}, role: \"menu\"{aria_name} }});"
         ));
         self.emit_line(&format!(
             "WF.menu({var}, {trigger_var}, {items_var}, {read}, {write}, {opts});"
@@ -408,9 +402,9 @@ impl JsCodegen {
             self.emit_statement_dom(child, &items_var);
         }
         self.menu_lists.pop();
-        self.emit_line(&format!("{}.appendChild({});", var, items_var));
+        self.emit_line(&format!("{var}.appendChild({items_var});"));
         self.emit_root_handlers(var, ui, true);
-        self.emit_line(&format!("{}.appendChild({});", parent, var));
+        self.emit_line(&format!("{parent}.appendChild({var});"));
     }
 
     /// `on close(reason)` on a layer, as the `onClose` option.
@@ -500,7 +494,7 @@ impl JsCodegen {
         }
         self.emit_style_and_transition(var, ui);
         self.emit_motion(var, ui);
-        self.emit_line(&format!("{}.appendChild({});", parent, var));
+        self.emit_line(&format!("{parent}.appendChild({var});"));
     }
 
     /// `Menu.Sub(label:)`: an entry with a menu of its own, opened beside
@@ -543,8 +537,7 @@ impl JsCodegen {
         ));
         let list_var = self.fresh_var();
         self.emit_line(&format!(
-            "const {} = WF.el(\"ul\", {{ className: \"{base}__items\", role: \"menu\" }});",
-            list_var
+            "const {list_var} = WF.el(\"ul\", {{ className: \"{base}__items\", role: \"menu\" }});"
         ));
         if let Some(owner_list) = self.menu_lists.last().cloned() {
             self.emit_line(&format!("WF.submenu({var}, {list_var}, {owner_list});"));
@@ -554,12 +547,12 @@ impl JsCodegen {
             self.emit_statement_dom(child, &list_var);
         }
         self.menu_lists.pop();
-        self.emit_line(&format!("{}.appendChild({});", var, list_var));
+        self.emit_line(&format!("{var}.appendChild({list_var});"));
         // Its handlers, `class:` and style, as a menu item's.
         self.emit_root_handlers(var, ui, false);
         self.emit_style_and_transition(var, ui);
         self.emit_motion(var, ui);
-        self.emit_line(&format!("{}.appendChild({});", parent, var));
+        self.emit_line(&format!("{parent}.appendChild({var});"));
     }
 
     pub(in super::super) fn emit_tooltip(&mut self, var: &str, ui: &UIElement, parent: &str) {
@@ -618,7 +611,7 @@ impl JsCodegen {
                 _ => {}
             }
         }
-        self.emit_line(&format!("{}.appendChild({});", var, tip_var));
+        self.emit_line(&format!("{var}.appendChild({tip_var});"));
         self.emit_root_handlers(var, ui, false);
         // The runtime points the trigger at the tip, shows it above
         // everything at the trigger, and makes it reachable and dismissible
@@ -629,6 +622,6 @@ impl JsCodegen {
             tip_var,
             opts.join(", ")
         ));
-        self.emit_line(&format!("{}.appendChild({});", parent, var));
+        self.emit_line(&format!("{parent}.appendChild({var});"));
     }
 }

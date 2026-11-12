@@ -9,10 +9,7 @@ pub fn run_generate(kind: &str, name: &str, project_dir: &Path) -> Result<()> {
         "component" => Kind::Component,
         "store" => Kind::Store,
         _ => {
-            eprintln!(
-                "Unknown generator '{}'. Use: page, component, or store",
-                kind
-            );
+            eprintln!("Unknown generator '{kind}'. Use: page, component, or store");
             return Ok(());
         }
     };
