@@ -23,6 +23,7 @@
 //! today must keep compiling (studio hazard 2). Promotion to a gate error is a
 //! later, separate decision once the corpus is clean.
 
+pub(crate) use crate::text::levenshtein;
 use std::collections::HashSet;
 
 use crate::codegen::builtin::{builtin_to_html, modifier_to_class};
@@ -528,23 +529,6 @@ fn suggest(word: &str, scope: &HashSet<String>, el: &UIElement) -> Option<String
         })
         .min_by_key(|&(d, c)| (d, c.len()))?;
     Some(best.1.to_string())
-}
-
-/// Plain Levenshtein distance; the inputs are single words, so O(n·m) is fine.
-pub(crate) fn levenshtein(a: &str, b: &str) -> usize {
-    let a: Vec<char> = a.chars().collect();
-    let b: Vec<char> = b.chars().collect();
-    let mut prev: Vec<usize> = (0..=b.len()).collect();
-    let mut cur = vec![0; b.len() + 1];
-    for (i, ca) in a.iter().enumerate() {
-        cur[0] = i + 1;
-        for (j, cb) in b.iter().enumerate() {
-            let sub = prev[j] + usize::from(ca != cb);
-            cur[j + 1] = sub.min(prev[j + 1] + 1).min(cur[j] + 1);
-        }
-        std::mem::swap(&mut prev, &mut cur);
-    }
-    prev[b.len()]
 }
 
 #[cfg(test)]

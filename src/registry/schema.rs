@@ -578,7 +578,7 @@ impl Catalog {
 /// does not parse leaves out only what it declares; a folder that is no
 /// project gives the built-ins alone.
 pub fn of_project_via(vfs: &dyn crate::vfs::Vfs, dir: &std::path::Path) -> Catalog {
-    match crate::build::read_project_collecting_via(vfs, dir, None) {
+    match crate::sources::read_project_collecting_via(vfs, dir, None) {
         Ok((program, files, _)) => {
             let file_of = |i: usize| files.get(i).cloned().unwrap_or_default();
             catalog(Some((&program, &file_of)))

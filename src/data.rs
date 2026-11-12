@@ -3,26 +3,11 @@
 //! into a `const` before anything else runs, so the checker, the static
 //! paint, the template engine and the bundle all see a plain value.
 
+pub use crate::vfs::stays_inside;
 use std::path::Path;
 
 use crate::error::{Result, WebFluentError};
 use crate::parser::ast::*;
-
-/// Whether `file`, a path a project names (a `data` file, an image, the
-/// translations directory, a font directory, a specification), stays
-/// inside the project by its words: not absolute, no `..`, no NUL. Where it
-/// leads on the disk — through a link — is the reader's to check
-/// ([`crate::vfs::Confined`]).
-pub fn stays_inside(file: &str) -> bool {
-    let path = Path::new(file);
-    !file.is_empty()
-        && !path.is_absolute()
-        && !file.starts_with(['/', '\\'])
-        && !file.contains('\0')
-        // A drive, as Windows writes one: `C:\x`, `C:x`.
-        && !(file.len() >= 2 && file.as_bytes()[1] == b':' && file.as_bytes()[0].is_ascii_alphabetic())
-        && !file.split(['/', '\\']).any(|part| part == "..")
-}
 
 /// The finding for a path a project names that leads out of it.
 pub fn outside_project(

@@ -11522,6 +11522,8 @@ pub fn webfluent::vfs::OverlayVfs::metadata(&self, &std::path::Path) -> core::io
 pub fn webfluent::vfs::OverlayVfs::read(&self, &std::path::Path) -> core::io::error::Result<alloc::vec::Vec<u8>>
 pub fn webfluent::vfs::OverlayVfs::read_dir(&self, &std::path::Path) -> core::io::error::Result<alloc::vec::Vec<std::path::PathBuf>>
 pub fn webfluent::vfs::OverlayVfs::read_to_string(&self, &std::path::Path) -> core::io::error::Result<alloc::string::String>
+pub fn webfluent::vfs::escapes(&std::path::Path, &std::path::Path) -> bool
+pub fn webfluent::vfs::stays_inside(&str) -> bool
 pub enum webfluent::ArgRef
 pub webfluent::ArgRef::Named(alloc::string::String)
 pub webfluent::ArgRef::Positional(usize)

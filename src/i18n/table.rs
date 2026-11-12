@@ -176,7 +176,7 @@ pub fn uses(program: &Program, file_of: &dyn Fn(usize) -> String) -> Vec<Use> {
             Declaration::Store(s) => &s.body,
             _ => &[],
         };
-        crate::linter::project::visit(body, &mut |e, at| walk_expr(e, at, &file, &mut out));
+        crate::parser::walk::visit(body, &mut |e, at| walk_expr(e, at, &file, &mut out));
     }
     out
 }
@@ -192,13 +192,13 @@ pub fn implied(program: &Program) -> BTreeMap<String, &'static str> {
                     out.insert(format!("form.{}", r.name), "a validate rule's own message");
                 }
             }
-            for b in crate::scope::child_bodies(s) {
+            for b in crate::parser::walk::child_bodies(s) {
                 walk(b, out);
             }
         }
     }
     for d in &program.declarations {
-        walk(crate::scope::body_of(d), &mut out);
+        walk(crate::parser::walk::body_of(d), &mut out);
     }
     out
 }
@@ -521,7 +521,7 @@ pub fn table_via(vfs: &dyn crate::vfs::Vfs, dir: &Path) -> crate::error::Result<
     let Some(i18n) = &config.i18n else {
         return Ok(None);
     };
-    let (program, files, _) = crate::build::read_project_collecting_via(vfs, dir, None)?;
+    let (program, files, _) = crate::sources::read_project_collecting_via(vfs, dir, None)?;
     let texts: HashMap<String, Option<String>> = i18n
         .locales
         .iter()

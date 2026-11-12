@@ -9,6 +9,7 @@ pub mod ast;
 pub mod parser;
 pub mod v2;
 pub mod vocabulary;
+pub(crate) mod walk;
 
 pub use ast::*;
 

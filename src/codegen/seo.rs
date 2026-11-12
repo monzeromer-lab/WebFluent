@@ -14,6 +14,7 @@
 //! require it are omitted rather than guessed at, since Google's guidance is
 //! explicit that a relative canonical causes problems later.
 
+pub use crate::parser::walk::translation_group;
 use std::path::Path;
 
 use crate::config::{CleanUrls, Owner, ProjectConfig};
@@ -107,51 +108,6 @@ pub fn dir_attr(lang: &str) -> &'static str {
     } else {
         ""
     }
-}
-
-/// The pages that are translations of one another with the page named
-/// `name` — joined by `translates:`, directly or through each other — in
-/// the order they are declared, the page itself among them. A page no other
-/// names and that names none is alone.
-pub fn translation_group<'a>(name: &str, program: &'a Program) -> Vec<&'a PageDecl> {
-    let pages: Vec<&PageDecl> = program
-        .declarations
-        .iter()
-        .filter_map(|d| match d {
-            Declaration::Page(p) => Some(p),
-            _ => None,
-        })
-        .collect();
-    let mut group: Vec<&str> = Vec::new();
-    if let Some(own) = pages.iter().find(|p| p.name == name) {
-        group.push(own.name.as_str());
-    }
-    loop {
-        let before = group.len();
-        for p in &pages {
-            let named = p.translates.as_deref();
-            let joined =
-                group.contains(&p.name.as_str()) || named.is_some_and(|t| group.contains(&t));
-            if !joined {
-                continue;
-            }
-            if !group.contains(&p.name.as_str()) {
-                group.push(p.name.as_str());
-            }
-            if let Some(original) = pages.iter().find(|o| Some(o.name.as_str()) == named)
-                && !group.contains(&original.name.as_str())
-            {
-                group.push(original.name.as_str());
-            }
-        }
-        if group.len() == before {
-            break;
-        }
-    }
-    pages
-        .into_iter()
-        .filter(|p| group.contains(&p.name.as_str()))
-        .collect()
 }
 
 /// The route of a translation for the file at `route`: `/en/posts/:slug`

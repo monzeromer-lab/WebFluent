@@ -296,8 +296,8 @@ fn check_script_names(
                 ..Span::default()
             };
             let name = n.name.as_str();
-            let owned = if crate::codegen::js::BROWSER_GLOBALS.contains(&name)
-                || crate::codegen::js::BROWSER_VALUES.contains(&name)
+            let owned = if crate::registry::browser::BROWSER_GLOBALS.contains(&name)
+                || crate::registry::browser::BROWSER_VALUES.contains(&name)
             {
                 Some("the browser")
             } else if crate::sema::types::BUILT_IN_FUNCTIONS.contains(&name) {

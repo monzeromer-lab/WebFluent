@@ -536,7 +536,7 @@ pub fn must_be_via(
     owner: &str,
     state: &str,
 ) -> Result<Option<Must>> {
-    let (program, _, _) = crate::build::read_project_collecting_via(vfs, dir, None)?;
+    let (program, _, _) = crate::sources::read_project_collecting_via(vfs, dir, None)?;
     let config = crate::config::ProjectConfig::load_via(vfs, dir)?;
     Ok(must_be(&program, owner, state, config.i18n.is_some()))
 }

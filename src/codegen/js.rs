@@ -4,6 +4,10 @@ use crate::codegen::builtin::{
 };
 use crate::codegen::node_id::NodeMap;
 use crate::parser::ast::*;
+pub(crate) use crate::registry::browser::is_root_attribute;
+pub use crate::registry::browser::{
+    BROWSER_GLOBALS, BROWSER_VALUES, DRAG_PROPS, GESTURE_EVENTS, SCALAR_METHODS,
+};
 use crate::runtime;
 use std::collections::HashMap;
 
@@ -286,13 +290,6 @@ pub const RESOURCE_SIGNALS: &[&str] = &[
     "items",
     "hasMore",
 ];
-
-/// The events a runtime recogniser turns the pointer into (`gesture.js`).
-pub const GESTURE_EVENTS: &[&str] = &["longpress", "swipe", "receive", "dragmove"];
-
-/// The props of a drag and of what takes a drop: the runtime's, not
-/// attributes the element carries.
-pub const DRAG_PROPS: &[&str] = &["drag", "dragGroup", "dropValue", "dropAxis", "dropInside"];
 
 /// What the emitter of a `Menu` and a `Dropdown` reads itself, whichever of
 /// the two it draws: never an attribute of the element.
@@ -8936,83 +8933,6 @@ fn is_reactive_expr(expr_str: &str) -> bool {
         .any(|name| expr_str.contains(&format!("WF.{name}(")))
 }
 
-/// The names the language reads from the browser, each a live value:
-/// `viewport.md`, `query.tab`, `now`, `network.online`, `update.available`.
-/// The browser's own names a program may use unprefixed: each compiles to
-/// itself. The type checker reads the same list, so a name here is never
-/// reported as declared by nothing.
-pub const BROWSER_GLOBALS: &[&str] = &[
-    "window",
-    "document",
-    "console",
-    "localStorage",
-    "sessionStorage",
-    "JSON",
-    "Math",
-    "Date",
-    "setTimeout",
-    "setInterval",
-    "clearTimeout",
-    "clearInterval",
-    "parseInt",
-    "parseFloat",
-    "Array",
-    "Object",
-    "String",
-    "Number",
-    "Boolean",
-    "Promise",
-    "Error",
-    "Map",
-    "Set",
-    "RegExp",
-    "Infinity",
-    "NaN",
-    "undefined",
-    "encodeURIComponent",
-    "decodeURIComponent",
-    "encodeURI",
-    "decodeURI",
-    "atob",
-    "btoa",
-    "fetch",
-    "alert",
-    "confirm",
-    "prompt",
-    "requestAnimationFrame",
-    "cancelAnimationFrame",
-    "navigator",
-    "location",
-    "history",
-    "screen",
-    "performance",
-    "crypto",
-    "globalThis",
-    "Intl",
-    "Symbol",
-    "Reflect",
-    "URL",
-    "URLSearchParams",
-    "FormData",
-    "Blob",
-    "File",
-    "FileReader",
-    "Event",
-    "CustomEvent",
-    "AbortController",
-    "TextEncoder",
-    "TextDecoder",
-    "Notification",
-    "matchMedia",
-    "getComputedStyle",
-    "structuredClone",
-    "queueMicrotask",
-];
-
-pub const BROWSER_VALUES: &[&str] = &[
-    "viewport", "query", "hash", "theme", "now", "network", "update",
-];
-
 /// The runtime function a method of one of the language's own types
 /// compiles to: `due.plus(days: 3)` is `WF.plus(due, { days: 3 })`.
 ///
@@ -9119,55 +9039,6 @@ pub fn method_to_js(method: &str, obj: &str, args: &[String], holder: Holder) ->
         _ => format!("{obj}.{method}({joined})"),
     }
 }
-
-/// What the language's own types can do — a date's arithmetic, money's, a
-/// URL's parts, a colour's mixing — each as the runtime function that does
-/// it. Each is a plain JSON value at run time, so the work is always the
-/// runtime's, never a method on the value. A list rather than a `match`, so
-/// `tests/build_and_runtime_agree.rs` can hold every one of them to the
-/// runtime and to the static paint.
-pub const SCALAR_METHODS: &[(&str, &str)] = &[
-    ("year", "year"),
-    ("month", "month"),
-    ("day", "day"),
-    ("weekday", "weekday"),
-    ("hour", "hour"),
-    ("minute", "minute"),
-    ("second", "second"),
-    ("native", "native"),
-    ("plus", "plus"),
-    ("minus", "minus"),
-    ("isBefore", "isBefore"),
-    ("isAfter", "isAfter"),
-    ("isSame", "isSame"),
-    ("until", "until"),
-    ("startOfDay", "startOfDay"),
-    ("startOfWeek", "startOfWeek"),
-    ("startOfMonth", "startOfMonth"),
-    ("endOfDay", "endOfDay"),
-    ("inZone", "inZone"),
-    ("days", "days"),
-    ("hours", "hours"),
-    ("minutes", "minutes"),
-    ("seconds", "seconds"),
-    ("ms", "ms"),
-    ("times", "times"),
-    ("convert", "convert"),
-    ("host", "host"),
-    ("path", "path"),
-    ("domain", "domain"),
-    ("mix", "mix"),
-    ("lighten", "lighten"),
-    ("darken", "darken"),
-    ("alpha", "alpha"),
-    ("contrast", "contrast"),
-    ("preview", "preview"),
-    // Named apart from the browser's own `query`, `date` and `time`.
-    ("date", "dateOf"),
-    ("time", "timeOf"),
-    ("query", "urlQuery"),
-    ("with", "urlWith"),
-];
 
 /// The runtime function a scalar method compiles to.
 pub fn scalar_method(name: &str) -> Option<&'static str> {
@@ -9509,17 +9380,6 @@ const BROWSER_CLASSES: &[&str] = &[
     "WeakSet",
     "Worker",
 ];
-
-/// An attribute a component call hands its root element when the component
-/// takes no prop of that name: the ARIA and data families (not the motion
-/// markers, which `WF.mark` sets) and the global attributes.
-pub(crate) fn is_root_attribute(name: &str) -> bool {
-    (name.starts_with("aria-") || (name.starts_with("data-") && !name.starts_with("data-wf-")))
-        || matches!(
-            name,
-            "id" | "role" | "tabindex" | "title" | "hidden" | "lang" | "dir"
-        )
-}
 
 /// The keys `WF.el` gives to a runtime module rather than writing them as
 /// attributes — every `attrHook` the runtime registers. Each puts markup in

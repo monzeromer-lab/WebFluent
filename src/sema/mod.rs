@@ -13,6 +13,7 @@
 //! `lower` is idempotent, and a no-op on a program the original grammar
 //! produced.
 
+pub(crate) mod script;
 pub mod types;
 
 use crate::error::Diagnostic;
@@ -879,7 +880,7 @@ impl Checker<'_, '_> {
                         // the root element's when no prop takes them.
                         if !key.contains('-')
                             && !registry::UNIVERSAL_PROPS.iter().any(|p| p.name == key)
-                            && !crate::codegen::js::is_root_attribute(key)
+                            && !crate::registry::browser::is_root_attribute(key)
                         {
                             self.warning(
                                 at,
@@ -943,7 +944,7 @@ impl Checker<'_, '_> {
         // take itself are its root element's, so it needs one root.
         let dragged = el.args.iter().enumerate().find_map(|(i, a)| match a {
             Arg::Named(k, _)
-                if crate::codegen::js::DRAG_PROPS.contains(&k.as_str())
+                if crate::registry::browser::DRAG_PROPS.contains(&k.as_str())
                     && !decl.props.iter().any(|p| p.name == *k) =>
             {
                 Some((
@@ -955,7 +956,7 @@ impl Checker<'_, '_> {
         });
         let gesture = || {
             el.events.iter().find_map(|h| {
-                (crate::codegen::js::GESTURE_EVENTS.contains(&h.event.as_str())
+                (crate::registry::browser::GESTURE_EVENTS.contains(&h.event.as_str())
                     && !decl.events.iter().any(|e| e.name == h.event))
                 .then(|| (h.span, format!("`on {}`", h.event)))
             })

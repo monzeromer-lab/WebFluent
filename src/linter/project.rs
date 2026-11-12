@@ -4,45 +4,9 @@
 
 use crate::diagnostics::Diagnostic;
 use crate::parser::ast::*;
+pub(crate) use crate::parser::walk::visit;
 use std::collections::{BTreeMap, HashMap};
 use std::path::Path;
-
-/// Every expression in `stmts`, with the place of the statement or the
-/// argument it is in.
-pub(crate) fn visit(stmts: &[Statement], f: &mut dyn FnMut(&Expr, Span)) {
-    fn expr(e: &Expr, span: Span, f: &mut dyn FnMut(&Expr, Span)) {
-        f(e, span);
-        for child in e.children() {
-            expr(child, span, f);
-        }
-    }
-    for stmt in stmts {
-        // An element's arguments are visited below, each at its own place.
-        if !matches!(stmt.kind, StatementKind::UIElement(_)) {
-            for e in stmt.kind.exprs() {
-                expr(e, stmt.span, f);
-            }
-        }
-        if let StatementKind::UIElement(ui) = &stmt.kind {
-            for (i, arg) in ui.args.iter().enumerate() {
-                let at = ui.arg_spans.get(i).copied().unwrap_or(ui.span);
-                match arg {
-                    Arg::Positional(e) | Arg::Named(_, e) => expr(e, at, f),
-                }
-            }
-            visit(&ui.children, f);
-            for fill in &ui.slot_fills {
-                visit(&fill.body, f);
-            }
-            for h in &ui.events {
-                visit(&h.body, f);
-            }
-        }
-        for body in stmt.kind.bodies() {
-            visit(body, f);
-        }
-    }
-}
 
 fn bodies(program: &Program) -> impl Iterator<Item = (usize, &[Statement])> {
     program

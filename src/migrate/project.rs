@@ -250,7 +250,7 @@ pub fn write_four_two(project_dir: &Path, step: &FourTwo) -> Result<Option<PathB
     let outcome = &step.outcome;
     // Nothing is written through a link out of the project.
     let refuse = |path: &Path| -> Result<()> {
-        if crate::agent::escapes(project_dir, path) {
+        if crate::vfs::escapes(project_dir, path) {
             return Err(WebFluentError::IoError(format!(
                 "{} leads outside the project, through a link: not written",
                 path.display()

@@ -792,7 +792,7 @@ pub fn expand(
         let Some(file) = api.from.clone() else {
             continue;
         };
-        if !crate::data::stays_inside(&file) {
+        if !crate::vfs::stays_inside(&file) {
             return Err(crate::data::outside_project(
                 &format!("`api {} from`", api.name),
                 &file,

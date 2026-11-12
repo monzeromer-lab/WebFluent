@@ -197,7 +197,7 @@ pub fn nearest<'a>(word: &str, candidates: impl IntoIterator<Item = &'a str>) ->
     candidates
         .into_iter()
         .filter(|c| *c != word)
-        .map(|c| (crate::linter::vocabulary::levenshtein(word, c), c))
+        .map(|c| (crate::text::levenshtein(word, c), c))
         .filter(|(d, _)| *d <= limit)
         .min_by_key(|(d, c)| (*d, c.len(), *c))
         .map(|(_, c)| c)

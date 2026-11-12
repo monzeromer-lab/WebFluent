@@ -17,53 +17,8 @@ use std::path::{Path, PathBuf};
 
 use crate::vfs::{FsVfs, Vfs};
 
+pub use crate::sema::script::signature;
 pub use scan::Scan;
-
-/// How a name a script declares reads to the person calling it:
-/// `money(n: Number, currency?: String) -> String`, its types as the
-/// checker reads its JSDoc.
-pub fn signature(n: &scan::Name) -> String {
-    use crate::sema::types::jsdoc_type;
-    let doc = n.doc.as_deref().map(jsdoc::parse).unwrap_or_default();
-    let params = |params: &[scan::Param]| {
-        params
-            .iter()
-            .map(|p| {
-                let documented = doc.param(&p.name);
-                let ty = documented
-                    .and_then(|d| d.ty.as_deref())
-                    .map(|t| jsdoc_type(t).to_string())
-                    .unwrap_or_else(|| "Any".to_string());
-                let optional = p.optional || documented.is_some_and(|d| d.optional);
-                format!(
-                    "{}{}{}: {ty}",
-                    if p.rest { "..." } else { "" },
-                    p.name,
-                    if optional { "?" } else { "" }
-                )
-            })
-            .collect::<Vec<_>>()
-            .join(", ")
-    };
-    let returns = doc
-        .returns
-        .as_deref()
-        .map(|t| format!(" -> {}", jsdoc_type(t)))
-        .unwrap_or_default();
-    match &n.kind {
-        scan::NameKind::Function {
-            params: p,
-            is_async,
-        } => format!(
-            "{}{}({}){returns}",
-            if *is_async { "async " } else { "" },
-            n.name,
-            params(p)
-        ),
-        scan::NameKind::Class { params: p, .. } => format!("class {}({})", n.name, params(p)),
-        scan::NameKind::Value => n.name.clone(),
-    }
-}
 
 /// One script under `src/`, and what reading it found.
 #[derive(Debug, Clone)]

@@ -391,7 +391,7 @@ pub fn view_of_via(
     dir: &std::path::Path,
     name: Option<&str>,
 ) -> crate::error::Result<View> {
-    let (program, files, _) = crate::build::read_project_collecting_via(vfs, dir, None)?;
+    let (program, files, _) = crate::sources::read_project_collecting_via(vfs, dir, None)?;
     let mut config = crate::config::ProjectConfig::load_via(vfs, dir)?;
     if let Some(n) = name.filter(|n| !n.is_empty())
         && config.theme.name.as_deref() != Some(n)

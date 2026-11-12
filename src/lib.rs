@@ -133,6 +133,13 @@ pub const VERSION: &str = env!("CARGO_PKG_VERSION");
 
 pub mod lexer;
 
+/// A project's sources, read and merged into one program.
+pub(crate) mod sources;
+/// Where a node of a program was written.
+pub(crate) mod span;
+/// Small text utilities the rest of the crate shares.
+pub(crate) mod text;
+
 pub mod parser;
 
 /// The front end's one entry point: [`syntax::parse_source`] reads a file in

@@ -20,6 +20,7 @@
 //! The table lives in [`builtins`]; this file is its vocabulary and the
 //! lookups over it.
 
+pub(crate) mod browser;
 pub mod builtins;
 pub mod json;
 pub mod schema;

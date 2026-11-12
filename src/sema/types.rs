@@ -2763,7 +2763,7 @@ impl<'a, 'p> Checker<'a, 'p> {
     /// `name` as one of the values the browser keeps current, when the
     /// program has nothing of its own by that name.
     fn browser_value(&self, name: &str) -> Option<&'static str> {
-        let live = crate::codegen::js::BROWSER_VALUES
+        let live = crate::registry::browser::BROWSER_VALUES
             .iter()
             .copied()
             .find(|v| *v == name)?;
@@ -5037,8 +5037,8 @@ impl<'a, 'p> Checker<'a, 'p> {
     /// the browser's globals and values, the names a handler, a loop or a
     /// route brings with it, a service, a store or an imported module.
     fn is_known_name(&self, name: &str) -> bool {
-        crate::codegen::js::BROWSER_GLOBALS.contains(&name)
-            || crate::codegen::js::BROWSER_VALUES.contains(&name)
+        crate::registry::browser::BROWSER_GLOBALS.contains(&name)
+            || crate::registry::browser::BROWSER_VALUES.contains(&name)
             || (self.in_handler > 0 && matches!(name, "event" | "e" | "value" | "key"))
             || (self.in_running > 0 && matches!(name, "page" | "pages"))
             || matches!(
@@ -6848,7 +6848,7 @@ pub fn image_type() -> Type {
 /// The type of a name every program can read — `viewport`, `network`,
 /// `now` — for a tool to describe and complete.
 pub fn browser_value_type(name: &str) -> Option<Type> {
-    crate::codegen::js::BROWSER_VALUES
+    crate::registry::browser::BROWSER_VALUES
         .contains(&name)
         .then(|| global_type(name))
 }
@@ -6959,7 +6959,7 @@ mod tests {
             }
         }
         // …and every scalar method the code generator routes is offered.
-        for (m, _) in crate::codegen::js::SCALAR_METHODS {
+        for (m, _) in crate::registry::browser::SCALAR_METHODS {
             assert!(
                 SCALAR_MEMBER_NAMES.contains(m),
                 "`{m}` is routed but not offered"

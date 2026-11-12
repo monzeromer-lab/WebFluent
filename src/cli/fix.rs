@@ -45,7 +45,7 @@ pub fn run_fix(dir: &Path, code: Option<&str>, dry_run: bool) -> Result<()> {
             let path = dir.join(&file);
             // A fix is written into the project, never through a link out
             // of it.
-            if crate::agent::escapes(dir, &path) {
+            if crate::vfs::escapes(dir, &path) {
                 eprintln!("  {file}: left alone, a link that leads outside the project");
                 continue;
             }

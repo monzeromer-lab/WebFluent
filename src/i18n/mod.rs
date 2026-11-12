@@ -35,7 +35,7 @@ pub fn load_via(
     let mut out = HashMap::new();
     // The translations are the project's own: a directory outside it is
     // read as none (the build says so, as a finding on `i18n.dir`).
-    if !crate::data::stays_inside(&config.dir) {
+    if !crate::vfs::stays_inside(&config.dir) {
         return Ok(out);
     }
     let dir = project_dir.join(&config.dir);

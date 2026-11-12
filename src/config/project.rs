@@ -1389,12 +1389,7 @@ fn unknown_in(
             None => {
                 let hint = known
                     .keys()
-                    .map(|k| {
-                        (
-                            crate::linter::vocabulary::levenshtein(&normalise(key), &normalise(k)),
-                            k,
-                        )
-                    })
+                    .map(|k| (crate::text::levenshtein(&normalise(key), &normalise(k)), k))
                     .filter(|(d, _)| *d <= 3)
                     .min()
                     .map(|(_, k)| format!(" — did you mean `{k}`?"))

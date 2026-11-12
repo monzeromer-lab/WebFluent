@@ -5,44 +5,11 @@
 //! and, in `paths`, the same list typed, for a picker.
 
 use crate::parser::ast::*;
+pub use crate::parser::walk::{body_of, child_bodies};
 
 /// Whether `offset` falls inside `span`.
 pub fn contains(span: Span, offset: usize) -> bool {
     (span.start as usize) <= offset && offset < (span.end as usize)
-}
-
-/// The statements a declaration's body holds.
-pub fn body_of(decl: &Declaration) -> &[Statement] {
-    match decl {
-        Declaration::Page(p) => &p.body,
-        Declaration::Component(c) => &c.body,
-        Declaration::Store(s) => &s.body,
-        Declaration::App(a) => &a.body,
-        Declaration::Theme(_)
-        | Declaration::Type(_)
-        | Declaration::Enum(_)
-        | Declaration::Api(_)
-        | Declaration::Script(_)
-        | Declaration::Const(_)
-        | Declaration::Animation(_)
-        | Declaration::Data(_) => &[],
-        Declaration::Test(t) => &t.body,
-    }
-}
-
-/// Every statement list nested in a statement: bodies, branches, handlers
-/// — an element's children, handlers and slot fills, and every body
-/// [`StatementKind::bodies`] names, a connection's handlers among them.
-pub fn child_bodies(stmt: &Statement) -> Vec<&[Statement]> {
-    match &stmt.kind {
-        StatementKind::UIElement(el) => {
-            let mut bodies: Vec<&[Statement]> = vec![&el.children];
-            bodies.extend(el.events.iter().map(|e| e.body.as_slice()));
-            bodies.extend(el.slot_fills.iter().map(|f| f.body.as_slice()));
-            bodies
-        }
-        kind => kind.bodies(),
-    }
 }
 
 /// The chain of statements from the body down to the innermost one that
@@ -1087,7 +1054,7 @@ pub mod paths {
         file: &str,
         offset: usize,
     ) -> crate::error::Result<Vec<Entry>> {
-        let (program, files, _) = crate::build::read_project_collecting_via(vfs, dir, None)?;
+        let (program, files, _) = crate::sources::read_project_collecting_via(vfs, dir, None)?;
         let info =
             crate::sema::types::check(&program, &|i| files.get(i).cloned().unwrap_or_default());
         let decl = program.declarations.iter().enumerate().find_map(|(i, d)| {
