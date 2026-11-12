@@ -1,7 +1,11 @@
-# WebFluent v5.15.0 Release Notes
+# WebFluent v6.0.0 Release Notes
 
-A page can be in a language of its own, and a bilingual site can tell a
-search engine which pages translate each other.
+A page can be in a language of its own, the compiler holds up to anything
+it is given, and the Rust library has a smaller surface with typed errors.
+A project that builds with 5.14 builds with 6.0, unless it relied on
+something now refused because it shipped a broken page (a status code the
+grammar cannot hold, nesting past 100 levels). What 6.0 breaks on purpose
+is the Rust API (see "Upgrading").
 
 ## Additions
 
@@ -23,6 +27,8 @@ search engine which pages translate each other.
   parameters (`/en/posts/:slug` for `/posts/:slug`).
 - **`R05`**: a `translates:` that names no page or its own, or two
   translations of one page in one language.
+- **`worker` is offered where a statement starts**, beside `socket`,
+  `stream`, `channel` and `peer`.
 
 ## Fixes
 
@@ -33,12 +39,105 @@ search engine which pages translate each other.
   ignored the set (#5). A locale the browser switches to on one address is
   not an alternate; translations with `translates:` are. `?lang=` still
   opens a page in that locale for a reader who follows such a link.
+- **The compiler cannot be made to hang or crash by what it reads.** A
+  name starting with a letter such as `℘` no longer loops forever; nesting
+  past 100 levels is `E120` instead of a stack overflow; a template render
+  is bounded (`E121`); the parser and the PDF engine return an error for
+  input they cannot read rather than panicking; a picture is refused past
+  50 megapixels before it is decoded.
+- **Names in any script repaint.** A state named in Arabic (`state عدد`)
+  is reactive in the bundle, and a name may start with any letter Unicode
+  allows in an identifier.
+- **Text is written as text.** A `\` or `${` in a spliced string, a page
+  title, a class or a colour from data, a `head { }` tag and a
+  `Frame` are escaped where they are written, and the build reads its own
+  pages back as a browser would before it ships them. A template's data
+  cannot add CSS declarations or attributes.
+- **`Template` answers as `wf build` does**: one evaluator and one
+  renderer serve both, so `name.length`, comparisons and indexing agree.
+- **A page's state no longer leaks into `app`**, and a rendering server
+  that catches a panic no longer carries one render's state into the next.
+- **Every parse error is reported**, not only the first; findings are in a
+  fixed order and placed by character, not byte.
+- **Numbers the grammar cannot hold are refused** (a status past 599, a
+  fractional one, a negative carousel interval) instead of being clamped.
+- **`.wfx` lexing is linear** in the size of the file.
+- **Runtime:** a disposed effect lets go of what it read; carousels,
+  drawers, popups, `now`, `VirtualList` and submenus go with their page;
+  `navigate()` and the router stay on the site; the request engine and the
+  connections are bounded, and credentials never enter the offline queue;
+  the service worker keeps sites under one origin apart.
+- **Builds stay in their project.** `build.output` outside the project is
+  refused unless `--allow-output-outside` says so, `wf serve` listens on
+  this machine unless `--host` says otherwise and serves nothing outside
+  the build, and a `public_env` name takes no value from the shell unless
+  `WF_ALLOW_SHELL_ENV` names it.
+- **`wf verify` and `wf test`** run Chrome with its sandbox, in a private
+  profile that goes when `wf` does.
+- **I/O errors name their file**, and a config or translation that is there
+  but cannot be read is an error rather than the defaults.
+- SVG text is laid out with the document's own fonts.
+
+## Editors
+
+- The grammars read names in any script, raw strings of any length and two
+  declarations on one style line as the compiler does.
+- Zed colours `worker` and `expect not`, outlines parts and persisted state,
+  and has snippets for `persist`, `validate`, `on key`, `api` and `test`.
+- VS Code colours every style property, colour and regex literals, a
+  splice's format, `///` and `// wf-allow(…)`, and the indented layout's
+  blocks.
+- The language server reads the compiler's own tables for keywords, events,
+  built-in names and design tokens, and follows a component's props, events
+  and slots for definitions and renames.
+- Both extensions download the release they pin and check it against
+  `SHA256SUMS`.
+
+## For tools (the Rust library)
+
+- **One documented surface.** `template`, `syntax` (the AST, `fmt`,
+  `layout`), `diagnostics`, `build`, `config`, `vfs`, `outfs`, `memory`,
+  `init`, `studio` and the root items are the API semver covers.
+- **The rest is the crate's own**: the checker, the code generator, the PDF
+  engine, the registry and the tools. The `internals` feature makes them
+  public again, hidden from the docs and outside semver, for a tool that
+  accepts that they change in any release.
+- **One path per item.** The root's second paths (`webfluent::lexer`,
+  `::parser`, `::fmt`, `::error`, `::assets`, …) are gone; use the layer's
+  (`webfluent::syntax::fmt`, `webfluent::diagnostics::error`).
+- **One finding type.** The linters and the studio return
+  `diagnostics::Diagnostic`; `A11yWarning`, `VocabWarning` and
+  `studio::StudioDiagnostic` are gone (`rule_id` is `code`).
+- **Typed errors.** `WebFluentError::IoError`, `ConfigError`,
+  `CodegenError`, `EditError` and `NotFound` hold their own types, each a
+  message and the error beneath it, which `source()` walks. Build one with
+  `WebFluentError::io(…)`, or `io_with(message, cause)` to keep the cause;
+  `?` on an `io::Error` keeps it too. What an error prints is unchanged.
+- **`#[non_exhaustive]`** on `WebFluentError`, the AST's enums that gain
+  cases (`Declaration`, `Expr`, `StatementKind`, `TypeRef`, `Step`, …),
+  `Plan`, `Tag`, `OutputType`, `RuntimeMode`, `ScriptLoad`,
+  `init::Template`, `memory::Contents`, `EditOp` and `ArgRef`.
+- Every public `Result` says when it fails; builders are `#[must_use]`;
+  the lexer, parser and code generator implement `Debug`; a choice that
+  was two `bool`s is an enum.
 
 ## Upgrading
 
-Nothing to change. A multilingual site that relied on the `?lang=`
-alternates had them ignored by search engines already; to have each
-language indexed, give it pages of its own with `lang:` and `translates:`.
+- **A project:** nothing to change. A multilingual site that relied on the
+  `?lang=` alternates had them ignored by search engines already; to have
+  each language indexed, give it pages of its own with `lang:` and
+  `translates:`.
+- **A program using the crate:**
+  - a path that no longer resolves moved to its layer
+    (`webfluent::fmt` → `webfluent::syntax::fmt`);
+  - a module that is no longer public (`webfluent::sema`, `codegen`,
+    `paged`, `registry`, `platform`, …) needs `features = ["internals"]`,
+    and pins an exact version, since those change in any release;
+  - a `match` on an enum above needs a `_` arm;
+  - `WebFluentError::IoError(msg)` as a value is `WebFluentError::io(msg)`;
+    as a pattern, `IoError(e)` binds the error, whose `message()` is the
+    old string.
+- **The editors** pin this release: update the extension after it is out.
 
 # WebFluent v5.14.0 Release Notes
 
