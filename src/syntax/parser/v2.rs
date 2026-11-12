@@ -243,6 +243,10 @@ pub const BODY_KEYWORDS: &[&str] = &[
     "log",
 ];
 
+/// What a call of a service's endpoint takes besides its parameters, read
+/// as settings of the request: `Backend.users(page: 2, cache: .none)`.
+pub const ENDPOINT_SETTINGS: &[&str] = &["cache", "as", "errorAs", "fileField"];
+
 /// Every word a statement in an action, a handler or an effect may begin
 /// with, beside the body's.
 pub const IMPERATIVE_KEYWORDS: &[&str] = &["let", "return", "if", "else", "for", "try", "emit"];
@@ -2340,7 +2344,7 @@ impl ParserV2 {
             // `cache: .swr(60.seconds)`, `as: .blob`, `.progress`.
             if let TokenType::Identifier(word) = self.kind().clone()
                 && matches!(self.kind_at(1), TokenType::Colon)
-                && matches!(word.as_str(), "cache" | "as" | "errorAs" | "fileField")
+                && ENDPOINT_SETTINGS.contains(&word.as_str())
             {
                 self.advance();
                 self.advance();

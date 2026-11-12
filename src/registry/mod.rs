@@ -22,6 +22,7 @@
 
 pub(crate) mod browser;
 pub mod builtins;
+pub mod requests;
 pub use crate::tools::registry_json as json;
 pub use crate::tools::registry_schema as schema;
 pub mod style_tokens;
