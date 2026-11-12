@@ -108,8 +108,8 @@
   // `Authorization` (or another token header) has an entry of its own, and
   // an entry filled through a service's `on request` hook is not served once
   // the hook sends other credentials — after a logout, or as another user.
-  // A cookie cannot be read, so a logout should also call the service's
-  // `invalidate()`, which drops everything it cached.
+  // A cookie cannot be read, so a logout should also call `invalidate()` on
+  // the endpoints whose answers are one reader's.
   const _httpCache = new Map();
   const CACHE_MAX = 256;
   // The credentials each `on request` hook sent last, by hook.
