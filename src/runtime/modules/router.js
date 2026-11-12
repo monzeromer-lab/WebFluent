@@ -81,7 +81,7 @@
     if (redirectPath && /^\/(?![\/\\])/.test(redirectPath) && _onThisSite(_basePath + redirectPath)) {
       try {
         window.history.replaceState(null, "", _basePath + redirectPath);
-      } catch (e) { /* not an address of this page's: stay where it is */ }
+      } catch (e) { /* not an address of this page: stay where it is */ }
     }
 
     // A page written to `contact.html` beside `contact/index.html`
