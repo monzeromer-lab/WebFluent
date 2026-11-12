@@ -405,21 +405,21 @@ impl JsCodegen {
     pub(in super::super) fn animate_config_parts(config: &Option<AnimateConfig>) -> Vec<String> {
         let mut parts = Vec::new();
         if let Some(anim) = config {
-            parts.push(format!("enter: \"{}\"", anim.enter));
+            parts.push(format!("enter: {}", js_str(&anim.enter)));
             if let Some(exit) = &anim.exit {
-                parts.push(format!("exit: \"{}\"", exit));
+                parts.push(format!("exit: {}", js_str(exit)));
             }
             if let Some(dur) = &anim.duration {
-                parts.push(format!("duration: \"{}\"", dur));
+                parts.push(format!("duration: {}", js_str(dur)));
             }
             if let Some(delay) = &anim.delay {
-                parts.push(format!("delay: \"{}\"", delay));
+                parts.push(format!("delay: {}", js_str(delay)));
             }
             if let Some(stagger) = &anim.stagger {
-                parts.push(format!("stagger: \"{}\"", stagger));
+                parts.push(format!("stagger: {}", js_str(stagger)));
             }
             if let Some(easing) = &anim.easing {
-                parts.push(format!("easing: \"{}\"", easing));
+                parts.push(format!("easing: {}", js_str(easing)));
             }
         }
         parts

@@ -65,11 +65,13 @@ impl JsCodegen {
                 let dur = anim
                     .duration
                     .as_deref()
-                    .map(|d| format!(", \"{}\"", d))
+                    .map(|d| format!(", {}", js_str(d)))
                     .unwrap_or_default();
                 self.emit_line(&format!(
-                    "WF.animate(\"{}\", \"{}\"{});",
-                    anim.target, anim.animation, dur
+                    "WF.animate({}, {}{});",
+                    js_str(&anim.target),
+                    js_str(&anim.animation),
+                    dur
                 ));
             }
             StatementKind::ExprStatement(expr) => {
