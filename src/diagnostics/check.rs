@@ -15,6 +15,31 @@ use crate::project_js::Script;
 use crate::vfs::{FsVfs, Vfs};
 use std::path::Path;
 
+/// The stack each check's thread is given. A thread's default (2 MB) is
+/// less than the checker needs to walk a program nested as deeply as the
+/// parser allows ([`crate::parser::MAX_NESTING`]) in a debug build; the
+/// memory is only reserved, and touched as deep as a program goes.
+#[cfg(not(target_arch = "wasm32"))]
+const CHECK_STACK: usize = 16 * 1024 * 1024;
+
+/// Run one check on a thread of its own, with [`CHECK_STACK`].
+#[cfg(not(target_arch = "wasm32"))]
+fn deep<'scope, T: Send + 'scope>(
+    s: &'scope std::thread::Scope<'scope, '_>,
+    body: impl FnOnce() -> T + Send + 'scope,
+) -> std::thread::ScopedJoinHandle<'scope, T> {
+    std::thread::Builder::new()
+        .stack_size(CHECK_STACK)
+        .spawn_scoped(s, body)
+        .expect("a thread for the checks")
+}
+
+/// Without threads, the check runs here and now.
+#[cfg(target_arch = "wasm32")]
+fn deep<T>(s: &crate::platform::Scope, body: impl FnOnce() -> T) -> crate::platform::Ran<T> {
+    s.spawn(body)
+}
+
 /// What the checks read.
 pub struct Project<'a> {
     /// The program as parsed, before lowering: every file that parsed.
@@ -117,10 +142,10 @@ pub fn check_project_via(vfs: &dyn Vfs, p: &Project) -> Checked {
     // were always given, which the de-duplication below keeps.
     let (around, (program_found, types), structure, lowered, from_lowered) =
         crate::platform::scope(|s| {
-            let around = s.spawn(|| project_checks_via(vfs, shared, file_of));
-            let typed = s.spawn(|| program_checks_typed(p.program, file_of, source_of));
+            let around = deep(s, || project_checks_via(vfs, shared, file_of));
+            let typed = deep(s, || program_checks_typed(p.program, file_of, source_of));
             let structure =
-                s.spawn(|| crate::linter::structure::lint_structure(p.program, file_of));
+                deep(s, || crate::linter::structure::lint_structure(p.program, file_of));
             let lowered = crate::sema::lower(p.program.clone());
             let from_lowered = lowered_checks(&lowered, shared, file_of);
             (
@@ -236,8 +261,8 @@ fn lowered_checks(
         .unwrap_or_default();
     let (accessibility, (contrast, styles), unused, vocabulary, output) =
         crate::platform::scope(|s| {
-            let accessibility = s.spawn(|| crate::linter::lint_accessibility_in(lowered, file_of));
-            let painted = s.spawn(|| match crate::themes::resolve_tokens(lowered, &theme) {
+            let accessibility = deep(s, || crate::linter::lint_accessibility_in(lowered, file_of));
+            let painted = deep(s, || match crate::themes::resolve_tokens(lowered, &theme) {
                 Ok(mut tokens) => {
                     let contrast = crate::linter::lint_contrast_in(lowered, &tokens, file_of);
                     if let Some(config) = p.config {
@@ -253,9 +278,9 @@ fn lowered_checks(
                     crate::linter::styles::lint_styles(lowered, None, file_of),
                 ),
             });
-            let unused = s.spawn(|| crate::linter::lint_unused_in(lowered, file_of, &published));
+            let unused = deep(s, || crate::linter::lint_unused_in(lowered, file_of, &published));
             let vocabulary =
-                s.spawn(|| crate::linter::lint_vocabulary_with(lowered, p.stylesheets, file_of));
+                deep(s, || crate::linter::lint_vocabulary_with(lowered, p.stylesheets, file_of));
             let output = p.config.map(|config| {
                 let mut out = output_checks(lowered, config, file_of);
                 if config.build.csp {

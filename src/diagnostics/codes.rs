@@ -225,6 +225,12 @@ pub static CODES: &[CodeInfo] = &[
         "A hidden direction control in the source",
         "An embedding, override or isolate control (U+202A–U+202E, U+2066–U+2069) is invisible and reorders what follows it, so the code a reader sees is not the code that runs (Trojan Source).",
     ),
+    code(
+        "E120",
+        Error,
+        "Something nests too deeply",
+        "Brackets, blocks, components that place each other, or the links of one chain (`a.b.c`, `1 + 2 + 3`) nest more than 100 levels deep, which no pass of the compiler follows.",
+    ),
     // ── T: types ─────────────────────────────────────────────────────
     code(
         "T01",

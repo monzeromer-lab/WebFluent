@@ -639,6 +639,19 @@ and goes on with letters, digits, `_` and the marks of its letters, as
 UAX #31 says (`state عددٌ = 3`), and is one name however its letters were
 typed — أ precomposed or ا with a combining hamza (NFC).
 
+### E120 — Something nests too deeply
+
+Error. Brackets inside brackets, blocks inside blocks, a splice inside a
+string inside a splice, the links of one chain (`a.b.c`, `1 + 2 + 3`,
+each link nesting the value one level deeper) and, in a template,
+components that place one another — counted together, more than 100
+levels deep. The parser, the checker and the template engine each stop
+there and say so, where each would otherwise run out of stack. The
+deepest program of this guide, the examples and the site nests 15 levels.
+**Fix:** name a part of it — a `let` in an action, a `derived` value, a
+component — and use the name. A component that places itself stops when
+its data does; one whose data does not end is this error too.
+
 ## Components
 
 ### C01 — A required prop or field left out

@@ -169,6 +169,9 @@ pub struct ParserV2 {
     effect_body: Option<usize>,
     /// How many imperative blocks are open.
     block_depth: usize,
+    /// How deeply what is being read nests — expressions, blocks and the
+    /// links of a chain — held under [`crate::parser::MAX_NESTING`].
+    nesting: usize,
 }
 
 const CLAUSE_WORDS: &[&str] = &["style", "transition", "on"];
@@ -238,7 +241,19 @@ pub const BODY_KEYWORDS: &[&str] = &[
 pub const IMPERATIVE_KEYWORDS: &[&str] = &["let", "return", "if", "else", "for", "try", "emit"];
 
 impl ParserV2 {
-    pub fn new(tokens: Vec<Token>, file: &str) -> Self {
+    /// A parser over `tokens`. A list that does not end in an
+    /// [`TokenType::EOF`] (an empty one included) is given one, so the
+    /// parser always has a token to look at.
+    pub fn new(mut tokens: Vec<Token>, file: &str) -> Self {
+        if !matches!(tokens.last().map(|t| &t.token_type), Some(TokenType::EOF)) {
+            let (line, column, end) = tokens
+                .last()
+                .map_or((1, 1, 0), |t| (t.line, t.column, t.end));
+            let mut eof = Token::new(TokenType::EOF, line, column);
+            eof.offset = end;
+            eof.end = end;
+            tokens.push(eof);
+        }
         Self {
             tokens,
             pos: 0,
@@ -248,6 +263,7 @@ impl ParserV2 {
             pending_cleanup: None,
             effect_body: None,
             block_depth: 0,
+            nesting: 0,
         }
     }
 
@@ -393,6 +409,48 @@ impl ParserV2 {
         ))
     }
 
+    /// `E120`: what is being read nests past [`crate::parser::MAX_NESTING`].
+    fn too_deep(&self) -> WebFluentError {
+        let t = self.current();
+        WebFluentError::ParseError(Box::new(
+            Diagnostic::coded(
+                "E120",
+                crate::parser::NESTING_MESSAGE,
+                &self.file,
+                t.line,
+                t.column,
+            )
+            .with_hint(&format!(
+                "Nothing may nest more than {} levels deep — brackets, blocks and the links of a chain counted together; name a part of it with `let` or `derived`",
+                crate::parser::MAX_NESTING
+            )),
+        ))
+    }
+
+    /// Run `f` one level deeper, and come back to this level however it
+    /// ends — so a loop below may count links without undoing them.
+    fn nested<T>(&mut self, f: impl FnOnce(&mut Self) -> Result<T>) -> Result<T> {
+        let level = self.nesting;
+        self.nesting += 1;
+        let result = if self.nesting > crate::parser::MAX_NESTING {
+            Err(self.too_deep())
+        } else {
+            f(self)
+        };
+        self.nesting = level;
+        result
+    }
+
+    /// One more link of a chain, which nests the tree one level deeper.
+    /// The [`ParserV2::nested`] call around it restores the level.
+    fn link(&mut self) -> Result<()> {
+        self.nesting += 1;
+        if self.nesting > crate::parser::MAX_NESTING {
+            return Err(self.too_deep());
+        }
+        Ok(())
+    }
+
     // ─── Spans ───────────────────────────────────────────
 
     fn mark(&self) -> (u32, u32, u32) {
@@ -424,12 +482,19 @@ impl ParserV2 {
 
     // ─── Declarations ────────────────────────────────────
 
+    /// The whole program.
+    ///
+    /// # Errors
+    ///
+    /// [`WebFluentError::ParseError`] when one declaration does not parse,
+    /// and [`WebFluentError::Diagnostics`] with every error when several
+    /// do (see [`ParserV2::parse_recovering`]).
     pub fn parse(&mut self) -> Result<Program> {
         let (program, mut errors) = self.parse_recovering();
-        if errors.is_empty() {
-            Ok(program)
-        } else {
-            Err(WebFluentError::ParseError(Box::new(errors.remove(0))))
+        match errors.len() {
+            0 => Ok(program),
+            1 => Err(WebFluentError::ParseError(Box::new(errors.remove(0)))),
+            _ => Err(WebFluentError::Diagnostics(errors)),
         }
     }
 
@@ -455,6 +520,7 @@ impl ParserV2 {
                     self.effect_body = None;
                     self.block_depth = 0;
                     self.destructures = 0;
+                    self.nesting = 0;
                     self.synchronize(start);
                 }
             }
@@ -830,7 +896,7 @@ impl ParserV2 {
     /// name.
     fn parse_type_ref(&mut self) -> Result<TypeRef> {
         let base = if self.eat(&TokenType::OpenBracket) {
-            let inner = self.parse_type_ref()?;
+            let inner = self.nested(Self::parse_type_ref)?;
             self.expect(&TokenType::CloseBracket, "`]` to close the list type")?;
             TypeRef::List(Box::new(inner))
         } else {
@@ -1503,7 +1569,7 @@ impl ParserV2 {
 
     fn parse_render_statement(&mut self, body: Body) -> Result<Statement> {
         let mark = self.mark();
-        let kind = self.parse_render_statement_kind(body)?;
+        let kind = self.nested(|p| p.parse_render_statement_kind(body))?;
         Ok(Statement::new(kind, self.span_since(mark)))
     }
 
@@ -3029,7 +3095,7 @@ impl ParserV2 {
 
     fn parse_imperative_statement(&mut self) -> Result<Statement> {
         let mark = self.mark();
-        let kind = self.parse_imperative_kind()?;
+        let kind = self.nested(Self::parse_imperative_kind)?;
         Ok(Statement::new(kind, self.span_since(mark)))
     }
 
@@ -3379,7 +3445,12 @@ impl ParserV2 {
             )))
         })?;
         let mut sub = ParserV2::new(tokens, &self.file);
+        // A splice nests inside the expression around it.
+        sub.nesting = self.nesting + 1;
         let expr = sub.parse_expression().map_err(|e| {
+            if e.diagnostics().iter().any(|d| d.code == "E120") {
+                return self.too_deep();
+            }
             let t = self.current();
             let message = match &e {
                 WebFluentError::ParseError(d) => d.message.clone(),
@@ -3438,7 +3509,7 @@ impl ParserV2 {
     // ─── Expressions ─────────────────────────────────────
 
     pub fn parse_expression(&mut self) -> Result<Expr> {
-        self.parse_range()
+        self.nested(Self::parse_range)
     }
 
     /// `a..b` and `a..=b`, the loosest binding: `1..n + 1` is `1..(n + 1)`.
@@ -3460,6 +3531,7 @@ impl ParserV2 {
         while self.eat(&TokenType::NullCoalesce) {
             let right = self.parse_or()?;
             left = Expr::BinaryOp(Box::new(left), BinOp::NullCoalesce, Box::new(right));
+            self.link()?;
         }
         Ok(left)
     }
@@ -3469,6 +3541,7 @@ impl ParserV2 {
         while self.eat(&TokenType::Or) {
             let right = self.parse_and()?;
             left = Expr::BinaryOp(Box::new(left), BinOp::Or, Box::new(right));
+            self.link()?;
         }
         Ok(left)
     }
@@ -3478,6 +3551,7 @@ impl ParserV2 {
         while self.eat(&TokenType::And) {
             let right = self.parse_equality()?;
             left = Expr::BinaryOp(Box::new(left), BinOp::And, Box::new(right));
+            self.link()?;
         }
         Ok(left)
     }
@@ -3493,6 +3567,7 @@ impl ParserV2 {
             self.advance();
             let right = self.parse_comparison()?;
             left = Expr::BinaryOp(Box::new(left), op, Box::new(right));
+            self.link()?;
         }
         Ok(left)
     }
@@ -3510,6 +3585,7 @@ impl ParserV2 {
             self.advance();
             let right = self.parse_additive()?;
             left = Expr::BinaryOp(Box::new(left), op, Box::new(right));
+            self.link()?;
         }
         Ok(left)
     }
@@ -3525,6 +3601,7 @@ impl ParserV2 {
             self.advance();
             let right = self.parse_multiplicative()?;
             left = Expr::BinaryOp(Box::new(left), op, Box::new(right));
+            self.link()?;
         }
         Ok(left)
     }
@@ -3541,20 +3618,23 @@ impl ParserV2 {
             self.advance();
             let right = self.parse_unary()?;
             left = Expr::BinaryOp(Box::new(left), op, Box::new(right));
+            self.link()?;
         }
         Ok(left)
     }
 
     fn parse_unary(&mut self) -> Result<Expr> {
         if self.eat(&TokenType::Not) {
-            return Ok(Expr::UnaryOp(UnaryOp::Not, Box::new(self.parse_unary()?)));
+            let operand = self.nested(Self::parse_unary)?;
+            return Ok(Expr::UnaryOp(UnaryOp::Not, Box::new(operand)));
         }
         if self.eat(&TokenType::Minus) {
-            return Ok(Expr::UnaryOp(UnaryOp::Neg, Box::new(self.parse_unary()?)));
+            let operand = self.nested(Self::parse_unary)?;
+            return Ok(Expr::UnaryOp(UnaryOp::Neg, Box::new(operand)));
         }
         if self.is_word("await") {
             self.advance();
-            return Ok(Expr::Await(Box::new(self.parse_unary()?)));
+            return Ok(Expr::Await(Box::new(self.nested(Self::parse_unary)?)));
         }
         self.parse_postfix()
     }
@@ -3562,6 +3642,9 @@ impl ParserV2 {
     fn parse_postfix(&mut self) -> Result<Expr> {
         let mut expr = self.parse_primary()?;
         loop {
+            if self.check(&TokenType::Dot) || self.check(&TokenType::OpenBracket) || self.check(&TokenType::OptionalChain) {
+                self.link()?;
+            }
             if self.check(&TokenType::Dot) {
                 // `.name` or `.name(args)`; a `.` before a case is a primary.
                 self.advance();
