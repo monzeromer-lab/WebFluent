@@ -16,20 +16,37 @@ unsafe fn finish(block: *mut u8, size: usize) -> *mut u8 {
     if block.is_null() {
         return block;
     }
-    // SAFETY: `block` is at least `HEADER` bytes, aligned to 16.
-    unsafe {
-        (block as *mut usize).write(size);
-        block.add(HEADER)
-    }
+    // SAFETY: `block` is at least `HEADER` bytes, aligned to 16, so a
+    // `usize` fits at its start.
+    unsafe { (block as *mut usize).write(size) };
+    // SAFETY: `block` is at least `HEADER` bytes, so one past them is still
+    // in the allocation (or its end).
+    unsafe { block.add(HEADER) }
+}
+
+/// The block a pointer this allocator handed out begins at, and the layout
+/// it was made with.
+///
+/// # Safety
+///
+/// `ptr` came from `malloc`, `calloc` or `realloc` below and was not freed.
+unsafe fn block_of(ptr: *mut u8) -> (*mut u8, Layout) {
+    // SAFETY: the caller's pointer is `HEADER` bytes into its block.
+    let block = unsafe { ptr.sub(HEADER) };
+    // SAFETY: `finish` wrote the size at the block's start.
+    let size = unsafe { (block as *const usize).read() };
+    (block, layout(size).expect("a size this allocator wrote"))
 }
 
 #[unsafe(no_mangle)]
 pub unsafe extern "C" fn malloc(size: usize) -> *mut u8 {
-    match layout(size) {
-        // SAFETY: the layout is never zero-sized.
-        Some(l) => unsafe { finish(alloc(l), size) },
-        None => std::ptr::null_mut(),
-    }
+    let Some(l) = layout(size) else {
+        return std::ptr::null_mut();
+    };
+    // SAFETY: the layout is never zero-sized.
+    let block = unsafe { alloc(l) };
+    // SAFETY: `block` is null or a fresh block of that layout.
+    unsafe { finish(block, size) }
 }
 
 #[unsafe(no_mangle)]
@@ -37,11 +54,13 @@ pub unsafe extern "C" fn calloc(count: usize, size: usize) -> *mut u8 {
     let Some(total) = count.checked_mul(size) else {
         return std::ptr::null_mut();
     };
-    match layout(total) {
-        // SAFETY: the layout is never zero-sized.
-        Some(l) => unsafe { finish(alloc_zeroed(l), total) },
-        None => std::ptr::null_mut(),
-    }
+    let Some(l) = layout(total) else {
+        return std::ptr::null_mut();
+    };
+    // SAFETY: the layout is never zero-sized.
+    let block = unsafe { alloc_zeroed(l) };
+    // SAFETY: `block` is null or a fresh block of that layout.
+    unsafe { finish(block, total) }
 }
 
 #[unsafe(no_mangle)]
@@ -49,13 +68,10 @@ pub unsafe extern "C" fn free(ptr: *mut u8) {
     if ptr.is_null() {
         return;
     }
-    // SAFETY: `ptr` came from `malloc`, `calloc` or `realloc` above, so its
-    // size sits `HEADER` bytes before it.
-    unsafe {
-        let block = ptr.sub(HEADER);
-        let size = (block as *const usize).read();
-        dealloc(block, layout(size).expect("a size this allocator wrote"));
-    }
+    // SAFETY: C hands `free` only what `malloc`, `calloc` or `realloc` gave.
+    let (block, old) = unsafe { block_of(ptr) };
+    // SAFETY: `block` was allocated with exactly that layout.
+    unsafe { dealloc(block, old) };
 }
 
 #[unsafe(no_mangle)]
@@ -67,13 +83,13 @@ pub unsafe extern "C" fn realloc(ptr: *mut u8, size: usize) -> *mut u8 {
     let Some(new) = layout(size) else {
         return std::ptr::null_mut();
     };
-    // SAFETY: as `free`; the new size keeps the header's alignment.
-    unsafe {
-        let block = ptr.sub(HEADER);
-        let old = (block as *const usize).read();
-        let old = layout(old).expect("a size this allocator wrote");
-        finish(grow(block, old, new.size()), size)
-    }
+    // SAFETY: as `free`.
+    let (block, old) = unsafe { block_of(ptr) };
+    // SAFETY: `block` was allocated with `old`; the new size is non-zero and
+    // keeps the header's alignment.
+    let grown = unsafe { grow(block, old, new.size()) };
+    // SAFETY: `grown` is null or a block of the new layout.
+    unsafe { finish(grown, size) }
 }
 
 #[unsafe(no_mangle)]

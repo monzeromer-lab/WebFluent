@@ -375,6 +375,47 @@ jobs:
       - name: Every project builds to its golden manifest
         run: 'cargo test --release --test it -- golden::'
 
+  # Two crates no other job builds: the compiler as WebAssembly (what the
+  # playground loads), whose C allocator shims and libwebp compile only for
+  # that target, and the fuzz targets, which sit outside the workspace.
+  # Both broke once without any job noticing.
+  outside:
+    name: WebAssembly build and fuzz targets
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
+        with:
+          toolchain: stable
+          targets: wasm32-unknown-unknown
+          components: clippy
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+
+      # libwebp is C, compiled for wasm32 by clang against crates/wf-wasm/libc.
+      - name: Point the C build at clang and llvm-ar
+        run: |
+          set -euo pipefail
+          ar=$(command -v llvm-ar || ls /usr/bin/llvm-ar-* | sort -V | tail -1)
+          {
+            echo "CC_wasm32_unknown_unknown=clang"
+            echo "AR_wasm32_unknown_unknown=$ar"
+            echo "CFLAGS_wasm32_unknown_unknown=-ffreestanding -nostdlibinc -isystem $GITHUB_WORKSPACE/crates/wf-wasm/libc/include"
+          } >> "$GITHUB_ENV"
+
+      - name: Clippy for wasm32, without and with the PDF engine
+        run: |
+          cargo clippy -p wf-wasm --target wasm32-unknown-unknown -- -D warnings
+          cargo clippy -p wf-wasm --target wasm32-unknown-unknown --features pdf -- -D warnings
+
+      - name: Install wasm-bindgen
+        run: cargo install --locked wasm-bindgen-cli --version 0.2.130
+
+      - name: Build both packages the playground loads
+        run: crates/wf-wasm/build.sh
+
+      - name: Fuzz targets compile
+        run: cargo check --manifest-path fuzz/Cargo.toml --bins
+
   editors:
     name: Zed extension and grammar
     runs-on: ubuntu-latest
