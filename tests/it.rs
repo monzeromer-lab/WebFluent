@@ -164,6 +164,8 @@ mod style_values;
 mod template_engine;
 #[path = "template_fixes.rs"]
 mod template_fixes;
+#[path = "theme_boot.rs"]
+mod theme_boot;
 #[path = "theme_view.rs"]
 mod theme_view;
 #[path = "tooling_fixes.rs"]

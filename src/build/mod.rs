@@ -1175,11 +1175,20 @@ fn run(options: &BuildOptions<'_>, out: &Out<'_>) -> Result<()> {
         }
     };
     fs::write(output_dir.join("styles.css"), minify_css(css))?;
+    // A program that lets the reader pick a theme (`setTheme`) keeps the
+    // choice in storage, and `app.js` — deferred — applies it after the
+    // first paint, so a reader who chose the other theme saw one frame of
+    // the wrong one. `theme.js` applies it before anything paints.
+    let mut picks_theme = js.contains("WF.setTheme(");
     fs::write(output_dir.join("app.js"), minify_js("app.js", js)?)?;
 
     // Each page in its own chunk, fetched when its route shows, and its own
     // sheet beside it when it has rules no other page reaches.
     let chunks = js_codegen.take_chunks();
+    picks_theme |= chunks.iter().any(|(_, source)| source.contains("WF.setTheme("));
+    if picks_theme {
+        write_theme_boot(&output_dir)?;
+    }
     if !chunks.is_empty() || !page_sheets.is_empty() {
         let pages_dir = output_dir.join("pages");
         fs::create_dir_all(&pages_dir)?;
@@ -1623,6 +1632,51 @@ const SIZES_FILE: &str = ".wf-sizes.json";
 /// GitHub Pages answers `/contact` with a `301` to `/contact/` otherwise, so
 /// the canonical address would be one that redirects. The page addresses its
 /// assets from the site root under this setting, so the copy is exact.
+/// The script that puts the reader's chosen theme on the document before
+/// the first paint: `theme.js`, linked first in every page's `<head>`. It is
+/// a file of the site rather than an inline script, so the content security
+/// policy needs nothing; it is not `defer`red, so it runs while the head is
+/// read, and it is small (it reads one key) so that costs nothing to see.
+fn write_theme_boot(output_dir: &Path) -> Result<()> {
+    const BOOT: &str = "try{var t=localStorage.getItem(\"wf:theme\");if(t===\"light\"||t===\"dark\")document.documentElement.setAttribute(\"data-theme\",t)}catch(e){}\n";
+    fs::write(output_dir.join("theme.js"), BOOT)?;
+    let mut stack = vec![output_dir.to_path_buf()];
+    while let Some(dir) = stack.pop() {
+        for path in fs::read_dir(&dir)? {
+            if path.is_dir() {
+                stack.push(path);
+            } else if path.extension().is_some_and(|x| x == "html") {
+                let html = fs::read_to_string(&path)?;
+                // A page of this program links `app.js` — from the root, the
+                // base path or its own depth (`../app.js`); `theme.js` is
+                // beside it, so it is linked the same way, before the title
+                // (after the charset and the policy, which govern only what
+                // follows them).
+                let Some(link) = html
+                    .match_indices("<script src=\"")
+                    .map(|(at, open)| &html[at + open.len()..])
+                    .filter_map(|rest| rest.split_once('"').map(|(src, _)| src))
+                    .find(|src| src.ends_with("app.js") && !src.contains("/pages/"))
+                else {
+                    continue;
+                };
+                let tag = format!(
+                    "<script src=\"{}theme.js\"></script>\n    ",
+                    link.strip_suffix("app.js").unwrap_or_default()
+                );
+                if !html.contains(&tag)
+                    && let Some(at) = html.find("<title>")
+                {
+                    let mut html = html.clone();
+                    html.insert_str(at, &tag);
+                    fs::write(&path, html)?;
+                }
+            }
+        }
+    }
+    Ok(())
+}
+
 fn write_beside(config: &ProjectConfig, dir: &Path, page_html: &str) -> Result<()> {
     if config.build.clean_urls != Some(crate::project::config::CleanUrls::File) {
         return Ok(());
