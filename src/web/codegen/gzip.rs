@@ -159,10 +159,10 @@ fn longest_match(data: &[u8], pos: usize, head: &[usize], prev: &[usize]) -> (us
         chain += 1;
         // A quick reject on the byte past the best length so far.
         if data[candidate + best.0] == data[pos + best.0] {
-            let mut len = 0;
-            while len < max_len && data[candidate + len] == data[pos + len] {
-                len += 1;
-            }
+            let len = common_prefix(
+                &data[candidate..candidate + max_len],
+                &data[pos..pos + max_len],
+            );
             if len > best.0 {
                 best = (len, pos - candidate);
                 if len == max_len {
@@ -177,6 +177,40 @@ fn longest_match(data: &[u8], pos: usize, head: &[usize], prev: &[usize]) -> (us
         candidate = next;
     }
     best
+}
+
+/// How many bytes `a` and `b` (of one length) have in common from the
+/// start: eight compared at once while there are eight, then one by one.
+fn common_prefix(a: &[u8], b: &[u8]) -> usize {
+    let (wide_a, rest_a) = a.as_chunks::<8>();
+    let (wide_b, rest_b) = b.as_chunks::<8>();
+    let mut len = 0;
+    for (x, y) in wide_a.iter().zip(wide_b) {
+        let differ = u64::from_le_bytes(*x) ^ u64::from_le_bytes(*y);
+        if differ != 0 {
+            // The lowest differing byte, in little-endian order, is the first.
+            return len + (differ.trailing_zeros() / 8) as usize;
+        }
+        len += 8;
+    }
+    len + rest_a
+        .iter()
+        .zip(rest_b)
+        .take_while(|(x, y)| x == y)
+        .count()
+}
+
+/// The tables one compression uses, kept by each thread from one file to
+/// the next: a build compresses hundreds of files, and making these anew
+/// each time (a megabyte, filled) cost more than many a file's matching.
+struct Scratch {
+    head: Vec<usize>,
+    prev: Vec<usize>,
+    pending: Vec<Token>,
+}
+
+thread_local! {
+    static SCRATCH: std::cell::RefCell<Option<Scratch>> = const { std::cell::RefCell::new(None) };
 }
 
 /// LZ77 over `data`, a block's worth of tokens at a time: the window's
@@ -194,12 +228,31 @@ struct Tokenizer<'a> {
 
 impl<'a> Tokenizer<'a> {
     fn new(data: &'a [u8]) -> Self {
+        let Scratch {
+            mut head,
+            mut prev,
+            mut pending,
+        } = SCRATCH
+            .with(|s| s.borrow_mut().take())
+            .unwrap_or_else(|| Scratch {
+                head: Vec::new(),
+                prev: Vec::new(),
+                pending: Vec::new(),
+            });
+        head.clear();
+        head.resize(WINDOW, usize::MAX);
+        // A position indexes the chains by `i & (WINDOW - 1)`, which never
+        // passes the data's length when the data is shorter than a window.
+        prev.clear();
+        prev.resize(WINDOW.min(data.len()), usize::MAX);
+        pending.clear();
+        pending.reserve(BLOCK_TOKENS + 1);
         Tokenizer {
             data,
             at: 0,
-            head: vec![usize::MAX; WINDOW],
-            prev: vec![usize::MAX; WINDOW],
-            pending: Vec::with_capacity(BLOCK_TOKENS + 1),
+            head,
+            prev,
+            pending,
         }
     }
 
@@ -258,12 +311,24 @@ impl<'a> Tokenizer<'a> {
     }
 }
 
+impl Drop for Tokenizer<'_> {
+    /// The tables go back to the thread, for its next file.
+    fn drop(&mut self) {
+        let scratch = Scratch {
+            head: std::mem::take(&mut self.head),
+            prev: std::mem::take(&mut self.prev),
+            pending: std::mem::take(&mut self.pending),
+        };
+        SCRATCH.with(|s| *s.borrow_mut() = Some(scratch));
+    }
+}
+
 /// Every token of `data` at once: what the blocks are cut from.
 #[cfg(test)]
 fn tokenize(data: &[u8]) -> Vec<Token> {
     let mut t = Tokenizer::new(data);
     t.fill(usize::MAX);
-    t.pending
+    std::mem::take(&mut t.pending)
 }
 
 // ─── Huffman ────────────────────────────────────────────────────────────
