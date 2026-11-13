@@ -63,7 +63,7 @@ required-features = ["cli"]
 # the compiler and the template engine alone.
 [features]
 default = ["cli"]
-cli = ["dep:clap", "dep:tiny_http"]
+cli = ["dep:clap", "dep:tiny_http", "dep:mimalloc"]
 # A native build does everything. A WebAssembly build — `crates/wf-wasm`,
 # which a page downloads before it compiles anything — carries each of these
 # only when asked (see build.rs):
@@ -201,6 +201,10 @@ clap = { version = "4.6.0", features = ["derive"], optional = true }
 serde = { version = "1.0.228", features = ["derive"] }
 serde_json.workspace = true
 tiny_http = { version = "0.12.0", optional = true }
+# The `wf` command's allocator: a build makes and frees millions of small
+# values on every core, which the system's allocator serialises on a lock.
+# The library leaves the allocator to the program that links it.
+mimalloc = { version = "0.1", default-features = false, optional = true }
 # Regex literals evaluated at build time, in the static paint and the template engine.
 regex = "1"
 # The image pipeline: decoding, resizing and re-encoding four formats is not

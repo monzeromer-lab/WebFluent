@@ -1,6 +1,11 @@
 use tower_lsp::{LspService, Server};
 use wf_lsp::backend::Backend;
 
+/// mimalloc, rather than the system's allocator, which a check that
+/// allocates on several threads at once waits on.
+#[global_allocator]
+static ALLOCATOR: mimalloc::MiMalloc = mimalloc::MiMalloc;
+
 const VERSION: &str = env!("CARGO_PKG_VERSION");
 
 #[tokio::main]

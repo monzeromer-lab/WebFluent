@@ -23,7 +23,7 @@ default = ["server"]
 # is the analysis alone — completion, hover, diagnostics, definitions,
 # symbols, rename, code actions — for a program that links it and calls it
 # directly.
-server = ["dep:tower-lsp", "dep:tokio"]
+server = ["dep:tower-lsp", "dep:tokio", "dep:mimalloc"]
 
 [dependencies]
 # The analysis is built on the compiler's own parts.
@@ -33,6 +33,9 @@ webfluent = { path = "../..", features = ["internals"] }
 lsp-types = "0.94.1"
 tower-lsp = { version = "0.20", optional = true }
 tokio = { version = "1", features = ["full"], optional = true }
+# The server's allocator: a check frees a whole program's tree while the
+# next one is built, which the system's allocator serialises on a lock.
+mimalloc = { version = "0.1", default-features = false, optional = true }
 serde_json.workspace = true
 dashmap = "6"
 
