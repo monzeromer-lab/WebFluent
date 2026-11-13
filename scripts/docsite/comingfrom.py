@@ -28,6 +28,9 @@ _spec.loader.exec_module(guide)
 OUT = Path(os.environ["WF_COMINGFROM_OUT"]) if os.environ.get("WF_COMINGFROM_OUT") else None
 wf = Path(os.environ["WF_BIN"]) if os.environ.get("WF_BIN") else ROOT / "target" / "debug" / "wf"
 
+# The sheets' translations, by the sheet each translates.
+TRANSLATIONS = {k: v for k, v in guide.translations().items() if k.startswith("coming-from/")}
+
 # The order the sheets are listed in.
 ORDER = ["react", "vue", "svelte", "html-css", "latex"]
 
@@ -50,8 +53,12 @@ def cell(text: str) -> str:
     return text.replace("`", "")
 
 
-def render(path: Path, sheets: list) -> tuple[str, str]:
+def render(path: Path, sheets: list, other: str = "") -> tuple[str, str]:
+    """A sheet, or its translation (`md-docs/ar/coming-from/<slug>.md`,
+    `lang: "ar"`), which names the sheet it translates; `other` is the
+    address of the page in the other language."""
     meta, body = guide.front_matter(path)
+    lang = meta.get("lang", "")
     guide.CURRENT["dir"] = path.parent
     title = next(l[2:].strip() for l in body.splitlines() if l.startswith("# "))
     body = re.sub(r"^# .*\n", "", body.lstrip("\n"), count=1)
@@ -72,14 +79,23 @@ def render(path: Path, sheets: list) -> tuple[str, str]:
     port_lines, _ = guide.body(parts.get("A component, ported", ""), title, "            ")
     summary = guide.rewrite_links(" ".join(intro.split()))
     name = "ComingFrom" + pascal(path.stem)
-    tabs = ", ".join(f'Place(key: "coming.{s}", to: "/coming-from/{s}")' for s in sheets)
+    translated = {Path(m["translates"]).stem: m["route"] for _, m in TRANSLATIONS.values()}
+    if lang:
+        tabs = ", ".join(f'Place(key: "coming.{s}", to: "{translated.get(s, "/coming-from/" + s)}")' for s in sheets)
+    else:
+        tabs = ", ".join(f'Place(key: "coming.{s}", to: "/coming-from/{s}")' for s in sheets)
+    own = f'lang: "{lang}", translates: {name}, ' if lang else ""
+    shell_lang = f', other: "{other}", lang: "{lang}"' if lang else (f', other: "{other}"' if other else "")
+    if lang:
+        name += lang.capitalize()
+    rel = path.relative_to(ROOT / "md-docs").as_posix()
     out = [
-        f"// A cheat sheet, written from md-docs/coming-from/{path.name} by",
+        f"// A cheat sheet, written from md-docs/{rel} by",
         "// scripts/docsite/comingfrom.py; edit the sheet, not this file.",
-        f"page {name}(path: {q(meta['route'])}, title: {q(title)}, description: {q(meta['description'])}) {{",
+        f"page {name}(path: {q(meta['route'])}, title: {q(title)}, description: {q(meta['description'])}, {own}) {{".replace(", ) {", ") {"),
         f"    ComingFromShell({q(title)}, summary: {q(summary)}, from: {q(meta['framework'])}, sheets: [{tabs}], "
         "sections: [Anchor(id: \"differences\", label: t(\"coming.differences\")), Anchor(id: \"port\", label: t(\"coming.port\"))], "
-        f"source: \"md-docs/coming-from/{path.name}\") {{",
+        f"source: \"md-docs/{rel}\"{shell_lang}) {{",
         "        differences {",
         *diff_lines,
         "        }",
@@ -104,8 +120,12 @@ def main():
     for old in target.glob("*.wf"):
         old.unlink()
     for p in pages:
-        name, text = render(p, sheets)
+        found = TRANSLATIONS.get(f"coming-from/{p.name}")
+        name, text = render(p, sheets, other=found[1]["route"] if found else "")
         (target / f"{name}.wf").write_text(text)
+        if found:
+            name, text = render(found[0], sheets, other=p.parent.name and guide.front_matter(p)[0]["route"])
+            (target / f"{name}.wf").write_text(text)
     subprocess.run([str(wf) if wf.exists() else "wf", "fmt", str(target)], check=False, capture_output=True)
     print(f"wrote {len(pages)} cheat sheets")
 

@@ -191,8 +191,16 @@ def wf_raw(text: str) -> str:
 
 
 def slug(text: str) -> str:
+    """A heading's anchor: its letters and digits, in any script (an Arabic
+    heading keeps its words), lower-cased, the rest a dash — as the
+    compiler's `context::anchor` makes it."""
+    import unicodedata
     text = re.sub(r"`", "", text)
-    text = re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")
+    # A combining mark (Arabic's short vowels, `ِ` `ّ`) belongs to its letter:
+    # it is dropped, not a break in the word.
+    text = "".join(c for c in unicodedata.normalize("NFC", text) if not unicodedata.category(c).startswith("M"))
+    text = "".join(c if c.isalnum() else "-" for c in text.lower())
+    text = re.sub(r"-+", "-", text).strip("-")
     return text or "section"
 
 
@@ -468,10 +476,38 @@ def convert(num: str, md: str):
     header = [
         f'/// Chapter {n} of the guide, written from md-docs/{META[num]["path"]} by',
         "/// scripts/docsite/guide.py; edit the guide, not this file.",
-        f'page {name}(path: "{href(route)}", title: "{wf_string(title)}", description: "{wf_string(description)}", layout: DocsShell("{wf_string(title)}", kind: .{PAGE_KIND[META[num]["kind"]]}, chapter: t("nav.group.{META[num]["group"]}"), blurb: "{wf_string(blurb)}", source: "md-docs/{META[num]["path"]}", sections: [{anchors}]' + "PREVNEXT" + ")) {",
+        f'page {name}(path: "{href(route)}", title: "{wf_string(title)}", description: "{wf_string(description)}", layout: DocsShell("{wf_string(title)}", kind: .{PAGE_KIND[META[num]["kind"]]}, chapter: t("nav.group.{META[num]["group"]}"), blurb: "{wf_string(blurb)}", source: "md-docs/{META[num]["path"]}", sections: [{anchors}]' + learned(num) + other_of(num) + "PREVNEXT" + ")) {",
         "    Stack(gap: .lg) {",
     ]
     return header, out, prev_num, next_num
+
+
+# The guide's translations: `md-docs/ar/<kind>/<slug>.md`, each naming the
+# page it translates (`translates: "learn/01-getting-started.md"`). The
+# English page links to its translation and the translation to it, and the
+# two list each other as `hreflang` alternates.
+TRANSLATED = GUIDE / "ar"
+
+
+def translations() -> dict:
+    """The English page's path under md-docs/ → (the translation's path, its
+    front matter)."""
+    out = {}
+    for path in sorted(TRANSLATED.rglob("*.md")) if TRANSLATED.exists() else []:
+        meta = front_matter(path)[0]
+        for key in ("kind", "lang", "translates", "route", "description"):
+            if key not in meta:
+                raise SystemExit(f"{path.relative_to(ROOT)}: the front matter has no `{key}:`")
+        if not (GUIDE / meta["translates"]).exists():
+            raise SystemExit(f"{path.relative_to(ROOT)}: it translates {meta['translates']}, which md-docs/ does not have")
+        out[meta["translates"]] = (path, meta)
+    return out
+
+
+def other_of(num: str) -> str:
+    """The address of a chapter's translation, for its language switch."""
+    found = translations().get(META[num]["path"])
+    return f', other: "{href(found[1]["route"])}"' if found else ""
 
 
 def learned(num: str) -> str:
@@ -491,6 +527,10 @@ const GUIDE: [Chapter] = [
 
 
 def book() -> str:
+    return book_en() + "\n" + translated_book()
+
+
+def book_en() -> str:
     rows = []
     for num in sorted(META):
         meta = META[num]
@@ -590,6 +630,66 @@ def moved() -> tuple[str, str]:
     return "\n".join(out), js
 
 
+def translated_book() -> str:
+    """The book's chapter list for a translated chapter's sidebar: the same
+    chapters, each at its translation when it has one."""
+    done = translations()
+    rows = []
+    for num in sorted(META):
+        meta = META[num]
+        if folder(num) != "learn":
+            continue
+        to = href(done[meta["path"]][1]["route"]) if meta["path"] in done else href(meta["route"])
+        rows.append(
+            f'    Chapter(n: {int(num)}, title: "{wf_string(meta["title"])}", key: "ch.{num}", '
+            f'to: "{to}", part: "nav.group.{meta["group"]}", '
+            f'tour: {"true" if meta["group"] == "tour" else "false"})'
+        )
+    return ("/// The book for a reader in Arabic: each chapter at its translation when\n"
+            "/// it has one. Written by scripts/docsite/guide.py.\n"
+            "const GUIDE_AR: [Chapter] = [\n" + ",\n".join(rows) + "\n]\n")
+
+
+def convert_translation(path: Path, meta: dict) -> str:
+    """A translated page: the English page's template, in its language, with
+    the English page as its alternate (`translates:`)."""
+    CURRENT["dir"] = path.parent
+    english = next(n for n, m in META.items() if m["path"] == meta["translates"])
+    body_md = front_matter(path)[1]
+    title_line = next(l for l in body_md.split("\n") if l.startswith("# "))
+    title = re.sub(r"^# (\d+\.\s*)?", "", title_line).strip()
+    out, sections = body(body_md, title)
+    anchors = ", ".join(f'Anchor(id: "{sid}", label: "{wf_string(label)}")' for sid, label in sections)
+    done = translations()
+    order = [m for m in sorted(META) if folder(m) == folder(english)]
+    at = order.index(english)
+
+    def to(n):
+        return href(done[META[n]["path"]][1]["route"]) if META[n]["path"] in done else href(META[n]["route"])
+
+    prevnext = ""
+    if at > 0:
+        prevnext += f', prevTo: "{to(order[at - 1])}", prevLabel: t("ch.{order[at - 1]}")'
+    if at + 1 < len(order):
+        prevnext += f', nextTo: "{to(order[at + 1])}", nextLabel: t("ch.{order[at + 1]}")'
+    items = meta.get("learned") or []
+    learned_arg = (", learned: [" + ", ".join(f'"{wf_string(i)}"' for i in items) + "]") if items else ""
+    lang = meta["lang"]
+    name = page_name(META[english]["route"]) + lang.capitalize()
+    rel = path.relative_to(GUIDE).as_posix()
+    header = [
+        f"/// {META[english]['title']}, in {lang}: written from md-docs/{rel} by",
+        "/// scripts/docsite/guide.py; edit the translation, not this file.",
+        f'page {name}(path: "{href(meta["route"])}", title: "{wf_string(title)}", description: "{wf_string(meta["description"])}", '
+        f'lang: "{lang}", translates: {page_name(META[english]["route"])}, '
+        f'layout: DocsShell("{wf_string(title)}", kind: .{PAGE_KIND[meta["kind"]]}, chapter: t("nav.group.{META[english]["group"]}"), '
+        f'blurb: "{wf_string(meta.get("blurb", ""))}", source: "md-docs/{rel}", sections: [{anchors}]{learned_arg}, '
+        f'book: GUIDE_AR, other: "{href(META[english]["route"])}", lang: "{lang}"{prevnext})) {{',
+        "    Stack(gap: .lg) {",
+    ]
+    return "\n".join(header + out).rstrip() + "\n    }\n}\n"
+
+
 def contents_table() -> str:
     """The guide's table of contents, for `md-docs/README.md`."""
     names = GROUP_NAMES
@@ -642,6 +742,11 @@ def main():
         header[2] = header[2].replace("PREVNEXT", prevnext)
         text = "\n".join(header + body).rstrip() + "\n    }\n}\n"
         (OUT / f"{num}-{META[num]['slug']}.wf").write_text(text)
+    # The translations of the chapters, beside them.
+    for english, (path, meta) in translations().items():
+        if meta["kind"] in ("tutorial", "about"):
+            num = next(n for n, m in META.items() if m["path"] == english)
+            (OUT / f"{num}-{META[num]['slug']}-{meta['lang']}.wf").write_text(convert_translation(path, meta))
     (OUT / "Learn.wf").write_text(part_index("learn"))
     (OUT / "About.wf").write_text(part_index("about"))
     moved_wf, moved_js = moved()

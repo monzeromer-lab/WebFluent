@@ -7,6 +7,7 @@ Every page below is Markdown. The language's whole reference in one file is [AGE
 ## Start
 
 - [WebFluent](https://webfluent.monzeromer.dev/index.md): One language, one binary: a static site, a single-page app, a PDF or a slide deck from the same file. No Node, and no browser for your PDFs.
+- [WebFluent](https://webfluent.monzeromer.dev/ar.md): The front page, in Arabic.
 - [Changelog](https://webfluent.monzeromer.dev/changelog.md): What each release of WebFluent changed.
 - [Documentation](https://webfluent.monzeromer.dev/docs.md)
 - [Playground](https://webfluent.monzeromer.dev/playground.md): The compiler, in the browser.

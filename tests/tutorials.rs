@@ -129,7 +129,15 @@ fn the_chapters_show_the_projects_as_they_are() {
                 || n.ends_with("build-a-budget-app.md")
         })
         .collect();
-    assert_eq!(chapters.len(), 3, "{chapters:?}");
+    // A translation shows the same files, and is held to them too.
+    assert_eq!(
+        chapters
+            .iter()
+            .filter(|(n, _)| !n.starts_with("ar/"))
+            .count(),
+        3,
+        "{chapters:?}"
+    );
     for (name, chapter) in chapters {
         for (line, path, body) in file_blocks(&chapter) {
             shown += 1;

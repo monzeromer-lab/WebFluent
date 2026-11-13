@@ -1,0 +1,394 @@
+/// Tutorial: Todos, in ar: written from md-docs/ar/learn/03-tutorial-todos.md by
+/// scripts/docsite/guide.py; edit the translation, not this file.
+page Learn03TutorialTodosAr(path: "/ar/learn/03-tutorial-todos", title: "درس: قائمة المهام", description: "درس WebFluent للمبتدئين: تطبيق مهام بمخزن محفوظ ومكوّن وقائمة بمفاتيح ومرشّح في العنوان واختبارات، في 20 دقيقة.", lang: "ar", translates: Learn03TutorialTodos, layout: DocsShell("درس: قائمة المهام", kind: .tutorial, chapter: t("nav.group.tour"), blurb: "ابنِ قائمة مهام تبقى في متصفح القارئ: أنواع، ومخزن يتذكّر، ومكوّن، ومرشّح في العنوان، واختبارات تنقر.", source: "md-docs/ar/learn/03-tutorial-todos.md", sections: [Anchor(id: "قبل-أن-تبدأ", label: "قبل أن تبدأ"), Anchor(id: "الخطوة-1-أنشئ-المشروع", label: "الخطوة 1: أنشئ المشروع"), Anchor(id: "الخطوة-2-أعطه-مظهرا-خاصا-به", label: "الخطوة 2: أعطه مظهرًا خاصًا به"), Anchor(id: "الخطوة-3-صف-المهمة", label: "الخطوة 3: صِف المهمة"), Anchor(id: "الخطوة-4-اكتب-مخزنا-يتذكر", label: "الخطوة 4: اكتب مخزنًا يتذكّر"), Anchor(id: "الخطوة-5-ابن-صفا-واحدا", label: "الخطوة 5: ابنِ صفًا واحدًا"), Anchor(id: "الخطوة-6-اكتب-الصفحة", label: "الخطوة 6: اكتب الصفحة"), Anchor(id: "الخطوة-7-اكتب-الاختبارات", label: "الخطوة 7: اكتب الاختبارات"), Anchor(id: "الخطوة-8-ابنه", label: "الخطوة 8: ابنِه"), Anchor(id: "ما-بنيته", label: "ما بنيته"), Anchor(id: "أخطاء-شائعة", label: "أخطاء شائعة"), Anchor(id: "التالي", label: "التالي")], learned: ["صِف البيانات بـ `type` و`enum`", "احفظ قائمة عبر إعادة التحميل في مخزن بـ `persist`، لا تغيّرها إلا إجراءاته", "أعطِ كل صف من القائمة `state` خاصة به في مكوّن", "اربط القائمة بمفتاح بـ `for … by`، واحفظ المرشّح في العنوان بـ `query`", "اختبر صفحة بالكتابة والنقر، بـ `wf test`"], book: GUIDE_AR, other: "/learn/03-tutorial-todos", lang: "ar", prevTo: "/ar/learn/02-tutorial-shelf", prevLabel: t("ch.02"), nextTo: "/learn/04-language-basics", nextLabel: t("ch.04"))) {
+    Stack(gap: .lg) {
+        Markdown("يبني هذا الدرس قائمة مهام تبقى في متصفح القارئ، فيها مخزن (store) ومكوّن ومرشّح في العنوان واختبارات تنقر.\n\nهو أول ثلاثة دروس يبني كل منها مشروعًا كاملًا، خطوة بخطوة. كل مشروع موجود كاملًا في المستودع تحت `examples/tutorials/`، ولا يحتاج أي منها إلى خادم: ما يحفظه المشروع يحفظه في متصفح القارئ.")
+
+        Table(caption: "درس: قائمة المهام") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("الدرس").header
+                    Table.Cell("ما تبنيه").header
+                    Table.Cell("ما يعلّمه").header
+                    Table.Cell("الوقت").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("[قائمة المهام](/ar/learn/03-tutorial-todos)") }
+                    Table.Cell("قائمة بما عليك فعله: أضف، وعلّم، وأعد التسمية، ورشّح")
+                    Table.Cell { Markdown("الأنواع، ومخزن بـ `persist`، ومكوّن، وقائمة بمفاتيح، ومرشّح في العنوان، واختبارات تنقر") }
+                    Table.Cell("20 دقيقة")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("[Field Notes](/recipes/build-a-notebook-site)") }
+                    Table.Cell("موقع دفتر ملاحظات، مبني بناءً ثابتًا، بصفحة لكل ملاحظة")
+                    Table.Cell { Markdown("ملفات `data`، وتخطيط، وصفحات `:slug` مع `paths:`، وصفحات Markdown، والبحث والوسوم، وما يمكن لصفحة مُعدّة مسبقًا أن تعرفه") }
+                    Table.Cell("ساعة")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("[Pocket](/recipes/build-a-budget-app)") }
+                    Table.Cell("متتبّع ميزانية بلوحة معلومات ونماذج ولغتين")
+                    Table.Cell { Markdown("`Money` و`Date`، والمجاميع المشتقة، وترحيل `persist`، و`validate`، ونافذة حوار واختصارات، والتدويل (i18n) والنص من اليمين إلى اليسار، وسكربت من كتابتك، والعمل دون اتصال") }
+                    Table.Cell("بضع ساعات")
+                }
+            }
+        }
+
+        Markdown("إن لم تكتب WebFluent من قبل، فابدأ بـ[درس Shelf](/ar/learn/02-tutorial-shelf): نصف ساعته الأولى ألطف.\n\n**ما ستبنيه.** قائمة بما عليك فعله، تبقى في متصفح القارئ: أضف مهمة، وعلّمها منجزة، وأعد تسميتها، واحذفها، واعرض المفتوحة منها فقط. هي صفحة واحدة ومخزن واحد ومكوّن واحد. المشروع المكتمل هو [`examples/tutorials/easy-todos`](https://github.com/monzeromer-lab/WebFluent/tree/master/examples/tutorials/easy-todos).\n\n**الوقت:** نحو 20 دقيقة.")
+
+        Heading("قبل أن تبدأ", id: "قبل-أن-تبدأ").h2
+
+        Markdown("تحتاج إلى:\n\n- `wf` مثبّتًا وفي `PATH` لديك — يطبع `wf --version` القيمة `wf 6.0.0` أو أحدث ([البدء](/ar/learn/01-getting-started)).\n- Chrome أو Chromium على الجهاز، للاختبارات التي تنقر ولـ`wf verify`. اضبط `WF_CHROME` على مساره إن لم يكن في مكان معتاد.\n- Git، لجلب المشاريع المكتملة.\n\nكل كتلة شيفرة يسمّي سطرها الأول ملفًا — `// src/stores/Todos.wf` — هي ذلك الملف، أو مجموعة متتالية من أسطره، كما هي في المشروع تمامًا. يُلزم اختبارٌ هذا الفصل بالمشاريع، فالشيفرة التي تقرؤها هنا هي الشيفرة التي تُبنى.\n\nلتبدأ من مشروع مكتمل بدلًا من ذلك، انسخ المستودع وشغّل أحد المشاريع:")
+
+        Terminal(lines: [
+                Line(command: "git clone https://github.com/monzeromer-lab/WebFluent"),
+                Line(command: "cd WebFluent/examples/tutorials/easy-todos"),
+                Line(command: "wf serve")
+            ])
+
+        Markdown("**تحقّق:** تطبع الطرفية `Starting dev server at http://localhost:3000/`، ويعرض ذلك العنوان المشروع.\n\nلا تحتاج في هذا الدرس إلا إلى `wf` وChrome. تكتب كل ملف في هذا المشروع بنفسك، والكتل أدناه تحمل كل ملف كاملًا، إلا الاختبارات، إذ يظهر منها واحد من ستة.")
+
+        Heading("الخطوة 1: أنشئ المشروع", id: "الخطوة-1-أنشئ-المشروع").h2
+
+        Markdown("أنشئ مشروع صفحة واحدة وادخل إليه:")
+
+        Terminal(lines: [
+                Line(command: "wf init todos -t spa"),
+                Line(command: "cd todos")
+            ])
+
+        Markdown("احذف كل ما وضعه القالب في `src/` و`tests/`: ستكتب كل ملف بنفسك، واختبارات القالب ستفشل دون صفحاته. ثم استبدل `webfluent.app.json` بهذا:")
+
+        CodeBlock(#"{
+  "name": "todos",
+  "version": "1.0.0",
+  "theme": { "name": "Paper", "dark": "Night" },
+  "build": { "output": "./build", "output_type": "spa", "csp": true },
+  "meta": {
+    "title": "Todos",
+    "description": "A small list of things to do, kept in your browser.",
+    "lang": "en",
+    "favicon": "/favicon.svg"
+  }
+}"#, title: "json")
+
+        Markdown("- `\"output_type\": \"spa\"` يصنع تطبيق صفحة واحدة: غلاف HTML واحد، تُبدَّل فيه الصفحات دون إعادة تحميل ([المواقع الثابتة وتطبيقات الصفحة الواحدة](/about/static-or-single-page)).\n- `\"csp\": true` يشحن سياسة أمان المحتوى ويُلزم البناء بها ([الأمان](/about/security)).\n- يسمّي `theme` سمتين (themes)، `Paper` و`Night`، تكتبهما في الخطوة التالية.\n\n**تحقّق:** يطبع `wf check` الرسالة `IO Error: No .wf files found in src/`. هذا متوقّع: يبقى `src/` فارغًا حتى الخطوة التالية.")
+
+        Heading("الخطوة 2: أعطه مظهرًا خاصًا به", id: "الخطوة-2-أعطه-مظهرا-خاصا-به").h2
+
+        Markdown("الإعدادات تسمّي سمة، فصرّح بها أولًا. لا تسمّي السمة إلا رموز التصميم (design tokens) التي تغيّرها؛ ويبقى كل رمز آخر على قيمته الافتراضية ([التنسيق](/learn/13-styling)). `Night` هي السمة المسمّاة `\"dark\"` في الإعدادات، وتستعملها الصفحة حين يكون نظام القارئ على الوضع الداكن:")
+
+        CodeBlock(#"// src/theme.wf
+/// Warm paper and ink, with one teal for what you can act on.
+theme Paper {
+    color-primary: #0F766E
+    color-background: #F6F4EF
+    color-surface: #FFFFFF
+    color-text: #1F2328
+    color-text-muted: #5E6670
+    color-border: #E4E0D8
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif
+    radius-md: 10px
+}
+
+/// The same page after dark.
+theme Night {
+    color-primary: #2DD4BF
+    color-background: #14171A
+    color-surface: #1C2024
+    color-text: #ECEEF0
+    color-text-muted: #A3ABB3
+    color-border: #2C3238
+}"#, title: "wf")
+
+        Markdown("الصفحة التي تكتبها في الخطوة 6 تسمّي أصنافًا (classes) — `card` و`todo` و`is-done` و`filters` — ويُنسّقها `src/todos.css`. يجمع البناء كل ملف `.css` تحت `src/`، فلا يحتاج الملف إلى رابط. هذه أربع من قواعده؛ انسخ الملف كاملًا من [المشروع المكتمل](https://github.com/monzeromer-lab/WebFluent/blob/master/examples/tutorials/easy-todos/src/todos.css):")
+
+        CodeBlock(#".todo { flex-wrap: nowrap; padding: 0.6rem 0.25rem; border-top: 1px solid var(--color-border); }
+.todo__title { flex: 1; }
+.todo.is-done .todo__title { text-decoration: line-through; color: var(--color-text-muted); }
+.filters a.is-on { background: var(--color-background); color: var(--color-text); font-weight: 600; }"#, title: "css")
+
+        Markdown("كل لون رمز، `var(--color-border)`، فتعيد السمة الداكنة تلوين الصفحة دون قاعدة خاصة بها.\n\n**تحقّق:** يطبع `wf check` الرسالة `No problems in todos.`")
+
+        Heading("الخطوة 3: صِف المهمة", id: "الخطوة-3-صف-المهمة").h2
+
+        Markdown("يسمّي `type` الحقول التي تملكها القيمة، ويُلزم المدقّق كل استعمال بها ([الأنواع](/learn/12-types)). و`enum` مجموعة ثابتة من الحالات:")
+
+        CodeBlock(#"// src/types.wf
+/// One thing to do.
+type Todo {
+    id: Uuid
+    title: String
+    done: Bool = false
+}
+
+/// Which todos the list shows.
+enum Filter { all, open, done }"#, title: "wf")
+
+        Markdown("- `Uuid` من الأنواع التي تأتي مع اللغة؛ و`uuid()` تصنع قيمة منه.\n- للحقل `done` قيمة افتراضية، فيمكن للمهمة الجديدة أن تُغفله.\n- تُكتب الحالة بنقطة، `.open`، حيثما يُطلب `Filter`.\n\nلأن المدقّق يعرف الحقول، فإن `todo.titel` خطأ في الموضع الذي كُتب فيه، والرسالة تسمّي الحقل الذي قصدته.\n\n**تحقّق:** يطبع `wf check` الرسالة `No problems in todos.`")
+
+        Heading("الخطوة 4: اكتب مخزنًا يتذكّر", id: "الخطوة-4-اكتب-مخزنا-يتذكر").h2
+
+        Markdown("يحمل المخزن حالة يمكن لأي صفحة أو مكوّن قراءتها ([المخازن](/learn/11-stores)). هذا المخزن يحفظ القائمة:")
+
+        CodeBlock(#"// src/stores/Todos.wf
+/// The list, kept in the browser between visits.
+store Todos {
+    persist items: [Todo] = []
+
+    derived open = items.filter(todo => !todo.done)
+    derived done = items.filter(todo => todo.done)
+
+    action add(title: String) {
+        let text = title.trim()
+        if text == "" { return }
+        items = items.concat([Todo(id: uuid(), title: text)])
+    }
+
+    action toggle(id: Uuid) {
+        items = items.map(todo => if todo.id == id { { ...todo, done: !todo.done } } else { todo })
+    }
+
+    action rename(id: Uuid, title: String) {
+        let text = title.trim()
+        if text == "" { return }
+        items = items.map(todo => if todo.id == id { { ...todo, title: text } } else { todo })
+    }
+
+    action remove(id: Uuid) {
+        items = items.filter(todo => todo.id != id)
+    }
+
+    action clearDone() {
+        items = items.filter(todo => !todo.done)
+    }
+}"#, title: "wf")
+
+        Markdown("- `persist` حالة (`state`) تُحفظ في تخزين المتصفح. تبقى القائمة بعد إعادة التحميل، ويتبع التبويب الثاني الأول، دون أن تكتب شيفرة تخزين.\n- القيمة المشتقة (`derived`) تتبع ما تقرؤه: `open` هي دائمًا المهام التي لم تُنجز بعد.\n- الإجراء (action) هو المكان الوحيد الذي تتغيّر فيه الحالة. `\{ ...todo, done: !todo.done \}` هي المهمة نفسها مع تغيير حقل واحد.\n- يغيّر `rename` و`remove` و`clearDone` القائمة بالطريقة نفسها.")
+
+        Callout("**قادم من Vue؟** القيمة `derived` هي `computed` بلا دالة تكتبها ولا `.value` تقرؤه: `Todos.open` هي القائمة نفسها. انظر [القادمون من Vue](/coming-from/vue).", kind: .note)
+
+        Markdown("**تحقّق:** يطبع `wf check` سبعة تحذيرات `U04`، مثل ``warning[U04]: `Todos.open` is declared but never read``. هذا متوقّع: لا شيء يقرأ المخزن بعد. الصفحة في الخطوة 6 تقرأ كل عضو فيه، فتزول التحذيرات.")
+
+        Heading("الخطوة 5: ابنِ صفًا واحدًا", id: "الخطوة-5-ابن-صفا-واحدا").h2
+
+        Markdown("المكوّن عنصر من صنعك ([المكوّنات](/learn/10-components)). هذا المكوّن يرسم مهمة واحدة، ويتيح للقارئ إعادة تسميتها في مكانها:")
+
+        CodeBlock(#"// src/components/TodoRow.wf
+/// One row of the list: a box to tick, the title, and buttons to rename and
+/// remove it.
+component TodoRow(_ todo: Todo) {
+    use Todos
+    state editing = false
+    state draft = todo.title
+
+    action save() {
+        Todos.rename(todo.id, draft)
+        editing = false
+    }
+
+    Row(class: ["todo", if todo.done { "is-done" }], align: .center, gap: .sm) {
+        Checkbox(checked: todo.done, aria-label: "Done: {todo.title}") {
+            on change { Todos.toggle(todo.id) }
+        }
+        if editing {
+            // `mount:` runs when the input is made: the cursor goes straight in.
+            Input(bind: draft, aria-label: "New title for {todo.title}", class: "todo__edit", mount: (n) => n.focus()) {
+                on key("Enter") { save() }
+                on key("Escape") { draft = todo.title  editing = false }
+                on blur { save() }
+            }
+        } else {
+            Text(todo.title, class: "todo__title")
+            IconButton(icon: "edit", label: "Rename {todo.title}", class: "todo__action").sm {
+                on click { draft = todo.title  editing = true }
+            }
+        }
+        IconButton(icon: "trash", label: "Remove {todo.title}", class: "todo__action").sm {
+            on click { Todos.remove(todo.id) }
+        }
+    }
+}"#, title: "wf")
+
+        Markdown("- `_ todo` هي الخاصية (prop) الموضعية الوحيدة للمكوّن، فيُكتب الاستدعاء `TodoRow(todo)`.\n- حالته (`state`) ملك لكل صف: إعادة تسمية صف لا تضع الصفوف الأخرى في وضع التحرير.\n- يضيف `class:` أصنافًا إلى أصناف العنصر نفسه. ويمكن لصيغة القائمة أن تحمل `if`، فلا تضيف `is-done` إلا ما دامت المهمة منجزة.\n- لكل عنصر تحكّم اسم يُتاح لتقنيات المساعدة. مربع الاختيار وأزرار الأيقونات تقول أي مهمة تعمل عليها، فيمكن لقارئ الشاشة — ولاختبارات الخطوة 7 — أن يميّز بينها ([إمكانية الوصول](/about/accessibility)).\n\n**تحقّق:** يطبع `wf check` التحذير `U03` لـ`TodoRow` (لا شيء يضعه بعد) وأربعة تحذيرات `U04`. لم تعد `toggle` و`rename` و`remove` الخاصة بالمخزن تظهر: الصف يستدعيها.")
+
+        Heading("الخطوة 6: اكتب الصفحة", id: "الخطوة-6-اكتب-الصفحة").h2
+
+        Markdown("تحمل الصفحة مربع المهمة الجديدة والمرشّحات والقائمة. هذا نصفها الأول:")
+
+        CodeBlock(#"// src/pages/Home.wf
+page Home(path: "/", title: "Todos", description: "A small list of things to do, kept in your browser.") {
+    use Todos
+    state draft = ""
+
+    // The filter lives in the address — `/?show=open` — so a reload or a
+    // shared link keeps it.
+    derived filter: Filter = if query.show == "open" { .open } else if query.show == "done" { .done } else { .all }
+    derived shown = match filter {
+        .open { Todos.open }
+        .done { Todos.done }
+        .all { Todos.items }
+    }
+
+    action add() {
+        Todos.add(draft)
+        draft = ""
+    }
+
+    Stack(class: "card", gap: .md) {
+        Row(justify: .between, align: .baseline) {
+            Heading("Todos").h1
+            Text("{Todos.open.length} left", class: "count")
+        }
+
+        Row(class: "new", gap: .sm) {
+            Input(bind: draft, placeholder: "What needs doing?", aria-label: "New todo") {
+                on key("Enter") { add() }
+            }
+            Button("Add", disabled: draft.trim() == "").primary {
+                on click { add() }
+            }
+        }"#, title: "wf")
+
+        Markdown("- `bind: draft` يربط حقل الإدخال بالحالة في الاتجاهين: الكتابة تغيّر `draft`، و`draft = \"\"` تفرغ المربع.\n- `query` هي سلسلة الاستعلام في العنوان بوصفها قيمة، تبقى محدّثة. لذا يتبع `filter` العنوان، ويتبع `shown` المرشّح `filter`.\n- يجب أن يغطي `match` على `enum` كل حالة. إن أضفت حالة رابعة إلى `Filter`، يصبح هذا الـ`match` خطأ حتى يعالجها.\n\nيرسم النصف الثاني المرشّحات والقائمة، ويغلق الصفحة. أضفه تحت النصف الأول، بعد سطر فارغ:")
+
+        CodeBlock(#"// src/pages/Home.wf
+        Row(class: "filters", gap: .xs, align: .center) {
+            Link("All", to: "/?show=all", class: { "is-on": filter == .all })
+            Link("Open", to: "/?show=open", class: { "is-on": filter == .open })
+            Link("Done", to: "/?show=done", class: { "is-on": filter == .done })
+            Spacer
+            if Todos.done.length > 0 {
+                Button("Clear done").sm {
+                    on click { Todos.clearDone() }
+                }
+            }
+        }
+
+        if shown.length == 0 {
+            Text(if Todos.items.length == 0 { "Nothing yet — add your first todo above." } else { "Nothing here." }, class: "empty")
+        }
+        Stack(class: "list") {
+            for todo in shown by todo.id {
+                TodoRow(todo, animate: .fadeIn, exit: .fadeOut)
+            }
+        }
+    }
+    Text("Your list stays in this browser, and nowhere else.", class: "hint")
+}"#, title: "wf")
+
+        Markdown("- `for … by todo.id` قائمة بمفاتيح. حين تُعاد تسمية مهمة، أو يخفيها المرشّح، لا يتغيّر إلا صفها؛ وتحتفظ الصفوف الأخرى بعناصرها، ويحتفظ الصف قيد التحرير بمؤشّره ([التحكم في التدفق](/learn/09-control-flow)).\n- `animate:` و`exit:` يُظهران الصف ويُخفيانه بتلاشٍ.\n- خريطة الأصناف، `\{ \"is-on\": filter == .all \}`، تفعّل الصنف ما دام شرطه قائمًا.")
+
+        Callout("**قادم من React؟** يوضع المفتاح على الحلقة، `by todo.id`، لا بوصفه خاصية `key` على الصف. انظر [القادمون من React](/coming-from/react).", kind: .note)
+
+        Markdown("أخيرًا، التصريح `app` هو الإطار الذي تجلس فيه كل صفحة. يحدّد `Router` موضع رسم الصفحة الحالية:")
+
+        CodeBlock(#"// src/App.wf
+// The frame every page sits in: a narrow column, centred.
+app {
+    Container(class: "shell") {
+        Router
+    }
+}"#, title: "wf")
+
+        Markdown("الآن شغّل خادم التطوير في طرفية ثانية، واتركه يعمل. كل حفظ يعيد بناء المشروع ويعيد تحميل الصفحة:")
+
+        Terminal(lines: [
+                Line(command: "wf serve")
+            ])
+
+        Markdown("**تحقّق:** يطبع `wf check` الرسالة `No problems in todos.`، ويعرض <http://localhost:3000/> بطاقة عنوانها **Todos** فيها `0 left` و *Nothing yet — add your first todo above.* اكتب مهمة واضغط Enter: تظهر، ويصبح العدّاد `1 left`. أعد تحميل الصفحة، فتجد المهمة ما زالت هناك. انقر **Open**، فيصبح العنوان `/?show=open`.\n\nإن طبع الخادم `No theme Paper is declared in this project`، فالأرجح أنك تخطّيت `src/theme.wf` في الخطوة 2. وإن ظهر عضو في المخزن بالتحذير `U04` هنا، فالأرجح أنك أغفلت جزءًا من الصفحة.")
+
+        Heading("الخطوة 7: اكتب الاختبارات", id: "الخطوة-7-اكتب-الاختبارات").h2
+
+        Markdown("يرسم الاختبار ما يصرّح به، ثم ينفّذ خطواته بالترتيب. يكتب في عنصر التحكم المسمّى **New todo** وينقر الزر المسمّى **Add**، كما يفعل القارئ ([الاختبار](/learn/16-testing)). أنشئ `tests/todos.wf` بهذا الاختبار:")
+
+        CodeBlock(#"// tests/todos.wf
+test "adding a todo puts it in the list" {
+    use Todos
+    state draft = ""
+    Input(bind: draft, aria-label: "New todo")
+    Button("Add") { on click { Todos.add(draft)  draft = "" } }
+    for todo in Todos.items by todo.id { TodoRow(todo) }
+    Text("{Todos.open.length} left")
+
+    expect "0 left"
+    type "Buy bread" into "New todo"
+    click "Add"
+    expect "Buy bread"
+    expect "1 left"
+}"#, title: "wf")
+
+        Markdown("الاختبار الذي ينقر أو يكتب يعمل في Chrome بلا واجهة (headless). في المشروع المكتمل ستة اختبارات في [`tests/todos.wf`](https://github.com/monzeromer-lab/WebFluent/blob/master/examples/tutorials/easy-todos/tests/todos.wf): اثنان ينظران إلى صف فقط، وأربعة تنقر — إضافة مهمة، ورفض مهمة فارغة، والتعليم ثم المسح، وإعادة التسمية مع بقاء صف واحد لكل مهمة. انسخ الملف لتحصل عليها كلها، ثم شغّلها:")
+
+        Terminal(lines: [
+                Line(command: "wf test")
+            ])
+
+        Markdown("**تحقّق:** مع الملف كاملًا، ينتهي `wf test` بـ`6 passed, 0 failed, 2 snapshot(s) written`. الاختباران اللذان ينظران فقط يكتبان لقطة (snapshot) لما رسماه تحت `tests/__snapshots__/`، وتُقارَن بها التشغيلات اللاحقة.\n\nإن أفاد اختبار ينقر بأنه لم يجد متصفحًا، فإن Chrome ليس حيث يبحث `wf`: اضبط `WF_CHROME` على مساره.")
+
+        Heading("الخطوة 8: ابنِه", id: "الخطوة-8-ابنه").h2
+
+        Markdown("افحص المشروع واختبره وابنِه:")
+
+        Terminal(lines: [
+                Line(command: "wf check"),
+                Line(command: "wf test"),
+                Line(command: "wf build")
+            ])
+
+        Markdown("يبلّغ `wf check` عن كل نتيجة ولا يكتب شيئًا. ويكتب `wf build` المجلد `build/`، الذي يقدّمه أي مضيف ثابت — يغطي [النشر](/recipes) GitHub Pages وNetlify وغيرهما. لتحمّل الصفحة المبنية في متصفح حقيقي قبل النشر، شغّل `wf verify`: يفشل عند خطأ، أو ملف مفقود، أو صفحة لا ترسم شيئًا.\n\n**تحقّق:** ينتهي `wf build` بـ`Build complete.`، ويحتوي `build/` على `index.html` و`app.js` و`styles.css`.")
+
+        Heading("ما بنيته", id: "ما-بنيته").h2
+
+        Markdown("- `type` و`enum`، يُلزَم بهما كل استعمال ([الأنواع](/learn/12-types)).\n- مخزن تبقى قائمته بعد إعادة التحميل بفضل `persist`، وقيم `derived` تتبعها ([المخازن](/learn/11-stores)).\n- مكوّن له حالته الخاصة، وأسماء متاحة لتقنيات المساعدة على كل عنصر تحكم ([المكوّنات](/learn/10-components)).\n- قائمة بمفاتيح، ومرشّح محفوظ في العنوان بـ`query` ([التحكم في التدفق](/learn/09-control-flow)).\n- سمة بنسخة داكنة، وورقة أنماط خاصة بالمشروع ([التنسيق](/learn/13-styling)).\n- اختبارات تنظر واختبارات تنقر ([الاختبار](/learn/16-testing)).")
+
+        Heading("أخطاء شائعة", id: "أخطاء-شائعة").h2
+
+        Markdown("`match` يُغفل حالة. يجب أن يسمّي `match` على `enum` كل حالة، لذا فإن إغفال `.all` خطأ:")
+
+        CodeBlock(#"enum Filter { all, open, done }
+
+page Home(path: "/", title: "Todos", description: "A small list of things to do.") {
+    state filter: Filter = .all
+    derived label = match filter {
+        .open { "Open" }
+        .done { "Done" }
+    }
+    Heading("Todos").h1
+    Text(label)
+}"#, title: "wf · draws T15")
+
+        Markdown("أضف الفرع الناقص، `.all \{ \"All\" \}`، أو فرع `else` ([T15](/errors/T15)).\n\nقائمة بلا `by`. دون مفتاح، يُعاد رسم الصف الذي يحمل عنصر تحكم كلما تغيّرت القائمة، فيفقد المربع الذي كان القارئ يستعمله موضعه:")
+
+        CodeBlock(#"type Todo { id: String, title: String }
+
+page Home(path: "/", title: "Todos", description: "A small list of things to do.") {
+    state items: [Todo] = [Todo(id: "1", title: "Buy bread")]
+    Heading("Todos").h1
+    for todo in items {
+        Checkbox(label: todo.title)
+    }
+}"#, title: "wf · draws U09")
+
+        Markdown("اجعل مفتاح القائمة ما يميّز كل عنصر: `for todo in items by todo.id` ([U09](/errors/U09)).\n\nعنصر تحكم مربوط بقيمة `derived`. يكتب `bind:` إلى ما يسمّيه، والقيمة المشتقة تُحسَب ولا يُسنَد إليها أبدًا:")
+
+        CodeBlock(#"store Todos {
+    state items: [String] = []
+    derived open = items.length
+}
+
+page Home(path: "/", title: "Todos", description: "A small list of things to do.") {
+    use Todos
+    Heading("Todos").h1
+    Input(bind: Todos.open, label: "Open")
+}"#, title: "wf · draws F01")
+
+        Markdown("اربط `state`، كما تربط الصفحة `draft`، وغيّر المخزن عبر إجراءاته ([F01](/errors/F01)).")
+
+        Heading("التالي", id: "التالي").h2
+
+        Markdown("[درس: Field Notes](/recipes/build-a-notebook-site) يبني موقعًا مولَّدًا بناءً ثابتًا على ما علّمه هذا الدرس.")
+    }
+}

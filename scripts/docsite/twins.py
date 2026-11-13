@@ -180,6 +180,10 @@ def main():
               "[Recipes](/recipes), [Reference](/reference), [Errors](/errors) and [About](/about).", "Start")
     twins.add("/changelog", "Changelog", "What each release of WebFluent changed.",
               re.sub(r"^# .*\n", "", (ROOT / "RELEASE_NOTES.md").read_text(), count=1), "Start")
+    twins.add("/ar", "WebFluent", "The front page, in Arabic.",
+              f"The Arabic edition of [the front page]({SITE}/index.md). Translated so far: "
+              "[Getting started](/ar/learn/01-getting-started), [Tutorial: Shelf](/ar/learn/02-tutorial-shelf), "
+              "[Tutorial: Todos](/ar/learn/03-tutorial-todos) and [Coming from React](/ar/coming-from/react).", "Start")
     twins.add("/ar/playground", "Playground", "The compiler, in the browser (Arabic interface).",
               f"The Arabic interface of [the Playground]({SITE}/playground.md).", "Start")
     twins.write()

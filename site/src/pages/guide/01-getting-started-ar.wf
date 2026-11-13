@@ -1,0 +1,295 @@
+/// Getting started, in ar: written from md-docs/ar/learn/01-getting-started.md by
+/// scripts/docsite/guide.py; edit the translation, not this file.
+page Learn01GettingStartedAr(path: "/ar/learn/01-getting-started", title: "البدء", description: "ثبّت wf وتحقّق من التثبيت، وأنشئ أول مشروع، وشغّل خادم التطوير وأجرِ تغييرًا. ثم جهّز خادم اللغة واقرأ ناتج البناء.", lang: "ar", translates: Learn01GettingStarted, layout: DocsShell("البدء", kind: .tutorial, chapter: t("nav.group.tour"), blurb: "ثبّت المترجم، وأنشئ مشروعًا، وشغّله، وغيّره وشاهد التغيير — ثم جهّز محررك أو WebFluent Studio، وتعرّف على ما يكتبه البناء.", source: "md-docs/ar/learn/01-getting-started.md", sections: [Anchor(id: "قبل-أن-تبدأ", label: "قبل أن تبدأ"), Anchor(id: "التثبيت", label: "التثبيت"), Anchor(id: "التحقق-من-التثبيت", label: "التحقق من التثبيت"), Anchor(id: "إنشاء-مشروع", label: "إنشاء مشروع"), Anchor(id: "تشغيل-خادم-التطوير", label: "تشغيل خادم التطوير"), Anchor(id: "إجراء-تغيير", label: "إجراء تغيير"), Anchor(id: "إعداد-المحرر", label: "إعداد المحرر"), Anchor(id: "تغيير-طريقة-تثبيت-wf", label: "تغيير طريقة تثبيت wf"), Anchor(id: "اختيار-قالب", label: "اختيار قالب"), Anchor(id: "كتابة-موقع-من-الصفر", label: "كتابة موقع من الصفر"), Anchor(id: "ما-ينتجه-البناء", label: "ما ينتجه البناء"), Anchor(id: "المشروع-باختصار", label: "المشروع باختصار"), Anchor(id: "أخطاء-شائعة", label: "أخطاء شائعة"), Anchor(id: "التالي", label: "التالي")], learned: ["تثبيت `wf` والتحقق منه بالأمر `wf --version`", "إنشاء مشروع بالأمر `wf init` وتشغيله بالأمر `wf serve`", "تغيير صفحة وقراءة الخطأ الذي يرسمه خادم التطوير فوقها", "كتابة موقع من صفحتين: `app` فيه `Router`، وصفحات تسمّي كلٌّ منها `path:` الخاص بها", "معرفة ما يكتبه `wf build` في `build/`"], book: GUIDE_AR, other: "/learn/01-getting-started", lang: "ar", nextTo: "/ar/learn/02-tutorial-shelf", nextLabel: t("ch.02"))) {
+    Stack(gap: .lg) {
+        Markdown("يثبّت هذا الفصل `wf`، مترجم WebFluent، ويشغّل أول مشروع في متصفحك. في نحو عشر دقائق تنشئ المشروع، وتغيّر سطرًا واحدًا، وترى الصفحة تتبعه. بقية الفصل إعداد اختياري: محررك، وقوالب المشاريع الأخرى، وموقع تكتبه من الصفر، وما يكتبه البناء.")
+
+        Heading("قبل أن تبدأ", id: "قبل-أن-تبدأ").h2
+
+        Markdown("تحتاج إلى:\n\n- طرفية: macOS أو Linux مع `curl` و`bash`، أو Windows مع PowerShell (أو `cargo` الخاص بـRust على أي نظام)؛\n- متصفح ويب؛\n- محرر نصوص. أي محرر يصلح؛ يضيف [إعداد المحرر](#إعداد-المحرر) فحوصًا أثناء الكتابة، و[WebFluent Studio](#webfluent-studio) تطبيق مصنوع لـWebFluent.")
+
+        Heading("التثبيت", id: "التثبيت").h2
+
+        Markdown("WebFluent ملف تنفيذي واحد هو `wf`. شغّل السطر الخاص بجهازك. كلٌّ منها يضع `wf` على `PATH` لديك.")
+
+        Heading("macOS وLinux", id: "macos-وlinux").h3
+
+        Terminal(lines: [
+                Line(command: "curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | bash")
+            ])
+
+        Markdown("يجلب السكربت الملف التنفيذي المناسب لمنصتك من أحدث إصدار. لا تحتاج إلى Rust. يغطي أجهزة Mac بمعالجات Apple Silicon وIntel، وLinux على x86_64.")
+
+        Heading("Windows (PowerShell)", id: "windows-powershell").h3
+
+        CodeBlock(#"irm https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.ps1 | iex"#, title: "powershell")
+
+        Callout("على Windows، اكتب `webfluent` حيثما يكتب هذا الدليل `wf`.", kind: .important)
+
+        Markdown("في Windows أمر اسمه `wf` أصلًا: `C:\\Windows\\System32\\WF.msc`، وهو وحدة تحكم جدار حماية Windows. يأتي System32 أولًا في `PATH`، و`.MSC` من الامتدادات التي يجرّبها Windows للاسم المجرّد، فكتابة `wf` تفتح جدار الحماية بدل WebFluent. لهذا يثبّت ملف zip الخاص بالإصدار و`install.ps1` وملف `.msi` المترجمَ باسم `webfluent.exe` بجانب `wf.exe`، ويضع `.msi` مجلدهما على `PATH`. تعمل `webfluent build` و`webfluent serve` و`wf.exe build` كلها. بعد `cargo install webfluent`، استخدم `wf.exe`.")
+
+        Heading("باستخدام Rust", id: "باستخدام-rust").h3
+
+        Terminal(lines: [
+                Line(command: "cargo install webfluent")
+            ])
+
+        Markdown("يبني هذا `wf` من crates.io. يعمل حيثما تعمل Rust، وهو طريقة التثبيت على Linux arm64، الذي لا ملف تنفيذي جاهزًا له بعد.")
+
+        Heading("الحزم", id: "الحزم").h3
+
+        Markdown("يحمل كل [إصدار](https://github.com/monzeromer-lab/WebFluent/releases) أيضًا ملف `.deb` وملف `.msi` وأرشيفات tar عادية، لجهاز لا يُسمح فيه بتمرير سكربت إلى الصدفة.")
+
+        Heading("التحقق من التثبيت", id: "التحقق-من-التثبيت").h2
+
+        Markdown("اسأل `wf` عن إصداره:")
+
+        Terminal(lines: [
+                Line(command: "wf --version")
+            ])
+
+        Markdown("**ترى** الإصدار الذي ثبّته:")
+
+        CodeBlock(#"wf 6.0.0"#, title: "text")
+
+        Markdown("إن قالت الصدفة إنها لا تجد `wf`، فافتح طرفية جديدة. يضيف المثبّت مجلده إلى `PATH` في ملف بدء تشغيل الصدفة، والطرفية التي شغّلته فيها قرأت ذلك الملف قبل التغيير.")
+
+        Heading("إنشاء مشروع", id: "إنشاء-مشروع").h2
+
+        Markdown("أنشئ مشروعًا اسمه `hello` وانتقل إليه:")
+
+        Terminal(lines: [
+                Line(command: "wf init hello"),
+                Line(command: "cd hello")
+            ])
+
+        Markdown("**ترى:**")
+
+        CodeBlock(#"Created new WebFluent project: hello (template: spa)
+  AGENTS.md is the language reference, for you and your coding agent"#, title: "text")
+
+        Markdown("يكتب `wf init` تطبيقًا صغيرًا لتجد شيئًا حقيقيًا تقرؤه: أربع صفحات (لوحة معلومات، وقائمة مهام، وملف شخصي، وإعدادات)، وثلاثة مكوّنات، ومتجرين، مع اختبارات تحت `tests/`.")
+
+        Heading("تشغيل خادم التطوير", id: "تشغيل-خادم-التطوير").h2
+
+        Markdown("شغّل خادم التطوير:")
+
+        Terminal(lines: [
+                Line(command: "wf serve")
+            ])
+
+        Markdown("**ترى:**")
+
+        CodeBlock(#"Building hello...
+  4 pages, 3 components, 2 stores
+  Output: ./build/
+Build complete.
+Starting dev server at http://localhost:3000/"#, title: "text")
+
+        Markdown("افتح `http://localhost:3000` في متصفحك. **ترى** صفحة **Dashboard** في التطبيق: شريط تنقل، وثلاثة أعداد للمهام، وقائمة بالمهام الأخيرة.\n\nاترك الخادم يعمل. يعيد البناء حين تحفظ ملفًا، ويعيد تحميل الصفحة حين يكتمل بناء، وحين يفشل بناء يرسم الخطأ فوق الصفحة إلى أن يصلحه حفظ لاحق.")
+
+        Heading("إجراء تغيير", id: "إجراء-تغيير").h2
+
+        Markdown("1. افتح `src/pages/Home.wf` في محررك.\n2. جد السطر `Text(\"Welcome to your dashboard.\").muted` وغيّر النص إلى `Text(\"Welcome back.\").muted`.\n3. احفظ الملف.\n\n**ترى** المتصفح يعيد التحميل من تلقاء نفسه، ولوحة المعلومات تعرض الآن **Welcome back.** تحت عنوانها.\n\nلترى كيف يبدو الخطأ، غيّر `.muted` إلى `.mutd` واحفظ. تعرض الصفحة الخطأ `E103` فوقها، مع الملف والسطر والتلميح “Did you mean `.muted`?”. أعده كما كان واحفظ، فتعود الصفحة.\n\nلديك الآن مشروع يعمل. أوقف الخادم بـCtrl+C حين تنتهي. شغّل `wf build` لتكتب الموقع النهائي في `build/`، جاهزًا لأي استضافة ثابتة ([النشر](/recipes)).\n\nبقية هذا الفصل إعداد اختياري. لتواصل التعلّم، انتقل إلى [الدرس التطبيقي](/ar/learn/02-tutorial-shelf).")
+
+        Heading("إعداد المحرر", id: "إعداد-المحرر").h2
+
+        Markdown("يمنح خادم اللغة (language server)، `wf-lsp`، محررك الفحوص نفسها التي يجريها `wf build`، أثناء الكتابة: التشخيصات، وإكمال الخصائص والأعلام والحالات، والتلميح عند المرور بالأنواع والتوثيق، ومساعدة التواقيع، والانتقال إلى التعريف، والمراجع، وإعادة التسمية، والتنسيق، والأنواع المضمّنة في السطر، والتلوين الدلالي، والإصلاحات السريعة.\n\n`wf-lsp` ملف تنفيذي ثانٍ. احصل عليه من [الإصدار](https://github.com/monzeromer-lab/WebFluent/releases) نفسه الذي فيه `wf` — `wf-lsp-<version>-<arch>-<os>.tar.gz` — وضعه على `PATH`، أو ابنه من نسخة من المستودع:")
+
+        Terminal(lines: [
+                Line(command: "cargo install --path crates/wf-lsp")
+            ])
+
+        Markdown("ثم اربط محررك:\n\n- **VS Code** — الإضافة [webfluent-vscode](https://github.com/monzeromer-lab/webfluent-vscode) تجلب التلوين وخادم اللغة. إلى أن تصل إلى Marketplace، ثبّت ملف `.vsix` من أحدث إصداراتها بالأمر **Extensions: Install from VSIX**.\n- **Zed** — الإضافة [webfluent-zed](https://github.com/monzeromer-lab/webfluent-zed) تجلب تلوين Tree-sitter، والمخطط، والمقتطفات، وخادم اللغة (يُعثر عليه في `PATH`، أو يُنزَّل من أحدث إصدار). ثبّتها بالأمر **zed: install dev extension**، موجّهًا إلى نسخة منها.\n- **Neovim وHelix وEmacs، أو أي محرر آخر يدعم LSP** — شغّل `wf-lsp` عبر stdio لنوع الملفات `webfluent` (`*.wf` و`*.wfx`). في [المحررات](/reference/cli#editors) إعداد كلٍّ منها.")
+
+        Heading("WebFluent Studio", id: "webfluent-studio").h3
+
+        Markdown("[WebFluent Studio](https://github.com/monzeromer-lab/webfluent-studio) تطبيق مصنوع لكتابة WebFluent. يجمع في نافذة واحدة محرر شيفرة، ومعاينة حية، ومصممًا مرئيًا، وGit وGitHub، وهذا الدليل، ووكيلًا. لا يستخدم `wf-lsp`: المترجم يعمل داخل التطبيق، فلا يحتاج إلى `wf` على `PATH`، ولا إلى طرفية، ولا إلى خادم تطوير. المشروع المبني في Studio مطابق بايتًا ببايت للمشروع نفسه مبنيًا بـ `wf build`، فتستطيع التنقل بين Studio وسطر الأوامر متى شئت.\n\n- **المعاينة** تُعاد بناءً أثناء الكتابة، وسجل البناء ووحدة التحكم يربطان بالمصدر.\n- **التشخيصات** فيها رسالة المترجم نفسها وإصلاحها، على بعد نقرة واحدة؛ ويفتح **Explain** فصل هذا الدليل الخاص بذلك الرمز.\n- **وضع التصميم** يحرّر الصفحة على لوحة رسم ويكتب ملف `.wf` الذي كنت ستكتبه.\n- **الوكيل** يبني تغييره قبل أن تراه، ثم تقبله أو ترفضه جزءًا جزءًا.\n\nStudio تطبيق منفصل مغلق المصدر في الإصدار 0.1، لـLinux وmacOS وWindows؛ ويليها Android. تُنشر نسخه على [صفحة إصداراته](https://github.com/monzeromer-lab/webfluent-studio/releases). لا تحتاج إليه لاستخدام WebFluent: `wf` وأي محرر هما سلسلة الأدوات كلها.")
+
+        Heading("تغيير طريقة تثبيت wf", id: "تغيير-طريقة-تثبيت-wf").h2
+
+        Markdown("يقرأ كلا المثبّتين متغيّري بيئة:")
+
+        Table(caption: "تغيير طريقة تثبيت wf") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("المتغيّر").header
+                    Table.Cell("أثره").header
+                    Table.Cell("مثال").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`WF_INSTALL_DIR`") }
+                    Table.Cell { Markdown("يثبّت الملف التنفيذي في مكان غير `~/.webfluent/bin`") }
+                    Table.Cell { Markdown("`WF_INSTALL_DIR=/opt/wf/bin`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`WF_VERSION`") }
+                    Table.Cell("يثبّت ذلك الإصدار بدل الأحدث")
+                    Table.Cell { Markdown("`WF_VERSION=v6.0.0`") }
+                }
+            }
+        }
+
+        Markdown("تشغيل المثبّت مرة أخرى يرقّي `wf` في مكانه.\n\nللبناء من نسخة من المستودع بدلًا من ذلك — لتغيير لم يُصدَر بعد، أو للعمل على المترجم نفسه — شغّل:")
+
+        Terminal(lines: [
+                Line(command: "git clone https://github.com/monzeromer-lab/WebFluent.git"),
+                Line(command: "cd WebFluent && cargo install --path .")
+            ])
+
+        Heading("اختيار قالب", id: "اختيار-قالب").h2
+
+        Markdown("يأخذ `wf init` قالبًا بالخيار `-t`:")
+
+        Table(caption: "اختيار قالب") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("القالب").header
+                    Table.Cell("ما يصنعه").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`-t spa` (الافتراضي)") }
+                    Table.Cell("تطبيقًا تفاعليًا، توجيهه في المتصفح")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`-t static`") }
+                    Table.Cell("موقعًا تسويقيًا، كل صفحة فيه مُصيَّرة مسبقًا إلى HTML")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`-t pdf`") }
+                    Table.Cell("مستند PDF")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`-t slides`") }
+                    Table.Cell("عرض شرائح PDF")
+                }
+            }
+        }
+
+        Markdown("يبدأ `--locales en,ar` مشروع `spa` أو `static` مترجمًا: نصه في `src/translations/`، ملف لكل لغة، واللغة الأولى هي الافتراضية ([التدويل](/recipes/translate-a-site#start-a-project-translated)).\n\nإن لم تكن متأكدًا بين `spa` و`static`، فابدأ بـ`static`. كل صفحة HTML حقيقية قبل أن يعمل أي سكربت، وهذا أفضل للبحث وللرسم الأول، والصفحة تبقى تفاعلية بالكامل بعد تحميل السكربت. يشرح [ثابت أم صفحة واحدة](/about/static-or-single-page) الفرق.")
+
+        Heading("كتابة موقع من الصفر", id: "كتابة-موقع-من-الصفر").h2
+
+        Markdown("لترى أصغر موقع كامل، استبدل محتويات `src/` بملفين، واحذف اختبارات القالب تحت `tests/`، فهي تختبر الصفحات التي أزلتها.\n\n`src/App.wf` هو الهيكل الذي تتشاركه كل الصفحات، وفيه الموجّه:")
+
+        CodeBlock(#"app {
+    Navbar {
+        Navbar.Brand { Text("Hello").heading }
+        Navbar.Links {
+            Link("Home", to: "/")
+            Link("About", to: "/about")
+        }
+    }
+    Router
+}"#, title: "wf")
+
+        Markdown("`src/pages/Home.wf` يحمل الصفحات، وكل صفحة تسمّي مسارها:")
+
+        CodeBlock(#"page Home(path: "/", title: "Hello", description: "A first WebFluent site.") {
+    state count = 0
+    Container {
+        Heading("Hello, world").h1
+        Text("You have clicked {count} times.")
+        Button("Click me").primary { on click { count = count + 1 } }
+    }
+}
+
+page About(path: "/about", title: "About", description: "What this site is for.") {
+    Container {
+        Heading("About").h1
+        Paragraph("Two pages, one shell, no framework.")
+    }
+}"#, title: "wf")
+
+        Markdown("احفظ، فيعرض خادم التطوير شريط تنقل فيه **Home** و**About**. ويعدّ **Click me** نقراتك. هذا ما يفعله كل جزء:\n\n- `app \{ … \}` هو الهيكل: ما تقع داخله كل صفحة. و`Router` هو المكان الذي تُرسم فيه الصفحة الحالية. لا جدول مسارات؛ كل `page` تسمّي `path:` الخاص بها.\n- `page Home(path: \"/\", title: …, description: …)` يعلن صفحة. يصير `title` و`description` وسم `<title>`، ووصف meta، وبطاقات Open Graph وTwitter، وJSON-LD. إن أغفلتهما، ينبّهك البناء.\n- `state count = 0` إشارة (signal). يقرؤها `Text(\"… \{count\} …\")`، فيتحدّث النص حين تتغيّر.\n- في `Button(\"Click me\").primary \{ on click \{ … \} \}`، التسمية هي الوسيط الموضعي الوحيد، و`.primary` علم (حالة من حالات الخاصية `tone` للزر)، والكتلة تحمل معالج النقر.\n- `Container` و`Heading` و`Text` و`Paragraph` و`Navbar` و`Link` عناصر مدمجة. يسردها كلها [مرجع المكوّنات](/reference).")
+
+        Callout("**قادم من React؟** لا جدول مسارات ولا `import`. كل `page` تسمّي `path:` الخاص بها، وكل ملف تحت `src/` جزء من برنامج واحد، فيضع `App.wf` صفحات ومكوّنات لا يستوردها أبدًا. راجع [قادم من React](/coming-from/react).", kind: .note)
+
+        Heading("ما ينتجه البناء", id: "ما-ينتجه-البناء").h2
+
+        Markdown("يكتب `wf build` الموقع النهائي في `build/`. بناء ثابت فيه صفحتان وصفحة `path: \"*\"` يكتب ملفات مثل هذه:")
+
+        CodeBlock(#"build/
+  index.html          the page, pre-rendered (static) or the app shell (spa)
+  about/index.html    one directory per route in a static build
+  404.html            the `path: "*"` page, which a host serves for unknown paths
+  app.js              the runtime this program needs, its stores and components
+  pages/Home.js       each page in its own chunk, loaded when its route shows
+  pages/Home.css      the styles only that page reaches
+  styles.css          tokens, the built-ins you used, your stylesheets
+  sitemap.xml         every indexable route (needs meta.site_url)
+  robots.txt
+  _headers            the security headers (build.csp), for hosts that read the file
+  sw.js               the service worker, when the config names "offline"
+  *.gz                pre-compressed copies a host can serve as they are"#, title: "text")
+
+        Markdown("لا تعدّل شيئًا في `build/`: البناء التالي يكتبه من جديد. أبقه خارج نظام التحكم بالإصدارات؛ ملف `.gitignore` الذي يكتبه `wf init` يفعل ذلك أصلًا. وينسخ البناء `public/` إلى جذر `build/` كما هو.\n\nلا يحمل `app.js` إلا أجزاء وقت التشغيل (runtime) التي يصل إليها البرنامج. وقت التشغيل مجموعة من وحدات الميزات — `each` لحلقة `for`، و`router` لصفحة ثانية، و`net` لـ`resource`، و`icons` لـ`Icon` — ويستنتج البناء أيّها تستدعيه الشيفرة التي كتبها، ثم لا يُبقي إلا الدوال التي تصل إليها تلك الاستدعاءات، بأسماء مختصرة. صفحة من نص ثابت تعطي `app.js` حجمه 1.9 kB مضغوطًا بـgzip. يعرض `wf build --stats` وزن البناء، ويشرح [الأداء](/about/what-a-build-ships) كيف تقرؤه.")
+
+        Heading("المشروع باختصار", id: "المشروع-باختصار").h2
+
+        Markdown("تُرتَّب ملفات المشروع هكذا:")
+
+        CodeBlock(#"AGENTS.md             the language reference, for you and a coding agent
+webfluent.app.json    the config
+src/
+  App.wf              the app shell (optional)
+  pages/*.wf          pages
+  components/*.wf     components
+  stores/*.wf         stores
+  *.css               your own stylesheets, bundled into styles.css
+  translations/*.json translation files, with "i18n" in the config
+public/               copied to the build's root (images, fonts, favicon)
+tests/*.wf            `test "…" { }` declarations for `wf test`"#, title: "text")
+
+        Markdown("يقرأ المترجم كل ملف `.wf` أو `.wfx` تحت `src/` ويدمجها في برنامج واحد، فتستخدم صفحة في ملف مكوّنًا من ملف آخر دون استيراده. المجلدات عُرف، لا قاعدة. يغطي [هيكل المشروع](/reference/project) التسمية والتنظيم والإعدادات، ويسرد [مرجع الإعدادات](/reference/config) كل مفتاح.\n\nلا تحتاج الإعدادات إلا إلى اسم:")
+
+        CodeBlock(#"{ "name": "hello" }"#, title: "json")
+
+        Heading("أخطاء شائعة", id: "أخطاء-شائعة").h2
+
+        Markdown("علم فيه خطأ إملائي. يُفحص العلم مقابل العنصر الذي يأخذه، فيكون `.mutd` خطأً، لا نمطًا لا يفعل شيئًا بصمت:")
+
+        CodeBlock(#"page Home(path: "/", title: "Hello", description: "A first site.") {
+    Heading("Hello").h1
+    Text("Welcome back.").mutd
+}"#, title: "wf · draws E103")
+
+        Markdown("استخدم أحد الأعلام التي تسردها الرسالة، وهنا `.muted` ([E103](/errors/E103)).\n\n`app` بلا `Router`. يُرسم الهيكل، لكن لا تُرسم أي صفحة أبدًا:")
+
+        CodeBlock(#"app {
+    Navbar {
+        Navbar.Brand { Text("Hello").heading }
+    }
+}
+
+page Home(path: "/", title: "Hello", description: "A first site.") {
+    Heading("Hello, world").h1
+}"#, title: "wf · draws R03")
+
+        Markdown("ضع `Router` في `app` حيث يجب أن تظهر الصفحة الحالية ([R03](/errors/R03)).\n\nرابط إلى صفحة لم تكتبها بعد. يفحص المترجم كل `to:` مقابل مسارات الصفحات:")
+
+        CodeBlock(#"app {
+    Navbar {
+        Navbar.Links {
+            Link("Home", to: "/")
+            Link("About", to: "/about")
+        }
+    }
+    Router
+}
+
+page Home(path: "/", title: "Hello", description: "A first site.") {
+    Heading("Hello, world").h1
+}"#, title: "wf · draws R01")
+
+        Markdown("أضف الصفحة، `page About(path: \"/about\", …)`، أو صحّح العنوان ([R01](/errors/R01)).")
+
+        Heading("التالي", id: "التالي").h2
+
+        Markdown("[درس تطبيقي: Shelf](/ar/learn/02-tutorial-shelf): ابنِ موقع قائمة قراءة من البداية إلى النهاية.")
+    }
+}

@@ -2,5 +2,11 @@
 /// start, an example beside it, the six outputs, the cheat sheets, the four
 /// kinds of page and the install line.
 page Home(path: "/", title: "WebFluent — websites, PDFs and slide decks from one language", description: "A typed language and one binary that build a static site, a single-page app, a PDF or a slide deck. No Node, no bundler, no config.") {
-    HomeShell
+    HomeShell(other: "/ar")
+}
+
+/// The front page in Arabic: the same page, its interface text in Arabic
+/// (the page's `lang:` speaks the Arabic table), joined to the English one.
+page HomeAr(path: "/ar", title: "WebFluent — مواقع وملفات PDF وعروض شرائح من لغة واحدة", description: "لغة ذات أنواع وأداة واحدة تبني موقعًا ثابتًا أو تطبيق صفحة واحدة أو ملف PDF أو عرض شرائح. بلا Node، وبلا حزّام، وبلا إعدادات.", lang: "ar", translates: Home) {
+    HomeShell(other: "/", lang: "ar")
 }

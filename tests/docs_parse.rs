@@ -1227,14 +1227,20 @@ const EXAMPLE_EXEMPT: &[&str] = &[
     "E120", "E121",
 ];
 
-/// The anchor a heading gets on the site and on GitHub, as the generator
-/// writes it.
+/// The anchor a heading gets on the site, as the generator writes it: its
+/// letters and digits in any script (an Arabic heading keeps its words),
+/// lower-cased, a combining mark kept with its letter, the rest a dash.
 fn slug(text: &str) -> String {
     let text = text.replace('`', "").to_lowercase();
     let mut out = String::new();
     let mut dash = false;
     for c in text.chars() {
-        if c.is_ascii_alphanumeric() {
+        // Arabic's short vowels and the other combining marks.
+        if matches!(c, '\u{0300}'..='\u{036F}' | '\u{0610}'..='\u{061A}' | '\u{064B}'..='\u{065F}' | '\u{0670}')
+        {
+            continue;
+        }
+        if c.is_alphanumeric() {
             out.push(c);
             dash = false;
         } else if !dash {

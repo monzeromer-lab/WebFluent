@@ -20,3 +20,25 @@ const GUIDE: [Chapter] = [
     Chapter(n: 16, title: "Testing", key: "ch.16", to: "/learn/16-testing", part: "nav.group.build", tour: false),
     Chapter(n: 17, title: "PDF and slides", key: "ch.17", to: "/learn/17-pdf-and-slides", part: "nav.group.build", tour: false)
 ]
+
+/// The book for a reader in Arabic: each chapter at its translation when
+/// it has one. Written by scripts/docsite/guide.py.
+const GUIDE_AR: [Chapter] = [
+    Chapter(n: 1, title: "Getting started", key: "ch.01", to: "/ar/learn/01-getting-started", part: "nav.group.tour", tour: true),
+    Chapter(n: 2, title: "Tutorial: Shelf", key: "ch.02", to: "/ar/learn/02-tutorial-shelf", part: "nav.group.tour", tour: true),
+    Chapter(n: 3, title: "Tutorial: Todos", key: "ch.03", to: "/ar/learn/03-tutorial-todos", part: "nav.group.tour", tour: true),
+    Chapter(n: 4, title: "Language basics", key: "ch.04", to: "/learn/04-language-basics", part: "nav.group.language", tour: false),
+    Chapter(n: 5, title: "Pages and routing", key: "ch.05", to: "/learn/05-pages-and-routing", part: "nav.group.language", tour: false),
+    Chapter(n: 6, title: "Elements", key: "ch.06", to: "/learn/06-elements", part: "nav.group.language", tour: false),
+    Chapter(n: 7, title: "State and reactivity", key: "ch.07", to: "/learn/07-state-and-reactivity", part: "nav.group.language", tour: false),
+    Chapter(n: 8, title: "Events", key: "ch.08", to: "/learn/08-events", part: "nav.group.language", tour: false),
+    Chapter(n: 9, title: "Control flow", key: "ch.09", to: "/learn/09-control-flow", part: "nav.group.language", tour: false),
+    Chapter(n: 10, title: "Components", key: "ch.10", to: "/learn/10-components", part: "nav.group.language", tour: false),
+    Chapter(n: 11, title: "Stores", key: "ch.11", to: "/learn/11-stores", part: "nav.group.language", tour: false),
+    Chapter(n: 12, title: "Types", key: "ch.12", to: "/learn/12-types", part: "nav.group.language", tour: false),
+    Chapter(n: 13, title: "Styling", key: "ch.13", to: "/learn/13-styling", part: "nav.group.build", tour: false),
+    Chapter(n: 14, title: "Forms and validation", key: "ch.14", to: "/learn/14-forms", part: "nav.group.build", tour: false),
+    Chapter(n: 15, title: "Fetching data", key: "ch.15", to: "/learn/15-data", part: "nav.group.build", tour: false),
+    Chapter(n: 16, title: "Testing", key: "ch.16", to: "/learn/16-testing", part: "nav.group.build", tour: false),
+    Chapter(n: 17, title: "PDF and slides", key: "ch.17", to: "/learn/17-pdf-and-slides", part: "nav.group.build", tour: false)
+]
