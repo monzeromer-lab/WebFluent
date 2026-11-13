@@ -416,12 +416,12 @@ pub fn static_classes(value: &crate::project::static_eval::Static, out: &mut Vec
     match value {
         Static::Null | Static::Bool(false) => {}
         Static::List(items) => {
-            for item in items {
+            for item in items.iter() {
                 static_classes(item, out);
             }
         }
         Static::Map(pairs) => {
-            for (key, on) in pairs {
+            for (key, on) in pairs.iter() {
                 if on.truthy() {
                     static_classes(&Static::Str(key.trim_matches('"').to_string()), out);
                 }

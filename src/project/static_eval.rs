@@ -49,8 +49,12 @@ pub enum Static {
     Str(String),
     Num(f64),
     Bool(bool),
-    List(Vec<Static>),
-    Map(Vec<(String, Static)>),
+    /// A list, shared: a copy is a reference, and a change copies it first
+    /// (`Arc::make_mut`), so a `data` file read by every page is not copied
+    /// for each.
+    List(Arc<Vec<Static>>),
+    /// A map, in the order its keys were written, shared as a list is.
+    Map(Arc<Vec<(String, Static)>>),
     /// A regular expression: its pattern and flags, compiled on use.
     Regex(String, String),
     /// A lambda held as a value — a `derived` that is a function, `derived
@@ -169,13 +173,18 @@ impl Static {
             serde_json::Value::Bool(b) => Static::Bool(*b),
             serde_json::Value::Number(n) => Static::Num(n.as_f64().unwrap_or(0.0)),
             serde_json::Value::String(s) => Static::Str(s.clone()),
-            serde_json::Value::Array(items) => {
-                Static::List(items.iter().map(Static::from_json).collect())
-            }
+            serde_json::Value::Array(items) => Static::List(
+                items
+                    .iter()
+                    .map(Static::from_json)
+                    .collect::<Vec<_>>()
+                    .into(),
+            ),
             serde_json::Value::Object(map) => Static::Map(
                 map.iter()
                     .map(|(k, v)| (k.clone(), Static::from_json(v)))
-                    .collect(),
+                    .collect::<Vec<_>>()
+                    .into(),
             ),
         }
     }
@@ -293,7 +302,8 @@ impl Scope {
             Static::Map(
                 env.iter()
                     .map(|(k, v)| (k.clone(), Static::from_json(v)))
-                    .collect(),
+                    .collect::<Vec<_>>()
+                    .into(),
             ),
         );
 
@@ -397,7 +407,8 @@ impl Scope {
                     messages
                         .iter()
                         .map(|(k, v)| (k.clone(), Static::Str(v.clone())))
-                        .collect(),
+                        .collect::<Vec<_>>()
+                        .into(),
                 ),
             );
         }
@@ -556,7 +567,7 @@ fn store_value_in(
             fields.push((name.clone(), v));
         }
     }
-    Static::Map(fields)
+    Static::Map(Arc::new(fields))
 }
 
 /// Bookkeeping for one evaluation: the work it has left.
@@ -685,14 +696,14 @@ fn eval_node(expr: &Expr, scope: &Scope, fuel: &Fuel) -> Option<Static> {
                     Expr::Spread(inner) => match eval_in(inner, scope, fuel)? {
                         Static::List(more) => {
                             fuel.charge(more.len())?;
-                            out.extend(more);
+                            out.extend(more.iter().cloned());
                         }
                         _ => return None,
                     },
                     _ => out.push(eval_in(e, scope, fuel)?),
                 }
             }
-            Some(Static::List(out))
+            Some(Static::List(Arc::new(out)))
         }
         // A spread outside a list is not a value.
         Expr::Spread(_) => None,
@@ -713,7 +724,7 @@ fn eval_node(expr: &Expr, scope: &Scope, fuel: &Fuel) -> Option<Static> {
                 out.push(Static::Num(i));
                 i += 1.0;
             }
-            Some(Static::List(out))
+            Some(Static::List(Arc::new(out)))
         }
 
         Expr::MapLiteral(entries) | Expr::Record(_, entries) => {
@@ -725,7 +736,7 @@ fn eval_node(expr: &Expr, scope: &Scope, fuel: &Fuel) -> Option<Static> {
                         return None;
                     };
                     fuel.charge(more.len())?;
-                    for (mk, mv) in more {
+                    for (mk, mv) in more.iter().cloned() {
                         match out.iter_mut().find(|(key, _)| *key == mk) {
                             Some(slot) => slot.1 = mv,
                             None => out.push((mk, mv)),
@@ -739,7 +750,7 @@ fn eval_node(expr: &Expr, scope: &Scope, fuel: &Fuel) -> Option<Static> {
                     None => out.push((key, value)),
                 }
             }
-            Some(Static::Map(out))
+            Some(Static::Map(Arc::new(out)))
         }
 
         Expr::InterpolatedString(parts) => {
@@ -921,7 +932,7 @@ fn eval_node(expr: &Expr, scope: &Scope, fuel: &Fuel) -> Option<Static> {
                     };
                     let params = match args.get(1) {
                         None => Vec::new(),
-                        Some(Static::Map(params)) => params.clone(),
+                        Some(Static::Map(params)) => params.to_vec(),
                         Some(_) => return None,
                     };
                     Some(Static::Str(crate::project::i18n::message(
@@ -1016,7 +1027,7 @@ fn eval_node(expr: &Expr, scope: &Scope, fuel: &Fuel) -> Option<Static> {
             for a in args {
                 items.push(eval_in(a, scope, fuel)?);
             }
-            Some(Static::List(items))
+            Some(Static::List(Arc::new(items)))
         }
         Expr::Token(name) => Some(Static::Str(format!("var(--{name})"))),
         Expr::Await(_) => None,
@@ -1103,7 +1114,8 @@ fn method_call(
                     Some(caps) => Static::List(
                         caps.iter()
                             .map(|c| Static::Str(c.map_or("", |m| m.as_str()).into()))
-                            .collect(),
+                            .collect::<Vec<_>>()
+                            .into(),
                     ),
                     None => Static::Null,
                 }),
@@ -1150,7 +1162,7 @@ fn method_call(
                     }
                 }
                 Some(match method {
-                    "filter" | "map" => Static::List(out),
+                    "filter" | "map" => Static::List(Arc::new(out)),
                     "some" => Static::Bool(false),
                     "every" => Static::Bool(true),
                     "find" => Static::Null,
@@ -1163,18 +1175,18 @@ fn method_call(
                     Some(_) => clamp_index(number(1)?, items.len())?,
                     None => items.len(),
                 };
-                let slice = Static::List(items[start..end.max(start)].to_vec());
+                let slice = Static::List(Arc::new(items[start..end.max(start)].to_vec()));
                 fuel.copy(&slice)?;
                 Some(slice)
             }
             "concat" => {
                 fuel.copy(receiver)?;
-                let mut out = items.clone();
+                let mut out = items.to_vec();
                 for i in 0..args.len() {
                     match value(i)? {
                         Static::List(more) => {
                             fuel.charge(more.len())?;
-                            out.extend(more);
+                            out.extend(more.iter().cloned());
                         }
                         other => {
                             fuel.spend()?;
@@ -1182,7 +1194,7 @@ fn method_call(
                         }
                     }
                 }
-                Some(Static::List(out))
+                Some(Static::List(Arc::new(out)))
             }
             "indexOf" => {
                 let needle = value(0)?;
@@ -1216,20 +1228,25 @@ fn method_call(
             }
             "reverse" => {
                 fuel.copy(receiver)?;
-                let mut out = items.clone();
+                let mut out = items.to_vec();
                 out.reverse();
-                Some(Static::List(out))
+                Some(Static::List(Arc::new(out)))
             }
             "sort" => {
                 fuel.copy(receiver)?;
-                Some(Static::List(sorted(items, args.first(), scope, fuel)?))
+                Some(Static::List(Arc::new(sorted(
+                    items,
+                    args.first(),
+                    scope,
+                    fuel,
+                )?)))
             }
             // The helpers the runtime adds to a list.
             "sortBy" => {
                 let f = args.first()?;
                 let mut keyed = Vec::new();
                 fuel.copy(receiver)?;
-                for item in items {
+                for item in items.iter() {
                     keyed.push((
                         apply(f, std::slice::from_ref(item), scope, fuel)?,
                         item.clone(),
@@ -1241,35 +1258,39 @@ fn method_call(
                     }
                     _ => a.to_text().cmp(&b.to_text()),
                 });
-                Some(Static::List(keyed.into_iter().map(|(_, v)| v).collect()))
+                Some(Static::List(
+                    keyed.into_iter().map(|(_, v)| v).collect::<Vec<_>>().into(),
+                ))
             }
             "groupBy" => {
                 let f = args.first()?;
                 let mut groups: Vec<(String, Static)> = Vec::new();
                 fuel.copy(receiver)?;
-                for item in items {
+                for item in items.iter() {
                     let key = apply(f, std::slice::from_ref(item), scope, fuel)?.to_text();
                     match groups.iter_mut().find(|(k, _)| *k == key) {
-                        Some((_, Static::List(members))) => members.push(item.clone()),
-                        _ => groups.push((key, Static::List(vec![item.clone()]))),
+                        Some((_, Static::List(members))) => {
+                            Arc::make_mut(members).push(item.clone());
+                        }
+                        _ => groups.push((key, Static::List(Arc::new(vec![item.clone()])))),
                     }
                 }
-                Some(Static::Map(groups))
+                Some(Static::Map(Arc::new(groups)))
             }
             "unique" => {
                 let mut out: Vec<Static> = Vec::new();
-                for item in items {
+                for item in items.iter() {
                     fuel.spend()?;
                     if !out.contains(item) {
                         fuel.copy(item)?;
                         out.push(item.clone());
                     }
                 }
-                Some(Static::List(out))
+                Some(Static::List(Arc::new(out)))
             }
             "take" => {
                 let n = number(0)?.max(0.0) as usize;
-                let taken = Static::List(items.iter().take(n).cloned().collect());
+                let taken = Static::List(items.iter().take(n).cloned().collect::<Vec<_>>().into());
                 fuel.copy(&taken)?;
                 Some(taken)
             }
@@ -1286,7 +1307,7 @@ fn method_call(
                     match apply(f, &[item.clone(), Static::Num(i as f64)], scope, fuel)? {
                         Static::List(more) => {
                             fuel.charge(more.len())?;
-                            out.extend(more);
+                            out.extend(more.iter().cloned());
                         }
                         other => {
                             fuel.spend()?;
@@ -1294,7 +1315,7 @@ fn method_call(
                         }
                     }
                 }
-                Some(Static::List(out))
+                Some(Static::List(Arc::new(out)))
             }
             "sum" => Some(Static::Num(
                 items
@@ -1344,7 +1365,7 @@ fn method_call(
                     }
                 };
                 fuel.charge(parts.len())?;
-                Some(Static::List(parts))
+                Some(Static::List(Arc::new(parts)))
             }
             "replace" | "replaceAll" => {
                 let to = value(1)?.to_text();
@@ -1396,14 +1417,15 @@ fn method_call(
                         Some(if all.is_empty() {
                             Static::Null
                         } else {
-                            Static::List(all)
+                            Static::List(Arc::new(all))
                         })
                     } else {
                         Some(match re.captures(s) {
                             Some(caps) => Static::List(
                                 caps.iter()
                                     .map(|c| Static::Str(c.map_or("", |m| m.as_str()).into()))
-                                    .collect(),
+                                    .collect::<Vec<_>>()
+                                    .into(),
                             ),
                             None => Static::Null,
                         })
@@ -1449,12 +1471,14 @@ fn method_call(
             "lines" => Some(Static::List(
                 s.split('\n')
                     .map(|l| Static::Str(l.trim_end_matches('\r').to_string()))
-                    .collect(),
+                    .collect::<Vec<_>>()
+                    .into(),
             )),
             "words" => Some(Static::List(
                 s.split_whitespace()
                     .map(|w| Static::Str(w.to_string()))
-                    .collect(),
+                    .collect::<Vec<_>>()
+                    .into(),
             )),
             "capitalize" => {
                 let mut chars = s.chars();
@@ -1572,7 +1596,7 @@ pub fn payload_of(v: &Static, case: &Static) -> Static {
     match v {
         Static::List(items) if items.first() == Some(case) => match items.len() {
             2 => items[1].clone(),
-            _ => Static::List(items[1..].to_vec()),
+            _ => Static::List(Arc::new(items[1..].to_vec())),
         },
         _ => Static::Null,
     }
@@ -1688,7 +1712,7 @@ fn run(stmts: &[Statement], scope: &mut Scope, fuel: &Fuel) -> Option<Flow> {
                 let Static::List(items) = eval_in(&f.iterable, scope, fuel)? else {
                     return None;
                 };
-                for (i, item) in items.into_iter().enumerate() {
+                for (i, item) in items.iter().cloned().enumerate() {
                     let mut frame = HashMap::new();
                     frame.insert(f.item.clone(), item);
                     if let Some(index) = &f.index {
@@ -1726,12 +1750,12 @@ fn run(stmts: &[Statement], scope: &mut Scope, fuel: &Fuel) -> Option<Flow> {
                     }
                     fuel.charge(pushed.len())?;
                     if let Some(Static::List(items)) = scope.get_mut(name) {
-                        items.extend(pushed);
+                        Arc::make_mut(items).extend(pushed);
                     }
                     continue;
                 }
                 let items = match scope.get(name) {
-                    Some(Static::List(items)) => items.clone(),
+                    Some(Static::List(items)) => items.to_vec(),
                     _ => return None,
                 };
                 let updated = match method {
@@ -1743,7 +1767,7 @@ fn run(stmts: &[Statement], scope: &mut Scope, fuel: &Fuel) -> Option<Flow> {
                     }
                     _ => return None,
                 };
-                scope.set(name, Static::List(updated));
+                scope.set(name, Static::List(Arc::new(updated)));
             }
             StatementKind::ExprStatement(_) | StatementKind::Log(_) => {}
             _ => return None,
@@ -1933,7 +1957,11 @@ mod tests {
         let value = eval(&expr_of("S.rows"), &scope).expect("S.rows should resolve");
         assert_eq!(
             value,
-            Static::List(vec![Static::Num(1.0), Static::Num(2.0), Static::Num(3.0)])
+            Static::List(Arc::new(vec![
+                Static::Num(1.0),
+                Static::Num(2.0),
+                Static::Num(3.0)
+            ]))
         );
     }
 
@@ -2009,8 +2037,8 @@ mod tests {
         assert!(!Static::Str(String::new()).truthy());
         assert!(Static::Str("x".into()).truthy());
         assert!(!Static::Num(0.0).truthy());
-        assert!(!Static::List(vec![]).truthy());
-        assert!(Static::List(vec![Static::Null]).truthy());
+        assert!(!Static::List(Arc::new(vec![])).truthy());
+        assert!(Static::List(Arc::new(vec![Static::Null])).truthy());
         assert!(!Static::Null.truthy());
     }
 }
@@ -2292,10 +2320,10 @@ mod scalars {
     }
 
     fn money(amount: f64, currency: &str) -> Static {
-        Static::Map(vec![
+        Static::Map(std::sync::Arc::new(vec![
             ("amount".to_string(), Static::Num(amount.round())),
             ("currency".to_string(), Static::Str(currency.to_string())),
-        ])
+        ]))
     }
 
     /// `#0F766E` and friends as red, green and blue.
@@ -2436,7 +2464,7 @@ mod scalars {
                     hash = (!h.is_empty()).then(|| h.to_string());
                 }
                 ("query", Static::Map(values)) => {
-                    for (k, v) in values {
+                    for (k, v) in values.iter() {
                         if v == &Static::Null {
                             query.retain(|(existing, _)| existing != k);
                         } else {
@@ -2625,7 +2653,7 @@ mod scalars {
             // page changed as its script ran.
             "query" if receiver.to_text().contains("://") => {
                 let text = receiver.to_text();
-                Some(Static::Map(query_pairs(&text)))
+                Some(Static::Map(std::sync::Arc::new(query_pairs(&text))))
             }
             "with" if receiver.to_text().contains("://") => {
                 let Static::Map(parts) = arg(0)? else {

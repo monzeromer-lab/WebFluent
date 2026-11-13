@@ -1301,7 +1301,8 @@ impl<'a> RenderContext<'a> {
                     self.messages
                         .iter()
                         .map(|(k, v)| (k.clone(), Static::Str(v.clone())))
-                        .collect(),
+                        .collect::<Vec<_>>()
+                        .into(),
                 ),
             );
             // The locale those messages are in, whose plural rules pick a

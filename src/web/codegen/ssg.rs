@@ -52,7 +52,13 @@ pub fn render_page_html_with_params(
     // Seed as declarations at the top of the body: `params` as a map, and
     // each parameter as a constant of the page.
     let mut extra: Vec<Statement> = Vec::new();
-    let map = Static::Map(params.iter().map(|(k, v)| (k.clone(), v.clone())).collect());
+    let map = Static::Map(
+        params
+            .iter()
+            .map(|(k, v)| (k.clone(), v.clone()))
+            .collect::<Vec<_>>()
+            .into(),
+    );
     extra.push(Statement::new(
         StatementKind::State(StateDecl {
             name: "params".to_string(),
@@ -128,9 +134,9 @@ pub fn static_routes(
         .filter_map(|seg| seg.strip_prefix(':').map(str::to_string))
         .collect();
     let mut out = Vec::new();
-    for value in values {
+    for value in values.iter() {
         let mut params = HashMap::new();
-        match (&value, names.len()) {
+        match (value, names.len()) {
             (Static::Map(fields), _) => {
                 for name in &names {
                     let Some(v) = fields.iter().find(|(k, _)| k == name).map(|(_, v)| v) else {
@@ -143,7 +149,7 @@ pub fn static_routes(
                 }
             }
             (v, 1) => {
-                params.insert(names[0].clone(), v.clone());
+                params.insert(names[0].clone(), (*v).clone());
             }
             _ => {
                 return Err(WebFluentError::codegen(format!(
@@ -2504,13 +2510,13 @@ fn render_picture<C: Paint>(class: &str, ui: &UIElement, ctx: &mut C) -> String 
     let img = format!("<img {}{own} />", img.join(" "));
     let sources = match field("sources") {
         Some(Static::List(items)) => items,
-        _ => Vec::new(),
+        _ => std::sync::Arc::new(Vec::new()),
     };
     if sources.is_empty() {
         return img;
     }
     let mut out = String::from("<picture>");
-    for one in sources {
+    for one in sources.iter() {
         let Static::Map(fields) = one else { continue };
         let get = |name: &str| {
             fields
