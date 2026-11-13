@@ -1514,10 +1514,28 @@ fn prune_root_tokens(output_dir: &Path) -> Result<usize> {
     let named = |text: &str, token: &str| text.contains(&format!("var(--{token}"));
     // Without the block, so a token is not kept by its own declaration.
     let elsewhere = read.replacen(body, "", 1);
+    // Every name the output reads with `var(--…`, found in one pass rather
+    // than one pass a token. A token is named when one of them starts with
+    // it, which is what `var(--token` appearing in the text means for a
+    // token with none of the characters that end a name.
+    let ends_name = |c: char| c.is_whitespace() || matches!(c, ')' | ',' | ';' | '"' | '\'' | '}');
+    let read_names: std::collections::BTreeSet<&str> = elsewhere
+        .match_indices("var(--")
+        .map(|(at, found)| {
+            let rest = &elsewhere[at + found.len()..];
+            &rest[..rest.find(ends_name).unwrap_or(rest.len())]
+        })
+        .collect();
+    let named_elsewhere = |token: &str| {
+        if token.contains(ends_name) {
+            return named(&elsewhere, token);
+        }
+        read_names.iter().any(|name| name.starts_with(token))
+    };
     let mut keep: Vec<bool> = declarations
         .iter()
         .map(|d| match d.split(':').next().map(str::trim) {
-            Some(name) => named(&elsewhere, name.trim_start_matches("--")),
+            Some(name) => named_elsewhere(name.trim_start_matches("--")),
             None => true,
         })
         .collect();
@@ -1948,18 +1966,27 @@ fn check_csp(
     config: &ProjectConfig,
 ) -> Vec<crate::web::codegen::csp::Violation> {
     let policy = crate::project::config::project::csp_meta_policy(config);
-    let mut found = Vec::new();
-    for path in written {
-        let Ok(html) = fs::read_to_string(path) else {
-            continue;
-        };
-        let page = path
-            .strip_prefix(output_dir)
-            .unwrap_or(path)
-            .display()
-            .to_string();
-        found.extend(crate::web::codegen::csp::check(&page, &html, &policy));
-    }
+    // Each page read here (a preview builds into memory only this thread
+    // sees), then read back as a browser would on every core.
+    let pages: Vec<(String, String)> = written
+        .iter()
+        .filter_map(|path| {
+            let html = fs::read_to_string(path).ok()?;
+            let page = path
+                .strip_prefix(output_dir)
+                .unwrap_or(path)
+                .display()
+                .to_string();
+            Some((page, html))
+        })
+        .collect();
+    let mut found: Vec<crate::web::codegen::csp::Violation> =
+        in_parallel(&pages, &|(page, html): &(String, String)| {
+            crate::web::codegen::csp::check(page, html, &policy)
+        })
+        .into_iter()
+        .flatten()
+        .collect();
     found.sort_by(|a, b| a.page.cmp(&b.page).then(a.what.cmp(&b.what)));
     found.dedup();
     found
