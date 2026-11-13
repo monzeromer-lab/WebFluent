@@ -1,0 +1,17 @@
+/// Where to go from here: each related page as a sheet with its kind.
+component Related(links: [RelatedLink] = [], title: String = "") {
+    if links.length > 0 {
+        Stack(gap: .sm) {
+            style { gap: 12px }
+            Heading(if title != "" { title } else { t("related.title") }).h2 { style { margin: 0; font-size: 19px; line-height: 1.3; font-weight: 600 } }
+            Grid(columns: { base: 1, md: 2 }, gap: .sm) {
+                for link in links by link.to {
+                    Link(to: link.to, class: "bp-card") {
+                        Text(link.kind, class: "bp-small")
+                        Text(link.title) { style { font-weight: 600 } }
+                    }
+                }
+            }
+        }
+    }
+}

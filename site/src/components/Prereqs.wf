@@ -1,0 +1,12 @@
+/// What a page assumes the reader has read, as links under the summary.
+component Prereqs(links: [RelatedLink] = []) {
+    if links.length > 0 {
+        Row(align: .center, gap: .sm) {
+            style { flex-wrap: wrap; gap: 6px 12px; font-size: 14px; color: $muted; & p { margin: 0 } & a { color: $link } }
+            Text(t("prereqs.label"))
+            for link in links by link.to {
+                Link(link.title, to: link.to)
+            }
+        }
+    }
+}

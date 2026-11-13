@@ -1,0 +1,65 @@
+/// T6, coming from another framework: the cheat sheet first — the reader's
+/// idiom, then ours, grouped by concept (the page's body) — then the three
+/// things that work differently, then one small component ported whole.
+/// The other sheets are tabs above.
+component ComingFromShell(_ title: String, summary: String = "", from: String = "", sheets: [Place] = [], sections: [Anchor] = [], source: String = "md-docs", other: String = "", lang: String = "en") {
+    slot differences
+    slot port
+    slot
+
+    SiteHeader(other: other, lang: lang)
+
+    Row(align: .start, class: "bp-wrap") {
+        style { flex-wrap: nowrap; gap: 0; @md { gap: 32px } @xl { gap: 48px } }
+
+        // One per page: the skip link's target. wf-allow(A16)
+
+        Stack(gap: .lg, role: "main", id: "bp-main", tabindex: "-1", class: "bp-main") {
+            style { gap: 24px; padding: 32px 0 72px; @md { padding-top: 40px } }
+
+            Row(class: "bp-labels") { KindLabel(.comingfrom) }
+
+            Stack(gap: .sm) {
+                style { gap: 14px }
+                Heading(title).h1 { style { margin: 0; font-size: clamp(30px, 5vw, 44px); line-height: 1.08; font-weight: 650; letter-spacing: -0.025em } }
+                if summary != "" {
+                    Text(summary, class: "bp-lede")
+                }
+            }
+
+            if sheets.length > 0 {
+                Row(role: "navigation", aria-label: t("coming.sheets"), class: "bp-tabs") {
+                    style { border-bottom: 1px solid $line }
+                    for sheet in sheets by sheet.to {
+                        Link(t(sheet.key), to: sheet.to, class: "bp-tab")
+                    }
+                }
+            }
+
+            Stack(role: "table", aria-label: t("coming.table", { from: from })) {
+                style { gap: 0; min-width: 0 }
+                Grid(columns: { base: 1, md: 3 }, gap: .sm, role: "row", class: "bp-hide-sm") {
+                    style { gap: 16px; padding-bottom: 8px; border-bottom: 1px solid $line; @md { grid-template-columns: 180px minmax(0, 1fr) minmax(0, 1fr) } & p { margin: 0 } }
+                    Text(t("coming.concept"), role: "columnheader", class: "bp-section-label")
+                    Text(from, role: "columnheader", class: "bp-section-label")
+                    Text("WebFluent", role: "columnheader", class: "bp-section-label")
+                }
+                children
+            }
+
+            Stack(gap: .md, class: "bp-prose") {
+                style { gap: 16px }
+                Heading(t("coming.differences"), id: "differences").h2
+                differences
+            }
+
+            Stack(gap: .md, class: "bp-prose") {
+                style { gap: 16px; max-width: none }
+                Heading(t("coming.port"), id: "port").h2
+                port
+            }
+        }
+
+        OnThisPage(sections: sections, source: source)
+    }
+}

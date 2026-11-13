@@ -1,0 +1,18 @@
+/// What a build wrote, a tab per output, and what the compiler found.
+component OutputTabs(html: String = "", css: String = "", js: String = "", findings: String = "") {
+    state tab = "html"
+    derived shown = if tab == "css" { css } else if tab == "js" { js } else if tab == "findings" { findings } else { html }
+
+    Stack(class: "bp-console bp-ltr", dir: "ltr") {
+        style { gap: 0; min-width: 0 }
+        Row(class: "bp-console__bar") {
+            Row(role: "tablist", aria-label: t("playground.outputs"), class: "bp-tabs") {
+                Button(t("example.html"), role: "tab", aria-selected: tab == "html", class: "bp-tab") { on click { tab = "html" } }
+                Button(t("example.css"), role: "tab", aria-selected: tab == "css", class: "bp-tab") { on click { tab = "css" } }
+                Button(t("example.js"), role: "tab", aria-selected: tab == "js", class: "bp-tab") { on click { tab = "js" } }
+                Button(t("playground.findings"), role: "tab", aria-selected: tab == "findings", class: "bp-tab") { on click { tab = "findings" } }
+            }
+        }
+        Code(if shown != "" { shown } else { t("playground.nothing") }, class: "bp-console__code").block { style { max-height: 260px } }
+    }
+}

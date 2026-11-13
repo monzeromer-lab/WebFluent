@@ -1,100 +1,79 @@
-/// The frame every chapter renders inside, as the design draws it: the
-/// header with search, the chapter nav on one side, the article on the
-/// surface at a reading measure, the headings rail on the other, and the
-/// pair of links to the chapters either side.
-component DocsShell(_ heading: String, chapter: String = "", blurb: String = "", source: String = "md-docs", sections: [Anchor] = [], prevTo: String = "", prevLabel: String = "", nextTo: String = "", nextLabel: String = "") {
+/// T2, a chapter or an essay: the header; the book on one side, with how far
+/// the reader has got; the page — its kind and where it sits, the title,
+/// one sentence on what it is, what it assumes — then the body at a reading
+/// measure, what the reader learned, and the pages either side; the
+/// headings on the other side.
+///
+/// The props the guide's generated pages pass (`heading`, `chapter`,
+/// `blurb`, `source`, `sections`, the four prev/next ones) keep their
+/// meaning; the rest are optional and say what the generator will know
+/// once the pages move to `/learn`.
+component DocsShell(_ heading: String, chapter: String = "", blurb: String = "", source: String = "md-docs", sections: [Anchor] = [], prevTo: String = "", prevLabel: String = "", nextTo: String = "", nextLabel: String = "", kind: PageKind = .tutorial, book: [Chapter] = GUIDE, prereqs: [RelatedLink] = [], outputs: [String] = [], learned: [String] = [], codes: [RelatedLink] = [], other: String = "", lang: String = "en") {
     slot
+    use Book
 
-    SiteHeader(docs: true)
+    // A chapter opened counts as read, for the book's progress.
+    effect { Book.visit(location.pathname) }
 
-    Row(align: .stretch) {
-        style { align-items: stretch; flex-wrap: nowrap; background: $color-background; min-height: calc(100vh - 60px) }
+    // The page the reader arrived on suggests what they are building.
+    use Building
+    effect { if let first = outputs[0] { Building.arrive(first) } }
 
-        DocSidebar
+    SiteHeader(docs: true, other: other, lang: lang)
 
-        Stack(gap: .lg, role: "main", class: "docs-main") {
-            style {
-                flex: 1 1 0
-                min-width: 0
-                gap: 24px
-                padding: 24px 16px 88px
-                background: $color-surface
-                @md { gap: 28px; padding: 32px 32px 48px }
-                @lg { padding: 40px 48px }
-            }
+    Row(align: .start, class: "bp-wrap") {
+        style { flex-wrap: nowrap; gap: 0; @md { gap: 32px } @xl { gap: 48px } }
 
-            Row(align: .center, gap: .xs, aria-label: "Breadcrumb", role: "navigation", class: "crumbs") {
-                style { gap: 8px; font-size: 12px; line-height: 18px; color: $ink-subtle; & a { color: $ink-subtle; text-decoration: none } & a:hover { color: $color-text } & p { margin: 0 } }
-                Link(t("nav.guide"), to: "/docs")
-                Text("/")
+        // An essay is read once, not worked through: no book beside it.
+        if kind != .explanation {
+            BookSidebar(chapters: book)
+        }
+
+        // One per page: the skip link's target.
+        Stack(gap: .lg, role: "main", id: "bp-main", tabindex: "-1", class: "bp-main docs-main") { // wf-allow(A16)
+            style { gap: 24px; padding: 32px 0 72px; @md { padding-top: 40px } }
+
+            Row(class: "bp-labels") {
+                KindLabel(kind)
                 if chapter != "" {
-                    Text(chapter) { style { color: $color-text-muted } }
+                    Text(chapter, class: "bp-label")
                 }
+                OutputBadges(outputs: outputs)
             }
 
             Stack(gap: .sm) {
-                style { gap: 16px }
-                Heading(heading).h1 { style { margin: 0; font-size: 28px; line-height: 34px; font-weight: 700; letter-spacing: -0.02em; overflow-wrap: anywhere; @md { font-size: 40px; line-height: 50px; letter-spacing: -0.03em } } }
+                style { gap: 14px }
+                Heading(heading).h1 { style { margin: 0; font-size: clamp(30px, 5vw, 40px); line-height: 1.08; font-weight: 650; letter-spacing: -0.025em; overflow-wrap: anywhere } }
                 if blurb != "" {
-                    Text(blurb) { style { margin: 0; font-size: 16px; line-height: 24px; color: $color-text-muted; @md { font-size: 17px; line-height: 26px } } }
+                    Text(blurb, class: "bp-lede")
                 }
+                Prereqs(links: prereqs)
             }
 
-            // The chapters are written in English; they keep their direction
-            // when the site's chrome switches to Arabic.
-            Stack(gap: .lg, dir: "ltr", class: "docs-article") {
-                style { gap: 24px; max-width: 680px; min-width: 0; text-align: start; @md { gap: 28px } }
+            // The guide is written in English; it keeps its direction when
+            // the interface switches to Arabic. An Arabic page reads right
+            // to left.
+            Stack(gap: .lg, dir: if lang == "ar" { "rtl" } else { "ltr" }, class: "bp-prose docs-article") {
+                style { gap: 20px; text-align: start }
                 children
             }
 
-            if nextLabel != "" || prevLabel != "" {
-                Row(gap: .md, align: .stretch, aria-label: "Chapters either side", role: "navigation") {
-                    style { gap: 16px; max-width: 680px; margin-top: auto; padding-top: 8px; flex-wrap: wrap }
-
-                    if prevLabel != "" {
-                        Link(to: prevTo) {
-                            style {
-                                flex: 1 1 200px
-                                display: flex
-                                flex-direction: column
-                                gap: 2px
-                                padding: 12px 16px
-                                border: 1px solid $color-border
-                                border-radius: 10px
-                                background: $surface-raised
-                                text-decoration: none
-                                &:hover { border-color: $border-strong; text-decoration: none }
-                                & p { margin: 0 }
-                            }
-                            Text(t("docs.previous")) { style { font-size: 12px; line-height: 18px; color: $ink-subtle } }
-                            Text(prevLabel) { style { font-size: 15px; line-height: 20px; font-weight: 600; color: $color-text } }
-                        }
-                    }
-
-                    if nextLabel != "" {
-                        Link(to: nextTo) {
-                            style {
-                                flex: 1 1 200px
-                                display: flex
-                                flex-direction: column
-                                align-items: flex-end
-                                gap: 2px
-                                padding: 12px 16px
-                                border: 1px solid $color-border
-                                border-radius: 10px
-                                background: $surface-raised
-                                text-decoration: none
-                                &:hover { border-color: $border-strong; text-decoration: none }
-                                & p { margin: 0 }
-                            }
-                            Text(t("docs.next")) { style { font-size: 12px; line-height: 18px; color: $ink-subtle } }
-                            Text(nextLabel) { style { font-size: 15px; line-height: 20px; font-weight: 600; color: $color-text } }
+            if learned.length > 0 {
+                Stack(gap: .sm, class: "bp-raised") {
+                    style { gap: 10px; max-width: $prose-max; padding: 20px }
+                    Heading(t("docs.learned")).h2 { style { margin: 0; font-size: 19px; line-height: 1.3; font-weight: 600 } }
+                    List {
+                        style { margin: 0; padding-inline-start: 20px; & li { margin: 4px 0; color: $ink; font-size: 15px } }
+                        for item in learned by item {
+                            List.Item { Markdown(item) }
                         }
                     }
                 }
             }
+
+            PrevNext(prevTo: prevTo, prevLabel: prevLabel, nextTo: nextTo, nextLabel: nextLabel)
         }
 
-        OnThisPage(sections: sections, source: source)
+        OnThisPage(sections: sections, source: source, codes: codes)
     }
 }

@@ -3,15 +3,14 @@
   "version": "6.0.0",
   "author": "Monzer Omer",
   "theme": {
-    "name": "Day",
-    "dark": "Night",
+    "name": "Night",
     "builtin": "full"
   },
   "build": {
     "output": "../docs",
     "ssg": true,
     "split": true,
-    "minify": true, 
+    "minify": true,
     "compress": true,
     "csp": true,
     "base_path": "",
@@ -33,7 +32,7 @@
     "site_name": "WebFluent",
     "sitemap": true,
     "preload": [
-      "/fonts/inter-latin.woff2",
+      "/fonts/instrument-sans-latin.woff2",
       "/fonts/jetbrains-mono-latin.woff2"
     ],
     "scripts": [

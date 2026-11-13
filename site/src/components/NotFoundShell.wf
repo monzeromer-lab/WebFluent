@@ -1,0 +1,63 @@
+/// T9, an address with no page: what happened, the routes closest to the
+/// one asked for, search, and the main sections. `routes` are the places
+/// the site has, by name; the closest share the most words with the
+/// address.
+component NotFoundShell(routes: [Place] = [], other: String = "", lang: String = "en") {
+    use Search
+    state asked = ""
+    derived words = asked.toLowerCase().split(/[^a-z0-9]+/).filter(w => w.length > 2)
+    derived closest = routes.filter(r => words.some(w => r.to.toLowerCase().includes(w))).take(5)
+
+    effect { asked = location.pathname }
+
+    SiteHeader(other: other, lang: lang)
+
+    // One per page: the skip link's target. wf-allow(A16)
+
+    Stack(gap: .lg, role: "main", id: "bp-main", tabindex: "-1", class: "bp-main bp-wrap") {
+        style { gap: 28px; max-width: 760px; padding-top: 48px; padding-bottom: 80px; @md { padding-top: 80px } }
+
+        Stack(gap: .sm) {
+            style { gap: 14px }
+            Text("404", class: "bp-label bp-num", data-tone: "construction") { style { align-self: flex-start } }
+            Heading(t("notfound.title")).h1 { style { margin: 0; font-size: clamp(30px, 5vw, 40px); line-height: 1.08; font-weight: 650; letter-spacing: -0.025em } }
+            Text(t("notfound.body"), class: "bp-lede")
+            if asked != "" {
+                Code(asked, class: "bp-ltr", dir: "ltr") { style { align-self: flex-start; padding: 4px 8px; border: 1px solid $line; border-radius: 4px; background: $raised; color: $muted; font-size: 13px } }
+            }
+        }
+
+        if closest.length > 0 {
+            Stack(gap: .sm) {
+                style { gap: 10px }
+                Heading(t("notfound.closest")).h2 { style { margin: 0; font-size: 19px; font-weight: 600 } }
+                Stack(class: "bp-navlist") {
+                    for r in closest by r.to {
+                        Link(to: r.to, class: "bp-navlink") {
+                            Text(t(r.key))
+                            Text(r.to, class: "bp-mono bp-muted") { style { margin-inline-start: auto; font-size: 12px } }
+                        }
+                    }
+                }
+            }
+        }
+
+        Button(class: "bp-field") {
+            style { max-width: 420px }
+            on click { Search.reveal() }
+            Icon("search")
+            Text(t("search.trigger")) { style { flex: 1 1 auto } }
+            Text(keyLabel("mod+k"), class: "bp-kbd")
+        }
+
+        Stack(gap: .sm) {
+            style { gap: 10px }
+            Heading(t("notfound.sections")).h2 { style { margin: 0; font-size: 19px; font-weight: 600 } }
+            Grid(columns: { base: 2, md: 3 }, gap: .sm) {
+                for place in SECTIONS by place.to {
+                    Link(t(place.key), to: place.to, class: "bp-card") { style { font-weight: 600 } }
+                }
+            }
+        }
+    }
+}

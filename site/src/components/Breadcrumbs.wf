@@ -1,0 +1,14 @@
+/// Where a page sits: its section, then the group within it. The last
+/// crumb is the page's own place and is not a link.
+component Breadcrumbs(trail: [Place] = [], current: String = "") {
+    Row(align: .center, gap: .xs, role: "navigation", aria-label: t("crumbs.label")) {
+        style { flex-wrap: wrap; gap: 6px; font-size: 13px; color: $muted; & p { margin: 0 } & a { color: $muted; text-decoration: none } & a:hover { color: $ink } }
+        for crumb in trail by crumb.to {
+            Link(t(crumb.key), to: crumb.to)
+            Text("/", aria-hidden: "true")
+        }
+        if current != "" {
+            Text(current, aria-current: "page") { style { color: $ink } }
+        }
+    }
+}

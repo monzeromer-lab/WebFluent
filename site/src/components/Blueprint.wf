@@ -1,0 +1,108 @@
+/// What the Blueprint components share: the shapes of the data they draw,
+/// and the site's map as the header, the footer and the book read it.
+
+/// A place on the site: a translation key for its name, and its route.
+type Place {
+    key: String,
+    to: String
+}
+
+/// A group of places under a name, as the footer lists them.
+type PlaceGroup {
+    key: String,
+    places: [Place]
+}
+
+/// One chapter of the book: its number, its title, where it lives, the
+/// translation key of the part of the book it is in, the translation key of
+/// its title when it has one, and whether it is one of the tour's first
+/// three.
+type Chapter {
+    n: Number,
+    title: String,
+    to: String,
+    part: String = "",
+    key: String = "",
+    tour: Bool = false
+}
+
+/// One entry of an index sidebar: a name, a route, and the group above it.
+type IndexEntry {
+    label: String,
+    to: String,
+    group: String = ""
+}
+
+/// One file of an example: its name, its text, and the language the
+/// highlighter reads it in.
+type CodeFile {
+    name: String,
+    code: String,
+    language: String = "wf"
+}
+
+/// One row of a props, events or slots table.
+type PropRow {
+    name: String,
+    kind: String,
+    detail: String = "",
+    fallback: String = ""
+}
+
+/// One answer of a quiz question, and why it is right or wrong.
+type QuizChoice {
+    text: String,
+    right: Bool = false,
+    why: String = ""
+}
+
+/// One line of a cheat sheet: the reader's idiom, and ours.
+type CheatLine {
+    concept: String,
+    theirs: String,
+    ours: String
+}
+
+/// A related page: its kind, its title and where it is.
+type RelatedLink {
+    kind: String,
+    title: String,
+    to: String
+}
+
+/// The six things WebFluent makes, which the Building switch filters by.
+const OUTPUTS = ["website", "app", "pdf", "slides", "elements", "desktop"]
+
+/// The top navigation, in order. These are the rewritten site's routes.
+const SECTIONS: [Place] = [
+    Place(key: "nav.learn", to: "/learn"),
+    Place(key: "nav.recipes", to: "/recipes"),
+    Place(key: "nav.reference", to: "/reference"),
+    Place(key: "nav.errors", to: "/errors"),
+    Place(key: "nav.playground", to: "/playground"),
+    Place(key: "nav.showcase", to: "/showcase")
+]
+
+/// The footer's columns.
+const FOOTER: [PlaceGroup] = [
+    PlaceGroup(key: "footer.learn", places: [
+        Place(key: "footer.tour", to: "/learn/01-getting-started"),
+        Place(key: "footer.book", to: "/learn"),
+        Place(key: "footer.essays", to: "/about")
+    ]),
+    PlaceGroup(key: "footer.do", places: [
+        Place(key: "nav.recipes", to: "/recipes"),
+        Place(key: "footer.comingfrom", to: "/coming-from/react"),
+        Place(key: "nav.showcase", to: "/showcase")
+    ]),
+    PlaceGroup(key: "footer.lookup", places: [
+        Place(key: "footer.components", to: "/reference"),
+        Place(key: "footer.cli", to: "/reference/cli"),
+        Place(key: "nav.errors", to: "/errors")
+    ]),
+    PlaceGroup(key: "footer.agents", places: [
+        Place(key: "footer.llms", to: "/llms.txt"),
+        Place(key: "footer.context", to: "/reference/cli/context"),
+        Place(key: "footer.changelog", to: "/changelog")
+    ])
+]

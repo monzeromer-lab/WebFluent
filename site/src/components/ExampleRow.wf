@@ -1,0 +1,21 @@
+/// One composition example on a reference page: what it shows, drawn on the
+/// measuring grid, then what it is for, then the code.
+component ExampleRow(_ title: String, body: String = "", code: String = "") {
+    Grid(columns: { base: 1, md: 2 }, class: "bp-sheet") {
+        style { gap: 0; overflow: hidden }
+        Stack(class: "bp-grid") {
+            style { align-items: center; justify-content: center; min-height: 140px; padding: 24px; border-bottom: 1px solid $line; @md { border-bottom: 0; border-inline-end: 1px solid $line } }
+            children
+        }
+        Stack(gap: .sm) {
+            style { gap: 8px; padding: 16px; min-width: 0 }
+            Heading(title).h3 { style { margin: 0; font-size: 16px; font-weight: 600 } }
+            if body != "" {
+                Text(body, class: "bp-small")
+            }
+            if code != "" {
+                Code(code, language: "wf", class: "bp-console__code bp-console bp-ltr", dir: "ltr").block { style { padding: 12px; font-size: 12px } }
+            }
+        }
+    }
+}

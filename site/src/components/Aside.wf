@@ -1,0 +1,10 @@
+/// A note beside the prose: a cyan dot and a leader line down the side,
+/// never a box. `label` names what kind of note it is ("Coming from React?").
+component Aside(_ body: String, label: String = "") {
+    Stack(role: "note", aria-label: if label != "" { label } else { t("aside.note") }, class: "bp-aside") {
+        if label != "" {
+            Text(label, class: "bp-aside__label")
+        }
+        Markdown(body)
+    }
+}

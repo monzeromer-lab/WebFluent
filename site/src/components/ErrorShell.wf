@@ -1,0 +1,82 @@
+/// T5, one diagnostic: the code, its title, its severity and family; what
+/// the compiler prints, as it prints it; why the rule exists (the page's
+/// body); the broken code and the fixed one, side by side; whether `lints`
+/// may lower it; then related codes and the chapter that covers it. Every
+/// family is in the sidebar.
+component ErrorShell(_ code: String, title: String = "", severity: String = "error", family: String = "", summary: String = "", printed: String = "", lowerable: Bool = false, families: [IndexEntry] = [], related: [RelatedLink] = [], sections: [Anchor] = [], source: String = "md-docs", other: String = "", lang: String = "en") {
+    slot broken
+    slot fixed
+    slot
+
+    SiteHeader(docs: true, other: other, lang: lang)
+
+    Row(align: .start, class: "bp-wrap") {
+        style { flex-wrap: nowrap; gap: 0; @md { gap: 32px } @xl { gap: 48px } }
+
+        IndexSidebar(entries: families, label: t("nav.errors"))
+
+        // One per page: the skip link's target. wf-allow(A16)
+
+        Stack(gap: .lg, role: "main", id: "bp-main", tabindex: "-1", class: "bp-main") {
+            style { gap: 24px; padding: 32px 0 72px; @md { padding-top: 40px } }
+
+            Breadcrumbs(trail: [Place(key: "nav.errors", to: "/errors")], current: family)
+
+            Row(class: "bp-labels") {
+                KindLabel(.error)
+                Text(code, class: "bp-label", data-tone: if severity == "error" { "error" } else { "construction" })
+                Text(if severity == "error" { t("error.severity.error") } else { t("error.severity.warning") }, class: "bp-label")
+                if family != "" {
+                    Text(family, class: "bp-label")
+                }
+            }
+
+            Stack(gap: .sm) {
+                style { gap: 14px }
+                Heading(title).h1 { style { margin: 0; font-size: clamp(28px, 5vw, 40px); line-height: 1.1; font-weight: 650; letter-spacing: -0.025em } }
+                if summary != "" {
+                    Text(summary, class: "bp-lede")
+                }
+            }
+
+            Stack(gap: .sm) {
+                style { gap: 12px }
+                Heading(t("error.printed"), id: "printed").h2 { style { margin: 0; font-size: 19px; font-weight: 600 } }
+                Diagnostic(printed)
+            }
+
+            Stack(gap: .md, class: "bp-prose") {
+                style { gap: 14px }
+                Heading(t("error.why"), id: "why").h2
+                children
+            }
+
+            Stack(gap: .sm) {
+                style { gap: 12px }
+                Heading(t("error.fix"), id: "fix").h2 { style { margin: 0; font-size: 19px; font-weight: 600 } }
+                Grid(columns: { base: 1, lg: 2 }, gap: .md) {
+                    Stack(gap: .xs) {
+                        style { gap: 8px; min-width: 0 }
+                        Text(t("error.broken"), class: "bp-label", data-tone: "error") { style { align-self: flex-start; font-family: inherit } }
+                        broken
+                    }
+                    Stack(gap: .xs) {
+                        style { gap: 8px; min-width: 0 }
+                        Text(t("error.fixed"), class: "bp-label", data-tone: "ok") { style { align-self: flex-start } }
+                        fixed
+                    }
+                }
+            }
+
+            Row(align: .center, gap: .sm, class: "bp-raised") {
+                style { gap: 12px; flex-wrap: wrap; padding: 14px 16px; max-width: $prose-max }
+                Text(if lowerable { t("error.lowerable.yes") } else { t("error.lowerable.no") }) { style { margin: 0; font-size: 14px } }
+                Code("\"lints\": \{ \"{code}\": \"warn\" \}", class: "bp-ltr", dir: "ltr") { style { font-size: 12.5px; color: $muted } }
+            }
+
+            Related(links: related)
+        }
+
+        OnThisPage(sections: sections, source: source)
+    }
+}

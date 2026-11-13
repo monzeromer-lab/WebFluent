@@ -9,8 +9,8 @@ component ConsentBanner {
             Text(t("consent.title"), class: "consent-title")
             Text(t("consent.body"), class: "consent-text")
             Row(class: "consent-actions") {
-                Button(t("consent.decline"), class: "site-button site-button-outlined") { on click { Consent.choose(false) } }
-                Button(t("consent.allow"), class: "site-button site-button-primary") { on click { Consent.choose(true) } }
+                Button(t("consent.decline"), class: "bp-button") { on click { Consent.choose(false) } }
+                Button(t("consent.allow"), class: "bp-button", data-tone: "action") { on click { Consent.choose(true) } }
             }
         }
     }

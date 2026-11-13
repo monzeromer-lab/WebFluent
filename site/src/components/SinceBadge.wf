@@ -1,0 +1,4 @@
+/// The release something arrived in.
+component SinceBadge(_ version: String) {
+    Text(t("since", { version: version }), class: "bp-label bp-num")
+}

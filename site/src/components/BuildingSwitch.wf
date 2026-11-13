@@ -1,0 +1,38 @@
+/// What the reader is building, kept across visits. It filters the badges
+/// and examples a page shows, never the content itself. Until the reader
+/// picks one, the page they arrived on suggests it (`arrive`).
+store Building {
+    persist output = "website"
+    persist chosen = false
+
+    action pick(kind: String) {
+        output = kind
+        chosen = true
+    }
+
+    /// The page the reader arrived on names what it is about; the switch
+    /// follows it until the reader chooses for themselves.
+    action arrive(kind: String) {
+        if !chosen && OUTPUTS.includes(kind) {
+            output = kind
+        }
+    }
+}
+
+/// The Building switch in the header: one select, the six outputs.
+component BuildingSwitch {
+    use Building
+
+    Row(align: .center, gap: .sm, class: "bp-select") {
+        style { flex-wrap: nowrap; gap: 8px; flex-shrink: 0 }
+        Select(bind: Building.output, aria-label: t("building.label")) {
+            on change { Building.pick(Building.output) }
+            Select.Option(t("building.website"), value: "website")
+            Select.Option(t("building.app"), value: "app")
+            Select.Option(t("building.pdf"), value: "pdf")
+            Select.Option(t("building.slides"), value: "slides")
+            Select.Option(t("building.elements"), value: "elements")
+            Select.Option(t("building.desktop"), value: "desktop")
+        }
+    }
+}

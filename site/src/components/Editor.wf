@@ -1,0 +1,17 @@
+/// The Playground's editor at its static level: the file's text in a plain
+/// field, sent on as it changes. The compiler in the browser arrives later.
+component Editor(_ text: String, file: String = "Home.wf") {
+    event edit(text: String)
+    state draft = text
+
+    Stack(class: "bp-pane") {
+        style { background: $console; border-color: $console-line }
+        Row(class: "bp-pane__bar") {
+            style { background: $console-bar; border-color: $console-line; color: $term-dim }
+            Text(file, class: "bp-mono") { style { font-size: 12px } }
+        }
+        Textarea(bind: draft, aria-label: t("playground.editor", { file: file }), rows: 18, class: "bp-editor", spellcheck: "false", dir: "ltr") {
+            on input { emit edit(draft) }
+        }
+    }
+}

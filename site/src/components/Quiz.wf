@@ -1,0 +1,39 @@
+/// One question at the end of a chapter: the choices, and — once the reader
+/// checks — why the one they picked is right or wrong.
+component Quiz(_ question: String, choices: [QuizChoice] = []) {
+    state picked = -1
+    state checked = false
+    derived verdict = choices[picked]
+
+    Stack(gap: .md, role: "group", aria-label: t("quiz.label"), class: "bp-raised") {
+        style { gap: 14px; max-width: $prose-max; padding: 20px }
+        Text(t("quiz.label")) { style { margin: 0; font-size: 15px; font-weight: 650 } }
+        Markdown(question)
+        Stack(gap: .xs) {
+            style { gap: 8px }
+            for choice, i in choices by choice.text {
+                Button(aria-pressed: picked == i, class: "bp-choice", data-verdict: if checked && picked == i { if choice.right { "right" } else { "wrong" } } else { "none" }) {
+                    style { width: 100%; color: $ink; font-family: inherit; text-align: start }
+                    on click { picked = i  checked = false }
+                    Text(choice.text)
+                }
+            }
+        }
+        Row(align: .center, gap: .md) {
+            style { flex-wrap: wrap; gap: 12px }
+            Button(t("quiz.check"), disabled: picked < 0, class: "bp-button", data-tone: "action") {
+                on click { checked = true }
+            }
+            if checked {
+                if let v = verdict {
+                    Text(if v.right { t("quiz.right") } else { t("quiz.wrong") }, class: "bp-label", data-tone: if v.right { "ok" } else { "error" }, role: "status")
+                }
+            }
+        }
+        if checked {
+            if let v = verdict {
+                Text(v.why, class: "bp-small")
+            }
+        }
+    }
+}

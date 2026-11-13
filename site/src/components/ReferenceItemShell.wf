@@ -1,0 +1,64 @@
+/// T4, one reference item: its name, a one-line summary and its signature;
+/// the Stage with its controls; then props, events, slots and parts and
+/// composition examples (the page's body); the codes it can raise; the
+/// release it arrived in and the outputs it works in; and the hand notes,
+/// if any. The index of every item is in the sidebar.
+component ReferenceItemShell(_ name: String, summary: String = "", signature: String = "", since: String = "", outputs: [String] = [], missing: [String] = [], group: String = "", entries: [IndexEntry] = [], sections: [Anchor] = [], codes: [RelatedLink] = [], source: String = "md-docs", other: String = "", lang: String = "en") {
+    slot stage
+    slot notes
+    slot
+    use Building
+    // The page the reader arrived on suggests what they are building.
+    effect { if let first = outputs[0] { Building.arrive(first) } }
+
+    SiteHeader(docs: true, other: other, lang: lang)
+
+    Row(align: .start, class: "bp-wrap") {
+        style { flex-wrap: nowrap; gap: 0; @md { gap: 32px } @xl { gap: 48px } }
+
+        IndexSidebar(entries: entries, label: t("nav.reference"))
+
+        // One per page: the skip link's target. wf-allow(A16)
+
+        Stack(gap: .lg, role: "main", id: "bp-main", tabindex: "-1", class: "bp-main reference-main") {
+            style { gap: 24px; padding: 32px 0 72px; @md { padding-top: 40px } }
+
+            Breadcrumbs(trail: [Place(key: "nav.reference", to: "/reference")], current: group)
+
+            Stack(gap: .sm) {
+                style { gap: 12px }
+                Row(class: "bp-labels") { KindLabel(.reference) }
+                Heading(name, class: "bp-mono").h1 { style { margin: 0; font-size: clamp(30px, 5vw, 40px); line-height: 1.08; font-weight: 600; letter-spacing: -0.02em } }
+                if summary != "" {
+                    Text(summary, class: "bp-lede")
+                }
+                if signature != "" {
+                    Code(signature, class: "bp-ltr", dir: "ltr") {
+                        style { align-self: flex-start; max-width: 100%; overflow-x: auto; padding: 6px 10px; border: 1px solid $line; border-radius: 4px; background: $raised; color: $ink; font-size: 13px; white-space: pre }
+                    }
+                }
+                Row(class: "bp-labels") {
+                    if since != "" {
+                        SinceBadge(since)
+                    }
+                    OutputBadges(outputs: outputs, missing: missing)
+                }
+            }
+
+            stage
+
+            Stack(gap: .lg, class: "bp-ltr", dir: "ltr") {
+                style { gap: 28px; min-width: 0; & h2 { margin: 8px 0 0; font-size: 26px; line-height: 1.2; font-weight: 650; scroll-margin-top: 80px } }
+                children
+            }
+
+            CodeFamily(codes: codes)
+
+            Stack(gap: .sm, class: "bp-prose") {
+                notes
+            }
+        }
+
+        OnThisPage(sections: sections, source: source)
+    }
+}

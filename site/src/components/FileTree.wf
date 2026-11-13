@@ -1,0 +1,17 @@
+/// A project's files in the Playground: one row each, the open one marked.
+component FileTree(files: [String] = [], current: String = "") {
+    event pick(name: String)
+    Stack(class: "bp-pane", role: "group", aria-label: t("playground.files")) {
+        Row(class: "bp-pane__bar") {
+            Text(t("playground.files"), class: "bp-section-label")
+        }
+        Stack {
+            style { gap: 2px; padding: 6px }
+            for f in files by f {
+                Button(f, aria-current: if f == current { "true" } else { "false" }, class: "bp-file") {
+                    on click { emit pick(f) }
+                }
+            }
+        }
+    }
+}

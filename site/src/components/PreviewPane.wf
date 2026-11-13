@@ -1,0 +1,26 @@
+/// What the Playground built, running: at a desktop's width, or in a phone's
+/// frame.
+component PreviewPane(src: String = "", title: String = "") {
+    state phone = false
+
+    Stack(class: "bp-pane") {
+        Row(class: "bp-pane__bar") {
+            Text(t("playground.preview"), class: "bp-section-label")
+            Row(role: "group", aria-label: t("playground.device"), gap: .xs) {
+                style { flex-wrap: nowrap; gap: 4px }
+                Button(t("playground.desktop"), aria-pressed: !phone, class: "bp-button", data-tone: "quiet") { on click { phone = false } }
+                Button(t("playground.phone"), aria-pressed: phone, class: "bp-button", data-tone: "quiet") { on click { phone = true } }
+            }
+        }
+        Stack(class: "bp-grid") {
+            style { flex: 1 1 auto; min-height: 320px; padding: 16px }
+            if src != "" {
+                Frame(src: src, title: if title != "" { title } else { t("playground.preview") }, class: if phone { "bp-phone" } else { "" }) {
+                    style { flex: 1 1 auto; width: 100%; min-height: 300px; border: 1px solid $line; border-radius: 4px; background: $sheet }
+                }
+            } else {
+                Text(t("playground.empty"), class: "bp-small") { style { margin: auto } }
+            }
+        }
+    }
+}

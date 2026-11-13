@@ -1,0 +1,22 @@
+/// How far through the book the reader is, for the book's contents page:
+/// the count, a bar, and where to go on.
+component BookProgress(chapters: [Chapter] = []) {
+    use Book
+    derived done = chapters.filter(c => Book.read.includes(c.to)).length
+    derived next = chapters.find(c => !Book.read.includes(c.to))
+
+    Stack(gap: .sm, class: "bp-card") {
+        style { gap: 10px; max-width: $prose-max }
+        Row(justify: .between, align: .center) {
+            style { flex-wrap: nowrap }
+            Text(t("book.title")) { style { font-weight: 650 } }
+            Text(t("book.progress", { done: done, total: chapters.length }), class: "bp-small bp-num")
+        }
+        Stack(class: "bp-meter") {
+            Progress(value: done, max: if chapters.length > 0 { chapters.length } else { 1 }, aria-label: t("book.progress", { done: done, total: chapters.length }))
+        }
+        if let n = next {
+            Link(t("book.continue", { title: n.title }), to: n.to) { style { color: $link; font-size: 14px } }
+        }
+    }
+}

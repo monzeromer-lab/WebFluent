@@ -1,0 +1,19 @@
+/// A finding drawn as `wf` prints it: the code and its title over the text
+/// the compiler wrote, with a link to the code's page.
+component Diagnostic(_ printed: String, code: String = "", title: String = "", severity: String = "error", to: String = "") {
+    Stack(role: "group", aria-label: t("diagnostic.label", { code: code }), class: "bp-diagnostic bp-ltr", dir: "ltr") {
+        style { gap: 0 }
+        if code != "" {
+            Row(class: "bp-diagnostic__head") {
+                Text(code, class: "bp-label", data-tone: if severity == "error" { "error" } else { "construction" })
+                Text(title) { style { font-weight: 600 } }
+                if to != "" {
+                    Link(t("diagnostic.read", { code: code }), to: to) { style { margin-inline-start: auto; color: $syntax-keyword; font-size: 13px } }
+                }
+            }
+        }
+        Text(printed, class: "bp-mono") {
+            style { margin: 0; padding: 12px 14px; overflow-x: auto; white-space: pre; font-size: 13px; line-height: 1.65; color: $term-ink }
+        }
+    }
+}
