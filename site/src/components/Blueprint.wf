@@ -79,7 +79,7 @@ const SECTIONS: [Place] = [
     Place(key: "nav.recipes", to: "/recipes"),
     Place(key: "nav.reference", to: "/reference"),
     Place(key: "nav.errors", to: "/errors"),
-    // The Playground joins the bar when the compiler runs in the page.
+    Place(key: "nav.playground", to: "/playground"),
     Place(key: "nav.showcase", to: "/showcase")
 ]
 
@@ -92,6 +92,7 @@ const FOOTER: [PlaceGroup] = [
     ]),
     PlaceGroup(key: "footer.do", places: [
         Place(key: "nav.recipes", to: "/recipes"),
+        Place(key: "nav.playground", to: "/playground"),
         Place(key: "footer.comingfrom", to: "/coming-from/react"),
         Place(key: "nav.showcase", to: "/showcase")
     ]),

@@ -1,17 +1,22 @@
-/// The Playground's editor at its static level: the file's text in a plain
-/// field, sent on as it changes. The compiler in the browser arrives later.
-component Editor(_ text: String, file: String = "Home.wf") {
+/// The live editor: the file's text, highlighted as it is typed (`wfEditor`
+/// in `live.js`), sent on after every edit. A new `text` from outside — a
+/// file switched to, a mistake put in, a fix applied — replaces what it
+/// shows; the text it sent back changes nothing.
+component Editor(_ text: String, file: String = "Home.wf", language: String = "wf", bar: Bool = true) {
     event edit(text: String)
-    state draft = text
 
-    Stack(class: "bp-pane") {
-        style { background: $console; border-color: $console-line }
-        Row(class: "bp-pane__bar") {
-            style { background: $console-bar; border-color: $console-line; color: $term-dim }
-            Text(file, class: "bp-mono") { style { font-size: 12px } }
+    action changed(next: String) { emit edit(next) }
+
+    Stack(class: "bp-pane bp-editor") {
+        style { gap: 0; background: $console; border-color: $console-line }
+        if bar {
+            Row(class: "bp-pane__bar") {
+                style { background: $console-bar; border-color: $console-line; color: $term-dim }
+                Text(file, class: "bp-mono") { style { font-size: 12px } }
+            }
         }
-        Textarea(bind: draft, aria-label: t("playground.editor", { file: file }), rows: 18, class: "bp-editor", spellcheck: "false", dir: "ltr") {
-            on input { emit edit(draft) }
+        Host(tag: "div", mount: (n) => wfEditor(n, text, t("playground.editor", { file: file }), language, (next) => changed(next)), update: (h) => h.set(text, language)) {
+            style { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0 }
         }
     }
 }

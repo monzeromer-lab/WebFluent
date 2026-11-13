@@ -50,12 +50,16 @@ browser-features: release
 site:
     cargo build --release
     target/release/wf build -d site --allow-output-outside
+    -scripts/site-wasm.sh
     target/release/wf serve -d site --allow-output-outside
 
-# Build the docs site for production
+# Build the docs site for production, with the compiler its live examples
+# load (crates/wf-wasm/build.sh first) and the size budget checked
 site-build:
     cargo build --release
     target/release/wf build -d site --allow-output-outside
+    crates/wf-wasm/build.sh
+    scripts/site-wasm.sh
 
 # PDFs and previews go to site/public/showcase/, the list to
 # site/src/showcase.json; needs pdftoppm, pdfinfo and magick. `--hero` also

@@ -1,16 +1,89 @@
-/// T7, the Playground: the project's files, the editor, the running page,
-/// what the build wrote and found, the tests; Share, Download and the
-/// examples. At this level nothing compiles: the panes show what the site
-/// built, and the compiler in the browser arrives later.
-component PlaygroundShell(files: [CodeFile] = [], preview: String = "", html: String = "", css: String = "", js: String = "", findings: String = "", tests: [Map] = [], examples: [Place] = [], other: String = "", lang: String = "en") {
-    state current = files[0]?.name ?? ""
+/// T7, the Playground: a project's files, the editor, the running page,
+/// what the build wrote and found; Share, Download and the examples. The
+/// compiler is the one `wf build` is, as WebAssembly, fetched the first
+/// time the reader runs or edits something — nothing is sent to a server.
+/// A shared address carries the project in its hash (`wfShared`).
+component PlaygroundShell(examples: [Project] = PLAYGROUND_EXAMPLES, other: String = "", lang: String = "en") {
+    state files: [CodeFile] = examples[0]?.files ?? []
+    state name = examples[0]?.name ?? "project"
+    state current = examples[0]?.files[0]?.name ?? ""
+    state picked = examples[0]?.name ?? ""
+    state stage = ""
+    state run = 0
+    state result: Map? = null
+    state pdfStage = ""
+    state pdfRun = 0
+    state pdfResult: Map? = null
+    state pdfBusy = false
+    state shared = false
     derived file = files.find(f => f.name == current)
+    derived findings: [Map] = result?.findings ?? []
+    derived fixable = findings.find(f => f.fixed != "" && f.file == current)
+
+    action project() {
+        let m = {}
+        for f in files { m[f.name] = f.code }
+        return m
+    }
+    action build() {
+        wfWarm(WASM)
+        if stage == "" { stage = wfSlot() }
+        let m = project()
+        wfBuild(WASM, stage, m, m["webfluent.app.json"] ?? "{}", (r) => heard(r))
+    }
+    action heard(r: Map) {
+        result = r
+        if r.ok { run = run + 1 }
+    }
+    action buildPdf() {
+        if pdfStage == "" { pdfStage = wfSlot() }
+        pdfBusy = true
+        let m = project()
+        wfBuild(WASM, pdfStage, m, wfAsDocument(m["webfluent.app.json"] ?? "{}"), (r) => heardPdf(r), 0)
+    }
+    action heardPdf(r: Map) {
+        pdfResult = r
+        pdfBusy = false
+        if r.ok { pdfRun = pdfRun + 1 }
+    }
+    action edited(text: String) {
+        files = files.map(f => if f.name == current { CodeFile(name: f.name, code: text, language: f.language) } else { f })
+        pdfResult = null
+        pdfRun = 0
+        build()
+    }
+    action fix(text: String) { edited(text) }
+    action open(p: Project) {
+        files = p.files
+        name = p.name
+        picked = p.name
+        current = p.files[0]?.name ?? ""
+        result = null
+        run = 0
+        pdfResult = null
+        pdfRun = 0
+    }
+    action pick(key: String) {
+        if let p = examples.find(x => x.name == key) { open(p) }
+    }
+    action arrived(given: Map) {
+        let names = Object.keys(given).sort()
+        files = names.map(n => CodeFile(name: n, code: given[n], language: if n.endsWith(".json") { "json" } else { "wf" }))
+        name = "shared"
+        picked = ""
+        current = names.find(n => n.startsWith("src/pages/")) ?? names[0] ?? ""
+    }
+    action share() {
+        await wfShare(project())
+        shared = true
+        setTimeout(() => unshare(), 2400)
+    }
+    action unshare() { shared = false }
+    action download() { wfDownload(name, project()) }
 
     SiteHeader(docs: true, other: other, lang: lang)
 
-    // One per page: the skip link's target. wf-allow(A16)
-
-    Stack(role: "main", id: "bp-main", tabindex: "-1", class: "bp-main") {
+    Stack(role: "main", id: "bp-main", tabindex: "-1", class: "bp-main", mount: (n) => wfShared((given) => arrived(given))) { // wf-allow(A16)
         style { gap: 16px; padding: 16px; @md { padding: 20px 24px } }
 
         Row(align: .center, justify: .between, gap: .md) {
@@ -19,45 +92,52 @@ component PlaygroundShell(files: [CodeFile] = [], preview: String = "", html: St
                 style { flex-wrap: wrap; gap: 10px }
                 KindLabel(.playground)
                 Heading(t("playground.title")).h1 { style { margin: 0; font-size: 22px; line-height: 1.2; font-weight: 650 } }
+                Text(name, class: "bp-mono bp-small")
             }
             Row(align: .center, gap: .sm) {
                 style { flex-wrap: wrap; gap: 8px }
-                Select(bind: current, aria-label: t("playground.examples"), class: "bp-select") {
-                    for f in files by f.name {
-                        Select.Option(f.name, value: f.name)
+                Select(bind: picked, aria-label: t("playground.examples"), class: "bp-select") {
+                    on change { pick(picked) }
+                    if picked == "" {
+                        Select.Option(t("playground.examples"), value: "")
+                    }
+                    for ex in examples by ex.name {
+                        Select.Option(t(ex.key), value: ex.name)
                     }
                 }
-                Button(t("playground.share"), class: "bp-button")
-                Button(t("playground.download"), class: "bp-button")
-                Button(t("playground.run"), class: "bp-button", data-tone: "action")
-            }
-        }
-
-        Grid(columns: { base: 1, lg: 2 }, gap: .md) {
-            style { gap: 16px; align-items: stretch; @xl { grid-template-columns: 200px minmax(0, 1fr) minmax(0, 1fr) } }
-            FileTree(files: files.map(f => f.name), current: current, class: "bp-hide-sm") {
-                on pick(name) { current = name }
-            }
-            if let f = file {
-                Editor(f.code, file: f.name)
-            }
-            PreviewPane(src: preview)
-        }
-
-        Grid(columns: { base: 1, lg: 2 }, gap: .md) {
-            style { gap: 16px }
-            OutputTabs(html: html, css: css, js: js, findings: findings)
-            TestPanel(tests: tests)
-        }
-
-        if examples.length > 0 {
-            Row(align: .center, gap: .sm) {
-                style { flex-wrap: wrap; gap: 8px 16px; font-size: 14px; & a { color: $link } & p { margin: 0 } }
-                Text(t("playground.examples"), class: "bp-section-label")
-                for ex in examples by ex.to {
-                    Link(t(ex.key), to: ex.to)
+                Button(if shared { t("playground.shared") } else { t("playground.share") }, class: "bp-button") { on click { share() } }
+                Button(t("playground.download"), class: "bp-button") { on click { download() } }
+                Button(t("playground.run"), class: "bp-button", data-tone: "action") {
+                    on mouseenter { wfWarm(WASM) }
+                    on focus { wfWarm(WASM) }
+                    on click { build() }
                 }
             }
         }
+
+        Grid(columns: { base: 1, lg: 2 }, gap: .md) {
+            style { gap: 16px; align-items: stretch; @xl { grid-template-columns: 220px minmax(0, 1fr) minmax(0, 1fr) } }
+            FileTree(files: files.map(f => f.name), current: current, class: "bp-hide-sm") {
+                on pick(chosen) { current = chosen }
+            }
+            Stack(gap: .sm) {
+                style { gap: 0; min-width: 0 }
+                if let f = file {
+                    Editor(f.code, file: f.name, language: f.language) {
+                        on edit(next) { edited(next) }
+                    }
+                }
+                LiveStatus(editing: true, result: result, mistake: false, fixable: fixable != null, start: false) {
+                    on fix { if let f = fixable { fix(f.fixed) } }
+                }
+            }
+            PreviewPane(stage: stage, run: run, pdf: if result?.document == true { result?.pdf ?? "" } else { "" })
+        }
+
+        OutputTabs(html: result?.html ?? "", css: result?.css ?? "", js: result?.js ?? "", findings: findings, pdfStage: pdfStage, pdfRun: pdfRun, pdf: pdfResult?.pdf ?? "", pdfFindings: pdfResult?.findings ?? [], pdfBusy: pdfBusy) {
+            on wantPdf { buildPdf() }
+        }
+
+        Text(t("playground.note"), class: "bp-small")
     }
 }

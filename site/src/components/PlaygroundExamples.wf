@@ -1,0 +1,185 @@
+// The Playground's examples: each a whole project, as `wf init` would lay
+// it out, that builds with no finding. The first is what the Playground
+// opens with.
+
+/// A project the Playground can open: its name (a folder name, for a
+/// download), the translation key it is listed by, and its files.
+type Project {
+    name: String,
+    key: String,
+    files: [CodeFile]
+}
+
+const PLAYGROUND_EXAMPLES: [Project] = [
+    Project(name: "counter", key: "playground.ex.counter", files: [
+        CodeFile(name: "src/pages/Home.wf", language: "wf", code: #"page Home(path: "/", title: "Hello", description: "A counter.") {
+    state count = 0
+
+    Heading("Hello, WebFluent").h1
+    Text("Clicked {count} times")
+    Row(gap: .sm) {
+        Button("+1").primary {
+            on click { count = count + 1 }
+        }
+        Button("Reset") {
+            on click { count = 0 }
+        }
+    }
+}
+"#),
+        CodeFile(name: "webfluent.app.json", language: "json", code: #"{ "name": "Counter" }
+"#)
+    ]),
+    Project(name: "todos", key: "playground.ex.todos", files: [
+        CodeFile(name: "src/pages/Home.wf", language: "wf", code: #"page Home(path: "/", title: "Todos", description: "A todo list kept in a store.") {
+    use Todos
+    state draft = ""
+
+    Heading("Todos").h1
+    Text("{Todos.left} left").muted
+    Form {
+        on submit(e) {
+            e.preventDefault()
+            Todos.add(draft)
+            draft = ""
+        }
+        Row(gap: .sm) {
+            Input(bind: draft, placeholder: "Something to do", aria-label: "New todo")
+            Button("Add", type: .submit).primary
+        }
+    }
+    for todo in Todos.items by todo.id {
+        Checkbox(checked: todo.done, label: todo.title) {
+            on change { Todos.toggle(todo.id) }
+        }
+    }
+}
+"#),
+        CodeFile(name: "src/stores/Todos.wf", language: "wf", code: #"type Todo { id: String, title: String, done: Bool = false }
+
+store Todos {
+    state items: [Todo] = [Todo(id: "1", title: "Read the tour"), Todo(id: "2", title: "Build something")]
+    derived left = items.filter(x => !x.done).length
+
+    action add(title: String) {
+        if title.trim() != "" {
+            items = items.concat([Todo(id: uuid(), title: title.trim())])
+        }
+    }
+    action toggle(id: String) {
+        items = items.map(x => if x.id == id { { ...x, done: !x.done } } else { x })
+    }
+}
+"#),
+        CodeFile(name: "webfluent.app.json", language: "json", code: #"{ "name": "Todos" }
+"#)
+    ]),
+    Project(name: "sign-up", key: "playground.ex.form", files: [
+        CodeFile(name: "src/pages/Home.wf", language: "wf", code: #"page Home(path: "/", title: "Join", description: "A form that checks itself.") {
+    state email = ""
+    state password = ""
+    state joined = false
+
+    validate email {
+        required
+        email
+    }
+    validate password {
+        required
+        minLength(8) "Use at least 8 characters"
+        pattern(/[0-9]/) "Include a number"
+    }
+
+    Heading("Join").h1
+    Form(bind: form) {
+        on submit { joined = true }
+        Input(bind: email, label: "Email").email
+        Input(bind: password, label: "Password").password
+        Button("Join", type: .submit, disabled: !form.valid).primary
+    }
+    if joined {
+        Alert("Welcome aboard, {email}.").success
+    }
+}
+"#),
+        CodeFile(name: "webfluent.app.json", language: "json", code: #"{ "name": "Sign up" }
+"#)
+    ]),
+    Project(name: "salam", key: "playground.ex.arabic", files: [
+        CodeFile(name: "src/pages/Home.wf", language: "wf", code: #"page Home(path: "/", title: "Salam", description: "A page in Arabic, right to left.") {
+    Heading(t("title")).h1
+    Text(t("body"))
+    Button(t("switch")) {
+        on click { setLocale(if locale == "ar" { "en" } else { "ar" }) }
+    }
+}
+"#),
+        CodeFile(name: "src/translations/ar.json", language: "json", code: #"{
+  "title": "أهلاً بك",
+  "body": "هذه الصفحة تُقرأ من اليمين إلى اليسار.",
+  "switch": "English"
+}
+"#),
+        CodeFile(name: "src/translations/en.json", language: "json", code: #"{
+  "title": "Welcome",
+  "body": "This page reads from left to right.",
+  "switch": "العربية"
+}
+"#),
+        CodeFile(name: "webfluent.app.json", language: "json", code: #"{
+  "name": "Salam",
+  "meta": { "lang": "ar" },
+  "i18n": { "default_locale": "ar", "locales": ["ar", "en"], "dir": "src/translations" }
+}
+"#)
+    ]),
+    Project(name: "invoice", key: "playground.ex.invoice", files: [
+        CodeFile(name: "src/pages/Invoice.wf", language: "wf", code: #"const ITEMS = [
+    { name: "Design", hours: 12, rate: 90 },
+    { name: "Build", hours: 30, rate: 80 },
+    { name: "Review", hours: 4, rate: 90 }
+]
+
+page Invoice(path: "/", title: "Invoice 2026-001", description: "An invoice, as a PDF.") {
+    Document(size: "A4", title: "Invoice 2026-001", author: "Studio") {
+        Footer { Text("Page {page} of {pages}").muted.sm.center }
+        Heading("Invoice 2026-001").h1
+        Text("Due 14 March 2026").muted
+        Table {
+            Table.Head {
+                Table.Row { Table.Cell("Work")  Table.Cell("Hours")  Table.Cell("Amount") }
+            }
+            Table.Body {
+                for item in ITEMS {
+                    Table.Row {
+                        Table.Cell(item.name)
+                        Table.Cell("{item.hours}")
+                        Table.Cell(format(item.hours * item.rate, .currency, "EUR"))
+                    }
+                }
+            }
+        }
+        Text("Total: {format(ITEMS.map(i => i.hours * i.rate).sum(), .currency, \"EUR\")}").bold.right
+    }
+}
+"#),
+        CodeFile(name: "webfluent.app.json", language: "json", code: #"{ "name": "Invoice", "build": { "output_type": "pdf" } }
+"#)
+    ]),
+    Project(name: "deck", key: "playground.ex.deck", files: [
+        CodeFile(name: "src/pages/Deck.wf", language: "wf", code: #"page Deck(path: "/", title: "Three points", description: "A slide deck.") {
+    Presentation {
+        TitleSlide("Three points", subtitle: "A deck in one file")
+        for p, i in ["Fast", "Small", "Typed"] {
+            Slide {
+                Heading(p).h1
+                Text("{i + 1} of 3").muted
+            }
+        }
+    }
+}
+"#),
+        CodeFile(name: "webfluent.app.json", language: "json", code: #"{ "name": "Deck", "build": { "output_type": "slides", "slides": { "show_slide_numbers": true } } }
+"#)
+    ])
+]

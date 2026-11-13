@@ -12,6 +12,10 @@ const SAMPLE_CODE = #"page Home(path: "/", title: "Hello") {
     }
 }"#
 
+/// What the chapter's example's Break it does: `from:to`, as a fence's
+/// `break="from:to"` says it.
+const SAMPLE_MISTAKE = #"{count} times:{cout} times"#
+
 const SAMPLE_HTML = #"<main id="wf-main">
   <h1 class="wf-heading">Hello, WebFluent</h1>
   <p class="wf-text">Clicked 3 times</p>
@@ -86,12 +90,6 @@ const SAMPLE_PRINTED = #"error[T05]: `User` has no field `nmae`
 3 |     Heading(user.nmae).h1
   |                  ^^^^
   = help: Its fields are `id`, `name`"#
-
-const SAMPLE_FILES: [CodeFile] = [
-    CodeFile(name: "App.wf", code: "app \{\n    Router\n\}"),
-    CodeFile(name: "Home.wf", code: SAMPLE_CODE),
-    CodeFile(name: "theme.wf", code: "theme Brand \{\n    color-primary: #3D6FA3\n\}")
-]
 
 const SAMPLE_ROUTES: [Place] = [
     Place(key: "nav.learn", to: "/learn"),

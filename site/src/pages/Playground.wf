@@ -1,0 +1,8 @@
+/// The Playground: a whole project, built by the compiler in the page.
+page Playground(path: "/playground", title: "Playground — WebFluent", description: "Write WebFluent in your browser: the real compiler, as WebAssembly, builds the page, its HTML, CSS and JavaScript, or a PDF. Nothing is sent to a server.") {
+    PlaygroundShell(other: "/ar/playground")
+}
+
+page PlaygroundAr(path: "/ar/playground", title: "الملعب — WebFluent", description: "اكتب WebFluent في متصفحك: يبني المترجم الحقيقي، مترجمًا إلى WebAssembly، الصفحة وHTML وCSS وJavaScript أو ملف PDF وأنت تكتب. لا يُرسل شيء إلى خادم.", lang: "ar", translates: Playground) {
+    PlaygroundShell(other: "/playground", lang: "ar")
+}
