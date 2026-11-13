@@ -1,7 +1,7 @@
 // A recipe, written from md-docs/recipes/show-code.md by scripts/docsite/recipes.py;
 // edit the recipe, not this file.
-page RecipeShowCode(path: "/recipes/show-code", title: "Show code on a page — Recipes", description: "To show code, use `Code(\"…\")` for inline code and `Code(\"…\").block` for a block.") {
-    RecipeShell("Show code on a page", summary: "To show code, use `Code(\"…\")` for inline code and `Code(\"…\").block` for a block. To colour it, add `language:` — `wf`, `json`, `bash` or `css`. The colouring is done at build time and in the browser alike, with the theme's `syntax-*` tokens, and a `Markdown` fence in one of those languages is coloured the same way.  This page mixes inline code into a sentence and shows two coloured blocks:", outputs: [], since: "", recipes: RECIPE_INDEX, sections: [], related: [RelatedLink(kind: "Recipe", title: "Describe pages to search engines and link previews", to: "/recipes/search-and-link-previews"), RelatedLink(kind: "Recipe", title: "Render Markdown", to: "/recipes/render-markdown"), RelatedLink(kind: "Recipe", title: "Write a page as a Markdown file", to: "/recipes/markdown-pages")], source: "md-docs/recipes/show-code.md", how: false, hasVariations: false) {
+page RecipeShowCode(path: "/recipes/show-code", title: "Show code on a page — Recipes", description: "Show code on a page with `Code`: inline in a sentence, or as a block coloured by language — wf, json, bash or css — at build time and in the browser.") {
+    RecipeShell("Show code on a page", summary: "`Code` shows code: inline inside a sentence, or as a block, coloured by its language. This page mixes inline code into a sentence and shows two coloured blocks:", outputs: ["website", "app", "pdf", "slides", "elements", "desktop"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Describe pages to search engines and link previews", to: "/recipes/search-and-link-previews"), RelatedLink(kind: "Recipe", title: "Render Markdown", to: "/recipes/render-markdown"), RelatedLink(kind: "Recipe", title: "Write a page as a Markdown file", to: "/recipes/markdown-pages")], source: "md-docs/recipes/show-code.md", how: true, hasVariations: false) {
         code {
             CodeBlock(#"page Snippets(path: "/", title: "Snippets", description: "Code on the page.") {
     Heading("Snippets").h1
@@ -10,5 +10,7 @@ page RecipeShowCode(path: "/recipes/show-code", title: "Show code on a page — 
     Code("$ wf build", language: "bash").block
 }"#, title: "wf")
         }
+        Markdown("- **`Code(\"…\")`** is inline code. Placed between two `Text`s, it reads as part of the sentence.\n- **`Code(\"…\").block`** is a block, for code over several lines.\n- **`language:`** colours it — `wf`, `json`, `bash` or `css`. The colouring is done at build time and in the browser alike, with the theme's `syntax-*` tokens, and a `Markdown` fence in one of those languages is coloured the same way.")
+
     }
 }

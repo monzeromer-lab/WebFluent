@@ -1,7 +1,7 @@
 // A recipe, written from md-docs/recipes/markdown-pages.md by scripts/docsite/recipes.py;
 // edit the recipe, not this file.
-page RecipeMarkdownPages(path: "/recipes/markdown-pages", title: "Write a page as a Markdown file — Recipes", description: "To write a page in Markdown, put a `.md` file under `src/`.") {
-    RecipeShell("Write a page as a Markdown file", summary: "To write a page in Markdown, put a `.md` file under `src/`. Its *front matter* — the lines between the two `---` lines at the top — names the page's attributes; the rest is the body.  This file is a docs page at `/guide/install`:  ````md --- path: /guide/install title: Installing description: Get wf on your machine in a minute. layout: DocsShell type: article image: /install.png image_alt: A terminal running wf build ---  # Installing  Download a release, or build from source:  ```sh cargo install webfluent ```  Then `wf init my-site`. ````  The front matter keys are the page's attributes:  | Key | Meaning | |---|---| | `path` | The route. Default: `/` for `index.md`, otherwise `/<file-name>` | | `title` | The page's title | | `description` | The snippet a search result shows | | `layout` | The component that frames the body | | `image` · `image_alt` | The link-preview image, and what it shows | | `type` | `website` (the default) or `article` | | `noindex` | `true` keeps the page out of search results and the sitemap | | `lang` | The language the page is written in, when it is not the site's: `en`, `ar`, `pt-BR` | | `translates` | The page this one is a translation of, by name: `About` |  The page's name is the file's stem, capitalised: `install.md` is the page `Install`. The body is placed as `Markdown(…)` in the page, inside the layout's default slot when the front matter names a layout.  ### Frame `.md` pages with a layout  `layout: DocsShell` frames the body in a component with a default slot — the same kind of component a `.wf` page names as its `layout:` ([Pages and routing](/docs/guide/pages-and-routing#layouts)):", outputs: [], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Describe pages to search engines and link previews", to: "/recipes/search-and-link-previews"), RelatedLink(kind: "Recipe", title: "Render Markdown", to: "/recipes/render-markdown"), RelatedLink(kind: "Recipe", title: "Show code on a page", to: "/recipes/show-code")], source: "md-docs/recipes/markdown-pages.md", how: true, hasVariations: false) {
+page RecipeMarkdownPages(path: "/recipes/markdown-pages", title: "Write a page as a Markdown file — Recipes", description: "Write a page as a Markdown file under `src/`: front matter names its route, title and layout, and the rest is the body, framed by a component.") {
+    RecipeShell("Write a page as a Markdown file", summary: "A `.md` file under `src/` is a page: the lines between the two `---` at its top — its *front matter* — name the page's route, title and layout, and the rest is its body. It suits docs, notes and articles, where most of the page is prose. A docs site is a folder of `.md` files, one layout component, and an `app`:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Describe pages to search engines and link previews", to: "/recipes/search-and-link-previews"), RelatedLink(kind: "Recipe", title: "Render Markdown", to: "/recipes/render-markdown"), RelatedLink(kind: "Recipe", title: "Show code on a page", to: "/recipes/show-code")], source: "md-docs/recipes/markdown-pages.md", how: true, hasVariations: false) {
         code {
             CodeBlock(#"component DocsShell {
     slot
@@ -12,9 +12,88 @@ page RecipeMarkdownPages(path: "/recipes/markdown-pages", title: "Write a page a
         }
         Container { children }
     }
+}
+
+app {
+    Router
 }"#, title: "wf")
         }
-        Markdown("A docs site is then a folder of `.md` files, one layout, and a `.wf` file for the `app`. (`wf docs` is something else: a gallery of every component the project can use — [CLI](/reference/cli#wf-docs).)")
+        Markdown("Each page of the site is a `.md` file. This one, `src/guide/install.md`, is the docs page at `/guide/install`:")
+
+        CodeBlock(#"---
+path: /guide/install
+title: Installing
+description: Get wf on your machine in a minute.
+layout: DocsShell
+type: article
+image: /install.png
+image_alt: A terminal running wf build
+---
+
+# Installing
+
+Download a release, or build from source:
+
+```sh
+cargo install webfluent
+```
+
+Then `wf init my-site`."#, title: "markdown")
+
+        Markdown("The front matter keys are the page's attributes:")
+
+        Table(caption: "Write a page as a Markdown file") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Key").header
+                    Table.Cell("Meaning").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`path`") }
+                    Table.Cell { Markdown("The route. Default: `/` for `index.md`, otherwise `/<file-name>`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`title`") }
+                    Table.Cell("The page's title")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`description`") }
+                    Table.Cell("The snippet a search result shows")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`layout`") }
+                    Table.Cell("The component that frames the body")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`image` · `image_alt`") }
+                    Table.Cell("The link-preview image, and what it shows")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`type`") }
+                    Table.Cell { Markdown("`website` (the default) or `article`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`noindex`") }
+                    Table.Cell { Markdown("`true` keeps the page out of search results and the sitemap") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`lang`") }
+                    Table.Cell { Markdown("The language the page is written in, when it is not the site's: `en`, `ar`, `pt-BR`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`translates`") }
+                    Table.Cell { Markdown("The page this one is a translation of, by name: `About`") }
+                }
+            }
+        }
+
+        Markdown("The page's name is the file's stem, capitalised: `install.md` is the page `Install`. The body is placed as `Markdown(…)` in the page, inside the layout's default slot when the front matter names a layout.")
+
+        Heading("Frame .md pages with a layout", id: "frame-md-pages-with-a-layout").h3
+
+        Markdown("`layout: DocsShell` frames the body in a component with a default slot — the same kind of component a `.wf` page names as its `layout:` ([Pages and routing](/docs/guide/pages-and-routing#layouts)). In `DocsShell`, `slot` declares the default slot and `children` is where the page's body lands, beside the sidebar.\n\n(`wf docs` is something else: a gallery of every component the project can use — [CLI](/reference/cli#wf-docs).)")
 
     }
 }

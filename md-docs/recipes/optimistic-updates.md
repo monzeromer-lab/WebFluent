@@ -2,13 +2,15 @@
 kind: "recipe"
 route: "/recipes/optimistic-updates"
 group: "data"
-description: "To show a change before the server agrees, keep the old value and put it back if the request fails:"
+description: "Show a change before the server agrees: update the state at once, send the request, and put the old value back if it fails."
+outputs: ["website", "app"]
 from: ["/docs/guide/recipes#update-at-once-and-roll-back-on-failure"]
 ---
 # Update at once, and roll back on failure
 
-To show a change before the server agrees, keep the old value and put it
-back if the request fails:
+A like that waits for the server feels slow. To show the change at once,
+update the state before the request, keep the old value, and put it back if
+the request fails:
 
 ```wf
 type Item { id: String, liked: Bool }
@@ -34,5 +36,27 @@ page Likes(path: "/", title: "Likes", description: "A like that shows at once.")
 }
 ```
 
+## How it works
+
+- `let before = items` keeps the list as it was. A
+  [`let`](../learn/07-state-and-reactivity.md#actions-and-locals) is local
+  to the action.
+- The next line gives `items` a new list with the one item flipped. The
+  button repaints at once, before any request leaves.
+- The request is [awaited](../learn/15-data.md#fetch-on-demand-with-await-fetch)
+  inside `try`. If it fails, the `catch` puts `before` back and sets
+  `error`, and the `Toast` tells the reader.
+
+## Variations
+
 `optimistic(holder, change)` does the same with less code inside an
-action; see [Fetching data](../learn/15-data.md#show-a-change-before-the-server-agrees).
+action. It applies the change at once, and if anything later in the action
+throws, the change is taken back
+([Fetching data](../learn/15-data.md#show-a-change-before-the-server-agrees)):
+
+```wf
+action like(id: String) {
+    optimistic(items, list => list.map(i => if i.id == id { Item(id: i.id, liked: !i.liked) } else { i }))
+    await fetch("/api/like/{id}", { method: "POST" })
+}
+```

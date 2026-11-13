@@ -1,7 +1,7 @@
 // A recipe, written from md-docs/recipes/copy-to-the-clipboard.md by scripts/docsite/recipes.py;
 // edit the recipe, not this file.
-page RecipeCopyToTheClipboard(path: "/recipes/copy-to-the-clipboard", title: "Copy to the clipboard — Recipes", description: "To copy text, call the browser's clipboard from an action:") {
-    RecipeShell("Copy to the clipboard", summary: "To copy text, call the browser's clipboard from an action:", outputs: [], since: "", recipes: RECIPE_INDEX, sections: [], related: [RelatedLink(kind: "Recipe", title: "Build a confirm dialog", to: "/recipes/confirm-dialog"), RelatedLink(kind: "Recipe", title: "Count down", to: "/recipes/count-down"), RelatedLink(kind: "Recipe", title: "Debounce a search", to: "/recipes/debounce-a-search")], source: "md-docs/recipes/copy-to-the-clipboard.md", how: false, hasVariations: false) {
+page RecipeCopyToTheClipboard(path: "/recipes/copy-to-the-clipboard", title: "Copy to the clipboard — Recipes", description: "Copy text to the reader's clipboard from a button: an action that awaits the browser's clipboard, then shows a toast.") {
+    RecipeShell("Copy to the clipboard", summary: "A **Copy** button saves the reader selecting a link by hand. To copy text, call the browser's clipboard from an action and say when it worked:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Build a confirm dialog", to: "/recipes/confirm-dialog"), RelatedLink(kind: "Recipe", title: "Count down", to: "/recipes/count-down"), RelatedLink(kind: "Recipe", title: "Debounce a search", to: "/recipes/debounce-a-search")], source: "md-docs/recipes/copy-to-the-clipboard.md", how: true, hasVariations: false) {
         code {
             CodeBlock(#"page Share(path: "/share", title: "Share", description: "Copy the link.") {
     state copied = false
@@ -14,5 +14,7 @@ page RecipeCopyToTheClipboard(path: "/recipes/copy-to-the-clipboard", title: "Co
     if copied { Toast("Copied").success }
 }"#, title: "wf")
         }
+        Markdown("- `navigator.clipboard` and `location` are browser globals, used as written with no prefix.\n- `writeText` returns a promise, so the [action](/docs/guide/state#actions-and-locals) awaits it. `await` makes the action async, and `copied` is set only once the text is on the clipboard.\n- The button's click handler calls `copy` with the page's own address.\n- When `copied` turns true, the `Toast` appears to confirm it.")
+
     }
 }

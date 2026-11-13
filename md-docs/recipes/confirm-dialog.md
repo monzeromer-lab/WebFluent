@@ -2,13 +2,15 @@
 kind: "recipe"
 route: "/recipes/confirm-dialog"
 group: "interaction"
-description: "To ask before a destructive action, wrap a `Dialog` in a component that fires `confirm` or `cancel`:"
+description: "Ask before a destructive action: a component that wraps a Dialog and fires confirm or cancel, with the question's detail written by the caller."
+outputs: ["website", "app"]
 from: ["/docs/guide/recipes#build-a-confirm-dialog-component"]
 ---
 # Build a confirm dialog
 
-To ask before a destructive action, wrap a `Dialog` in a component that
-fires `confirm` or `cancel`:
+Before a reader deletes something, ask them. This component wraps a
+`Dialog` with **Cancel** and **Confirm** buttons and tells the page which
+one was pressed, so every destructive action on the site asks the same way:
 
 ```wf
 component Confirm(_ title: String, visible: Bool, danger: Bool = false) {
@@ -38,5 +40,17 @@ page Account(path: "/", title: "Account", description: "Close your account.") {
 }
 ```
 
-The caller's block fills the default slot, so the question's detail is the
-caller's to write.
+## How it works
+
+- `Confirm` takes the question as its positional `title`, whether it shows
+  as `visible`, and a `danger` prop that turns the confirm button red.
+  `tone:` picks the button's case from a condition instead of a fixed flag.
+- It declares two [events](../learn/10-components.md#events), `confirm` and
+  `cancel`, and each button fires one with `emit`. The component decides
+  nothing; the page does.
+- `slot` declares a default [slot](../learn/10-components.md#slots), and
+  `children` places it inside the dialog. The caller's block fills it, so
+  the question's detail is the caller's to write.
+- The page owns `asking`. **Delete account** sets it, and both handlers
+  clear it, which closes the
+  [dialog](../learn/08-events.md#overlays-modals-dialogs-toasts-and-menus).

@@ -1,7 +1,7 @@
 // A recipe, written from md-docs/recipes/tween-on-change.md by scripts/docsite/recipes.py;
 // edit the recipe, not this file.
-page RecipeTweenOnChange(path: "/recipes/tween-on-change", title: "Tween a property when state changes — Recipes", description: "To animate a style property that changes with state, rather than an element arriving, add a `transition \{ \}` block that names the property and how…") {
-    RecipeShell("Tween a property when state changes", summary: "To animate a style property that changes with state, rather than an element arriving, add a `transition \{ \}` block that names the property and how long it takes ([Styling](/docs/guide/styling)):", outputs: [], since: "", recipes: RECIPE_INDEX, sections: [], related: [RelatedLink(kind: "Recipe", title: "Add a dark-mode switch", to: "/recipes/dark-mode-switch"), RelatedLink(kind: "Recipe", title: "Add a picture, sized for every screen", to: "/recipes/add-a-picture"), RelatedLink(kind: "Recipe", title: "Add video and audio", to: "/recipes/video-and-audio")], source: "md-docs/recipes/tween-on-change.md", how: false, hasVariations: false) {
+page RecipeTweenOnChange(path: "/recipes/tween-on-change", title: "Tween a property when state changes — Recipes", description: "Animate a style property that changes with state, such as a panel's height, with a transition \{ \} block that names the property and its timing.") {
+    RecipeShell("Tween a property when state changes", summary: "Animate a style property as state changes it — a panel growing taller, a colour shifting — rather than an element arriving. Add a `transition \{ \}` block that names the property and how long it takes. Press **Toggle** and the card grows to show the rest of its text:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Add a dark-mode switch", to: "/recipes/dark-mode-switch"), RelatedLink(kind: "Recipe", title: "Add a picture, sized for every screen", to: "/recipes/add-a-picture"), RelatedLink(kind: "Recipe", title: "Add video and audio", to: "/recipes/video-and-audio")], source: "md-docs/recipes/tween-on-change.md", how: true, hasVariations: false) {
         code {
             CodeBlock(#"page Tween(path: "/", title: "Tween", description: "A panel that grows.") {
     state open = false
@@ -14,5 +14,7 @@ page RecipeTweenOnChange(path: "/recipes/tween-on-change", title: "Tween a prope
     }
 }"#, title: "wf")
         }
+        Markdown("- The `style \{ \}` value of `max-height` reads `open`, so it follows the state: `3rem` closed, `20rem` open ([Styling](/docs/guide/styling)).\n- `transition \{ max-height: 250ms ease-in-out \}` tweens that property whenever its value changes, over 250ms. Each line names a property, then its length and easing; a design token may stand for either.\n- An element's block is ordered `style`, then `transition`, then its handlers and children.\n\nA reader who asked for reduced motion gets no tween: the card changes height at once ([Respect reduced motion](/recipes/motion-defaults#respect-reduced-motion)).")
+
     }
 }

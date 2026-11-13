@@ -776,4 +776,4 @@ To go further:
 
 ## Next
 
-[Coming from React, Vue or Svelte](../coming-from/react-vue-svelte.md).
+[Coming from React, Vue or Svelte](../coming-from/react.md).

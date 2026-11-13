@@ -2,32 +2,15 @@
 kind: "recipe"
 route: "/recipes/open-a-socket"
 group: "realtime"
-description: "You should know how a `resource` is read with `match` and its arms (Fetching data), and how `state` and `effect` work (State and reactivity)."
+description: "Hold a two-way connection to a server with a `socket`: it reconnects, keeps itself alive, and queues what you send while the line is down."
 from: ["/docs/guide/realtime#before-you-start", "/docs/guide/realtime#open-a-socket", "/docs/guide/realtime#read-a-connection-s-state-and-messages", "/docs/guide/realtime#troubleshooting"]
+outputs: ["website", "app", "desktop"]
 ---
 # Open a socket
 
-## Before you start
-
-You should know how a `resource` is read with `match` and its arms
-([Fetching data](../learn/15-data.md#show-a-request-with-resource)), and how `state` and `effect` work
-([State and reactivity](../learn/07-state-and-reactivity.md)). A connection is read
-the same way a resource is.
-
-There are five kinds of connection. Pick the one that fits the job:
-
-| Declaration | Opened with | Use it for |
-|---|---|---|
-| `socket` | `ws(url, …)` | Two-way messages with a server: chat, live editing, notifications |
-| `stream` | `sse(url, …)` | One-way messages from a server: prices, progress, a log |
-| `channel` | `broadcast(name)` | Messages between tabs of your site in one browser |
-| `peer` | `rtc(signal:, …)` | A direct line to another reader's page, with no server in the middle |
-| `worker` | `spawn(url, …)` | A script of your site running beside the page, off its thread |
-
-## Open a socket
-
-To hold a two-way connection to a server, declare a `socket` with `ws(…)`
-and `match` on it. This chat page shows a spinner while the socket
+A `socket` holds a two-way connection to a server: chat, live editing,
+notifications. You declare it with `ws(…)` and read it with `match`, the
+way you read a `resource`. This chat page shows a spinner while the socket
 connects, the messages once it is open, and why it stopped when it closes:
 
 ```wf
@@ -49,10 +32,25 @@ page Chat(path: "/chat", title: "Chat", description: "Talk to the team.") {
 }
 ```
 
-The page opens the socket when it is drawn and closes it when the reader
-leaves. Inside the socket's block, `on message(m) { }` handles each message
-that arrives and `on open { }` runs each time the line opens — the first
-time and after every reconnection.
+## How it works
+
+A connection is read the same way a resource is, so this recipe assumes you
+know how a `resource` is read with `match` and its arms
+([Fetching data](../learn/15-data.md#show-a-request-with-resource)), and how
+`state` and `effect` work
+([State and reactivity](../learn/07-state-and-reactivity.md)).
+
+- **`socket chat = ws(…)`** opens the socket when the page is drawn and
+  closes it when the reader leaves.
+- **`on message(m) { }`**, inside the socket's block, handles each message
+  that arrives. `on open { }` runs each time the line opens — the first
+  time and after every reconnection.
+- **`match chat`** takes the arms `connecting`, `open`, `closed(c)` and
+  `error(e)`, and an `else` for the rest. `closed(c)` is handed the close,
+  with `c.code` and `c.reason`; `error(e)` is handed the failure, with
+  `e.message`.
+- **`chat.messages`** holds what arrived, in order, and
+  **`chat.send(…)`** sends a value.
 
 A socket looks after itself:
 
@@ -67,11 +65,6 @@ A socket looks after itself:
 - **It reads JSON.** A text message that parses as JSON arrives as a value;
   any other text arrives as a string. A value you send is sent as JSON,
   unless it is already a string.
-
-A `match` on a socket takes the arms `connecting`, `open`, `closed(c)` and
-`error(e)`, and an `else` for the rest. `closed(c)` is handed the close,
-with `c.code` and `c.reason`; `error(e)` is handed the failure, with
-`e.message`.
 
 ### Tune a socket
 
@@ -88,6 +81,8 @@ reconnects:
 | `queue:` | `false` to drop, rather than hold, what is sent while the socket is down | `true` |
 | `binaryType:` | `"blob"` or `"arraybuffer"` | `"blob"` |
 | `keep:` | How many messages `.messages` holds, the newest; the oldest go first | `500` |
+
+## Variations
 
 ### Type the messages
 
@@ -115,6 +110,18 @@ page Room(path: "/room", title: "Room", description: "A typed conversation.") {
 With `send` and `receive` declared, `chat.send(…)` is checked against
 `Outgoing`, and each message in `chat.messages` is an `Incoming`, so
 `m.text` is a `String` and `m.txet` is an error.
+
+## Choose a kind of connection
+
+A socket is one of five kinds of connection. Pick the one that fits the job:
+
+| Declaration | Opened with | Use it for |
+|---|---|---|
+| `socket` | `ws(url, …)` | Two-way messages with a server: chat, live editing, notifications |
+| `stream` | `sse(url, …)` | One-way messages from a server: prices, progress, a log |
+| `channel` | `broadcast(name)` | Messages between tabs of your site in one browser |
+| `peer` | `rtc(signal:, …)` | A direct line to another reader's page, with no server in the middle |
+| `worker` | `spawn(url, …)` | A script of your site running beside the page, off its thread |
 
 ## Read a connection's state and messages
 

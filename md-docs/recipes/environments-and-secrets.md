@@ -2,15 +2,18 @@
 kind: "recipe"
 route: "/recipes/environments-and-secrets"
 group: "reach"
-description: "To read a value, write `env.NAME`."
+description: "Read settings such as an API address with env.NAME, set them per environment, and keep a private value such as an API key out of the bundle."
 from: ["/docs/guide/environments#read-a-value-in-a-page", "/docs/guide/environments#set-a-value", "/docs/guide/environments#keep-a-private-value-out-of-the-bundle", "/docs/guide/environments#name-your-own-values-something-other-than-env", "/docs/guide/environments#build-once-per-environment", "/docs/guide/environments#change-other-settings-per-deploy", "/docs/guide/environments#audit-what-the-project-reads"]
+outputs: ["website", "app", "desktop"]
 ---
 # Use environment values, and keep secrets out
 
-## Read a value in a page
+Read a setting that changes between environments (an API's address, a
+feature switch) with `env.NAME`, give it a value per environment, and keep
+a private value such as an API key out of what readers download.
 
-To read a value, write `env.NAME`. This page reads the API's address and a
-feature switch, and falls back to defaults when nothing sets them:
+This page reads the API's address and a feature switch, and falls back to
+defaults when nothing sets them:
 
 ```wf
 const API = env.PUBLIC_API ?? "/api"
@@ -28,9 +31,15 @@ page Rows(path: "/", title: "Rows", description: "Rows from the API.") {
 }
 ```
 
-A name that nothing sets reads as nothing (`null`), so `??` supplies the
-default. Keep the values in `const`s at the top of the file, as above, so
-every page reads them from one place.
+## How it works
+
+`env.PUBLIC_API` is the value of `PUBLIC_API`, fixed when the site is
+built. A name that nothing sets reads as nothing (`null`), so `??` supplies
+the default. Keep the values in `const`s at the top of the file, as above,
+so every page reads them from one place.
+
+The sections below set the values, keep the private ones out of the bundle,
+and build once per environment.
 
 ## Set a value
 
@@ -100,7 +109,7 @@ A page may read `env.PUBLIC_API` and `env.ANALYTICS_ID`. Reading
 `env.STRIPE_SECRET` from a page is a compile error
 ([`E108`](../errors/E108.md)) that names the file and the line.
 
-A private value is still available to [server rendering](index.md),
+A private value is still available to [server rendering](render-a-template.md),
 which runs on a server, where a secret stays secret. It never reaches the
 bundle: the build writes only public values into it.
 
@@ -140,7 +149,7 @@ In CI, set the variables on the job's build step:
 ```
 
 Each build writes its own `build/` folder. Deploy each one to its own host
-([Deploying](index.md)).
+([Ship](index.md#ship)).
 
 ## Change other settings per deploy
 
@@ -148,7 +157,7 @@ A few settings outside `env` also change between deploys:
 
 | Setting | What it is |
 |---|---|
-| `build.base_path` | The sub-path the site is served under. The build prefixes every link, asset and route with it ([Deploying](index.md)) |
+| `build.base_path` | The sub-path the site is served under. The build prefixes every link, asset and route with it ([Ship](index.md#ship)) |
 | `meta.site_url` | The site's absolute address, for canonical links, the sitemap and sharing tags |
 | `theme.tokens` | Design tokens a pipeline supplies, on top of the theme: `{ "theme": { "tokens": { "color-primary": "#8B5CF6" } } }` |
 

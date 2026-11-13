@@ -148,7 +148,7 @@ page PostPage(path: "/posts/:slug", slug: String, title: "Post", description: "A
 
         Heading("Give each file its own title", id: "give-each-file-its-own-title").h3
 
-        Markdown("`title:` and `description:` may name the page's parameters — `title: \"\{slug\} — Blog\"` — and each file gets its own. A title may also look the entry up: `title: \"\{posts.find(p => p.slug == slug)?.title ?? slug\} — Blog\"`. Tags beyond the title and description go in `head \{ \}` ([Content](/recipes/search-and-link-previews#describe-each-page-to-search-engines-and-link-previews)).")
+        Markdown("`title:` and `description:` may name the page's parameters — `title: \"\{slug\} — Blog\"` — and each file gets its own. A title may also look the entry up: `title: \"\{posts.find(p => p.slug == slug)?.title ?? slug\} — Blog\"`. Tags beyond the title and description go in `head \{ \}` ([Content](/recipes/search-and-link-previews#add-tags-for-one-page)).")
 
         Heading("Add a 404 page", id: "add-a-404-page").h2
 

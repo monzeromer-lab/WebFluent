@@ -2,24 +2,16 @@
 kind: "recipe"
 route: "/recipes/connect-two-readers"
 group: "realtime"
-description: "To send messages straight from one reader's page to another's, with no server relaying them, declare a `peer` with `rtc(…)`."
+description: "Send messages straight from one reader's page to another's over a WebRTC data channel, with a `peer` opened by `rtc(…)` and no server relaying them."
 from: ["/docs/guide/realtime#connect-two-readers-pages"]
+outputs: ["website", "app", "desktop"]
 ---
 # Connect two readers' pages
 
-To send messages straight from one reader's page to another's, with no
-server relaying them, declare a `peer` with `rtc(…)`. It opens a WebRTC
-data channel between the two pages.
-
-The language supplies the channel, not a server. Before two pages can
-connect, they must tell each other how — an offer, an answer, and the
-network routes each can be reached by. This exchange is called
-*signalling*. Your page sends its side out through the `signal:` function,
-over whatever connection the app already has, and hands what the other side
-sent to `link.signal(m)`. One side is the `initiator`.
-
+A `peer` opens a WebRTC data channel straight from one reader's page to
+another's, so messages travel between them with no server relaying them.
 This page signals over a `broadcast` channel, so it connects two tabs of one
-browser. Open `/room?host=1` in one tab and `/room` in another:
+browser: open `/room?host=1` in one tab and `/room` in another.
 
 ```wf
 page Room(path: "/room", title: "Room", description: "Two readers, one line.") {
@@ -40,8 +32,27 @@ page Room(path: "/room", title: "Room", description: "Two readers, one line.") {
 }
 ```
 
-Between two readers on different machines, the signal rides the app's own
-socket or `api` instead of a `broadcast` channel.
+## How it works
+
+The language supplies the channel, not a server. Before two pages can
+connect, they must tell each other how — an offer, an answer, and the
+network routes each can be reached by. This exchange is called
+*signalling*.
+
+- **`signal: m => lobby.post(m)`** sends this side's signalling messages out,
+  over whatever connection the app already has — here the `lobby`
+  [channel](talk-between-tabs.md).
+- **`link.signal(m)`**, in the lobby's `on message`, hands the peer what the
+  other side sent.
+- **`initiator: query.host == "1"`** makes the tab opened with `?host=1` the
+  side that makes the offer. Exactly one side does.
+- **`match link`** reads the peer like a socket: `connecting`, `open`,
+  `closed(c)`, `error(e)`.
+- **`link.send(value)`** sends a message, and holds it until the channel
+  opens; **`on message(m)`** in the peer's block hears the other side's.
+
+When a page leaves, it closes its peer, and the other side reads `closed`
+at once rather than when the connection times out.
 
 | Option | Does |
 |---|---|
@@ -50,7 +61,28 @@ socket or `api` instead of a `broadcast` channel.
 | `ice:` | The servers that help two readers on different networks find each other: `[{ urls: "stun:…" }]`. None by default, which connects readers on the same network only. |
 | `ordered:` | `false` for a channel that may deliver messages out of order. |
 
-A peer is matched like a socket. `link.send(value)` sends a message, and
-holds it until the channel opens. When a page leaves, it closes its peer,
-and the other side reads `closed` at once rather than when the connection
-times out.
+## Variations
+
+### Connect readers on different machines
+
+Between two readers on different machines, the signal rides the app's own
+socket or `api` instead of a `broadcast` channel, and `ice:` names a STUN
+server so readers behind different networks can find each other:
+
+```wf
+page Call(path: "/call", title: "Call", description: "Two readers, two machines.") {
+    state heard = ""
+    socket relay = ws("wss://example.com/signal") { on message(m) { link.signal(m) } }
+    peer link = rtc(signal: m => relay.send(m), initiator: query.host == "1",
+                    ice: [{ urls: "stun:stun.example.com:3478" }]) {
+        on message(m) { heard = m.text }
+    }
+
+    Heading("Call").h1
+    match link {
+        open { Button("Wave") { on click { link.send({ text: "hello" }) } } }
+        else { Text("Connecting…").muted }
+    }
+    Text(heard)
+}
+```

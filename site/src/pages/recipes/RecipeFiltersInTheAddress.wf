@@ -1,7 +1,7 @@
 // A recipe, written from md-docs/recipes/filters-in-the-address.md by scripts/docsite/recipes.py;
 // edit the recipe, not this file.
-page RecipeFiltersInTheAddress(path: "/recipes/filters-in-the-address", title: "Keep filters in the address — Recipes", description: "To make a filter survive a reload, a shared link and the back button, read it from `query` instead of holding it in a `state`:") {
-    RecipeShell("Keep filters in the address", summary: "To make a filter survive a reload, a shared link and the back button, read it from `query` instead of holding it in a `state`:", outputs: [], since: "", recipes: RECIPE_INDEX, sections: [], related: [RelatedLink(kind: "Recipe", title: "Build a confirm dialog", to: "/recipes/confirm-dialog"), RelatedLink(kind: "Recipe", title: "Copy to the clipboard", to: "/recipes/copy-to-the-clipboard"), RelatedLink(kind: "Recipe", title: "Count down", to: "/recipes/count-down")], source: "md-docs/recipes/filters-in-the-address.md", how: false, hasVariations: false) {
+page RecipeFiltersInTheAddress(path: "/recipes/filters-in-the-address", title: "Keep filters in the address — Recipes", description: "Keep a list's filter or sort in the query string, so it survives a reload, a shared link and the back button.") {
+    RecipeShell("Keep filters in the address", summary: "A filter held in a `state` is lost on reload and missing from a link the reader shares. To make it survive a reload, a shared link and the back button, read it from `query` instead:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Build a confirm dialog", to: "/recipes/confirm-dialog"), RelatedLink(kind: "Recipe", title: "Copy to the clipboard", to: "/recipes/copy-to-the-clipboard"), RelatedLink(kind: "Recipe", title: "Count down", to: "/recipes/count-down")], source: "md-docs/recipes/filters-in-the-address.md", how: true, hasVariations: false) {
         code {
             CodeBlock(#"page Products(path: "/products", title: "Products", description: "Everything we sell.") {
     derived sort = query.sort ?? "name"
@@ -13,5 +13,7 @@ page RecipeFiltersInTheAddress(path: "/recipes/filters-in-the-address", title: "
     Text("Sorted by {sort}")
 }"#, title: "wf")
         }
+        Markdown("- [`query`](/docs/guide/pages-and-routing#query-strings-and-fragments) is the address's query string as a map: `query.sort` is `\"price\"` for `?sort=price`, and null when the address has no `sort`.\n- `sort` is a [`derived`](/docs/guide/state#derived) value, so `??` gives it a default and it follows the address.\n- Each choice is a `Link` to the same page with another query. A query string is not part of the route, so `/products?sort=price` is still the `Products` page; only `sort` changes.\n\nTo change the query from an action instead of a link, call `navigate(\"/products?sort=price\")`.")
+
     }
 }

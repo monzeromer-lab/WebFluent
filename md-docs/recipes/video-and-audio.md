@@ -2,20 +2,42 @@
 kind: "recipe"
 route: "/recipes/video-and-audio"
 group: "look"
-description: "To show a video, use `Video(src:)`; to play sound, use `Audio(src:)`."
+description: "Play a video with Video(src:) and sound with Audio(src:), with the browser's controls, captions for the video and a transcript for the recording."
 from: ["/docs/guide/media#add-video-and-audio"]
+outputs: ["website", "app"]
 ---
 # Add video and audio
 
-To show a video, use `Video(src:)`; to play sound, use `Audio(src:)`. Add
-the `.controls` flag to show the browser's playback controls.
+Show a video with `Video(src:)` and play sound with `Audio(src:)`, with the
+browser's own playback controls, captions for the video and a transcript for
+the recording.
 
-Give every video captions and every recording a transcript:
+This page plays a demo with captions and a talk with its transcript, both
+from `public/`:
 
-- `captions:` names a WebVTT file. The build writes it as a `<track>`, so
-  a reader who cannot hear the video can follow it.
+```wf
+page Media(path: "/", title: "Media", description: "The demo and the launch talk.") {
+    Heading("Media").h1
+    Video(src: "/demo.mp4", captions: "/demo.en.vtt", poster: "/demo.jpg").controls
+    Audio(src: "/talk.mp3", transcript: "/talk.txt").controls
+}
+```
+
+## How it works
+
+- The `.controls` flag shows the browser's playback controls.
+- `captions:` names a WebVTT file. The build writes it as a `<track>`, so a
+  reader who cannot hear the video can follow it.
 - `transcript:` names a text file. The build draws it as a link beneath the
   player.
+- `poster:` names the picture a video shows before it plays.
 
-The first example in this chapter shows both. A `Video` without `captions:`,
-and an `Audio` without `transcript:`, each draw an `A09` warning.
+Give every video captions and every recording a transcript. A `Video`
+without `captions:`, and an `Audio` without `transcript:`, each draw an
+`A09` warning.
+
+## Troubleshooting
+
+| What you see | Why, and what to do |
+|---|---|
+| `A09` on a `Video` or `Audio` | Add `captions:` to the video or `transcript:` to the recording |

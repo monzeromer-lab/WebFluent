@@ -2,15 +2,16 @@
 kind: "recipe"
 route: "/recipes/shared-element"
 group: "look"
-description: "To have the browser carry one element from one page to the next — a cover picture that grows into the article's header — give it the same `shared:`…"
+description: "Carry one element from one page to the next, such as a cover picture that grows into the article's header, by giving it one shared: name on both."
+outputs: ["website", "app"]
 from: ["/docs/guide/motion#carry-an-element-across-a-route-change"]
 ---
 # Carry an element across a route change
 
-To have the browser carry one element from one page to the next — a cover
-picture that grows into the article's header — give it the same `shared:`
-name on both pages. The browser moves it instead of fading it out and back
-in:
+Have the browser carry one element from one page to the next — a cover
+picture in a list of posts that grows into the article's header — instead
+of fading it out and back in. Give it the same `shared:` name on both
+pages:
 
 ```wf
 type Post { id: String, slug: String, title: String, cover: String }
@@ -39,5 +40,13 @@ page Article(path: "/p/:slug", title: "Post", description: "One post.", slug: St
 }
 ```
 
-Both elements must carry the same name, and only one element on a page may
-carry each name — which is why the name here includes the post's `id`.
+## How it works
+
+- The `Blog` page draws each cover with `shared: "cover-{post.id}"`, and
+  the `Article` page draws the same post's cover under the same name.
+- When the route changes from one to the other, the browser moves the
+  element from its old place and size to its new one.
+- Both elements must carry the same name, and only one element on a page
+  may carry each name — which is why the name here includes the post's
+  `id`. If the two pages give it different names, or two elements on one
+  page carry the same name, the element crossfades instead of moving.

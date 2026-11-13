@@ -1,6 +1,19 @@
 // A recipe, written from md-docs/recipes/serve-with-apache.md by scripts/docsite/recipes.py;
 // edit the recipe, not this file.
-page RecipeServeWithApache(path: "/recipes/serve-with-apache", title: "Serve a site with Apache — Recipes", description: "1.") {
-    RecipeShell("Serve a site with Apache", summary: "1. Put this in `public/.htaccess`. The build copies it to the root of `build/`:     ```apache Options -MultiViews RewriteEngine On # A single-page build: # RewriteCond %\{REQUEST_FILENAME\} !-f # RewriteRule ^ /index.html [L] ErrorDocument 404 /404.html Header always set X-Content-Type-Options \"nosniff\" Header always set X-Frame-Options \"DENY\" ```  2. For a single-page build, uncomment the two rewrite lines. 3. Compress the text files. Either turn on `mod_deflate`, which compresses on the way out, or serve the build's `.gz` files with `MultiViews` (in place of `-MultiViews`) and `AddEncoding gzip .gz`. 4. Upload `build/` to the site's document root.  **Verify it:** `curl -I` a page and check for `X-Content-Type-Options` and `X-Frame-Options`. Open a path that does not exist and check that you get the site's `404.html`.", outputs: [], since: "", recipes: RECIPE_INDEX, sections: [], related: [RelatedLink(kind: "Recipe", title: "Build a Docker image", to: "/recipes/docker-image"), RelatedLink(kind: "Recipe", title: "Check a deploy", to: "/recipes/check-a-deploy"), RelatedLink(kind: "Recipe", title: "Deploy to Cloudflare Pages", to: "/recipes/deploy-to-cloudflare-pages")], source: "md-docs/recipes/serve-with-apache.md", how: false, hasVariations: false) {
+page RecipeServeWithApache(path: "/recipes/serve-with-apache", title: "Serve a site with Apache — Recipes", description: "Serve a WebFluent build with Apache: an .htaccess file with the 404 page, a single-page fallback, security headers and compressed files.") {
+    RecipeShell("Serve a site with Apache", summary: "This recipe serves a WebFluent build with Apache, configured by an `.htaccess` file that ships with the build.  You need an Apache host with `mod_rewrite` and `mod_headers`, and a `build/` folder from `wf build` ([Install wf on a build machine](/recipes/install-wf-in-ci)).  Put this in `public/.htaccess`:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "check-it", label: "Check it"), Anchor(id: "variations", label: "Variations")], related: [RelatedLink(kind: "Recipe", title: "Build a Docker image", to: "/recipes/docker-image"), RelatedLink(kind: "Recipe", title: "Check a deploy", to: "/recipes/check-a-deploy"), RelatedLink(kind: "Recipe", title: "Deploy to Cloudflare Pages", to: "/recipes/deploy-to-cloudflare-pages")], source: "md-docs/recipes/serve-with-apache.md", how: true, hasVariations: true) {
+        code {
+            CodeBlock("Options -MultiViews\nRewriteEngine On\n# A single-page build:\n# RewriteCond %\{REQUEST_FILENAME\} !-f\n# RewriteRule ^ /index.html [L]\nErrorDocument 404 /404.html\nHeader always set X-Content-Type-Options \"nosniff\"\nHeader always set X-Frame-Options \"DENY\"", title: "apache")
+        }
+        variations {
+            Markdown("Compress the text files one of two ways:\n\n- Turn on `mod_deflate`, which compresses on the way out.\n- Serve the `.gz` files the build wrote: write `Options MultiViews` in place of `Options -MultiViews`, and add `AddEncoding gzip .gz`.")
+
+        }
+        Markdown("Then upload `build/` to the site's document root.\n\n1. The build copies `public/.htaccess` to the root of `build/`, so it lands in the document root with the site.\n2. For a single-page build, uncomment the two rewrite lines: a path that is no file is answered with `index.html`, where the router draws the page.\n3. `ErrorDocument 404 /404.html` serves the page whose `path` is `*`.\n4. The `Header` lines send security headers the build writes to `build/_headers` ([Set cache and security headers](/recipes/cache-and-security-headers#set-security-headers)).")
+
+        Heading("Check it", id: "check-it").h2
+
+        Markdown("`curl -I` a page and check for `X-Content-Type-Options` and `X-Frame-Options`. Open a path that does not exist and check that you get the site's `404.html`. Then go through [Check a deploy](/recipes/check-a-deploy).")
+
     }
 }

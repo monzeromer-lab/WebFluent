@@ -2,15 +2,19 @@
 kind: "recipe"
 route: "/recipes/site-in-two-languages"
 group: "reach"
-description: "`t()` and `setLocale` translate a page in the browser, at one address."
+description: "Have search engines find each language: write each page once per language at its own address, with lang: and translates: joining them."
 from: ["/docs/guide/i18n#a-page-in-its-own-language"]
+outputs: ["website", "app"]
 ---
 # Publish a page in each language
 
-`t()` and `setLocale` translate a page in the browser, at one address. A
-search engine indexes what that address's HTML says, which is the default
-locale. A site that wants each language found writes each page once per
-language, at an address of its own, and says so:
+Have a search engine find your site in each of its languages. `t()` and
+`setLocale` translate a page in the browser, at one address, and a search
+engine indexes what that address's HTML says, which is the default locale.
+A site that wants each language found writes each page once per language,
+at an address of its own, and says how the pages are joined.
+
+This site is written in Arabic, with its home page in English at `/en`:
 
 ```wf
 page Home(path: "/", title: "منذر عمر", description: "مهندس خلفيات.") {
@@ -22,6 +26,8 @@ page HomeEn(path: "/en", title: "Monzer Omer", description: "Engineer.",
     Heading("Hello").h1
 }
 ```
+
+## How it works
 
 - **`lang:`** is the language the page is written in. A page without one
   is in the site's (`meta.lang`, or `default_locale`). The page is written
@@ -35,7 +41,7 @@ page HomeEn(path: "/en", title: "Monzer Omer", description: "Engineer.",
   them as `hreflang` alternates, at their own addresses and canonical to
   themselves, with `x-default` for the one in the site's language, and
   each names the others' languages as `og:locale:alternate`.
-- A `:param` page's translation is matched by its parameters:
+- **A `:param` page's translation is matched by its parameters:**
   `/en/posts/:slug` for `/posts/:slug`, filled with the same `slug`.
 
 A `translates:` that names no page, or two translations of one page in one

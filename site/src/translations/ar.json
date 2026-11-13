@@ -158,7 +158,6 @@
   "ch.01": "مقدّمة",
   "ch.02": "الشروع في العمل",
   "ch.03": "درس: Shelf",
-  "ch.04": "قادم من React أو Vue أو Svelte",
   "ch.09": "أساسيات اللغة",
   "ch.10": "الصفحات والتوجيه",
   "ch.11": "العناصر",
@@ -458,5 +457,7 @@
   "nav.reference.body": "كل عنصر مدمج وأمر وإعداد، مولّد من المترجم نفسه.",
   "nav.errors.body": "لكل رسالة من المترجم صفحة: الشيفرة التي تسببها والرسالة والإصلاح.",
   "showcase.all": "الكل",
-  "showcase.firstpage": "الصفحة الأولى من {title}"
+  "showcase.firstpage": "الصفحة الأولى من {title}",
+  "coming.html-css": "HTML وCSS",
+  "coming.latex": "LaTeX وTypst"
 }

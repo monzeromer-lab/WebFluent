@@ -1,7 +1,7 @@
 // A recipe, written from md-docs/recipes/confirm-dialog.md by scripts/docsite/recipes.py;
 // edit the recipe, not this file.
-page RecipeConfirmDialog(path: "/recipes/confirm-dialog", title: "Build a confirm dialog — Recipes", description: "To ask before a destructive action, wrap a `Dialog` in a component that fires `confirm` or `cancel`:") {
-    RecipeShell("Build a confirm dialog", summary: "To ask before a destructive action, wrap a `Dialog` in a component that fires `confirm` or `cancel`:", outputs: [], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Copy to the clipboard", to: "/recipes/copy-to-the-clipboard"), RelatedLink(kind: "Recipe", title: "Count down", to: "/recipes/count-down"), RelatedLink(kind: "Recipe", title: "Debounce a search", to: "/recipes/debounce-a-search")], source: "md-docs/recipes/confirm-dialog.md", how: true, hasVariations: false) {
+page RecipeConfirmDialog(path: "/recipes/confirm-dialog", title: "Build a confirm dialog — Recipes", description: "Ask before a destructive action: a component that wraps a Dialog and fires confirm or cancel, with the question's detail written by the caller.") {
+    RecipeShell("Build a confirm dialog", summary: "Before a reader deletes something, ask them. This component wraps a `Dialog` with **Cancel** and **Confirm** buttons and tells the page which one was pressed, so every destructive action on the site asks the same way:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Copy to the clipboard", to: "/recipes/copy-to-the-clipboard"), RelatedLink(kind: "Recipe", title: "Count down", to: "/recipes/count-down"), RelatedLink(kind: "Recipe", title: "Debounce a search", to: "/recipes/debounce-a-search")], source: "md-docs/recipes/confirm-dialog.md", how: true, hasVariations: false) {
         code {
             CodeBlock(#"component Confirm(_ title: String, visible: Bool, danger: Bool = false) {
     event confirm()
@@ -29,7 +29,7 @@ page Account(path: "/", title: "Account", description: "Close your account.") {
     if gone { Alert("Account deleted.").info }
 }"#, title: "wf")
         }
-        Markdown("The caller's block fills the default slot, so the question's detail is the caller's to write.")
+        Markdown("- `Confirm` takes the question as its positional `title`, whether it shows as `visible`, and a `danger` prop that turns the confirm button red. `tone:` picks the button's case from a condition instead of a fixed flag.\n- It declares two [events](/docs/guide/components#events), `confirm` and `cancel`, and each button fires one with `emit`. The component decides nothing; the page does.\n- `slot` declares a default [slot](/docs/guide/components#slots), and `children` places it inside the dialog. The caller's block fills it, so the question's detail is the caller's to write.\n- The page owns `asking`. **Delete account** sets it, and both handlers clear it, which closes the [dialog](/docs/guide/events#overlays-modals-dialogs-toasts-and-menus).")
 
     }
 }

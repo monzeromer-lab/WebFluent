@@ -72,6 +72,7 @@ def main() -> None:
         run("errors.py", {})
         run("guide.py", {})
         run("recipes.py", {})
+        run("comingfrom.py", {})
         run("reference.py", {})
         run("data.py", {})
         run("changelog.py", {})
@@ -83,6 +84,7 @@ def main() -> None:
         run("errors.py", {"WF_ERRORS_OUT": str(tmp / "errors")})
         run("guide.py", {"WF_GUIDE_OUT": str(tmp / "guide")})
         run("recipes.py", {"WF_RECIPES_OUT": str(tmp / "recipes")})
+        run("comingfrom.py", {"WF_COMINGFROM_OUT": str(tmp / "comingfrom")})
         run("reference.py", {"WF_REFERENCE_OUT": str(tmp / "reference")})
         (tmp / "data").mkdir()
         run("data.py", {"WF_SITE_DATA_OUT": str(tmp / "data")})
@@ -99,6 +101,12 @@ def main() -> None:
             (tmp / "changelog/Changelog.wf", ROOT / "site/src/pages/Changelog.wf"),
         ]
         pairs.append((tmp / "recipes/old-links-map.js", ROOT / "site/src/old-links-map.js"))
+        written = ROOT / "site/src/pages/comingfrom"
+        fresh = {p.name for p in (tmp / "comingfrom").glob("*.wf")}
+        have = {p.name for p in written.glob("*.wf")}
+        for name in sorted(fresh ^ have):
+            problems.append(f"site/src/pages/comingfrom/{name}: {'missing' if name in fresh else 'not from comingfrom.py'}")
+        pairs += [(tmp / "comingfrom" / name, written / name) for name in sorted(fresh & have)]
         written = ROOT / "site/src/pages/recipes"
         fresh = {p.name for p in (tmp / "recipes").glob("*.wf")}
         have = {p.name for p in written.glob("*.wf")}

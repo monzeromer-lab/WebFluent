@@ -1,0 +1,67 @@
+// A cheat sheet, written from md-docs/coming-from/html-css.md by
+// scripts/docsite/comingfrom.py; edit the sheet, not this file.
+page ComingFromHtmlCss(path: "/coming-from/html-css", title: "WebFluent for HTML and CSS authors", description: "Plain HTML and CSS in WebFluent: elements, links, images, forms, classes, flexbox and grid, stylesheets, media queries and scripts, side by side.") {
+    ComingFromShell("WebFluent for HTML and CSS authors", summary: "If you write HTML and CSS by hand, WebFluent keeps what you know and takes away the repetition: elements come designed and accessible, a page's head is written for you, and a layout is a `Row` or a `Grid` instead of a class and a rule. Your CSS still works — any `.css` file under `src/` is part of the build.", from: "HTML & CSS", sheets: [Place(key: "coming.react", to: "/coming-from/react"), Place(key: "coming.vue", to: "/coming-from/vue"), Place(key: "coming.svelte", to: "/coming-from/svelte"), Place(key: "coming.html-css", to: "/coming-from/html-css"), Place(key: "coming.latex", to: "/coming-from/latex")], sections: [Anchor(id: "differences", label: t("coming.differences")), Anchor(id: "port", label: t("coming.port"))], source: "md-docs/coming-from/html-css.md") {
+        differences {
+            Markdown("**Elements are checked.** An `Image` with no `alt:` is a warning (`A01`), a `Link` to a page that does not exist is an error (`R01`), and a flag the element does not have (`Button(\"Save\").primray`) stops the build. What you would have caught with a validator and an accessibility audit, the compiler catches on every build.\n\n**Text is text.** Every string goes in as text, so a `<` in it is shown, not parsed. Markup you did not write goes through `Unsafe.Html(sanitize(…))`, which the build reports each time; inline `onclick` handlers do not compile — a handler is `on click \{ … \}` in the element's block.\n\n**The head is written for you.** Each page's title, description, canonical link, Open Graph and Twitter tags, structured data, a sitemap and `robots.txt` come from the page and the config ([Describe pages to search engines and link previews](/recipes/search-and-link-previews)).\n\n**Your CSS is welcome, scoped by you.** A `.css` file under `src/` is bundled after the built-ins' rules, so yours win; `class:` on any element adds your classes. A `style \{ \}` block is for the one element it is on.\n\n**A site, not a pile of files.** Pages share a header and footer through `app` (or a `layout:`), a value shared by pages is a `store`, and repeated markup is a `component` with typed props.")
+
+        }
+        port {
+            Markdown("A card that shows a person, in HTML and CSS and in WebFluent.")
+
+            CodeBlock(#"<div class="card">
+  <img class="avatar" src="/ada.jpg" alt="Ada Lovelace">
+  <div>
+    <h3>Ada Lovelace</h3>
+    <p class="muted">Analyst</p>
+  </div>
+</div>
+
+<style>
+  .card { display: flex; gap: 12px; align-items: center; padding: 16px;
+          border: 1px solid #ddd; border-radius: 8px; }
+  .avatar { width: 48px; height: 48px; border-radius: 50%; }
+  .muted { color: #666; }
+</style>"#, title: "html")
+
+            CodeBlock(#"page Team(path: "/", title: "Team", description: "Who we are.") {
+    Heading("Team").h1
+    Person("Ada Lovelace", role: "Analyst", photo: "/ada.jpg")
+}
+
+component Person(_ name: String, role: String, photo: String) {
+    Card.outlined {
+        Row(gap: .sm, align: .center) {
+            Avatar(src: photo, alt: name)
+            Stack {
+                Heading(name).h3
+                Text(role).muted
+            }
+        }
+    }
+}"#, title: "wf")
+
+            Markdown("- **No class names to invent.** `Card.outlined`, `Avatar` and `.muted` come designed, and follow the theme.\n- **One component, many people.** `Person` is placed with each person's props; the compiler checks every call.")
+
+        }
+        CheatRow("A page", theirs: "index.html with <head>, <title> and <body>", ours: "page Home(path: \"/\", title: \"Home\", description: \"…\") \{ … \}", language: "html")
+        CheatRow("A heading", theirs: "<h1>Welcome</h1>", ours: "Heading(\"Welcome\").h1", language: "html")
+        CheatRow("A paragraph", theirs: "<p>Hello</p>", ours: "Text(\"Hello\")", language: "html")
+        CheatRow("A link", theirs: "<a href=\"/about\">About</a>", ours: "Link(\"About\", to: \"/about\")", language: "html")
+        CheatRow("A picture", theirs: "<img src=\"/team.jpg\" alt=\"The team\">", ours: "Image(src: \"/team.jpg\", alt: \"The team\")", language: "html")
+        CheatRow("A button", theirs: "<button class=\"btn btn-primary\">Save</button>", ours: "Button(\"Save\").primary", language: "html")
+        CheatRow("A list", theirs: "<ul><li>One</li></ul>", ours: "List \{ List.Item \{ Text(\"One\") \} \}", language: "html")
+        CheatRow("A table", theirs: "<table><thead>…</thead><tbody>…</tbody></table>", ours: "Table \{ Table.Head \{ … \} Table.Body \{ … \} \}", language: "html")
+        CheatRow("A form field", theirs: "<label for=\"e\">Email</label><input id=\"e\" type=\"email\">", ours: "Input(bind: email, label: \"Email\").email", language: "html")
+        CheatRow("A row with flexbox", theirs: "<div class=\"row\"> and .row \{ display: flex; gap: 16px \}", ours: "Row(gap: .md) \{ … \}", language: "html")
+        CheatRow("A grid", theirs: ".grid \{ display: grid; grid-template-columns: repeat(3, 1fr) \}", ours: "Grid(columns: 3, gap: .md) \{ … \}", language: "html")
+        CheatRow("A responsive grid", theirs: "a @media rule per breakpoint", ours: "Grid(columns: \{ base: 1, md: 3 \})", language: "html")
+        CheatRow("Inline styles", theirs: "style=\"padding: 2rem\"", ours: "style \{ padding: 2rem \} in the element's block", language: "html")
+        CheatRow("Hover and focus", theirs: ".card:hover \{ … \}", ours: "style \{ &:hover \{ … \} \}", language: "html")
+        CheatRow("A stylesheet", theirs: "<link rel=\"stylesheet\" href=\"site.css\">", ours: "any .css file under src/", language: "html")
+        CheatRow("CSS variables", theirs: "--brand: #0F766E and var(--brand)", ours: "a theme of design tokens, read as $color-primary", language: "html")
+        CheatRow("Dark mode", theirs: "@media (prefers-color-scheme: dark)", ours: "a second theme, named as \"dark\" in the config", language: "html")
+        CheatRow("A script", theirs: "<script src=\"app.js\"></script>", ours: "a plain .js file under src/, its functions called by name", language: "html")
+        CheatRow("Meta tags", theirs: "<meta name=\"description\">, Open Graph tags", ours: "the page's title: and description:, and meta in the config", language: "html")
+    }
+}

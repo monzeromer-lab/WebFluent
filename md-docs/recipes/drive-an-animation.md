@@ -2,14 +2,16 @@
 kind: "recipe"
 route: "/recipes/drive-an-animation"
 group: "look"
-description: "To play an animation from a handler, call `animate(element, name, duration)` with a `ref:` handle."
+description: "Play an animation from a handler with animate(element, name, duration) and a ref: handle, or play an element's own again with replayAnimation."
+outputs: ["website", "app"]
 from: ["/docs/guide/motion#drive-an-animation-yourself"]
 ---
 # Drive an animation yourself
 
-To play an animation from a handler, call `animate(element, name,
-duration)` with a `ref:` handle. It returns a handle that plays as soon as
-it is made, and its `play()`, `cancel()` and `finished` are yours:
+Play an animation when something happens, not only when an element
+arrives: a card that pulses as the pointer reaches it. Call
+`animate(element, name, duration)` from a handler, with a `ref:` handle on
+the element:
 
 ```wf
 page Hover(path: "/", title: "Hover", description: "A card that pulses on hover.") {
@@ -20,6 +22,18 @@ page Hover(path: "/", title: "Hover", description: "A card that pulses on hover.
     }
 }
 ```
+
+## How it works
+
+- `ref: panel` gives the page a handle on the card's element.
+- `animate(panel, "pulse", "400ms")` plays the built-in `pulse` animation
+  on it for 400ms, each time the pointer enters the card.
+- `animate` returns a handle that plays as soon as it is made, and its
+  `play()`, `cancel()` and `finished` are yours.
+
+## Variations
+
+### Replay an element's own animation
 
 A flag plays once, when the element arrives. To play an animation the
 element already carries again, from the start, call

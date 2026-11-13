@@ -2,15 +2,37 @@
 kind: "recipe"
 route: "/recipes/dark-mode-switch"
 group: "look"
-description: "To let the reader pick light, dark or the system's choice, call `setTheme` and read `theme`:"
+description: "Let the reader pick light, dark or the system's choice with setTheme, and mark the current choice by reading theme."
 from: ["/docs/guide/recipes#add-a-dark-mode-switch"]
+outputs: ["website", "app", "desktop"]
 ---
 # Add a dark-mode switch
 
-To let the reader pick light, dark or the system's choice, call `setTheme`
-and read `theme`:
+Let the reader pick a light look, a dark one, or whatever their system
+prefers, and keep that choice across visits. The switch needs a dark theme
+named in `webfluent.app.json`:
+
+```json
+{ "theme": { "name": "Light", "dark": "Night" } }
+```
+
+This program declares both themes and a settings page with three buttons,
+the current choice drawn solid and the others outlined:
 
 ```wf
+theme Light {
+    color-background: #FFFFFF
+    color-text: #0F172A
+}
+
+theme Night {
+    color-background: #0B1220
+    color-surface: #111827
+    color-text: #E5E7EB
+    color-text-muted: #9CA3AF
+    color-border: #1F2937
+}
+
 page Settings(path: "/settings", title: "Settings", description: "How the site looks.") {
     Heading("Settings").h1
     Row(gap: .sm) {
@@ -21,5 +43,14 @@ page Settings(path: "/settings", title: "Settings", description: "How the site l
 }
 ```
 
-The switch needs a dark theme named in the config
-([Styling](../learn/13-styling.md#dark-mode)).
+## How it works
+
+- **Two themes.** `Night` names only the tokens that change in the dark;
+  every token it leaves out keeps its value. The config's `theme.dark` says
+  which theme is the dark one ([Styling](../learn/13-styling.md#dark-mode)).
+- **`setTheme`** takes `"light"`, `"dark"` or `"system"`, and the choice is
+  kept across visits. With `"system"`, the dark theme applies whenever the
+  reader's system prefers dark (`prefers-color-scheme: dark`).
+- **`theme`** reads the choice, and stays current. A `Bool` prop given a
+  condition follows it, so `outlined: theme != "light"` outlines every
+  button but the chosen one.

@@ -2,13 +2,15 @@
 kind: "recipe"
 route: "/recipes/debounce-a-search"
 group: "interaction"
-description: "To wait until the reader stops typing before you search, keep what they typed apart from what you search for:"
+description: "Search as the reader types, but only once they pause: keep what they typed apart from what you search for, and let a timer move one to the other."
+outputs: ["website", "app"]
 from: ["/docs/guide/recipes#debounce-a-search"]
 ---
 # Debounce a search
 
-To wait until the reader stops typing before you search, keep what they
-typed apart from what you search for:
+A search box that asks the server on every key sends a request per letter.
+To wait until the reader stops typing, keep what they typed apart from
+what you search for, and copy one to the other only after a pause:
 
 ```wf
 page Search(path: "/", title: "Search", description: "Search as you type, without a request per key.") {
@@ -30,7 +32,20 @@ page Search(path: "/", title: "Search", description: "Search as you type, withou
 }
 ```
 
-The effect runs again on every keystroke, and each run schedules a check.
-Only the check whose value is still current writes `q`, and the resource
-follows `q`. The timer is the browser's `setTimeout`, because `after(ms)`
-is a declaration with a body, not a statement an effect can hold.
+## How it works
+
+- `typed` follows the input on every key, through `bind:`. `q` is what the
+  page searches for, and only `commit` writes it.
+- The [effect](../learn/07-state-and-reactivity.md#effect) reads `typed`,
+  so it runs again on every keystroke. Each run keeps the value it saw in
+  `pending` and schedules a check 300 ms later.
+- When a check runs, `commit` writes `q` only if `pending` is still what the
+  reader has typed. A check from an earlier key finds `typed` has moved on
+  and does nothing, so only the last pause gets through.
+- The [resource](../learn/15-data.md#show-a-request-with-resource) splices
+  `q` into its address, so it asks again each time `q` changes — once per
+  pause, not once per key.
+
+The timer is the browser's `setTimeout`, because
+[`after(ms)`](../learn/07-state-and-reactivity.md#timers) is a declaration
+with a body, not a statement an effect can hold.

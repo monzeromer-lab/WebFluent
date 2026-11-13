@@ -1,7 +1,7 @@
 // A recipe, written from md-docs/recipes/show-a-page-in-a-frame.md by scripts/docsite/recipes.py;
 // edit the recipe, not this file.
-page RecipeShowAPageInAFrame(path: "/recipes/show-a-page-in-a-frame", title: "Show another page in a frame — Recipes", description: "To show another page inside yours (a video player, a map, a preview your app builds), use `Frame`.") {
-    RecipeShell("Show another page in a frame", summary: "To show another page inside yours (a video player, a map, a preview your app builds), use `Frame`. Give it a `title:` that says what it shows: a screen reader announces a frame by its title, and a frame without one draws an `A17` warning.  This page embeds a video player and a preview of the site's own, and shows what the preview sends back:", outputs: [], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Add a dark-mode switch", to: "/recipes/dark-mode-switch"), RelatedLink(kind: "Recipe", title: "Add a picture, sized for every screen", to: "/recipes/add-a-picture"), RelatedLink(kind: "Recipe", title: "Add video and audio", to: "/recipes/video-and-audio")], source: "md-docs/recipes/show-a-page-in-a-frame.md", how: true, hasVariations: false) {
+page RecipeShowAPageInAFrame(path: "/recipes/show-a-page-in-a-frame", title: "Show another page in a frame — Recipes", description: "Show another page inside yours with Frame (a video player, a map, a preview), hear what it posts back, and draw HTML you give it, sandboxed.") {
+    RecipeShell("Show another page in a frame", summary: "Show another page inside yours (a video player, a map, a preview your app builds) with `Frame`, and hear what that page posts back.  This page embeds a video player and a preview of the site's own, and shows what the preview sends back:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "troubleshooting", label: "Troubleshooting"), Anchor(id: "variations", label: "Variations")], related: [RelatedLink(kind: "Recipe", title: "Add a dark-mode switch", to: "/recipes/dark-mode-switch"), RelatedLink(kind: "Recipe", title: "Add a picture, sized for every screen", to: "/recipes/add-a-picture"), RelatedLink(kind: "Recipe", title: "Add video and audio", to: "/recipes/video-and-audio")], source: "md-docs/recipes/show-a-page-in-a-frame.md", how: true, hasVariations: true) {
         code {
             CodeBlock(#"page Talk(path: "/", title: "The talk", description: "The launch talk, and what the preview says.") {
     state heard = ""
@@ -13,22 +13,47 @@ page RecipeShowAPageInAFrame(path: "/recipes/show-a-page-in-a-frame", title: "Sh
     Text(heard)
 }"#, title: "wf")
         }
-        Markdown("- `on message(m)` hears what the framed page posts with `window.parent.postMessage(…)`, and nothing that any other page posts. `m.data` is what it sent.\n- `sandbox:` limits what the framed page may do: `\"allow-scripts allow-forms\"` allows scripts and forms, and an empty string allows nothing.\n- `allow:` names the browser features the framed page may use.\n\nA frame from another origin must be named in `meta.frame`, or the page's Content-Security-Policy refuses it ([Security](/docs/guide/security)).")
+        variations {
+            Heading("Draw HTML you give the frame", id: "draw-html-you-give-the-frame").h3
 
-        Heading("Draw HTML you give the frame", id: "draw-html-you-give-the-frame").h3
+            Markdown("To draw HTML instead of loading an address (an example a page renders, or a preview of what a reader is writing), use `srcdoc:`. This page previews a note as the reader types it:")
 
-        Markdown("To draw HTML instead of loading an address (an example a page renders, or a preview of what a reader is writing), use `srcdoc:`. The frame draws it sandboxed as `sandbox:` says, so `sandbox: \"\"` draws it with no script and no reach into your page. HTML from a value with no `sandbox:` is given `sandbox=\"\"` — what a value holds is somebody else's document, scripts and all — and the build names it with a `V03`. A value that reads state draws the new HTML each time it changes, and the pre-rendered page has the HTML before any script runs.\n\nA frame's `on message` hears what its own document posts, from the origin that document has: its address's, or the opaque `\"null\"` of a sandbox without `allow-same-origin`. A page the frame was navigated to is no longer its own.\n\nThis page previews a note as the reader types it:")
-
-        CodeBlock(#"page Preview(path: "/preview-note", title: "Preview", description: "A note, drawn as it will look.") {
+            CodeBlock(#"page Preview(path: "/preview-note", title: "Preview", description: "A note, drawn as it will look.") {
     state note = "Hello"
     Heading("Preview").h1
     Input(bind: note, label: "Note")
     Frame(srcdoc: "<p>{note}</p>", title: "The note, drawn", sandbox: "")
 }"#, title: "wf")
 
+            Markdown("The frame draws the HTML sandboxed as `sandbox:` says, so `sandbox: \"\"` draws it with no script and no reach into your page. HTML from a value with no `sandbox:` is given `sandbox=\"\"` — what a value holds is somebody else's document, scripts and all — and the build names it with a `V03`. A value that reads state draws the new HTML each time it changes, and the pre-rendered page has the HTML before any script runs.\n\nA frame's `on message` hears what its own document posts, from the origin that document has: its address's, or the opaque `\"null\"` of a sandbox without `allow-same-origin`. A page the frame was navigated to is no longer its own.")
+
+        }
+        Markdown("- `title:` says what the frame shows. A screen reader announces a frame by its title, and a frame without one draws an `A17` warning.\n- `on message(m)` hears what the framed page posts with `window.parent.postMessage(…)`, and nothing that any other page posts. `m.data` is what it sent.\n- `sandbox:` limits what the framed page may do: `\"allow-scripts allow-forms\"` allows scripts and forms, and an empty string allows nothing.\n- `allow:` names the browser features the framed page may use.\n\nA frame from another origin must be named in `meta.frame`, or the page's Content-Security-Policy refuses it ([Security](/docs/guide/security)).")
+
         Heading("Frame your own pages", id: "frame-your-own-pages").h3
 
         Markdown("A page of your own site (`src: \"/preview/\"`) needs no extra setting. The site's pages are served refusing to be framed by anyone (`X-Frame-Options: DENY`). A project that places a `Frame` with a site-relative `src:` is served `SAMEORIGIN` instead, both by `wf serve` and in the `_headers` file a build writes. Your site may frame its own pages, and no other site may.")
+
+        Heading("Troubleshooting", id: "troubleshooting").h2
+
+        Table(caption: "Troubleshooting") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("What you see").header
+                    Table.Cell("Why, and what to do").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`A17` on a `Frame`") }
+                    Table.Cell { Markdown("Add a `title:` that says what the frame shows") }
+                }
+                Table.Row {
+                    Table.Cell("A frame from another site stays blank")
+                    Table.Cell { Markdown("Its origin is not in `meta.frame`, so the policy blocks it") }
+                }
+            }
+        }
 
     }
 }

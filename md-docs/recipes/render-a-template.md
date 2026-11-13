@@ -2,23 +2,17 @@
 kind: "recipe"
 route: "/recipes/render-a-template"
 group: "interop"
-description: "You need the `wf` command installed (Getting started)."
+description: "Render a .wf template with JSON data to HTML, an HTML fragment, a PDF or slides with wf render, for invoices, emails and server responses."
+outputs: ["website", "pdf", "slides"]
 from: ["/docs/guide/server-rendering#before-you-start", "/docs/guide/server-rendering#write-a-template-and-its-data", "/docs/guide/server-rendering#render-from-the-command-line", "/docs/guide/server-rendering#what-a-template-may-use", "/docs/guide/server-rendering#pick-an-output-for-the-job", "/docs/guide/server-rendering#troubleshooting"]
 ---
 # Render a template with data
 
-## Before you start
-
-You need the `wf` command installed ([Getting started](../learn/01-getting-started.md#install)).
-For the Rust API you need a Rust project; for the Node binding, Node.js and
-npm.
-
-## Write a template and its data
-
-A template is a `.wf` file with a `page`. The data's top-level keys are in
-scope by name, so the template reads `number`, `customer` and `items`
-without declaring them. This invoice template shows a table of items and a
-badge for whether it is paid:
+A template is a `.wf` file with a `page`, rendered once with the data you
+hand it: an invoice, an email, a block of a page your server already
+draws. `wf render` turns it into HTML, a fragment, a PDF or slides. You
+need the `wf` command installed
+([Getting started](../learn/01-getting-started.md#install)).
 
 ```wf
 page Invoice(path: "/", title: "Invoice", description: "An invoice.") {
@@ -41,7 +35,8 @@ page Invoice(path: "/", title: "Invoice", description: "An invoice.") {
 }
 ```
 
-The data is a JSON object, saved here as `invoice.json`:
+The data is a JSON object, saved here as `invoice.json` beside the
+template, `invoice.wf`:
 
 ```json
 {
@@ -54,21 +49,24 @@ The data is a JSON object, saved here as `invoice.json`:
 }
 ```
 
-Rendered, the page reads `Invoice #INV-001`, `Bill to: Acme Corp`, one table
-row (`Widget`, `5`, `$49.95`), the badge `Due` and `Total: $49.95`.
-
-A template uses the static subset of the language: no handlers, stores,
-`resource` or motion (see [What a template may use](#what-a-template-may-use)).
-
-## Render from the command line
-
-To render a template, run `wf render` with the template and its data:
+This command renders the template with the data and prints the markup to
+standard output:
 
 ```bash
 wf render invoice.wf --data invoice.json --format html-fragment
 ```
 
-The command prints the markup to standard output. Its options:
+Rendered, the page reads `Invoice #INV-001`, `Bill to: Acme Corp`, one table
+row (`Widget`, `5`, `$49.95`), the badge `Due` and `Total: $49.95`.
+
+## How it works
+
+The data's top-level keys are in scope by name, so the template reads
+`number`, `customer` and `items` without declaring them. A template uses
+the static subset of the language: no handlers, stores, `resource` or
+motion (see [What a template may use](#what-a-template-may-use)).
+
+`wf render` takes these options:
 
 | Option | What it does |
 |---|---|
@@ -80,6 +78,11 @@ The command prints the markup to standard output. Its options:
 | `--lang ar` | Sets the document's language, `<html lang>` (default: the page's `lang:`, else `en`) |
 | `--page Name` | Chooses the page to render when the template has several |
 
+A template that names a component nothing declares, or a flag a component
+does not take, is refused, as a build would refuse it.
+
+## Variations
+
 The template may also be a directory. Every `.wf` and `.wfx` file under it
 renders as one template, with components shared, and `--page Name`
 chooses the page. This command renders the `Invoice` page of `templates/`
@@ -89,8 +92,9 @@ to a PDF, in Arabic:
 wf render templates/ --page Invoice --lang ar --data invoice.json --format pdf -o invoice.pdf
 ```
 
-A template that names a component nothing declares, or a flag a component
-does not take, is refused, as a build would refuse it.
+To render from a program instead of the command line, use the Rust crate
+([Render templates from Rust](render-from-rust.md)) or the Node binding
+([Render templates from Node](render-from-node.md)).
 
 ## What a template may use
 
@@ -114,8 +118,9 @@ A template may declare `type`s and a `theme` like any file. `data` files
 are read relative to the template. `format` and `ago` speak the data's
 `locale` key when it has one, and English otherwise.
 
-A template may read private `env` names ([Environments](index.md)):
-it runs on your server, where a secret stays secret.
+A template may read private `env` names
+([Environments and secrets](environments-and-secrets.md)): it runs on your
+server, where a secret stays secret.
 
 ## Pick an output for the job
 

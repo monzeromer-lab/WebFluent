@@ -167,7 +167,7 @@ The guide is organised by what you are here to do, in eleven sections:
   in order. Every example in them builds. For more practice, try the
   [three project tutorials](../learn/03-tutorial-todos.md).
 - **To understand it coming from a framework:** read
-  [Coming from React, Vue or Svelte](../coming-from/react-vue-svelte.md) first. It maps what
+  [Coming from React, Vue or Svelte](../coming-from/react.md) first. It maps what
   you know to what is here.
 - **To build a feature:** go to the *Guides* page that names the task.
 - **To look something up:** use the reference chapters, starting with the

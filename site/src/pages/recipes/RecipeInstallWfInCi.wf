@@ -1,27 +1,28 @@
 // A recipe, written from md-docs/recipes/install-wf-in-ci.md by scripts/docsite/recipes.py;
 // edit the recipe, not this file.
-page RecipeInstallWfInCi(path: "/recipes/install-wf-in-ci", title: "Install wf on a build machine — Recipes", description: "Do these once, before the first deploy:") {
-    RecipeShell("Install wf on a build machine", summary: "Do these once, before the first deploy:", outputs: [], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "before-you-start", label: "Before you start"), Anchor(id: "install-wf-on-a-build-machine", label: "Install wf on a build machine")], related: [RelatedLink(kind: "Recipe", title: "Build a Docker image", to: "/recipes/docker-image"), RelatedLink(kind: "Recipe", title: "Check a deploy", to: "/recipes/check-a-deploy"), RelatedLink(kind: "Recipe", title: "Deploy to Cloudflare Pages", to: "/recipes/deploy-to-cloudflare-pages")], source: "md-docs/recipes/install-wf-in-ci.md", how: false, hasVariations: false) {
-        Heading("Before you start", id: "before-you-start").h2
+page RecipeInstallWfInCi(path: "/recipes/install-wf-in-ci", title: "Install wf on a build machine — Recipes", description: "Install the wf compiler on a CI runner or a host's build machine, pin its version, and build the site there before each deploy.") {
+    RecipeShell("Install wf on a build machine", summary: "This recipe installs `wf` on a machine that builds the site for you — a CI runner, or the build step of a host such as Netlify — and runs the build there. Every hosting recipe uses it.  You need a project that builds with `wf build` on your own machine, and a build machine with `curl` and `bash`.", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "prepare-the-site-before-the-first-deploy", label: "Prepare the site before the first deploy"), Anchor(id: "variations", label: "Variations")], related: [RelatedLink(kind: "Recipe", title: "Build a Docker image", to: "/recipes/docker-image"), RelatedLink(kind: "Recipe", title: "Check a deploy", to: "/recipes/check-a-deploy"), RelatedLink(kind: "Recipe", title: "Deploy to Cloudflare Pages", to: "/recipes/deploy-to-cloudflare-pages")], source: "md-docs/recipes/install-wf-in-ci.md", how: true, hasVariations: true) {
+        code {
+            Terminal(lines: [
+                        Line(command: "curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v6.0.0 bash"),
+                        Line(command: "~/.webfluent/bin/wf build")
+                    ])
+        }
+        variations {
+            Markdown("Without `WF_VERSION`, the script installs the latest release:")
 
-        Markdown("Do these once, before the first deploy:\n\n1. Set `meta.site_url` in `webfluent.app.json` to the address the site will have. If the site lives under a sub-path (`/docs`), also set `build.base_path`.\n2. Decide between a static build and a single-page build ([Static sites and SPAs](/docs/guide/static-and-spa)). A single-page build needs the host to answer every path with `index.html`.\n3. Build the site and load it in a real browser:\n\n   ```bash wf build wf verify ```\n\n   `wf verify` loads every page in headless Chrome and fails on a script error, a failed request or a blank page.\n\nA static build writes each page as its own `index.html` (`/contact` is `contact/index.html`). A page whose `path` is `*` is written to the root as `404.html`, which is the file most static hosts serve for a path they have no file for.")
+            Terminal(lines: [
+                        Line(command: "curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | bash")
+                    ])
 
-        Heading("Install wf on a build machine", id: "install-wf-on-a-build-machine").h2
+            Markdown("You can also build on your own machine and upload `build/`. It is only files.")
 
-        Markdown("To build on the host's build machine, install `wf` and run the build. Every recipe in this chapter uses these two lines:")
+        }
+        Markdown("1. The install script downloads `wf` into `~/.webfluent/bin/`. `WF_VERSION` pins the release it installs, so a new release cannot change a deploy without you knowing.\n2. `~/.webfluent/bin/wf build` builds the project in the current folder and writes the whole site to `build/`. The full path works even where the install has not put `wf` on the `PATH` yet.\n\nA static build writes each page as its own `index.html` (`/contact` is `contact/index.html`). A page whose `path` is `*` is written to the root as `404.html`, which is the file most static hosts serve for a path they have no file for.")
 
-        Terminal(lines: [
-                Line(command: "curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | bash"),
-                Line(command: "~/.webfluent/bin/wf build")
-            ])
+        Heading("Prepare the site before the first deploy", id: "prepare-the-site-before-the-first-deploy").h2
 
-        Markdown("Pin a version so that a new release cannot change a deploy without you knowing. Set `WF_VERSION` for the install script:")
-
-        Terminal(lines: [
-                Line(command: "curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v6.0.0 bash")
-            ])
-
-        Markdown("You can also build on your own machine and upload `build/`. It is only files.")
+        Markdown("Do these once, before the first deploy:\n\n1. Set `meta.site_url` in `webfluent.app.json` to the address the site will have. If the site lives under a sub-path (`/docs`), also set `build.base_path`.\n2. Decide between a static build and a single-page build ([Static sites and SPAs](/docs/guide/static-and-spa)). A single-page build needs the host to answer every path with `index.html`.\n3. Build the site and load it in a real browser:\n\n   ```bash wf build wf verify ```\n\n   `wf verify` loads every page in headless Chrome and fails on a script error, a failed request or a blank page.\n\nAfter the deploy, [check it](/recipes/check-a-deploy).")
 
     }
 }

@@ -2,16 +2,67 @@
 kind: "recipe"
 route: "/recipes/translate-a-site"
 group: "reach"
-description: "To translate a site, list its locales in `webfluent.app.json` under `i18n`."
+description: "Translate a site into several languages: one JSON file per locale, t(\"key\") wherever text goes, a language switch, plural forms and right to left."
 from: ["/docs/guide/i18n#set-up-the-translation-files", "/docs/guide/i18n#start-a-project-translated", "/docs/guide/i18n#translate-text-with-t", "/docs/guide/i18n#switch-the-locale", "/docs/guide/i18n#choose-the-locale-a-page-opens-in", "/docs/guide/i18n#format-numbers-and-dates-for-the-locale", "/docs/guide/i18n#translate-long-form-text", "/docs/guide/i18n#check-what-each-locale-lacks", "/docs/guide/i18n#checklist"]
+outputs: ["website", "app", "desktop"]
 ---
 # Translate a site
 
-## Set up the translation files
+Show a site in the reader's language: one file of messages per locale,
+`t("key")` wherever text goes, and a switch that changes the language on the
+spot, right to left included. To start a new project this way, see
+[Start a project translated](#start-a-project-translated).
 
-To translate a site, list its locales in `webfluent.app.json` under
-`i18n`. `default_locale` names the language the site is written in, and
-`dir` the directory that holds the files:
+This program has a language picker in its navigation bar and a home page
+whose heading, count and button are translated. It reads the translation
+files that [Set up the translation files](#set-up-the-translation-files)
+shows:
+
+```wf
+type User { name: String }
+
+app {
+    state chosen = "en"
+    Navbar {
+        Navbar.Brand { Link("i18n", to: "/") }
+        Navbar.Links {
+            Link(t("nav.home"), to: "/")
+            Link(t("nav.about"), to: "/about")
+        }
+        Navbar.Actions {
+            Select(bind: chosen, label: t("nav.language")) {
+                on change { setLocale(chosen) }
+                Select.Option("English", value: "en")
+                Select.Option("العربية", value: "ar")
+                Select.Option("Español", value: "es")
+            }
+        }
+    }
+    Router
+}
+
+page Home(path: "/", title: "Home", description: "The home page.") {
+    state user = User(name: "Sam")
+    state items: [String] = ["a", "b", "c"]
+    Heading(t("welcome", { name: user.name })).h1
+    Text(t("items", { count: items.length }))
+    Button(t("actions.save")).primary
+    Text("Locale: {locale}, direction: {dir}")
+    if locale == "ar" { Text("النسخة العربية") }
+}
+
+page About(path: "/about", title: "About", description: "About the site.") {
+    Heading(t("nav.about")).h1
+}
+```
+
+## How it works
+
+### Set up the translation files
+
+List the site's locales in `webfluent.app.json` under `i18n`.
+`default_locale` names the language the site is written in, and `dir` the
+directory that holds the files:
 
 ```json
 {
@@ -31,6 +82,7 @@ dots in it to group related messages. This is `src/translations/en.json`:
 {
   "nav.home": "Home",
   "nav.about": "About",
+  "nav.language": "Language",
   "welcome": "Welcome, {name}!",
   "items.one": "{count} item",
   "items.other": "{count} items",
@@ -45,6 +97,7 @@ uses:
 {
   "nav.home": "الرئيسية",
   "nav.about": "حول",
+  "nav.language": "اللغة",
   "welcome": "أهلاً، {name}!",
   "items.zero": "لا عناصر",
   "items.one": "عنصر واحد",
@@ -60,49 +113,13 @@ A locale with no file, and a key one locale has and another lacks, are
 build warnings (`I03`). At run time a key missing from the reader's locale
 falls back to the default locale's message, then to the key itself.
 
-## Start a project translated
-
-To begin a new project in several languages, pass `--locales` to `wf init`,
-with the default locale first:
-
-```bash
-wf init my-app --locales en,ar
-```
-
-This works for the `spa` and `static` templates. The new project has:
-
-- the `i18n` config above, and `meta.lang` set to the default locale;
-- every visible string of the starter passed through `t("…")`;
-- a language switch with one entry per locale;
-- a file for each locale in `src/translations/`. The default locale's holds
-  the starter's English, which its pages and tests are written in. Arabic
-  holds the starter's Arabic. Any other locale starts as a copy of the
-  English, for you to translate.
-
-Each locale is a language tag (`en`, `ar`, `pt-BR`). `--locales ar,en`
-makes Arabic the default, so the page is right to left from the first
-paint. From Rust, the same is
-`webfluent::init::create_with(dir, name, &Options { template, locales })`.
-
-## Translate text with `t()`
+### Translate text with `t()`
 
 To show a message in the reader's language, call `t("key")` wherever a
-string goes. Pass a map as the second argument to fill placeholders and to
-pick a plural form:
+string goes, as `Home` does above. Pass a map as the second argument to
+fill placeholders and to pick a plural form.
 
-```wf
-type User { name: String }
-
-page Home(path: "/", title: "Home", description: "The home page.") {
-    state user = User(name: "Sam")
-    state items: [String] = ["a", "b", "c"]
-    Heading(t("welcome", { name: user.name })).h1
-    Text(t("items", { count: items.length }))
-    Button(t("actions.save")).primary
-}
-```
-
-In English this page reads **Welcome, Sam!**, **3 items** and a **Save**
+In English the home page reads **Welcome, Sam!**, **3 items** and a **Save**
 button; in Arabic, **أهلاً، Sam!**, **3 عناصر** and **حفظ**.
 
 How `t()` behaves:
@@ -130,41 +147,14 @@ How `t()` behaves:
 > differs between languages. Put a placeholder in the message, so a
 > translator can move it.
 
-## Switch the locale
+### Switch the locale
 
-To let the reader change language, call `setLocale(code)`. This app puts a
-language picker in the navigation bar:
-
-```wf
-app {
-    state chosen = "en"
-    Navbar {
-        Navbar.Brand { Link("i18n", to: "/") }
-        Navbar.Links {
-            Link(t("nav.home"), to: "/")
-            Link(t("nav.about"), to: "/about")
-        }
-        Navbar.Actions {
-            Select(bind: chosen, label: t("nav.language")) {
-                on change { setLocale(chosen) }
-                Select.Option("English", value: "en")
-                Select.Option("العربية", value: "ar")
-                Select.Option("Español", value: "es")
-            }
-        }
-    }
-    Router
-}
-
-page Home(path: "/", title: "Home", description: "The home page.") {
-    Heading("Home").h1
-    Text("Locale: {locale}, direction: {dir}")
-    if locale == "ar" { Text("النسخة العربية") }
-}
-```
+To let the reader change language, call `setLocale(code)`. The `app` above
+puts a language picker in the navigation bar, and `Home` shows the current
+locale and direction.
 
 `locale` is the current locale's code, and `dir` is `"ltr"` or `"rtl"`.
-An `app` block may declare `state` as a page does, as `chosen` is here.
+An `app` block may declare `state` as a page does, as `chosen` is above.
 
 On a switch, the runtime sets `<html lang>` and `<html dir>`. A locale is
 right to left when its language is: Arabic, Hebrew, Persian, Urdu, Pashto,
@@ -180,7 +170,7 @@ The built-ins use logical CSS properties (`margin-inline-start`, not
 `margin-left`), so their layouts mirror with no work on your side. Use
 logical properties in your own `style { }` blocks too.
 
-## Choose the locale a page opens in
+### Choose the locale a page opens in
 
 A page opens in `default_locale`, with two exceptions:
 
@@ -224,7 +214,7 @@ locale is applied as the page loads. So a search engine indexes only the
 default locale's text. For each language to be found, give it pages of
 its own ([A page in its own language](site-in-two-languages.md)).
 
-## Format numbers and dates for the locale
+### Format numbers and dates for the locale
 
 `format` and `ago` follow the current locale
 ([Expressions](../reference/expressions.md)). `format(1234.5, .currency, "EUR")` is
@@ -247,7 +237,7 @@ A count is prose, so it takes the locale's digits. Another number spliced
 into a message — a line number, a version — stays as it is. The document's
 `lang` is the language, `ar`, whatever digits the code names.
 
-## Translate long-form text
+### Translate long-form text
 
 For a paragraph or a page of prose:
 
@@ -257,6 +247,30 @@ For a paragraph or a page of prose:
   file per locale, each with its own `path`, `lang` and `translates` in
   its front matter, or keep the text in the translation file under a key
   and render `Markdown(t("about.body"))`.
+
+## Start a project translated
+
+To begin a new project in several languages, pass `--locales` to `wf init`,
+with the default locale first:
+
+```bash
+wf init my-app --locales en,ar
+```
+
+This works for the `spa` and `static` templates. The new project has:
+
+- the `i18n` config above, and `meta.lang` set to the default locale;
+- every visible string of the starter passed through `t("…")`;
+- a language switch with one entry per locale;
+- a file for each locale in `src/translations/`. The default locale's holds
+  the starter's English, which its pages and tests are written in. Arabic
+  holds the starter's Arabic. Any other locale starts as a copy of the
+  English, for you to translate.
+
+Each locale is a language tag (`en`, `ar`, `pt-BR`). `--locales ar,en`
+makes Arabic the default, so the page is right to left from the first
+paint. From Rust, the same is
+`webfluent::init::create_with(dir, name, &Options { template, locales })`.
 
 ## Check what each locale lacks
 

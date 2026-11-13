@@ -2,13 +2,16 @@
 kind: "recipe"
 route: "/recipes/show-the-network"
 group: "realtime"
-description: "To change what a page does on a slow line or none at all, read `network`."
+description: "Change what a page does on a slow connection or none at all by reading `network`: online, connection speed, data saver and queued writes."
 from: ["/docs/guide/realtime#show-what-the-network-is-doing"]
+outputs: ["website", "app", "desktop"]
 ---
 # Show what the network is doing
 
-To change what a page does on a slow line or none at all, read `network`.
-Like `viewport`, it is a browser value that keeps itself current:
+`network` tells a page whether it is online, how fast the line is and
+whether the reader asked to save data, so the page can change what it does
+on a slow line or none at all. This inbox warns when the browser is offline
+and when data saver is on:
 
 ```wf
 page Inbox(path: "/inbox", title: "Inbox", description: "Your messages.") {
@@ -17,6 +20,12 @@ page Inbox(path: "/inbox", title: "Inbox", description: "Your messages.") {
     if network.saveData { Text("Data saver is on.").muted }
 }
 ```
+
+## How it works
+
+Like `viewport`, `network` is a browser value that keeps itself current:
+each `if` that reads it is drawn again when the connection changes, with
+nothing to subscribe to.
 
 | Member | What it is |
 |---|---|

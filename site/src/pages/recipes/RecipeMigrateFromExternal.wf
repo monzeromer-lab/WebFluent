@@ -1,6 +1,77 @@
 // A recipe, written from md-docs/recipes/migrate-from-external.md by scripts/docsite/recipes.py;
 // edit the recipe, not this file.
-page RecipeMigrateFromExternal(path: "/recipes/migrate-from-external", title: "Migrate from external — Recipes", description: "Before 4.2, you described JavaScript with `external` declarations; 4.2 removed them.") {
-    RecipeShell("Migrate from external", summary: "Before 4.2, you described JavaScript with `external` declarations; 4.2 removed them. `wf migrate` rewrites a project:  - A remote module becomes a `meta.scripts` entry. Its calls keep working, typed `Any`. - A local module becomes a plain script under `src/`, with its exports removed and its signatures as JSDoc. `X.f(…)` is rewritten to `f(…)`. - An `external element` call site becomes `Element(\"tag-name\", …)`.", outputs: [], since: "", recipes: RECIPE_INDEX, sections: [], related: [RelatedLink(kind: "Recipe", title: "Call WF from a script", to: "/recipes/call-wf-from-a-script"), RelatedLink(kind: "Recipe", title: "Call your own JavaScript", to: "/recipes/call-your-own-script"), RelatedLink(kind: "Recipe", title: "Draw a chart from a library", to: "/recipes/chart-from-a-library")], source: "md-docs/recipes/migrate-from-external.md", how: false, hasVariations: false) {
+page RecipeMigrateFromExternal(path: "/recipes/migrate-from-external", title: "Migrate from external — Recipes", description: "Move a WebFluent 4 project off external declarations: wf migrate turns each into a meta.scripts entry, a plain script under src/, or an Element call.") {
+    RecipeShell("Migrate from external", summary: "Before 4.2, you described JavaScript with `external` declarations; 4.2 removed them, and the parser now refuses one. `wf migrate` rewrites a project. This is a page after the migration: it calls a function of a plain script, and places a custom element by its tag:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "troubleshooting", label: "Troubleshooting")], related: [RelatedLink(kind: "Recipe", title: "Call WF from a script", to: "/recipes/call-wf-from-a-script"), RelatedLink(kind: "Recipe", title: "Call your own JavaScript", to: "/recipes/call-your-own-script"), RelatedLink(kind: "Recipe", title: "Draw a chart from a library", to: "/recipes/chart-from-a-library")], source: "md-docs/recipes/migrate-from-external.md", how: true, hasVariations: false) {
+        code {
+            CodeBlock(#"// Your publishable key, from the Stripe dashboard.
+const STRIPE_KEY = "pk_test_123"
+
+page Pricing(path: "/pricing", title: "Pricing", description: "Plans, on a card that leans.") {
+    Heading("Pricing").h1
+    Card(mount: (n) => initTilt(n, 10)) { Text("Pro") }
+    Element("stripe-pricing-table", publishableKey: STRIPE_KEY)
+}"#, title: "wf")
+            Markdown("The function it calls is the old local module, now a plain script under `src/`, its `export` taken off and the declaration's signature written above it as JSDoc:")
+            CodeBlock(#"// src/vendor/tilt.js
+/**
+ * @param {*} node
+ * @param {number} max
+ */
+function initTilt(node, max) {
+  node.addEventListener("pointermove", (e) => {
+    const r = node.getBoundingClientRect();
+    const x = (e.clientX - r.left) / r.width - 0.5;
+    node.style.transform = `rotateY(${x * max}deg)`;
+  });
+}"#, title: "js")
+            Markdown("This is the same page as WebFluent 4.1 wrote it, with the module in `public/vendor/tilt.js`. It is not compiled here, because 4.2 refuses `external`:")
+            CodeBlock(#"external Tilt from "./vendor/tilt.js" {
+    fn initTilt(node: Any, max: Number)
+}
+
+external element PricingTable("stripe-pricing-table") {
+    prop publishableKey: String
+}
+
+const STRIPE_KEY = "pk_test_123"
+
+page Pricing(path: "/pricing", title: "Pricing", description: "Plans, on a card that leans.") {
+    Heading("Pricing").h1
+    Card(mount: (n) => Tilt.initTilt(n, 10)) { Text("Pro") }
+    PricingTable(publishableKey: STRIPE_KEY)
+}"#, title: "wf")
+            Markdown("To migrate, run `wf migrate` in the project. `--check` writes nothing and says what would change:")
+            Terminal(lines: [
+                        Line(command: "wf migrate --check"),
+                        Line(command: "wf migrate")
+                    ])
+        }
+        Markdown("`wf migrate` takes each `external` out of the source and puts what it said where 4.2 says it:\n\n- **A remote module** (`external X from \"https://…\"`) becomes a `meta.scripts` entry with `\"module\": true` and `\"as\": \"X\"`, and its `integrity:` moves to `meta.integrity`. Its calls keep working, typed `Any`, since the compiler cannot read a remote file ([Load a library from a CDN](/recipes/library-from-a-cdn)).\n- **A local module** (`external X from \"./x.js\"`, a file in `public/`) becomes a plain script at the same path under `src/`, with its exports removed and its signatures as JSDoc. `X.f(…)` is rewritten to `f(…)` ([Call your own JavaScript](/recipes/call-your-own-script)).\n- **An `external element`** call site becomes `Element(\"tag-name\", …)`, with its arguments and handlers as they were ([Place a custom element from a library](/recipes/place-a-custom-element)).\n\nThe step lists every `.js` file already under `src/`, because each now ships on every page. It runs before `wf migrate`'s other steps, since a file with an `external` in it does not parse.")
+
+        Heading("Troubleshooting", id: "troubleshooting").h2
+
+        Table(caption: "Troubleshooting") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell.header { Markdown("What `wf migrate` says") }
+                    Table.Cell("What to do").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("A module imported a file that is not in `public/`") }
+                    Table.Cell { Markdown("Put its code in a `.js` file under `src/` yourself") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("A module imports other modules, so it stays in `public/`") }
+                    Table.Cell { Markdown("Write a script under `src/` that does what it did, and call that") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("A module had an `export default`") }
+                    Table.Cell("It is kept as a plain statement, which names nothing; give the value a name if a page calls it")
+                }
+            }
+        }
+
     }
 }

@@ -113,7 +113,7 @@ called the *static paint*
 
 **Project script.** A `.js` file under `src/`: a plain browser script,
 linked on every page as written, whose top-level names `.wf` code calls
-directly ([JavaScript interop](../recipes/call-your-own-script.md#call-your-own-script)).
+directly ([JavaScript interop](../recipes/call-your-own-script.md)).
 
 **Prop.** A value a component or built-in takes, passed by name — or, for
 the one marked `_`, by position ([Components](../learn/10-components.md#props)).

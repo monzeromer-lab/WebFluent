@@ -1,7 +1,7 @@
 // A recipe, written from md-docs/recipes/drive-an-animation.md by scripts/docsite/recipes.py;
 // edit the recipe, not this file.
-page RecipeDriveAnAnimation(path: "/recipes/drive-an-animation", title: "Drive an animation yourself — Recipes", description: "To play an animation from a handler, call `animate(element, name, duration)` with a `ref:` handle.") {
-    RecipeShell("Drive an animation yourself", summary: "To play an animation from a handler, call `animate(element, name, duration)` with a `ref:` handle. It returns a handle that plays as soon as it is made, and its `play()`, `cancel()` and `finished` are yours:", outputs: [], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Add a dark-mode switch", to: "/recipes/dark-mode-switch"), RelatedLink(kind: "Recipe", title: "Add a picture, sized for every screen", to: "/recipes/add-a-picture"), RelatedLink(kind: "Recipe", title: "Add video and audio", to: "/recipes/video-and-audio")], source: "md-docs/recipes/drive-an-animation.md", how: true, hasVariations: false) {
+page RecipeDriveAnAnimation(path: "/recipes/drive-an-animation", title: "Drive an animation yourself — Recipes", description: "Play an animation from a handler with animate(element, name, duration) and a ref: handle, or play an element's own again with replayAnimation.") {
+    RecipeShell("Drive an animation yourself", summary: "Play an animation when something happens, not only when an element arrives: a card that pulses as the pointer reaches it. Call `animate(element, name, duration)` from a handler, with a `ref:` handle on the element:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "variations", label: "Variations")], related: [RelatedLink(kind: "Recipe", title: "Add a dark-mode switch", to: "/recipes/dark-mode-switch"), RelatedLink(kind: "Recipe", title: "Add a picture, sized for every screen", to: "/recipes/add-a-picture"), RelatedLink(kind: "Recipe", title: "Add video and audio", to: "/recipes/video-and-audio")], source: "md-docs/recipes/drive-an-animation.md", how: true, hasVariations: true) {
         code {
             CodeBlock(#"page Hover(path: "/", title: "Hover", description: "A card that pulses on hover.") {
     Heading("Hover").h1
@@ -11,15 +11,21 @@ page RecipeDriveAnAnimation(path: "/recipes/drive-an-animation", title: "Drive a
     }
 }"#, title: "wf")
         }
-        Markdown("A flag plays once, when the element arrives. To play an animation the element already carries again, from the start, call `replayAnimation(element, name)`:")
+        variations {
+            Heading("Replay an element's own animation", id: "replay-an-element-s-own-animation").h3
 
-        CodeBlock(#"page Replay(path: "/", title: "Replay", description: "A card that fades in again on hover.") {
+            Markdown("A flag plays once, when the element arrives. To play an animation the element already carries again, from the start, call `replayAnimation(element, name)`:")
+
+            CodeBlock(#"page Replay(path: "/", title: "Replay", description: "A card that fades in again on hover.") {
     Heading("Replay").h1
     Card.outlined.fadeIn {
         on mouseenter(e) { replayAnimation(e.currentTarget, "fadeIn") }
         Text("Point at me.")
     }
 }"#, title: "wf")
+
+        }
+        Markdown("- `ref: panel` gives the page a handle on the card's element.\n- `animate(panel, \"pulse\", \"400ms\")` plays the built-in `pulse` animation on it for 400ms, each time the pointer enters the card.\n- `animate` returns a handle that plays as soon as it is made, and its `play()`, `cancel()` and `finished` are yours.")
 
     }
 }

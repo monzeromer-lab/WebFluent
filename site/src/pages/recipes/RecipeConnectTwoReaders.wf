@@ -1,7 +1,7 @@
 // A recipe, written from md-docs/recipes/connect-two-readers.md by scripts/docsite/recipes.py;
 // edit the recipe, not this file.
-page RecipeConnectTwoReaders(path: "/recipes/connect-two-readers", title: "Connect two readers' pages — Recipes", description: "To send messages straight from one reader's page to another's, with no server relaying them, declare a `peer` with `rtc(…)`.") {
-    RecipeShell("Connect two readers' pages", summary: "To send messages straight from one reader's page to another's, with no server relaying them, declare a `peer` with `rtc(…)`. It opens a WebRTC data channel between the two pages.  The language supplies the channel, not a server. Before two pages can connect, they must tell each other how — an offer, an answer, and the network routes each can be reached by. This exchange is called *signalling*. Your page sends its side out through the `signal:` function, over whatever connection the app already has, and hands what the other side sent to `link.signal(m)`. One side is the `initiator`.  This page signals over a `broadcast` channel, so it connects two tabs of one browser. Open `/room?host=1` in one tab and `/room` in another:", outputs: [], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Listen to server-sent events", to: "/recipes/server-sent-events"), RelatedLink(kind: "Recipe", title: "Open a socket", to: "/recipes/open-a-socket"), RelatedLink(kind: "Recipe", title: "Run a script in a worker", to: "/recipes/run-a-worker")], source: "md-docs/recipes/connect-two-readers.md", how: true, hasVariations: false) {
+page RecipeConnectTwoReaders(path: "/recipes/connect-two-readers", title: "Connect two readers' pages — Recipes", description: "Send messages straight from one reader's page to another's over a WebRTC data channel, with a `peer` opened by `rtc(…)` and no server relaying them.") {
+    RecipeShell("Connect two readers' pages", summary: "A `peer` opens a WebRTC data channel straight from one reader's page to another's, so messages travel between them with no server relaying them. This page signals over a `broadcast` channel, so it connects two tabs of one browser: open `/room?host=1` in one tab and `/room` in another.", outputs: ["website", "app", "desktop"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "variations", label: "Variations")], related: [RelatedLink(kind: "Recipe", title: "Listen to server-sent events", to: "/recipes/server-sent-events"), RelatedLink(kind: "Recipe", title: "Open a socket", to: "/recipes/open-a-socket"), RelatedLink(kind: "Recipe", title: "Run a script in a worker", to: "/recipes/run-a-worker")], source: "md-docs/recipes/connect-two-readers.md", how: true, hasVariations: true) {
         code {
             CodeBlock(#"page Room(path: "/room", title: "Room", description: "Two readers, one line.") {
     state heard = ""
@@ -20,7 +20,29 @@ page RecipeConnectTwoReaders(path: "/recipes/connect-two-readers", title: "Conne
     Text(heard)
 }"#, title: "wf")
         }
-        Markdown("Between two readers on different machines, the signal rides the app's own socket or `api` instead of a `broadcast` channel.")
+        variations {
+            Heading("Connect readers on different machines", id: "connect-readers-on-different-machines").h3
+
+            Markdown("Between two readers on different machines, the signal rides the app's own socket or `api` instead of a `broadcast` channel, and `ice:` names a STUN server so readers behind different networks can find each other:")
+
+            CodeBlock(#"page Call(path: "/call", title: "Call", description: "Two readers, two machines.") {
+    state heard = ""
+    socket relay = ws("wss://example.com/signal") { on message(m) { link.signal(m) } }
+    peer link = rtc(signal: m => relay.send(m), initiator: query.host == "1",
+                    ice: [{ urls: "stun:stun.example.com:3478" }]) {
+        on message(m) { heard = m.text }
+    }
+
+    Heading("Call").h1
+    match link {
+        open { Button("Wave") { on click { link.send({ text: "hello" }) } } }
+        else { Text("Connecting…").muted }
+    }
+    Text(heard)
+}"#, title: "wf")
+
+        }
+        Markdown("The language supplies the channel, not a server. Before two pages can connect, they must tell each other how — an offer, an answer, and the network routes each can be reached by. This exchange is called *signalling*.\n\n- **`signal: m => lobby.post(m)`** sends this side's signalling messages out, over whatever connection the app already has — here the `lobby` [channel](/recipes/talk-between-tabs).\n- **`link.signal(m)`**, in the lobby's `on message`, hands the peer what the other side sent.\n- **`initiator: query.host == \"1\"`** makes the tab opened with `?host=1` the side that makes the offer. Exactly one side does.\n- **`match link`** reads the peer like a socket: `connecting`, `open`, `closed(c)`, `error(e)`.\n- **`link.send(value)`** sends a message, and holds it until the channel opens; **`on message(m)`** in the peer's block hears the other side's.\n\nWhen a page leaves, it closes its peer, and the other side reads `closed` at once rather than when the connection times out.")
 
         Table(caption: "Connect two readers' pages") {
             Table.Head {
@@ -48,8 +70,6 @@ page RecipeConnectTwoReaders(path: "/recipes/connect-two-readers", title: "Conne
                 }
             }
         }
-
-        Markdown("A peer is matched like a socket. `link.send(value)` sends a message, and holds it until the channel opens. When a page leaves, it closes its peer, and the other side reads `closed` at once rather than when the connection times out.")
 
     }
 }

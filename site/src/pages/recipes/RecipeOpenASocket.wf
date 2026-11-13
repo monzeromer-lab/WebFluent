@@ -1,53 +1,9 @@
 // A recipe, written from md-docs/recipes/open-a-socket.md by scripts/docsite/recipes.py;
 // edit the recipe, not this file.
-page RecipeOpenASocket(path: "/recipes/open-a-socket", title: "Open a socket — Recipes", description: "You should know how a `resource` is read with `match` and its arms (Fetching data), and how `state` and `effect` work (State and reactivity).") {
-    RecipeShell("Open a socket", summary: "You should know how a `resource` is read with `match` and its arms (Fetching data), and how `state` and `effect` work (State and reactivity).", outputs: [], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "before-you-start", label: "Before you start"), Anchor(id: "open-a-socket", label: "Open a socket"), Anchor(id: "read-a-connection-s-state-and-messages", label: "Read a connection's state and messages"), Anchor(id: "troubleshooting", label: "Troubleshooting")], related: [RelatedLink(kind: "Recipe", title: "Connect two readers' pages", to: "/recipes/connect-two-readers"), RelatedLink(kind: "Recipe", title: "Listen to server-sent events", to: "/recipes/server-sent-events"), RelatedLink(kind: "Recipe", title: "Run a script in a worker", to: "/recipes/run-a-worker")], source: "md-docs/recipes/open-a-socket.md", how: false, hasVariations: false) {
-        Heading("Before you start", id: "before-you-start").h2
-
-        Markdown("You should know how a `resource` is read with `match` and its arms ([Fetching data](/docs/guide/data#show-a-request-with-resource)), and how `state` and `effect` work ([State and reactivity](/docs/guide/state)). A connection is read the same way a resource is.\n\nThere are five kinds of connection. Pick the one that fits the job:")
-
-        Table(caption: "Before you start") {
-            Table.Head {
-                Table.Row {
-                    Table.Cell("Declaration").header
-                    Table.Cell("Opened with").header
-                    Table.Cell("Use it for").header
-                }
-            }
-            Table.Body {
-                Table.Row {
-                    Table.Cell { Markdown("`socket`") }
-                    Table.Cell { Markdown("`ws(url, …)`") }
-                    Table.Cell("Two-way messages with a server: chat, live editing, notifications")
-                }
-                Table.Row {
-                    Table.Cell { Markdown("`stream`") }
-                    Table.Cell { Markdown("`sse(url, …)`") }
-                    Table.Cell("One-way messages from a server: prices, progress, a log")
-                }
-                Table.Row {
-                    Table.Cell { Markdown("`channel`") }
-                    Table.Cell { Markdown("`broadcast(name)`") }
-                    Table.Cell("Messages between tabs of your site in one browser")
-                }
-                Table.Row {
-                    Table.Cell { Markdown("`peer`") }
-                    Table.Cell { Markdown("`rtc(signal:, …)`") }
-                    Table.Cell("A direct line to another reader's page, with no server in the middle")
-                }
-                Table.Row {
-                    Table.Cell { Markdown("`worker`") }
-                    Table.Cell { Markdown("`spawn(url, …)`") }
-                    Table.Cell("A script of your site running beside the page, off its thread")
-                }
-            }
-        }
-
-        Heading("Open a socket", id: "open-a-socket").h2
-
-        Markdown("To hold a two-way connection to a server, declare a `socket` with `ws(…)` and `match` on it. This chat page shows a spinner while the socket connects, the messages once it is open, and why it stopped when it closes:")
-
-        CodeBlock(#"page Chat(path: "/chat", title: "Chat", description: "Talk to the team.") {
+page RecipeOpenASocket(path: "/recipes/open-a-socket", title: "Open a socket — Recipes", description: "Hold a two-way connection to a server with a `socket`: it reconnects, keeps itself alive, and queues what you send while the line is down.") {
+    RecipeShell("Open a socket", summary: "A `socket` holds a two-way connection to a server: chat, live editing, notifications. You declare it with `ws(…)` and read it with `match`, the way you read a `resource`. This chat page shows a spinner while the socket connects, the messages once it is open, and why it stopped when it closes:", outputs: ["website", "app", "desktop"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "choose-a-kind-of-connection", label: "Choose a kind of connection"), Anchor(id: "read-a-connection-s-state-and-messages", label: "Read a connection's state and messages"), Anchor(id: "troubleshooting", label: "Troubleshooting"), Anchor(id: "variations", label: "Variations")], related: [RelatedLink(kind: "Recipe", title: "Connect two readers' pages", to: "/recipes/connect-two-readers"), RelatedLink(kind: "Recipe", title: "Listen to server-sent events", to: "/recipes/server-sent-events"), RelatedLink(kind: "Recipe", title: "Run a script in a worker", to: "/recipes/run-a-worker")], source: "md-docs/recipes/open-a-socket.md", how: true, hasVariations: true) {
+        code {
+            CodeBlock(#"page Chat(path: "/chat", title: "Chat", description: "Talk to the team.") {
     state draft = ""
     socket chat = ws("wss://example.com/chat", heartbeat: 20.seconds) {
         on message(m) { log(m) }
@@ -63,8 +19,31 @@ page RecipeOpenASocket(path: "/recipes/open-a-socket", title: "Open a socket —
     Input(bind: draft, label: "Message").text
     Button("Send").primary { on click { chat.send({ text: draft })  draft = "" } }
 }"#, title: "wf")
+        }
+        variations {
+            Heading("Type the messages", id: "type-the-messages").h3
 
-        Markdown("The page opens the socket when it is drawn and closes it when the reader leaves. Inside the socket's block, `on message(m) \{ \}` handles each message that arrives and `on open \{ \}` runs each time the line opens — the first time and after every reconnection.\n\nA socket looks after itself:\n\n- **It reconnects.** When the line drops, it waits and tries again, doubling the wait each time up to a limit. A server that closes the line normally (code `1000`) is not reconnected to.\n- **It keeps itself alive.** With `heartbeat:`, it sends a ping that often and treats a missing answer as a dead line, which it closes and reopens.\n- **It holds what you send while it is down.** `chat.send(…)` while the socket is reconnecting queues the message and sends it when the line opens again.\n- **It reads JSON.** A text message that parses as JSON arrives as a value; any other text arrives as a string. A value you send is sent as JSON, unless it is already a string.\n\nA `match` on a socket takes the arms `connecting`, `open`, `closed(c)` and `error(e)`, and an `else` for the rest. `closed(c)` is handed the close, with `c.code` and `c.reason`; `error(e)` is handed the failure, with `e.message`.")
+            Markdown("To have the compiler check what you send and type what you receive, name a type for each direction inside the socket's block with `send` and `receive`:")
+
+            CodeBlock(#"type Incoming { id: String, text: String }
+type Outgoing { text: String }
+
+page Room(path: "/room", title: "Room", description: "A typed conversation.") {
+    state draft = ""
+    socket chat = ws("wss://example.com/chat", heartbeat: 20.seconds) {
+        send    Outgoing
+        receive Incoming
+    }
+    Heading("Room").h1
+    for m in chat.messages by m.id { Text(m.text) }
+    Input(bind: draft, label: "Message")
+    Button("Send") { on click { chat.send(Outgoing(text: draft))  draft = "" } }
+}"#, title: "wf")
+
+            Markdown("With `send` and `receive` declared, `chat.send(…)` is checked against `Outgoing`, and each message in `chat.messages` is an `Incoming`, so `m.text` is a `String` and `m.txet` is an error.")
+
+        }
+        Markdown("A connection is read the same way a resource is, so this recipe assumes you know how a `resource` is read with `match` and its arms ([Fetching data](/docs/guide/data#show-a-request-with-resource)), and how `state` and `effect` work ([State and reactivity](/docs/guide/state)).\n\n- **`socket chat = ws(…)`** opens the socket when the page is drawn and closes it when the reader leaves.\n- **`on message(m) \{ \}`**, inside the socket's block, handles each message that arrives. `on open \{ \}` runs each time the line opens — the first time and after every reconnection.\n- **`match chat`** takes the arms `connecting`, `open`, `closed(c)` and `error(e)`, and an `else` for the rest. `closed(c)` is handed the close, with `c.code` and `c.reason`; `error(e)` is handed the failure, with `e.message`.\n- **`chat.messages`** holds what arrived, in order, and **`chat.send(…)`** sends a value.\n\nA socket looks after itself:\n\n- **It reconnects.** When the line drops, it waits and tries again, doubling the wait each time up to a limit. A server that closes the line normally (code `1000`) is not reconnected to.\n- **It keeps itself alive.** With `heartbeat:`, it sends a ping that often and treats a missing answer as a dead line, which it closes and reopens.\n- **It holds what you send while it is down.** `chat.send(…)` while the socket is reconnecting queues the message and sends it when the line opens again.\n- **It reads JSON.** A text message that parses as JSON arrives as a value; any other text arrives as a string. A value you send is sent as JSON, unless it is already a string.")
 
         Heading("Tune a socket", id: "tune-a-socket").h3
 
@@ -122,26 +101,46 @@ page RecipeOpenASocket(path: "/recipes/open-a-socket", title: "Open a socket —
             }
         }
 
-        Heading("Type the messages", id: "type-the-messages").h3
+        Heading("Choose a kind of connection", id: "choose-a-kind-of-connection").h2
 
-        Markdown("To have the compiler check what you send and type what you receive, name a type for each direction inside the socket's block with `send` and `receive`:")
+        Markdown("A socket is one of five kinds of connection. Pick the one that fits the job:")
 
-        CodeBlock(#"type Incoming { id: String, text: String }
-type Outgoing { text: String }
-
-page Room(path: "/room", title: "Room", description: "A typed conversation.") {
-    state draft = ""
-    socket chat = ws("wss://example.com/chat", heartbeat: 20.seconds) {
-        send    Outgoing
-        receive Incoming
-    }
-    Heading("Room").h1
-    for m in chat.messages by m.id { Text(m.text) }
-    Input(bind: draft, label: "Message")
-    Button("Send") { on click { chat.send(Outgoing(text: draft))  draft = "" } }
-}"#, title: "wf")
-
-        Markdown("With `send` and `receive` declared, `chat.send(…)` is checked against `Outgoing`, and each message in `chat.messages` is an `Incoming`, so `m.text` is a `String` and `m.txet` is an error.")
+        Table(caption: "Choose a kind of connection") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Declaration").header
+                    Table.Cell("Opened with").header
+                    Table.Cell("Use it for").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`socket`") }
+                    Table.Cell { Markdown("`ws(url, …)`") }
+                    Table.Cell("Two-way messages with a server: chat, live editing, notifications")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`stream`") }
+                    Table.Cell { Markdown("`sse(url, …)`") }
+                    Table.Cell("One-way messages from a server: prices, progress, a log")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`channel`") }
+                    Table.Cell { Markdown("`broadcast(name)`") }
+                    Table.Cell("Messages between tabs of your site in one browser")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`peer`") }
+                    Table.Cell { Markdown("`rtc(signal:, …)`") }
+                    Table.Cell("A direct line to another reader's page, with no server in the middle")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`worker`") }
+                    Table.Cell { Markdown("`spawn(url, …)`") }
+                    Table.Cell("A script of your site running beside the page, off its thread")
+                }
+            }
+        }
 
         Heading("Read a connection's state and messages", id: "read-a-connection-s-state-and-messages").h2
 

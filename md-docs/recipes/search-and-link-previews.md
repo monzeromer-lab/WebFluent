@@ -2,15 +2,57 @@
 kind: "recipe"
 route: "/recipes/search-and-link-previews"
 group: "content"
-description: "For every page, the build writes the standard head from the page's attributes and the `meta` settings in `webfluent.app.json`."
+description: "Give every page the title, description, canonical link, Open Graph tags and JSON-LD that search engines and link previews read."
 from: ["/docs/guide/content#describe-each-page-to-search-engines-and-link-previews", "/docs/guide/content#a-checklist-for-being-found"]
+outputs: ["website"]
 ---
 # Describe pages to search engines and link previews
 
-## Describe each page to search engines and link previews
+The build writes each page's head — its title, description, canonical
+link, Open Graph and Twitter tags, JSON-LD and icons — from the page's
+attributes and the `meta` settings in `webfluent.app.json`, so what a search
+result or a shared link shows is set where the page is declared. This blog
+has a home page with its own sharing image, a page per post that adds tags
+of its own, and a thanks page kept out of search:
 
-For every page, the build writes the standard head from the page's
-attributes and the `meta` settings in `webfluent.app.json`. A config that
+```wf
+type Post { slug: String, title: String, summary: String, cover: String, date: String, body: String }
+
+data posts: [Post] = "posts.json"
+
+page Home(path: "/", title: "Acme", description: "Tools for small teams.", image: "/og-default.png", image_alt: "The Acme logo on a blue field") {
+    Heading("Acme").h1
+    for p in posts by p.slug {
+        Link(p.title, to: "/posts/{p.slug}")
+    }
+}
+
+page PostPage(path: "/posts/:slug", slug: String, title: "Post", description: "A post from the blog.", type: "article", paths: posts.map(p => p.slug)) {
+    derived post = posts.find(p => p.slug == slug)
+    head {
+        meta(property: "og:title", content: post?.title ?? "Post")
+        meta(property: "og:image", content: post?.cover ?? "/og-default.png")
+        meta(property: "article:published_time", content: post?.date ?? "")
+    }
+    if let p = post {
+        Image(src: p.cover, alt: p.title)
+        Heading(p.title).h1
+        Text(format(p.date, .date, "long")).muted
+        Markdown(p.body)
+    }
+}
+
+page Thanks(path: "/thanks", title: "Thanks", description: "Your message reached us.", noindex: true) {
+    Heading("Thanks").h1
+}
+```
+
+## How it works
+
+Each page's `title:` and `description:` are its `<title>` and the snippet a
+search result shows; `image:` and `image_alt:` are its sharing card's
+picture; `type: "article"` marks a post; `noindex: true` keeps a page out of
+search. The rest comes from `meta` in `webfluent.app.json`. A config that
 fills in every site-wide setting:
 
 ```json
@@ -73,28 +115,7 @@ What the build writes into each page's head:
 
 To add tags of a page's own — an article's cover, its publication date —
 write them in `head { }` ([Pages and routing](../learn/05-pages-and-routing.md#per-page-head-tags)).
-This blog post page sets its own Open Graph tags from the post:
-
-```wf
-type Post { slug: String, title: String, summary: String, cover: String, date: String, body: String }
-
-data posts: [Post] = "posts.json"
-
-page PostPage(path: "/posts/:slug", slug: String, title: "Post", description: "A post from the blog.", type: "article", paths: posts.map(p => p.slug)) {
-    derived post = posts.find(p => p.slug == slug)
-    head {
-        meta(property: "og:title", content: post?.title ?? "Post")
-        meta(property: "og:image", content: post?.cover ?? "/og-default.png")
-        meta(property: "article:published_time", content: post?.date ?? "")
-    }
-    if let p = post {
-        Image(src: p.cover, alt: p.title)
-        Heading(p.title).h1
-        Text(format(p.date, .date, "long")).muted
-        Markdown(p.body)
-    }
-}
-```
+`PostPage` above sets its own Open Graph tags from the post.
 
 The `title:` and `description:` of a `:param` page may name its
 parameters — `title: "{slug} — Blog"` — and each pre-rendered file, and the

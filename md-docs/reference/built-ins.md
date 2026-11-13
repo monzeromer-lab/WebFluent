@@ -491,7 +491,7 @@ Signature: `socket name = ws(url, protocols: [names], heartbeat: duration) { sen
 
 Returns a socket handle with `.send(value)`, `.messages`, `.last(kind)`,
 `.state`, `.error`, `.closure` and `.close()`. Where: only after
-`socket name =`. See [Open a socket](../recipes/open-a-socket.md#open-a-socket).
+`socket name =`. See [Open a socket](../recipes/open-a-socket.md).
 
 ```wf
 socket chat = ws("wss://example.com/chat", heartbeat: 20.seconds) { on message(m) { Feed.add(m) } }

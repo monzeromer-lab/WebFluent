@@ -2,16 +2,17 @@
 kind: "recipe"
 route: "/recipes/run-a-worker"
 group: "realtime"
-description: "To keep slow work — a language service, a parser, anything that would make typing stutter — off the page's own thread, declare a `worker` with `spawn(…)`."
+description: "Keep slow work — a language service, a parser — off the page's thread with a `worker`: ask it and wait, tell it, and hear what it posts."
 from: ["/docs/guide/realtime#run-a-script-in-a-worker"]
+outputs: ["website", "app", "desktop"]
 ---
 # Run a script in a worker
 
-To keep slow work — a language service, a parser, anything that would make
-typing stutter — off the page's own thread, declare a `worker` with
-`spawn(…)`. A worker runs a script of your site beside the page and is held
-like a socket: owned by what opened it, and stopped when that leaves. A
-store holds one for the whole app:
+A `worker` runs a script of your site beside the page, off its thread, so
+slow work — a language service, a parser, anything that would make typing
+stutter — never holds up the page. It is held like a socket: owned by what
+opened it, and stopped when that leaves. Here a store holds one for the
+whole app, and a page shows what it reports:
 
 ```wf
 store Lang {
@@ -40,6 +41,8 @@ page Editor(path: "/", title: "Editor", description: "A worker beside the page."
 }
 ```
 
+## How it works
+
 The worker's side is a plain script under `public/` — the one place,
 besides a project script, where you write JavaScript by hand:
 
@@ -53,6 +56,15 @@ self.onmessage = ({ data }) => {
 };
 ```
 
+- **`worker css = spawn("/workers/css.js", …)`**, declared in the store,
+  starts the script when the store is first read and stops it with the
+  store.
+- **`restart: 1`** and **`timeout: 5000`** say how often a crashed worker is
+  started again and how long a request may wait for its answer.
+- **`match Lang.css`** reads the worker's `.state`: `open`, `error` (the
+  `error(e)` arm) or `closed`. **`Lang.css.pending`** is how many requests
+  are out.
+
 The page and the worker talk in three ways:
 
 - **Ask and wait: `.request(method, params)`.** It posts
@@ -61,14 +73,14 @@ The page and the worker talk in three ways:
   error's `message` and its `data`. A request not answered within
   `timeout:` fails — 10 seconds when unset, or `{ timeout }` on the
   request. With `{ supersede: true }`, a newer request of the same method
-  fails the older one, and the worker is posted `{ cancel: id }`.
-- **Tell: `.send(value)`.** It posts the value and expects nothing.
+  fails the older one, and the worker is posted `{ cancel: id }`. The
+  store's `complete` action asks this way.
+- **Tell: `.send(value)`.** It posts the value and expects nothing. The
+  store's `check` action tells this way.
 - **Listen: messages with no `id`.** What the worker posts without an `id`
   is a message: `on message(m)` hears it, and `.last(kind)` is the last of
-  a kind, by its `type` or its `method`.
-
-`.pending` is how many requests are out. `.state` is `open`, `error` (a
-`match`'s `error(e)` arm) or `closed`.
+  a kind, by its `type` or its `method`. The `diagnostics` the script posts
+  arrive this way.
 
 A worker that crashes — an error nothing in it caught — fails every request
 that was out and is started again, up to `restart:` times, running

@@ -2,47 +2,56 @@
 kind: "recipe"
 route: "/recipes/animate-in-and-out"
 group: "look"
-description: "You should know how `if`, `for`, `show` and `match` draw and remove elements (Control flow), and how a keyed `for … by` keeps an item's nodes."
+description: "Play an animation when an element appears or leaves: a flag or animate: on the way in, exit: on the way out, with speed, delay and easing."
+outputs: ["website", "app"]
 from: ["/docs/guide/motion#before-you-start", "/docs/guide/motion#animate-an-element-in", "/docs/guide/motion#animate-an-element-out", "/docs/guide/motion#animate-show-and-match-branches", "/docs/guide/motion#troubleshooting"]
 ---
 # Animate an element in and out
 
-## Before you start
-
-You should know how `if`, `for`, `show` and `match` draw and remove
-elements ([Control flow](../learn/09-control-flow.md)), and how a keyed `for … by`
-keeps an item's nodes. Motion attaches to those: an animation plays when
-one of them brings an element in or takes it away.
-
-## Animate an element in
-
-To play an animation when an element appears, give it `animate:`, or write
-the animation's name as a flag. This page shows four cards when you press
-**Open**, each entering a different way:
+Give an element an enter animation to play when it appears, and an `exit:`
+to play before it is removed. Motion attaches to the `if`, `for`, `show`
+and `match` that draw and remove elements, so read
+[Control flow](../learn/09-control-flow.md) first if those, or how a keyed
+`for … by` keeps an item's nodes, are new to you. This page opens four cards
+that each enter a different way, and an alert that fades out when you
+dismiss it:
 
 ```wf
-page Enter(path: "/", title: "Enter", description: "Four ways to arrive.") {
+page Notices(path: "/", title: "Notices", description: "Cards and an alert that animate in and out.") {
     state open = false
-    Heading("Enter").h1
-    Button("Open") { on click { open = !open } }
+    state toast: String? = "Saved"
+    Heading("Notices").h1
+    Button("Toggle the cards") { on click { open = !open } }
     if open {
         Card.fadeIn { Text("Faded in") }
         Card(animate: .slideUp, speed: .fast) { Text("Slid up, quickly") }
         Card.scaleIn.slow { Text("Grew, slowly") }
         Card(animate: .fadeIn, duration: "600ms", delay: "200ms", easing: "ease-out") { Text("Tuned") }
     }
+    if let message = toast {
+        Alert(message, animate: .slideDown, exit: .fadeOut).success {
+            Button("Dismiss").sm { on click { toast = null } }
+        }
+    }
+    Button("Show the alert") { on click { toast = "Saved again" } }
 }
 ```
 
-An animation plays when the element appears: on the first paint, and each
-time the `if`, `for`, `match` or `show` around it brings it back.
+## How it works
+
+### Animate an element in
+
+An element plays its enter animation when it appears: on the first paint,
+and each time the `if`, `for`, `match` or `show` around it brings it back.
+Name the animation with `animate:`, or write it as a flag (`Card.fadeIn`).
 
 The built-in animations are `fadeIn`, `fadeOut`, `slideUp`, `slideDown`,
 `slideLeft`, `slideRight`, `scaleIn`, `scaleOut`, `bounce`, `shake`,
 `pulse`, `spin`, and `expand` and `collapse`, which open and close a box to
-the height of what is inside it.
+the height of what is inside it ([Open a box to the height of its
+content](expand-to-content.md)).
 
-To change how long it takes and how it is paced:
+Four props set how long it takes and how it is paced:
 
 | Prop | What it sets | Values |
 |---|---|---|
@@ -65,10 +74,27 @@ list reordering, a route changing — goes through the Web Animations API,
 where an animation that is interrupted gives way to the one that replaced
 it instead of jumping.
 
+### Animate an element out
+
+`exit:` names the animation to play when the element leaves. The runtime
+waits for it to finish before it removes the node: here the alert fades
+out after **Dismiss** sets `toast` to `null`.
+
+Any element may carry `exit:`, not only the root of a branch. All the
+elements that are leaving animate out together, and the removal waits for
+the longest.
+
+A reader who asked for reduced motion sees the cards and the alert appear
+and go at once, with no wait before removal
+([Respect reduced motion](motion-defaults.md#respect-reduced-motion)).
+
+## Variations
+
 ### Play an animation when it is scrolled to
 
 To hold an animation until the reader has scrolled to the element, add
-`on: .enterView`. It plays once:
+`on: .enterView`. It plays once. `on: .mount`, the default, plays it when
+the element appears.
 
 ```wf
 page Story(path: "/", title: "Story", description: "Sections that arrive as you read.") {
@@ -78,32 +104,7 @@ page Story(path: "/", title: "Story", description: "Sections that arrive as you 
 }
 ```
 
-`on: .mount`, the default, plays the animation when the element appears.
-
-## Animate an element out
-
-To play an animation when an element leaves, give it `exit:`. The runtime
-waits for the animation to finish before it removes the node. Here the
-alert slides in, and fades out when you dismiss it:
-
-```wf
-page Exit(path: "/", title: "Exit", description: "An alert that fades away.") {
-    state toast: String? = "Saved"
-    Heading("Exit").h1
-    if let message = toast {
-        Alert(message, animate: .slideDown, exit: .fadeOut).success {
-            Button("Dismiss").sm { on click { toast = null } }
-        }
-    }
-    Button("Show") { on click { toast = "Saved again" } }
-}
-```
-
-Any element may carry `exit:`, not only the root of a branch. All the
-elements that are leaving animate out together, and the removal waits for
-the longest.
-
-## Animate `show` and `match` branches
+### Animate `show` and `match` branches
 
 `show` toggles whether its content is visible, so that content animates
 with `animate:` and `exit:` as an `if` branch does. A `match` arm's elements
@@ -127,15 +128,19 @@ page Wizard(path: "/", title: "Wizard", description: "Three steps, animated.") {
 
 - **An enter animation does not play.** It plays only when the element
   appears. An element that is already on the page and changes does not
-  re-enter: use `replayAnimation`, `animate(…)` or a `transition { }`.
+  re-enter: use `replayAnimation`, `animate(…)`
+  ([Drive an animation yourself](drive-an-animation.md)) or a
+  `transition { }` ([Tween a property when state changes](tween-on-change.md)).
 - **A list item fades out and in again instead of moving.** The `for` has no
   `by`, or its key changes, so the runtime makes a new node. Key the list by
-  what identifies the item.
+  what identifies the item ([Animate a list](animate-a-list.md)).
 - **A leaving element disappears at once.** Give it `exit:`. Without one,
   nothing delays the removal.
 - **A `shared:` element crossfades instead of moving.** The two pages give
-  it different names, or two elements on one page carry the same name.
+  it different names, or two elements on one page carry the same name
+  ([Carry an element across a route change](shared-element.md)).
 - **Nothing animates at all.** Your system, or the page's root
   (`data-wf-motion="reduce"`), asks for reduced motion.
 - **Your own keyframes are an error as a flag.** Write
-  `animate: .Name`; only the built-in animations are flags.
+  `animate: .Name`; only the built-in animations are flags
+  ([Declare your own keyframes](keyframes.md)).

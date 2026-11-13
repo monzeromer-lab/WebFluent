@@ -2,15 +2,15 @@
 kind: "recipe"
 route: "/recipes/expand-to-content"
 group: "look"
-description: "CSS cannot animate to `height: auto`."
+description: "Open a box to the height of its content, which CSS cannot animate to: .expand measures height: auto, animates to it, then lets the box grow."
+outputs: ["website", "app"]
 from: ["/docs/guide/motion#open-a-box-to-the-height-of-its-content"]
 ---
 # Open a box to the height of its content
 
-CSS cannot animate to `height: auto`. To open a box to whatever height its
-content needs, use `.expand`: it measures the height `auto` would give,
-animates to that number, then hands the height back so the box keeps
-growing with its content:
+CSS cannot animate to `height: auto`, so a box of details that should slide
+open to whatever height its text needs takes `.expand`. Press **Details**
+and the box opens; press it again and it closes:
 
 ```wf
 page Details(path: "/", title: "Details", description: "A box that opens smoothly.") {
@@ -23,5 +23,15 @@ page Details(path: "/", title: "Details", description: "A box that opens smoothl
 }
 ```
 
-`.expand` on the way in is `.collapse` on the way out, so the box needs no
-`exit:`.
+## How it works
+
+- `show open` toggles whether the box is visible, and the box animates as
+  it appears and goes.
+- `animate: .expand` measures the height `auto` would give, animates to
+  that number, then hands the height back, so the box keeps growing with
+  its content.
+- `.expand` on the way in is `.collapse` on the way out, so the box needs
+  no `exit:`.
+
+A reader who asked for reduced motion sees the box open at once
+([Respect reduced motion](motion-defaults.md#respect-reduced-motion)).

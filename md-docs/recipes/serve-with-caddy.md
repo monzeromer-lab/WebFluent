@@ -2,29 +2,52 @@
 kind: "recipe"
 route: "/recipes/serve-with-caddy"
 group: "ship"
-description: "1."
+description: "Serve a WebFluent build with Caddy: a Caddyfile site block that sends the build's gzip files and falls back to index.html for a single-page build."
+outputs: ["website", "app"]
 from: ["/docs/guide/deploying#serve-with-caddy"]
 ---
 # Serve a site with Caddy
 
-1. Add a site block to the `Caddyfile`:
+This recipe serves a WebFluent build with Caddy, which also gets and
+renews the site's TLS certificate.
 
-   ```text
-   example.com {
-       root * /var/www/site
-       encode gzip
-       file_server {
-           precompressed gzip
-       }
-       try_files {path} {path}/ {path}.html /index.html
-       header X-Content-Type-Options nosniff
-   }
-   ```
+You need a server running Caddy, and a `build/` folder from `wf build`
+([Install wf on a build machine](install-wf-in-ci.md)).
 
-   `precompressed gzip` serves the build's `.gz` files. The last entry of
-   `try_files`, `/index.html`, is the single-page fallback; remove it for a
-   static build, so an unknown path is a 404.
-2. Upload `build/` to `/var/www/site` and reload Caddy.
+Add a site block to the `Caddyfile`:
 
-**Verify it:** open a deep link directly and reload it, then check the
-headers with `curl -I`.
+```text
+example.com {
+    root * /var/www/site
+    encode gzip
+    file_server {
+        precompressed gzip
+    }
+    try_files {path} {path}/ {path}.html /index.html
+    header X-Content-Type-Options nosniff
+}
+```
+
+Then upload `build/` to `/var/www/site` and reload Caddy.
+
+## How it works
+
+1. `root` is the folder the build is uploaded to.
+2. `precompressed gzip` serves the `.gz` files the build wrote; `encode
+   gzip` compresses on the way out what has none.
+3. `try_files` decides what a path reaches: the file, the folder's
+   `index.html`, the `.html` file `clean_urls: "file"` writes, and last
+   `/index.html`, the single-page fallback.
+4. `header` sends a security header; add the others from
+   `build/_headers` the same way
+   ([Set cache and security headers](cache-and-security-headers.md#set-security-headers)).
+
+## Variations
+
+For a static build, remove `/index.html` from the end of `try_files`, so
+an unknown path is a 404.
+
+## Check it
+
+Open a deep link directly and reload it, then check the headers with
+`curl -I`. Then go through [Check a deploy](check-a-deploy.md).

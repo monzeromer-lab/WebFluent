@@ -2,12 +2,50 @@
 kind: "recipe"
 route: "/recipes/install-wf-in-ci"
 group: "ship"
-description: "Do these once, before the first deploy:"
+description: "Install the wf compiler on a CI runner or a host's build machine, pin its version, and build the site there before each deploy."
+outputs: ["website", "app"]
 from: ["/docs/guide/deploying#before-you-start", "/docs/guide/deploying#install-wf-on-a-build-machine"]
 ---
 # Install wf on a build machine
 
-## Before you start
+This recipe installs `wf` on a machine that builds the site for you — a CI
+runner, or the build step of a host such as Netlify — and runs the build
+there. Every hosting recipe uses it.
+
+You need a project that builds with `wf build` on your own machine, and a
+build machine with `curl` and `bash`.
+
+```bash
+curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v6.0.0 bash
+~/.webfluent/bin/wf build
+```
+
+## How it works
+
+1. The install script downloads `wf` into `~/.webfluent/bin/`. `WF_VERSION`
+   pins the release it installs, so a new release cannot change a deploy
+   without you knowing.
+2. `~/.webfluent/bin/wf build` builds the project in the current folder
+   and writes the whole site to `build/`. The full path works even where
+   the install has not put `wf` on the `PATH` yet.
+
+A static build writes each page as its own `index.html` (`/contact` is
+`contact/index.html`). A page whose `path` is `*` is written to the root as
+`404.html`, which is the file most static hosts serve for a path they have
+no file for.
+
+## Variations
+
+Without `WF_VERSION`, the script installs the latest release:
+
+```bash
+curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | bash
+```
+
+You can also build on your own machine and upload `build/`. It is only
+files.
+
+## Prepare the site before the first deploy
 
 Do these once, before the first deploy:
 
@@ -27,27 +65,4 @@ Do these once, before the first deploy:
    `wf verify` loads every page in headless Chrome and fails on a script
    error, a failed request or a blank page.
 
-A static build writes each page as its own `index.html`
-(`/contact` is `contact/index.html`). A page whose `path` is `*` is written
-to the root as `404.html`, which is the file most static hosts serve for a
-path they have no file for.
-
-## Install `wf` on a build machine
-
-To build on the host's build machine, install `wf` and run the build. Every
-recipe in this chapter uses these two lines:
-
-```bash
-curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | bash
-~/.webfluent/bin/wf build
-```
-
-Pin a version so that a new release cannot change a deploy without you
-knowing. Set `WF_VERSION` for the install script:
-
-```bash
-curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v6.0.0 bash
-```
-
-You can also build on your own machine and upload `build/`. It is only
-files.
+After the deploy, [check it](check-a-deploy.md).

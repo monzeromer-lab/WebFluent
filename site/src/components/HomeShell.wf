@@ -106,7 +106,7 @@ component HomeShell(other: String = "", lang: String = "en") {
         Stack(gap: .md, class: "bp-wrap bp-home-section") {
             Heading(t("home.from"), class: "bp-h2").h2
             Text(t("home.from.body"), class: "bp-lede")
-            Grid(columns: { base: 1, sm: 3 }, gap: .md) {
+            Grid(columns: { base: 1, sm: 2, lg: 5 }, gap: .md) {
                 for f in COMING_FROM by f.to {
                     Link(to: f.to, class: "bp-card") {
                         Text(f.name) { style { font-weight: 600 } }
@@ -186,7 +186,9 @@ type Habit {
 const COMING_FROM: [Habit] = [
     Habit(name: "React", habit: "useState → state", to: "/coming-from/react"),
     Habit(name: "Vue", habit: "computed → derived", to: "/coming-from/vue"),
-    Habit(name: "Svelte", habit: "{#each} → for … by", to: "/coming-from/svelte")
+    Habit(name: "Svelte", habit: "{#each} → for … by", to: "/coming-from/svelte"),
+    Habit(name: "HTML & CSS", habit: "class → flags and style { }", to: "/coming-from/html-css"),
+    Habit(name: "LaTeX / Typst", habit: "\\section → Heading, PDF out", to: "/coming-from/latex")
 ]
 
 /// A kind of page on the home page: its name (a translation key, whose

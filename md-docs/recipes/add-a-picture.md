@@ -2,34 +2,48 @@
 kind: "recipe"
 route: "/recipes/add-a-picture"
 group: "look"
-description: "To show a picture, put the file in `public/` and name it in `Image(src:)` with a site-relative path."
+description: "Show a picture from public/ or declared with image: the build writes it at every width, sets its size, and gives it a placeholder while it loads."
 from: ["/docs/guide/media#add-a-picture-from-public", "/docs/guide/media#process-a-picture-with-image", "/docs/guide/media#tune-the-image-pipeline", "/docs/guide/media#troubleshooting"]
+outputs: ["website", "app", "pdf", "slides"]
 ---
 # Add a picture, sized for every screen
 
-## Add a picture from `public/`
+Put a picture in `public/` and show it with `Image`, and the build writes it
+again at every width a screen may ask for, sets its size so nothing on the
+page shifts, and fills its box while it loads. Use this for a photograph, a
+hero picture or a decorative image.
 
-To show a picture, put the file in `public/` and name it in `Image(src:)`
-with a site-relative path. Files in `public/` are served from the site's
-root, so `public/hero.jpg` is `/hero.jpg`.
-
-This page shows a photograph, a decorative picture, a video and a talk:
+This page declares a hero picture with `image` and shows it with a blurred
+placeholder, prints its real size and colour, and shows a second picture
+and a decorative one straight from `public/`:
 
 ```wf
-page Media(path: "/") {
-    Image(src: "/hero.jpg", alt: "The team at the launch", width: 1200, height: 630)
+image hero = "hero.jpg"
+
+page Home(path: "/", title: "Home", description: "The front page.") {
+    Heading("Home").h1
+    Image(hero, alt: "The team at the launch",
+          sizes: "(max-width: 768px) 100vw, 1200px",
+          placeholder: .blur)
+    Text("It is {hero.width} by {hero.height}, and mostly {hero.color}.")
+    Image(src: "/office.jpg", alt: "The office on a quiet morning")
     Image(src: "/deco.png", alt: "")
-    Video(src: "/demo.mp4", captions: "/demo.en.vtt").controls
-    Audio(src: "/talk.mp3", transcript: "/talk.txt").controls
 }
 ```
+
+## How it works
+
+### A picture from `public/`
+
+Files in `public/` are served from the site's root, so `public/office.jpg`
+is `/office.jpg`. Name it in `Image(src:)` with that site-relative path.
 
 Give every `Image` an `alt:` that says what the picture shows. A decorative
 picture takes `alt: ""`, so a screen reader skips it.
 
 When `src:` is a literal path into `public/` that names a PNG, JPEG, GIF or
 WebP file, the build processes the file the same way it processes an
-[`image` declaration](#process-a-picture-with-image):
+[`image` declaration](#a-picture-declared-with-image):
 
 - It writes the picture again at each width the page may ask for.
 - It sets `width` and `height` from the file, so nothing on the page shifts
@@ -38,32 +52,20 @@ WebP file, the build processes the file the same way it processes an
   `placeholder:` work here too.
 
 The build uses an SVG file, a URL, or a path built at run time as it is
-written. Give those a `width:` and `height:` when you know them. To turn
-processing off, set `build.media.pipeline` to `false`.
+written. Give those a `width:` and `height:` when you know them, as in
+`Image(src: "/hero.jpg", alt: "The team at the launch", width: 1200, height: 630)`.
+To turn processing off, set `build.media.pipeline` to `false`.
 
 The first image on a page loads eagerly at high priority, because it is
 usually the largest thing the reader sees first. Every later image loads
 lazily. Set `loading:` on an `Image` to choose for yourself.
 
-## Process a picture with `image`
+### A picture declared with `image`
 
 To use a picture's real size and colour in your page, declare it with
-`image`. The declaration hands the build the file itself. The build looks
-for the path in the project's folder, then in `src/`, then in `public/`.
-
-This page declares a hero picture, shows it with a blurred placeholder, and
-prints its size and average colour:
-
-```wf
-image hero = "hero.jpg"
-
-page Home(path: "/", title: "Home", description: "The front page.") {
-    Image(hero, alt: "The team at the launch",
-          sizes: "(max-width: 768px) 100vw, 1200px",
-          placeholder: .blur)
-    Text("It is {hero.width} by {hero.height}, and mostly {hero.color}.")
-}
-```
+`image`, as `hero` is above. The declaration hands the build the file
+itself. The build looks for the path in the project's folder, then in
+`src/`, then in `public/`.
 
 The build reads the picture's real size and average colour, writes it again
 at every width in `media.widths` that is smaller than the original, and
@@ -85,6 +87,9 @@ The attributes any element takes (`id:`, `aria-*`, `data-*`, `ref:`, an
 `on load` handler) go on the `<img>` inside the `<picture>`. That is where
 its `alt:` is and where `load` fires. The width, the height and the sources
 stay the build's.
+
+A PDF or a slide deck embeds the real picture rather than drawing an empty
+box.
 
 ## Tune the image pipeline
 
@@ -114,8 +119,7 @@ width left gets no `<source>`. A JPEG that was already saved small often
 ends up this way.
 
 The build caches its work in `.wf-cache/media/`, so a build that changes no
-image does no image work. A PDF or a slide deck embeds the real picture
-rather than drawing an empty box.
+image does no image work.
 
 To see what the pipeline will make of a picture before it does it, run
 `wf assets --plan`:
@@ -134,8 +138,5 @@ uses.
 | What you see | Why, and what to do |
 |---|---|
 | The page jumps when a picture arrives | The picture is an SVG, a URL or a path built at run time, which the build cannot measure. Give it `width:` and `height:` |
-| An icon shows as a word | The name is not one of the built-in icons (`V08`), or it arrives at run time and the build left its glyph out. Use a listed name, or set `build.runtime` to `"full"` |
-| `A09` on a `Video` or `Audio` | Add `captions:` to the video or `transcript:` to the recording |
-| `A17` on a `Frame` | Add a `title:` that says what the frame shows |
-| A frame from another site stays blank | Its origin is not in `meta.frame`, so the policy blocks it |
+| `A01` on an `Image` | Add an `alt:` that says what it shows, or `alt: ""` for a decorative picture |
 | `wf assets --plan` lists widths it will not write | Those files would save nothing; the original serves at those widths |

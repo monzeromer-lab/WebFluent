@@ -765,7 +765,7 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
             }
         }
 
-        Markdown("Returns a socket handle with `.send(value)`, `.messages`, `.last(kind)`, `.state`, `.error`, `.closure` and `.close()`. Where: only after `socket name =`. See [Open a socket](/recipes/open-a-socket#open-a-socket).")
+        Markdown("Returns a socket handle with `.send(value)`, `.messages`, `.last(kind)`, `.state`, `.error`, `.closure` and `.close()`. Where: only after `socket name =`. See [Open a socket](/recipes/open-a-socket).")
 
         CodeBlock(#"socket chat = ws("wss://example.com/chat", heartbeat: 20.seconds) { on message(m) { Feed.add(m) } }"#, title: "wf")
 

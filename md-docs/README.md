@@ -17,7 +17,7 @@ suite, so what you read is what the compiler accepts.
 
 - **New to WebFluent:** [Introduction](about/introduction.md), then
   [Getting started](learn/01-getting-started.md) and the [tutorial](learn/02-tutorial-shelf.md).
-- **Coming from a framework:** [Coming from React, Vue or Svelte](coming-from/react-vue-svelte.md).
+- **Coming from a framework:** [Coming from React, Vue or Svelte](coming-from/react.md).
 - **Looking something up:** the Reference part — [components](reference/components.md),
   [CLI](reference/cli.md), [configuration](reference/configuration.md), [diagnostics](errors/diagnostics.md).
 - **Something is wrong:** [Troubleshooting](errors/troubleshooting.md).
@@ -31,7 +31,6 @@ suite, so what you read is what the compiler accepts.
 | 1 | [Introduction](about/introduction.md) | What WebFluent is, what it does for you, where it fits and where it does not, and how to find your way around this guide. |
 | 2 | [Getting started](learn/01-getting-started.md) | Install the compiler, make a project, run it, change it and see the change — then set up your editor, or WebFluent Studio, and see what a build writes. |
 | 3 | [Tutorial: Shelf](learn/02-tutorial-shelf.md) | Build a small, complete site — data, components, a store, a form, a theme, a test — and put it on the web. |
-| 4 | [Coming from React, Vue or Svelte](coming-from/react-vue-svelte.md) | What you already know, mapped to what is here — and the few places WebFluent works differently. |
 | | **Tutorials and recipes** | |
 | 5 | [Tutorial: Todos](learn/03-tutorial-todos.md) | Build a todo list kept in the reader's browser — types, a store that remembers, a component, a filter in the address and tests that click. |
 | | **Concepts** | |

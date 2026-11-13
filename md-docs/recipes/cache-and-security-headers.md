@@ -2,34 +2,22 @@
 kind: "recipe"
 route: "/recipes/cache-and-security-headers"
 group: "ship"
-description: "To let browsers keep files without serving a stale site, set `Cache-Control` by the kind of file:"
+description: "Which Cache-Control each file of a WebFluent build should get, and the security headers the build writes to _headers for a host to send."
+outputs: ["website", "app"]
 from: ["/docs/guide/deploying#set-cache-headers", "/docs/guide/deploying#set-security-headers"]
 ---
 # Set cache and security headers
 
-## Set cache headers
+This recipe sets the HTTP headers a host sends with a WebFluent build: how
+long a browser may keep each file, and the security headers that only work
+as real headers.
 
-To let browsers keep files without serving a stale site, set
-`Cache-Control` by the kind of file:
+You need a host that lets you set headers, or one that reads `_headers`
+(Netlify, Cloudflare Pages). The hosting recipes, such as
+[Serve a site with nginx](serve-with-nginx.md), show where each host takes
+them.
 
-| Files | Cache-Control | Why |
-|---|---|---|
-| HTML, `app.js`, `pages/*`, `styles.css` | `no-cache` (revalidate every time) | their names do not change between builds |
-| `sw.js` | `no-cache` | a stale worker holds a stale site ([Offline](index.md)) |
-| resized images (`hero.<hash>.960.webp`) | `public, max-age=31536000, immutable` | the name changes when the file does |
-| `public/` files | your choice | they keep the names you gave them |
-
-`no-cache` still lets the browser keep a copy. The browser asks the server
-each time, and a `304 Not Modified` answer means it does not download the
-file again.
-
-## Set security headers
-
-With `build.csp` on, every page carries its Content-Security-Policy as a
-`<meta>` tag. `build/_headers` holds the same policy, plus
-`X-Content-Type-Options`, `Referrer-Policy`, `X-Frame-Options` and the
-policy's `frame-ancestors`, which only work as real HTTP headers. This is
-the file a build writes:
+With `build.csp` on, this is the `build/_headers` file a build writes:
 
 ```text
 /*
@@ -39,7 +27,41 @@ the file a build writes:
   X-Frame-Options: DENY
 ```
 
-Netlify and Cloudflare Pages read the file. On any other host, set the same
-headers as the recipes above show. Serve the site over HTTPS, and turn on
-HSTS once you are sure HTTPS works everywhere.
+## How it works
+
+1. `/*` applies the headers under it to every path of the site.
+2. `Content-Security-Policy` is the same policy every page already carries
+   as a `<meta>` tag, plus `frame-ancestors`, which a browser ignores in a
+   `<meta>` tag ([Security](../about/security.md#ship-a-content-security-policy)).
+3. `X-Content-Type-Options`, `Referrer-Policy` and `X-Frame-Options` only
+   work as real HTTP headers, so they are in this file and nowhere else.
+
+The build writes no cache headers: those are yours to set, by the kind of
+file.
+
+## Set cache headers
+
+To let browsers keep files without serving a stale site, set
+`Cache-Control` by the kind of file:
+
+| Files | Cache-Control | Why |
+|---|---|---|
+| HTML, `app.js`, `pages/*`, `styles.css` | `no-cache` (revalidate every time) | their names do not change between builds |
+| `sw.js` | `no-cache` | a stale worker holds a stale site ([Make a site work offline](work-offline.md)) |
+| resized images (`hero.<hash>.960.webp`) | `public, max-age=31536000, immutable` | the name changes when the file does |
+| `public/` files | your choice | they keep the names you gave them |
+
+`no-cache` still lets the browser keep a copy. The browser asks the server
+each time, and a `304 Not Modified` answer means it does not download the
+file again.
+
+## Set security headers
+
+Netlify and Cloudflare Pages read `build/_headers` as it is. On any other
+host, set the same headers in its configuration, as the hosting recipes
+show: [nginx](serve-with-nginx.md), [Apache](serve-with-apache.md),
+[Caddy](serve-with-caddy.md) and [Vercel](deploy-to-vercel.md). Serve the site over HTTPS, and turn
+on HSTS once you are sure HTTPS works everywhere.
 [Security](../about/security.md#before-you-deploy) has the full checklist.
+
+After the deploy, [check the headers it sends](check-a-deploy.md).

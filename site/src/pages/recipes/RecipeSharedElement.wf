@@ -1,7 +1,7 @@
 // A recipe, written from md-docs/recipes/shared-element.md by scripts/docsite/recipes.py;
 // edit the recipe, not this file.
-page RecipeSharedElement(path: "/recipes/shared-element", title: "Carry an element across a route change — Recipes", description: "To have the browser carry one element from one page to the next — a cover picture that grows into the article's header — give it the same `shared:`…") {
-    RecipeShell("Carry an element across a route change", summary: "To have the browser carry one element from one page to the next — a cover picture that grows into the article's header — give it the same `shared:` name on both pages. The browser moves it instead of fading it out and back in:", outputs: [], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Add a dark-mode switch", to: "/recipes/dark-mode-switch"), RelatedLink(kind: "Recipe", title: "Add a picture, sized for every screen", to: "/recipes/add-a-picture"), RelatedLink(kind: "Recipe", title: "Add video and audio", to: "/recipes/video-and-audio")], source: "md-docs/recipes/shared-element.md", how: true, hasVariations: false) {
+page RecipeSharedElement(path: "/recipes/shared-element", title: "Carry an element across a route change — Recipes", description: "Carry one element from one page to the next, such as a cover picture that grows into the article's header, by giving it one shared: name on both.") {
+    RecipeShell("Carry an element across a route change", summary: "Have the browser carry one element from one page to the next — a cover picture in a list of posts that grows into the article's header — instead of fading it out and back in. Give it the same `shared:` name on both pages:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Add a dark-mode switch", to: "/recipes/dark-mode-switch"), RelatedLink(kind: "Recipe", title: "Add a picture, sized for every screen", to: "/recipes/add-a-picture"), RelatedLink(kind: "Recipe", title: "Add video and audio", to: "/recipes/video-and-audio")], source: "md-docs/recipes/shared-element.md", how: true, hasVariations: false) {
         code {
             CodeBlock(#"type Post { id: String, slug: String, title: String, cover: String }
 
@@ -28,7 +28,7 @@ page Article(path: "/p/:slug", title: "Post", description: "One post.", slug: St
     }
 }"#, title: "wf")
         }
-        Markdown("Both elements must carry the same name, and only one element on a page may carry each name — which is why the name here includes the post's `id`.")
+        Markdown("- The `Blog` page draws each cover with `shared: \"cover-\{post.id\}\"`, and the `Article` page draws the same post's cover under the same name.\n- When the route changes from one to the other, the browser moves the element from its old place and size to its new one.\n- Both elements must carry the same name, and only one element on a page may carry each name — which is why the name here includes the post's `id`. If the two pages give it different names, or two elements on one page carry the same name, the element crossfades instead of moving.")
 
     }
 }

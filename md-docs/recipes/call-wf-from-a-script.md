@@ -2,21 +2,69 @@
 kind: "recipe"
 route: "/recipes/call-wf-from-a-script"
 group: "interop"
-description: "The runtime is `window.WF`."
+description: "Call the WebFluent runtime, window.WF, from a script of your own: show a toast, navigate, or read a store, and keep the call in the build."
+outputs: ["website", "app", "desktop"]
 from: ["/docs/guide/interop#call-wf-from-a-script-of-your-own"]
 ---
 # Call WF from a script
 
 The runtime is `window.WF`. A script under `src/`, the console, or a
-library's callback can call it: `WF.navigate("/about")`,
-`WF.toast("Saved", "success")`, `WF.storeSnapshot("Cart")`. The
-[runtime reference](../reference/runtime-api.md) lists every function.
+library's callback can call it. This page has a button that copies the
+page's address, and the script it calls says so with the runtime's toast:
+
+```wf
+page Article(path: "/article", title: "Slow roasting", description: "Why we take eleven minutes over it.") {
+    Heading("Slow roasting").h1
+    Text("Eleven minutes, and why it matters.")
+    Button("Copy the link") { on click { shareLink() } }
+}
+```
+
+The script is a plain file under `src/`
+([Call your own JavaScript](call-your-own-script.md)):
+
+```js
+// src/share.js
+/**
+ * Copy this page's address, and say so in a toast.
+ */
+async function shareLink() {
+  try {
+    await navigator.clipboard.writeText(location.href);
+    WF.toast("Link copied", "success");
+  } catch (e) {
+    WF.toast("Could not copy the link", "danger");
+  }
+}
+```
+
+## How it works
+
+- `WF` is on `window` once `app.js` has run, so any script may call it
+  while the page is open. `WF.toast(message, tone, ms)` shows a toast in
+  a tone (`"info"` by default) for `ms` milliseconds (3000 by default).
+- Other calls a script makes the same way: `WF.navigate("/about")` moves
+  to another route, and `WF.storeSnapshot("Cart")` reads what a store
+  holds. The [runtime reference](../reference/runtime-api.md) lists every
+  function.
+- A build keeps only the runtime modules its code reaches, and it reads
+  your scripts under `src/` for that too: the `WF.toast` written in
+  `src/share.js` keeps the toast module in the build, though no `.wf` code
+  uses it.
 
 > [!WARNING]
-> A build keeps only the runtime modules its own code reaches. A script that
-> calls a module nothing else uses needs `"build": { "runtime": "full" }`,
+> A call the build cannot read is not counted: a script in `public/` or
+> from another origin, a `WF[name]` built at run time, or the console. If
+> it reaches a module nothing else uses, set `"build": { "runtime": "full" }`,
 > or the call fails in the browser.
 
 A script from another origin must be listed in `meta.scripts`, which widens
 the policy for it. The build's CSP check refuses an inline `<script>`
 ([Security](../about/security.md#ship-a-content-security-policy)).
+
+## Troubleshooting
+
+| What you see | What to do |
+|---|---|
+| `WF.toast is not a function` (or another runtime function) | The build left the module out: write the call in a script under `src/`, or set `"build": { "runtime": "full" }` |
+| `WF is not defined` | The script ran before `app.js`: call `WF` from an event, a callback or a `wf:render` listener, not at the script's top level |

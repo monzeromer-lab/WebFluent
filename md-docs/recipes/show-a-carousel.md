@@ -2,14 +2,17 @@
 kind: "recipe"
 route: "/recipes/show-a-carousel"
 group: "look"
-description: "To show slides one at a time, wrap each in a `Carousel.Slide` inside a `Carousel`."
+description: "Show slides one at a time with Carousel and Carousel.Slide: previous and next buttons, a dot per slide, and autoplay that pauses."
 from: ["/docs/guide/media#show-a-carousel"]
+outputs: ["website", "app"]
 ---
 # Show a carousel
 
-To show slides one at a time, wrap each in a `Carousel.Slide` inside a
-`Carousel`. This page shows three photographs that advance every five
-seconds:
+Show pictures or panels one at a time, with buttons to move between them
+and, if you want, advancing on their own. Wrap each slide in a
+`Carousel.Slide` inside a `Carousel`.
+
+This page shows three photographs that advance every five seconds:
 
 ```wf
 page Gallery(path: "/", title: "Gallery", description: "Three pictures.") {
@@ -22,11 +25,15 @@ page Gallery(path: "/", title: "Gallery", description: "Three pictures.") {
 }
 ```
 
-A carousel has a named previous button, a named next button, and a dot per
-slide. Its `label:` names the region for screen readers. It is a `region`
-described as a carousel, unless you set its `role:` or
-`aria-roledescription:` yourself.
+## How it works
 
-With `autoplay`, the carousel also has a button that stops it. It pauses
-while the pointer or the keyboard focus is on it, and it does not advance at
-all for a reader who asked for reduced motion.
+- **Each `Carousel.Slide` is one slide**, shown one at a time.
+- **The controls come with it.** A carousel has a named previous button, a
+  named next button, and a dot per slide.
+- **`label:` names it.** Its `label:` names the region for screen readers.
+  It is a `region` described as a carousel, unless you set its `role:` or
+  `aria-roledescription:` yourself.
+- **`autoplay` advances it** every `interval:` milliseconds. With
+  `autoplay`, the carousel also has a button that stops it. It pauses while
+  the pointer or the keyboard focus is on it, and it does not advance at
+  all for a reader who asked for reduced motion.

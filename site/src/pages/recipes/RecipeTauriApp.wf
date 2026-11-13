@@ -1,39 +1,52 @@
 // A recipe, written from md-docs/recipes/tauri-app.md by scripts/docsite/recipes.py;
 // edit the recipe, not this file.
-page RecipeTauriApp(path: "/recipes/tauri-app", title: "Make a desktop or phone app with Tauri — Recipes", description: "You need:") {
-    RecipeShell("Make a desktop or phone app with Tauri", summary: "You need:", outputs: [], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "before-you-start", label: "Before you start"), Anchor(id: "prepare-the-build-for-a-desktop", label: "Prepare the build for a desktop"), Anchor(id: "make-a-tauri-app", label: "Make a Tauri app"), Anchor(id: "troubleshooting", label: "Troubleshooting")], related: [RelatedLink(kind: "Recipe", title: "Build a Docker image", to: "/recipes/docker-image"), RelatedLink(kind: "Recipe", title: "Check a deploy", to: "/recipes/check-a-deploy"), RelatedLink(kind: "Recipe", title: "Deploy to Cloudflare Pages", to: "/recipes/deploy-to-cloudflare-pages")], source: "md-docs/recipes/tauri-app.md", how: false, hasVariations: false) {
-        Heading("Before you start", id: "before-you-start").h2
-
-        Markdown("You need:\n\n- a WebFluent project that builds with `wf build`;\n- for Tauri: Rust, and the system libraries listed in Tauri's [prerequisites](https://v2.tauri.app/start/prerequisites/);\n- for Electron: Node.js and npm.")
-
-        Heading("Prepare the build for a desktop", id: "prepare-the-build-for-a-desktop").h2
-
-        Markdown("The same project builds for the web and for a desktop. To leave out what only a website needs, set two keys in `webfluent.app.json`:")
-
-        CodeBlock(#"{
+page RecipeTauriApp(path: "/recipes/tauri-app", title: "Make a desktop or phone app with Tauri — Recipes", description: "Make a WebFluent project a Tauri app for the desktop or a phone: set it up, run it while you work, call Rust from a page, hear its events, package it.") {
+    RecipeShell("Make a desktop or phone app with Tauri", summary: "This recipe ships a WebFluent project as a Tauri app: the build runs in the system's own web view, and a page calls a Rust side for what a browser cannot do — read a file on disk, open a folder dialog, show a notification. Nothing in the language changes; a page reaches Rust through a plain script under `src/`, with one typed function per command ([Call your own JavaScript](/recipes/call-your-own-script)). For a native side in JavaScript on Node.js instead, see [Make a desktop app with Electron](/recipes/electron-app).  You need a WebFluent project that builds with `wf build`, Rust, and the system libraries listed in Tauri's [prerequisites](https://v2.tauri.app/start/prerequisites/).  These are the settings a Tauri app needs. In `webfluent.app.json`:", outputs: ["desktop"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "troubleshooting", label: "Troubleshooting"), Anchor(id: "variations", label: "Variations")], related: [RelatedLink(kind: "Recipe", title: "Build a Docker image", to: "/recipes/docker-image"), RelatedLink(kind: "Recipe", title: "Check a deploy", to: "/recipes/check-a-deploy"), RelatedLink(kind: "Recipe", title: "Deploy to Cloudflare Pages", to: "/recipes/deploy-to-cloudflare-pages")], source: "md-docs/recipes/tauri-app.md", how: true, hasVariations: true) {
+        code {
+            CodeBlock(#"{
     "build": { "compress": false },
-    "meta": { "sitemap": false }
+    "meta": { "sitemap": false, "connect": ["ipc:", "http://ipc.localhost"] }
 }"#, title: "json")
+            Markdown("The commands that make the Rust side and run the app:")
+            Terminal(lines: [
+                        Line(command: "cargo install tauri-cli --version \"^2\" --locked"),
+                        Line(command: "cargo tauri init --app-name notes --window-title Notes \\"),
+                        Line(command: "    --frontend-dist ../build --dev-url http://localhost:3000 \\"),
+                        Line(command: "    --before-dev-command \"wf serve\" --before-build-command \"wf build\""),
+                        Line(command: "cargo tauri dev")
+                    ])
+            Markdown("And two keys in the `src-tauri/tauri.conf.json` that `cargo tauri init` writes:")
+            CodeBlock(#"{
+    "identifier": "com.example.notes",
+    "app": { "withGlobalTauri": true }
+}"#, title: "json")
+        }
+        variations {
+            Heading("Run it on a phone", id: "run-it-on-a-phone").h3
 
-        Markdown("- **`build.compress: false`** — the shell packs the folder into the app, so a `.gz` file beside every file would ship every file twice.\n- **`meta.sitemap: false`** — writes no `sitemap.xml` or `robots.txt`; nothing crawls an app. You can leave `meta.site_url` and the link-preview tags unset too.\n- **Leave `offline` out** — the files are already on the machine, so a service worker has nothing to keep.\n\nA single-page build and a static build both work ([Static sites and SPAs](/docs/guide/static-and-spa)), and addresses stay as they are. Both shells in this chapter answer a path the build has no file for with `index.html`, so reloading the window on `/settings` shows the settings page.\n\nAn app is often used with no network, and a font named in `meta.fonts` comes from another origin. To make a font always available, put the file in `public/` and declare it with `@font-face` in a `.css` file under `src/` ([Styling](/docs/guide/styling)).")
+            Markdown("The same project runs on Android and iOS. Make the phone's side once, then run it while you work (`ios` in place of `android`, on a Mac):")
 
-        Heading("Make a Tauri app", id: "make-a-tauri-app").h2
+            Terminal(lines: [
+                        Line(command: "cargo tauri android init"),
+                        Line(command: "cargo tauri android dev")
+                    ])
 
-        Markdown("Tauri runs your build in the system's web view and gives the page a Rust side to call.")
+            Markdown("- **The dev server.** `wf serve` listens to this machine only. To let the phone reach it, make `beforeDevCommand` `wf serve --host 0.0.0.0` and point `devUrl` at the machine's address on the network ([CLI](/reference/cli)).\n- **No window chrome.** A phone has no title bar: draw one only on a desktop.\n- **Edge to edge.** The page is drawn under the phone's own bars, so pad the app's frame by `env(safe-area-inset-*)`, once a script sets `viewport-fit=cover` on the viewport tag.\n- **Back.** Android's back gesture goes back through the router's history. To close an open sheet first, take the gesture with Tauri's `app.onBackButtonPress` from the same script, in an effect that gives it back.\n- **Plugins.** Capabilities are split by `\"platforms\"`, and a phone-only plugin (haptics, a barcode scanner) is registered under `#[cfg(mobile)]`.")
+
+        }
+        Markdown("The steps below take these settings in order, then add what a page calls: a Rust command, an event, a plugin.")
+
+        Heading("Prepare the build for a desktop", id: "prepare-the-build-for-a-desktop").h3
+
+        Markdown("The same project builds for the web and for a desktop. Two keys in `webfluent.app.json` leave out what only a website needs:\n\n- **`build.compress: false`** — the shell packs the folder into the app, so a `.gz` file beside every file would ship every file twice.\n- **`meta.sitemap: false`** — writes no `sitemap.xml` or `robots.txt`; nothing crawls an app. You can leave `meta.site_url` and the link-preview tags unset too.\n- **Leave `offline` out** — the files are already on the machine, so a service worker has nothing to keep.\n\n`meta.connect` is for the security policy; see [Allow Tauri requests in the security policy](#allow-tauri-requests-in-the-security-policy).\n\nA single-page build and a static build both work ([Static sites and SPAs](/docs/guide/static-and-spa)), and addresses stay as they are. Tauri answers a path the build has no file for with `index.html`, so reloading the window on `/settings` shows the settings page.\n\nAn app is often used with no network, and a font named in `meta.fonts` comes from another origin. To make a font always available, put the file in `public/` and declare it with `@font-face` in a `.css` file under `src/` ([Styling](/docs/guide/styling)).")
 
         Heading("Set up Tauri", id: "set-up-tauri").h3
 
-        Markdown("1. Install the Tauri CLI once:\n\n   ```bash cargo install tauri-cli --version \"^2\" --locked ```\n\n2. In the project's folder, create the Rust side:\n\n   ```bash cargo tauri init --app-name notes --window-title Notes \\ --frontend-dist ../build --dev-url http://localhost:3000 \\ --before-dev-command \"wf serve\" --before-build-command \"wf build\" ```\n\n   This writes `src-tauri/` beside `src/`: the Rust side, its `Cargo.toml` and `tauri.conf.json`. WebFluent never reads `src-tauri/`, and Tauri runs the two `wf` commands in the project's folder.\n\n3. Change two keys in `src-tauri/tauri.conf.json`:\n\n   ```json \{ \"identifier\": \"com.example.notes\", \"app\": \{ \"withGlobalTauri\": true \} \} ```\n\n   - **`identifier`** — a reverse-domain name of your own. `cargo tauri build` refuses the default, `com.tauri.dev`.\n   - **`withGlobalTauri`** — puts Tauri's JavaScript API on `window.__TAURI__`, every plugin's API included, so a plain script uses it with no `import` and no npm.\n\nLeave `app.security.csp` at `null`: every page already carries its own policy (see [Allow Tauri requests in the security policy](#allow-tauri-requests-in-the-security-policy)).")
+        Markdown("1. `cargo install tauri-cli` installs the Tauri CLI, once per machine.\n2. `cargo tauri init`, run in the project's folder, writes `src-tauri/` beside `src/`: the Rust side, its `Cargo.toml` and `tauri.conf.json`. Its flags point Tauri at `build/` for the app, at `wf serve` on port 3000 while you work, and at the `wf` commands that make each. WebFluent never reads `src-tauri/`, and Tauri runs the two `wf` commands in the project's folder.\n3. Two keys in `src-tauri/tauri.conf.json` change:\n   - **`identifier`** — a reverse-domain name of your own. `cargo tauri build` refuses the default, `com.tauri.dev`.\n   - **`withGlobalTauri`** — puts Tauri's JavaScript API on `window.__TAURI__`, every plugin's API included, so a plain script uses it with no `import` and no npm.\n\nLeave `app.security.csp` at `null`: every page already carries its own policy (see [Allow Tauri requests in the security policy](#allow-tauri-requests-in-the-security-policy)).")
 
         Heading("Run the Tauri app while you work", id: "run-the-tauri-app-while-you-work").h3
 
-        Markdown("To work on the app, run:")
-
-        Terminal(lines: [
-                Line(command: "cargo tauri dev")
-            ])
-
-        Markdown("This command runs `wf serve` and opens the app's window on it. Saving a `.wf` file rebuilds and reloads the window, and a build that fails shows its error over the page, as it does in a browser ([CLI](/reference/cli)). Saving a Rust file rebuilds the app. If `dev.port` is not `3000`, change `devUrl` to match.\n\nTo build the installers, run:")
+        Markdown("`cargo tauri dev` runs `wf serve` and opens the app's window on it. Saving a `.wf` file rebuilds and reloads the window, and a build that fails shows its error over the page, as it does in a browser ([CLI](/reference/cli)). Saving a Rust file rebuilds the app. If `dev.port` is not `3000`, change `devUrl` to match.\n\nTo build the installers, run:")
 
         Terminal(lines: [
                 Line(command: "cargo tauri build")
@@ -235,7 +248,7 @@ function pickFolder() {
             Table.Body {
                 Table.Row {
                     Table.Cell { Markdown("Every native call fails with `This needs the desktop app.`") }
-                    Table.Cell { Markdown("The page is open in a browser tab, not the app — or, with Tauri, `withGlobalTauri` is off, so `window.__TAURI__` is missing") }
+                    Table.Cell { Markdown("The page is open in a browser tab, not the app — or `withGlobalTauri` is off, so `window.__TAURI__` is missing") }
                 }
                 Table.Row {
                     Table.Cell("A Tauri call is blocked by the security policy")
@@ -252,10 +265,6 @@ function pickFolder() {
                 Table.Row {
                     Table.Cell("The Tauri window shows nothing while you work")
                     Table.Cell { Markdown("`devUrl` does not match `dev.port`") }
-                }
-                Table.Row {
-                    Table.Cell("A packaged Electron app shows an empty window")
-                    Table.Cell { Markdown("The package is missing `build/`, or `wf build` did not run before packaging") }
                 }
                 Table.Row {
                     Table.Cell("The app's text falls back to another font offline")

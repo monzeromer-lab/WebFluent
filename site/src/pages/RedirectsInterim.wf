@@ -15,18 +15,3 @@ page InterimAbout(path: "/about", title: "About", description: "Why WebFluent wo
     Heading(t("ch.01")).h1
     Link(t("ch.01"), to: "/docs/guide/introduction")
 }
-
-page InterimFromReact(path: "/coming-from/react", title: "Coming from React", description: "What you know from React, in WebFluent.", guard: false, redirect: "/docs/guide/coming-from", noindex: true) {
-    Heading(t("ch.04")).h1
-    Link(t("ch.04"), to: "/docs/guide/coming-from")
-}
-
-page InterimFromVue(path: "/coming-from/vue", title: "Coming from Vue", description: "What you know from Vue, in WebFluent.", guard: false, redirect: "/docs/guide/coming-from", noindex: true) {
-    Heading(t("ch.04")).h1
-    Link(t("ch.04"), to: "/docs/guide/coming-from")
-}
-
-page InterimFromSvelte(path: "/coming-from/svelte", title: "Coming from Svelte", description: "What you know from Svelte, in WebFluent.", guard: false, redirect: "/docs/guide/coming-from", noindex: true) {
-    Heading(t("ch.04")).h1
-    Link(t("ch.04"), to: "/docs/guide/coming-from")
-}

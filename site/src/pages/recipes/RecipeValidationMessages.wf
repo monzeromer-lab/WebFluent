@@ -1,7 +1,7 @@
 // A recipe, written from md-docs/recipes/validation-messages.md by scripts/docsite/recipes.py;
 // edit the recipe, not this file.
-page RecipeValidationMessages(path: "/recipes/validation-messages", title: "Show validation messages on a form — Recipes", description: "To check a form as the reader fills it in, put a `validate` block beside each state:") {
-    RecipeShell("Show validation messages on a form", summary: "To check a form as the reader fills it in, put a `validate` block beside each state:", outputs: [], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Load more as the reader asks", to: "/recipes/load-more"), RelatedLink(kind: "Recipe", title: "Page through results", to: "/recipes/page-through-results"), RelatedLink(kind: "Recipe", title: "Sign in with a session cookie", to: "/recipes/sign-in-with-a-session-cookie")], source: "md-docs/recipes/validation-messages.md", how: true, hasVariations: false) {
+page RecipeValidationMessages(path: "/recipes/validation-messages", title: "Show validation messages on a form — Recipes", description: "Check a form as the reader fills it in: a validate block beside each state, and each control shows its own message.") {
+    RecipeShell("Show validation messages on a form", summary: "A form should say what is wrong beside the field that is wrong, before the reader submits it. To check a form as the reader fills it in, put a `validate` block beside each state:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Load more as the reader asks", to: "/recipes/load-more"), RelatedLink(kind: "Recipe", title: "Page through results", to: "/recipes/page-through-results"), RelatedLink(kind: "Recipe", title: "Sign in with a session cookie", to: "/recipes/sign-in-with-a-session-cookie")], source: "md-docs/recipes/validation-messages.md", how: true, hasVariations: false) {
         code {
             CodeBlock(#"page Signup(path: "/", title: "Sign up", description: "Make an account.") {
     state email = ""
@@ -22,7 +22,7 @@ page RecipeValidationMessages(path: "/recipes/validation-messages", title: "Show
     if sent { Alert("Welcome aboard.").success }
 }"#, title: "wf")
         }
-        Markdown("Each control shows its own message when the reader leaves it, and a submit that fails moves focus to the first problem. [Forms](/docs/guide/forms) lists every rule.")
+        Markdown("- Each [`validate`](/docs/guide/forms#validate-a-field) block names a state and lists its rules. A rule may take a message after it; without one, the rule's own is used.\n- `matches(password)` holds `confirm` to whatever `password` is now.\n- The control bound to a state shows that state's message. Each control shows its own message when the reader leaves it, with the accessible wiring an `error:` gets.\n- `Form(bind: form)` hands the page a handle: `form.valid` disables the button until every rule passes, and `form.reset()` clears the form after a submit.\n- A submit that fails moves focus to the first problem and does not run the `on submit` handler.\n\n[Forms](/docs/guide/forms) lists every rule.")
 
     }
 }

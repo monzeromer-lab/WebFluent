@@ -2,27 +2,29 @@
 kind: "recipe"
 route: "/recipes/library-from-a-cdn"
 group: "interop"
-description: "To use a library from another origin, list its URL in `meta.scripts`."
+description: "Load a JavaScript library from another origin with meta.scripts: in order, async or after the page, pinned by a hash, allowed by the policy."
+outputs: ["website", "app"]
 from: ["/docs/guide/interop#load-a-library-from-a-cdn"]
 ---
 # Load a library from a CDN
 
 To use a library from another origin, list its URL in `meta.scripts`. The
 compiler never fetches anything, so it cannot read a file on another
-origin; your own scripts call the library instead.
+origin; a script of your own calls the library instead. This page draws a
+Chart.js chart that way, and destroys it when the page leaves:
 
-This config loads Chart.js and pins the file with its integrity hash:
+```wf
+page Sales(path: "/sales", title: "Sales", description: "How it is going.") {
+    state values: [Number] = [12, 19, 7, 15]
 
-```json
-{ "meta": {
-    "scripts": ["https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"],
-    "integrity": {
-      "https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js": "sha384-…"
-    }
-} }
+    Heading("Sales").h1
+    Host(tag: "canvas", role: "img", aria-label: "Sales by quarter",
+         mount: (c) => drawSales(c, values),
+         cleanup: (chart) => chart.destroy())
+}
 ```
 
-This script draws a chart with it:
+This script draws the chart with the library:
 
 ```js
 // src/charts.js
@@ -39,25 +41,48 @@ function drawSales(canvas, values) {
 }
 ```
 
-This page hands the script a canvas, and destroys the chart when the page
-leaves:
+This config, in `webfluent.app.json`, loads Chart.js:
 
-```wf
-page Sales(path: "/sales", title: "Sales", description: "How it is going.") {
-    state values: [Number] = [12, 19, 7, 15]
-
-    Heading("Sales").h1
-    Host(tag: "canvas",
-         mount: (c) => drawSales(c, values),
-         cleanup: (chart) => chart.destroy())
-}
+```json
+{ "meta": {
+    "scripts": ["https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"]
+} }
 ```
 
-How an entry in `meta.scripts` loads:
+## How it works
+
+An entry in `meta.scripts` loads this way:
 
 - **In order.** The build links each entry with `<script defer>` in the
   order listed, before your own scripts and the compiled code. A library is
-  there when the code that uses it runs.
+  there when the code that uses it runs, so `drawSales` finds `Chart`.
+- **Allowed by the policy.** The build widens the Content-Security-Policy
+  by exactly the origins listed, so the policy that ships beside a declared
+  library never blocks it.
+- **Called from your script.** `src/charts.js` is a plain script whose
+  names are in scope, typed by its JSDoc
+  ([Call your own JavaScript](call-your-own-script.md)). `Host` hands it a
+  canvas, and `cleanup:` destroys the chart with the page
+  ([Hand an element to a script](hand-an-element-to-a-script.md)). A chart
+  that follows changing data is in
+  [Draw a chart from a library](chart-from-a-library.md).
+- **Pinned.** `meta.integrity` pins a file to a hash, keyed by the same
+  URL, and the build writes it on the tag with `crossorigin="anonymous"`.
+  A library from another origin without a hash draws a `D05` warning. The
+  build never fetches the file to work the hash out: copy it from the CDN,
+  or compute it from the file you tested.
+
+This command prints the hash of a downloaded copy, to add as
+`"sha384-<hash>"` under the URL in `meta.integrity`:
+
+```bash
+openssl dgst -sha384 -binary chart.umd.min.js | openssl base64 -A
+```
+
+## Variations
+
+An entry may be an object instead of a URL, to say how it loads.
+
 - **Out of order.** `{ "src": "…", "async": true }` loads a script that
   nothing on the page waits for (analytics, a tag manager) with
   `<script async>`. Deferred scripts run in order, so a large one listed
@@ -73,11 +98,6 @@ How an entry in `meta.scripts` loads:
   Largest Contentful Paint more than a second, even with `async`. The
   script's origin still joins the policy. A reader who leaves within the
   first second is not counted. The same limits as `async` apply (`E111`).
-- **Pinned.** `meta.integrity` pins the file to a hash. A library from
-  another origin without a hash draws a `D05` warning.
-- **Allowed by the policy.** The build widens the Content-Security-Policy
-  by exactly the origins listed, so the policy that ships beside a declared
-  library never blocks it.
 - **As a module.** `{ "src": "https://…/confetti.mjs", "module": true,
   "as": "Confetti" }` imports an ES module and puts its exports on
   `window.Confetti`. Most CDNs also serve a plain build, which needs
@@ -86,3 +106,11 @@ How an entry in `meta.scripts` loads:
   puts the names a library defines in scope, each typed `Any`, because the
   compiler cannot see their shape. A class among them is constructed when
   called.
+
+## Troubleshooting
+
+| What you see | What to do |
+|---|---|
+| `D05` on a library from another origin | Add its hash to `meta.integrity` |
+| `E111` on an entry | Drop `async` or `load: "after"` from a module, or from an entry with `globals` |
+| `ReferenceError` naming the library's global | Check the URL; an `async` or `load: "after"` entry may not have arrived yet when your code runs |

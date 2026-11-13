@@ -1,6 +1,32 @@
 // A recipe, written from md-docs/recipes/video-and-audio.md by scripts/docsite/recipes.py;
 // edit the recipe, not this file.
-page RecipeVideoAndAudio(path: "/recipes/video-and-audio", title: "Add video and audio — Recipes", description: "To show a video, use `Video(src:)`; to play sound, use `Audio(src:)`.") {
-    RecipeShell("Add video and audio", summary: "To show a video, use `Video(src:)`; to play sound, use `Audio(src:)`. Add the `.controls` flag to show the browser's playback controls.  Give every video captions and every recording a transcript:  - `captions:` names a WebVTT file. The build writes it as a `<track>`, so a reader who cannot hear the video can follow it. - `transcript:` names a text file. The build draws it as a link beneath the player.  The first example in this chapter shows both. A `Video` without `captions:`, and an `Audio` without `transcript:`, each draw an `A09` warning.", outputs: [], since: "", recipes: RECIPE_INDEX, sections: [], related: [RelatedLink(kind: "Recipe", title: "Add a dark-mode switch", to: "/recipes/dark-mode-switch"), RelatedLink(kind: "Recipe", title: "Add a picture, sized for every screen", to: "/recipes/add-a-picture"), RelatedLink(kind: "Recipe", title: "Animate a list", to: "/recipes/animate-a-list")], source: "md-docs/recipes/video-and-audio.md", how: false, hasVariations: false) {
+page RecipeVideoAndAudio(path: "/recipes/video-and-audio", title: "Add video and audio — Recipes", description: "Play a video with Video(src:) and sound with Audio(src:), with the browser's controls, captions for the video and a transcript for the recording.") {
+    RecipeShell("Add video and audio", summary: "Show a video with `Video(src:)` and play sound with `Audio(src:)`, with the browser's own playback controls, captions for the video and a transcript for the recording.  This page plays a demo with captions and a talk with its transcript, both from `public/`:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "troubleshooting", label: "Troubleshooting")], related: [RelatedLink(kind: "Recipe", title: "Add a dark-mode switch", to: "/recipes/dark-mode-switch"), RelatedLink(kind: "Recipe", title: "Add a picture, sized for every screen", to: "/recipes/add-a-picture"), RelatedLink(kind: "Recipe", title: "Animate a list", to: "/recipes/animate-a-list")], source: "md-docs/recipes/video-and-audio.md", how: true, hasVariations: false) {
+        code {
+            CodeBlock(#"page Media(path: "/", title: "Media", description: "The demo and the launch talk.") {
+    Heading("Media").h1
+    Video(src: "/demo.mp4", captions: "/demo.en.vtt", poster: "/demo.jpg").controls
+    Audio(src: "/talk.mp3", transcript: "/talk.txt").controls
+}"#, title: "wf")
+        }
+        Markdown("- The `.controls` flag shows the browser's playback controls.\n- `captions:` names a WebVTT file. The build writes it as a `<track>`, so a reader who cannot hear the video can follow it.\n- `transcript:` names a text file. The build draws it as a link beneath the player.\n- `poster:` names the picture a video shows before it plays.\n\nGive every video captions and every recording a transcript. A `Video` without `captions:`, and an `Audio` without `transcript:`, each draw an `A09` warning.")
+
+        Heading("Troubleshooting", id: "troubleshooting").h2
+
+        Table(caption: "Troubleshooting") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("What you see").header
+                    Table.Cell("Why, and what to do").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`A09` on a `Video` or `Audio`") }
+                    Table.Cell { Markdown("Add `captions:` to the video or `transcript:` to the recording") }
+                }
+            }
+        }
+
     }
 }

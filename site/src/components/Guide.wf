@@ -5,7 +5,6 @@ const GUIDE: [Chapter] = [
     Chapter(n: 1, title: "Introduction", key: "ch.01", to: "/docs/guide/introduction", part: "nav.group.start", tour: false),
     Chapter(n: 2, title: "Getting started", key: "ch.02", to: "/docs/guide/getting-started", part: "nav.group.start", tour: true),
     Chapter(n: 3, title: "Tutorial: Shelf", key: "ch.03", to: "/docs/guide/tutorial", part: "nav.group.start", tour: true),
-    Chapter(n: 4, title: "Coming from React, Vue or Svelte", key: "ch.04", to: "/docs/guide/coming-from", part: "nav.group.start", tour: false),
     Chapter(n: 5, title: "Tutorial: Todos", key: "ch.05", to: "/docs/tutorials/todos", part: "nav.group.tutorials", tour: true),
     Chapter(n: 9, title: "Language basics", key: "ch.09", to: "/docs/guide/language-basics", part: "nav.group.concepts", tour: false),
     Chapter(n: 10, title: "Pages and routing", key: "ch.10", to: "/docs/guide/pages-and-routing", part: "nav.group.concepts", tour: false),

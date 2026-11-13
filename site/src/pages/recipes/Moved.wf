@@ -2,6 +2,11 @@
 // reader to the recipes (an old `#section` link goes to its recipe, by
 // site/src/old-links.js). Written by scripts/docsite/recipes.py.
 
+page MovedDocsGuideComingFrom(path: "/docs/guide/coming-from", title: "Moved", description: "This chapter became recipes.", guard: false, redirect: "/coming-from/react", noindex: true) {
+    Heading(t("nav.recipes")).h1
+    Link(t("nav.recipes"), to: "/coming-from/react")
+}
+
 page MovedDocsGuideContent(path: "/docs/guide/content", title: "Moved", description: "This chapter became recipes.", guard: false, redirect: "/recipes#content", noindex: true) {
     Heading(t("nav.recipes")).h1
     Link(t("nav.recipes"), to: "/recipes#content")

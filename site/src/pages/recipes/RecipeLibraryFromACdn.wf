@@ -1,18 +1,68 @@
 // A recipe, written from md-docs/recipes/library-from-a-cdn.md by scripts/docsite/recipes.py;
 // edit the recipe, not this file.
-page RecipeLibraryFromACdn(path: "/recipes/library-from-a-cdn", title: "Load a library from a CDN — Recipes", description: "To use a library from another origin, list its URL in `meta.scripts`.") {
-    RecipeShell("Load a library from a CDN", summary: "To use a library from another origin, list its URL in `meta.scripts`. The compiler never fetches anything, so it cannot read a file on another origin; your own scripts call the library instead.  This config loads Chart.js and pins the file with its integrity hash:  ```json \{ \"meta\": \{ \"scripts\": [\"https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js\"], \"integrity\": \{ \"https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js\": \"sha384-…\" \} \} \} ```  This script draws a chart with it:  ```js // src/charts.js /**  * A bar chart of `values`, one bar a quarter.  * @param \{HTMLCanvasElement\} canvas  * @param \{number[]\} values */ function drawSales(canvas, values) \{ return new Chart(canvas, \{ type: \"bar\", data: \{ labels: [\"Q1\", \"Q2\", \"Q3\", \"Q4\"], datasets: [\{ label: \"Sales\", data: values \}] \}, \}); \} ```  This page hands the script a canvas, and destroys the chart when the page leaves:", outputs: [], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Call WF from a script", to: "/recipes/call-wf-from-a-script"), RelatedLink(kind: "Recipe", title: "Call your own JavaScript", to: "/recipes/call-your-own-script"), RelatedLink(kind: "Recipe", title: "Draw a chart from a library", to: "/recipes/chart-from-a-library")], source: "md-docs/recipes/library-from-a-cdn.md", how: true, hasVariations: false) {
+page RecipeLibraryFromACdn(path: "/recipes/library-from-a-cdn", title: "Load a library from a CDN — Recipes", description: "Load a JavaScript library from another origin with meta.scripts: in order, async or after the page, pinned by a hash, allowed by the policy.") {
+    RecipeShell("Load a library from a CDN", summary: "To use a library from another origin, list its URL in `meta.scripts`. The compiler never fetches anything, so it cannot read a file on another origin; a script of your own calls the library instead. This page draws a Chart.js chart that way, and destroys it when the page leaves:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "troubleshooting", label: "Troubleshooting"), Anchor(id: "variations", label: "Variations")], related: [RelatedLink(kind: "Recipe", title: "Call WF from a script", to: "/recipes/call-wf-from-a-script"), RelatedLink(kind: "Recipe", title: "Call your own JavaScript", to: "/recipes/call-your-own-script"), RelatedLink(kind: "Recipe", title: "Draw a chart from a library", to: "/recipes/chart-from-a-library")], source: "md-docs/recipes/library-from-a-cdn.md", how: true, hasVariations: true) {
         code {
             CodeBlock(#"page Sales(path: "/sales", title: "Sales", description: "How it is going.") {
     state values: [Number] = [12, 19, 7, 15]
 
     Heading("Sales").h1
-    Host(tag: "canvas",
+    Host(tag: "canvas", role: "img", aria-label: "Sales by quarter",
          mount: (c) => drawSales(c, values),
          cleanup: (chart) => chart.destroy())
 }"#, title: "wf")
+            Markdown("This script draws the chart with the library:")
+            CodeBlock(#"// src/charts.js
+/**
+ * A bar chart of `values`, one bar a quarter.
+ * @param {HTMLCanvasElement} canvas
+ * @param {number[]} values
+ */
+function drawSales(canvas, values) {
+  return new Chart(canvas, {
+    type: "bar",
+    data: { labels: ["Q1", "Q2", "Q3", "Q4"], datasets: [{ label: "Sales", data: values }] },
+  });
+}"#, title: "js")
+            Markdown("This config, in `webfluent.app.json`, loads Chart.js:")
+            CodeBlock(#"{ "meta": {
+    "scripts": ["https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"]
+} }"#, title: "json")
         }
-        Markdown("How an entry in `meta.scripts` loads:\n\n- **In order.** The build links each entry with `<script defer>` in the order listed, before your own scripts and the compiled code. A library is there when the code that uses it runs.\n- **Out of order.** `\{ \"src\": \"…\", \"async\": true \}` loads a script that nothing on the page waits for (analytics, a tag manager) with `<script async>`. Deferred scripts run in order, so a large one listed plainly would hold back the compiled code, and the page's first full paint, until it arrived. An `async` script runs whenever it arrives instead. A module, or a script whose `globals` your `.wf` code calls, cannot be `async` (`E111`).\n- **After the page.** `\{ \"src\": \"…\", \"load\": \"after\" \}` puts no tag in the HTML at all: the runtime requests the script once the page has loaded and drawn its first frame. A browser fetches everything a page names while it loads, and a page's speed is measured against what it asked for before it first painted. A large analytics tag named in the HTML can cost a phone's Largest Contentful Paint more than a second, even with `async`. The script's origin still joins the policy. A reader who leaves within the first second is not counted. The same limits as `async` apply (`E111`).\n- **Pinned.** `meta.integrity` pins the file to a hash. A library from another origin without a hash draws a `D05` warning.\n- **Allowed by the policy.** The build widens the Content-Security-Policy by exactly the origins listed, so the policy that ships beside a declared library never blocks it.\n- **As a module.** `\{ \"src\": \"https://…/confetti.mjs\", \"module\": true, \"as\": \"Confetti\" \}` imports an ES module and puts its exports on `window.Confetti`. Most CDNs also serve a plain build, which needs neither key.\n- **Called from `.wf` directly.** `\{ \"src\": \"…\", \"globals\": [\"Chart\"] \}` puts the names a library defines in scope, each typed `Any`, because the compiler cannot see their shape. A class among them is constructed when called.")
+        variations {
+            Markdown("An entry may be an object instead of a URL, to say how it loads.\n\n- **Out of order.** `\{ \"src\": \"…\", \"async\": true \}` loads a script that nothing on the page waits for (analytics, a tag manager) with `<script async>`. Deferred scripts run in order, so a large one listed plainly would hold back the compiled code, and the page's first full paint, until it arrived. An `async` script runs whenever it arrives instead. A module, or a script whose `globals` your `.wf` code calls, cannot be `async` (`E111`).\n- **After the page.** `\{ \"src\": \"…\", \"load\": \"after\" \}` puts no tag in the HTML at all: the runtime requests the script once the page has loaded and drawn its first frame. A browser fetches everything a page names while it loads, and a page's speed is measured against what it asked for before it first painted. A large analytics tag named in the HTML can cost a phone's Largest Contentful Paint more than a second, even with `async`. The script's origin still joins the policy. A reader who leaves within the first second is not counted. The same limits as `async` apply (`E111`).\n- **As a module.** `\{ \"src\": \"https://…/confetti.mjs\", \"module\": true, \"as\": \"Confetti\" \}` imports an ES module and puts its exports on `window.Confetti`. Most CDNs also serve a plain build, which needs neither key.\n- **Called from `.wf` directly.** `\{ \"src\": \"…\", \"globals\": [\"Chart\"] \}` puts the names a library defines in scope, each typed `Any`, because the compiler cannot see their shape. A class among them is constructed when called.")
+
+        }
+        Markdown("An entry in `meta.scripts` loads this way:\n\n- **In order.** The build links each entry with `<script defer>` in the order listed, before your own scripts and the compiled code. A library is there when the code that uses it runs, so `drawSales` finds `Chart`.\n- **Allowed by the policy.** The build widens the Content-Security-Policy by exactly the origins listed, so the policy that ships beside a declared library never blocks it.\n- **Called from your script.** `src/charts.js` is a plain script whose names are in scope, typed by its JSDoc ([Call your own JavaScript](/recipes/call-your-own-script)). `Host` hands it a canvas, and `cleanup:` destroys the chart with the page ([Hand an element to a script](/recipes/hand-an-element-to-a-script)). A chart that follows changing data is in [Draw a chart from a library](/recipes/chart-from-a-library).\n- **Pinned.** `meta.integrity` pins a file to a hash, keyed by the same URL, and the build writes it on the tag with `crossorigin=\"anonymous\"`. A library from another origin without a hash draws a `D05` warning. The build never fetches the file to work the hash out: copy it from the CDN, or compute it from the file you tested.\n\nThis command prints the hash of a downloaded copy, to add as `\"sha384-<hash>\"` under the URL in `meta.integrity`:")
+
+        Terminal(lines: [
+                Line(command: "openssl dgst -sha384 -binary chart.umd.min.js | openssl base64 -A")
+            ])
+
+        Heading("Troubleshooting", id: "troubleshooting").h2
+
+        Table(caption: "Troubleshooting") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("What you see").header
+                    Table.Cell("What to do").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`D05` on a library from another origin") }
+                    Table.Cell { Markdown("Add its hash to `meta.integrity`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`E111` on an entry") }
+                    Table.Cell { Markdown("Drop `async` or `load: \"after\"` from a module, or from an entry with `globals`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`ReferenceError` naming the library's global") }
+                    Table.Cell { Markdown("Check the URL; an `async` or `load: \"after\"` entry may not have arrived yet when your code runs") }
+                }
+            }
+        }
 
     }
 }

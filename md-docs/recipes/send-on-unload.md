@@ -2,13 +2,16 @@
 kind: "recipe"
 route: "/recipes/send-on-unload"
 group: "realtime"
-description: "To record that something happened even when the reader is leaving — an analytics event, a \"reader left\" signal — call `beacon(url, data)`:"
+description: "Record that something happened even as the reader leaves — an analytics event, a \"reader left\" signal — with `beacon(url, data)`."
 from: ["/docs/guide/realtime#send-a-message-as-the-page-unloads"]
+outputs: ["website", "app"]
 ---
 # Send a message as the page unloads
 
-To record that something happened even when the reader is leaving — an
-analytics event, a "reader left" signal — call `beacon(url, data)`:
+`beacon(url, data)` records that something happened even when the reader
+is leaving — an analytics event, a "reader left" signal. A `fetch` started
+as the page unloads is cancelled; a beacon is delivered. This checkout page
+sends one when the reader pays:
 
 ```wf
 page Checkout(path: "/checkout", title: "Checkout", description: "Pay for the order.") {
@@ -17,5 +20,8 @@ page Checkout(path: "/checkout", title: "Checkout", description: "Pay for the or
 }
 ```
 
+## How it works
+
 `beacon` posts a small body with `navigator.sendBeacon`, which the browser
-delivers even as the page unloads, where a `fetch` would be cancelled.
+delivers even as the page unloads, where a `fetch` would be cancelled. It
+returns nothing to wait for: the page goes on, and so may the reader.

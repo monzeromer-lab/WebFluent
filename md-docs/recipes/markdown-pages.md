@@ -2,16 +2,39 @@
 kind: "recipe"
 route: "/recipes/markdown-pages"
 group: "content"
-description: "To write a page in Markdown, put a `.md` file under `src/`."
+description: "Write a page as a Markdown file under `src/`: front matter names its route, title and layout, and the rest is the body, framed by a component."
 from: ["/docs/guide/content#write-a-page-as-a-md-file"]
+outputs: ["website", "app"]
 ---
 # Write a page as a Markdown file
 
-To write a page in Markdown, put a `.md` file under `src/`. Its *front
-matter* — the lines between the two `---` lines at the top — names the
-page's attributes; the rest is the body.
+A `.md` file under `src/` is a page: the lines between the two `---` at its
+top — its *front matter* — name the page's route, title and layout, and the
+rest is its body. It suits docs, notes and articles, where most of the page
+is prose. A docs site is a folder of `.md` files, one layout component, and
+an `app`:
 
-This file is a docs page at `/guide/install`:
+```wf
+component DocsShell {
+    slot
+    Row(gap: .lg) {
+        Sidebar {
+            Sidebar.Item(to: "/guide/install") { Text("Installing") }
+            Sidebar.Item(to: "/guide/pages") { Text("Pages") }
+        }
+        Container { children }
+    }
+}
+
+app {
+    Router
+}
+```
+
+## How it works
+
+Each page of the site is a `.md` file. This one, `src/guide/install.md`, is
+the docs page at `/guide/install`:
 
 ````md
 ---
@@ -57,21 +80,9 @@ layout's default slot when the front matter names a layout.
 
 `layout: DocsShell` frames the body in a component with a default slot —
 the same kind of component a `.wf` page names as its `layout:`
-([Pages and routing](../learn/05-pages-and-routing.md#layouts)):
+([Pages and routing](../learn/05-pages-and-routing.md#layouts)). In
+`DocsShell`, `slot` declares the default slot and `children` is where the
+page's body lands, beside the sidebar.
 
-```wf
-component DocsShell {
-    slot
-    Row(gap: .lg) {
-        Sidebar {
-            Sidebar.Item(to: "/guide/install") { Text("Installing") }
-            Sidebar.Item(to: "/guide/pages") { Text("Pages") }
-        }
-        Container { children }
-    }
-}
-```
-
-A docs site is then a folder of `.md` files, one layout, and a `.wf` file
-for the `app`. (`wf docs` is something else: a gallery of every component
-the project can use — [CLI](../reference/cli.md#wf-docs).)
+(`wf docs` is something else: a gallery of every component the project can
+use — [CLI](../reference/cli.md#wf-docs).)

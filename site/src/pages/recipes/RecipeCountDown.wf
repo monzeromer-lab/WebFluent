@@ -1,7 +1,7 @@
 // A recipe, written from md-docs/recipes/count-down.md by scripts/docsite/recipes.py;
 // edit the recipe, not this file.
-page RecipeCountDown(path: "/recipes/count-down", title: "Count down — Recipes", description: "To count down once a second, change a state in an `every` timer:") {
-    RecipeShell("Count down", summary: "To count down once a second, change a state in an `every` timer:", outputs: [], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Build a confirm dialog", to: "/recipes/confirm-dialog"), RelatedLink(kind: "Recipe", title: "Copy to the clipboard", to: "/recipes/copy-to-the-clipboard"), RelatedLink(kind: "Recipe", title: "Debounce a search", to: "/recipes/debounce-a-search")], source: "md-docs/recipes/count-down.md", how: true, hasVariations: false) {
+page RecipeCountDown(path: "/recipes/count-down", title: "Count down — Recipes", description: "Count down once a second with an every timer that changes a state, and show the time left as a progress bar and text.") {
+    RecipeShell("Count down", summary: "A countdown is a number that drops once a second until it reaches zero. To build one, change a state in an `every` timer:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Build a confirm dialog", to: "/recipes/confirm-dialog"), RelatedLink(kind: "Recipe", title: "Copy to the clipboard", to: "/recipes/copy-to-the-clipboard"), RelatedLink(kind: "Recipe", title: "Debounce a search", to: "/recipes/debounce-a-search")], source: "md-docs/recipes/count-down.md", how: true, hasVariations: false) {
         code {
             CodeBlock(#"page Countdown(path: "/", title: "Countdown", description: "Ten seconds, counted down.") {
     state left = 10
@@ -11,7 +11,7 @@ page RecipeCountDown(path: "/recipes/count-down", title: "Count down — Recipes
     Text(if left == 0 { "Done" } else { "{left}s" })
 }"#, title: "wf")
         }
-        Markdown("The timer stops when the page leaves.")
+        Markdown("- `left` is a [`state`](/docs/guide/state#state) holding the seconds that remain.\n- [`every(1000)`](/docs/guide/state#timers) runs its block every 1000 milliseconds. The `if` stops the count at zero.\n- The `Progress` bar and the `Text` both read `left`, so they repaint on every tick. The text says **Done** at zero.\n\nThe timer stops when the page leaves, so a reader who navigates away leaves no interval running.")
 
     }
 }

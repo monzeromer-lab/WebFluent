@@ -2,17 +2,17 @@
 kind: "recipe"
 route: "/recipes/render-markdown"
 group: "content"
-description: "To show Markdown text on a page, pass it to `Markdown(text)`."
+description: "Show Markdown text on a page with `Markdown(text)`: headings, lists, tables, code and links, drawn the same at build time and in the browser."
 from: ["/docs/guide/content#render-markdown-with-the-markdown-element"]
+outputs: ["website", "app", "pdf", "slides", "elements", "desktop"]
 ---
 # Render Markdown
 
-To show Markdown text on a page, pass it to `Markdown(text)`. It renders a
-small, predictable Markdown, the same at build time and in the browser, so
-a hydrated page repaints exactly what was painted.
-
-This page shows release notes held in a state, and one line of inline
-Markdown:
+`Markdown(text)` shows Markdown text on a page: release notes, a post's
+body, a field a user wrote. It renders a small, predictable Markdown, the
+same at build time and in the browser, so a hydrated page repaints exactly
+what was painted. This page shows release notes held in a state, and one
+line of inline Markdown:
 
 ```wf
 page Notes(path: "/", title: "Release notes", description: "What changed in this release.") {
@@ -21,6 +21,8 @@ page Notes(path: "/", title: "Release notes", description: "What changed in this
     Markdown("Inline *emphasis*, a [link](/about) and an ![image](/img.png).")
 }
 ```
+
+## How it works
 
 The page shows a "Release notes" heading, a paragraph with **3.3** in bold,
 a two-item list and a quote, then a line with emphasis, a link and a
@@ -107,6 +109,8 @@ Where a backslash is shown as written:
   which has no line after it to break to.
 
 A fence's language takes escapes too: `c\+\+` after the backticks is `c++`.
+
+## Variations
 
 ### Show text somebody else wrote with `.inert`
 

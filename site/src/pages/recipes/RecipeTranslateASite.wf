@@ -1,80 +1,11 @@
 // A recipe, written from md-docs/recipes/translate-a-site.md by scripts/docsite/recipes.py;
 // edit the recipe, not this file.
-page RecipeTranslateASite(path: "/recipes/translate-a-site", title: "Translate a site — Recipes", description: "To translate a site, list its locales in `webfluent.app.json` under `i18n`.") {
-    RecipeShell("Translate a site", summary: "To translate a site, list its locales in `webfluent.app.json` under `i18n`.", outputs: [], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "set-up-the-translation-files", label: "Set up the translation files"), Anchor(id: "start-a-project-translated", label: "Start a project translated"), Anchor(id: "translate-text-with-t", label: "Translate text with t()"), Anchor(id: "switch-the-locale", label: "Switch the locale"), Anchor(id: "choose-the-locale-a-page-opens-in", label: "Choose the locale a page opens in"), Anchor(id: "format-numbers-and-dates-for-the-locale", label: "Format numbers and dates for the locale"), Anchor(id: "translate-long-form-text", label: "Translate long-form text"), Anchor(id: "check-what-each-locale-lacks", label: "Check what each locale lacks"), Anchor(id: "checklist", label: "Checklist")], related: [RelatedLink(kind: "Recipe", title: "Keep writes made offline", to: "/recipes/keep-writes-made-offline"), RelatedLink(kind: "Recipe", title: "Make a site work offline", to: "/recipes/work-offline"), RelatedLink(kind: "Recipe", title: "Offer a new version", to: "/recipes/offer-a-new-version")], source: "md-docs/recipes/translate-a-site.md", how: false, hasVariations: false) {
-        Heading("Set up the translation files", id: "set-up-the-translation-files").h2
+page RecipeTranslateASite(path: "/recipes/translate-a-site", title: "Translate a site — Recipes", description: "Translate a site into several languages: one JSON file per locale, t(\"key\") wherever text goes, a language switch, plural forms and right to left.") {
+    RecipeShell("Translate a site", summary: "Show a site in the reader's language: one file of messages per locale, `t(\"key\")` wherever text goes, and a switch that changes the language on the spot, right to left included. To start a new project this way, see [Start a project translated](#start-a-project-translated).  This program has a language picker in its navigation bar and a home page whose heading, count and button are translated. It reads the translation files that [Set up the translation files](#set-up-the-translation-files) shows:", outputs: ["website", "app", "desktop"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "start-a-project-translated", label: "Start a project translated"), Anchor(id: "check-what-each-locale-lacks", label: "Check what each locale lacks"), Anchor(id: "checklist", label: "Checklist")], related: [RelatedLink(kind: "Recipe", title: "Keep writes made offline", to: "/recipes/keep-writes-made-offline"), RelatedLink(kind: "Recipe", title: "Make a site work offline", to: "/recipes/work-offline"), RelatedLink(kind: "Recipe", title: "Offer a new version", to: "/recipes/offer-a-new-version")], source: "md-docs/recipes/translate-a-site.md", how: true, hasVariations: false) {
+        code {
+            CodeBlock(#"type User { name: String }
 
-        Markdown("To translate a site, list its locales in `webfluent.app.json` under `i18n`. `default_locale` names the language the site is written in, and `dir` the directory that holds the files:")
-
-        CodeBlock(#"{
-  "i18n": {
-    "default_locale": "en",
-    "locales": ["en", "ar", "es"],
-    "dir": "src/translations"
-  }
-}"#, title: "json")
-
-        Markdown("Then put one file per locale in that directory — `en.json`, `ar.json`, `es.json`. Each is a flat map of keys to messages; by convention a key has dots in it to group related messages. This is `src/translations/en.json`:")
-
-        CodeBlock(#"{
-  "nav.home": "Home",
-  "nav.about": "About",
-  "welcome": "Welcome, {name}!",
-  "items.one": "{count} item",
-  "items.other": "{count} items",
-  "actions.save": "Save"
-}"#, title: "json")
-
-        Markdown("And this is `src/translations/ar.json`, with the six plural forms Arabic uses:")
-
-        CodeBlock(#"{
-  "nav.home": "الرئيسية",
-  "nav.about": "حول",
-  "welcome": "أهلاً، {name}!",
-  "items.zero": "لا عناصر",
-  "items.one": "عنصر واحد",
-  "items.two": "عنصران",
-  "items.few": "{count} عناصر",
-  "items.many": "{count} عنصراً",
-  "items.other": "{count} عنصر",
-  "actions.save": "حفظ"
-}"#, title: "json")
-
-        Markdown("A locale with no file, and a key one locale has and another lacks, are build warnings (`I03`). At run time a key missing from the reader's locale falls back to the default locale's message, then to the key itself.")
-
-        Heading("Start a project translated", id: "start-a-project-translated").h2
-
-        Markdown("To begin a new project in several languages, pass `--locales` to `wf init`, with the default locale first:")
-
-        Terminal(lines: [
-                Line(command: "wf init my-app --locales en,ar")
-            ])
-
-        Markdown("This works for the `spa` and `static` templates. The new project has:\n\n- the `i18n` config above, and `meta.lang` set to the default locale;\n- every visible string of the starter passed through `t(\"…\")`;\n- a language switch with one entry per locale;\n- a file for each locale in `src/translations/`. The default locale's holds the starter's English, which its pages and tests are written in. Arabic holds the starter's Arabic. Any other locale starts as a copy of the English, for you to translate.\n\nEach locale is a language tag (`en`, `ar`, `pt-BR`). `--locales ar,en` makes Arabic the default, so the page is right to left from the first paint. From Rust, the same is `webfluent::init::create_with(dir, name, &Options \{ template, locales \})`.")
-
-        Heading("Translate text with t()", id: "translate-text-with-t").h2
-
-        Markdown("To show a message in the reader's language, call `t(\"key\")` wherever a string goes. Pass a map as the second argument to fill placeholders and to pick a plural form:")
-
-        CodeBlock(#"type User { name: String }
-
-page Home(path: "/", title: "Home", description: "The home page.") {
-    state user = User(name: "Sam")
-    state items: [String] = ["a", "b", "c"]
-    Heading(t("welcome", { name: user.name })).h1
-    Text(t("items", { count: items.length }))
-    Button(t("actions.save")).primary
-}"#, title: "wf")
-
-        Markdown("In English this page reads **Welcome, Sam!**, **3 items** and a **Save** button; in Arabic, **أهلاً، Sam!**, **3 عناصر** and **حفظ**.\n\nHow `t()` behaves:\n\n- **It follows the locale.** `t(\"key\")` is the message for the current locale, and every call is evaluated again when the locale changes.\n- **It fills placeholders.** `t(\"key\", \{ name: value \})` replaces each `\{name\}` in the message with the map's value.\n- **A `count` picks the plural form.** The form comes from the locale's CLDR plural rules, which the browser's `Intl.PluralRules` follows too: Arabic has `zero`, `one`, `two`, `few`, `many` and `other`; English has `one` and `other`; Japanese has only `other`. A count of exactly 0 uses `key.zero` wherever the file has one, in any language, so English can say \"No files\" rather than \"0 files\". Without the form it wants, `t()` falls back to `key.other`, then to `key`.\n- **A key's forms all come from one language** — the reader's, when its file has the key at all, otherwise the default locale's. It never mixes one form from each.\n- **The pre-rendered page is already translated.** The build resolves `t` for the default locale when it pre-renders a page, by the same rules, so the HTML is in the default language, its counts in that language's forms.")
-
-        Callout("Never build a sentence from pieces (`t(\"greeting\") + name`). Word order differs between languages. Put a placeholder in the message, so a translator can move it.", kind: .warning)
-
-        Heading("Switch the locale", id: "switch-the-locale").h2
-
-        Markdown("To let the reader change language, call `setLocale(code)`. This app puts a language picker in the navigation bar:")
-
-        CodeBlock(#"app {
+app {
     state chosen = "en"
     Navbar {
         Navbar.Brand { Link("i18n", to: "/") }
@@ -95,14 +26,72 @@ page Home(path: "/", title: "Home", description: "The home page.") {
 }
 
 page Home(path: "/", title: "Home", description: "The home page.") {
-    Heading("Home").h1
+    state user = User(name: "Sam")
+    state items: [String] = ["a", "b", "c"]
+    Heading(t("welcome", { name: user.name })).h1
+    Text(t("items", { count: items.length }))
+    Button(t("actions.save")).primary
     Text("Locale: {locale}, direction: {dir}")
     if locale == "ar" { Text("النسخة العربية") }
+}
+
+page About(path: "/about", title: "About", description: "About the site.") {
+    Heading(t("nav.about")).h1
 }"#, title: "wf")
+        }
+        Heading("Set up the translation files", id: "set-up-the-translation-files").h3
 
-        Markdown("`locale` is the current locale's code, and `dir` is `\"ltr\"` or `\"rtl\"`. An `app` block may declare `state` as a page does, as `chosen` is here.\n\nOn a switch, the runtime sets `<html lang>` and `<html dir>`. A locale is right to left when its language is: Arabic, Hebrew, Persian, Urdu, Pashto, Sindhi, Central Kurdish, Uyghur, Yiddish, Dhivehi, Kashmiri, Syriac, Aramaic and N'Ko — with any region, so `ar-EG` is too. A site whose default locale is one of them is written `<html lang=\"ar\" dir=\"rtl\">` from the start, before any script runs.\n\n`meta.lang` may name a region of the default locale's language (`en-GB` for `en`); otherwise the default locale is the page's language.\n\nThe built-ins use logical CSS properties (`margin-inline-start`, not `margin-left`), so their layouts mirror with no work on your side. Use logical properties in your own `style \{ \}` blocks too.")
+        Markdown("List the site's locales in `webfluent.app.json` under `i18n`. `default_locale` names the language the site is written in, and `dir` the directory that holds the files:")
 
-        Heading("Choose the locale a page opens in", id: "choose-the-locale-a-page-opens-in").h2
+        CodeBlock(#"{
+  "i18n": {
+    "default_locale": "en",
+    "locales": ["en", "ar", "es"],
+    "dir": "src/translations"
+  }
+}"#, title: "json")
+
+        Markdown("Then put one file per locale in that directory — `en.json`, `ar.json`, `es.json`. Each is a flat map of keys to messages; by convention a key has dots in it to group related messages. This is `src/translations/en.json`:")
+
+        CodeBlock(#"{
+  "nav.home": "Home",
+  "nav.about": "About",
+  "nav.language": "Language",
+  "welcome": "Welcome, {name}!",
+  "items.one": "{count} item",
+  "items.other": "{count} items",
+  "actions.save": "Save"
+}"#, title: "json")
+
+        Markdown("And this is `src/translations/ar.json`, with the six plural forms Arabic uses:")
+
+        CodeBlock(#"{
+  "nav.home": "الرئيسية",
+  "nav.about": "حول",
+  "nav.language": "اللغة",
+  "welcome": "أهلاً، {name}!",
+  "items.zero": "لا عناصر",
+  "items.one": "عنصر واحد",
+  "items.two": "عنصران",
+  "items.few": "{count} عناصر",
+  "items.many": "{count} عنصراً",
+  "items.other": "{count} عنصر",
+  "actions.save": "حفظ"
+}"#, title: "json")
+
+        Markdown("A locale with no file, and a key one locale has and another lacks, are build warnings (`I03`). At run time a key missing from the reader's locale falls back to the default locale's message, then to the key itself.")
+
+        Heading("Translate text with t()", id: "translate-text-with-t").h3
+
+        Markdown("To show a message in the reader's language, call `t(\"key\")` wherever a string goes, as `Home` does above. Pass a map as the second argument to fill placeholders and to pick a plural form.\n\nIn English the home page reads **Welcome, Sam!**, **3 items** and a **Save** button; in Arabic, **أهلاً، Sam!**, **3 عناصر** and **حفظ**.\n\nHow `t()` behaves:\n\n- **It follows the locale.** `t(\"key\")` is the message for the current locale, and every call is evaluated again when the locale changes.\n- **It fills placeholders.** `t(\"key\", \{ name: value \})` replaces each `\{name\}` in the message with the map's value.\n- **A `count` picks the plural form.** The form comes from the locale's CLDR plural rules, which the browser's `Intl.PluralRules` follows too: Arabic has `zero`, `one`, `two`, `few`, `many` and `other`; English has `one` and `other`; Japanese has only `other`. A count of exactly 0 uses `key.zero` wherever the file has one, in any language, so English can say \"No files\" rather than \"0 files\". Without the form it wants, `t()` falls back to `key.other`, then to `key`.\n- **A key's forms all come from one language** — the reader's, when its file has the key at all, otherwise the default locale's. It never mixes one form from each.\n- **The pre-rendered page is already translated.** The build resolves `t` for the default locale when it pre-renders a page, by the same rules, so the HTML is in the default language, its counts in that language's forms.")
+
+        Callout("Never build a sentence from pieces (`t(\"greeting\") + name`). Word order differs between languages. Put a placeholder in the message, so a translator can move it.", kind: .warning)
+
+        Heading("Switch the locale", id: "switch-the-locale").h3
+
+        Markdown("To let the reader change language, call `setLocale(code)`. The `app` above puts a language picker in the navigation bar, and `Home` shows the current locale and direction.\n\n`locale` is the current locale's code, and `dir` is `\"ltr\"` or `\"rtl\"`. An `app` block may declare `state` as a page does, as `chosen` is above.\n\nOn a switch, the runtime sets `<html lang>` and `<html dir>`. A locale is right to left when its language is: Arabic, Hebrew, Persian, Urdu, Pashto, Sindhi, Central Kurdish, Uyghur, Yiddish, Dhivehi, Kashmiri, Syriac, Aramaic and N'Ko — with any region, so `ar-EG` is too. A site whose default locale is one of them is written `<html lang=\"ar\" dir=\"rtl\">` from the start, before any script runs.\n\n`meta.lang` may name a region of the default locale's language (`en-GB` for `en`); otherwise the default locale is the page's language.\n\nThe built-ins use logical CSS properties (`margin-inline-start`, not `margin-left`), so their layouts mirror with no work on your side. Use logical properties in your own `style \{ \}` blocks too.")
+
+        Heading("Choose the locale a page opens in", id: "choose-the-locale-a-page-opens-in").h3
 
         Markdown("A page opens in `default_locale`, with two exceptions:\n\n1. **The address names a locale.** `?lang=<code>`, for one of the configured locales, opens the page in it: `/about?lang=ar` is the Arabic page, for a link you share. It does not change the reader's kept choice. It is not an address a search engine indexes: its HTML, and its canonical link, are the default locale's, so the build lists no `?lang=` address as an `hreflang` alternate. To have each language found, give it pages of its own ([A page in its own language](/recipes/site-in-two-languages)).\n2. **The reader chose a locale before.** `setLocale(code)` keeps the code in the reader's `localStorage`, under `wf:locale`, and every page loaded after that opens in it, on this visit and the next. Choosing `default_locale` again forgets it.\n\nSo a static site, which loads each page afresh, keeps the reader's language from page to page, and a language switch can be a pair of buttons:")
 
@@ -119,13 +108,23 @@ page Home(path: "/", title: "Home", description: "The home page.") {
 
         Markdown("The runtime does not guess from the browser's language. Nothing is kept until the reader chooses, so a first visit gets the `?lang=` locale or the default, and a search engine's crawler the default. To start a first visit in the browser's language, keep whether the reader has chosen in a store with `persist`, and until they have, call `setLocale(navigator.language.slice(0, 2))` from an `effect` in the app.\n\nA static build pre-renders every page once, in the default locale; another locale is applied as the page loads. So a search engine indexes only the default locale's text. For each language to be found, give it pages of its own ([A page in its own language](/recipes/site-in-two-languages)).")
 
-        Heading("Format numbers and dates for the locale", id: "format-numbers-and-dates-for-the-locale").h2
+        Heading("Format numbers and dates for the locale", id: "format-numbers-and-dates-for-the-locale").h3
 
         Markdown("`format` and `ago` follow the current locale ([Expressions](/reference/expressions)). `format(1234.5, .currency, \"EUR\")` is `€1,234.50` in `en` and `1.234,50 €` in `de`; `ago(date)` says \"il y a 3 jours\" in `fr`. The pre-rendered page uses a table of the common locales' separators and currency symbols, and the live page uses the browser's `Intl` and corrects any difference.\n\nTo choose the digits a locale writes, add the Unicode extension to its code:\n\n- `setLocale(\"ar-u-nu-arab\")` reads the `ar` table and writes `format` — a date pattern too, its AM/PM in the locale's words — `ago` and every count in Arabic-Indic digits (١١ ملفًا).\n- `setLocale(\"ar-u-nu-latn\")` writes them in 0–9, whatever the browser's Arabic would pick.\n- Bare `ar` leaves the digits to the browser.\n\nA count is prose, so it takes the locale's digits. Another number spliced into a message — a line number, a version — stays as it is. The document's `lang` is the language, `ar`, whatever digits the code names.")
 
-        Heading("Translate long-form text", id: "translate-long-form-text").h2
+        Heading("Translate long-form text", id: "translate-long-form-text").h3
 
         Markdown("For a paragraph or a page of prose:\n\n- Under `\"literals\": true`, `Markdown(\"…\")` written in place is words like any other text: its whole source, `**` and all, is the key.\n- Text inside a `.md` page is not passed through `t`. Keep one Markdown file per locale, each with its own `path`, `lang` and `translates` in its front matter, or keep the text in the translation file under a key and render `Markdown(t(\"about.body\"))`.")
+
+        Heading("Start a project translated", id: "start-a-project-translated").h2
+
+        Markdown("To begin a new project in several languages, pass `--locales` to `wf init`, with the default locale first:")
+
+        Terminal(lines: [
+                Line(command: "wf init my-app --locales en,ar")
+            ])
+
+        Markdown("This works for the `spa` and `static` templates. The new project has:\n\n- the `i18n` config above, and `meta.lang` set to the default locale;\n- every visible string of the starter passed through `t(\"…\")`;\n- a language switch with one entry per locale;\n- a file for each locale in `src/translations/`. The default locale's holds the starter's English, which its pages and tests are written in. Arabic holds the starter's Arabic. Any other locale starts as a copy of the English, for you to translate.\n\nEach locale is a language tag (`en`, `ar`, `pt-BR`). `--locales ar,en` makes Arabic the default, so the page is right to left from the first paint. From Rust, the same is `webfluent::init::create_with(dir, name, &Options \{ template, locales \})`.")
 
         Heading("Check what each locale lacks", id: "check-what-each-locale-lacks").h2
 

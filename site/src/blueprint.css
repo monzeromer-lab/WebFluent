@@ -356,3 +356,6 @@ a.bp-card:hover { border-color: var(--border-strong); text-decoration: none; }
    language and the menu; the Building switch and GitHub are in the menu. */
 @media (max-width: 1023.98px) { .bp-hide-md { display: none !important; } }
 @media (min-width: 1024px) { .bp-only-md { display: none !important; } }
+
+/* A cheat sheet's cells wrap rather than scroll: each is a line or two. */
+[role="row"] .bp-console__code, [role="row"] .bp-console__code code { white-space: pre-wrap; overflow-wrap: anywhere; overflow-x: hidden; }

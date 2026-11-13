@@ -2,27 +2,28 @@
 kind: "recipe"
 route: "/recipes/work-offline"
 group: "reach"
-description: "To store the site for when the network is gone, add `offline` to `webfluent.app.json`."
+description: "Make a site load with no network: add offline to the config, and the build writes a service worker that stores pages and shows a fallback."
 from: ["/docs/guide/offline#before-you-start", "/docs/guide/offline#turn-on-offline-support", "/docs/guide/offline#what-the-worker-keeps", "/docs/guide/offline#test-it-offline", "/docs/guide/offline#troubleshooting"]
+outputs: ["website", "app"]
 ---
 # Make a site work offline
 
-## Before you start
+Keep a site working when the network is gone: the build writes a service
+worker, `sw.js`, that stores the site's pages on the reader's device, and a
+page that was not stored shows a fallback page of your own.
+
+Before you start:
 
 - **Serve the site over HTTPS**, or from `localhost`. Browsers run service
   workers only from a secure origin.
 - **Serve `sw.js` fresh.** The page registers the worker with
   `updateViaCache: "none"`, so the browser asks for it on every visit — but
   a CDN in front can still hold a copy. Give `sw.js` the header
-  `Cache-Control: no-cache` ([Deploying](cache-and-security-headers.md#set-cache-headers)).
+  `Cache-Control: no-cache` ([Cache and security headers](cache-and-security-headers.md#set-cache-headers)).
 - **Deploy everything in `build/` together.** The worker's version is a
   hash of every file the build wrote, so deploying half a build confuses it.
 
-## Turn on offline support
-
-To store the site for when the network is gone, add `offline` to
-`webfluent.app.json`. The build then writes a service worker, `sw.js`,
-beside the pages:
+Add `offline` to `webfluent.app.json`:
 
 ```json
 { "offline": {
@@ -32,17 +33,6 @@ beside the pages:
     "sync": true
 } }
 ```
-
-| Key | What it does |
-|---|---|
-| `precache` | The routes a first visit stores, as globs. `"/"` by default. Each route is stored with its own chunk and stylesheet, and the shell with them. |
-| `fallback` | A page's `path`, shown for a route that was not stored. |
-| `cache` | How a path the build did not write — an API, say — is fetched: `network-first`, `cache-first`, `stale-while-revalidate` or `network-only`. A path not named passes through untouched. |
-| `sync` | Keep a write made with no network and send it later ([Keep writes made offline](keep-writes-made-offline.md)). |
-
-A stored route loads with no network at all. When there is a network, a
-navigation still goes to it first, so a page that changed is never served
-stale while the server is there to ask.
 
 The `fallback` is an ordinary page of your site. This one tells the reader
 what happened:
@@ -54,6 +44,22 @@ page Offline(path: "/offline", title: "Offline", description: "Shown when a page
     Link("Go to the home page", to: "/")
 }
 ```
+
+## How it works
+
+With `offline` in the config, the build writes `sw.js` beside the pages.
+Each key says what it keeps and how:
+
+| Key | What it does |
+|---|---|
+| `precache` | The routes a first visit stores, as globs. `"/"` by default. Each route is stored with its own chunk and stylesheet, and the shell with them. |
+| `fallback` | A page's `path`, shown for a route that was not stored. |
+| `cache` | How a path the build did not write — an API, say — is fetched: `network-first`, `cache-first`, `stale-while-revalidate` or `network-only`. A path not named passes through untouched. |
+| `sync` | Keep a write made with no network and send it later ([Keep writes made offline](keep-writes-made-offline.md)). |
+
+A stored route loads with no network at all. When there is a network, a
+navigation still goes to it first, so a page that changed is never served
+stale while the server is there to ask.
 
 ## What the worker keeps
 

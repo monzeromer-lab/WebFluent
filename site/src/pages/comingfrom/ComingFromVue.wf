@@ -1,0 +1,70 @@
+// A cheat sheet, written from md-docs/coming-from/vue.md by
+// scripts/docsite/comingfrom.py; edit the sheet, not this file.
+page ComingFromVue(path: "/coming-from/vue", title: "WebFluent for Vue developers", description: "Vue ideas in WebFluent: refs, computed, watchers, props, slots, emits, v-model, Pinia, routing, v-if and v-for, side by side.") {
+    ComingFromShell("WebFluent for Vue developers", summary: "Vue's single-file components, refs, computed values, slots and `v-model` all have a close match in WebFluent. The difference to hold on to is that WebFluent is a compiler with typed markup: there is no `.value`, no template language beside the script, and every prop, slot and event is checked at build time.", from: "Vue", sheets: [Place(key: "coming.react", to: "/coming-from/react"), Place(key: "coming.vue", to: "/coming-from/vue"), Place(key: "coming.svelte", to: "/coming-from/svelte"), Place(key: "coming.html-css", to: "/coming-from/html-css"), Place(key: "coming.latex", to: "/coming-from/latex")], sections: [Anchor(id: "differences", label: t("coming.differences")), Anchor(id: "port", label: t("coming.port"))], source: "md-docs/coming-from/vue.md") {
+        differences {
+            Markdown("**One file, one language.** A component is declared in `.wf` with its state, its markup and its handlers together; there is no `<template>`, no `<script>` block and no `.value` to remember. A component's body runs once, and only what reads a changed value updates.\n\n**The markup is typed.** The compiler knows the props, flags, events and slots of every built-in and of every component you declare. A misspelled prop, an unknown flag (`Button(\"Save\").primray`) or a handler for an event the component does not fire stops the build, with the fix suggested.\n\n**Pages own their routes.** There is no router file. Each `page` names its `path:`, and the compiler builds the router from every page.\n\n**No imports.** Every file under `src/` is part of one program, so a component declared anywhere is usable everywhere, and two declarations of one name are an error.\n\n**Styles are on the element.** A `style \{ \}` block is CSS for that element, with design tokens (`$surface`) and nesting (`&:hover`); there is no `<style scoped>`, and what a selector over many elements needs goes in a `.css` file under `src/`.\n\n**Using it inside a Vue app.** Publish components as custom elements and use their tags in a template ([Publish components as custom elements](/recipes/publish-custom-elements)).")
+
+        }
+        port {
+            Markdown("The same counter, in Vue and in WebFluent. It starts at a number the caller passes, counts up on a click, shows a badge when the count is even, and tells the caller about each change.")
+
+            CodeBlock(#"<script setup>
+import { ref, computed } from "vue";
+const props = defineProps({ start: { type: Number, default: 0 } });
+const emit = defineEmits(["change"]);
+const n = ref(props.start);
+const even = computed(() => n.value % 2 === 0);
+function inc() { n.value++; emit("change", n.value); }
+</script>
+
+<template>
+  <div class="row">
+    <button @click="inc">+</button>
+    <span>{{ n }}</span>
+    <span v-if="even" class="badge">even</span>
+  </div>
+</template>"#, title: "vue")
+
+            CodeBlock(#"page Scores(path: "/", title: "Scores", description: "A counter that reports each change.") {
+    state last = 0
+    Heading("Scores").h1
+    Counter(start: 2) { on change(value) { last = value } }
+    Text("Last change: {last}")
+}
+
+component Counter(start: Number = 0) {
+    event change(value: Number)
+    state n = start
+    derived even = n % 2 == 0
+    Row(gap: .sm, align: .center) {
+        Button("+") { on click { n = n + 1  emit change(n) } }
+        Text("{n}")
+        if even { Badge("even").info }
+    }
+}"#, title: "wf")
+
+            Markdown("- **No `.value`.** A state is read and assigned by its name.\n- **`derived` replaces `computed`**, and knows what it reads.\n- **The event is declared** where the component is, and checked where it is handled.")
+
+        }
+        CheatRow("A value that changes", theirs: "const n = ref(0)", ours: "state n = 0", language: "vue")
+        CheatRow("Changing it", theirs: "n.value++", ours: "n = n + 1", language: "vue")
+        CheatRow("A value worked out from others", theirs: "const total = computed(() => sum(items.value))", ours: "derived total = items.sum()", language: "vue")
+        CheatRow("A side effect", theirs: "watchEffect((onCleanup) => \{ start(); onCleanup(stop) \})", ours: "effect \{ start()  cleanup \{ stop() \} \}", language: "vue")
+        CheatRow("A handle on an element", theirs: "<input ref=\"box\"> … box.value.focus()", ours: "Input(bind: q, ref: box) … box.focus()", language: "vue")
+        CheatRow("A component", theirs: "a .vue file with <script setup> and <template>", ours: "component Card(_ title: String) \{ … \}", language: "vue")
+        CheatRow("Props", theirs: "defineProps(\{ title: String \})", ours: "component Card(_ title: String, tone: Tone = .calm)", language: "vue")
+        CheatRow("The default slot", theirs: "<slot />", ours: "children", language: "vue")
+        CheatRow("A named slot", theirs: "<slot name=\"trailing\" />", ours: "slot trailing, filled as trailing \{ … \}", language: "vue")
+        CheatRow("A scoped slot", theirs: "<slot :item=\"item\" />", ours: "slot row(item: Todo), filled as row(todo) \{ … \}", language: "vue")
+        CheatRow("An event", theirs: "defineEmits([\"change\"]), emit(\"change\", n)", ours: "event change(value: Number), emit change(n)", language: "vue")
+        CheatRow("v-model", theirs: "<input v-model=\"q\">", ours: "Input(bind: q, label: \"Search\")", language: "vue")
+        CheatRow("Shared state", theirs: "provide/inject, Pinia", ours: "store Cart \{ … \}, read as Cart.items after use Cart", language: "vue")
+        CheatRow("A route", theirs: "vue-router \{ path: \"/users/:id\", component: User \}", ours: "page User(path: \"/users/:id\", id: String) \{ … \}", language: "vue")
+        CheatRow("v-if / v-else", theirs: "<Panel v-if=\"open\" /><p v-else>…</p>", ours: "if open \{ Panel \} else \{ Text(\"…\") \}", language: "vue")
+        CheatRow("v-show", theirs: "<Panel v-show=\"open\" />", ours: "show open \{ Panel \}", language: "vue")
+        CheatRow("v-for", theirs: "<li v-for=\"i in items\" :key=\"i.id\">\{\{ i.name \}\}</li>", ours: "for i in items by i.id \{ Text(i.name) \}", language: "vue")
+        CheatRow("Class bindings", theirs: ":class=\"\{ done: todo.done \}\"", ours: "class: \{ \"done\": todo.done \}", language: "vue")
+        CheatRow("Transitions", theirs: "<Transition name=\"fade\">", ours: ".fadeIn, exit: .fadeOut", language: "vue")
+    }
+}

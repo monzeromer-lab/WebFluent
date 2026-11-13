@@ -1,7 +1,7 @@
 // A recipe, written from md-docs/recipes/count-a-number.md by scripts/docsite/recipes.py;
 // edit the recipe, not this file.
-page RecipeCountANumber(path: "/recipes/count-a-number", title: "Count a number to its new value — Recipes", description: "To make a number arrive rather than jump, give its element `count:` with a length of time.") {
-    RecipeShell("Count a number to its new value", summary: "To make a number arrive rather than jump, give its element `count:` with a length of time. The number eases out as it gets there:", outputs: [], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Add a dark-mode switch", to: "/recipes/dark-mode-switch"), RelatedLink(kind: "Recipe", title: "Add a picture, sized for every screen", to: "/recipes/add-a-picture"), RelatedLink(kind: "Recipe", title: "Add video and audio", to: "/recipes/video-and-audio")], source: "md-docs/recipes/count-a-number.md", how: true, hasVariations: false) {
+page RecipeCountANumber(path: "/recipes/count-a-number", title: "Count a number to its new value — Recipes", description: "Make a number count to its new value instead of jumping: give its element count: with a length of time, and each step keeps its format.") {
+    RecipeShell("Count a number to its new value", summary: "Make a figure arrive rather than jump — a total, a score, a balance — by giving its element `count:` with a length of time. Press **Load** and the revenue counts from `$0.00` to `$1,200.00`:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Add a dark-mode switch", to: "/recipes/dark-mode-switch"), RelatedLink(kind: "Recipe", title: "Add a picture, sized for every screen", to: "/recipes/add-a-picture"), RelatedLink(kind: "Recipe", title: "Add video and audio", to: "/recipes/video-and-audio")], source: "md-docs/recipes/count-a-number.md", how: true, hasVariations: false) {
         code {
             CodeBlock(#"page Revenue(path: "/", title: "Revenue", description: "A figure that counts up.") {
     state revenue = 0
@@ -10,7 +10,7 @@ page RecipeCountANumber(path: "/recipes/count-a-number", title: "Count a number 
     Button("Load") { on click { revenue = 1200 } }
 }"#, title: "wf")
         }
-        Markdown("Press **Load** and the figure counts from `$0.00` to `$1,200.00`. The first value is shown as it is, so a page does not open by counting up from nothing. Every later value is counted to from the one before, and each step is formatted the way the first was: a currency counts as a currency.")
+        Markdown("- `count: \"600ms\"` counts the number to each new value over 600ms, easing out as it gets there.\n- The first value is shown as it is, so a page does not open by counting up from nothing. Every later value is counted to from the one before.\n- Each step is formatted the way the first was: a currency counts as a currency ([`format`](/reference/built-ins#format)).\n\nA reader who asked for reduced motion sees the number at its new value at once ([Respect reduced motion](/recipes/motion-defaults#respect-reduced-motion)).")
 
     }
 }

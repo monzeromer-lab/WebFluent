@@ -12,9 +12,8 @@ component ComingFromShell(_ title: String, summary: String = "", from: String = 
     Row(align: .start, class: "bp-wrap") {
         style { flex-wrap: nowrap; gap: 0; @md { gap: 32px } @xl { gap: 48px } }
 
-        // One per page: the skip link's target. wf-allow(A16)
-
-        Stack(gap: .lg, role: "main", id: "bp-main", tabindex: "-1", class: "bp-main") {
+        // One per page: the skip link's target.
+        Stack(gap: .lg, role: "main", id: "bp-main", tabindex: "-1", class: "bp-main") { // wf-allow(A16)
             style { gap: 24px; padding: 32px 0 72px; @md { padding-top: 40px } }
 
             Row(class: "bp-labels") { KindLabel(.comingfrom) }
@@ -49,13 +48,13 @@ component ComingFromShell(_ title: String, summary: String = "", from: String = 
 
             Stack(gap: .md, class: "bp-prose") {
                 style { gap: 16px }
-                Heading(t("coming.differences"), id: "differences").h2
+                Heading(t("coming.differences"), id: "differences").h2 // wf-allow(A16): one shell per page
                 differences
             }
 
             Stack(gap: .md, class: "bp-prose") {
                 style { gap: 16px; max-width: none }
-                Heading(t("coming.port"), id: "port").h2
+                Heading(t("coming.port"), id: "port").h2 // wf-allow(A16): one shell per page
                 port
             }
         }

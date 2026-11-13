@@ -1,23 +1,24 @@
 // A recipe, written from md-docs/recipes/work-offline.md by scripts/docsite/recipes.py;
 // edit the recipe, not this file.
-page RecipeWorkOffline(path: "/recipes/work-offline", title: "Make a site work offline — Recipes", description: "To store the site for when the network is gone, add `offline` to `webfluent.app.json`.") {
-    RecipeShell("Make a site work offline", summary: "To store the site for when the network is gone, add `offline` to `webfluent.app.json`.", outputs: [], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "before-you-start", label: "Before you start"), Anchor(id: "turn-on-offline-support", label: "Turn on offline support"), Anchor(id: "what-the-worker-keeps", label: "What the worker keeps"), Anchor(id: "test-it-offline", label: "Test it offline"), Anchor(id: "troubleshooting", label: "Troubleshooting")], related: [RelatedLink(kind: "Recipe", title: "Keep writes made offline", to: "/recipes/keep-writes-made-offline"), RelatedLink(kind: "Recipe", title: "Offer a new version", to: "/recipes/offer-a-new-version"), RelatedLink(kind: "Recipe", title: "Publish a page in each language", to: "/recipes/site-in-two-languages")], source: "md-docs/recipes/work-offline.md", how: false, hasVariations: false) {
-        Heading("Before you start", id: "before-you-start").h2
-
-        Markdown("- **Serve the site over HTTPS**, or from `localhost`. Browsers run service workers only from a secure origin.\n- **Serve `sw.js` fresh.** The page registers the worker with `updateViaCache: \"none\"`, so the browser asks for it on every visit — but a CDN in front can still hold a copy. Give `sw.js` the header `Cache-Control: no-cache` ([Deploying](/recipes/cache-and-security-headers#set-cache-headers)).\n- **Deploy everything in `build/` together.** The worker's version is a hash of every file the build wrote, so deploying half a build confuses it.")
-
-        Heading("Turn on offline support", id: "turn-on-offline-support").h2
-
-        Markdown("To store the site for when the network is gone, add `offline` to `webfluent.app.json`. The build then writes a service worker, `sw.js`, beside the pages:")
-
-        CodeBlock(#"{ "offline": {
+page RecipeWorkOffline(path: "/recipes/work-offline", title: "Make a site work offline — Recipes", description: "Make a site load with no network: add offline to the config, and the build writes a service worker that stores pages and shows a fallback.") {
+    RecipeShell("Make a site work offline", summary: "Keep a site working when the network is gone: the build writes a service worker, `sw.js`, that stores the site's pages on the reader's device, and a page that was not stored shows a fallback page of your own.  Before you start:  - **Serve the site over HTTPS**, or from `localhost`. Browsers run service workers only from a secure origin. - **Serve `sw.js` fresh.** The page registers the worker with `updateViaCache: \"none\"`, so the browser asks for it on every visit — but a CDN in front can still hold a copy. Give `sw.js` the header `Cache-Control: no-cache` ([Cache and security headers](/recipes/cache-and-security-headers#set-cache-headers)). - **Deploy everything in `build/` together.** The worker's version is a hash of every file the build wrote, so deploying half a build confuses it.  Add `offline` to `webfluent.app.json`:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "what-the-worker-keeps", label: "What the worker keeps"), Anchor(id: "test-it-offline", label: "Test it offline"), Anchor(id: "troubleshooting", label: "Troubleshooting")], related: [RelatedLink(kind: "Recipe", title: "Keep writes made offline", to: "/recipes/keep-writes-made-offline"), RelatedLink(kind: "Recipe", title: "Offer a new version", to: "/recipes/offer-a-new-version"), RelatedLink(kind: "Recipe", title: "Publish a page in each language", to: "/recipes/site-in-two-languages")], source: "md-docs/recipes/work-offline.md", how: true, hasVariations: false) {
+        code {
+            CodeBlock(#"{ "offline": {
     "precache": ["/", "/docs/*"],
     "fallback": "/offline",
     "cache": { "/api/*": "network-first" },
     "sync": true
 } }"#, title: "json")
+            Markdown("The `fallback` is an ordinary page of your site. This one tells the reader what happened:")
+            CodeBlock(#"page Offline(path: "/offline", title: "Offline", description: "Shown when a page was not stored.") {
+    Heading("You are offline").h1
+    Text("This page was not saved for offline use. It will load when you are back online.")
+    Link("Go to the home page", to: "/")
+}"#, title: "wf")
+        }
+        Markdown("With `offline` in the config, the build writes `sw.js` beside the pages. Each key says what it keeps and how:")
 
-        Table(caption: "Turn on offline support") {
+        Table(caption: "Make a site work offline") {
             Table.Head {
                 Table.Row {
                     Table.Cell("Key").header
@@ -44,13 +45,7 @@ page RecipeWorkOffline(path: "/recipes/work-offline", title: "Make a site work o
             }
         }
 
-        Markdown("A stored route loads with no network at all. When there is a network, a navigation still goes to it first, so a page that changed is never served stale while the server is there to ask.\n\nThe `fallback` is an ordinary page of your site. This one tells the reader what happened:")
-
-        CodeBlock(#"page Offline(path: "/offline", title: "Offline", description: "Shown when a page was not stored.") {
-    Heading("You are offline").h1
-    Text("This page was not saved for offline use. It will load when you are back online.")
-    Link("Go to the home page", to: "/")
-}"#, title: "wf")
+        Markdown("A stored route loads with no network at all. When there is a network, a navigation still goes to it first, so a page that changed is never served stale while the server is there to ask.")
 
         Heading("What the worker keeps", id: "what-the-worker-keeps").h2
 

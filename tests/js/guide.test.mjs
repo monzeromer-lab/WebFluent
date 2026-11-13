@@ -9,6 +9,17 @@ import assert from "node:assert/strict";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { makeDom } from "./dom.mjs";
 
+// Node has a real BroadcastChannel, and an open one keeps the process
+// alive after the last test; a page's `broadcast(…)` gets one that talks
+// to nobody, as a page with no other tab open would.
+globalThis.BroadcastChannel = class {
+  constructor(name) { this.name = name; this.onmessage = null; }
+  postMessage() {}
+  addEventListener() {}
+  removeEventListener() {}
+  close() {}
+};
+
 const root = new URL("../../target/e2e/guide/", import.meta.url);
 const examples = existsSync(new URL("examples.json", root))
   ? JSON.parse(readFileSync(new URL("examples.json", root), "utf8"))

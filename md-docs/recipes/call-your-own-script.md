@@ -2,24 +2,36 @@
 kind: "recipe"
 route: "/recipes/call-your-own-script"
 group: "interop"
-description: "You need a WebFluent project (Getting started) and a script written as a plain browser script: no `import`, no `export`, no build step."
+description: "Call a function of your own JavaScript from a WebFluent page: a plain script under src/, typed with JSDoc, linked on every page, its names in scope."
+outputs: ["website", "app", "desktop"]
 from: ["/docs/guide/interop#before-you-start", "/docs/guide/interop#call-your-own-script"]
 ---
 # Call your own JavaScript
 
-## Before you start
+Some things are easier to write in JavaScript: a pointer effect, a
+measurement, glue around a library. Put the function in a `.js` file under
+`src/`, and your pages call it by name. You need a WebFluent project
+([Getting started](../learn/01-getting-started.md)); the script is a plain
+browser script, with no `import`, no `export` and no build step.
 
-You need a WebFluent project ([Getting started](../learn/01-getting-started.md)) and
-a script written as a plain browser script: no `import`, no `export`, no
-build step.
+```wf
+page Gallery(path: "/gallery", title: "Gallery", description: "Cards that lean.") {
+    state max = 15
 
-## Call your own script
-
-To call a function of your own, put it in a `.js` file under `src/`. Write
-it the way you would write any file a `<script src>` loads.
+    Heading("Gallery").h1
+    Card(class: "tilt",
+         mount: (n) => initTilt(n, max),
+         update: (tilt) => tilt.setMax(max),
+         cleanup: (tilt) => tilt.destroy()) {
+        Text("Move the pointer over me.")
+    }
+    Slider(bind: max, min: 0, max: 45, label: "How far")
+}
+```
 
 This script tilts an element toward the pointer, and returns a handle the
-page can update and destroy:
+page can update and destroy. Write it the way you would write any file a
+`<script src>` loads:
 
 ```js
 // src/tilt.js
@@ -42,25 +54,13 @@ function initTilt(node, max = 15) {
 }
 ```
 
-This page calls `initTilt` on a card, and changes how far it tilts as the
-reader moves a slider:
+## How it works
 
-```wf
-page Gallery(path: "/gallery", title: "Gallery", description: "Cards that lean.") {
-    state max = 15
-
-    Heading("Gallery").h1
-    Card(class: "tilt",
-         mount: (n) => initTilt(n, max),
-         update: (tilt) => tilt.setMax(max),
-         cleanup: (tilt) => tilt.destroy()) {
-        Text("Move the pointer over me.")
-    }
-    Slider(bind: max, min: 0, max: 45, label: "How far")
-}
-```
-
-How the build treats a script:
+The page hands the card to `initTilt` with `mount:`, changes how far it
+tilts with `update:` as the reader moves the slider, and removes the
+listener with `cleanup:` when the page leaves
+([Hand an element to a script](hand-an-element-to-a-script.md)). The build
+treats the script this way:
 
 - **The file runs as written.** The build copies it to `build/js/tilt.js`
   byte for byte and links it with `<script defer>` on every page, before the
@@ -88,7 +88,7 @@ The tools know your scripts too: `wf serve` rebuilds when a script changes,
 `wf audit` lists what each one declares, `wf types` prints each function's
 signature, and the editor completes, documents and jumps to them.
 
-### Type a script with JSDoc
+## Type a script with JSDoc
 
 To have calls checked against a function's types, describe the function in
 a JSDoc comment. JSDoc is a comment, so the file stays exactly what the
@@ -108,28 +108,12 @@ With no comment at all, every parameter is `Any`, so adding a script never
 breaks a build. Each tag only narrows what a call may pass. `@returns` types
 the result.
 
-### Let a script report, and keep the class in WebFluent
+## Let a script report, and keep the class in WebFluent
 
 When the way an element looks depends on something only a script can see
 (an intersection, a scroll position, a library's event), hand the script an
 action. An action is a plain function at run time. The script calls it, and
 the class stays in a `class:` the compiler can read.
-
-This script reports whether an element is on screen:
-
-```js
-// src/visible.js
-/**
- * Say whether `node` is on screen, each time that changes.
- * @param {HTMLElement} node
- * @param {(v: boolean) => void} onChange
- */
-function watchVisible(node, onChange) {
-  const io = new IntersectionObserver(([e]) => onChange(e.isIntersecting));
-  io.observe(node);
-  return { destroy: () => io.disconnect() };
-}
-```
 
 This page sets `is-visible` on the card while it is on screen:
 
@@ -147,6 +131,31 @@ page Story(path: "/story", title: "Story", description: "It fades in.") {
 }
 ```
 
+This script reports whether an element is on screen:
+
+```js
+// src/visible.js
+/**
+ * Say whether `node` is on screen, each time that changes.
+ * @param {HTMLElement} node
+ * @param {(v: boolean) => void} onChange
+ */
+function watchVisible(node, onChange) {
+  const io = new IntersectionObserver(([e]) => onChange(e.isIntersecting));
+  io.observe(node);
+  return { destroy: () => io.disconnect() };
+}
+```
+
 Each class has one owner. A class that `class:` names belongs to
 WebFluent, and a class a script adds with `classList.add` belongs to the
 script: `class:` only ever takes off what it put on.
+
+## Troubleshooting
+
+| What you see | What to do |
+|---|---|
+| `T13`: nothing declares the function | Check that the file is under `src/` and declares the name at its top level, not inside another function |
+| `T10` on a call that looks right | Count the parameters the function declares; a JSDoc `[name]` or a default value lets a call leave one out |
+| The build stops on a top-level `import` or `export` | Remove them and declare the names at the top level; a published module loads from `meta.scripts` instead ([Load a library from a CDN](library-from-a-cdn.md)) |
+| An error that names your script and a component, store or `const` | Rename one of the two: a name has one meaning in a project |

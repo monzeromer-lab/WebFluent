@@ -3,7 +3,7 @@
 
 - `site/src/pages/recipes/<Name>.wf`: a page per recipe, framed by
   `RecipeShell`. A recipe is written: its title, a paragraph that says what
-  it does, the complete code (its first `wf` block, before any `##`), then
+  it does, the complete code (its first fenced block, before any `##`), then
   `## How it works` and, when it has them, `## Variations`. Other sections
   follow how it works, under their own headings.
 - `site/src/pages/recipes/Index.wf`: `/recipes`, every recipe by group, with
@@ -59,11 +59,15 @@ def split(body: str):
     body = re.sub(r"^# .*\n", "", body.lstrip("\n"), count=1).strip("\n")
     head, *rest = re.split(r"(?m)^(?=## )", body)
     code = ""
-    m = re.search(r"(?ms)^```wf[^\n]*\n.*?^```[ \t]*$", head)
-    if m:
-        code = head[m.start():m.end()]
-        intro = head[: m.start()].strip()
-        after = head[m.end():].strip()
+    # The recipe's code is its first fenced block, in whatever language
+    # the task is written in: a page, a workflow file, a server's config.
+    # When it takes several files (a config and the page), the code is all
+    # of them, with the lines that join them, up to the first heading.
+    blocks = list(re.finditer(r"(?ms)^```[a-z][^\n]*\n.*?^```[ \t]*$", head))
+    if blocks:
+        code = head[blocks[0].start():blocks[-1].end()]
+        intro = head[: blocks[0].start()].strip()
+        after = head[blocks[-1].end():].strip()
     else:
         intro, after = head.strip(), ""
     how, variations, others = after, "", []
@@ -189,9 +193,15 @@ def index_page(entries):
 
 
 def moved_pages(all_recipes):
-    """A page at each old chapter address, and the old sections' new homes."""
+    """A page at each old chapter address — of a recipe or a cheat sheet —
+    and the old sections' new homes."""
     chapters, anchors = {}, {}
-    for path, meta, title, body in all_recipes:
+    # The cheat sheets answer for the chapter they came from, too.
+    sheets = []
+    for path in sorted((ROOT / "md-docs" / "coming-from").glob("*.md")):
+        meta, body = guide.front_matter(path)
+        sheets.append((path, meta, "", body))
+    for path, meta, title, body in all_recipes + sheets:
         for old in meta.get("from", []):
             page, _, anchor = old.partition("#")
             if anchor:

@@ -159,7 +159,7 @@ The rules for `paths:`:
 look the entry up:
 `title: "{posts.find(p => p.slug == slug)?.title ?? slug} — Blog"`. Tags
 beyond the title and description go in `head { }`
-([Content](../recipes/search-and-link-previews.md#describe-each-page-to-search-engines-and-link-previews)).
+([Content](../recipes/search-and-link-previews.md#add-tags-for-one-page)).
 
 ## Add a 404 page
 

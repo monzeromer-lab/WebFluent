@@ -2,14 +2,42 @@
 kind: "recipe"
 route: "/recipes/render-from-rust"
 group: "interop"
-description: "The template engine is the `webfluent` crate."
+description: "Render WebFluent templates from a Rust program or server with the webfluent crate: load them once, then render HTML, fragments, PDFs and slides."
+outputs: ["website", "pdf", "slides"]
 from: ["/docs/guide/server-rendering#render-from-rust"]
 ---
 # Render templates from Rust
 
-The template engine is the `webfluent` crate. To use it without the `wf`
-command's own dependencies (its argument parser and dev server), turn off
-the default features:
+The template engine is the `webfluent` crate. Load the templates once, at
+start-up, and render them with your own data as HTML, a fragment of a
+page, a PDF or slides. You need a Rust project, and a template like the
+one in [Render a template with data](render-a-template.md). This one is
+`templates/invoice.wf`:
+
+```wf
+page Invoice(path: "/", title: "Invoice {number}", description: "An invoice.") {
+    Heading("Invoice #{number}").h1
+    Text("Bill to: {customer.name}")
+    Table {
+        Table.Head { Table.Row { Table.Cell("Item")  Table.Cell("Qty")  Table.Cell("Amount") } }
+        Table.Body {
+            for item in items {
+                Table.Row {
+                    Table.Cell(item.name)
+                    Table.Cell("{item.qty}")
+                    Table.Cell(format(item.price * item.qty, .currency))
+                }
+            }
+        }
+    }
+    if paid { Badge("Paid").success } else { Badge("Due").warning }
+    Text("Total: {format(total, .currency)}").bold.lg
+}
+```
+
+To use the engine without the `wf` command's own dependencies (its
+argument parser and dev server), turn off the default features in
+`Cargo.toml`:
 
 ```toml
 [dependencies]
@@ -17,9 +45,8 @@ webfluent = { version = "6", default-features = false }
 serde = { version = "1", features = ["derive"] }
 ```
 
-Load the templates once, at start-up, and render on every request. This
-code loads a directory of templates and renders its `Invoice` page three
-ways:
+This program, `src/main.rs`, renders the `Invoice` page three ways and
+writes the results beside the project:
 
 ```rust
 use serde::Serialize;
@@ -32,23 +59,42 @@ struct Customer { name: String }
 struct Item { name: String, qty: u32, price: f64 }
 
 #[derive(Serialize)]
-struct Invoice { number: u32, customer: Customer, items: Vec<Item>, total: f64, paid: bool }
+struct Invoice { number: String, customer: Customer, items: Vec<Item>, total: f64, paid: bool }
 
-// Every .wf and .wfx under the directory, as one template: components,
-// themes, types and constants shared; each `page` a document.
-let templates = Template::from_dir("templates")?;
-let invoice: Invoice = load_invoice();
+fn main() -> webfluent::Result<()> {
+    // Every .wf and .wfx under the directory, as one template: components,
+    // themes, types and constants shared; each `page` a document.
+    let templates = Template::from_dir("templates")?;
+    let page = templates.page("Invoice")?;
 
-let html = templates.page("Invoice")?.render_html(&invoice)?;          // a whole document
-let body = templates.page("Invoice")?.render_html_fragment(&invoice)?; // the markup alone
-let pdf: Vec<u8> = templates
-    .page("Invoice")?
-    .with_pdf(PdfConfig { page_size: "Letter".into(), ..PdfConfig::default() })
-    .render_pdf(&invoice)?;
+    let invoice = Invoice {
+        number: "INV-001".into(),
+        customer: Customer { name: "Acme Corp".into() },
+        items: vec![Item { name: "Widget".into(), qty: 5, price: 9.99 }],
+        total: 49.95,
+        paid: false,
+    };
+
+    let html = page.render_html(&invoice)?;          // a whole document
+    let body = page.render_html_fragment(&invoice)?; // the markup alone
+    let pdf: Vec<u8> = page
+        .clone()
+        .with_pdf(PdfConfig { page_size: "Letter".into(), ..PdfConfig::default() })
+        .render_pdf(&invoice)?;
+
+    std::fs::write("invoice.html", html)?;
+    std::fs::write("invoice.pdf", pdf)?;
+    println!("{body}");
+    Ok(())
+}
 ```
 
-To try it, run `cargo run --example invoice` in the WebFluent repository.
-The example renders a directory of templates to HTML, a fragment and a PDF.
+`cargo run` prints the fragment and writes `invoice.html` and
+`invoice.pdf`. To try a fuller example, run `cargo run --example invoice`
+in the WebFluent repository: it renders a directory of templates to HTML,
+a fragment and a PDF.
+
+## How it works
 
 ### Load templates
 
@@ -75,7 +121,8 @@ no page called `Receipt`; the template has `Invoice`
 
 The data is anything `serde` serializes: your own `#[derive(Serialize)]`
 structs, or a `serde_json::Value`. Its top-level fields are the names the
-template reads. A `const` and a `data` file are in scope too.
+template reads, so `Invoice`'s `number`, `customer` and `items` are what
+the template splices. A `const` and a `data` file are in scope too.
 
 ### Choose the output
 
@@ -93,7 +140,8 @@ pictures from there too.
 
 ### Configure a render
 
-Each setting returns the `Template`, so you can chain them before a render:
+Each setting returns the `Template`, so you can chain them before a render,
+as the program does with `with_pdf`:
 
 - `with_theme(name)` picks a theme;
 - `with_tokens(&[(name, value)])` sets design tokens over the theme's;
@@ -102,7 +150,10 @@ Each setting returns the `Template`, so you can chain them before a render:
 - `with_pdf(PdfConfig { .. })` sets page size, margins and fonts;
 - `with_slides(SlidesConfig { .. })` sets a deck's options.
 
-### Use it in a server
+A setting takes the `Template` by value, so the program clones `page`
+before it sets the paper size, and keeps `page` for other renders.
+
+## Use it in a server
 
 A `Template` is `Send + Sync` and cheap to clone, because the parsed
 program is shared. Keep it in your framework's state — an `Arc`, or a clone
@@ -123,7 +174,7 @@ microseconds.
 > `background: url({img})` — is the template's own. A `class:` from the
 > data is escaped inside its attribute.
 
-### Limits of one render
+## Limits of one render
 
 A render is bounded, so one request cannot take a server with it:
 
@@ -138,3 +189,11 @@ A render is bounded, so one request cannot take a server with it:
 
 Each error is a `WebFluentError::Diagnostics` naming the code and the
 element where the render stopped.
+
+## Troubleshooting
+
+| What you see | What to do |
+|---|---|
+| `no page called …` | Pass `page(name)` one of the names the message lists |
+| `WebFluentError::Diagnostics` when the template loads | The template does not check: the error names the file, the line and the code, as `wf check` would |
+| A `{name}` renders empty | The data has no top-level field `name`; check the struct's field names, or `#[serde(rename)]` |

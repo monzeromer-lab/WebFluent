@@ -1,7 +1,7 @@
 // A recipe, written from md-docs/recipes/route-transitions.md by scripts/docsite/recipes.py;
 // edit the recipe, not this file.
-page RecipeRouteTransitions(path: "/recipes/route-transitions", title: "Animate route changes — Recipes", description: "To animate every change of page, give the `Router` a `transition:` and a `duration:`:") {
-    RecipeShell("Animate route changes", summary: "To animate every change of page, give the `Router` a `transition:` and a `duration:`:", outputs: [], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Add a dark-mode switch", to: "/recipes/dark-mode-switch"), RelatedLink(kind: "Recipe", title: "Add a picture, sized for every screen", to: "/recipes/add-a-picture"), RelatedLink(kind: "Recipe", title: "Add video and audio", to: "/recipes/video-and-audio")], source: "md-docs/recipes/route-transitions.md", how: true, hasVariations: false) {
+page RecipeRouteTransitions(path: "/recipes/route-transitions", title: "Animate route changes — Recipes", description: "Animate every change of page: give the Router a transition: of .fade or .slide and a duration:, played through the View Transitions API.") {
+    RecipeShell("Animate route changes", summary: "Fade or slide from one page to the next, on every route change, by giving the `Router` a `transition:` and a `duration:` in `app`:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "variations", label: "Variations")], related: [RelatedLink(kind: "Recipe", title: "Add a dark-mode switch", to: "/recipes/dark-mode-switch"), RelatedLink(kind: "Recipe", title: "Add a picture, sized for every screen", to: "/recipes/add-a-picture"), RelatedLink(kind: "Recipe", title: "Add video and audio", to: "/recipes/video-and-audio")], source: "md-docs/recipes/route-transitions.md", how: true, hasVariations: true) {
         code {
             CodeBlock(#"app {
     Navbar {
@@ -14,7 +14,24 @@ page RecipeRouteTransitions(path: "/recipes/route-transitions", title: "Animate 
 page Home(path: "/", title: "Home", description: "The front page.") { Heading("Home").h1 }
 page About(path: "/about", title: "About", description: "Who we are.") { Heading("About").h1 }"#, title: "wf")
         }
-        Markdown("`transition:` is `.fade`, `.slide` or `.none` (the next page replaces the last at once). On each route change the old page plays out and the new one in; then focus and scroll settle and the new title is announced.\n\nWhere the browser has the View Transitions API, the change plays through it: the browser's own crossfade, or the slide the engine's stylesheet defines for `[data-wf-transition=\"slide\"]`. Your own `::view-transition-*` rules in a project stylesheet may restyle either. In other browsers, a class-based animation plays instead.")
+        variations {
+            Heading("Slide instead of fade", id: "slide-instead-of-fade").h3
+
+            Markdown("`.slide` slides the old page out and the new one in:")
+
+            CodeBlock(#"app {
+    Navbar {
+        Navbar.Brand { Link("Motion", to: "/") }
+        Navbar.Links { Link("Home", to: "/")  Link("About", to: "/about") }
+    }
+    Router(transition: .slide, duration: "250ms")
+}
+
+page Home(path: "/", title: "Home", description: "The front page.") { Heading("Home").h1 }
+page About(path: "/about", title: "About", description: "Who we are.") { Heading("About").h1 }"#, title: "wf")
+
+        }
+        Markdown("- `transition:` is `.fade`, `.slide` or `.none` (the next page replaces the last at once). `duration:` is how long the change takes.\n- On each route change the old page plays out and the new one in; then focus and scroll settle and the new title is announced.\n- Where the browser has the View Transitions API, the change plays through it: the browser's own crossfade, or the slide the engine's stylesheet defines for `[data-wf-transition=\"slide\"]`. Your own `::view-transition-*` rules in a project stylesheet may restyle either. In other browsers, a class-based animation plays instead.\n\nA reader who asked for reduced motion gets no route transition: the next page replaces the last at once ([Respect reduced motion](/recipes/motion-defaults#respect-reduced-motion)).")
 
     }
 }

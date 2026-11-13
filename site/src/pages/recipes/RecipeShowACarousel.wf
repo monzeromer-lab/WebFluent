@@ -1,7 +1,7 @@
 // A recipe, written from md-docs/recipes/show-a-carousel.md by scripts/docsite/recipes.py;
 // edit the recipe, not this file.
-page RecipeShowACarousel(path: "/recipes/show-a-carousel", title: "Show a carousel — Recipes", description: "To show slides one at a time, wrap each in a `Carousel.Slide` inside a `Carousel`.") {
-    RecipeShell("Show a carousel", summary: "To show slides one at a time, wrap each in a `Carousel.Slide` inside a `Carousel`. This page shows three photographs that advance every five seconds:", outputs: [], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Add a dark-mode switch", to: "/recipes/dark-mode-switch"), RelatedLink(kind: "Recipe", title: "Add a picture, sized for every screen", to: "/recipes/add-a-picture"), RelatedLink(kind: "Recipe", title: "Add video and audio", to: "/recipes/video-and-audio")], source: "md-docs/recipes/show-a-carousel.md", how: true, hasVariations: false) {
+page RecipeShowACarousel(path: "/recipes/show-a-carousel", title: "Show a carousel — Recipes", description: "Show slides one at a time with Carousel and Carousel.Slide: previous and next buttons, a dot per slide, and autoplay that pauses.") {
+    RecipeShell("Show a carousel", summary: "Show pictures or panels one at a time, with buttons to move between them and, if you want, advancing on their own. Wrap each slide in a `Carousel.Slide` inside a `Carousel`.  This page shows three photographs that advance every five seconds:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Add a dark-mode switch", to: "/recipes/dark-mode-switch"), RelatedLink(kind: "Recipe", title: "Add a picture, sized for every screen", to: "/recipes/add-a-picture"), RelatedLink(kind: "Recipe", title: "Add video and audio", to: "/recipes/video-and-audio")], source: "md-docs/recipes/show-a-carousel.md", how: true, hasVariations: false) {
         code {
             CodeBlock(#"page Gallery(path: "/", title: "Gallery", description: "Three pictures.") {
     Heading("Gallery").h1
@@ -12,7 +12,7 @@ page RecipeShowACarousel(path: "/recipes/show-a-carousel", title: "Show a carous
     }
 }"#, title: "wf")
         }
-        Markdown("A carousel has a named previous button, a named next button, and a dot per slide. Its `label:` names the region for screen readers. It is a `region` described as a carousel, unless you set its `role:` or `aria-roledescription:` yourself.\n\nWith `autoplay`, the carousel also has a button that stops it. It pauses while the pointer or the keyboard focus is on it, and it does not advance at all for a reader who asked for reduced motion.")
+        Markdown("- **Each `Carousel.Slide` is one slide**, shown one at a time.\n- **The controls come with it.** A carousel has a named previous button, a named next button, and a dot per slide.\n- **`label:` names it.** Its `label:` names the region for screen readers. It is a `region` described as a carousel, unless you set its `role:` or `aria-roledescription:` yourself.\n- **`autoplay` advances it** every `interval:` milliseconds. With `autoplay`, the carousel also has a button that stops it. It pauses while the pointer or the keyboard focus is on it, and it does not advance at all for a reader who asked for reduced motion.")
 
     }
 }

@@ -2,14 +2,16 @@
 kind: "recipe"
 route: "/recipes/animate-a-list"
 group: "look"
-description: "To animate the items of a list as they are added, removed and moved, use a keyed `for … by` and give the item's element `animate:`, `exit:` and `stagger:`:"
+description: "Animate a list's items as they arrive, move and leave: a keyed for … by, with animate:, exit: and stagger: on each item's element."
+outputs: ["website", "app"]
 from: ["/docs/guide/motion#animate-a-list"]
 ---
 # Animate a list
 
-To animate the items of a list as they are added, removed and moved, use a
-keyed `for … by` and give the item's element `animate:`, `exit:` and
-`stagger:`:
+Make a list fill in one item after another, slide its items to their new
+places when it is reordered, and fade an item out as it is removed. The
+list is a keyed `for … by`, and each item's element carries `animate:`,
+`exit:` and `stagger:`:
 
 ```wf
 type Item { id: Number, text: String }
@@ -35,7 +37,9 @@ page Tasks(path: "/", title: "Tasks", description: "A list that animates.") {
 }
 ```
 
-What each change does:
+## How it works
+
+Each change to `items` plays a different motion:
 
 - **An item arrives.** It plays its `animate:`. `stagger: "40ms"` delays
   each item's enter by its index × 40ms, so a list fills in one item after
@@ -43,5 +47,15 @@ What each change does:
 - **An item moves** — a sort, a reverse, an insert above it. It slides to
   its new place. This is a *FLIP* transform: the runtime measures where the
   node was and where it is, and animates between them. It works because
-  `by` keeps the item's node alive.
-- **An item leaves.** It plays its `exit:` first.
+  `by item.id` keeps the item's node alive
+  ([Control flow](../learn/09-control-flow.md)).
+- **An item leaves.** It plays its `exit:` first, and the runtime removes
+  the node when it ends.
+
+A `for` with no `by`, or a key that changes, makes a new node for the item,
+so it fades out and in again instead of moving. Key the list by what
+identifies the item.
+
+A reader who asked for reduced motion sees items appear, move and go at
+once: no animation, no FLIP and no wait before removal
+([Respect reduced motion](motion-defaults.md#respect-reduced-motion)).

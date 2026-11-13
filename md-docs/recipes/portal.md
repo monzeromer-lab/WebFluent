@@ -2,7 +2,8 @@
 kind: "recipe"
 route: "/recipes/portal"
 group: "interop"
-description: "Some libraries make a node and leave it empty for the page to fill: an editor's tooltip, a map's popup, a chart's legend."
+description: "Fill a node a library made, such as an editor's tooltip or a map's popup, with WebFluent elements, using Portal(into:)."
+outputs: ["website", "app", "desktop"]
 from: ["/docs/guide/interop#draw-into-a-node-a-script-made-with-portal"]
 ---
 # Draw into a node a script made
@@ -10,10 +11,36 @@ from: ["/docs/guide/interop#draw-into-a-node-a-script-made-with-portal"]
 Some libraries make a node and leave it empty for the page to fill: an
 editor's tooltip, a map's popup, a chart's legend. To fill it, use
 `Portal(into: node) { … }`. The library keeps the node's place, its keys
-and its focus; the page draws what is in it.
+and its focus; the page draws what is in it. This page starts a CodeMirror
+editor whose hover tooltip shows the line under the pointer, drawn by the
+page:
 
-This script starts a CodeMirror editor, loaded from `meta.scripts` as `CM`,
-with a hover tooltip whose words the page draws:
+```wf
+page Edit(path: "/edit", title: "Edit", description: "An editor whose tooltip the page draws.") {
+    state tip: String? = null
+    state words = ""
+    action opened(id: String, text: String) {
+        tip = id
+        words = text
+    }
+    action closed(id: String) {
+        if tip == id { tip = null }
+    }
+
+    Heading("Edit").h1
+    Host(mount: (n) => startEditor(n, opened, closed), cleanup: (view) => view.destroy())
+    if let id = tip {
+        Portal(into: editorHost(id), data-popup: "hover") {
+            Text(words)
+        }
+    }
+}
+```
+
+This script starts the editor. It expects CodeMirror loaded from
+`meta.scripts` as a module with `"as": "CM"`, which puts `EditorView`,
+`basicSetup` and `hoverTooltip` on `window.CM`
+([Load a library from a CDN](library-from-a-cdn.md#variations)):
 
 ```js
 // src/editor.js
@@ -53,32 +80,13 @@ function startEditor(node, opened, closed) {
 }
 ```
 
-This page keeps the open tooltip's id in state and draws the words into
-its node:
+## How it works
 
-```wf
-page Edit(path: "/edit", title: "Edit", description: "An editor whose tooltip the page draws.") {
-    state tip: String? = null
-    state words = ""
-    action opened(id: String, text: String) {
-        tip = id
-        words = text
-    }
-    action closed(id: String) {
-        if tip == id { tip = null }
-    }
-
-    Heading("Edit").h1
-    Host(mount: (n) => startEditor(n, opened, closed), cleanup: (view) => view.destroy())
-    if let id = tip {
-        Portal(into: editorHost(id), data-popup: "hover") {
-            Text(words)
-        }
-    }
-}
-```
-
-How a portal behaves:
+The page hands `Host`'s node to `startEditor`, with two actions the script
+calls when a tooltip opens and closes. `opened` keeps the tooltip's id and
+the words in state; `if let` draws the portal while there is an id, and
+`editorHost(id)` names the node CodeMirror made for it. A portal behaves
+this way:
 
 - **It reads its target again.** `into:` is read like any other
   expression: when a state or a list item it reads changes, it is read
@@ -99,7 +107,8 @@ How a portal behaves:
   to the library, and stays.
 - **The box adds nothing to the layout.** It is a `div` with
   `display: contents`, so the node lays out the block as if the box were not
-  there. An `id:`, a `class:`, `data-*` and `aria-*` go on the box.
+  there. An `id:`, a `class:`, `data-*` and `aria-*` go on the box, as
+  `data-popup:` does here.
 - **It can target a handle.** `Portal(into: panel)` draws into the element
   a `ref: panel` names, even one written further down the page. Where it
   goes is read once more when the drawing is over and the page is in the
@@ -120,10 +129,13 @@ How a portal behaves:
   run. A test that looks at a portal runs in a browser
   ([Testing](../learn/16-testing.md#test-a-portal)).
 
+## Variations
+
 A list that the library keeps (an editor's completions, each row a node it
 made) is a keyed `for` of portals. A press on a row should leave the focus
 in the editor: `on mousedown(e) { e.preventDefault() }` does that, and
-`on click` still runs. This fragment draws one portal per row:
+`on click` still runs. This fragment of a page draws one portal per row of
+a `Completions` store:
 
 ```wf
 for row, i in Completions.rows by i {
@@ -136,4 +148,11 @@ for row, i in Completions.rows by i {
 }
 ```
 
-A `Portal` without `into:` is a `C01` error.
+## Troubleshooting
+
+| What you see | What to do |
+|---|---|
+| `C01` on a `Portal` | Give it `into:`; a portal without one has nowhere to draw |
+| A click inside the block does not reach a handler around the portal | Events bubble from the node the block is drawn in: put the handler on the portal, or inside its block |
+| The block stays on screen inside a `show` that is off | Use `if`, or `into: null`; `show` does not hide a portal |
+| The pre-rendered page lacks the block | Expected: the block is drawn once the page's script runs |

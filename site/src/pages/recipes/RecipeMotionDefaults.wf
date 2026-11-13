@@ -1,20 +1,39 @@
 // A recipe, written from md-docs/recipes/motion-defaults.md by scripts/docsite/recipes.py;
 // edit the recipe, not this file.
-page RecipeMotionDefaults(path: "/recipes/motion-defaults", title: "Set motion defaults, and respect reduced motion — Recipes", description: "To change what an animation does when the element names no duration or easing, set `motion` in `webfluent.app.json`:") {
-    RecipeShell("Set motion defaults, and respect reduced motion", summary: "To change what an animation does when the element names no duration or easing, set `motion` in `webfluent.app.json`:", outputs: [], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "set-the-default-duration-and-easing", label: "Set the default duration and easing"), Anchor(id: "respect-reduced-motion", label: "Respect reduced motion")], related: [RelatedLink(kind: "Recipe", title: "Add a dark-mode switch", to: "/recipes/dark-mode-switch"), RelatedLink(kind: "Recipe", title: "Add a picture, sized for every screen", to: "/recipes/add-a-picture"), RelatedLink(kind: "Recipe", title: "Add video and audio", to: "/recipes/video-and-audio")], source: "md-docs/recipes/motion-defaults.md", how: false, hasVariations: false) {
-        Heading("Set the default duration and easing", id: "set-the-default-duration-and-easing").h2
+page RecipeMotionDefaults(path: "/recipes/motion-defaults", title: "Set motion defaults, and respect reduced motion — Recipes", description: "Set the duration and easing every animation uses by default, and make sure a reader who asked for reduced motion gets none.") {
+    RecipeShell("Set motion defaults, and respect reduced motion", summary: "Change how long animations take and how they are paced across a whole project, in one place, and keep motion away from readers who asked for less. On this page every animation takes the project's defaults, and the one transition written by hand is held back from those readers:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Add a dark-mode switch", to: "/recipes/dark-mode-switch"), RelatedLink(kind: "Recipe", title: "Add a picture, sized for every screen", to: "/recipes/add-a-picture"), RelatedLink(kind: "Recipe", title: "Add video and audio", to: "/recipes/video-and-audio")], source: "md-docs/recipes/motion-defaults.md", how: true, hasVariations: false) {
+        code {
+            CodeBlock(#"page Welcome(path: "/", title: "Welcome", description: "Motion that follows the project's defaults.") {
+    state open = false
+    Heading("Welcome").h1.fadeIn
+    Button("Details") { on click { open = !open } }
+    if open {
+        Card(exit: .fadeOut).slideUp { Text("This card takes the default length and easing.") }
+    }
+    Card {
+        style {
+            @media (prefers-reduced-motion: no-preference) {
+                transition: box-shadow $animation-duration-normal $animation-easing-default
+            }
+            &:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.12) }
+        }
+        Text("A hand-written transition, kept from readers who asked for less motion.")
+    }
+}"#, title: "wf")
+        }
+        Heading("Set the default duration and easing", id: "set-the-default-duration-and-easing").h3
 
-        Markdown("To change what an animation does when the element names no duration or easing, set `motion` in `webfluent.app.json`:")
+        Markdown("An animation whose element names no duration or easing takes the project's defaults. Set them with `motion` in `webfluent.app.json`:")
 
         CodeBlock(#"{ "motion": { "duration": "180ms", "easing": "$ease-standard" } }"#, title: "json")
 
-        Markdown("These set the `animation-duration-normal` and `animation-easing-default` design tokens, so a theme may set them instead, and a style block reads the same values.")
+        Markdown("These set the `animation-duration-normal` and `animation-easing-default` design tokens, so a theme may set them instead, and a style block reads the same values — as the hand-written transition above does.")
 
-        Heading("Respect reduced motion", id: "respect-reduced-motion").h2
+        Heading("Respect reduced motion", id: "respect-reduced-motion").h3
 
-        Markdown("A reader whose system asks for reduced motion (`prefers-reduced-motion`) gets none of the motion in this chapter: no animation started, no wait before removal, no FLIP, no route transition and no `transition \{ \}` tween. A box that expands is open at once, and a number that counts is shown at its value. The runtime and the engine's stylesheet do this for you.")
+        Markdown("A reader whose system asks for reduced motion (`prefers-reduced-motion`) gets none of the declared motion: no animation started, no wait before removal, no FLIP, no route transition and no `transition \{ \}` tween. A box that expands is open at once, and a number that counts is shown at its value. The runtime and the engine's stylesheet do this for you.")
 
-        Callout("An `animation:` or `transition:` you write by hand in a `style \{ \}` block has no reduced-motion path. Wrap it in `@media (prefers-reduced-motion: no-preference) \{ \}`, or use the declared forms in this chapter, which have one.", kind: .warning)
+        Callout("An `animation:` or `transition:` you write by hand in a `style \{ \}` block has no reduced-motion path. Wrap it in `@media (prefers-reduced-motion: no-preference) \{ \}`, as the page above does, or use the declared forms, which have one.", kind: .warning)
 
         Heading("Preview reduced motion", id: "preview-reduced-motion").h3
 
