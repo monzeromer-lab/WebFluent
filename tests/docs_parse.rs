@@ -2127,7 +2127,18 @@ fn the_codes_each_builtin_can_raise_are_codes_the_compiler_has() {
 #[test]
 fn the_book_is_written_to_its_rules() {
     let quizzed = [7, 10, 11, 15];
-    let banned = ["simply", "just", "easy", "easily", "obviously", "powerful", "seamless"];
+    let banned = [
+        "simply",
+        "just",
+        "easy",
+        "easily",
+        "obviously",
+        "powerful",
+        "seamless",
+    ];
+    let link_target = regex::Regex::new(r"\]\([^)]*\)").unwrap();
+    let code_span = regex::Regex::new(r"`[^`]*`").unwrap();
+    let words = regex::Regex::new(r"(?i)\b[a-z]+\b").unwrap();
     let mut failures = Vec::new();
     for (n, path, text) in crate::common::guide_chapters() {
         let learn = path.starts_with("learn/");
@@ -2142,12 +2153,11 @@ fn the_book_is_written_to_its_rules() {
             if line.starts_with("```") {
                 fenced = !fenced;
             } else if !fenced {
-                let line = regex::Regex::new(r"\]\([^)]*\)").unwrap().replace_all(line, "]");
-                prose.push_str(&regex::Regex::new(r"`[^`]*`").unwrap().replace_all(&line, ""));
+                let line = link_target.replace_all(line, "]");
+                prose.push_str(&code_span.replace_all(&line, ""));
                 prose.push('\n');
             }
         }
-        let words = regex::Regex::new(r"(?i)\b[a-z]+\b").unwrap();
         for w in words.find_iter(&prose) {
             let w = w.as_str().to_lowercase();
             if banned.contains(&w.as_str()) {
@@ -2171,7 +2181,9 @@ fn the_book_is_written_to_its_rules() {
                 let programs = s.matches("```wf expect=").count();
                 let links = s.matches("errors/").count();
                 if programs < 2 {
-                    failures.push(format!("{path}: its mistakes show {programs} program(s), not two or more"));
+                    failures.push(format!(
+                        "{path}: its mistakes show {programs} program(s), not two or more"
+                    ));
                 }
                 if links < programs {
                     failures.push(format!("{path}: a mistake does not link its error page"));
@@ -2181,7 +2193,9 @@ fn the_book_is_written_to_its_rules() {
         }
         let quizzes = body.matches("```quiz").count();
         if quizzed.contains(&n) && !(2..=4).contains(&quizzes) {
-            failures.push(format!("{path}: {quizzes} quiz question(s), not two to four"));
+            failures.push(format!(
+                "{path}: {quizzes} quiz question(s), not two to four"
+            ));
         }
         if !quizzed.contains(&n) && quizzes > 0 {
             failures.push(format!("{path}: a quiz in a chapter that has none"));
