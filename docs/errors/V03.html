@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>V03 — Markup put in as markup</title>
     <meta name="description" content="An `Unsafe.Html`, and whether what it puts in went through `sanitize`; and a `Frame(srcdoc:)` drawing HTML from a value, which is sandboxed…">
@@ -28,6 +28,8 @@
     <link rel="preload" href="/fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="/styles.css">
     <script src="/js/analytics.js" defer></script>
+    <script src="/js/live.js" defer></script>
+    <script src="/js/old-links-map.js" defer></script>
     <script src="/js/old-links.js" defer></script>
     <script src="/js/video.js" defer></script>
     <script src="/app.js" defer></script>
@@ -50,6 +52,7 @@
                         <a class="wf-link bp-tab" href="/recipes">Recipes</a>
                         <a class="wf-link bp-tab" href="/reference">Reference</a>
                         <a class="wf-link bp-tab active" href="/errors" aria-current="page">Errors</a>
+                        <a class="wf-link bp-tab" href="/playground">Playground</a>
                         <a class="wf-link bp-tab" href="/showcase">Showcase</a>
                     </div>
                     <div class="wf-row wf-align--center wf-gap--sm wf-sff642a95">
@@ -58,7 +61,7 @@
                             <p class="wf-text wf-sf55a2627 bp-hide-sm">Search the docs</p>
                             <p class="wf-text bp-kbd bp-hide-sm">Ctrl+K</p>
                         </button>
-                        <div class="wf-row wf-align--center wf-gap--sm wf-s808638b6 bp-select bp-hide-sm">
+                        <div class="wf-row wf-align--center wf-gap--sm wf-s808638b6 bp-select bp-hide-md">
                             <p class="wf-text wf-s29c127bc bp-building-label" aria-hidden="true">Building</p>
                             <select class="wf-select" aria-label="Building">
                                 <option value="website">Website</option>
@@ -74,7 +77,7 @@
                         <div class="wf-row wf-align--center wf-gap--xs wf-s286d925a bp-hide-sm">
                             <button class="wf-btn bp-button" title="This page is in English only; the switch changes the interface." data-track="select_content" data-track-content-type="language" type="button"></button>
                         </div>
-                        <a class="wf-link bp-button bp-hide-sm" href="https://github.com/monzeromer-lab/WebFluent" data-tone="quiet" aria-label="GitHub">
+                        <a class="wf-link bp-button bp-hide-md" href="https://github.com/monzeromer-lab/WebFluent" data-tone="quiet" aria-label="GitHub">
                             <i class="wf-icon" data-icon="git-branch"></i>
                             <p class="wf-text">GitHub</p>
                         </a>
@@ -285,9 +288,9 @@
                     </div>
                     <div class="wf-stack wf-gap--sm wf-s982ede03">
                         <h2 class="wf-heading wf-s5dcf4ea5" id="fix">The fix</h2>
-                        <div class="wf-stack bp-prose">
-                            <div class="wf-stack wf-gap--sm">
-                                <p class="wf-text wf-sb24910e4 bp-label" data-tone="error">Broken</p>
+                        <div class="wf-grid wf-gap--md wf-r585a824e">
+                            <div class="wf-stack wf-gap--xs wf-se1d318e6">
+                                <p class="wf-text wf-sdf34306a bp-label" data-tone="error">Broken</p>
                                 <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
                                     <div class="wf-row wf-s2c416341 bp-console__bar">
                                         <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
@@ -301,8 +304,31 @@
     <span class="wf-tok-name">Unsafe</span>.<span class="wf-tok-name">Html</span>(body)
 }</code>
                                 </div>
-                                <div class="wf-markdown">
-<p>Wrap markup from outside the project in <code>sanitize(…)</code>: <code>Unsafe.Html(sanitize(body))</code>.</p>
+                            </div>
+                            <div class="wf-stack wf-gap--xs wf-se1d318e6">
+                                <p class="wf-text wf-sb24910e4 bp-label" data-tone="ok">Fixed</p>
+                                <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                                    <div class="wf-row wf-s2c416341 bp-console__bar">
+                                        <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                            <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
+                                        </div>
+                                        <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                    </div>
+                                    <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">P</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;T&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;D&quot;</span>) {
+    <span class="wf-tok-kw">state</span> body = <span class="wf-tok-str">&quot;**Hi**&quot;</span>
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Markup&quot;</span>).h1
+    <span class="wf-tok-name">Markdown</span>(body)
+}</code>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="wf-stack bp-prose">
+                            <div class="wf-markdown">
+<p>Most text wants no markup of its own: write it as Markdown,
+which <code>Markdown(body)</code> draws with any HTML in it shown as text. Markup that
+must stay markup and comes from outside the project goes through
+<code>sanitize(…)</code> first — <code>Unsafe.Html(sanitize(body))</code> — which is the reviewed
+case, and the warning still names it.</p>
 <p>A <code>Frame(srcdoc:)</code> drawing HTML from a value is named too: that HTML is
 a document of its own, scripts and all. Unless the call says what the
 frame may do, it may do nothing — the build gives it <code>sandbox=&quot;&quot;</code> —
@@ -324,7 +350,6 @@ named again.</p>
   = docs: https://webfluent.monzeromer.dev/errors/V03
 </code></pre>
 <p><strong>Fix:</strong> <code>Frame(srcdoc: html, title: &quot;Preview&quot;, sandbox: &quot;&quot;)</code>.</p>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -358,6 +383,7 @@ named again.</p>
                     <div class="wf-stack wf-gap--xs wf-s17061b4c">
                         <p class="wf-text wf-scba75cc6 bp-section-label">Do</p>
                         <a class="wf-link" href="/recipes">Recipes</a>
+                        <a class="wf-link" href="/playground">Playground</a>
                         <a class="wf-link" href="/coming-from/react">Coming from…</a>
                         <a class="wf-link" href="/showcase">Showcase</a>
                     </div>

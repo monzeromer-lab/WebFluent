@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Configuration — Reference</title>
     <meta name="description" content="Every key of webfluent.app.json, its type and default: project, build, media, PDF, slides, dev, motion, meta, theme, i18n, env, offline and lints.">
@@ -28,6 +28,8 @@
     <link rel="preload" href="/fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="/styles.css">
     <script src="/js/analytics.js" defer></script>
+    <script src="/js/live.js" defer></script>
+    <script src="/js/old-links-map.js" defer></script>
     <script src="/js/old-links.js" defer></script>
     <script src="/js/video.js" defer></script>
     <script src="/app.js" defer></script>
@@ -50,6 +52,7 @@
                         <a class="wf-link bp-tab" href="/recipes">Recipes</a>
                         <a class="wf-link bp-tab active" href="/reference" aria-current="page">Reference</a>
                         <a class="wf-link bp-tab" href="/errors">Errors</a>
+                        <a class="wf-link bp-tab" href="/playground">Playground</a>
                         <a class="wf-link bp-tab" href="/showcase">Showcase</a>
                     </div>
                     <div class="wf-row wf-align--center wf-gap--sm wf-sff642a95">
@@ -58,7 +61,7 @@
                             <p class="wf-text wf-sf55a2627 bp-hide-sm">Search the docs</p>
                             <p class="wf-text bp-kbd bp-hide-sm">Ctrl+K</p>
                         </button>
-                        <div class="wf-row wf-align--center wf-gap--sm wf-s808638b6 bp-select bp-hide-sm">
+                        <div class="wf-row wf-align--center wf-gap--sm wf-s808638b6 bp-select bp-hide-md">
                             <p class="wf-text wf-s29c127bc bp-building-label" aria-hidden="true">Building</p>
                             <select class="wf-select" aria-label="Building">
                                 <option value="website">Website</option>
@@ -74,7 +77,7 @@
                         <div class="wf-row wf-align--center wf-gap--xs wf-s286d925a bp-hide-sm">
                             <button class="wf-btn bp-button" title="This page is in English only; the switch changes the interface." data-track="select_content" data-track-content-type="language" type="button"></button>
                         </div>
-                        <a class="wf-link bp-button bp-hide-sm" href="https://github.com/monzeromer-lab/WebFluent" data-tone="quiet" aria-label="GitHub">
+                        <a class="wf-link bp-button bp-hide-md" href="https://github.com/monzeromer-lab/WebFluent" data-tone="quiet" aria-label="GitHub">
                             <i class="wf-icon" data-icon="git-branch"></i>
                             <p class="wf-text">GitHub</p>
                         </a>
@@ -1587,7 +1590,7 @@
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p>What the project builds: <code>spa</code> is a website; <code>static</code> is a website whose every page is pre-rendered, as <code>ssg: true</code> builds it; <code>pdf</code> a document; <code>slides</code> a deck; <code>elements</code> custom elements (<a href="/docs/guide/pdf-and-slides">PDF and slides</a>, <a href="/docs/guide/interop#publish-your-components-as-custom-elements">custom elements</a>).</p>
+<p>What the project builds: <code>spa</code> is a website; <code>static</code> is a website whose every page is pre-rendered, as <code>ssg: true</code> builds it; <code>pdf</code> a document; <code>slides</code> a deck; <code>elements</code> custom elements (<a href="/docs/guide/pdf-and-slides">PDF and slides</a>, <a href="/recipes/publish-custom-elements">custom elements</a>).</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -1641,7 +1644,7 @@
                                         <td>unset</td>
                                         <td>
                                             <div class="wf-markdown">
-<p>How a route's address avoids a redirect on a host that adds a trailing slash. <code>&quot;file&quot;</code> also writes <code>contact.html</code> beside <code>contact/index.html</code>; <code>&quot;directory&quot;</code> names every route <code>/contact/</code> in canonical links, the sitemap and links to pages (<a href="/docs/guide/content#keep-addresses-from-redirecting">Content</a>).</p>
+<p>How a route's address avoids a redirect on a host that adds a trailing slash. <code>&quot;file&quot;</code> also writes <code>contact.html</code> beside <code>contact/index.html</code>; <code>&quot;directory&quot;</code> names every route <code>/contact/</code> in canonical links, the sitemap and links to pages (<a href="/recipes">Content</a>).</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -1731,7 +1734,7 @@
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p><code>auto</code> ships only the runtime modules the program reaches; <code>full</code> ships every one, for a hand-written script that calls <code>WF</code> in ways the build cannot see (<a href="/docs/guide/interop">JavaScript interop</a>).</p>
+<p><code>auto</code> ships only the runtime modules the program reaches; <code>full</code> ships every one, for a hand-written script that calls <code>WF</code> in ways the build cannot see (<a href="/recipes">JavaScript interop</a>).</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -1813,7 +1816,7 @@
                             </table>
                             <h3 class="wf-heading" id="build-media">build.media</h3>
                             <div class="wf-markdown">
-<p>The image pipeline: how the build resizes and re-encodes the pictures a program names (<a href="/docs/guide/media">Media</a>).</p>
+<p>The image pipeline: how the build resizes and re-encodes the pictures a program names (<a href="/recipes">Media</a>).</p>
                             </div>
                             <table class="wf-table">
                                 <caption class="wf-visually-hidden">build.media</caption>
@@ -2261,7 +2264,7 @@
                             </table>
                             <h2 class="wf-heading" id="motion">motion</h2>
                             <div class="wf-markdown">
-<p>What an animation does when the element says nothing (<a href="/docs/guide/motion">Motion</a>).</p>
+<p>What an animation does when the element says nothing (<a href="/recipes">Motion</a>).</p>
                             </div>
                             <table class="wf-table">
                                 <caption class="wf-visually-hidden">motion</caption>
@@ -2411,7 +2414,7 @@
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p>Whether the site belongs to an organisation or a person: the JSON-LD node the site is published by (<a href="/docs/guide/content#say-who-the-site-belongs-to">Content</a>).</p>
+<p>Whether the site belongs to an organisation or a person: the JSON-LD node the site is published by (<a href="/recipes">Content</a>).</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -2591,7 +2594,7 @@
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p>Files on this site to fetch with the page, ahead of the stylesheets: a font a project <code>.css</code> file's <code>@font-face</code> names, the first screen's picture. <code>as</code> comes from the extension (a font is also <code>crossorigin</code>). A file on another origin is <code>E111</code> (<a href="/docs/guide/content#preload-fonts-served-from-the-site">Content</a>).</p>
+<p>Files on this site to fetch with the page, ahead of the stylesheets: a font a project <code>.css</code> file's <code>@font-face</code> names, the first screen's picture. <code>as</code> comes from the extension (a font is also <code>crossorigin</code>). A file on another origin is <code>E111</code> (<a href="/recipes">Content</a>).</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -2627,7 +2630,7 @@
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p>Libraries to load before the project's own scripts (below). Their origins join the policy (<a href="/docs/guide/interop#load-a-library-from-a-cdn">JavaScript interop</a>).</p>
+<p>Libraries to load before the project's own scripts (below). Their origins join the policy (<a href="/recipes/library-from-a-cdn">JavaScript interop</a>).</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -2972,7 +2975,7 @@
                                 </tbody>
                             </table>
                             <div class="wf-markdown">
-<p>See also: <a href="/docs/guide/i18n">Internationalisation</a>.</p>
+<p>See also: <a href="/recipes">Internationalisation</a>.</p>
                             </div>
                             <h2 class="wf-heading" id="env-and-publicenv">env and publicenv</h2>
                             <div class="wf-markdown">
@@ -3028,7 +3031,7 @@
                                 </tbody>
                             </table>
                             <div class="wf-markdown">
-<p>See also: <a href="/docs/guide/environments">Environments</a>.</p>
+<p>See also: <a href="/recipes">Environments</a>.</p>
                             </div>
                             <h2 class="wf-heading" id="offline">offline</h2>
                             <div class="wf-markdown">
@@ -3121,7 +3124,7 @@
                                 </tbody>
                             </table>
                             <div class="wf-markdown">
-<p>See also: <a href="/docs/guide/offline">Offline</a>.</p>
+<p>See also: <a href="/recipes">Offline</a>.</p>
                             </div>
                             <h2 class="wf-heading" id="lints">lints</h2>
                             <div class="wf-markdown">
@@ -3195,6 +3198,7 @@
                     <div class="wf-stack wf-gap--xs wf-s17061b4c">
                         <p class="wf-text wf-scba75cc6 bp-section-label">Do</p>
                         <a class="wf-link" href="/recipes">Recipes</a>
+                        <a class="wf-link" href="/playground">Playground</a>
                         <a class="wf-link" href="/coming-from/react">Coming from…</a>
                         <a class="wf-link" href="/showcase">Showcase</a>
                     </div>

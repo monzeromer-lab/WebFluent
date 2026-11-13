@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Getting started</title>
     <meta name="description" content="Install wf, check the install, create a first project, run the dev server and make a change. Then set up the language server and read the build.">
@@ -28,6 +28,8 @@
     <link rel="preload" href="/fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="/styles.css">
     <script src="/js/analytics.js" defer></script>
+    <script src="/js/live.js" defer></script>
+    <script src="/js/old-links-map.js" defer></script>
     <script src="/js/old-links.js" defer></script>
     <script src="/js/video.js" defer></script>
     <script src="/app.js" defer></script>
@@ -50,6 +52,7 @@
                         <a class="wf-link bp-tab" href="/recipes">Recipes</a>
                         <a class="wf-link bp-tab" href="/reference">Reference</a>
                         <a class="wf-link bp-tab" href="/errors">Errors</a>
+                        <a class="wf-link bp-tab" href="/playground">Playground</a>
                         <a class="wf-link bp-tab" href="/showcase">Showcase</a>
                     </div>
                     <div class="wf-row wf-align--center wf-gap--sm wf-sff642a95">
@@ -58,7 +61,7 @@
                             <p class="wf-text wf-sf55a2627 bp-hide-sm">Search the docs</p>
                             <p class="wf-text bp-kbd bp-hide-sm">Ctrl+K</p>
                         </button>
-                        <div class="wf-row wf-align--center wf-gap--sm wf-s808638b6 bp-select bp-hide-sm">
+                        <div class="wf-row wf-align--center wf-gap--sm wf-s808638b6 bp-select bp-hide-md">
                             <p class="wf-text wf-s29c127bc bp-building-label" aria-hidden="true">Building</p>
                             <select class="wf-select" aria-label="Building">
                                 <option value="website">Website</option>
@@ -74,7 +77,7 @@
                         <div class="wf-row wf-align--center wf-gap--xs wf-s286d925a bp-hide-sm">
                             <button class="wf-btn bp-button" title="This page is in English only; the switch changes the interface." data-track="select_content" data-track-content-type="language" type="button"></button>
                         </div>
-                        <a class="wf-link bp-button bp-hide-sm" href="https://github.com/monzeromer-lab/WebFluent" data-tone="quiet" aria-label="GitHub">
+                        <a class="wf-link bp-button bp-hide-md" href="https://github.com/monzeromer-lab/WebFluent" data-tone="quiet" aria-label="GitHub">
                             <i class="wf-icon" data-icon="git-branch"></i>
                             <p class="wf-text">GitHub</p>
                         </a>
@@ -111,10 +114,10 @@
                     <div class="wf-stack wf-gap--xs wf-s733182cd">
                         <div class="wf-row wf-justify--between wf-align--center wf-s42821ebd">
                             <p class="wf-text wf-s0a7b959f">The book</p>
-                            <p class="wf-text bp-small bp-num">0 of 54</p>
+                            <p class="wf-text bp-small bp-num">0 of 39</p>
                         </div>
                         <div class="wf-stack bp-meter">
-                            <progress class="wf-progress" value="0" max="54" aria-label="0 of 54"></progress>
+                            <progress class="wf-progress" value="0" max="39" aria-label="0 of 39"></progress>
                         </div>
                     </div>
                     <div class="wf-stack bp-navlist">
@@ -133,27 +136,11 @@
                             <p class="wf-text wf-s126131e6">Tutorial: Shelf</p>
                             <p class="wf-text wf-sf65d7946 bp-label" data-tone="construction">tour</p>
                         </a>
-                        <a class="wf-link bp-navlink" href="/docs/guide/coming-from">
-                            <p class="wf-text bp-step" aria-hidden="true">4</p>
-                            <p class="wf-text wf-s126131e6">Coming from React, Vue or Svelte</p>
-                        </a>
                         <p class="wf-text bp-navgroup">Tutorials and recipes</p>
                         <a class="wf-link bp-navlink" href="/docs/tutorials/todos">
                             <p class="wf-text bp-step" aria-hidden="true">5</p>
                             <p class="wf-text wf-s126131e6">Tutorial: Todos</p>
                             <p class="wf-text wf-sf65d7946 bp-label" data-tone="construction">tour</p>
-                        </a>
-                        <a class="wf-link bp-navlink" href="/docs/tutorials/field-notes">
-                            <p class="wf-text bp-step" aria-hidden="true">6</p>
-                            <p class="wf-text wf-s126131e6">Tutorial: Field Notes</p>
-                        </a>
-                        <a class="wf-link bp-navlink" href="/docs/tutorials/pocket">
-                            <p class="wf-text bp-step" aria-hidden="true">7</p>
-                            <p class="wf-text wf-s126131e6">Tutorial: Pocket</p>
-                        </a>
-                        <a class="wf-link bp-navlink" href="/docs/guide/recipes">
-                            <p class="wf-text bp-step" aria-hidden="true">8</p>
-                            <p class="wf-text wf-s126131e6">Recipes</p>
                         </a>
                         <p class="wf-text bp-navgroup">Concepts</p>
                         <a class="wf-link bp-navlink" href="/docs/guide/language-basics">
@@ -201,14 +188,6 @@
                             <p class="wf-text bp-step" aria-hidden="true">19</p>
                             <p class="wf-text wf-s126131e6">Styling</p>
                         </a>
-                        <a class="wf-link bp-navlink" href="/docs/guide/motion">
-                            <p class="wf-text bp-step" aria-hidden="true">20</p>
-                            <p class="wf-text wf-s126131e6">Motion</p>
-                        </a>
-                        <a class="wf-link bp-navlink" href="/docs/guide/media">
-                            <p class="wf-text bp-step" aria-hidden="true">21</p>
-                            <p class="wf-text wf-s126131e6">Media</p>
-                        </a>
                         <a class="wf-link bp-navlink" href="/docs/guide/accessibility">
                             <p class="wf-text bp-step" aria-hidden="true">22</p>
                             <p class="wf-text wf-s126131e6">Accessibility</p>
@@ -221,23 +200,6 @@
                         <a class="wf-link bp-navlink" href="/docs/guide/data">
                             <p class="wf-text bp-step" aria-hidden="true">24</p>
                             <p class="wf-text wf-s126131e6">Fetching data</p>
-                        </a>
-                        <a class="wf-link bp-navlink" href="/docs/guide/realtime">
-                            <p class="wf-text bp-step" aria-hidden="true">25</p>
-                            <p class="wf-text wf-s126131e6">Real-time</p>
-                        </a>
-                        <a class="wf-link bp-navlink" href="/docs/guide/offline">
-                            <p class="wf-text bp-step" aria-hidden="true">26</p>
-                            <p class="wf-text wf-s126131e6">Offline</p>
-                        </a>
-                        <p class="wf-text bp-navgroup">Guides: content</p>
-                        <a class="wf-link bp-navlink" href="/docs/guide/content">
-                            <p class="wf-text bp-step" aria-hidden="true">27</p>
-                            <p class="wf-text wf-s126131e6">Content</p>
-                        </a>
-                        <a class="wf-link bp-navlink" href="/docs/guide/i18n">
-                            <p class="wf-text bp-step" aria-hidden="true">28</p>
-                            <p class="wf-text wf-s126131e6">Internationalisation</p>
                         </a>
                         <p class="wf-text bp-navgroup">Guides: quality</p>
                         <a class="wf-link bp-navlink" href="/docs/guide/testing">
@@ -261,30 +223,10 @@
                             <p class="wf-text bp-step" aria-hidden="true">33</p>
                             <p class="wf-text wf-s126131e6">Static or single-page</p>
                         </a>
-                        <a class="wf-link bp-navlink" href="/docs/guide/deploying">
-                            <p class="wf-text bp-step" aria-hidden="true">34</p>
-                            <p class="wf-text wf-s126131e6">Deploying</p>
-                        </a>
-                        <a class="wf-link bp-navlink" href="/docs/guide/environments">
-                            <p class="wf-text bp-step" aria-hidden="true">35</p>
-                            <p class="wf-text wf-s126131e6">Environments</p>
-                        </a>
-                        <a class="wf-link bp-navlink" href="/docs/guide/desktop">
-                            <p class="wf-text bp-step" aria-hidden="true">36</p>
-                            <p class="wf-text wf-s126131e6">Desktop apps</p>
-                        </a>
                         <p class="wf-text bp-navgroup">Other outputs</p>
                         <a class="wf-link bp-navlink" href="/docs/guide/pdf-and-slides">
                             <p class="wf-text bp-step" aria-hidden="true">37</p>
                             <p class="wf-text wf-s126131e6">PDF and slides</p>
-                        </a>
-                        <a class="wf-link bp-navlink" href="/docs/guide/server-rendering">
-                            <p class="wf-text bp-step" aria-hidden="true">38</p>
-                            <p class="wf-text wf-s126131e6">Server rendering</p>
-                        </a>
-                        <a class="wf-link bp-navlink" href="/docs/guide/interop">
-                            <p class="wf-text bp-step" aria-hidden="true">39</p>
-                            <p class="wf-text wf-s126131e6">JavaScript interop</p>
                         </a>
                         <p class="wf-text bp-navgroup">Reference</p>
                         <a class="wf-link bp-navlink" href="/reference">
@@ -529,7 +471,7 @@ Starting dev server at http://localhost:3000/</code>
 </ol>
 <p><strong>You see</strong> the browser reload by itself, and the dashboard now reads <strong>Welcome back.</strong> under its heading.</p>
 <p>To see what an error looks like, change <code>.muted</code> to <code>.mutd</code> and save. The page shows error <code>E103</code> over it, with the file, the line and the hint “Did you mean <code>.muted</code>?”. Change it back, save, and the page returns.</p>
-<p>You have a working project. Stop the server with Ctrl+C when you are done. Run <code>wf build</code> to write the finished site to <code>build/</code>, ready for any static host (<a href="/docs/guide/deploying">Deploying</a>).</p>
+<p>You have a working project. Stop the server with Ctrl+C when you are done. Run <code>wf build</code> to write the finished site to <code>build/</code>, ready for any static host (<a href="/recipes">Deploying</a>).</p>
 <p>The rest of this chapter is optional set-up. To keep learning, go to the <a href="/docs/guide/tutorial">tutorial</a>.</p>
                             </div>
                             <h2 class="wf-heading" id="set-up-your-editor">Set up your editor</h2>
@@ -673,7 +615,7 @@ Starting dev server at http://localhost:3000/</code>
                                 </tbody>
                             </table>
                             <div class="wf-markdown">
-<p><code>--locales en,ar</code> starts an <code>spa</code> or <code>static</code> project translated: its text is in <code>src/translations/</code>, one file per language, and the first locale is the default (<a href="/docs/guide/i18n#start-a-project-translated">Internationalisation</a>).</p>
+<p><code>--locales en,ar</code> starts an <code>spa</code> or <code>static</code> project translated: its text is in <code>src/translations/</code>, one file per language, and the first locale is the default (<a href="/recipes/translate-a-site#start-a-project-translated">Internationalisation</a>).</p>
 <p>If you are unsure between <code>spa</code> and <code>static</code>, start with <code>static</code>. Every page is real HTML before any script runs, which is better for search and for the first paint, and the page is still fully interactive once the script loads. <a href="/docs/guide/static-and-spa">Static or single-page</a> explains the difference.</p>
                             </div>
                             <h2 class="wf-heading" id="write-a-site-from-scratch">Write a site from scratch</h2>
@@ -762,7 +704,7 @@ Starting dev server at http://localhost:3000/</code>
                             </div>
                             <div class="wf-markdown">
 <p>Do not edit anything in <code>build/</code>: the next build writes it again. Keep it out of version control; the <code>.gitignore</code> that <code>wf init</code> writes already does. The build copies <code>public/</code> to the root of <code>build/</code> as it is.</p>
-<p><code>app.js</code> carries only the parts of the runtime the program reaches. The runtime is a set of feature modules — <code>each</code> for a <code>for</code>, <code>router</code> for a second page, <code>net</code> for a <code>resource</code>, <code>icons</code> for an <code>Icon</code> — and the build works out which ones the code it just wrote calls. A page of static text carries 2 of the 41 modules: an <code>app.js</code> of 6.8 kB gzipped. <code>wf build --stats</code> shows what a build weighs, and <a href="/docs/guide/performance">Performance</a> explains how to read it.</p>
+<p><code>app.js</code> carries only the parts of the runtime the program reaches. The runtime is a set of feature modules — <code>each</code> for a <code>for</code>, <code>router</code> for a second page, <code>net</code> for a <code>resource</code>, <code>icons</code> for an <code>Icon</code> — and the build works out which ones the code it just wrote calls, then keeps only the functions of those that the calls reach, with their names shortened. A page of static text is an <code>app.js</code> of 1.9 kB gzipped. <code>wf build --stats</code> shows what a build weighs, and <a href="/docs/guide/performance">Performance</a> explains how to read it.</p>
                             </div>
                             <h2 class="wf-heading" id="the-project-in-brief">The project, in brief</h2>
                             <div class="wf-markdown">
@@ -848,6 +790,7 @@ tests/*.wf            `test &quot;…&quot; { }` declarations for `wf test`</cod
                     <div class="wf-stack wf-gap--xs wf-s17061b4c">
                         <p class="wf-text wf-scba75cc6 bp-section-label">Do</p>
                         <a class="wf-link" href="/recipes">Recipes</a>
+                        <a class="wf-link" href="/playground">Playground</a>
                         <a class="wf-link" href="/coming-from/react">Coming from…</a>
                         <a class="wf-link" href="/showcase">Showcase</a>
                     </div>

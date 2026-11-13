@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Translate a site — Recipes</title>
+    <meta name="description" content="Translate a site into several languages: one JSON file per locale, t(&quot;key&quot;) wherever text goes, a language switch, plural forms and right to left.">
+    <link rel="canonical" href="https://webfluent.monzeromer.dev/recipes/translate-a-site">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Translate a site — Recipes">
+    <meta property="og:site_name" content="WebFluent">
+    <meta property="og:description" content="Translate a site into several languages: one JSON file per locale, t(&quot;key&quot;) wherever text goes, a language switch, plural forms and right to left.">
+    <meta property="og:url" content="https://webfluent.monzeromer.dev/recipes/translate-a-site">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="ar_AR">
+    <meta property="og:image" content="https://webfluent.monzeromer.dev/og.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Translate a site — Recipes">
+    <meta name="twitter:description" content="Translate a site into several languages: one JSON file per locale, t(&quot;key&quot;) wherever text goes, a language switch, plural forms and right to left.">
+    <meta name="twitter:image" content="https://webfluent.monzeromer.dev/og.png">
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/recipes/translate-a-site#webpage","url":"https://webfluent.monzeromer.dev/recipes/translate-a-site","name":"Translate a site — Recipes","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"Translate a site into several languages: one JSON file per locale, t(\"key\") wherever text goes, a language switch, plural forms and right to left.","inLanguage":"en"},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/recipes/translate-a-site#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Recipes — WebFluent","item":"https://webfluent.monzeromer.dev/recipes"},{"@type":"ListItem","position":3,"name":"Translate a site — Recipes","item":"https://webfluent.monzeromer.dev/recipes/translate-a-site"}]}]}</script>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="preload" href="/fonts/instrument-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="/styles.css">
+    <script src="/js/analytics.js" defer></script>
+    <script src="/js/live.js" defer></script>
+    <script src="/js/old-links-map.js" defer></script>
+    <script src="/js/old-links.js" defer></script>
+    <script src="/js/video.js" defer></script>
+    <script src="/app.js" defer></script>
+    <script src="/pages/RecipeTranslateASite.js" data-wf-page="RecipeTranslateASite" defer></script>
+</head>
+<body>
+    <a class="wf-skip-link" href="#wf-main">Skip to content</a>
+    <div id="app">
+        <main id="wf-main">
+            <a class="wf-link bp-skip" href="#bp-main">Skip to the content</a>
+            <div class="wf-row wf-align--center wf-s55053fdc bp-header" role="banner">
+                <div class="wf-row wf-align--center wf-gap--md wf-sfe495c12 bp-wrap">
+                    <a class="wf-link wf-sa4fc1f4b" href="/" aria-label="WebFluent, home">
+                        <img class="wf-image wf-s4b9d0b60" src="/favicon.svg" alt="" decoding="async" loading="eager" fetchpriority="high">
+                        <p class="wf-text wf-s9919642b">WebFluent</p>
+                        <p class="wf-text bp-label bp-num">6.0</p>
+                    </a>
+                    <div class="wf-row wf-s92924cc4 bp-tabs" role="navigation" aria-label="Main">
+                        <a class="wf-link bp-tab" href="/learn">Learn</a>
+                        <a class="wf-link bp-tab active" href="/recipes" aria-current="page">Recipes</a>
+                        <a class="wf-link bp-tab" href="/reference">Reference</a>
+                        <a class="wf-link bp-tab" href="/errors">Errors</a>
+                        <a class="wf-link bp-tab" href="/playground">Playground</a>
+                        <a class="wf-link bp-tab" href="/showcase">Showcase</a>
+                    </div>
+                    <div class="wf-row wf-align--center wf-gap--sm wf-sff642a95">
+                        <button class="wf-btn wf-sf8ab46ec bp-field bp-search" aria-label="Search the docs" aria-keyshortcuts="Meta+K Control+K" aria-haspopup="dialog" type="button">
+                            <i class="wf-icon" data-icon="search"></i>
+                            <p class="wf-text wf-sf55a2627 bp-hide-sm">Search the docs</p>
+                            <p class="wf-text bp-kbd bp-hide-sm">Ctrl+K</p>
+                        </button>
+                        <div class="wf-row wf-align--center wf-gap--sm wf-s808638b6 bp-select bp-hide-md">
+                            <p class="wf-text wf-s29c127bc bp-building-label" aria-hidden="true">Building</p>
+                            <select class="wf-select" aria-label="Building">
+                                <option value="website">Website</option>
+                                <option value="app">Web app</option>
+                                <option value="pdf">PDF</option>
+                                <option value="slides">Slides</option>
+                                <option value="elements">Custom elements</option>
+                                <option value="desktop">Desktop / phone</option>
+                            </select>
+                            <i class="wf-icon wf-s94250744" data-icon="chevron-down" aria-hidden="true"></i>
+                        </div>
+                        <button class="wf-icon-btn bp-icon-button" data-track="select_content" data-track-content-type="theme" type="button"></button>
+                        <div class="wf-row wf-align--center wf-gap--xs wf-s286d925a bp-hide-sm">
+                            <button class="wf-btn bp-button" title="This page is in English only; the switch changes the interface." data-track="select_content" data-track-content-type="language" type="button"></button>
+                        </div>
+                        <a class="wf-link bp-button bp-hide-md" href="https://github.com/monzeromer-lab/WebFluent" data-tone="quiet" aria-label="GitHub">
+                            <i class="wf-icon" data-icon="git-branch"></i>
+                            <p class="wf-text">GitHub</p>
+                        </a>
+                        <button class="wf-icon-btn wf-sde8ec4aa bp-icon-button" data-icon="menu" aria-label="Menu" title="Menu" aria-expanded="false" type="button"></button>
+                    </div>
+                </div>
+            </div>
+            <dialog class="wf-modal bp-palette" aria-labelledby="wf-dlg-s1">
+                <div class="wf-modal__content">
+                    <div class="wf-modal__header"><h3 id="wf-dlg-s1">Search</h3></div>
+                    <div class="wf-modal__body">
+                        <div class="wf-stack wf-sa8e464d0">
+                            <div class="wf-row wf-align--center wf-gap--sm wf-s02e7a482 bp-field">
+                                <i class="wf-icon" data-icon="search"></i>
+                                <input class="wf-input" placeholder="Search the guide" aria-label="Search the guide" type="search" autofocus>
+                                <p class="wf-text bp-kbd">esc</p>
+                            </div>
+                            <div class="wf-row wf-s434e64fb bp-tabs" role="tablist" aria-label="Narrow the search">
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="true" type="button">All</button>
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">Learn</button>
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">Recipes</button>
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">Reference</button>
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">Errors</button>
+                            </div>
+                            <div class="wf-stack wf-s3f6dffee" role="listbox" aria-label="Search results">
+                                <p class="wf-text wf-s3205a3d6 bp-small">Type a word: a component, a code such as T05, or a task.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </dialog>
+            <div class="wf-row wf-align--start wf-sa997482c bp-wrap">
+                <div class="wf-stack wf-gap--sm wf-sa359f878 bp-sidebar" role="navigation" aria-label="Recipes">
+                    <div class="wf-row wf-align--center wf-gap--sm wf-scc2d619f bp-field">
+                        <i class="wf-icon" data-icon="filter"></i>
+                        <input class="wf-input" placeholder="Filter" aria-label="Filter" type="search">
+                    </div>
+                    <div class="wf-stack bp-navlist">
+                        <!--wf-if-->
+                        <a class="wf-link bp-navlink" href="/recipes/confirm-dialog">Build a confirm dialog</a>
+                        <a class="wf-link bp-navlink" href="/recipes/copy-to-the-clipboard">Copy to the clipboard</a>
+                        <a class="wf-link bp-navlink" href="/recipes/count-down">Count down</a>
+                        <a class="wf-link bp-navlink" href="/recipes/debounce-a-search">Debounce a search</a>
+                        <a class="wf-link bp-navlink" href="/recipes/filters-in-the-address">Keep filters in the address</a>
+                        <a class="wf-link bp-navlink" href="/recipes/active-tab-in-the-address">Keep the active tab in the address</a>
+                        <a class="wf-link bp-navlink" href="/recipes/responsive-navigation">Make navigation responsive</a>
+                        <a class="wf-link bp-navlink" href="/recipes/store-value-as-a-prop">Pass a store&#x27;s value to a component</a>
+                        <p class="wf-text bp-navgroup">Data</p>
+                        <a class="wf-link bp-navlink" href="/recipes/load-more">Load more as the reader asks</a>
+                        <a class="wf-link bp-navlink" href="/recipes/page-through-results">Page through results</a>
+                        <a class="wf-link bp-navlink" href="/recipes/validation-messages">Show validation messages on a form</a>
+                        <a class="wf-link bp-navlink" href="/recipes/sign-in-with-a-session-cookie">Sign in with a session cookie</a>
+                        <a class="wf-link bp-navlink" href="/recipes/optimistic-updates">Update at once, and roll back on failure</a>
+                        <p class="wf-text bp-navgroup">Real time</p>
+                        <a class="wf-link bp-navlink" href="/recipes/connect-two-readers">Connect two readers&#x27; pages</a>
+                        <a class="wf-link bp-navlink" href="/recipes/server-sent-events">Listen to server-sent events</a>
+                        <a class="wf-link bp-navlink" href="/recipes/open-a-socket">Open a socket</a>
+                        <a class="wf-link bp-navlink" href="/recipes/run-a-worker">Run a script in a worker</a>
+                        <a class="wf-link bp-navlink" href="/recipes/send-on-unload">Send a message as the page unloads</a>
+                        <a class="wf-link bp-navlink" href="/recipes/show-the-network">Show what the network is doing</a>
+                        <a class="wf-link bp-navlink" href="/recipes/talk-between-tabs">Talk to the site&#x27;s other tabs</a>
+                        <p class="wf-text bp-navgroup">Content</p>
+                        <a class="wf-link bp-navlink" href="/recipes/search-and-link-previews">Describe pages to search engines and link previews</a>
+                        <a class="wf-link bp-navlink" href="/recipes/render-markdown">Render Markdown</a>
+                        <a class="wf-link bp-navlink" href="/recipes/show-code">Show code on a page</a>
+                        <a class="wf-link bp-navlink" href="/recipes/markdown-pages">Write a page as a Markdown file</a>
+                        <p class="wf-text bp-navgroup">Look and motion</p>
+                        <a class="wf-link bp-navlink" href="/recipes/dark-mode-switch">Add a dark-mode switch</a>
+                        <a class="wf-link bp-navlink" href="/recipes/add-a-picture">Add a picture, sized for every screen</a>
+                        <a class="wf-link bp-navlink" href="/recipes/video-and-audio">Add video and audio</a>
+                        <a class="wf-link bp-navlink" href="/recipes/animate-a-list">Animate a list</a>
+                        <a class="wf-link bp-navlink" href="/recipes/animate-in-and-out">Animate an element in and out</a>
+                        <a class="wf-link bp-navlink" href="/recipes/route-transitions">Animate route changes</a>
+                        <a class="wf-link bp-navlink" href="/recipes/shared-element">Carry an element across a route change</a>
+                        <a class="wf-link bp-navlink" href="/recipes/count-a-number">Count a number to its new value</a>
+                        <a class="wf-link bp-navlink" href="/recipes/keyframes">Declare your own keyframes</a>
+                        <a class="wf-link bp-navlink" href="/recipes/drive-an-animation">Drive an animation yourself</a>
+                        <a class="wf-link bp-navlink" href="/recipes/expand-to-content">Open a box to the height of its content</a>
+                        <a class="wf-link bp-navlink" href="/recipes/animation-sequence">Run a sequence of animations</a>
+                        <a class="wf-link bp-navlink" href="/recipes/motion-defaults">Set motion defaults, and respect reduced motion</a>
+                        <a class="wf-link bp-navlink" href="/recipes/show-a-carousel">Show a carousel</a>
+                        <a class="wf-link bp-navlink" href="/recipes/show-an-icon">Show an icon</a>
+                        <a class="wf-link bp-navlink" href="/recipes/show-a-page-in-a-frame">Show another page in a frame</a>
+                        <a class="wf-link bp-navlink" href="/recipes/tween-on-change">Tween a property when state changes</a>
+                        <p class="wf-text bp-navgroup">Reach</p>
+                        <a class="wf-link bp-navlink" href="/recipes/keep-writes-made-offline">Keep writes made offline</a>
+                        <a class="wf-link bp-navlink" href="/recipes/work-offline">Make a site work offline</a>
+                        <a class="wf-link bp-navlink" href="/recipes/offer-a-new-version">Offer a new version</a>
+                        <a class="wf-link bp-navlink" href="/recipes/site-in-two-languages">Publish a page in each language</a>
+                        <a class="wf-link bp-navlink active" href="/recipes/translate-a-site" aria-current="page">Translate a site</a>
+                        <a class="wf-link bp-navlink" href="/recipes/translate-by-the-words">Translate by the words as written</a>
+                        <a class="wf-link bp-navlink" href="/recipes/environments-and-secrets">Use environment values, and keep secrets out</a>
+                        <p class="wf-text bp-navgroup">Ship</p>
+                        <a class="wf-link bp-navlink" href="/recipes/docker-image">Build a Docker image</a>
+                        <a class="wf-link bp-navlink" href="/recipes/check-a-deploy">Check a deploy</a>
+                        <a class="wf-link bp-navlink" href="/recipes/deploy-to-cloudflare-pages">Deploy to Cloudflare Pages</a>
+                        <a class="wf-link bp-navlink" href="/recipes/deploy-to-github-pages">Deploy to GitHub Pages</a>
+                        <a class="wf-link bp-navlink" href="/recipes/deploy-to-netlify">Deploy to Netlify</a>
+                        <a class="wf-link bp-navlink" href="/recipes/deploy-to-vercel">Deploy to Vercel</a>
+                        <a class="wf-link bp-navlink" href="/recipes/install-wf-in-ci">Install wf on a build machine</a>
+                        <a class="wf-link bp-navlink" href="/recipes/electron-app">Make a desktop app with Electron</a>
+                        <a class="wf-link bp-navlink" href="/recipes/tauri-app">Make a desktop or phone app with Tauri</a>
+                        <a class="wf-link bp-navlink" href="/recipes/serve-with-apache">Serve a site with Apache</a>
+                        <a class="wf-link bp-navlink" href="/recipes/serve-with-caddy">Serve a site with Caddy</a>
+                        <a class="wf-link bp-navlink" href="/recipes/serve-with-nginx">Serve a site with nginx</a>
+                        <a class="wf-link bp-navlink" href="/recipes/api-on-the-same-origin">Serve an API on the same origin</a>
+                        <a class="wf-link bp-navlink" href="/recipes/cache-and-security-headers">Set cache and security headers</a>
+                        <p class="wf-text bp-navgroup">Interop</p>
+                        <a class="wf-link bp-navlink" href="/recipes/call-wf-from-a-script">Call WF from a script</a>
+                        <a class="wf-link bp-navlink" href="/recipes/call-your-own-script">Call your own JavaScript</a>
+                        <a class="wf-link bp-navlink" href="/recipes/chart-from-a-library">Draw a chart from a library</a>
+                        <a class="wf-link bp-navlink" href="/recipes/portal">Draw into a node a script made</a>
+                        <a class="wf-link bp-navlink" href="/recipes/hand-an-element-to-a-script">Hand an element to a script</a>
+                        <a class="wf-link bp-navlink" href="/recipes/library-from-a-cdn">Load a library from a CDN</a>
+                        <a class="wf-link bp-navlink" href="/recipes/migrate-from-external">Migrate from external</a>
+                        <a class="wf-link bp-navlink" href="/recipes/place-a-custom-element">Place a custom element from a library</a>
+                        <a class="wf-link bp-navlink" href="/recipes/publish-custom-elements">Publish components as custom elements</a>
+                        <a class="wf-link bp-navlink" href="/recipes/render-a-template">Render a template with data</a>
+                        <a class="wf-link bp-navlink" href="/recipes/render-from-node">Render templates from Node</a>
+                        <a class="wf-link bp-navlink" href="/recipes/render-from-rust">Render templates from Rust</a>
+                        <a class="wf-link bp-navlink" href="/recipes/listen-for-wf-render">Run a script after each page draws</a>
+                        <p class="wf-text bp-navgroup">Projects</p>
+                        <a class="wf-link bp-navlink" href="/recipes/build-a-budget-app">Build a budget app that works offline</a>
+                        <a class="wf-link bp-navlink" href="/recipes/build-a-notebook-site">Build a statically generated notebook</a>
+                    </div>
+                </div>
+                <div class="wf-stack wf-gap--lg wf-s54d43750 bp-main" role="main" id="bp-main" tabindex="-1">
+                    <div class="wf-row wf-align--center wf-gap--xs wf-s2327e38b" role="navigation" aria-label="Breadcrumb">
+                        <a class="wf-link" href="/recipes">Recipes</a>
+                        <p class="wf-text" aria-hidden="true">/</p>
+                    </div>
+                    <div class="wf-row bp-labels">
+                        <p class="wf-text bp-label" data-tone="kind" data-kind="howto">How-to</p>
+                        <div class="wf-row wf-gap--xs bp-labels" aria-label="Works in">
+                            <p class="wf-text bp-label" data-tone="construction">Website</p>
+                            <p class="wf-text bp-label" data-tone="plain">Web app</p>
+                            <p class="wf-text bp-label" data-tone="plain">Desktop / phone</p>
+                        </div>
+                    </div>
+                    <div class="wf-stack wf-gap--sm wf-s4e4189b1">
+                        <h1 class="wf-heading wf-sdfc6d99e">Translate a site</h1>
+                        <div class="wf-markdown bp-lede">
+<p>Show a site in the reader's language: one file of messages per locale, <code>t(&quot;key&quot;)</code> wherever text goes, and a switch that changes the language on the spot, right to left included. To start a new project this way, see <a href="#start-a-project-translated">Start a project translated</a>.  This program has a language picker in its navigation bar and a home page whose heading, count and button are translated. It reads the translation files that <a href="#set-up-the-translation-files">Set up the translation files</a> shows:</p>
+                        </div>
+                    </div>
+                    <div class="wf-stack wf-gap--sm wf-sa4f807c1">
+                        <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                            <div class="wf-row wf-s2c416341 bp-console__bar">
+                                <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                    <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
+                                </div>
+                                <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                            </div>
+                            <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-kw">type</span> <span class="wf-tok-name">User</span> { <span class="wf-tok-prop">name</span>: <span class="wf-tok-name">String</span> }
+
+<span class="wf-tok-kw">app</span> {
+    <span class="wf-tok-kw">state</span> chosen = <span class="wf-tok-str">&quot;en&quot;</span>
+    <span class="wf-tok-name">Navbar</span> {
+        <span class="wf-tok-name">Navbar</span>.<span class="wf-tok-name">Brand</span> { <span class="wf-tok-name">Link</span>(<span class="wf-tok-str">&quot;i18n&quot;</span>, <span class="wf-tok-prop">to</span>: <span class="wf-tok-str">&quot;/&quot;</span>) }
+        <span class="wf-tok-name">Navbar</span>.<span class="wf-tok-name">Links</span> {
+            <span class="wf-tok-name">Link</span>(t(<span class="wf-tok-str">&quot;nav.home&quot;</span>), <span class="wf-tok-prop">to</span>: <span class="wf-tok-str">&quot;/&quot;</span>)
+            <span class="wf-tok-name">Link</span>(t(<span class="wf-tok-str">&quot;nav.about&quot;</span>), <span class="wf-tok-prop">to</span>: <span class="wf-tok-str">&quot;/about&quot;</span>)
+        }
+        <span class="wf-tok-name">Navbar</span>.<span class="wf-tok-name">Actions</span> {
+            <span class="wf-tok-name">Select</span>(<span class="wf-tok-prop">bind</span>: chosen, <span class="wf-tok-prop">label</span>: t(<span class="wf-tok-str">&quot;nav.language&quot;</span>)) {
+                <span class="wf-tok-kw">on</span> change { setLocale(chosen) }
+                <span class="wf-tok-name">Select</span>.<span class="wf-tok-name">Option</span>(<span class="wf-tok-str">&quot;English&quot;</span>, <span class="wf-tok-prop">value</span>: <span class="wf-tok-str">&quot;en&quot;</span>)
+                <span class="wf-tok-name">Select</span>.<span class="wf-tok-name">Option</span>(<span class="wf-tok-str">&quot;العربية&quot;</span>, <span class="wf-tok-prop">value</span>: <span class="wf-tok-str">&quot;ar&quot;</span>)
+                <span class="wf-tok-name">Select</span>.<span class="wf-tok-name">Option</span>(<span class="wf-tok-str">&quot;Español&quot;</span>, <span class="wf-tok-prop">value</span>: <span class="wf-tok-str">&quot;es&quot;</span>)
+            }
+        }
+    }
+    <span class="wf-tok-name">Router</span>
+}
+
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">Home</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Home&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;The home page.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> user = <span class="wf-tok-name">User</span>(<span class="wf-tok-prop">name</span>: <span class="wf-tok-str">&quot;Sam&quot;</span>)
+    <span class="wf-tok-kw">state</span> <span class="wf-tok-prop">items</span>: [<span class="wf-tok-name">String</span>] = [<span class="wf-tok-str">&quot;a&quot;</span>, <span class="wf-tok-str">&quot;b&quot;</span>, <span class="wf-tok-str">&quot;c&quot;</span>]
+    <span class="wf-tok-name">Heading</span>(t(<span class="wf-tok-str">&quot;welcome&quot;</span>, { <span class="wf-tok-prop">name</span>: user.name })).h1
+    <span class="wf-tok-name">Text</span>(t(<span class="wf-tok-str">&quot;items&quot;</span>, { <span class="wf-tok-prop">count</span>: items.length }))
+    <span class="wf-tok-name">Button</span>(t(<span class="wf-tok-str">&quot;actions.save&quot;</span>)).primary
+    <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Locale: {locale}, direction: {dir}&quot;</span>)
+    <span class="wf-tok-kw">if</span> locale == <span class="wf-tok-str">&quot;ar&quot;</span> { <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;النسخة العربية&quot;</span>) }
+}
+
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">About</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/about&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;About&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;About the site.&quot;</span>) {
+    <span class="wf-tok-name">Heading</span>(t(<span class="wf-tok-str">&quot;nav.about&quot;</span>)).h1
+}</code>
+                        </div>
+                    </div>
+                    <div class="wf-stack wf-gap--lg wf-s841f14ce bp-prose" dir="ltr">
+                        <h2 class="wf-heading" id="how-it-works">How it works</h2>
+                        <h3 class="wf-heading" id="set-up-the-translation-files">Set up the translation files</h3>
+                        <div class="wf-markdown">
+<p>List the site's locales in <code>webfluent.app.json</code> under <code>i18n</code>. <code>default_locale</code> names the language the site is written in, and <code>dir</code> the directory that holds the files:</p>
+                        </div>
+                        <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                            <div class="wf-row wf-s2c416341 bp-console__bar">
+                                <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                    <p class="wf-text wf-s23a4ddd5 bp-mono">json</p>
+                                </div>
+                                <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="json" type="button">Copy</button>
+                            </div>
+                            <code class="wf-code wf-code--block bp-console__code">{
+  <span class="wf-tok-prop">&quot;i18n&quot;</span>: {
+    <span class="wf-tok-prop">&quot;default_locale&quot;</span>: <span class="wf-tok-str">&quot;en&quot;</span>,
+    <span class="wf-tok-prop">&quot;locales&quot;</span>: [<span class="wf-tok-str">&quot;en&quot;</span>, <span class="wf-tok-str">&quot;ar&quot;</span>, <span class="wf-tok-str">&quot;es&quot;</span>],
+    <span class="wf-tok-prop">&quot;dir&quot;</span>: <span class="wf-tok-str">&quot;src/translations&quot;</span>
+  }
+}</code>
+                        </div>
+                        <div class="wf-markdown">
+<p>Then put one file per locale in that directory — <code>en.json</code>, <code>ar.json</code>, <code>es.json</code>. Each is a flat map of keys to messages; by convention a key has dots in it to group related messages. This is <code>src/translations/en.json</code>:</p>
+                        </div>
+                        <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                            <div class="wf-row wf-s2c416341 bp-console__bar">
+                                <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                    <p class="wf-text wf-s23a4ddd5 bp-mono">json</p>
+                                </div>
+                                <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="json" type="button">Copy</button>
+                            </div>
+                            <code class="wf-code wf-code--block bp-console__code">{
+  <span class="wf-tok-prop">&quot;nav.home&quot;</span>: <span class="wf-tok-str">&quot;Home&quot;</span>,
+  <span class="wf-tok-prop">&quot;nav.about&quot;</span>: <span class="wf-tok-str">&quot;About&quot;</span>,
+  <span class="wf-tok-prop">&quot;nav.language&quot;</span>: <span class="wf-tok-str">&quot;Language&quot;</span>,
+  <span class="wf-tok-prop">&quot;welcome&quot;</span>: <span class="wf-tok-str">&quot;Welcome, {name}!&quot;</span>,
+  <span class="wf-tok-prop">&quot;items.one&quot;</span>: <span class="wf-tok-str">&quot;{count} item&quot;</span>,
+  <span class="wf-tok-prop">&quot;items.other&quot;</span>: <span class="wf-tok-str">&quot;{count} items&quot;</span>,
+  <span class="wf-tok-prop">&quot;actions.save&quot;</span>: <span class="wf-tok-str">&quot;Save&quot;</span>
+}</code>
+                        </div>
+                        <div class="wf-markdown">
+<p>And this is <code>src/translations/ar.json</code>, with the six plural forms Arabic uses:</p>
+                        </div>
+                        <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                            <div class="wf-row wf-s2c416341 bp-console__bar">
+                                <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                    <p class="wf-text wf-s23a4ddd5 bp-mono">json</p>
+                                </div>
+                                <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="json" type="button">Copy</button>
+                            </div>
+                            <code class="wf-code wf-code--block bp-console__code">{
+  <span class="wf-tok-prop">&quot;nav.home&quot;</span>: <span class="wf-tok-str">&quot;الرئيسية&quot;</span>,
+  <span class="wf-tok-prop">&quot;nav.about&quot;</span>: <span class="wf-tok-str">&quot;حول&quot;</span>,
+  <span class="wf-tok-prop">&quot;nav.language&quot;</span>: <span class="wf-tok-str">&quot;اللغة&quot;</span>,
+  <span class="wf-tok-prop">&quot;welcome&quot;</span>: <span class="wf-tok-str">&quot;أهلاً، {name}!&quot;</span>,
+  <span class="wf-tok-prop">&quot;items.zero&quot;</span>: <span class="wf-tok-str">&quot;لا عناصر&quot;</span>,
+  <span class="wf-tok-prop">&quot;items.one&quot;</span>: <span class="wf-tok-str">&quot;عنصر واحد&quot;</span>,
+  <span class="wf-tok-prop">&quot;items.two&quot;</span>: <span class="wf-tok-str">&quot;عنصران&quot;</span>,
+  <span class="wf-tok-prop">&quot;items.few&quot;</span>: <span class="wf-tok-str">&quot;{count} عناصر&quot;</span>,
+  <span class="wf-tok-prop">&quot;items.many&quot;</span>: <span class="wf-tok-str">&quot;{count} عنصراً&quot;</span>,
+  <span class="wf-tok-prop">&quot;items.other&quot;</span>: <span class="wf-tok-str">&quot;{count} عنصر&quot;</span>,
+  <span class="wf-tok-prop">&quot;actions.save&quot;</span>: <span class="wf-tok-str">&quot;حفظ&quot;</span>
+}</code>
+                        </div>
+                        <div class="wf-markdown">
+<p>A locale with no file, and a key one locale has and another lacks, are build warnings (<code>I03</code>). At run time a key missing from the reader's locale falls back to the default locale's message, then to the key itself.</p>
+                        </div>
+                        <h3 class="wf-heading" id="translate-text-with-t">Translate text with t()</h3>
+                        <div class="wf-markdown">
+<p>To show a message in the reader's language, call <code>t(&quot;key&quot;)</code> wherever a string goes, as <code>Home</code> does above. Pass a map as the second argument to fill placeholders and to pick a plural form.</p>
+<p>In English the home page reads <strong>Welcome, Sam!</strong>, <strong>3 items</strong> and a <strong>Save</strong> button; in Arabic, <strong>أهلاً، Sam!</strong>, <strong>3 عناصر</strong> and <strong>حفظ</strong>.</p>
+<p>How <code>t()</code> behaves:</p>
+<ul>
+<li><strong>It follows the locale.</strong> <code>t(&quot;key&quot;)</code> is the message for the current locale, and every call is evaluated again when the locale changes.</li>
+<li><strong>It fills placeholders.</strong> <code>t(&quot;key&quot;, { name: value })</code> replaces each <code>{name}</code> in the message with the map's value.</li>
+<li><strong>A <code>count</code> picks the plural form.</strong> The form comes from the locale's CLDR plural rules, which the browser's <code>Intl.PluralRules</code> follows too: Arabic has <code>zero</code>, <code>one</code>, <code>two</code>, <code>few</code>, <code>many</code> and <code>other</code>; English has <code>one</code> and <code>other</code>; Japanese has only <code>other</code>. A count of exactly 0 uses <code>key.zero</code> wherever the file has one, in any language, so English can say &quot;No files&quot; rather than &quot;0 files&quot;. Without the form it wants, <code>t()</code> falls back to <code>key.other</code>, then to <code>key</code>.</li>
+<li><strong>A key's forms all come from one language</strong> — the reader's, when its file has the key at all, otherwise the default locale's. It never mixes one form from each.</li>
+<li><strong>The pre-rendered page is already translated.</strong> The build resolves <code>t</code> for the default locale when it pre-renders a page, by the same rules, so the HTML is in the default language, its counts in that language's forms.</li>
+</ul>
+                        </div>
+                        <div class="wf-stack wf-s37f4bada bp-aside" role="note" aria-label="Warning" data-urgent="true" data-kind="warning">
+                            <p class="wf-text bp-aside__label">Warning</p>
+                            <div class="wf-markdown">
+<p>Never build a sentence from pieces (<code>t(&quot;greeting&quot;) + name</code>). Word order differs between languages. Put a placeholder in the message, so a translator can move it.</p>
+                            </div>
+                        </div>
+                        <h3 class="wf-heading" id="switch-the-locale">Switch the locale</h3>
+                        <div class="wf-markdown">
+<p>To let the reader change language, call <code>setLocale(code)</code>. The <code>app</code> above puts a language picker in the navigation bar, and <code>Home</code> shows the current locale and direction.</p>
+<p><code>locale</code> is the current locale's code, and <code>dir</code> is <code>&quot;ltr&quot;</code> or <code>&quot;rtl&quot;</code>. An <code>app</code> block may declare <code>state</code> as a page does, as <code>chosen</code> is above.</p>
+<p>On a switch, the runtime sets <code>&lt;html lang&gt;</code> and <code>&lt;html dir&gt;</code>. A locale is right to left when its language is: Arabic, Hebrew, Persian, Urdu, Pashto, Sindhi, Central Kurdish, Uyghur, Yiddish, Dhivehi, Kashmiri, Syriac, Aramaic and N'Ko — with any region, so <code>ar-EG</code> is too. A site whose default locale is one of them is written <code>&lt;html lang=&quot;ar&quot; dir=&quot;rtl&quot;&gt;</code> from the start, before any script runs.</p>
+<p><code>meta.lang</code> may name a region of the default locale's language (<code>en-GB</code> for <code>en</code>); otherwise the default locale is the page's language.</p>
+<p>The built-ins use logical CSS properties (<code>margin-inline-start</code>, not <code>margin-left</code>), so their layouts mirror with no work on your side. Use logical properties in your own <code>style { }</code> blocks too.</p>
+                        </div>
+                        <h3 class="wf-heading" id="choose-the-locale-a-page-opens-in">Choose the locale a page opens in</h3>
+                        <div class="wf-markdown">
+<p>A page opens in <code>default_locale</code>, with two exceptions:</p>
+<ol>
+<li><strong>The address names a locale.</strong> <code>?lang=&lt;code&gt;</code>, for one of the configured locales, opens the page in it: <code>/about?lang=ar</code> is the Arabic page, for a link you share. It does not change the reader's kept choice. It is not an address a search engine indexes: its HTML, and its canonical link, are the default locale's, so the build lists no <code>?lang=</code> address as an <code>hreflang</code> alternate. To have each language found, give it pages of its own (<a href="/recipes/site-in-two-languages">A page in its own language</a>).</li>
+<li><strong>The reader chose a locale before.</strong> <code>setLocale(code)</code> keeps the code in the reader's <code>localStorage</code>, under <code>wf:locale</code>, and every page loaded after that opens in it, on this visit and the next. Choosing <code>default_locale</code> again forgets it.</li>
+</ol>
+<p>So a static site, which loads each page afresh, keeps the reader's language from page to page, and a language switch can be a pair of buttons:</p>
+                        </div>
+                        <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                            <div class="wf-row wf-s2c416341 bp-console__bar">
+                                <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                    <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
+                                </div>
+                                <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                            </div>
+                            <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-kw">app</span> {
+    <span class="wf-tok-name">Navbar</span> {
+        <span class="wf-tok-name">Navbar</span>.<span class="wf-tok-name">Brand</span> { <span class="wf-tok-name">Link</span>(<span class="wf-tok-str">&quot;i18n&quot;</span>, <span class="wf-tok-prop">to</span>: <span class="wf-tok-str">&quot;/&quot;</span>) }
+        <span class="wf-tok-name">Navbar</span>.<span class="wf-tok-name">Actions</span> {
+            <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;English&quot;</span>) { <span class="wf-tok-kw">on</span> click { setLocale(<span class="wf-tok-str">&quot;en&quot;</span>) } }
+            <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;العربية&quot;</span>) { <span class="wf-tok-kw">on</span> click { setLocale(<span class="wf-tok-str">&quot;ar&quot;</span>) } }
+        }
+    }
+    <span class="wf-tok-name">Router</span>
+}</code>
+                        </div>
+                        <div class="wf-markdown">
+<p>The runtime does not guess from the browser's language. Nothing is kept until the reader chooses, so a first visit gets the <code>?lang=</code> locale or the default, and a search engine's crawler the default. To start a first visit in the browser's language, keep whether the reader has chosen in a store with <code>persist</code>, and until they have, call <code>setLocale(navigator.language.slice(0, 2))</code> from an <code>effect</code> in the app.</p>
+<p>A static build pre-renders every page once, in the default locale; another locale is applied as the page loads. So a search engine indexes only the default locale's text. For each language to be found, give it pages of its own (<a href="/recipes/site-in-two-languages">A page in its own language</a>).</p>
+                        </div>
+                        <h3 class="wf-heading" id="format-numbers-and-dates-for-the-locale">Format numbers and dates for the locale</h3>
+                        <div class="wf-markdown">
+<p><code>format</code> and <code>ago</code> follow the current locale (<a href="/reference/expressions">Expressions</a>). <code>format(1234.5, .currency, &quot;EUR&quot;)</code> is <code>€1,234.50</code> in <code>en</code> and <code>1.234,50 €</code> in <code>de</code>; <code>ago(date)</code> says &quot;il y a 3 jours&quot; in <code>fr</code>. The pre-rendered page uses a table of the common locales' separators and currency symbols, and the live page uses the browser's <code>Intl</code> and corrects any difference.</p>
+<p>To choose the digits a locale writes, add the Unicode extension to its code:</p>
+<ul>
+<li><code>setLocale(&quot;ar-u-nu-arab&quot;)</code> reads the <code>ar</code> table and writes <code>format</code> — a date pattern too, its AM/PM in the locale's words — <code>ago</code> and every count in Arabic-Indic digits (١١ ملفًا).</li>
+<li><code>setLocale(&quot;ar-u-nu-latn&quot;)</code> writes them in 0–9, whatever the browser's Arabic would pick.</li>
+<li>Bare <code>ar</code> leaves the digits to the browser.</li>
+</ul>
+<p>A count is prose, so it takes the locale's digits. Another number spliced into a message — a line number, a version — stays as it is. The document's <code>lang</code> is the language, <code>ar</code>, whatever digits the code names.</p>
+                        </div>
+                        <h3 class="wf-heading" id="translate-long-form-text">Translate long-form text</h3>
+                        <div class="wf-markdown">
+<p>For a paragraph or a page of prose:</p>
+<ul>
+<li>Under <code>&quot;literals&quot;: true</code>, <code>Markdown(&quot;…&quot;)</code> written in place is words like any other text: its whole source, <code>**</code> and all, is the key.</li>
+<li>Text inside a <code>.md</code> page is not passed through <code>t</code>. Keep one Markdown file per locale, each with its own <code>path</code>, <code>lang</code> and <code>translates</code> in its front matter, or keep the text in the translation file under a key and render <code>Markdown(t(&quot;about.body&quot;))</code>.</li>
+</ul>
+                        </div>
+                        <h2 class="wf-heading" id="start-a-project-translated">Start a project translated</h2>
+                        <div class="wf-markdown">
+<p>To begin a new project in several languages, pass <code>--locales</code> to <code>wf init</code>, with the default locale first:</p>
+                        </div>
+                        <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                            <div class="wf-row wf-s2c416341 bp-console__bar">
+                                <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                    <p class="wf-text wf-s23a4ddd5 bp-mono">bash</p>
+                                </div>
+                                <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
+                            </div>
+                            <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-prompt">$ </span>wf init my-app --locales en,ar</code>
+                        </div>
+                        <div class="wf-markdown">
+<p>This works for the <code>spa</code> and <code>static</code> templates. The new project has:</p>
+<ul>
+<li>the <code>i18n</code> config above, and <code>meta.lang</code> set to the default locale;</li>
+<li>every visible string of the starter passed through <code>t(&quot;…&quot;)</code>;</li>
+<li>a language switch with one entry per locale;</li>
+<li>a file for each locale in <code>src/translations/</code>. The default locale's holds the starter's English, which its pages and tests are written in. Arabic holds the starter's Arabic. Any other locale starts as a copy of the English, for you to translate.</li>
+</ul>
+<p>Each locale is a language tag (<code>en</code>, <code>ar</code>, <code>pt-BR</code>). <code>--locales ar,en</code> makes Arabic the default, so the page is right to left from the first paint. From Rust, the same is <code>webfluent::init::create_with(dir, name, &amp;Options { template, locales })</code>.</p>
+                        </div>
+                        <h2 class="wf-heading" id="check-what-each-locale-lacks">Check what each locale lacks</h2>
+                        <div class="wf-markdown">
+<p>To see the translations as a table, run <code>wf translations</code>:</p>
+                        </div>
+                        <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                            <div class="wf-row wf-s2c416341 bp-console__bar">
+                                <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                    <p class="wf-text wf-s23a4ddd5 bp-mono">bash</p>
+                                </div>
+                                <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
+                            </div>
+                            <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-prompt">$ </span>wf translations
+<span class="wf-tok-prompt">$ </span>wf translations --missing ar
+<span class="wf-tok-prompt">$ </span>wf translations --unused
+<span class="wf-tok-prompt">$ </span>wf translations --plurals</code>
+                        </div>
+                        <table class="wf-table">
+                            <caption class="wf-visually-hidden">Check what each locale lacks</caption>
+                            <thead>
+                                <tr>
+                                    <th scope="col">Command</th>
+                                    <th scope="col">What it prints</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <div class="wf-markdown">
+<p><code>wf translations</code></p>
+                                        </div>
+                                    </td>
+                                    <td>Each locale, the plural forms its rules use, and how many keys it lacks, a form it lacks, or a placeholder that differs from the default locale&#x27;s</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="wf-markdown">
+<p><code>--missing ar</code></p>
+                                        </div>
+                                    </td>
+                                    <td>What Arabic lacks</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="wf-markdown">
+<p><code>--unused</code></p>
+                                        </div>
+                                    </td>
+                                    <td>The keys nothing names</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="wf-markdown">
+<p><code>--plurals</code></p>
+                                        </div>
+                                    </td>
+                                    <td>CLDR&#x27;s plural rules: every locale&#x27;s forms</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="wf-markdown">
+<p><code>--json</code></p>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p>The whole table: each key with its message in every locale, and every place a <code>t()</code> names it</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="wf-markdown">
+<p>From Rust the table is <code>webfluent::i18n::table</code> (with the <code>internals</code> feature, outside semver), which can also write one message back into its file with every other byte as it was.</p>
+                        </div>
+                        <h2 class="wf-heading" id="checklist">Checklist</h2>
+                        <div class="wf-markdown">
+<ul>
+<li>Every visible string goes through <code>t</code>, including <code>label:</code>, <code>placeholder:</code> and <code>aria-label:</code> values.</li>
+<li>No sentence is built from parts (<code>t(&quot;x&quot;) + name</code>); a placeholder lets a translator reorder it.</li>
+<li>Every count has its plural forms, even in English, and a <code>zero</code> where &quot;none&quot; reads better as a sentence.</li>
+<li><code>wf translations --missing &lt;locale&gt;</code> lists nothing for any locale.</li>
+<li>You have tried the site once in a right-to-left locale, and checked:</li>
+<li>alignment, and icons that imply a direction (arrows);</li>
+<li>any <code>left</code> or <code>right</code> in your own CSS;</li>
+<li>a Latin code or figure inside Arabic text, which needs a left-to-right run of its own (<code>direction: ltr; unicode-bidi: isolate</code>) to keep its parts in order.</li>
+<li>If each language should be found by search, each has pages of its own, with <code>lang:</code> and <code>translates:</code>, and <code>wf check</code> reports no <code>R05</code>.</li>
+</ul>
+                        </div>
+                    </div>
+                    <div class="wf-stack wf-gap--sm wf-s982ede03">
+                        <h2 class="wf-heading wf-s457972d6">Related</h2>
+                        <div class="wf-grid wf-gap--sm wf-r2be821bf">
+                            <a class="wf-link bp-card" href="/recipes/keep-writes-made-offline">
+                                <p class="wf-text bp-small">Recipe</p>
+                                <p class="wf-text wf-s70571e62">Keep writes made offline</p>
+                            </a>
+                            <a class="wf-link bp-card" href="/recipes/work-offline">
+                                <p class="wf-text bp-small">Recipe</p>
+                                <p class="wf-text wf-s70571e62">Make a site work offline</p>
+                            </a>
+                            <a class="wf-link bp-card" href="/recipes/offer-a-new-version">
+                                <p class="wf-text bp-small">Recipe</p>
+                                <p class="wf-text wf-s70571e62">Offer a new version</p>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="wf-stack wf-gap--lg wf-s2502f5f4 bp-rail" role="navigation" aria-label="On this page">
+                    <div class="wf-stack wf-gap--xs wf-se8e8f072">
+                        <p class="wf-text wf-sa736415c bp-section-label">On this page</p>
+                        <a class="wf-link wf-s23505038" href="#how-it-works">How it works</a>
+                        <a class="wf-link wf-s23505038" href="#start-a-project-translated">Start a project translated</a>
+                        <a class="wf-link wf-s23505038" href="#check-what-each-locale-lacks">Check what each locale lacks</a>
+                        <a class="wf-link wf-s23505038" href="#checklist">Checklist</a>
+                    </div>
+                    <a class="wf-link wf-s48d899f5" href="https://github.com/monzeromer-lab/WebFluent/blob/master/md-docs/recipes/translate-a-site.md">
+                        <i class="wf-icon" data-icon="edit"></i>
+                        <p class="wf-text">Edit this page</p>
+                    </a>
+                </div>
+            </div>
+        </main>
+        <footer class="wf-footer wf-s2213a098">
+            <div class="wf-stack wf-gap--lg wf-s84d7918c bp-wrap">
+                <div class="wf-grid wf-gap--lg wf-r67559659">
+                    <div class="wf-stack wf-gap--xs wf-s17061b4c">
+                        <p class="wf-text wf-scba75cc6 bp-section-label">Learn</p>
+                        <a class="wf-link" href="/learn/01-getting-started">The tour</a>
+                        <a class="wf-link" href="/learn">The book</a>
+                        <a class="wf-link" href="/about">About essays</a>
+                    </div>
+                    <div class="wf-stack wf-gap--xs wf-s17061b4c">
+                        <p class="wf-text wf-scba75cc6 bp-section-label">Do</p>
+                        <a class="wf-link" href="/recipes">Recipes</a>
+                        <a class="wf-link" href="/playground">Playground</a>
+                        <a class="wf-link" href="/coming-from/react">Coming from…</a>
+                        <a class="wf-link" href="/showcase">Showcase</a>
+                    </div>
+                    <div class="wf-stack wf-gap--xs wf-s17061b4c">
+                        <p class="wf-text wf-scba75cc6 bp-section-label">Look up</p>
+                        <a class="wf-link" href="/reference">Components</a>
+                        <a class="wf-link" href="/reference/cli">CLI and config</a>
+                        <a class="wf-link" href="/errors">Errors</a>
+                    </div>
+                    <div class="wf-stack wf-gap--xs wf-s17061b4c">
+                        <p class="wf-text wf-scba75cc6 bp-section-label">For agents</p>
+                        <a class="wf-link" href="/reference/cli/context">wf context</a>
+                        <a class="wf-link" href="/changelog">Changelog</a>
+                    </div>
+                </div>
+                <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-sd146f653">
+                    <p class="wf-text bp-small">Every code block in the guide is real WebFluent 6.0, parsed, type-checked and compiled by the test suite.</p>
+                    <div class="wf-row wf-align--center wf-gap--md wf-sa3c9b727">
+                        <a class="wf-link wf-sf9ca1a0e" href="https://github.com/monzeromer-lab/WebFluent">Source</a>
+                        <button class="wf-btn link-button" type="button">Cookie settings</button>
+                        <p class="wf-text bp-small">© 2026 Monzer Omer</p>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

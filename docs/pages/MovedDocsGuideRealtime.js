@@ -1,0 +1,2 @@
+function Page_MovedDocsGuideRealtime(params){const _root=document.createDocumentFragment();const _e9331=WF.el("h1",{className:"wf-heading"},()=>WF.i18n.t("nav.recipes"));_root.appendChild(_e9331);const _e9332=WF.el("a",{className:"wf-link",href:WF._basePath+"/recipes#realtime"},()=>WF.i18n.t("nav.recipes"));WF.activeLink(_e9332,"/recipes#realtime",false);_root.appendChild(_e9332);return _root;}
+WF.page("MovedDocsGuideRealtime",Page_MovedDocsGuideRealtime);

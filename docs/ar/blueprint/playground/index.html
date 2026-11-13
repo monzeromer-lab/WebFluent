@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>T7 الملعب</title>
     <meta name="description" content="قالب الملعب بمحتوى نائب.">
@@ -28,6 +28,8 @@
     <link rel="preload" href="/fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="/styles.css">
     <script src="/js/analytics.js" defer></script>
+    <script src="/js/live.js" defer></script>
+    <script src="/js/old-links-map.js" defer></script>
     <script src="/js/old-links.js" defer></script>
     <script src="/js/video.js" defer></script>
     <script src="/app.js" defer></script>
@@ -50,6 +52,7 @@
                         <a class="wf-link bp-tab" href="/recipes">Recipes</a>
                         <a class="wf-link bp-tab" href="/reference">Reference</a>
                         <a class="wf-link bp-tab" href="/errors">Errors</a>
+                        <a class="wf-link bp-tab" href="/playground">Playground</a>
                         <a class="wf-link bp-tab" href="/showcase">Showcase</a>
                     </div>
                     <div class="wf-row wf-align--center wf-gap--sm wf-sff642a95">
@@ -58,7 +61,7 @@
                             <p class="wf-text wf-sf55a2627 bp-hide-sm">Search the docs</p>
                             <p class="wf-text bp-kbd bp-hide-sm">Ctrl+K</p>
                         </button>
-                        <div class="wf-row wf-align--center wf-gap--sm wf-s808638b6 bp-select bp-hide-sm">
+                        <div class="wf-row wf-align--center wf-gap--sm wf-s808638b6 bp-select bp-hide-md">
                             <p class="wf-text wf-s29c127bc bp-building-label" aria-hidden="true">Building</p>
                             <select class="wf-select" aria-label="Building">
                                 <option value="website">Website</option>
@@ -72,9 +75,9 @@
                         </div>
                         <button class="wf-icon-btn bp-icon-button" data-track="select_content" data-track-content-type="theme" type="button"></button>
                         <div class="wf-row wf-align--center wf-gap--xs wf-s286d925a bp-hide-sm">
-                            <a class="wf-link bp-button" href="/blueprint/playground" data-track="select_content" data-track-content-type="language"></a>
+                            <a class="wf-link bp-button" href="/blueprint/playground" data-track="select_content" data-track-content-type="language">counter</a>
                         </div>
-                        <a class="wf-link bp-button bp-hide-sm" href="https://github.com/monzeromer-lab/WebFluent" data-tone="quiet" aria-label="GitHub">
+                        <a class="wf-link bp-button bp-hide-md" href="https://github.com/monzeromer-lab/WebFluent" data-tone="quiet" aria-label="GitHub">
                             <i class="wf-icon" data-icon="git-branch"></i>
                             <p class="wf-text">GitHub</p>
                         </a>
@@ -111,34 +114,47 @@
                     <div class="wf-row wf-align--center wf-gap--sm wf-s41685e4c">
                         <p class="wf-text bp-label" data-tone="kind" data-kind="playground">Playground</p>
                         <h1 class="wf-heading wf-s591e8882">Playground</h1>
+                        <p class="wf-text bp-mono bp-small">counter</p>
                     </div>
                     <div class="wf-row wf-align--center wf-gap--sm wf-s22411b77">
                         <select class="wf-select bp-select" aria-label="Examples">
-                            <option value="App.wf">App.wf</option>
-                            <option value="Home.wf">Home.wf</option>
-                            <option value="theme.wf">theme.wf</option>
+                            <option value="counter">Counter</option>
+                            <option value="todos">Todo list with a store</option>
+                            <option value="sign-up">Form with validation</option>
+                            <option value="salam">Arabic, right to left</option>
+                            <option value="invoice">Invoice (PDF)</option>
+                            <option value="deck">Slide deck</option>
                         </select>
                         <button class="wf-btn bp-button" type="button">Share</button>
                         <button class="wf-btn bp-button" type="button">Download</button>
                         <button class="wf-btn bp-button" data-tone="action" type="button">Run</button>
                     </div>
                 </div>
-                <div class="wf-grid wf-gap--md wf-sc76e2c36 wf-r585a824e">
+                <div class="wf-grid wf-gap--md wf-s26f41a90 wf-r585a824e">
                     <div class="wf-stack bp-pane bp-hide-sm" role="group" aria-label="Files">
                         <div class="wf-row bp-pane__bar">
                             <p class="wf-text bp-section-label">Files</p>
                         </div>
                         <div class="wf-stack wf-s099eb36a">
-                            <button class="wf-btn bp-file" aria-current="true" type="button">App.wf</button>
-                            <button class="wf-btn bp-file" aria-current="false" type="button">Home.wf</button>
-                            <button class="wf-btn bp-file" aria-current="false" type="button">theme.wf</button>
+                            <button class="wf-btn bp-file" aria-current="true" type="button">src/pages/Home.wf</button>
+                            <button class="wf-btn bp-file" aria-current="false" type="button">webfluent.app.json</button>
                         </div>
                     </div>
-                    <div class="wf-stack wf-s3457989e bp-pane">
-                        <div class="wf-row wf-sf26f0dc5 bp-pane__bar">
-                            <p class="wf-text wf-s0689376e bp-mono">App.wf</p>
+                    <div class="wf-stack wf-gap--sm wf-s5027cce6">
+                        <div class="wf-stack wf-s005ac1c9 bp-pane bp-editor">
+                            <div class="wf-row wf-sf26f0dc5 bp-pane__bar">
+                                <p class="wf-text wf-s0689376e bp-mono">src/pages/Home.wf</p>
+                            </div>
+                            <div class="wf-host wf-s67cfc497"></div>
                         </div>
-                        <textarea class="wf-input wf-textarea bp-editor" aria-label="Edit App.wf" rows="18" spellcheck="false" dir="ltr"></textarea>
+                        <div class="wf-row bp-console__foot bp-live-status" aria-live="polite">
+                            <div class="wf-row wf-align--center wf-gap--sm wf-s22411b77">
+                                <p class="wf-text bp-dot" aria-hidden="true"></p>
+                                <p class="wf-text">Type, and the compiler in your browser builds it as you go</p>
+                            </div>
+                            <div class="wf-row wf-align--center wf-gap--sm wf-s31ee2170">
+                            </div>
+                        </div>
                     </div>
                     <div class="wf-stack bp-pane">
                         <div class="wf-row bp-pane__bar">
@@ -148,55 +164,48 @@
                                 <button class="wf-btn bp-button" aria-pressed="false" data-tone="quiet" type="button">Phone</button>
                             </div>
                         </div>
-                        <div class="wf-stack wf-saf5deae5 bp-grid">
-                            <iframe class="wf-frame wf-s3d342d9e" src="/blueprint/sample" title="Preview"></iframe>
+                        <div class="wf-stack wf-se8991db2 bp-grid">
+                            <p class="wf-text wf-s87b79271 bp-small">Nothing built yet.</p>
                         </div>
                     </div>
                 </div>
-                <div class="wf-grid wf-gap--md wf-s28a8547f wf-r585a824e">
-                    <div class="wf-stack wf-s5027cce6 bp-console bp-ltr" dir="ltr">
-                        <div class="wf-row bp-console__bar">
-                            <div class="wf-row bp-tabs" role="tablist" aria-label="What the build wrote">
-                                <button class="wf-btn bp-tab" role="tab" aria-selected="true" type="button">HTML</button>
-                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">CSS</button>
-                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">JS</button>
-                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">Findings</button>
-                            </div>
-                        </div>
-                        <code class="wf-code wf-code--block wf-s7f372ca2 bp-console__code">&lt;main id=&quot;wf-main&quot;&gt;
-  &lt;h1 class=&quot;wf-heading&quot;&gt;Hello, WebFluent&lt;/h1&gt;
-  &lt;p class=&quot;wf-text&quot;&gt;Clicked 3 times&lt;/p&gt;
-  &lt;button class=&quot;wf-btn wf-btn--primary&quot; type=&quot;button&quot;&gt;+1&lt;/button&gt;
-&lt;/main&gt;</code>
-                    </div>
-                    <div class="wf-stack bp-pane">
-                        <div class="wf-row bp-pane__bar">
-                            <p class="wf-text bp-section-label bp-num">Tests 2 of 3</p>
-                            <button class="wf-btn bp-button" data-tone="quiet" type="button">Run</button>
-                        </div>
-                        <div class="wf-stack wf-sa8e464d0">
-                            <div class="wf-row wf-align--center wf-gap--sm wf-s7e19ae9f">
-                                <p class="wf-text bp-dot" data-tone="ok" aria-hidden="true"></p>
-                                <p class="wf-text wf-sd0eb91d0">greets by name</p>
-                                <p class="wf-text bp-small">passed</p>
-                            </div>
-                            <div class="wf-row wf-align--center wf-gap--sm wf-s7e19ae9f">
-                                <p class="wf-text bp-dot" data-tone="ok" aria-hidden="true"></p>
-                                <p class="wf-text wf-sd0eb91d0">counts clicks</p>
-                                <p class="wf-text bp-small">passed</p>
-                            </div>
-                            <div class="wf-row wf-align--center wf-gap--sm wf-s7e19ae9f">
-                                <p class="wf-text bp-dot" data-tone="error" aria-hidden="true"></p>
-                                <p class="wf-text wf-sd0eb91d0">resets</p>
-                                <p class="wf-text bp-small">failed</p>
-                            </div>
+                <div class="wf-stack wf-s5027cce6 bp-console bp-ltr" dir="ltr">
+                    <div class="wf-row bp-console__bar">
+                        <div class="wf-row bp-tabs" role="tablist" aria-label="What the build wrote">
+                            <button class="wf-btn bp-tab" role="tab" aria-selected="true" type="button">HTML</button>
+                            <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">CSS</button>
+                            <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">JS</button>
+                            <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">PDF</button>
+                            <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">Findings 0</button>
                         </div>
                     </div>
+                    <code class="wf-code wf-code--block wf-s154a8dd8 bp-console__code">Nothing here.</code>
                 </div>
-                <div class="wf-row wf-align--center wf-gap--sm wf-sae50fd4f">
-                    <p class="wf-text bp-section-label">Examples</p>
-                    <a class="wf-link" href="/blueprint/playground">Website</a>
-                    <a class="wf-link" href="/blueprint/playground">PDF</a>
+                <p class="wf-text bp-small">The Playground runs the same compiler as wf build, compiled to WebAssembly. Nothing you write is sent to a server.</p>
+            </div>
+            <div class="wf-stack wf-s2116b3ae bp-wrap">
+                <div class="wf-stack bp-pane">
+                    <div class="wf-row bp-pane__bar">
+                        <p class="wf-text bp-section-label bp-num">Tests 2 of 3</p>
+                        <button class="wf-btn bp-button" data-tone="quiet" type="button">Run</button>
+                    </div>
+                    <div class="wf-stack wf-sa8e464d0">
+                        <div class="wf-row wf-align--center wf-gap--sm wf-s7e19ae9f">
+                            <p class="wf-text bp-dot" data-tone="ok" aria-hidden="true"></p>
+                            <p class="wf-text wf-sd0eb91d0">greets by name</p>
+                            <p class="wf-text bp-small">passed</p>
+                        </div>
+                        <div class="wf-row wf-align--center wf-gap--sm wf-s7e19ae9f">
+                            <p class="wf-text bp-dot" data-tone="ok" aria-hidden="true"></p>
+                            <p class="wf-text wf-sd0eb91d0">counts clicks</p>
+                            <p class="wf-text bp-small">passed</p>
+                        </div>
+                        <div class="wf-row wf-align--center wf-gap--sm wf-s7e19ae9f">
+                            <p class="wf-text bp-dot" data-tone="error" aria-hidden="true"></p>
+                            <p class="wf-text wf-sd0eb91d0">resets</p>
+                            <p class="wf-text bp-small">failed</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>
@@ -212,6 +221,7 @@
                     <div class="wf-stack wf-gap--xs wf-s17061b4c">
                         <p class="wf-text wf-scba75cc6 bp-section-label">Do</p>
                         <a class="wf-link" href="/recipes">Recipes</a>
+                        <a class="wf-link" href="/playground">Playground</a>
                         <a class="wf-link" href="/coming-from/react">Coming from…</a>
                         <a class="wf-link" href="/showcase">Showcase</a>
                     </div>

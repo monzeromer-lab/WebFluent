@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Performance</title>
     <meta name="description" content="What a build does to be fast, wf build --stats, size budgets, paint timings from wf verify, and the few things that make a site slow.">
@@ -28,6 +28,8 @@
     <link rel="preload" href="/fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="/styles.css">
     <script src="/js/analytics.js" defer></script>
+    <script src="/js/live.js" defer></script>
+    <script src="/js/old-links-map.js" defer></script>
     <script src="/js/old-links.js" defer></script>
     <script src="/js/video.js" defer></script>
     <script src="/app.js" defer></script>
@@ -50,6 +52,7 @@
                         <a class="wf-link bp-tab" href="/recipes">Recipes</a>
                         <a class="wf-link bp-tab" href="/reference">Reference</a>
                         <a class="wf-link bp-tab" href="/errors">Errors</a>
+                        <a class="wf-link bp-tab" href="/playground">Playground</a>
                         <a class="wf-link bp-tab" href="/showcase">Showcase</a>
                     </div>
                     <div class="wf-row wf-align--center wf-gap--sm wf-sff642a95">
@@ -58,7 +61,7 @@
                             <p class="wf-text wf-sf55a2627 bp-hide-sm">Search the docs</p>
                             <p class="wf-text bp-kbd bp-hide-sm">Ctrl+K</p>
                         </button>
-                        <div class="wf-row wf-align--center wf-gap--sm wf-s808638b6 bp-select bp-hide-sm">
+                        <div class="wf-row wf-align--center wf-gap--sm wf-s808638b6 bp-select bp-hide-md">
                             <p class="wf-text wf-s29c127bc bp-building-label" aria-hidden="true">Building</p>
                             <select class="wf-select" aria-label="Building">
                                 <option value="website">Website</option>
@@ -74,7 +77,7 @@
                         <div class="wf-row wf-align--center wf-gap--xs wf-s286d925a bp-hide-sm">
                             <button class="wf-btn bp-button" title="This page is in English only; the switch changes the interface." data-track="select_content" data-track-content-type="language" type="button"></button>
                         </div>
-                        <a class="wf-link bp-button bp-hide-sm" href="https://github.com/monzeromer-lab/WebFluent" data-tone="quiet" aria-label="GitHub">
+                        <a class="wf-link bp-button bp-hide-md" href="https://github.com/monzeromer-lab/WebFluent" data-tone="quiet" aria-label="GitHub">
                             <i class="wf-icon" data-icon="git-branch"></i>
                             <p class="wf-text">GitHub</p>
                         </a>
@@ -134,12 +137,13 @@
                             <div class="wf-markdown">
 <p>You get these without setting anything:</p>
 <ul>
-<li><strong>Only the runtime you use.</strong> The <em>runtime</em> is the JavaScript the compiled pages call. It is a set of modules, and a build keeps only the ones its code reaches. A single-page build of one page of static text carries 2 of the 41 modules: an <code>app.js</code> of 18.9 kB, 6.5 kB gzipped.</li>
-<li><strong>A chunk per page.</strong> <code>build.split</code> (on by default) writes each page's code and styles as their own files, loaded the first time its route is shown.</li>
+<li><strong>Only the runtime you use.</strong> The <em>runtime</em> is the JavaScript the compiled pages call. It is a set of modules, and a build keeps only the ones its code reaches, and of those only the functions its calls reach. A single-page build of one page of static text is an <code>app.js</code> of 4.9 kB, 1.9 kB gzipped.</li>
+<li><strong>Short names.</strong> A minified build shortens the runtime's own names, its top-level ones and each function's locals. What your pages call keeps its name.</li>
+<li><strong>A chunk per page.</strong> <code>build.split</code> (on by default) writes each page's code and styles as their own files, loaded the first time its route is shown. A site of one page is one file.</li>
 <li><strong>Pre-rendered HTML.</strong> With <code>build.ssg</code>, each page's HTML is written at build time, so the first paint needs no script.</li>
 <li><strong>One pruned stylesheet.</strong> It holds the rules of only the built-ins you use, and only the design tokens something names.</li>
 <li><strong>Precompressed files.</strong> A <code>.gz</code> file sits beside every text file, for a host that serves it. <code>wf serve</code> sends the same bytes, so Lighthouse run against the dev server measures what a deploy sends.</li>
-<li><strong>Images at every width</strong>, with <code>width</code> and <code>height</code> so nothing shifts, a placeholder while they load, the first image eager and the rest lazy (<a href="/docs/guide/media">Media</a>).</li>
+<li><strong>Images at every width</strong>, with <code>width</code> and <code>height</code> so nothing shifts, a placeholder while they load, the first image eager and the rest lazy (<a href="/recipes">Media</a>).</li>
 <li><strong>Minified output.</strong> <code>build.minify</code> (on by default) strips comments and white space.</li>
 </ul>
                             </div>
@@ -157,7 +161,7 @@
                                 <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-prompt">$ </span>wf build --stats</code>
                             </div>
                             <div class="wf-markdown">
-<p>This is the output for the <a href="/docs/guide/tutorial">tutorial</a>'s site, trimmed:</p>
+<p>This is the output for the project <code>wf init -t spa</code> makes, trimmed:</p>
                             </div>
                             <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
                                 <div class="wf-row wf-s2c416341 bp-console__bar">
@@ -167,39 +171,38 @@
                                     <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="text" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block bp-console__code">  What it weighs
-    app.js                               70.6 kB  (21.7 kB gzipped)
-    styles.css                           21.7 kB  (4.5 kB gzipped)
-    index.html                            5.2 kB  (1.3 kB gzipped)
-    suggest/index.html                    2.8 kB  (0.9 kB gzipped)
-    pages/Suggest.js                      2.2 kB  (0.9 kB gzipped)
-    pages/Home.js                         1.4 kB  (0.7 kB gzipped)
+    app.js                               49.5 kB  (16.7 kB gzipped)
+    styles.css                           26.5 kB  (5.0 kB gzipped)
+    pages/Settings.js                     8.8 kB  (2.2 kB gzipped)
+    pages/Profile.js                      5.5 kB  (1.5 kB gzipped)
+    pages/Tasks.js                        4.2 kB  (1.3 kB gzipped)
+    pages/Home.js                         3.5 kB  (1.1 kB gzipped)
     …
-    total                               118.7 kB
+    total                                99.7 kB
 
-  Runtime: 15 of 41 modules, 142.6 kB of 377.6 kB (before minifying)
-    core          38.1 kB  always
-    motion        19.5 kB  needed by when, match, each, router
-    router        15.4 kB  WF.router
-    form          13.4 kB  WF.form
-    hydrate       12.0 kB  WF.hydrating
-    each          10.3 kB  WF.each
-    store          9.0 kB  WF.store
-    keep           7.3 kB  needed by store
-    field          5.2 kB  WF.field
+  Runtime: 19 of 44 modules, 122.8 kB of 404.6 kB kept, 110.1 kB with its names shortened (before minifying)
+    core          26.3 kB  always
+    router        13.5 kB  WF.router
+    form          12.7 kB  WF.form
+    motion        12.6 kB  enter:
+    each          10.6 kB  WF.each
+    store          9.1 kB  WF.store
+    keep           8.9 kB  WF.persist
+    field          2.7 kB  WF.field
     …
-    left out: helpers format offline peer scalars text slot show browser …
+    left out: keys format offline peer scalars text slot browser host …
 
-  Tokens: 26 nothing in the output names, left out</code>
+  Tokens: 30 nothing in the output names, left out</code>
                             </div>
                             <div class="wf-markdown">
 <p>Read it in three parts:</p>
 <ul>
-<li><strong>What it weighs</strong> lists every text file with its gzipped size. The tutorial's form brings in <code>form</code> and <code>field</code>, its store brings in <code>store</code> and <code>keep</code>, and its second page brings in <code>router</code>.</li>
-<li><strong>Runtime</strong> lists each module with what reached it. When a module you did not expect is in the build, look here first.</li>
+<li><strong>What it weighs</strong> lists every text file with its gzipped size. The starter's form brings in <code>form</code> and <code>field</code>, its store brings in <code>store</code> and <code>keep</code>, its second page brings in <code>router</code>, and its entry animations bring in <code>motion</code>.</li>
+<li><strong>Runtime</strong> lists each module with what the build kept of it — the functions the program reaches — and what reached it. When a module you did not expect is in the build, look here first.</li>
 <li><strong>Tokens</strong> counts the design tokens the build left out because nothing names them.</li>
 </ul>
 <p>Each build records its sizes in <code>.wf-sizes.json</code> beside the project, so the next <code>--stats</code> shows how each file moved since the last build (for example, <code>+20 B</code>).</p>
-<p>The project's own scripts are listed by their path under <code>js/</code>, such as <code>js/tilt.js</code> (<a href="/docs/guide/interop">JavaScript interop</a>). The build copies them as written: it does not minify a file it promises to ship byte for byte.</p>
+<p>The project's own scripts are listed by their path under <code>js/</code>, such as <code>js/tilt.js</code> (<a href="/recipes">JavaScript interop</a>). The build copies them as written: it does not minify a file it promises to ship byte for byte.</p>
                             </div>
                             <h2 class="wf-heading" id="set-a-size-budget">Set a size budget</h2>
                             <div class="wf-markdown">
@@ -322,7 +325,7 @@
                                         <td>An SVG, a URL or a path built at run time is used as written: one size, no placeholder</td>
                                         <td>
                                             <div class="wf-markdown">
-<p>Use a literal <code>src:</code> into <code>public/</code>, or declare the picture with <code>image</code> (<a href="/docs/guide/media">Media</a>)</p>
+<p>Use a literal <code>src:</code> into <code>public/</code>, or declare the picture with <code>image</code> (<a href="/recipes">Media</a>)</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -369,6 +372,7 @@
                     <div class="wf-stack wf-gap--xs wf-s17061b4c">
                         <p class="wf-text wf-scba75cc6 bp-section-label">Do</p>
                         <a class="wf-link" href="/recipes">Recipes</a>
+                        <a class="wf-link" href="/playground">Playground</a>
                         <a class="wf-link" href="/coming-from/react">Coming from…</a>
                         <a class="wf-link" href="/showcase">Showcase</a>
                     </div>

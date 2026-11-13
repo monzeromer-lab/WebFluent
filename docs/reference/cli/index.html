@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Command line — Reference</title>
     <meta name="description" content="Every wf command and its options, from init, build and serve to render, migrate and verify, and the language server in each editor.">
@@ -29,6 +29,8 @@
     <link rel="stylesheet" href="/styles.css">
     <link rel="stylesheet" href="/pages/CliIndexPage.css" data-wf-page-css="CliIndexPage">
     <script src="/js/analytics.js" defer></script>
+    <script src="/js/live.js" defer></script>
+    <script src="/js/old-links-map.js" defer></script>
     <script src="/js/old-links.js" defer></script>
     <script src="/js/video.js" defer></script>
     <script src="/app.js" defer></script>
@@ -51,6 +53,7 @@
                         <a class="wf-link bp-tab" href="/recipes">Recipes</a>
                         <a class="wf-link bp-tab active" href="/reference" aria-current="page">Reference</a>
                         <a class="wf-link bp-tab" href="/errors">Errors</a>
+                        <a class="wf-link bp-tab" href="/playground">Playground</a>
                         <a class="wf-link bp-tab" href="/showcase">Showcase</a>
                     </div>
                     <div class="wf-row wf-align--center wf-gap--sm wf-sff642a95">
@@ -59,7 +62,7 @@
                             <p class="wf-text wf-sf55a2627 bp-hide-sm">Search the docs</p>
                             <p class="wf-text bp-kbd bp-hide-sm">Ctrl+K</p>
                         </button>
-                        <div class="wf-row wf-align--center wf-gap--sm wf-s808638b6 bp-select bp-hide-sm">
+                        <div class="wf-row wf-align--center wf-gap--sm wf-s808638b6 bp-select bp-hide-md">
                             <p class="wf-text wf-s29c127bc bp-building-label" aria-hidden="true">Building</p>
                             <select class="wf-select" aria-label="Building">
                                 <option value="website">Website</option>
@@ -75,7 +78,7 @@
                         <div class="wf-row wf-align--center wf-gap--xs wf-s286d925a bp-hide-sm">
                             <button class="wf-btn bp-button" title="This page is in English only; the switch changes the interface." data-track="select_content" data-track-content-type="language" type="button"></button>
                         </div>
-                        <a class="wf-link bp-button bp-hide-sm" href="https://github.com/monzeromer-lab/WebFluent" data-tone="quiet" aria-label="GitHub">
+                        <a class="wf-link bp-button bp-hide-md" href="https://github.com/monzeromer-lab/WebFluent" data-tone="quiet" aria-label="GitHub">
                             <i class="wf-icon" data-icon="git-branch"></i>
                             <p class="wf-text">GitHub</p>
                         </a>
@@ -645,7 +648,7 @@
 <p>A locale is a language tag — <code>en</code>, <code>ar</code>, <code>pt-BR</code>, <code>zh-Hant</code> — written in any case and stored in the usual one. A tag named twice, an empty list, or a code that is not a tag (<code>pt_BR</code>) is refused with what to write instead. A <code>pdf</code> document or a <code>slides</code> deck is made in one language and refuses <code>--locales</code>.</p>
 <p><code>AGENTS.md</code> is the language reference — the file a coding agent reads before it changes a project. With it, an assistant asked to add a page writes the WebFluent of the <code>wf</code> that made the project, flags and all, instead of guessing. Its first line names the version it describes. A newer <code>wf</code> writes a newer one, and an older project can take the current one from the <a href="https://github.com/monzeromer-lab/WebFluent/blob/master/AGENTS.md">repository</a>.</p>
 <p><code>wf init</code> writes a shorter config than the full set of defaults, and turns <code>build.csp</code> on.</p>
-<p>See also: <a href="/docs/guide/i18n">Internationalisation</a>, <a href="/reference/config">Configuration</a>.</p>
+<p>See also: <a href="/recipes">Internationalisation</a>, <a href="/reference/config">Configuration</a>.</p>
                             </div>
                             <h3 class="wf-heading" id="wf-build">wf build</h3>
                             <div class="wf-markdown">
@@ -1795,7 +1798,7 @@
                             </div>
                             <div class="wf-markdown">
 <p>A template is held to the same checks as a build: a component nothing declares, or a flag a component does not take, stops the render. The one difference is that the names a template reads come from its data.</p>
-<p>See also: <a href="/docs/guide/server-rendering">Server rendering</a>.</p>
+<p>See also: <a href="/recipes">Server rendering</a>.</p>
                             </div>
                             <h2 class="wf-heading" id="upgrading">Upgrading</h2>
                             <h3 class="wf-heading" id="wf-migrate">wf migrate</h3>
@@ -2015,7 +2018,7 @@
 <p>For each file it prints its kind (image, font, video, audio, document, code, data), its size, a picture's dimensions, and every place the project names it: a prop the registry types as a file (<code>Image</code>'s <code>src</code>, <code>Video</code>'s <code>poster</code> and <code>captions</code>), a page's <code>image:</code>, a <code>const</code>, an <code>image</code> declaration, a <code>data</code> file's strings, a value in <code>webfluent.app.json</code>, a stylesheet's <code>url(…)</code>, a project script, or a manifest. A file a browser or a host asks for by name — <code>favicon.ico</code>, <code>robots.txt</code>, <code>.well-known/…</code> — counts as used. Anything else nothing names counts as unused.</p>
 <p><code>--plan PATH</code> applies the project's <code>build.media</code> to one picture: each width it writes, in each format, with the file's name and size — for example <em>3 widths × 1 format · 3 files · about 84 kB</em>. A size is exact once <code>wf build</code> has written the file (it is read from <code>.wf-cache/media/</code>), or when the picture is small enough to encode on the spot. Otherwise it is estimated from strips of the picture encoded at that width, and says <code>about</code>. The plan names a format the build cannot write, with the reason, and a width it skips because the file would be no smaller than the original. With <code>--json</code>, the same sentences are in the <code>said</code> field.</p>
 <p>The library has the same as <code>webfluent::build::assets::{list, plan}</code>. It reads through a <code>Vfs</code>, so an editor's unsaved buffers count.</p>
-<p>See also: <a href="/docs/guide/media">Media</a>.</p>
+<p>See also: <a href="/recipes">Media</a>.</p>
                             </div>
                             <h3 class="wf-heading" id="wf-theme">wf theme</h3>
                             <div class="wf-markdown">
@@ -2136,7 +2139,7 @@
 <li><code>data-wf-motion=&quot;reduce&quot;</code>, the attribute an editor sets on the page's root to show the page as a reader who asked for less motion sees it.</li>
 </ul>
 <p>The library has it as <code>webfluent::motion::catalogue</code> (with the <code>internals</code> feature, outside semver).</p>
-<p>See also: <a href="/docs/guide/motion">Motion</a>.</p>
+<p>See also: <a href="/recipes">Motion</a>.</p>
                             </div>
                             <h3 class="wf-heading" id="wf-context">wf context</h3>
                             <div class="wf-markdown">
@@ -2332,7 +2335,7 @@
 <p><code>--json</code> prints the whole table: every key, plural keys with each form, each message in each locale with its placeholders and line, every place a <code>t()</code> names the key, and the calls that name a key no locale has (<code>I01</code>).</p>
 <p><code>--plurals</code> prints each locale's forms; with <code>--json</code>, also the form each of a run of counts takes.</p>
 <p>The library has it as <code>webfluent::i18n::table</code> (with the <code>internals</code> feature, outside semver), whose <code>set_message</code> writes one message back and keeps every other byte of the file.</p>
-<p>See also: <a href="/docs/guide/i18n">Internationalisation</a>.</p>
+<p>See also: <a href="/recipes">Internationalisation</a>.</p>
                             </div>
                             <h3 class="wf-heading" id="wf-scope">wf scope</h3>
                             <div class="wf-markdown">
@@ -2790,7 +2793,7 @@
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p>A value for <code>env.NAME</code> (<a href="/docs/guide/environments">Environments</a>).</p>
+<p>A value for <code>env.NAME</code> (<a href="/recipes">Environments</a>).</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -3112,6 +3115,7 @@ command = &quot;wf-lsp&quot;</code>
                     <div class="wf-stack wf-gap--xs wf-s17061b4c">
                         <p class="wf-text wf-scba75cc6 bp-section-label">Do</p>
                         <a class="wf-link" href="/recipes">Recipes</a>
+                        <a class="wf-link" href="/playground">Playground</a>
                         <a class="wf-link" href="/coming-from/react">Coming from…</a>
                         <a class="wf-link" href="/showcase">Showcase</a>
                     </div>

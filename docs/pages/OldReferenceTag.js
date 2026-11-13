@@ -1,2 +1,2 @@
-function Page_OldReferenceTag(params){const _root=document.createDocumentFragment();const _e1759=WF.el("h1",{className:"wf-heading"},"Tag");_root.appendChild(_e1759);const _e1760=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/tag"},"Tag");WF.activeLink(_e1760,"/reference/tag",false);_root.appendChild(_e1760);return _root;}
+function Page_OldReferenceTag(params){const _root=document.createDocumentFragment();const _e1729=WF.el("h1",{className:"wf-heading"},"Tag");_root.appendChild(_e1729);const _e1730=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/tag"},"Tag");WF.activeLink(_e1730,"/reference/tag",false);_root.appendChild(_e1730);return _root;}
 WF.page("OldReferenceTag",Page_OldReferenceTag);

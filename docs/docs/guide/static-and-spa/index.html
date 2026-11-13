@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Static or single-page</title>
     <meta name="description" content="Static pages or a single-page app: build.ssg, hydration, what the pre-rendered HTML holds, paths for dynamic routes, 404s and hosting needs.">
@@ -28,6 +28,8 @@
     <link rel="preload" href="/fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="/styles.css">
     <script src="/js/analytics.js" defer></script>
+    <script src="/js/live.js" defer></script>
+    <script src="/js/old-links-map.js" defer></script>
     <script src="/js/old-links.js" defer></script>
     <script src="/js/video.js" defer></script>
     <script src="/app.js" defer></script>
@@ -50,6 +52,7 @@
                         <a class="wf-link bp-tab" href="/recipes">Recipes</a>
                         <a class="wf-link bp-tab" href="/reference">Reference</a>
                         <a class="wf-link bp-tab" href="/errors">Errors</a>
+                        <a class="wf-link bp-tab" href="/playground">Playground</a>
                         <a class="wf-link bp-tab" href="/showcase">Showcase</a>
                     </div>
                     <div class="wf-row wf-align--center wf-gap--sm wf-sff642a95">
@@ -58,7 +61,7 @@
                             <p class="wf-text wf-sf55a2627 bp-hide-sm">Search the docs</p>
                             <p class="wf-text bp-kbd bp-hide-sm">Ctrl+K</p>
                         </button>
-                        <div class="wf-row wf-align--center wf-gap--sm wf-s808638b6 bp-select bp-hide-sm">
+                        <div class="wf-row wf-align--center wf-gap--sm wf-s808638b6 bp-select bp-hide-md">
                             <p class="wf-text wf-s29c127bc bp-building-label" aria-hidden="true">Building</p>
                             <select class="wf-select" aria-label="Building">
                                 <option value="website">Website</option>
@@ -74,7 +77,7 @@
                         <div class="wf-row wf-align--center wf-gap--xs wf-s286d925a bp-hide-sm">
                             <button class="wf-btn bp-button" title="This page is in English only; the switch changes the interface." data-track="select_content" data-track-content-type="language" type="button"></button>
                         </div>
-                        <a class="wf-link bp-button bp-hide-sm" href="https://github.com/monzeromer-lab/WebFluent" data-tone="quiet" aria-label="GitHub">
+                        <a class="wf-link bp-button bp-hide-md" href="https://github.com/monzeromer-lab/WebFluent" data-tone="quiet" aria-label="GitHub">
                             <i class="wf-icon" data-icon="git-branch"></i>
                             <p class="wf-text">GitHub</p>
                         </a>
@@ -375,7 +378,7 @@
                             </div>
                             <h3 class="wf-heading" id="give-each-file-its-own-title">Give each file its own title</h3>
                             <div class="wf-markdown">
-<p><code>title:</code> and <code>description:</code> may name the page's parameters — <code>title: &quot;{slug} — Blog&quot;</code> — and each file gets its own. A title may also look the entry up: <code>title: &quot;{posts.find(p =&gt; p.slug == slug)?.title ?? slug} — Blog&quot;</code>. Tags beyond the title and description go in <code>head { }</code> (<a href="/docs/guide/content#describe-each-page-to-search-engines-and-link-previews">Content</a>).</p>
+<p><code>title:</code> and <code>description:</code> may name the page's parameters — <code>title: &quot;{slug} — Blog&quot;</code> — and each file gets its own. A title may also look the entry up: <code>title: &quot;{posts.find(p =&gt; p.slug == slug)?.title ?? slug} — Blog&quot;</code>. Tags beyond the title and description go in <code>head { }</code> (<a href="/recipes/search-and-link-previews#add-tags-for-one-page">Content</a>).</p>
                             </div>
                             <h2 class="wf-heading" id="add-a-404-page">Add a 404 page</h2>
                             <div class="wf-markdown">
@@ -398,7 +401,7 @@
                             </div>
                             <h2 class="wf-heading" id="serve-a-single-page-build">Serve a single-page build</h2>
                             <div class="wf-markdown">
-<p>A single-page build has one file, <code>index.html</code>, so every path a reader might open — <code>/users/42</code> — has to reach it. Most hosts need one line for this; <a href="/docs/guide/deploying">Deploying</a> has each in full:</p>
+<p>A single-page build has one file, <code>index.html</code>, so every path a reader might open — <code>/users/42</code> — has to reach it. Most hosts need one line for this; <a href="/recipes">Deploying</a> has each in full:</p>
                             </div>
                             <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
                                 <div class="wf-row wf-s2c416341 bp-console__bar">
@@ -512,9 +515,9 @@ Vercel                       &quot;rewrites&quot;: [{ &quot;source&quot;: &quot;
                             <p class="wf-text bp-small">Previous</p>
                             <p class="wf-text wf-s70571e62">Project structure</p>
                         </a>
-                        <a class="wf-link wf-sc16e0c24 bp-card" href="/docs/guide/deploying">
+                        <a class="wf-link wf-sc16e0c24 bp-card" href="/docs/guide/pdf-and-slides">
                             <p class="wf-text bp-small">Next</p>
-                            <p class="wf-text wf-s70571e62">Deploying</p>
+                            <p class="wf-text wf-s70571e62">PDF and slides</p>
                         </a>
                     </div>
                 </div>
@@ -551,6 +554,7 @@ Vercel                       &quot;rewrites&quot;: [{ &quot;source&quot;: &quot;
                     <div class="wf-stack wf-gap--xs wf-s17061b4c">
                         <p class="wf-text wf-scba75cc6 bp-section-label">Do</p>
                         <a class="wf-link" href="/recipes">Recipes</a>
+                        <a class="wf-link" href="/playground">Playground</a>
                         <a class="wf-link" href="/coming-from/react">Coming from…</a>
                         <a class="wf-link" href="/showcase">Showcase</a>
                     </div>

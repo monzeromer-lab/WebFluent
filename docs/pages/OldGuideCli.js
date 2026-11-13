@@ -1,2 +1,2 @@
-function Page_OldGuideCli(params){const _root=document.createDocumentFragment();const _e1623=WF.el("h1",{className:"wf-heading"},"Command line");_root.appendChild(_e1623);const _e1624=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/cli"},"Command line");WF.activeLink(_e1624,"/reference/cli",false);_root.appendChild(_e1624);return _root;}
+function Page_OldGuideCli(params){const _root=document.createDocumentFragment();const _e1593=WF.el("h1",{className:"wf-heading"},"Command line");_root.appendChild(_e1593);const _e1594=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/cli"},"Command line");WF.activeLink(_e1594,"/reference/cli",false);_root.appendChild(_e1594);return _root;}
 WF.page("OldGuideCli",Page_OldGuideCli);

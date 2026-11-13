@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>T1 الرئيسية</title>
     <meta name="description" content="قالب الصفحة الرئيسية بمحتوى نائب.">
@@ -28,6 +28,8 @@
     <link rel="preload" href="/fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="/styles.css">
     <script src="/js/analytics.js" defer></script>
+    <script src="/js/live.js" defer></script>
+    <script src="/js/old-links-map.js" defer></script>
     <script src="/js/old-links.js" defer></script>
     <script src="/js/video.js" defer></script>
     <script src="/app.js" defer></script>
@@ -50,6 +52,7 @@
                         <a class="wf-link bp-tab" href="/recipes">Recipes</a>
                         <a class="wf-link bp-tab" href="/reference">Reference</a>
                         <a class="wf-link bp-tab" href="/errors">Errors</a>
+                        <a class="wf-link bp-tab" href="/playground">Playground</a>
                         <a class="wf-link bp-tab" href="/showcase">Showcase</a>
                     </div>
                     <div class="wf-row wf-align--center wf-gap--sm wf-sff642a95">
@@ -58,7 +61,7 @@
                             <p class="wf-text wf-sf55a2627 bp-hide-sm">Search the docs</p>
                             <p class="wf-text bp-kbd bp-hide-sm">Ctrl+K</p>
                         </button>
-                        <div class="wf-row wf-align--center wf-gap--sm wf-s808638b6 bp-select bp-hide-sm">
+                        <div class="wf-row wf-align--center wf-gap--sm wf-s808638b6 bp-select bp-hide-md">
                             <p class="wf-text wf-s29c127bc bp-building-label" aria-hidden="true">Building</p>
                             <select class="wf-select" aria-label="Building">
                                 <option value="website">Website</option>
@@ -74,7 +77,7 @@
                         <div class="wf-row wf-align--center wf-gap--xs wf-s286d925a bp-hide-sm">
                             <a class="wf-link bp-button" href="/blueprint/home" data-track="select_content" data-track-content-type="language"></a>
                         </div>
-                        <a class="wf-link bp-button bp-hide-sm" href="https://github.com/monzeromer-lab/WebFluent" data-tone="quiet" aria-label="GitHub">
+                        <a class="wf-link bp-button bp-hide-md" href="https://github.com/monzeromer-lab/WebFluent" data-tone="quiet" aria-label="GitHub">
                             <i class="wf-icon" data-icon="git-branch"></i>
                             <p class="wf-text">GitHub</p>
                         </a>
@@ -155,9 +158,14 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="wf-row wf-align--center bp-home-example__status">
-                            <p class="wf-text bp-dot" aria-hidden="true"></p>
-                            <p class="wf-text">Compiled by WebFluent 6.0 when this site was built</p>
+                        <div class="wf-row wf-align--center wf-s50808726 bp-home-example__status">
+                            <div class="wf-row bp-console__foot bp-live-status wf-s0c85955c" aria-live="polite">
+                                <div class="wf-row wf-align--center wf-gap--sm wf-s22411b77">
+                                    <p class="wf-text bp-dot" data-tone="ok" aria-hidden="true"></p>
+                                    <p class="wf-text">Compiled by WebFluent 6.0 when this site was built</p>
+                                </div>
+                            </div>
+                            <button class="wf-btn bp-button" data-tone="action" data-track="edit_example" data-track-item-id="home" type="button">Edit</button>
                         </div>
                     </div>
                 </div>
@@ -228,7 +236,7 @@
                 <div class="wf-stack wf-gap--md bp-wrap bp-home-section">
                     <h2 class="wf-heading bp-h2">Coming from somewhere?</h2>
                     <p class="wf-text bp-lede">A cheat sheet for what you already know, and the habits that will trip you.</p>
-                    <div class="wf-grid wf-gap--md wf-r4af92e85">
+                    <div class="wf-grid wf-gap--md wf-rd51aef0d">
                         <a class="wf-link bp-card" href="/coming-from/react">
                             <p class="wf-text wf-s70571e62">React</p>
                             <p class="wf-text bp-mono bp-small">useState → state</p>
@@ -240,6 +248,14 @@
                         <a class="wf-link bp-card" href="/coming-from/svelte">
                             <p class="wf-text wf-s70571e62">Svelte</p>
                             <p class="wf-text bp-mono bp-small">{#each} → for … by</p>
+                        </a>
+                        <a class="wf-link bp-card" href="/coming-from/html-css">
+                            <p class="wf-text wf-s70571e62">HTML &amp; CSS</p>
+                            <p class="wf-text bp-mono bp-small">class → flags and style { }</p>
+                        </a>
+                        <a class="wf-link bp-card" href="/coming-from/latex">
+                            <p class="wf-text wf-s70571e62">LaTeX / Typst</p>
+                            <p class="wf-text bp-mono bp-small">\section → Heading, PDF out</p>
                         </a>
                     </div>
                 </div>
@@ -310,6 +326,7 @@ cd my-site &amp;&amp; wf serve</code>
                     <div class="wf-stack wf-gap--xs wf-s17061b4c">
                         <p class="wf-text wf-scba75cc6 bp-section-label">Do</p>
                         <a class="wf-link" href="/recipes">Recipes</a>
+                        <a class="wf-link" href="/playground">Playground</a>
                         <a class="wf-link" href="/coming-from/react">Coming from…</a>
                         <a class="wf-link" href="/showcase">Showcase</a>
                     </div>

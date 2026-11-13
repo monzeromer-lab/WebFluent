@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebFluent for HTML and CSS authors</title>
+    <meta name="description" content="Plain HTML and CSS in WebFluent: elements, links, images, forms, classes, flexbox and grid, stylesheets, media queries and scripts, side by side.">
+    <link rel="canonical" href="https://webfluent.monzeromer.dev/coming-from/html-css">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="WebFluent for HTML and CSS authors">
+    <meta property="og:site_name" content="WebFluent">
+    <meta property="og:description" content="Plain HTML and CSS in WebFluent: elements, links, images, forms, classes, flexbox and grid, stylesheets, media queries and scripts, side by side.">
+    <meta property="og:url" content="https://webfluent.monzeromer.dev/coming-from/html-css">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="ar_AR">
+    <meta property="og:image" content="https://webfluent.monzeromer.dev/og.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="WebFluent for HTML and CSS authors">
+    <meta name="twitter:description" content="Plain HTML and CSS in WebFluent: elements, links, images, forms, classes, flexbox and grid, stylesheets, media queries and scripts, side by side.">
+    <meta name="twitter:image" content="https://webfluent.monzeromer.dev/og.png">
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/coming-from/html-css#webpage","url":"https://webfluent.monzeromer.dev/coming-from/html-css","name":"WebFluent for HTML and CSS authors","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"Plain HTML and CSS in WebFluent: elements, links, images, forms, classes, flexbox and grid, stylesheets, media queries and scripts, side by side.","inLanguage":"en"},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/coming-from/html-css#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"WebFluent for HTML and CSS authors","item":"https://webfluent.monzeromer.dev/coming-from/html-css"}]}]}</script>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="preload" href="/fonts/instrument-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="/styles.css">
+    <script src="/js/analytics.js" defer></script>
+    <script src="/js/live.js" defer></script>
+    <script src="/js/old-links-map.js" defer></script>
+    <script src="/js/old-links.js" defer></script>
+    <script src="/js/video.js" defer></script>
+    <script src="/app.js" defer></script>
+    <script src="/pages/ComingFromHtmlCss.js" data-wf-page="ComingFromHtmlCss" defer></script>
+</head>
+<body>
+    <a class="wf-skip-link" href="#wf-main">Skip to content</a>
+    <div id="app">
+        <main id="wf-main">
+            <a class="wf-link bp-skip" href="#bp-main">Skip to the content</a>
+            <div class="wf-row wf-align--center wf-s55053fdc bp-header" role="banner">
+                <div class="wf-row wf-align--center wf-gap--md wf-sfe495c12 bp-wrap">
+                    <a class="wf-link wf-sa4fc1f4b" href="/" aria-label="WebFluent, home">
+                        <img class="wf-image wf-s4b9d0b60" src="/favicon.svg" alt="" decoding="async" loading="eager" fetchpriority="high">
+                        <p class="wf-text wf-s9919642b">WebFluent</p>
+                        <p class="wf-text bp-label bp-num">6.0</p>
+                    </a>
+                    <div class="wf-row wf-s92924cc4 bp-tabs" role="navigation" aria-label="Main">
+                        <a class="wf-link bp-tab" href="/learn">Learn</a>
+                        <a class="wf-link bp-tab" href="/recipes">Recipes</a>
+                        <a class="wf-link bp-tab" href="/reference">Reference</a>
+                        <a class="wf-link bp-tab" href="/errors">Errors</a>
+                        <a class="wf-link bp-tab" href="/playground">Playground</a>
+                        <a class="wf-link bp-tab" href="/showcase">Showcase</a>
+                    </div>
+                    <div class="wf-row wf-align--center wf-gap--sm wf-sff642a95">
+                        <button class="wf-btn wf-sf8ab46ec bp-field bp-search" aria-label="Search the docs" aria-keyshortcuts="Meta+K Control+K" aria-haspopup="dialog" type="button">
+                            <i class="wf-icon" data-icon="search"></i>
+                            <p class="wf-text wf-sf55a2627 bp-hide-sm">Search the docs</p>
+                            <p class="wf-text bp-kbd bp-hide-sm">Ctrl+K</p>
+                        </button>
+                        <div class="wf-row wf-align--center wf-gap--sm wf-s808638b6 bp-select bp-hide-md">
+                            <p class="wf-text wf-s29c127bc bp-building-label" aria-hidden="true">Building</p>
+                            <select class="wf-select" aria-label="Building">
+                                <option value="website">Website</option>
+                                <option value="app">Web app</option>
+                                <option value="pdf">PDF</option>
+                                <option value="slides">Slides</option>
+                                <option value="elements">Custom elements</option>
+                                <option value="desktop">Desktop / phone</option>
+                            </select>
+                            <i class="wf-icon wf-s94250744" data-icon="chevron-down" aria-hidden="true"></i>
+                        </div>
+                        <button class="wf-icon-btn bp-icon-button" data-track="select_content" data-track-content-type="theme" type="button"></button>
+                        <div class="wf-row wf-align--center wf-gap--xs wf-s286d925a bp-hide-sm">
+                            <button class="wf-btn bp-button" title="This page is in English only; the switch changes the interface." data-track="select_content" data-track-content-type="language" type="button"></button>
+                        </div>
+                        <a class="wf-link bp-button bp-hide-md" href="https://github.com/monzeromer-lab/WebFluent" data-tone="quiet" aria-label="GitHub">
+                            <i class="wf-icon" data-icon="git-branch"></i>
+                            <p class="wf-text">GitHub</p>
+                        </a>
+                        <button class="wf-icon-btn wf-sde8ec4aa bp-icon-button" data-icon="menu" aria-label="Menu" title="Menu" aria-expanded="false" type="button"></button>
+                    </div>
+                </div>
+            </div>
+            <dialog class="wf-modal bp-palette" aria-labelledby="wf-dlg-s1">
+                <div class="wf-modal__content">
+                    <div class="wf-modal__header"><h3 id="wf-dlg-s1">Search</h3></div>
+                    <div class="wf-modal__body">
+                        <div class="wf-stack wf-sa8e464d0">
+                            <div class="wf-row wf-align--center wf-gap--sm wf-s02e7a482 bp-field">
+                                <i class="wf-icon" data-icon="search"></i>
+                                <input class="wf-input" placeholder="Search the guide" aria-label="Search the guide" type="search" autofocus>
+                                <p class="wf-text bp-kbd">esc</p>
+                            </div>
+                            <div class="wf-row wf-s434e64fb bp-tabs" role="tablist" aria-label="Narrow the search">
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="true" type="button">All</button>
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">Learn</button>
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">Recipes</button>
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">Reference</button>
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">Errors</button>
+                            </div>
+                            <div class="wf-stack wf-s3f6dffee" role="listbox" aria-label="Search results">
+                                <p class="wf-text wf-s3205a3d6 bp-small">Type a word: a component, a code such as T05, or a task.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </dialog>
+            <div class="wf-row wf-align--start wf-sa997482c bp-wrap">
+                <div class="wf-stack wf-gap--lg wf-s54d43750 bp-main" role="main" id="bp-main" tabindex="-1">
+                    <div class="wf-row bp-labels">
+                        <p class="wf-text bp-label" data-tone="kind" data-kind="comingfrom">Coming from</p>
+                    </div>
+                    <div class="wf-stack wf-gap--sm wf-s4e4189b1">
+                        <h1 class="wf-heading wf-s1cf4ddba">WebFluent for HTML and CSS authors</h1>
+                        <p class="wf-text bp-lede">If you write HTML and CSS by hand, WebFluent keeps what you know and takes away the repetition: elements come designed and accessible, a page&#x27;s head is written for you, and a layout is a `Row` or a `Grid` instead of a class and a rule. Your CSS still works — any `.css` file under `src/` is part of the build.</p>
+                    </div>
+                    <div class="wf-row wf-s27c5a318 bp-tabs" role="navigation" aria-label="Other cheat sheets">
+                        <a class="wf-link bp-tab" href="/coming-from/react">React</a>
+                        <a class="wf-link bp-tab" href="/coming-from/vue">Vue</a>
+                        <a class="wf-link bp-tab" href="/coming-from/svelte">Svelte</a>
+                        <a class="wf-link bp-tab active" href="/coming-from/html-css" aria-current="page">HTML &amp; CSS</a>
+                        <a class="wf-link bp-tab" href="/coming-from/latex">LaTeX / Typst</a>
+                    </div>
+                    <div class="wf-stack wf-s5027cce6" role="table" aria-label="HTML &amp; CSS and WebFluent, side by side">
+                        <div class="wf-grid wf-gap--sm wf-s5b3920f5 wf-r40037c32 bp-hide-sm" role="row">
+                            <p class="wf-text bp-section-label" role="columnheader">Concept</p>
+                            <p class="wf-text bp-section-label" role="columnheader">HTML &amp; CSS</p>
+                            <p class="wf-text bp-section-label" role="columnheader">WebFluent</p>
+                        </div>
+                        <div class="wf-grid wf-gap--sm wf-s1be4a13f wf-r40037c32" role="row">
+                            <p class="wf-text wf-sd9647b36" role="rowheader">A page</p>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr">index.html with &lt;head&gt;, &lt;title&gt; and &lt;body&gt;</code>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Home</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Home&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;…&quot;</span>) { … }</code>
+                        </div>
+                        <div class="wf-grid wf-gap--sm wf-s1be4a13f wf-r40037c32" role="row">
+                            <p class="wf-text wf-sd9647b36" role="rowheader">A heading</p>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr">&lt;h1&gt;Welcome&lt;/h1&gt;</code>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr"><span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Welcome&quot;</span>).h1</code>
+                        </div>
+                        <div class="wf-grid wf-gap--sm wf-s1be4a13f wf-r40037c32" role="row">
+                            <p class="wf-text wf-sd9647b36" role="rowheader">A paragraph</p>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr">&lt;p&gt;Hello&lt;/p&gt;</code>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr"><span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Hello&quot;</span>)</code>
+                        </div>
+                        <div class="wf-grid wf-gap--sm wf-s1be4a13f wf-r40037c32" role="row">
+                            <p class="wf-text wf-sd9647b36" role="rowheader">A link</p>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr">&lt;a href=&quot;/about&quot;&gt;About&lt;/a&gt;</code>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr"><span class="wf-tok-name">Link</span>(<span class="wf-tok-str">&quot;About&quot;</span>, <span class="wf-tok-prop">to</span>: <span class="wf-tok-str">&quot;/about&quot;</span>)</code>
+                        </div>
+                        <div class="wf-grid wf-gap--sm wf-s1be4a13f wf-r40037c32" role="row">
+                            <p class="wf-text wf-sd9647b36" role="rowheader">A picture</p>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr">&lt;img src=&quot;/team.jpg&quot; alt=&quot;The team&quot;&gt;</code>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr"><span class="wf-tok-name">Image</span>(<span class="wf-tok-prop">src</span>: <span class="wf-tok-str">&quot;/team.jpg&quot;</span>, <span class="wf-tok-prop">alt</span>: <span class="wf-tok-str">&quot;The team&quot;</span>)</code>
+                        </div>
+                        <div class="wf-grid wf-gap--sm wf-s1be4a13f wf-r40037c32" role="row">
+                            <p class="wf-text wf-sd9647b36" role="rowheader">A button</p>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr">&lt;button class=&quot;btn btn-primary&quot;&gt;Save&lt;/button&gt;</code>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr"><span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Save&quot;</span>).primary</code>
+                        </div>
+                        <div class="wf-grid wf-gap--sm wf-s1be4a13f wf-r40037c32" role="row">
+                            <p class="wf-text wf-sd9647b36" role="rowheader">A list</p>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr">&lt;ul&gt;&lt;li&gt;One&lt;/li&gt;&lt;/ul&gt;</code>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr"><span class="wf-tok-name">List</span> { <span class="wf-tok-name">List</span>.<span class="wf-tok-name">Item</span> { <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;One&quot;</span>) } }</code>
+                        </div>
+                        <div class="wf-grid wf-gap--sm wf-s1be4a13f wf-r40037c32" role="row">
+                            <p class="wf-text wf-sd9647b36" role="rowheader">A table</p>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr">&lt;table&gt;&lt;thead&gt;…&lt;/thead&gt;&lt;tbody&gt;…&lt;/tbody&gt;&lt;/table&gt;</code>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr"><span class="wf-tok-name">Table</span> { <span class="wf-tok-name">Table</span>.<span class="wf-tok-name">Head</span> { … } <span class="wf-tok-name">Table</span>.<span class="wf-tok-name">Body</span> { … } }</code>
+                        </div>
+                        <div class="wf-grid wf-gap--sm wf-s1be4a13f wf-r40037c32" role="row">
+                            <p class="wf-text wf-sd9647b36" role="rowheader">A form field</p>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr">&lt;label for=&quot;e&quot;&gt;Email&lt;/label&gt;&lt;input id=&quot;e&quot; type=&quot;email&quot;&gt;</code>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr"><span class="wf-tok-name">Input</span>(<span class="wf-tok-prop">bind</span>: email, <span class="wf-tok-prop">label</span>: <span class="wf-tok-str">&quot;Email&quot;</span>).email</code>
+                        </div>
+                        <div class="wf-grid wf-gap--sm wf-s1be4a13f wf-r40037c32" role="row">
+                            <p class="wf-text wf-sd9647b36" role="rowheader">A row with flexbox</p>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr">&lt;div class=&quot;row&quot;&gt; and .row { display: flex; gap: 16px }</code>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr"><span class="wf-tok-name">Row</span>(<span class="wf-tok-prop">gap</span>: .md) { … }</code>
+                        </div>
+                        <div class="wf-grid wf-gap--sm wf-s1be4a13f wf-r40037c32" role="row">
+                            <p class="wf-text wf-sd9647b36" role="rowheader">A grid</p>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr">.grid { display: grid; grid-template-columns: repeat(3, 1fr) }</code>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr"><span class="wf-tok-name">Grid</span>(<span class="wf-tok-prop">columns</span>: <span class="wf-tok-num">3</span>, <span class="wf-tok-prop">gap</span>: .md) { … }</code>
+                        </div>
+                        <div class="wf-grid wf-gap--sm wf-s1be4a13f wf-r40037c32" role="row">
+                            <p class="wf-text wf-sd9647b36" role="rowheader">A responsive grid</p>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr">a @media rule per breakpoint</code>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr"><span class="wf-tok-name">Grid</span>(<span class="wf-tok-prop">columns</span>: { <span class="wf-tok-prop">base</span>: <span class="wf-tok-num">1</span>, <span class="wf-tok-prop">md</span>: <span class="wf-tok-num">3</span> })</code>
+                        </div>
+                        <div class="wf-grid wf-gap--sm wf-s1be4a13f wf-r40037c32" role="row">
+                            <p class="wf-text wf-sd9647b36" role="rowheader">Inline styles</p>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr">style=&quot;padding: 2rem&quot;</code>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr"><span class="wf-tok-kw">style</span> { <span class="wf-tok-prop">padding</span>: <span class="wf-tok-num">2rem</span> } <span class="wf-tok-kw">in</span> the element's block</code>
+                        </div>
+                        <div class="wf-grid wf-gap--sm wf-s1be4a13f wf-r40037c32" role="row">
+                            <p class="wf-text wf-sd9647b36" role="rowheader">Hover and focus</p>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr">.card:hover { … }</code>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr"><span class="wf-tok-kw">style</span> { &amp;:hover { … } }</code>
+                        </div>
+                        <div class="wf-grid wf-gap--sm wf-s1be4a13f wf-r40037c32" role="row">
+                            <p class="wf-text wf-sd9647b36" role="rowheader">A stylesheet</p>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr">&lt;link rel=&quot;stylesheet&quot; href=&quot;site.css&quot;&gt;</code>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr">any .css file under src/</code>
+                        </div>
+                        <div class="wf-grid wf-gap--sm wf-s1be4a13f wf-r40037c32" role="row">
+                            <p class="wf-text wf-sd9647b36" role="rowheader">CSS variables</p>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr">--brand: #0F766E and var(--brand)</code>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr">a <span class="wf-tok-kw">theme</span> of design tokens, read as <span class="wf-tok-tok">$color-primary</span></code>
+                        </div>
+                        <div class="wf-grid wf-gap--sm wf-s1be4a13f wf-r40037c32" role="row">
+                            <p class="wf-text wf-sd9647b36" role="rowheader">Dark mode</p>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr">@media (prefers-color-scheme: dark)</code>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr">a second <span class="wf-tok-kw">theme</span>, named as <span class="wf-tok-str">&quot;dark&quot;</span> <span class="wf-tok-kw">in</span> the config</code>
+                        </div>
+                        <div class="wf-grid wf-gap--sm wf-s1be4a13f wf-r40037c32" role="row">
+                            <p class="wf-text wf-sd9647b36" role="rowheader">A script</p>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr">&lt;script src=&quot;app.js&quot;&gt;&lt;/script&gt;</code>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr">a plain .js file under src/, its functions called <span class="wf-tok-kw">by</span> name</code>
+                        </div>
+                        <div class="wf-grid wf-gap--sm wf-s1be4a13f wf-r40037c32" role="row">
+                            <p class="wf-text wf-sd9647b36" role="rowheader">Meta tags</p>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr">&lt;meta name=&quot;description&quot;&gt;, Open Graph tags</code>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr">the <span class="wf-tok-kw">page</span>'s <span class="wf-tok-prop">title</span>: and <span class="wf-tok-prop">description</span>:, and meta <span class="wf-tok-kw">in</span> the config</code>
+                        </div>
+                    </div>
+                    <div class="wf-stack wf-gap--md wf-s28a8547f bp-prose">
+                        <h2 class="wf-heading" id="differences">Things that work differently</h2>
+                        <div class="wf-markdown">
+<p><strong>Elements are checked.</strong> An <code>Image</code> with no <code>alt:</code> is a warning (<code>A01</code>), a <code>Link</code> to a page that does not exist is an error (<code>R01</code>), and a flag the element does not have (<code>Button(&quot;Save&quot;).primray</code>) stops the build. What you would have caught with a validator and an accessibility audit, the compiler catches on every build.</p>
+<p><strong>Text is text.</strong> Every string goes in as text, so a <code>&lt;</code> in it is shown, not parsed. Markup you did not write goes through <code>Unsafe.Html(sanitize(…))</code>, which the build reports each time; inline <code>onclick</code> handlers do not compile — a handler is <code>on click { … }</code> in the element's block.</p>
+<p><strong>The head is written for you.</strong> Each page's title, description, canonical link, Open Graph and Twitter tags, structured data, a sitemap and <code>robots.txt</code> come from the page and the config (<a href="/recipes/search-and-link-previews">Describe pages to search engines and link previews</a>).</p>
+<p><strong>Your CSS is welcome, scoped by you.</strong> A <code>.css</code> file under <code>src/</code> is bundled after the built-ins' rules, so yours win; <code>class:</code> on any element adds your classes. A <code>style { }</code> block is for the one element it is on.</p>
+<p><strong>A site, not a pile of files.</strong> Pages share a header and footer through <code>app</code> (or a <code>layout:</code>), a value shared by pages is a <code>store</code>, and repeated markup is a <code>component</code> with typed props.</p>
+                        </div>
+                    </div>
+                    <div class="wf-stack wf-gap--md wf-s9cf581b3 bp-prose">
+                        <h2 class="wf-heading" id="port">A component, ported</h2>
+                        <div class="wf-markdown">
+<p>A card that shows a person, in HTML and CSS and in WebFluent.</p>
+                        </div>
+                        <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                            <div class="wf-row wf-s2c416341 bp-console__bar">
+                                <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                    <p class="wf-text wf-s23a4ddd5 bp-mono">html</p>
+                                </div>
+                                <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="html" type="button">Copy</button>
+                            </div>
+                            <code class="wf-code wf-code--block bp-console__code">&lt;div class=&quot;card&quot;&gt;
+  &lt;img class=&quot;avatar&quot; src=&quot;/ada.jpg&quot; alt=&quot;Ada Lovelace&quot;&gt;
+  &lt;div&gt;
+    &lt;h3&gt;Ada Lovelace&lt;/h3&gt;
+    &lt;p class=&quot;muted&quot;&gt;Analyst&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+
+&lt;style&gt;
+  .card { display: flex; gap: 12px; align-items: center; padding: 16px;
+          border: 1px solid #ddd; border-radius: 8px; }
+  .avatar { width: 48px; height: 48px; border-radius: 50%; }
+  .muted { color: #666; }
+&lt;/style&gt;</code>
+                        </div>
+                        <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                            <div class="wf-row wf-s2c416341 bp-console__bar">
+                                <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                    <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
+                                </div>
+                                <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                            </div>
+                            <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Team</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Team&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Who we are.&quot;</span>) {
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Team&quot;</span>).h1
+    <span class="wf-tok-name">Person</span>(<span class="wf-tok-str">&quot;Ada Lovelace&quot;</span>, <span class="wf-tok-prop">role</span>: <span class="wf-tok-str">&quot;Analyst&quot;</span>, <span class="wf-tok-prop">photo</span>: <span class="wf-tok-str">&quot;/ada.jpg&quot;</span>)
+}
+
+<span class="wf-tok-kw">component</span> <span class="wf-tok-name">Person</span>(_ <span class="wf-tok-prop">name</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">role</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">photo</span>: <span class="wf-tok-name">String</span>) {
+    <span class="wf-tok-name">Card</span>.outlined {
+        <span class="wf-tok-name">Row</span>(<span class="wf-tok-prop">gap</span>: .sm, <span class="wf-tok-prop">align</span>: .center) {
+            <span class="wf-tok-name">Avatar</span>(<span class="wf-tok-prop">src</span>: photo, <span class="wf-tok-prop">alt</span>: name)
+            <span class="wf-tok-name">Stack</span> {
+                <span class="wf-tok-name">Heading</span>(name).h3
+                <span class="wf-tok-name">Text</span>(role).muted
+            }
+        }
+    }
+}</code>
+                        </div>
+                        <div class="wf-markdown">
+<ul>
+<li><strong>No class names to invent.</strong> <code>Card.outlined</code>, <code>Avatar</code> and <code>.muted</code> come designed, and follow the theme.</li>
+<li><strong>One component, many people.</strong> <code>Person</code> is placed with each person's props; the compiler checks every call.</li>
+</ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="wf-stack wf-gap--lg wf-s2502f5f4 bp-rail" role="navigation" aria-label="On this page">
+                    <div class="wf-stack wf-gap--xs wf-se8e8f072">
+                        <p class="wf-text wf-sa736415c bp-section-label">On this page</p>
+                        <a class="wf-link wf-s23505038" href="#differences">Things that work differently</a>
+                        <a class="wf-link wf-s23505038" href="#port">A component, ported</a>
+                    </div>
+                    <a class="wf-link wf-s48d899f5" href="https://github.com/monzeromer-lab/WebFluent/blob/master/md-docs/coming-from/html-css.md">
+                        <i class="wf-icon" data-icon="edit"></i>
+                        <p class="wf-text">Edit this page</p>
+                    </a>
+                </div>
+            </div>
+        </main>
+        <footer class="wf-footer wf-s2213a098">
+            <div class="wf-stack wf-gap--lg wf-s84d7918c bp-wrap">
+                <div class="wf-grid wf-gap--lg wf-r67559659">
+                    <div class="wf-stack wf-gap--xs wf-s17061b4c">
+                        <p class="wf-text wf-scba75cc6 bp-section-label">Learn</p>
+                        <a class="wf-link" href="/learn/01-getting-started">The tour</a>
+                        <a class="wf-link" href="/learn">The book</a>
+                        <a class="wf-link" href="/about">About essays</a>
+                    </div>
+                    <div class="wf-stack wf-gap--xs wf-s17061b4c">
+                        <p class="wf-text wf-scba75cc6 bp-section-label">Do</p>
+                        <a class="wf-link" href="/recipes">Recipes</a>
+                        <a class="wf-link" href="/playground">Playground</a>
+                        <a class="wf-link" href="/coming-from/react">Coming from…</a>
+                        <a class="wf-link" href="/showcase">Showcase</a>
+                    </div>
+                    <div class="wf-stack wf-gap--xs wf-s17061b4c">
+                        <p class="wf-text wf-scba75cc6 bp-section-label">Look up</p>
+                        <a class="wf-link" href="/reference">Components</a>
+                        <a class="wf-link" href="/reference/cli">CLI and config</a>
+                        <a class="wf-link" href="/errors">Errors</a>
+                    </div>
+                    <div class="wf-stack wf-gap--xs wf-s17061b4c">
+                        <p class="wf-text wf-scba75cc6 bp-section-label">For agents</p>
+                        <a class="wf-link" href="/reference/cli/context">wf context</a>
+                        <a class="wf-link" href="/changelog">Changelog</a>
+                    </div>
+                </div>
+                <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-sd146f653">
+                    <p class="wf-text bp-small">Every code block in the guide is real WebFluent 6.0, parsed, type-checked and compiled by the test suite.</p>
+                    <div class="wf-row wf-align--center wf-gap--md wf-sa3c9b727">
+                        <a class="wf-link wf-sf9ca1a0e" href="https://github.com/monzeromer-lab/WebFluent">Source</a>
+                        <button class="wf-btn link-button" type="button">Cookie settings</button>
+                        <p class="wf-text bp-small">© 2026 Monzer Omer</p>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

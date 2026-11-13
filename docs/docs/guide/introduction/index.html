@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Introduction</title>
     <meta name="description" content="What WebFluent is, the five ideas behind it, when to use it and when not to, and how the guide is organised by what you need.">
@@ -28,6 +28,8 @@
     <link rel="preload" href="/fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="/styles.css">
     <script src="/js/analytics.js" defer></script>
+    <script src="/js/live.js" defer></script>
+    <script src="/js/old-links-map.js" defer></script>
     <script src="/js/old-links.js" defer></script>
     <script src="/js/video.js" defer></script>
     <script src="/app.js" defer></script>
@@ -50,6 +52,7 @@
                         <a class="wf-link bp-tab" href="/recipes">Recipes</a>
                         <a class="wf-link bp-tab" href="/reference">Reference</a>
                         <a class="wf-link bp-tab" href="/errors">Errors</a>
+                        <a class="wf-link bp-tab" href="/playground">Playground</a>
                         <a class="wf-link bp-tab" href="/showcase">Showcase</a>
                     </div>
                     <div class="wf-row wf-align--center wf-gap--sm wf-sff642a95">
@@ -58,7 +61,7 @@
                             <p class="wf-text wf-sf55a2627 bp-hide-sm">Search the docs</p>
                             <p class="wf-text bp-kbd bp-hide-sm">Ctrl+K</p>
                         </button>
-                        <div class="wf-row wf-align--center wf-gap--sm wf-s808638b6 bp-select bp-hide-sm">
+                        <div class="wf-row wf-align--center wf-gap--sm wf-s808638b6 bp-select bp-hide-md">
                             <p class="wf-text wf-s29c127bc bp-building-label" aria-hidden="true">Building</p>
                             <select class="wf-select" aria-label="Building">
                                 <option value="website">Website</option>
@@ -74,7 +77,7 @@
                         <div class="wf-row wf-align--center wf-gap--xs wf-s286d925a bp-hide-sm">
                             <button class="wf-btn bp-button" title="This page is in English only; the switch changes the interface." data-track="select_content" data-track-content-type="language" type="button"></button>
                         </div>
-                        <a class="wf-link bp-button bp-hide-sm" href="https://github.com/monzeromer-lab/WebFluent" data-tone="quiet" aria-label="GitHub">
+                        <a class="wf-link bp-button bp-hide-md" href="https://github.com/monzeromer-lab/WebFluent" data-tone="quiet" aria-label="GitHub">
                             <i class="wf-icon" data-icon="git-branch"></i>
                             <p class="wf-text">GitHub</p>
                         </a>
@@ -194,8 +197,8 @@
 </ul>
 <p>Use something else when:</p>
 <ul>
-<li>you depend on a large ecosystem of framework-specific UI libraries. You can still embed any library through <a href="/docs/guide/interop">JavaScript interop</a>, but you write the binding yourself.</li>
-<li>you need server-side rendering on every request with per-user data. A WebFluent site is static files plus a browser runtime, and your server stays your server. <a href="/docs/guide/server-rendering">Server rendering</a> of templates does cover emails, invoices and HTML fragments.</li>
+<li>you depend on a large ecosystem of framework-specific UI libraries. You can still embed any library through <a href="/recipes">JavaScript interop</a>, but you write the binding yourself.</li>
+<li>you need server-side rendering on every request with per-user data. A WebFluent site is static files plus a browser runtime, and your server stays your server. <a href="/recipes">Server rendering</a> of templates does cover emails, invoices and HTML fragments.</li>
 <li>you need a native mobile app.</li>
 </ul>
                             </div>
@@ -282,7 +285,7 @@
                                         <td>tutorial, then how-to</td>
                                         <td>
                                             <div class="wf-markdown">
-<p>Three whole projects — <a href="/docs/tutorials/todos">Todos</a>, <a href="/docs/tutorials/field-notes">Field Notes</a> and <a href="/docs/tutorials/pocket">Pocket</a> — and <a href="/docs/guide/recipes">recipes</a> for the pieces most projects need</p>
+<p>Three whole projects — <a href="/docs/tutorials/todos">Todos</a>, <a href="/recipes/build-a-notebook-site">Field Notes</a> and <a href="/recipes/build-a-budget-app">Pocket</a> — and <a href="/recipes">recipes</a> for the pieces most projects need</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -308,7 +311,7 @@
                                         <td>how-to</td>
                                         <td>
                                             <div class="wf-markdown">
-<p><a href="/docs/guide/styling">Styling</a>, <a href="/docs/guide/motion">motion</a>, <a href="/docs/guide/media">media</a> and <a href="/docs/guide/accessibility">accessibility</a></p>
+<p><a href="/docs/guide/styling">Styling</a>, <a href="/recipes">motion</a>, <a href="/recipes">media</a> and <a href="/docs/guide/accessibility">accessibility</a></p>
                                             </div>
                                         </td>
                                     </tr>
@@ -321,7 +324,7 @@
                                         <td>how-to</td>
                                         <td>
                                             <div class="wf-markdown">
-<p><a href="/docs/guide/forms">Forms</a>, <a href="/docs/guide/data">fetching data</a>, <a href="/docs/guide/realtime">real-time connections</a> and <a href="/docs/guide/offline">offline</a></p>
+<p><a href="/docs/guide/forms">Forms</a>, <a href="/docs/guide/data">fetching data</a>, <a href="/recipes">real-time connections</a> and <a href="/recipes">offline</a></p>
                                             </div>
                                         </td>
                                     </tr>
@@ -334,7 +337,7 @@
                                         <td>how-to</td>
                                         <td>
                                             <div class="wf-markdown">
-<p><a href="/docs/guide/content">Content and search</a> and <a href="/docs/guide/i18n">translation</a></p>
+<p><a href="/recipes">Content and search</a> and <a href="/recipes">translation</a></p>
                                             </div>
                                         </td>
                                     </tr>
@@ -360,7 +363,7 @@
                                         <td>explanation, then how-to</td>
                                         <td>
                                             <div class="wf-markdown">
-<p><a href="/reference/project">Project structure</a>, <a href="/docs/guide/static-and-spa">static or single-page</a>, <a href="/docs/guide/deploying">deploying</a>, <a href="/docs/guide/environments">environments</a> and <a href="/docs/guide/desktop">desktop apps</a></p>
+<p><a href="/reference/project">Project structure</a>, <a href="/docs/guide/static-and-spa">static or single-page</a>, <a href="/recipes">deploying</a>, <a href="/recipes">environments</a> and <a href="/recipes">desktop apps</a></p>
                                             </div>
                                         </td>
                                     </tr>
@@ -373,7 +376,7 @@
                                         <td>how-to</td>
                                         <td>
                                             <div class="wf-markdown">
-<p><a href="/docs/guide/pdf-and-slides">PDF and slides</a>, <a href="/docs/guide/server-rendering">server rendering</a> and <a href="/docs/guide/interop">JavaScript interop</a></p>
+<p><a href="/docs/guide/pdf-and-slides">PDF and slides</a>, <a href="/recipes">server rendering</a> and <a href="/recipes">JavaScript interop</a></p>
                                             </div>
                                         </td>
                                     </tr>
@@ -409,7 +412,7 @@
                             <div class="wf-markdown">
 <ul>
 <li><strong>To learn WebFluent:</strong> read <a href="/docs/guide/getting-started">Getting started</a>, work through the <a href="/docs/guide/tutorial">tutorial</a>, then read the <em>Concepts</em> section in order. Every example in them builds. For more practice, try the <a href="/docs/tutorials/todos">three project tutorials</a>.</li>
-<li><strong>To understand it coming from a framework:</strong> read <a href="/docs/guide/coming-from">Coming from React, Vue or Svelte</a> first. It maps what you know to what is here.</li>
+<li><strong>To understand it coming from a framework:</strong> read <a href="/coming-from/react">Coming from React, Vue or Svelte</a> first. It maps what you know to what is here.</li>
 <li><strong>To build a feature:</strong> go to the <em>Guides</em> page that names the task.</li>
 <li><strong>To look something up:</strong> use the reference chapters, starting with the <a href="/reference">components reference</a>. They are generated from the compiler, or checked against it.</li>
 <li><strong>To fix a problem:</strong> start at <a href="/docs/guide/troubleshooting">Troubleshooting</a>. Every diagnostic code has an entry in <a href="/errors">Diagnostics</a>.</li>
@@ -459,6 +462,7 @@
                     <div class="wf-stack wf-gap--xs wf-s17061b4c">
                         <p class="wf-text wf-scba75cc6 bp-section-label">Do</p>
                         <a class="wf-link" href="/recipes">Recipes</a>
+                        <a class="wf-link" href="/playground">Playground</a>
                         <a class="wf-link" href="/coming-from/react">Coming from…</a>
                         <a class="wf-link" href="/showcase">Showcase</a>
                     </div>

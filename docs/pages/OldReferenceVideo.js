@@ -1,2 +1,2 @@
-function Page_OldReferenceVideo(params){const _root=document.createDocumentFragment();const _e1775=WF.el("h1",{className:"wf-heading"},"Video");_root.appendChild(_e1775);const _e1776=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/video"},"Video");WF.activeLink(_e1776,"/reference/video",false);_root.appendChild(_e1776);return _root;}
+function Page_OldReferenceVideo(params){const _root=document.createDocumentFragment();const _e1745=WF.el("h1",{className:"wf-heading"},"Video");_root.appendChild(_e1745);const _e1746=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/video"},"Video");WF.activeLink(_e1746,"/reference/video",false);_root.appendChild(_e1746);return _root;}
 WF.page("OldReferenceVideo",Page_OldReferenceVideo);

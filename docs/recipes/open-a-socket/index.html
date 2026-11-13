@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Open a socket — Recipes</title>
+    <meta name="description" content="Hold a two-way connection to a server with a `socket`: it reconnects, keeps itself alive, and queues what you send while the line is down.">
+    <link rel="canonical" href="https://webfluent.monzeromer.dev/recipes/open-a-socket">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Open a socket — Recipes">
+    <meta property="og:site_name" content="WebFluent">
+    <meta property="og:description" content="Hold a two-way connection to a server with a `socket`: it reconnects, keeps itself alive, and queues what you send while the line is down.">
+    <meta property="og:url" content="https://webfluent.monzeromer.dev/recipes/open-a-socket">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="ar_AR">
+    <meta property="og:image" content="https://webfluent.monzeromer.dev/og.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Open a socket — Recipes">
+    <meta name="twitter:description" content="Hold a two-way connection to a server with a `socket`: it reconnects, keeps itself alive, and queues what you send while the line is down.">
+    <meta name="twitter:image" content="https://webfluent.monzeromer.dev/og.png">
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/recipes/open-a-socket#webpage","url":"https://webfluent.monzeromer.dev/recipes/open-a-socket","name":"Open a socket — Recipes","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"Hold a two-way connection to a server with a `socket`: it reconnects, keeps itself alive, and queues what you send while the line is down.","inLanguage":"en"},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/recipes/open-a-socket#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Recipes — WebFluent","item":"https://webfluent.monzeromer.dev/recipes"},{"@type":"ListItem","position":3,"name":"Open a socket — Recipes","item":"https://webfluent.monzeromer.dev/recipes/open-a-socket"}]}]}</script>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="preload" href="/fonts/instrument-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="/styles.css">
+    <script src="/js/analytics.js" defer></script>
+    <script src="/js/live.js" defer></script>
+    <script src="/js/old-links-map.js" defer></script>
+    <script src="/js/old-links.js" defer></script>
+    <script src="/js/video.js" defer></script>
+    <script src="/app.js" defer></script>
+    <script src="/pages/RecipeOpenASocket.js" data-wf-page="RecipeOpenASocket" defer></script>
+</head>
+<body>
+    <a class="wf-skip-link" href="#wf-main">Skip to content</a>
+    <div id="app">
+        <main id="wf-main">
+            <a class="wf-link bp-skip" href="#bp-main">Skip to the content</a>
+            <div class="wf-row wf-align--center wf-s55053fdc bp-header" role="banner">
+                <div class="wf-row wf-align--center wf-gap--md wf-sfe495c12 bp-wrap">
+                    <a class="wf-link wf-sa4fc1f4b" href="/" aria-label="WebFluent, home">
+                        <img class="wf-image wf-s4b9d0b60" src="/favicon.svg" alt="" decoding="async" loading="eager" fetchpriority="high">
+                        <p class="wf-text wf-s9919642b">WebFluent</p>
+                        <p class="wf-text bp-label bp-num">6.0</p>
+                    </a>
+                    <div class="wf-row wf-s92924cc4 bp-tabs" role="navigation" aria-label="Main">
+                        <a class="wf-link bp-tab" href="/learn">Learn</a>
+                        <a class="wf-link bp-tab active" href="/recipes" aria-current="page">Recipes</a>
+                        <a class="wf-link bp-tab" href="/reference">Reference</a>
+                        <a class="wf-link bp-tab" href="/errors">Errors</a>
+                        <a class="wf-link bp-tab" href="/playground">Playground</a>
+                        <a class="wf-link bp-tab" href="/showcase">Showcase</a>
+                    </div>
+                    <div class="wf-row wf-align--center wf-gap--sm wf-sff642a95">
+                        <button class="wf-btn wf-sf8ab46ec bp-field bp-search" aria-label="Search the docs" aria-keyshortcuts="Meta+K Control+K" aria-haspopup="dialog" type="button">
+                            <i class="wf-icon" data-icon="search"></i>
+                            <p class="wf-text wf-sf55a2627 bp-hide-sm">Search the docs</p>
+                            <p class="wf-text bp-kbd bp-hide-sm">Ctrl+K</p>
+                        </button>
+                        <div class="wf-row wf-align--center wf-gap--sm wf-s808638b6 bp-select bp-hide-md">
+                            <p class="wf-text wf-s29c127bc bp-building-label" aria-hidden="true">Building</p>
+                            <select class="wf-select" aria-label="Building">
+                                <option value="website">Website</option>
+                                <option value="app">Web app</option>
+                                <option value="pdf">PDF</option>
+                                <option value="slides">Slides</option>
+                                <option value="elements">Custom elements</option>
+                                <option value="desktop">Desktop / phone</option>
+                            </select>
+                            <i class="wf-icon wf-s94250744" data-icon="chevron-down" aria-hidden="true"></i>
+                        </div>
+                        <button class="wf-icon-btn bp-icon-button" data-track="select_content" data-track-content-type="theme" type="button"></button>
+                        <div class="wf-row wf-align--center wf-gap--xs wf-s286d925a bp-hide-sm">
+                            <button class="wf-btn bp-button" title="This page is in English only; the switch changes the interface." data-track="select_content" data-track-content-type="language" type="button"></button>
+                        </div>
+                        <a class="wf-link bp-button bp-hide-md" href="https://github.com/monzeromer-lab/WebFluent" data-tone="quiet" aria-label="GitHub">
+                            <i class="wf-icon" data-icon="git-branch"></i>
+                            <p class="wf-text">GitHub</p>
+                        </a>
+                        <button class="wf-icon-btn wf-sde8ec4aa bp-icon-button" data-icon="menu" aria-label="Menu" title="Menu" aria-expanded="false" type="button"></button>
+                    </div>
+                </div>
+            </div>
+            <dialog class="wf-modal bp-palette" aria-labelledby="wf-dlg-s1">
+                <div class="wf-modal__content">
+                    <div class="wf-modal__header"><h3 id="wf-dlg-s1">Search</h3></div>
+                    <div class="wf-modal__body">
+                        <div class="wf-stack wf-sa8e464d0">
+                            <div class="wf-row wf-align--center wf-gap--sm wf-s02e7a482 bp-field">
+                                <i class="wf-icon" data-icon="search"></i>
+                                <input class="wf-input" placeholder="Search the guide" aria-label="Search the guide" type="search" autofocus>
+                                <p class="wf-text bp-kbd">esc</p>
+                            </div>
+                            <div class="wf-row wf-s434e64fb bp-tabs" role="tablist" aria-label="Narrow the search">
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="true" type="button">All</button>
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">Learn</button>
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">Recipes</button>
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">Reference</button>
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">Errors</button>
+                            </div>
+                            <div class="wf-stack wf-s3f6dffee" role="listbox" aria-label="Search results">
+                                <p class="wf-text wf-s3205a3d6 bp-small">Type a word: a component, a code such as T05, or a task.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </dialog>
+            <div class="wf-row wf-align--start wf-sa997482c bp-wrap">
+                <div class="wf-stack wf-gap--sm wf-sa359f878 bp-sidebar" role="navigation" aria-label="Recipes">
+                    <div class="wf-row wf-align--center wf-gap--sm wf-scc2d619f bp-field">
+                        <i class="wf-icon" data-icon="filter"></i>
+                        <input class="wf-input" placeholder="Filter" aria-label="Filter" type="search">
+                    </div>
+                    <div class="wf-stack bp-navlist">
+                        <!--wf-if-->
+                        <a class="wf-link bp-navlink" href="/recipes/confirm-dialog">Build a confirm dialog</a>
+                        <a class="wf-link bp-navlink" href="/recipes/copy-to-the-clipboard">Copy to the clipboard</a>
+                        <a class="wf-link bp-navlink" href="/recipes/count-down">Count down</a>
+                        <a class="wf-link bp-navlink" href="/recipes/debounce-a-search">Debounce a search</a>
+                        <a class="wf-link bp-navlink" href="/recipes/filters-in-the-address">Keep filters in the address</a>
+                        <a class="wf-link bp-navlink" href="/recipes/active-tab-in-the-address">Keep the active tab in the address</a>
+                        <a class="wf-link bp-navlink" href="/recipes/responsive-navigation">Make navigation responsive</a>
+                        <a class="wf-link bp-navlink" href="/recipes/store-value-as-a-prop">Pass a store&#x27;s value to a component</a>
+                        <p class="wf-text bp-navgroup">Data</p>
+                        <a class="wf-link bp-navlink" href="/recipes/load-more">Load more as the reader asks</a>
+                        <a class="wf-link bp-navlink" href="/recipes/page-through-results">Page through results</a>
+                        <a class="wf-link bp-navlink" href="/recipes/validation-messages">Show validation messages on a form</a>
+                        <a class="wf-link bp-navlink" href="/recipes/sign-in-with-a-session-cookie">Sign in with a session cookie</a>
+                        <a class="wf-link bp-navlink" href="/recipes/optimistic-updates">Update at once, and roll back on failure</a>
+                        <p class="wf-text bp-navgroup">Real time</p>
+                        <a class="wf-link bp-navlink" href="/recipes/connect-two-readers">Connect two readers&#x27; pages</a>
+                        <a class="wf-link bp-navlink" href="/recipes/server-sent-events">Listen to server-sent events</a>
+                        <a class="wf-link bp-navlink active" href="/recipes/open-a-socket" aria-current="page">Open a socket</a>
+                        <a class="wf-link bp-navlink" href="/recipes/run-a-worker">Run a script in a worker</a>
+                        <a class="wf-link bp-navlink" href="/recipes/send-on-unload">Send a message as the page unloads</a>
+                        <a class="wf-link bp-navlink" href="/recipes/show-the-network">Show what the network is doing</a>
+                        <a class="wf-link bp-navlink" href="/recipes/talk-between-tabs">Talk to the site&#x27;s other tabs</a>
+                        <p class="wf-text bp-navgroup">Content</p>
+                        <a class="wf-link bp-navlink" href="/recipes/search-and-link-previews">Describe pages to search engines and link previews</a>
+                        <a class="wf-link bp-navlink" href="/recipes/render-markdown">Render Markdown</a>
+                        <a class="wf-link bp-navlink" href="/recipes/show-code">Show code on a page</a>
+                        <a class="wf-link bp-navlink" href="/recipes/markdown-pages">Write a page as a Markdown file</a>
+                        <p class="wf-text bp-navgroup">Look and motion</p>
+                        <a class="wf-link bp-navlink" href="/recipes/dark-mode-switch">Add a dark-mode switch</a>
+                        <a class="wf-link bp-navlink" href="/recipes/add-a-picture">Add a picture, sized for every screen</a>
+                        <a class="wf-link bp-navlink" href="/recipes/video-and-audio">Add video and audio</a>
+                        <a class="wf-link bp-navlink" href="/recipes/animate-a-list">Animate a list</a>
+                        <a class="wf-link bp-navlink" href="/recipes/animate-in-and-out">Animate an element in and out</a>
+                        <a class="wf-link bp-navlink" href="/recipes/route-transitions">Animate route changes</a>
+                        <a class="wf-link bp-navlink" href="/recipes/shared-element">Carry an element across a route change</a>
+                        <a class="wf-link bp-navlink" href="/recipes/count-a-number">Count a number to its new value</a>
+                        <a class="wf-link bp-navlink" href="/recipes/keyframes">Declare your own keyframes</a>
+                        <a class="wf-link bp-navlink" href="/recipes/drive-an-animation">Drive an animation yourself</a>
+                        <a class="wf-link bp-navlink" href="/recipes/expand-to-content">Open a box to the height of its content</a>
+                        <a class="wf-link bp-navlink" href="/recipes/animation-sequence">Run a sequence of animations</a>
+                        <a class="wf-link bp-navlink" href="/recipes/motion-defaults">Set motion defaults, and respect reduced motion</a>
+                        <a class="wf-link bp-navlink" href="/recipes/show-a-carousel">Show a carousel</a>
+                        <a class="wf-link bp-navlink" href="/recipes/show-an-icon">Show an icon</a>
+                        <a class="wf-link bp-navlink" href="/recipes/show-a-page-in-a-frame">Show another page in a frame</a>
+                        <a class="wf-link bp-navlink" href="/recipes/tween-on-change">Tween a property when state changes</a>
+                        <p class="wf-text bp-navgroup">Reach</p>
+                        <a class="wf-link bp-navlink" href="/recipes/keep-writes-made-offline">Keep writes made offline</a>
+                        <a class="wf-link bp-navlink" href="/recipes/work-offline">Make a site work offline</a>
+                        <a class="wf-link bp-navlink" href="/recipes/offer-a-new-version">Offer a new version</a>
+                        <a class="wf-link bp-navlink" href="/recipes/site-in-two-languages">Publish a page in each language</a>
+                        <a class="wf-link bp-navlink" href="/recipes/translate-a-site">Translate a site</a>
+                        <a class="wf-link bp-navlink" href="/recipes/translate-by-the-words">Translate by the words as written</a>
+                        <a class="wf-link bp-navlink" href="/recipes/environments-and-secrets">Use environment values, and keep secrets out</a>
+                        <p class="wf-text bp-navgroup">Ship</p>
+                        <a class="wf-link bp-navlink" href="/recipes/docker-image">Build a Docker image</a>
+                        <a class="wf-link bp-navlink" href="/recipes/check-a-deploy">Check a deploy</a>
+                        <a class="wf-link bp-navlink" href="/recipes/deploy-to-cloudflare-pages">Deploy to Cloudflare Pages</a>
+                        <a class="wf-link bp-navlink" href="/recipes/deploy-to-github-pages">Deploy to GitHub Pages</a>
+                        <a class="wf-link bp-navlink" href="/recipes/deploy-to-netlify">Deploy to Netlify</a>
+                        <a class="wf-link bp-navlink" href="/recipes/deploy-to-vercel">Deploy to Vercel</a>
+                        <a class="wf-link bp-navlink" href="/recipes/install-wf-in-ci">Install wf on a build machine</a>
+                        <a class="wf-link bp-navlink" href="/recipes/electron-app">Make a desktop app with Electron</a>
+                        <a class="wf-link bp-navlink" href="/recipes/tauri-app">Make a desktop or phone app with Tauri</a>
+                        <a class="wf-link bp-navlink" href="/recipes/serve-with-apache">Serve a site with Apache</a>
+                        <a class="wf-link bp-navlink" href="/recipes/serve-with-caddy">Serve a site with Caddy</a>
+                        <a class="wf-link bp-navlink" href="/recipes/serve-with-nginx">Serve a site with nginx</a>
+                        <a class="wf-link bp-navlink" href="/recipes/api-on-the-same-origin">Serve an API on the same origin</a>
+                        <a class="wf-link bp-navlink" href="/recipes/cache-and-security-headers">Set cache and security headers</a>
+                        <p class="wf-text bp-navgroup">Interop</p>
+                        <a class="wf-link bp-navlink" href="/recipes/call-wf-from-a-script">Call WF from a script</a>
+                        <a class="wf-link bp-navlink" href="/recipes/call-your-own-script">Call your own JavaScript</a>
+                        <a class="wf-link bp-navlink" href="/recipes/chart-from-a-library">Draw a chart from a library</a>
+                        <a class="wf-link bp-navlink" href="/recipes/portal">Draw into a node a script made</a>
+                        <a class="wf-link bp-navlink" href="/recipes/hand-an-element-to-a-script">Hand an element to a script</a>
+                        <a class="wf-link bp-navlink" href="/recipes/library-from-a-cdn">Load a library from a CDN</a>
+                        <a class="wf-link bp-navlink" href="/recipes/migrate-from-external">Migrate from external</a>
+                        <a class="wf-link bp-navlink" href="/recipes/place-a-custom-element">Place a custom element from a library</a>
+                        <a class="wf-link bp-navlink" href="/recipes/publish-custom-elements">Publish components as custom elements</a>
+                        <a class="wf-link bp-navlink" href="/recipes/render-a-template">Render a template with data</a>
+                        <a class="wf-link bp-navlink" href="/recipes/render-from-node">Render templates from Node</a>
+                        <a class="wf-link bp-navlink" href="/recipes/render-from-rust">Render templates from Rust</a>
+                        <a class="wf-link bp-navlink" href="/recipes/listen-for-wf-render">Run a script after each page draws</a>
+                        <p class="wf-text bp-navgroup">Projects</p>
+                        <a class="wf-link bp-navlink" href="/recipes/build-a-budget-app">Build a budget app that works offline</a>
+                        <a class="wf-link bp-navlink" href="/recipes/build-a-notebook-site">Build a statically generated notebook</a>
+                    </div>
+                </div>
+                <div class="wf-stack wf-gap--lg wf-s54d43750 bp-main" role="main" id="bp-main" tabindex="-1">
+                    <div class="wf-row wf-align--center wf-gap--xs wf-s2327e38b" role="navigation" aria-label="Breadcrumb">
+                        <a class="wf-link" href="/recipes">Recipes</a>
+                        <p class="wf-text" aria-hidden="true">/</p>
+                    </div>
+                    <div class="wf-row bp-labels">
+                        <p class="wf-text bp-label" data-tone="kind" data-kind="howto">How-to</p>
+                        <div class="wf-row wf-gap--xs bp-labels" aria-label="Works in">
+                            <p class="wf-text bp-label" data-tone="construction">Website</p>
+                            <p class="wf-text bp-label" data-tone="plain">Web app</p>
+                            <p class="wf-text bp-label" data-tone="plain">Desktop / phone</p>
+                        </div>
+                    </div>
+                    <div class="wf-stack wf-gap--sm wf-s4e4189b1">
+                        <h1 class="wf-heading wf-sdfc6d99e">Open a socket</h1>
+                        <div class="wf-markdown bp-lede">
+<p>A <code>socket</code> holds a two-way connection to a server: chat, live editing, notifications. You declare it with <code>ws(…)</code> and read it with <code>match</code>, the way you read a <code>resource</code>. This chat page shows a spinner while the socket connects, the messages once it is open, and why it stopped when it closes:</p>
+                        </div>
+                    </div>
+                    <div class="wf-stack wf-gap--sm wf-sa4f807c1">
+                        <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                            <div class="wf-row wf-s2c416341 bp-console__bar">
+                                <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                    <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
+                                </div>
+                                <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                            </div>
+                            <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Chat</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/chat&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Chat&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Talk to the team.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> draft = <span class="wf-tok-str">&quot;&quot;</span>
+    socket chat = ws(<span class="wf-tok-str">&quot;wss://example.com/chat&quot;</span>, <span class="wf-tok-prop">heartbeat</span>: <span class="wf-tok-num">20.seconds</span>) {
+        <span class="wf-tok-kw">on</span> message(m) { <span class="wf-tok-kw">log</span>(m) }
+    }
+
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Chat&quot;</span>).h1
+    <span class="wf-tok-kw">match</span> chat {
+        connecting { <span class="wf-tok-name">Spinner</span>.sm }
+        open       { <span class="wf-tok-kw">for</span> m <span class="wf-tok-kw">in</span> chat.messages <span class="wf-tok-kw">by</span> m.id { <span class="wf-tok-name">Text</span>(m.text) } }
+        closed(c)  { <span class="wf-tok-name">Alert</span>(<span class="wf-tok-str">&quot;Disconnected ({c.code})&quot;</span>).warning }
+        <span class="wf-tok-kw">error</span>(e)   { <span class="wf-tok-name">Alert</span>(e.message).danger }
+    }
+    <span class="wf-tok-name">Input</span>(<span class="wf-tok-prop">bind</span>: draft, <span class="wf-tok-prop">label</span>: <span class="wf-tok-str">&quot;Message&quot;</span>).text
+    <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Send&quot;</span>).primary { <span class="wf-tok-kw">on</span> click { chat.send({ <span class="wf-tok-prop">text</span>: draft })  draft = <span class="wf-tok-str">&quot;&quot;</span> } }
+}</code>
+                        </div>
+                    </div>
+                    <div class="wf-stack wf-gap--lg wf-s841f14ce bp-prose" dir="ltr">
+                        <h2 class="wf-heading" id="how-it-works">How it works</h2>
+                        <div class="wf-markdown">
+<p>A connection is read the same way a resource is, so this recipe assumes you know how a <code>resource</code> is read with <code>match</code> and its arms (<a href="/docs/guide/data#show-a-request-with-resource">Fetching data</a>), and how <code>state</code> and <code>effect</code> work (<a href="/docs/guide/state">State and reactivity</a>).</p>
+<ul>
+<li><strong><code>socket chat = ws(…)</code></strong> opens the socket when the page is drawn and closes it when the reader leaves.</li>
+<li><strong><code>on message(m) { }</code></strong>, inside the socket's block, handles each message that arrives. <code>on open { }</code> runs each time the line opens — the first time and after every reconnection.</li>
+<li><strong><code>match chat</code></strong> takes the arms <code>connecting</code>, <code>open</code>, <code>closed(c)</code> and <code>error(e)</code>, and an <code>else</code> for the rest. <code>closed(c)</code> is handed the close, with <code>c.code</code> and <code>c.reason</code>; <code>error(e)</code> is handed the failure, with <code>e.message</code>.</li>
+<li><strong><code>chat.messages</code></strong> holds what arrived, in order, and <strong><code>chat.send(…)</code></strong> sends a value.</li>
+</ul>
+<p>A socket looks after itself:</p>
+<ul>
+<li><strong>It reconnects.</strong> When the line drops, it waits and tries again, doubling the wait each time up to a limit. A server that closes the line normally (code <code>1000</code>) is not reconnected to.</li>
+<li><strong>It keeps itself alive.</strong> With <code>heartbeat:</code>, it sends a ping that often and treats a missing answer as a dead line, which it closes and reopens.</li>
+<li><strong>It holds what you send while it is down.</strong> <code>chat.send(…)</code> while the socket is reconnecting queues the message and sends it when the line opens again.</li>
+<li><strong>It reads JSON.</strong> A text message that parses as JSON arrives as a value; any other text arrives as a string. A value you send is sent as JSON, unless it is already a string.</li>
+</ul>
+                        </div>
+                        <h3 class="wf-heading" id="tune-a-socket">Tune a socket</h3>
+                        <div class="wf-markdown">
+<p>Pass options after the address to change how a socket connects and reconnects:</p>
+                        </div>
+                        <table class="wf-table">
+                            <caption class="wf-visually-hidden">Tune a socket</caption>
+                            <thead>
+                                <tr>
+                                    <th scope="col">Option</th>
+                                    <th scope="col">Does</th>
+                                    <th scope="col">Default</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <div class="wf-markdown">
+<p><code>protocols:</code></p>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p>The subprotocols to ask for: <code>[&quot;v2&quot;]</code></p>
+                                        </div>
+                                    </td>
+                                    <td>none</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="wf-markdown">
+<p><code>heartbeat:</code></p>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p>Sends a ping this often, and reconnects when no pong comes back: <code>20.seconds</code></p>
+                                        </div>
+                                    </td>
+                                    <td>off</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="wf-markdown">
+<p><code>ping:</code>, <code>pong:</code></p>
+                                        </div>
+                                    </td>
+                                    <td>The heartbeat&#x27;s messages</td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p><code>&quot;ping&quot;</code>, <code>&quot;pong&quot;</code></p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="wf-markdown">
+<p><code>reconnect:</code></p>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p><code>false</code> to stay closed after the server closes the line</p>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p><code>true</code></p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="wf-markdown">
+<p><code>delay:</code>, <code>max:</code></p>
+                                        </div>
+                                    </td>
+                                    <td>The first wait before reconnecting, in milliseconds, and the longest; the wait doubles each time</td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p><code>500</code>, <code>30000</code></p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="wf-markdown">
+<p><code>queue:</code></p>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p><code>false</code> to drop, rather than hold, what is sent while the socket is down</p>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p><code>true</code></p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="wf-markdown">
+<p><code>binaryType:</code></p>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p><code>&quot;blob&quot;</code> or <code>&quot;arraybuffer&quot;</code></p>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p><code>&quot;blob&quot;</code></p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="wf-markdown">
+<p><code>keep:</code></p>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p>How many messages <code>.messages</code> holds, the newest; the oldest go first</p>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p><code>500</code></p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <h2 class="wf-heading" id="choose-a-kind-of-connection">Choose a kind of connection</h2>
+                        <div class="wf-markdown">
+<p>A socket is one of five kinds of connection. Pick the one that fits the job:</p>
+                        </div>
+                        <table class="wf-table">
+                            <caption class="wf-visually-hidden">Choose a kind of connection</caption>
+                            <thead>
+                                <tr>
+                                    <th scope="col">Declaration</th>
+                                    <th scope="col">Opened with</th>
+                                    <th scope="col">Use it for</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <div class="wf-markdown">
+<p><code>socket</code></p>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p><code>ws(url, …)</code></p>
+                                        </div>
+                                    </td>
+                                    <td>Two-way messages with a server: chat, live editing, notifications</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="wf-markdown">
+<p><code>stream</code></p>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p><code>sse(url, …)</code></p>
+                                        </div>
+                                    </td>
+                                    <td>One-way messages from a server: prices, progress, a log</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="wf-markdown">
+<p><code>channel</code></p>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p><code>broadcast(name)</code></p>
+                                        </div>
+                                    </td>
+                                    <td>Messages between tabs of your site in one browser</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="wf-markdown">
+<p><code>peer</code></p>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p><code>rtc(signal:, …)</code></p>
+                                        </div>
+                                    </td>
+                                    <td>A direct line to another reader&#x27;s page, with no server in the middle</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="wf-markdown">
+<p><code>worker</code></p>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p><code>spawn(url, …)</code></p>
+                                        </div>
+                                    </td>
+                                    <td>A script of your site running beside the page, off its thread</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <h2 class="wf-heading" id="read-a-connection-s-state-and-messages">Read a connection&#x27;s state and messages</h2>
+                        <div class="wf-markdown">
+<p>Every connection is a <em>handle</em>: a value whose members follow the connection. A <code>match</code> reads its state, and text, an <code>if</code> or an <code>effect</code> reads what arrived:</p>
+                        </div>
+                        <table class="wf-table">
+                            <caption class="wf-visually-hidden">Read a connection&#x27;s state and messages</caption>
+                            <thead>
+                                <tr>
+                                    <th scope="col"></th>
+                                    <th scope="col">
+                                        <div class="wf-markdown">
+<p><code>socket</code></p>
+                                        </div>
+                                    </th>
+                                    <th scope="col">
+                                        <div class="wf-markdown">
+<p><code>stream</code></p>
+                                        </div>
+                                    </th>
+                                    <th scope="col">
+                                        <div class="wf-markdown">
+<p><code>channel</code></p>
+                                        </div>
+                                    </th>
+                                    <th scope="col">
+                                        <div class="wf-markdown">
+<p><code>peer</code></p>
+                                        </div>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <div class="wf-markdown">
+<p><code>.state</code></p>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p><code>connecting</code>, <code>open</code>, <code>closed</code>, <code>error</code> — the arms of a <code>match</code></p>
+                                        </div>
+                                    </td>
+                                    <td>the same</td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p><code>open</code> or <code>closed</code></p>
+                                        </div>
+                                    </td>
+                                    <td>the same as a socket</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="wf-markdown">
+<p><code>.messages</code></p>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p>the messages, in order: the last 500, or <code>keep:</code></p>
+                                        </div>
+                                    </td>
+                                    <td>the same</td>
+                                    <td>—</td>
+                                    <td>the same</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="wf-markdown">
+<p><code>.last(kind)</code></p>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p>the last message, or the last whose <code>type</code> is <code>kind</code>, among those <code>.messages</code> holds</p>
+                                        </div>
+                                    </td>
+                                    <td>the last under an event&#x27;s name</td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p><code>.last</code>: the last posted</p>
+                                        </div>
+                                    </td>
+                                    <td>as a socket</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="wf-markdown">
+<p><code>.error</code></p>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p>the failure, which the <code>error(e)</code> arm is handed</p>
+                                        </div>
+                                    </td>
+                                    <td>the same</td>
+                                    <td>—</td>
+                                    <td>the same</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="wf-markdown">
+<p><code>.closure</code></p>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p>the close, which <code>closed(c)</code> is handed: <code>.code</code>, <code>.reason</code></p>
+                                        </div>
+                                    </td>
+                                    <td>—</td>
+                                    <td>—</td>
+                                    <td>the same</td>
+                                </tr>
+                                <tr>
+                                    <td>Sending</td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p><code>.send(value)</code> — queued while the line is down</p>
+                                        </div>
+                                    </td>
+                                    <td>—</td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p><code>.post(value)</code></p>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p><code>.send(value)</code> — queued until it opens</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="wf-markdown">
+<p><code>.close()</code></p>
+                                        </div>
+                                    </td>
+                                    <td>closes it early</td>
+                                    <td>the same</td>
+                                    <td>the same</td>
+                                    <td>the same</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="wf-markdown">
+<p><code>.signal(m)</code></p>
+                                        </div>
+                                    </td>
+                                    <td>—</td>
+                                    <td>—</td>
+                                    <td>—</td>
+                                    <td>hands it what the other side signalled</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="wf-markdown">
+<p>A connection left open all day would otherwise hold every message it was ever sent, so <code>.messages</code> keeps the newest 500 and lets the oldest go. <code>keep:</code> on the connection says another number — <code>ws(url, keep: 50)</code>, <code>sse(url, keep: 2000)</code> — and <code>keep: 0</code> keeps none, for a connection whose <code>on message</code> handler stores what it needs itself.</p>
+<p>A store may hold any of these too. It opens the connection when the store is first read and closes it with the store; a page reads it as <code>Lang.css.state</code>, and the store's actions read it by its name.</p>
+                        </div>
+                        <h2 class="wf-heading" id="troubleshooting">Troubleshooting</h2>
+                        <div class="wf-markdown">
+<ul>
+<li><strong>The socket never leaves <code>connecting</code>.</strong> The server is not answering at that address. Check the scheme: a page served over HTTPS must use <code>wss://</code>, not <code>ws://</code>.</li>
+<li><strong>The socket closes and does not come back.</strong> The server closed it with code <code>1000</code>, or you set <code>reconnect: false</code>. A normal close is final; any other close reconnects.</li>
+<li><strong>The socket reconnects every few seconds.</strong> With <code>heartbeat:</code> set, the server must answer each <code>ping:</code> with the <code>pong:</code> text. A server that does not answer looks dead, and the socket reopens.</li>
+<li><strong><code>stream.last(&quot;name&quot;)</code> is always null.</strong> The event name is not in <code>events:</code>. Only the names listed there are listened to.</li>
+<li><strong>The other tab does not hear a <code>channel</code> post.</strong> A tab does not hear its own posts, and both tabs must be on the same origin and use the same channel name.</li>
+<li><strong>Two peers on different networks never open.</strong> Give <code>ice:</code> a STUN server. With none, only readers on the same network can connect.</li>
+<li><strong>A worker request fails after 10 seconds.</strong> The worker did not post back an answer with the request's <code>id</code>. Raise <code>timeout:</code> for slow work, or check the script answers every method it is sent.</li>
+</ul>
+                        </div>
+                    </div>
+                    <div class="wf-stack wf-gap--md wf-s28a8547f bp-prose">
+                        <h2 class="wf-heading" id="variations">Variations</h2>
+                        <h3 class="wf-heading" id="type-the-messages">Type the messages</h3>
+                        <div class="wf-markdown">
+<p>To have the compiler check what you send and type what you receive, name a type for each direction inside the socket's block with <code>send</code> and <code>receive</code>:</p>
+                        </div>
+                        <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                            <div class="wf-row wf-s2c416341 bp-console__bar">
+                                <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                    <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
+                                </div>
+                                <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                            </div>
+                            <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-kw">type</span> <span class="wf-tok-name">Incoming</span> { <span class="wf-tok-prop">id</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">text</span>: <span class="wf-tok-name">String</span> }
+<span class="wf-tok-kw">type</span> <span class="wf-tok-name">Outgoing</span> { <span class="wf-tok-prop">text</span>: <span class="wf-tok-name">String</span> }
+
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">Room</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/room&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Room&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;A typed conversation.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> draft = <span class="wf-tok-str">&quot;&quot;</span>
+    socket chat = ws(<span class="wf-tok-str">&quot;wss://example.com/chat&quot;</span>, <span class="wf-tok-prop">heartbeat</span>: <span class="wf-tok-num">20.seconds</span>) {
+        send    <span class="wf-tok-name">Outgoing</span>
+        receive <span class="wf-tok-name">Incoming</span>
+    }
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Room&quot;</span>).h1
+    <span class="wf-tok-kw">for</span> m <span class="wf-tok-kw">in</span> chat.messages <span class="wf-tok-kw">by</span> m.id { <span class="wf-tok-name">Text</span>(m.text) }
+    <span class="wf-tok-name">Input</span>(<span class="wf-tok-prop">bind</span>: draft, <span class="wf-tok-prop">label</span>: <span class="wf-tok-str">&quot;Message&quot;</span>)
+    <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Send&quot;</span>) { <span class="wf-tok-kw">on</span> click { chat.send(<span class="wf-tok-name">Outgoing</span>(<span class="wf-tok-prop">text</span>: draft))  draft = <span class="wf-tok-str">&quot;&quot;</span> } }
+}</code>
+                        </div>
+                        <div class="wf-markdown">
+<p>With <code>send</code> and <code>receive</code> declared, <code>chat.send(…)</code> is checked against <code>Outgoing</code>, and each message in <code>chat.messages</code> is an <code>Incoming</code>, so <code>m.text</code> is a <code>String</code> and <code>m.txet</code> is an error.</p>
+                        </div>
+                    </div>
+                    <div class="wf-stack wf-gap--sm wf-s982ede03">
+                        <h2 class="wf-heading wf-s457972d6">Related</h2>
+                        <div class="wf-grid wf-gap--sm wf-r2be821bf">
+                            <a class="wf-link bp-card" href="/recipes/connect-two-readers">
+                                <p class="wf-text bp-small">Recipe</p>
+                                <p class="wf-text wf-s70571e62">Connect two readers&#x27; pages</p>
+                            </a>
+                            <a class="wf-link bp-card" href="/recipes/server-sent-events">
+                                <p class="wf-text bp-small">Recipe</p>
+                                <p class="wf-text wf-s70571e62">Listen to server-sent events</p>
+                            </a>
+                            <a class="wf-link bp-card" href="/recipes/run-a-worker">
+                                <p class="wf-text bp-small">Recipe</p>
+                                <p class="wf-text wf-s70571e62">Run a script in a worker</p>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="wf-stack wf-gap--lg wf-s2502f5f4 bp-rail" role="navigation" aria-label="On this page">
+                    <div class="wf-stack wf-gap--xs wf-se8e8f072">
+                        <p class="wf-text wf-sa736415c bp-section-label">On this page</p>
+                        <a class="wf-link wf-s23505038" href="#how-it-works">How it works</a>
+                        <a class="wf-link wf-s23505038" href="#choose-a-kind-of-connection">Choose a kind of connection</a>
+                        <a class="wf-link wf-s23505038" href="#read-a-connection-s-state-and-messages">Read a connection&#x27;s state and messages</a>
+                        <a class="wf-link wf-s23505038" href="#troubleshooting">Troubleshooting</a>
+                        <a class="wf-link wf-s23505038" href="#variations">Variations</a>
+                    </div>
+                    <a class="wf-link wf-s48d899f5" href="https://github.com/monzeromer-lab/WebFluent/blob/master/md-docs/recipes/open-a-socket.md">
+                        <i class="wf-icon" data-icon="edit"></i>
+                        <p class="wf-text">Edit this page</p>
+                    </a>
+                </div>
+            </div>
+        </main>
+        <footer class="wf-footer wf-s2213a098">
+            <div class="wf-stack wf-gap--lg wf-s84d7918c bp-wrap">
+                <div class="wf-grid wf-gap--lg wf-r67559659">
+                    <div class="wf-stack wf-gap--xs wf-s17061b4c">
+                        <p class="wf-text wf-scba75cc6 bp-section-label">Learn</p>
+                        <a class="wf-link" href="/learn/01-getting-started">The tour</a>
+                        <a class="wf-link" href="/learn">The book</a>
+                        <a class="wf-link" href="/about">About essays</a>
+                    </div>
+                    <div class="wf-stack wf-gap--xs wf-s17061b4c">
+                        <p class="wf-text wf-scba75cc6 bp-section-label">Do</p>
+                        <a class="wf-link" href="/recipes">Recipes</a>
+                        <a class="wf-link" href="/playground">Playground</a>
+                        <a class="wf-link" href="/coming-from/react">Coming from…</a>
+                        <a class="wf-link" href="/showcase">Showcase</a>
+                    </div>
+                    <div class="wf-stack wf-gap--xs wf-s17061b4c">
+                        <p class="wf-text wf-scba75cc6 bp-section-label">Look up</p>
+                        <a class="wf-link" href="/reference">Components</a>
+                        <a class="wf-link" href="/reference/cli">CLI and config</a>
+                        <a class="wf-link" href="/errors">Errors</a>
+                    </div>
+                    <div class="wf-stack wf-gap--xs wf-s17061b4c">
+                        <p class="wf-text wf-scba75cc6 bp-section-label">For agents</p>
+                        <a class="wf-link" href="/reference/cli/context">wf context</a>
+                        <a class="wf-link" href="/changelog">Changelog</a>
+                    </div>
+                </div>
+                <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-sd146f653">
+                    <p class="wf-text bp-small">Every code block in the guide is real WebFluent 6.0, parsed, type-checked and compiled by the test suite.</p>
+                    <div class="wf-row wf-align--center wf-gap--md wf-sa3c9b727">
+                        <a class="wf-link wf-sf9ca1a0e" href="https://github.com/monzeromer-lab/WebFluent">Source</a>
+                        <button class="wf-btn link-button" type="button">Cookie settings</button>
+                        <p class="wf-text bp-small">© 2026 Monzer Omer</p>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

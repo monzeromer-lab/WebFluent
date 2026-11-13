@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Form — Reference</title>
     <meta name="description" content="Form: Groups controls; on submit runs when it is submitted, and the page never navigates away.">
@@ -28,6 +28,8 @@
     <link rel="preload" href="/fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="/styles.css">
     <script src="/js/analytics.js" defer></script>
+    <script src="/js/live.js" defer></script>
+    <script src="/js/old-links-map.js" defer></script>
     <script src="/js/old-links.js" defer></script>
     <script src="/js/video.js" defer></script>
     <script src="/app.js" defer></script>
@@ -50,6 +52,7 @@
                         <a class="wf-link bp-tab" href="/recipes">Recipes</a>
                         <a class="wf-link bp-tab active" href="/reference" aria-current="page">Reference</a>
                         <a class="wf-link bp-tab" href="/errors">Errors</a>
+                        <a class="wf-link bp-tab" href="/playground">Playground</a>
                         <a class="wf-link bp-tab" href="/showcase">Showcase</a>
                     </div>
                     <div class="wf-row wf-align--center wf-gap--sm wf-sff642a95">
@@ -58,7 +61,7 @@
                             <p class="wf-text wf-sf55a2627 bp-hide-sm">Search the docs</p>
                             <p class="wf-text bp-kbd bp-hide-sm">Ctrl+K</p>
                         </button>
-                        <div class="wf-row wf-align--center wf-gap--sm wf-s808638b6 bp-select bp-hide-sm">
+                        <div class="wf-row wf-align--center wf-gap--sm wf-s808638b6 bp-select bp-hide-md">
                             <p class="wf-text wf-s29c127bc bp-building-label" aria-hidden="true">Building</p>
                             <select class="wf-select" aria-label="Building">
                                 <option value="website">Website</option>
@@ -74,7 +77,7 @@
                         <div class="wf-row wf-align--center wf-gap--xs wf-s286d925a bp-hide-sm">
                             <button class="wf-btn bp-button" title="This page is in English only; the switch changes the interface." data-track="select_content" data-track-content-type="language" type="button"></button>
                         </div>
-                        <a class="wf-link bp-button bp-hide-sm" href="https://github.com/monzeromer-lab/WebFluent" data-tone="quiet" aria-label="GitHub">
+                        <a class="wf-link bp-button bp-hide-md" href="https://github.com/monzeromer-lab/WebFluent" data-tone="quiet" aria-label="GitHub">
                             <i class="wf-icon" data-icon="git-branch"></i>
                             <p class="wf-text">GitHub</p>
                         </a>
@@ -252,6 +255,7 @@
                         <p class="wf-text bp-lede">Groups controls; on submit runs when it is submitted, and the page never navigates away.</p>
                         <code class="wf-code wf-s5539681c bp-ltr" dir="ltr">Form(bind: State, show: Enum) { … }</code>
                         <div class="wf-row bp-labels">
+                            <p class="wf-text bp-label bp-num">Before 5.0</p>
                             <div class="wf-row wf-gap--xs bp-labels" aria-label="Works in">
                             </div>
                         </div>
@@ -357,6 +361,27 @@
 <p>Renders with the class <code>wf-form</code>, stable across releases, so a stylesheet may target it.</p>
                         </div>
                     </div>
+                    <div class="wf-stack wf-gap--sm wf-s3df5f255">
+                        <h2 class="wf-heading wf-s457972d6">Codes this can raise</h2>
+                        <div class="wf-stack wf-sa8e464d0 bp-sheet">
+                            <a class="wf-link wf-s13cada06" href="/errors/E103">
+                                <p class="wf-text bp-label" data-tone="error">E103</p>
+                                <p class="wf-text">A flag, case, part, event or slot the component does not have</p>
+                            </a>
+                            <a class="wf-link wf-s13cada06" href="/errors/E109">
+                                <p class="wf-text bp-label" data-tone="error">E109</p>
+                                <p class="wf-text">An element this output cannot draw</p>
+                            </a>
+                            <a class="wf-link wf-s13cada06" href="/errors/C04">
+                                <p class="wf-text bp-label" data-tone="error">C04</p>
+                                <p class="wf-text">An attribute a built-in does not declare</p>
+                            </a>
+                            <a class="wf-link wf-s13cada06" href="/errors/C05">
+                                <p class="wf-text bp-label" data-tone="error">C05</p>
+                                <p class="wf-text">A positional argument a built-in does not take</p>
+                            </a>
+                        </div>
+                    </div>
                     <div class="wf-stack wf-gap--sm bp-prose">
                         <p class="wf-text bp-small">The Stage&#x27;s controls are drawn from the props&#x27; kinds: a choice for each enum, a switch for each Bool, a field for each String. They change the preview once the compiler runs in your browser.</p>
                     </div>
@@ -389,6 +414,7 @@
                     <div class="wf-stack wf-gap--xs wf-s17061b4c">
                         <p class="wf-text wf-scba75cc6 bp-section-label">Do</p>
                         <a class="wf-link" href="/recipes">Recipes</a>
+                        <a class="wf-link" href="/playground">Playground</a>
                         <a class="wf-link" href="/coming-from/react">Coming from…</a>
                         <a class="wf-link" href="/showcase">Showcase</a>
                     </div>

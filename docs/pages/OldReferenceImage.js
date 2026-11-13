@@ -1,2 +1,2 @@
-function Page_OldReferenceImage(params){const _root=document.createDocumentFragment();const _e1691=WF.el("h1",{className:"wf-heading"},"Image");_root.appendChild(_e1691);const _e1692=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/image"},"Image");WF.activeLink(_e1692,"/reference/image",false);_root.appendChild(_e1692);return _root;}
+function Page_OldReferenceImage(params){const _root=document.createDocumentFragment();const _e1661=WF.el("h1",{className:"wf-heading"},"Image");_root.appendChild(_e1661);const _e1662=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/image"},"Image");WF.activeLink(_e1662,"/reference/image",false);_root.appendChild(_e1662);return _root;}
 WF.page("OldReferenceImage",Page_OldReferenceImage);

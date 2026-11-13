@@ -1,2 +1,2 @@
-function Page_OldGuideGlossary(params){const _root=document.createDocumentFragment();const _e1617=WF.el("h1",{className:"wf-heading"},"Glossary");_root.appendChild(_e1617);const _e1618=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/glossary"},"Glossary");WF.activeLink(_e1618,"/reference/glossary",false);_root.appendChild(_e1618);return _root;}
+function Page_OldGuideGlossary(params){const _root=document.createDocumentFragment();const _e1587=WF.el("h1",{className:"wf-heading"},"Glossary");_root.appendChild(_e1587);const _e1588=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/glossary"},"Glossary");WF.activeLink(_e1588,"/reference/glossary",false);_root.appendChild(_e1588);return _root;}
 WF.page("OldGuideGlossary",Page_OldGuideGlossary);

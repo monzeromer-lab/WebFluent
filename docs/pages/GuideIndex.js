@@ -1,2 +1,2 @@
-function Page_GuideIndex(params){const _root=document.createDocumentFragment();const _e1577=WF.el("h1",{className:"wf-heading"},()=>WF.i18n.t("nav.guide"));_root.appendChild(_e1577);const _e1578=WF.el("a",{className:"wf-link",href:WF._basePath+"/docs"},()=>WF.i18n.t("ch.01"));WF.activeLink(_e1578,"/docs",false);_root.appendChild(_e1578);return _root;}
+function Page_GuideIndex(params){const _root=document.createDocumentFragment();const _e1555=WF.el("h1",{className:"wf-heading"},()=>WF.i18n.t("nav.guide"));_root.appendChild(_e1555);const _e1556=WF.el("a",{className:"wf-link",href:WF._basePath+"/docs"},()=>WF.i18n.t("ch.01"));WF.activeLink(_e1556,"/docs",false);_root.appendChild(_e1556);return _root;}
 WF.page("GuideIndex",Page_GuideIndex);

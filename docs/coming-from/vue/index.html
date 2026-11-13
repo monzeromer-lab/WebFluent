@@ -2,15 +2,15 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Coming from Vue</title>
-    <meta name="description" content="What you know from Vue, in WebFluent.">
-    <meta name="robots" content="noindex, follow">
+    <title>WebFluent for Vue developers</title>
+    <meta name="description" content="Vue ideas in WebFluent: refs, computed, watchers, props, slots, emits, v-model, Pinia, routing, v-if and v-for, side by side.">
+    <link rel="canonical" href="https://webfluent.monzeromer.dev/coming-from/vue">
     <meta property="og:type" content="website">
-    <meta property="og:title" content="Coming from Vue">
+    <meta property="og:title" content="WebFluent for Vue developers">
     <meta property="og:site_name" content="WebFluent">
-    <meta property="og:description" content="What you know from Vue, in WebFluent.">
+    <meta property="og:description" content="Vue ideas in WebFluent: refs, computed, watchers, props, slots, emits, v-model, Pinia, routing, v-if and v-for, side by side.">
     <meta property="og:url" content="https://webfluent.monzeromer.dev/coming-from/vue">
     <meta property="og:locale" content="en_US">
     <meta property="og:locale:alternate" content="ar_AR">
@@ -18,27 +18,301 @@
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Coming from Vue">
-    <meta name="twitter:description" content="What you know from Vue, in WebFluent.">
+    <meta name="twitter:title" content="WebFluent for Vue developers">
+    <meta name="twitter:description" content="Vue ideas in WebFluent: refs, computed, watchers, props, slots, emits, v-model, Pinia, routing, v-if and v-for, side by side.">
     <meta name="twitter:image" content="https://webfluent.monzeromer.dev/og.png">
-    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/coming-from/vue#webpage","url":"https://webfluent.monzeromer.dev/coming-from/vue","name":"Coming from Vue","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"What you know from Vue, in WebFluent.","inLanguage":"en"},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/coming-from/vue#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Coming from Vue","item":"https://webfluent.monzeromer.dev/coming-from/vue"}]}]}</script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/coming-from/vue#webpage","url":"https://webfluent.monzeromer.dev/coming-from/vue","name":"WebFluent for Vue developers","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"Vue ideas in WebFluent: refs, computed, watchers, props, slots, emits, v-model, Pinia, routing, v-if and v-for, side by side.","inLanguage":"en"},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/coming-from/vue#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"WebFluent for Vue developers","item":"https://webfluent.monzeromer.dev/coming-from/vue"}]}]}</script>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="preload" href="/fonts/instrument-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="/fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="/styles.css">
     <script src="/js/analytics.js" defer></script>
+    <script src="/js/live.js" defer></script>
+    <script src="/js/old-links-map.js" defer></script>
     <script src="/js/old-links.js" defer></script>
     <script src="/js/video.js" defer></script>
     <script src="/app.js" defer></script>
-    <script src="/pages/InterimFromVue.js" data-wf-page="InterimFromVue" defer></script>
+    <script src="/pages/ComingFromVue.js" data-wf-page="ComingFromVue" defer></script>
 </head>
 <body>
     <a class="wf-skip-link" href="#wf-main">Skip to content</a>
     <div id="app">
         <main id="wf-main">
-            <h1 class="wf-heading">Coming from React, Vue or Svelte</h1>
-            <a class="wf-link" href="/docs/guide/coming-from">Coming from React, Vue or Svelte</a>
+            <a class="wf-link bp-skip" href="#bp-main">Skip to the content</a>
+            <div class="wf-row wf-align--center wf-s55053fdc bp-header" role="banner">
+                <div class="wf-row wf-align--center wf-gap--md wf-sfe495c12 bp-wrap">
+                    <a class="wf-link wf-sa4fc1f4b" href="/" aria-label="WebFluent, home">
+                        <img class="wf-image wf-s4b9d0b60" src="/favicon.svg" alt="" decoding="async" loading="eager" fetchpriority="high">
+                        <p class="wf-text wf-s9919642b">WebFluent</p>
+                        <p class="wf-text bp-label bp-num">6.0</p>
+                    </a>
+                    <div class="wf-row wf-s92924cc4 bp-tabs" role="navigation" aria-label="Main">
+                        <a class="wf-link bp-tab" href="/learn">Learn</a>
+                        <a class="wf-link bp-tab" href="/recipes">Recipes</a>
+                        <a class="wf-link bp-tab" href="/reference">Reference</a>
+                        <a class="wf-link bp-tab" href="/errors">Errors</a>
+                        <a class="wf-link bp-tab" href="/playground">Playground</a>
+                        <a class="wf-link bp-tab" href="/showcase">Showcase</a>
+                    </div>
+                    <div class="wf-row wf-align--center wf-gap--sm wf-sff642a95">
+                        <button class="wf-btn wf-sf8ab46ec bp-field bp-search" aria-label="Search the docs" aria-keyshortcuts="Meta+K Control+K" aria-haspopup="dialog" type="button">
+                            <i class="wf-icon" data-icon="search"></i>
+                            <p class="wf-text wf-sf55a2627 bp-hide-sm">Search the docs</p>
+                            <p class="wf-text bp-kbd bp-hide-sm">Ctrl+K</p>
+                        </button>
+                        <div class="wf-row wf-align--center wf-gap--sm wf-s808638b6 bp-select bp-hide-md">
+                            <p class="wf-text wf-s29c127bc bp-building-label" aria-hidden="true">Building</p>
+                            <select class="wf-select" aria-label="Building">
+                                <option value="website">Website</option>
+                                <option value="app">Web app</option>
+                                <option value="pdf">PDF</option>
+                                <option value="slides">Slides</option>
+                                <option value="elements">Custom elements</option>
+                                <option value="desktop">Desktop / phone</option>
+                            </select>
+                            <i class="wf-icon wf-s94250744" data-icon="chevron-down" aria-hidden="true"></i>
+                        </div>
+                        <button class="wf-icon-btn bp-icon-button" data-track="select_content" data-track-content-type="theme" type="button"></button>
+                        <div class="wf-row wf-align--center wf-gap--xs wf-s286d925a bp-hide-sm">
+                            <button class="wf-btn bp-button" title="This page is in English only; the switch changes the interface." data-track="select_content" data-track-content-type="language" type="button"></button>
+                        </div>
+                        <a class="wf-link bp-button bp-hide-md" href="https://github.com/monzeromer-lab/WebFluent" data-tone="quiet" aria-label="GitHub">
+                            <i class="wf-icon" data-icon="git-branch"></i>
+                            <p class="wf-text">GitHub</p>
+                        </a>
+                        <button class="wf-icon-btn wf-sde8ec4aa bp-icon-button" data-icon="menu" aria-label="Menu" title="Menu" aria-expanded="false" type="button"></button>
+                    </div>
+                </div>
+            </div>
+            <dialog class="wf-modal bp-palette" aria-labelledby="wf-dlg-s1">
+                <div class="wf-modal__content">
+                    <div class="wf-modal__header"><h3 id="wf-dlg-s1">Search</h3></div>
+                    <div class="wf-modal__body">
+                        <div class="wf-stack wf-sa8e464d0">
+                            <div class="wf-row wf-align--center wf-gap--sm wf-s02e7a482 bp-field">
+                                <i class="wf-icon" data-icon="search"></i>
+                                <input class="wf-input" placeholder="Search the guide" aria-label="Search the guide" type="search" autofocus>
+                                <p class="wf-text bp-kbd">esc</p>
+                            </div>
+                            <div class="wf-row wf-s434e64fb bp-tabs" role="tablist" aria-label="Narrow the search">
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="true" type="button">All</button>
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">Learn</button>
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">Recipes</button>
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">Reference</button>
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">Errors</button>
+                            </div>
+                            <div class="wf-stack wf-s3f6dffee" role="listbox" aria-label="Search results">
+                                <p class="wf-text wf-s3205a3d6 bp-small">Type a word: a component, a code such as T05, or a task.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </dialog>
+            <div class="wf-row wf-align--start wf-sa997482c bp-wrap">
+                <div class="wf-stack wf-gap--lg wf-s54d43750 bp-main" role="main" id="bp-main" tabindex="-1">
+                    <div class="wf-row bp-labels">
+                        <p class="wf-text bp-label" data-tone="kind" data-kind="comingfrom">Coming from</p>
+                    </div>
+                    <div class="wf-stack wf-gap--sm wf-s4e4189b1">
+                        <h1 class="wf-heading wf-s1cf4ddba">WebFluent for Vue developers</h1>
+                        <p class="wf-text bp-lede">Vue&#x27;s single-file components, refs, computed values, slots and `v-model` all have a close match in WebFluent. The difference to hold on to is that WebFluent is a compiler with typed markup: there is no `.value`, no template language beside the script, and every prop, slot and event is checked at build time.</p>
+                    </div>
+                    <div class="wf-row wf-s27c5a318 bp-tabs" role="navigation" aria-label="Other cheat sheets">
+                        <a class="wf-link bp-tab" href="/coming-from/react">React</a>
+                        <a class="wf-link bp-tab active" href="/coming-from/vue" aria-current="page">Vue</a>
+                        <a class="wf-link bp-tab" href="/coming-from/svelte">Svelte</a>
+                        <a class="wf-link bp-tab" href="/coming-from/html-css">HTML &amp; CSS</a>
+                        <a class="wf-link bp-tab" href="/coming-from/latex">LaTeX / Typst</a>
+                    </div>
+                    <div class="wf-stack wf-s5027cce6" role="table" aria-label="Vue and WebFluent, side by side">
+                        <div class="wf-grid wf-gap--sm wf-s5b3920f5 wf-r40037c32 bp-hide-sm" role="row">
+                            <p class="wf-text bp-section-label" role="columnheader">Concept</p>
+                            <p class="wf-text bp-section-label" role="columnheader">Vue</p>
+                            <p class="wf-text bp-section-label" role="columnheader">WebFluent</p>
+                        </div>
+                        <div class="wf-grid wf-gap--sm wf-s1be4a13f wf-r40037c32" role="row">
+                            <p class="wf-text wf-sd9647b36" role="rowheader">A value that changes</p>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr">const n = ref(0)</code>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr"><span class="wf-tok-kw">state</span> n = <span class="wf-tok-num">0</span></code>
+                        </div>
+                        <div class="wf-grid wf-gap--sm wf-s1be4a13f wf-r40037c32" role="row">
+                            <p class="wf-text wf-sd9647b36" role="rowheader">Changing it</p>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr">n.value++</code>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr">n = n + <span class="wf-tok-num">1</span></code>
+                        </div>
+                        <div class="wf-grid wf-gap--sm wf-s1be4a13f wf-r40037c32" role="row">
+                            <p class="wf-text wf-sd9647b36" role="rowheader">A value worked out from others</p>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr">const total = computed(() =&gt; sum(items.value))</code>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr"><span class="wf-tok-kw">derived</span> total = items.sum()</code>
+                        </div>
+                        <div class="wf-grid wf-gap--sm wf-s1be4a13f wf-r40037c32" role="row">
+                            <p class="wf-text wf-sd9647b36" role="rowheader">A side effect</p>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr">watchEffect((onCleanup) =&gt; { start(); onCleanup(stop) })</code>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr"><span class="wf-tok-kw">effect</span> { start()  <span class="wf-tok-kw">cleanup</span> { stop() } }</code>
+                        </div>
+                        <div class="wf-grid wf-gap--sm wf-s1be4a13f wf-r40037c32" role="row">
+                            <p class="wf-text wf-sd9647b36" role="rowheader">A handle on an element</p>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr">&lt;input ref=&quot;box&quot;&gt; … box.value.focus()</code>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr"><span class="wf-tok-name">Input</span>(<span class="wf-tok-prop">bind</span>: q, <span class="wf-tok-prop">ref</span>: box) … box.focus()</code>
+                        </div>
+                        <div class="wf-grid wf-gap--sm wf-s1be4a13f wf-r40037c32" role="row">
+                            <p class="wf-text wf-sd9647b36" role="rowheader">A component</p>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr">a .vue file with &lt;script setup&gt; and &lt;template&gt;</code>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr"><span class="wf-tok-kw">component</span> <span class="wf-tok-name">Card</span>(_ <span class="wf-tok-prop">title</span>: <span class="wf-tok-name">String</span>) { … }</code>
+                        </div>
+                        <div class="wf-grid wf-gap--sm wf-s1be4a13f wf-r40037c32" role="row">
+                            <p class="wf-text wf-sd9647b36" role="rowheader">Props</p>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr">defineProps({ title: String })</code>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr"><span class="wf-tok-kw">component</span> <span class="wf-tok-name">Card</span>(_ <span class="wf-tok-prop">title</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">tone</span>: <span class="wf-tok-name">Tone</span> = .calm)</code>
+                        </div>
+                        <div class="wf-grid wf-gap--sm wf-s1be4a13f wf-r40037c32" role="row">
+                            <p class="wf-text wf-sd9647b36" role="rowheader">The default slot</p>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr">&lt;slot /&gt;</code>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr"><span class="wf-tok-kw">children</span></code>
+                        </div>
+                        <div class="wf-grid wf-gap--sm wf-s1be4a13f wf-r40037c32" role="row">
+                            <p class="wf-text wf-sd9647b36" role="rowheader">A named slot</p>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr">&lt;slot name=&quot;trailing&quot; /&gt;</code>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr"><span class="wf-tok-kw">slot</span> trailing, filled as trailing { … }</code>
+                        </div>
+                        <div class="wf-grid wf-gap--sm wf-s1be4a13f wf-r40037c32" role="row">
+                            <p class="wf-text wf-sd9647b36" role="rowheader">A scoped slot</p>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr">&lt;slot :item=&quot;item&quot; /&gt;</code>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr"><span class="wf-tok-kw">slot</span> row(<span class="wf-tok-prop">item</span>: <span class="wf-tok-name">Todo</span>), filled as row(todo) { … }</code>
+                        </div>
+                        <div class="wf-grid wf-gap--sm wf-s1be4a13f wf-r40037c32" role="row">
+                            <p class="wf-text wf-sd9647b36" role="rowheader">An event</p>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr">defineEmits([&quot;change&quot;]), emit(&quot;change&quot;, n)</code>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr"><span class="wf-tok-kw">event</span> change(<span class="wf-tok-prop">value</span>: <span class="wf-tok-name">Number</span>), <span class="wf-tok-kw">emit</span> change(n)</code>
+                        </div>
+                        <div class="wf-grid wf-gap--sm wf-s1be4a13f wf-r40037c32" role="row">
+                            <p class="wf-text wf-sd9647b36" role="rowheader">v-model</p>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr">&lt;input v-model=&quot;q&quot;&gt;</code>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr"><span class="wf-tok-name">Input</span>(<span class="wf-tok-prop">bind</span>: q, <span class="wf-tok-prop">label</span>: <span class="wf-tok-str">&quot;Search&quot;</span>)</code>
+                        </div>
+                        <div class="wf-grid wf-gap--sm wf-s1be4a13f wf-r40037c32" role="row">
+                            <p class="wf-text wf-sd9647b36" role="rowheader">Shared state</p>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr">provide/inject, Pinia</code>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr"><span class="wf-tok-kw">store</span> <span class="wf-tok-name">Cart</span> { … }, read as <span class="wf-tok-name">Cart</span>.items <span class="wf-tok-kw">after</span> <span class="wf-tok-kw">use</span> <span class="wf-tok-name">Cart</span></code>
+                        </div>
+                        <div class="wf-grid wf-gap--sm wf-s1be4a13f wf-r40037c32" role="row">
+                            <p class="wf-text wf-sd9647b36" role="rowheader">A route</p>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr">vue-router { path: &quot;/users/:id&quot;, component: User }</code>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">User</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/users/:id&quot;</span>, <span class="wf-tok-prop">id</span>: <span class="wf-tok-name">String</span>) { … }</code>
+                        </div>
+                        <div class="wf-grid wf-gap--sm wf-s1be4a13f wf-r40037c32" role="row">
+                            <p class="wf-text wf-sd9647b36" role="rowheader">v-if / v-else</p>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr">&lt;Panel v-if=&quot;open&quot; /&gt;&lt;p v-else&gt;…&lt;/p&gt;</code>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr"><span class="wf-tok-kw">if</span> open { <span class="wf-tok-name">Panel</span> } <span class="wf-tok-kw">else</span> { <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;…&quot;</span>) }</code>
+                        </div>
+                        <div class="wf-grid wf-gap--sm wf-s1be4a13f wf-r40037c32" role="row">
+                            <p class="wf-text wf-sd9647b36" role="rowheader">v-show</p>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr">&lt;Panel v-show=&quot;open&quot; /&gt;</code>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr"><span class="wf-tok-kw">show</span> open { <span class="wf-tok-name">Panel</span> }</code>
+                        </div>
+                        <div class="wf-grid wf-gap--sm wf-s1be4a13f wf-r40037c32" role="row">
+                            <p class="wf-text wf-sd9647b36" role="rowheader">v-for</p>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr">&lt;li v-for=&quot;i in items&quot; :key=&quot;i.id&quot;&gt;{{ i.name }}&lt;/li&gt;</code>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr"><span class="wf-tok-kw">for</span> i <span class="wf-tok-kw">in</span> items <span class="wf-tok-kw">by</span> i.id { <span class="wf-tok-name">Text</span>(i.name) }</code>
+                        </div>
+                        <div class="wf-grid wf-gap--sm wf-s1be4a13f wf-r40037c32" role="row">
+                            <p class="wf-text wf-sd9647b36" role="rowheader">Class bindings</p>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr">:class=&quot;{ done: todo.done }&quot;</code>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr"><span class="wf-tok-prop">class</span>: { <span class="wf-tok-str">&quot;done&quot;</span>: todo.done }</code>
+                        </div>
+                        <div class="wf-grid wf-gap--sm wf-s1be4a13f wf-r40037c32" role="row">
+                            <p class="wf-text wf-sd9647b36" role="rowheader">Transitions</p>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr">&lt;Transition name=&quot;fade&quot;&gt;</code>
+                            <code class="wf-code wf-code--block wf-s18fb64c1 bp-console__code bp-console bp-ltr" role="cell" dir="ltr">.fadeIn, <span class="wf-tok-prop">exit</span>: .fadeOut</code>
+                        </div>
+                    </div>
+                    <div class="wf-stack wf-gap--md wf-s28a8547f bp-prose">
+                        <h2 class="wf-heading" id="differences">Things that work differently</h2>
+                        <div class="wf-markdown">
+<p><strong>One file, one language.</strong> A component is declared in <code>.wf</code> with its state, its markup and its handlers together; there is no <code>&lt;template&gt;</code>, no <code>&lt;script&gt;</code> block and no <code>.value</code> to remember. A component's body runs once, and only what reads a changed value updates.</p>
+<p><strong>The markup is typed.</strong> The compiler knows the props, flags, events and slots of every built-in and of every component you declare. A misspelled prop, an unknown flag (<code>Button(&quot;Save&quot;).primray</code>) or a handler for an event the component does not fire stops the build, with the fix suggested.</p>
+<p><strong>Pages own their routes.</strong> There is no router file. Each <code>page</code> names its <code>path:</code>, and the compiler builds the router from every page.</p>
+<p><strong>No imports.</strong> Every file under <code>src/</code> is part of one program, so a component declared anywhere is usable everywhere, and two declarations of one name are an error.</p>
+<p><strong>Styles are on the element.</strong> A <code>style { }</code> block is CSS for that element, with design tokens (<code>$surface</code>) and nesting (<code>&amp;:hover</code>); there is no <code>&lt;style scoped&gt;</code>, and what a selector over many elements needs goes in a <code>.css</code> file under <code>src/</code>.</p>
+<p><strong>Using it inside a Vue app.</strong> Publish components as custom elements and use their tags in a template (<a href="/recipes/publish-custom-elements">Publish components as custom elements</a>).</p>
+                        </div>
+                    </div>
+                    <div class="wf-stack wf-gap--md wf-s9cf581b3 bp-prose">
+                        <h2 class="wf-heading" id="port">A component, ported</h2>
+                        <div class="wf-markdown">
+<p>The same counter, in Vue and in WebFluent. It starts at a number the caller passes, counts up on a click, shows a badge when the count is even, and tells the caller about each change.</p>
+                        </div>
+                        <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                            <div class="wf-row wf-s2c416341 bp-console__bar">
+                                <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                    <p class="wf-text wf-s23a4ddd5 bp-mono">vue</p>
+                                </div>
+                                <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="vue" type="button">Copy</button>
+                            </div>
+                            <code class="wf-code wf-code--block bp-console__code">&lt;script setup&gt;
+import { ref, computed } from &quot;vue&quot;;
+const props = defineProps({ start: { type: Number, default: 0 } });
+const emit = defineEmits([&quot;change&quot;]);
+const n = ref(props.start);
+const even = computed(() =&gt; n.value % 2 === 0);
+function inc() { n.value++; emit(&quot;change&quot;, n.value); }
+&lt;/script&gt;
+
+&lt;template&gt;
+  &lt;div class=&quot;row&quot;&gt;
+    &lt;button @click=&quot;inc&quot;&gt;+&lt;/button&gt;
+    &lt;span&gt;{{ n }}&lt;/span&gt;
+    &lt;span v-if=&quot;even&quot; class=&quot;badge&quot;&gt;even&lt;/span&gt;
+  &lt;/div&gt;
+&lt;/template&gt;</code>
+                        </div>
+                        <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                            <div class="wf-row wf-s2c416341 bp-console__bar">
+                                <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                    <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
+                                </div>
+                                <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                            </div>
+                            <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Scores</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Scores&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;A counter that reports each change.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> last = <span class="wf-tok-num">0</span>
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Scores&quot;</span>).h1
+    <span class="wf-tok-name">Counter</span>(<span class="wf-tok-prop">start</span>: <span class="wf-tok-num">2</span>) { <span class="wf-tok-kw">on</span> change(value) { last = value } }
+    <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Last change: {last}&quot;</span>)
+}
+
+<span class="wf-tok-kw">component</span> <span class="wf-tok-name">Counter</span>(<span class="wf-tok-prop">start</span>: <span class="wf-tok-name">Number</span> = <span class="wf-tok-num">0</span>) {
+    <span class="wf-tok-kw">event</span> change(<span class="wf-tok-prop">value</span>: <span class="wf-tok-name">Number</span>)
+    <span class="wf-tok-kw">state</span> n = start
+    <span class="wf-tok-kw">derived</span> even = n % <span class="wf-tok-num">2</span> == <span class="wf-tok-num">0</span>
+    <span class="wf-tok-name">Row</span>(<span class="wf-tok-prop">gap</span>: .sm, <span class="wf-tok-prop">align</span>: .center) {
+        <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;+&quot;</span>) { <span class="wf-tok-kw">on</span> click { n = n + <span class="wf-tok-num">1</span>  <span class="wf-tok-kw">emit</span> change(n) } }
+        <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;{n}&quot;</span>)
+        <span class="wf-tok-kw">if</span> even { <span class="wf-tok-name">Badge</span>(<span class="wf-tok-str">&quot;even&quot;</span>).info }
+    }
+}</code>
+                        </div>
+                        <div class="wf-markdown">
+<ul>
+<li><strong>No <code>.value</code>.</strong> A state is read and assigned by its name.</li>
+<li><strong><code>derived</code> replaces <code>computed</code></strong>, and knows what it reads.</li>
+<li><strong>The event is declared</strong> where the component is, and checked where it is handled.</li>
+</ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="wf-stack wf-gap--lg wf-s2502f5f4 bp-rail" role="navigation" aria-label="On this page">
+                    <div class="wf-stack wf-gap--xs wf-se8e8f072">
+                        <p class="wf-text wf-sa736415c bp-section-label">On this page</p>
+                        <a class="wf-link wf-s23505038" href="#differences">Things that work differently</a>
+                        <a class="wf-link wf-s23505038" href="#port">A component, ported</a>
+                    </div>
+                    <a class="wf-link wf-s48d899f5" href="https://github.com/monzeromer-lab/WebFluent/blob/master/md-docs/coming-from/vue.md">
+                        <i class="wf-icon" data-icon="edit"></i>
+                        <p class="wf-text">Edit this page</p>
+                    </a>
+                </div>
+            </div>
         </main>
         <footer class="wf-footer wf-s2213a098">
             <div class="wf-stack wf-gap--lg wf-s84d7918c bp-wrap">
@@ -52,6 +326,7 @@
                     <div class="wf-stack wf-gap--xs wf-s17061b4c">
                         <p class="wf-text wf-scba75cc6 bp-section-label">Do</p>
                         <a class="wf-link" href="/recipes">Recipes</a>
+                        <a class="wf-link" href="/playground">Playground</a>
                         <a class="wf-link" href="/coming-from/react">Coming from…</a>
                         <a class="wf-link" href="/showcase">Showcase</a>
                     </div>

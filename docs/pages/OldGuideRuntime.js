@@ -1,2 +1,2 @@
-function Page_OldGuideRuntime(params){const _root=document.createDocumentFragment();const _e1613=WF.el("h1",{className:"wf-heading"},"Runtime API");_root.appendChild(_e1613);const _e1614=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/runtime"},"Runtime API");WF.activeLink(_e1614,"/reference/runtime",false);_root.appendChild(_e1614);return _root;}
+function Page_OldGuideRuntime(params){const _root=document.createDocumentFragment();const _e1583=WF.el("h1",{className:"wf-heading"},"Runtime API");_root.appendChild(_e1583);const _e1584=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/runtime"},"Runtime API");WF.activeLink(_e1584,"/reference/runtime",false);_root.appendChild(_e1584);return _root;}
 WF.page("OldGuideRuntime",Page_OldGuideRuntime);

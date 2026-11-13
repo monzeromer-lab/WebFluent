@@ -7,6 +7,16 @@
 // place that can read it — before the router draws anything.
 (function () {
   var path = location.pathname.replace(/(\.html|\/)$/, "");
+  // A chapter that became recipes: its `#section` is a recipe now
+  // (old-links-map.js, written with the recipes).
+  if (typeof OLD_LINKS === "object" && location.hash) {
+    var page = path.replace(/^.*?(\/docs\/)/, "/docs/");
+    var to = OLD_LINKS[page + location.hash];
+    if (to) {
+      location.replace(path.slice(0, path.length - page.length) + to);
+      return;
+    }
+  }
   if (!/\/docs\/guide\/diagnostics$/.test(path)) return;
   var base = path.slice(0, path.length - "/docs/guide/diagnostics".length);
   var code = /^#([a-z]\d{2,3})(-|$)/i.exec(location.hash);

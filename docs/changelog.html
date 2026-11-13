@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Changelog — WebFluent</title>
     <meta name="description" content="What changed in each WebFluent release, newest first: additions, fixes, editor and library changes, and what to do when you upgrade.">
@@ -29,6 +29,8 @@
     <link rel="stylesheet" href="/styles.css">
     <link rel="stylesheet" href="/pages/Changelog.css" data-wf-page-css="Changelog">
     <script src="/js/analytics.js" defer></script>
+    <script src="/js/live.js" defer></script>
+    <script src="/js/old-links-map.js" defer></script>
     <script src="/js/old-links.js" defer></script>
     <script src="/js/video.js" defer></script>
     <script src="/app.js" defer></script>
@@ -51,6 +53,7 @@
                         <a class="wf-link bp-tab" href="/recipes">Recipes</a>
                         <a class="wf-link bp-tab" href="/reference">Reference</a>
                         <a class="wf-link bp-tab" href="/errors">Errors</a>
+                        <a class="wf-link bp-tab" href="/playground">Playground</a>
                         <a class="wf-link bp-tab" href="/showcase">Showcase</a>
                     </div>
                     <div class="wf-row wf-align--center wf-gap--sm wf-sff642a95">
@@ -59,7 +62,7 @@
                             <p class="wf-text wf-sf55a2627 bp-hide-sm">Search the docs</p>
                             <p class="wf-text bp-kbd bp-hide-sm">Ctrl+K</p>
                         </button>
-                        <div class="wf-row wf-align--center wf-gap--sm wf-s808638b6 bp-select bp-hide-sm">
+                        <div class="wf-row wf-align--center wf-gap--sm wf-s808638b6 bp-select bp-hide-md">
                             <p class="wf-text wf-s29c127bc bp-building-label" aria-hidden="true">Building</p>
                             <select class="wf-select" aria-label="Building">
                                 <option value="website">Website</option>
@@ -75,7 +78,7 @@
                         <div class="wf-row wf-align--center wf-gap--xs wf-s286d925a bp-hide-sm">
                             <button class="wf-btn bp-button" title="This page is in English only; the switch changes the interface." data-track="select_content" data-track-content-type="language" type="button"></button>
                         </div>
-                        <a class="wf-link bp-button bp-hide-sm" href="https://github.com/monzeromer-lab/WebFluent" data-tone="quiet" aria-label="GitHub">
+                        <a class="wf-link bp-button bp-hide-md" href="https://github.com/monzeromer-lab/WebFluent" data-tone="quiet" aria-label="GitHub">
                             <i class="wf-icon" data-icon="git-branch"></i>
                             <p class="wf-text">GitHub</p>
                         </a>
@@ -1123,7 +1126,7 @@ chapter by chapter, by what a reader is there to do.</p>
                             <ul class="wf-list wf-s0889037c">
                                 <li class="wf-list__item">
                                     <div class="wf-markdown">
-<p><strong>Translate a project by its own words</strong> (<a href="/docs/guide/i18n#translate-by-the-words-as-written">chapter 28</a>).
+<p><strong>Translate a project by its own words</strong> (<a href="https://github.com/monzeromer-lab/WebFluent/blob/master/md-docs/recipes/translate-by-the-words.md">chapter 28</a>).
 With <code>&quot;literals&quot;: true</code> in <code>i18n</code>, every string a reader sees (an
 element's text, its <code>label:</code>, <code>title:</code>, <code>placeholder:</code>, <code>aria-label:</code>
 and <code>alt:</code>, a record's text field, a value whose name says it is words,
@@ -1138,7 +1141,7 @@ warning <code>I05</code>, where it is shown.</p>
                                 </li>
                                 <li class="wf-list__item">
                                     <div class="wf-markdown">
-<p><strong>Plural forms by the number in the text</strong> (<a href="/docs/guide/i18n#count-by-the-number-in-the-text">chapter 28</a>).
+<p><strong>Plural forms by the number in the text</strong> (<a href="https://github.com/monzeromer-lab/WebFluent/blob/master/md-docs/recipes/index.md">chapter 28</a>).
 A message with plural forms and exactly one number among its values
 takes its form by that number, so <code>Text(&quot;{files} files&quot;)</code> reads right
 in Arabic's two, few and many. With two numbers none is guessed.</p>
@@ -1146,7 +1149,7 @@ in Arabic's two, few and many. With two numbers none is guessed.</p>
                                 </li>
                                 <li class="wf-list__item">
                                     <div class="wf-markdown">
-<p><strong>A locale may name its digits</strong> (<a href="/docs/guide/i18n#switch-the-locale">chapter 28</a>).
+<p><strong>A locale may name its digits</strong> (<a href="https://github.com/monzeromer-lab/WebFluent/blob/master/md-docs/recipes/translate-a-site.md#switch-the-locale">chapter 28</a>).
 <code>setLocale(&quot;ar-u-nu-arab&quot;)</code> reads the <code>ar</code> table and writes <code>format</code>,
 <code>ago</code> and every count in Arabic-Indic digits; <code>ar-u-nu-latn</code> is 0–9
 whatever the browser would pick. A date pattern's figures follow, and
@@ -1173,14 +1176,14 @@ is the new warning <code>E119</code>.</p>
                                 </li>
                                 <li class="wf-list__item">
                                     <div class="wf-markdown">
-<p><strong>Markdown draws GFM tables</strong> (<a href="/docs/guide/content#write-a-table">chapter 27</a>),
+<p><strong>Markdown draws GFM tables</strong> (<a href="https://github.com/monzeromer-lab/WebFluent/blob/master/md-docs/recipes/index.md">chapter 27</a>),
 the same at build time and in the browser: a header row, a delimiter row
 whose colons align each column, and <code>\|</code> for a pipe inside a cell.</p>
                                     </div>
                                 </li>
                                 <li class="wf-list__item">
                                     <div class="wf-markdown">
-<p><strong><code>Frame(srcdoc: html, sandbox: &quot;&quot;)</code></strong> (<a href="/docs/guide/media#draw-html-you-give-the-frame">chapter 21</a>)
+<p><strong><code>Frame(srcdoc: html, sandbox: &quot;&quot;)</code></strong> (<a href="https://github.com/monzeromer-lab/WebFluent/blob/master/md-docs/recipes/index.md">chapter 21</a>)
 is a declared prop, where it was an attribute passed through with a
 <code>C04</code> warning. A value that reads state is followed, so the frame
 redraws as it changes.</p>
@@ -1197,7 +1200,7 @@ image, are still refused.</p>
                                 </li>
                                 <li class="wf-list__item">
                                     <div class="wf-markdown">
-<p><strong>Fourteen icons</strong> (<a href="/docs/guide/media#show-an-icon">chapter 21</a>), 72 in all:
+<p><strong>Fourteen icons</strong> (<a href="https://github.com/monzeromer-lab/WebFluent/blob/master/md-docs/recipes/show-an-icon.md">chapter 21</a>), 72 in all:
 <code>code</code>, <code>monitor</code>, <code>git-commit</code>, <code>play</code>, <code>layers</code>, <code>insert</code>, <code>grid</code>,
 <code>list</code>, <code>square</code>, <code>pill</code>, <code>image</code>, <code>sparkle</code>, <code>lock</code> and <code>type</code>. An icon
 drawn in the browser now carries <code>data-icon</code>, as a pre-rendered one did,
@@ -1530,7 +1533,7 @@ are locales for <code>pdf</code> and <code>slides</code>.</p>
                                 </li>
                                 <li class="wf-list__item">
                                     <div class="wf-markdown">
-<p><strong>Three icons</strong> (<a href="/docs/guide/media#icons">chapter 28</a>), 58 in all:
+<p><strong>Three icons</strong> (<a href="https://github.com/monzeromer-lab/WebFluent/blob/master/md-docs/recipes/index.md">chapter 28</a>), 58 in all:
 <code>locate</code> for a panel that follows the caret, <code>folder-off</code> for a folder
 that is gone, and <code>file-plus</code> for New file.</p>
                                     </div>
@@ -1732,7 +1735,7 @@ it.</p>
                                 </li>
                                 <li class="wf-list__item">
                                     <div class="wf-markdown">
-<p><strong>23 icons for editors and tools</strong> (<a href="/docs/guide/media#icons">chapter 28</a>),
+<p><strong>23 icons for editors and tools</strong> (<a href="https://github.com/monzeromer-lab/WebFluent/blob/master/md-docs/recipes/index.md">chapter 28</a>),
 55 in all: <code>folder</code>, <code>folder-plus</code>, <code>file</code>, <code>refresh</code>, <code>alert-circle</code>,
 <code>clock</code>, <code>dot</code>, <code>diff</code>, <code>book</code>, <code>git-branch</code>, <code>git-pull-request</code>, <code>pin</code>,
 <code>more-horizontal</code>, <code>window-minimize</code>, <code>window-maximize</code>, <code>outline</code>,
@@ -1768,7 +1771,7 @@ still dropped.</p>
                                 </li>
                                 <li class="wf-list__item">
                                     <div class="wf-markdown">
-<p><strong><code>Portal</code></strong> (<a href="/docs/guide/interop#portal--drawing-into-a-node-a-script-made">chapter 32</a>).
+<p><strong><code>Portal</code></strong> (<a href="https://github.com/monzeromer-lab/WebFluent/blob/master/md-docs/recipes/index.md">chapter 32</a>).
 <code>Portal(into: node) { … }</code> draws its block into a node somebody else's
 code made: an editor's tooltip, a map's popup, a chart's legend. The
 library keeps the node's place, its keys and its focus; the page keeps
@@ -1966,7 +1969,7 @@ the handler runs after it.</p>
                                 </li>
                                 <li class="wf-list__item">
                                     <div class="wf-markdown">
-<p><strong>Text that reads state follows it</strong> (<a href="/docs/guide/i18n#switching-the-locale">chapter 21</a>).
+<p><strong>Text that reads state follows it</strong> (<a href="https://github.com/monzeromer-lab/WebFluent/blob/master/md-docs/recipes/index.md">chapter 21</a>).
 Each of these was worked out once, when the page was drawn: the labels
 of <code>Checkbox</code>, <code>Radio</code>, <code>Switch</code>, <code>Slider</code>, <code>DatePicker</code> and
 <code>FileUpload</code>; a <code>Table</code>'s <code>caption:</code>; <code>Tabs.Page</code> titles; <code>Tooltip</code>
@@ -2039,7 +2042,7 @@ surface, and its text the theme's text colour.</p>
                                 </li>
                                 <li class="wf-list__item">
                                     <div class="wf-markdown">
-<p><strong><code>setLocale</code> is remembered</strong> (<a href="/docs/guide/i18n#which-locale-a-page-opens-in">chapter 21</a>)
+<p><strong><code>setLocale</code> is remembered</strong> (<a href="https://github.com/monzeromer-lab/WebFluent/blob/master/md-docs/recipes/index.md">chapter 21</a>)
 across page loads, in <code>localStorage</code> under <code>wf:locale</code>, so a static site
 keeps the reader's language from page to page. A <code>?lang=</code> address still
 wins, without changing the saved choice.</p>
@@ -2065,7 +2068,7 @@ run-time value goes through <code>WF.safeUrl</code>.</p>
                                 <li class="wf-list__item">
                                     <div class="wf-markdown">
 <p><strong>Long keyed lists no longer stall as they grow</strong>
-(<a href="/docs/guide/motion#lists">chapter 20</a>). A keyed <code>for</code> read the place
+(<a href="https://github.com/monzeromer-lab/WebFluent/blob/master/md-docs/recipes/index.md">chapter 20</a>). A keyed <code>for</code> read the place
 of every item it kept before each change, so a 960-line log appended
 line by line froze the page for 3.5 s. Only items whose index changes
 are measured now; a list that only grows at its end measures nothing.</p>
@@ -2096,7 +2099,7 @@ install the binary as <code>webfluent.exe</code>, so <code>webfluent build</code
 <code>wf.exe</code> does too. The <code>.msi</code> now keeps one <code>UpgradeCode</code>, where each
 release had its own, so the next one replaces it instead of installing
 beside it. The Node binding looks for <code>webfluent.exe</code> and <code>wf.exe</code> by
-their full names (<a href="/docs/guide/server-rendering#from-node">chapter 35</a>).</p>
+their full names (<a href="https://github.com/monzeromer-lab/WebFluent/blob/master/md-docs/recipes/index.md">chapter 35</a>).</p>
                                     </div>
                                 </li>
                                 <li class="wf-list__item">
@@ -2119,7 +2122,7 @@ an editor's previews are, never shared a page.</p>
                                 <li class="wf-list__item">
                                     <div class="wf-markdown">
 <p><strong>Markdown links are checked, and backslash escapes work</strong>
-(<a href="/docs/guide/content#backslash-escapes">chapter 27</a>). Every link and
+(<a href="https://github.com/monzeromer-lab/WebFluent/blob/master/md-docs/recipes/index.md">chapter 27</a>). Every link and
 picture in <code>Markdown</code> goes through the scheme check the rest of a page
 does, so <code>[x](javascript:…)</code> is drawn as its words. A backslash before
 punctuation draws that character (<code>\*</code> is <code>*</code>, not emphasis), as
@@ -2275,14 +2278,14 @@ not windowed.</p>
                                 </li>
                                 <li class="wf-list__item">
                                     <div class="wf-markdown">
-<p><strong><code>worker</code></strong> (<a href="/docs/guide/realtime">chapter 18</a>): a Web Worker held
+<p><strong><code>worker</code></strong> (<a href="https://github.com/monzeromer-lab/WebFluent/blob/master/md-docs/recipes/index.md">chapter 18</a>): a Web Worker held
 like a connection, asked with <code>.request(method, params)</code> and heard with
 <code>on message</code>, restarted when it crashes; a store may hold connections.</p>
                                     </div>
                                 </li>
                                 <li class="wf-list__item">
                                     <div class="wf-markdown">
-<p><strong><code>Frame</code></strong> (<a href="/docs/guide/media">chapter 28</a>): another page inside
+<p><strong><code>Frame</code></strong> (<a href="https://github.com/monzeromer-lab/WebFluent/blob/master/md-docs/recipes/index.md">chapter 28</a>): another page inside
 this one, its <code>on message</code> only that page's; <code>A17</code> for a frame with no
 title.</p>
                                     </div>
@@ -2297,7 +2300,7 @@ storage the project gives itself, which may answer later.</p>
                                 <li class="wf-list__item">
                                     <div class="wf-markdown">
 <p><strong>The policy names an app's own schemes and WebAssembly</strong>
-(<a href="/docs/guide/desktop">chapter 33</a>): <code>meta.connect</code> and
+(<a href="https://github.com/monzeromer-lab/WebFluent/blob/master/md-docs/recipes/index.md">chapter 33</a>): <code>meta.connect</code> and
 <code>meta.frame</code> take <code>ipc:</code> or <code>wfpreview:</code>, <code>meta.wasm</code> lets a page compile
 WebAssembly, <code>meta.style_elements</code> lets a script write <code>&lt;style&gt;</code>.</p>
                                     </div>
@@ -2324,7 +2327,7 @@ submit does.</p>
                                 </li>
                                 <li class="wf-list__item">
                                     <div class="wf-markdown">
-<p><strong>Plurals by CLDR</strong> (<a href="/docs/guide/i18n">chapter 21</a>): the build picks
+<p><strong>Plurals by CLDR</strong> (<a href="https://github.com/monzeromer-lab/WebFluent/blob/master/md-docs/recipes/index.md">chapter 21</a>): the build picks
 each count's form by the default locale's rules (CLDR 48, the same
 table the browser's <code>Intl.PluralRules</code> reads), and exactly none is
 <code>key.zero</code> in any language.</p>
@@ -2495,7 +2498,7 @@ nothing.</p>
                                 </li>
                                 <li class="wf-list__item">
                                     <div class="wf-markdown">
-<p><strong>Desktop apps, in the guide.</strong> <a href="/docs/guide/desktop">Chapter 33</a>
+<p><strong>Desktop apps, in the guide.</strong> <a href="https://github.com/monzeromer-lab/WebFluent/blob/master/md-docs/recipes/index.md">Chapter 33</a>
 shows a project as a Tauri or an Electron app: the build settings a
 desktop needs, setting up each shell, the dev loop, calling the native
 side through typed functions in a script under <code>src/</code>, events, plugins,
@@ -7101,6 +7104,7 @@ then resolves to it. The build tells you this if you forget.</p>
                     <div class="wf-stack wf-gap--xs wf-s17061b4c">
                         <p class="wf-text wf-scba75cc6 bp-section-label">Do</p>
                         <a class="wf-link" href="/recipes">Recipes</a>
+                        <a class="wf-link" href="/playground">Playground</a>
                         <a class="wf-link" href="/coming-from/react">Coming from…</a>
                         <a class="wf-link" href="/showcase">Showcase</a>
                     </div>

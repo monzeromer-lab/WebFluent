@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Accessibility</title>
     <meta name="description" content="What the built-ins do for keyboard and screen-reader users, the A01–A17 checks, what is still yours to do, and how to test it.">
@@ -28,6 +28,8 @@
     <link rel="preload" href="/fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="/styles.css">
     <script src="/js/analytics.js" defer></script>
+    <script src="/js/live.js" defer></script>
+    <script src="/js/old-links-map.js" defer></script>
     <script src="/js/old-links.js" defer></script>
     <script src="/js/video.js" defer></script>
     <script src="/app.js" defer></script>
@@ -50,6 +52,7 @@
                         <a class="wf-link bp-tab" href="/recipes">Recipes</a>
                         <a class="wf-link bp-tab" href="/reference">Reference</a>
                         <a class="wf-link bp-tab" href="/errors">Errors</a>
+                        <a class="wf-link bp-tab" href="/playground">Playground</a>
                         <a class="wf-link bp-tab" href="/showcase">Showcase</a>
                     </div>
                     <div class="wf-row wf-align--center wf-gap--sm wf-sff642a95">
@@ -58,7 +61,7 @@
                             <p class="wf-text wf-sf55a2627 bp-hide-sm">Search the docs</p>
                             <p class="wf-text bp-kbd bp-hide-sm">Ctrl+K</p>
                         </button>
-                        <div class="wf-row wf-align--center wf-gap--sm wf-s808638b6 bp-select bp-hide-sm">
+                        <div class="wf-row wf-align--center wf-gap--sm wf-s808638b6 bp-select bp-hide-md">
                             <p class="wf-text wf-s29c127bc bp-building-label" aria-hidden="true">Building</p>
                             <select class="wf-select" aria-label="Building">
                                 <option value="website">Website</option>
@@ -74,7 +77,7 @@
                         <div class="wf-row wf-align--center wf-gap--xs wf-s286d925a bp-hide-sm">
                             <button class="wf-btn bp-button" title="This page is in English only; the switch changes the interface." data-track="select_content" data-track-content-type="language" type="button"></button>
                         </div>
-                        <a class="wf-link bp-button bp-hide-sm" href="https://github.com/monzeromer-lab/WebFluent" data-tone="quiet" aria-label="GitHub">
+                        <a class="wf-link bp-button bp-hide-md" href="https://github.com/monzeromer-lab/WebFluent" data-tone="quiet" aria-label="GitHub">
                             <i class="wf-icon" data-icon="git-branch"></i>
                             <p class="wf-text">GitHub</p>
                         </a>
@@ -146,7 +149,7 @@
 <li><strong>Splitters you can move without a mouse.</strong> A <code>Splitter</code> is a <code>separator</code> with its size as <code>aria-valuenow</code>. It takes focus, the arrow keys move it, Home and End go to its ends, and Enter resets it.</li>
 <li><strong>Announcements.</strong> A <code>Toast</code> is spoken politely. To announce anything else, call <code>WF.announce(text)</code>.</li>
 <li><strong>The active link.</strong> The link to the current page carries <code>aria-current=&quot;page&quot;</code>.</li>
-<li><strong>Reduced motion.</strong> A reader who asked for it gets no animation at all, and a carousel does not play on its own (<a href="/docs/guide/motion#respect-reduced-motion">Motion</a>).</li>
+<li><strong>Reduced motion.</strong> A reader who asked for it gets no animation at all, and a carousel does not play on its own (<a href="/recipes/motion-defaults#respect-reduced-motion">Motion</a>).</li>
 <li><strong>Visible focus.</strong> Every interactive built-in shows a focus ring for the keyboard (<code>:focus-visible</code>), but not on every click.</li>
 </ul>
                             </div>
@@ -414,9 +417,9 @@
                         </div>
                     </div>
                     <div class="wf-row wf-gap--md wf-s94f7a6f9" role="navigation" aria-label="Pages either side">
-                        <a class="wf-link wf-s1266eee5 bp-card" href="/docs/guide/media">
+                        <a class="wf-link wf-s1266eee5 bp-card" href="/docs/guide/styling">
                             <p class="wf-text bp-small">Previous</p>
-                            <p class="wf-text wf-s70571e62">Media</p>
+                            <p class="wf-text wf-s70571e62">Styling</p>
                         </a>
                         <a class="wf-link wf-sc16e0c24 bp-card" href="/docs/guide/forms">
                             <p class="wf-text bp-small">Next</p>
@@ -453,6 +456,7 @@
                     <div class="wf-stack wf-gap--xs wf-s17061b4c">
                         <p class="wf-text wf-scba75cc6 bp-section-label">Do</p>
                         <a class="wf-link" href="/recipes">Recipes</a>
+                        <a class="wf-link" href="/playground">Playground</a>
                         <a class="wf-link" href="/coming-from/react">Coming from…</a>
                         <a class="wf-link" href="/showcase">Showcase</a>
                     </div>

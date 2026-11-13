@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Security</title>
     <meta name="description" content="What WebFluent enforces, and how to handle outside markup, sessions, env secrets, uploads, CSP headers, other origins and a deploy checklist.">
@@ -28,6 +28,8 @@
     <link rel="preload" href="/fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="/styles.css">
     <script src="/js/analytics.js" defer></script>
+    <script src="/js/live.js" defer></script>
+    <script src="/js/old-links-map.js" defer></script>
     <script src="/js/old-links.js" defer></script>
     <script src="/js/video.js" defer></script>
     <script src="/app.js" defer></script>
@@ -50,6 +52,7 @@
                         <a class="wf-link bp-tab" href="/recipes">Recipes</a>
                         <a class="wf-link bp-tab" href="/reference">Reference</a>
                         <a class="wf-link bp-tab" href="/errors">Errors</a>
+                        <a class="wf-link bp-tab" href="/playground">Playground</a>
                         <a class="wf-link bp-tab" href="/showcase">Showcase</a>
                     </div>
                     <div class="wf-row wf-align--center wf-gap--sm wf-sff642a95">
@@ -58,7 +61,7 @@
                             <p class="wf-text wf-sf55a2627 bp-hide-sm">Search the docs</p>
                             <p class="wf-text bp-kbd bp-hide-sm">Ctrl+K</p>
                         </button>
-                        <div class="wf-row wf-align--center wf-gap--sm wf-s808638b6 bp-select bp-hide-sm">
+                        <div class="wf-row wf-align--center wf-gap--sm wf-s808638b6 bp-select bp-hide-md">
                             <p class="wf-text wf-s29c127bc bp-building-label" aria-hidden="true">Building</p>
                             <select class="wf-select" aria-label="Building">
                                 <option value="website">Website</option>
@@ -74,7 +77,7 @@
                         <div class="wf-row wf-align--center wf-gap--xs wf-s286d925a bp-hide-sm">
                             <button class="wf-btn bp-button" title="This page is in English only; the switch changes the interface." data-track="select_content" data-track-content-type="language" type="button"></button>
                         </div>
-                        <a class="wf-link bp-button bp-hide-sm" href="https://github.com/monzeromer-lab/WebFluent" data-tone="quiet" aria-label="GitHub">
+                        <a class="wf-link bp-button bp-hide-md" href="https://github.com/monzeromer-lab/WebFluent" data-tone="quiet" aria-label="GitHub">
                             <i class="wf-icon" data-icon="git-branch"></i>
                             <p class="wf-text">GitHub</p>
                         </a>
@@ -144,7 +147,7 @@
 <li><strong><code>navigate()</code> stays on the site.</strong> A value the page was handed — <code>navigate(query.next ?? &quot;/&quot;)</code> after a sign-in — goes to a page of the site; an address on another origin (<code>//elsewhere.example</code>) is refused, and the reader stays where they are. Leave the site with a <code>Link</code>.</li>
 <li><strong>A frame drawing HTML from a value runs none of it.</strong> A <code>Frame(srcdoc: value)</code> with no <code>sandbox:</code> is given <code>sandbox=&quot;&quot;</code>, and the build names it (<code>V03</code>). Its <code>on message</code> hears only what that frame's own document posts, from the origin that document has, not a page it navigated to.</li>
 <li><strong>A page's <code>head { }</code> points nowhere a browser runs.</strong> Its <code>src:</code> and <code>href:</code> go through the scheme check at build time and in the browser. A <code>script(src:)</code> must be written out, and a refresh may not take its address from a value (<code>E107</code>): either would let whoever controls the value choose what the page runs or where the reader goes.</li>
-<li><strong>Markdown is escaped first.</strong> <code>Markdown(text)</code> shows any HTML in the text instead of running it. Its links and pictures go through the same scheme check as every other URL: a link to a <code>javascript:</code> URL is drawn as its words, with no link, at build time and in the browser alike. So is one that puts a backslash before its colon (<code>javascript\:</code>), which Markdown reads as the colon it escapes. For text somebody else wrote, such as a language server's documentation, <code>Markdown(text).inert</code> draws no link or picture at all (<a href="/docs/guide/content#show-text-somebody-else-wrote-with-inert">Content</a>).</li>
+<li><strong>Markdown is escaped first.</strong> <code>Markdown(text)</code> shows any HTML in the text instead of running it. Its links and pictures go through the same scheme check as every other URL: a link to a <code>javascript:</code> URL is drawn as its words, with no link, at build time and in the browser alike. So is one that puts a backslash before its colon (<code>javascript\:</code>), which Markdown reads as the colon it escapes. For text somebody else wrote, such as a language server's documentation, <code>Markdown(text).inert</code> draws no link or picture at all (<a href="/recipes">Content</a>).</li>
 <li><strong>A <code>Secret</code> cannot escape.</strong> It may not be shown, spliced into a string, logged or persisted. Each is a <code>T12</code>, reported at the line that does it.</li>
 <li><strong>A non-public <code>env</code> name cannot be read from a page.</strong> See <a href="#keep-secrets-out-of-the-bundle">Keep secrets out of the bundle</a>.</li>
 </ul>
@@ -287,8 +290,8 @@ api <span class="wf-tok-name">Backend</span>(<span class="wf-tok-prop">base</spa
 <li><code>env.STRIPE_SECRET</code>, read from a page, a component, a store or an <code>api</code> block, is an <code>E108</code> compile error naming the file and the line;</li>
 <li>every build warns that <code>env.ANALYTICS_ID</code> goes into the bundle, since its name does not say so.</li>
 </ul>
-<p><code>public_env</code> comes with the project, so it cannot reach into the shell of whoever builds it: a name it lists without the <code>PUBLIC_</code> prefix takes its value from the config or <code>.env</code>, and from the shell only when <code>WF_ALLOW_SHELL_ENV</code> names it (<a href="/docs/guide/environments">Environments</a>).</p>
-<p>The value of <code>STRIPE_SECRET</code> is still there for <code>wf render</code>, which runs on a server where a secret stays secret (<a href="/docs/guide/server-rendering">Server rendering</a>). A secret that has to reach a third party belongs in a request your server makes, not in a page. <a href="/docs/guide/environments">Environments</a> covers where <code>env</code> values come from.</p>
+<p><code>public_env</code> comes with the project, so it cannot reach into the shell of whoever builds it: a name it lists without the <code>PUBLIC_</code> prefix takes its value from the config or <code>.env</code>, and from the shell only when <code>WF_ALLOW_SHELL_ENV</code> names it (<a href="/recipes">Environments</a>).</p>
+<p>The value of <code>STRIPE_SECRET</code> is still there for <code>wf render</code>, which runs on a server where a secret stays secret (<a href="/recipes">Server rendering</a>). A secret that has to reach a third party belongs in a request your server makes, not in a page. <a href="/recipes">Environments</a> covers where <code>env</code> values come from.</p>
                             </div>
                             <h2 class="wf-heading" id="check-uploads-on-the-server">Check uploads on the server</h2>
                             <div class="wf-markdown">
@@ -381,7 +384,7 @@ api <span class="wf-tok-name">Backend</span>(<span class="wf-tok-prop">base</spa
                             <h2 class="wf-heading" id="sanitize-what-your-own-scripts-insert">Sanitize what your own scripts insert</h2>
                             <div class="wf-markdown">
 <p>A <code>.js</code> file under <code>src/</code> runs on every page exactly as written. The compiler reads its names; it does not rewrite or sandbox it. It is code you trust, like the rest of <code>src/</code>. What it puts in the page with <code>innerHTML</code> is markup, so markup from outside the project goes through <code>WF.sanitize(…)</code> there too.</p>
-<p>A library from another origin belongs in <code>meta.scripts</code>, with an integrity hash, so a change at that origin cannot reach your readers (<a href="/docs/guide/interop">JavaScript interop</a>).</p>
+<p>A library from another origin belongs in <code>meta.scripts</code>, with an integrity hash, so a change at that origin cannot reach your readers (<a href="/recipes">JavaScript interop</a>).</p>
                             </div>
                             <h2 class="wf-heading" id="audit-the-project">Audit the project</h2>
                             <div class="wf-markdown">
@@ -470,6 +473,7 @@ api <span class="wf-tok-name">Backend</span>(<span class="wf-tok-prop">base</spa
                     <div class="wf-stack wf-gap--xs wf-s17061b4c">
                         <p class="wf-text wf-scba75cc6 bp-section-label">Do</p>
                         <a class="wf-link" href="/recipes">Recipes</a>
+                        <a class="wf-link" href="/playground">Playground</a>
                         <a class="wf-link" href="/coming-from/react">Coming from…</a>
                         <a class="wf-link" href="/showcase">Showcase</a>
                     </div>

@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Build a budget app that works offline — Recipes</title>
+    <meta name="description" content="An advanced WebFluent tutorial: a budget tracker with Money, a persist migration, validation, shortcuts, Arabic and English, and offline support.">
+    <link rel="canonical" href="https://webfluent.monzeromer.dev/recipes/build-a-budget-app">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Build a budget app that works offline — Recipes">
+    <meta property="og:site_name" content="WebFluent">
+    <meta property="og:description" content="An advanced WebFluent tutorial: a budget tracker with Money, a persist migration, validation, shortcuts, Arabic and English, and offline support.">
+    <meta property="og:url" content="https://webfluent.monzeromer.dev/recipes/build-a-budget-app">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="ar_AR">
+    <meta property="og:image" content="https://webfluent.monzeromer.dev/og.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Build a budget app that works offline — Recipes">
+    <meta name="twitter:description" content="An advanced WebFluent tutorial: a budget tracker with Money, a persist migration, validation, shortcuts, Arabic and English, and offline support.">
+    <meta name="twitter:image" content="https://webfluent.monzeromer.dev/og.png">
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/recipes/build-a-budget-app#webpage","url":"https://webfluent.monzeromer.dev/recipes/build-a-budget-app","name":"Build a budget app that works offline — Recipes","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"An advanced WebFluent tutorial: a budget tracker with Money, a persist migration, validation, shortcuts, Arabic and English, and offline support.","inLanguage":"en"},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/recipes/build-a-budget-app#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Recipes — WebFluent","item":"https://webfluent.monzeromer.dev/recipes"},{"@type":"ListItem","position":3,"name":"Build a budget app that works offline — Recipes","item":"https://webfluent.monzeromer.dev/recipes/build-a-budget-app"}]}]}</script>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="preload" href="/fonts/instrument-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="/styles.css">
+    <script src="/js/analytics.js" defer></script>
+    <script src="/js/live.js" defer></script>
+    <script src="/js/old-links-map.js" defer></script>
+    <script src="/js/old-links.js" defer></script>
+    <script src="/js/video.js" defer></script>
+    <script src="/app.js" defer></script>
+    <script src="/pages/RecipeBuildABudgetApp.js" data-wf-page="RecipeBuildABudgetApp" defer></script>
+</head>
+<body>
+    <a class="wf-skip-link" href="#wf-main">Skip to content</a>
+    <div id="app">
+        <main id="wf-main">
+            <a class="wf-link bp-skip" href="#bp-main">Skip to the content</a>
+            <div class="wf-row wf-align--center wf-s55053fdc bp-header" role="banner">
+                <div class="wf-row wf-align--center wf-gap--md wf-sfe495c12 bp-wrap">
+                    <a class="wf-link wf-sa4fc1f4b" href="/" aria-label="WebFluent, home">
+                        <img class="wf-image wf-s4b9d0b60" src="/favicon.svg" alt="" decoding="async" loading="eager" fetchpriority="high">
+                        <p class="wf-text wf-s9919642b">WebFluent</p>
+                        <p class="wf-text bp-label bp-num">6.0</p>
+                    </a>
+                    <div class="wf-row wf-s92924cc4 bp-tabs" role="navigation" aria-label="Main">
+                        <a class="wf-link bp-tab" href="/learn">Learn</a>
+                        <a class="wf-link bp-tab active" href="/recipes" aria-current="page">Recipes</a>
+                        <a class="wf-link bp-tab" href="/reference">Reference</a>
+                        <a class="wf-link bp-tab" href="/errors">Errors</a>
+                        <a class="wf-link bp-tab" href="/playground">Playground</a>
+                        <a class="wf-link bp-tab" href="/showcase">Showcase</a>
+                    </div>
+                    <div class="wf-row wf-align--center wf-gap--sm wf-sff642a95">
+                        <button class="wf-btn wf-sf8ab46ec bp-field bp-search" aria-label="Search the docs" aria-keyshortcuts="Meta+K Control+K" aria-haspopup="dialog" type="button">
+                            <i class="wf-icon" data-icon="search"></i>
+                            <p class="wf-text wf-sf55a2627 bp-hide-sm">Search the docs</p>
+                            <p class="wf-text bp-kbd bp-hide-sm">Ctrl+K</p>
+                        </button>
+                        <div class="wf-row wf-align--center wf-gap--sm wf-s808638b6 bp-select bp-hide-md">
+                            <p class="wf-text wf-s29c127bc bp-building-label" aria-hidden="true">Building</p>
+                            <select class="wf-select" aria-label="Building">
+                                <option value="website">Website</option>
+                                <option value="app">Web app</option>
+                                <option value="pdf">PDF</option>
+                                <option value="slides">Slides</option>
+                                <option value="elements">Custom elements</option>
+                                <option value="desktop">Desktop / phone</option>
+                            </select>
+                            <i class="wf-icon wf-s94250744" data-icon="chevron-down" aria-hidden="true"></i>
+                        </div>
+                        <button class="wf-icon-btn bp-icon-button" data-track="select_content" data-track-content-type="theme" type="button"></button>
+                        <div class="wf-row wf-align--center wf-gap--xs wf-s286d925a bp-hide-sm">
+                            <button class="wf-btn bp-button" title="This page is in English only; the switch changes the interface." data-track="select_content" data-track-content-type="language" type="button"></button>
+                        </div>
+                        <a class="wf-link bp-button bp-hide-md" href="https://github.com/monzeromer-lab/WebFluent" data-tone="quiet" aria-label="GitHub">
+                            <i class="wf-icon" data-icon="git-branch"></i>
+                            <p class="wf-text">GitHub</p>
+                        </a>
+                        <button class="wf-icon-btn wf-sde8ec4aa bp-icon-button" data-icon="menu" aria-label="Menu" title="Menu" aria-expanded="false" type="button"></button>
+                    </div>
+                </div>
+            </div>
+            <dialog class="wf-modal bp-palette" aria-labelledby="wf-dlg-s1">
+                <div class="wf-modal__content">
+                    <div class="wf-modal__header"><h3 id="wf-dlg-s1">Search</h3></div>
+                    <div class="wf-modal__body">
+                        <div class="wf-stack wf-sa8e464d0">
+                            <div class="wf-row wf-align--center wf-gap--sm wf-s02e7a482 bp-field">
+                                <i class="wf-icon" data-icon="search"></i>
+                                <input class="wf-input" placeholder="Search the guide" aria-label="Search the guide" type="search" autofocus>
+                                <p class="wf-text bp-kbd">esc</p>
+                            </div>
+                            <div class="wf-row wf-s434e64fb bp-tabs" role="tablist" aria-label="Narrow the search">
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="true" type="button">All</button>
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">Learn</button>
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">Recipes</button>
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">Reference</button>
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">Errors</button>
+                            </div>
+                            <div class="wf-stack wf-s3f6dffee" role="listbox" aria-label="Search results">
+                                <p class="wf-text wf-s3205a3d6 bp-small">Type a word: a component, a code such as T05, or a task.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </dialog>
+            <div class="wf-row wf-align--start wf-sa997482c bp-wrap">
+                <div class="wf-stack wf-gap--sm wf-sa359f878 bp-sidebar" role="navigation" aria-label="Recipes">
+                    <div class="wf-row wf-align--center wf-gap--sm wf-scc2d619f bp-field">
+                        <i class="wf-icon" data-icon="filter"></i>
+                        <input class="wf-input" placeholder="Filter" aria-label="Filter" type="search">
+                    </div>
+                    <div class="wf-stack bp-navlist">
+                        <!--wf-if-->
+                        <a class="wf-link bp-navlink" href="/recipes/confirm-dialog">Build a confirm dialog</a>
+                        <a class="wf-link bp-navlink" href="/recipes/copy-to-the-clipboard">Copy to the clipboard</a>
+                        <a class="wf-link bp-navlink" href="/recipes/count-down">Count down</a>
+                        <a class="wf-link bp-navlink" href="/recipes/debounce-a-search">Debounce a search</a>
+                        <a class="wf-link bp-navlink" href="/recipes/filters-in-the-address">Keep filters in the address</a>
+                        <a class="wf-link bp-navlink" href="/recipes/active-tab-in-the-address">Keep the active tab in the address</a>
+                        <a class="wf-link bp-navlink" href="/recipes/responsive-navigation">Make navigation responsive</a>
+                        <a class="wf-link bp-navlink" href="/recipes/store-value-as-a-prop">Pass a store&#x27;s value to a component</a>
+                        <p class="wf-text bp-navgroup">Data</p>
+                        <a class="wf-link bp-navlink" href="/recipes/load-more">Load more as the reader asks</a>
+                        <a class="wf-link bp-navlink" href="/recipes/page-through-results">Page through results</a>
+                        <a class="wf-link bp-navlink" href="/recipes/validation-messages">Show validation messages on a form</a>
+                        <a class="wf-link bp-navlink" href="/recipes/sign-in-with-a-session-cookie">Sign in with a session cookie</a>
+                        <a class="wf-link bp-navlink" href="/recipes/optimistic-updates">Update at once, and roll back on failure</a>
+                        <p class="wf-text bp-navgroup">Real time</p>
+                        <a class="wf-link bp-navlink" href="/recipes/connect-two-readers">Connect two readers&#x27; pages</a>
+                        <a class="wf-link bp-navlink" href="/recipes/server-sent-events">Listen to server-sent events</a>
+                        <a class="wf-link bp-navlink" href="/recipes/open-a-socket">Open a socket</a>
+                        <a class="wf-link bp-navlink" href="/recipes/run-a-worker">Run a script in a worker</a>
+                        <a class="wf-link bp-navlink" href="/recipes/send-on-unload">Send a message as the page unloads</a>
+                        <a class="wf-link bp-navlink" href="/recipes/show-the-network">Show what the network is doing</a>
+                        <a class="wf-link bp-navlink" href="/recipes/talk-between-tabs">Talk to the site&#x27;s other tabs</a>
+                        <p class="wf-text bp-navgroup">Content</p>
+                        <a class="wf-link bp-navlink" href="/recipes/search-and-link-previews">Describe pages to search engines and link previews</a>
+                        <a class="wf-link bp-navlink" href="/recipes/render-markdown">Render Markdown</a>
+                        <a class="wf-link bp-navlink" href="/recipes/show-code">Show code on a page</a>
+                        <a class="wf-link bp-navlink" href="/recipes/markdown-pages">Write a page as a Markdown file</a>
+                        <p class="wf-text bp-navgroup">Look and motion</p>
+                        <a class="wf-link bp-navlink" href="/recipes/dark-mode-switch">Add a dark-mode switch</a>
+                        <a class="wf-link bp-navlink" href="/recipes/add-a-picture">Add a picture, sized for every screen</a>
+                        <a class="wf-link bp-navlink" href="/recipes/video-and-audio">Add video and audio</a>
+                        <a class="wf-link bp-navlink" href="/recipes/animate-a-list">Animate a list</a>
+                        <a class="wf-link bp-navlink" href="/recipes/animate-in-and-out">Animate an element in and out</a>
+                        <a class="wf-link bp-navlink" href="/recipes/route-transitions">Animate route changes</a>
+                        <a class="wf-link bp-navlink" href="/recipes/shared-element">Carry an element across a route change</a>
+                        <a class="wf-link bp-navlink" href="/recipes/count-a-number">Count a number to its new value</a>
+                        <a class="wf-link bp-navlink" href="/recipes/keyframes">Declare your own keyframes</a>
+                        <a class="wf-link bp-navlink" href="/recipes/drive-an-animation">Drive an animation yourself</a>
+                        <a class="wf-link bp-navlink" href="/recipes/expand-to-content">Open a box to the height of its content</a>
+                        <a class="wf-link bp-navlink" href="/recipes/animation-sequence">Run a sequence of animations</a>
+                        <a class="wf-link bp-navlink" href="/recipes/motion-defaults">Set motion defaults, and respect reduced motion</a>
+                        <a class="wf-link bp-navlink" href="/recipes/show-a-carousel">Show a carousel</a>
+                        <a class="wf-link bp-navlink" href="/recipes/show-an-icon">Show an icon</a>
+                        <a class="wf-link bp-navlink" href="/recipes/show-a-page-in-a-frame">Show another page in a frame</a>
+                        <a class="wf-link bp-navlink" href="/recipes/tween-on-change">Tween a property when state changes</a>
+                        <p class="wf-text bp-navgroup">Reach</p>
+                        <a class="wf-link bp-navlink" href="/recipes/keep-writes-made-offline">Keep writes made offline</a>
+                        <a class="wf-link bp-navlink" href="/recipes/work-offline">Make a site work offline</a>
+                        <a class="wf-link bp-navlink" href="/recipes/offer-a-new-version">Offer a new version</a>
+                        <a class="wf-link bp-navlink" href="/recipes/site-in-two-languages">Publish a page in each language</a>
+                        <a class="wf-link bp-navlink" href="/recipes/translate-a-site">Translate a site</a>
+                        <a class="wf-link bp-navlink" href="/recipes/translate-by-the-words">Translate by the words as written</a>
+                        <a class="wf-link bp-navlink" href="/recipes/environments-and-secrets">Use environment values, and keep secrets out</a>
+                        <p class="wf-text bp-navgroup">Ship</p>
+                        <a class="wf-link bp-navlink" href="/recipes/docker-image">Build a Docker image</a>
+                        <a class="wf-link bp-navlink" href="/recipes/check-a-deploy">Check a deploy</a>
+                        <a class="wf-link bp-navlink" href="/recipes/deploy-to-cloudflare-pages">Deploy to Cloudflare Pages</a>
+                        <a class="wf-link bp-navlink" href="/recipes/deploy-to-github-pages">Deploy to GitHub Pages</a>
+                        <a class="wf-link bp-navlink" href="/recipes/deploy-to-netlify">Deploy to Netlify</a>
+                        <a class="wf-link bp-navlink" href="/recipes/deploy-to-vercel">Deploy to Vercel</a>
+                        <a class="wf-link bp-navlink" href="/recipes/install-wf-in-ci">Install wf on a build machine</a>
+                        <a class="wf-link bp-navlink" href="/recipes/electron-app">Make a desktop app with Electron</a>
+                        <a class="wf-link bp-navlink" href="/recipes/tauri-app">Make a desktop or phone app with Tauri</a>
+                        <a class="wf-link bp-navlink" href="/recipes/serve-with-apache">Serve a site with Apache</a>
+                        <a class="wf-link bp-navlink" href="/recipes/serve-with-caddy">Serve a site with Caddy</a>
+                        <a class="wf-link bp-navlink" href="/recipes/serve-with-nginx">Serve a site with nginx</a>
+                        <a class="wf-link bp-navlink" href="/recipes/api-on-the-same-origin">Serve an API on the same origin</a>
+                        <a class="wf-link bp-navlink" href="/recipes/cache-and-security-headers">Set cache and security headers</a>
+                        <p class="wf-text bp-navgroup">Interop</p>
+                        <a class="wf-link bp-navlink" href="/recipes/call-wf-from-a-script">Call WF from a script</a>
+                        <a class="wf-link bp-navlink" href="/recipes/call-your-own-script">Call your own JavaScript</a>
+                        <a class="wf-link bp-navlink" href="/recipes/chart-from-a-library">Draw a chart from a library</a>
+                        <a class="wf-link bp-navlink" href="/recipes/portal">Draw into a node a script made</a>
+                        <a class="wf-link bp-navlink" href="/recipes/hand-an-element-to-a-script">Hand an element to a script</a>
+                        <a class="wf-link bp-navlink" href="/recipes/library-from-a-cdn">Load a library from a CDN</a>
+                        <a class="wf-link bp-navlink" href="/recipes/migrate-from-external">Migrate from external</a>
+                        <a class="wf-link bp-navlink" href="/recipes/place-a-custom-element">Place a custom element from a library</a>
+                        <a class="wf-link bp-navlink" href="/recipes/publish-custom-elements">Publish components as custom elements</a>
+                        <a class="wf-link bp-navlink" href="/recipes/render-a-template">Render a template with data</a>
+                        <a class="wf-link bp-navlink" href="/recipes/render-from-node">Render templates from Node</a>
+                        <a class="wf-link bp-navlink" href="/recipes/render-from-rust">Render templates from Rust</a>
+                        <a class="wf-link bp-navlink" href="/recipes/listen-for-wf-render">Run a script after each page draws</a>
+                        <p class="wf-text bp-navgroup">Projects</p>
+                        <a class="wf-link bp-navlink active" href="/recipes/build-a-budget-app" aria-current="page">Build a budget app that works offline</a>
+                        <a class="wf-link bp-navlink" href="/recipes/build-a-notebook-site">Build a statically generated notebook</a>
+                    </div>
+                </div>
+                <div class="wf-stack wf-gap--lg wf-s54d43750 bp-main" role="main" id="bp-main" tabindex="-1">
+                    <div class="wf-row wf-align--center wf-gap--xs wf-s2327e38b" role="navigation" aria-label="Breadcrumb">
+                        <a class="wf-link" href="/recipes">Recipes</a>
+                        <p class="wf-text" aria-hidden="true">/</p>
+                    </div>
+                    <div class="wf-row bp-labels">
+                        <p class="wf-text bp-label" data-tone="kind" data-kind="howto">How-to</p>
+                        <div class="wf-row wf-gap--xs bp-labels" aria-label="Works in">
+                        </div>
+                    </div>
+                    <div class="wf-stack wf-gap--sm wf-s4e4189b1">
+                        <h1 class="wf-heading wf-sdfc6d99e">Build a budget app that works offline</h1>
+                        <div class="wf-markdown bp-lede">
+<p><strong>What you will build.</strong> A personal budget tracker that lives entirely in the reader's browser: money in and money out, a budget per category, what is left of it this month, six months of bars, two languages, a CSV export and import, and a page that keeps working offline. There is no server and no account. The finished project is <a href="https://github.com/monzeromer-lab/WebFluent/tree/master/examples/tutorials/hard-pocket"><code>examples/tutorials/hard-pocket</code></a>.  <strong>Time:</strong> a couple of hours.</p>
+                        </div>
+                    </div>
+                    <div class="wf-stack wf-gap--sm wf-sa4f807c1"></div>
+                    <div class="wf-stack wf-gap--lg wf-s841f14ce bp-prose" dir="ltr">
+                        <h2 class="wf-heading" id="before-you-start">Before you start</h2>
+                        <div class="wf-markdown">
+<p>You need <code>wf</code>, Chrome and a copy of the repository (see <a href="/docs/tutorials/todos#before-you-start">Before you start</a> in the Todos tutorial). This tutorial assumes the Todos tutorial, and each step links the chapter that goes deeper. Like Field Notes, it shows the part of each file that teaches something new, so work in the finished project:</p>
+                        </div>
+                        <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                            <div class="wf-row wf-s2c416341 bp-console__bar">
+                                <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                    <p class="wf-text wf-s23a4ddd5 bp-mono">bash</p>
+                                </div>
+                                <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
+                            </div>
+                            <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-prompt">$ </span>cd WebFluent/examples/tutorials/hard-pocket
+<span class="wf-tok-prompt">$ </span>wf serve</code>
+                        </div>
+                        <h2 class="wf-heading" id="step-1-configure-the-project">Step 1: Configure the project</h2>
+                        <div class="wf-markdown">
+<p>The project's <code>webfluent.app.json</code>:</p>
+                        </div>
+                        <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                            <div class="wf-row wf-s2c416341 bp-console__bar">
+                                <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                    <p class="wf-text wf-s23a4ddd5 bp-mono">json</p>
+                                </div>
+                                <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="json" type="button">Copy</button>
+                            </div>
+                            <code class="wf-code wf-code--block bp-console__code">{
+  <span class="wf-tok-prop">&quot;name&quot;</span>: <span class="wf-tok-str">&quot;pocket&quot;</span>,
+  <span class="wf-tok-prop">&quot;version&quot;</span>: <span class="wf-tok-str">&quot;1.0.0&quot;</span>,
+  <span class="wf-tok-prop">&quot;author&quot;</span>: <span class="wf-tok-str">&quot;WebFluent tutorials&quot;</span>,
+  <span class="wf-tok-prop">&quot;theme&quot;</span>: { <span class="wf-tok-prop">&quot;name&quot;</span>: <span class="wf-tok-str">&quot;Pocket&quot;</span>, <span class="wf-tok-prop">&quot;dark&quot;</span>: <span class="wf-tok-str">&quot;PocketNight&quot;</span> },
+  <span class="wf-tok-prop">&quot;build&quot;</span>: {
+    <span class="wf-tok-prop">&quot;output&quot;</span>: <span class="wf-tok-str">&quot;./build&quot;</span>,
+    <span class="wf-tok-prop">&quot;output_type&quot;</span>: <span class="wf-tok-str">&quot;spa&quot;</span>,
+    <span class="wf-tok-prop">&quot;csp&quot;</span>: <span class="wf-tok-kw">true</span>
+  },
+  <span class="wf-tok-prop">&quot;meta&quot;</span>: {
+    <span class="wf-tok-prop">&quot;title&quot;</span>: <span class="wf-tok-str">&quot;Pocket&quot;</span>,
+    <span class="wf-tok-prop">&quot;description&quot;</span>: <span class="wf-tok-str">&quot;A budget that lives in your browser: income, spending and what is left, month by month.&quot;</span>,
+    <span class="wf-tok-prop">&quot;lang&quot;</span>: <span class="wf-tok-str">&quot;en&quot;</span>
+  },
+  <span class="wf-tok-prop">&quot;i18n&quot;</span>: {
+    <span class="wf-tok-prop">&quot;default_locale&quot;</span>: <span class="wf-tok-str">&quot;en&quot;</span>,
+    <span class="wf-tok-prop">&quot;locales&quot;</span>: [<span class="wf-tok-str">&quot;en&quot;</span>, <span class="wf-tok-str">&quot;ar&quot;</span>],
+    <span class="wf-tok-prop">&quot;dir&quot;</span>: <span class="wf-tok-str">&quot;src/translations&quot;</span>
+  },
+  <span class="wf-tok-prop">&quot;offline&quot;</span>: {
+    <span class="wf-tok-prop">&quot;precache&quot;</span>: [<span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-str">&quot;/entries&quot;</span>, <span class="wf-tok-str">&quot;/categories&quot;</span>, <span class="wf-tok-str">&quot;/settings&quot;</span>],
+    <span class="wf-tok-prop">&quot;fallback&quot;</span>: <span class="wf-tok-str">&quot;/&quot;</span>
+  }
+}</code>
+                        </div>
+                        <div class="wf-markdown">
+<p>It adds three things to the Todos config:</p>
+<ul>
+<li><code>i18n</code> names the languages and the folder their messages live in (<a href="/recipes">Internationalization</a>).</li>
+<li><code>offline</code> makes <code>wf build</code> write a service worker that stores the four pages, so a second visit opens with no network (<a href="/recipes">Offline</a>).</li>
+<li><code>theme</code> names two themes, light and dark, and the build ships both.</li>
+</ul>
+<p><strong>Check it:</strong> <code>wf build</code> prints a line that starts <code>Offline: sw.js</code>, then <code>2 locales</code> in its summary.</p>
+                        </div>
+                        <h2 class="wf-heading" id="step-2-describe-money">Step 2: Describe money</h2>
+                        <div class="wf-markdown">
+<p>The ledger's types use four of the types the language brings:</p>
+                        </div>
+                        <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                            <div class="wf-row wf-s2c416341 bp-console__bar">
+                                <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                    <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
+                                </div>
+                                <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                            </div>
+                            <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-cmt">// src/types.wf</span>
+<span class="wf-tok-cmt">/// Which way the money went.</span>
+<span class="wf-tok-kw">enum</span> <span class="wf-tok-name">Kind</span> { income, expense }
+
+<span class="wf-tok-cmt">/// Something money is spent on, with what the reader means to spend on it</span>
+<span class="wf-tok-cmt">/// in a month.</span>
+<span class="wf-tok-kw">type</span> <span class="wf-tok-name">Category</span> {
+    <span class="wf-tok-prop">id</span>: <span class="wf-tok-name">String</span>
+    <span class="wf-tok-prop">name</span>: <span class="wf-tok-name">String</span>
+    <span class="wf-tok-prop">color</span>: <span class="wf-tok-name">Color</span>
+    <span class="wf-tok-prop">budget</span>: <span class="wf-tok-name">Money</span>
+}
+
+<span class="wf-tok-cmt">/// One line of the ledger: money in, or money out.</span>
+<span class="wf-tok-kw">type</span> <span class="wf-tok-name">Entry</span> {
+    <span class="wf-tok-prop">id</span>: <span class="wf-tok-name">Uuid</span>
+    <span class="wf-tok-prop">date</span>: <span class="wf-tok-name">Date</span>
+    <span class="wf-tok-prop">amount</span>: <span class="wf-tok-name">Money</span>
+    <span class="wf-tok-prop">kind</span>: <span class="wf-tok-name">Kind</span>
+    <span class="wf-tok-prop">category</span>: <span class="wf-tok-name">String</span>
+    <span class="wf-tok-prop">note</span>: <span class="wf-tok-name">String</span> = <span class="wf-tok-str">&quot;&quot;</span>
+}</code>
+                        </div>
+                        <div class="wf-markdown">
+<p><code>Money</code>, <code>Date</code>, <code>Color</code> and <code>Uuid</code> are each a plain JSON value at run time (<a href="/docs/guide/types">Types</a>). Money is kept in minor units, <code>{ amount: 1299, currency: &quot;USD&quot; }</code>, so a sum never drifts by a fraction of a cent. You write it <code>$12.99</code> and show it with <code>format(m)</code>. What the language works out is a call — <code>a.plus(b)</code>, <code>a.minus(b)</code>, <code>ONE.times(12.5)</code> — and what the value carries is a field: <code>m.amount</code>. Two constants give every sum a starting point:</p>
+                        </div>
+                        <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                            <div class="wf-row wf-s2c416341 bp-console__bar">
+                                <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                    <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
+                                </div>
+                                <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                            </div>
+                            <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-cmt">// src/types.wf</span>
+<span class="wf-tok-cmt">/// Nothing yet: the starting point every sum adds to.</span>
+<span class="wf-tok-kw">const</span> <span class="wf-tok-prop">ZERO</span>: <span class="wf-tok-name">Money</span> = <span class="wf-tok-tok">$0</span>.<span class="wf-tok-num">00</span>
+
+<span class="wf-tok-cmt">/// One dollar — `ONE.times(12.5)` is $12.50, rounded to the cent.</span>
+<span class="wf-tok-kw">const</span> <span class="wf-tok-prop">ONE</span>: <span class="wf-tok-name">Money</span> = <span class="wf-tok-tok">$1</span>.<span class="wf-tok-num">00</span></code>
+                        </div>
+                        <div class="wf-markdown">
+<p><strong>Check it:</strong> <code>wf check</code> prints <code>No problems in pocket.</code> Change <code>$0.00</code> to <code>$0.001</code>, and the check refuses it: money has two decimals in dollars. Change it back.</p>
+                        </div>
+                        <h2 class="wf-heading" id="step-3-add-up-the-ledger">Step 3: Add up the ledger</h2>
+                        <div class="wf-markdown">
+<p>Every figure on every page is a <code>derived</code> value of the <code>Ledger</code> store:</p>
+                        </div>
+                        <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                            <div class="wf-row wf-s2c416341 bp-console__bar">
+                                <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                    <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
+                                </div>
+                                <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                            </div>
+                            <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-cmt">// src/stores/Ledger.wf</span>
+    <span class="wf-tok-kw">derived</span> today = now.date()
+    <span class="wf-tok-kw">derived</span> newestFirst = entries.sortBy(e =&gt; e.date).reverse()
+
+    <span class="wf-tok-kw">derived</span> income = sum(entries.filter(e =&gt; e.kind == .income))
+    <span class="wf-tok-kw">derived</span> spent = sum(entries.filter(e =&gt; e.kind == .expense))
+    <span class="wf-tok-kw">derived</span> balance = income.minus(spent)
+
+    <span class="wf-tok-kw">derived</span> thisMonth = entries.filter(e =&gt; e.date.startOfMonth().isSame(today.startOfMonth()))
+    <span class="wf-tok-kw">derived</span> monthIncome = sum(thisMonth.filter(e =&gt; e.kind == .income))
+    <span class="wf-tok-kw">derived</span> monthSpent = sum(thisMonth.filter(e =&gt; e.kind == .expense))
+    <span class="wf-tok-kw">derived</span> monthBudget = categories.reduce((s, c) =&gt; s.plus(c.budget), <span class="wf-tok-name">ZERO</span>)
+    <span class="wf-tok-kw">derived</span> budgetLeft = monthBudget.minus(monthSpent)</code>
+                        </div>
+                        <div class="wf-markdown">
+<p>Add an entry, and the balance, this month's spending, each budget bar and the chart all follow, with no code written to keep them in step (<a href="/docs/guide/stores">Stores</a>). <code>now</code> is the browser's clock as a value, so <code>today</code> turns over at midnight. <code>sum</code> is an action that only returns a value, which a derived value may call:</p>
+                        </div>
+                        <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                            <div class="wf-row wf-s2c416341 bp-console__bar">
+                                <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                    <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
+                                </div>
+                                <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                            </div>
+                            <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-cmt">// src/stores/Ledger.wf</span>
+    <span class="wf-tok-cmt">// The money in a list of entries, added up.</span>
+    <span class="wf-tok-kw">action</span> sum(<span class="wf-tok-prop">list</span>: [<span class="wf-tok-name">Entry</span>]) {
+        <span class="wf-tok-kw">return</span> list.reduce((total, e) =&gt; total.plus(e.amount), <span class="wf-tok-name">ZERO</span>)
+    }</code>
+                        </div>
+                        <div class="wf-markdown">
+<p><strong>Check it:</strong> the dashboard shows a balance, this month's income and spending, and what is left of the budget. Each is a sum of the sample ledger.</p>
+                        </div>
+                        <h2 class="wf-heading" id="step-4-change-the-stored-shape-without-losing-data">Step 4: Change the stored shape without losing data</h2>
+                        <div class="wf-markdown">
+<p>What a <code>persist</code> keeps outlives the build that wrote it: a reader who visited last month has last month's shape in their browser. The entries declare which version of the shape this build writes, and how to bring an older one forward:</p>
+                        </div>
+                        <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                            <div class="wf-row wf-s2c416341 bp-console__bar">
+                                <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                    <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
+                                </div>
+                                <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                            </div>
+                            <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-cmt">// src/stores/Ledger.wf</span>
+    <span class="wf-tok-cmt">// Version 1 of Pocket kept an amount as a plain, signed number of</span>
+    <span class="wf-tok-cmt">// dollars (`-52.4` was money out). Version 2 keeps a `Money` and a</span>
+    <span class="wf-tok-cmt">// `Kind`, so `migrate 1 -&gt; 2` turns what a returning reader's browser</span>
+    <span class="wf-tok-cmt">// holds into the new shape instead of throwing it away.</span>
+    <span class="wf-tok-kw">persist</span> <span class="wf-tok-prop">entries</span>: [<span class="wf-tok-name">Entry</span>] = <span class="wf-tok-name">SAMPLE_ENTRIES</span>.map(s =&gt; <span class="wf-tok-name">Entry</span>(
+            <span class="wf-tok-prop">id</span>: s.id,
+            <span class="wf-tok-prop">date</span>: now.date().minus(<span class="wf-tok-prop">days</span>: s.ago),
+            <span class="wf-tok-prop">amount</span>: s.amount,
+            <span class="wf-tok-prop">kind</span>: s.kind,
+            <span class="wf-tok-prop">category</span>: s.category,
+            <span class="wf-tok-prop">note</span>: s.note,
+        )) {
+        <span class="wf-tok-prop">version</span>: <span class="wf-tok-num">2</span>
+        migrate <span class="wf-tok-num">1</span> -&gt; <span class="wf-tok-num">2</span> {
+            old.map(e =&gt; <span class="wf-tok-name">Entry</span>(
+                    <span class="wf-tok-prop">id</span>: e.id,
+                    <span class="wf-tok-prop">date</span>: e.date,
+                    <span class="wf-tok-prop">amount</span>: <span class="wf-tok-name">ONE</span>.times(<span class="wf-tok-name">Math</span>.abs(e.amount)),
+                    <span class="wf-tok-prop">kind</span>: <span class="wf-tok-kw">if</span> e.amount &lt; <span class="wf-tok-num">0</span> { .expense } <span class="wf-tok-kw">else</span> { .income },
+                    <span class="wf-tok-prop">category</span>: e.category,
+                    <span class="wf-tok-prop">note</span>: e.note ?? <span class="wf-tok-str">&quot;&quot;</span>,
+                ))
+        }
+    }</code>
+                        </div>
+                        <div class="wf-markdown">
+<ul>
+<li><code>version: 2</code> says which shape this build writes.</li>
+<li><code>migrate 1 -&gt; 2</code> brings an older value forward. Its body receives the stored value as <code>old</code>.</li>
+<li>If you raise the version with no migration, the build warns (<code>P01</code>). If you change the shape without raising the version, it warns too (<code>D04</code>), from the shapes it keeps in <code>.wf-cache/</code> (<a href="/docs/guide/stores">Stores</a>).</li>
+<li>A first visit opens on a sample ledger dated from today, so the dashboard is never empty.</li>
+</ul>
+<p><strong>Check it:</strong> <code>wf check --deny-warnings</code> passes. Delete the <code>migrate</code> block and check again: the check reports <code>P01</code>. Put the block back.</p>
+                        </div>
+                        <h2 class="wf-heading" id="step-5-fit-the-shell-to-the-screen">Step 5: Fit the shell to the screen</h2>
+                        <div class="wf-markdown">
+<p>The shell draws a <code>Sidebar</code> when <code>viewport.lg</code> holds, and a top bar with a drawer when it does not. This is the drawer:</p>
+                        </div>
+                        <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                            <div class="wf-row wf-s2c416341 bp-console__bar">
+                                <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                    <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
+                                </div>
+                                <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                            </div>
+                            <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-cmt">// src/App.wf</span>
+            <span class="wf-tok-kw">if</span> <span class="wf-tok-name">Ui</span>.menuOpen {
+                <span class="wf-tok-name">Host</span>(<span class="wf-tok-prop">tag</span>: <span class="wf-tok-str">&quot;div&quot;</span>, <span class="wf-tok-prop">class</span>: <span class="wf-tok-str">&quot;scrim&quot;</span>) { <span class="wf-tok-kw">on</span> click { <span class="wf-tok-name">Ui</span>.closeAll() } }
+                <span class="wf-tok-name">Stack</span>(<span class="wf-tok-prop">gap</span>: .md, <span class="wf-tok-prop">class</span>: <span class="wf-tok-str">&quot;drawer&quot;</span>, <span class="wf-tok-prop">animate</span>: .slideRight, <span class="wf-tok-prop">exit</span>: .fadeOut) {
+                    <span class="wf-tok-kw">on</span> click { <span class="wf-tok-name">Ui</span>.menuOpen = <span class="wf-tok-kw">false</span> }
+                    <span class="wf-tok-name">Brand</span>
+                    <span class="wf-tok-name">NavLinks</span>
+                }
+            }</code>
+                        </div>
+                        <div class="wf-markdown">
+<ul>
+<li><code>viewport</code> is the window's size as a value. It follows <code>matchMedia</code>, so the switch happens once, as the window crosses the breakpoint (<a href="/docs/guide/styling">Styling</a>).</li>
+<li>The layout itself — grids that are one column on a phone — uses responsive values, <code>Grid(columns: { base: 1, lg: 2 })</code>, which need no script.</li>
+<li>A second store, <code>Ui</code>, holds what the interface is doing — the dialog, the menu, the notices — apart from what the ledger holds.</li>
+</ul>
+<p><strong>Check it:</strong> on a wide window, the sidebar shows. Narrow the window: a top bar replaces it, and its menu button opens the drawer, which a click on the dimmed page behind it closes.</p>
+                        </div>
+                        <h2 class="wf-heading" id="step-6-draw-a-dashboard-from-elements">Step 6: Draw a dashboard from elements</h2>
+                        <div class="wf-markdown">
+<p>The built-in <code>Chart</code> draws at build time, from data the build can see. This ledger exists only in the reader's browser, so the chart is made of plain elements whose heights follow the store:</p>
+                        </div>
+                        <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                            <div class="wf-row wf-s2c416341 bp-console__bar">
+                                <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                    <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
+                                </div>
+                                <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                            </div>
+                            <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-cmt">// src/components/MonthChart.wf</span>
+<span class="wf-tok-cmt">/// Six months of money in and money out, as pairs of bars.</span>
+<span class="wf-tok-cmt">///</span>
+<span class="wf-tok-cmt">/// The built-in `Chart` draws at build time, from data the build can see.</span>
+<span class="wf-tok-cmt">/// This ledger only exists in the reader's browser, so the chart is made of</span>
+<span class="wf-tok-cmt">/// plain elements whose heights follow the store: `height: {share}%` is a</span>
+<span class="wf-tok-cmt">/// style value that reads state, and repaints when it changes.</span>
+<span class="wf-tok-kw">component</span> <span class="wf-tok-name">MonthChart</span>(<span class="wf-tok-prop">months</span>: [<span class="wf-tok-name">MonthTotal</span>], <span class="wf-tok-prop">top</span>: <span class="wf-tok-name">Number</span>) {
+    <span class="wf-tok-name">Stack</span>(<span class="wf-tok-prop">gap</span>: .sm) {
+        <span class="wf-tok-name">Row</span>(<span class="wf-tok-prop">class</span>: <span class="wf-tok-str">&quot;chart&quot;</span>, <span class="wf-tok-prop">align</span>: .end, <span class="wf-tok-prop">role</span>: <span class="wf-tok-str">&quot;img&quot;</span>, aria-<span class="wf-tok-prop">label</span>: t(<span class="wf-tok-str">&quot;chart.label&quot;</span>)) {
+            <span class="wf-tok-kw">for</span> m <span class="wf-tok-kw">in</span> months <span class="wf-tok-kw">by</span> m.month {
+                <span class="wf-tok-name">Stack</span>(<span class="wf-tok-prop">gap</span>: .xs, <span class="wf-tok-prop">align</span>: .center, <span class="wf-tok-prop">class</span>: <span class="wf-tok-str">&quot;chart__month&quot;</span>) {
+                    <span class="wf-tok-name">Row</span>(<span class="wf-tok-prop">gap</span>: .xs, <span class="wf-tok-prop">align</span>: .end, <span class="wf-tok-prop">class</span>: <span class="wf-tok-str">&quot;chart__bars&quot;</span>) {
+                        <span class="wf-tok-name">Host</span>(<span class="wf-tok-prop">tag</span>: <span class="wf-tok-str">&quot;span&quot;</span>, <span class="wf-tok-prop">class</span>: <span class="wf-tok-str">&quot;chart__bar chart__bar--in&quot;</span>) {
+                            <span class="wf-tok-kw">style</span> { <span class="wf-tok-prop">height</span>: {m.income.amount / top * <span class="wf-tok-num">100</span>}% }
+                        }
+                        <span class="wf-tok-name">Host</span>(<span class="wf-tok-prop">tag</span>: <span class="wf-tok-str">&quot;span&quot;</span>, <span class="wf-tok-prop">class</span>: <span class="wf-tok-str">&quot;chart__bar chart__bar--out&quot;</span>) {
+                            <span class="wf-tok-kw">style</span> { <span class="wf-tok-prop">height</span>: {m.spent.amount / top * <span class="wf-tok-num">100</span>}% }
+                        }
+                    }</code>
+                        </div>
+                        <div class="wf-markdown">
+<ul>
+<li>A <code>{…}</code> in a style value reads state, and the property follows it (<a href="/docs/guide/styling">Styling</a>).</li>
+<li>The chart is one <code>role=&quot;img&quot;</code> with a label, so a screen reader hears what it shows rather than twelve unnamed boxes (<a href="/docs/guide/accessibility">Accessibility</a>).</li>
+</ul>
+<p>The figures above the chart are one component, placed four times:</p>
+                        </div>
+                        <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                            <div class="wf-row wf-s2c416341 bp-console__bar">
+                                <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                    <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
+                                </div>
+                                <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                            </div>
+                            <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-cmt">// src/pages/Dashboard.wf</span>
+    <span class="wf-tok-name">Grid</span>(<span class="wf-tok-prop">columns</span>: { <span class="wf-tok-prop">base</span>: <span class="wf-tok-num">2</span>, <span class="wf-tok-prop">xl</span>: <span class="wf-tok-num">4</span> }, <span class="wf-tok-prop">gap</span>: .md) {
+        <span class="wf-tok-name">KpiCard</span>(t(<span class="wf-tok-str">&quot;kpi.balance&quot;</span>), <span class="wf-tok-prop">value</span>: <span class="wf-tok-name">Ledger</span>.balance, <span class="wf-tok-prop">note</span>: t(<span class="wf-tok-str">&quot;kpi.balanceNote&quot;</span>))
+        <span class="wf-tok-name">KpiCard</span>(t(<span class="wf-tok-str">&quot;kpi.income&quot;</span>), <span class="wf-tok-prop">value</span>: <span class="wf-tok-name">Ledger</span>.monthIncome, <span class="wf-tok-prop">note</span>: t(<span class="wf-tok-str">&quot;kpi.thisMonth&quot;</span>), <span class="wf-tok-prop">lean</span>: .good)
+        <span class="wf-tok-name">KpiCard</span>(t(<span class="wf-tok-str">&quot;kpi.spent&quot;</span>), <span class="wf-tok-prop">value</span>: <span class="wf-tok-name">Ledger</span>.monthSpent, <span class="wf-tok-prop">note</span>: t(<span class="wf-tok-str">&quot;kpi.thisMonth&quot;</span>), <span class="wf-tok-prop">lean</span>: .bad)
+        <span class="wf-tok-name">KpiCard</span>(t(<span class="wf-tok-str">&quot;kpi.left&quot;</span>), <span class="wf-tok-prop">value</span>: <span class="wf-tok-name">Ledger</span>.budgetLeft, <span class="wf-tok-prop">note</span>: t(<span class="wf-tok-str">&quot;kpi.leftNote&quot;</span>, { <span class="wf-tok-prop">budget</span>: format(<span class="wf-tok-name">Ledger</span>.monthBudget) }),
+            <span class="wf-tok-prop">lean</span>: <span class="wf-tok-kw">if</span> <span class="wf-tok-name">Ledger</span>.budgetLeft.amount &lt; <span class="wf-tok-num">0</span> { .bad } <span class="wf-tok-kw">else</span> { .good })
+    }</code>
+                        </div>
+                        <div class="wf-markdown">
+<p><code>lean</code> is an enum prop. A component writes its enum props to its root element, here as <code>data-lean=&quot;good&quot;</code>, and <code>pocket.css</code> colours the card by that attribute (<a href="/docs/guide/components">Components</a>).</p>
+<p><strong>Check it:</strong> the dashboard shows four cards and six pairs of bars. Add an expense in step 9's dialog, and this month's bar and the <strong>Spent</strong> card grow at once.</p>
+                        </div>
+                        <h2 class="wf-heading" id="step-7-keep-the-filters-in-the-address">Step 7: Keep the filters in the address</h2>
+                        <div class="wf-markdown">
+<p>The Entries page reads its filters from the address:</p>
+                        </div>
+                        <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                            <div class="wf-row wf-s2c416341 bp-console__bar">
+                                <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                    <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
+                                </div>
+                                <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                            </div>
+                            <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-cmt">// src/pages/Entries.wf</span>
+    <span class="wf-tok-cmt">// The filters live in the address — `/entries?month=2026-09&amp;category=dining` —</span>
+    <span class="wf-tok-cmt">// so they survive a reload, a shared link and the back button.</span>
+    <span class="wf-tok-kw">derived</span> month = query.month ?? <span class="wf-tok-str">&quot;&quot;</span>
+    <span class="wf-tok-kw">derived</span> category = query.category ?? <span class="wf-tok-str">&quot;&quot;</span>
+    <span class="wf-tok-kw">derived</span> shown = <span class="wf-tok-name">Ledger</span>.newestFirst.filter(e =&gt; (month == <span class="wf-tok-str">&quot;&quot;</span> || e.date.slice(<span class="wf-tok-num">0</span>, <span class="wf-tok-num">7</span>) == month) &amp;&amp; (category == <span class="wf-tok-str">&quot;&quot;</span> || e.category == category))</code>
+                        </div>
+                        <div class="wf-markdown">
+<p>Choosing a month calls <code>navigate(&quot;/entries?month=…&quot;)</code>. The address changes, <code>query</code> follows it, and so does the list.</p>
+<p>An entry also has a page of its own at <code>/entries/:id</code>, where <code>id</code> is a typed parameter. The page looks the entry up with <code>Ledger.entries.find(…)</code> and draws it inside <code>if let e = entry</code>. <code>if let</code> binds the value only when it is there, which the checker requires before the page reads its fields (<a href="/docs/guide/pages-and-routing">Pages and routing</a>).</p>
+<p><strong>Check it:</strong> on <code>/entries</code>, pick a month. The address gains <code>?month=…</code> and the list narrows. Press the browser's back button: the filter goes.</p>
+                        </div>
+                        <h2 class="wf-heading" id="step-8-use-one-form-for-new-and-for-edit">Step 8: Use one form for new and for edit</h2>
+                        <div class="wf-markdown">
+<p><code>EntryForm</code> adds an entry or, given one, changes it:</p>
+                        </div>
+                        <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                            <div class="wf-row wf-s2c416341 bp-console__bar">
+                                <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                    <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
+                                </div>
+                                <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                            </div>
+                            <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-cmt">// src/components/EntryForm.wf</span>
+<span class="wf-tok-cmt">/// The form for a new entry — or, given one, for changing it. It checks what</span>
+<span class="wf-tok-cmt">/// the reader typed, writes it to the ledger, and says so with `saved`.</span>
+<span class="wf-tok-kw">component</span> <span class="wf-tok-name">EntryForm</span>(<span class="wf-tok-prop">entry</span>: <span class="wf-tok-name">Entry</span>? = <span class="wf-tok-kw">null</span>) {
+    <span class="wf-tok-kw">use</span> <span class="wf-tok-name">Ledger</span>
+    <span class="wf-tok-kw">event</span> saved()
+
+    <span class="wf-tok-kw">state</span> <span class="wf-tok-prop">kind</span>: <span class="wf-tok-name">Kind</span> = entry?.kind ?? .expense
+    <span class="wf-tok-kw">state</span> <span class="wf-tok-prop">amount</span>: <span class="wf-tok-name">Number</span>? = <span class="wf-tok-kw">if</span> <span class="wf-tok-kw">let</span> e = entry { e.amount.amount / <span class="wf-tok-num">100</span> } <span class="wf-tok-kw">else</span> { <span class="wf-tok-kw">null</span> }
+    <span class="wf-tok-kw">state</span> <span class="wf-tok-prop">date</span>: <span class="wf-tok-name">Date</span>? = entry?.date ?? <span class="wf-tok-name">Ledger</span>.today
+    <span class="wf-tok-kw">state</span> category = entry?.category ?? <span class="wf-tok-str">&quot;groceries&quot;</span>
+    <span class="wf-tok-kw">state</span> note = entry?.note ?? <span class="wf-tok-str">&quot;&quot;</span>
+
+    validate amount {
+        required
+        min(<span class="wf-tok-num">0.01</span>)
+    }
+    <span class="wf-tok-cmt">// Not in the future. With no message of its own, the rule shows the</span>
+    <span class="wf-tok-cmt">// translation of `form.max`; `Ledger.today` is read each time it checks.</span>
+    validate date {
+        required
+        max(<span class="wf-tok-name">Ledger</span>.today)
+    }
+    validate note { maxLength(<span class="wf-tok-num">60</span>) }</code>
+                        </div>
+                        <div class="wf-markdown">
+<ul>
+<li>A <code>validate</code> block sits beside the state it guards. The control bound to that state shows what the rules say — the message, <code>aria-invalid</code> and the link between them — with nothing more written (<a href="/docs/guide/forms">Forms</a>).</li>
+<li>A rule with no message of its own shows the translation of <code>form.&lt;rule&gt;</code>, so <code>en.json</code> and <code>ar.json</code> each say &quot;that date has not happened yet&quot; once.</li>
+<li>The form says it is done with an event, <code>saved</code>. The caller decides what that means: close the dialog, or go back to the entry.</li>
+</ul>
+<p>The submit button follows the form:</p>
+                        </div>
+                        <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                            <div class="wf-row wf-s2c416341 bp-console__bar">
+                                <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                    <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
+                                </div>
+                                <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                            </div>
+                            <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-cmt">// src/components/EntryForm.wf</span>
+        <span class="wf-tok-name">Row</span>(<span class="wf-tok-prop">justify</span>: .end, <span class="wf-tok-prop">gap</span>: .sm) {
+            <span class="wf-tok-name">Button</span>(<span class="wf-tok-kw">if</span> entry != <span class="wf-tok-kw">null</span> { t(<span class="wf-tok-str">&quot;action.save&quot;</span>) } <span class="wf-tok-kw">else</span> { t(<span class="wf-tok-str">&quot;action.add&quot;</span>) }, <span class="wf-tok-prop">type</span>: .submit, <span class="wf-tok-prop">disabled</span>: !form.valid).primary
+        }</code>
+                        </div>
+                        <div class="wf-markdown">
+<p><code>Form(bind: form)</code> hands the component a handle on the form. <code>form.valid</code> is whether every rule holds, and the button follows it as the reader types.</p>
+<p><strong>Check it:</strong> in the new-entry dialog, type <code>0</code> as the amount and leave the field: it says <em>Enter an amount above zero</em>, and <strong>Add entry</strong> stays disabled. Type <code>12.50</code>, and the button turns on.</p>
+                        </div>
+                        <h2 class="wf-heading" id="step-9-add-a-dialog-and-a-shortcut">Step 9: Add a dialog and a shortcut</h2>
+                        <div class="wf-markdown">
+<p>The app listens for two keys at the top of <code>src/App.wf</code>:</p>
+                        </div>
+                        <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                            <div class="wf-row wf-s2c416341 bp-console__bar">
+                                <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                    <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
+                                </div>
+                                <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                            </div>
+                            <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-cmt">// src/App.wf</span>
+    <span class="wf-tok-cmt">// `n` opens a new entry from anywhere. A key with no modifier is left to</span>
+    <span class="wf-tok-cmt">// the field the reader is typing in, so an `n` in a note is just a letter.</span>
+    <span class="wf-tok-kw">on</span> key(<span class="wf-tok-str">&quot;n&quot;</span>) { <span class="wf-tok-name">Ui</span>.compose() }
+    <span class="wf-tok-kw">on</span> key(<span class="wf-tok-str">&quot;Escape&quot;</span>) { <span class="wf-tok-name">Ui</span>.closeAll() }</code>
+                        </div>
+                        <div class="wf-markdown">
+<p><code>on key</code> at the top of the app listens on the document for as long as the page shows (<a href="/docs/guide/events">Events</a>). The dialog is a <code>Modal</code> whose <code>title:</code> is its accessible name. It keeps focus inside while it is open, and Escape closes it:</p>
+                        </div>
+                        <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                            <div class="wf-row wf-s2c416341 bp-console__bar">
+                                <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                    <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
+                                </div>
+                                <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                            </div>
+                            <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-cmt">// src/App.wf</span>
+    <span class="wf-tok-name">Modal</span>(<span class="wf-tok-prop">visible</span>: <span class="wf-tok-name">Ui</span>.composing, <span class="wf-tok-prop">title</span>: t(<span class="wf-tok-str">&quot;compose.title&quot;</span>)) {
+        <span class="wf-tok-kw">if</span> <span class="wf-tok-name">Ui</span>.composing {
+            <span class="wf-tok-name">EntryForm</span> {
+                <span class="wf-tok-kw">on</span> saved {
+                    <span class="wf-tok-name">Ui</span>.composing = <span class="wf-tok-kw">false</span>
+                    <span class="wf-tok-name">Ui</span>.notify(t(<span class="wf-tok-str">&quot;toast.added&quot;</span>))
+                }
+            }
+        }
+    }</code>
+                        </div>
+                        <div class="wf-markdown">
+<p><strong>Check it:</strong> press <code>n</code> anywhere outside a field, and the new-entry dialog opens with focus inside it. Press Escape, and it closes. Add an entry, and the dialog closes and a notice says it was added.</p>
+                        </div>
+                        <h2 class="wf-heading" id="step-10-speak-two-languages">Step 10: Speak two languages</h2>
+                        <div class="wf-markdown">
+<p>Every word on screen is <code>t(&quot;key&quot;)</code>, read from <code>src/translations/en.json</code> or <code>ar.json</code>. A message with plural forms is several keys:</p>
+                        </div>
+                        <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                            <div class="wf-row wf-s2c416341 bp-console__bar">
+                                <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                    <p class="wf-text wf-s23a4ddd5 bp-mono">json</p>
+                                </div>
+                                <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="json" type="button">Copy</button>
+                            </div>
+                            <code class="wf-code wf-code--block bp-console__code">{
+  <span class="wf-tok-prop">&quot;entries.zero&quot;</span>: <span class="wf-tok-str">&quot;No entries&quot;</span>,
+  <span class="wf-tok-prop">&quot;entries.one&quot;</span>: <span class="wf-tok-str">&quot;{count} entry&quot;</span>,
+  <span class="wf-tok-prop">&quot;entries.other&quot;</span>: <span class="wf-tok-str">&quot;{count} entries&quot;</span>
+}</code>
+                        </div>
+                        <div class="wf-markdown">
+<ul>
+<li><code>t(&quot;entries&quot;, { count: n })</code> picks the form the language's rules call for. English needs two forms and a zero; Arabic has six (<a href="/recipes">Internationalization</a>).</li>
+<li>Switching to Arabic sets <code>dir=&quot;rtl&quot;</code> on the page, and the sidebar, the rows and the grids mirror themselves.</li>
+<li><code>format(m)</code> and dates follow the language too.</li>
+<li>The reader's choice is a <code>persist</code> in a small <code>Prefs</code> store, and an <code>effect</code> in the app shell applies it on every visit.</li>
+</ul>
+<p><strong>Check it:</strong> on <strong>Settings</strong>, choose Arabic. The page reads right to left, and every label is in Arabic. Reload: it stays in Arabic.</p>
+<p>If a key shows on screen instead of its words, it is missing from a translation file; <code>wf check</code> reports it as <code>I01</code>, and <code>wf translations</code> lists what each locale lacks.</p>
+                        </div>
+                        <h2 class="wf-heading" id="step-11-export-and-import-the-data">Step 11: Export and import the data</h2>
+                        <div class="wf-markdown">
+<p>The Settings page writes the ledger out as a CSV file:</p>
+                        </div>
+                        <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                            <div class="wf-row wf-s2c416341 bp-console__bar">
+                                <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                    <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
+                                </div>
+                                <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                            </div>
+                            <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-cmt">// src/pages/Settings.wf</span>
+    <span class="wf-tok-kw">action</span> exportCsv() {
+        <span class="wf-tok-kw">let</span> lines = <span class="wf-tok-name">Ledger</span>.newestFirst.map(e =&gt; csvLine(e))
+        saveTextFile(<span class="wf-tok-str">&quot;pocket-{Ledger.today}.csv&quot;</span>, [<span class="wf-tok-name">CSV_HEADER</span>, ...lines].join(<span class="wf-tok-str">&quot;\n&quot;</span>), <span class="wf-tok-str">&quot;text/csv&quot;</span>)
+    }</code>
+                        </div>
+                        <div class="wf-markdown">
+<p><code>saveTextFile</code> is not WebFluent. It is a function in <code>src/files.js</code>, a plain browser script that the build links on every page. Its JSDoc types the call, so <code>saveTextFile(1)</code> is an error where it is written (<a href="/recipes">JavaScript interop</a>).</p>
+<p>Importing reads a file from a <code>FileUpload</code> with <code>await f.text()</code>, parses each line and merges what is new. Then it tells every other open tab:</p>
+                        </div>
+                        <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                            <div class="wf-row wf-s2c416341 bp-console__bar">
+                                <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                    <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
+                                </div>
+                                <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                            </div>
+                            <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-cmt">// src/pages/Settings.wf</span>
+        <span class="wf-tok-kw">let</span> added = <span class="wf-tok-name">Ledger</span>.merge(parsed)
+        news.post({ <span class="wf-tok-prop">count</span>: added })</code>
+                        </div>
+                        <div class="wf-markdown">
+<p><code>news</code> is <code>channel news = broadcast(&quot;pocket&quot;)</code>, a channel every tab of the site hears. The app shell listens on it and shows a notice (<a href="/recipes">Realtime</a>). The ledger itself needs no channel: <code>persist</code> already keeps every tab in step.</p>
+<p><strong>Check it:</strong> on <strong>Settings</strong>, export the ledger, and the browser saves <code>pocket-&lt;today's date&gt;.csv</code>. Open a second tab, import the file in the first: the second tab shows a notice of how many entries were added.</p>
+                        </div>
+                        <h2 class="wf-heading" id="step-12-test-it-and-run-the-checks">Step 12: Test it, and run the checks</h2>
+                        <div class="wf-markdown">
+<p>A test drives the real form by the labels a reader sees — the English ones, since a test reads the project's default locale (<a href="/docs/guide/testing">Testing</a>):</p>
+                        </div>
+                        <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                            <div class="wf-row wf-s2c416341 bp-console__bar">
+                                <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                    <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
+                                </div>
+                                <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                            </div>
+                            <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-cmt">// tests/pocket.wf</span>
+<span class="wf-tok-kw">test</span> <span class="wf-tok-str">&quot;an entry added through the form moves the balance&quot;</span> {
+    <span class="wf-tok-kw">use</span> <span class="wf-tok-name">Ledger</span>
+    <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Balance {format(Ledger.balance)}&quot;</span>)
+    <span class="wf-tok-name">EntryForm</span>
+
+    <span class="wf-tok-kw">expect</span> <span class="wf-tok-str">&quot;Balance $16,533.56&quot;</span>
+    click <span class="wf-tok-str">&quot;Money in&quot;</span>
+    <span class="wf-tok-kw">type</span> <span class="wf-tok-str">&quot;250&quot;</span> into <span class="wf-tok-str">&quot;Amount&quot;</span>
+    click <span class="wf-tok-str">&quot;Add entry&quot;</span>
+    <span class="wf-tok-kw">expect</span> <span class="wf-tok-str">&quot;Balance $16,783.56&quot;</span></code>
+                        </div>
+                        <div class="wf-markdown">
+<p>Pocket has eight tests: the cards and rows draw what they should, a blank amount is refused, <code>n</code> opens the dialog and Escape closes it, and removing an entry takes it out of every total. Run them and the checks:</p>
+                        </div>
+                        <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                            <div class="wf-row wf-s2c416341 bp-console__bar">
+                                <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                    <p class="wf-text wf-s23a4ddd5 bp-mono">bash</p>
+                                </div>
+                                <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
+                            </div>
+                            <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-prompt">$ </span>wf test
+<span class="wf-tok-prompt">$ </span>wf check --deny-warnings
+<span class="wf-tok-prompt">$ </span>wf build
+<span class="wf-tok-prompt">$ </span>wf verify</code>
+                        </div>
+                        <div class="wf-markdown">
+<p><strong>Check it:</strong> <code>wf test</code> reports <code>8 passed</code>, and <code>wf verify</code> ends with <code>0 problem(s)</code>. <code>build/</code> is a single-page app with a service worker, <code>sw.js</code>, beside it. Put it on a host that answers every path with <code>index.html</code> (<a href="/recipes">Deploying</a>), and the second visit works with no network.</p>
+                        </div>
+                        <h2 class="wf-heading" id="what-you-built">What you built</h2>
+                        <div class="wf-markdown">
+<ul>
+<li>A ledger typed with <code>Money</code>, <code>Date</code>, <code>Color</code> and <code>Uuid</code> (<a href="/docs/guide/types">Types</a>).</li>
+<li>Totals that are all <code>derived</code> values of one store, and a <code>persist</code> migration that keeps returning readers' data (<a href="/docs/guide/stores">Stores</a>).</li>
+<li>A shell that changes with the window, and responsive grids (<a href="/docs/guide/styling">Styling</a>).</li>
+<li>A form that validates itself, a dialog and keyboard shortcuts (<a href="/docs/guide/forms">Forms</a>, <a href="/docs/guide/events">Events</a>).</li>
+<li>Two languages, plural forms and right-to-left layout (<a href="/recipes">Internationalization</a>).</li>
+<li>A script of your own, and a channel between tabs (<a href="/recipes">JavaScript interop</a>, <a href="/recipes">Realtime</a>).</li>
+<li>A site that works offline (<a href="/recipes">Offline</a>).</li>
+</ul>
+                        </div>
+                    </div>
+                    <div class="wf-stack wf-gap--sm wf-s982ede03">
+                        <h2 class="wf-heading wf-s457972d6">Related</h2>
+                        <div class="wf-grid wf-gap--sm wf-r2be821bf">
+                            <a class="wf-link bp-card" href="/recipes/build-a-notebook-site">
+                                <p class="wf-text bp-small">Recipe</p>
+                                <p class="wf-text wf-s70571e62">Build a statically generated notebook</p>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="wf-stack wf-gap--lg wf-s2502f5f4 bp-rail" role="navigation" aria-label="On this page">
+                    <div class="wf-stack wf-gap--xs wf-se8e8f072">
+                        <p class="wf-text wf-sa736415c bp-section-label">On this page</p>
+                        <a class="wf-link wf-s23505038" href="#before-you-start">Before you start</a>
+                        <a class="wf-link wf-s23505038" href="#step-1-configure-the-project">Step 1: Configure the project</a>
+                        <a class="wf-link wf-s23505038" href="#step-2-describe-money">Step 2: Describe money</a>
+                        <a class="wf-link wf-s23505038" href="#step-3-add-up-the-ledger">Step 3: Add up the ledger</a>
+                        <a class="wf-link wf-s23505038" href="#step-4-change-the-stored-shape-without-losing-data">Step 4: Change the stored shape without losing data</a>
+                        <a class="wf-link wf-s23505038" href="#step-5-fit-the-shell-to-the-screen">Step 5: Fit the shell to the screen</a>
+                        <a class="wf-link wf-s23505038" href="#step-6-draw-a-dashboard-from-elements">Step 6: Draw a dashboard from elements</a>
+                        <a class="wf-link wf-s23505038" href="#step-7-keep-the-filters-in-the-address">Step 7: Keep the filters in the address</a>
+                        <a class="wf-link wf-s23505038" href="#step-8-use-one-form-for-new-and-for-edit">Step 8: Use one form for new and for edit</a>
+                        <a class="wf-link wf-s23505038" href="#step-9-add-a-dialog-and-a-shortcut">Step 9: Add a dialog and a shortcut</a>
+                        <a class="wf-link wf-s23505038" href="#step-10-speak-two-languages">Step 10: Speak two languages</a>
+                        <a class="wf-link wf-s23505038" href="#step-11-export-and-import-the-data">Step 11: Export and import the data</a>
+                        <a class="wf-link wf-s23505038" href="#step-12-test-it-and-run-the-checks">Step 12: Test it, and run the checks</a>
+                        <a class="wf-link wf-s23505038" href="#what-you-built">What you built</a>
+                    </div>
+                    <a class="wf-link wf-s48d899f5" href="https://github.com/monzeromer-lab/WebFluent/blob/master/md-docs/recipes/build-a-budget-app.md">
+                        <i class="wf-icon" data-icon="edit"></i>
+                        <p class="wf-text">Edit this page</p>
+                    </a>
+                </div>
+            </div>
+        </main>
+        <footer class="wf-footer wf-s2213a098">
+            <div class="wf-stack wf-gap--lg wf-s84d7918c bp-wrap">
+                <div class="wf-grid wf-gap--lg wf-r67559659">
+                    <div class="wf-stack wf-gap--xs wf-s17061b4c">
+                        <p class="wf-text wf-scba75cc6 bp-section-label">Learn</p>
+                        <a class="wf-link" href="/learn/01-getting-started">The tour</a>
+                        <a class="wf-link" href="/learn">The book</a>
+                        <a class="wf-link" href="/about">About essays</a>
+                    </div>
+                    <div class="wf-stack wf-gap--xs wf-s17061b4c">
+                        <p class="wf-text wf-scba75cc6 bp-section-label">Do</p>
+                        <a class="wf-link" href="/recipes">Recipes</a>
+                        <a class="wf-link" href="/playground">Playground</a>
+                        <a class="wf-link" href="/coming-from/react">Coming from…</a>
+                        <a class="wf-link" href="/showcase">Showcase</a>
+                    </div>
+                    <div class="wf-stack wf-gap--xs wf-s17061b4c">
+                        <p class="wf-text wf-scba75cc6 bp-section-label">Look up</p>
+                        <a class="wf-link" href="/reference">Components</a>
+                        <a class="wf-link" href="/reference/cli">CLI and config</a>
+                        <a class="wf-link" href="/errors">Errors</a>
+                    </div>
+                    <div class="wf-stack wf-gap--xs wf-s17061b4c">
+                        <p class="wf-text wf-scba75cc6 bp-section-label">For agents</p>
+                        <a class="wf-link" href="/reference/cli/context">wf context</a>
+                        <a class="wf-link" href="/changelog">Changelog</a>
+                    </div>
+                </div>
+                <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-sd146f653">
+                    <p class="wf-text bp-small">Every code block in the guide is real WebFluent 6.0, parsed, type-checked and compiled by the test suite.</p>
+                    <div class="wf-row wf-align--center wf-gap--md wf-sa3c9b727">
+                        <a class="wf-link wf-sf9ca1a0e" href="https://github.com/monzeromer-lab/WebFluent">Source</a>
+                        <button class="wf-btn link-button" type="button">Cookie settings</button>
+                        <p class="wf-text bp-small">© 2026 Monzer Omer</p>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>
