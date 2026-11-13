@@ -166,7 +166,7 @@ pub fn check_project_via(vfs: &dyn Vfs, p: &Project<'_>) -> Checked {
                 crate::check::linter::structure::lint_structure(p.program, file_of)
             });
             let lowered = crate::check::sema::lower(p.program.clone());
-            let from_lowered = lowered_checks(&lowered, shared, file_of);
+            let from_lowered = lowered_checks(vfs, &lowered, shared, file_of);
             (
                 around.join().expect("the project's checks"),
                 typed.join().expect("the program's checks"),
@@ -215,6 +215,27 @@ pub fn check_project_via(vfs: &dyn Vfs, p: &Project<'_>) -> Checked {
         lowered,
         types,
     }
+}
+
+/// The `test` declarations of the project's `tests/` files, which `wf test`
+/// runs and a build never reads: what they place and read is not unused. A
+/// file that does not parse is `wf test`'s to report, and is passed over.
+fn test_declarations(vfs: &dyn Vfs, dir: &Path) -> Vec<Declaration> {
+    let tests = dir.join("tests");
+    let Ok(mut files) = vfs.read_dir(&tests) else {
+        return Vec::new();
+    };
+    files.sort();
+    files
+        .iter()
+        .filter(|f| f.extension().is_some_and(|e| e == "wf" || e == "wfx"))
+        .filter_map(|f| {
+            let source = vfs.read_to_string(f).ok()?;
+            crate::syntax::parse_source(&source, &f.to_string_lossy()).ok()
+        })
+        .flat_map(|program| program.declarations)
+        .filter(|d| matches!(d, Declaration::Test(_)))
+        .collect()
 }
 
 /// What of a [`Project`] the checks share between their threads.
@@ -269,6 +290,7 @@ fn project_checks_via(
 /// output can hold. Each on a thread of its own; the findings in the order
 /// they were always given.
 fn lowered_checks(
+    vfs: &dyn Vfs,
     lowered: &Program,
     p: &Shared<'_>,
     file_of: &(dyn Fn(usize) -> String + Sync),
@@ -277,6 +299,10 @@ fn lowered_checks(
     let published = p
         .config
         .map(|c| c.build.elements.clone())
+        .unwrap_or_default();
+    let tests = p
+        .dir
+        .map(|dir| test_declarations(vfs, dir))
         .unwrap_or_default();
     let (accessibility, (contrast, styles), unused, vocabulary, output) =
         crate::base::platform::scope(|s| {
@@ -307,7 +333,7 @@ fn lowered_checks(
                 }
             });
             let unused = deep(s, || {
-                crate::check::linter::lint_unused_in(lowered, file_of, &published)
+                crate::check::linter::lint_unused_in(lowered, file_of, &published, &tests)
             });
             let vocabulary = deep(s, || {
                 crate::check::linter::lint_vocabulary_with(lowered, p.stylesheets, file_of)

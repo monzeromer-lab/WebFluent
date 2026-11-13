@@ -1173,6 +1173,34 @@ fn method_call(
                     _ => Static::Num(-1.0),
                 })
             }
+            // As JavaScript folds a list: with an initial value from the
+            // first item, without one from the second with the first as the
+            // accumulator — and an empty list with none is a TypeError there,
+            // so nothing here. The callback is handed the accumulator, the
+            // item and its index.
+            "reduce" | "reduceRight" => {
+                let f = args.first()?;
+                let order: Vec<usize> = if method == "reduce" {
+                    (0..items.len()).collect()
+                } else {
+                    (0..items.len()).rev().collect()
+                };
+                let mut order = order.into_iter();
+                let mut acc = match args.get(1) {
+                    Some(_) => value(1)?,
+                    None => items[order.next()?].clone(),
+                };
+                for i in order {
+                    fuel.spend()?;
+                    acc = apply(
+                        f,
+                        &[acc, items[i].clone(), Static::Num(i as f64)],
+                        scope,
+                        fuel,
+                    )?;
+                }
+                Some(acc)
+            }
             "slice" => {
                 let start = clamp_index(number(0).unwrap_or(0.0), items.len())?;
                 let end = match args.get(1) {

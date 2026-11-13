@@ -1,7 +1,5 @@
 {
-  "diagnostics": [
-    "{\"code\":\"U03\",\"severity\":\"warning\",\"message\":\"`Clash` is declared but never placed\",\"file\":\"src/App.wf\",\"line\":33,\"column\":1,\"end_line\":0,\"end_column\":0,\"hint\":\"Place it in a page, name it as a layout, or remove it\",\"related\":[],\"fixes\":[{\"title\":\"Remove `Clash`\",\"edits\":[{\"file\":\"src/App.wf\",\"line\":33,\"column\":1,\"end_line\":49,\"end_column\":1,\"text\":\"\"}]}],\"tags\":[\"unnecessary\"]}"
-  ],
+  "diagnostics": [],
   "files": {
     "app.js": "0ad5e9f160a162262675075ee841d340f98e73e3162367705aa39f657fa7d869",
     "app.js.gz": "a26e080ec9f5bbd3597b88832ec8abc1f0db66cb357684900dcf2ff19ccd0091",

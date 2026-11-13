@@ -20,22 +20,26 @@ use crate::syntax::parser::ast::{
 
 /// The unused declarations of a program, as warnings.
 pub fn lint_unused(program: &Program) -> Vec<Diagnostic> {
-    lint_unused_in(program, &|_| "<unknown>".to_string(), &[])
+    lint_unused_in(program, &|_| "<unknown>".to_string(), &[], &[])
 }
 
 /// [`lint_unused`], naming each declaration's file. `published` are the
 /// components the build publishes as custom elements (`build.elements`):
 /// whoever loads the script places them, and nothing in the project does.
+/// `tests` are the declarations of the project's `tests/` files: what a
+/// `test` there places or reads is used, as is what a `test` under `src/`
+/// does — removing it would break the test.
 pub fn lint_unused_in(
     program: &Program,
     file_of: &dyn Fn(usize) -> String,
     published: &[String],
+    tests: &[Declaration],
 ) -> Vec<Diagnostic> {
     let mut out = Vec::new();
 
     // Every component and part the program places, by name; every layout.
     let mut placed: HashSet<String> = published.iter().cloned().collect();
-    for decl in &program.declarations {
+    for decl in program.declarations.iter().chain(tests) {
         let body = match decl {
             Declaration::Page(p) => {
                 if let Some(layout) = &p.layout {
@@ -46,6 +50,7 @@ pub fn lint_unused_in(
             Declaration::Component(c) => &c.body,
             Declaration::App(a) => &a.body,
             Declaration::Store(s) => &s.body,
+            Declaration::Test(t) => &t.body,
             _ => continue,
         };
         placed_components(body, &mut placed);
@@ -54,7 +59,7 @@ pub fn lint_unused_in(
     // Every `Store.member` read anywhere, and every bare name read in a body
     // that `use`s a store, by store.
     let mut store_reads: HashMap<String, HashSet<String>> = HashMap::new();
-    for decl in &program.declarations {
+    for decl in program.declarations.iter().chain(tests) {
         // An `api` block reads too: its settings, the headers it sends with
         // every call, and the hooks that run around one.
         if let Declaration::Api(api) = decl {
@@ -80,6 +85,7 @@ pub fn lint_unused_in(
             Declaration::Component(c) => &c.body,
             Declaration::App(a) => &a.body,
             Declaration::Store(s) => &s.body,
+            Declaration::Test(t) => &t.body,
             _ => continue,
         };
         let mut reads = Reads::default();
