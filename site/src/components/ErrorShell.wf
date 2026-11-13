@@ -1,6 +1,7 @@
 /// T5, one diagnostic: the code, its title, its severity and family; what
 /// the compiler prints, as it prints it; why the rule exists (the page's
-/// body); the broken code and the fixed one, side by side; whether `lints`
+/// body); the broken code and the fixed one, side by side, with what the
+/// fix is under them (`note`); whether `lints`
 /// may lower it; then related codes and the chapter that covers it. Every
 /// family is in the sidebar. A code with nothing more to say than its
 /// summary has no "Why" (`why: false`), and one no short program can draw
@@ -8,6 +9,7 @@
 component ErrorShell(_ code: String, title: String = "", severity: String = "error", family: String = "", summary: String = "", printed: String = "", lowerable: Bool = false, why: Bool = true, example: Bool = true, families: [IndexEntry] = [], related: [RelatedLink] = [], sections: [Anchor] = [], source: String = "md-docs", other: String = "", lang: String = "en") {
     slot broken
     slot fixed
+    slot note
     slot
 
     SiteHeader(docs: true, other: other, lang: lang)
@@ -72,6 +74,7 @@ component ErrorShell(_ code: String, title: String = "", severity: String = "err
                             fixed
                         }
                     }
+                    Stack(class: "bp-prose") { note }
                 } else {
                     Stack(class: "bp-prose") { fixed }
                 }

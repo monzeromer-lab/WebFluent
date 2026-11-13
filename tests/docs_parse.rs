@@ -1965,13 +1965,135 @@ fn every_fence_in_the_guide_says_what_a_fence_can() {
                             ix + 1
                         ));
                     }
-                    if (f.page || f.live || f.expect.is_some()) && f.lang != "wf" {
+                    if f.fixed && f.expect.is_some() {
+                        failures.push(format!(
+                            "md-docs/{name}:{}: a block is `fixed` or `expect=`, not both",
+                            ix + 1
+                        ));
+                    }
+                    if (f.page || f.live || f.expect.is_some() || f.fixed) && f.lang != "wf" {
                         failures.push(format!(
                             "md-docs/{name}:{}: only a `wf` block is a page, live or expected to fail",
                             ix + 1
                         ));
                     }
                 }
+            }
+        }
+    }
+    assert!(failures.is_empty(), "{}", failures.join("\n"));
+}
+
+/// A ```` ```wf fixed ```` block is the `expect=` block before it, put
+/// right: it draws nothing at all — not the code it fixes, and no other —
+/// and every error page that shows a broken program shows it fixed.
+#[test]
+fn every_fixed_example_draws_nothing() {
+    let mut failures = Vec::new();
+    for (name, text) in crate::common::guide_pages() {
+        let mut expected: Option<String> = None;
+        let mut fixed_one = false;
+        let mut lines = text.lines().enumerate();
+        while let Some((at, line)) = lines.next() {
+            let Some(Ok(f)) = crate::common::fence(line) else {
+                continue;
+            };
+            if f.expect.is_none() && !f.fixed {
+                continue;
+            }
+            let mut body = String::new();
+            for (_, l) in lines.by_ref() {
+                if l.trim_end() == "```" {
+                    break;
+                }
+                body.push_str(l);
+                body.push('\n');
+            }
+            if let Some(code) = f.expect {
+                expected = Some(code);
+                continue;
+            }
+            let Some(code) = &expected else {
+                failures.push(format!(
+                    "md-docs/{name}:{}: a `fixed` block with no `expect=` block before it",
+                    at + 1
+                ));
+                continue;
+            };
+            fixed_one = true;
+            let found = every_finding(&body);
+            if !found.is_empty() {
+                failures.push(format!(
+                    "md-docs/{name}:{}: the fix for {code} still draws {found:?}",
+                    at + 1
+                ));
+            }
+        }
+        if name.starts_with("errors/") && expected.is_some() && !fixed_one {
+            failures.push(format!(
+                "md-docs/{name}: shows a broken program and no ```wf fixed``` one"
+            ));
+        }
+    }
+    assert!(failures.is_empty(), "{}", failures.join("\n"));
+}
+
+/// The reference's "Codes this can raise" comes from
+/// `scripts/docsite/builtin_codes.json`. Every code it lists is one the
+/// compiler has, every built-in it names is one the registry has, and the
+/// code's page names each built-in it is listed under — so a code the
+/// compiler drops, or a built-in renamed, fails here rather than linking
+/// to nothing.
+#[test]
+fn the_codes_each_builtin_can_raise_are_codes_the_compiler_has() {
+    let root = Path::new(env!("CARGO_MANIFEST_DIR"));
+    let table: serde_json::Value = serde_json::from_str(
+        &std::fs::read_to_string(root.join("scripts/docsite/builtin_codes.json")).unwrap(),
+    )
+    .unwrap();
+    let codes: Vec<&str> = webfluent::diagnostics::codes::CODES
+        .iter()
+        .map(|c| c.code)
+        .collect();
+    let builtins: Vec<String> = webfluent::registry::components()
+        .flat_map(|c| {
+            std::iter::once(c.name.to_string())
+                .chain(webfluent::registry::parts_of(c.name).map(|p| format!("{}.{}", c.name, p.name)))
+        })
+        .collect();
+    let mut failures = Vec::new();
+    for rule in ["every", "parts", "named_only"] {
+        for code in table[rule].as_array().unwrap() {
+            let code = code.as_str().unwrap();
+            if !codes.contains(&code) {
+                failures.push(format!("`{rule}` lists {code}, which is no code"));
+            }
+        }
+    }
+    let by_code = table["codes"].as_object().unwrap();
+    assert!(by_code.len() > 20, "found only {by_code:?}");
+    for (code, names) in by_code {
+        if !codes.contains(&code.as_str()) {
+            failures.push(format!("{code} is no code"));
+            continue;
+        }
+        let page = std::fs::read_to_string(root.join(format!("md-docs/errors/{code}.md")))
+            .unwrap_or_default();
+        for name in names.as_array().unwrap() {
+            let name = name.as_str().unwrap();
+            if !builtins.iter().any(|b| b == name) {
+                failures.push(format!("{code} lists `{name}`, which is no built-in"));
+            }
+            let named = page.match_indices(name).any(|(at, _)| {
+                let before = page[..at].chars().next_back();
+                let after = page[at + name.len()..].chars().next();
+                !before.is_some_and(|c| c.is_alphanumeric() || c == '.')
+                    && !after.is_some_and(char::is_alphanumeric)
+            });
+            if !named {
+                failures.push(format!(
+                    "{code} lists `{name}`, and md-docs/errors/{code}.md does not name it"
+                ));
             }
         }
     }

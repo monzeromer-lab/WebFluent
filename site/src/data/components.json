@@ -64,7 +64,25 @@
    "cssClass": "wf-container",
    "example": "Container { Heading(\"Pricing\").h1 }\nContainer.fluid { Text(\"Edge to edge\") }",
    "preview": true,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
   },
   {
    "name": "Row",
@@ -192,7 +210,25 @@
    "cssClass": "wf-row",
    "example": "Row(gap: .md, align: .center, justify: .between) {\n    Text(\"Left\")\n    Button(\"Right\")\n}\nRow(direction: { base: .column, md: .row }) { Text(\"a\")  Text(\"b\") }",
    "preview": true,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
   },
   {
    "name": "Column",
@@ -248,7 +284,30 @@
    "cssClass": "wf-col",
    "example": "Row {\n    Column(span: 8) { Text(\"Main\") }\n    Column(span: 4) { Text(\"Aside\") }\n}",
    "preview": false,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "T01",
+     "title": "A value of the wrong type",
+     "to": "/errors/T01"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
   },
   {
    "name": "Grid",
@@ -365,7 +424,25 @@
    "cssClass": "wf-grid",
    "example": "Grid(columns: { base: 1, md: 3 }, gap: .lg) {\n    Card { Text(\"One\") }\n    Card { Text(\"Two\") }\n    Card { Text(\"Three\") }\n}",
    "preview": true,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
   },
   {
    "name": "Stack",
@@ -465,7 +542,25 @@
    "cssClass": "wf-stack",
    "example": "Stack(gap: .sm) {\n    Text(\"First\")\n    Text(\"Second\")\n}",
    "preview": true,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
   },
   {
    "name": "Spacer",
@@ -519,7 +614,25 @@
    "cssClass": "wf-spacer",
    "example": "Text(\"Above\")\nSpacer.lg\nText(\"Below\")",
    "preview": false,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
   },
   {
    "name": "VirtualList",
@@ -584,7 +697,30 @@
    "cssClass": "wf-virtual-list",
    "example": "state rows = (0..10000).map((i) => \"row {i}\")\nstate picked = \"row 0\"\nVirtualList(rowHeight: 32, reveal: picked, label: \"Rows\") {\n    style { height: 320px }\n    for r in rows by r { Text(r) { style { height: 32px; margin: 0 } } }\n}",
    "preview": false,
-   "outputs": []
+   "outputs": [],
+   "since": "5.9.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    },
+    {
+     "kind": "V12",
+     "title": "A long list that is not windowed",
+     "to": "/errors/V12"
+    }
+   ]
   },
   {
    "name": "Splitter",
@@ -671,7 +807,25 @@
    "cssClass": "wf-splitter",
    "example": "state side = 240\nRow {\n    Container { style { width: {side}px } Text(\"Files\") }\n    Splitter(bind: side, min: 160, max: 480, reset: 240, label: \"Sidebar width\")\n    Container { Text(\"Editor\") }\n}",
    "preview": false,
-   "outputs": []
+   "outputs": [],
+   "since": "5.9.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
   },
   {
    "name": "Divider",
@@ -701,7 +855,25 @@
    "cssClass": "wf-divider",
    "example": "Text(\"Section one\")\nDivider\nText(\"Section two\")",
    "preview": true,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
   },
   {
    "name": "Host",
@@ -744,7 +916,35 @@
    "cssClass": "wf-host",
    "example": "Host(tag: \"canvas\", mount: (node) => node.getContext(\"2d\"), cleanup: (ctx) => log(\"gone\"))",
    "preview": false,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "E109",
+     "title": "An element this output cannot draw",
+     "to": "/errors/E109"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    },
+    {
+     "kind": "V10",
+     "title": "A Host tag it does not make",
+     "to": "/errors/V10"
+    }
+   ]
   },
   {
    "name": "Portal",
@@ -787,7 +987,35 @@
    "cssClass": "wf-portal",
    "example": "Stack(ref: panel)\nPortal(into: panel) { Text(\"Drawn inside the stack\") }",
    "preview": false,
-   "outputs": []
+   "outputs": [],
+   "since": "5.10.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "E109",
+     "title": "An element this output cannot draw",
+     "to": "/errors/E109"
+    },
+    {
+     "kind": "C01",
+     "title": "A required prop or field left out",
+     "to": "/errors/C01"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
   },
   {
    "name": "Element",
@@ -835,7 +1063,30 @@
    "cssClass": "",
    "example": "Element(\"relative-time\", datetime: \"2026-03-14T09:30:00Z\") { Text(\"March 14\") }\nElement(\"stripe-pricing-table\", publishableKey: \"pk_test_…\") { on ready { log(\"prices shown\") } }",
    "preview": false,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "E109",
+     "title": "An element this output cannot draw",
+     "to": "/errors/E109"
+    },
+    {
+     "kind": "E116",
+     "title": "A tag that cannot be a custom element's",
+     "to": "/errors/E116"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
+   ]
   },
   {
    "name": "Navbar",
@@ -891,7 +1142,30 @@
    "cssClass": "wf-navbar",
    "example": "Navbar {\n    Navbar.Brand { Link(\"Acme\", to: \"/\") }\n    Navbar.Links { Link(\"Docs\", to: \"/docs\")  Link(\"Pricing\", to: \"/pricing\") }\n    Navbar.Actions { Button(\"Sign in\").sm }\n}",
    "preview": false,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "E109",
+     "title": "An element this output cannot draw",
+     "to": "/errors/E109"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
   },
   {
    "name": "Navbar.Brand",
@@ -928,7 +1202,30 @@
    "cssClass": "",
    "example": "Navbar {\n    Navbar.Brand { Link(\"Acme\", to: \"/\") }\n    Navbar.Links { Link(\"Docs\", to: \"/docs\")  Link(\"Pricing\", to: \"/pricing\") }\n    Navbar.Actions { Button(\"Sign in\").sm }\n}",
    "preview": false,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
   },
   {
    "name": "Navbar.Links",
@@ -965,7 +1262,30 @@
    "cssClass": "",
    "example": "Navbar {\n    Navbar.Brand { Link(\"Acme\", to: \"/\") }\n    Navbar.Links { Link(\"Docs\", to: \"/docs\")  Link(\"Pricing\", to: \"/pricing\") }\n    Navbar.Actions { Button(\"Sign in\").sm }\n}",
    "preview": false,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
   },
   {
    "name": "Navbar.Actions",
@@ -1002,7 +1322,30 @@
    "cssClass": "",
    "example": "Navbar {\n    Navbar.Brand { Link(\"Acme\", to: \"/\") }\n    Navbar.Links { Link(\"Docs\", to: \"/docs\")  Link(\"Pricing\", to: \"/pricing\") }\n    Navbar.Actions { Button(\"Sign in\").sm }\n}",
    "preview": false,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
   },
   {
    "name": "Sidebar",
@@ -1058,7 +1401,30 @@
    "cssClass": "wf-sidebar",
    "example": "Sidebar {\n    Sidebar.Header { Text(\"Console\").bold }\n    Sidebar.Item(to: \"/\", icon: \"home\") { Text(\"Overview\") }\n    Sidebar.Divider\n    Sidebar.Item(to: \"/settings\", icon: \"settings\") { Text(\"Settings\") }\n}",
    "preview": false,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "E109",
+     "title": "An element this output cannot draw",
+     "to": "/errors/E109"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
   },
   {
    "name": "Sidebar.Header",
@@ -1095,7 +1461,30 @@
    "cssClass": "",
    "example": "Sidebar {\n    Sidebar.Header { Text(\"Console\").bold }\n    Sidebar.Item(to: \"/\", icon: \"home\") { Text(\"Overview\") }\n    Sidebar.Divider\n    Sidebar.Item(to: \"/settings\", icon: \"settings\") { Text(\"Settings\") }\n}",
    "preview": false,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
   },
   {
    "name": "Sidebar.Item",
@@ -1165,7 +1554,30 @@
    "cssClass": "",
    "example": "Sidebar {\n    Sidebar.Header { Text(\"Console\").bold }\n    Sidebar.Item(to: \"/\", icon: \"home\") { Text(\"Overview\") }\n    Sidebar.Divider\n    Sidebar.Item(to: \"/settings\", icon: \"settings\") { Text(\"Settings\") }\n}",
    "preview": false,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
   },
   {
    "name": "Sidebar.Divider",
@@ -1195,7 +1607,30 @@
    "cssClass": "",
    "example": "Sidebar {\n    Sidebar.Header { Text(\"Console\").bold }\n    Sidebar.Item(to: \"/\", icon: \"home\") { Text(\"Overview\") }\n    Sidebar.Divider\n    Sidebar.Item(to: \"/settings\", icon: \"settings\") { Text(\"Settings\") }\n}",
    "preview": false,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
   },
   {
    "name": "Link",
@@ -1265,7 +1700,35 @@
    "cssClass": "wf-link",
    "example": "Link(\"About us\", to: \"/about\")\nLink(\"Guide\", to: \"/docs\", active: .prefix)\nLink(to: \"https://example.com\", target: \"_blank\") { Text(\"Example\") }",
    "preview": true,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "E107",
+     "title": "A URL a browser would run",
+     "to": "/errors/E107"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "R01",
+     "title": "A route to nothing",
+     "to": "/errors/R01"
+    },
+    {
+     "kind": "A06",
+     "title": "A link with no text",
+     "to": "/errors/A06"
+    }
+   ]
   },
   {
    "name": "Tabs",
@@ -1309,7 +1772,30 @@
    "cssClass": "wf-tabs",
    "example": "Tabs {\n    Tabs.Page(\"Profile\") { Text(\"Your details\") }\n    Tabs.Page(\"Billing\") { Text(\"Your plan\") }\n}",
    "preview": true,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "E109",
+     "title": "An element this output cannot draw",
+     "to": "/errors/E109"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
   },
   {
    "name": "Tabs.Page",
@@ -1359,7 +1845,25 @@
    "cssClass": "wf-tab-page",
    "example": "Tabs {\n    Tabs.Page(\"Profile\") { Text(\"Your details\") }\n    Tabs.Page(\"Billing\") { Text(\"Your plan\") }\n}",
    "preview": true,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
+   ]
   },
   {
    "name": "Breadcrumb",
@@ -1403,7 +1907,25 @@
    "cssClass": "wf-breadcrumb",
    "example": "Breadcrumb {\n    Breadcrumb.Item(to: \"/\") { Text(\"Home\") }\n    Breadcrumb.Item(to: \"/docs\") { Text(\"Docs\") }\n    Breadcrumb.Item { Text(\"Components\") }\n}",
    "preview": true,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
   },
   {
    "name": "Breadcrumb.Item",
@@ -1447,7 +1969,30 @@
    "cssClass": "",
    "example": "Breadcrumb {\n    Breadcrumb.Item(to: \"/\") { Text(\"Home\") }\n    Breadcrumb.Item(to: \"/docs\") { Text(\"Docs\") }\n    Breadcrumb.Item { Text(\"Components\") }\n}",
    "preview": true,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
   },
   {
    "name": "Menu",
@@ -1583,7 +2128,30 @@
    "cssClass": "wf-menu",
    "example": "Menu(trigger: \"Options\") {\n    Menu.Item(shortcut: \"F2\") { Text(\"Rename\") }\n    Menu.Sub(label: \"Move to\") { Menu.Item { Text(\"Archive\") } }\n    Menu.Divider\n    Menu.Item(disabled: true) { Text(\"Delete\") }\n}\nstate asked = false\nstate point = { x: 0, y: 0 }\nMenu(visible: asked, at: point) { Menu.Item { Text(\"Copy\") } }",
    "preview": false,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "E109",
+     "title": "An element this output cannot draw",
+     "to": "/errors/E109"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
   },
   {
    "name": "Menu.Item",
@@ -1669,7 +2237,30 @@
    "cssClass": "",
    "example": "Menu(trigger: \"Options\") {\n    Menu.Item(shortcut: \"F2\") { Text(\"Rename\") }\n    Menu.Sub(label: \"Move to\") { Menu.Item { Text(\"Archive\") } }\n    Menu.Divider\n    Menu.Item(disabled: true) { Text(\"Delete\") }\n}\nstate asked = false\nstate point = { x: 0, y: 0 }\nMenu(visible: asked, at: point) { Menu.Item { Text(\"Copy\") } }",
    "preview": false,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
   },
   {
    "name": "Menu.Sub",
@@ -1719,7 +2310,30 @@
    "cssClass": "",
    "example": "Menu(trigger: \"Options\") {\n    Menu.Item(shortcut: \"F2\") { Text(\"Rename\") }\n    Menu.Sub(label: \"Move to\") { Menu.Item { Text(\"Archive\") } }\n    Menu.Divider\n    Menu.Item(disabled: true) { Text(\"Delete\") }\n}\nstate asked = false\nstate point = { x: 0, y: 0 }\nMenu(visible: asked, at: point) { Menu.Item { Text(\"Copy\") } }",
    "preview": false,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
   },
   {
    "name": "Menu.Divider",
@@ -1749,7 +2363,30 @@
    "cssClass": "",
    "example": "Menu(trigger: \"Options\") {\n    Menu.Item(shortcut: \"F2\") { Text(\"Rename\") }\n    Menu.Sub(label: \"Move to\") { Menu.Item { Text(\"Archive\") } }\n    Menu.Divider\n    Menu.Item(disabled: true) { Text(\"Delete\") }\n}\nstate asked = false\nstate point = { x: 0, y: 0 }\nMenu(visible: asked, at: point) { Menu.Item { Text(\"Copy\") } }",
    "preview": false,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
   },
   {
    "name": "Router",
@@ -1817,7 +2454,35 @@
    "cssClass": "wf-router",
    "example": "app {\n    Navbar { Navbar.Brand { Link(\"Acme\", to: \"/\") } }\n    Router(transition: .fade, duration: \"200ms\")\n}",
    "preview": false,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "E109",
+     "title": "An element this output cannot draw",
+     "to": "/errors/E109"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    },
+    {
+     "kind": "R03",
+     "title": "An app with no Router, or with two",
+     "to": "/errors/R03"
+    }
+   ]
   },
   {
    "name": "Card",
@@ -1893,7 +2558,25 @@
    "cssClass": "wf-card",
    "example": "Card.elevated {\n    Card.Header { Heading(\"Pro\").h3 }\n    Card.Body { Text(\"Everything in Free, and more.\") }\n    Card.Footer { Button(\"Choose Pro\").primary }\n}",
    "preview": true,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
   },
   {
    "name": "Card.Header",
@@ -1930,7 +2613,30 @@
    "cssClass": "",
    "example": "Card.elevated {\n    Card.Header { Heading(\"Pro\").h3 }\n    Card.Body { Text(\"Everything in Free, and more.\") }\n    Card.Footer { Button(\"Choose Pro\").primary }\n}",
    "preview": true,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
   },
   {
    "name": "Card.Body",
@@ -1967,7 +2673,30 @@
    "cssClass": "",
    "example": "Card.elevated {\n    Card.Header { Heading(\"Pro\").h3 }\n    Card.Body { Text(\"Everything in Free, and more.\") }\n    Card.Footer { Button(\"Choose Pro\").primary }\n}",
    "preview": true,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
   },
   {
    "name": "Card.Footer",
@@ -2004,7 +2733,30 @@
    "cssClass": "",
    "example": "Card.elevated {\n    Card.Header { Heading(\"Pro\").h3 }\n    Card.Body { Text(\"Everything in Free, and more.\") }\n    Card.Footer { Button(\"Choose Pro\").primary }\n}",
    "preview": true,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
   },
   {
    "name": "Table",
@@ -2079,7 +2831,30 @@
    "cssClass": "wf-table",
    "example": "Table(caption: \"Deploys\") {\n    Table.Head { Table.Row { Table.Cell(\"Region\")  Table.Cell(\"Status\") } }\n    Table.Body { Table.Row { Table.Cell(\"fra1\")  Table.Cell(\"Healthy\") } }\n}",
    "preview": true,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    },
+    {
+     "kind": "A10",
+     "title": "A table with no header row",
+     "to": "/errors/A10"
+    }
+   ]
   },
   {
    "name": "Table.Head",
@@ -2116,7 +2891,30 @@
    "cssClass": "",
    "example": "Table(caption: \"Deploys\") {\n    Table.Head { Table.Row { Table.Cell(\"Region\")  Table.Cell(\"Status\") } }\n    Table.Body { Table.Row { Table.Cell(\"fra1\")  Table.Cell(\"Healthy\") } }\n}",
    "preview": true,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
   },
   {
    "name": "Table.Body",
@@ -2153,7 +2951,30 @@
    "cssClass": "",
    "example": "Table(caption: \"Deploys\") {\n    Table.Head { Table.Row { Table.Cell(\"Region\")  Table.Cell(\"Status\") } }\n    Table.Body { Table.Row { Table.Cell(\"fra1\")  Table.Cell(\"Healthy\") } }\n}",
    "preview": true,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
   },
   {
    "name": "Table.Row",
@@ -2190,7 +3011,30 @@
    "cssClass": "",
    "example": "Table(caption: \"Deploys\") {\n    Table.Head { Table.Row { Table.Cell(\"Region\")  Table.Cell(\"Status\") } }\n    Table.Body { Table.Row { Table.Cell(\"fra1\")  Table.Cell(\"Healthy\") } }\n}",
    "preview": true,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
   },
   {
    "name": "Table.Cell",
@@ -2247,7 +3091,25 @@
    "cssClass": "",
    "example": "Table(caption: \"Deploys\") {\n    Table.Head { Table.Row { Table.Cell(\"Region\")  Table.Cell(\"Status\") } }\n    Table.Body { Table.Row { Table.Cell(\"fra1\")  Table.Cell(\"Healthy\") } }\n}",
    "preview": true,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
+   ]
   },
   {
    "name": "List",
@@ -2305,7 +3167,25 @@
    "cssClass": "wf-list",
    "example": "List {\n    List.Item { Text(\"Milk\") }\n    List.Item { Text(\"Eggs\") }\n}\nList.ordered { List.Item { Text(\"First\") } }",
    "preview": true,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
   },
   {
    "name": "List.Item",
@@ -2342,7 +3222,30 @@
    "cssClass": "",
    "example": "List {\n    List.Item { Text(\"Milk\") }\n    List.Item { Text(\"Eggs\") }\n}\nList.ordered { List.Item { Text(\"First\") } }",
    "preview": true,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
   },
   {
    "name": "Badge",
@@ -2420,7 +3323,20 @@
    "cssClass": "wf-badge",
    "example": "Badge(\"Beta\").info\nBadge(\"3 new\").danger.pill",
    "preview": true,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
+   ]
   },
   {
    "name": "Tag",
@@ -2463,7 +3379,20 @@
    "cssClass": "wf-tag",
    "example": "Tag(\"design\")",
    "preview": true,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
+   ]
   },
   {
    "name": "Avatar",
@@ -2560,7 +3489,25 @@
    "cssClass": "wf-avatar",
    "example": "Avatar(src: \"/ada.jpg\", alt: \"Ada Lovelace\")\nAvatar(initials: \"AL\").primary.lg",
    "preview": true,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
   },
   {
    "name": "Tooltip",
@@ -2655,7 +3602,25 @@
    "cssClass": "wf-tooltip",
    "example": "Tooltip(\"Copies the link\") { IconButton(icon: \"copy\", label: \"Copy link\") }\nTooltip(\"Save\", shortcut: \"Ctrl+S\", delay: 400, placement: .bottom) { Button(\"Save\") }",
    "preview": true,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "E109",
+     "title": "An element this output cannot draw",
+     "to": "/errors/E109"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
+   ]
   },
   {
    "name": "Chart",
@@ -2802,7 +3767,25 @@
    "cssClass": "wf-chart",
    "example": "Chart(kind: .bar, data: [{ month: \"Jan\", web: 12 }, { month: \"Feb\", web: 18 }], x: \"month\", y: \"web\", unit: \"k\")",
    "preview": false,
-   "outputs": []
+   "outputs": [],
+   "since": "5.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
   },
   {
    "name": "QrCode",
@@ -2867,7 +3850,20 @@
    "cssClass": "wf-qr",
    "example": "QrCode(\"https://example.com/report/q1\")",
    "preview": true,
-   "outputs": []
+   "outputs": [],
+   "since": "5.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
+   ]
   },
   {
    "name": "Input",
@@ -3035,7 +4031,50 @@
    "cssClass": "wf-input",
    "example": "state email = \"\"\nInput(bind: email, label: \"Email\", hint: \"We never share it\").email.required",
    "preview": true,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "E109",
+     "title": "An element this output cannot draw",
+     "to": "/errors/E109"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    },
+    {
+     "kind": "F01",
+     "title": "A bind: to something that cannot be written",
+     "to": "/errors/F01"
+    },
+    {
+     "kind": "F02",
+     "title": "A bind: to a state the control cannot hold",
+     "to": "/errors/F02"
+    },
+    {
+     "kind": "F03",
+     "title": "A validate block no control can satisfy",
+     "to": "/errors/F03"
+    },
+    {
+     "kind": "A03",
+     "title": "An input with no label",
+     "to": "/errors/A03"
+    }
+   ]
   },
   {
    "name": "Select",
@@ -3149,7 +4188,35 @@
    "cssClass": "wf-select",
    "example": "state plan = \"free\"\nSelect(bind: plan, label: \"Plan\") {\n    Select.Option(\"Free\", value: \"free\")\n    Select.Option(\"Team\", value: \"team\")\n}",
    "preview": true,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "E109",
+     "title": "An element this output cannot draw",
+     "to": "/errors/E109"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    },
+    {
+     "kind": "F05",
+     "title": "A select whose value is none of its options",
+     "to": "/errors/F05"
+    }
+   ]
   },
   {
    "name": "Select.Option",
@@ -3197,7 +4264,25 @@
    "cssClass": "",
    "example": "state plan = \"free\"\nSelect(bind: plan, label: \"Plan\") {\n    Select.Option(\"Free\", value: \"free\")\n    Select.Option(\"Team\", value: \"team\")\n}",
    "preview": true,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
+   ]
   },
   {
    "name": "Checkbox",
@@ -3270,7 +4355,40 @@
    "cssClass": "wf-checkbox",
    "example": "state agree = false\nCheckbox(bind: agree, label: \"I agree to the terms\")",
    "preview": true,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "E109",
+     "title": "An element this output cannot draw",
+     "to": "/errors/E109"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    },
+    {
+     "kind": "F04",
+     "title": "A checkbox that shows a state and never changes it",
+     "to": "/errors/F04"
+    },
+    {
+     "kind": "A04",
+     "title": "A control with no label",
+     "to": "/errors/A04"
+    }
+   ]
   },
   {
    "name": "Radio",
@@ -3348,7 +4466,35 @@
    "cssClass": "wf-radio",
    "example": "state size = \"m\"\nRadio(bind: size, value: \"s\", label: \"Small\")\nRadio(bind: size, value: \"m\", label: \"Medium\")",
    "preview": true,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "E109",
+     "title": "An element this output cannot draw",
+     "to": "/errors/E109"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    },
+    {
+     "kind": "A04",
+     "title": "A control with no label",
+     "to": "/errors/A04"
+    }
+   ]
   },
   {
    "name": "Switch",
@@ -3421,7 +4567,35 @@
    "cssClass": "wf-switch",
    "example": "state notify = true\nSwitch(bind: notify, label: \"Email me about replies\")",
    "preview": true,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "E109",
+     "title": "An element this output cannot draw",
+     "to": "/errors/E109"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    },
+    {
+     "kind": "A04",
+     "title": "A control with no label",
+     "to": "/errors/A04"
+    }
+   ]
   },
   {
    "name": "Slider",
@@ -3497,7 +4671,35 @@
    "cssClass": "wf-slider",
    "example": "state volume = 50\nSlider(bind: volume, min: 0, max: 100, step: 5, label: \"Volume\")",
    "preview": true,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "E109",
+     "title": "An element this output cannot draw",
+     "to": "/errors/E109"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    },
+    {
+     "kind": "A04",
+     "title": "A control with no label",
+     "to": "/errors/A04"
+    }
+   ]
   },
   {
    "name": "DatePicker",
@@ -3580,7 +4782,30 @@
    "cssClass": "wf-datepicker",
    "example": "state start: Date? = null\nDatePicker(bind: start, label: \"Start date\", min: \"2026-01-01\")",
    "preview": false,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "E109",
+     "title": "An element this output cannot draw",
+     "to": "/errors/E109"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
   },
   {
    "name": "FileUpload",
@@ -3666,7 +4891,30 @@
    "cssClass": "wf-file-upload",
    "example": "FileUpload(accept: \"image/*\", label: \"Choose a picture\") { on change(e) { log(e.target.files[0].name) } }",
    "preview": false,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "E109",
+     "title": "An element this output cannot draw",
+     "to": "/errors/E109"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
   },
   {
    "name": "Form",
@@ -3729,7 +4977,30 @@
    "cssClass": "wf-form",
    "example": "state name = \"\"\nForm(bind: form) {\n    on submit { log(name) }\n    Input(bind: name, label: \"Name\").required\n    Button(\"Save\", type: .submit, disabled: !form.valid).primary\n}",
    "preview": false,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "E109",
+     "title": "An element this output cannot draw",
+     "to": "/errors/E109"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
   },
   {
    "name": "Textarea",
@@ -3845,7 +5116,35 @@
    "cssClass": "wf-input wf-textarea",
    "example": "state note = \"\"\nTextarea(bind: note, label: \"Notes\", rows: 4, maxLength: 200)",
    "preview": true,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "E109",
+     "title": "An element this output cannot draw",
+     "to": "/errors/E109"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    },
+    {
+     "kind": "A04",
+     "title": "A control with no label",
+     "to": "/errors/A04"
+    }
+   ]
   },
   {
    "name": "Alert",
@@ -3915,7 +5214,20 @@
    "cssClass": "wf-alert",
    "example": "Alert(\"Your changes were saved.\").success\nAlert(\"The server is not answering.\").danger",
    "preview": true,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
+   ]
   },
   {
    "name": "Toast",
@@ -3978,7 +5290,25 @@
    "cssClass": "wf-toast",
    "example": "state saved = false\nif saved { Toast(\"Saved\").success }",
    "preview": false,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "E109",
+     "title": "An element this output cannot draw",
+     "to": "/errors/E109"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
+   ]
   },
   {
    "name": "Modal",
@@ -4065,7 +5395,35 @@
    "cssClass": "wf-modal",
    "example": "state open = false\nButton(\"Delete\") { on click { open = true } }\nModal(visible: open, title: \"Delete deploys.wf?\").closable {\n    Modal.Title { Markdown(\"Delete `deploys.wf`?\") }\n    Text(\"This cannot be undone.\")\n    Modal.Footer { Button(\"Cancel\") { on click { open = false } } }\n}",
    "preview": false,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "E109",
+     "title": "An element this output cannot draw",
+     "to": "/errors/E109"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    },
+    {
+     "kind": "A08",
+     "title": "A dialog with no title",
+     "to": "/errors/A08"
+    }
+   ]
   },
   {
    "name": "Modal.Title",
@@ -4102,7 +5460,30 @@
    "cssClass": "",
    "example": "state open = false\nButton(\"Delete\") { on click { open = true } }\nModal(visible: open, title: \"Delete deploys.wf?\").closable {\n    Modal.Title { Markdown(\"Delete `deploys.wf`?\") }\n    Text(\"This cannot be undone.\")\n    Modal.Footer { Button(\"Cancel\") { on click { open = false } } }\n}",
    "preview": false,
-   "outputs": []
+   "outputs": [],
+   "since": "5.11.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
   },
   {
    "name": "Modal.Footer",
@@ -4139,7 +5520,30 @@
    "cssClass": "",
    "example": "state open = false\nButton(\"Delete\") { on click { open = true } }\nModal(visible: open, title: \"Delete deploys.wf?\").closable {\n    Modal.Title { Markdown(\"Delete `deploys.wf`?\") }\n    Text(\"This cannot be undone.\")\n    Modal.Footer { Button(\"Cancel\") { on click { open = false } } }\n}",
    "preview": false,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
   },
   {
    "name": "Popover",
@@ -4257,7 +5661,30 @@
    "cssClass": "wf-popover",
    "example": "state open = false\nButton(\"Branches\", ref: branches) { on click { open = !open } }\nPopover(visible: open, anchor: branches, placement: .bottomStart, label: \"Branches\").arrow {\n    on close(reason) { log(reason) }\n    Text(\"main\")\n}",
    "preview": false,
-   "outputs": []
+   "outputs": [],
+   "since": "5.9.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "E109",
+     "title": "An element this output cannot draw",
+     "to": "/errors/E109"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
   },
   {
    "name": "Dialog",
@@ -4338,7 +5765,35 @@
    "cssClass": "wf-dialog",
    "example": "state asking = false\nDialog(visible: asking, title: \"Leave without saving notes.md?\") {\n    Dialog.Title { Markdown(\"Leave without saving `notes.md`?\") }\n    Text(\"Your draft will be lost.\")\n}",
    "preview": false,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "E109",
+     "title": "An element this output cannot draw",
+     "to": "/errors/E109"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    },
+    {
+     "kind": "A08",
+     "title": "A dialog with no title",
+     "to": "/errors/A08"
+    }
+   ]
   },
   {
    "name": "Dialog.Title",
@@ -4375,7 +5830,30 @@
    "cssClass": "",
    "example": "state asking = false\nDialog(visible: asking, title: \"Leave without saving notes.md?\") {\n    Dialog.Title { Markdown(\"Leave without saving `notes.md`?\") }\n    Text(\"Your draft will be lost.\")\n}",
    "preview": false,
-   "outputs": []
+   "outputs": [],
+   "since": "5.11.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
   },
   {
    "name": "Spinner",
@@ -4425,7 +5903,25 @@
    "cssClass": "wf-spinner",
    "example": "Spinner\nSpinner.lg",
    "preview": true,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
   },
   {
    "name": "Progress",
@@ -4466,7 +5962,25 @@
    "cssClass": "wf-progress",
    "example": "Progress(value: 40, max: 100)",
    "preview": true,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
   },
   {
    "name": "Skeleton",
@@ -4543,7 +6057,25 @@
    "cssClass": "wf-skeleton",
    "example": "Skeleton(height: \"20px\", width: \"200px\")\nSkeleton(size: \"48px\").circle",
    "preview": true,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
   },
   {
    "name": "Button",
@@ -4695,7 +6227,30 @@
    "cssClass": "wf-btn",
    "example": "Button(\"Save\").primary { on click { log(\"saved\") } }\nButton(\"Delete\").danger.outlined.sm\nButton(\"Send\", type: .submit).primary.full",
    "preview": true,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "E109",
+     "title": "An element this output cannot draw",
+     "to": "/errors/E109"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "A05",
+     "title": "A button with no text",
+     "to": "/errors/A05"
+    }
+   ]
   },
   {
    "name": "IconButton",
@@ -4820,7 +6375,40 @@
    "cssClass": "wf-icon-btn",
    "example": "IconButton(icon: \"close\", label: \"Close\")\nIconButton(icon: \"edit\", label: \"Edit the title\").primary.sm",
    "preview": true,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "E109",
+     "title": "An element this output cannot draw",
+     "to": "/errors/E109"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    },
+    {
+     "kind": "A02",
+     "title": "An icon button with no name",
+     "to": "/errors/A02"
+    },
+    {
+     "kind": "V08",
+     "title": "An icon the runtime does not draw",
+     "to": "/errors/V08"
+    }
+   ]
   },
   {
    "name": "ButtonGroup",
@@ -4857,7 +6445,30 @@
    "cssClass": "wf-btn-group",
    "example": "ButtonGroup {\n    Button(\"Day\")\n    Button(\"Week\")\n    Button(\"Month\")\n}",
    "preview": true,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "E109",
+     "title": "An element this output cannot draw",
+     "to": "/errors/E109"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
   },
   {
    "name": "Dropdown",
@@ -4920,7 +6531,25 @@
    "cssClass": "wf-dropdown",
    "example": "Dropdown(label: \"Actions\") {\n    Dropdown.Item { Text(\"Duplicate\") }\n    Dropdown.Divider\n    Dropdown.Item { Text(\"Archive\") }\n}",
    "preview": false,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "E109",
+     "title": "An element this output cannot draw",
+     "to": "/errors/E109"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
+   ]
   },
   {
    "name": "Dropdown.Item",
@@ -4957,7 +6586,30 @@
    "cssClass": "",
    "example": "Dropdown(label: \"Actions\") {\n    Dropdown.Item { Text(\"Duplicate\") }\n    Dropdown.Divider\n    Dropdown.Item { Text(\"Archive\") }\n}",
    "preview": false,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
   },
   {
    "name": "Dropdown.Divider",
@@ -4987,7 +6639,30 @@
    "cssClass": "",
    "example": "Dropdown(label: \"Actions\") {\n    Dropdown.Item { Text(\"Duplicate\") }\n    Dropdown.Divider\n    Dropdown.Item { Text(\"Archive\") }\n}",
    "preview": false,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
   },
   {
    "name": "Image",
@@ -5117,7 +6792,35 @@
    "cssClass": "wf-image",
    "example": "Image(src: \"/team.jpg\", alt: \"The team at the launch\", width: 1200, height: 630)\nImage(src: \"/flourish.svg\", alt: \"\")",
    "preview": false,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "R04",
+     "title": "A relative URL on a nested route",
+     "to": "/errors/R04"
+    },
+    {
+     "kind": "D01",
+     "title": "A file the project does not have",
+     "to": "/errors/D01"
+    },
+    {
+     "kind": "A01",
+     "title": "An image with no alt text",
+     "to": "/errors/A01"
+    }
+   ]
   },
   {
    "name": "Video",
@@ -5241,7 +6944,40 @@
    "cssClass": "wf-video",
    "example": "Video(src: \"/demo.mp4\", captions: \"/demo.en.vtt\", poster: \"/demo.jpg\").controls",
    "preview": false,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "E109",
+     "title": "An element this output cannot draw",
+     "to": "/errors/E109"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    },
+    {
+     "kind": "D01",
+     "title": "A file the project does not have",
+     "to": "/errors/D01"
+    },
+    {
+     "kind": "A09",
+     "title": "Media nobody can follow without sound",
+     "to": "/errors/A09"
+    }
+   ]
   },
   {
    "name": "Audio",
@@ -5331,7 +7067,40 @@
    "cssClass": "wf-audio",
    "example": "Audio(src: \"/episode-1.mp3\", transcript: \"/episode-1.txt\").controls",
    "preview": false,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "E109",
+     "title": "An element this output cannot draw",
+     "to": "/errors/E109"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    },
+    {
+     "kind": "D01",
+     "title": "A file the project does not have",
+     "to": "/errors/D01"
+    },
+    {
+     "kind": "A09",
+     "title": "Media nobody can follow without sound",
+     "to": "/errors/A09"
+    }
+   ]
   },
   {
    "name": "Frame",
@@ -5447,7 +7216,40 @@
    "cssClass": "wf-frame",
    "example": "Frame(src: \"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ\", title: \"The launch talk\", allow: \"fullscreen\")\nstate heard = \"\"\nFrame(src: \"/preview/\", title: \"Preview\", sandbox: \"allow-scripts\") {\n    on message(m) { heard = m.data }\n}\nstate version = 1\nFrame(srcdoc: \"<p>Version {version}</p>\", title: \"Example\", sandbox: \"\")",
    "preview": false,
-   "outputs": []
+   "outputs": [],
+   "since": "5.9.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "E109",
+     "title": "An element this output cannot draw",
+     "to": "/errors/E109"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    },
+    {
+     "kind": "A17",
+     "title": "A frame with no title",
+     "to": "/errors/A17"
+    },
+    {
+     "kind": "V03",
+     "title": "Markup put in as markup",
+     "to": "/errors/V03"
+    }
+   ]
   },
   {
    "name": "Icon",
@@ -5543,7 +7345,25 @@
    "cssClass": "wf-icon",
    "example": "Icon(\"search\")\nIcon(\"check\").lg.success",
    "preview": true,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "V08",
+     "title": "An icon the runtime does not draw",
+     "to": "/errors/V08"
+    }
+   ]
   },
   {
    "name": "Carousel",
@@ -5617,7 +7437,35 @@
    "cssClass": "wf-carousel",
    "example": "Carousel(label: \"Recent work\", autoplay: true, interval: 5000) {\n    Carousel.Slide { Image(src: \"/one.jpg\", alt: \"A bridge at dusk\") }\n    Carousel.Slide { Image(src: \"/two.jpg\", alt: \"The harbour\") }\n}",
    "preview": false,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "E109",
+     "title": "An element this output cannot draw",
+     "to": "/errors/E109"
+    },
+    {
+     "kind": "T01",
+     "title": "A value of the wrong type",
+     "to": "/errors/T01"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
   },
   {
    "name": "Carousel.Slide",
@@ -5654,7 +7502,30 @@
    "cssClass": "",
    "example": "Carousel(label: \"Recent work\", autoplay: true, interval: 5000) {\n    Carousel.Slide { Image(src: \"/one.jpg\", alt: \"A bridge at dusk\") }\n    Carousel.Slide { Image(src: \"/two.jpg\", alt: \"The harbour\") }\n}",
    "preview": false,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
   },
   {
    "name": "Text",
@@ -5812,7 +7683,20 @@
    "cssClass": "wf-text",
    "example": "Text(\"Hello, world\")\nText(\"Last updated today\").muted.sm\nText(\"Important\").bold.danger",
    "preview": true,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
+   ]
   },
   {
    "name": "Heading",
@@ -5902,7 +7786,35 @@
    "cssClass": "wf-heading",
    "example": "Heading(\"Pricing\").h1\nHeading(\"Frequently asked\").h2",
    "preview": true,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "A07",
+     "title": "An empty heading",
+     "to": "/errors/A07"
+    },
+    {
+     "kind": "A11",
+     "title": "A skipped heading level",
+     "to": "/errors/A11"
+    },
+    {
+     "kind": "A12",
+     "title": "A page without exactly one h1",
+     "to": "/errors/A12"
+    }
+   ]
   },
   {
    "name": "Code",
@@ -5962,7 +7874,20 @@
    "cssClass": "wf-code",
    "example": "Text(\"Run \")\nCode(\"wf serve\")\nCode(\"page Home(path: \\\"/\\\") { Text(\\\"Hi\\\") }\", language: \"wf\").block",
    "preview": true,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
+   ]
   },
   {
    "name": "Markdown",
@@ -6017,7 +7942,20 @@
    "cssClass": "wf-markdown",
    "example": "state docs = \"Returns &lt;T&gt;, as [the guide](/docs) says.\"\nMarkdown(\"Some **bold** text and a [link](/docs).\")\nMarkdown(docs).inert",
    "preview": true,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
+   ]
   },
   {
    "name": "Unsafe",
@@ -6054,7 +7992,25 @@
    "cssClass": "",
    "example": "state body = \"<p>From the CMS</p>\"\nUnsafe.Html(sanitize(body))",
    "preview": false,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
   },
   {
    "name": "Unsafe.Html",
@@ -6097,7 +8053,30 @@
    "cssClass": "wf-html",
    "example": "state body = \"<p>From the CMS</p>\"\nUnsafe.Html(sanitize(body))",
    "preview": false,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "V03",
+     "title": "Markup put in as markup",
+     "to": "/errors/V03"
+    }
+   ]
   },
   {
    "name": "Blockquote",
@@ -6140,7 +8119,20 @@
    "cssClass": "wf-blockquote",
    "example": "Blockquote { Text(\"Make it work, make it right, make it fast.\") }",
    "preview": true,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
+   ]
   },
   {
    "name": "TableOfContents",
@@ -6190,6 +8182,24 @@
    "preview": false,
    "outputs": [
     "pdf"
+   ],
+   "since": "5.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
    ]
   },
   {
@@ -6324,6 +8334,24 @@
    "preview": false,
    "outputs": [
     "pdf"
+   ],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
    ]
   },
   {
@@ -6363,6 +8391,24 @@
    "preview": false,
    "outputs": [
     "pdf"
+   ],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
    ]
   },
   {
@@ -6523,6 +8569,19 @@
    "preview": false,
    "outputs": [
     "pdf"
+   ],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
    ]
   },
   {
@@ -6586,6 +8645,24 @@
    "preview": false,
    "outputs": [
     "pdf"
+   ],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
    ]
   },
   {
@@ -6649,6 +8726,24 @@
    "preview": false,
    "outputs": [
     "pdf"
+   ],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
    ]
   },
   {
@@ -6712,6 +8807,24 @@
    "preview": false,
    "outputs": [
     "pdf"
+   ],
+   "since": "5.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
    ]
   },
   {
@@ -6779,6 +8892,19 @@
    "preview": false,
    "outputs": [
     "pdf"
+   ],
+   "since": "5.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
    ]
   },
   {
@@ -6811,6 +8937,24 @@
    "preview": false,
    "outputs": [
     "pdf"
+   ],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
    ]
   },
   {
@@ -6850,6 +8994,24 @@
    "preview": false,
    "outputs": [
     "slides"
+   ],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
    ]
   },
   {
@@ -6889,6 +9051,24 @@
    "preview": false,
    "outputs": [
     "slides"
+   ],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
    ]
   },
   {
@@ -6945,6 +9125,19 @@
    "preview": false,
    "outputs": [
     "slides"
+   ],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
    ]
   },
   {
@@ -7012,6 +9205,19 @@
    "preview": false,
    "outputs": [
     "slides"
+   ],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
    ]
   },
   {
@@ -7051,6 +9257,24 @@
    "preview": false,
    "outputs": [
     "slides"
+   ],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
    ]
   },
   {
@@ -7107,6 +9331,24 @@
    "preview": false,
    "outputs": [
     "slides"
+   ],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
    ]
   },
   {
@@ -7157,7 +9399,20 @@
    "cssClass": "wf-tab-page",
    "example": "",
    "preview": false,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
+   ]
   },
   {
    "name": "Thead",
@@ -7194,7 +9449,25 @@
    "cssClass": "",
    "example": "",
    "preview": false,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
   },
   {
    "name": "Tbody",
@@ -7231,7 +9504,25 @@
    "cssClass": "",
    "example": "",
    "preview": false,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
   },
   {
    "name": "Trow",
@@ -7268,7 +9559,25 @@
    "cssClass": "",
    "example": "",
    "preview": false,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
   },
   {
    "name": "Tcell",
@@ -7325,7 +9634,20 @@
    "cssClass": "",
    "example": "",
    "preview": false,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
+   ]
   },
   {
    "name": "Option",
@@ -7373,7 +9695,20 @@
    "cssClass": "",
    "example": "",
    "preview": false,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
+   ]
   },
   {
    "name": "Route",
@@ -7414,7 +9749,25 @@
    "cssClass": "",
    "example": "",
    "preview": false,
-   "outputs": []
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
   }
  ],
  "universal": {

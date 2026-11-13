@@ -9,8 +9,10 @@ inlined into every page's `app.js`):
 - `Builtins.wf` — `wf registry --json`: `/reference`, every built-in by
   family, and a page per built-in (`/reference/<slug>`, parts and the
   original spellings included) with its Stage, props, flags, events, slots,
-  parts and example; `BUILTIN_INDEX` and `REFERENCE_PAGES`, the sidebars'
-  lists, which those pages share.
+  parts and example, the release it arrived in (`since_of`, from
+  `RELEASE_NOTES.md`) and the codes it can raise (`codes_of`, from
+  `builtin_codes.json` and `wf explain --json`); `BUILTIN_INDEX` and
+  `REFERENCE_PAGES`, the sidebars' lists, which those pages share.
 - `Cli.wf` — `wf commands --json`: `/reference/cli`, with the CLI chapter's
   prose under its list, and a page per command.
 - `Config.wf` — `wf config schema --json`: `/reference/config`, every key
@@ -49,6 +51,16 @@ FAMILIES = ["Layout", "Navigation", "Routing", "Data display", "Form", "Feedback
 LEGACY = "Original spellings"
 # The controls a Stage draws, at most.
 CONTROLS = 6
+# What a built-in that arrived before the notes' 5.0 release says it is since.
+OLDER = "5.0"
+NOTES = ROOT / "RELEASE_NOTES.md"
+# Built-ins the notes first name where they were reworked, not where they
+# arrived: v4.3.3 already has each of them.
+REWORKED = {"Menu", "Menu.Item", "Document", "Header", "Footer", "PageBreak", "Presentation"}
+# The notes' sections that change what is there rather than add to it.
+NOT_ADDED = ("Fix", "Upgrad", "Migrat", "Breaking", "For tools", "Tooling", "Editors", "The editor",
+             "Security", "Behaviour", "Change")
+CODES = ROOT / "scripts" / "docsite" / "builtin_codes.json"
 
 
 def ask(*args) -> dict:
@@ -107,9 +119,68 @@ def outputs_of(c: dict) -> list[str]:
     return {"PDF": ["pdf"], "Slides": ["slides"]}.get(c["group"], [])
 
 
+def releases() -> list:
+    """Each release in `RELEASE_NOTES.md`, oldest first: its version and
+    its sections, as (heading, text)."""
+    parts = re.split(r"^# WebFluent v(\S+) Release Notes", NOTES.read_text(), flags=re.M)
+    out = []
+    for version, body in zip(parts[1::2], parts[2::2]):
+        sections = [(s.split("\n", 1)[0].strip(), s) for s in re.split(r"^## ", body, flags=re.M)]
+        out.append((version, sections))
+    return out[::-1]
+
+
+def version_key(v: str) -> tuple:
+    return tuple(int(n) for n in v.split("."))
+
+
+def mentions(text: str, name: str) -> bool:
+    """Whether `text` names the built-in in code: `Name`, `Name(…)`,
+    `Name { … }` or `Name.flag`."""
+    return any(s == name or s.startswith((name + "(", name + " ", name + "."))
+               for s in re.findall(r"`([^`]+)`", text))
+
+
+def since_of(name: str, notes: list) -> str:
+    """The first release whose notes add the built-in: the first that names
+    it, when that is in its Additions. One the notes name before 5.0, or
+    first name where it changes (a fix, an upgrade note: it was there
+    already), is older than the notes say: `OLDER`."""
+    if name in REWORKED:
+        return OLDER
+    for version, sections in notes:
+        hits = [h for h, text in sections if mentions(text, name)]
+        if not hits:
+            continue
+        if version_key(version) < version_key(OLDER) or all(h.startswith(NOT_ADDED) for h in hits):
+            return OLDER
+        return version
+    return OLDER
+
+
+def codes_of(c: dict, table: dict, titles: dict) -> list:
+    """The codes a built-in can raise, in the compiler's order, as links."""
+    mine = set(table["every"])
+    if c["owner"]:
+        mine |= set(table["parts"])
+    if not c.get("positional"):
+        mine |= set(table["named_only"])
+    mine |= {code for code, names in table["codes"].items() if c["qualified"] in names}
+    return [{"kind": code, "title": titles[code], "to": f"/errors/{code}"} for code in titles if code in mine]
+
+
 def components(reg: dict) -> dict:
     comps = reg["components"]
     by_name = {c["qualified"]: c for c in comps}
+    notes = releases()
+    table = json.loads(CODES.read_text())
+    titles = {e["code"]: e["title"].replace("`", "") for e in json.loads(
+        subprocess.check_output([str(wf), "explain", "--json"], cwd=ROOT / "site"))}
+    since = {c["qualified"]: since_of(c["qualified"], notes) for c in comps}
+    # A part is never older than its owner.
+    for c in comps:
+        if c["owner"] and version_key(since[c["owner"]]) > version_key(since[c["qualified"]]):
+            since[c["qualified"]] = since[c["owner"]]
     items = []
     for c in comps:
         owner = by_name.get(c["owner"]) if c["owner"] else None
@@ -142,6 +213,8 @@ def components(reg: dict) -> dict:
             "example": example,
             "preview": c["qualified"] in PREVIEWS or bool(owner and owner["qualified"] in PREVIEWS),
             "outputs": outputs_of(owner or c),
+            "since": since[c["qualified"]],
+            "codes": codes_of(c, table, titles),
         })
     order = {f: i for i, f in enumerate(FAMILIES + [LEGACY])}
     unknown = sorted({i["family"] for i in items} - set(order))
@@ -379,8 +452,13 @@ def builtin_page(c: dict, by_slug: dict) -> list:
     sections = anchors([("props", 't("ref.tab.props")'), ("flags", 't("ref.tab.flags")'), ("events", 't("ref.tab.events")'),
                         ("slots", 't("ref.slotsparts")'), ("example", 't("ref.example")')])
     outputs = "[" + ", ".join(q(o) for o in c["outputs"]) + "]"
+    codes = "[" + ", ".join(
+        f'RelatedLink(kind: {q(k["kind"])}, title: {q(k["title"])}, to: {q(k["to"])})' for k in c["codes"]) + "]"
+    since = "" if c["since"] == OLDER else f'since: {q(c["since"])}, '
+    older = "older: true, " if c["since"] == OLDER else ""
     out.append(f'    ReferenceItemShell({q(c["name"])}, summary: {q(c["plain"])}, signature: {q(c["signature"])}, '
-               f'outputs: {outputs}, group: {q(c["family"])}, entries: BUILTIN_INDEX, sections: {sections}, source: "wf registry --json") {{')
+               f'{since}{older}outputs: {outputs}, group: {q(c["family"])}, entries: BUILTIN_INDEX, sections: {sections}, '
+               f'codes: {codes}, source: "wf registry --json") {{')
     out.append("        stage {")
     out.append(f'            Stage(label: {q(c["name"])}) {{')
     out.append("                controls {")

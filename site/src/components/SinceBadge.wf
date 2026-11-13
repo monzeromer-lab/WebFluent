@@ -1,4 +1,5 @@
-/// The release something arrived in.
-component SinceBadge(_ version: String) {
-    Text(t("since", { version: version }), class: "bp-label bp-num")
+/// The release something arrived in; `older` for something already there
+/// before the release the notes' history starts from.
+component SinceBadge(_ version: String, older: Bool = false) {
+    Text(if older { t("since.older", { version: version }) } else { t("since", { version: version }) }, class: "bp-label bp-num")
 }
