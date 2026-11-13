@@ -42,7 +42,6 @@ pub(crate) fn run_verify(
     }
 
     let server = super::preview::serve_directory(output_dir, &base_path)?;
-    let mut browser = Browser::start()?;
     let mut visits = Vec::new();
     let mut drew: BTreeSet<String> = BTreeSet::new();
     let mut problems = 0usize;
@@ -56,12 +55,52 @@ pub(crate) fn run_verify(
     if returning {
         passes.push(Some(crate::verify::returning_storage(project_dir)));
     }
+    // A site of many routes is visited by a few browsers at once, each
+    // taking every n-th route; a small one by one. Each browser is a
+    // Chrome of its own, so they are few.
+    let browsers = routes
+        .len()
+        .div_ceil(40)
+        .min(std::thread::available_parallelism().map_or(1, |n| n.get() / 2))
+        .clamp(1, 3);
     for pass in passes {
         let label = if pass.is_some() { " (returning)" } else { "" };
-        browser.before_each_page(pass);
-        for route in &routes {
-            let url = format!("{}{}{}", server.origin, base_path, route);
-            let mut visit = browser.visit(&url, 900)?;
+        let origin = format!("{}{}", server.origin, base_path);
+        let visited: Vec<Result<Vec<(usize, crate::verify::Visit)>>> =
+            std::thread::scope(|scope| {
+                let workers: Vec<_> = (0..browsers)
+                    .map(|k| {
+                        let (routes, origin, pass) = (&routes, &origin, pass.clone());
+                        scope.spawn(move || -> Result<Vec<(usize, crate::verify::Visit)>> {
+                            let mut browser = Browser::start()?;
+                            browser.before_each_page(pass);
+                            // A page that has loaded, fetched what it asked
+                            // for and said nothing for a tenth of a second is
+                            // done; 900 ms is the most any is given.
+                            browser.settle_when_quiet(Some(100));
+                            let mut out = Vec::new();
+                            for (i, route) in routes.iter().enumerate().skip(k).step_by(browsers) {
+                                out.push((i, browser.visit(&format!("{origin}{route}"), 900)?));
+                            }
+                            Ok(out)
+                        })
+                    })
+                    .collect();
+                workers
+                    .into_iter()
+                    .map(|w| {
+                        w.join()
+                            .unwrap_or_else(|_| Err(WebFluentError::io("a browser stopped")))
+                    })
+                    .collect()
+            });
+        let mut in_order = Vec::with_capacity(routes.len());
+        for part in visited {
+            in_order.extend(part?);
+        }
+        in_order.sort_by_key(|(i, _)| *i);
+        for (i, mut visit) in in_order {
+            let route = &routes[i];
             visit.url = format!("{route}{label}");
             crate::verify::judge(&mut visit, route, budget_ms);
             drew.extend(visit.drew.iter().cloned());

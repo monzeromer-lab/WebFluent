@@ -91,6 +91,10 @@ pub struct Browser {
     /// reads past whatever the page was saying at the time — and what it
     /// was saying is exactly what a test needs to hear.
     heard: Vec<Value>,
+    /// With `Some(ms)`, a settle ends early once the page has loaded,
+    /// nothing it asked for is still on its way, and it has said nothing
+    /// for `ms` — what `wf verify` waits for, rather than the whole settle.
+    quiet: Option<u64>,
     /// The profile Chrome was started with: a directory of this browser's
     /// own, removed with it. A profile is ~150 MB, and where `/tmp` is
     /// memory, one left behind per run fills it and then the swap.
@@ -326,6 +330,7 @@ impl Browser {
             socket,
             next: 1,
             heard: Vec::new(),
+            quiet: None,
             profile,
         })
     }
@@ -421,17 +426,57 @@ impl Browser {
     ///
     /// [`WebFluentError::IoError`] when the connection to the browser fails.
     pub fn settle(&mut self, page: &mut Page, ms: u64) -> Result<()> {
+        use std::time::{Duration, Instant};
+        // Whether the page has loaded, and what it asked for that has not
+        // arrived, for a settle that ends when the page is quiet.
+        let mut loaded = false;
+        let mut waiting: std::collections::HashSet<String> = std::collections::HashSet::new();
+        let track =
+            |event: &Value, loaded: &mut bool, waiting: &mut std::collections::HashSet<String>| {
+                let id = || {
+                    event["params"]["requestId"]
+                        .as_str()
+                        .unwrap_or("")
+                        .to_string()
+                };
+                match event["method"].as_str().unwrap_or_default() {
+                    "Page.loadEventFired" => *loaded = true,
+                    "Network.requestWillBeSent" => {
+                        waiting.insert(id());
+                    }
+                    "Network.loadingFinished" | "Network.loadingFailed" => {
+                        waiting.remove(&id());
+                    }
+                    _ => {}
+                }
+            };
         // What was said while something else was being asked.
         for event in std::mem::take(&mut self.heard) {
+            track(&event, &mut loaded, &mut waiting);
             self.note(&event, &mut page.visit);
         }
         // As long as was asked, not longer: a quiet page used to hold every
         // settle for the socket's two-second wait, whatever `ms` said.
-        let until = std::time::Instant::now() + std::time::Duration::from_millis(ms);
+        let until = Instant::now() + Duration::from_millis(ms);
         loop {
-            let left = until.saturating_duration_since(std::time::Instant::now());
-            if left.is_zero() || !self.socket.ready_within(left)? {
+            let mut left = until.saturating_duration_since(Instant::now());
+            let mut quiet_ends = false;
+            if let Some(quiet) = self.quiet {
+                let quiet = Duration::from_millis(quiet);
+                if quiet < left {
+                    left = quiet;
+                    quiet_ends = true;
+                }
+            }
+            if left.is_zero() {
                 break;
+            }
+            if !self.socket.ready_within(left)? {
+                // Nothing said for the quiet while: done, if the page is.
+                if !quiet_ends || (loaded && waiting.is_empty()) {
+                    break;
+                }
+                continue;
             }
             self.socket.deadline(30)?;
             let Ok(text) = self.socket.receive() else {
@@ -440,9 +485,16 @@ impl Browser {
             let Ok(event): std::result::Result<Value, _> = serde_json::from_str(&text) else {
                 continue;
             };
+            track(&event, &mut loaded, &mut waiting);
             self.note(&event, &mut page.visit);
         }
         self.socket.deadline(30)
+    }
+
+    /// End each settle once the page has loaded, nothing it asked for is on
+    /// its way, and it has been quiet for `ms`; `None` settles in full.
+    pub fn settle_when_quiet(&mut self, ms: Option<u64>) {
+        self.quiet = ms;
     }
 
     /// Run `expression` in the page and hand back what it gave.

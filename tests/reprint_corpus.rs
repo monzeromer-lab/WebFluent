@@ -154,10 +154,17 @@ fn prove_file(path: &Path, root: &Path) -> Tally {
     webfluent::codegen::node_id::visit_nodes(&program, &mut |ui, id, _| {
         nodes.push((id.to_string(), ui.clone()));
     });
-    // A debug build edits some forty elements of a file, spread through
-    // it: every edit reads the whole file again, and a debug build is slow.
-    if cfg!(debug_assertions) && nodes.len() > 40 {
-        let step = nodes.len().div_ceil(40);
+    // Every edit reads the whole file again, so a large file is edited at
+    // a spread of its elements rather than at each: a generated reference
+    // page of 300 kB has thousands, and all of them took twenty minutes.
+    // A debug build, which is slow, edits some forty of any file.
+    let most = if cfg!(debug_assertions) {
+        40
+    } else {
+        (8_000_000 / source.len().max(1)).max(40)
+    };
+    if nodes.len() > most {
+        let step = nodes.len().div_ceil(most);
         nodes = nodes.into_iter().step_by(step).collect();
     }
     for (id, ui) in &nodes {

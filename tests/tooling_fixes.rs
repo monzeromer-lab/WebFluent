@@ -215,19 +215,14 @@ fn a_killed_verify_leaves_no_browser_and_no_profile_behind() {
                 .starts_with("wf-chrome-")
         })
         .collect();
-    assert_eq!(profiles.len(), 1, "{profiles:?}");
-    let name = profiles[0]
-        .file_name()
-        .unwrap()
-        .to_string_lossy()
-        .to_string();
-    assert!(!name.contains(&child.id().to_string()), "{name}");
-    {
+    // A site of many routes is visited by a few browsers at once, each with
+    // a profile of its own; however many have started, each is private.
+    assert!(!profiles.is_empty(), "{profiles:?}");
+    for profile in &profiles {
+        let name = profile.file_name().unwrap().to_string_lossy().to_string();
+        assert!(!name.contains(&child.id().to_string()), "{name}");
         use std::os::unix::fs::PermissionsExt;
-        let mode = std::fs::metadata(&profiles[0])
-            .unwrap()
-            .permissions()
-            .mode();
+        let mode = std::fs::metadata(profile).unwrap().permissions().mode();
         assert_eq!(mode & 0o777, 0o700, "{mode:o}");
     }
     // It runs with its sandbox, unless it said why not.
