@@ -48,8 +48,8 @@ pub fn provide_completions(
     let Some(offset) = file.index.position_to_offset(source, position) else {
         return Vec::new();
     };
-    let tokens =
-        analysis::tokens_of(file).unwrap_or_else(|| tokens_until_error(source, &file.name()));
+    let tokens = analysis::tokens_of(file)
+        .unwrap_or_else(|| std::sync::Arc::new(tokens_until_error(source, &file.name())));
     // Inside `class: "…"`: the classes the project's stylesheets define.
     if crate::classes::in_class_value(&tokens, offset) {
         return crate::classes::completions(project);

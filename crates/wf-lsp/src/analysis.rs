@@ -6,6 +6,8 @@
 //! modifier from a named argument from a string that happens to contain the
 //! word `Button`, and can tell which page or component a `count` belongs to.
 
+use std::sync::Arc;
+
 use webfluent::syntax::lexer::{Token, TokenType};
 use webfluent::syntax::parser::ast::{
     Arg, ComponentRef, Declaration, Statement, StatementKind, StoreDecl, UIElement,
@@ -126,13 +128,19 @@ pub fn element_part_at<'a>(
 
 /// The lexer's view of a file: `None` when it does not tokenize. The
 /// file's name picks its layout: a `.wfx` is tokenized by indentation.
-pub fn tokens_of(file: &SourceFile) -> Option<Vec<Token>> {
-    // A script is JavaScript and a page in Markdown is Markdown: neither
-    // has WebFluent tokens to find a name among.
-    if file.script || file.markdown {
-        return None;
-    }
-    webfluent::syntax::tokens(&file.source, &file.name()).ok()
+pub fn tokens_of(file: &SourceFile) -> Option<Arc<Vec<Token>>> {
+    file.tokens
+        .get_or_init(|| {
+            // A script is JavaScript and a page in Markdown is Markdown:
+            // neither has WebFluent tokens to find a name among.
+            if file.script || file.markdown {
+                return None;
+            }
+            webfluent::syntax::tokens(&file.source, &file.name())
+                .ok()
+                .map(Arc::new)
+        })
+        .clone()
 }
 
 /// The index of the token whose extent contains `offset`, or that ends

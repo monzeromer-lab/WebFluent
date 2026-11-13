@@ -26,6 +26,7 @@ use dashmap::DashMap;
 use lsp_types::Url;
 use webfluent::config::project::{OutputType, ProjectConfig, ThemeConfig};
 use webfluent::diagnostics::error::WebFluentError;
+use webfluent::syntax::lexer::Token;
 use webfluent::syntax::parser::{Declaration, Program};
 use webfluent::vfs::{FsVfs, Vfs};
 
@@ -65,6 +66,10 @@ pub struct SourceFile {
     /// A Markdown page under `src/`: its declaration is the page the build
     /// makes of it, and nothing reads its text as `.wf` either.
     pub markdown: bool,
+    /// The lexer's view of the text, made the first time a request asks
+    /// for it and kept for as long as the project is: `None` when the text
+    /// does not tokenize.
+    pub tokens: std::sync::OnceLock<Option<Arc<Vec<Token>>>>,
 }
 
 impl SourceFile {
@@ -355,6 +360,7 @@ impl Project {
                 stale,
                 script: false,
                 markdown: file_path_is_markdown,
+                tokens: std::sync::OnceLock::new(),
             });
         }
 
@@ -392,6 +398,7 @@ impl Project {
                 stale: false,
                 script: true,
                 markdown: false,
+                tokens: std::sync::OnceLock::new(),
             });
         }
 
@@ -428,6 +435,7 @@ impl Project {
                 stale: false,
                 script: true,
                 markdown: false,
+                tokens: std::sync::OnceLock::new(),
             });
         }
 
@@ -485,6 +493,7 @@ impl Project {
             stale: false,
             script: false,
             markdown: false,
+            tokens: std::sync::OnceLock::new(),
         };
         let declarations = file
             .parsed
