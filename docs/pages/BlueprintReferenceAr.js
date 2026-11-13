@@ -1,2 +1,2 @@
-function Page_BlueprintReferenceAr(params){const _root=document.createDocumentFragment();const _e933=Component_PreviewReference({ar:true});_root.appendChild(_e933);return _root;}
+function Page_BlueprintReferenceAr(params){const _root=document.createDocumentFragment();const _e940=Component_PreviewReference({ar:true});_root.appendChild(_e940);return _root;}
 WF.page("BlueprintReferenceAr",Page_BlueprintReferenceAr);

@@ -1,0 +1,88 @@
+# Run a script in a worker
+
+> Keep slow work — a language service, a parser — off the page's thread with a `worker`: ask it and wait, tell it, and hear what it posts.
+
+The page: https://webfluent.monzeromer.dev/recipes/run-a-worker
+
+A `worker` runs a script of your site beside the page, off its thread, so
+slow work — a language service, a parser, anything that would make typing
+stutter — never holds up the page. It is held like a socket: owned by what
+opened it, and stopped when that leaves. Here a store holds one for the
+whole app, and a page shows what it reports:
+
+```wf
+store Lang {
+    state problems: [Map] = []
+    state restarts = 0
+    worker css = spawn("/workers/css.js", restart: 1, timeout: 5000) {
+        on message(m) { if m.type == "diagnostics" { problems = m.items } }
+        on restart(e) { restarts = restarts + 1 }
+    }
+    action complete(text: String, at: Number) {
+        return await css.request("complete", { text: text, at: at }, { supersede: true })
+    }
+    action check(text: String) { css.send({ method: "check", params: { text: text } }) }
+}
+
+page Editor(path: "/", title: "Editor", description: "A worker beside the page.") {
+    Heading("Editor").h1
+    match Lang.css {
+        open     { Text(if Lang.css.pending > 0 { "Checking…" } else { "Checked" }) }
+        error(e) { Alert("The CSS service stopped: {e.message}").danger }
+        else     { Text("Stopped") }
+    }
+    Text("{Lang.problems.length} problems, {Lang.restarts} restarts")
+    Button("Complete") { on click { Lang.complete("a { col", 7) } }
+    Button("Check") { on click { Lang.check("a { col") } }
+}
+```
+
+## How it works
+
+The worker's side is a plain script under `public/` — the one place,
+besides a project script, where you write JavaScript by hand:
+
+```js
+// public/workers/css.js
+self.onmessage = ({ data }) => {
+  const { id, method, params, cancel } = data;
+  if (cancel !== undefined) return;                       // a newer request took over
+  if (method === "complete") self.postMessage({ id, result: complete(params) });
+  if (method === "check") self.postMessage({ type: "diagnostics", items: check(params.text) });
+};
+```
+
+- **`worker css = spawn("/workers/css.js", …)`**, declared in the store,
+  starts the script when the store is first read and stops it with the
+  store.
+- **`restart: 1`** and **`timeout: 5000`** say how often a crashed worker is
+  started again and how long a request may wait for its answer.
+- **`match Lang.css`** reads the worker's `.state`: `open`, `error` (the
+  `error(e)` arm) or `closed`. **`Lang.css.pending`** is how many requests
+  are out.
+
+The page and the worker talk in three ways:
+
+- **Ask and wait: `.request(method, params)`.** It posts
+  `{ id, method, params }` and returns a promise of what the worker posts
+  back as `{ id, result }`. A reply of `{ id, error }` rejects it, with the
+  error's `message` and its `data`. A request not answered within
+  `timeout:` fails — 10 seconds when unset, or `{ timeout }` on the
+  request. With `{ supersede: true }`, a newer request of the same method
+  fails the older one, and the worker is posted `{ cancel: id }`. The
+  store's `complete` action asks this way.
+- **Tell: `.send(value)`.** It posts the value and expects nothing. The
+  store's `check` action tells this way.
+- **Listen: messages with no `id`.** What the worker posts without an `id`
+  is a message: `on message(m)` hears it, and `.last(kind)` is the last of
+  a kind, by its `type` or its `method`. The `diagnostics` the script posts
+  arrive this way.
+
+A worker that crashes — an error nothing in it caught — fails every request
+that was out and is started again, up to `restart:` times, running
+`on restart(e)` each time. Past that it is `error`, and `on error(e)` runs.
+`.restart()` starts it again by hand, and `.close()` stops it.
+
+Pass `type: .module` to start a module worker. The script is a file of the
+site, so it is asked for under the base path, and a name `public/` does not
+have is a `D01`.

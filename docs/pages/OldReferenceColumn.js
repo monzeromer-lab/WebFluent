@@ -1,2 +1,2 @@
-function Page_OldReferenceColumn(params){const _root=document.createDocumentFragment();const _e1619=WF.el("h1",{className:"wf-heading"},"Column");_root.appendChild(_e1619);const _e1620=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/column"},"Column");WF.activeLink(_e1620,"/reference/column",false);_root.appendChild(_e1620);return _root;}
+function Page_OldReferenceColumn(params){const _root=document.createDocumentFragment();const _e1626=WF.el("h1",{className:"wf-heading"},"Column");_root.appendChild(_e1626);const _e1627=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/column"},"Column");WF.activeLink(_e1627,"/reference/column",false);_root.appendChild(_e1627);return _root;}
 WF.page("OldReferenceColumn",Page_OldReferenceColumn);

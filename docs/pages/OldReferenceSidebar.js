@@ -1,2 +1,2 @@
-function Page_OldReferenceSidebar(params){const _root=document.createDocumentFragment();const _e1699=WF.el("h1",{className:"wf-heading"},"Sidebar");_root.appendChild(_e1699);const _e1700=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/sidebar"},"Sidebar");WF.activeLink(_e1700,"/reference/sidebar",false);_root.appendChild(_e1700);return _root;}
+function Page_OldReferenceSidebar(params){const _root=document.createDocumentFragment();const _e1706=WF.el("h1",{className:"wf-heading"},"Sidebar");_root.appendChild(_e1706);const _e1707=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/sidebar"},"Sidebar");WF.activeLink(_e1707,"/reference/sidebar",false);_root.appendChild(_e1707);return _root;}
 WF.page("OldReferenceSidebar",Page_OldReferenceSidebar);

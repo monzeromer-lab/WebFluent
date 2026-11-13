@@ -1,2 +1,2 @@
-function Page_OldReferenceSpinner(params){const _root=document.createDocumentFragment();const _e1709=WF.el("h1",{className:"wf-heading"},"Spinner");_root.appendChild(_e1709);const _e1710=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/spinner"},"Spinner");WF.activeLink(_e1710,"/reference/spinner",false);_root.appendChild(_e1710);return _root;}
+function Page_OldReferenceSpinner(params){const _root=document.createDocumentFragment();const _e1716=WF.el("h1",{className:"wf-heading"},"Spinner");_root.appendChild(_e1716);const _e1717=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/spinner"},"Spinner");WF.activeLink(_e1717,"/reference/spinner",false);_root.appendChild(_e1717);return _root;}
 WF.page("OldReferenceSpinner",Page_OldReferenceSpinner);

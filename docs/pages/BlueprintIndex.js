@@ -1,2 +1,2 @@
-function Page_BlueprintIndex(params){const _root=document.createDocumentFragment();const _e922=Component_PreviewIndex({});_root.appendChild(_e922);return _root;}
+function Page_BlueprintIndex(params){const _root=document.createDocumentFragment();const _e929=Component_PreviewIndex({});_root.appendChild(_e929);return _root;}
 WF.page("BlueprintIndex",Page_BlueprintIndex);

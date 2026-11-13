@@ -1,2 +1,2 @@
-function Page_OldReferenceModal(params){const _root=document.createDocumentFragment();const _e1669=WF.el("h1",{className:"wf-heading"},"Modal");_root.appendChild(_e1669);const _e1670=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/modal"},"Modal");WF.activeLink(_e1670,"/reference/modal",false);_root.appendChild(_e1670);return _root;}
+function Page_OldReferenceModal(params){const _root=document.createDocumentFragment();const _e1676=WF.el("h1",{className:"wf-heading"},"Modal");_root.appendChild(_e1676);const _e1677=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/modal"},"Modal");WF.activeLink(_e1677,"/reference/modal",false);_root.appendChild(_e1677);return _root;}
 WF.page("OldReferenceModal",Page_OldReferenceModal);

@@ -1,2 +1,2 @@
-function Page_OldReferenceInput(params){const _root=document.createDocumentFragment();const _e1659=WF.el("h1",{className:"wf-heading"},"Input");_root.appendChild(_e1659);const _e1660=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/input"},"Input");WF.activeLink(_e1660,"/reference/input",false);_root.appendChild(_e1660);return _root;}
+function Page_OldReferenceInput(params){const _root=document.createDocumentFragment();const _e1666=WF.el("h1",{className:"wf-heading"},"Input");_root.appendChild(_e1666);const _e1667=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/input"},"Input");WF.activeLink(_e1667,"/reference/input",false);_root.appendChild(_e1667);return _root;}
 WF.page("OldReferenceInput",Page_OldReferenceInput);

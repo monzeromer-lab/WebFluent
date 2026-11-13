@@ -1,2 +1,2 @@
-function Page_OldGuideTokens(params){const _root=document.createDocumentFragment();const _e1585=WF.el("h1",{className:"wf-heading"},"Design tokens");_root.appendChild(_e1585);const _e1586=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/tokens"},"Design tokens");WF.activeLink(_e1586,"/reference/tokens",false);_root.appendChild(_e1586);return _root;}
+function Page_OldGuideTokens(params){const _root=document.createDocumentFragment();const _e1592=WF.el("h1",{className:"wf-heading"},"Design tokens");_root.appendChild(_e1592);const _e1593=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/tokens"},"Design tokens");WF.activeLink(_e1593,"/reference/tokens",false);_root.appendChild(_e1593);return _root;}
 WF.page("OldGuideTokens",Page_OldGuideTokens);

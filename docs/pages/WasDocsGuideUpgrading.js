@@ -1,2 +1,2 @@
-function Page_WasDocsGuideUpgrading(params){const _root=document.createDocumentFragment();const _e9528=WF.el("h1",{className:"wf-heading"},"Moved");_root.appendChild(_e9528);const _e9529=WF.el("a",{className:"wf-link",href:WF._basePath+"/about/upgrading"},"Go on");WF.activeLink(_e9529,"/about/upgrading",false);_root.appendChild(_e9529);return _root;}
+function Page_WasDocsGuideUpgrading(params){const _root=document.createDocumentFragment();const _e9535=WF.el("h1",{className:"wf-heading"},"Moved");_root.appendChild(_e9535);const _e9536=WF.el("a",{className:"wf-link",href:WF._basePath+"/about/upgrading"},"Go on");WF.activeLink(_e9536,"/about/upgrading",false);_root.appendChild(_e9536);return _root;}
 WF.page("WasDocsGuideUpgrading",Page_WasDocsGuideUpgrading);

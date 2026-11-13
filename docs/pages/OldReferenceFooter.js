@@ -1,2 +1,2 @@
-function Page_OldReferenceFooter(params){const _root=document.createDocumentFragment();const _e1637=WF.el("h1",{className:"wf-heading"},"Footer");_root.appendChild(_e1637);const _e1638=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/footer"},"Footer");WF.activeLink(_e1638,"/reference/footer",false);_root.appendChild(_e1638);return _root;}
+function Page_OldReferenceFooter(params){const _root=document.createDocumentFragment();const _e1644=WF.el("h1",{className:"wf-heading"},"Footer");_root.appendChild(_e1644);const _e1645=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/footer"},"Footer");WF.activeLink(_e1645,"/reference/footer",false);_root.appendChild(_e1645);return _root;}
 WF.page("OldReferenceFooter",Page_OldReferenceFooter);

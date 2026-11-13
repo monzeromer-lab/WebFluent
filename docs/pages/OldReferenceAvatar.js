@@ -1,2 +1,2 @@
-function Page_OldReferenceAvatar(params){const _root=document.createDocumentFragment();const _e1595=WF.el("h1",{className:"wf-heading"},"Avatar");_root.appendChild(_e1595);const _e1596=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/avatar"},"Avatar");WF.activeLink(_e1596,"/reference/avatar",false);_root.appendChild(_e1596);return _root;}
+function Page_OldReferenceAvatar(params){const _root=document.createDocumentFragment();const _e1602=WF.el("h1",{className:"wf-heading"},"Avatar");_root.appendChild(_e1602);const _e1603=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/avatar"},"Avatar");WF.activeLink(_e1603,"/reference/avatar",false);_root.appendChild(_e1603);return _root;}
 WF.page("OldReferenceAvatar",Page_OldReferenceAvatar);

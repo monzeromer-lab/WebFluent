@@ -1,2 +1,2 @@
-function Page_OldReferenceDialog(params){const _root=document.createDocumentFragment();const _e1625=WF.el("h1",{className:"wf-heading"},"Dialog");_root.appendChild(_e1625);const _e1626=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/dialog"},"Dialog");WF.activeLink(_e1626,"/reference/dialog",false);_root.appendChild(_e1626);return _root;}
+function Page_OldReferenceDialog(params){const _root=document.createDocumentFragment();const _e1632=WF.el("h1",{className:"wf-heading"},"Dialog");_root.appendChild(_e1632);const _e1633=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/dialog"},"Dialog");WF.activeLink(_e1633,"/reference/dialog",false);_root.appendChild(_e1633);return _root;}
 WF.page("OldReferenceDialog",Page_OldReferenceDialog);

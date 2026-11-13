@@ -1,2 +1,2 @@
-function Page_OldReferenceList(params){const _root=document.createDocumentFragment();const _e1663=WF.el("h1",{className:"wf-heading"},"List");_root.appendChild(_e1663);const _e1664=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/list"},"List");WF.activeLink(_e1664,"/reference/list",false);_root.appendChild(_e1664);return _root;}
+function Page_OldReferenceList(params){const _root=document.createDocumentFragment();const _e1670=WF.el("h1",{className:"wf-heading"},"List");_root.appendChild(_e1670);const _e1671=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/list"},"List");WF.activeLink(_e1671,"/reference/list",false);_root.appendChild(_e1671);return _root;}
 WF.page("OldReferenceList",Page_OldReferenceList);

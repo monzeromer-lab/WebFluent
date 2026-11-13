@@ -1,2 +1,2 @@
-function Page_BlueprintHomeAr(params){const _root=document.createDocumentFragment();const _e925=Component_PreviewHome({ar:true});_root.appendChild(_e925);return _root;}
+function Page_BlueprintHomeAr(params){const _root=document.createDocumentFragment();const _e932=Component_PreviewHome({ar:true});_root.appendChild(_e932);return _root;}
 WF.page("BlueprintHomeAr",Page_BlueprintHomeAr);
