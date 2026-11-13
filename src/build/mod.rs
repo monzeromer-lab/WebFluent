@@ -1004,61 +1004,92 @@ fn run(options: &BuildOptions<'_>, out: &Out<'_>) -> Result<()> {
             html
         };
 
+        let site = crate::web::codegen::ssg::SiteContext {
+            config: &config,
+            app_body: app_stmts,
+            translations: &translations,
+            components: &components,
+            program: &program,
+            program_scope: Some(&program_scope),
+            page_sheets: Some(&page_sheets),
+            node_map: nodes.as_ref(),
+        };
+        // Every file to paint: each page once, and a `:param` page once per
+        // value its `paths:` names (not at all without them).
+        let mut jobs: Vec<Paint<'_>> = Vec::new();
         for decl in &program.declarations {
             if let Declaration::Page(page) = decl {
-                let site = crate::web::codegen::ssg::SiteContext {
-                    config: &config,
-                    app_body: app_stmts,
-                    translations: &translations,
-                    components: &components,
-                    program: &program,
-                    program_scope: Some(&program_scope),
-                    page_sheets: Some(&page_sheets),
-                    node_map: nodes.as_ref(),
-                };
-                // A `:param` route is rendered once per value its `paths:`
-                // names, and not at all without them.
                 if page.path.contains(':') {
                     for (route, params) in
                         crate::web::codegen::ssg::static_routes(page, &program, &config.env)?
                     {
-                        let sorted: std::collections::BTreeMap<_, _> = params.iter().collect();
-                        let page_html = render(page, &route, &sorted, &|| {
-                            crate::web::codegen::ssg::render_page_html_with_params(
-                                page, &site, &route, &params,
-                            )
+                        jobs.push(Paint {
+                            page,
+                            route,
+                            params: Some(params),
                         });
-                        let dir = page_dir(&output_dir, &page.name, &route)?;
-                        fs::create_dir_all(&dir)?;
-                        fs::write(dir.join("index.html"), &page_html)?;
-                        written_html.push(dir.join("index.html"));
-                        write_beside(&config, &dir, &page_html)?;
                     }
-                    continue;
-                }
-                let page_html = render(page, &page.path, &(), &|| {
-                    crate::web::codegen::render_page_html(page, &site)
-                });
-
-                // Determine output path
-                let route = page.path.trim_start_matches('/');
-                if route.is_empty() || route == "/" {
-                    fs::write(output_dir.join("index.html"), &page_html)?;
-                    written_html.push(output_dir.join("index.html"));
-                } else if route == "*" {
-                    // The catch-all is what a static host serves for a path it
-                    // has no file for — GitHub Pages, Netlify and Cloudflare
-                    // Pages all look for 404.html at the root. It used to be
-                    // written to a directory literally named `*`.
-                    fs::write(output_dir.join("404.html"), &page_html)?;
-                    written_html.push(output_dir.join("404.html"));
                 } else {
-                    let dir = page_dir(&output_dir, &page.name, route)?;
-                    fs::create_dir_all(&dir)?;
-                    fs::write(dir.join("index.html"), &page_html)?;
-                    written_html.push(dir.join("index.html"));
-                    write_beside(&config, &dir, &page_html)?;
+                    jobs.push(Paint {
+                        page,
+                        route: page.path.clone(),
+                        params: None,
+                    });
                 }
+            }
+        }
+        let paint = |job: &Paint<'_>| match &job.params {
+            Some(params) => crate::web::codegen::ssg::render_page_html_with_params(
+                job.page, &site, &job.route, params,
+            ),
+            None => crate::web::codegen::render_page_html(job.page, &site),
+        };
+        // Pages do not depend on one another, so without the cache (which
+        // keeps its own books) they are painted side by side, and written
+        // in order.
+        let painted: Vec<String> = if options.cache.is_none() {
+            out.report.borrow_mut().pages_rendered += jobs.len();
+            paint_all(&jobs, &paint)
+        } else {
+            jobs.iter()
+                .map(|job| match &job.params {
+                    Some(params) => {
+                        let sorted: std::collections::BTreeMap<_, _> = params.iter().collect();
+                        render(job.page, &job.route, &sorted, &|| paint(job))
+                    }
+                    None => render(job.page, &job.route, &(), &|| paint(job)),
+                })
+                .collect()
+        };
+
+        for (job, page_html) in jobs.iter().zip(painted) {
+            let page = job.page;
+            if job.params.is_some() {
+                let dir = page_dir(&output_dir, &page.name, &job.route)?;
+                fs::create_dir_all(&dir)?;
+                fs::write(dir.join("index.html"), &page_html)?;
+                written_html.push(dir.join("index.html"));
+                write_beside(&config, &dir, &page_html)?;
+                continue;
+            }
+            // Determine output path
+            let route = page.path.trim_start_matches('/');
+            if route.is_empty() || route == "/" {
+                fs::write(output_dir.join("index.html"), &page_html)?;
+                written_html.push(output_dir.join("index.html"));
+            } else if route == "*" {
+                // The catch-all is what a static host serves for a path it
+                // has no file for — GitHub Pages, Netlify and Cloudflare
+                // Pages all look for 404.html at the root. It used to be
+                // written to a directory literally named `*`.
+                fs::write(output_dir.join("404.html"), &page_html)?;
+                written_html.push(output_dir.join("404.html"));
+            } else {
+                let dir = page_dir(&output_dir, &page.name, route)?;
+                fs::create_dir_all(&dir)?;
+                fs::write(dir.join("index.html"), &page_html)?;
+                written_html.push(dir.join("index.html"));
+                write_beside(&config, &dir, &page_html)?;
             }
         }
         if let Some(cache) = options.cache {
@@ -2124,6 +2155,58 @@ fn read_back(out: &Out<'_>, name: &str, source: &str, minified: bool) -> Result<
     ));
     out.findings(std::slice::from_ref(&d));
     Err(WebFluentError::Diagnostics(vec![d]))
+}
+
+/// One file the static paint writes: a page at one of its routes, with the
+/// values of its parameters when the route has them.
+struct Paint<'a> {
+    page: &'a crate::syntax::parser::ast::PageDecl,
+    route: String,
+    params: Option<std::collections::HashMap<String, crate::project::static_eval::Static>>,
+}
+
+/// `paint` over every job, on as many threads as the machine has (at most
+/// one per job), each taking the next job not yet taken. The results come
+/// back in the jobs' order, so the files are written as they always were.
+fn paint_all(jobs: &[Paint<'_>], paint: &(dyn Fn(&Paint<'_>) -> String + Sync)) -> Vec<String> {
+    let threads = std::thread::available_parallelism()
+        .map_or(1, std::num::NonZero::get)
+        .min(jobs.len());
+    if threads <= 1 {
+        return jobs.iter().map(paint).collect();
+    }
+    let next = std::sync::atomic::AtomicUsize::new(0);
+    let mut slots: Vec<Option<String>> = Vec::new();
+    slots.resize_with(jobs.len(), || None);
+    let done: Vec<Vec<(usize, String)>> = std::thread::scope(|scope| {
+        let workers: Vec<_> = (0..threads)
+            .map(|_| {
+                scope.spawn(|| {
+                    let mut mine = Vec::new();
+                    loop {
+                        let ix = next.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+                        let Some(job) = jobs.get(ix) else { break };
+                        mine.push((ix, paint(job)));
+                    }
+                    mine
+                })
+            })
+            .collect();
+        workers
+            .into_iter()
+            .map(|w| match w.join() {
+                Ok(painted) => painted,
+                Err(panic) => std::panic::resume_unwind(panic),
+            })
+            .collect()
+    });
+    for (ix, html) in done.into_iter().flatten() {
+        slots[ix] = Some(html);
+    }
+    slots
+        .into_iter()
+        .map(|html| html.expect("every job was painted"))
+        .collect()
 }
 
 #[cfg(test)]
