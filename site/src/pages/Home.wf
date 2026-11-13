@@ -306,7 +306,7 @@ error: the build stopped: 1 error"#, title: "wf check")
             IdeaCard(t("paths.learn.title"), body: t("paths.learn.body"), link: t("paths.learn.link"), linkTo: "/docs/guide/tutorial")
             IdeaCard(t("paths.concepts.title"), body: t("paths.concepts.body"), link: t("paths.concepts.link"), linkTo: "/docs/guide/language-basics")
             IdeaCard(t("paths.guides.title"), body: t("paths.guides.body"), link: t("paths.guides.link"), linkTo: "/docs")
-            IdeaCard(t("paths.reference.title"), body: t("paths.reference.body"), link: t("paths.reference.link"), linkTo: "/docs/reference")
+            IdeaCard(t("paths.reference.title"), body: t("paths.reference.body"), link: t("paths.reference.link"), linkTo: "/reference")
         }
     }
 

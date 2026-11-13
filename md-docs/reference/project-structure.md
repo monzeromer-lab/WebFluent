@@ -1,7 +1,7 @@
 ---
 chapter: 32
 kind: "reference"
-route: "guide/project-structure"
+route: "/reference/project"
 group: "ship"
 blurb: "Where files go, how the compiler reads them, how names work across a project, and how a project grows without getting lost."
 description: "Where files go, how they merge into one program, naming in a global namespace, wf generate, what to commit, and how to grow a project."

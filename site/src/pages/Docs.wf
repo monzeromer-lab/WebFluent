@@ -46,12 +46,12 @@ page DocsHome(path: "/docs", title: "Documentation", description: "Learn WebFlue
                 DocLink(label: "PDF documents and slide decks", to: "/docs/guide/pdf-and-slides")
             ])
             DocPath("Look up", overline: "Reference", body: "Complete, exact descriptions generated from or checked against the compiler. Scan them; you are not meant to read them start to end.", links: [
-                DocLink(label: "Components", to: "/docs/reference"),
-                DocLink(label: "Command line", to: "/docs/guide/cli"),
-                DocLink(label: "Configuration", to: "/docs/guide/config"),
-                DocLink(label: "Built-in functions and values", to: "/docs/guide/built-ins"),
-                DocLink(label: "Design tokens", to: "/docs/guide/tokens"),
-                DocLink(label: "Grammar", to: "/docs/guide/grammar")
+                DocLink(label: "Components", to: "/reference"),
+                DocLink(label: "Command line", to: "/reference/cli"),
+                DocLink(label: "Configuration", to: "/reference/config"),
+                DocLink(label: "Built-in functions and values", to: "/reference/built-ins"),
+                DocLink(label: "Design tokens", to: "/reference/tokens"),
+                DocLink(label: "Grammar", to: "/reference/grammar")
             ])
         }
 
@@ -59,7 +59,7 @@ page DocsHome(path: "/docs", title: "Documentation", description: "Learn WebFlue
             DocLink(label: "Diagnostics: every error and warning", to: "/errors"),
             DocLink(label: "Troubleshooting", to: "/docs/guide/troubleshooting"),
             DocLink(label: "Upgrading from an older version", to: "/docs/guide/upgrading"),
-            DocLink(label: "Glossary", to: "/docs/guide/glossary")
+            DocLink(label: "Glossary", to: "/reference/glossary")
         ])
 
         Heading("How these docs work", id: "how-these-docs-work").h2

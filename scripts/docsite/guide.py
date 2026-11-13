@@ -2,7 +2,8 @@
 """Write the documentation site's chapter pages from `md-docs/`.
 
 Each chapter, `md-docs/<kind>/<name>.md`, becomes
-`site/src/pages/guide/NN-<slug>.wf` (NN is its `chapter:`): a page at
+`site/src/pages/guide/NN-<slug>.wf` (NN is its `chapter:`) — but for the
+chapters whose page reference.py writes (`PROSE_ROUTES`) — a page at
 `/docs/<route>` framed by `DocsShell`, with a `Heading` per `##`/`###`,
 `Markdown` for prose and lists (so inline code, emphasis and links render),
 `CodeBlock` for a fenced block, `Terminal` for a shell block and `Table`
@@ -46,7 +47,10 @@ META = {}  # number → {route, group, blurb, description, slug, title, path}
 KINDS = ("tutorial", "recipe", "about", "reference", "error", "coming-from")
 GROUP_ORDER = []
 # The chapter drawn from the registry, not from its Markdown.
-REFERENCE_ROUTE = "reference"
+REFERENCE_ROUTE = "/reference"
+# Chapters whose page `scripts/docsite/reference.py` writes, from the
+# compiler's data: it places each one's prose (`prose()`) under its tables.
+PROSE_ROUTES = ("/reference/cli", "/reference/config", "/reference/tokens")
 # The guide's sections, in order, as the sidebar and the contents name them.
 # A chapter's `group:` is one of these; its English name is the site's
 # `nav.group.<key>` (the Arabic one is written by hand).
@@ -448,6 +452,18 @@ def contents_table() -> str:
     return "\n".join(rows)
 
 
+def prose(route: str) -> tuple[list, list]:
+    """The chapter at `route` converted, for a page another script writes:
+    its sections as `(id, label)` pairs, and its body's lines."""
+    if not META:
+        for f in chapter_files():
+            META[num_of(f)] = read_meta(f)
+    num = next(n for n, m in META.items() if m["route"] == route)
+    header, body, _, _ = convert(num, front_matter(GUIDE / META[num]["path"])[1])
+    sections = re.findall(r'Anchor\(id: "([^"]+)", label: "((?:[^"\\]|\\.)*)"\)', header[2])
+    return sections, body
+
+
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
     for old in OUT.glob("*.wf"):
@@ -458,9 +474,10 @@ def main():
     converted = {}
     for f in files:
         num = num_of(f)
-        # The components reference is drawn from the registry's own data,
-        # `site/src/registry.json`, not from its chapter.
-        if META[num]["route"] == REFERENCE_ROUTE:
+        # The components reference is drawn from the registry's own data
+        # (reference.py), not from its chapter; the CLI, configuration and
+        # tokens chapters are the prose of pages reference.py writes.
+        if META[num]["route"] == REFERENCE_ROUTE or META[num]["route"] in PROSE_ROUTES:
             TITLES[num] = META[num]["title"]
             continue
         converted[num] = (f, convert(num, front_matter(f)[1]))

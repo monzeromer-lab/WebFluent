@@ -1,0 +1,706 @@
+{
+ "count": 86,
+ "sections": [
+  "project",
+  "theme",
+  "build",
+  "dev",
+  "meta",
+  "motion",
+  "env",
+  "public_env",
+  "offline",
+  "i18n",
+  "lints"
+ ],
+ "items": [
+  {
+   "path": "name",
+   "slug": "name",
+   "section": "project",
+   "type": "string",
+   "default": "",
+   "summary": "The project's name, used where a title or a site name is not given."
+  },
+  {
+   "path": "version",
+   "slug": "version",
+   "section": "project",
+   "type": "string",
+   "default": "0.1.0",
+   "summary": "The project's version, as its author numbers it."
+  },
+  {
+   "path": "author",
+   "slug": "author",
+   "section": "project",
+   "type": "string",
+   "default": "",
+   "summary": "Who wrote it."
+  },
+  {
+   "path": "theme.name",
+   "slug": "theme-name",
+   "section": "theme",
+   "type": "string",
+   "default": "null",
+   "summary": "The `theme` declaration the build uses; unset, the one the project declares, or the baseline."
+  },
+  {
+   "path": "theme.builtin",
+   "slug": "theme-builtin",
+   "section": "theme",
+   "type": "\"full\" | \"structural\"",
+   "default": "full",
+   "summary": "`full` ships the engine's design with its layout; `structural` only the layout, for a design of your own."
+  },
+  {
+   "path": "theme.dark",
+   "slug": "theme-dark",
+   "section": "theme",
+   "type": "string",
+   "default": "null",
+   "summary": "The `theme` declaration that stands in when the reader prefers dark, or `setTheme(\"dark\")` asks."
+  },
+  {
+   "path": "theme.tokens",
+   "slug": "theme-tokens",
+   "section": "theme",
+   "type": "string map",
+   "default": "{}",
+   "summary": "Token values applied over the theme — a colour a deploy injects, a size the studio sets."
+  },
+  {
+   "path": "build.output",
+   "slug": "build-output",
+   "section": "build",
+   "type": "string",
+   "default": "./build",
+   "summary": "The directory the site is written to, inside the project (outside it only with `--allow-output-outside`)."
+  },
+  {
+   "path": "build.output_type",
+   "slug": "build-output_type",
+   "section": "build",
+   "type": "\"spa\" | \"static\" | \"pdf\" | \"slides\" | \"elements\"",
+   "default": "spa",
+   "summary": "What the project builds: a single page, a static site, a PDF, a slide deck, or custom elements."
+  },
+  {
+   "path": "build.minify",
+   "slug": "build-minify",
+   "section": "build",
+   "type": "boolean",
+   "default": "true",
+   "summary": "Minify the JavaScript and CSS; off, the output is readable and larger."
+  },
+  {
+   "path": "build.sourcemap",
+   "slug": "build-sourcemap",
+   "section": "build",
+   "type": "boolean",
+   "default": "false",
+   "summary": "Write source maps beside the JavaScript, so the browser's tools show the `.wf` lines."
+  },
+  {
+   "path": "build.ssg",
+   "slug": "build-ssg",
+   "section": "build",
+   "type": "boolean",
+   "default": "false",
+   "summary": "Pre-render every page as HTML, so it is read before any script runs."
+  },
+  {
+   "path": "build.base_path",
+   "slug": "build-base_path",
+   "section": "build",
+   "type": "string",
+   "default": "",
+   "summary": "The path the site is served under — `/Halyard` for a project site — which every link and asset begins with."
+  },
+  {
+   "path": "build.clean_urls",
+   "slug": "build-clean_urls",
+   "section": "build",
+   "type": "\"file\" | \"directory\"",
+   "default": "null",
+   "summary": "How a route's address is written so it never redirects: `file` keeps `/contact`, `directory` names it `/contact/`."
+  },
+  {
+   "path": "build.csp",
+   "slug": "build-csp",
+   "section": "build",
+   "type": "boolean",
+   "default": "false",
+   "summary": "Ship a strict content security policy: a third-party script is then blocked unless the policy names it."
+  },
+  {
+   "path": "build.split",
+   "slug": "build-split",
+   "section": "build",
+   "type": "boolean",
+   "default": "true",
+   "summary": "Write each page's code as its own file, loaded when the page is shown; off, every page ships in `app.js`."
+  },
+  {
+   "path": "build.compress",
+   "slug": "build-compress",
+   "section": "build",
+   "type": "boolean",
+   "default": "true",
+   "summary": "Write a gzipped copy of every text file beside it, for hosts that serve one."
+  },
+  {
+   "path": "build.budget",
+   "slug": "build-budget",
+   "section": "build",
+   "type": "string map",
+   "default": "{}",
+   "summary": "A size an output must stay under, gzipped — `{ \"app.js\": \"40 kB\" }` — warned of when a build is over it."
+  },
+  {
+   "path": "build.runtime",
+   "slug": "build-runtime",
+   "section": "build",
+   "type": "\"auto\" | \"full\"",
+   "default": "auto",
+   "summary": "`auto` ships only the runtime the program reaches; `full` all of it, for a script that calls it in ways the build cannot see."
+  },
+  {
+   "path": "build.elements",
+   "slug": "build-elements",
+   "section": "build",
+   "type": "strings",
+   "default": "[]",
+   "summary": "The components a custom-elements build publishes, each a tag named in kebab case."
+  },
+  {
+   "path": "build.media.pipeline",
+   "slug": "build-media-pipeline",
+   "section": "build",
+   "type": "boolean",
+   "default": "true",
+   "summary": "Resize and re-encode the images the program names; off, an image is copied as it is."
+  },
+  {
+   "path": "build.media.formats",
+   "slug": "build-media-formats",
+   "section": "build",
+   "type": "\"webp\" | \"png\" | \"jpeg\"",
+   "default": "[\"webp\"]",
+   "summary": "The formats an image is written in, best first."
+  },
+  {
+   "path": "build.media.widths",
+   "slug": "build-media-widths",
+   "section": "build",
+   "type": "integers",
+   "default": "[480, 960, 1440, 1920]",
+   "summary": "The widths an image is written at, for a page that does not say."
+  },
+  {
+   "path": "build.media.quality",
+   "slug": "build-media-quality",
+   "section": "build",
+   "type": "integer (1–100)",
+   "default": "78",
+   "summary": "How much an image keeps when it is re-encoded, 1 to 100."
+  },
+  {
+   "path": "build.pdf.page_size",
+   "slug": "build-pdf-page_size",
+   "section": "build",
+   "type": "string",
+   "default": "A4",
+   "summary": "The page: `A4`, `Letter`, or a width and height in points."
+  },
+  {
+   "path": "build.pdf.margins.top",
+   "slug": "build-pdf-margins-top",
+   "section": "build",
+   "type": "number",
+   "default": "72.0",
+   "summary": "The top margin, in points."
+  },
+  {
+   "path": "build.pdf.margins.bottom",
+   "slug": "build-pdf-margins-bottom",
+   "section": "build",
+   "type": "number",
+   "default": "72.0",
+   "summary": "The bottom margin, in points."
+  },
+  {
+   "path": "build.pdf.margins.left",
+   "slug": "build-pdf-margins-left",
+   "section": "build",
+   "type": "number",
+   "default": "72.0",
+   "summary": "The left margin, in points."
+  },
+  {
+   "path": "build.pdf.margins.right",
+   "slug": "build-pdf-margins-right",
+   "section": "build",
+   "type": "number",
+   "default": "72.0",
+   "summary": "The right margin, in points."
+  },
+  {
+   "path": "build.pdf.default_font",
+   "slug": "build-pdf-default_font",
+   "section": "build",
+   "type": "string",
+   "default": "Helvetica",
+   "summary": "The font text is set in when nothing says otherwise."
+  },
+  {
+   "path": "build.pdf.default_font_size",
+   "slug": "build-pdf-default_font_size",
+   "section": "build",
+   "type": "number",
+   "default": "12.0",
+   "summary": "The size text is set at when nothing says otherwise, in points."
+  },
+  {
+   "path": "build.pdf.output_filename",
+   "slug": "build-pdf-output_filename",
+   "section": "build",
+   "type": "string",
+   "default": "null",
+   "summary": "The name the PDF is written under; unset, the project's name."
+  },
+  {
+   "path": "build.pdf.fonts",
+   "slug": "build-pdf-fonts",
+   "section": "build",
+   "type": "strings",
+   "default": "[]",
+   "summary": "Font files or folders to embed, beside the project's `fonts/`."
+  },
+  {
+   "path": "build.pdf.system_fonts",
+   "slug": "build-pdf-system_fonts",
+   "section": "build",
+   "type": "boolean",
+   "default": "true",
+   "summary": "Let the machine's fonts stand in for a family or a character the project's fonts lack."
+  },
+  {
+   "path": "build.slides.size",
+   "slug": "build-slides-size",
+   "section": "build",
+   "type": "string",
+   "default": "16:9",
+   "summary": "The slide: `16:9`, `4:3`, `A4-landscape`, or a width and height in points."
+  },
+  {
+   "path": "build.slides.width",
+   "slug": "build-slides-width",
+   "section": "build",
+   "type": "number",
+   "default": "null",
+   "summary": "A width in points, over `size`."
+  },
+  {
+   "path": "build.slides.height",
+   "slug": "build-slides-height",
+   "section": "build",
+   "type": "number",
+   "default": "null",
+   "summary": "A height in points, over `size`."
+  },
+  {
+   "path": "build.slides.default_font",
+   "slug": "build-slides-default_font",
+   "section": "build",
+   "type": "string",
+   "default": "Helvetica",
+   "summary": "The font a slide is set in when nothing says otherwise."
+  },
+  {
+   "path": "build.slides.default_font_size",
+   "slug": "build-slides-default_font_size",
+   "section": "build",
+   "type": "number",
+   "default": "24.0",
+   "summary": "The size a slide's text is set at when nothing says otherwise, in points."
+  },
+  {
+   "path": "build.slides.margin",
+   "slug": "build-slides-margin",
+   "section": "build",
+   "type": "number",
+   "default": "60.0",
+   "summary": "The margin around every slide, in points."
+  },
+  {
+   "path": "build.slides.show_slide_numbers",
+   "slug": "build-slides-show_slide_numbers",
+   "section": "build",
+   "type": "boolean",
+   "default": "false",
+   "summary": "Number the slides, bottom right."
+  },
+  {
+   "path": "build.slides.footer_text",
+   "slug": "build-slides-footer_text",
+   "section": "build",
+   "type": "string",
+   "default": "null",
+   "summary": "A line shown bottom left on every slide."
+  },
+  {
+   "path": "build.slides.background_color",
+   "slug": "build-slides-background_color",
+   "section": "build",
+   "type": "string",
+   "default": "null",
+   "summary": "The deck's background colour; a slide's own style overrides it."
+  },
+  {
+   "path": "build.slides.chrome_color",
+   "slug": "build-slides-chrome_color",
+   "section": "build",
+   "type": "string",
+   "default": "null",
+   "summary": "The colour of the numbers and the footer; unset, chosen from each slide's background."
+  },
+  {
+   "path": "build.slides.output_filename",
+   "slug": "build-slides-output_filename",
+   "section": "build",
+   "type": "string",
+   "default": "null",
+   "summary": "The name the deck is written under; unset, the project's name."
+  },
+  {
+   "path": "build.slides.fonts",
+   "slug": "build-slides-fonts",
+   "section": "build",
+   "type": "strings",
+   "default": "[]",
+   "summary": "Font files or folders to embed, beside the project's `fonts/`."
+  },
+  {
+   "path": "build.slides.system_fonts",
+   "slug": "build-slides-system_fonts",
+   "section": "build",
+   "type": "boolean",
+   "default": "true",
+   "summary": "Let the machine's fonts stand in for a family or a character the project's fonts lack."
+  },
+  {
+   "path": "dev.port",
+   "slug": "dev-port",
+   "section": "dev",
+   "type": "integer (1–65535)",
+   "default": "3000",
+   "summary": "The port `wf serve` listens on."
+  },
+  {
+   "path": "dev.hot_reload",
+   "slug": "dev-hot_reload",
+   "section": "dev",
+   "type": "boolean",
+   "default": "true",
+   "summary": "Reload the page in the browser when a build finishes."
+  },
+  {
+   "path": "meta.title",
+   "slug": "meta-title",
+   "section": "meta",
+   "type": "string",
+   "default": "",
+   "summary": "The site's title, for a page that does not give its own."
+  },
+  {
+   "path": "meta.description",
+   "slug": "meta-description",
+   "section": "meta",
+   "type": "string",
+   "default": "",
+   "summary": "The site's description, for a page that does not give its own."
+  },
+  {
+   "path": "meta.lang",
+   "slug": "meta-lang",
+   "section": "meta",
+   "type": "string",
+   "default": "en",
+   "summary": "The language the pages are written in, as a tag: `en`, `ar`, `pt-BR`."
+  },
+  {
+   "path": "meta.favicon",
+   "slug": "meta-favicon",
+   "section": "meta",
+   "type": "file",
+   "default": "",
+   "summary": "The icon a tab shows: a file in `public/` or a URL."
+  },
+  {
+   "path": "meta.touch_icon",
+   "slug": "meta-touch_icon",
+   "section": "meta",
+   "type": "file",
+   "default": "",
+   "summary": "The icon a phone puts on its home screen: a 180×180 PNG in `public/`."
+  },
+  {
+   "path": "meta.site_url",
+   "slug": "meta-site_url",
+   "section": "meta",
+   "type": "string",
+   "default": "",
+   "summary": "The site's own origin — `https://example.com` — without which no canonical link or sitemap is written."
+  },
+  {
+   "path": "meta.site_name",
+   "slug": "meta-site_name",
+   "section": "meta",
+   "type": "string",
+   "default": "",
+   "summary": "The person or organisation behind the site, for search results and sharing; unset, the project's name."
+  },
+  {
+   "path": "meta.owner",
+   "slug": "meta-owner",
+   "section": "meta",
+   "type": "\"organization\" | \"person\"",
+   "default": "organization",
+   "summary": "Whether the site belongs to an organisation or a person, for the structured data it publishes."
+  },
+  {
+   "path": "meta.same_as",
+   "slug": "meta-same_as",
+   "section": "meta",
+   "type": "strings",
+   "default": "[]",
+   "summary": "The owner's other profiles, which a search engine joins to the site."
+  },
+  {
+   "path": "meta.job_title",
+   "slug": "meta-job_title",
+   "section": "meta",
+   "type": "string",
+   "default": "",
+   "summary": "What a person who owns the site does."
+  },
+  {
+   "path": "meta.owner_details",
+   "slug": "meta-owner_details",
+   "section": "meta",
+   "type": "map",
+   "default": "null",
+   "summary": "More of what the owner is, as schema.org properties: an email, a logo, where they work."
+  },
+  {
+   "path": "meta.image",
+   "slug": "meta-image",
+   "section": "meta",
+   "type": "file",
+   "default": "",
+   "summary": "The image a link to a page shows when shared, for a page that does not name its own."
+  },
+  {
+   "path": "meta.image_alt",
+   "slug": "meta-image_alt",
+   "section": "meta",
+   "type": "string",
+   "default": "",
+   "summary": "What the sharing image shows, for a reader who cannot see it."
+  },
+  {
+   "path": "meta.sitemap",
+   "slug": "meta-sitemap",
+   "section": "meta",
+   "type": "boolean",
+   "default": "true",
+   "summary": "Write `sitemap.xml` and `robots.txt` for a static build."
+  },
+  {
+   "path": "meta.fonts",
+   "slug": "meta-fonts",
+   "section": "meta",
+   "type": "strings",
+   "default": "[]",
+   "summary": "Web-font stylesheets to load, by URL, before the site's own styles."
+  },
+  {
+   "path": "meta.preload",
+   "slug": "meta-preload",
+   "section": "meta",
+   "type": "strings",
+   "default": "[]",
+   "summary": "Files to fetch early, before the page asks for them: a font, a hero image."
+  },
+  {
+   "path": "meta.stylesheets",
+   "slug": "meta-stylesheets",
+   "section": "meta",
+   "type": "strings",
+   "default": "[]",
+   "summary": "Stylesheets of the project's own or another site's, linked on every page."
+  },
+  {
+   "path": "meta.scripts",
+   "slug": "meta-scripts",
+   "section": "meta",
+   "type": "scripts",
+   "default": "[]",
+   "summary": "Scripts every page loads — a library, an analytics tag — and the globals they define."
+  },
+  {
+   "path": "meta.integrity",
+   "slug": "meta-integrity",
+   "section": "meta",
+   "type": "string map",
+   "default": "{}",
+   "summary": "The integrity hash of each asset from another site, so the browser checks it has not changed."
+  },
+  {
+   "path": "meta.connect",
+   "slug": "meta-connect",
+   "section": "meta",
+   "type": "strings",
+   "default": "[]",
+   "summary": "The origins a page may fetch from or connect to, beyond its own, under the security policy."
+  },
+  {
+   "path": "meta.img",
+   "slug": "meta-img",
+   "section": "meta",
+   "type": "strings",
+   "default": "[]",
+   "summary": "The origins a page may show images from, beyond its own, under the security policy."
+  },
+  {
+   "path": "meta.frame",
+   "slug": "meta-frame",
+   "section": "meta",
+   "type": "strings",
+   "default": "[]",
+   "summary": "The origins a page may show in a frame, under the security policy."
+  },
+  {
+   "path": "meta.wasm",
+   "slug": "meta-wasm",
+   "section": "meta",
+   "type": "boolean",
+   "default": "false",
+   "summary": "Let a page run WebAssembly, under the security policy."
+  },
+  {
+   "path": "meta.style_elements",
+   "slug": "meta-style_elements",
+   "section": "meta",
+   "type": "boolean",
+   "default": "false",
+   "summary": "Let a library write `<style>` elements, under the security policy."
+  },
+  {
+   "path": "motion.duration",
+   "slug": "motion-duration",
+   "section": "motion",
+   "type": "string",
+   "default": "null",
+   "summary": "How long an animation runs when the element does not say: `180ms`."
+  },
+  {
+   "path": "motion.easing",
+   "slug": "motion-easing",
+   "section": "motion",
+   "type": "string",
+   "default": "null",
+   "summary": "How an animation is paced when the element does not say: a token or a CSS timing function."
+  },
+  {
+   "path": "env",
+   "slug": "env",
+   "section": "env",
+   "type": "map",
+   "default": "{}",
+   "summary": "Values the program reads as `env.NAME`, set per build."
+  },
+  {
+   "path": "public_env",
+   "slug": "public_env",
+   "section": "public_env",
+   "type": "strings",
+   "default": "[]",
+   "summary": "The `env` names a page may read and so ships to the browser, beyond those beginning `PUBLIC_`."
+  },
+  {
+   "path": "offline.precache",
+   "slug": "offline-precache",
+   "section": "offline",
+   "type": "strings",
+   "default": "[\"/\"]",
+   "summary": "The routes a first visit stores for when the network is gone, as globs: `/`, `/docs/*`."
+  },
+  {
+   "path": "offline.fallback",
+   "slug": "offline-fallback",
+   "section": "offline",
+   "type": "string",
+   "default": "null",
+   "summary": "The page shown offline for a route that is not stored."
+  },
+  {
+   "path": "offline.cache",
+   "slug": "offline-cache",
+   "section": "offline",
+   "type": "\"network-first\" | \"cache-first\" | \"stale-while-revalidate\" | \"network-only\"",
+   "default": "{}",
+   "summary": "How a path the build did not write is fetched, by glob: `network-first`, `cache-first`, `stale-while-revalidate` or `network-only`."
+  },
+  {
+   "path": "offline.sync",
+   "slug": "offline-sync",
+   "section": "offline",
+   "type": "boolean",
+   "default": "false",
+   "summary": "Queue a write made while offline, and send it when the connection returns."
+  },
+  {
+   "path": "i18n.default_locale",
+   "slug": "i18n-default_locale",
+   "section": "i18n",
+   "type": "string",
+   "default": "en",
+   "summary": "The language a message is shown in when a locale has no translation of it."
+  },
+  {
+   "path": "i18n.locales",
+   "slug": "i18n-locales",
+   "section": "i18n",
+   "type": "strings",
+   "default": "[\"en\"]",
+   "summary": "The languages the project is translated into, each a file under `dir`."
+  },
+  {
+   "path": "i18n.dir",
+   "slug": "i18n-dir",
+   "section": "i18n",
+   "type": "string",
+   "default": "src/translations",
+   "summary": "The folder the translation files are in."
+  },
+  {
+   "path": "i18n.literals",
+   "slug": "i18n-literals",
+   "section": "i18n",
+   "type": "boolean",
+   "default": "false",
+   "summary": "Translate by the words themselves: each string a reader sees is its own key."
+  },
+  {
+   "path": "lints",
+   "slug": "lints",
+   "section": "lints",
+   "type": "\"off\" | \"warn\" | \"error\"",
+   "default": "{}",
+   "summary": "What a finding counts as, by its code or family: `off`, `warn` or `error`."
+  }
+ ]
+}

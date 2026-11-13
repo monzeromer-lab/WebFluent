@@ -342,6 +342,6 @@ page Items(path: "/items", title: "Items", description: "Everything, a page at a
 
         Heading("Where to go next", id: "where-to-go-next").h2
 
-        Markdown("- The [components reference](/docs/reference), for every prop and flag.\n- `examples/` in the repository: the tutorials, reference PDFs and slide decks, and the `tests/fixtures/` projects — a gallery, a dashboard, a docs site, an offline site — each complete.\n- `wf docs` in your own project, for what *your* components take.")
+        Markdown("- The [components reference](/reference), for every prop and flag.\n- `examples/` in the repository: the tutorials, reference PDFs and slide decks, and the `tests/fixtures/` projects — a gallery, a dashboard, a docs site, an offline site — each complete.\n- `wf docs` in your own project, for what *your* components take.")
     }
 }

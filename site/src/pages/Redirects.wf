@@ -17,9 +17,9 @@ page OldOutputs(path: "/docs/guide/outputs", title: "PDF and slides", descriptio
     Link(t("ch.37"), to: "/docs/guide/pdf-and-slides")
 }
 
-page OldTooling(path: "/docs/guide/tooling", title: "Command line and editors", description: "This chapter moved.", guard: false, redirect: "/docs/guide/cli", noindex: true) {
+page OldTooling(path: "/docs/guide/tooling", title: "Command line and editors", description: "This chapter moved.", guard: false, redirect: "/reference/cli", noindex: true) {
     Heading(t("ch.41")).h1
-    Link(t("ch.41"), to: "/docs/guide/cli")
+    Link(t("ch.41"), to: "/reference/cli")
 }
 
 /// The cookbook became the tutorials: three projects built step by step.

@@ -285,6 +285,6 @@ page StateGuide(path: "/docs/guide/state", title: "State and reactivity", descri
             }
         }
 
-        Markdown("[Grammar](/docs/guide/grammar) and [Built-in functions](/docs/guide/built-ins) are the reference for each.")
+        Markdown("[Grammar](/reference/grammar) and [Built-in functions](/reference/built-ins) are the reference for each.")
     }
 }

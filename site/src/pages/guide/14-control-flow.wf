@@ -140,7 +140,7 @@ page Job(path: "/", title: "Job", description: "One arm per case of an enum.") {
     Text("{size} {label}")
 }"#, title: "wf")
 
-        Markdown("An `if` value with no `else` is `null` when its condition fails. [Expressions](/docs/guide/expressions) has the rest.")
+        Markdown("An `if` value with no `else` is `null` when its condition fails. [Expressions](/reference/expressions) has the rest.")
 
         Heading("In actions and handlers", id: "in-actions-and-handlers").h2
 

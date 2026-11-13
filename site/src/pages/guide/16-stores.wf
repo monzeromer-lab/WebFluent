@@ -347,7 +347,7 @@ page DeploysPage(path: "/deploys", title: "Deploys", description: "Every deploy.
             }
         }
 
-        Markdown("Nothing is recorded while nothing is watching, so a deployed site pays nothing for any of it. See [Runtime API](/docs/guide/runtime).")
+        Markdown("Nothing is recorded while nothing is watching, so a deployed site pays nothing for any of it. See [Runtime API](/reference/runtime).")
 
         Heading("Testing a store", id: "testing-a-store").h2
 

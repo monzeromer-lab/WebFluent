@@ -1,0 +1,669 @@
+{
+ "count": 26,
+ "items": [
+  {
+   "name": "init",
+   "slug": "init",
+   "summary": "Create a new WebFluent project",
+   "writes": "a new project's folder",
+   "preview": "",
+   "usage": "wf init NAME [options]",
+   "options": [
+    {
+     "name": "NAME",
+     "type": "text",
+     "meaning": "Project name"
+    },
+    {
+     "name": "--template, -t TEMPLATE",
+     "type": "spa | static | pdf | slides",
+     "meaning": "Template: \"spa\" (default), \"static\", \"pdf\", or \"slides\""
+    },
+    {
+     "name": "--locales, -l LOCALES",
+     "type": "text",
+     "meaning": "Start it translated: the locales, comma-separated, the default first (\"en,ar\"). Every visible string goes through t(), and src/translations/ holds a file for each. spa and static only"
+    }
+   ]
+  },
+  {
+   "name": "build",
+   "slug": "build",
+   "summary": "Build the project (compile .wf files to HTML + CSS + JS)",
+   "writes": "the site, in the output folder",
+   "preview": "",
+   "usage": "wf build [options]",
+   "options": [
+    {
+     "name": "--dir, -d DIR",
+     "type": "path",
+     "meaning": "Project directory (default: current directory)"
+    },
+    {
+     "name": "--stats",
+     "type": "flag",
+     "meaning": "Print what the build weighs: every file, gzipped, and the runtime modules it kept and left out"
+    },
+    {
+     "name": "--format FORMAT",
+     "type": "human | json | sarif | github",
+     "meaning": "How findings are written: `human` (default), `json`, `sarif` (code scanning) or `github` (annotations on a pull request)"
+    },
+    {
+     "name": "--deny-warnings",
+     "type": "flag",
+     "meaning": "Let a warning stop the build as an error does"
+    },
+    {
+     "name": "--cache",
+     "type": "flag",
+     "meaning": "Reuse what earlier builds rendered, kept in `.wf-cache/build/`: only the pages an edit changed are rendered again"
+    },
+    {
+     "name": "--studio",
+     "type": "flag",
+     "meaning": "For an editor's preview: stamp every element with its node id (`data-wf-node`) and write `nodes.json`, from each id to its source"
+    },
+    {
+     "name": "--allow-output-outside",
+     "type": "flag",
+     "meaning": "Let `build.output` name a directory outside the project; without it a build writes only inside the project"
+    }
+   ]
+  },
+  {
+   "name": "check",
+   "slug": "check",
+   "summary": "Check the project — every finding a build would report — and write nothing",
+   "writes": "",
+   "preview": "",
+   "usage": "wf check [options]",
+   "options": [
+    {
+     "name": "--dir, -d DIR",
+     "type": "path",
+     "meaning": "Project directory (default: current directory)"
+    },
+    {
+     "name": "--format FORMAT",
+     "type": "human | json | sarif | github",
+     "meaning": "How findings are written: `human` (default), `json`, `sarif` (code scanning) or `github` (annotations on a pull request)"
+    },
+    {
+     "name": "--deny-warnings",
+     "type": "flag",
+     "meaning": "Fail on a warning too"
+    },
+    {
+     "name": "--allow-output-outside",
+     "type": "flag",
+     "meaning": "Accept a `build.output` outside the project, as `wf build --allow-output-outside` does; without it the check reports what the build would refuse"
+    }
+   ]
+  },
+  {
+   "name": "config",
+   "slug": "config",
+   "summary": "Read and change `webfluent.app.json`: every setting, what the project sets, and an edit that keeps the file's shape",
+   "writes": "",
+   "preview": "",
+   "usage": "wf config",
+   "options": []
+  },
+  {
+   "name": "motion",
+   "slug": "motion",
+   "summary": "The animations an element can play, the eases and speeds, the route transitions and the project's default",
+   "writes": "",
+   "preview": "",
+   "usage": "wf motion [options]",
+   "options": [
+    {
+     "name": "--dir, -d DIR",
+     "type": "path",
+     "meaning": "Project directory (default: current directory)"
+    },
+    {
+     "name": "--json",
+     "type": "flag",
+     "meaning": "Print JSON, for tools"
+    }
+   ]
+  },
+  {
+   "name": "context",
+   "slug": "context",
+   "summary": "What an agent is given: the files, the open file, the problems, the components, the theme, the config with only its public env, the guide, and what was withheld",
+   "writes": "",
+   "preview": "",
+   "usage": "wf context [options]",
+   "options": [
+    {
+     "name": "--dir, -d DIR",
+     "type": "path",
+     "meaning": "Project directory (default: current directory)"
+    },
+    {
+     "name": "--open OPEN",
+     "type": "text",
+     "meaning": "The file open in the editor, and its selection as byte offsets: `src/pages/Home.wf` or `src/pages/Home.wf:120-180`"
+    },
+    {
+     "name": "--guide GUIDE",
+     "type": "text",
+     "meaning": "The guide as its chapters' sections (`index`) or whole (`full`) (default `index`)"
+    },
+    {
+     "name": "--json",
+     "type": "flag",
+     "meaning": "Print JSON, for tools; otherwise one Markdown document"
+    }
+   ]
+  },
+  {
+   "name": "translations",
+   "slug": "translations",
+   "summary": "The translations as a table: each locale's plural forms and what it lacks, each key's messages, and where a `t()` names it",
+   "writes": "",
+   "preview": "",
+   "usage": "wf translations [options]",
+   "options": [
+    {
+     "name": "--dir, -d DIR",
+     "type": "path",
+     "meaning": "Project directory (default: current directory)"
+    },
+    {
+     "name": "--missing MISSING",
+     "type": "text",
+     "meaning": "Only the keys this locale has no message for"
+    },
+    {
+     "name": "--unused",
+     "type": "flag",
+     "meaning": "Only the keys nothing names"
+    },
+    {
+     "name": "--plurals",
+     "type": "flag",
+     "meaning": "CLDR's plural rules instead: every locale's forms, and the form each of a run of counts takes"
+    },
+    {
+     "name": "--json",
+     "type": "flag",
+     "meaning": "Print JSON, for tools"
+    }
+   ]
+  },
+  {
+   "name": "scope",
+   "slug": "scope",
+   "summary": "What a path picker lists at a place: the names in scope there, each with its type and where it comes from, and the fields to go on into",
+   "writes": "",
+   "preview": "",
+   "usage": "wf scope PLACE [options]",
+   "options": [
+    {
+     "name": "PLACE",
+     "type": "text",
+     "meaning": "The place: `src/pages/Signup.wf:24` or `…:24:9`"
+    },
+    {
+     "name": "--dir, -d DIR",
+     "type": "path",
+     "meaning": "Project directory (default: current directory)"
+    },
+    {
+     "name": "--data DATA",
+     "type": "path",
+     "meaning": "A template's data, a JSON file, to list after the scope"
+    },
+    {
+     "name": "--json",
+     "type": "flag",
+     "meaning": "Print JSON, for tools"
+    }
+   ]
+  },
+  {
+   "name": "rules",
+   "slug": "rules",
+   "summary": "The rules a `validate` block may hold, the named patterns, when a form shows its messages, and every state the project holds to a rule",
+   "writes": "",
+   "preview": "",
+   "usage": "wf rules [options]",
+   "options": [
+    {
+     "name": "--dir, -d DIR",
+     "type": "path",
+     "meaning": "Project directory (default: current directory)"
+    },
+    {
+     "name": "--json",
+     "type": "flag",
+     "meaning": "Print JSON, for tools"
+    }
+   ]
+  },
+  {
+   "name": "theme",
+   "slug": "theme",
+   "summary": "The theme the build uses: every token, declared or inherited, where each is used, and its contrast pairs",
+   "writes": "",
+   "preview": "",
+   "usage": "wf theme [options]",
+   "options": [
+    {
+     "name": "--dir, -d DIR",
+     "type": "path",
+     "meaning": "Project directory (default: current directory)"
+    },
+    {
+     "name": "--json",
+     "type": "flag",
+     "meaning": "Print JSON, for tools"
+    }
+   ]
+  },
+  {
+   "name": "components",
+   "slug": "components",
+   "summary": "Every component a call can name — the built-ins and the project's — with what each takes: its props and their kinds, events, slots, parts and children",
+   "writes": "",
+   "preview": "",
+   "usage": "wf components [options]",
+   "options": [
+    {
+     "name": "--dir, -d DIR",
+     "type": "path",
+     "meaning": "Project directory (default: current directory)"
+    },
+    {
+     "name": "--json",
+     "type": "flag",
+     "meaning": "Print JSON, for tools"
+    }
+   ]
+  },
+  {
+   "name": "assets",
+   "slug": "assets",
+   "summary": "What `public/` holds — each file's kind, size and dimensions, and where the project names it — or what the media pipeline will make of one image",
+   "writes": "",
+   "preview": "",
+   "usage": "wf assets [options]",
+   "options": [
+    {
+     "name": "--dir, -d DIR",
+     "type": "path",
+     "meaning": "Project directory (default: current directory)"
+    },
+    {
+     "name": "--plan PATH",
+     "type": "text",
+     "meaning": "What the pipeline will make of this image of `public/`: `/hero.png`"
+    },
+    {
+     "name": "--unused",
+     "type": "flag",
+     "meaning": "Only the files nothing names"
+    },
+    {
+     "name": "--json",
+     "type": "flag",
+     "meaning": "Print JSON, for tools"
+    }
+   ]
+  },
+  {
+   "name": "commands",
+   "slug": "commands",
+   "summary": "Every `wf` command, its options and what it writes, as data",
+   "writes": "",
+   "preview": "",
+   "usage": "wf commands [options]",
+   "options": [
+    {
+     "name": "--json",
+     "type": "flag",
+     "meaning": "Print JSON, for tools"
+    }
+   ]
+  },
+  {
+   "name": "fix",
+   "slug": "fix",
+   "summary": "Fix every finding that has a fix — or every one of a code — as `wf check` and the editor offer it, and say what is left",
+   "writes": "the project's source files",
+   "preview": "--dry-run",
+   "usage": "wf fix [options]",
+   "options": [
+    {
+     "name": "--dir, -d DIR",
+     "type": "path",
+     "meaning": "Project directory (default: current directory)"
+    },
+    {
+     "name": "--code CODE",
+     "type": "text",
+     "meaning": "Only this code's findings: `V01`, `A01`"
+    },
+    {
+     "name": "--dry-run",
+     "type": "flag",
+     "meaning": "Write nothing; say what would change"
+    }
+   ]
+  },
+  {
+   "name": "explain",
+   "slug": "explain",
+   "summary": "What a diagnostic code means, a program that draws it, and the fix; with no code, every code",
+   "writes": "",
+   "preview": "",
+   "usage": "wf explain [CODE] [options]",
+   "options": [
+    {
+     "name": "[CODE]",
+     "type": "text",
+     "meaning": "The code: `T05`, `A01`, `E101`"
+    },
+    {
+     "name": "--json",
+     "type": "flag",
+     "meaning": "Print JSON, for tools: one code, or every code without one"
+    }
+   ]
+  },
+  {
+   "name": "serve",
+   "slug": "serve",
+   "summary": "Start the development server",
+   "writes": "the site, in the output folder, on every save",
+   "preview": "",
+   "usage": "wf serve [options]",
+   "options": [
+    {
+     "name": "--dir, -d DIR",
+     "type": "path",
+     "meaning": "Project directory (default: current directory)"
+    },
+    {
+     "name": "--host HOST",
+     "type": "text",
+     "meaning": "The address to listen on: this machine only by default; `0.0.0.0` lets a phone on the same network reach it"
+    },
+    {
+     "name": "--allow-output-outside",
+     "type": "flag",
+     "meaning": "Let `build.output` name a directory outside the project"
+    }
+   ]
+  },
+  {
+   "name": "generate",
+   "slug": "generate",
+   "summary": "Generate a new page, component, or store",
+   "writes": "a new source file",
+   "preview": "",
+   "usage": "wf generate KIND NAME [options]",
+   "options": [
+    {
+     "name": "KIND",
+     "type": "page | component | store",
+     "meaning": "What to generate: page, component, or store"
+    },
+    {
+     "name": "NAME",
+     "type": "text",
+     "meaning": "Name of the item to generate"
+    },
+    {
+     "name": "--dir, -d DIR",
+     "type": "path",
+     "meaning": "Project directory (default: current directory)"
+    }
+   ]
+  },
+  {
+   "name": "render",
+   "slug": "render",
+   "summary": "Render a .wf template with JSON data",
+   "writes": "the file `--output` names",
+   "preview": "",
+   "usage": "wf render TEMPLATE [options]",
+   "options": [
+    {
+     "name": "TEMPLATE",
+     "type": "path",
+     "meaning": "Template file (.wf or .wfx), or a directory: every template under it as one, components shared"
+    },
+    {
+     "name": "--data DATA",
+     "type": "path",
+     "meaning": "JSON data file (reads stdin if omitted)"
+    },
+    {
+     "name": "--format, -f FORMAT",
+     "type": "html | html-fragment | pdf | slides",
+     "meaning": "Output format: \"html\" (default), \"html-fragment\", \"pdf\", or \"slides\""
+    },
+    {
+     "name": "--output, -o OUTPUT",
+     "type": "path",
+     "meaning": "Output file (stdout if omitted)"
+    },
+    {
+     "name": "--theme THEME",
+     "type": "text",
+     "meaning": "Which `Theme` declared in the template to render with. Only needed when the template declares more than one"
+    },
+    {
+     "name": "--token NAME=VALUE",
+     "type": "text, repeats",
+     "meaning": "A design token over the theme's, `NAME=VALUE`; may be given more than once"
+    },
+    {
+     "name": "--page PAGE",
+     "type": "text",
+     "meaning": "The page to render, by name, when the template has several"
+    },
+    {
+     "name": "--lang LANG",
+     "type": "text",
+     "meaning": "The document's language, `<html lang>` (default: the page's `lang:`, else `en`)"
+    }
+   ]
+  },
+  {
+   "name": "migrate",
+   "slug": "migrate",
+   "summary": "Carry a project forward: WebFluent 2 sources to the current grammar, then a 3 project to what 4 allows",
+   "writes": "the project's source files",
+   "preview": "--check",
+   "usage": "wf migrate [PATH] [options]",
+   "options": [
+    {
+     "name": "[PATH]",
+     "type": "path",
+     "meaning": "Project directory (default: current directory), or one .wf file"
+    },
+    {
+     "name": "--check",
+     "type": "flag",
+     "meaning": "Report what would change without writing anything"
+    },
+    {
+     "name": "--stdout",
+     "type": "flag",
+     "meaning": "Print the migrated text of one file to stdout instead of writing it"
+    },
+    {
+     "name": "--wfx",
+     "type": "flag",
+     "meaning": "Write the migrated files in the indented layout, as `.wfx`"
+    }
+   ]
+  },
+  {
+   "name": "docs",
+   "slug": "docs",
+   "summary": "Write a component gallery: every built-in, and what the project declares",
+   "writes": "a gallery, in the folder `--out` names",
+   "preview": "",
+   "usage": "wf docs [options]",
+   "options": [
+    {
+     "name": "--dir, -d DIR",
+     "type": "path",
+     "meaning": "Project directory (default: current directory)"
+    },
+    {
+     "name": "--out, -o OUT",
+     "type": "path",
+     "meaning": "Where to write index.html (default: docs/)"
+    }
+   ]
+  },
+  {
+   "name": "test",
+   "slug": "test",
+   "summary": "Run the project's `test \"…\" { … }` declarations under tests/",
+   "writes": "the snapshots, with `--update`",
+   "preview": "",
+   "usage": "wf test [PATH] [options]",
+   "options": [
+    {
+     "name": "[PATH]",
+     "type": "path",
+     "meaning": "Project directory (default: current directory), or one test file"
+    },
+    {
+     "name": "--update",
+     "type": "flag",
+     "meaning": "Rewrite every snapshot with the current render"
+    }
+   ]
+  },
+  {
+   "name": "audit",
+   "slug": "audit",
+   "summary": "What this project trusts: markup it did not write, other origins, what it keeps on the reader's machine, its `env` names, its policy and its dependencies",
+   "writes": "",
+   "preview": "",
+   "usage": "wf audit [PATH] [options]",
+   "options": [
+    {
+     "name": "[PATH]",
+     "type": "path",
+     "meaning": "Project directory (default: current directory)"
+    },
+    {
+     "name": "--json",
+     "type": "flag",
+     "meaning": "Print JSON, for tools"
+    }
+   ]
+  },
+  {
+   "name": "verify",
+   "slug": "verify",
+   "summary": "Load every page of a built project in a real browser: errors, failed requests, paint timing, and which built-ins it drew",
+   "writes": "",
+   "preview": "",
+   "usage": "wf verify [PATH] [options]",
+   "options": [
+    {
+     "name": "[PATH]",
+     "type": "path",
+     "meaning": "Project directory (default: current directory)"
+    },
+    {
+     "name": "--json",
+     "type": "flag",
+     "meaning": "Print JSON, for a pipeline"
+    },
+    {
+     "name": "--budget MS",
+     "type": "number",
+     "meaning": "Fail a route whose first paint is slower than this, in milliseconds"
+    },
+    {
+     "name": "--returning-visitor",
+     "type": "flag",
+     "meaning": "Visit every route again as a reader whose storage holds what the previous build's pages kept"
+    },
+    {
+     "name": "--allow-output-outside",
+     "type": "flag",
+     "meaning": "Let `build.output` name a directory outside the project"
+    }
+   ]
+  },
+  {
+   "name": "registry",
+   "slug": "registry",
+   "summary": "Describe every built-in component: props, cases, flags, events, slots, parts",
+   "writes": "",
+   "preview": "",
+   "usage": "wf registry [options]",
+   "options": [
+    {
+     "name": "--json",
+     "type": "flag",
+     "meaning": "Print JSON, for tools"
+    }
+   ]
+  },
+  {
+   "name": "types",
+   "slug": "types",
+   "summary": "Describe what a project declares: enums, types, components, stores, pages",
+   "writes": "",
+   "preview": "",
+   "usage": "wf types [PATH] [options]",
+   "options": [
+    {
+     "name": "[PATH]",
+     "type": "path",
+     "meaning": "Project directory (default: current directory)"
+    },
+    {
+     "name": "--json",
+     "type": "flag",
+     "meaning": "Print JSON, for tools"
+    }
+   ]
+  },
+  {
+   "name": "fmt",
+   "slug": "fmt",
+   "summary": "Format a project's source files; with `--to`, rewrite them in the other layout: `.wfx` (blocks by indentation) or `.wf` (blocks in braces)",
+   "writes": "the project's source files",
+   "preview": "--check",
+   "usage": "wf fmt [PATH] [options]",
+   "options": [
+    {
+     "name": "[PATH]",
+     "type": "path",
+     "meaning": "Project directory (default: current directory), or one file"
+    },
+    {
+     "name": "--to TO",
+     "type": "wfx | wf",
+     "meaning": "Change the layout instead: `wfx` or `wf`"
+    },
+    {
+     "name": "--check",
+     "type": "flag",
+     "meaning": "Write nothing; fail when a file is not formatted"
+    },
+    {
+     "name": "--stdout",
+     "type": "flag",
+     "meaning": "Print the formatted text to stdout instead of writing it"
+    }
+   ]
+  }
+ ]
+}

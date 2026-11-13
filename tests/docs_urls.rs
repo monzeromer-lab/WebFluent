@@ -69,14 +69,15 @@ fn answers(route: &str, url: &str) -> bool {
 }
 
 /// A page on a `:param` route answers only the values its `paths:` name. The
-/// components reference's are the registry's slugs; any other parameter
-/// route the old site listed is checked by shape alone.
+/// components reference's are the slugs of `scripts/docsite/reference.py`'s
+/// data; any other parameter route the old site listed is checked by shape
+/// alone.
 fn reference_slugs() -> Vec<String> {
-    let registry: serde_json::Value = serde_json::from_str(
-        &std::fs::read_to_string(root().join("site/src/registry.json")).unwrap(),
+    let builtins: serde_json::Value = serde_json::from_str(
+        &std::fs::read_to_string(root().join("site/src/data/components.json")).unwrap(),
     )
     .unwrap();
-    registry["components"]
+    builtins["items"]
         .as_array()
         .unwrap()
         .iter()

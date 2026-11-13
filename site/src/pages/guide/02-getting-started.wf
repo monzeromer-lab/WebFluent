@@ -100,7 +100,7 @@ Starting dev server at http://localhost:3000/"#, title: "text")
                 Line(command: "cargo install --path crates/wf-lsp")
             ])
 
-        Markdown("Then connect your editor:\n\n- **VS Code** — the extension, [webfluent-vscode](https://github.com/monzeromer-lab/webfluent-vscode), brings highlighting and the language server. Until it is on the Marketplace, install the `.vsix` from its latest release with **Extensions: Install from VSIX**.\n- **Zed** — the extension, [webfluent-zed](https://github.com/monzeromer-lab/webfluent-zed), brings Tree-sitter highlighting, the outline, snippets and the language server (found on `PATH`, or downloaded from the latest release). Install it with **zed: install dev extension**, pointed at a clone of it.\n- **Neovim, Helix, Emacs, or any other editor with LSP** — run `wf-lsp` over stdio for the `webfluent` file type (`*.wf`, `*.wfx`). [Editors](/docs/guide/cli#editors) has the configuration for each.")
+        Markdown("Then connect your editor:\n\n- **VS Code** — the extension, [webfluent-vscode](https://github.com/monzeromer-lab/webfluent-vscode), brings highlighting and the language server. Until it is on the Marketplace, install the `.vsix` from its latest release with **Extensions: Install from VSIX**.\n- **Zed** — the extension, [webfluent-zed](https://github.com/monzeromer-lab/webfluent-zed), brings Tree-sitter highlighting, the outline, snippets and the language server (found on `PATH`, or downloaded from the latest release). Install it with **zed: install dev extension**, pointed at a clone of it.\n- **Neovim, Helix, Emacs, or any other editor with LSP** — run `wf-lsp` over stdio for the `webfluent` file type (`*.wf`, `*.wfx`). [Editors](/reference/cli#editors) has the configuration for each.")
 
         Heading("WebFluent Studio", id: "webfluent-studio").h3
 
@@ -205,7 +205,7 @@ page About(path: "/about", title: "About", description: "What this site is for."
     }
 }"#, title: "wf")
 
-        Markdown("Save, and the dev server shows a navigation bar with **Home** and **About**. **Click me** counts your clicks. Here is what each part does:\n\n- `app \{ … \}` is the shell: what every page sits inside. `Router` is where the current page renders. There is no route table; each `page` names its own `path:`.\n- `page Home(path: \"/\", title: …, description: …)` declares a page. `title` and `description` become the `<title>`, the meta description, the Open Graph and Twitter cards and the JSON-LD. If you leave them out, the build warns you.\n- `state count = 0` is a signal. `Text(\"… \{count\} …\")` reads it, so the text updates when it changes.\n- In `Button(\"Click me\").primary \{ on click \{ … \} \}`, the label is the one positional argument, `.primary` is a flag (a case of the button's `tone` prop), and the block holds the click handler.\n- `Container`, `Heading`, `Text`, `Paragraph`, `Navbar` and `Link` are built-ins. The [components reference](/docs/reference) lists all of them.")
+        Markdown("Save, and the dev server shows a navigation bar with **Home** and **About**. **Click me** counts your clicks. Here is what each part does:\n\n- `app \{ … \}` is the shell: what every page sits inside. `Router` is where the current page renders. There is no route table; each `page` names its own `path:`.\n- `page Home(path: \"/\", title: …, description: …)` declares a page. `title` and `description` become the `<title>`, the meta description, the Open Graph and Twitter cards and the JSON-LD. If you leave them out, the build warns you.\n- `state count = 0` is a signal. `Text(\"… \{count\} …\")` reads it, so the text updates when it changes.\n- In `Button(\"Click me\").primary \{ on click \{ … \} \}`, the label is the one positional argument, `.primary` is a flag (a case of the button's `tone` prop), and the block holds the click handler.\n- `Container`, `Heading`, `Text`, `Paragraph`, `Navbar` and `Link` are built-ins. The [components reference](/reference) lists all of them.")
 
         Heading("What a build produces", id: "what-a-build-produces").h2
 
@@ -243,7 +243,7 @@ src/
 public/               copied to the build's root (images, fonts, favicon)
 tests/*.wf            `test "…" { }` declarations for `wf test`"#, title: "text")
 
-        Markdown("The compiler reads every `.wf` or `.wfx` file under `src/` and merges them into one program, so a page in one file uses a component from another without importing it. The folders are a convention, not a rule. [Project structure](/docs/guide/project-structure) covers naming, organisation and the config, and the [configuration reference](/docs/guide/config) lists every key.\n\nThe config needs only a name:")
+        Markdown("The compiler reads every `.wf` or `.wfx` file under `src/` and merges them into one program, so a page in one file uses a component from another without importing it. The folders are a convention, not a rule. [Project structure](/reference/project) covers naming, organisation and the config, and the [configuration reference](/reference/config) lists every key.\n\nThe config needs only a name:")
 
         CodeBlock(#"{ "name": "hello" }"#, title: "json")
     }

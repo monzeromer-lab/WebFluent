@@ -114,7 +114,7 @@ page ElementsGuide(path: "/docs/guide/elements", title: "Elements", description:
             }
         }
 
-        Markdown("The [components reference](/docs/reference) lists every element's own props.")
+        Markdown("The [components reference](/reference) lists every element's own props.")
 
         Heading("Attributes", id: "attributes").h2
 
@@ -322,7 +322,7 @@ page ElementsGuide(path: "/docs/guide/elements", title: "Elements", description:
                     Table.Cell { Markdown("`E103`") }
                 }
                 Table.Row {
-                    Table.Cell { Markdown("An `Icon(\"name\")` or `icon:` names an icon the runtime draws ([the list](/docs/reference#icons))") }
+                    Table.Cell { Markdown("An `Icon(\"name\")` or `icon:` names an icon the runtime draws ([the list](/reference#icons))") }
                     Table.Cell { Markdown("`V08`; the name shows as a word") }
                 }
                 Table.Row {
@@ -373,6 +373,6 @@ page ElementsGuide(path: "/docs/guide/elements", title: "Elements", description:
             }
         }
 
-        Markdown("The [components reference](/docs/reference) lists each built-in's props, flags, events, slots and parts; `wf registry --json` prints the same data for a tool.")
+        Markdown("The [components reference](/reference) lists each built-in's props, flags, events, slots and parts; `wf registry --json` prints the same data for a tool.")
     }
 }

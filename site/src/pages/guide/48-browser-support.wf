@@ -1,6 +1,6 @@
 /// Chapter 48 of the guide, written from md-docs/reference/browser-support.md by
 /// scripts/docsite/guide.py; edit the guide, not this file.
-page BrowserSupportGuide(path: "/docs/guide/browser-support", title: "Browser support", description: "The browsers a WebFluent site targets, and the fallback for each newer platform feature it uses where a browser lacks it.", layout: DocsShell("Browser support", chapter: t("nav.group.reference"), blurb: "Which browsers a WebFluent site targets, and what each newer platform feature falls back to where a browser lacks it.", source: "md-docs/reference/browser-support.md", sections: [Anchor(id: "supported-browsers", label: "Supported browsers"), Anchor(id: "features-with-a-fallback", label: "Features with a fallback"), Anchor(id: "dialogs-and-forms", label: "Dialogs and forms")], prevTo: "/docs/guide/grammar", prevLabel: t("ch.47"), nextTo: "/docs/guide/glossary", nextLabel: t("ch.49"))) {
+page BrowserSupportGuide(path: "/reference/browser-support", title: "Browser support", description: "The browsers a WebFluent site targets, and the fallback for each newer platform feature it uses where a browser lacks it.", layout: DocsShell("Browser support", chapter: t("nav.group.reference"), blurb: "Which browsers a WebFluent site targets, and what each newer platform feature falls back to where a browser lacks it.", source: "md-docs/reference/browser-support.md", sections: [Anchor(id: "supported-browsers", label: "Supported browsers"), Anchor(id: "features-with-a-fallback", label: "Features with a fallback"), Anchor(id: "dialogs-and-forms", label: "Dialogs and forms")], prevTo: "/reference/grammar", prevLabel: t("ch.47"), nextTo: "/reference/glossary", nextLabel: t("ch.49"))) {
     Stack(gap: .lg) {
         Markdown("This page lists the browsers a WebFluent site targets, and what each newer platform feature the runtime uses falls back to where a browser lacks it.")
 
@@ -8,7 +8,7 @@ page BrowserSupportGuide(path: "/docs/guide/browser-support", title: "Browser su
 
         Markdown("A WebFluent site targets the current versions of **Chrome, Edge, Firefox and Safari**, on desktop and mobile — the browsers that update themselves.\n\n- **The output** is plain HTML, CSS and modern JavaScript (ES2021). There is no polyfill and no legacy build.\n- **Without JavaScript**, a static build's pages are readable: the HTML the build pre-renders for each page carries its text ([Static sites and SPAs](/docs/guide/static-and-spa)). Everything interactive needs JavaScript.")
 
-        Callout("`wf verify` loads every page of a build in a headless Chrome and reports uncaught errors, failed requests and pages that drew no text ([CLI](/docs/guide/cli)).", kind: .tip)
+        Callout("`wf verify` loads every page of a build in a headless Chrome and reports uncaught errors, failed requests and pages that drew no text ([CLI](/reference/cli)).", kind: .tip)
 
         Heading("Features with a fallback", id: "features-with-a-fallback").h2
 

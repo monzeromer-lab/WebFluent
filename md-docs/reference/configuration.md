@@ -1,7 +1,7 @@
 ---
 chapter: 42
 kind: "reference"
-route: "guide/config"
+route: "/reference/config"
 group: "reference"
 blurb: "Every key of webfluent.app.json, its default, and what it changes."
 description: "Every key of webfluent.app.json, its type and default: project, build, media, PDF, slides, dev, motion, meta, theme, i18n, env, offline and lints."

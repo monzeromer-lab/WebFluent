@@ -22,7 +22,7 @@ page EventsGuide(path: "/docs/guide/events", title: "Events", description: "DOM 
     Text("{n}")
 }"#, title: "wf")
 
-        Markdown("A handler may name any DOM event. The common ones are `click`, `input`, `change`, `submit`, `focus`, `blur`, `keydown`, `keyup`, `mouseenter` and `mouseleave`. The rest — `dblclick`, `contextmenu`, `pointerdown`, `pointermove`, `touchstart`, `wheel`, `scroll`, `paste`, `drop`, `dragover`, `animationend`, `ended` and the others — work the same way. The [components reference](/docs/reference#on-every-element) lists every one. On a call of your own component, the events it declares ([Components](/docs/guide/components#events)) join them.\n\nA handler's body is an imperative block, so it may assign state, call actions, `await` and `navigate`.\n\nA handler on a component call — `UserCard(\"Sam\") \{ on click \{ … \} \}` — attaches to the component's root element, so a styled button component is clickable wherever it is used.")
+        Markdown("A handler may name any DOM event. The common ones are `click`, `input`, `change`, `submit`, `focus`, `blur`, `keydown`, `keyup`, `mouseenter` and `mouseleave`. The rest — `dblclick`, `contextmenu`, `pointerdown`, `pointermove`, `touchstart`, `wheel`, `scroll`, `paste`, `drop`, `dragover`, `animationend`, `ended` and the others — work the same way. The [components reference](/reference#on-every-element) lists every one. On a call of your own component, the events it declares ([Components](/docs/guide/components#events)) join them.\n\nA handler's body is an imperative block, so it may assign state, call actions, `await` and `navigate`.\n\nA handler on a component call — `UserCard(\"Sam\") \{ on click \{ … \} \}` — attaches to the component's root element, so a styled button component is clickable wherever it is used.")
 
         Heading("The event object", id: "the-event-object").h3
 
@@ -367,6 +367,6 @@ page Files(path: "/files", title: "Files", description: "Tree rows you can drag.
             }
         }
 
-        Markdown("The [components reference](/docs/reference) lists every event and prop of each built-in.")
+        Markdown("The [components reference](/reference) lists every event and prop of each built-in.")
     }
 }

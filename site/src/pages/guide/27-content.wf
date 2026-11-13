@@ -187,7 +187,7 @@ Then `wf init my-site`."#, title: "markdown")
     }
 }"#, title: "wf")
 
-        Markdown("A docs site is then a folder of `.md` files, one layout, and a `.wf` file for the `app`. (`wf docs` is something else: a gallery of every component the project can use — [CLI](/docs/guide/cli#wf-docs).)")
+        Markdown("A docs site is then a folder of `.md` files, one layout, and a `.wf` file for the `app`. (`wf docs` is something else: a gallery of every component the project can use — [CLI](/reference/cli#wf-docs).)")
 
         Heading("Describe each page to search engines and link previews", id: "describe-each-page-to-search-engines-and-link-previews").h2
 

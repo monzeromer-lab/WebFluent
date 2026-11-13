@@ -75,11 +75,11 @@ spec/                        design notes and plans"#, title: "text")
                                                                                  ├─ JavaScript + HTML + CSS
                                                                                  └─ PDF / slides"#, title: "text")
 
-        Markdown("Every stage reads the **registry** for what a built-in takes. So a prop added there is known at once to the checker, the linters, the language server, `wf docs` and the [components reference](/docs/reference).")
+        Markdown("Every stage reads the **registry** for what a built-in takes. So a prop added there is known at once to the checker, the linters, the language server, `wf docs` and the [components reference](/reference).")
 
         Heading("Change a built-in's props or flags", id: "change-a-built-in-s-props-or-flags").h2
 
-        Markdown("1. Edit the built-in's entry in `src/registry/builtins.rs`.\n2. Update its CSS in `src/project/themes/` and its code generation in `src/web/codegen/`.\n3. Rewrite the [components reference](/docs/reference) from the registry, with the command below.")
+        Markdown("1. Edit the built-in's entry in `src/registry/builtins.rs`.\n2. Update its CSS in `src/project/themes/` and its code generation in `src/web/codegen/`.\n3. Rewrite the [components reference](/reference) from the registry, with the command below.")
 
         Terminal(lines: [
                 Line(command: "cargo xtask site")

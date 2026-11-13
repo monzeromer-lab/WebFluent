@@ -65,7 +65,7 @@ theme Dusk {
     tag-text: #A9DCC1
 }"#, title: "wf")
 
-        Markdown("The light theme, `Meadow`, sets the same names. A theme may declare tokens of its own, such as `paper-raised` and `tag-bg`. The project's stylesheet, `src/styles.css`, reads every colour as a token (`var(--tag-bg)`), so the dark theme needs no rule of its own ([Design tokens](/docs/guide/tokens)).\n\n**Check it:** with `wf serve` running, set your system to dark mode. The page turns dark green and cream without a reload.")
+        Markdown("The light theme, `Meadow`, sets the same names. A theme may declare tokens of its own, such as `paper-raised` and `tag-bg`. The project's stylesheet, `src/styles.css`, reads every colour as a token (`var(--tag-bg)`), so the dark theme needs no rule of its own ([Design tokens](/reference/tokens)).\n\n**Check it:** with `wf serve` running, set your system to dark mode. The page turns dark green and cream without a reload.")
 
         Heading("Step 2: Type the data", id: "step-2-type-the-data").h2
 
@@ -146,7 +146,7 @@ component NoteCard(
     }
 }"#, title: "wf")
 
-        Markdown("- A `///` comment above a component or a prop is its documentation. Your editor shows it when you hover a call ([Components](/docs/guide/components)).\n- A splice may say how to show its value: `\{note.date:.date(long)\}` is `format(note.date, .date, \"long\")`, written where it is read ([Expressions](/docs/guide/expressions)).\n- `TagList` is a row of `#tag` links to `/?tag=…`.\n\n**Check it:** the front page shows a card per note, each with a line such as `March 8, 2026 · 4 min read`, a title, a summary and its tags.")
+        Markdown("- A `///` comment above a component or a prop is its documentation. Your editor shows it when you hover a call ([Components](/docs/guide/components)).\n- A splice may say how to show its value: `\{note.date:.date(long)\}` is `format(note.date, .date, \"long\")`, written where it is read ([Expressions](/reference/expressions)).\n- `TagList` is a row of `#tag` links to `/?tag=…`.\n\n**Check it:** the front page shows a card per note, each with a line such as `March 8, 2026 · 4 min read`, a title, a summary and its tags.")
 
         Heading("Step 5: Search and filter the front page", id: "step-5-search-and-filter-the-front-page").h2
 
@@ -279,7 +279,7 @@ test "a search that matches nothing says so, and clears" {
                 Line(command: "wf verify")
             ])
 
-        Markdown("`wf verify` loads every route of the built site in a headless Chrome — each note's page at its `paths:` value — and fails on an error, a missing file or a page that draws nothing ([Command line](/docs/guide/cli)).\n\n**Check it:** `wf test` reports `6 passed`, `wf build` reports `SSG: pre-rendered static pages`, and `wf verify` ends with `0 problem(s)`. `build/` is ready for any static host.")
+        Markdown("`wf verify` loads every route of the built site in a headless Chrome — each note's page at its `paths:` value — and fails on an error, a missing file or a page that draws nothing ([Command line](/reference/cli)).\n\n**Check it:** `wf test` reports `6 passed`, `wf build` reports `SSG: pre-rendered static pages`, and `wf verify` ends with `0 problem(s)`. `build/` is ready for any static host.")
 
         Heading("What you built", id: "what-you-built").h2
 
