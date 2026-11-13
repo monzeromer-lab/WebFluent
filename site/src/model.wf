@@ -66,4 +66,3 @@ type Example {
 /// The gallery's examples, rendered on each release by scripts/showcase.py:
 /// the files sit in `public/showcase/`, this list says what each one is.
 data showcase: [Example] = "showcase.json"
-
