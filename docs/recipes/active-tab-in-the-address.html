@@ -30,6 +30,7 @@
     <script src="/js/analytics.js" defer></script>
     <script src="/js/live.js" defer></script>
     <script src="/js/old-links-map.js" defer></script>
+    <script src="/js/old-links-pages.js" defer></script>
     <script src="/js/old-links.js" defer></script>
     <script src="/js/video.js" defer></script>
     <script src="/app.js" defer></script>
@@ -246,8 +247,8 @@
                         <h2 class="wf-heading" id="how-it-works">How it works</h2>
                         <div class="wf-markdown">
 <ul>
-<li><a href="/docs/guide/pages-and-routing#query-strings-and-fragments"><code>hash</code></a> is the address's fragment without the <code>#</code>, kept current by the runtime.</li>
-<li><code>tab</code> is a <a href="/docs/guide/state#derived"><code>derived</code></a> value: the fragment when there is one, <code>&quot;profile&quot;</code> when there is none.</li>
+<li><a href="/learn/05-pages-and-routing#query-strings-and-fragments"><code>hash</code></a> is the address's fragment without the <code>#</code>, kept current by the runtime.</li>
+<li><code>tab</code> is a <a href="/learn/07-state-and-reactivity#derived"><code>derived</code></a> value: the fragment when there is one, <code>&quot;profile&quot;</code> when there is none.</li>
 <li>Each tab is a <code>Link</code> to the same page with another fragment. Following it changes <code>hash</code>, <code>tab</code> follows, and the matching <code>if</code> draws its panel. The back button steps through the tabs the reader opened.</li>
 </ul>
 <p>To keep several settings in the address, such as a sort and a filter, use the query string instead: see <a href="/recipes/filters-in-the-address">Keep filters in the address</a>.</p>

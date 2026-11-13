@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contributing</title>
+    <meta name="description" content="Build and test the compiler, find your way around the repository and its pipeline, and change a built-in, the grammar, the runtime or this guide.">
+    <link rel="canonical" href="https://webfluent.monzeromer.dev/about/contributing">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Contributing">
+    <meta property="og:site_name" content="WebFluent">
+    <meta property="og:description" content="Build and test the compiler, find your way around the repository and its pipeline, and change a built-in, the grammar, the runtime or this guide.">
+    <meta property="og:url" content="https://webfluent.monzeromer.dev/about/contributing">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="ar_AR">
+    <meta property="og:image" content="https://webfluent.monzeromer.dev/og.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Contributing">
+    <meta name="twitter:description" content="Build and test the compiler, find your way around the repository and its pipeline, and change a built-in, the grammar, the runtime or this guide.">
+    <meta name="twitter:image" content="https://webfluent.monzeromer.dev/og.png">
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/about/contributing#webpage","url":"https://webfluent.monzeromer.dev/about/contributing","name":"Contributing","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"Build and test the compiler, find your way around the repository and its pipeline, and change a built-in, the grammar, the runtime or this guide.","inLanguage":"en"},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/about/contributing#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"About WebFluent","item":"https://webfluent.monzeromer.dev/about"},{"@type":"ListItem","position":3,"name":"Contributing","item":"https://webfluent.monzeromer.dev/about/contributing"}]}]}</script>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="preload" href="/fonts/instrument-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="/styles.css">
+    <script src="/js/analytics.js" defer></script>
+    <script src="/js/live.js" defer></script>
+    <script src="/js/old-links-map.js" defer></script>
+    <script src="/js/old-links-pages.js" defer></script>
+    <script src="/js/old-links.js" defer></script>
+    <script src="/js/video.js" defer></script>
+    <script src="/app.js" defer></script>
+    <script src="/pages/AboutContributing.js" data-wf-page="AboutContributing" defer></script>
+</head>
+<body>
+    <a class="wf-skip-link" href="#wf-content">Skip to content</a>
+    <div id="app">
+        <main id="wf-main">
+            <a class="wf-link bp-skip" href="#bp-main">Skip to the content</a>
+            <div class="wf-row wf-align--center wf-s55053fdc bp-header" role="banner">
+                <div class="wf-row wf-align--center wf-gap--md wf-sfe495c12 bp-wrap">
+                    <a class="wf-link wf-sa4fc1f4b" href="/" aria-label="WebFluent, home">
+                        <img class="wf-image wf-s4b9d0b60" src="/favicon.svg" alt="" decoding="async" loading="eager" fetchpriority="high">
+                        <p class="wf-text wf-s9919642b">WebFluent</p>
+                        <p class="wf-text bp-label bp-num">6.0</p>
+                    </a>
+                    <div class="wf-row wf-s92924cc4 bp-tabs" role="navigation" aria-label="Main">
+                        <a class="wf-link bp-tab active" href="/learn" aria-current="page">Learn</a>
+                        <a class="wf-link bp-tab" href="/recipes">Recipes</a>
+                        <a class="wf-link bp-tab" href="/reference">Reference</a>
+                        <a class="wf-link bp-tab" href="/errors">Errors</a>
+                        <a class="wf-link bp-tab" href="/playground">Playground</a>
+                        <a class="wf-link bp-tab" href="/showcase">Showcase</a>
+                    </div>
+                    <div class="wf-row wf-align--center wf-gap--sm wf-sff642a95">
+                        <button class="wf-btn wf-sf8ab46ec bp-field bp-search" aria-label="Search the docs" aria-keyshortcuts="Meta+K Control+K" aria-haspopup="dialog" type="button">
+                            <i class="wf-icon" data-icon="search"></i>
+                            <p class="wf-text wf-sf55a2627 bp-hide-sm">Search the docs</p>
+                            <p class="wf-text bp-kbd bp-hide-sm">Ctrl+K</p>
+                        </button>
+                        <div class="wf-row wf-align--center wf-gap--sm wf-s808638b6 bp-select bp-hide-md">
+                            <p class="wf-text wf-s29c127bc bp-building-label" aria-hidden="true">Building</p>
+                            <select class="wf-select" aria-label="Building">
+                                <option value="website">Website</option>
+                                <option value="app">Web app</option>
+                                <option value="pdf">PDF</option>
+                                <option value="slides">Slides</option>
+                                <option value="elements">Custom elements</option>
+                                <option value="desktop">Desktop / phone</option>
+                            </select>
+                            <i class="wf-icon wf-s94250744" data-icon="chevron-down" aria-hidden="true"></i>
+                        </div>
+                        <button class="wf-icon-btn bp-icon-button" data-track="select_content" data-track-content-type="theme" type="button"></button>
+                        <div class="wf-row wf-align--center wf-gap--xs wf-s286d925a bp-hide-sm">
+                            <button class="wf-btn bp-button" title="This page is in English only; the switch changes the interface." data-track="select_content" data-track-content-type="language" type="button"></button>
+                        </div>
+                        <a class="wf-link bp-button bp-hide-md" href="https://github.com/monzeromer-lab/WebFluent" data-tone="quiet" aria-label="GitHub">
+                            <i class="wf-icon" data-icon="git-branch"></i>
+                            <p class="wf-text">GitHub</p>
+                        </a>
+                        <button class="wf-icon-btn wf-sde8ec4aa bp-icon-button" data-icon="menu" aria-label="Menu" title="Menu" aria-expanded="false" type="button"></button>
+                    </div>
+                </div>
+            </div>
+            <dialog class="wf-modal bp-palette" aria-labelledby="wf-dlg-s1">
+                <div class="wf-modal__content">
+                    <div class="wf-modal__header"><h3 id="wf-dlg-s1">Search</h3></div>
+                    <div class="wf-modal__body">
+                        <div class="wf-stack wf-sa8e464d0">
+                            <div class="wf-row wf-align--center wf-gap--sm wf-s02e7a482 bp-field">
+                                <i class="wf-icon" data-icon="search"></i>
+                                <input class="wf-input" placeholder="Search the guide" aria-label="Search the guide" type="search" autofocus>
+                                <p class="wf-text bp-kbd">esc</p>
+                            </div>
+                            <div class="wf-row wf-s434e64fb bp-tabs" role="tablist" aria-label="Narrow the search">
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="true" type="button">All</button>
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">Learn</button>
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">Recipes</button>
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">Reference</button>
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">Errors</button>
+                            </div>
+                            <div class="wf-stack wf-s3f6dffee" role="listbox" aria-label="Search results">
+                                <p class="wf-text wf-s3205a3d6 bp-small">Type a word: a component, a code such as T05, or a task.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </dialog>
+            <div class="wf-row wf-align--start wf-sa997482c bp-wrap">
+                <div class="wf-stack wf-gap--lg wf-s54d43750 bp-main docs-main" role="main" id="bp-main" tabindex="-1">
+                    <div class="wf-row bp-labels">
+                        <p class="wf-text bp-label" data-tone="kind" data-kind="explanation">About</p>
+                        <p class="wf-text bp-label">About</p>
+                        <div class="wf-row wf-gap--xs bp-labels" aria-label="Works in">
+                        </div>
+                    </div>
+                    <div class="wf-stack wf-gap--sm wf-s4e4189b1">
+                        <h1 class="wf-heading wf-s900776cd">Contributing</h1>
+                        <p class="wf-text bp-lede">How the compiler is put together, how to build and test it, and how to change the language, a built-in or this guide.</p>
+                    </div>
+                    <div class="wf-stack wf-gap--lg wf-s399b38f0 bp-prose docs-article" dir="ltr">
+                        <div class="wf-stack wf-gap--lg" id="wf-content" tabindex="-1">
+                            <div class="wf-markdown">
+<p>This page is for working on WebFluent itself: the compiler, the runtime, the editor support or this guide. It tells you how to build and test the project, where each part lives, and what to update when you change one.</p>
+<p>The project holds itself to the rule it holds programs to: what can be checked is checked, by a test, on every push. The registry, the error pages, the components reference and every example in this guide are tied to the compiler, so a change that leaves one of them behind fails a test instead of drifting. Most of what follows is where those ties are, so you know which ones a change will pull.</p>
+<p>WebFluent is one Rust crate — the compiler and the <code>wf</code> binary — with a language server beside it, editor extensions, a small JavaScript runtime and this guide, all in one repository: <a href="https://github.com/monzeromer-lab/WebFluent">github.com/monzeromer-lab/WebFluent</a>.</p>
+                            </div>
+                            <h2 class="wf-heading" id="before-you-start">Before you start</h2>
+                            <div class="wf-markdown">
+<p>You need:</p>
+<ul>
+<li>Rust 1.92 or later (the crate uses the 2024 edition).</li>
+<li>Node.js 20, for the runtime's tests and the browser suites.</li>
+<li>Chrome or Chromium, for the browser suites.</li>
+</ul>
+<p>Clone the repository:</p>
+                            </div>
+                            <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                                <div class="wf-row wf-s2c416341 bp-console__bar">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                        <p class="wf-text wf-s23a4ddd5 bp-mono">bash</p>
+                                    </div>
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-prompt">$ </span>git clone https://github.com/monzeromer-lab/WebFluent
+<span class="wf-tok-prompt">$ </span>cd WebFluent</code>
+                            </div>
+                            <h2 class="wf-heading" id="build-and-test">Build and test</h2>
+                            <div class="wf-markdown">
+<p>Build the compiler, then run the Rust tests, the runtime's tests and the lints that CI runs:</p>
+                            </div>
+                            <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                                <div class="wf-row wf-s2c416341 bp-console__bar">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                        <p class="wf-text wf-s23a4ddd5 bp-mono">bash</p>
+                                    </div>
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-prompt">$ </span>cargo build
+<span class="wf-tok-prompt">$ </span>cargo test --workspace
+<span class="wf-tok-prompt">$ </span>node --test tests/js/*.test.mjs
+<span class="wf-tok-prompt">$ </span>cargo fmt --check &amp;&amp; cargo clippy --workspace -- -D warnings</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>The browser suites check what only a real browser can — a service worker, WebRTC, layers, keys, gestures and more. They drive the release build, so build it first, then run them from <code>tests/browser</code>:</p>
+                            </div>
+                            <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                                <div class="wf-row wf-s2c416341 bp-console__bar">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                        <p class="wf-text wf-s23a4ddd5 bp-mono">bash</p>
+                                    </div>
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-prompt">$ </span>cargo build --release
+<span class="wf-tok-prompt">$ </span>cd tests/browser
+<span class="wf-tok-prompt">$ </span>npm ci
+<span class="wf-tok-prompt">$ </span>npm test</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><code>npm test</code> runs sixteen suites, starting with <code>offline.mjs</code> and <code>peer.mjs</code>; each is also a script you can run alone, such as <code>node offline.mjs</code>. CI runs all of it on every push, and a few browser suites more.</p>
+                            </div>
+                            <h2 class="wf-heading" id="the-repository">The repository</h2>
+                            <div class="wf-markdown">
+<p>Each part of the project has its own folder. Under <code>src/</code>, the compiler is in layers, bottom first; a module uses only its own layer and the ones above it in this list, which <code>tests/module_layers.rs</code> holds it to:</p>
+                            </div>
+                            <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                                <div class="wf-row wf-s2c416341 bp-console__bar">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                        <p class="wf-text wf-s23a4ddd5 bp-mono">text</p>
+                                    </div>
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="text" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block bp-console__code">src/
+  base/                      spans, text helpers, the file systems a build reads and writes
+  diagnostics/               every finding's code (codes.rs), fixes and output; the error types
+  syntax/                    lexer/, parser/, the .wfx layout/, the printers and the formatter
+  registry/                  every built-in's props, cases, flags, events, slots, parts
+  project/                   config, themes/ (tokens and the built-ins' CSS), i18n, scripts, data, media
+  check/                     sema/ (names, the type checker), linter/, validation, scopes, edits
+  web/                       codegen/ (JS, HTML, CSS, the pre-rendered page, SEO), runtime/modules/, motion
+  paged/                     the PDF and slides engine
+  template/                  the template engine behind `wf render`
+  build/                     `wf build` as a library call, its cache, assets, the service worker
+  tools/                     migrate, test, verify, audit, studio, agent, init, generate, docs
+  cli/                       each `wf` command
+crates/wf-lsp/               the language server
+editors/                     VS Code, Zed and the Tree-sitter grammars: submodules, each its own repository
+md-docs/                     this guide
+site/                        the documentation site, written in WebFluent
+tests/                       Rust integration tests, tests/js (runtime), tests/browser (Chrome)
+spec/                        design notes and plans</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>The editors live in their own repositories — <a href="https://github.com/monzeromer-lab/tree-sitter-webfluent">tree-sitter-webfluent</a>, <a href="https://github.com/monzeromer-lab/webfluent-zed">webfluent-zed</a> and <a href="https://github.com/monzeromer-lab/webfluent-vscode">webfluent-vscode</a> — linked here as submodules under <code>editors/</code>. Building and testing the compiler needs none of them. To work on one, or to run the checks that hold them to the compiler (<code>just zed-check</code>), check them out:</p>
+                            </div>
+                            <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                                <div class="wf-row wf-s2c416341 bp-console__bar">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                        <p class="wf-text wf-s23a4ddd5 bp-mono">bash</p>
+                                    </div>
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-prompt">$ </span>git submodule update --init</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>A change there is committed and pushed in its own repository; then the submodule's new commit is committed here (<code>git add editors/zed</code>).</p>
+                            </div>
+                            <h2 class="wf-heading" id="the-pipeline">The pipeline</h2>
+                            <div class="wf-markdown">
+<p>A source file passes through these stages, in order:</p>
+                            </div>
+                            <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                                <div class="wf-row wf-s2c416341 bp-console__bar">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                        <p class="wf-text wf-s23a4ddd5 bp-mono">text</p>
+                                    </div>
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="text" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block bp-console__code">.wf / .wfx → lexer → parser → lower → semantic checks → type checker → linters → code generators
+                                                                                 ├─ JavaScript + HTML + CSS
+                                                                                 └─ PDF / slides</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>Every stage reads the <strong>registry</strong> for what a built-in takes. So a prop added there is known at once to the checker, the linters, the language server, <code>wf docs</code> and the <a href="/reference">components reference</a>.</p>
+                            </div>
+                            <h2 class="wf-heading" id="change-a-built-in-s-props-or-flags">Change a built-in&#x27;s props or flags</h2>
+                            <div class="wf-markdown">
+<ol>
+<li>Edit the built-in's entry in <code>src/registry/builtins.rs</code>.</li>
+<li>Update its CSS in <code>src/project/themes/</code> and its code generation in <code>src/web/codegen/</code>.</li>
+<li>Rewrite the <a href="/reference">components reference</a> from the registry, with the command below.</li>
+</ol>
+                            </div>
+                            <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                                <div class="wf-row wf-s2c416341 bp-console__bar">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                        <p class="wf-text wf-s23a4ddd5 bp-mono">bash</p>
+                                    </div>
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-prompt">$ </span>cargo xtask site</code>
+                            </div>
+                            <h2 class="wf-heading" id="change-the-grammar">Change the grammar</h2>
+                            <div class="wf-markdown">
+<p>A change to the grammar touches every place that reads or writes source:</p>
+<ul>
+<li>the parser, in <code>src/syntax/parser/v2.rs</code>;</li>
+<li>the formatter and the <code>.wfx</code> layout;</li>
+<li>the printer, in <code>src/syntax/print.rs</code>;</li>
+<li>both Tree-sitter grammars, in <a href="https://github.com/monzeromer-lab/tree-sitter-webfluent">tree-sitter-webfluent</a> (checked out here as the <code>editors/tree-sitter-webfluent</code> submodule).</li>
+</ul>
+<p>The guide's own code blocks are the grammar's test corpus. <code>tests/printer_corpus.rs</code> prints every statement of every project in the repository back in its place and holds it to the same tree, and <code>tests/reprint_corpus.rs</code> holds every edit to changing only its own bytes.</p>
+                            </div>
+                            <h2 class="wf-heading" id="change-the-runtime">Change the runtime</h2>
+                            <div class="wf-markdown">
+<p>Edit or add a module in <code>src/web/runtime/modules/</code>, and add a test for it in <code>tests/js/</code>. The manifest that says what reaches each module, <code>src/web/runtime/modules/manifest.json</code>, is written by a Rust test, so you do not edit it by hand.</p>
+                            </div>
+                            <h2 class="wf-heading" id="add-a-diagnostic">Add a diagnostic</h2>
+                            <div class="wf-markdown">
+<ol>
+<li>Give the finding a code, a severity and a title in <code>src/diagnostics/codes.rs</code>.</li>
+<li>Write its page, <code>md-docs/errors/&lt;CODE&gt;.md</code>: what the reader sees, why, and the fix, with a program in a <code>wf expect=CODE</code> block that draws the code. The test suite compiles every example and checks that it draws its code, and a code with no page fails a test. The <a href="/errors">Diagnostics</a> index lists every page.</li>
+</ol>
+                            </div>
+                            <h2 class="wf-heading" id="change-this-guide">Change this guide</h2>
+                            <div class="wf-markdown">
+<p>The guide lives in <code>md-docs/</code>, one file per chapter, in a folder for its kind of page (<code>learn/</code>, <code>recipes/</code>, <code>about/</code>, <code>reference/</code>, <code>errors/</code>, <code>coming-from/</code>), and is the source of the documentation site: <code>cargo xtask site</code> writes the site's chapter pages, the book's chapter list, the components reference and the search index from it, and <code>cargo xtask site --check</code> says whether they are current. Each chapter starts with front matter naming its number, its kind, its route, its group in the sidebar, the line under its title and its search description. &quot;How we write&quot;, §8 of <code>plans/docs-redesign/README.md</code>, holds the rules every page follows, and <code>tests/docs_parse.rs</code> checks the ones a test can read.</p>
+<p>The test suite holds the guide to the compiler:</p>
+<ul>
+<li>every <code>wf</code> code block parses, type-checks and compiles without a warning;</li>
+<li>every <code>wf expect=CODE</code> block draws exactly that code;</li>
+<li>every link between chapters, and every anchor, resolves;</li>
+<li>every declaration, keyword, built-in, browser value, built-in function, config key, command and diagnostic code appears in it;</li>
+<li>the tokens chapter is the baseline, and the configuration chapter's defaults are the compiler's;</li>
+<li>the site's pages are what the generator writes from the guide.</li>
+</ul>
+<p>Words after <code>wf</code> in a fence say how a block is checked: <code>expect=CODE</code> (it must draw that code), <code>fixed</code> (the corrected program after one), <code>page</code> and <code>live</code> (built, previewed, and editable by the reader), <code>files=a,b</code> (one file of a multi-file example), and <code>no-check</code> (not compiled, for a block the prose says is not a program). The full list is <code>Fence</code> in <code>tests/common/mod.rs</code>.</p>
+                            </div>
+                            <h2 class="wf-heading" id="release-a-version">Release a version</h2>
+                            <div class="wf-markdown">
+<p><a href="https://github.com/monzeromer-lab/WebFluent/blob/master/RELEASING.md"><code>RELEASING.md</code></a> in the repository lists the steps: one tag builds the binaries, the packages and the editor extensions.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="wf-row wf-gap--md wf-s94f7a6f9" role="navigation" aria-label="Pages either side">
+                        <a class="wf-link wf-s1266eee5 bp-card" href="/about/upgrading">
+                            <p class="wf-text bp-small">Previous</p>
+                            <p class="wf-text wf-s70571e62">Upgrading</p>
+                        </a>
+                    </div>
+                </div>
+                <div class="wf-stack wf-gap--lg wf-s2502f5f4 bp-rail" role="navigation" aria-label="On this page">
+                    <div class="wf-stack wf-gap--xs wf-se8e8f072">
+                        <p class="wf-text wf-sa736415c bp-section-label">On this page</p>
+                        <a class="wf-link wf-s23505038" href="#before-you-start">Before you start</a>
+                        <a class="wf-link wf-s23505038" href="#build-and-test">Build and test</a>
+                        <a class="wf-link wf-s23505038" href="#the-repository">The repository</a>
+                        <a class="wf-link wf-s23505038" href="#the-pipeline">The pipeline</a>
+                        <a class="wf-link wf-s23505038" href="#change-a-built-in-s-props-or-flags">Change a built-in&#x27;s props or flags</a>
+                        <a class="wf-link wf-s23505038" href="#change-the-grammar">Change the grammar</a>
+                        <a class="wf-link wf-s23505038" href="#change-the-runtime">Change the runtime</a>
+                        <a class="wf-link wf-s23505038" href="#add-a-diagnostic">Add a diagnostic</a>
+                        <a class="wf-link wf-s23505038" href="#change-this-guide">Change this guide</a>
+                        <a class="wf-link wf-s23505038" href="#release-a-version">Release a version</a>
+                    </div>
+                    <a class="wf-link wf-s48d899f5" href="https://github.com/monzeromer-lab/WebFluent/blob/master/md-docs/about/contributing.md">
+                        <i class="wf-icon" data-icon="edit"></i>
+                        <p class="wf-text">Edit this page</p>
+                    </a>
+                </div>
+            </div>
+        </main>
+        <footer class="wf-footer wf-s2213a098">
+            <div class="wf-stack wf-gap--lg wf-s84d7918c bp-wrap">
+                <div class="wf-grid wf-gap--lg wf-r67559659">
+                    <div class="wf-stack wf-gap--xs wf-s17061b4c">
+                        <p class="wf-text wf-scba75cc6 bp-section-label">Learn</p>
+                        <a class="wf-link" href="/learn/01-getting-started">The tour</a>
+                        <a class="wf-link" href="/learn">The book</a>
+                        <a class="wf-link" href="/about">About essays</a>
+                    </div>
+                    <div class="wf-stack wf-gap--xs wf-s17061b4c">
+                        <p class="wf-text wf-scba75cc6 bp-section-label">Do</p>
+                        <a class="wf-link" href="/recipes">Recipes</a>
+                        <a class="wf-link" href="/playground">Playground</a>
+                        <a class="wf-link" href="/coming-from/react">Coming from…</a>
+                        <a class="wf-link" href="/showcase">Showcase</a>
+                    </div>
+                    <div class="wf-stack wf-gap--xs wf-s17061b4c">
+                        <p class="wf-text wf-scba75cc6 bp-section-label">Look up</p>
+                        <a class="wf-link" href="/reference">Components</a>
+                        <a class="wf-link" href="/reference/cli">CLI and config</a>
+                        <a class="wf-link" href="/errors">Errors</a>
+                    </div>
+                    <div class="wf-stack wf-gap--xs wf-s17061b4c">
+                        <p class="wf-text wf-scba75cc6 bp-section-label">For agents</p>
+                        <a class="wf-link" href="/reference/cli/context">wf context</a>
+                        <a class="wf-link" href="/changelog">Changelog</a>
+                    </div>
+                </div>
+                <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-sd146f653">
+                    <p class="wf-text bp-small">Every code block in the guide is real WebFluent 6.0, parsed, type-checked and compiled by the test suite.</p>
+                    <div class="wf-row wf-align--center wf-gap--md wf-sa3c9b727">
+                        <a class="wf-link wf-sf9ca1a0e" href="https://github.com/monzeromer-lab/WebFluent">Source</a>
+                        <button class="wf-btn link-button" type="button">Cookie settings</button>
+                        <p class="wf-text bp-small">© 2026 Monzer Omer</p>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

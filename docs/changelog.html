@@ -31,6 +31,7 @@
     <script src="/js/analytics.js" defer></script>
     <script src="/js/live.js" defer></script>
     <script src="/js/old-links-map.js" defer></script>
+    <script src="/js/old-links-pages.js" defer></script>
     <script src="/js/old-links.js" defer></script>
     <script src="/js/video.js" defer></script>
     <script src="/app.js" defer></script>
@@ -1165,7 +1166,7 @@ calls the page could not find.</p>
                                 </li>
                                 <li class="wf-list__item">
                                     <div class="wf-markdown">
-<p><strong>Names in any script</strong> (<a href="/docs/guide/language-basics#naming">chapter 9</a>).
+<p><strong>Names in any script</strong> (<a href="/learn/04-language-basics#naming">chapter 9</a>).
 A program's own names start and go on as Unicode's UAX #31 says, with
 the marks of their letters, and are one name however they were typed:
 <code>state عددٌ = 3</code>, <code>store المهام</code>, <code>action أضف</code>. The editor grammar
@@ -1450,7 +1451,7 @@ questions in order, and its pages, sidebar and search come from the guide.</p>
                                 <h3 class="wf-heading wf-s5c9c3c02">Upgrading</h3>
                             </div>
                             <div class="wf-markdown">
-<p>See <a href="/docs/guide/upgrading#5-12">chapter 51</a>: store members named like
+<p>See <a href="/about/upgrading#5-12">chapter 51</a>: store members named like
 an object's own (<code>E118</code>), a test declaration named like the project's
 (<code>E102</code>), where <code>T06</code> is reported, <code>output_type: &quot;static&quot;</code>, and smaller
 WebP. Run <code>wf check</code>.</p>
@@ -1480,7 +1481,7 @@ hears, each test file with its own declarations.</p>
                             <ul class="wf-list wf-s0889037c">
                                 <li class="wf-list__item">
                                     <div class="wf-markdown">
-<p><strong>A handler names each value its event sends</strong> (<a href="/docs/guide/events#emitting-events-from-components">chapter 9</a>).
+<p><strong>A handler names each value its event sends</strong> (<a href="/learn/08-events#emitting-events-from-components">chapter 9</a>).
 A component that declares <code>event menu(key: String, x: Number, y: Number)</code>
 and <code>emit menu(k, x, y)</code> is handled with <code>on menu(key, x, y) { … }</code>, each
 name typed as the event declares it. A handler may name fewer values
@@ -1491,7 +1492,7 @@ hooks and a connection's handlers.</p>
                                 </li>
                                 <li class="wf-list__item">
                                     <div class="wf-markdown">
-<p><strong>Gestures on a component's call</strong> (<a href="/docs/guide/events#gestures-drag-long-press-swipe-and-the-splitter">chapter 9</a>).
+<p><strong>Gestures on a component's call</strong> (<a href="/learn/08-events#gestures-drag-long-press-swipe-and-the-splitter">chapter 9</a>).
 <code>drag:</code>, <code>dragGroup:</code>, <code>dropValue:</code>, <code>dropAxis:</code>, <code>dropInside:</code>,
 <code>on receive(d)</code>, <code>on dragmove(d)</code>, <code>on longpress</code> and <code>on swipe</code> written
 on a component's call land on its root element, as <code>class:</code> and
@@ -1501,7 +1502,7 @@ has nothing for them to land on, which is the new error C07.</p>
                                 </li>
                                 <li class="wf-list__item">
                                     <div class="wf-markdown">
-<p><strong><code>Modal.Title</code> and <code>.closable</code></strong> (<a href="/docs/guide/events#overlays-modals-dialogs-toasts-and-menus">chapter 9</a>).
+<p><strong><code>Modal.Title</code> and <code>.closable</code></strong> (<a href="/learn/08-events#overlays-modals-dialogs-toasts-and-menus">chapter 9</a>).
 <code>Modal.Title { … }</code> (and <code>Dialog.Title</code>) is drawn in the heading in place
 of <code>title:</code>'s words, so a heading can set a name apart in code;
 <code>title:</code> stays the dialog's name. <code>.closable</code> puts a close button,
@@ -1591,7 +1592,7 @@ several names.</p>
                             <ul class="wf-list wf-s0889037c">
                                 <li class="wf-list__item">
                                     <div class="wf-markdown">
-<p><strong>A test finds a control by the name a reader hears</strong> (<a href="/docs/guide/testing#a-test-that-acts">chapter 24</a>).
+<p><strong>A test finds a control by the name a reader hears</strong> (<a href="/learn/16-testing#a-test-that-acts">chapter 24</a>).
 What is <code>aria-hidden</code> (a menu item's shortcut, a glyph) is left out of
 a name, so <code>click &quot;Paste&quot;</code> finds an item that shows Ctrl+V. A submenu's
 entry is named by its label, not by its items: <code>WF.submenu</code> points the
@@ -1662,7 +1663,7 @@ one a tool can show.</p>
                                 <h3 class="wf-heading wf-s5c9c3c02">Upgrading</h3>
                             </div>
                             <div class="wf-markdown">
-<p>See <a href="/docs/guide/upgrading#5-11">chapter 46</a>: gestures on a component
+<p>See <a href="/about/upgrading#5-11">chapter 46</a>: gestures on a component
 that is not one element (C07), a handler's names (T22), a test file's own
 declarations, a control's name as a reader hears it, a block's names, a
 menu item's class, and a value's own method over a helper. Run <code>wf check</code>.</p>
@@ -1704,19 +1705,19 @@ project.</p>
                                 </li>
                                 <li class="wf-list__item">
                                     <div class="wf-markdown">
-<p><strong>A test can place a whole page</strong> (<a href="/docs/guide/testing#testing-a-whole-page">chapter 24</a>)
+<p><strong>A test can place a whole page</strong> (<a href="/learn/16-testing#testing-a-whole-page">chapter 24</a>)
 by its name, as it places a component (<code>Tasks</code>, then <code>click &quot;Add&quot;</code>),
 with its state, stores and handlers running. This works for a page with
 no route parameter whose name no component also has. In a test that
 acts, <code>press &quot;Enter&quot;</code> in a form's text field submits the form, and
 <code>click &quot;Name&quot;</code> also finds, by its name, an element whose role is a link,
 a tab, a menu item (a <code>Menu.Item</code>), an option, a tree item, a switch, a
-checkbox or a radio (<a href="/docs/guide/testing#a-test-that-acts">chapter 24</a>).</p>
+checkbox or a radio (<a href="/learn/16-testing#a-test-that-acts">chapter 24</a>).</p>
                                     </div>
                                 </li>
                                 <li class="wf-list__item">
                                     <div class="wf-markdown">
-<p><strong><code>on blur</code> and <code>on focus</code> on a page</strong> (<a href="/docs/guide/events#shortcuts-for-an-app">chapter 9</a>).
+<p><strong><code>on blur</code> and <code>on focus</code> on a page</strong> (<a href="/learn/08-events#shortcuts-for-an-app">chapter 9</a>).
 A page, a component or <code>app</code> hears the window lose and gain focus for as
 long as it shows, for example to save when the window is left. Both
 listen on the window; <code>on keydown</code> and <code>on keyup</code> still listen on the
@@ -1746,7 +1747,7 @@ drawn in <code>currentColor</code>.</p>
                                 </li>
                                 <li class="wf-list__item">
                                     <div class="wf-markdown">
-<p><strong><code>Menu.Item.danger</code></strong> (<a href="/docs/guide/events#layers-popovers-menus-and-tooltips-above-everything">chapter 9</a>),
+<p><strong><code>Menu.Item.danger</code></strong> (<a href="/learn/08-events#layers-popovers-menus-and-tooltips-above-everything">chapter 9</a>),
 or <code>danger: true</code>, draws an item that cannot be undone, such as Delete
 or Discard, in the danger colour.</p>
                                     </div>
@@ -1754,7 +1755,7 @@ or Discard, in the danger colour.</p>
                                 <li class="wf-list__item">
                                     <div class="wf-markdown">
 <p><strong>A <code>Tooltip</code>'s <code>shortcut:</code> reaches its control</strong>
-(<a href="/docs/guide/events#layers-popovers-menus-and-tooltips-above-everything">chapter 9</a>):
+(<a href="/learn/08-events#layers-popovers-menus-and-tooltips-above-everything">chapter 9</a>):
 <code>Tooltip(&quot;Save&quot;, shortcut: &quot;mod+s&quot;) { Button(&quot;Save&quot;) }</code> also gives the
 button <code>aria-keyshortcuts</code> in ARIA's spelling (<code>Control+S</code>, or
 <code>Meta+S</code> on Apple's systems), unless it has one.</p>
@@ -1762,7 +1763,7 @@ button <code>aria-keyshortcuts</code> in ARIA's spelling (<code>Control+S</code>
                                 </li>
                                 <li class="wf-list__item">
                                     <div class="wf-markdown">
-<p><strong>A member's <code>///</code> is its documentation</strong> (<a href="/docs/guide/language-basics#naming">chapter 5</a>).
+<p><strong>A member's <code>///</code> is its documentation</strong> (<a href="/learn/04-language-basics#naming">chapter 5</a>).
 A <code>///</code> comment above a <code>state</code>, <code>persist</code>, <code>derived</code> or <code>action</code> in a
 page, a component or a store stays with it, in <code>.wf</code> and <code>.wfx</code> alike;
 the parser used to drop it. A <code>///</code> above anything else in a body is
@@ -1910,7 +1911,7 @@ The findings and their order are unchanged.</p>
                             <ul class="wf-list wf-s0889037c">
                                 <li class="wf-list__item">
                                     <div class="wf-markdown">
-<p><strong>A handler reads <code>key</code> and <code>value</code></strong> (<a href="/docs/guide/events#the-event-object">chapter 9</a>).
+<p><strong>A handler reads <code>key</code> and <code>value</code></strong> (<a href="/learn/08-events#the-event-object">chapter 9</a>).
 <code>on keydown { if key == &quot;Enter&quot; { … } }</code> passed the check and threw
 <code>ReferenceError: key is not defined</code> on the first key press, which broke
 Enter in the SPA starter. A handler that reads <code>key</code> now gets
@@ -1922,7 +1923,7 @@ is left alone.</p>
                                 <li class="wf-list__item">
                                     <div class="wf-markdown">
 <p><strong>A layer that starts open no longer stops the page drawing</strong>
-(<a href="/docs/guide/events#layers-popovers-menus-and-tooltips-above-everything">chapter 9</a>).
+(<a href="/learn/08-events#layers-popovers-menus-and-tooltips-above-everything">chapter 9</a>).
 A <code>Modal</code>, <code>Dialog</code>, <code>Popover</code> or state-opened <code>Menu</code> whose <code>visible:</code>
 was <code>true</code> from the start asked to open before it was in the document,
 and threw; each now opens once it is there. A layer anchored to an
@@ -1934,7 +1935,7 @@ again when the element comes back. The Escape that closes an open
                                 </li>
                                 <li class="wf-list__item">
                                     <div class="wf-markdown">
-<p><strong>Menus and tooltips</strong> (<a href="/docs/guide/events#layers-popovers-menus-and-tooltips-above-everything">chapter 9</a>).
+<p><strong>Menus and tooltips</strong> (<a href="/learn/08-events#layers-popovers-menus-and-tooltips-above-everything">chapter 9</a>).
 <code>Menu(label:)</code> is the list's accessible name; the button's words come
 from <code>trigger:</code> (a <code>Dropdown</code>'s still from <code>label:</code>), so a menu that
 <code>visible:</code> opens no longer draws a stray button. Each menu and each
@@ -1946,7 +1947,7 @@ and its <code>style { }</code> class as it opens and closes.</p>
                                 </li>
                                 <li class="wf-list__item">
                                     <div class="wf-markdown">
-<p><strong>Forms ask their rules</strong> (<a href="/docs/guide/forms#when-a-message-shows">chapter 16</a>).
+<p><strong>Forms ask their rules</strong> (<a href="/learn/14-forms#when-a-message-shows">chapter 16</a>).
 A <code>Form</code> with no <code>bind:</code> in a page or component with <code>validate</code> rules
 ran <code>on submit</code> anyway; it now stops on a failing rule and shows the
 messages. Each page and each copy of a component has its own form
@@ -1959,7 +1960,7 @@ a value the program sets, such as a reset.</p>
                                 </li>
                                 <li class="wf-list__item">
                                     <div class="wf-markdown">
-<p><strong>Controls given a value work</strong> (<a href="/docs/guide/forms#controls-and-bind">chapter 16</a>).
+<p><strong>Controls given a value work</strong> (<a href="/learn/14-forms#controls-and-bind">chapter 16</a>).
 <code>Switch(checked: value)</code> without <code>bind:</code> drew no input; it now follows
 the value, and its <code>on change</code> hears the click. A <code>Switch</code>'s <code>on change</code>
 was never attached. A bound <code>Checkbox</code> or <code>Radio</code> with its own
@@ -1983,7 +1984,7 @@ text compiles as before.</p>
                                 </li>
                                 <li class="wf-list__item">
                                     <div class="wf-markdown">
-<p><strong>Stores</strong> (<a href="/docs/guide/stores#how-long-it-lives">chapter 12</a>). A
+<p><strong>Stores</strong> (<a href="/learn/11-stores#how-long-it-lives">chapter 12</a>). A
 store outlives the page that reads it first: its derived values and
 effects belonged to that page's scope and stopped when the reader moved
 on. A <code>derived</code> that reads one written below it in the same store
@@ -1995,7 +1996,7 @@ starts never meets a store not declared yet.</p>
                                 <li class="wf-list__item">
                                     <div class="wf-markdown">
 <p><strong>The pre-render paints what the live page draws</strong>
-(<a href="/docs/guide/static-and-spa#what-the-static-paint-knows">chapter 26</a>).
+(<a href="/about/static-or-single-page#what-the-static-paint-knows">chapter 26</a>).
 A <code>Checkbox</code>, <code>Radio</code> or <code>Switch</code> is its <code>&lt;label&gt;</code> and <code>&lt;input&gt;</code>, ticked
 and disabled as its state starts, where only the labels' words showed.
 A <code>Menu</code> or <code>Dropdown</code> is its button and a hidden list, where its
@@ -2011,7 +2012,7 @@ engine, so <code>Button(&quot;Go&quot;, disabled: false)</code> is not a dead bu
                                 <li class="wf-list__item">
                                     <div class="wf-markdown">
 <p><strong>A test that looks reads the page as a reader does</strong>
-(<a href="/docs/guide/testing#a-test-that-looks">chapter 24</a>). The template
+(<a href="/learn/16-testing#a-test-that-looks">chapter 24</a>). The template
 engine draws a <code>Menu</code> or <code>Dropdown</code> as its button and hidden list,
 <code>keyLabel(&quot;mod+shift+p&quot;)</code> as the build writes it (<code>Ctrl+Shift+P</code>), and
 a <code>t()</code> with a count in the default locale's CLDR form. <code>expect</code> decodes
@@ -2030,7 +2031,7 @@ gap, a gap or a span given per breakpoint too. A PDF lays a
 PDF engine's <code>calc()</code> is a real parser: no spaces needed, nested
 parentheses, unary minus, functions inside, and a sum of a percentage
 and points resolved against the box it lands in
-(<a href="/docs/guide/pdf-and-slides#the-engine">chapter 34</a>).</p>
+(<a href="/learn/17-pdf-and-slides#the-engine">chapter 34</a>).</p>
                                     </div>
                                 </li>
                                 <li class="wf-list__item">
@@ -2050,7 +2051,7 @@ wins, without changing the saved choice.</p>
                                 </li>
                                 <li class="wf-list__item">
                                     <div class="wf-markdown">
-<p><strong>A site may frame its own pages</strong> (<a href="/docs/guide/security#content-security-policy">chapter 23</a>).
+<p><strong>A site may frame its own pages</strong> (<a href="/about/security#content-security-policy">chapter 23</a>).
 A <code>Frame</code> whose <code>src:</code> is site-relative (<code>&quot;/preview/&quot;</code>, <code>&quot;/embed/{id}&quot;</code>)
 was refused by the site's own headers. A project that places one is
 served <code>X-Frame-Options: SAMEORIGIN</code> by <code>wf serve</code>, and its <code>_headers</code>
@@ -2061,7 +2062,7 @@ says the same with <code>frame-ancestors 'self'</code>; every other project keep
                                 <li class="wf-list__item">
                                     <div class="wf-markdown">
 <p><strong>An <code>Avatar</code>'s <code>src:</code> is checked</strong> like any other <code>src:</code>
-(<a href="/docs/guide/security#what-the-compiler-guarantees">chapter 23</a>): a
+(<a href="/about/security#what-the-compiler-guarantees">chapter 23</a>): a
 run-time value goes through <code>WF.safeUrl</code>.</p>
                                     </div>
                                 </li>
@@ -2077,7 +2078,7 @@ are measured now; a list that only grows at its end measures nothing.</p>
                                 <li class="wf-list__item">
                                     <div class="wf-markdown">
 <p><strong>A <code>Splitter</code> moves from where it is drawn</strong>
-(<a href="/docs/guide/events#gestures-drag-long-press-swipe-and-the-splitter">chapter 9</a>).
+(<a href="/learn/08-events#gestures-drag-long-press-swipe-and-the-splitter">chapter 9</a>).
 A drag or an arrow key starts from the region's drawn size, not the
 bound value, and a reset writes <code>reset:</code> as given, so <code>reset: 0</code> can
 mean the region's default share.</p>
@@ -2092,7 +2093,7 @@ whose JSDoc says <code>() =&gt; boolean</code>.</p>
                                 </li>
                                 <li class="wf-list__item">
                                     <div class="wf-markdown">
-<p><strong><code>webfluent</code> on Windows</strong> (<a href="/docs/guide/getting-started#windows-powershell">chapter 2</a>).
+<p><strong><code>webfluent</code> on Windows</strong> (<a href="/learn/01-getting-started#windows-powershell">chapter 2</a>).
 A bare <code>wf</code> runs <code>WF.msc</code>, the Windows Firewall console, which comes
 first on <code>PATH</code>. The <code>.msi</code>, the release zip and <code>install.ps1</code> now also
 install the binary as <code>webfluent.exe</code>, so <code>webfluent build</code> works;
@@ -2133,7 +2134,7 @@ line breaks and white space included.</p>
                                 <li class="wf-list__item">
                                     <div class="wf-markdown">
 <p><strong>Escape goes to the newest layer that can take it</strong>
-(<a href="/docs/guide/events#layers-popovers-menus-and-tooltips-above-everything">chapter 9</a>).
+(<a href="/learn/08-events#layers-popovers-menus-and-tooltips-above-everything">chapter 9</a>).
 A tooltip under the pointer no longer takes Escape from the page (an
 editor's completion list behind a toolbar button lost it); it hides and
 lets the key go on. An open <code>Modal</code> or <code>Dialog</code> is the newest layer, so
@@ -2173,7 +2174,7 @@ over its label on every page.</p>
                                 <li class="wf-list__item">
                                     <div class="wf-markdown">
 <p><strong>A test reads a page as a reader does</strong>
-(<a href="/docs/guide/testing#a-test-that-looks">chapter 24</a>). <code>expect</code> reads
+(<a href="/learn/16-testing#a-test-that-looks">chapter 24</a>). <code>expect</code> reads
 a plain render as a browser lays it out: elements that touch read as
 touching, where the render's line breaks put a space between them. A
 test run in a browser loads the project's own stylesheets and serves
@@ -2183,7 +2184,7 @@ test run in a browser loads the project's own stylesheets and serves
                                 <li class="wf-list__item">
                                     <div class="wf-markdown">
 <p><strong>A record with all its fields defaulted is <code>Offers()</code></strong>
-(<a href="/docs/guide/stores#declaring-a-store">chapter 12</a>), wherever an
+(<a href="/learn/11-stores#declaring-a-store">chapter 12</a>), wherever an
 expression goes, a prop's default among them; a left-out field of a
 default record is filled in, in the pre-render too.</p>
                                     </div>
@@ -2197,7 +2198,7 @@ or passed through a component's call, and a call's <code>data-*</code>, <code>ar
                                 </li>
                                 <li class="wf-list__item">
                                     <div class="wf-markdown">
-<p><strong>A local is its own</strong> (<a href="/docs/guide/stores#actions">chapter 12</a>). A
+<p><strong>A local is its own</strong> (<a href="/learn/11-stores#actions">chapter 12</a>). A
 <code>let</code>, a parameter or a loop's name in a store's action that shares a
 member's name was compiled to the member, so writing it wrote the store;
 in a page or a component, one that shared a prop's name read the prop.</p>
@@ -2213,7 +2214,7 @@ in a page or a component, one that shared a prop's name read the prop.</p>
                                 <h3 class="wf-heading wf-s5c9c3c02">Upgrading</h3>
                             </div>
                             <div class="wf-markdown">
-<p>See <a href="/docs/guide/upgrading#5-10">chapter 46</a>: Markdown's backslash
+<p>See <a href="/about/upgrading#5-10">chapter 46</a>: Markdown's backslash
 escapes and checked links, attributes that built-ins now write, a modal's
 Escape and painted title, column spans that leave room for the gap, a <code>Menu</code>'s <code>label:</code> that no longer names its button, a
 form without <code>bind:</code> that asks its rules, a bound box whose <code>on change</code>
@@ -2244,7 +2245,7 @@ builds on, each piece also a <code>wf</code> command.</p>
                             <ul class="wf-list wf-s0889037c">
                                 <li class="wf-list__item">
                                     <div class="wf-markdown">
-<p><strong>Layers</strong> (<a href="/docs/guide/events#layers-popovers-menus-and-tooltips-above-everything">chapter 9</a>). <code>Popover</code>, a <code>Menu</code> at
+<p><strong>Layers</strong> (<a href="/learn/08-events#layers-popovers-menus-and-tooltips-above-everything">chapter 9</a>). <code>Popover</code>, a <code>Menu</code> at
 its button, at an anchor or at a point (<code>at:</code>, for a context menu), with
 submenus, and <code>Tooltip</code>, drawn in the browser's top layer, so nothing
 clips or covers them. Each flips and slides to stay on screen; Escape
@@ -2254,7 +2255,7 @@ focus goes back where it was.</p>
                                 </li>
                                 <li class="wf-list__item">
                                     <div class="wf-markdown">
-<p><strong>Shortcuts for an app</strong> (<a href="/docs/guide/events#shortcuts-for-an-app">chapter 9</a>). <code>mod</code> is ⌘
+<p><strong>Shortcuts for an app</strong> (<a href="/learn/08-events#shortcuts-for-an-app">chapter 9</a>). <code>mod</code> is ⌘
 on Apple's systems and Ctrl elsewhere; chords (<code>&quot;mod+k mod+s&quot;</code>);
 <code>keyIs(e, …)</code> and <code>keyLabel(…)</code> for a table of commands that drives
 menus and a palette; a page, a component or <code>app</code> hears <code>keydown</code> and the
@@ -2263,7 +2264,7 @@ window's events itself; <code>trapFocus</code> keeps focus inside a panel.</p>
                                 </li>
                                 <li class="wf-list__item">
                                     <div class="wf-markdown">
-<p><strong>Gestures</strong> (<a href="/docs/guide/events#gestures-drag-long-press-swipe-and-the-splitter">chapter 9</a>). <code>drag:</code> and
+<p><strong>Gestures</strong> (<a href="/learn/08-events#gestures-drag-long-press-swipe-and-the-splitter">chapter 9</a>). <code>drag:</code> and
 <code>on receive(d)</code> with a ghost, edge scroll and Escape; <code>on longpress</code>,
 <code>on swipe</code>; and <code>Splitter</code> between two regions, with its size kept.</p>
                                     </div>
@@ -2292,7 +2293,7 @@ title.</p>
                                 </li>
                                 <li class="wf-list__item">
                                     <div class="wf-markdown">
-<p><strong><code>persist</code> follows its key</strong> (<a href="/docs/guide/stores">chapter 12</a>):
+<p><strong><code>persist</code> follows its key</strong> (<a href="/learn/11-stores">chapter 12</a>):
 <code>key: Project.id</code> keeps one value per project; <code>in: .app</code> names a
 storage the project gives itself, which may answer later.</p>
                                     </div>
@@ -2458,7 +2459,7 @@ an error.</p>
                                 <h3 class="wf-heading wf-s5c9c3c02">Upgrading</h3>
                             </div>
                             <div class="wf-markdown">
-<p>See <a href="/docs/guide/upgrading#5-9">chapter 46</a>: a comma between style
+<p>See <a href="/about/upgrading#5-9">chapter 46</a>: a comma between style
 declarations, a field that accepted its range's open end, an animation
 that now plays, a <code>zero</code> message that now shows, and a right-to-left
 default locale are what a project may notice. Run <code>wf check</code>.</p>
@@ -4003,7 +4004,7 @@ browser, says so with one kind of finding everywhere — the build, <code>wf
 check</code>, the editor, a CI annotation — and offers the fix where it knows
 it. This is a major release because a project that built under 4.x may
 stop on errors it always had: start with <code>wf check</code>, and read
-<a href="/docs/guide/upgrading#5-0">Upgrading</a>.</p>
+<a href="/about/upgrading#5-0">Upgrading</a>.</p>
                         </div>
                         <div class="wf-stack wf-gap--sm wf-s2a48f29f bp-prose" id="5.0.0-one-finding-everywhere">
                             <div class="wf-row wf-align--center wf-gap--sm">

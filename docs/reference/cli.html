@@ -31,6 +31,7 @@
     <script src="/js/analytics.js" defer></script>
     <script src="/js/live.js" defer></script>
     <script src="/js/old-links-map.js" defer></script>
+    <script src="/js/old-links-pages.js" defer></script>
     <script src="/js/old-links.js" defer></script>
     <script src="/js/video.js" defer></script>
     <script src="/app.js" defer></script>
@@ -825,7 +826,7 @@
 <p><code>--cache</code> keeps what it renders in <code>.wf-cache/build/</code>. A page is taken from the cache when its inputs are unchanged: its own text, every component it reaches, and what every page reads — the shell, the stores, constants and data, every page's title and route, the config, the translations and the compiler. The output is byte for byte what a build without <code>--cache</code> writes. A build with nothing to reuse fills the cache, and each build keeps only the entries it used.</p>
 <p><code>--studio</code> stamps every element's root with <code>data-wf-node</code>, its node id, which is the same in the pre-rendered page and the live one. An instance of one of the project's components also carries <code>data-wf-call</code>: the calls that made it, innermost first. <code>nodes.json</code>, written beside the site, maps each id to where it is written (file, bytes, line), what it calls, its parent, the loops and branches it is inside, and what its arguments read. A build without <code>--studio</code> stamps nothing and removes any <code>nodes.json</code> it finds.</p>
 <p><code>--stats</code> prints every text file with its gzipped size and how much it changed since the last build, the runtime modules the build kept and what reached each one, and the design tokens it left out.</p>
-<p>See also: <a href="/errors">Diagnostics</a>, <a href="/docs/guide/performance">Performance</a>.</p>
+<p>See also: <a href="/errors">Diagnostics</a>, <a href="/about/what-a-build-ships">Performance</a>.</p>
                             </div>
                             <h3 class="wf-heading" id="wf-serve">wf serve</h3>
                             <div class="wf-markdown">
@@ -905,7 +906,7 @@
 <p>The server listens on <code>dev.port</code> (3000), on <code>127.0.0.1</code>: nothing else on the network can reach it unless <code>--host</code> says so. It watches <code>src/</code>, <code>public/</code> and the config, rebuilds on a change, and reloads every open tab. Each rebuild is a <code>wf build --cache</code>, so only the pages the change reached are rendered again.</p>
 <p>It serves the build and nothing beside it: an address that climbs out (<code>/../</code>, written plainly or as <code>%2e%2e</code>), holds a backslash or a NUL, or reaches a link out of the build is a <code>404</code>. It answers only a request whose <code>Host</code> is a name it is reached by — <code>localhost</code>, an address written as numbers, the <code>--host</code> it was given, and with <code>--host 0.0.0.0</code> a <code>.local</code> name — so a page on another site cannot point a name of its own at this machine and read the build (DNS rebinding); any other gets a <code>421</code>. It answers several requests at once, streams files rather than reading them whole, and compresses a file once until it changes.</p>
 <p>When a build fails, the last good page stays up and the error is drawn over it — file, line, message and hint — until a save fixes it. The overlay is served at <code>/__wf/dev.js</code>, and the build's state, as JSON, at <code>/__wf/status</code>.</p>
-<p>Every page the server sends also carries a <strong>stores</strong> button. It shows what each store holds, a log of every action with the state on each side of it, and lets you put a store back to before an action ran (<a href="/docs/guide/stores#looking-at-one-while-it-runs">Stores</a>). The service worker of an offline site is removed under <code>wf serve</code>, so an edit is never hidden behind its cache.</p>
+<p>Every page the server sends also carries a <strong>stores</strong> button. It shows what each store holds, a log of every action with the state on each side of it, and lets you put a store back to before an action ran (<a href="/learn/11-stores#looking-at-one-while-it-runs">Stores</a>). The service worker of an offline site is removed under <code>wf serve</code>, so an edit is never hidden behind its cache.</p>
 <p>A request that is not a navigation — a <code>fetch</code>, a script, an image — for a file the build did not write gets a <code>404</code>, as a host would send, and a line in the terminal naming the file. Only a navigation gets the single-page shell. (Answering a missing API with the shell's HTML makes the page fail to parse it, far from the cause.)</p>
 <p>A build under <code>wf serve</code> is a <em>development build</em>, and it adds these checks to the running page:</p>
 <ul>
@@ -1378,7 +1379,7 @@
                             </div>
                             <div class="wf-markdown">
 <p><code>wf test</code> runs every test under <code>tests/</code> (and in <code>src/</code>), or the tests in one file. A test that clicks or types runs in headless Chrome, on a page that links the project's scripts.</p>
-<p>See also: <a href="/docs/guide/testing">Testing</a>.</p>
+<p>See also: <a href="/learn/16-testing">Testing</a>.</p>
                             </div>
                             <h3 class="wf-heading" id="wf-verify">wf verify</h3>
                             <div class="wf-markdown">
@@ -1496,7 +1497,7 @@
 <p><code>--returning-visitor</code> visits every route a second time as a reader who was here before. Their storage holds what the previous build's pages kept: each <code>persist</code> value's starting value as the build before this one wrote it, which a build saves in <code>.wf-cache/</code> when it changes. A persisted shape that changed without a <code>version:</code> then shows as the broken page it would be.</p>
 <p>The report also names <strong>the built-ins no page drew</strong>. A component can be in the registry, the tests and the documentation and still be broken on a page. The classes the pages carried list what actually ran, so the difference is what nothing has exercised. One project is not expected to draw them all: the list is a fact about coverage, not a failure.</p>
 <p><code>wf verify</code> needs Chrome or Chromium on the machine, or <code>WF_CHROME</code> pointing at one, and says so when there is none.</p>
-<p>See also: <a href="/docs/guide/testing">Testing</a>.</p>
+<p>See also: <a href="/learn/16-testing">Testing</a>.</p>
                             </div>
                             <h3 class="wf-heading" id="wf-audit">wf audit</h3>
                             <div class="wf-markdown">
@@ -1561,7 +1562,7 @@
 <li>the policy the build ships;</li>
 <li>what the compiler depends on.</li>
 </ul>
-<p>See also: <a href="/docs/guide/security#audit-the-project">Security</a>.</p>
+<p>See also: <a href="/about/security#audit-the-project">Security</a>.</p>
                             </div>
                             <h2 class="wf-heading" id="formatting">Formatting</h2>
                             <h3 class="wf-heading" id="wf-fmt">wf fmt</h3>
@@ -1652,7 +1653,7 @@
 </ul>
 <p>A line carried on by a trailing comma stays as written, and comments stay where they are. The result is checked against the file's own tokens, so formatting never changes what a file says.</p>
 <p><code>--to wfx</code> rewrites the project's <code>.wf</code> files in the indented layout, and <code>--to wf</code> goes the other way. It changes the layout and nothing else, and refuses a file whose indentation does not already follow its braces.</p>
-<p>See also: <a href="/docs/guide/language-basics#two-layouts-wf-and-wfx">Two layouts: <code>.wf</code> and <code>.wfx</code></a>.</p>
+<p>See also: <a href="/learn/04-language-basics#two-layouts-wf-and-wfx">Two layouts: <code>.wf</code> and <code>.wfx</code></a>.</p>
                             </div>
                             <h2 class="wf-heading" id="rendering">Rendering</h2>
                             <h3 class="wf-heading" id="wf-render">wf render</h3>
@@ -1889,7 +1890,7 @@
 <li><strong>2 → 3</strong> rewrites every <code>.wf</code> under <code>src/</code> in place, with a note for anything that needed a decision. It changes spelling only: the migrated project builds to what it built before.</li>
 <li><strong>3 → 4</strong> changes what the compiler allows, so it runs over the project rather than the files. It adds every <code>env</code> name your pages already read to <code>public_env</code>, which preserves what the project did, and prints the list, because <em>public</em> means anyone who opens the site may read the value. It then names, with file and line, everything 4 refuses that 3 allowed: an <code>on*</code> attribute, a <code>javascript:</code> or <code>data:</code> URL. Those have no automatic rewrite, because the old value was a string of JavaScript or a link that ran one. Finally it lists the changes that need no edit: a store is built on first read rather than at boot, a <code>persist</code> value follows the site's other tabs, and <code>WF.store</code>/<code>WF.host</code> were renamed.</li>
 </ol>
-<p>See also: <a href="/docs/guide/upgrading">Upgrading</a>.</p>
+<p>See also: <a href="/about/upgrading">Upgrading</a>.</p>
                             </div>
                             <h2 class="wf-heading" id="describing-the-project">Describing the project</h2>
                             <div class="wf-markdown">
@@ -2492,7 +2493,7 @@
 <li>every state the project holds to a rule, with its rules in order (those its type implies first) and whether the page checks them as the reader types.</li>
 </ul>
 <p>The library has it as <code>webfluent::validation</code> (with the <code>internals</code> feature, outside semver).</p>
-<p>See also: <a href="/docs/guide/forms">Forms</a>.</p>
+<p>See also: <a href="/learn/14-forms">Forms</a>.</p>
                             </div>
                             <h3 class="wf-heading" id="wf-components">wf components</h3>
                             <div class="wf-markdown">

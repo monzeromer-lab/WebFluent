@@ -30,6 +30,7 @@
     <script src="/js/analytics.js" defer></script>
     <script src="/js/live.js" defer></script>
     <script src="/js/old-links-map.js" defer></script>
+    <script src="/js/old-links-pages.js" defer></script>
     <script src="/js/old-links.js" defer></script>
     <script src="/js/video.js" defer></script>
     <script src="/app.js" defer></script>
@@ -224,7 +225,7 @@
                     <div class="wf-stack wf-gap--lg wf-s841f14ce bp-prose" dir="ltr">
                         <h2 class="wf-heading" id="before-you-start">Before you start</h2>
                         <div class="wf-markdown">
-<p>You need <code>wf</code>, Chrome and a copy of the repository (see <a href="/docs/tutorials/todos#before-you-start">Before you start</a> in the Todos tutorial). This tutorial shows the part of each file that teaches something new, so work in the finished project and read each file as its step comes up:</p>
+<p>You need <code>wf</code>, Chrome and a copy of the repository (see <a href="/learn/03-tutorial-todos#before-you-start">Before you start</a> in the Todos tutorial). This tutorial shows the part of each file that teaches something new, so work in the finished project and read each file as its step comes up:</p>
                         </div>
                         <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
                             <div class="wf-row wf-s2c416341 bp-console__bar">
@@ -287,7 +288,7 @@
                         </div>
                         <div class="wf-markdown">
 <ul>
-<li><code>&quot;ssg&quot;: true</code> pre-renders every page to its own <code>index.html</code>. When the page loads, the script takes it over in place — <em>hydration</em> (<a href="/docs/guide/static-and-spa">Static sites and SPAs</a>).</li>
+<li><code>&quot;ssg&quot;: true</code> pre-renders every page to its own <code>index.html</code>. When the page loads, the script takes it over in place — <em>hydration</em> (<a href="/about/static-or-single-page">Static sites and SPAs</a>).</li>
 <li><code>site_url</code> lets the build write what search engines and link previews read: a canonical address, Open Graph tags, JSON-LD, <code>sitemap.xml</code> and <code>robots.txt</code> (<a href="/recipes">Content</a>).</li>
 </ul>
 <p>The dark theme names only the tokens that change:</p>
@@ -346,7 +347,7 @@
                         </div>
                         <div class="wf-markdown">
 <ul>
-<li><code>data</code> reads a JSON file at build time. The result is a constant, typed by the annotation, inlined into the bundle and seeded into every pre-rendered page (<a href="/docs/guide/data">Fetching data</a>).</li>
+<li><code>data</code> reads a JSON file at build time. The result is a constant, typed by the annotation, inlined into the bundle and seeded into every pre-rendered page (<a href="/learn/15-data">Fetching data</a>).</li>
 <li>The checker holds the program to <code>Note</code>: a page that reads <code>note.titel</code> is an error where it is written.</li>
 <li><code>date</code> is a <code>Date</code>: a plain <code>&quot;2026-03-08&quot;</code> string the language knows how to format. <code>{note.date:.date(long)}</code> shows <code>March 8, 2026</code>.</li>
 </ul>
@@ -355,7 +356,7 @@
                         </div>
                         <h2 class="wf-heading" id="step-3-write-the-shell-and-a-layout">Step 3: Write the shell and a layout</h2>
                         <div class="wf-markdown">
-<p>The <code>app</code> declaration wraps every page. The current page is drawn where <code>Router</code> stands, inside <code>&lt;main&gt;</code>, so the skip link each page carries jumps past the navigation (<a href="/docs/guide/pages-and-routing">Pages and routing</a>). The start of <code>src/App.wf</code>:</p>
+<p>The <code>app</code> declaration wraps every page. The current page is drawn where <code>Router</code> stands, inside <code>&lt;main&gt;</code>, so the skip link each page carries jumps past the navigation (<a href="/learn/05-pages-and-routing">Pages and routing</a>). The start of <code>src/App.wf</code>:</p>
                         </div>
                         <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
                             <div class="wf-row wf-s2c416341 bp-console__bar">
@@ -454,7 +455,7 @@
                         </div>
                         <div class="wf-markdown">
 <ul>
-<li>A <code>///</code> comment above a component or a prop is its documentation. Your editor shows it when you hover a call (<a href="/docs/guide/components">Components</a>).</li>
+<li>A <code>///</code> comment above a component or a prop is its documentation. Your editor shows it when you hover a call (<a href="/learn/10-components">Components</a>).</li>
 <li>A splice may say how to show its value: <code>{note.date:.date(long)}</code> is <code>format(note.date, .date, &quot;long&quot;)</code>, written where it is read (<a href="/reference/expressions">Expressions</a>).</li>
 <li><code>TagList</code> is a row of <code>#tag</code> links to <code>/?tag=…</code>.</li>
 </ul>
@@ -485,7 +486,7 @@
     <span class="wf-tok-kw">derived</span> allTags = all.flatMap(n =&gt; n.tags).unique().sort()</code>
                         </div>
                         <div class="wf-markdown">
-<p><code>q</code> is bound to the search box, and everything else follows it. <code>sortBy</code>, <code>flatMap</code> and <code>unique</code> are list helpers the language brings. Each also runs at build time, so the pre-rendered page shows the sorted list (<a href="/docs/guide/state">State and reactivity</a>).</p>
+<p><code>q</code> is bound to the search box, and everything else follows it. <code>sortBy</code>, <code>flatMap</code> and <code>unique</code> are list helpers the language brings. Each also runs at build time, so the pre-rendered page shows the sorted list (<a href="/learn/07-state-and-reactivity">State and reactivity</a>).</p>
 <p>A static site adds one idea here. Its HTML is written once, before any reader arrives, so the HTML cannot depend on what only the browser knows, such as the address's query or what is in storage. So the finder draws every note and hides the ones that do not match:</p>
                         </div>
                         <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
@@ -563,7 +564,7 @@
             <span class="wf-tok-name">Markdown</span>(n.body)</code>
                         </div>
                         <div class="wf-markdown">
-<p><code>Markdown</code> renders headings, lists, quotes, emphasis and links, at build time and live. It escapes the text first, so HTML in a note is shown, not run (<a href="/docs/guide/elements">Elements</a>). Below the note, <code>related</code> lists the three newest notes that share a tag with it — a <code>derived</code> value like any other.</p>
+<p><code>Markdown</code> renders headings, lists, quotes, emphasis and links, at build time and live. It escapes the text first, so HTML in a note is shown, not run (<a href="/learn/06-elements">Elements</a>). Below the note, <code>related</code> lists the three newest notes that share a tag with it — a <code>derived</code> value like any other.</p>
 <p><strong>Check it:</strong> click a note's title. Its page shows the whole note, and the browser tab shows its title followed by <code>— Field Notes</code>. After <code>wf build</code>, <code>build/notes/</code> holds seven folders, one per note.</p>
                         </div>
                         <h2 class="wf-heading" id="step-7-list-the-tags-and-write-a-page-in-markdown">Step 7: List the tags, and write a page in Markdown</h2>
@@ -584,7 +585,7 @@
                         </div>
                         <div class="wf-markdown">
 <ul>
-<li>A layout prop takes one value per breakpoint: one column on a phone, two from <code>md</code> up. It compiles to a media query, so the first paint is already right (<a href="/docs/guide/styling">Styling</a>).</li>
+<li>A layout prop takes one value per breakpoint: one column on a phone, two from <code>md</code> up. It compiles to a media query, so the first paint is already right (<a href="/learn/13-styling">Styling</a>).</li>
 <li>A <code>derived</code> value inside a <code>for</code> is worked out for each item.</li>
 </ul>
 <p>The About page is not a <code>.wf</code> file at all. <code>src/about.md</code> is a page: its front matter names its path, title, description and layout, and the rest is its Markdown:</p>
@@ -626,7 +627,7 @@ layout: Sheet
     <span class="wf-tok-kw">derived</span> count = slugs.length</code>
                         </div>
                         <div class="wf-markdown">
-<p><code>persist</code> keeps the list in the browser across visits. There is no account, and nothing is sent anywhere (<a href="/docs/guide/stores">Stores</a>).</p>
+<p><code>persist</code> keeps the list in the browser across visits. There is no account, and nothing is sent anywhere (<a href="/learn/11-stores">Stores</a>).</p>
 <p>The button that saves a note says whether it is pressed, the way assistive technology reads it:</p>
                         </div>
                         <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
@@ -650,12 +651,12 @@ layout: Sheet
 }</code>
                         </div>
                         <div class="wf-markdown">
-<p><code>aria-pressed</code> follows the state, and <code>styles.css</code> styles the pressed button with <code>[aria-pressed=&quot;true&quot;]</code>, so the look and the meaning are one attribute (<a href="/docs/guide/accessibility">Accessibility</a>). The Saved page lists <code>notes.filter(n =&gt; Saved.slugs.includes(n.slug))</code>, and the navbar's badge shows <code>Saved.count</code>.</p>
+<p><code>aria-pressed</code> follows the state, and <code>styles.css</code> styles the pressed button with <code>[aria-pressed=&quot;true&quot;]</code>, so the look and the meaning are one attribute (<a href="/about/accessibility">Accessibility</a>). The Saved page lists <code>notes.filter(n =&gt; Saved.slugs.includes(n.slug))</code>, and the navbar's badge shows <code>Saved.count</code>.</p>
 <p><strong>Check it:</strong> click <strong>Save</strong> on a card. It reads <strong>Saved</strong>, and the navbar shows a <code>1</code> badge beside <strong>Saved</strong>. Reload the page: the note is still saved, and <code>/saved</code> lists it.</p>
                         </div>
                         <h2 class="wf-heading" id="step-9-test-it-and-run-the-checks-a-static-site-needs">Step 9: Test it, and run the checks a static site needs</h2>
                         <div class="wf-markdown">
-<p>A test reads the project's <code>data</code> file, as any page does (<a href="/docs/guide/testing">Testing</a>):</p>
+<p>A test reads the project's <code>data</code> file, as any page does (<a href="/learn/16-testing">Testing</a>):</p>
                         </div>
                         <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
                             <div class="wf-row wf-s2c416341 bp-console__bar">
@@ -698,11 +699,11 @@ layout: Sheet
                         <div class="wf-markdown">
 <ul>
 <li>A static build, with canonical addresses, a sitemap and link previews (<a href="/recipes">Content</a>).</li>
-<li>Typed data read from a JSON file at build time (<a href="/docs/guide/data">Fetching data</a>).</li>
-<li>A shell, and a layout every page names (<a href="/docs/guide/pages-and-routing">Pages and routing</a>).</li>
+<li>Typed data read from a JSON file at build time (<a href="/learn/15-data">Fetching data</a>).</li>
+<li>A shell, and a layout every page names (<a href="/learn/05-pages-and-routing">Pages and routing</a>).</li>
 <li>A page per note from one <code>:slug</code> page and <code>paths:</code>, and a page written in Markdown (<a href="/recipes">Content</a>).</li>
-<li>A search and a filter that work in pre-rendered HTML (<a href="/docs/guide/static-and-spa">Static sites and SPAs</a>).</li>
-<li>A reader's saved list, with a pressed state assistive technology reads (<a href="/docs/guide/accessibility">Accessibility</a>).</li>
+<li>A search and a filter that work in pre-rendered HTML (<a href="/about/static-or-single-page">Static sites and SPAs</a>).</li>
+<li>A reader's saved list, with a pressed state assistive technology reads (<a href="/about/accessibility">Accessibility</a>).</li>
 </ul>
                         </div>
                     </div>

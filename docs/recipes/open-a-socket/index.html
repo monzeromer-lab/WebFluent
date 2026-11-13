@@ -30,6 +30,7 @@
     <script src="/js/analytics.js" defer></script>
     <script src="/js/live.js" defer></script>
     <script src="/js/old-links-map.js" defer></script>
+    <script src="/js/old-links-pages.js" defer></script>
     <script src="/js/old-links.js" defer></script>
     <script src="/js/video.js" defer></script>
     <script src="/app.js" defer></script>
@@ -252,7 +253,7 @@
                     <div class="wf-stack wf-gap--lg wf-s841f14ce bp-prose" dir="ltr">
                         <h2 class="wf-heading" id="how-it-works">How it works</h2>
                         <div class="wf-markdown">
-<p>A connection is read the same way a resource is, so this recipe assumes you know how a <code>resource</code> is read with <code>match</code> and its arms (<a href="/docs/guide/data#show-a-request-with-resource">Fetching data</a>), and how <code>state</code> and <code>effect</code> work (<a href="/docs/guide/state">State and reactivity</a>).</p>
+<p>A connection is read the same way a resource is, so this recipe assumes you know how a <code>resource</code> is read with <code>match</code> and its arms (<a href="/learn/15-data#show-a-request-with-resource">Fetching data</a>), and how <code>state</code> and <code>effect</code> work (<a href="/learn/07-state-and-reactivity">State and reactivity</a>).</p>
 <ul>
 <li><strong><code>socket chat = ws(…)</code></strong> opens the socket when the page is drawn and closes it when the reader leaves.</li>
 <li><strong><code>on message(m) { }</code></strong>, inside the socket's block, handles each message that arrives. <code>on open { }</code> runs each time the line opens — the first time and after every reconnection.</li>

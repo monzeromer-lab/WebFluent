@@ -30,6 +30,7 @@
     <script src="/js/analytics.js" defer></script>
     <script src="/js/live.js" defer></script>
     <script src="/js/old-links-map.js" defer></script>
+    <script src="/js/old-links-pages.js" defer></script>
     <script src="/js/old-links.js" defer></script>
     <script src="/js/video.js" defer></script>
     <script src="/app.js" defer></script>
@@ -251,8 +252,8 @@ api <span class="wf-tok-name">Catalog</span>(<span class="wf-tok-prop">base</spa
                         <h2 class="wf-heading" id="how-it-works">How it works</h2>
                         <div class="wf-markdown">
 <ul>
-<li><code>Catalog</code> <a href="/docs/guide/data#describe-a-service-with-api">describes the service</a>: its <code>items</code> endpoint takes a <code>page</code> and returns a list of <code>Item</code>.</li>
-<li>The resource calls it with <code>paginate: .page</code>, which gives it <code>.items</code>, <code>.loadMore()</code> and <code>.hasMore</code> (<a href="/docs/guide/data#load-results-a-page-at-a-time">Load results a page at a time</a>).</li>
+<li><code>Catalog</code> <a href="/learn/15-data#describe-a-service-with-api">describes the service</a>: its <code>items</code> endpoint takes a <code>page</code> and returns a list of <code>Item</code>.</li>
+<li>The resource calls it with <code>paginate: .page</code>, which gives it <code>.items</code>, <code>.loadMore()</code> and <code>.hasMore</code> (<a href="/learn/15-data#load-results-a-page-at-a-time">Load results a page at a time</a>).</li>
 <li><code>list.items</code> is every item loaded so far, so the <code>for</code> lists them all and <code>item.name</code> is checked against <code>Item</code>.</li>
 <li><code>list.loadMore()</code> moves <code>page</code> on by one and asks for the next page, as a refresh: the items already shown stay while it runs.</li>
 <li><code>list.pending</code> is true while a request runs, so the button cannot ask twice. <code>list.hasMore</code> turns false when a page comes back empty, and the button goes.</li>

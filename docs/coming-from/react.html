@@ -30,6 +30,7 @@
     <script src="/js/analytics.js" defer></script>
     <script src="/js/live.js" defer></script>
     <script src="/js/old-links-map.js" defer></script>
+    <script src="/js/old-links-pages.js" defer></script>
     <script src="/js/old-links.js" defer></script>
     <script src="/js/video.js" defer></script>
     <script src="/app.js" defer></script>
@@ -220,7 +221,7 @@
 <p><strong>Pages own their routes.</strong> There is no route table. Each <code>page</code> names its <code>path:</code>, and the compiler builds the router from them, ordered by specificity, so the order you declare pages in cannot hide a route.</p>
 <p><strong>No imports, no npm.</strong> Every file under <code>src/</code> is part of one program, so a component declared anywhere is usable everywhere. A JavaScript library is a URL in <code>meta.scripts</code>, and your own JavaScript is a plain <code>.js</code> file under <code>src/</code> whose functions <code>.wf</code> code calls by name (<a href="/recipes/call-your-own-script">Call your own JavaScript</a>).</p>
 <p><strong>The build is the site.</strong> Pre-rendering, code splitting, image resizing, a sitemap, link previews and a Content-Security-Policy come from <code>wf build</code>, with no plugins to choose. There is no server rendering on each request: a site is static files and a browser runtime, talking to your API.</p>
-<p><strong>Text is text.</strong> The only way to put markup on a page is <code>Unsafe.Html(…)</code>, which the build flags every time, and inline handlers and <code>javascript:</code> URLs do not compile (<a href="/docs/guide/security">Security</a>).</p>
+<p><strong>Text is text.</strong> The only way to put markup on a page is <code>Unsafe.Html(…)</code>, which the build flags every time, and inline handlers and <code>javascript:</code> URLs do not compile (<a href="/about/security">Security</a>).</p>
 <p><strong>Using it inside a React app.</strong> Publish components as custom elements and place their tags in JSX (<a href="/recipes/publish-custom-elements">Publish components as custom elements</a>).</p>
                         </div>
                     </div>

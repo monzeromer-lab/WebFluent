@@ -1,2 +1,2 @@
-function Page_OldReferenceSlide(params){const _root=document.createDocumentFragment();const _e1709=WF.el("h1",{className:"wf-heading"},"Slide");_root.appendChild(_e1709);const _e1710=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/slide"},"Slide");WF.activeLink(_e1710,"/reference/slide",false);_root.appendChild(_e1710);return _root;}
+function Page_OldReferenceSlide(params){const _root=document.createDocumentFragment();const _e1703=WF.el("h1",{className:"wf-heading"},"Slide");_root.appendChild(_e1703);const _e1704=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/slide"},"Slide");WF.activeLink(_e1704,"/reference/slide",false);_root.appendChild(_e1704);return _root;}
 WF.page("OldReferenceSlide",Page_OldReferenceSlide);

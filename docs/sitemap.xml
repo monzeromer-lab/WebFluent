@@ -415,79 +415,85 @@
     <loc>https://webfluent.monzeromer.dev/coming-from/vue</loc>
   </url>
   <url>
-    <loc>https://webfluent.monzeromer.dev/docs/guide/introduction</loc>
+    <loc>https://webfluent.monzeromer.dev/learn/01-getting-started</loc>
   </url>
   <url>
-    <loc>https://webfluent.monzeromer.dev/docs/guide/getting-started</loc>
+    <loc>https://webfluent.monzeromer.dev/learn/02-tutorial-shelf</loc>
   </url>
   <url>
-    <loc>https://webfluent.monzeromer.dev/docs/guide/tutorial</loc>
+    <loc>https://webfluent.monzeromer.dev/learn/03-tutorial-todos</loc>
   </url>
   <url>
-    <loc>https://webfluent.monzeromer.dev/docs/tutorials/todos</loc>
+    <loc>https://webfluent.monzeromer.dev/learn/04-language-basics</loc>
   </url>
   <url>
-    <loc>https://webfluent.monzeromer.dev/docs/guide/language-basics</loc>
+    <loc>https://webfluent.monzeromer.dev/learn/05-pages-and-routing</loc>
   </url>
   <url>
-    <loc>https://webfluent.monzeromer.dev/docs/guide/pages-and-routing</loc>
+    <loc>https://webfluent.monzeromer.dev/learn/06-elements</loc>
   </url>
   <url>
-    <loc>https://webfluent.monzeromer.dev/docs/guide/elements</loc>
+    <loc>https://webfluent.monzeromer.dev/learn/07-state-and-reactivity</loc>
   </url>
   <url>
-    <loc>https://webfluent.monzeromer.dev/docs/guide/state</loc>
+    <loc>https://webfluent.monzeromer.dev/learn/08-events</loc>
   </url>
   <url>
-    <loc>https://webfluent.monzeromer.dev/docs/guide/events</loc>
+    <loc>https://webfluent.monzeromer.dev/learn/09-control-flow</loc>
   </url>
   <url>
-    <loc>https://webfluent.monzeromer.dev/docs/guide/control-flow</loc>
+    <loc>https://webfluent.monzeromer.dev/learn/10-components</loc>
   </url>
   <url>
-    <loc>https://webfluent.monzeromer.dev/docs/guide/components</loc>
+    <loc>https://webfluent.monzeromer.dev/learn/11-stores</loc>
   </url>
   <url>
-    <loc>https://webfluent.monzeromer.dev/docs/guide/stores</loc>
+    <loc>https://webfluent.monzeromer.dev/learn/12-types</loc>
   </url>
   <url>
-    <loc>https://webfluent.monzeromer.dev/docs/guide/types</loc>
+    <loc>https://webfluent.monzeromer.dev/learn/13-styling</loc>
+  </url>
+  <url>
+    <loc>https://webfluent.monzeromer.dev/learn/14-forms</loc>
+  </url>
+  <url>
+    <loc>https://webfluent.monzeromer.dev/learn/15-data</loc>
+  </url>
+  <url>
+    <loc>https://webfluent.monzeromer.dev/learn/16-testing</loc>
+  </url>
+  <url>
+    <loc>https://webfluent.monzeromer.dev/learn/17-pdf-and-slides</loc>
+  </url>
+  <url>
+    <loc>https://webfluent.monzeromer.dev/about/why</loc>
+  </url>
+  <url>
+    <loc>https://webfluent.monzeromer.dev/about/how-reactivity-works</loc>
+  </url>
+  <url>
+    <loc>https://webfluent.monzeromer.dev/about/accessibility</loc>
+  </url>
+  <url>
+    <loc>https://webfluent.monzeromer.dev/about/security</loc>
+  </url>
+  <url>
+    <loc>https://webfluent.monzeromer.dev/about/what-a-build-ships</loc>
+  </url>
+  <url>
+    <loc>https://webfluent.monzeromer.dev/about/static-or-single-page</loc>
+  </url>
+  <url>
+    <loc>https://webfluent.monzeromer.dev/about/upgrading</loc>
+  </url>
+  <url>
+    <loc>https://webfluent.monzeromer.dev/about/contributing</loc>
   </url>
   <url>
     <loc>https://webfluent.monzeromer.dev/reference/expressions</loc>
   </url>
   <url>
-    <loc>https://webfluent.monzeromer.dev/docs/guide/styling</loc>
-  </url>
-  <url>
-    <loc>https://webfluent.monzeromer.dev/docs/guide/accessibility</loc>
-  </url>
-  <url>
-    <loc>https://webfluent.monzeromer.dev/docs/guide/forms</loc>
-  </url>
-  <url>
-    <loc>https://webfluent.monzeromer.dev/docs/guide/data</loc>
-  </url>
-  <url>
-    <loc>https://webfluent.monzeromer.dev/docs/guide/testing</loc>
-  </url>
-  <url>
-    <loc>https://webfluent.monzeromer.dev/docs/guide/security</loc>
-  </url>
-  <url>
-    <loc>https://webfluent.monzeromer.dev/docs/guide/performance</loc>
-  </url>
-  <url>
     <loc>https://webfluent.monzeromer.dev/reference/project</loc>
-  </url>
-  <url>
-    <loc>https://webfluent.monzeromer.dev/docs/guide/static-and-spa</loc>
-  </url>
-  <url>
-    <loc>https://webfluent.monzeromer.dev/docs/guide/pdf-and-slides</loc>
-  </url>
-  <url>
-    <loc>https://webfluent.monzeromer.dev/errors</loc>
   </url>
   <url>
     <loc>https://webfluent.monzeromer.dev/reference/built-ins</loc>
@@ -505,19 +511,22 @@
     <loc>https://webfluent.monzeromer.dev/reference/glossary</loc>
   </url>
   <url>
-    <loc>https://webfluent.monzeromer.dev/docs/guide/troubleshooting</loc>
-  </url>
-  <url>
-    <loc>https://webfluent.monzeromer.dev/docs/guide/upgrading</loc>
-  </url>
-  <url>
-    <loc>https://webfluent.monzeromer.dev/docs/guide/contributing</loc>
-  </url>
-  <url>
     <loc>https://webfluent.monzeromer.dev/reference/library</loc>
   </url>
   <url>
     <loc>https://webfluent.monzeromer.dev/reference/editors</loc>
+  </url>
+  <url>
+    <loc>https://webfluent.monzeromer.dev/errors</loc>
+  </url>
+  <url>
+    <loc>https://webfluent.monzeromer.dev/errors/troubleshooting</loc>
+  </url>
+  <url>
+    <loc>https://webfluent.monzeromer.dev/about</loc>
+  </url>
+  <url>
+    <loc>https://webfluent.monzeromer.dev/learn</loc>
   </url>
   <url>
     <loc>https://webfluent.monzeromer.dev/recipes</loc>

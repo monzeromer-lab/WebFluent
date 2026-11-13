@@ -30,6 +30,7 @@
     <script src="/js/analytics.js" defer></script>
     <script src="/js/live.js" defer></script>
     <script src="/js/old-links-map.js" defer></script>
+    <script src="/js/old-links-pages.js" defer></script>
     <script src="/js/old-links.js" defer></script>
     <script src="/js/video.js" defer></script>
     <script src="/app.js" defer></script>
@@ -254,11 +255,11 @@
                         <div class="wf-markdown">
 <ul>
 <li><code>typed</code> follows the input on every key, through <code>bind:</code>. <code>q</code> is what the page searches for, and only <code>commit</code> writes it.</li>
-<li>The <a href="/docs/guide/state#effect">effect</a> reads <code>typed</code>, so it runs again on every keystroke. Each run keeps the value it saw in <code>pending</code> and schedules a check 300 ms later.</li>
+<li>The <a href="/learn/07-state-and-reactivity#effect">effect</a> reads <code>typed</code>, so it runs again on every keystroke. Each run keeps the value it saw in <code>pending</code> and schedules a check 300 ms later.</li>
 <li>When a check runs, <code>commit</code> writes <code>q</code> only if <code>pending</code> is still what the reader has typed. A check from an earlier key finds <code>typed</code> has moved on and does nothing, so only the last pause gets through.</li>
-<li>The <a href="/docs/guide/data#show-a-request-with-resource">resource</a> splices <code>q</code> into its address, so it asks again each time <code>q</code> changes — once per pause, not once per key.</li>
+<li>The <a href="/learn/15-data#show-a-request-with-resource">resource</a> splices <code>q</code> into its address, so it asks again each time <code>q</code> changes — once per pause, not once per key.</li>
 </ul>
-<p>The timer is the browser's <code>setTimeout</code>, because <a href="/docs/guide/state#timers"><code>after(ms)</code></a> is a declaration with a body, not a statement an effect can hold.</p>
+<p>The timer is the browser's <code>setTimeout</code>, because <a href="/learn/07-state-and-reactivity#timers"><code>after(ms)</code></a> is a declaration with a body, not a statement an effect can hold.</p>
                         </div>
                     </div>
                     <div class="wf-stack wf-gap--sm wf-s982ede03">

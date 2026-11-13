@@ -30,6 +30,7 @@
     <script src="/js/analytics.js" defer></script>
     <script src="/js/live.js" defer></script>
     <script src="/js/old-links-map.js" defer></script>
+    <script src="/js/old-links-pages.js" defer></script>
     <script src="/js/old-links.js" defer></script>
     <script src="/js/video.js" defer></script>
     <script src="/app.js" defer></script>
@@ -280,8 +281,8 @@
 <li><strong>Leave <code>offline</code> out</strong> — the files are already on the machine, so a service worker has nothing to keep.</li>
 </ul>
 <p><code>meta.connect</code> is for the security policy; see <a href="#allow-tauri-requests-in-the-security-policy">Allow Tauri requests in the security policy</a>.</p>
-<p>A single-page build and a static build both work (<a href="/docs/guide/static-and-spa">Static sites and SPAs</a>), and addresses stay as they are. Tauri answers a path the build has no file for with <code>index.html</code>, so reloading the window on <code>/settings</code> shows the settings page.</p>
-<p>An app is often used with no network, and a font named in <code>meta.fonts</code> comes from another origin. To make a font always available, put the file in <code>public/</code> and declare it with <code>@font-face</code> in a <code>.css</code> file under <code>src/</code> (<a href="/docs/guide/styling">Styling</a>).</p>
+<p>A single-page build and a static build both work (<a href="/about/static-or-single-page">Static sites and SPAs</a>), and addresses stay as they are. Tauri answers a path the build has no file for with <code>index.html</code>, so reloading the window on <code>/settings</code> shows the settings page.</p>
+<p>An app is often used with no network, and a font named in <code>meta.fonts</code> comes from another origin. To make a font always available, put the file in <code>public/</code> and declare it with <code>@font-face</code> in a <code>.css</code> file under <code>src/</code> (<a href="/learn/13-styling">Styling</a>).</p>
                         </div>
                         <h3 class="wf-heading" id="set-up-tauri">Set up Tauri</h3>
                         <div class="wf-markdown">
@@ -557,7 +558,7 @@ function pickFolder() {
                         </div>
                         <h3 class="wf-heading" id="allow-tauri-requests-in-the-security-policy">Allow Tauri requests in the security policy</h3>
                         <div class="wf-markdown">
-<p>With <code>build.csp</code> on — as it is for a project <code>wf init</code> makes — every page says where it may send requests (<a href="/docs/guide/security">Security</a>). Tauri sends each call as a request: to <code>http://ipc.localhost</code> on Windows and Android, and to <code>ipc://localhost</code> on macOS, Linux and iOS. Name both in <code>meta.connect</code>, the second as its scheme alone, which is how a policy names an app's own scheme:</p>
+<p>With <code>build.csp</code> on — as it is for a project <code>wf init</code> makes — every page says where it may send requests (<a href="/about/security">Security</a>). Tauri sends each call as a request: to <code>http://ipc.localhost</code> on Windows and Android, and to <code>ipc://localhost</code> on macOS, Linux and iOS. Name both in <code>meta.connect</code>, the second as its scheme alone, which is how a policy names an app's own scheme:</p>
                         </div>
                         <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
                             <div class="wf-row wf-s2c416341 bp-console__bar">

@@ -30,6 +30,7 @@
     <script src="/js/analytics.js" defer></script>
     <script src="/js/live.js" defer></script>
     <script src="/js/old-links-map.js" defer></script>
+    <script src="/js/old-links-pages.js" defer></script>
     <script src="/js/old-links.js" defer></script>
     <script src="/js/video.js" defer></script>
     <script src="/app.js" defer></script>
@@ -311,7 +312,7 @@ function startEditor(node, opened, closed) {
 <li><strong>It can target a handle.</strong> <code>Portal(into: panel)</code> draws into the element a <code>ref: panel</code> names, even one written further down the page. Where it goes is read once more when the drawing is over and the page is in the document, so an element of the page's own that <code>document.getElementById</code> finds is found too. A handle is not a state: an element the handle names only later, in an <code>if</code> that opens afterwards, is not followed.</li>
 <li><strong>Its events bubble from where it is drawn.</strong> A press inside the block bubbles through the node it is in and that node's parents, not through the elements around the place it is written. An <code>on click</code> on a <code>Stack</code> that holds the portal does not hear it. Put the handler on the portal, or inside its block.</li>
 <li><strong><code>show</code> does not hide it.</strong> <code>show</code> hides what is drawn in its own place, and a portal's block is drawn somewhere else. Remove it with <code>if</code>, or keep it aside with <code>into: null</code>.</li>
-<li><strong>The pre-rendered page has only a marker.</strong> The <em>static paint</em> (the HTML the build pre-renders for a page) has a marker where a portal is, and nothing of its block. The live page draws the block once its script has run. A test that looks at a portal runs in a browser (<a href="/docs/guide/testing#test-a-portal">Testing</a>).</li>
+<li><strong>The pre-rendered page has only a marker.</strong> The <em>static paint</em> (the HTML the build pre-renders for a page) has a marker where a portal is, and nothing of its block. The live page draws the block once its script has run. A test that looks at a portal runs in a browser (<a href="/learn/16-testing#test-a-portal">Testing</a>).</li>
 </ul>
                         </div>
                         <h2 class="wf-heading" id="troubleshooting">Troubleshooting</h2>

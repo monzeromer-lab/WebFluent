@@ -30,6 +30,7 @@
     <script src="/js/analytics.js" defer></script>
     <script src="/js/live.js" defer></script>
     <script src="/js/old-links-map.js" defer></script>
+    <script src="/js/old-links-pages.js" defer></script>
     <script src="/js/old-links.js" defer></script>
     <script src="/js/video.js" defer></script>
     <script src="/app.js" defer></script>
@@ -432,8 +433,8 @@ function onEvent(name, handler) {
 <li><strong><code>meta.sitemap: false</code></strong> — writes no <code>sitemap.xml</code> or <code>robots.txt</code>; nothing crawls an app. You can leave <code>meta.site_url</code> and the link-preview tags unset too.</li>
 <li><strong>Leave <code>offline</code> out</strong> — the files are already on the machine, so a service worker has nothing to keep.</li>
 </ul>
-<p>A single-page build and a static build both work (<a href="/docs/guide/static-and-spa">Static sites and SPAs</a>), and addresses stay as they are. The main process answers a path the build has no file for with <code>index.html</code>, so reloading the window on <code>/settings</code> shows the settings page.</p>
-<p>An app is often used with no network, and a font named in <code>meta.fonts</code> comes from another origin. To make a font always available, put the file in <code>public/</code> and declare it with <code>@font-face</code> in a <code>.css</code> file under <code>src/</code> (<a href="/docs/guide/styling">Styling</a>).</p>
+<p>A single-page build and a static build both work (<a href="/about/static-or-single-page">Static sites and SPAs</a>), and addresses stay as they are. The main process answers a path the build has no file for with <code>index.html</code>, so reloading the window on <code>/settings</code> shows the settings page.</p>
+<p>An app is often used with no network, and a font named in <code>meta.fonts</code> comes from another origin. To make a font always available, put the file in <code>public/</code> and declare it with <code>@font-face</code> in a <code>.css</code> file under <code>src/</code> (<a href="/learn/13-styling">Styling</a>).</p>
                         </div>
                         <h3 class="wf-heading" id="set-up-electron">Set up Electron</h3>
                         <div class="wf-markdown">

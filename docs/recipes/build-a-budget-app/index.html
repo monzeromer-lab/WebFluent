@@ -30,6 +30,7 @@
     <script src="/js/analytics.js" defer></script>
     <script src="/js/live.js" defer></script>
     <script src="/js/old-links-map.js" defer></script>
+    <script src="/js/old-links-pages.js" defer></script>
     <script src="/js/old-links.js" defer></script>
     <script src="/js/video.js" defer></script>
     <script src="/app.js" defer></script>
@@ -224,7 +225,7 @@
                     <div class="wf-stack wf-gap--lg wf-s841f14ce bp-prose" dir="ltr">
                         <h2 class="wf-heading" id="before-you-start">Before you start</h2>
                         <div class="wf-markdown">
-<p>You need <code>wf</code>, Chrome and a copy of the repository (see <a href="/docs/tutorials/todos#before-you-start">Before you start</a> in the Todos tutorial). This tutorial assumes the Todos tutorial, and each step links the chapter that goes deeper. Like Field Notes, it shows the part of each file that teaches something new, so work in the finished project:</p>
+<p>You need <code>wf</code>, Chrome and a copy of the repository (see <a href="/learn/03-tutorial-todos#before-you-start">Before you start</a> in the Todos tutorial). This tutorial assumes the Todos tutorial, and each step links the chapter that goes deeper. Like Field Notes, it shows the part of each file that teaches something new, so work in the finished project:</p>
                         </div>
                         <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
                             <div class="wf-row wf-s2c416341 bp-console__bar">
@@ -317,7 +318,7 @@
 }</code>
                         </div>
                         <div class="wf-markdown">
-<p><code>Money</code>, <code>Date</code>, <code>Color</code> and <code>Uuid</code> are each a plain JSON value at run time (<a href="/docs/guide/types">Types</a>). Money is kept in minor units, <code>{ amount: 1299, currency: &quot;USD&quot; }</code>, so a sum never drifts by a fraction of a cent. You write it <code>$12.99</code> and show it with <code>format(m)</code>. What the language works out is a call — <code>a.plus(b)</code>, <code>a.minus(b)</code>, <code>ONE.times(12.5)</code> — and what the value carries is a field: <code>m.amount</code>. Two constants give every sum a starting point:</p>
+<p><code>Money</code>, <code>Date</code>, <code>Color</code> and <code>Uuid</code> are each a plain JSON value at run time (<a href="/learn/12-types">Types</a>). Money is kept in minor units, <code>{ amount: 1299, currency: &quot;USD&quot; }</code>, so a sum never drifts by a fraction of a cent. You write it <code>$12.99</code> and show it with <code>format(m)</code>. What the language works out is a call — <code>a.plus(b)</code>, <code>a.minus(b)</code>, <code>ONE.times(12.5)</code> — and what the value carries is a field: <code>m.amount</code>. Two constants give every sum a starting point:</p>
                         </div>
                         <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
                             <div class="wf-row wf-s2c416341 bp-console__bar">
@@ -362,7 +363,7 @@
     <span class="wf-tok-kw">derived</span> budgetLeft = monthBudget.minus(monthSpent)</code>
                         </div>
                         <div class="wf-markdown">
-<p>Add an entry, and the balance, this month's spending, each budget bar and the chart all follow, with no code written to keep them in step (<a href="/docs/guide/stores">Stores</a>). <code>now</code> is the browser's clock as a value, so <code>today</code> turns over at midnight. <code>sum</code> is an action that only returns a value, which a derived value may call:</p>
+<p>Add an entry, and the balance, this month's spending, each budget bar and the chart all follow, with no code written to keep them in step (<a href="/learn/11-stores">Stores</a>). <code>now</code> is the browser's clock as a value, so <code>today</code> turns over at midnight. <code>sum</code> is an action that only returns a value, which a derived value may call:</p>
                         </div>
                         <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
                             <div class="wf-row wf-s2c416341 bp-console__bar">
@@ -421,7 +422,7 @@
 <ul>
 <li><code>version: 2</code> says which shape this build writes.</li>
 <li><code>migrate 1 -&gt; 2</code> brings an older value forward. Its body receives the stored value as <code>old</code>.</li>
-<li>If you raise the version with no migration, the build warns (<code>P01</code>). If you change the shape without raising the version, it warns too (<code>D04</code>), from the shapes it keeps in <code>.wf-cache/</code> (<a href="/docs/guide/stores">Stores</a>).</li>
+<li>If you raise the version with no migration, the build warns (<code>P01</code>). If you change the shape without raising the version, it warns too (<code>D04</code>), from the shapes it keeps in <code>.wf-cache/</code> (<a href="/learn/11-stores">Stores</a>).</li>
 <li>A first visit opens on a sample ledger dated from today, so the dashboard is never empty.</li>
 </ul>
 <p><strong>Check it:</strong> <code>wf check --deny-warnings</code> passes. Delete the <code>migrate</code> block and check again: the check reports <code>P01</code>. Put the block back.</p>
@@ -449,7 +450,7 @@
                         </div>
                         <div class="wf-markdown">
 <ul>
-<li><code>viewport</code> is the window's size as a value. It follows <code>matchMedia</code>, so the switch happens once, as the window crosses the breakpoint (<a href="/docs/guide/styling">Styling</a>).</li>
+<li><code>viewport</code> is the window's size as a value. It follows <code>matchMedia</code>, so the switch happens once, as the window crosses the breakpoint (<a href="/learn/13-styling">Styling</a>).</li>
 <li>The layout itself — grids that are one column on a phone — uses responsive values, <code>Grid(columns: { base: 1, lg: 2 })</code>, which need no script.</li>
 <li>A second store, <code>Ui</code>, holds what the interface is doing — the dialog, the menu, the notices — apart from what the ledger holds.</li>
 </ul>
@@ -489,8 +490,8 @@
                         </div>
                         <div class="wf-markdown">
 <ul>
-<li>A <code>{…}</code> in a style value reads state, and the property follows it (<a href="/docs/guide/styling">Styling</a>).</li>
-<li>The chart is one <code>role=&quot;img&quot;</code> with a label, so a screen reader hears what it shows rather than twelve unnamed boxes (<a href="/docs/guide/accessibility">Accessibility</a>).</li>
+<li>A <code>{…}</code> in a style value reads state, and the property follows it (<a href="/learn/13-styling">Styling</a>).</li>
+<li>The chart is one <code>role=&quot;img&quot;</code> with a label, so a screen reader hears what it shows rather than twelve unnamed boxes (<a href="/about/accessibility">Accessibility</a>).</li>
 </ul>
 <p>The figures above the chart are one component, placed four times:</p>
                         </div>
@@ -511,7 +512,7 @@
     }</code>
                         </div>
                         <div class="wf-markdown">
-<p><code>lean</code> is an enum prop. A component writes its enum props to its root element, here as <code>data-lean=&quot;good&quot;</code>, and <code>pocket.css</code> colours the card by that attribute (<a href="/docs/guide/components">Components</a>).</p>
+<p><code>lean</code> is an enum prop. A component writes its enum props to its root element, here as <code>data-lean=&quot;good&quot;</code>, and <code>pocket.css</code> colours the card by that attribute (<a href="/learn/10-components">Components</a>).</p>
 <p><strong>Check it:</strong> the dashboard shows four cards and six pairs of bars. Add an expense in step 9's dialog, and this month's bar and the <strong>Spent</strong> card grow at once.</p>
                         </div>
                         <h2 class="wf-heading" id="step-7-keep-the-filters-in-the-address">Step 7: Keep the filters in the address</h2>
@@ -534,7 +535,7 @@
                         </div>
                         <div class="wf-markdown">
 <p>Choosing a month calls <code>navigate(&quot;/entries?month=…&quot;)</code>. The address changes, <code>query</code> follows it, and so does the list.</p>
-<p>An entry also has a page of its own at <code>/entries/:id</code>, where <code>id</code> is a typed parameter. The page looks the entry up with <code>Ledger.entries.find(…)</code> and draws it inside <code>if let e = entry</code>. <code>if let</code> binds the value only when it is there, which the checker requires before the page reads its fields (<a href="/docs/guide/pages-and-routing">Pages and routing</a>).</p>
+<p>An entry also has a page of its own at <code>/entries/:id</code>, where <code>id</code> is a typed parameter. The page looks the entry up with <code>Ledger.entries.find(…)</code> and draws it inside <code>if let e = entry</code>. <code>if let</code> binds the value only when it is there, which the checker requires before the page reads its fields (<a href="/learn/05-pages-and-routing">Pages and routing</a>).</p>
 <p><strong>Check it:</strong> on <code>/entries</code>, pick a month. The address gains <code>?month=…</code> and the list narrows. Press the browser's back button: the filter goes.</p>
                         </div>
                         <h2 class="wf-heading" id="step-8-use-one-form-for-new-and-for-edit">Step 8: Use one form for new and for edit</h2>
@@ -575,7 +576,7 @@
                         </div>
                         <div class="wf-markdown">
 <ul>
-<li>A <code>validate</code> block sits beside the state it guards. The control bound to that state shows what the rules say — the message, <code>aria-invalid</code> and the link between them — with nothing more written (<a href="/docs/guide/forms">Forms</a>).</li>
+<li>A <code>validate</code> block sits beside the state it guards. The control bound to that state shows what the rules say — the message, <code>aria-invalid</code> and the link between them — with nothing more written (<a href="/learn/14-forms">Forms</a>).</li>
 <li>A rule with no message of its own shows the translation of <code>form.&lt;rule&gt;</code>, so <code>en.json</code> and <code>ar.json</code> each say &quot;that date has not happened yet&quot; once.</li>
 <li>The form says it is done with an event, <code>saved</code>. The caller decides what that means: close the dialog, or go back to the entry.</li>
 </ul>
@@ -615,7 +616,7 @@
     <span class="wf-tok-kw">on</span> key(<span class="wf-tok-str">&quot;Escape&quot;</span>) { <span class="wf-tok-name">Ui</span>.closeAll() }</code>
                         </div>
                         <div class="wf-markdown">
-<p><code>on key</code> at the top of the app listens on the document for as long as the page shows (<a href="/docs/guide/events">Events</a>). The dialog is a <code>Modal</code> whose <code>title:</code> is its accessible name. It keeps focus inside while it is open, and Escape closes it:</p>
+<p><code>on key</code> at the top of the app listens on the document for as long as the page shows (<a href="/learn/08-events">Events</a>). The dialog is a <code>Modal</code> whose <code>title:</code> is its accessible name. It keeps focus inside while it is open, and Escape closes it:</p>
                         </div>
                         <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
                             <div class="wf-row wf-s2c416341 bp-console__bar">
@@ -704,7 +705,7 @@
                         </div>
                         <h2 class="wf-heading" id="step-12-test-it-and-run-the-checks">Step 12: Test it, and run the checks</h2>
                         <div class="wf-markdown">
-<p>A test drives the real form by the labels a reader sees — the English ones, since a test reads the project's default locale (<a href="/docs/guide/testing">Testing</a>):</p>
+<p>A test drives the real form by the labels a reader sees — the English ones, since a test reads the project's default locale (<a href="/learn/16-testing">Testing</a>):</p>
                         </div>
                         <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
                             <div class="wf-row wf-s2c416341 bp-console__bar">
@@ -746,10 +747,10 @@
                         <h2 class="wf-heading" id="what-you-built">What you built</h2>
                         <div class="wf-markdown">
 <ul>
-<li>A ledger typed with <code>Money</code>, <code>Date</code>, <code>Color</code> and <code>Uuid</code> (<a href="/docs/guide/types">Types</a>).</li>
-<li>Totals that are all <code>derived</code> values of one store, and a <code>persist</code> migration that keeps returning readers' data (<a href="/docs/guide/stores">Stores</a>).</li>
-<li>A shell that changes with the window, and responsive grids (<a href="/docs/guide/styling">Styling</a>).</li>
-<li>A form that validates itself, a dialog and keyboard shortcuts (<a href="/docs/guide/forms">Forms</a>, <a href="/docs/guide/events">Events</a>).</li>
+<li>A ledger typed with <code>Money</code>, <code>Date</code>, <code>Color</code> and <code>Uuid</code> (<a href="/learn/12-types">Types</a>).</li>
+<li>Totals that are all <code>derived</code> values of one store, and a <code>persist</code> migration that keeps returning readers' data (<a href="/learn/11-stores">Stores</a>).</li>
+<li>A shell that changes with the window, and responsive grids (<a href="/learn/13-styling">Styling</a>).</li>
+<li>A form that validates itself, a dialog and keyboard shortcuts (<a href="/learn/14-forms">Forms</a>, <a href="/learn/08-events">Events</a>).</li>
 <li>Two languages, plural forms and right-to-left layout (<a href="/recipes">Internationalization</a>).</li>
 <li>A script of your own, and a channel between tabs (<a href="/recipes">JavaScript interop</a>, <a href="/recipes">Realtime</a>).</li>
 <li>A site that works offline (<a href="/recipes">Offline</a>).</li>

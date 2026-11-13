@@ -1,2 +1,2 @@
-function Page_OldReferenceAlert(params){const _root=document.createDocumentFragment();const _e1597=WF.el("h1",{className:"wf-heading"},"Alert");_root.appendChild(_e1597);const _e1598=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/alert"},"Alert");WF.activeLink(_e1598,"/reference/alert",false);_root.appendChild(_e1598);return _root;}
+function Page_OldReferenceAlert(params){const _root=document.createDocumentFragment();const _e1591=WF.el("h1",{className:"wf-heading"},"Alert");_root.appendChild(_e1591);const _e1592=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/alert"},"Alert");WF.activeLink(_e1592,"/reference/alert",false);_root.appendChild(_e1592);return _root;}
 WF.page("OldReferenceAlert",Page_OldReferenceAlert);

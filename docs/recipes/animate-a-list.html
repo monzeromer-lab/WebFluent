@@ -30,6 +30,7 @@
     <script src="/js/analytics.js" defer></script>
     <script src="/js/live.js" defer></script>
     <script src="/js/old-links-map.js" defer></script>
+    <script src="/js/old-links-pages.js" defer></script>
     <script src="/js/old-links.js" defer></script>
     <script src="/js/video.js" defer></script>
     <script src="/app.js" defer></script>
@@ -259,7 +260,7 @@
 <p>Each change to <code>items</code> plays a different motion:</p>
 <ul>
 <li><strong>An item arrives.</strong> It plays its <code>animate:</code>. <code>stagger: &quot;40ms&quot;</code> delays each item's enter by its index × 40ms, so a list fills in one item after another.</li>
-<li><strong>An item moves</strong> — a sort, a reverse, an insert above it. It slides to its new place. This is a <em>FLIP</em> transform: the runtime measures where the node was and where it is, and animates between them. It works because <code>by item.id</code> keeps the item's node alive (<a href="/docs/guide/control-flow">Control flow</a>).</li>
+<li><strong>An item moves</strong> — a sort, a reverse, an insert above it. It slides to its new place. This is a <em>FLIP</em> transform: the runtime measures where the node was and where it is, and animates between them. It works because <code>by item.id</code> keeps the item's node alive (<a href="/learn/09-control-flow">Control flow</a>).</li>
 <li><strong>An item leaves.</strong> It plays its <code>exit:</code> first, and the runtime removes the node when it ends.</li>
 </ul>
 <p>A <code>for</code> with no <code>by</code>, or a key that changes, makes a new node for the item, so it fades out and in again instead of moving. Key the list by what identifies the item.</p>

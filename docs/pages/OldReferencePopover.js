@@ -1,2 +1,2 @@
-function Page_OldReferencePopover(params){const _root=document.createDocumentFragment();const _e1683=WF.el("h1",{className:"wf-heading"},"Popover");_root.appendChild(_e1683);const _e1684=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/popover"},"Popover");WF.activeLink(_e1684,"/reference/popover",false);_root.appendChild(_e1684);return _root;}
+function Page_OldReferencePopover(params){const _root=document.createDocumentFragment();const _e1677=WF.el("h1",{className:"wf-heading"},"Popover");_root.appendChild(_e1677);const _e1678=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/popover"},"Popover");WF.activeLink(_e1678,"/reference/popover",false);_root.appendChild(_e1678);return _root;}
 WF.page("OldReferencePopover",Page_OldReferencePopover);

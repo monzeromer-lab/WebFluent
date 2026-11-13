@@ -30,6 +30,7 @@
     <script src="/js/analytics.js" defer></script>
     <script src="/js/live.js" defer></script>
     <script src="/js/old-links-map.js" defer></script>
+    <script src="/js/old-links-pages.js" defer></script>
     <script src="/js/old-links.js" defer></script>
     <script src="/js/video.js" defer></script>
     <script src="/app.js" defer></script>
@@ -242,7 +243,7 @@
                         <div class="wf-markdown">
 <ol>
 <li><code>/*</code> applies the headers under it to every path of the site.</li>
-<li><code>Content-Security-Policy</code> is the same policy every page already carries as a <code>&lt;meta&gt;</code> tag, plus <code>frame-ancestors</code>, which a browser ignores in a <code>&lt;meta&gt;</code> tag (<a href="/docs/guide/security#ship-a-content-security-policy">Security</a>).</li>
+<li><code>Content-Security-Policy</code> is the same policy every page already carries as a <code>&lt;meta&gt;</code> tag, plus <code>frame-ancestors</code>, which a browser ignores in a <code>&lt;meta&gt;</code> tag (<a href="/about/security#ship-a-content-security-policy">Security</a>).</li>
 <li><code>X-Content-Type-Options</code>, <code>Referrer-Policy</code> and <code>X-Frame-Options</code> only work as real HTTP headers, so they are in this file and nowhere else.</li>
 </ol>
 <p>The build writes no cache headers: those are yours to set, by the kind of file.</p>
@@ -320,7 +321,7 @@
                         </div>
                         <h2 class="wf-heading" id="set-security-headers">Set security headers</h2>
                         <div class="wf-markdown">
-<p>Netlify and Cloudflare Pages read <code>build/_headers</code> as it is. On any other host, set the same headers in its configuration, as the hosting recipes show: <a href="/recipes/serve-with-nginx">nginx</a>, <a href="/recipes/serve-with-apache">Apache</a>, <a href="/recipes/serve-with-caddy">Caddy</a> and <a href="/recipes/deploy-to-vercel">Vercel</a>. Serve the site over HTTPS, and turn on HSTS once you are sure HTTPS works everywhere. <a href="/docs/guide/security#before-you-deploy">Security</a> has the full checklist.</p>
+<p>Netlify and Cloudflare Pages read <code>build/_headers</code> as it is. On any other host, set the same headers in its configuration, as the hosting recipes show: <a href="/recipes/serve-with-nginx">nginx</a>, <a href="/recipes/serve-with-apache">Apache</a>, <a href="/recipes/serve-with-caddy">Caddy</a> and <a href="/recipes/deploy-to-vercel">Vercel</a>. Serve the site over HTTPS, and turn on HSTS once you are sure HTTPS works everywhere. <a href="/about/security#before-you-deploy">Security</a> has the full checklist.</p>
 <p>After the deploy, <a href="/recipes/check-a-deploy">check the headers it sends</a>.</p>
                         </div>
                     </div>

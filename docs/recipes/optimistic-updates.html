@@ -30,6 +30,7 @@
     <script src="/js/analytics.js" defer></script>
     <script src="/js/live.js" defer></script>
     <script src="/js/old-links-map.js" defer></script>
+    <script src="/js/old-links-pages.js" defer></script>
     <script src="/js/old-links.js" defer></script>
     <script src="/js/video.js" defer></script>
     <script src="/app.js" defer></script>
@@ -257,16 +258,16 @@
                         <h2 class="wf-heading" id="how-it-works">How it works</h2>
                         <div class="wf-markdown">
 <ul>
-<li><code>let before = items</code> keeps the list as it was. A <a href="/docs/guide/state#actions-and-locals"><code>let</code></a> is local to the action.</li>
+<li><code>let before = items</code> keeps the list as it was. A <a href="/learn/07-state-and-reactivity#actions-and-locals"><code>let</code></a> is local to the action.</li>
 <li>The next line gives <code>items</code> a new list with the one item flipped. The button repaints at once, before any request leaves.</li>
-<li>The request is <a href="/docs/guide/data#fetch-on-demand-with-await-fetch">awaited</a> inside <code>try</code>. If it fails, the <code>catch</code> puts <code>before</code> back and sets <code>error</code>, and the <code>Toast</code> tells the reader.</li>
+<li>The request is <a href="/learn/15-data#fetch-on-demand-with-await-fetch">awaited</a> inside <code>try</code>. If it fails, the <code>catch</code> puts <code>before</code> back and sets <code>error</code>, and the <code>Toast</code> tells the reader.</li>
 </ul>
                         </div>
                     </div>
                     <div class="wf-stack wf-gap--md wf-s28a8547f bp-prose">
                         <h2 class="wf-heading" id="variations">Variations</h2>
                         <div class="wf-markdown">
-<p><code>optimistic(holder, change)</code> does the same with less code inside an action. It applies the change at once, and if anything later in the action throws, the change is taken back (<a href="/docs/guide/data#show-a-change-before-the-server-agrees">Fetching data</a>):</p>
+<p><code>optimistic(holder, change)</code> does the same with less code inside an action. It applies the change at once, and if anything later in the action throws, the change is taken back (<a href="/learn/15-data#show-a-change-before-the-server-agrees">Fetching data</a>):</p>
                         </div>
                         <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
                             <div class="wf-row wf-s2c416341 bp-console__bar">

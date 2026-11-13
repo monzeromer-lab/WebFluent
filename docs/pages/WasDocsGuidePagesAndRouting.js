@@ -1,0 +1,2 @@
+function Page_WasDocsGuidePagesAndRouting(params){const _root=document.createDocumentFragment();const _e9504=WF.el("h1",{className:"wf-heading"},"Moved");_root.appendChild(_e9504);const _e9505=WF.el("a",{className:"wf-link",href:WF._basePath+"/learn/05-pages-and-routing"},"Go on");WF.activeLink(_e9505,"/learn/05-pages-and-routing",false);_root.appendChild(_e9505);return _root;}
+WF.page("WasDocsGuidePagesAndRouting",Page_WasDocsGuidePagesAndRouting);

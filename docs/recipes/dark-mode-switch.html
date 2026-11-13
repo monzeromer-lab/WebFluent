@@ -30,6 +30,7 @@
     <script src="/js/analytics.js" defer></script>
     <script src="/js/live.js" defer></script>
     <script src="/js/old-links-map.js" defer></script>
+    <script src="/js/old-links-pages.js" defer></script>
     <script src="/js/old-links.js" defer></script>
     <script src="/js/video.js" defer></script>
     <script src="/app.js" defer></script>
@@ -270,7 +271,7 @@
                         <h2 class="wf-heading" id="how-it-works">How it works</h2>
                         <div class="wf-markdown">
 <ul>
-<li><strong>Two themes.</strong> <code>Night</code> names only the tokens that change in the dark; every token it leaves out keeps its value. The config's <code>theme.dark</code> says which theme is the dark one (<a href="/docs/guide/styling#dark-mode">Styling</a>).</li>
+<li><strong>Two themes.</strong> <code>Night</code> names only the tokens that change in the dark; every token it leaves out keeps its value. The config's <code>theme.dark</code> says which theme is the dark one (<a href="/learn/13-styling#dark-mode">Styling</a>).</li>
 <li><strong><code>setTheme</code></strong> takes <code>&quot;light&quot;</code>, <code>&quot;dark&quot;</code> or <code>&quot;system&quot;</code>, and the choice is kept across visits. With <code>&quot;system&quot;</code>, the dark theme applies whenever the reader's system prefers dark (<code>prefers-color-scheme: dark</code>).</li>
 <li><strong><code>theme</code></strong> reads the choice, and stays current. A <code>Bool</code> prop given a condition follows it, so <code>outlined: theme != &quot;light&quot;</code> outlines every button but the chosen one.</li>
 </ul>

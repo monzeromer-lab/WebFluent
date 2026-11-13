@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Components</title>
+    <meta name="description" content="Declare components: typed props, enum props, events, slots and scoped slots, parts, local state, stores, and how to design them.">
+    <link rel="canonical" href="https://webfluent.monzeromer.dev/learn/10-components">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Components">
+    <meta property="og:site_name" content="WebFluent">
+    <meta property="og:description" content="Declare components: typed props, enum props, events, slots and scoped slots, parts, local state, stores, and how to design them.">
+    <meta property="og:url" content="https://webfluent.monzeromer.dev/learn/10-components">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="ar_AR">
+    <meta property="og:image" content="https://webfluent.monzeromer.dev/og.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Components">
+    <meta name="twitter:description" content="Declare components: typed props, enum props, events, slots and scoped slots, parts, local state, stores, and how to design them.">
+    <meta name="twitter:image" content="https://webfluent.monzeromer.dev/og.png">
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/learn/10-components#webpage","url":"https://webfluent.monzeromer.dev/learn/10-components","name":"Components","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"Declare components: typed props, enum props, events, slots and scoped slots, parts, local state, stores, and how to design them.","inLanguage":"en"},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/learn/10-components#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Learn WebFluent","item":"https://webfluent.monzeromer.dev/learn"},{"@type":"ListItem","position":3,"name":"Components","item":"https://webfluent.monzeromer.dev/learn/10-components"}]}]}</script>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="preload" href="/fonts/instrument-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="/styles.css">
+    <script src="/js/analytics.js" defer></script>
+    <script src="/js/live.js" defer></script>
+    <script src="/js/old-links-map.js" defer></script>
+    <script src="/js/old-links-pages.js" defer></script>
+    <script src="/js/old-links.js" defer></script>
+    <script src="/js/video.js" defer></script>
+    <script src="/app.js" defer></script>
+    <script src="/pages/Learn10Components.js" data-wf-page="Learn10Components" defer></script>
+</head>
+<body>
+    <a class="wf-skip-link" href="#wf-content">Skip to content</a>
+    <div id="app">
+        <main id="wf-main">
+            <a class="wf-link bp-skip" href="#bp-main">Skip to the content</a>
+            <div class="wf-row wf-align--center wf-s55053fdc bp-header" role="banner">
+                <div class="wf-row wf-align--center wf-gap--md wf-sfe495c12 bp-wrap">
+                    <a class="wf-link wf-sa4fc1f4b" href="/" aria-label="WebFluent, home">
+                        <img class="wf-image wf-s4b9d0b60" src="/favicon.svg" alt="" decoding="async" loading="eager" fetchpriority="high">
+                        <p class="wf-text wf-s9919642b">WebFluent</p>
+                        <p class="wf-text bp-label bp-num">6.0</p>
+                    </a>
+                    <div class="wf-row wf-s92924cc4 bp-tabs" role="navigation" aria-label="Main">
+                        <a class="wf-link bp-tab active active" href="/learn" aria-current="page" aria-current="page">Learn</a>
+                        <a class="wf-link bp-tab" href="/recipes">Recipes</a>
+                        <a class="wf-link bp-tab" href="/reference">Reference</a>
+                        <a class="wf-link bp-tab" href="/errors">Errors</a>
+                        <a class="wf-link bp-tab" href="/playground">Playground</a>
+                        <a class="wf-link bp-tab" href="/showcase">Showcase</a>
+                    </div>
+                    <div class="wf-row wf-align--center wf-gap--sm wf-sff642a95">
+                        <button class="wf-btn wf-sf8ab46ec bp-field bp-search" aria-label="Search the docs" aria-keyshortcuts="Meta+K Control+K" aria-haspopup="dialog" type="button">
+                            <i class="wf-icon" data-icon="search"></i>
+                            <p class="wf-text wf-sf55a2627 bp-hide-sm">Search the docs</p>
+                            <p class="wf-text bp-kbd bp-hide-sm">Ctrl+K</p>
+                        </button>
+                        <div class="wf-row wf-align--center wf-gap--sm wf-s808638b6 bp-select bp-hide-md">
+                            <p class="wf-text wf-s29c127bc bp-building-label" aria-hidden="true">Building</p>
+                            <select class="wf-select" aria-label="Building">
+                                <option value="website">Website</option>
+                                <option value="app">Web app</option>
+                                <option value="pdf">PDF</option>
+                                <option value="slides">Slides</option>
+                                <option value="elements">Custom elements</option>
+                                <option value="desktop">Desktop / phone</option>
+                            </select>
+                            <i class="wf-icon wf-s94250744" data-icon="chevron-down" aria-hidden="true"></i>
+                        </div>
+                        <button class="wf-icon-btn bp-icon-button" data-track="select_content" data-track-content-type="theme" type="button"></button>
+                        <div class="wf-row wf-align--center wf-gap--xs wf-s286d925a bp-hide-sm">
+                            <button class="wf-btn bp-button" title="This page is in English only; the switch changes the interface." data-track="select_content" data-track-content-type="language" type="button"></button>
+                        </div>
+                        <a class="wf-link bp-button bp-hide-md" href="https://github.com/monzeromer-lab/WebFluent" data-tone="quiet" aria-label="GitHub">
+                            <i class="wf-icon" data-icon="git-branch"></i>
+                            <p class="wf-text">GitHub</p>
+                        </a>
+                        <button class="wf-icon-btn wf-sde8ec4aa bp-icon-button" data-icon="menu" aria-label="Menu" title="Menu" aria-expanded="false" type="button"></button>
+                    </div>
+                </div>
+            </div>
+            <dialog class="wf-modal bp-palette" aria-labelledby="wf-dlg-s1">
+                <div class="wf-modal__content">
+                    <div class="wf-modal__header"><h3 id="wf-dlg-s1">Search</h3></div>
+                    <div class="wf-modal__body">
+                        <div class="wf-stack wf-sa8e464d0">
+                            <div class="wf-row wf-align--center wf-gap--sm wf-s02e7a482 bp-field">
+                                <i class="wf-icon" data-icon="search"></i>
+                                <input class="wf-input" placeholder="Search the guide" aria-label="Search the guide" type="search" autofocus>
+                                <p class="wf-text bp-kbd">esc</p>
+                            </div>
+                            <div class="wf-row wf-s434e64fb bp-tabs" role="tablist" aria-label="Narrow the search">
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="true" type="button">All</button>
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">Learn</button>
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">Recipes</button>
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">Reference</button>
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">Errors</button>
+                            </div>
+                            <div class="wf-stack wf-s3f6dffee" role="listbox" aria-label="Search results">
+                                <p class="wf-text wf-s3205a3d6 bp-small">Type a word: a component, a code such as T05, or a task.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </dialog>
+            <div class="wf-row wf-align--start wf-sa997482c bp-wrap">
+                <div class="wf-stack wf-gap--sm wf-s60d92c01 bp-sidebar" role="navigation" aria-label="The book">
+                    <div class="wf-stack wf-gap--xs wf-s733182cd">
+                        <div class="wf-row wf-justify--between wf-align--center wf-s42821ebd">
+                            <p class="wf-text wf-s0a7b959f">The book</p>
+                            <p class="wf-text bp-small bp-num">0 of 17</p>
+                        </div>
+                        <div class="wf-stack bp-meter">
+                            <progress class="wf-progress" value="0" max="17" aria-label="0 of 17"></progress>
+                        </div>
+                    </div>
+                    <div class="wf-stack bp-navlist">
+                        <!--wf-if-->
+                        <a class="wf-link bp-navlink" href="/learn/01-getting-started">
+                            <p class="wf-text bp-step" aria-hidden="true">1</p>
+                            <p class="wf-text wf-s126131e6">Getting started</p>
+                            <p class="wf-text wf-sf65d7946 bp-label" data-tone="construction">tour</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/learn/02-tutorial-shelf">
+                            <p class="wf-text bp-step" aria-hidden="true">2</p>
+                            <p class="wf-text wf-s126131e6">Tutorial: Shelf</p>
+                            <p class="wf-text wf-sf65d7946 bp-label" data-tone="construction">tour</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/learn/03-tutorial-todos">
+                            <p class="wf-text bp-step" aria-hidden="true">3</p>
+                            <p class="wf-text wf-s126131e6">Tutorial: Todos</p>
+                            <p class="wf-text wf-sf65d7946 bp-label" data-tone="construction">tour</p>
+                        </a>
+                        <p class="wf-text bp-navgroup">The language</p>
+                        <a class="wf-link bp-navlink" href="/learn/04-language-basics">
+                            <p class="wf-text bp-step" aria-hidden="true">4</p>
+                            <p class="wf-text wf-s126131e6">Language basics</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/learn/05-pages-and-routing">
+                            <p class="wf-text bp-step" aria-hidden="true">5</p>
+                            <p class="wf-text wf-s126131e6">Pages and routing</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/learn/06-elements">
+                            <p class="wf-text bp-step" aria-hidden="true">6</p>
+                            <p class="wf-text wf-s126131e6">Elements</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/learn/07-state-and-reactivity">
+                            <p class="wf-text bp-step" aria-hidden="true">7</p>
+                            <p class="wf-text wf-s126131e6">State and reactivity</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/learn/08-events">
+                            <p class="wf-text bp-step" aria-hidden="true">8</p>
+                            <p class="wf-text wf-s126131e6">Events</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/learn/09-control-flow">
+                            <p class="wf-text bp-step" aria-hidden="true">9</p>
+                            <p class="wf-text wf-s126131e6">Control flow</p>
+                        </a>
+                        <a class="wf-link bp-navlink active" href="/learn/10-components" aria-current="page">
+                            <p class="wf-text bp-step" aria-hidden="true">10</p>
+                            <p class="wf-text wf-s126131e6">Components</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/learn/11-stores">
+                            <p class="wf-text bp-step" aria-hidden="true">11</p>
+                            <p class="wf-text wf-s126131e6">Stores</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/learn/12-types">
+                            <p class="wf-text bp-step" aria-hidden="true">12</p>
+                            <p class="wf-text wf-s126131e6">Types</p>
+                        </a>
+                        <p class="wf-text bp-navgroup">Building with it</p>
+                        <a class="wf-link bp-navlink" href="/learn/13-styling">
+                            <p class="wf-text bp-step" aria-hidden="true">13</p>
+                            <p class="wf-text wf-s126131e6">Styling</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/learn/14-forms">
+                            <p class="wf-text bp-step" aria-hidden="true">14</p>
+                            <p class="wf-text wf-s126131e6">Forms and validation</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/learn/15-data">
+                            <p class="wf-text bp-step" aria-hidden="true">15</p>
+                            <p class="wf-text wf-s126131e6">Fetching data</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/learn/16-testing">
+                            <p class="wf-text bp-step" aria-hidden="true">16</p>
+                            <p class="wf-text wf-s126131e6">Testing</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/learn/17-pdf-and-slides">
+                            <p class="wf-text bp-step" aria-hidden="true">17</p>
+                            <p class="wf-text wf-s126131e6">PDF and slides</p>
+                        </a>
+                    </div>
+                </div>
+                <div class="wf-stack wf-gap--lg wf-s54d43750 bp-main docs-main" role="main" id="bp-main" tabindex="-1">
+                    <div class="wf-row bp-labels">
+                        <p class="wf-text bp-label" data-tone="kind" data-kind="tutorial">Tutorial</p>
+                        <p class="wf-text bp-label">The language</p>
+                        <div class="wf-row wf-gap--xs bp-labels" aria-label="Works in">
+                        </div>
+                    </div>
+                    <div class="wf-stack wf-gap--sm wf-s4e4189b1">
+                        <h1 class="wf-heading wf-s900776cd">Components</h1>
+                        <p class="wf-text bp-lede">A component is a reusable element you declare: typed props, events, slots, parts and a body, checked like a built-in.</p>
+                    </div>
+                    <div class="wf-stack wf-gap--lg wf-s399b38f0 bp-prose docs-article" dir="ltr">
+                        <div class="wf-stack wf-gap--lg" id="wf-content" tabindex="-1">
+                            <div class="wf-markdown">
+<p>This chapter shows how to declare a <em>component</em>: a reusable element of your own. It has typed props, the events it fires, the slots its caller fills, the parts it offers, and a body that draws it. The one thing to remember: the compiler checks a call to your component exactly as it checks a call to a built-in such as <code>Button</code>, so a missing prop or a misspelled flag is an error where you wrote it.</p>
+<p><strong>In this chapter</strong></p>
+<ul>
+<li>Declaring a component and calling it</li>
+<li>Props, including enum props</li>
+<li>Events, slots, scoped slots and parts</li>
+<li>A component's own state, and stores inside a component</li>
+<li>What a call puts on the component's root element</li>
+<li>How to design a component's interface</li>
+</ul>
+                            </div>
+                            <h2 class="wf-heading" id="a-first-component">A first component</h2>
+                            <div class="wf-markdown">
+<p>This page declares a <code>Greeting</code> component and places it once:</p>
+                            </div>
+                            <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                                <div class="wf-row wf-s2c416341 bp-console__bar">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                        <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-kw">component</span> <span class="wf-tok-name">Greeting</span>(_ <span class="wf-tok-prop">name</span>: <span class="wf-tok-name">String</span>) {
+    <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Hello, {name}!&quot;</span>)
+}
+
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">Home</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Home&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;A greeting.&quot;</span>) {
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Welcome&quot;</span>).h1
+    <span class="wf-tok-name">Greeting</span>(<span class="wf-tok-str">&quot;Ada&quot;</span>)
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>The page shows the heading <strong>Welcome</strong> and the line <strong>Hello, Ada!</strong>.</p>
+<ul>
+<li><code>component Greeting(…)</code> declares the component. Its name is capitalised, as every element's is.</li>
+<li><code>_ name: String</code> is a prop. The <code>_</code> lets a call pass it without its name, so <code>Greeting(&quot;Ada&quot;)</code> sets <code>name</code> to <code>&quot;Ada&quot;</code>.</li>
+<li>The block is the body: what the component draws each time it is placed.</li>
+<li><code>Greeting(&quot;Ada&quot;)</code> in the page is a call, written like any built-in.</li>
+</ul>
+                            </div>
+                            <h2 class="wf-heading" id="props">Props</h2>
+                            <div class="wf-markdown">
+<p>A <em>prop</em> is a value the caller hands to the component. This component takes four, with a type and, for three of them, a default:</p>
+                            </div>
+                            <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                                <div class="wf-row wf-s2c416341 bp-console__bar">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                        <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-cmt">/// A person, at a glance.</span>
+<span class="wf-tok-kw">component</span> <span class="wf-tok-name">UserCard</span>(_ <span class="wf-tok-prop">name</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">role</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">active</span>: <span class="wf-tok-name">Bool</span> = <span class="wf-tok-kw">true</span>, <span class="wf-tok-prop">avatar</span>: <span class="wf-tok-name">String</span>? = <span class="wf-tok-kw">null</span>) {
+    <span class="wf-tok-name">Card</span>.elevated {
+        <span class="wf-tok-name">Row</span>(<span class="wf-tok-prop">align</span>: .center, <span class="wf-tok-prop">gap</span>: .md) {
+            <span class="wf-tok-kw">if</span> <span class="wf-tok-kw">let</span> src = avatar { <span class="wf-tok-name">Avatar</span>(<span class="wf-tok-prop">src</span>: src, <span class="wf-tok-prop">alt</span>: name) } <span class="wf-tok-kw">else</span> { <span class="wf-tok-name">Avatar</span>(<span class="wf-tok-prop">initials</span>: name.slice(<span class="wf-tok-num">0</span>, <span class="wf-tok-num">2</span>)).primary }
+            <span class="wf-tok-name">Stack</span> {
+                <span class="wf-tok-name">Text</span>(name).bold
+                <span class="wf-tok-name">Text</span>(role).muted
+            }
+            <span class="wf-tok-kw">if</span> active { <span class="wf-tok-name">Badge</span>(<span class="wf-tok-str">&quot;Active&quot;</span>).success }
+        }
+    }
+}
+
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">Team</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>) {
+    <span class="wf-tok-name">UserCard</span>(<span class="wf-tok-str">&quot;Monzer&quot;</span>, <span class="wf-tok-prop">role</span>: <span class="wf-tok-str">&quot;Developer&quot;</span>)
+    <span class="wf-tok-name">UserCard</span>(<span class="wf-tok-str">&quot;Sam&quot;</span>, <span class="wf-tok-prop">role</span>: <span class="wf-tok-str">&quot;Designer&quot;</span>, <span class="wf-tok-prop">active</span>: <span class="wf-tok-kw">false</span>, <span class="wf-tok-prop">avatar</span>: <span class="wf-tok-str">&quot;/sam.png&quot;</span>)
+    <span class="wf-tok-name">UserCard</span>(<span class="wf-tok-str">&quot;Ann&quot;</span>, <span class="wf-tok-prop">role</span>: <span class="wf-tok-str">&quot;PM&quot;</span>).active
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>The rules for props:</p>
+<ul>
+<li><code>_ name: Type</code> marks the one prop a call may pass positionally. It must be the first prop. Every other prop is passed by name.</li>
+<li>Every prop has a written type: <code>String</code>, <code>Number</code>, <code>Bool</code>, <code>Map</code>, <code>Any</code>, <code>[T]</code> (a list), <code>T?</code> (may be <code>null</code>), or a declared <code>type</code> or <code>enum</code>. See <a href="/learn/12-types">Types</a> for the whole type language.</li>
+<li><code>= expr</code> gives a prop a default, so a call may leave it out. A <code>T?</code> prop with no default defaults to <code>null</code>.</li>
+<li>A <code>Bool</code> prop is set with a flag, <code>.active</code>, or by name, <code>active: false</code>.</li>
+<li>A <code>///</code> comment above the component or above a prop is its documentation. The editor shows it on hover, and <code>wf docs</code> prints it.</li>
+</ul>
+                            </div>
+                            <div class="wf-stack wf-s37f4bada bp-aside" role="note" aria-label="Note" data-kind="note">
+                                <p class="wf-text bp-aside__label">Note</p>
+                                <div class="wf-markdown">
+<p><strong>Coming from React?</strong> There is no <code>...rest</code> that forwards whatever the caller passed. A prop the component does not declare is an error (<code>C02</code>); <code>class:</code>, <code>aria-*</code>, <code>data-*</code> and a few others go to the root element (see <a href="#what-a-call-puts-on-the-root-element">What a call puts on the root element</a>). See <a href="/coming-from/react">Coming from React</a>.</p>
+                                </div>
+                            </div>
+                            <div class="wf-markdown">
+<p>A prop that reads the caller's state stays live inside the component: a <code>Chip(pressed: isOn)</code> repaints when <code>isOn</code> changes. You do not need to pass a callback or re-render anything yourself.</p>
+<p>The checker holds every call to the declaration. Leaving out a prop that has no default is <code>C01</code>; passing a prop the component does not declare is <code>C02</code>; a second positional argument is <code>E113</code>. A positional argument to a component whose first prop is not marked <code>_</code> is bound to that first prop, with a <code>C06</code> warning asking you to add the <code>_</code>.</p>
+                            </div>
+                            <h2 class="wf-heading" id="enum-props">Enum props</h2>
+                            <div class="wf-markdown">
+<p>An <em>enum prop</em> takes one case of a declared <code>enum</code>. The caller picks the case with a flag or by name:</p>
+                            </div>
+                            <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                                <div class="wf-row wf-s2c416341 bp-console__bar">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                        <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-kw">enum</span> <span class="wf-tok-name">Tone</span> { calm, loud }
+
+<span class="wf-tok-kw">component</span> <span class="wf-tok-name">Note</span>(_ <span class="wf-tok-prop">text</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">tone</span>: <span class="wf-tok-name">Tone</span> = .calm) {
+    <span class="wf-tok-name">Text</span>(text) {
+        <span class="wf-tok-kw">style</span> { <span class="wf-tok-prop">padding</span>: <span class="wf-tok-tok">$sm</span>; border-<span class="wf-tok-prop">radius</span>: <span class="wf-tok-tok">$radius-sm</span> }
+    }
+}
+
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">Notes</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>) {
+    <span class="wf-tok-name">Note</span>(<span class="wf-tok-str">&quot;Quiet&quot;</span>)
+    <span class="wf-tok-name">Note</span>(<span class="wf-tok-str">&quot;Loud!&quot;</span>, <span class="wf-tok-prop">tone</span>: .loud)
+    <span class="wf-tok-name">Note</span>(<span class="wf-tok-str">&quot;Loud too&quot;</span>).loud
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><code>.loud</code> and <code>tone: .loud</code> mean the same. A flag the enum does not have, such as <code>.huge</code>, is an error (<code>E103</code>) that lists the cases it does have.</p>
+<p>The compiler writes a component's enum props to its root element as <code>data-&lt;prop&gt;=&quot;&lt;case&gt;&quot;</code> — here <code>data-tone=&quot;loud&quot;</code> — so a stylesheet can select on them: <code>[data-tone=&quot;loud&quot;] { font-weight: 700 }</code>. See <a href="/learn/13-styling">Styling</a> for project stylesheets.</p>
+                            </div>
+                            <h2 class="wf-heading" id="events">Events</h2>
+                            <div class="wf-markdown">
+<p>An <em>event</em> is how a component tells its caller that something happened. The component declares it with <code>event name(param: Type)</code> and fires it with <code>emit name(value)</code>. The caller handles it with <code>on name(value) { }</code>, as it handles a click:</p>
+                            </div>
+                            <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                                <div class="wf-row wf-s2c416341 bp-console__bar">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                        <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-kw">type</span> <span class="wf-tok-name">Todo</span> { <span class="wf-tok-prop">id</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">done</span>: <span class="wf-tok-name">Bool</span> = <span class="wf-tok-kw">false</span> }
+
+<span class="wf-tok-kw">component</span> <span class="wf-tok-name">TodoRow</span>(_ <span class="wf-tok-prop">todo</span>: <span class="wf-tok-name">Todo</span>) {
+    <span class="wf-tok-kw">event</span> toggle(<span class="wf-tok-prop">id</span>: <span class="wf-tok-name">String</span>)
+    <span class="wf-tok-kw">event</span> remove(<span class="wf-tok-prop">id</span>: <span class="wf-tok-name">String</span>)
+    <span class="wf-tok-name">Row</span>(<span class="wf-tok-prop">align</span>: .center, <span class="wf-tok-prop">gap</span>: .sm) {
+        <span class="wf-tok-name">Checkbox</span>(<span class="wf-tok-prop">checked</span>: todo.done, <span class="wf-tok-prop">label</span>: todo.title) { <span class="wf-tok-kw">on</span> change { <span class="wf-tok-kw">emit</span> toggle(todo.id) } }
+        <span class="wf-tok-name">IconButton</span>(<span class="wf-tok-prop">icon</span>: <span class="wf-tok-str">&quot;trash&quot;</span>, <span class="wf-tok-prop">label</span>: <span class="wf-tok-str">&quot;Remove {todo.title}&quot;</span>).sm { <span class="wf-tok-kw">on</span> click { <span class="wf-tok-kw">emit</span> remove(todo.id) } }
+    }
+}
+
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">Todos</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>) {
+    <span class="wf-tok-kw">state</span> <span class="wf-tok-prop">todos</span>: [<span class="wf-tok-name">Todo</span>] = [<span class="wf-tok-name">Todo</span>(<span class="wf-tok-prop">id</span>: <span class="wf-tok-str">&quot;1&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Milk&quot;</span>), <span class="wf-tok-name">Todo</span>(<span class="wf-tok-prop">id</span>: <span class="wf-tok-str">&quot;2&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Eggs&quot;</span>)]
+    <span class="wf-tok-kw">action</span> toggle(<span class="wf-tok-prop">id</span>: <span class="wf-tok-name">String</span>) {
+        todos = todos.map(todo =&gt; <span class="wf-tok-kw">if</span> todo.id == id { <span class="wf-tok-name">Todo</span>(<span class="wf-tok-prop">id</span>: todo.id, <span class="wf-tok-prop">title</span>: todo.title, <span class="wf-tok-prop">done</span>: !todo.done) } <span class="wf-tok-kw">else</span> { todo })
+    }
+    <span class="wf-tok-kw">for</span> todo <span class="wf-tok-kw">in</span> todos <span class="wf-tok-kw">by</span> todo.id {
+        <span class="wf-tok-name">TodoRow</span>(todo) {
+            <span class="wf-tok-kw">on</span> toggle(id) { toggle(id) }
+            <span class="wf-tok-kw">on</span> remove(id) { todos = todos.filter(todo =&gt; todo.id != id) }
+        }
+    }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>The checker holds each <code>emit</code> to the parameters its event declares (<code>T09</code>). A handler on a call must name a declared event or a DOM event; an <code>emit</code> outside a component is <code>E114</code>. A DOM event handler written on a component call, such as <code>on click</code>, attaches to the component's root element (see <a href="#what-a-call-puts-on-the-root-element">What a call puts on the root element</a>). For events in general, see <a href="/learn/08-events">Events</a>.</p>
+                            </div>
+                            <div class="wf-stack wf-s37f4bada bp-aside" role="note" aria-label="Note" data-kind="note">
+                                <p class="wf-text bp-aside__label">Note</p>
+                                <div class="wf-markdown">
+<p><strong>Coming from React?</strong> A callback prop such as <code>onToggle={…}</code> becomes a declared <code>event toggle(id: String)</code>, fired with <code>emit toggle(id)</code> and handled on the call as <code>on toggle(id) { … }</code>. The checker holds both ends to the declaration. See <a href="/coming-from/react">Coming from React</a>.</p>
+                                </div>
+                            </div>
+                            <h3 class="wf-heading" id="an-event-with-several-values">An event with several values</h3>
+                            <div class="wf-markdown">
+<p>An event may send several values. The handler names them in the order the event declares them, and each name has the type declared for it. In this example <code>key</code> is a <code>String</code>, and <code>x</code> and <code>y</code> are <code>Number</code>s:</p>
+                            </div>
+                            <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                                <div class="wf-row wf-s2c416341 bp-console__bar">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                        <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-kw">component</span> <span class="wf-tok-name">Entry</span>(_ <span class="wf-tok-prop">key</span>: <span class="wf-tok-name">String</span>) {
+    <span class="wf-tok-kw">event</span> menu(<span class="wf-tok-prop">key</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">x</span>: <span class="wf-tok-name">Number</span>, <span class="wf-tok-prop">y</span>: <span class="wf-tok-name">Number</span>)
+    <span class="wf-tok-name">Button</span>(key) {
+        <span class="wf-tok-kw">on</span> contextmenu(e) {
+            e.preventDefault()
+            <span class="wf-tok-kw">emit</span> menu(key, e.clientX, e.clientY)
+        }
+    }
+}
+
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">Files</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>) {
+    <span class="wf-tok-kw">state</span> at = <span class="wf-tok-str">&quot;nothing yet&quot;</span>
+    <span class="wf-tok-name">Entry</span>(<span class="wf-tok-str">&quot;notes.wf&quot;</span>) { <span class="wf-tok-kw">on</span> menu(key, x, y) { at = <span class="wf-tok-str">&quot;{key} at {x}, {y}&quot;</span> } }
+    <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Menu for {at}&quot;</span>)
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>A handler may name fewer values than the event sends: <code>on menu(key)</code> reads the key and ignores the rest. It may not name more. A name past the last value would always be <code>undefined</code>, so the checker reports it (<code>T22</code>). You handle an event that sends nothing with no names: <code>on close { }</code>.</p>
+                            </div>
+                            <h2 class="wf-heading" id="slots">Slots</h2>
+                            <div class="wf-markdown">
+<p>A <em>slot</em> is a place in the component where the caller's content goes. The component places the caller's block with <code>children</code>, and may declare named slots that the caller fills with <code>name { … }</code>:</p>
+                            </div>
+                            <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                                <div class="wf-row wf-s2c416341 bp-console__bar">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                        <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-kw">component</span> <span class="wf-tok-name">Panel</span>(_ <span class="wf-tok-prop">title</span>: <span class="wf-tok-name">String</span>) {
+    <span class="wf-tok-kw">slot</span>
+    <span class="wf-tok-kw">slot</span> trailing
+    <span class="wf-tok-name">Card</span> {
+        <span class="wf-tok-name">Row</span>(<span class="wf-tok-prop">justify</span>: .between, <span class="wf-tok-prop">align</span>: .center) {
+            <span class="wf-tok-name">Heading</span>(title).h3
+            trailing
+        }
+        <span class="wf-tok-kw">children</span>
+    }
+}
+
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">Keys</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>) {
+    <span class="wf-tok-name">Panel</span>(<span class="wf-tok-str">&quot;API keys&quot;</span>) {
+        trailing { <span class="wf-tok-name">Badge</span>(<span class="wf-tok-str">&quot;Beta&quot;</span>).info }
+        <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Rotate every 90 days.&quot;</span>)
+        <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Generate&quot;</span>).primary
+    }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<ul>
+<li><code>slot</code> declares the default slot, which the body places as <code>children</code>.</li>
+<li><code>slot trailing</code> declares a named slot, which the body places by its name.</li>
+<li>Anything in the call's block that is not a named fill goes to the default slot. Here that is the <code>Text</code> and the <code>Button</code>.</li>
+</ul>
+<p>A fill is compiled in the caller's scope: it reads the caller's state and loop variables, and its handlers are the caller's. The component only decides where the fill lands. A page's <code>layout:</code> is a component with a default slot, called with the page as its block (see <a href="/learn/05-pages-and-routing">Pages and routing</a>).</p>
+                            </div>
+                            <h3 class="wf-heading" id="scoped-slots">Scoped slots</h3>
+                            <div class="wf-markdown">
+<p>A <em>scoped slot</em> hands values to its fill. The component declares what it hands over, places the slot with those values by name, and the caller's fill names them in order:</p>
+                            </div>
+                            <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                                <div class="wf-row wf-s2c416341 bp-console__bar">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                        <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-kw">type</span> <span class="wf-tok-name">Todo</span> { <span class="wf-tok-prop">id</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">done</span>: <span class="wf-tok-name">Bool</span> = <span class="wf-tok-kw">false</span> }
+
+<span class="wf-tok-kw">component</span> <span class="wf-tok-name">TodoList</span>(<span class="wf-tok-prop">items</span>: [<span class="wf-tok-name">Todo</span>]) {
+    <span class="wf-tok-kw">slot</span> row(<span class="wf-tok-prop">item</span>: <span class="wf-tok-name">Todo</span>, <span class="wf-tok-prop">index</span>: <span class="wf-tok-name">Number</span>)
+    <span class="wf-tok-kw">slot</span> empty
+    <span class="wf-tok-kw">if</span> items.length == <span class="wf-tok-num">0</span> {
+        empty
+    } <span class="wf-tok-kw">else</span> {
+        <span class="wf-tok-kw">for</span> it, i <span class="wf-tok-kw">in</span> items <span class="wf-tok-kw">by</span> it.id { row(<span class="wf-tok-prop">item</span>: it, <span class="wf-tok-prop">index</span>: i) }
+    }
+}
+
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">Use</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>) {
+    <span class="wf-tok-kw">state</span> <span class="wf-tok-prop">todos</span>: [<span class="wf-tok-name">Todo</span>] = [<span class="wf-tok-name">Todo</span>(<span class="wf-tok-prop">id</span>: <span class="wf-tok-str">&quot;1&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Milk&quot;</span>)]
+    <span class="wf-tok-name">TodoList</span>(<span class="wf-tok-prop">items</span>: todos) {
+        row(todo, i) { <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;{i + 1}. {todo.title}&quot;</span>) }
+        empty { <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Nothing to do.&quot;</span>).muted }
+    }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>The page shows <strong>1. Milk</strong>. The fill's names take their types from the slot declaration: <code>todo</code> is a <code>Todo</code> and <code>i</code> a <code>Number</code>. The fill is drawn again when a value it is handed changes.</p>
+                            </div>
+                            <h2 class="wf-heading" id="parts">Parts</h2>
+                            <div class="wf-markdown">
+<p>A <em>part</em> is a component of the component's own, called under its name — the way <code>Card.Header</code> is a part of <code>Card</code>:</p>
+                            </div>
+                            <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                                <div class="wf-row wf-s2c416341 bp-console__bar">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                        <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-kw">component</span> <span class="wf-tok-name">Panel</span>(_ <span class="wf-tok-prop">title</span>: <span class="wf-tok-name">String</span>) {
+    <span class="wf-tok-kw">part</span> <span class="wf-tok-name">Header</span>(_ <span class="wf-tok-prop">text</span>: <span class="wf-tok-name">String</span>) { <span class="wf-tok-name">Heading</span>(text).h3 }
+    <span class="wf-tok-kw">part</span> <span class="wf-tok-name">Footer</span> { <span class="wf-tok-name">Divider</span>  <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;End&quot;</span>).muted.sm }
+    <span class="wf-tok-name">Card</span> { <span class="wf-tok-name">Text</span>(title)  <span class="wf-tok-kw">children</span> }
+    <span class="wf-tok-kw">slot</span>
+}
+
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">Parts</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>) {
+    <span class="wf-tok-name">Panel</span>(<span class="wf-tok-str">&quot;Keys&quot;</span>) {
+        <span class="wf-tok-name">Panel</span>.<span class="wf-tok-name">Header</span>(<span class="wf-tok-str">&quot;Rotate&quot;</span>)
+        <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Body&quot;</span>)
+        <span class="wf-tok-name">Panel</span>.<span class="wf-tok-name">Footer</span>
+    }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>You declare a part inside its component. A part has props, events and slots of its own, but it cannot declare parts: a part inside a part is an error. Calling a part outside its owner, such as <code>Panel.Header</code> with no <code>Panel</code> around it, is <code>C03</code>.</p>
+                            </div>
+                            <h2 class="wf-heading" id="local-state-and-actions">Local state and actions</h2>
+                            <div class="wf-markdown">
+<p>A component may have its own <code>state</code>, <code>derived</code> values, <code>effect</code>s, actions, timers and handles. Each placed instance gets its own copy, so the two <code>Stepper</code>s on this page count separately:</p>
+                            </div>
+                            <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                                <div class="wf-row wf-s2c416341 bp-console__bar">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                        <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-kw">component</span> <span class="wf-tok-name">Stepper</span>(_ <span class="wf-tok-prop">start</span>: <span class="wf-tok-name">Number</span>, <span class="wf-tok-prop">step</span>: <span class="wf-tok-name">Number</span> = <span class="wf-tok-num">1</span>) {
+    <span class="wf-tok-kw">event</span> change(<span class="wf-tok-prop">value</span>: <span class="wf-tok-name">Number</span>)
+    <span class="wf-tok-kw">state</span> n = start
+    <span class="wf-tok-kw">derived</span> even = n % <span class="wf-tok-num">2</span> == <span class="wf-tok-num">0</span>
+    <span class="wf-tok-kw">action</span> move(<span class="wf-tok-prop">delta</span>: <span class="wf-tok-name">Number</span>) { n = n + delta  <span class="wf-tok-kw">emit</span> change(n) }
+    <span class="wf-tok-name">Row</span>(<span class="wf-tok-prop">gap</span>: .sm, <span class="wf-tok-prop">align</span>: .center) {
+        <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;−&quot;</span>).sm { <span class="wf-tok-kw">on</span> click { move(-step) } }
+        <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;{n}&quot;</span>).bold
+        <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;+&quot;</span>).sm { <span class="wf-tok-kw">on</span> click { move(step) } }
+        <span class="wf-tok-kw">if</span> even { <span class="wf-tok-name">Badge</span>(<span class="wf-tok-str">&quot;even&quot;</span>).info }
+    }
+}
+
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">Counters</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Counters&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Two steppers, two counts.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> last = <span class="wf-tok-num">0</span>
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Counters&quot;</span>).h1
+    <span class="wf-tok-name">Stepper</span>(<span class="wf-tok-num">0</span>) { <span class="wf-tok-kw">on</span> change(v) { last = v } }
+    <span class="wf-tok-name">Stepper</span>(<span class="wf-tok-num">10</span>, <span class="wf-tok-prop">step</span>: <span class="wf-tok-num">5</span>) { <span class="wf-tok-kw">on</span> change(v) { last = v } }
+    <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Last value: {last}&quot;</span>)
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>What an instance creates — effects, timers, listeners — is disposed of when the instance leaves the page. See <a href="/learn/07-state-and-reactivity">State and reactivity</a> for <code>state</code>, <code>derived</code> and <code>effect</code>.</p>
+                            </div>
+                            <h2 class="wf-heading" id="stores-inside-a-component">Stores inside a component</h2>
+                            <div class="wf-markdown">
+<p><code>use StoreName</code> brings a store into a component, as it does into a page. Every instance reads and writes the same store:</p>
+                            </div>
+                            <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                                <div class="wf-row wf-s2c416341 bp-console__bar">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                        <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-kw">store</span> <span class="wf-tok-name">Cart</span> {
+    <span class="wf-tok-kw">state</span> <span class="wf-tok-prop">items</span>: [<span class="wf-tok-name">String</span>] = []
+    <span class="wf-tok-kw">action</span> add(<span class="wf-tok-prop">name</span>: <span class="wf-tok-name">String</span>) { items.push(name) }
+}
+
+<span class="wf-tok-kw">component</span> <span class="wf-tok-name">AddToCart</span>(_ <span class="wf-tok-prop">name</span>: <span class="wf-tok-name">String</span>) {
+    <span class="wf-tok-kw">use</span> <span class="wf-tok-name">Cart</span>
+    <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Add {name}&quot;</span>).primary { <span class="wf-tok-kw">on</span> click { <span class="wf-tok-name">Cart</span>.add(name) } }
+}
+
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">Shop</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>) {
+    <span class="wf-tok-kw">use</span> <span class="wf-tok-name">Cart</span>
+    <span class="wf-tok-name">AddToCart</span>(<span class="wf-tok-str">&quot;Pen&quot;</span>)
+    <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;{Cart.items.length} in cart&quot;</span>)
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>Clicking <strong>Add Pen</strong> changes the page's text from <strong>0 in cart</strong> to <strong>1 in cart</strong>. <a href="/learn/11-stores">Stores</a> covers stores in full.</p>
+                            </div>
+                            <h2 class="wf-heading" id="what-a-call-puts-on-the-root-element">What a call puts on the root element</h2>
+                            <div class="wf-markdown">
+<p>A component's <em>root element</em> is the one element its body draws at the top. Some of what you write on a call goes to that element rather than to a prop:</p>
+<ul>
+<li>A DOM event handler: <code>Chip(&quot;x&quot;) { on click { … } }</code> attaches to the root, so a styled button component is clickable wherever you place it.</li>
+<li><code>class:</code>, which is added to the root's own classes.</li>
+<li>A <code>style { }</code> block, which styles the root: <code>Tile(label: &quot;a&quot;) { style { grid-column: 2 / span 2 } }</code> places that tile in its grid. Its rule's class joins the root's classes, as <code>class:</code> does.</li>
+<li>An attribute the component takes no prop for: <code>aria-*</code>, <code>data-*</code>, <code>id</code>, <code>role</code>, <code>title</code> and <code>hidden</code>. You write it as you would on an element: <code>data-open: true</code> is <code>data-open=&quot;true&quot;</code>, and <code>false</code> writes no attribute, except for an ARIA state, which keeps <code>&quot;false&quot;</code>.</li>
+<li><code>mount:</code>, <code>update:</code> and <code>cleanup:</code> (see <a href="/recipes">JavaScript interop</a>).</li>
+<li><code>drag:</code>, the <code>drop…:</code> props, <code>on receive</code>, <code>on dragmove</code>, <code>on longpress</code> and <code>on swipe</code>. These need one root element: on a component whose body is an <code>if</code>, a <code>for</code> or several elements they are <code>C07</code>.</li>
+</ul>
+<p>When the component declares a prop of that name, it receives the value instead and decides where it goes. Declare the prop when the root is not the right element for it. This <code>Chip</code> takes the class and the description as props and puts them on its <code>Badge</code>:</p>
+                            </div>
+                            <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                                <div class="wf-row wf-s2c416341 bp-console__bar">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                        <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-kw">component</span> <span class="wf-tok-name">Chip</span>(_ <span class="wf-tok-prop">label</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">extra</span>: <span class="wf-tok-name">String</span> = <span class="wf-tok-str">&quot;&quot;</span>, <span class="wf-tok-prop">note</span>: <span class="wf-tok-name">String</span> = <span class="wf-tok-str">&quot;&quot;</span>) {
+    <span class="wf-tok-name">Badge</span>(label, <span class="wf-tok-prop">class</span>: extra, aria-<span class="wf-tok-prop">description</span>: note)
+}
+
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">Chips</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Chips&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Styled by the caller.&quot;</span>) {
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Chips&quot;</span>).h1
+    <span class="wf-tok-name">Chip</span>(<span class="wf-tok-str">&quot;Beta&quot;</span>, <span class="wf-tok-prop">extra</span>: <span class="wf-tok-str">&quot;chip-beta&quot;</span>, <span class="wf-tok-prop">note</span>: <span class="wf-tok-str">&quot;Not finished yet&quot;</span>) { <span class="wf-tok-kw">on</span> click { <span class="wf-tok-kw">log</span>(<span class="wf-tok-str">&quot;beta&quot;</span>) } }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>The <code>on click</code> still goes to the root, which here is the <code>Badge</code>.</p>
+                            </div>
+                            <h2 class="wf-heading" id="designing-components">Designing components</h2>
+                            <div class="wf-markdown">
+<p>A component's interface is its props, events, slots and parts. These guidelines keep it clear to callers.</p>
+                            </div>
+                            <h3 class="wf-heading" id="a-value-down-an-event-up">A value down, an event up</h3>
+                            <div class="wf-markdown">
+<p>A component does not take <code>bind:</code>. To make a control of your own, take the value as a prop and fire an event when it should change. The caller decides what to do with the new value:</p>
+                            </div>
+                            <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                                <div class="wf-row wf-s2c416341 bp-console__bar">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                        <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-kw">component</span> <span class="wf-tok-name">Stepper</span>(_ <span class="wf-tok-prop">value</span>: <span class="wf-tok-name">Number</span>, <span class="wf-tok-prop">label</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">min</span>: <span class="wf-tok-name">Number</span> = <span class="wf-tok-num">0</span>) {
+    <span class="wf-tok-kw">event</span> change(<span class="wf-tok-prop">value</span>: <span class="wf-tok-name">Number</span>)
+    <span class="wf-tok-name">Row</span>(<span class="wf-tok-prop">gap</span>: .sm, <span class="wf-tok-prop">align</span>: .center) {
+        <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;−&quot;</span>, <span class="wf-tok-prop">disabled</span>: value &lt;= min).sm { <span class="wf-tok-kw">on</span> click { <span class="wf-tok-kw">emit</span> change(value - <span class="wf-tok-num">1</span>) } }
+        <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;{label}: {value}&quot;</span>)
+        <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;+&quot;</span>).sm { <span class="wf-tok-kw">on</span> click { <span class="wf-tok-kw">emit</span> change(value + <span class="wf-tok-num">1</span>) } }
+    }
+}
+
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">Booking</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Booking&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;How many seats.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> seats = <span class="wf-tok-num">1</span>
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Book&quot;</span>).h1
+    <span class="wf-tok-name">Stepper</span>(seats, <span class="wf-tok-prop">label</span>: <span class="wf-tok-str">&quot;Seats&quot;</span>, <span class="wf-tok-prop">min</span>: <span class="wf-tok-num">1</span>) { <span class="wf-tok-kw">on</span> change(v) { seats = v } }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>Clicking <strong>+</strong> sets <code>seats</code> to 2, and the component shows <strong>Seats: 2</strong> because its <code>value</code> prop reads <code>seats</code>.</p>
+                            </div>
+                            <div class="wf-stack wf-s37f4bada bp-aside" role="note" aria-label="Note" data-kind="note">
+                                <p class="wf-text bp-aside__label">Note</p>
+                                <div class="wf-markdown">
+<p><strong>Coming from Vue or Svelte?</strong> There is no <code>v-model</code> or <code>bind:</code> on your own component. Take the value as a prop and fire a <code>change</code> event; the caller assigns its state in the handler. <code>bind:</code> belongs to the built-in controls. See <a href="/coming-from/vue">Coming from Vue</a> and <a href="/coming-from/svelte">Coming from Svelte</a>.</p>
+                                </div>
+                            </div>
+                            <h3 class="wf-heading" id="pick-the-right-way-in">Pick the right way in</h3>
+                            <div class="wf-markdown">
+<p>Choose the part of the interface by what the caller wants to do:</p>
+                            </div>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">Pick the right way in</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">The caller wants to…</th>
+                                        <th scope="col">Use</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>configure it with a value</td>
+                                        <td>a prop</td>
+                                    </tr>
+                                    <tr>
+                                        <td>choose one of a few looks</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>an <code>enum</code> prop, set with a flag</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>put any content inside</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>the default slot, <code>children</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>put content in a particular place</td>
+                                        <td>a named slot</td>
+                                    </tr>
+                                    <tr>
+                                        <td>render each item its own way</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>a scoped slot, <code>slot row(item: T)</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>offer a sub-element with its own props</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>a part, <code>Panel.Header</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>hear that something happened</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>an <code>event</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <h3 class="wf-heading" id="keep-state-where-it-is-read">Keep state where it is read</h3>
+                            <div class="wf-markdown">
+<p>A component's own <code>state</code> is right for what only that component cares about, such as whether its menu is open or it is hovered. What the page or other components care about comes in as a prop and goes out as an event — or lives in a store.</p>
+                            </div>
+                            <h3 class="wf-heading" id="document-it">Document it</h3>
+                            <div class="wf-markdown">
+<p>A <code>///</code> comment above the component, a prop or an event is shown on hover in the editor and in the gallery <code>wf docs</code> writes.</p>
+                            </div>
+                            <h2 class="wf-heading" id="other-people-s-code">Other people&#x27;s code</h2>
+                            <div class="wf-markdown">
+<p>To use a JavaScript library — a chart, a map, an editor — call it from a <code>.js</code> file under <code>src/</code> and hand it an element with <code>mount:</code> and <code>cleanup:</code>. To place somebody else's custom element, use <code>Element(&quot;tag-name&quot;, …)</code>. You can also publish your components as custom elements for another framework to place. All three are in <a href="/recipes">JavaScript interop</a>.</p>
+                            </div>
+                            <h2 class="wf-heading" id="components-in-the-pre-rendered-page">Components in the pre-rendered page</h2>
+                            <div class="wf-markdown">
+<p>A static build pre-renders each page to HTML — the <em>static paint</em>. It expands every component call into HTML at build time: props substituted, slots filled, and loops and branches over the seeded state drawn. A page built from components is therefore a complete page before any script runs. See <a href="/about/static-or-single-page">Static sites and SPAs</a>.</p>
+                            </div>
+                            <h2 class="wf-heading" id="quick-reference">Quick reference</h2>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">Quick reference</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Syntax</th>
+                                        <th scope="col">Meaning</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>component Name(_ a: T, b: T = v) { … }</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Declare a component; <code>_</code> marks the positional prop</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>Name(x, b: y).flag</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Call it; a flag sets a <code>Bool</code> prop or picks an enum case</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>/// text</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Documentation for the component, a prop or an event</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>event name(p: T)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Declare an event</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>emit name(v)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Fire it from the body</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>on name(v) { … }</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Handle it on the call</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>slot</code> · <code>children</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Declare and place the default slot</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>slot name</code> · <code>name</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Declare and place a named slot; the caller fills it with <code>name { … }</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>slot row(item: T)</code> · <code>row(item: v)</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>A scoped slot; the caller fills it with <code>row(x) { … }</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>part Name(…) { … }</code> · <code>Owner.Name</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Declare a part and call it</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>use Store</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Read a store inside the component</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="wf-markdown">
+<p><a href="/reference">Components reference</a> lists every built-in, and <a href="/errors">Diagnostics</a> every code named here.</p>
+                            </div>
+                            <h2 class="wf-heading" id="quiz">Quiz</h2>
+                            <div class="wf-stack wf-gap--md wf-s8b75b467 bp-raised" role="group" aria-label="Check your understanding">
+                                <p class="wf-text wf-sf953ffb0">Check your understanding</p>
+                                <div class="wf-markdown">
+<p>A page declares <code>state count = 3</code> and places <code>Panel(&quot;Totals&quot;) { Text(&quot;{count}&quot;) }</code>. <code>Panel</code> declares no <code>count</code>. What does the fill show?</p>
+                                </div>
+                                <div class="wf-stack wf-gap--xs wf-se43b90d0">
+                                    <button class="wf-btn wf-sd1176830 bp-choice" aria-pressed="false" data-verdict="none" type="button">
+                                        <div class="wf-markdown">
+<p>3, the page's <code>count</code></p>
+                                        </div>
+                                    </button>
+                                    <button class="wf-btn wf-sd1176830 bp-choice" aria-pressed="false" data-verdict="none" type="button">
+                                        <div class="wf-markdown">
+<p>Nothing, because <code>Panel</code> has no <code>count</code></p>
+                                        </div>
+                                    </button>
+                                    <button class="wf-btn wf-sd1176830 bp-choice" aria-pressed="false" data-verdict="none" type="button">
+                                        <div class="wf-markdown">
+<p>An error until <code>count</code> is passed to <code>Panel</code> as a prop</p>
+                                        </div>
+                                    </button>
+                                </div>
+                                <div class="wf-row wf-align--center wf-gap--md wf-s6716ae36">
+                                    <button class="wf-btn bp-button" disabled data-tone="action" type="button">Check answer</button>
+                                </div>
+                            </div>
+                            <div class="wf-stack wf-gap--md wf-s8b75b467 bp-raised" role="group" aria-label="Check your understanding">
+                                <p class="wf-text wf-sf953ffb0">Check your understanding</p>
+                                <div class="wf-markdown">
+<p><code>component Note(_ text: String)</code> is called as <code>Note(&quot;Saved&quot;, tone: &quot;success&quot;)</code>. What happens?</p>
+                                </div>
+                                <div class="wf-stack wf-gap--xs wf-se43b90d0">
+                                    <button class="wf-btn wf-sd1176830 bp-choice" aria-pressed="false" data-verdict="none" type="button">
+                                        <div class="wf-markdown">
+<p>It builds, and <code>tone=&quot;success&quot;</code> lands on the root element</p>
+                                        </div>
+                                    </button>
+                                    <button class="wf-btn wf-sd1176830 bp-choice" aria-pressed="false" data-verdict="none" type="button">
+                                        <div class="wf-markdown">
+<p>It builds, and <code>tone</code> is ignored</p>
+                                        </div>
+                                    </button>
+                                    <button class="wf-btn wf-sd1176830 bp-choice" aria-pressed="false" data-verdict="none" type="button">
+                                        <div class="wf-markdown">
+<p>The build stops with <code>C02</code>: <code>Note</code> declares no prop <code>tone</code></p>
+                                        </div>
+                                    </button>
+                                </div>
+                                <div class="wf-row wf-align--center wf-gap--md wf-s6716ae36">
+                                    <button class="wf-btn bp-button" disabled data-tone="action" type="button">Check answer</button>
+                                </div>
+                            </div>
+                            <div class="wf-stack wf-gap--md wf-s8b75b467 bp-raised" role="group" aria-label="Check your understanding">
+                                <p class="wf-text wf-sf953ffb0">Check your understanding</p>
+                                <div class="wf-markdown">
+<p>A page places <code>Stepper(0)</code> twice, and <code>Stepper</code> declares <code>state n = start</code>. You press <strong>+</strong> on the first. What does the second show?</p>
+                                </div>
+                                <div class="wf-stack wf-gap--xs wf-se43b90d0">
+                                    <button class="wf-btn wf-sd1176830 bp-choice" aria-pressed="false" data-verdict="none" type="button">
+                                        <div class="wf-markdown">
+<p>0</p>
+                                        </div>
+                                    </button>
+                                    <button class="wf-btn wf-sd1176830 bp-choice" aria-pressed="false" data-verdict="none" type="button">
+                                        <div class="wf-markdown">
+<p>1</p>
+                                        </div>
+                                    </button>
+                                    <button class="wf-btn wf-sd1176830 bp-choice" aria-pressed="false" data-verdict="none" type="button">
+                                        <div class="wf-markdown">
+<p>It depends on which instance was drawn first</p>
+                                        </div>
+                                    </button>
+                                </div>
+                                <div class="wf-row wf-align--center wf-gap--md wf-s6716ae36">
+                                    <button class="wf-btn bp-button" disabled data-tone="action" type="button">Check answer</button>
+                                </div>
+                            </div>
+                            <div class="wf-stack wf-gap--md wf-s8b75b467 bp-raised" role="group" aria-label="Check your understanding">
+                                <p class="wf-text wf-sf953ffb0">Check your understanding</p>
+                                <div class="wf-markdown">
+<p><code>for row in rows { Stepper(row.start) }</code> draws three steppers, and you press <strong>+</strong> on each. Then <code>rows</code> gains an item. What happens to the three?</p>
+                                </div>
+                                <div class="wf-stack wf-gap--xs wf-se43b90d0">
+                                    <button class="wf-btn wf-sd1176830 bp-choice" aria-pressed="false" data-verdict="none" type="button">
+                                        <div class="wf-markdown">
+<p>They keep their counts, matched by position</p>
+                                        </div>
+                                    </button>
+                                    <button class="wf-btn wf-sd1176830 bp-choice" aria-pressed="false" data-verdict="none" type="button">
+                                        <div class="wf-markdown">
+<p>They start again from <code>row.start</code>, since a list with no key is rebuilt when it changes</p>
+                                        </div>
+                                    </button>
+                                    <button class="wf-btn wf-sd1176830 bp-choice" aria-pressed="false" data-verdict="none" type="button">
+                                        <div class="wf-markdown">
+<p>The build refuses the loop until it has a key</p>
+                                        </div>
+                                    </button>
+                                </div>
+                                <div class="wf-row wf-align--center wf-gap--md wf-s6716ae36">
+                                    <button class="wf-btn bp-button" disabled data-tone="action" type="button">Check answer</button>
+                                </div>
+                            </div>
+                            <h2 class="wf-heading" id="common-mistakes">Common mistakes</h2>
+                            <div class="wf-markdown">
+<p><strong>A required prop left out.</strong> A prop with no default must be passed on every call:</p>
+                            </div>
+                            <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                                <div class="wf-row wf-s2c416341 bp-console__bar">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                        <p class="wf-text wf-s23a4ddd5 bp-mono">wf · draws C01</p>
+                                    </div>
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf · draws C01" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block bp-console__code">component UserCard(_ name: String, role: String) {
+    Card { Text(name).bold  Text(role).muted }
+}
+
+page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
+    Heading(&quot;Team&quot;).h1
+    UserCard(&quot;Ada&quot;)
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>Pass it, <code>UserCard(&quot;Ada&quot;, role: &quot;Engineer&quot;)</code>, or give it a default in the declaration, <code>role: String = &quot;&quot;</code>. See <a href="/errors/C01">C01</a>.</p>
+<p><strong>A prop the component does not declare.</strong> Often a misspelling, or a prop written as though the component forwarded what it was given:</p>
+                            </div>
+                            <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                                <div class="wf-row wf-s2c416341 bp-console__bar">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                        <p class="wf-text wf-s23a4ddd5 bp-mono">wf · draws C02</p>
+                                    </div>
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf · draws C02" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block bp-console__code">component Note(_ text: String, muted: Bool = false) { Text(text) }
+
+page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
+    Heading(&quot;Notes&quot;).h1
+    Note(&quot;Saved&quot;, tone: &quot;success&quot;)
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>Declare the prop, or correct its name. See <a href="/errors/C02">C02</a>.</p>
+<p><strong>A handler that names more values than its event sends.</strong> An event sends what it declares, and nothing else:</p>
+                            </div>
+                            <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                                <div class="wf-row wf-s2c416341 bp-console__bar">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                        <p class="wf-text wf-s23a4ddd5 bp-mono">wf · draws T22</p>
+                                    </div>
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf · draws T22" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block bp-console__code">component Stepper(_ value: Number) {
+    event change(value: Number)
+    Button(&quot;+&quot;) { on click { emit change(value + 1) } }
+}
+
+page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
+    state seats = 1
+    state last = 0
+    Heading(&quot;Seats: {seats}&quot;).h1
+    Stepper(seats) { on change(next, previous) { last = previous  seats = next } }
+    Text(&quot;Was {last}&quot;)
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>Name only what the event sends, <code>on change(next)</code>, or declare a second parameter and <code>emit</code> it. See <a href="/errors/T22">T22</a>.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="wf-row wf-gap--md wf-s94f7a6f9" role="navigation" aria-label="Pages either side">
+                        <a class="wf-link wf-s1266eee5 bp-card" href="/learn/09-control-flow">
+                            <p class="wf-text bp-small">Previous</p>
+                            <p class="wf-text wf-s70571e62">Control flow</p>
+                        </a>
+                        <a class="wf-link wf-sc16e0c24 bp-card" href="/learn/11-stores">
+                            <p class="wf-text bp-small">Next</p>
+                            <p class="wf-text wf-s70571e62">Stores</p>
+                        </a>
+                    </div>
+                </div>
+                <div class="wf-stack wf-gap--lg wf-s2502f5f4 bp-rail" role="navigation" aria-label="On this page">
+                    <div class="wf-stack wf-gap--xs wf-se8e8f072">
+                        <p class="wf-text wf-sa736415c bp-section-label">On this page</p>
+                        <a class="wf-link wf-s23505038" href="#a-first-component">A first component</a>
+                        <a class="wf-link wf-s23505038" href="#props">Props</a>
+                        <a class="wf-link wf-s23505038" href="#enum-props">Enum props</a>
+                        <a class="wf-link wf-s23505038" href="#events">Events</a>
+                        <a class="wf-link wf-s23505038" href="#slots">Slots</a>
+                        <a class="wf-link wf-s23505038" href="#parts">Parts</a>
+                        <a class="wf-link wf-s23505038" href="#local-state-and-actions">Local state and actions</a>
+                        <a class="wf-link wf-s23505038" href="#stores-inside-a-component">Stores inside a component</a>
+                        <a class="wf-link wf-s23505038" href="#what-a-call-puts-on-the-root-element">What a call puts on the root element</a>
+                        <a class="wf-link wf-s23505038" href="#designing-components">Designing components</a>
+                        <a class="wf-link wf-s23505038" href="#other-people-s-code">Other people&#x27;s code</a>
+                        <a class="wf-link wf-s23505038" href="#components-in-the-pre-rendered-page">Components in the pre-rendered page</a>
+                        <a class="wf-link wf-s23505038" href="#quick-reference">Quick reference</a>
+                        <a class="wf-link wf-s23505038" href="#quiz">Quiz</a>
+                        <a class="wf-link wf-s23505038" href="#common-mistakes">Common mistakes</a>
+                    </div>
+                    <a class="wf-link wf-s48d899f5" href="https://github.com/monzeromer-lab/WebFluent/blob/master/md-docs/learn/10-components.md">
+                        <i class="wf-icon" data-icon="edit"></i>
+                        <p class="wf-text">Edit this page</p>
+                    </a>
+                </div>
+            </div>
+        </main>
+        <footer class="wf-footer wf-s2213a098">
+            <div class="wf-stack wf-gap--lg wf-s84d7918c bp-wrap">
+                <div class="wf-grid wf-gap--lg wf-r67559659">
+                    <div class="wf-stack wf-gap--xs wf-s17061b4c">
+                        <p class="wf-text wf-scba75cc6 bp-section-label">Learn</p>
+                        <a class="wf-link" href="/learn/01-getting-started">The tour</a>
+                        <a class="wf-link" href="/learn">The book</a>
+                        <a class="wf-link" href="/about">About essays</a>
+                    </div>
+                    <div class="wf-stack wf-gap--xs wf-s17061b4c">
+                        <p class="wf-text wf-scba75cc6 bp-section-label">Do</p>
+                        <a class="wf-link" href="/recipes">Recipes</a>
+                        <a class="wf-link" href="/playground">Playground</a>
+                        <a class="wf-link" href="/coming-from/react">Coming from…</a>
+                        <a class="wf-link" href="/showcase">Showcase</a>
+                    </div>
+                    <div class="wf-stack wf-gap--xs wf-s17061b4c">
+                        <p class="wf-text wf-scba75cc6 bp-section-label">Look up</p>
+                        <a class="wf-link" href="/reference">Components</a>
+                        <a class="wf-link" href="/reference/cli">CLI and config</a>
+                        <a class="wf-link" href="/errors">Errors</a>
+                    </div>
+                    <div class="wf-stack wf-gap--xs wf-s17061b4c">
+                        <p class="wf-text wf-scba75cc6 bp-section-label">For agents</p>
+                        <a class="wf-link" href="/reference/cli/context">wf context</a>
+                        <a class="wf-link" href="/changelog">Changelog</a>
+                    </div>
+                </div>
+                <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-sd146f653">
+                    <p class="wf-text bp-small">Every code block in the guide is real WebFluent 6.0, parsed, type-checked and compiled by the test suite.</p>
+                    <div class="wf-row wf-align--center wf-gap--md wf-sa3c9b727">
+                        <a class="wf-link wf-sf9ca1a0e" href="https://github.com/monzeromer-lab/WebFluent">Source</a>
+                        <button class="wf-btn link-button" type="button">Cookie settings</button>
+                        <p class="wf-text bp-small">© 2026 Monzer Omer</p>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

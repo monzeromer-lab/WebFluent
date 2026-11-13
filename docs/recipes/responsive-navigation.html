@@ -30,6 +30,7 @@
     <script src="/js/analytics.js" defer></script>
     <script src="/js/live.js" defer></script>
     <script src="/js/old-links-map.js" defer></script>
+    <script src="/js/old-links-pages.js" defer></script>
     <script src="/js/old-links.js" defer></script>
     <script src="/js/video.js" defer></script>
     <script src="/app.js" defer></script>
@@ -256,11 +257,11 @@
                         <h2 class="wf-heading" id="how-it-works">How it works</h2>
                         <div class="wf-markdown">
 <ul>
-<li><a href="/docs/guide/state#the-browser-as-values"><code>viewport.md</code></a> is true while the window is at least the <code>md</code> breakpoint wide. The runtime updates it when a breakpoint is crossed, so the <code>if</code> swaps the row for the button as the window narrows.</li>
+<li><a href="/learn/07-state-and-reactivity#the-browser-as-values"><code>viewport.md</code></a> is true while the window is at least the <code>md</code> breakpoint wide. The runtime updates it when a breakpoint is crossed, so the <code>if</code> swaps the row for the button as the window narrows.</li>
 <li>On a narrow screen, the <code>IconButton</code> toggles <code>open</code>. Its <code>label:</code> is the button's accessible name, since the icon has no text.</li>
 <li><code>show open</code> keeps the links in the page and hides them while <code>open</code> is false. <code>animate: .slideDown</code> plays as they appear.</li>
 </ul>
-<p>The pre-rendered page does not know the window's width, so what depends on <code>viewport</code> is drawn once the page is live. For layout alone — a row that becomes a column — prefer <a href="/docs/guide/styling#responsive-values">responsive values</a>, which are right in the first paint.</p>
+<p>The pre-rendered page does not know the window's width, so what depends on <code>viewport</code> is drawn once the page is live. For layout alone — a row that becomes a column — prefer <a href="/learn/13-styling#responsive-values">responsive values</a>, which are right in the first paint.</p>
                         </div>
                     </div>
                     <div class="wf-stack wf-gap--sm wf-s982ede03">

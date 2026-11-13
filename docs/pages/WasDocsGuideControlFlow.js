@@ -1,0 +1,2 @@
+function Page_WasDocsGuideControlFlow(params){const _root=document.createDocumentFragment();const _e9488=WF.el("h1",{className:"wf-heading"},"Moved");_root.appendChild(_e9488);const _e9489=WF.el("a",{className:"wf-link",href:WF._basePath+"/learn/09-control-flow"},"Go on");WF.activeLink(_e9489,"/learn/09-control-flow",false);_root.appendChild(_e9489);return _root;}
+WF.page("WasDocsGuideControlFlow",Page_WasDocsGuideControlFlow);

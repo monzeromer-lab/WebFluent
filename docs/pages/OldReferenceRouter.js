@@ -1,2 +1,2 @@
-function Page_OldReferenceRouter(params){const _root=document.createDocumentFragment();const _e1695=WF.el("h1",{className:"wf-heading"},"Router");_root.appendChild(_e1695);const _e1696=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/router"},"Router");WF.activeLink(_e1696,"/reference/router",false);_root.appendChild(_e1696);return _root;}
+function Page_OldReferenceRouter(params){const _root=document.createDocumentFragment();const _e1689=WF.el("h1",{className:"wf-heading"},"Router");_root.appendChild(_e1689);const _e1690=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/router"},"Router");WF.activeLink(_e1690,"/reference/router",false);_root.appendChild(_e1690);return _root;}
 WF.page("OldReferenceRouter",Page_OldReferenceRouter);

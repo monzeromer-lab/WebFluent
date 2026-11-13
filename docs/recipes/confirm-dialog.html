@@ -30,6 +30,7 @@
     <script src="/js/analytics.js" defer></script>
     <script src="/js/live.js" defer></script>
     <script src="/js/old-links-map.js" defer></script>
+    <script src="/js/old-links-pages.js" defer></script>
     <script src="/js/old-links.js" defer></script>
     <script src="/js/video.js" defer></script>
     <script src="/app.js" defer></script>
@@ -262,9 +263,9 @@
                         <div class="wf-markdown">
 <ul>
 <li><code>Confirm</code> takes the question as its positional <code>title</code>, whether it shows as <code>visible</code>, and a <code>danger</code> prop that turns the confirm button red. <code>tone:</code> picks the button's case from a condition instead of a fixed flag.</li>
-<li>It declares two <a href="/docs/guide/components#events">events</a>, <code>confirm</code> and <code>cancel</code>, and each button fires one with <code>emit</code>. The component decides nothing; the page does.</li>
-<li><code>slot</code> declares a default <a href="/docs/guide/components#slots">slot</a>, and <code>children</code> places it inside the dialog. The caller's block fills it, so the question's detail is the caller's to write.</li>
-<li>The page owns <code>asking</code>. <strong>Delete account</strong> sets it, and both handlers clear it, which closes the <a href="/docs/guide/events#overlays-modals-dialogs-toasts-and-menus">dialog</a>.</li>
+<li>It declares two <a href="/learn/10-components#events">events</a>, <code>confirm</code> and <code>cancel</code>, and each button fires one with <code>emit</code>. The component decides nothing; the page does.</li>
+<li><code>slot</code> declares a default <a href="/learn/10-components#slots">slot</a>, and <code>children</code> places it inside the dialog. The caller's block fills it, so the question's detail is the caller's to write.</li>
+<li>The page owns <code>asking</code>. <strong>Delete account</strong> sets it, and both handlers clear it, which closes the <a href="/learn/08-events#overlays-modals-dialogs-toasts-and-menus">dialog</a>.</li>
 </ul>
                         </div>
                     </div>

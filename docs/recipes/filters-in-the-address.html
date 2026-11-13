@@ -30,6 +30,7 @@
     <script src="/js/analytics.js" defer></script>
     <script src="/js/live.js" defer></script>
     <script src="/js/old-links-map.js" defer></script>
+    <script src="/js/old-links-pages.js" defer></script>
     <script src="/js/old-links.js" defer></script>
     <script src="/js/video.js" defer></script>
     <script src="/app.js" defer></script>
@@ -245,8 +246,8 @@
                         <h2 class="wf-heading" id="how-it-works">How it works</h2>
                         <div class="wf-markdown">
 <ul>
-<li><a href="/docs/guide/pages-and-routing#query-strings-and-fragments"><code>query</code></a> is the address's query string as a map: <code>query.sort</code> is <code>&quot;price&quot;</code> for <code>?sort=price</code>, and null when the address has no <code>sort</code>.</li>
-<li><code>sort</code> is a <a href="/docs/guide/state#derived"><code>derived</code></a> value, so <code>??</code> gives it a default and it follows the address.</li>
+<li><a href="/learn/05-pages-and-routing#query-strings-and-fragments"><code>query</code></a> is the address's query string as a map: <code>query.sort</code> is <code>&quot;price&quot;</code> for <code>?sort=price</code>, and null when the address has no <code>sort</code>.</li>
+<li><code>sort</code> is a <a href="/learn/07-state-and-reactivity#derived"><code>derived</code></a> value, so <code>??</code> gives it a default and it follows the address.</li>
 <li>Each choice is a <code>Link</code> to the same page with another query. A query string is not part of the route, so <code>/products?sort=price</code> is still the <code>Products</code> page; only <code>sort</code> changes.</li>
 </ul>
 <p>To change the query from an action instead of a link, call <code>navigate(&quot;/products?sort=price&quot;)</code>.</p>

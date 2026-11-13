@@ -30,6 +30,7 @@
     <script src="/js/analytics.js" defer></script>
     <script src="/js/live.js" defer></script>
     <script src="/js/old-links-map.js" defer></script>
+    <script src="/js/old-links-pages.js" defer></script>
     <script src="/js/old-links.js" defer></script>
     <script src="/js/video.js" defer></script>
     <script src="/app.js" defer></script>
@@ -243,8 +244,8 @@
                         <h2 class="wf-heading" id="how-it-works">How it works</h2>
                         <div class="wf-markdown">
 <ul>
-<li><code>left</code> is a <a href="/docs/guide/state#state"><code>state</code></a> holding the seconds that remain.</li>
-<li><a href="/docs/guide/state#timers"><code>every(1000)</code></a> runs its block every 1000 milliseconds. The <code>if</code> stops the count at zero.</li>
+<li><code>left</code> is a <a href="/learn/07-state-and-reactivity#state"><code>state</code></a> holding the seconds that remain.</li>
+<li><a href="/learn/07-state-and-reactivity#timers"><code>every(1000)</code></a> runs its block every 1000 milliseconds. The <code>if</code> stops the count at zero.</li>
 <li>The <code>Progress</code> bar and the <code>Text</code> both read <code>left</code>, so they repaint on every tick. The text says <strong>Done</strong> at zero.</li>
 </ul>
 <p>The timer stops when the page leaves, so a reader who navigates away leaves no interval running.</p>

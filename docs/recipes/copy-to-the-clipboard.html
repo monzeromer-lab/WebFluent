@@ -30,6 +30,7 @@
     <script src="/js/analytics.js" defer></script>
     <script src="/js/live.js" defer></script>
     <script src="/js/old-links-map.js" defer></script>
+    <script src="/js/old-links-pages.js" defer></script>
     <script src="/js/old-links.js" defer></script>
     <script src="/js/video.js" defer></script>
     <script src="/app.js" defer></script>
@@ -247,7 +248,7 @@
                         <div class="wf-markdown">
 <ul>
 <li><code>navigator.clipboard</code> and <code>location</code> are browser globals, used as written with no prefix.</li>
-<li><code>writeText</code> returns a promise, so the <a href="/docs/guide/state#actions-and-locals">action</a> awaits it. <code>await</code> makes the action async, and <code>copied</code> is set only once the text is on the clipboard.</li>
+<li><code>writeText</code> returns a promise, so the <a href="/learn/07-state-and-reactivity#actions-and-locals">action</a> awaits it. <code>await</code> makes the action async, and <code>copied</code> is set only once the text is on the clipboard.</li>
 <li>The button's click handler calls <code>copy</code> with the page's own address.</li>
 <li>When <code>copied</code> turns true, the <code>Toast</code> appears to confirm it.</li>
 </ul>

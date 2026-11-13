@@ -1,2 +1,2 @@
-function Page_OldReferenceSwitch(params){const _root=document.createDocumentFragment();const _e1721=WF.el("h1",{className:"wf-heading"},"Switch");_root.appendChild(_e1721);const _e1722=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/switch"},"Switch");WF.activeLink(_e1722,"/reference/switch",false);_root.appendChild(_e1722);return _root;}
+function Page_OldReferenceSwitch(params){const _root=document.createDocumentFragment();const _e1715=WF.el("h1",{className:"wf-heading"},"Switch");_root.appendChild(_e1715);const _e1716=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/switch"},"Switch");WF.activeLink(_e1716,"/reference/switch",false);_root.appendChild(_e1716);return _root;}
 WF.page("OldReferenceSwitch",Page_OldReferenceSwitch);

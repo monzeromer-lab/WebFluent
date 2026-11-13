@@ -30,6 +30,7 @@
     <script src="/js/analytics.js" defer></script>
     <script src="/js/live.js" defer></script>
     <script src="/js/old-links-map.js" defer></script>
+    <script src="/js/old-links-pages.js" defer></script>
     <script src="/js/old-links.js" defer></script>
     <script src="/js/video.js" defer></script>
     <script src="/app.js" defer></script>
@@ -291,12 +292,12 @@ api <span class="wf-tok-name">Auth</span>(<span class="wf-tok-prop">base</span>:
                         <h2 class="wf-heading" id="how-it-works">How it works</h2>
                         <div class="wf-markdown">
 <ul>
-<li><code>Auth</code> <a href="/docs/guide/data#describe-a-service-with-api">describes the service</a>. <code>credentials: .sameOrigin</code> sends the session cookie with every call, so the page holds no token. <code>errors { 401 -&gt; Map }</code> types what a refused sign-in answers.</li>
-<li>The <code>Session</code> <a href="/docs/guide/stores#a-first-store">store</a> holds the user, or <code>null</code>, and <code>signedIn</code> is derived from it. <code>load</code> asks the server who is signed in, <code>signIn</code> and <code>signOut</code> call the service and move the reader on with <code>navigate</code>.</li>
+<li><code>Auth</code> <a href="/learn/15-data#describe-a-service-with-api">describes the service</a>. <code>credentials: .sameOrigin</code> sends the session cookie with every call, so the page holds no token. <code>errors { 401 -&gt; Map }</code> types what a refused sign-in answers.</li>
+<li>The <code>Session</code> <a href="/learn/11-stores#a-first-store">store</a> holds the user, or <code>null</code>, and <code>signedIn</code> is derived from it. <code>load</code> asks the server who is signed in, <code>signIn</code> and <code>signOut</code> call the service and move the reader on with <code>navigate</code>.</li>
 <li>The <code>SignIn</code> page validates its two fields and calls <code>Session.signIn</code> in a <code>try</code>, so a wrong password shows an <code>Alert</code> instead of throwing. <code>send.pending</code> disables the button while the request runs, and <code>noindex: true</code> keeps the page out of search results.</li>
-<li>The <code>Account</code> page has a <a href="/docs/guide/pages-and-routing#guards">guard</a>: <code>guard: Session.signedIn</code> sends a reader who is signed out to <code>/sign-in</code>.</li>
+<li>The <code>Account</code> page has a <a href="/learn/05-pages-and-routing#guards">guard</a>: <code>guard: Session.signedIn</code> sends a reader who is signed out to <code>/sign-in</code>.</li>
 </ul>
-<p>The session is an httpOnly cookie the server sets, so the page never holds a token. <code>guard:</code> hides the page from a reader who is signed out, and the server still checks every request (<a href="/docs/guide/security#keep-the-session-in-a-cookie">Security</a>). Call <code>Session.load()</code> from the app's set-up, so a returning reader is signed in.</p>
+<p>The session is an httpOnly cookie the server sets, so the page never holds a token. <code>guard:</code> hides the page from a reader who is signed out, and the server still checks every request (<a href="/about/security#keep-the-session-in-a-cookie">Security</a>). Call <code>Session.load()</code> from the app's set-up, so a returning reader is signed in.</p>
                         </div>
                     </div>
                     <div class="wf-stack wf-gap--sm wf-s982ede03">

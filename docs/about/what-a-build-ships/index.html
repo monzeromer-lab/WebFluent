@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>What a build ships</title>
+    <meta name="description" content="What a build does to be fast, wf build --stats, size budgets, paint timings from wf verify, and the few things that make a site slow.">
+    <link rel="canonical" href="https://webfluent.monzeromer.dev/about/what-a-build-ships">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="What a build ships">
+    <meta property="og:site_name" content="WebFluent">
+    <meta property="og:description" content="What a build does to be fast, wf build --stats, size budgets, paint timings from wf verify, and the few things that make a site slow.">
+    <meta property="og:url" content="https://webfluent.monzeromer.dev/about/what-a-build-ships">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="ar_AR">
+    <meta property="og:image" content="https://webfluent.monzeromer.dev/og.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="What a build ships">
+    <meta name="twitter:description" content="What a build does to be fast, wf build --stats, size budgets, paint timings from wf verify, and the few things that make a site slow.">
+    <meta name="twitter:image" content="https://webfluent.monzeromer.dev/og.png">
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/about/what-a-build-ships#webpage","url":"https://webfluent.monzeromer.dev/about/what-a-build-ships","name":"What a build ships","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"What a build does to be fast, wf build --stats, size budgets, paint timings from wf verify, and the few things that make a site slow.","inLanguage":"en"},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/about/what-a-build-ships#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"About WebFluent","item":"https://webfluent.monzeromer.dev/about"},{"@type":"ListItem","position":3,"name":"What a build ships","item":"https://webfluent.monzeromer.dev/about/what-a-build-ships"}]}]}</script>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="preload" href="/fonts/instrument-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="/styles.css">
+    <script src="/js/analytics.js" defer></script>
+    <script src="/js/live.js" defer></script>
+    <script src="/js/old-links-map.js" defer></script>
+    <script src="/js/old-links-pages.js" defer></script>
+    <script src="/js/old-links.js" defer></script>
+    <script src="/js/video.js" defer></script>
+    <script src="/app.js" defer></script>
+    <script src="/pages/AboutWhatABuildShips.js" data-wf-page="AboutWhatABuildShips" defer></script>
+</head>
+<body>
+    <a class="wf-skip-link" href="#wf-content">Skip to content</a>
+    <div id="app">
+        <main id="wf-main">
+            <a class="wf-link bp-skip" href="#bp-main">Skip to the content</a>
+            <div class="wf-row wf-align--center wf-s55053fdc bp-header" role="banner">
+                <div class="wf-row wf-align--center wf-gap--md wf-sfe495c12 bp-wrap">
+                    <a class="wf-link wf-sa4fc1f4b" href="/" aria-label="WebFluent, home">
+                        <img class="wf-image wf-s4b9d0b60" src="/favicon.svg" alt="" decoding="async" loading="eager" fetchpriority="high">
+                        <p class="wf-text wf-s9919642b">WebFluent</p>
+                        <p class="wf-text bp-label bp-num">6.0</p>
+                    </a>
+                    <div class="wf-row wf-s92924cc4 bp-tabs" role="navigation" aria-label="Main">
+                        <a class="wf-link bp-tab active" href="/learn" aria-current="page">Learn</a>
+                        <a class="wf-link bp-tab" href="/recipes">Recipes</a>
+                        <a class="wf-link bp-tab" href="/reference">Reference</a>
+                        <a class="wf-link bp-tab" href="/errors">Errors</a>
+                        <a class="wf-link bp-tab" href="/playground">Playground</a>
+                        <a class="wf-link bp-tab" href="/showcase">Showcase</a>
+                    </div>
+                    <div class="wf-row wf-align--center wf-gap--sm wf-sff642a95">
+                        <button class="wf-btn wf-sf8ab46ec bp-field bp-search" aria-label="Search the docs" aria-keyshortcuts="Meta+K Control+K" aria-haspopup="dialog" type="button">
+                            <i class="wf-icon" data-icon="search"></i>
+                            <p class="wf-text wf-sf55a2627 bp-hide-sm">Search the docs</p>
+                            <p class="wf-text bp-kbd bp-hide-sm">Ctrl+K</p>
+                        </button>
+                        <div class="wf-row wf-align--center wf-gap--sm wf-s808638b6 bp-select bp-hide-md">
+                            <p class="wf-text wf-s29c127bc bp-building-label" aria-hidden="true">Building</p>
+                            <select class="wf-select" aria-label="Building">
+                                <option value="website">Website</option>
+                                <option value="app">Web app</option>
+                                <option value="pdf">PDF</option>
+                                <option value="slides">Slides</option>
+                                <option value="elements">Custom elements</option>
+                                <option value="desktop">Desktop / phone</option>
+                            </select>
+                            <i class="wf-icon wf-s94250744" data-icon="chevron-down" aria-hidden="true"></i>
+                        </div>
+                        <button class="wf-icon-btn bp-icon-button" data-track="select_content" data-track-content-type="theme" type="button"></button>
+                        <div class="wf-row wf-align--center wf-gap--xs wf-s286d925a bp-hide-sm">
+                            <button class="wf-btn bp-button" title="This page is in English only; the switch changes the interface." data-track="select_content" data-track-content-type="language" type="button"></button>
+                        </div>
+                        <a class="wf-link bp-button bp-hide-md" href="https://github.com/monzeromer-lab/WebFluent" data-tone="quiet" aria-label="GitHub">
+                            <i class="wf-icon" data-icon="git-branch"></i>
+                            <p class="wf-text">GitHub</p>
+                        </a>
+                        <button class="wf-icon-btn wf-sde8ec4aa bp-icon-button" data-icon="menu" aria-label="Menu" title="Menu" aria-expanded="false" type="button"></button>
+                    </div>
+                </div>
+            </div>
+            <dialog class="wf-modal bp-palette" aria-labelledby="wf-dlg-s1">
+                <div class="wf-modal__content">
+                    <div class="wf-modal__header"><h3 id="wf-dlg-s1">Search</h3></div>
+                    <div class="wf-modal__body">
+                        <div class="wf-stack wf-sa8e464d0">
+                            <div class="wf-row wf-align--center wf-gap--sm wf-s02e7a482 bp-field">
+                                <i class="wf-icon" data-icon="search"></i>
+                                <input class="wf-input" placeholder="Search the guide" aria-label="Search the guide" type="search" autofocus>
+                                <p class="wf-text bp-kbd">esc</p>
+                            </div>
+                            <div class="wf-row wf-s434e64fb bp-tabs" role="tablist" aria-label="Narrow the search">
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="true" type="button">All</button>
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">Learn</button>
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">Recipes</button>
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">Reference</button>
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">Errors</button>
+                            </div>
+                            <div class="wf-stack wf-s3f6dffee" role="listbox" aria-label="Search results">
+                                <p class="wf-text wf-s3205a3d6 bp-small">Type a word: a component, a code such as T05, or a task.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </dialog>
+            <div class="wf-row wf-align--start wf-sa997482c bp-wrap">
+                <div class="wf-stack wf-gap--lg wf-s54d43750 bp-main docs-main" role="main" id="bp-main" tabindex="-1">
+                    <div class="wf-row bp-labels">
+                        <p class="wf-text bp-label" data-tone="kind" data-kind="explanation">About</p>
+                        <p class="wf-text bp-label">About</p>
+                        <div class="wf-row wf-gap--xs bp-labels" aria-label="Works in">
+                        </div>
+                    </div>
+                    <div class="wf-stack wf-gap--sm wf-s4e4189b1">
+                        <h1 class="wf-heading wf-s900776cd">What a build ships</h1>
+                        <p class="wf-text bp-lede">Learn what a build already does to be fast, see what it weighs, set budgets that warn, time pages in a browser, and avoid what makes a site slow.</p>
+                    </div>
+                    <div class="wf-stack wf-gap--lg wf-s399b38f0 bp-prose docs-article" dir="ltr">
+                        <div class="wf-stack wf-gap--lg" id="wf-content" tabindex="-1">
+                            <div class="wf-markdown">
+<p>This essay is about what <code>wf build</code> writes, and why a WebFluent site is fast by default rather than by effort.</p>
+<p>Most slow sites are not slow because someone chose to make them slow. They are slow because every library, component and font arrived for a good reason, and nothing ever weighed the total. A framework cannot weigh it for you: it does not know which of its features your program uses, so it ships them all and leaves the pruning to a bundler that reads JavaScript it did not write.</p>
+<p>A compiler that reads the whole program can do better. It knows which runtime modules the code it generated calls, which built-ins' rules the pages use, and which design tokens something names, so a build ships those and nothing else. Your part is smaller: look at what it writes, set a limit that warns you when it grows, and avoid the few patterns no compiler can fix.</p>
+                            </div>
+                            <h2 class="wf-heading" id="what-the-build-already-does">What the build already does</h2>
+                            <div class="wf-markdown">
+<p>You get these without setting anything:</p>
+<ul>
+<li><strong>Only the runtime you use.</strong> The <em>runtime</em> is the JavaScript the compiled pages call. It is a set of modules, and a build keeps only the ones its code reaches, and of those only the functions its calls reach. A single-page build of one page of static text is an <code>app.js</code> of 4.9 kB, 1.8 kB gzipped.</li>
+<li><strong>Short names.</strong> A minified build shortens the runtime's own names, its top-level ones and each function's locals. What your pages call keeps its name.</li>
+<li><strong>A chunk per page.</strong> <code>build.split</code> (on by default) writes each page's code and styles as their own files, loaded the first time its route is shown. A site of one page is one file.</li>
+<li><strong>Pre-rendered HTML.</strong> With <code>build.ssg</code>, each page's HTML is written at build time, so the first paint needs no script.</li>
+<li><strong>One pruned stylesheet.</strong> It holds the rules of only the built-ins you use, and only the design tokens something names.</li>
+<li><strong>Precompressed files.</strong> A <code>.gz</code> file sits beside every text file, for a host that serves it. <code>wf serve</code> sends the same bytes, so Lighthouse run against the dev server measures what a deploy sends.</li>
+<li><strong>Images at every width</strong>, with <code>width</code> and <code>height</code> so nothing shifts, a placeholder while they load, the first image eager and the rest lazy (<a href="/recipes/add-a-picture">Add a picture</a>).</li>
+<li><strong>Minified output.</strong> <code>build.minify</code> (on by default) strips comments and white space.</li>
+</ul>
+                            </div>
+                            <h2 class="wf-heading" id="see-what-a-build-weighs">See what a build weighs</h2>
+                            <div class="wf-markdown">
+<p>To see the size of everything a build writes, run the build with <code>--stats</code>:</p>
+                            </div>
+                            <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                                <div class="wf-row wf-s2c416341 bp-console__bar">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                        <p class="wf-text wf-s23a4ddd5 bp-mono">bash</p>
+                                    </div>
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-prompt">$ </span>wf build --stats</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>This is the output for the project <code>wf init -t spa</code> makes, trimmed:</p>
+                            </div>
+                            <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                                <div class="wf-row wf-s2c416341 bp-console__bar">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                        <p class="wf-text wf-s23a4ddd5 bp-mono">text</p>
+                                    </div>
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="text" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block bp-console__code">  What it weighs
+    app.js                               49.5 kB  (16.7 kB gzipped)
+    styles.css                           26.5 kB  (5.0 kB gzipped)
+    pages/Settings.js                     8.8 kB  (2.2 kB gzipped)
+    pages/Profile.js                      5.5 kB  (1.5 kB gzipped)
+    pages/Tasks.js                        4.2 kB  (1.3 kB gzipped)
+    pages/Home.js                         3.5 kB  (1.1 kB gzipped)
+    …
+    total                                99.7 kB
+
+  Runtime: 19 of 44 modules, 122.8 kB of 404.6 kB kept, 110.1 kB with its names shortened (before minifying)
+    core          26.3 kB  always
+    router        13.5 kB  WF.router
+    form          12.7 kB  WF.form
+    motion        12.6 kB  enter:
+    each          10.6 kB  WF.each
+    store          9.1 kB  WF.store
+    keep           8.9 kB  WF.persist
+    field          2.7 kB  WF.field
+    …
+    left out: keys format offline peer scalars text slot browser host …
+
+  Tokens: 30 nothing in the output names, left out</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>Read it in three parts:</p>
+<ul>
+<li><strong>What it weighs</strong> lists every text file with its gzipped size. The starter's form brings in <code>form</code> and <code>field</code>, its store brings in <code>store</code> and <code>keep</code>, its second page brings in <code>router</code>, and its entry animations bring in <code>motion</code>.</li>
+<li><strong>Runtime</strong> lists each module with what the build kept of it — the functions the program reaches — and what reached it. When a module you did not expect is in the build, look here first.</li>
+<li><strong>Tokens</strong> counts the design tokens the build left out because nothing names them.</li>
+</ul>
+<p>Each build records its sizes in <code>.wf-sizes.json</code> beside the project, so the next <code>--stats</code> shows how each file moved since the last build (for example, <code>+20 B</code>).</p>
+<p>The project's own scripts are listed by their path under <code>js/</code>, such as <code>js/tilt.js</code> (<a href="/recipes/call-your-own-script">Call your own script</a>). The build copies them as written: it does not minify a file it promises to ship byte for byte.</p>
+                            </div>
+                            <h2 class="wf-heading" id="set-a-size-budget">Set a size budget</h2>
+                            <div class="wf-markdown">
+<p>To be warned when a file grows past a size, name its gzipped limit in <code>build.budget</code>:</p>
+                            </div>
+                            <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                                <div class="wf-row wf-s2c416341 bp-console__bar">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                        <p class="wf-text wf-s23a4ddd5 bp-mono">json</p>
+                                    </div>
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="json" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block bp-console__code">{ <span class="wf-tok-prop">&quot;build&quot;</span>: { <span class="wf-tok-prop">&quot;budget&quot;</span>: { <span class="wf-tok-prop">&quot;app.js&quot;</span>: <span class="wf-tok-str">&quot;40 kB&quot;</span>, <span class="wf-tok-prop">&quot;styles.css&quot;</span>: <span class="wf-tok-str">&quot;30 kB&quot;</span>, <span class="wf-tok-prop">&quot;pages/Home.js&quot;</span>: <span class="wf-tok-str">&quot;10 kB&quot;</span> } } }</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>Any output may have a budget, including a page's chunk and one of your own scripts under <code>js/</code>. A build over budget prints a warning and goes on. A CI job that should fail on it can read the same numbers.</p>
+                            </div>
+                            <h2 class="wf-heading" id="time-pages-in-a-browser">Time pages in a browser</h2>
+                            <div class="wf-markdown">
+<p>To measure how fast each page paints, build the site and run <code>wf verify</code> with a budget in milliseconds:</p>
+                            </div>
+                            <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                                <div class="wf-row wf-s2c416341 bp-console__bar">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                        <p class="wf-text wf-s23a4ddd5 bp-mono">bash</p>
+                                    </div>
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-prompt">$ </span>wf build &amp;&amp; wf verify --budget 800</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><code>wf verify</code> loads every route in headless Chrome. For each route it prints the first contentful paint, the number of nodes in the document, and the bytes and requests it took. <code>--budget 800</code> fails a route whose first paint is slower than 800 ms. Lighthouse and the browser's performance panel work on the build as on any other site.</p>
+                            </div>
+                            <h2 class="wf-heading" id="avoid-what-makes-a-site-slow">Avoid what makes a site slow</h2>
+                            <div class="wf-markdown">
+<p>These are the patterns that slow a WebFluent site down, and what to do instead:</p>
+                            </div>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">Avoid what makes a site slow</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Pattern</th>
+                                        <th scope="col">Why it is slow</th>
+                                        <th scope="col">Do this instead</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>A large <code>data</code> file</p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>data posts = &quot;posts.json&quot;</code> is inlined into the bundle, so a 2 MB file is 2 MB of JavaScript</p>
+                                            </div>
+                                        </td>
+                                        <td>Keep build-time data to what pages show. Fetch the rest, or split it across pages that each read one file</td>
+                                    </tr>
+                                    <tr>
+                                        <td>A waterfall of fetches</td>
+                                        <td>A resource whose URL depends on another&#x27;s answer waits for that answer</td>
+                                        <td>Ask for both at once, or have the server send them together</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Layout decided by <code>viewport</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>viewport</code> is unknown until the script runs, so the page paints one branch and then swaps it</p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Use <a href="/learn/13-styling#responsive-values">responsive values</a>, which are CSS</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>&quot;runtime&quot;: &quot;full&quot;</code></p>
+                                            </div>
+                                        </td>
+                                        <td>It ships every module</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Use it only when a hand-written script calls <code>WF</code> in ways the build cannot see, or an icon's name arrives at run time</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Web fonts</td>
+                                        <td>Each weight is a download</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Use <code>display=swap</code> and few weights, or the baseline's system fonts</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>An unkeyed list that changes</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>for item in items</code> rebuilds the list</p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Key it: <code>for item in items by item.id</code> moves the nodes that stayed</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Pictures the build cannot process</td>
+                                        <td>An SVG, a URL or a path built at run time is used as written: one size, no placeholder</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Use a literal <code>src:</code> into <code>public/</code>, or declare the picture with <code>image</code> (<a href="/recipes/add-a-picture">Add a picture</a>)</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="wf-row wf-gap--md wf-s94f7a6f9" role="navigation" aria-label="Pages either side">
+                        <a class="wf-link wf-s1266eee5 bp-card" href="/about/security">
+                            <p class="wf-text bp-small">Previous</p>
+                            <p class="wf-text wf-s70571e62">Security</p>
+                        </a>
+                        <a class="wf-link wf-sc16e0c24 bp-card" href="/about/static-or-single-page">
+                            <p class="wf-text bp-small">Next</p>
+                            <p class="wf-text wf-s70571e62">Static or single-page</p>
+                        </a>
+                    </div>
+                </div>
+                <div class="wf-stack wf-gap--lg wf-s2502f5f4 bp-rail" role="navigation" aria-label="On this page">
+                    <div class="wf-stack wf-gap--xs wf-se8e8f072">
+                        <p class="wf-text wf-sa736415c bp-section-label">On this page</p>
+                        <a class="wf-link wf-s23505038" href="#what-the-build-already-does">What the build already does</a>
+                        <a class="wf-link wf-s23505038" href="#see-what-a-build-weighs">See what a build weighs</a>
+                        <a class="wf-link wf-s23505038" href="#set-a-size-budget">Set a size budget</a>
+                        <a class="wf-link wf-s23505038" href="#time-pages-in-a-browser">Time pages in a browser</a>
+                        <a class="wf-link wf-s23505038" href="#avoid-what-makes-a-site-slow">Avoid what makes a site slow</a>
+                    </div>
+                    <a class="wf-link wf-s48d899f5" href="https://github.com/monzeromer-lab/WebFluent/blob/master/md-docs/about/performance.md">
+                        <i class="wf-icon" data-icon="edit"></i>
+                        <p class="wf-text">Edit this page</p>
+                    </a>
+                </div>
+            </div>
+        </main>
+        <footer class="wf-footer wf-s2213a098">
+            <div class="wf-stack wf-gap--lg wf-s84d7918c bp-wrap">
+                <div class="wf-grid wf-gap--lg wf-r67559659">
+                    <div class="wf-stack wf-gap--xs wf-s17061b4c">
+                        <p class="wf-text wf-scba75cc6 bp-section-label">Learn</p>
+                        <a class="wf-link" href="/learn/01-getting-started">The tour</a>
+                        <a class="wf-link" href="/learn">The book</a>
+                        <a class="wf-link" href="/about">About essays</a>
+                    </div>
+                    <div class="wf-stack wf-gap--xs wf-s17061b4c">
+                        <p class="wf-text wf-scba75cc6 bp-section-label">Do</p>
+                        <a class="wf-link" href="/recipes">Recipes</a>
+                        <a class="wf-link" href="/playground">Playground</a>
+                        <a class="wf-link" href="/coming-from/react">Coming from…</a>
+                        <a class="wf-link" href="/showcase">Showcase</a>
+                    </div>
+                    <div class="wf-stack wf-gap--xs wf-s17061b4c">
+                        <p class="wf-text wf-scba75cc6 bp-section-label">Look up</p>
+                        <a class="wf-link" href="/reference">Components</a>
+                        <a class="wf-link" href="/reference/cli">CLI and config</a>
+                        <a class="wf-link" href="/errors">Errors</a>
+                    </div>
+                    <div class="wf-stack wf-gap--xs wf-s17061b4c">
+                        <p class="wf-text wf-scba75cc6 bp-section-label">For agents</p>
+                        <a class="wf-link" href="/reference/cli/context">wf context</a>
+                        <a class="wf-link" href="/changelog">Changelog</a>
+                    </div>
+                </div>
+                <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-sd146f653">
+                    <p class="wf-text bp-small">Every code block in the guide is real WebFluent 6.0, parsed, type-checked and compiled by the test suite.</p>
+                    <div class="wf-row wf-align--center wf-gap--md wf-sa3c9b727">
+                        <a class="wf-link wf-sf9ca1a0e" href="https://github.com/monzeromer-lab/WebFluent">Source</a>
+                        <button class="wf-btn link-button" type="button">Cookie settings</button>
+                        <p class="wf-text bp-small">© 2026 Monzer Omer</p>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

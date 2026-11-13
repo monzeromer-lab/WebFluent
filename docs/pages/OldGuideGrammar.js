@@ -1,2 +1,2 @@
-function Page_OldGuideGrammar(params){const _root=document.createDocumentFragment();const _e1579=WF.el("h1",{className:"wf-heading"},"Grammar");_root.appendChild(_e1579);const _e1580=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/grammar"},"Grammar");WF.activeLink(_e1580,"/reference/grammar",false);_root.appendChild(_e1580);return _root;}
+function Page_OldGuideGrammar(params){const _root=document.createDocumentFragment();const _e1573=WF.el("h1",{className:"wf-heading"},"Grammar");_root.appendChild(_e1573);const _e1574=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/grammar"},"Grammar");WF.activeLink(_e1574,"/reference/grammar",false);_root.appendChild(_e1574);return _root;}
 WF.page("OldGuideGrammar",Page_OldGuideGrammar);

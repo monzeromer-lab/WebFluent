@@ -30,6 +30,7 @@
     <script src="/js/analytics.js" defer></script>
     <script src="/js/live.js" defer></script>
     <script src="/js/old-links-map.js" defer></script>
+    <script src="/js/old-links-pages.js" defer></script>
     <script src="/js/old-links.js" defer></script>
     <script src="/js/video.js" defer></script>
     <script src="/app.js" defer></script>
@@ -254,9 +255,9 @@
                         <h2 class="wf-heading" id="how-it-works">How it works</h2>
                         <div class="wf-markdown">
 <ul>
-<li><code>page</code> and <code>perPage</code> are states, and the <a href="/docs/guide/data#show-a-request-with-resource">resource</a> splices both into its address.</li>
+<li><code>page</code> and <code>perPage</code> are states, and the <a href="/learn/15-data#show-a-request-with-resource">resource</a> splices both into its address.</li>
 <li>The server answers with the page's <code>items</code> and the number of <code>pages</code>. The <code>ready</code> arm lists the items and draws the buttons.</li>
-<li><strong>Previous</strong> and <strong>Next</strong> change <code>page</code>. A change of <code>page</code> changes the address, so the resource asks again (<a href="/docs/guide/data#fetch-again-when-state-changes">Fetch again when state changes</a>).</li>
+<li><strong>Previous</strong> and <strong>Next</strong> change <code>page</code>. A change of <code>page</code> changes the address, so the resource asks again (<a href="/learn/15-data#fetch-again-when-state-changes">Fetch again when state changes</a>).</li>
 <li>Each button is disabled at its end of the list, so <code>page</code> stays between 1 and <code>r.pages</code>.</li>
 </ul>
 <p>To add each page below the ones already shown instead of replacing them, see <a href="/recipes/load-more">Load more as the reader asks</a>.</p>

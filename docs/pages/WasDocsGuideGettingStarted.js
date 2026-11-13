@@ -1,0 +1,2 @@
+function Page_WasDocsGuideGettingStarted(params){const _root=document.createDocumentFragment();const _e9498=WF.el("h1",{className:"wf-heading"},"Moved");_root.appendChild(_e9498);const _e9499=WF.el("a",{className:"wf-link",href:WF._basePath+"/learn/01-getting-started"},"Go on");WF.activeLink(_e9499,"/learn/01-getting-started",false);_root.appendChild(_e9499);return _root;}
+WF.page("WasDocsGuideGettingStarted",Page_WasDocsGuideGettingStarted);

@@ -1,2 +1,2 @@
-function Page_OldReferenceForm(params){const _root=document.createDocumentFragment();const _e1645=WF.el("h1",{className:"wf-heading"},"Form");_root.appendChild(_e1645);const _e1646=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/form"},"Form");WF.activeLink(_e1646,"/reference/form",false);_root.appendChild(_e1646);return _root;}
+function Page_OldReferenceForm(params){const _root=document.createDocumentFragment();const _e1639=WF.el("h1",{className:"wf-heading"},"Form");_root.appendChild(_e1639);const _e1640=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/form"},"Form");WF.activeLink(_e1640,"/reference/form",false);_root.appendChild(_e1640);return _root;}
 WF.page("OldReferenceForm",Page_OldReferenceForm);

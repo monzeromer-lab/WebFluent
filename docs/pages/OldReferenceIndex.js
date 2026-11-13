@@ -1,2 +1,2 @@
-function Page_OldReferenceIndex(params){const _root=document.createDocumentFragment();const _e1575=WF.el("h1",{className:"wf-heading"},"Reference");_root.appendChild(_e1575);const _e1576=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference"},"Reference");WF.activeLink(_e1576,"/reference",false);_root.appendChild(_e1576);return _root;}
+function Page_OldReferenceIndex(params){const _root=document.createDocumentFragment();const _e1569=WF.el("h1",{className:"wf-heading"},"Reference");_root.appendChild(_e1569);const _e1570=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference"},"Reference");WF.activeLink(_e1570,"/reference",false);_root.appendChild(_e1570);return _root;}
 WF.page("OldReferenceIndex",Page_OldReferenceIndex);

@@ -1,2 +1,2 @@
-function Page_OldReferenceSpacer(params){const _root=document.createDocumentFragment();const _e1713=WF.el("h1",{className:"wf-heading"},"Spacer");_root.appendChild(_e1713);const _e1714=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/spacer"},"Spacer");WF.activeLink(_e1714,"/reference/spacer",false);_root.appendChild(_e1714);return _root;}
+function Page_OldReferenceSpacer(params){const _root=document.createDocumentFragment();const _e1707=WF.el("h1",{className:"wf-heading"},"Spacer");_root.appendChild(_e1707);const _e1708=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/spacer"},"Spacer");WF.activeLink(_e1708,"/reference/spacer",false);_root.appendChild(_e1708);return _root;}
 WF.page("OldReferenceSpacer",Page_OldReferenceSpacer);

@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accessibility</title>
+    <meta name="description" content="What the built-ins do for keyboard and screen-reader users, the A01–A17 checks, what is still yours to do, and how to test it.">
+    <link rel="canonical" href="https://webfluent.monzeromer.dev/about/accessibility">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Accessibility">
+    <meta property="og:site_name" content="WebFluent">
+    <meta property="og:description" content="What the built-ins do for keyboard and screen-reader users, the A01–A17 checks, what is still yours to do, and how to test it.">
+    <meta property="og:url" content="https://webfluent.monzeromer.dev/about/accessibility">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="ar_AR">
+    <meta property="og:image" content="https://webfluent.monzeromer.dev/og.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Accessibility">
+    <meta name="twitter:description" content="What the built-ins do for keyboard and screen-reader users, the A01–A17 checks, what is still yours to do, and how to test it.">
+    <meta name="twitter:image" content="https://webfluent.monzeromer.dev/og.png">
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/about/accessibility#webpage","url":"https://webfluent.monzeromer.dev/about/accessibility","name":"Accessibility","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"What the built-ins do for keyboard and screen-reader users, the A01–A17 checks, what is still yours to do, and how to test it.","inLanguage":"en"},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/about/accessibility#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"About WebFluent","item":"https://webfluent.monzeromer.dev/about"},{"@type":"ListItem","position":3,"name":"Accessibility","item":"https://webfluent.monzeromer.dev/about/accessibility"}]}]}</script>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="preload" href="/fonts/instrument-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="/styles.css">
+    <script src="/js/analytics.js" defer></script>
+    <script src="/js/live.js" defer></script>
+    <script src="/js/old-links-map.js" defer></script>
+    <script src="/js/old-links-pages.js" defer></script>
+    <script src="/js/old-links.js" defer></script>
+    <script src="/js/video.js" defer></script>
+    <script src="/app.js" defer></script>
+    <script src="/pages/AboutAccessibility.js" data-wf-page="AboutAccessibility" defer></script>
+</head>
+<body>
+    <a class="wf-skip-link" href="#wf-content">Skip to content</a>
+    <div id="app">
+        <main id="wf-main">
+            <a class="wf-link bp-skip" href="#bp-main">Skip to the content</a>
+            <div class="wf-row wf-align--center wf-s55053fdc bp-header" role="banner">
+                <div class="wf-row wf-align--center wf-gap--md wf-sfe495c12 bp-wrap">
+                    <a class="wf-link wf-sa4fc1f4b" href="/" aria-label="WebFluent, home">
+                        <img class="wf-image wf-s4b9d0b60" src="/favicon.svg" alt="" decoding="async" loading="eager" fetchpriority="high">
+                        <p class="wf-text wf-s9919642b">WebFluent</p>
+                        <p class="wf-text bp-label bp-num">6.0</p>
+                    </a>
+                    <div class="wf-row wf-s92924cc4 bp-tabs" role="navigation" aria-label="Main">
+                        <a class="wf-link bp-tab active" href="/learn" aria-current="page">Learn</a>
+                        <a class="wf-link bp-tab" href="/recipes">Recipes</a>
+                        <a class="wf-link bp-tab" href="/reference">Reference</a>
+                        <a class="wf-link bp-tab" href="/errors">Errors</a>
+                        <a class="wf-link bp-tab" href="/playground">Playground</a>
+                        <a class="wf-link bp-tab" href="/showcase">Showcase</a>
+                    </div>
+                    <div class="wf-row wf-align--center wf-gap--sm wf-sff642a95">
+                        <button class="wf-btn wf-sf8ab46ec bp-field bp-search" aria-label="Search the docs" aria-keyshortcuts="Meta+K Control+K" aria-haspopup="dialog" type="button">
+                            <i class="wf-icon" data-icon="search"></i>
+                            <p class="wf-text wf-sf55a2627 bp-hide-sm">Search the docs</p>
+                            <p class="wf-text bp-kbd bp-hide-sm">Ctrl+K</p>
+                        </button>
+                        <div class="wf-row wf-align--center wf-gap--sm wf-s808638b6 bp-select bp-hide-md">
+                            <p class="wf-text wf-s29c127bc bp-building-label" aria-hidden="true">Building</p>
+                            <select class="wf-select" aria-label="Building">
+                                <option value="website">Website</option>
+                                <option value="app">Web app</option>
+                                <option value="pdf">PDF</option>
+                                <option value="slides">Slides</option>
+                                <option value="elements">Custom elements</option>
+                                <option value="desktop">Desktop / phone</option>
+                            </select>
+                            <i class="wf-icon wf-s94250744" data-icon="chevron-down" aria-hidden="true"></i>
+                        </div>
+                        <button class="wf-icon-btn bp-icon-button" data-track="select_content" data-track-content-type="theme" type="button"></button>
+                        <div class="wf-row wf-align--center wf-gap--xs wf-s286d925a bp-hide-sm">
+                            <button class="wf-btn bp-button" title="This page is in English only; the switch changes the interface." data-track="select_content" data-track-content-type="language" type="button"></button>
+                        </div>
+                        <a class="wf-link bp-button bp-hide-md" href="https://github.com/monzeromer-lab/WebFluent" data-tone="quiet" aria-label="GitHub">
+                            <i class="wf-icon" data-icon="git-branch"></i>
+                            <p class="wf-text">GitHub</p>
+                        </a>
+                        <button class="wf-icon-btn wf-sde8ec4aa bp-icon-button" data-icon="menu" aria-label="Menu" title="Menu" aria-expanded="false" type="button"></button>
+                    </div>
+                </div>
+            </div>
+            <dialog class="wf-modal bp-palette" aria-labelledby="wf-dlg-s1">
+                <div class="wf-modal__content">
+                    <div class="wf-modal__header"><h3 id="wf-dlg-s1">Search</h3></div>
+                    <div class="wf-modal__body">
+                        <div class="wf-stack wf-sa8e464d0">
+                            <div class="wf-row wf-align--center wf-gap--sm wf-s02e7a482 bp-field">
+                                <i class="wf-icon" data-icon="search"></i>
+                                <input class="wf-input" placeholder="Search the guide" aria-label="Search the guide" type="search" autofocus>
+                                <p class="wf-text bp-kbd">esc</p>
+                            </div>
+                            <div class="wf-row wf-s434e64fb bp-tabs" role="tablist" aria-label="Narrow the search">
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="true" type="button">All</button>
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">Learn</button>
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">Recipes</button>
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">Reference</button>
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">Errors</button>
+                            </div>
+                            <div class="wf-stack wf-s3f6dffee" role="listbox" aria-label="Search results">
+                                <p class="wf-text wf-s3205a3d6 bp-small">Type a word: a component, a code such as T05, or a task.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </dialog>
+            <div class="wf-row wf-align--start wf-sa997482c bp-wrap">
+                <div class="wf-stack wf-gap--lg wf-s54d43750 bp-main docs-main" role="main" id="bp-main" tabindex="-1">
+                    <div class="wf-row bp-labels">
+                        <p class="wf-text bp-label" data-tone="kind" data-kind="explanation">About</p>
+                        <p class="wf-text bp-label">About</p>
+                        <div class="wf-row wf-gap--xs bp-labels" aria-label="Works in">
+                        </div>
+                    </div>
+                    <div class="wf-stack wf-gap--sm wf-s4e4189b1">
+                        <h1 class="wf-heading wf-s900776cd">Accessibility</h1>
+                        <p class="wf-text bp-lede">Build pages that work with a keyboard, a screen reader or voice control: what the built-ins do, what the compiler checks, and what is still yours to do.</p>
+                    </div>
+                    <div class="wf-stack wf-gap--lg wf-s399b38f0 bp-prose docs-article" dir="ltr">
+                        <div class="wf-stack wf-gap--lg" id="wf-content" tabindex="-1">
+                            <div class="wf-markdown">
+<p>This essay is about the accessibility a WebFluent page has before you do anything, the part the compiler checks on every build, and the part that stays yours: building pages people can use with a keyboard, a screen reader, voice control, zoom or reduced motion.</p>
+<p>Most inaccessible pages were not made that way on purpose. A <code>&lt;div&gt;</code> with a click handler looks like a button and is not one; a field whose label is a placeholder looks labelled until the reader types. Each is a small mistake that a checklist would catch, and checklists are read once.</p>
+<p>WebFluent moves as much of the checklist as it can out of your hands. The built-ins render the markup assistive technology expects, the router and forms manage focus, and the compiler reports what it can see as a finding with a code, on every build. That leaves the work no tool can do (meaning, wording, order) and frees your attention for it.</p>
+                            </div>
+                            <h2 class="wf-heading" id="know-what-the-built-ins-do-for-you">Know what the built-ins do for you</h2>
+                            <div class="wf-markdown">
+<p>You get these behaviours without asking, as long as you use the built-in elements rather than rebuilding them:</p>
+<ul>
+<li><strong>Semantic elements.</strong> A <code>Button</code> is a <code>&lt;button&gt;</code>, a <code>Link</code> an <code>&lt;a&gt;</code>, <code>Heading(…).h2</code> an <code>&lt;h2&gt;</code>. <code>Header</code>, <code>Section</code> and <code>Footer</code> are landmarks. A <code>Table</code> is a <code>&lt;table&gt;</code> whose head cells are <code>&lt;th scope=&quot;col&quot;&gt;</code>, a <code>List</code> is a <code>&lt;ul&gt;</code> or <code>&lt;ol&gt;</code>, and the page's content is a <code>&lt;main&gt;</code>.</li>
+<li><strong>A skip link.</strong> It is first in the tab order, visible when focused, and jumps past the navigation to the content.</li>
+<li><strong>Route changes that behave like page loads.</strong> Focus moves to the new page's heading, the scroll returns to the top, and the new title is announced.</li>
+<li><strong>Labelled fields.</strong> <code>label:</code> is a real <code>&lt;label for&gt;</code>. <code>hint:</code> and the error are tied to the control with <code>aria-describedby</code>. An error sets <code>aria-invalid</code> and is announced when it appears (<a href="/learn/14-forms">Forms</a>).</li>
+<li><strong>Forms that point at the problem.</strong> A submit that fails moves focus to the first field with an error and announces it.</li>
+<li><strong>Dialogs that hold focus.</strong> <code>Modal</code> and <code>Dialog</code> are real <code>&lt;dialog&gt;</code> elements: the rest of the page is inert, Escape closes them, and focus returns to what opened them.</li>
+<li><strong>Focus held where you ask.</strong> Any other element holds focus with <code>trapFocus: open</code> — a find bar, a panel. Focus moves in, Tab and Shift+Tab go round inside it, a click outside brings focus back, and when <code>open</code> turns false, focus returns to where it was.</li>
+<li><strong>Menus with the keys people expect.</strong> The arrow keys move and skip a disabled item, Home and End jump to the ends, Enter and Space choose, ArrowRight opens a submenu and ArrowLeft leaves it, and Escape closes the innermost menu and returns focus. A check item is a <code>menuitemcheckbox</code> with <code>aria-checked</code>; an item's shortcut is its <code>aria-keyshortcuts</code>.</li>
+<li><strong>Splitters you can move without a mouse.</strong> A <code>Splitter</code> is a <code>separator</code> with its size as <code>aria-valuenow</code>. It takes focus, the arrow keys move it, Home and End go to its ends, and Enter resets it.</li>
+<li><strong>Announcements.</strong> A <code>Toast</code> is spoken politely. To announce anything else, call <code>WF.announce(text)</code>.</li>
+<li><strong>The active link.</strong> The link to the current page carries <code>aria-current=&quot;page&quot;</code>.</li>
+<li><strong>Reduced motion.</strong> A reader who asked for it gets no animation at all, and a carousel does not play on its own (<a href="/recipes/motion-defaults#respect-reduced-motion">Motion</a>).</li>
+<li><strong>Visible focus.</strong> Every interactive built-in shows a focus ring for the keyboard (<code>:focus-visible</code>), but not on every click.</li>
+</ul>
+                            </div>
+                            <h2 class="wf-heading" id="fix-what-the-compiler-reports">Fix what the compiler reports</h2>
+                            <div class="wf-markdown">
+<p>The compiler checks every page for the mistakes it can see in the markup, and reports each as a warning on every build and in the editor. Each code has a full entry, with a fix, in <a href="/errors#accessibility">Diagnostics</a>, and <code>wf explain CODE</code> prints it in your terminal.</p>
+                            </div>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">Fix what the compiler reports</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Code</th>
+                                        <th scope="col">What it checks</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>A01</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Every <code>Image</code> has <code>alt:</code> (an empty one for a decorative picture)</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>A02</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Every <code>IconButton</code> has a <code>label:</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>A03</code>, <code>A04</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Every <code>Input</code>, <code>Checkbox</code>, <code>Radio</code>, <code>Switch</code>, <code>Slider</code> and <code>Textarea</code> has a label</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>A05</code>, <code>A06</code>, <code>A07</code></p>
+                                            </div>
+                                        </td>
+                                        <td>Buttons, links and headings have text</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>A08</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Every <code>Modal</code> and <code>Dialog</code> has a <code>title:</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>A09</code></p>
+                                            </div>
+                                        </td>
+                                        <td>A video has captions and controls; audio has a transcript</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>A10</code></p>
+                                            </div>
+                                        </td>
+                                        <td>A table has a header row</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>A11</code>, <code>A12</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>No heading level is skipped, and each page has exactly one <code>h1</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>A13</code></p>
+                                            </div>
+                                        </td>
+                                        <td>The theme&#x27;s text and background colours meet WCAG AA contrast</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>A14</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>A <code>role:</code> holds children of the roles it requires</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>A15</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>A control's <code>aria-label</code> contains its visible text, for voice control</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>A16</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>No literal <code>id:</code> is shared by several elements, in a loop or a reused component</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>A17</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Every <code>Frame</code> has a <code>title:</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="wf-markdown">
+<p>For example, this button's <code>aria-label</code> does not contain the word it shows, so a voice-control user who says &quot;click Save&quot; may not reach it:</p>
+                            </div>
+                            <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                                <div class="wf-row wf-s2c416341 bp-console__bar">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                        <p class="wf-text wf-s23a4ddd5 bp-mono">wf · draws A15</p>
+                                    </div>
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf · draws A15" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block bp-console__code">page Editor(path: &quot;/&quot;, title: &quot;Editor&quot;, description: &quot;Write a note.&quot;) {
+    Heading(&quot;Editor&quot;).h1
+    Button(&quot;Save&quot;, aria-label: &quot;Submit the form&quot;)
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>The fix is to start the <code>aria-label</code> with the visible words: <code>aria-label: &quot;Save the note&quot;</code>.</p>
+                            </div>
+                            <h2 class="wf-heading" id="do-what-the-compiler-cannot-check">Do what the compiler cannot check</h2>
+                            <div class="wf-markdown">
+<p>The compiler can see markup; it cannot see meaning. These are still yours:</p>
+<ul>
+<li><strong>Alt text that says what the picture shows</strong>, in its context. &quot;Photo&quot; passes <code>A01</code> and helps nobody.</li>
+<li><strong>Link text that says where it goes.</strong> Twelve &quot;Read more&quot; links pass <code>A06</code>.</li>
+<li><strong>An order that makes sense.</strong> The reading order is the source order. Do not rearrange it visually with <code>order:</code> or absolute positioning.</li>
+<li><strong>Colour that is not the only signal.</strong> An error in red also says so in words; a chart has labels.</li>
+<li><strong>The contrast of your own styles.</strong> <code>A13</code> checks the theme's tokens, not a colour written directly in a <code>style { }</code> block.</li>
+<li><strong>Custom controls.</strong> A <code>Card</code> made clickable with <code>on click</code> is not a button to a keyboard (<a href="#make-a-custom-control-work-from-the-keyboard">Make a custom control work from the keyboard</a>).</li>
+<li><strong>Time limits.</strong> A <code>Toast</code> disappears. Anything the reader must act on belongs in an <code>Alert</code> that stays.</li>
+</ul>
+                            </div>
+                            <h3 class="wf-heading" id="make-a-custom-control-work-from-the-keyboard">Make a custom control work from the keyboard</h3>
+                            <div class="wf-markdown">
+<p>Use <code>Button</code> whenever you can. When an element must act as a button, give it the role, a place in the tab order, and handlers for the keys a button answers to:</p>
+                            </div>
+                            <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                                <div class="wf-row wf-s2c416341 bp-console__bar">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                        <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Plans</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/plans&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Plans&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Choose a plan.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> chosen = <span class="wf-tok-str">&quot;&quot;</span>
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Plans&quot;</span>).h1
+    <span class="wf-tok-name">Card</span>(<span class="wf-tok-prop">role</span>: <span class="wf-tok-str">&quot;button&quot;</span>, <span class="wf-tok-prop">tabindex</span>: <span class="wf-tok-str">&quot;0&quot;</span>) {
+        <span class="wf-tok-kw">on</span> click { chosen = <span class="wf-tok-str">&quot;Team&quot;</span> }
+        <span class="wf-tok-kw">on</span> key(<span class="wf-tok-str">&quot;Enter&quot;</span>) { chosen = <span class="wf-tok-str">&quot;Team&quot;</span> }
+        <span class="wf-tok-kw">on</span> key(<span class="wf-tok-str">&quot;space&quot;</span>) { chosen = <span class="wf-tok-str">&quot;Team&quot;</span> }
+        <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Team plan&quot;</span>)
+    }
+    <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Chosen: {chosen}&quot;</span>)
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>Without <code>tabindex</code>, the card cannot be reached with Tab; without the key handlers, reaching it does nothing.</p>
+                            </div>
+                            <h2 class="wf-heading" id="label-controls-well">Label controls well</h2>
+                            <div class="wf-markdown">
+<p>Every control needs a name that assistive technology can read, and that matches what a sighted reader sees:</p>
+                            </div>
+                            <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                                <div class="wf-row wf-s2c416341 bp-console__bar">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                        <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Search</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Search&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Find a page.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> q = <span class="wf-tok-str">&quot;&quot;</span>
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Search&quot;</span>).h1
+    <span class="wf-tok-name">Input</span>(<span class="wf-tok-prop">bind</span>: q, <span class="wf-tok-prop">label</span>: <span class="wf-tok-str">&quot;Search the docs&quot;</span>, <span class="wf-tok-prop">hint</span>: <span class="wf-tok-str">&quot;Try “routing” or “forms”&quot;</span>).search
+    <span class="wf-tok-name">IconButton</span>(<span class="wf-tok-prop">icon</span>: <span class="wf-tok-str">&quot;close&quot;</span>, <span class="wf-tok-prop">label</span>: <span class="wf-tok-str">&quot;Clear the search&quot;</span>) { <span class="wf-tok-kw">on</span> click { q = <span class="wf-tok-str">&quot;&quot;</span> } }
+    <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Search&quot;</span>, aria-<span class="wf-tok-prop">label</span>: <span class="wf-tok-str">&quot;Search the docs&quot;</span>) { <span class="wf-tok-kw">on</span> click { <span class="wf-tok-kw">log</span>(q) } }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<ul>
+<li><strong>Prefer a visible <code>label:</code> to a placeholder.</strong> A placeholder disappears as soon as the reader types.</li>
+<li><strong>Name an icon-only control.</strong> Use <code>label:</code> on an <code>IconButton</code>, or <code>aria-label:</code> on anything else. The name is read aloud, never shown.</li>
+<li><strong>Begin an <code>aria-label</code> with the visible words.</strong> Someone who says &quot;click Search&quot; then reaches the right button (<code>A15</code>).</li>
+</ul>
+                            </div>
+                            <h2 class="wf-heading" id="test-with-assistive-technology">Test with assistive technology</h2>
+                            <div class="wf-markdown">
+<p>The compiler's checks are a floor. Before you ship a page, use it the way its readers do:</p>
+<ol>
+<li><strong>Use only the keyboard.</strong> Put the mouse away. Tab through the page, open and close every menu and dialog, and submit every form. Focus is always visible and never lost.</li>
+<li><strong>Use a screen reader.</strong> VoiceOver (macOS: ⌘F5), NVDA (Windows, free) or TalkBack (Android). Listen to the page's list of headings and landmarks, and to what a form says when it fails.</li>
+<li><strong>Zoom to 200%</strong>, and narrow the window. Nothing needs horizontal scrolling.</li>
+<li><strong>Turn on reduced motion</strong> in your system settings, and reload. Nothing moves.</li>
+</ol>
+<p>You can also automate part of this. <code>wf test</code>'s <code>click &quot;Save&quot;</code> and <code>type &quot;…&quot; into &quot;Email&quot;</code> find controls by the name a reader sees, the way assistive technology does, so a test that passes is a page someone can operate (<a href="/learn/16-testing">Testing</a>).</p>
+                            </div>
+                            <h2 class="wf-heading" id="checklist">Checklist</h2>
+                            <div class="wf-markdown">
+<ul>
+<li><code>wf check</code> reports no <code>A</code> warnings.</li>
+<li>Every picture's alt text says what it shows, and decorative ones have <code>alt: &quot;&quot;</code>.</li>
+<li>Every link and button says what it does without the text around it.</li>
+<li>Every control has a visible label, and every <code>aria-label</code> contains the visible words.</li>
+<li>Colour is never the only way something is said.</li>
+<li>Every custom control is reachable with Tab and works with Enter and Space.</li>
+<li>The page works with only a keyboard, with a screen reader, at 200% zoom, and with reduced motion.</li>
+</ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="wf-row wf-gap--md wf-s94f7a6f9" role="navigation" aria-label="Pages either side">
+                        <a class="wf-link wf-s1266eee5 bp-card" href="/about/how-reactivity-works">
+                            <p class="wf-text bp-small">Previous</p>
+                            <p class="wf-text wf-s70571e62">How reactivity works</p>
+                        </a>
+                        <a class="wf-link wf-sc16e0c24 bp-card" href="/about/security">
+                            <p class="wf-text bp-small">Next</p>
+                            <p class="wf-text wf-s70571e62">Security</p>
+                        </a>
+                    </div>
+                </div>
+                <div class="wf-stack wf-gap--lg wf-s2502f5f4 bp-rail" role="navigation" aria-label="On this page">
+                    <div class="wf-stack wf-gap--xs wf-se8e8f072">
+                        <p class="wf-text wf-sa736415c bp-section-label">On this page</p>
+                        <a class="wf-link wf-s23505038" href="#know-what-the-built-ins-do-for-you">Know what the built-ins do for you</a>
+                        <a class="wf-link wf-s23505038" href="#fix-what-the-compiler-reports">Fix what the compiler reports</a>
+                        <a class="wf-link wf-s23505038" href="#do-what-the-compiler-cannot-check">Do what the compiler cannot check</a>
+                        <a class="wf-link wf-s23505038" href="#label-controls-well">Label controls well</a>
+                        <a class="wf-link wf-s23505038" href="#test-with-assistive-technology">Test with assistive technology</a>
+                        <a class="wf-link wf-s23505038" href="#checklist">Checklist</a>
+                    </div>
+                    <a class="wf-link wf-s48d899f5" href="https://github.com/monzeromer-lab/WebFluent/blob/master/md-docs/about/accessibility.md">
+                        <i class="wf-icon" data-icon="edit"></i>
+                        <p class="wf-text">Edit this page</p>
+                    </a>
+                </div>
+            </div>
+        </main>
+        <footer class="wf-footer wf-s2213a098">
+            <div class="wf-stack wf-gap--lg wf-s84d7918c bp-wrap">
+                <div class="wf-grid wf-gap--lg wf-r67559659">
+                    <div class="wf-stack wf-gap--xs wf-s17061b4c">
+                        <p class="wf-text wf-scba75cc6 bp-section-label">Learn</p>
+                        <a class="wf-link" href="/learn/01-getting-started">The tour</a>
+                        <a class="wf-link" href="/learn">The book</a>
+                        <a class="wf-link" href="/about">About essays</a>
+                    </div>
+                    <div class="wf-stack wf-gap--xs wf-s17061b4c">
+                        <p class="wf-text wf-scba75cc6 bp-section-label">Do</p>
+                        <a class="wf-link" href="/recipes">Recipes</a>
+                        <a class="wf-link" href="/playground">Playground</a>
+                        <a class="wf-link" href="/coming-from/react">Coming from…</a>
+                        <a class="wf-link" href="/showcase">Showcase</a>
+                    </div>
+                    <div class="wf-stack wf-gap--xs wf-s17061b4c">
+                        <p class="wf-text wf-scba75cc6 bp-section-label">Look up</p>
+                        <a class="wf-link" href="/reference">Components</a>
+                        <a class="wf-link" href="/reference/cli">CLI and config</a>
+                        <a class="wf-link" href="/errors">Errors</a>
+                    </div>
+                    <div class="wf-stack wf-gap--xs wf-s17061b4c">
+                        <p class="wf-text wf-scba75cc6 bp-section-label">For agents</p>
+                        <a class="wf-link" href="/reference/cli/context">wf context</a>
+                        <a class="wf-link" href="/changelog">Changelog</a>
+                    </div>
+                </div>
+                <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-sd146f653">
+                    <p class="wf-text bp-small">Every code block in the guide is real WebFluent 6.0, parsed, type-checked and compiled by the test suite.</p>
+                    <div class="wf-row wf-align--center wf-gap--md wf-sa3c9b727">
+                        <a class="wf-link wf-sf9ca1a0e" href="https://github.com/monzeromer-lab/WebFluent">Source</a>
+                        <button class="wf-btn link-button" type="button">Cookie settings</button>
+                        <p class="wf-text bp-small">© 2026 Monzer Omer</p>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

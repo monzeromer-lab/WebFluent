@@ -30,6 +30,7 @@
     <script src="/js/analytics.js" defer></script>
     <script src="/js/live.js" defer></script>
     <script src="/js/old-links-map.js" defer></script>
+    <script src="/js/old-links-pages.js" defer></script>
     <script src="/js/old-links.js" defer></script>
     <script src="/js/video.js" defer></script>
     <script src="/app.js" defer></script>
@@ -306,7 +307,7 @@
                         </div>
                         <h3 class="wf-heading" id="add-tags-for-one-page">Add tags for one page</h3>
                         <div class="wf-markdown">
-<p>To add tags of a page's own — an article's cover, its publication date — write them in <code>head { }</code> (<a href="/docs/guide/pages-and-routing#per-page-head-tags">Pages and routing</a>). <code>PostPage</code> above sets its own Open Graph tags from the post.</p>
+<p>To add tags of a page's own — an article's cover, its publication date — write them in <code>head { }</code> (<a href="/learn/05-pages-and-routing#per-page-head-tags">Pages and routing</a>). <code>PostPage</code> above sets its own Open Graph tags from the post.</p>
 <p>The <code>title:</code> and <code>description:</code> of a <code>:param</code> page may name its parameters — <code>title: &quot;{slug} — Blog&quot;</code> — and each pre-rendered file, and the live page's tab, has that route's value. The title may also splice an expression over the parameters and the program's constants and data: <code>title: &quot;{posts.find(p =&gt; p.slug == slug)?.title ?? slug} — Blog&quot;</code>. The build works it out for each file, and the router again on each visit. Anything else the head should say about the entry goes in <code>head { }</code>, as above; the runtime keeps those tags current as the parameter changes.</p>
                         </div>
                         <h3 class="wf-heading" id="say-who-the-site-belongs-to">Say who the site belongs to</h3>
