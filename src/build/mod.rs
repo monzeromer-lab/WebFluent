@@ -1261,6 +1261,9 @@ fn run(options: &BuildOptions<'_>, out: &Out<'_>) -> Result<()> {
     // it: compressed once here, harder than a server can afford per request.
     // An editor's preview is served by the editor, which never asks for one,
     // and has a reader waiting on it.
+    // The `.gz` files this build wrote, by their path in the output: the
+    // weighing below reads their length rather than compressing again.
+    let mut compressed = std::collections::BTreeSet::new();
     if config.build.compress && !options.studio {
         let manifest = project_dir.join(PRECOMPRESSED);
         let mut all = read_precompressed(&manifest);
@@ -1268,6 +1271,7 @@ fn run(options: &BuildOptions<'_>, out: &Out<'_>) -> Result<()> {
         let before = all.remove(&key).unwrap_or_default();
         let mut wrote = std::collections::BTreeSet::new();
         precompress(&output_dir, &output_dir, &before, &mut wrote)?;
+        compressed.clone_from(&wrote);
         all.insert(key, wrote);
         if let Some(parent) = manifest.parent() {
             let _ = fs::create_dir_all(parent);
@@ -1297,6 +1301,7 @@ fn run(options: &BuildOptions<'_>, out: &Out<'_>) -> Result<()> {
     let sizes = gzipped_sizes(
         &output_dir,
         (options.studio && !stats).then_some(&config.build.budget),
+        &compressed,
     )?;
     let previous = read_sizes(vfs, project_dir);
     warning_count += report_budget(out, &config.build.budget, &sizes);
@@ -1592,8 +1597,14 @@ fn write_beside(config: &ProjectConfig, dir: &Path, page_html: &str) -> Result<(
 fn gzipped_sizes(
     output_dir: &Path,
     only: Option<&BTreeMap<String, String>>,
+    compressed: &std::collections::BTreeSet<String>,
 ) -> Result<BTreeMap<String, usize>> {
-    let mut sizes = BTreeMap::new();
+    // The files to weigh, read here (an editor's preview builds into
+    // memory, which only this thread sees); a `.gz` this build has just
+    // written (`compressed`, by path) is the weight already, and the rest
+    // are compressed on every core.
+    let mut known: BTreeMap<String, usize> = BTreeMap::new();
+    let mut to_weigh: Vec<(String, Vec<u8>)> = Vec::new();
     let mut walk = vec![output_dir.to_path_buf()];
     while let Some(dir) = walk.pop() {
         for entry in fs::read_dir(&dir)? {
@@ -1617,11 +1628,22 @@ fn gzipped_sizes(
             if only.is_some_and(|names| !names.contains_key(&name)) {
                 continue;
             }
-            let bytes = fs::read(&path)?;
-            sizes.insert(name, crate::web::codegen::gzip::gzip(&bytes).len());
+            if compressed.contains(&format!("{name}.gz")) {
+                let gz = PathBuf::from(format!("{}.gz", path.display()));
+                let len = usize::try_from(fs::len(&gz)?).unwrap_or(usize::MAX);
+                known.insert(name, len);
+                continue;
+            }
+            to_weigh.push((name, fs::read(&path)?));
         }
     }
-    Ok(sizes)
+    let weighed = in_parallel(&to_weigh, &|(_, bytes): &(String, Vec<u8>)| {
+        crate::web::codegen::gzip::gzip(bytes).len()
+    });
+    for ((name, _), size) in to_weigh.into_iter().zip(weighed) {
+        known.insert(name, size);
+    }
+    Ok(known)
 }
 
 /// The sizes the last build recorded, for the diff `--stats` prints.
