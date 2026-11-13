@@ -28,7 +28,7 @@ Files in `public/` are copied to the **root** of the build output (not nested un
 ```bash
 wf init <name> -t spa|static|pdf|slides [--locales en,ar]   # Create a project (with this AGENTS.md in it); --locales: translated, the default first
 wf build [-d DIR] [--stats] [--cache] [--studio] [--format F] [--deny-warnings] [--allow-output-outside]  # Compile (--stats: what it weighs; --cache: only the pages an edit changed; --studio: node ids for an editor's preview, nodes.json)
-wf check [-d DIR] [--format F] [--deny-warnings]  # Every finding, nothing written
+wf check [-d DIR] [--format F] [--deny-warnings] [--allow-output-outside]  # Every finding, nothing written
 wf fix [-d DIR] [--code C] [--dry-run]            # Apply every finding's fix (or one code's)
 wf config schema [--json] | get PATH | set PATH VALUE | unset PATH   # Every setting; edit webfluent.app.json keeping its shape
 wf commands [--json]                      # Every command, its options, what it writes and its preview flag, as data

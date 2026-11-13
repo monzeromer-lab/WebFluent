@@ -77,6 +77,11 @@ enum Commands {
         /// Fail on a warning too
         #[arg(long)]
         deny_warnings: bool,
+        /// Accept a `build.output` outside the project, as `wf build
+        /// --allow-output-outside` does; without it the check reports what
+        /// the build would refuse
+        #[arg(long)]
+        allow_output_outside: bool,
     },
     /// Read and change `webfluent.app.json`: every setting, what the
     /// project sets, and an edit that keeps the file's shape
@@ -446,6 +451,7 @@ pub fn main() {
             dir,
             format,
             deny_warnings,
+            allow_output_outside,
         } => super::build::run_check(
             &dir,
             super::build::Options {
@@ -455,7 +461,7 @@ pub fn main() {
                 dev: false,
                 cache: false,
                 studio: false,
-                allow_output_outside: false,
+                allow_output_outside,
             },
         ),
         Commands::Config { action } => match action {

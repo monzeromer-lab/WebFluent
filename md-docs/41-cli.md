@@ -30,7 +30,7 @@ wf serve
 | `wf build [-d, --dir DIR] [--stats] [--format FORMAT] [--deny-warnings] [--cache] [--studio] [--allow-output-outside]` | Compiles the project; fails on errors, prints warnings |
 | `wf serve [-d, --dir DIR] [--host ADDRESS] [--allow-output-outside]` | Builds, serves on `dev.port` to this machine, and rebuilds and reloads on every save |
 | `wf generate page\|component\|store NAME [-d, --dir DIR]` | Writes a starter file |
-| `wf check [-d, --dir DIR] [--format FORMAT] [--deny-warnings]` | Reports every finding a build would report, and writes nothing |
+| `wf check [-d, --dir DIR] [--format FORMAT] [--deny-warnings] [--allow-output-outside]` | Reports every finding a build would report, and writes nothing |
 | `wf fix [-d, --dir DIR] [--code CODE] [--dry-run]` | Applies every finding's fix, or the fixes for one code |
 | `wf config schema [--json]`, `wf config get\|set\|unset PATH [VALUE] [-d, --dir DIR]` | Lists every setting, and edits `webfluent.app.json` without changing its shape |
 | `wf explain [CODE]` | Prints what a diagnostic code means, a program that draws it, and the fix |
@@ -298,6 +298,7 @@ lints and the config — and writes nothing.
 | `-d`, `--dir` | a directory | `.` | The project to check. |
 | `--format` | `human`, `json`, `sarif`, `github` | `human` | How findings are written, as for [`wf build`](#wf-build). |
 | `--deny-warnings` | — | off | Fails on a warning too. |
+| `--allow-output-outside` | — | off | Accepts a `build.output` outside the project, as [`wf build`](#wf-build) does; without it the check reports what the build would refuse. |
 
 ```bash
 wf check

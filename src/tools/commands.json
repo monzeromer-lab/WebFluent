@@ -215,6 +215,20 @@
           "takes": "nothing",
           "value_name": "DENY_WARNINGS",
           "values": []
+        },
+        {
+          "default": null,
+          "flag": true,
+          "help": "Accept a `build.output` outside the project, as `wf build --allow-output-outside` does; without it the check reports what the build would refuse",
+          "long": "allow-output-outside",
+          "name": "allow_output_outside",
+          "positional": false,
+          "repeats": false,
+          "required": false,
+          "short": null,
+          "takes": "nothing",
+          "value_name": "ALLOW_OUTPUT_OUTSIDE",
+          "values": []
         }
       ],
       "preview": null,

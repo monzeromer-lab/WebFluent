@@ -47,7 +47,7 @@ fn what_the_binary_says_of_itself_is_what_the_library_holds() {
     assert_eq!(
         said,
         webfluent::commands::all(),
-        "src/tools/commands.json is stale: run `cargo test --bin wf`"
+        "src/tools/commands.json is stale: run `cargo test --lib commands_json`"
     );
 }
 

@@ -37,7 +37,7 @@ page CliGuide(path: "/docs/guide/cli", title: "Command line and editors", descri
                     Table.Cell("Writes a starter file")
                 }
                 Table.Row {
-                    Table.Cell { Markdown("`wf check [-d, --dir DIR] [--format FORMAT] [--deny-warnings]`") }
+                    Table.Cell { Markdown("`wf check [-d, --dir DIR] [--format FORMAT] [--deny-warnings] [--allow-output-outside]`") }
                     Table.Cell("Reports every finding a build would report, and writes nothing")
                 }
                 Table.Row {
@@ -388,6 +388,12 @@ page CliGuide(path: "/docs/guide/cli", title: "Command line and editors", descri
                     Table.Cell("—")
                     Table.Cell("off")
                     Table.Cell("Fails on a warning too.")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`--allow-output-outside`") }
+                    Table.Cell("—")
+                    Table.Cell("off")
+                    Table.Cell { Markdown("Accepts a `build.output` outside the project, as [`wf build`](#wf-build) does; without it the check reports what the build would refuse.") }
                 }
             }
         }
