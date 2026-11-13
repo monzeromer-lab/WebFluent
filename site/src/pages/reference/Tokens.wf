@@ -1,5 +1,5 @@
-/// Every token of the baseline theme, by group: written by scripts/docsite/reference.py from `wf theme --json`;
-/// edit the compiler or the script, not this file.
+// Every token of the baseline theme, by group: written by scripts/docsite/reference.py from `wf theme --json`;
+// edit the compiler or the script, not this file.
 
 page TokensPage(path: "/reference/tokens", title: "Design tokens — Reference", description: "Every baseline design token with its default value, how a theme overrides one, and how a style block or a stylesheet reads it, by full or short name.") {
     ReferenceItemShell(t("tokens.title"), summary: t("tokens.lede", { count: 71 }), signature: "theme Brand \{ color-primary: #3B82F6 \}", group: t("tokens.title"), entries: REFERENCE_PAGES, sections: [Anchor(id: "tokens-color", label: "color"), Anchor(id: "tokens-spacing", label: "spacing"), Anchor(id: "tokens-font-size", label: "font-size"), Anchor(id: "tokens-line-height", label: "line-height"), Anchor(id: "tokens-radius", label: "radius"), Anchor(id: "tokens-shadow", label: "shadow"), Anchor(id: "tokens-transition", label: "transition"), Anchor(id: "tokens-font", label: "font"), Anchor(id: "tokens-motion", label: "motion"), Anchor(id: "tokens-other", label: "other"), Anchor(id: "reading-a-token", label: "Reading a token"), Anchor(id: "the-baseline", label: "The baseline"), Anchor(id: "short-names", label: "Short names")], source: "md-docs/reference/design-tokens.md") {

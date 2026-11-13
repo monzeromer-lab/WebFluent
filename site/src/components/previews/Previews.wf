@@ -1,7 +1,7 @@
-/// The Blueprint templates, each with placeholder content, in English and
-/// (under `/ar/`) in Arabic, so every template is built, verified and
-/// looked at before real pages use it. `noindex`: none of these is part of
-/// the site a reader finds.
+// The Blueprint templates, each with placeholder content, in English and
+// (under `/ar/`) in Arabic, so every template is built, verified and
+// looked at before real pages use it. `noindex`: none of these is part of
+// the site a reader finds.
 
 /// T1.
 component PreviewHome(ar: Bool = false) {

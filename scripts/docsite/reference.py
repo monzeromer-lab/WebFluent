@@ -345,8 +345,8 @@ def wf_map(v) -> str:
     return q(str(v))
 
 
-HEAD = """/// {what}: written by scripts/docsite/reference.py from `{source}`;
-/// edit the compiler or the script, not this file.
+HEAD = """// {what}: written by scripts/docsite/reference.py from `{source}`;
+// edit the compiler or the script, not this file.
 """
 
 

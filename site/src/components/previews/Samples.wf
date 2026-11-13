@@ -1,7 +1,7 @@
-/// Placeholder content for the Blueprint previews under `/blueprint`: the
-/// data each template is shown with until the generators feed it real
-/// pages. Nothing here is linked from the site, and every preview is
-/// `noindex`.
+// Placeholder content for the Blueprint previews under `/blueprint`: the
+// data each template is shown with until the generators feed it real
+// pages. Nothing here is linked from the site, and every preview is
+// `noindex`.
 
 const SAMPLE_CODE = #"page Home(path: "/", title: "Hello") {
     state count = 0

@@ -1,5 +1,5 @@
-/// What the Blueprint components share: the shapes of the data they draw,
-/// and the site's map as the header, the footer and the book read it.
+// What the Blueprint components share: the shapes of the data they draw,
+// and the site's map as the header, the footer and the book read it.
 
 /// A place on the site: a translation key for its name, and its route.
 type Place {

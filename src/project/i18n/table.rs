@@ -130,13 +130,17 @@ fn walk_expr(e: &Expr, at: Span, file: &str, out: &mut Vec<Use>) {
     }
 }
 
-/// Every `t()` call the program writes: in bodies, in a page's title,
-/// description, guard, paths, head and layout, and in a prop's default.
-pub fn uses(program: &Program, file_of: &dyn Fn(usize) -> String) -> Vec<Use> {
-    let mut out = Vec::new();
+/// Every expression a program writes where a `t()` may be: in bodies, in a
+/// page's title, description, guard, paths, head and layout, in a prop's
+/// default, and in a `const` — each with the file it is in.
+fn for_each_expr(
+    program: &Program,
+    file_of: &dyn Fn(usize) -> String,
+    f: &mut dyn FnMut(&Expr, Span, &str),
+) {
     for (i, d) in program.declarations.iter().enumerate() {
         let file = file_of(i);
-        let mut header = |e: &Expr, at: Span| walk_expr(e, at, &file, &mut out);
+        let mut header = |e: &Expr, at: Span| f(e, at, &file);
         match d {
             Declaration::Page(p) => {
                 for e in [&p.title_expr, &p.description_expr, &p.guard, &p.paths]
@@ -169,6 +173,7 @@ pub fn uses(program: &Program, file_of: &dyn Fn(usize) -> String) -> Vec<Use> {
                     }
                 }
             }
+            Declaration::Const(c) => header(&c.value, c.span),
             _ => {}
         }
         let body: &[crate::syntax::parser::ast::Statement] = match d {
@@ -178,9 +183,52 @@ pub fn uses(program: &Program, file_of: &dyn Fn(usize) -> String) -> Vec<Use> {
             Declaration::Store(s) => &s.body,
             _ => &[],
         };
-        crate::syntax::parser::walk::visit(body, &mut |e, at| walk_expr(e, at, &file, &mut out));
+        crate::syntax::parser::walk::visit(body, &mut |e, at| f(e, at, &file));
     }
+}
+
+/// Every `t()` call the program writes: in bodies, in a page's title,
+/// description, guard, paths, head and layout, in a prop's default, and in
+/// a `const`.
+pub fn uses(program: &Program, file_of: &dyn Fn(usize) -> String) -> Vec<Use> {
+    let mut out = Vec::new();
+    for_each_expr(program, file_of, &mut |e, at, file| {
+        walk_expr(e, at, file, &mut out)
+    });
     out
+}
+
+/// The keys a program may hand to `t()` through a value: when some call's
+/// key is neither a literal nor a splice — `t(place.key)` — every string
+/// literal the program writes may be one (`Place(key: "nav.learn")` in a
+/// `const`). Empty when every call names its key.
+fn passed_as_values(program: &Program) -> std::collections::HashSet<String> {
+    fn walk(e: &Expr, opaque: &mut bool, literals: &mut std::collections::HashSet<String>) {
+        match e {
+            Expr::FunctionCall(name, args) if name == "t" => {
+                if args.first().is_some_and(|a| key_of(a).is_none()) {
+                    *opaque = true;
+                }
+            }
+            Expr::StringLiteral(s) => {
+                literals.insert(s.clone());
+            }
+            _ => {}
+        }
+        for child in e.children() {
+            walk(child, opaque, literals);
+        }
+    }
+    let mut opaque = false;
+    let mut literals = std::collections::HashSet::new();
+    for_each_expr(program, &|_| String::new(), &mut |e, _, _| {
+        walk(e, &mut opaque, &mut literals)
+    });
+    if opaque {
+        literals
+    } else {
+        std::collections::HashSet::new()
+    }
 }
 
 /// The keys the runtime asks for on its own: a `validate` rule written
@@ -268,7 +316,9 @@ pub struct Key {
     pub uses: Vec<Use>,
     /// What else asks for it, where nothing names it: the form rules.
     pub implied_by: Option<&'static str>,
-    /// Whether a key built at run time may be it (`t("status.{s}")`).
+    /// Whether a key built at run time may be it (`t("status.{s}")`), or one
+    /// handed to `t()` as a value may (`t(place.key)` with `"nav.learn"` written
+    /// elsewhere).
     pub maybe_used: bool,
     /// Nothing names it, nothing asks for it.
     pub unused: bool,
@@ -340,6 +390,7 @@ pub fn build(
         all_uses.extend(literal);
     }
     let implied = implied(program);
+    let passed = passed_as_values(program);
 
     // The keys: every base any locale has, a plural one once.
     let mut bases: BTreeMap<String, bool> = BTreeMap::new();
@@ -485,9 +536,10 @@ pub fn build(
             .filter(|u| !u.dynamic && u.key == *key)
             .cloned()
             .collect();
-        let maybe_used = all_uses
-            .iter()
-            .any(|u| u.dynamic && !u.key.is_empty() && key.starts_with(&u.key));
+        let maybe_used = passed.contains(key)
+            || all_uses
+                .iter()
+                .any(|u| u.dynamic && !u.key.is_empty() && key.starts_with(&u.key));
         let implied_by = implied.get(key).copied();
         keys.push(Key {
             unused: key_uses.is_empty() && !maybe_used && implied_by.is_none(),

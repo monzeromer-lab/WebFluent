@@ -1,7 +1,7 @@
-/// The changelog's parts: the shape of a release as
-/// scripts/docsite/changelog.py reads it from RELEASE_NOTES.md, and the
-/// components the generated page, `pages/Changelog.wf`, places one call per
-/// release.
+// The changelog's parts: the shape of a release as
+// scripts/docsite/changelog.py reads it from RELEASE_NOTES.md, and the
+// components the generated page, `pages/Changelog.wf`, places one call per
+// release.
 
 /// One change in a release: what it says, the points under it, and what
 /// follows them.

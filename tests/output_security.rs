@@ -537,7 +537,7 @@ fn a_frame_drawing_html_from_a_value_is_sandboxed_unless_it_says_otherwise() {
     assert!(said.contains("V03"), "{said}");
     let (_, check) = wf(&dir, &["check"]);
     assert_eq!(
-        check.matches("V03").count(),
+        check.matches("warning[V03]").count(),
         2,
         "the two frames with no sandbox of their own:\n{check}"
     );

@@ -1,5 +1,5 @@
-/// The command line's reference: every command, then a page per command: written by scripts/docsite/reference.py from `wf commands --json`;
-/// edit the compiler or the script, not this file.
+// The command line's reference: every command, then a page per command: written by scripts/docsite/reference.py from `wf commands --json`;
+// edit the compiler or the script, not this file.
 
 /// Every command: the sidebar of each command's page.
 const CLI_INDEX: [IndexEntry] = [

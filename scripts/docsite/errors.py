@@ -181,10 +181,10 @@ def q(text: str) -> str:
 def page_file(entries: list) -> str:
     """Every code's page, its words written in."""
     out = [
-        "/// A page for every code the compiler reports, at `/errors/CODE`: written",
-        "/// by scripts/docsite/errors.py from `wf explain --json` and each code's",
-        "/// page, `md-docs/errors/CODE.md`; edit those, not this file. The index,",
-        "/// `/errors`, is the guide's diagnostics chapter.",
+        "// A page for every code the compiler reports, at `/errors/CODE`: written",
+        "// by scripts/docsite/errors.py from `wf explain --json` and each code's",
+        "// page, `md-docs/errors/CODE.md`; edit those, not this file. The index,",
+        "// `/errors`, is the guide's diagnostics chapter.",
         "",
         "/// The error pages' sidebar: every code, by family.",
         "const ERROR_INDEX: [IndexEntry] = [",

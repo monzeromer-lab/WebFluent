@@ -1,5 +1,5 @@
-/// The reference's index and a page per built-in: written by scripts/docsite/reference.py from `wf registry --json`;
-/// edit the compiler or the script, not this file.
+// The reference's index and a page per built-in: written by scripts/docsite/reference.py from `wf registry --json`;
+// edit the compiler or the script, not this file.
 
 /// The reference's pages that are not one built-in, in the order the index
 /// and the sidebars list them.

@@ -405,6 +405,8 @@
   "nav.recipes.body": "Complete, runnable answers to “how do I…”.",
   "nav.reference.body": "Every built-in, command and setting, generated from the compiler.",
   "nav.errors.body": "Every diagnostic has a page: the code that draws it, the message and the fix.",
+  "showcase.all": "All",
+  "showcase.firstpage": "The first page of {title}",
   "ch.01": "Introduction",
   "ch.02": "Getting started",
   "ch.03": "Tutorial: Shelf",
@@ -458,7 +460,5 @@
   "ch.51": "Upgrading",
   "ch.52": "Contributing",
   "ch.53": "Library",
-  "ch.54": "Editors",
-  "showcase.all": "All",
-  "showcase.firstpage": "The first page of {title}"
+  "ch.54": "Editors"
 }
