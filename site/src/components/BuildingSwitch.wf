@@ -24,7 +24,8 @@ component BuildingSwitch {
     use Building
 
     Row(align: .center, gap: .sm, class: "bp-select") {
-        style { flex-wrap: nowrap; gap: 8px; flex-shrink: 0 }
+        style { flex-wrap: nowrap; gap: 8px; flex-shrink: 0; position: relative }
+        Text(t("building.label"), aria-hidden: "true", class: "bp-building-label") { style { margin: 0; font-size: 12px; color: $muted; white-space: nowrap } }
         Select(bind: Building.output, aria-label: t("building.label")) {
             on change { Building.pick(Building.output) }
             Select.Option(t("building.website"), value: "website")
@@ -34,5 +35,6 @@ component BuildingSwitch {
             Select.Option(t("building.elements"), value: "elements")
             Select.Option(t("building.desktop"), value: "desktop")
         }
+        Icon("chevron-down", aria-hidden: "true") { style { position: absolute; inset-inline-end: 8px; top: 50%; transform: translateY(-50%); pointer-events: none; font-size: 14px; color: $muted } }
     }
 }

@@ -265,3 +265,90 @@ a.bp-card:hover { border-color: var(--border-strong); text-decoration: none; }
    what is left. */
 .bp-field { flex-wrap: nowrap; }
 .bp-field > :not(.wf-icon):not(.bp-kbd) { flex: 1 1 auto; min-width: 0; }
+
+/* Tables. Headers are sentence case, as every label is: the engine's
+   default capitalises them. A wide table scrolls inside its own box
+   instead of widening the page, at every width — a command's options or
+   a token's value can outgrow any column — and code in a cell may break. */
+.wf-table th { text-transform: none; letter-spacing: 0; font-size: 12.5px; font-weight: 600; }
+.bp-main .wf-table, .docs-article .wf-table, .props-table.wf-table { display: block; overflow-x: auto; max-width: 100%; -webkit-overflow-scrolling: touch; }
+.bp-main .wf-table thead, .docs-article .wf-table thead { display: table-header-group; }
+.bp-main .wf-table tbody, .docs-article .wf-table tbody { display: table-row-group; }
+.bp-main .wf-table code, .bp-main .wf-table .wf-markdown code { white-space: normal; overflow-wrap: anywhere; }
+@media (min-width: 1024px) {
+  .bp-main .wf-table { display: table; width: 100%; table-layout: auto; }
+}
+
+/* The header's square controls never give up their width to the search. */
+.bp-header .bp-icon-button, .bp-header .bp-search { flex-shrink: 0; }
+.bp-header .bp-button .wf-icon { display: inline-flex; font-size: 15px; }
+.bp-header .bp-button { gap: 6px; }
+/* The places stay on one line; the Building switch's word gives way first. */
+.bp-header .bp-tabs { flex-wrap: nowrap; flex-shrink: 0; }
+@media (max-width: 1279.98px) { .bp-header .bp-building-label { display: none; } }
+
+/* The side columns scroll on their own; their scrollbar is a hairline that
+   shows on hover, not the platform's grey bar beside the content. */
+.bp-sidebar, .bp-rail { scrollbar-width: thin; scrollbar-color: transparent transparent; }
+.bp-sidebar:hover, .bp-rail:hover, .bp-sidebar:focus-within, .bp-rail:focus-within { scrollbar-color: var(--line) transparent; }
+.bp-sidebar::-webkit-scrollbar, .bp-rail::-webkit-scrollbar { width: 6px; }
+.bp-sidebar::-webkit-scrollbar-thumb, .bp-rail::-webkit-scrollbar-thumb { background: transparent; border-radius: 3px; }
+.bp-sidebar:hover::-webkit-scrollbar-thumb, .bp-rail:hover::-webkit-scrollbar-thumb { background: var(--line); }
+
+/* A reference stage's controls: a prop's name, then its cases as one
+   segmented strip with the default sheet-raised; a flag as a small toggle. */
+.bp-stage-control { flex-wrap: nowrap; gap: 8px; font-size: 12.5px; color: var(--muted); }
+.bp-stage-control p { margin: 0; }
+.bp-stage-control__name { font-weight: 500; color: var(--muted); }
+.bp-segmented { flex-wrap: wrap; gap: 0; border: 1px solid var(--line); border-radius: var(--radius-sm); overflow: hidden; background: var(--ground); }
+.bp-segmented__item { margin: 0; padding: 3px 9px; font-family: var(--font-family-mono); font-size: 12px; line-height: 20px; color: var(--muted); border-inline-end: 1px solid var(--line); }
+.bp-segmented__item:last-child { border-inline-end: 0; }
+.bp-segmented__item[data-on="true"] { background: var(--sheet); color: var(--ink); box-shadow: inset 0 -2px 0 var(--construction); }
+.bp-toggle { padding: 3px 9px; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--ground); }
+.bp-toggle .wf-icon { display: inline-flex; font-size: 12px; }
+
+/* The home page. */
+.bp-home-section { gap: 16px; padding-top: 24px; padding-bottom: 64px; }
+.bp-home-section > .bp-lede { margin-bottom: 8px; }
+.bp-home-kicker { margin: 0; font-family: var(--font-family-mono); font-size: 12.5px; color: var(--construction); }
+.bp-install { max-width: 100%; min-height: 44px; padding: 0 14px; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--raised); overflow-x: auto; }
+.bp-install code { margin: 0; padding: 0; border: 0; background: transparent; font-size: 13px; white-space: nowrap; color: var(--ink); }
+.bp-text-link { font-size: 14px; font-weight: 500; color: var(--link); }
+.bp-home-example .wf-code-block, .bp-home-example__code > * { border: 0; border-radius: 0; height: 100%; }
+.bp-home-example__preview { gap: 14px; padding: 24px; border-inline-start: 1px solid var(--line); justify-content: center; }
+.bp-home-example__preview h2 { margin: 0; font-size: 26px; line-height: 1.15; font-weight: 650; }
+.bp-home-example__preview p { margin: 0; }
+@media (max-width: 767.98px) { .bp-home-example__preview { border-inline-start: 0; border-top: 1px solid var(--line); } }
+.bp-home-example__status { gap: 8px; padding: 10px 14px; border-top: 1px solid var(--line); background: var(--console); font-family: var(--font-family-mono); font-size: 12px; color: var(--muted); }
+.bp-home-example__status p { margin: 0; }
+.bp-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--ok); flex-shrink: 0; }
+.bp-out-tile { align-items: stretch; gap: 6px; padding: 12px; text-align: start; cursor: pointer; font: inherit; color: var(--ink); }
+.bp-out-tile:hover { border-color: var(--border-strong); }
+.bp-out-tile[aria-pressed="true"] { border-color: var(--construction); box-shadow: inset 0 2px 0 var(--construction); }
+.bp-out-tile p { margin: 0; }
+.bp-out-tile__thumb { height: 120px; margin-bottom: 8px; align-items: center; justify-content: center; overflow: hidden; border-radius: var(--radius-sm); background: var(--raised); }
+.bp-out-tile__thumb img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+.bp-out-tile__thumb code { font-size: 12px; color: var(--link); background: transparent; border: 0; }
+.bp-out-tile__title { font-weight: 600; font-size: 15px; }
+.bp-out-tile__cmd { font-size: 12px; color: var(--link); }
+.bp-mock { width: 70%; gap: 6px; padding: 10px; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--sheet); }
+.bp-mock__bar { height: 8px; width: 40%; border-radius: 2px; background: var(--line); }
+.bp-mock__line { height: 6px; border-radius: 2px; background: var(--line); opacity: .7; }
+.bp-mock__line--short { width: 60%; }
+.bp-out-tile__thumb[data-kind="app"] .bp-mock__bar { background: var(--action); }
+.bp-out-tile__thumb[data-kind="desktop"] .bp-mock { width: 34%; aspect-ratio: 9 / 16; }
+.bp-way { gap: 8px; }
+.bp-way__link { font-size: 14px; color: var(--link); }
+.bp-install { gap: 8px; overflow: hidden; padding-inline-end: 4px; }
+.bp-install code { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.bp-install .bp-icon-button.wf-icon-btn { width: 34px; height: 34px; border: 0; background: transparent; }
+.bp-home-example .wf-code-block pre, .bp-home-example__code pre { scrollbar-width: thin; }
+.bp-install { flex-wrap: nowrap; }
+@media (max-width: 767.98px) { .bp-out-tile__thumb { height: 84px; } .bp-out-tile { padding: 10px; } }
+
+/* The showcase's tiles. */
+.bp-show-tile { gap: 0; overflow: hidden; }
+.bp-show-tile__picture { align-items: center; justify-content: center; aspect-ratio: 4 / 3; padding: 16px; border-bottom: 1px solid var(--line); }
+.bp-show-tile__picture img, .bp-show-tile__picture picture { max-width: 100%; max-height: 100%; object-fit: contain; border: 1px solid var(--line); background: #fff; }
+.bp-show-tile__body { flex: 1 1 auto; gap: 10px; padding: 14px 16px 16px; }
+.bp-show-tile__title { margin: 0; font-size: 15px; font-weight: 600; line-height: 1.35; }

@@ -5,13 +5,7 @@
 
 /// T1.
 component PreviewHome(ar: Bool = false) {
-    HomeShell(if ar { "لغة واحدة. كل صفحة تصنعها مفحوصة." } else { "One language. Every page it makes is checked." }, lede: if ar { "يحوّل WebFluent ملفًا واحدًا إلى موقع أو تطبيق أو PDF أو عرض شرائح." } else { "WebFluent compiles one typed file to a static site, an app, a PDF or a slide deck — and every example on this site is compiled by the release it documents." }, other: if ar { "/blueprint/home" } else { "/ar/blueprint/home" }, lang: if ar { "ar" } else { "en" }) {
-        hero { Example(SAMPLE_CODE, preview: "/blueprint/sample", html: SAMPLE_HTML, js: SAMPLE_JS) }
-        Grid(columns: { base: 1, lg: 2 }, gap: .md) {
-            Example(SAMPLE_CODE, file: "Site.wf", caption: if ar { "موقع" } else { "A website" }, playground: false)
-            Example("page Invoice(path: \"/\") \{\n    Document(size: \"A4\") \{\n        Heading(\"Invoice\").h1\n    \}\n\}", file: "Invoice.wf", caption: if ar { "مستند PDF" } else { "A PDF" }, playground: false)
-        }
-    }
+    HomeShell(other: if ar { "/blueprint/home" } else { "/ar/blueprint/home" }, lang: if ar { "ar" } else { "en" })
 }
 
 /// T2.
@@ -110,8 +104,8 @@ component PreviewPlayground(ar: Bool = false) {
 /// T8.
 component PreviewShowcase(ar: Bool = false) {
     ShowcaseShell(if ar { "ما صُنع بـ WebFluent" } else { "Made with WebFluent" }, lede: if ar { "مواقع ومستندات وعروض حقيقية." } else { "Real outputs: sites, PDFs and decks, each with its source and the recipe that makes it." }, other: if ar { "/blueprint/showcase" } else { "/ar/blueprint/showcase" }, lang: if ar { "ar" } else { "en" }) {
-        ShowcaseTile("The WebFluent site", output: "website", size: "41 kB", pages: 64, source: REPO, recipe: "/recipes/static-site")
-        ShowcaseTile("An invoice", output: "pdf", size: "28 kB", pages: 2, source: REPO, recipe: "/recipes/pdf-invoice")
+        ShowcaseTile("The WebFluent site", output: "website", size: "41 kB", pages: 64, source: REPO)
+        ShowcaseTile("An invoice", output: "pdf", size: "28 kB", pages: 2, source: REPO)
         ShowcaseTile("A quarterly review", output: "slides", size: "96 kB", pages: 12, source: REPO)
     }
 }

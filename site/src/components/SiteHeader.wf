@@ -5,8 +5,14 @@
 /// button; from `lg` up everything sits in the bar.
 ///
 /// `other` is the address of this page in the other language, when it has
-/// one; `lang` is the language the page is written in.
-component SiteHeader(docs: Bool = false, other: String = "", lang: String = "en") {
+/// one; `lang` is the language the page is written in; `section` is the
+/// place a page belongs to when its address does not say so (the guide's
+/// chapters live under `/docs/`, but belong to Learn, Recipes or Reference).
+///
+/// On a phone the bar holds the mark, search, Night/Day and the menu, each
+/// a 40px square; the places, the Building switch and the language are in
+/// the menu.
+component SiteHeader(docs: Bool = false, other: String = "", lang: String = "en", section: String = "") {
     use Search
     state menu = false
 
@@ -29,24 +35,24 @@ component SiteHeader(docs: Bool = false, other: String = "", lang: String = "en"
             style { flex-wrap: nowrap; height: 100%; gap: 12px; @lg { gap: 20px } }
 
             Link(to: "/", aria-label: t("header.home")) {
-                style { display: flex; flex-shrink: 0; align-items: center; gap: 10px; color: $ink; text-decoration: none; &:hover { text-decoration: none } & p { margin: 0 } }
+                style { display: flex; flex-shrink: 0; align-items: center; gap: 10px; min-height: 40px; color: $ink; text-decoration: none; &:hover { text-decoration: none } & p { margin: 0 } }
                 Image(src: "/favicon.svg", alt: "") { style { width: 28px; height: 28px; display: block } }
-                Text("WebFluent", class: "bp-hide-sm") { style { font-size: 16px; font-weight: 650; letter-spacing: -0.01em } }
+                Text("WebFluent") { style { font-size: 16px; font-weight: 650; letter-spacing: -0.01em } }
                 Text(VERSION, class: "bp-label bp-num")
             }
 
             Row(role: "navigation", aria-label: t("header.places"), class: "bp-tabs") {
                 style { display: none; align-self: flex-end; @lg { display: flex } }
                 for place in SECTIONS by place.to {
-                    Link(t(place.key), to: place.to, active: .prefix, class: "bp-tab")
+                    Link(t(place.key), to: place.to, active: .prefix, class: if place.to == section { "bp-tab active" } else { "bp-tab" }, aria-current: if place.to == section { "page" } else { null })
                 }
             }
 
             Row(align: .center, gap: .sm) {
                 style { flex: 1 1 auto; justify-content: flex-end; flex-wrap: nowrap; gap: 8px; min-width: 0 }
 
-                Button(aria-label: t("search.open"), aria-keyshortcuts: "Meta+K Control+K", aria-haspopup: "dialog", class: "bp-field") {
-                    style { flex: 0 1 300px; min-width: 40px; justify-content: center; @md { justify-content: flex-start } }
+                Button(aria-label: t("search.open"), aria-keyshortcuts: "Meta+K Control+K", aria-haspopup: "dialog", class: "bp-field bp-search") {
+                    style { flex: 0 0 40px; width: 40px; padding: 0; justify-content: center; @md { flex: 0 1 260px; width: auto; padding: 0 12px; justify-content: flex-start } }
                     on click { Search.reveal() }
                     Icon("search")
                     Text(t("search.trigger"), class: "bp-hide-sm") { style { flex: 1 1 auto; white-space: nowrap; overflow: hidden; text-overflow: ellipsis } }
@@ -55,9 +61,12 @@ component SiteHeader(docs: Bool = false, other: String = "", lang: String = "en"
 
                 BuildingSwitch(class: "bp-hide-sm")
                 ThemeToggle
-                LangSwitch(other: other, lang: lang)
+                LangSwitch(other: other, lang: lang, class: "bp-hide-sm")
 
-                Link("GitHub", href: REPO, class: "bp-button bp-hide-sm", data-tone: "quiet")
+                Link(href: REPO, class: "bp-button bp-hide-sm", data-tone: "quiet", aria-label: "GitHub") {
+                    Icon("git-branch")
+                    Text("GitHub")
+                }
 
                 IconButton(icon: if menu { "close" } else { "menu" }, label: t("nav.menu"), class: "bp-icon-button", aria-expanded: menu) {
                     style { @lg { display: none } }
@@ -88,7 +97,11 @@ component SiteHeader(docs: Bool = false, other: String = "", lang: String = "en"
                 }
             }
             Divider { style { margin: 8px 0; border-color: $line } }
-            BuildingSwitch(class: "bp-only-sm")
+            Row(align: .center, gap: .sm, class: "bp-only-sm") {
+                style { flex-wrap: wrap; gap: 8px }
+                BuildingSwitch
+                LangSwitch(other: other, lang: lang)
+            }
             Link(t("nav.source"), href: REPO, class: "bp-navlink") { style { min-height: 44px } }
         }
     }

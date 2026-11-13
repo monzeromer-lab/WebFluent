@@ -1,9 +1,10 @@
-/// Night or Day. Night is the site's default; the reader's choice is kept,
-/// and the button names the theme it switches to.
+/// Night or Day. Night is the site's default; the reader's choice is kept.
+/// The icon is the theme the page is in (a moon at Night); the button's
+/// name is the theme it switches to.
 component ThemeToggle {
     derived day = theme == "light"
 
-    IconButton(icon: if day { "moon" } else { "sun" }, label: if day { t("theme.dark") } else { t("theme.light") }, class: "bp-icon-button", data-track: "select_content", data-track-content-type: "theme", data-track-item-id: if day { "dark" } else { "light" }) {
+    IconButton(icon: if day { "sun" } else { "moon" }, label: if day { t("theme.dark") } else { t("theme.light") }, class: "bp-icon-button", data-track: "select_content", data-track-content-type: "theme", data-track-item-id: if day { "dark" } else { "light" }) {
         on click { setTheme(if day { "dark" } else { "light" }) }
     }
 }

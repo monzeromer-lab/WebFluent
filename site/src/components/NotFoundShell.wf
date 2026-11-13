@@ -12,9 +12,8 @@ component NotFoundShell(routes: [Place] = [], other: String = "", lang: String =
 
     SiteHeader(other: other, lang: lang)
 
-    // One per page: the skip link's target. wf-allow(A16)
-
-    Stack(gap: .lg, role: "main", id: "bp-main", tabindex: "-1", class: "bp-main bp-wrap") {
+    // One per page: the skip link's target.
+    Stack(gap: .lg, role: "main", id: "bp-main", tabindex: "-1", class: "bp-main bp-wrap") { // wf-allow(A16)
         style { gap: 28px; max-width: 760px; padding-top: 48px; padding-bottom: 80px; @md { padding-top: 80px } }
 
         Stack(gap: .sm) {

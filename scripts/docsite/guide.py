@@ -45,6 +45,10 @@ REPO = "https://github.com/monzeromer-lab/WebFluent"
 # outline to fall behind it.
 META = {}  # number → {route, group, blurb, description, slug, title, path}
 KINDS = ("tutorial", "recipe", "about", "reference", "error", "coming-from")
+# A page's kind as the site's `PageKind` names it: the label above the
+# title, and the place in the header it belongs to.
+PAGE_KIND = {"tutorial": "tutorial", "recipe": "howto", "about": "explanation",
+             "reference": "reference", "error": "error", "coming-from": "comingfrom"}
 GROUP_ORDER = []
 # The chapter drawn from the registry, not from its Markdown.
 REFERENCE_ROUTE = "/reference"
@@ -416,7 +420,7 @@ def convert(num: str, md: str):
     header = [
         f'/// Chapter {n} of the guide, written from md-docs/{META[num]["path"]} by',
         "/// scripts/docsite/guide.py; edit the guide, not this file.",
-        f'page {name}(path: "{href(route)}", title: "{wf_string(title)}", description: "{wf_string(description)}", layout: DocsShell("{wf_string(title)}", chapter: t("nav.group.{META[num]["group"]}"), blurb: "{wf_string(blurb)}", source: "md-docs/{META[num]["path"]}", sections: [{anchors}]' + "PREVNEXT" + ")) {",
+        f'page {name}(path: "{href(route)}", title: "{wf_string(title)}", description: "{wf_string(description)}", layout: DocsShell("{wf_string(title)}", kind: .{PAGE_KIND[META[num]["kind"]]}, chapter: t("nav.group.{META[num]["group"]}"), blurb: "{wf_string(blurb)}", source: "md-docs/{META[num]["path"]}", sections: [{anchors}]' + "PREVNEXT" + ")) {",
         "    Stack(gap: .lg) {",
     ]
     return header, out, prev_num, next_num

@@ -19,7 +19,15 @@ component DocsShell(_ heading: String, chapter: String = "", blurb: String = "",
     use Building
     effect { if let first = outputs[0] { Building.arrive(first) } }
 
-    SiteHeader(docs: true, other: other, lang: lang)
+    // The place in the header a page of this kind belongs to.
+    derived section = match kind {
+        .howto { "/recipes" }
+        .reference { "/reference" }
+        .error { "/errors" }
+        else { "/learn" }
+    }
+
+    SiteHeader(docs: true, other: other, lang: lang, section: section)
 
     Row(align: .start, class: "bp-wrap") {
         style { flex-wrap: nowrap; gap: 0; @md { gap: 32px } @xl { gap: 48px } }

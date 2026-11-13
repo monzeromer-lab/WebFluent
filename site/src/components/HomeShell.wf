@@ -1,86 +1,226 @@
-/// T1, the home page: "What are you making?" — the six outputs, which set
-/// the Building switch — then the hero: one sentence, what it means, and
-/// an example beside it; the three ways in (Learn, Recipes, Reference);
-/// one example per output (the page's body); and the install line.
-component HomeShell(_ title: String, lede: String = "", other: String = "", lang: String = "en") {
-    slot hero
-    slot
+/// T1, the home page, as Blueprint draws it: the hero (what WebFluent is,
+/// the install line and three ways to start) beside an example and what it
+/// draws; what are you making — the six outputs, which set the Building
+/// switch; coming from somewhere; find your way — the four kinds of page;
+/// and how to install it.
+component HomeShell(other: String = "", lang: String = "en") {
     use Building
+    state count = 0
+    state copied = false
+
+    action copyInstall() {
+        copied = true
+        try { navigator.clipboard.writeText(INSTALL) } catch e { log(e) }
+        setTimeout(() => uncopy(), 1600)
+    }
+    action uncopy() { copied = false }
 
     SiteHeader(other: other, lang: lang)
 
-    // One per page: the skip link's target. wf-allow(A16)
-
-    Stack(role: "main", id: "bp-main", tabindex: "-1", class: "bp-main") {
+    Stack(role: "main", id: "bp-main", tabindex: "-1", class: "bp-main bp-home") { // wf-allow(A16)
         style { gap: 0 }
 
-        Stack(gap: .md, class: "bp-wrap") {
-            style { gap: 14px; padding-top: 32px; padding-bottom: 8px; @md { padding-top: 48px } }
-            Text(t("home.making"), class: "bp-section-label")
-            Row(role: "group", aria-label: t("home.making"), gap: .xs) {
-                style { flex-wrap: wrap; gap: 8px }
+        // The hero: the claim on the left, the example it makes on the right.
+        Grid(columns: { base: 1, lg: 2 }, class: "bp-wrap bp-home-hero") {
+            style { gap: 32px; padding-top: 40px; padding-bottom: 56px; align-items: center; @lg { gap: 56px; padding-top: 64px; padding-bottom: 80px } }
+
+            Stack(gap: .md) {
+                style { gap: 20px; min-width: 0 }
+                Text(t("home.eyebrow"), class: "bp-home-kicker")
+                Heading(t("home.title"), class: "bp-display").h1
+                Text(t("home.lede"), class: "bp-lede")
+                Row(align: .center, class: "bp-install bp-ltr", dir: "ltr") {
+                    Code(INSTALL)
+                    IconButton(icon: if copied { "check" } else { "copy" }, label: if copied { t("code.copied") } else { t("hero.copy") }, class: "bp-icon-button") {
+                        on click { copyInstall() }
+                    }
+                }
+                Row(align: .center, gap: .sm) {
+                    style { flex-wrap: wrap; gap: 10px }
+                    Link(t("home.tour"), to: "/learn/01-getting-started", class: "bp-button", data-tone: "action")
+                    Link(to: "/learn", class: "bp-button") {
+                        Icon("book", aria-hidden: "true")
+                        Text(t("home.book"))
+                    }
+                    Link(t("home.react"), to: "/coming-from/react", class: "bp-text-link")
+                }
+            }
+
+            Stack(class: "bp-sheet bp-home-example") {
+                style { gap: 0; min-width: 0; overflow: hidden }
+                Grid(columns: { base: 1, md: 2 }) {
+                    style { gap: 0; @md { grid-template-columns: minmax(0, 3fr) minmax(0, 2fr) } }
+                    Stack(class: "bp-home-example__code") {
+                        style { min-width: 0 }
+                        CodeBlock(HOME_EXAMPLE, title: "Home.wf")
+                    }
+                    Stack(class: "bp-grid bp-home-example__preview", role: "group", aria-label: t("home.example.preview")) {
+                        Heading("Hello, WebFluent").h2
+                        Text("Clicked {count} times")
+                        Row(gap: .sm) {
+                            style { gap: 8px }
+                            Button("+1", class: "bp-button", data-tone: "action") { on click { count = count + 1 } }
+                            Button("Reset", class: "bp-button") { on click { count = 0 } }
+                        }
+                    }
+                }
+                Row(align: .center, class: "bp-home-example__status") {
+                    Text("", class: "bp-dot", aria-hidden: "true")
+                    Text(t("home.example.compiled", { version: VERSION }))
+                }
+            }
+        }
+
+        // What are you making: each output sets the Building switch.
+        Stack(gap: .md, class: "bp-wrap bp-home-section") {
+            Heading(t("home.making"), class: "bp-h2").h2
+            Text(t("home.making.body"), class: "bp-lede")
+            Grid(columns: { base: 2, lg: 4 }, gap: .md, role: "group", aria-label: t("home.making")) {
                 for o in OUTPUTS by o {
-                    Button(t("building.{o}"), aria-pressed: Building.output == o, class: "bp-button") {
+                    Button(class: "bp-card bp-out-tile", aria-pressed: Building.output == o) {
                         on click { Building.pick(o) }
+                        Stack(class: "bp-out-tile__thumb", data-kind: o, aria-hidden: "true") {
+                            if o == "pdf" {
+                                Image(src: "/showcase/invoice-2026-0417-1.webp", alt: "")
+                            } else if o == "slides" {
+                                Image(src: "/showcase/halyard-q3-review-1.webp", alt: "")
+                            } else if o == "elements" {
+                                Code("<price-tag amount=\"12.99\">")
+                            } else {
+                                Stack(class: "bp-mock") {
+                                    Stack(class: "bp-mock__bar") { }
+                                    Stack(class: "bp-mock__line") { }
+                                    Stack(class: "bp-mock__line bp-mock__line--short") { }
+                                }
+                            }
+                        }
+                        Text(t("home.out.{o}"), class: "bp-out-tile__title")
+                        Text(t("home.out.{o}.body"), class: "bp-small")
+                        Text(OUTPUT_COMMANDS[o], class: "bp-out-tile__cmd bp-mono")
                     }
                 }
             }
         }
 
-        Grid(columns: { base: 1, lg: 2 }, gap: .xl, class: "bp-wrap") {
-            style { gap: 32px; padding-top: 32px; padding-bottom: 56px; align-items: center; @lg { gap: 48px; padding-top: 48px; padding-bottom: 80px } }
-            Stack(gap: .md) {
-                style { gap: 20px; min-width: 0 }
-                Heading(title, class: "bp-display").h1
-                if lede != "" {
-                    Text(lede, class: "bp-lede")
-                }
-                Row(gap: .sm) {
-                    style { flex-wrap: wrap; gap: 10px }
-                    Link(t("home.tour"), to: "/learn/01-getting-started", class: "bp-button", data-tone: "action")
-                    Link(t("home.book"), to: "/learn", class: "bp-button")
-                    Link(t("home.react"), to: "/coming-from/react", class: "bp-button", data-tone: "quiet")
-                }
-            }
-            Stack {
-                style { min-width: 0 }
-                hero
-            }
-        }
-
-        Stack(gap: .md, class: "bp-wrap") {
-            style { gap: 16px; padding-bottom: 56px }
-            Heading(t("home.ways"), class: "bp-h2").h2
-            Grid(columns: { base: 1, md: 3 }, gap: .md) {
-                Link(to: "/learn", class: "bp-card") {
-                    Text(t("nav.learn")) { style { font-size: 19px; font-weight: 650 } }
-                    Text(t("home.ways.learn"), class: "bp-small")
-                }
-                Link(to: "/recipes", class: "bp-card") {
-                    Text(t("nav.recipes")) { style { font-size: 19px; font-weight: 650 } }
-                    Text(t("home.ways.recipes"), class: "bp-small")
-                }
-                Link(to: "/reference", class: "bp-card") {
-                    Text(t("nav.reference")) { style { font-size: 19px; font-weight: 650 } }
-                    Text(t("home.ways.reference"), class: "bp-small")
+        // Coming from somewhere: the habits each framework brings.
+        Stack(gap: .md, class: "bp-wrap bp-home-section") {
+            Heading(t("home.from"), class: "bp-h2").h2
+            Text(t("home.from.body"), class: "bp-lede")
+            Grid(columns: { base: 1, sm: 3 }, gap: .md) {
+                for f in COMING_FROM by f.to {
+                    Link(to: f.to, class: "bp-card") {
+                        Text(f.name) { style { font-weight: 600 } }
+                        Text(f.habit, class: "bp-mono bp-small")
+                    }
                 }
             }
         }
 
-        Stack(gap: .md, class: "bp-wrap") {
-            style { gap: 16px; padding-bottom: 56px; min-width: 0 }
-            Heading(t("home.outputs"), class: "bp-h2").h2
-            children
+        // Find your way: the four kinds of page, and where each starts.
+        Stack(gap: .md, class: "bp-wrap bp-home-section") {
+            Heading(t("home.find"), class: "bp-h2").h2
+            Text(t("home.find.body"), class: "bp-lede")
+            Grid(columns: { base: 1, sm: 2, lg: 4 }, gap: .md) {
+                for way in HOME_WAYS by way.key {
+                    Stack(gap: .sm, class: "bp-card bp-way") {
+                        Link(t(way.key), to: way.to) { style { font-size: 19px; font-weight: 650 } }
+                        Text(t("{way.key}.body"), class: "bp-small")
+                        for p in way.places by p.to {
+                            Link(p.label, to: p.to, class: "bp-way__link")
+                        }
+                    }
+                }
+            }
         }
 
+        // Install: the one line, then a project.
         Stack(class: "bp-grid") {
             style { border-top: 1px solid $line; border-bottom: 1px solid $line }
-            Stack(gap: .md, class: "bp-wrap") {
-                style { gap: 16px; padding-top: 48px; padding-bottom: 48px; max-width: 760px }
-                Heading(t("home.install"), class: "bp-h2").h2
-                Text(t("home.install.body"), class: "bp-lede")
-                CodeBlock(INSTALL, title: "bash")
+            Stack(class: "bp-wrap") {
+                style { padding-top: 48px; padding-bottom: 48px }
+                Stack(gap: .md) {
+                    style { gap: 16px; max-width: 760px }
+                    Heading(t("home.install"), class: "bp-h2").h2
+                    Text(t("home.install.body"), class: "bp-lede")
+                    CodeBlock(INSTALL_AND_START, title: "bash")
+                }
             }
         }
     }
 }
+
+/// The hero's example: what the preview beside it draws.
+const HOME_EXAMPLE = #"page Home(path: "/", title: "Hello") {
+    state count = 0
+
+    Heading("Hello, WebFluent").h1
+    Text("Clicked {count} times")
+    Button("+1").primary {
+        on click { count = count + 1 }
+    }
+}"#
+
+const INSTALL_AND_START = """
+    curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | bash
+    wf init my-site -t static
+    cd my-site && wf serve
+    """
+
+/// How each output starts.
+const OUTPUT_COMMANDS: Map = {
+    website: "wf init -t static",
+    app: "wf init -t spa",
+    pdf: "wf init -t pdf",
+    slides: "wf init -t slides",
+    elements: "output_type: elements",
+    desktop: "wf build → Tauri"
+}
+
+/// The cheat sheets, and the first habit each one unlearns.
+type Habit {
+    name: String,
+    habit: String,
+    to: String
+}
+
+const COMING_FROM: [Habit] = [
+    Habit(name: "React", habit: "useState → state", to: "/coming-from/react"),
+    Habit(name: "Vue", habit: "computed → derived", to: "/coming-from/vue"),
+    Habit(name: "Svelte", habit: "{#each} → for … by", to: "/coming-from/svelte")
+]
+
+/// A kind of page on the home page: its name (a translation key, whose
+/// `.body` is the line under it), where it lives, and three places in it.
+type Way {
+    key: String,
+    to: String,
+    places: [Labelled]
+}
+
+type Labelled {
+    label: String,
+    to: String
+}
+
+const HOME_WAYS: [Way] = [
+    Way(key: "nav.learn", to: "/learn", places: [
+        Labelled(label: "Getting started", to: "/docs/guide/getting-started"),
+        Labelled(label: "State and reactivity", to: "/docs/guide/state"),
+        Labelled(label: "Tutorial: Shelf", to: "/docs/guide/tutorial")
+    ]),
+    Way(key: "nav.recipes", to: "/recipes", places: [
+        Labelled(label: "Debounce a search", to: "/docs/guide/recipes#debounce-a-search"),
+        Labelled(label: "Add a dark-mode switch", to: "/docs/guide/recipes#add-a-dark-mode-switch"),
+        Labelled(label: "Deploy a site", to: "/docs/guide/deploying")
+    ]),
+    Way(key: "nav.reference", to: "/reference", places: [
+        Labelled(label: "Button", to: "/reference/button"),
+        Labelled(label: "Grid", to: "/reference/grid"),
+        Labelled(label: "wf build", to: "/reference/cli/build")
+    ]),
+    Way(key: "nav.errors", to: "/errors", places: [
+        Labelled(label: "T05: a field that does not exist", to: "/errors/T05"),
+        Labelled(label: "E002: a syntax error", to: "/errors/E002"),
+        Labelled(label: "A05: a button with no text", to: "/errors/A05")
+    ])
+]
