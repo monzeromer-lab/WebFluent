@@ -1,6 +1,6 @@
 # WebFluent docs rewrite: the plan
 
-Status: **Phase 0 nearly done.** The guide's sources, the Blueprint theme, shell and templates, and every design are in (§14). The generator and the fence strings are left.
+Status: **Phase 0 done** (2026-11-13). Next is Phase 1, the generated reference and errors (§9 W3). Progress is in §14.
 Version 2, 2026-11-13. It replaces the first plan (2026-11-12). The design decisions in that plan stand, and are folded in here. The first plan was written before 6.0 and before the compiler ran in a browser, so the parts it left open are now settled with numbers.
 
 This file is the single source of truth for the rewrite. Every phase ends in a site that can ship.
@@ -697,12 +697,21 @@ At the end of Phase 0 the site is in Blueprint, and nothing it says has changed 
   - **Compiler:** a reader who chose Day sees one Night frame first, because the config can't say "dark by default".
   - **Compiler:** `t()` ignores a page's `lang:`, so pre-rendered `/ar/` pages show English interface text until the reader switches language.
 
-**Still to do in Phase 0:**
+**Finished (2026-11-13, `52544575` and the rebuild after it):**
 
-- The generator writes `Guide.wf` and stops writing `DocSidebar.wf`.
-- `cargo xtask site` and the `scripts/site/` package (§5.2).
-- The new fence strings (§5.5).
-- A front-matter schema check for the fields added later (`outputs`, `since`, `prereqs`, `related`).
+- **`cargo xtask site [--check]`:** the three scripts are one package, `scripts/docsite/` (`guide.py`, `data.py`, `components.py`, `examples.py`, `fences.py`).
+  - The package is `docsite`, not `site`, because `site` would shadow Python's own module.
+  - `--check` writes into a scratch directory and fails when a committed file is behind.
+- **The chapter list:** the generator writes the book's list, `site/src/components/Guide.wf`, from front matter. `DocSidebar.wf` is gone, and the tour is `learn/01–03`.
+- **Fence words** (§5.5): `page`, `live`, `no-check`, `expect=CODE`, `break="from:to"` and `files=a,b`.
+  - They are read by `tests/common/mod.rs::fence` and `scripts/docsite/fences.py`.
+  - A word no fence takes fails the docs tests and the site check.
+  - The guide's `wf expect CODE` fences became `wf expect=CODE`.
+
+**Left from §9 for later phases, by design:**
+
+- The front-matter fields `outputs`, `since`, `prereqs` and `related` are added, and checked, as pages are rewritten (Phases 1–3).
+- `examples.py`'s captured outputs, `twins.py` and the `errors.py` and `reference.py` split of `data.py` arrive with the pages that need them (Phases 1, 4 and 5).
 
 **Notes for whoever continues:**
 
