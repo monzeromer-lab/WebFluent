@@ -15,7 +15,11 @@
     "csp": true,
     "base_path": "",
     "clean_urls": "file",
-    "output_type": "spa"
+    "output_type": "spa",
+    "budget": {
+      "app.js": "135 kB",
+      "styles.css": "30 kB"
+    }
   },
   "dev": {
     "port": 4000,

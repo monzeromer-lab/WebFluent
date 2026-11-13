@@ -528,13 +528,29 @@ pub fn render_page_html_studio(
         crate::web::codegen::html::script_tags(config, &base),
         base,
         page_chunk,
-        if skip_to_content {
+        if opens_with_its_own_skip_link(&body_html) {
+            String::new()
+        } else if skip_to_content {
             crate::web::codegen::html::SKIP_LINK.replace("#wf-main", "#wf-content")
         } else {
             crate::web::codegen::html::SKIP_LINK.to_string()
         },
         body_html
     )
+}
+
+/// Whether a page's first link already jumps to a place on the page (`<a
+/// href="#main">`): its own skip link, in its own words and language, to
+/// where its content starts. The engine's then would be a second one for a
+/// screen reader to announce, in English, to a place before the page's
+/// header.
+fn opens_with_its_own_skip_link(body: &str) -> bool {
+    let Some(at) = body.find("<a ") else {
+        return false;
+    };
+    let tag = &body[at..body[at..].find('>').map_or(body.len(), |end| at + end)];
+    tag.split_once("href=\"")
+        .is_some_and(|(_, rest)| rest.starts_with('#') && rest.len() > 2)
 }
 
 /// What drawing a built-in reads and keeps: the names in reach, where the
@@ -3395,5 +3411,24 @@ mod program_scope_tests {
         assert!(html.contains("2 deploys in prod"), "{html}");
         assert!(html.contains("content=\"Halyard\""), "{html}");
         assert!(html.contains(">web<"), "{html}");
+    }
+}
+
+#[cfg(test)]
+mod skip_link_tests {
+    use super::opens_with_its_own_skip_link;
+
+    #[test]
+    fn a_page_whose_first_link_jumps_on_the_page_has_its_own_skip_link() {
+        assert!(opens_with_its_own_skip_link(
+            r##"<header><a class="bp-skip" href="#bp-main">Skip</a><a href="/">Home</a></header>"##
+        ));
+        // Its first link goes elsewhere: the engine's skip link stays.
+        assert!(!opens_with_its_own_skip_link(
+            r##"<nav><a href="/">Home</a><a href="#main">Skip</a></nav>"##
+        ));
+        // A bare `#` is no place on the page.
+        assert!(!opens_with_its_own_skip_link(r##"<a href="#">Top</a>"##));
+        assert!(!opens_with_its_own_skip_link("<p>No links</p>"));
     }
 }
