@@ -717,3 +717,30 @@ At the end of Phase 0 the site is in Blueprint, and nothing it says has changed 
 
 - The grammar submodule commit must be pushed before this repository's.
 - `site/` builds with `--allow-output-outside`.
+
+### Phase 1 — errors and reference
+
+**Done (2026-11-13; merged in `9d0f66c9`):**
+
+- A page per diagnostic at `/errors/CODE`, written from `md-docs/errors/` by `errors.py`. Each page shows its program fixed (the `fixed` fence word) beside the broken one.
+- `wf explain --json`; `docs_url` points at `/errors/CODE`.
+- The reference pages list the codes each built-in can raise, and each entry's since badge.
+- Old `#diagnostics` anchors forward through `site/src/old-links.js`.
+
+### Phase 2 — recipes and Coming-from
+
+**Done (2026-11-13, `ef2083bc`, `dc2f3664`):**
+
+- 75 single-task recipes and two project recipes at `/recipes/*`, from `md-docs/recipes/` by `recipes.py`. The shape: intro, code, How it works, Variations.
+- `/recipes` lists them by group, with a filter.
+- Old chapter routes redirect to `Moved.wf`, and old `#section` links go through `old-links-map.js`.
+- Five cheat sheets at `/coming-from/*`: React, Vue, Svelte, HTML & CSS and LaTeX / Typst, from `comingfrom.py`.
+
+### Phase 4 — the compiler in the reader's browser
+
+**Done (2026-11-13; merged in `c0a9011d`, site rebuilt in `e8b8bd9e`):**
+
+- Live examples: Edit, Break it and Apply the fix.
+- The Playground compiles in the browser through `site/src/live.js` and `crates/wf-wasm`. Its PDF build loads on demand.
+
+**Left:** Phase 3 (the book at `/learn`, renumbering), Phase 5 (search synonyms, `.md` twins, `llms.txt`) and Launch.
