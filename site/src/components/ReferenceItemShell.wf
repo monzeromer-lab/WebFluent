@@ -18,8 +18,8 @@ component ReferenceItemShell(_ name: String, summary: String = "", signature: St
 
         IndexSidebar(entries: entries, label: t("nav.reference"))
 
-        // One per page: the skip link's target. wf-allow(A16)
-
+        // One per page: the skip link's target.
+        // wf-allow(A16)
         Stack(gap: .lg, role: "main", id: "bp-main", tabindex: "-1", class: "bp-main reference-main") {
             style { gap: 24px; padding: 32px 0 72px; @md { padding-top: 40px } }
 

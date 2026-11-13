@@ -1,7 +1,7 @@
 ---
 chapter: 41
 kind: "reference"
-route: "guide/cli"
+route: "/reference/cli"
 group: "reference"
 blurb: "Every wf command and flag, the dev server, and the language server in each editor."
 description: "The wf command line — every command and flag, from init, build and serve to render, migrate and verify — and how to set up the language server in your editor."

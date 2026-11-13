@@ -71,7 +71,7 @@ test "chip shows its label" { Chip("Beta")  expect "Beta" }"#, title: "wf")
                 Table.Row {
                     Table.Cell { Markdown("`const`") }
                     Table.Cell("A value read everywhere")
-                    Table.Cell { Markdown("[14](/docs/guide/expressions#constants)") }
+                    Table.Cell { Markdown("[14](/reference/expressions#constants)") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`data`") }
@@ -96,7 +96,7 @@ test "chip shows its label" { Chip("Beta")  expect "Beta" }"#, title: "wf")
             }
         }
 
-        Markdown("Two other kinds of file under `src/` join the program. A `.css` file is a stylesheet the build bundles. A `.js` file is a plain browser script, and its top-level functions are in scope by name in your `.wf` code ([JavaScript interop](/docs/guide/interop)).\n\nInside a body you write statements: `state`, `derived`, `effect`, `action`, `persist`, `resource`, `validate`, `socket`, `if`, `for`, `match` and more. The [grammar](/docs/guide/grammar) lists every keyword and where it may appear.")
+        Markdown("Two other kinds of file under `src/` join the program. A `.css` file is a stylesheet the build bundles. A `.js` file is a plain browser script, and its top-level functions are in scope by name in your `.wf` code ([JavaScript interop](/docs/guide/interop)).\n\nInside a body you write statements: `state`, `derived`, `effect`, `action`, `persist`, `resource`, `validate`, `socket`, `if`, `for`, `match` and more. The [grammar](/reference/grammar) lists every keyword and where it may appear.")
 
         Heading("One program from many files", id: "one-program-from-many-files").h3
 
@@ -197,7 +197,7 @@ component Avatar(_ initials: String) { Text(initials).bold }"#, title: "wf")
     Text("A literal dollar: ${user.age}")     // `$` alone is plain text: "$41"
 }"#, title: "wf")
 
-        Markdown("Spliced text is live: when `user` changes, the text changes with it. A splice opens with a name, a `(` or a `[`, and closes on the same line; anything else, such as `\{key: value\}` in prose, is plain text.\n\nA splice may also say how to show its value: `\{total:.currency\}`, `\{when:.date(long)\}`. This is [formatting](/docs/guide/expressions#showing-a-value-a-particular-way), written where the value is read.")
+        Markdown("Spliced text is live: when `user` changes, the text changes with it. A splice opens with a name, a `(` or a `[`, and closes on the same line; anything else, such as `\{key: value\}` in prose, is plain text.\n\nA splice may also say how to show its value: `\{total:.currency\}`, `\{when:.date(long)\}`. This is [formatting](/reference/expressions#showing-a-value-a-particular-way), written where the value is read.")
 
         Heading("Three ways to write one", id: "three-ways-to-write-one").h3
 
@@ -247,7 +247,7 @@ component Avatar(_ initials: String) { Text(initials).bold }"#, title: "wf")
                 }
                 Table.Row {
                     Table.Cell { Markdown("`.wf`, `.wfx`") }
-                    Table.Cell { Markdown("Braced layout; indented layout ([grammar](/docs/guide/grammar))") }
+                    Table.Cell { Markdown("Braced layout; indented layout ([grammar](/reference/grammar))") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`\"Hi, \{name\}\"`") }

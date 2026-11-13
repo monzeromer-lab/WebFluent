@@ -1,7 +1,7 @@
 ---
 chapter: 47
 kind: "reference"
-route: "guide/grammar"
+route: "/reference/grammar"
 group: "reference"
 blurb: "Every keyword and where it may appear, the shapes of declarations, statements and expressions, operators and precedence, and the literals."
 description: "The WebFluent grammar on one page: keywords, declarations, render and imperative blocks, components, tests, styles, operators, precedence and literals."

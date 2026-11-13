@@ -350,6 +350,6 @@ page Deploy(path: "/deploys/:id", title: "Deploy", description: "One deploy.", i
             }
         }
 
-        Markdown("The [configuration reference](/docs/guide/config) covers `build.base_path`, and [Static or single-page](/docs/guide/static-and-spa) covers how each build serves pages.")
+        Markdown("The [configuration reference](/reference/config) covers `build.base_path`, and [Static or single-page](/docs/guide/static-and-spa) covers how each build serves pages.")
     }
 }

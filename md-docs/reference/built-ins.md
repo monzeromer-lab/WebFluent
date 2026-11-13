@@ -1,7 +1,7 @@
 ---
 chapter: 44
 kind: "reference"
-route: "guide/built-ins"
+route: "/reference/built-ins"
 group: "reference"
 blurb: "Every function, browser value, method and global the language gives a program, in one place."
 description: "Built-in functions, browser values like viewport, query, now and network, string, list and number methods, the built-in types, and browser globals."

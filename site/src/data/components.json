@@ -1,0 +1,7982 @@
+{
+ "count": 111,
+ "families": [
+  "Layout",
+  "Navigation",
+  "Routing",
+  "Data display",
+  "Form",
+  "Feedback",
+  "Actions",
+  "Media",
+  "Typography",
+  "PDF",
+  "Slides",
+  "Original spellings"
+ ],
+ "items": [
+  {
+   "name": "Container",
+   "slug": "container",
+   "family": "Layout",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Centred wrapper with a maximum width and horizontal padding.",
+   "plain": "Centred wrapper with a maximum width and horizontal padding.",
+   "signature": "Container(fluid: Bool) { … }",
+   "block": true,
+   "legacy": false,
+   "props": [
+    {
+     "name": "fluid:",
+     "type": "Bool",
+     "meaning": "Full width, no maximum"
+    }
+   ],
+   "controls": [
+    {
+     "name": "fluid",
+     "kind": "bool",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [
+    ".fluid",
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-container",
+   "example": "Container { Heading(\"Pricing\").h1 }\nContainer.fluid { Text(\"Edge to edge\") }",
+   "preview": true,
+   "outputs": []
+  },
+  {
+   "name": "Row",
+   "slug": "row",
+   "family": "Layout",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Horizontal flex layout. It stays a row at every width unless `.stacks` or a responsive `direction` says otherwise.",
+   "plain": "Horizontal flex layout. It stays a row at every width unless .stacks or a responsive direction says otherwise.",
+   "signature": "Row(gap: Enum, align: Enum, justify: Enum, …) { … }",
+   "block": true,
+   "legacy": false,
+   "props": [
+    {
+     "name": "gap:",
+     "type": ".xs .sm .md .lg .xl",
+     "meaning": "Space between children"
+    },
+    {
+     "name": "align:",
+     "type": ".start .center .end .stretch .baseline",
+     "meaning": "Cross-axis alignment"
+    },
+    {
+     "name": "justify:",
+     "type": ".start .center .end .between .around .evenly",
+     "meaning": "Main-axis distribution"
+    },
+    {
+     "name": "direction:",
+     "type": ".row .column",
+     "meaning": "Which way its children run; takes a value per breakpoint"
+    },
+    {
+     "name": "stacks:",
+     "type": "Bool",
+     "meaning": "Reflow on a narrow screen: a Row becomes a column, a Grid one column"
+    }
+   ],
+   "controls": [
+    {
+     "name": "gap",
+     "kind": "enum",
+     "options": [
+      "xs",
+      "sm",
+      "md",
+      "lg",
+      "xl"
+     ],
+     "value": "xs"
+    },
+    {
+     "name": "align",
+     "kind": "enum",
+     "options": [
+      "start",
+      "center",
+      "end",
+      "stretch",
+      "baseline"
+     ],
+     "value": "start"
+    },
+    {
+     "name": "justify",
+     "kind": "enum",
+     "options": [
+      "start",
+      "center",
+      "end",
+      "between",
+      "around"
+     ],
+     "value": "start"
+    },
+    {
+     "name": "direction",
+     "kind": "enum",
+     "options": [
+      "row",
+      "column"
+     ],
+     "value": "row"
+    },
+    {
+     "name": "stacks",
+     "kind": "bool",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [
+    ".xs",
+    ".sm",
+    ".md",
+    ".lg",
+    ".xl",
+    ".stretch",
+    ".baseline",
+    ".between",
+    ".around",
+    ".evenly",
+    ".row",
+    ".column",
+    ".stacks",
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-row",
+   "example": "Row(gap: .md, align: .center, justify: .between) {\n    Text(\"Left\")\n    Button(\"Right\")\n}\nRow(direction: { base: .column, md: .row }) { Text(\"a\")  Text(\"b\") }",
+   "preview": true,
+   "outputs": []
+  },
+  {
+   "name": "Column",
+   "slug": "column",
+   "family": "Layout",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "A child of the 12-column grid, spanning `span` columns.",
+   "plain": "A child of the 12-column grid, spanning span columns.",
+   "signature": "Column(span: Number, stacks: Bool) { … }",
+   "block": true,
+   "legacy": false,
+   "props": [
+    {
+     "name": "span:",
+     "type": "Number",
+     "meaning": "How many of the 12 grid columns to span"
+    },
+    {
+     "name": "stacks:",
+     "type": "Bool",
+     "meaning": "Reflow on a narrow screen: a Row becomes a column, a Grid one column"
+    }
+   ],
+   "controls": [
+    {
+     "name": "stacks",
+     "kind": "bool",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [
+    ".stacks",
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-col",
+   "example": "Row {\n    Column(span: 8) { Text(\"Main\") }\n    Column(span: 4) { Text(\"Aside\") }\n}",
+   "preview": false,
+   "outputs": []
+  },
+  {
+   "name": "Grid",
+   "slug": "grid",
+   "family": "Layout",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "CSS grid with a fixed number of columns.",
+   "plain": "CSS grid with a fixed number of columns.",
+   "signature": "Grid(columns: Number, gap: Enum, align: Enum, …) { … }",
+   "block": true,
+   "legacy": false,
+   "props": [
+    {
+     "name": "columns:",
+     "type": "Number",
+     "meaning": "Number of equal columns"
+    },
+    {
+     "name": "gap:",
+     "type": ".xs .sm .md .lg .xl",
+     "meaning": "Space between children"
+    },
+    {
+     "name": "align:",
+     "type": ".start .center .end .stretch .baseline",
+     "meaning": "Cross-axis alignment"
+    },
+    {
+     "name": "justify:",
+     "type": ".start .center .end .between .around .evenly",
+     "meaning": "Main-axis distribution"
+    },
+    {
+     "name": "stacks:",
+     "type": "Bool",
+     "meaning": "Reflow on a narrow screen: a Row becomes a column, a Grid one column"
+    }
+   ],
+   "controls": [
+    {
+     "name": "gap",
+     "kind": "enum",
+     "options": [
+      "xs",
+      "sm",
+      "md",
+      "lg",
+      "xl"
+     ],
+     "value": "xs"
+    },
+    {
+     "name": "align",
+     "kind": "enum",
+     "options": [
+      "start",
+      "center",
+      "end",
+      "stretch",
+      "baseline"
+     ],
+     "value": "start"
+    },
+    {
+     "name": "justify",
+     "kind": "enum",
+     "options": [
+      "start",
+      "center",
+      "end",
+      "between",
+      "around"
+     ],
+     "value": "start"
+    },
+    {
+     "name": "stacks",
+     "kind": "bool",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [
+    ".xs",
+    ".sm",
+    ".md",
+    ".lg",
+    ".xl",
+    ".stretch",
+    ".baseline",
+    ".between",
+    ".around",
+    ".evenly",
+    ".stacks",
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-grid",
+   "example": "Grid(columns: { base: 1, md: 3 }, gap: .lg) {\n    Card { Text(\"One\") }\n    Card { Text(\"Two\") }\n    Card { Text(\"Three\") }\n}",
+   "preview": true,
+   "outputs": []
+  },
+  {
+   "name": "Stack",
+   "slug": "stack",
+   "family": "Layout",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Vertical flex layout.",
+   "plain": "Vertical flex layout.",
+   "signature": "Stack(gap: Enum, align: Enum, justify: Enum) { … }",
+   "block": true,
+   "legacy": false,
+   "props": [
+    {
+     "name": "gap:",
+     "type": ".xs .sm .md .lg .xl",
+     "meaning": "Space between children"
+    },
+    {
+     "name": "align:",
+     "type": ".start .center .end .stretch .baseline",
+     "meaning": "Cross-axis alignment"
+    },
+    {
+     "name": "justify:",
+     "type": ".start .center .end .between .around .evenly",
+     "meaning": "Main-axis distribution"
+    }
+   ],
+   "controls": [
+    {
+     "name": "gap",
+     "kind": "enum",
+     "options": [
+      "xs",
+      "sm",
+      "md",
+      "lg",
+      "xl"
+     ],
+     "value": "xs"
+    },
+    {
+     "name": "align",
+     "kind": "enum",
+     "options": [
+      "start",
+      "center",
+      "end",
+      "stretch",
+      "baseline"
+     ],
+     "value": "start"
+    },
+    {
+     "name": "justify",
+     "kind": "enum",
+     "options": [
+      "start",
+      "center",
+      "end",
+      "between",
+      "around"
+     ],
+     "value": "start"
+    }
+   ],
+   "flags": [
+    ".xs",
+    ".sm",
+    ".md",
+    ".lg",
+    ".xl",
+    ".stretch",
+    ".baseline",
+    ".between",
+    ".around",
+    ".evenly",
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-stack",
+   "example": "Stack(gap: .sm) {\n    Text(\"First\")\n    Text(\"Second\")\n}",
+   "preview": true,
+   "outputs": []
+  },
+  {
+   "name": "Spacer",
+   "slug": "spacer",
+   "family": "Layout",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Vertical space; `md` when no size is given.",
+   "plain": "Vertical space; md when no size is given.",
+   "signature": "Spacer(size: Enum)",
+   "block": false,
+   "legacy": false,
+   "props": [
+    {
+     "name": "size:",
+     "type": ".xs .sm .md .lg .xl",
+     "meaning": "How much space"
+    }
+   ],
+   "controls": [
+    {
+     "name": "size",
+     "kind": "enum",
+     "options": [
+      "xs",
+      "sm",
+      "md",
+      "lg",
+      "xl"
+     ],
+     "value": ""
+    }
+   ],
+   "flags": [
+    ".xs",
+    ".sm",
+    ".md",
+    ".lg",
+    ".xl",
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-spacer",
+   "example": "Text(\"Above\")\nSpacer.lg\nText(\"Below\")",
+   "preview": false,
+   "outputs": []
+  },
+  {
+   "name": "VirtualList",
+   "slug": "virtuallist",
+   "family": "Layout",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "A scrolling box that draws only the rows in view of the one keyed `for` inside it — for a tree, search results or a diff of thousands of rows.",
+   "plain": "A scrolling box that draws only the rows in view of the one keyed for inside it — for a tree, search results or a diff of thousands of rows.",
+   "signature": "VirtualList(rowHeight: Number, estimate: Number, reveal: Any, …) { … }",
+   "block": true,
+   "legacy": false,
+   "props": [
+    {
+     "name": "rowHeight:",
+     "type": "Number",
+     "meaning": "Every row's height, in px: the fast path. Unset, each row is measured"
+    },
+    {
+     "name": "estimate:",
+     "type": "Number",
+     "meaning": "The height a row not yet drawn stands for, in px. Unset, 32"
+    },
+    {
+     "name": "reveal:",
+     "type": "Any",
+     "meaning": "A row's key: when it changes, that row is scrolled into view — the selection, the current match"
+    },
+    {
+     "name": "label:",
+     "type": "String",
+     "meaning": "What the list is, for a screen reader"
+    }
+   ],
+   "controls": [
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-virtual-list",
+   "example": "state rows = (0..10000).map((i) => \"row {i}\")\nstate picked = \"row 0\"\nVirtualList(rowHeight: 32, reveal: picked, label: \"Rows\") {\n    style { height: 320px }\n    for r in rows by r { Text(r) { style { height: 32px; margin: 0 } } }\n}",
+   "preview": false,
+   "outputs": []
+  },
+  {
+   "name": "Splitter",
+   "slug": "splitter",
+   "family": "Layout",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "A handle that sets the size of a region beside it: dragged, between `min:` and `max:`; double-clicked or Enter, back to `reset:`; the arrow keys move it.",
+   "plain": "A handle that sets the size of a region beside it: dragged, between min: and max:; double-clicked or Enter, back to reset:; the arrow keys move it.",
+   "signature": "Splitter(bind: State, min: Number, max: Number, …)",
+   "block": false,
+   "legacy": false,
+   "props": [
+    {
+     "name": "bind:",
+     "type": "State",
+     "meaning": "State variable the control reads and writes (two-way)"
+    },
+    {
+     "name": "min:",
+     "type": "Number",
+     "meaning": "The smallest size, in px"
+    },
+    {
+     "name": "max:",
+     "type": "Number",
+     "meaning": "The largest size, in px"
+    },
+    {
+     "name": "reset:",
+     "type": "Number",
+     "meaning": "The size a double-click or Enter goes back to, taken as written: `0` can mean the region's default share"
+    },
+    {
+     "name": "label:",
+     "type": "String",
+     "meaning": "What it resizes, for a screen reader"
+    },
+    {
+     "name": "horizontal:",
+     "type": "Bool",
+     "meaning": "Between two regions one above the other: it moves up and down"
+    },
+    {
+     "name": "reverse:",
+     "type": "Bool",
+     "meaning": "On the start side of what it sizes — a pane on the right, a panel below — so a drag toward the start grows it"
+    }
+   ],
+   "controls": [
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "horizontal",
+     "kind": "bool",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "reverse",
+     "kind": "bool",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [
+    ".horizontal",
+    ".reverse",
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-splitter",
+   "example": "state side = 240\nRow {\n    Container { style { width: {side}px } Text(\"Files\") }\n    Splitter(bind: side, min: 160, max: 480, reset: 240, label: \"Sidebar width\")\n    Container { Text(\"Editor\") }\n}",
+   "preview": false,
+   "outputs": []
+  },
+  {
+   "name": "Divider",
+   "slug": "divider",
+   "family": "Layout",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Horizontal rule.",
+   "plain": "Horizontal rule.",
+   "signature": "Divider",
+   "block": false,
+   "legacy": false,
+   "props": [],
+   "controls": [],
+   "flags": [
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-divider",
+   "example": "Text(\"Section one\")\nDivider\nText(\"Section two\")",
+   "preview": true,
+   "outputs": []
+  },
+  {
+   "name": "Host",
+   "slug": "host",
+   "family": "Layout",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "A bare node handed to somebody else's code, with a lifetime. `mount:` runs with the node each time it is made, `update:` again whenever the state it reads changes, and `cleanup:` when the page, branch or list item it belongs to leaves. Every other element takes the same three.",
+   "plain": "A bare node handed to somebody else's code, with a lifetime. mount: runs with the node each time it is made, update: again whenever the state it reads changes, and cleanup: when the page, branch or list item it belongs to leaves. Every other element takes the same three.",
+   "signature": "Host(tag: String)",
+   "block": false,
+   "legacy": false,
+   "props": [
+    {
+     "name": "tag:",
+     "type": "String",
+     "meaning": "The element to make: `div` (the default), `span`, `canvas`, `svg`, `section`, `figure`, `pre`, `p`, `ul` or `table`"
+    }
+   ],
+   "controls": [
+    {
+     "name": "tag",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-host",
+   "example": "Host(tag: \"canvas\", mount: (node) => node.getContext(\"2d\"), cleanup: (ctx) => log(\"gone\"))",
+   "preview": false,
+   "outputs": []
+  },
+  {
+   "name": "Portal",
+   "slug": "portal",
+   "family": "Layout",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Its block, drawn into a node somebody else's code owns: an element a script hands over, or a `ref:` handle. When `into:` names another node the block moves there with its nodes and state; `null` keeps it aside until a node comes back; it goes when the page, branch or list item it is written in leaves. What is inside belongs to where it is written: its handlers, `emit` and lifetimes.",
+   "plain": "Its block, drawn into a node somebody else's code owns: an element a script hands over, or a ref: handle. When into: names another node the block moves there with its nodes and state; null keeps it aside until a node comes back; it goes when the page, branch or list item it is written in leaves. What is inside belongs to where it is written: its handlers, emit and lifetimes.",
+   "signature": "Portal(into: Any) { … }",
+   "block": true,
+   "legacy": false,
+   "props": [
+    {
+     "name": "into:",
+     "type": "Any  (required)",
+     "meaning": "Where it draws: an element, a `ref:` handle, or `null` to keep it aside; read again whenever what it reads changes"
+    }
+   ],
+   "controls": [],
+   "flags": [
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-portal",
+   "example": "Stack(ref: panel)\nPortal(into: panel) { Text(\"Drawn inside the stack\") }",
+   "preview": false,
+   "outputs": []
+  },
+  {
+   "name": "Element",
+   "slug": "element",
+   "family": "Layout",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "A custom element a script defines, placed by its tag: `Element(\"stripe-pricing-table\", publishable-key: key) { on ready { … } }`. Every named argument is an attribute, every `on` handler an event it fires, and the block its children.",
+   "plain": "A custom element a script defines, placed by its tag: Element(\"stripe-pricing-table\", publishable-key: key) { on ready { … } }. Every named argument is an attribute, every on handler an event it fires, and the block its children.",
+   "signature": "Element(_ tag: String) { … }",
+   "block": true,
+   "legacy": false,
+   "props": [
+    {
+     "name": "tag",
+     "type": "String  (positional)",
+     "meaning": "The custom element's tag: lower case, with a hyphen, as every custom element's is"
+    }
+   ],
+   "controls": [
+    {
+     "name": "tag",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "any"
+   ],
+   "cssClass": "",
+   "example": "Element(\"relative-time\", datetime: \"2026-03-14T09:30:00Z\") { Text(\"March 14\") }\nElement(\"stripe-pricing-table\", publishableKey: \"pk_test_…\") { on ready { log(\"prices shown\") } }",
+   "preview": false,
+   "outputs": []
+  },
+  {
+   "name": "Navbar",
+   "slug": "navbar",
+   "family": "Navigation",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Top navigation bar with brand, links and action areas.",
+   "plain": "Top navigation bar with brand, links and action areas.",
+   "signature": "Navbar { … }",
+   "block": true,
+   "legacy": false,
+   "props": [],
+   "controls": [],
+   "flags": [
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [
+    {
+     "name": "Navbar.Brand",
+     "kind": "navbar-brand",
+     "detail": "The brand area, usually a link home.",
+     "fallback": ""
+    },
+    {
+     "name": "Navbar.Links",
+     "kind": "navbar-links",
+     "detail": "The navigation links; collapses behind a toggle on small screens.",
+     "fallback": ""
+    },
+    {
+     "name": "Navbar.Actions",
+     "kind": "navbar-actions",
+     "detail": "Buttons at the end of the bar.",
+     "fallback": ""
+    }
+   ],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-navbar",
+   "example": "Navbar {\n    Navbar.Brand { Link(\"Acme\", to: \"/\") }\n    Navbar.Links { Link(\"Docs\", to: \"/docs\")  Link(\"Pricing\", to: \"/pricing\") }\n    Navbar.Actions { Button(\"Sign in\").sm }\n}",
+   "preview": false,
+   "outputs": []
+  },
+  {
+   "name": "Navbar.Brand",
+   "slug": "navbar-brand",
+   "family": "Navigation",
+   "owner": "Navbar",
+   "ownerSlug": "navbar",
+   "summary": "The brand area, usually a link home.",
+   "plain": "The brand area, usually a link home.",
+   "signature": "Navbar.Brand { … }",
+   "block": true,
+   "legacy": false,
+   "props": [],
+   "controls": [],
+   "flags": [
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "Navbar {\n    Navbar.Brand { Link(\"Acme\", to: \"/\") }\n    Navbar.Links { Link(\"Docs\", to: \"/docs\")  Link(\"Pricing\", to: \"/pricing\") }\n    Navbar.Actions { Button(\"Sign in\").sm }\n}",
+   "preview": false,
+   "outputs": []
+  },
+  {
+   "name": "Navbar.Links",
+   "slug": "navbar-links",
+   "family": "Navigation",
+   "owner": "Navbar",
+   "ownerSlug": "navbar",
+   "summary": "The navigation links; collapses behind a toggle on small screens.",
+   "plain": "The navigation links; collapses behind a toggle on small screens.",
+   "signature": "Navbar.Links { … }",
+   "block": true,
+   "legacy": false,
+   "props": [],
+   "controls": [],
+   "flags": [
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "Navbar {\n    Navbar.Brand { Link(\"Acme\", to: \"/\") }\n    Navbar.Links { Link(\"Docs\", to: \"/docs\")  Link(\"Pricing\", to: \"/pricing\") }\n    Navbar.Actions { Button(\"Sign in\").sm }\n}",
+   "preview": false,
+   "outputs": []
+  },
+  {
+   "name": "Navbar.Actions",
+   "slug": "navbar-actions",
+   "family": "Navigation",
+   "owner": "Navbar",
+   "ownerSlug": "navbar",
+   "summary": "Buttons at the end of the bar.",
+   "plain": "Buttons at the end of the bar.",
+   "signature": "Navbar.Actions { … }",
+   "block": true,
+   "legacy": false,
+   "props": [],
+   "controls": [],
+   "flags": [
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "Navbar {\n    Navbar.Brand { Link(\"Acme\", to: \"/\") }\n    Navbar.Links { Link(\"Docs\", to: \"/docs\")  Link(\"Pricing\", to: \"/pricing\") }\n    Navbar.Actions { Button(\"Sign in\").sm }\n}",
+   "preview": false,
+   "outputs": []
+  },
+  {
+   "name": "Sidebar",
+   "slug": "sidebar",
+   "family": "Navigation",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Side navigation. A `Sidebar.Item` whose `to` matches the current route is marked `.active` and `aria-current=\"page\"`.",
+   "plain": "Side navigation. A Sidebar.Item whose to matches the current route is marked .active and aria-current=\"page\".",
+   "signature": "Sidebar { … }",
+   "block": true,
+   "legacy": false,
+   "props": [],
+   "controls": [],
+   "flags": [
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [
+    {
+     "name": "Sidebar.Header",
+     "kind": "sidebar-header",
+     "detail": "The sidebar's heading area.",
+     "fallback": ""
+    },
+    {
+     "name": "Sidebar.Item",
+     "kind": "sidebar-item",
+     "detail": "One navigation entry.",
+     "fallback": ""
+    },
+    {
+     "name": "Sidebar.Divider",
+     "kind": "sidebar-divider",
+     "detail": "A rule between groups of items.",
+     "fallback": ""
+    }
+   ],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-sidebar",
+   "example": "Sidebar {\n    Sidebar.Header { Text(\"Console\").bold }\n    Sidebar.Item(to: \"/\", icon: \"home\") { Text(\"Overview\") }\n    Sidebar.Divider\n    Sidebar.Item(to: \"/settings\", icon: \"settings\") { Text(\"Settings\") }\n}",
+   "preview": false,
+   "outputs": []
+  },
+  {
+   "name": "Sidebar.Header",
+   "slug": "sidebar-header",
+   "family": "Navigation",
+   "owner": "Sidebar",
+   "ownerSlug": "sidebar",
+   "summary": "The sidebar's heading area.",
+   "plain": "The sidebar's heading area.",
+   "signature": "Sidebar.Header { … }",
+   "block": true,
+   "legacy": false,
+   "props": [],
+   "controls": [],
+   "flags": [
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "Sidebar {\n    Sidebar.Header { Text(\"Console\").bold }\n    Sidebar.Item(to: \"/\", icon: \"home\") { Text(\"Overview\") }\n    Sidebar.Divider\n    Sidebar.Item(to: \"/settings\", icon: \"settings\") { Text(\"Settings\") }\n}",
+   "preview": false,
+   "outputs": []
+  },
+  {
+   "name": "Sidebar.Item",
+   "slug": "sidebar-item",
+   "family": "Navigation",
+   "owner": "Sidebar",
+   "ownerSlug": "sidebar",
+   "summary": "One navigation entry.",
+   "plain": "One navigation entry.",
+   "signature": "Sidebar.Item(to: Path, icon: String, active: Enum) { … }",
+   "block": true,
+   "legacy": false,
+   "props": [
+    {
+     "name": "to:",
+     "type": "Path",
+     "meaning": "Route to navigate to; the link whose `to` matches the current route carries `.active` and `aria-current=\"page\"`"
+    },
+    {
+     "name": "icon:",
+     "type": "String",
+     "meaning": "Icon shown before the label"
+    },
+    {
+     "name": "active:",
+     "type": ".prefix",
+     "meaning": "How the link decides it is the current one"
+    }
+   ],
+   "controls": [
+    {
+     "name": "icon",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "active",
+     "kind": "enum",
+     "options": [
+      "prefix"
+     ],
+     "value": "prefix"
+    }
+   ],
+   "flags": [
+    ".prefix",
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data",
+    "anchor"
+   ],
+   "cssClass": "",
+   "example": "Sidebar {\n    Sidebar.Header { Text(\"Console\").bold }\n    Sidebar.Item(to: \"/\", icon: \"home\") { Text(\"Overview\") }\n    Sidebar.Divider\n    Sidebar.Item(to: \"/settings\", icon: \"settings\") { Text(\"Settings\") }\n}",
+   "preview": false,
+   "outputs": []
+  },
+  {
+   "name": "Sidebar.Divider",
+   "slug": "sidebar-divider",
+   "family": "Navigation",
+   "owner": "Sidebar",
+   "ownerSlug": "sidebar",
+   "summary": "A rule between groups of items.",
+   "plain": "A rule between groups of items.",
+   "signature": "Sidebar.Divider",
+   "block": false,
+   "legacy": false,
+   "props": [],
+   "controls": [],
+   "flags": [
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "Sidebar {\n    Sidebar.Header { Text(\"Console\").bold }\n    Sidebar.Item(to: \"/\", icon: \"home\") { Text(\"Overview\") }\n    Sidebar.Divider\n    Sidebar.Item(to: \"/settings\", icon: \"settings\") { Text(\"Settings\") }\n}",
+   "preview": false,
+   "outputs": []
+  },
+  {
+   "name": "Link",
+   "slug": "link",
+   "family": "Navigation",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Client-side navigation link; its label or its block is the link text.",
+   "plain": "Client-side navigation link; its label or its block is the link text.",
+   "signature": "Link(_ label: String, to: Path, active: Enum) { … }",
+   "block": true,
+   "legacy": false,
+   "props": [
+    {
+     "name": "label",
+     "type": "String  (positional)",
+     "meaning": "The link text"
+    },
+    {
+     "name": "to:",
+     "type": "Path",
+     "meaning": "Route to navigate to; the link whose `to` matches the current route carries `.active` and `aria-current=\"page\"`"
+    },
+    {
+     "name": "active:",
+     "type": ".prefix",
+     "meaning": "How the link decides it is the current one"
+    }
+   ],
+   "controls": [
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "active",
+     "kind": "enum",
+     "options": [
+      "prefix"
+     ],
+     "value": "prefix"
+    }
+   ],
+   "flags": [
+    ".prefix",
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data",
+    "anchor"
+   ],
+   "cssClass": "wf-link",
+   "example": "Link(\"About us\", to: \"/about\")\nLink(\"Guide\", to: \"/docs\", active: .prefix)\nLink(to: \"https://example.com\", target: \"_blank\") { Text(\"Example\") }",
+   "preview": true,
+   "outputs": []
+  },
+  {
+   "name": "Tabs",
+   "slug": "tabs",
+   "family": "Navigation",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Tab strip switching between its pages.",
+   "plain": "Tab strip switching between its pages.",
+   "signature": "Tabs { … }",
+   "block": true,
+   "legacy": false,
+   "props": [],
+   "controls": [],
+   "flags": [
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [
+    {
+     "name": "Tabs.Page",
+     "kind": "tabs-page",
+     "detail": "One tab and its panel.",
+     "fallback": ""
+    }
+   ],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-tabs",
+   "example": "Tabs {\n    Tabs.Page(\"Profile\") { Text(\"Your details\") }\n    Tabs.Page(\"Billing\") { Text(\"Your plan\") }\n}",
+   "preview": true,
+   "outputs": []
+  },
+  {
+   "name": "Tabs.Page",
+   "slug": "tabs-page",
+   "family": "Navigation",
+   "owner": "Tabs",
+   "ownerSlug": "tabs",
+   "summary": "One tab and its panel.",
+   "plain": "One tab and its panel.",
+   "signature": "Tabs.Page(_ label: String) { … }",
+   "block": true,
+   "legacy": false,
+   "props": [
+    {
+     "name": "label",
+     "type": "String  (positional)",
+     "meaning": "The tab's label"
+    }
+   ],
+   "controls": [
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-tab-page",
+   "example": "Tabs {\n    Tabs.Page(\"Profile\") { Text(\"Your details\") }\n    Tabs.Page(\"Billing\") { Text(\"Your plan\") }\n}",
+   "preview": true,
+   "outputs": []
+  },
+  {
+   "name": "Breadcrumb",
+   "slug": "breadcrumb",
+   "family": "Navigation",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Breadcrumb trail. An item without `to` is the current page.",
+   "plain": "Breadcrumb trail. An item without to is the current page.",
+   "signature": "Breadcrumb { … }",
+   "block": true,
+   "legacy": false,
+   "props": [],
+   "controls": [],
+   "flags": [
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [
+    {
+     "name": "Breadcrumb.Item",
+     "kind": "breadcrumb-item",
+     "detail": "One step of the trail.",
+     "fallback": ""
+    }
+   ],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-breadcrumb",
+   "example": "Breadcrumb {\n    Breadcrumb.Item(to: \"/\") { Text(\"Home\") }\n    Breadcrumb.Item(to: \"/docs\") { Text(\"Docs\") }\n    Breadcrumb.Item { Text(\"Components\") }\n}",
+   "preview": true,
+   "outputs": []
+  },
+  {
+   "name": "Breadcrumb.Item",
+   "slug": "breadcrumb-item",
+   "family": "Navigation",
+   "owner": "Breadcrumb",
+   "ownerSlug": "breadcrumb",
+   "summary": "One step of the trail.",
+   "plain": "One step of the trail.",
+   "signature": "Breadcrumb.Item(to: Path) { … }",
+   "block": true,
+   "legacy": false,
+   "props": [
+    {
+     "name": "to:",
+     "type": "Path",
+     "meaning": "Route to navigate to; the link whose `to` matches the current route carries `.active` and `aria-current=\"page\"`"
+    }
+   ],
+   "controls": [],
+   "flags": [
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data",
+    "anchor"
+   ],
+   "cssClass": "",
+   "example": "Breadcrumb {\n    Breadcrumb.Item(to: \"/\") { Text(\"Home\") }\n    Breadcrumb.Item(to: \"/docs\") { Text(\"Docs\") }\n    Breadcrumb.Item { Text(\"Components\") }\n}",
+   "preview": true,
+   "outputs": []
+  },
+  {
+   "name": "Menu",
+   "slug": "menu",
+   "family": "Navigation",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "A menu above everything: opened by its `trigger:` button, or by `visible:` at an `anchor:` or a point `at:` — a context menu. Escape, a press outside or a choice close it, write `false` back to `visible:` and fire `on close`.",
+   "plain": "A menu above everything: opened by its trigger: button, or by visible: at an anchor: or a point at: — a context menu. Escape, a press outside or a choice close it, write false back to visible: and fire on close.",
+   "signature": "Menu(trigger: String, label: String, visible: State, …) { … }",
+   "block": true,
+   "legacy": false,
+   "props": [
+    {
+     "name": "trigger:",
+     "type": "String",
+     "meaning": "Label of the button that opens the menu"
+    },
+    {
+     "name": "label:",
+     "type": "String",
+     "meaning": "Same as `trigger`"
+    },
+    {
+     "name": "visible:",
+     "type": "State",
+     "meaning": "State flag that opens and closes it"
+    },
+    {
+     "name": "anchor:",
+     "type": "Any",
+     "meaning": "What it is placed against: an element's `ref:`, or a point `{ x: e.clientX, y: e.clientY }`"
+    },
+    {
+     "name": "at:",
+     "type": "Any",
+     "meaning": "A point to place it at, `{ x: e.clientX, y: e.clientY }`: where the pointer asked for a context menu"
+    },
+    {
+     "name": "placement:",
+     "type": ".bottom .bottomStart .bottomEnd .top .topStart .topEnd .left .leftStart .leftEnd .right .rightStart .rightEnd",
+     "meaning": "Where it goes against its anchor; it flips to the other side when there is no room. Unset, `.bottomStart`"
+    },
+    {
+     "name": "offset:",
+     "type": "Number",
+     "meaning": "How far from the anchor, in px"
+    }
+   ],
+   "controls": [
+    {
+     "name": "trigger",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "placement",
+     "kind": "enum",
+     "options": [
+      "bottom",
+      "bottomStart",
+      "bottomEnd",
+      "top",
+      "topStart"
+     ],
+     "value": "bottom"
+    }
+   ],
+   "flags": [
+    ".bottom",
+    ".bottomStart",
+    ".bottomEnd",
+    ".top",
+    ".topStart",
+    ".topEnd",
+    ".left",
+    ".leftStart",
+    ".leftEnd",
+    ".right",
+    ".rightStart",
+    ".rightEnd",
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [
+    {
+     "name": "close",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [
+    {
+     "name": "Menu.Item",
+     "kind": "menu-item",
+     "detail": "One entry of the menu; on click is what choosing it does.",
+     "fallback": ""
+    },
+    {
+     "name": "Menu.Divider",
+     "kind": "menu-divider",
+     "detail": "A rule between groups of entries.",
+     "fallback": ""
+    },
+    {
+     "name": "Menu.Sub",
+     "kind": "menu-sub",
+     "detail": "An entry that opens a menu of its own beside it.",
+     "fallback": ""
+    }
+   ],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-menu",
+   "example": "Menu(trigger: \"Options\") {\n    Menu.Item(shortcut: \"F2\") { Text(\"Rename\") }\n    Menu.Sub(label: \"Move to\") { Menu.Item { Text(\"Archive\") } }\n    Menu.Divider\n    Menu.Item(disabled: true) { Text(\"Delete\") }\n}\nstate asked = false\nstate point = { x: 0, y: 0 }\nMenu(visible: asked, at: point) { Menu.Item { Text(\"Copy\") } }",
+   "preview": false,
+   "outputs": []
+  },
+  {
+   "name": "Menu.Item",
+   "slug": "menu-item",
+   "family": "Navigation",
+   "owner": "Menu",
+   "ownerSlug": "menu",
+   "summary": "One entry of the menu; `on click` is what choosing it does.",
+   "plain": "One entry of the menu; on click is what choosing it does.",
+   "signature": "Menu.Item(shortcut: String, checked: Bool, disabled: Bool, …) { … }",
+   "block": true,
+   "legacy": false,
+   "props": [
+    {
+     "name": "shortcut:",
+     "type": "String",
+     "meaning": "The keys that do the same, `mod+b`, shown at its end as this system writes them (`⌘B`, `Ctrl+B`)"
+    },
+    {
+     "name": "checked:",
+     "type": "Bool",
+     "meaning": "A check mark: the item turns something on and off"
+    },
+    {
+     "name": "disabled:",
+     "type": "Bool",
+     "meaning": "Shown, skipped by the arrow keys, and cannot be chosen"
+    },
+    {
+     "name": "danger:",
+     "type": "Bool",
+     "meaning": "What it does cannot be taken back — Delete, Discard: drawn in the danger colour"
+    }
+   ],
+   "controls": [
+    {
+     "name": "shortcut",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "checked",
+     "kind": "bool",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "disabled",
+     "kind": "bool",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "danger",
+     "kind": "bool",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [
+    ".checked",
+    ".disabled",
+    ".danger",
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "Menu(trigger: \"Options\") {\n    Menu.Item(shortcut: \"F2\") { Text(\"Rename\") }\n    Menu.Sub(label: \"Move to\") { Menu.Item { Text(\"Archive\") } }\n    Menu.Divider\n    Menu.Item(disabled: true) { Text(\"Delete\") }\n}\nstate asked = false\nstate point = { x: 0, y: 0 }\nMenu(visible: asked, at: point) { Menu.Item { Text(\"Copy\") } }",
+   "preview": false,
+   "outputs": []
+  },
+  {
+   "name": "Menu.Sub",
+   "slug": "menu-sub",
+   "family": "Navigation",
+   "owner": "Menu",
+   "ownerSlug": "menu",
+   "summary": "An entry that opens a menu of its own beside it.",
+   "plain": "An entry that opens a menu of its own beside it.",
+   "signature": "Menu.Sub(label: String) { … }",
+   "block": true,
+   "legacy": false,
+   "props": [
+    {
+     "name": "label:",
+     "type": "String",
+     "meaning": "What the entry says"
+    }
+   ],
+   "controls": [
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "Menu(trigger: \"Options\") {\n    Menu.Item(shortcut: \"F2\") { Text(\"Rename\") }\n    Menu.Sub(label: \"Move to\") { Menu.Item { Text(\"Archive\") } }\n    Menu.Divider\n    Menu.Item(disabled: true) { Text(\"Delete\") }\n}\nstate asked = false\nstate point = { x: 0, y: 0 }\nMenu(visible: asked, at: point) { Menu.Item { Text(\"Copy\") } }",
+   "preview": false,
+   "outputs": []
+  },
+  {
+   "name": "Menu.Divider",
+   "slug": "menu-divider",
+   "family": "Navigation",
+   "owner": "Menu",
+   "ownerSlug": "menu",
+   "summary": "A rule between groups of entries.",
+   "plain": "A rule between groups of entries.",
+   "signature": "Menu.Divider",
+   "block": false,
+   "legacy": false,
+   "props": [],
+   "controls": [],
+   "flags": [
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "Menu(trigger: \"Options\") {\n    Menu.Item(shortcut: \"F2\") { Text(\"Rename\") }\n    Menu.Sub(label: \"Move to\") { Menu.Item { Text(\"Archive\") } }\n    Menu.Divider\n    Menu.Item(disabled: true) { Text(\"Delete\") }\n}\nstate asked = false\nstate point = { x: 0, y: 0 }\nMenu(visible: asked, at: point) { Menu.Item { Text(\"Copy\") } }",
+   "preview": false,
+   "outputs": []
+  },
+  {
+   "name": "Router",
+   "slug": "router",
+   "family": "Routing",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Where the current page renders. May sit at any depth inside `app`; pages declare their own paths.",
+   "plain": "Where the current page renders. May sit at any depth inside app; pages declare their own paths.",
+   "signature": "Router(transition: Enum, duration: String) { … }",
+   "block": true,
+   "legacy": false,
+   "props": [
+    {
+     "name": "transition:",
+     "type": ".none .fade .slide",
+     "meaning": "How a route change moves between pages"
+    },
+    {
+     "name": "duration:",
+     "type": "String",
+     "meaning": "How long each half of the transition plays, e.g. `200ms`"
+    }
+   ],
+   "controls": [
+    {
+     "name": "transition",
+     "kind": "enum",
+     "options": [
+      "none",
+      "fade",
+      "slide"
+     ],
+     "value": "none"
+    },
+    {
+     "name": "duration",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [
+    ".none",
+    ".fade",
+    ".slide",
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-router",
+   "example": "app {\n    Navbar { Navbar.Brand { Link(\"Acme\", to: \"/\") } }\n    Router(transition: .fade, duration: \"200ms\")\n}",
+   "preview": false,
+   "outputs": []
+  },
+  {
+   "name": "Card",
+   "slug": "card",
+   "family": "Data display",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Card surface with optional header, body and footer sections.",
+   "plain": "Card surface with optional header, body and footer sections.",
+   "signature": "Card(surface: Enum) { … }",
+   "block": true,
+   "legacy": false,
+   "props": [
+    {
+     "name": "surface:",
+     "type": ".flat .elevated .outlined",
+     "meaning": "Surface treatment"
+    }
+   ],
+   "controls": [
+    {
+     "name": "surface",
+     "kind": "enum",
+     "options": [
+      "flat",
+      "elevated",
+      "outlined"
+     ],
+     "value": ""
+    }
+   ],
+   "flags": [
+    ".flat",
+    ".elevated",
+    ".outlined",
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [
+    {
+     "name": "Card.Header",
+     "kind": "card-header",
+     "detail": "The card's heading area.",
+     "fallback": ""
+    },
+    {
+     "name": "Card.Body",
+     "kind": "card-body",
+     "detail": "The card's content area.",
+     "fallback": ""
+    },
+    {
+     "name": "Card.Footer",
+     "kind": "card-footer",
+     "detail": "The card's action area.",
+     "fallback": ""
+    }
+   ],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-card",
+   "example": "Card.elevated {\n    Card.Header { Heading(\"Pro\").h3 }\n    Card.Body { Text(\"Everything in Free, and more.\") }\n    Card.Footer { Button(\"Choose Pro\").primary }\n}",
+   "preview": true,
+   "outputs": []
+  },
+  {
+   "name": "Card.Header",
+   "slug": "card-header",
+   "family": "Data display",
+   "owner": "Card",
+   "ownerSlug": "card",
+   "summary": "The card's heading area.",
+   "plain": "The card's heading area.",
+   "signature": "Card.Header { … }",
+   "block": true,
+   "legacy": false,
+   "props": [],
+   "controls": [],
+   "flags": [
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "Card.elevated {\n    Card.Header { Heading(\"Pro\").h3 }\n    Card.Body { Text(\"Everything in Free, and more.\") }\n    Card.Footer { Button(\"Choose Pro\").primary }\n}",
+   "preview": true,
+   "outputs": []
+  },
+  {
+   "name": "Card.Body",
+   "slug": "card-body",
+   "family": "Data display",
+   "owner": "Card",
+   "ownerSlug": "card",
+   "summary": "The card's content area.",
+   "plain": "The card's content area.",
+   "signature": "Card.Body { … }",
+   "block": true,
+   "legacy": false,
+   "props": [],
+   "controls": [],
+   "flags": [
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "Card.elevated {\n    Card.Header { Heading(\"Pro\").h3 }\n    Card.Body { Text(\"Everything in Free, and more.\") }\n    Card.Footer { Button(\"Choose Pro\").primary }\n}",
+   "preview": true,
+   "outputs": []
+  },
+  {
+   "name": "Card.Footer",
+   "slug": "card-footer",
+   "family": "Data display",
+   "owner": "Card",
+   "ownerSlug": "card",
+   "summary": "The card's action area.",
+   "plain": "The card's action area.",
+   "signature": "Card.Footer { … }",
+   "block": true,
+   "legacy": false,
+   "props": [],
+   "controls": [],
+   "flags": [
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "Card.elevated {\n    Card.Header { Heading(\"Pro\").h3 }\n    Card.Body { Text(\"Everything in Free, and more.\") }\n    Card.Footer { Button(\"Choose Pro\").primary }\n}",
+   "preview": true,
+   "outputs": []
+  },
+  {
+   "name": "Table",
+   "slug": "table",
+   "family": "Data display",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Data table. Cells inside `Table.Head` render as `<th scope=\"col\">`; `caption` is the table's accessible name, visually hidden.",
+   "plain": "Data table. Cells inside Table.Head render as <th scope=\"col\">; caption is the table's accessible name, visually hidden.",
+   "signature": "Table(caption: String) { … }",
+   "block": true,
+   "legacy": false,
+   "props": [
+    {
+     "name": "caption:",
+     "type": "String",
+     "meaning": "Accessible name of the table (rendered visually hidden)"
+    }
+   ],
+   "controls": [
+    {
+     "name": "caption",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [
+    {
+     "name": "Table.Head",
+     "kind": "table-head",
+     "detail": "Header section; its cells become <th scope=\"col\">.",
+     "fallback": ""
+    },
+    {
+     "name": "Table.Body",
+     "kind": "table-body",
+     "detail": "Body section.",
+     "fallback": ""
+    },
+    {
+     "name": "Table.Row",
+     "kind": "table-row",
+     "detail": "A row.",
+     "fallback": ""
+    },
+    {
+     "name": "Table.Cell",
+     "kind": "table-cell",
+     "detail": "A cell. header makes it a <th> anywhere, as Table.Head does for its cells.",
+     "fallback": ""
+    }
+   ],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-table",
+   "example": "Table(caption: \"Deploys\") {\n    Table.Head { Table.Row { Table.Cell(\"Region\")  Table.Cell(\"Status\") } }\n    Table.Body { Table.Row { Table.Cell(\"fra1\")  Table.Cell(\"Healthy\") } }\n}",
+   "preview": true,
+   "outputs": []
+  },
+  {
+   "name": "Table.Head",
+   "slug": "table-head",
+   "family": "Data display",
+   "owner": "Table",
+   "ownerSlug": "table",
+   "summary": "Header section; its cells become `<th scope=\"col\">`.",
+   "plain": "Header section; its cells become <th scope=\"col\">.",
+   "signature": "Table.Head { … }",
+   "block": true,
+   "legacy": false,
+   "props": [],
+   "controls": [],
+   "flags": [
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "Table(caption: \"Deploys\") {\n    Table.Head { Table.Row { Table.Cell(\"Region\")  Table.Cell(\"Status\") } }\n    Table.Body { Table.Row { Table.Cell(\"fra1\")  Table.Cell(\"Healthy\") } }\n}",
+   "preview": true,
+   "outputs": []
+  },
+  {
+   "name": "Table.Body",
+   "slug": "table-body",
+   "family": "Data display",
+   "owner": "Table",
+   "ownerSlug": "table",
+   "summary": "Body section.",
+   "plain": "Body section.",
+   "signature": "Table.Body { … }",
+   "block": true,
+   "legacy": false,
+   "props": [],
+   "controls": [],
+   "flags": [
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "Table(caption: \"Deploys\") {\n    Table.Head { Table.Row { Table.Cell(\"Region\")  Table.Cell(\"Status\") } }\n    Table.Body { Table.Row { Table.Cell(\"fra1\")  Table.Cell(\"Healthy\") } }\n}",
+   "preview": true,
+   "outputs": []
+  },
+  {
+   "name": "Table.Row",
+   "slug": "table-row",
+   "family": "Data display",
+   "owner": "Table",
+   "ownerSlug": "table",
+   "summary": "A row.",
+   "plain": "A row.",
+   "signature": "Table.Row { … }",
+   "block": true,
+   "legacy": false,
+   "props": [],
+   "controls": [],
+   "flags": [
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "Table(caption: \"Deploys\") {\n    Table.Head { Table.Row { Table.Cell(\"Region\")  Table.Cell(\"Status\") } }\n    Table.Body { Table.Row { Table.Cell(\"fra1\")  Table.Cell(\"Healthy\") } }\n}",
+   "preview": true,
+   "outputs": []
+  },
+  {
+   "name": "Table.Cell",
+   "slug": "table-cell",
+   "family": "Data display",
+   "owner": "Table",
+   "ownerSlug": "table",
+   "summary": "A cell. `header` makes it a `<th>` anywhere, as `Table.Head` does for its cells.",
+   "plain": "A cell. header makes it a <th> anywhere, as Table.Head does for its cells.",
+   "signature": "Table.Cell(_ content: Any, header: Bool) { … }",
+   "block": true,
+   "legacy": false,
+   "props": [
+    {
+     "name": "content",
+     "type": "Any  (positional)",
+     "meaning": "The cell's content"
+    },
+    {
+     "name": "header:",
+     "type": "Bool",
+     "meaning": "Render as a `<th>`"
+    }
+   ],
+   "controls": [
+    {
+     "name": "header",
+     "kind": "bool",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [
+    ".header",
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data",
+    "table"
+   ],
+   "cssClass": "",
+   "example": "Table(caption: \"Deploys\") {\n    Table.Head { Table.Row { Table.Cell(\"Region\")  Table.Cell(\"Status\") } }\n    Table.Body { Table.Row { Table.Cell(\"fra1\")  Table.Cell(\"Healthy\") } }\n}",
+   "preview": true,
+   "outputs": []
+  },
+  {
+   "name": "List",
+   "slug": "list",
+   "family": "Data display",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "List of its children; `ordered` for a numbered list.",
+   "plain": "List of its children; ordered for a numbered list.",
+   "signature": "List(ordered: Bool) { … }",
+   "block": true,
+   "legacy": false,
+   "props": [
+    {
+     "name": "ordered:",
+     "type": "Bool",
+     "meaning": "Numbered (`<ol>`)"
+    }
+   ],
+   "controls": [
+    {
+     "name": "ordered",
+     "kind": "bool",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [
+    ".ordered",
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [
+    {
+     "name": "List.Item",
+     "kind": "list-item",
+     "detail": "One entry (<li>).",
+     "fallback": ""
+    }
+   ],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-list",
+   "example": "List {\n    List.Item { Text(\"Milk\") }\n    List.Item { Text(\"Eggs\") }\n}\nList.ordered { List.Item { Text(\"First\") } }",
+   "preview": true,
+   "outputs": []
+  },
+  {
+   "name": "List.Item",
+   "slug": "list-item",
+   "family": "Data display",
+   "owner": "List",
+   "ownerSlug": "list",
+   "summary": "One entry (`<li>`).",
+   "plain": "One entry (<li>).",
+   "signature": "List.Item { … }",
+   "block": true,
+   "legacy": false,
+   "props": [],
+   "controls": [],
+   "flags": [
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "List {\n    List.Item { Text(\"Milk\") }\n    List.Item { Text(\"Eggs\") }\n}\nList.ordered { List.Item { Text(\"First\") } }",
+   "preview": true,
+   "outputs": []
+  },
+  {
+   "name": "Badge",
+   "slug": "badge",
+   "family": "Data display",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Small status label.",
+   "plain": "Small status label.",
+   "signature": "Badge(_ label: String, tone: Enum, pill: Bool)",
+   "block": false,
+   "legacy": false,
+   "props": [
+    {
+     "name": "label",
+     "type": "String  (positional)",
+     "meaning": "The badge text"
+    },
+    {
+     "name": "tone:",
+     "type": ".primary .secondary .success .danger .warning .info",
+     "meaning": "Colour"
+    },
+    {
+     "name": "pill:",
+     "type": "Bool",
+     "meaning": "Fully rounded ends"
+    }
+   ],
+   "controls": [
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "tone",
+     "kind": "enum",
+     "options": [
+      "primary",
+      "secondary",
+      "success",
+      "danger",
+      "warning"
+     ],
+     "value": ""
+    },
+    {
+     "name": "pill",
+     "kind": "bool",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [
+    ".primary",
+    ".secondary",
+    ".success",
+    ".danger",
+    ".warning",
+    ".info",
+    ".pill",
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-badge",
+   "example": "Badge(\"Beta\").info\nBadge(\"3 new\").danger.pill",
+   "preview": true,
+   "outputs": []
+  },
+  {
+   "name": "Tag",
+   "slug": "tag",
+   "family": "Data display",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Compact chip.",
+   "plain": "Compact chip.",
+   "signature": "Tag(_ label: String)",
+   "block": false,
+   "legacy": false,
+   "props": [
+    {
+     "name": "label",
+     "type": "String  (positional)",
+     "meaning": "The tag text"
+    }
+   ],
+   "controls": [
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-tag",
+   "example": "Tag(\"design\")",
+   "preview": true,
+   "outputs": []
+  },
+  {
+   "name": "Avatar",
+   "slug": "avatar",
+   "family": "Data display",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "A picture of a person, or their initials.",
+   "plain": "A picture of a person, or their initials.",
+   "signature": "Avatar(src: String, alt: String, initials: String, …)",
+   "block": false,
+   "legacy": false,
+   "props": [
+    {
+     "name": "src:",
+     "type": "String",
+     "meaning": "Image URL"
+    },
+    {
+     "name": "alt:",
+     "type": "String",
+     "meaning": "Text alternative for the image"
+    },
+    {
+     "name": "initials:",
+     "type": "String",
+     "meaning": "Letters shown when there is no image"
+    },
+    {
+     "name": "size:",
+     "type": ".sm .md .lg",
+     "meaning": "Its size"
+    },
+    {
+     "name": "tone:",
+     "type": ".primary",
+     "meaning": "Colour of the initials"
+    }
+   ],
+   "controls": [
+    {
+     "name": "src",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "alt",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "initials",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "size",
+     "kind": "enum",
+     "options": [
+      "sm",
+      "md",
+      "lg"
+     ],
+     "value": "md"
+    },
+    {
+     "name": "tone",
+     "kind": "enum",
+     "options": [
+      "primary"
+     ],
+     "value": ""
+    }
+   ],
+   "flags": [
+    ".sm",
+    ".md",
+    ".lg",
+    ".primary",
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-avatar",
+   "example": "Avatar(src: \"/ada.jpg\", alt: \"Ada Lovelace\")\nAvatar(initials: \"AL\").primary.lg",
+   "preview": true,
+   "outputs": []
+  },
+  {
+   "name": "Tooltip",
+   "slug": "tooltip",
+   "family": "Data display",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Shows `text` above everything when its child is hovered (after `delay:`) or focused from the keyboard.",
+   "plain": "Shows text above everything when its child is hovered (after delay:) or focused from the keyboard.",
+   "signature": "Tooltip(_ text: String, shortcut: String, placement: Enum, delay: Number) { … }",
+   "block": true,
+   "legacy": false,
+   "props": [
+    {
+     "name": "text",
+     "type": "String  (positional)",
+     "meaning": "The tooltip text"
+    },
+    {
+     "name": "shortcut:",
+     "type": "String",
+     "meaning": "The keys that do the same, `mod+s`, shown as a chip as this system writes them"
+    },
+    {
+     "name": "placement:",
+     "type": ".bottom .bottomStart .bottomEnd .top .topStart .topEnd .left .leftStart .leftEnd .right .rightStart .rightEnd",
+     "meaning": "Where it goes against its anchor; it flips to the other side when there is no room. Unset, `.bottomStart`"
+    },
+    {
+     "name": "delay:",
+     "type": "Number",
+     "meaning": "How long a hover waits before it shows, in ms. Unset, 500"
+    }
+   ],
+   "controls": [
+    {
+     "name": "text",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "shortcut",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "placement",
+     "kind": "enum",
+     "options": [
+      "bottom",
+      "bottomStart",
+      "bottomEnd",
+      "top",
+      "topStart"
+     ],
+     "value": "bottom"
+    }
+   ],
+   "flags": [
+    ".bottom",
+    ".bottomStart",
+    ".bottomEnd",
+    ".top",
+    ".topStart",
+    ".topEnd",
+    ".left",
+    ".leftStart",
+    ".leftEnd",
+    ".right",
+    ".rightStart",
+    ".rightEnd",
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-tooltip",
+   "example": "Tooltip(\"Copies the link\") { IconButton(icon: \"copy\", label: \"Copy link\") }\nTooltip(\"Save\", shortcut: \"Ctrl+S\", delay: 400, placement: .bottom) { Button(\"Save\") }",
+   "preview": true,
+   "outputs": []
+  },
+  {
+   "name": "Chart",
+   "slug": "chart",
+   "family": "Data display",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "A chart drawn as vector graphics when the page is built: bars, lines, areas, a pie or a donut over a list of records.",
+   "plain": "A chart drawn as vector graphics when the page is built: bars, lines, areas, a pie or a donut over a list of records.",
+   "signature": "Chart(kind: Enum, data: Any, x: String, …)",
+   "block": false,
+   "legacy": false,
+   "props": [
+    {
+     "name": "kind:",
+     "type": ".bar .line .area .pie .donut",
+     "meaning": "What it draws"
+    },
+    {
+     "name": "data:",
+     "type": "Any",
+     "meaning": "The rows: a list of records, or of numbers"
+    },
+    {
+     "name": "x:",
+     "type": "String",
+     "meaning": "The key of each row's label"
+    },
+    {
+     "name": "y:",
+     "type": "Any",
+     "meaning": "The key of each row's value, or a list of keys for several series"
+    },
+    {
+     "name": "colors:",
+     "type": "Any",
+     "meaning": "The series' colours, in order"
+    },
+    {
+     "name": "width:",
+     "type": "Number",
+     "meaning": "Its width in user units (it scales to its box)"
+    },
+    {
+     "name": "height:",
+     "type": "Number",
+     "meaning": "Its height in user units"
+    },
+    {
+     "name": "ink:",
+     "type": "String",
+     "meaning": "The colour of its labels"
+    },
+    {
+     "name": "grid:",
+     "type": "String",
+     "meaning": "The colour of its grid lines"
+    },
+    {
+     "name": "legend:",
+     "type": "Bool",
+     "meaning": "Name the series"
+    },
+    {
+     "name": "stacked:",
+     "type": "Bool",
+     "meaning": "Stack a bar chart's series"
+    },
+    {
+     "name": "labels:",
+     "type": "Bool",
+     "meaning": "Write each bar's or slice's value on it"
+    },
+    {
+     "name": "unit:",
+     "type": "String",
+     "meaning": "A unit after each value on the axis: `ms`, `%`"
+    }
+   ],
+   "controls": [
+    {
+     "name": "kind",
+     "kind": "enum",
+     "options": [
+      "bar",
+      "line",
+      "area",
+      "pie",
+      "donut"
+     ],
+     "value": "bar"
+    },
+    {
+     "name": "x",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "ink",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "grid",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "legend",
+     "kind": "bool",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "stacked",
+     "kind": "bool",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [
+    ".bar",
+    ".line",
+    ".area",
+    ".pie",
+    ".donut",
+    ".legend",
+    ".stacked",
+    ".labels",
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-chart",
+   "example": "Chart(kind: .bar, data: [{ month: \"Jan\", web: 12 }, { month: \"Feb\", web: 18 }], x: \"month\", y: \"web\", unit: \"k\")",
+   "preview": false,
+   "outputs": []
+  },
+  {
+   "name": "QrCode",
+   "slug": "qrcode",
+   "family": "Data display",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "A QR code for a URL or any text, drawn as vector graphics when the page is built.",
+   "plain": "A QR code for a URL or any text, drawn as vector graphics when the page is built.",
+   "signature": "QrCode(_ value: String, color: String, background: String)",
+   "block": false,
+   "legacy": false,
+   "props": [
+    {
+     "name": "value",
+     "type": "String  (positional)",
+     "meaning": "What it encodes"
+    },
+    {
+     "name": "color:",
+     "type": "String",
+     "meaning": "The colour of the dark modules"
+    },
+    {
+     "name": "background:",
+     "type": "String",
+     "meaning": "The colour behind them"
+    }
+   ],
+   "controls": [
+    {
+     "name": "value",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "color",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "background",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-qr",
+   "example": "QrCode(\"https://example.com/report/q1\")",
+   "preview": true,
+   "outputs": []
+  },
+  {
+   "name": "Input",
+   "slug": "input",
+   "family": "Form",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Text field. With `label`, `hint` or `error` it is a labelled field.",
+   "plain": "Text field. With label, hint or error it is a labelled field.",
+   "signature": "Input(bind: State, label: String, hint: String, …)",
+   "block": false,
+   "legacy": false,
+   "props": [
+    {
+     "name": "bind:",
+     "type": "State",
+     "meaning": "State variable the control reads and writes (two-way)"
+    },
+    {
+     "name": "label:",
+     "type": "String",
+     "meaning": "Visible label; also the control's accessible name"
+    },
+    {
+     "name": "hint:",
+     "type": "String",
+     "meaning": "Help text under the control, linked to it by `aria-describedby`"
+    },
+    {
+     "name": "error:",
+     "type": "String",
+     "meaning": "Error text (a string; empty when there is none): announced as it appears and sets `aria-invalid`"
+    },
+    {
+     "name": "type:",
+     "type": ".text .email .password .number .search .tel .url .date .time .datetime .color",
+     "meaning": "What the field holds"
+    },
+    {
+     "name": "placeholder:",
+     "type": "String",
+     "meaning": "Hint shown while the field is empty"
+    },
+    {
+     "name": "value:",
+     "type": "Any",
+     "meaning": "The control's value, when its state is not bound"
+    },
+    {
+     "name": "min:",
+     "type": "Any",
+     "meaning": "Lowest value"
+    },
+    {
+     "name": "max:",
+     "type": "Any",
+     "meaning": "Highest value"
+    },
+    {
+     "name": "step:",
+     "type": "Number",
+     "meaning": "Granularity"
+    },
+    {
+     "name": "required:",
+     "type": "Bool",
+     "meaning": "Whether the form refuses to submit without it"
+    },
+    {
+     "name": "disabled:",
+     "type": "Bool",
+     "meaning": "Whether the control is inert"
+    },
+    {
+     "name": "size:",
+     "type": ".sm .md .lg",
+     "meaning": "Its size"
+    },
+    {
+     "name": "width:",
+     "type": ".full",
+     "meaning": "Width"
+    },
+    {
+     "name": "rounded:",
+     "type": "Bool",
+     "meaning": "Rounded corners"
+    }
+   ],
+   "controls": [
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "hint",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "error",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "type",
+     "kind": "enum",
+     "options": [
+      "text",
+      "email",
+      "password",
+      "number",
+      "search"
+     ],
+     "value": ""
+    },
+    {
+     "name": "placeholder",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "required",
+     "kind": "bool",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [
+    ".text",
+    ".email",
+    ".password",
+    ".number",
+    ".search",
+    ".tel",
+    ".url",
+    ".date",
+    ".time",
+    ".datetime",
+    ".color",
+    ".required",
+    ".disabled",
+    ".sm",
+    ".md",
+    ".lg",
+    ".full",
+    ".rounded",
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data",
+    "input"
+   ],
+   "cssClass": "wf-input",
+   "example": "state email = \"\"\nInput(bind: email, label: \"Email\", hint: \"We never share it\").email.required",
+   "preview": true,
+   "outputs": []
+  },
+  {
+   "name": "Select",
+   "slug": "select",
+   "family": "Form",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Drop-down of `Select.Option` children.",
+   "plain": "Drop-down of Select.Option children.",
+   "signature": "Select(bind: State, value: Any, label: String, …) { … }",
+   "block": true,
+   "legacy": false,
+   "props": [
+    {
+     "name": "bind:",
+     "type": "State",
+     "meaning": "State variable the control reads and writes (two-way)"
+    },
+    {
+     "name": "value:",
+     "type": "Any",
+     "meaning": "The control's value, when its state is not bound"
+    },
+    {
+     "name": "label:",
+     "type": "String",
+     "meaning": "Visible label; also the control's accessible name"
+    },
+    {
+     "name": "hint:",
+     "type": "String",
+     "meaning": "Help text under the control, linked to it by `aria-describedby`"
+    },
+    {
+     "name": "error:",
+     "type": "String",
+     "meaning": "Error text (a string; empty when there is none): announced as it appears and sets `aria-invalid`"
+    },
+    {
+     "name": "disabled:",
+     "type": "Bool",
+     "meaning": "Whether the control is inert"
+    },
+    {
+     "name": "multiple:",
+     "type": "Bool",
+     "meaning": "Allow several choices"
+    }
+   ],
+   "controls": [
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "hint",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "error",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "disabled",
+     "kind": "bool",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "multiple",
+     "kind": "bool",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [
+    ".disabled",
+    ".multiple",
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [
+    {
+     "name": "Select.Option",
+     "kind": "select-option",
+     "detail": "One choice: the visible label, and the value sent with the form.",
+     "fallback": ""
+    }
+   ],
+   "attributes": [
+    "global",
+    "aria",
+    "data",
+    "input"
+   ],
+   "cssClass": "wf-select",
+   "example": "state plan = \"free\"\nSelect(bind: plan, label: \"Plan\") {\n    Select.Option(\"Free\", value: \"free\")\n    Select.Option(\"Team\", value: \"team\")\n}",
+   "preview": true,
+   "outputs": []
+  },
+  {
+   "name": "Select.Option",
+   "slug": "select-option",
+   "family": "Form",
+   "owner": "Select",
+   "ownerSlug": "select",
+   "summary": "One choice: the visible label, and the value sent with the form.",
+   "plain": "One choice: the visible label, and the value sent with the form.",
+   "signature": "Select.Option(_ label: String, value: Any)",
+   "block": false,
+   "legacy": false,
+   "props": [
+    {
+     "name": "label",
+     "type": "String  (positional)",
+     "meaning": "The visible label"
+    },
+    {
+     "name": "value:",
+     "type": "Any",
+     "meaning": "The value `bind` takes when this one is chosen; the label when absent"
+    }
+   ],
+   "controls": [
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "state plan = \"free\"\nSelect(bind: plan, label: \"Plan\") {\n    Select.Option(\"Free\", value: \"free\")\n    Select.Option(\"Team\", value: \"team\")\n}",
+   "preview": true,
+   "outputs": []
+  },
+  {
+   "name": "Checkbox",
+   "slug": "checkbox",
+   "family": "Form",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Checkbox bound to a boolean state.",
+   "plain": "Checkbox bound to a boolean state.",
+   "signature": "Checkbox(bind: State, checked: Bool, label: String, …)",
+   "block": false,
+   "legacy": false,
+   "props": [
+    {
+     "name": "bind:",
+     "type": "State",
+     "meaning": "State variable the control reads and writes (two-way)"
+    },
+    {
+     "name": "checked:",
+     "type": "Bool",
+     "meaning": "Whether it is checked, when its state is not bound"
+    },
+    {
+     "name": "label:",
+     "type": "String",
+     "meaning": "Visible label; also the control's accessible name"
+    },
+    {
+     "name": "disabled:",
+     "type": "Bool",
+     "meaning": "Whether the control is inert"
+    }
+   ],
+   "controls": [
+    {
+     "name": "checked",
+     "kind": "bool",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "disabled",
+     "kind": "bool",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [
+    ".checked",
+    ".disabled",
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data",
+    "input"
+   ],
+   "cssClass": "wf-checkbox",
+   "example": "state agree = false\nCheckbox(bind: agree, label: \"I agree to the terms\")",
+   "preview": true,
+   "outputs": []
+  },
+  {
+   "name": "Radio",
+   "slug": "radio",
+   "family": "Form",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "One choice of a group; every radio bound to the same state is one group.",
+   "plain": "One choice of a group; every radio bound to the same state is one group.",
+   "signature": "Radio(bind: State, value: Any, checked: Bool, …)",
+   "block": false,
+   "legacy": false,
+   "props": [
+    {
+     "name": "bind:",
+     "type": "State",
+     "meaning": "State variable the control reads and writes (two-way)"
+    },
+    {
+     "name": "value:",
+     "type": "Any",
+     "meaning": "The value `bind` takes when this one is chosen"
+    },
+    {
+     "name": "checked:",
+     "type": "Bool",
+     "meaning": "Whether it is checked, when its state is not bound"
+    },
+    {
+     "name": "label:",
+     "type": "String",
+     "meaning": "Visible label; also the control's accessible name"
+    },
+    {
+     "name": "disabled:",
+     "type": "Bool",
+     "meaning": "Whether the control is inert"
+    }
+   ],
+   "controls": [
+    {
+     "name": "checked",
+     "kind": "bool",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "disabled",
+     "kind": "bool",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [
+    ".checked",
+    ".disabled",
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data",
+    "input"
+   ],
+   "cssClass": "wf-radio",
+   "example": "state size = \"m\"\nRadio(bind: size, value: \"s\", label: \"Small\")\nRadio(bind: size, value: \"m\", label: \"Medium\")",
+   "preview": true,
+   "outputs": []
+  },
+  {
+   "name": "Switch",
+   "slug": "switch",
+   "family": "Form",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "On/off toggle bound to a boolean state.",
+   "plain": "On/off toggle bound to a boolean state.",
+   "signature": "Switch(bind: State, checked: Bool, label: String, …)",
+   "block": false,
+   "legacy": false,
+   "props": [
+    {
+     "name": "bind:",
+     "type": "State",
+     "meaning": "State variable the control reads and writes (two-way)"
+    },
+    {
+     "name": "checked:",
+     "type": "Bool",
+     "meaning": "Whether it is checked, when its state is not bound"
+    },
+    {
+     "name": "label:",
+     "type": "String",
+     "meaning": "Visible label; also the control's accessible name"
+    },
+    {
+     "name": "disabled:",
+     "type": "Bool",
+     "meaning": "Whether the control is inert"
+    }
+   ],
+   "controls": [
+    {
+     "name": "checked",
+     "kind": "bool",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "disabled",
+     "kind": "bool",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [
+    ".checked",
+    ".disabled",
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data",
+    "input"
+   ],
+   "cssClass": "wf-switch",
+   "example": "state notify = true\nSwitch(bind: notify, label: \"Email me about replies\")",
+   "preview": true,
+   "outputs": []
+  },
+  {
+   "name": "Slider",
+   "slug": "slider",
+   "family": "Form",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Range input. `aria-*` and its other attributes reach the input; with `aria-valuetext` the raw number is not shown beside the track.",
+   "plain": "Range input. aria-* and its other attributes reach the input; with aria-valuetext the raw number is not shown beside the track.",
+   "signature": "Slider(bind: State, min: Number, max: Number, …)",
+   "block": false,
+   "legacy": false,
+   "props": [
+    {
+     "name": "bind:",
+     "type": "State",
+     "meaning": "State variable the control reads and writes (two-way)"
+    },
+    {
+     "name": "min:",
+     "type": "Number",
+     "meaning": "Lowest value"
+    },
+    {
+     "name": "max:",
+     "type": "Number",
+     "meaning": "Highest value"
+    },
+    {
+     "name": "step:",
+     "type": "Number",
+     "meaning": "Granularity"
+    },
+    {
+     "name": "label:",
+     "type": "String",
+     "meaning": "Visible label; also the control's accessible name"
+    },
+    {
+     "name": "disabled:",
+     "type": "Bool",
+     "meaning": "Whether the control is inert"
+    }
+   ],
+   "controls": [
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "disabled",
+     "kind": "bool",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [
+    ".disabled",
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data",
+    "input"
+   ],
+   "cssClass": "wf-slider",
+   "example": "state volume = 50\nSlider(bind: volume, min: 0, max: 100, step: 5, label: \"Volume\")",
+   "preview": true,
+   "outputs": []
+  },
+  {
+   "name": "DatePicker",
+   "slug": "datepicker",
+   "family": "Form",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Date input.",
+   "plain": "Date input.",
+   "signature": "DatePicker(bind: State, label: String, min: String, …)",
+   "block": false,
+   "legacy": false,
+   "props": [
+    {
+     "name": "bind:",
+     "type": "State",
+     "meaning": "State variable the control reads and writes (two-way)"
+    },
+    {
+     "name": "label:",
+     "type": "String",
+     "meaning": "Visible label; also the control's accessible name"
+    },
+    {
+     "name": "min:",
+     "type": "String",
+     "meaning": "Earliest date, `YYYY-MM-DD`"
+    },
+    {
+     "name": "max:",
+     "type": "String",
+     "meaning": "Latest date, `YYYY-MM-DD`"
+    },
+    {
+     "name": "disabled:",
+     "type": "Bool",
+     "meaning": "Whether the control is inert"
+    }
+   ],
+   "controls": [
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "min",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "max",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "disabled",
+     "kind": "bool",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [
+    ".disabled",
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data",
+    "input"
+   ],
+   "cssClass": "wf-datepicker",
+   "example": "state start: Date? = null\nDatePicker(bind: start, label: \"Start date\", min: \"2026-01-01\")",
+   "preview": false,
+   "outputs": []
+  },
+  {
+   "name": "FileUpload",
+   "slug": "fileupload",
+   "family": "Form",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "File input; handle the chosen files in `on change`.",
+   "plain": "File input; handle the chosen files in on change.",
+   "signature": "FileUpload(accept: String, label: String, multiple: Bool, …) { … }",
+   "block": true,
+   "legacy": false,
+   "props": [
+    {
+     "name": "accept:",
+     "type": "String",
+     "meaning": "Accepted types, e.g. `image/*` or `.pdf,.doc`"
+    },
+    {
+     "name": "label:",
+     "type": "String",
+     "meaning": "Visible label; also the control's accessible name"
+    },
+    {
+     "name": "multiple:",
+     "type": "Bool",
+     "meaning": "Accept several files"
+    },
+    {
+     "name": "disabled:",
+     "type": "Bool",
+     "meaning": "Whether the control is inert"
+    }
+   ],
+   "controls": [
+    {
+     "name": "accept",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "multiple",
+     "kind": "bool",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "disabled",
+     "kind": "bool",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [
+    ".multiple",
+    ".disabled",
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data",
+    "input"
+   ],
+   "cssClass": "wf-file-upload",
+   "example": "FileUpload(accept: \"image/*\", label: \"Choose a picture\") { on change(e) { log(e.target.files[0].name) } }",
+   "preview": false,
+   "outputs": []
+  },
+  {
+   "name": "Form",
+   "slug": "form",
+   "family": "Form",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Groups controls; `on submit` runs when it is submitted, and the page never navigates away.",
+   "plain": "Groups controls; on submit runs when it is submitted, and the page never navigates away.",
+   "signature": "Form(bind: State, show: Enum) { … }",
+   "block": true,
+   "legacy": false,
+   "props": [
+    {
+     "name": "bind:",
+     "type": "State",
+     "meaning": "A handle on the form: `form.valid`, `form.errors`, `form.values` by field name, `form.reset()`, `form.apply(serverErrors)`"
+    },
+    {
+     "name": "show:",
+     "type": ".onBlur .onSubmit .live",
+     "meaning": "When a `validate` block's message is shown"
+    }
+   ],
+   "controls": [
+    {
+     "name": "show",
+     "kind": "enum",
+     "options": [
+      "onBlur",
+      "onSubmit",
+      "live"
+     ],
+     "value": ""
+    }
+   ],
+   "flags": [
+    ".onBlur",
+    ".onSubmit",
+    ".live",
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data",
+    "form"
+   ],
+   "cssClass": "wf-form",
+   "example": "state name = \"\"\nForm(bind: form) {\n    on submit { log(name) }\n    Input(bind: name, label: \"Name\").required\n    Button(\"Save\", type: .submit, disabled: !form.valid).primary\n}",
+   "preview": false,
+   "outputs": []
+  },
+  {
+   "name": "Textarea",
+   "slug": "textarea",
+   "family": "Form",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Several lines of text. With `label`, `hint` or `error` it is a labelled field; with `maxLength` it counts what is left.",
+   "plain": "Several lines of text. With label, hint or error it is a labelled field; with maxLength it counts what is left.",
+   "signature": "Textarea(bind: State, label: String, hint: String, …)",
+   "block": false,
+   "legacy": false,
+   "props": [
+    {
+     "name": "bind:",
+     "type": "State",
+     "meaning": "State variable the control reads and writes (two-way)"
+    },
+    {
+     "name": "label:",
+     "type": "String",
+     "meaning": "Visible label; also the control's accessible name"
+    },
+    {
+     "name": "hint:",
+     "type": "String",
+     "meaning": "Help text under the control, linked to it by `aria-describedby`"
+    },
+    {
+     "name": "error:",
+     "type": "String",
+     "meaning": "Error text (a string; empty when there is none): announced as it appears and sets `aria-invalid`"
+    },
+    {
+     "name": "placeholder:",
+     "type": "String",
+     "meaning": "Hint shown while the field is empty"
+    },
+    {
+     "name": "rows:",
+     "type": "Number",
+     "meaning": "How many lines it shows"
+    },
+    {
+     "name": "maxLength:",
+     "type": "Number",
+     "meaning": "The most characters it takes"
+    },
+    {
+     "name": "required:",
+     "type": "Bool",
+     "meaning": "Whether the form refuses to submit without it"
+    },
+    {
+     "name": "disabled:",
+     "type": "Bool",
+     "meaning": "Whether the control is inert"
+    }
+   ],
+   "controls": [
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "hint",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "error",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "placeholder",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "required",
+     "kind": "bool",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "disabled",
+     "kind": "bool",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [
+    ".required",
+    ".disabled",
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data",
+    "input"
+   ],
+   "cssClass": "wf-input wf-textarea",
+   "example": "state note = \"\"\nTextarea(bind: note, label: \"Notes\", rows: 4, maxLength: 200)",
+   "preview": true,
+   "outputs": []
+  },
+  {
+   "name": "Alert",
+   "slug": "alert",
+   "family": "Feedback",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Inline notice; a `danger` or `warning` one is announced as an alert.",
+   "plain": "Inline notice; a danger or warning one is announced as an alert.",
+   "signature": "Alert(_ message: String, tone: Enum) { … }",
+   "block": true,
+   "legacy": false,
+   "props": [
+    {
+     "name": "message",
+     "type": "String  (positional)",
+     "meaning": "The message"
+    },
+    {
+     "name": "tone:",
+     "type": ".success .danger .warning .info",
+     "meaning": "Kind of notice"
+    }
+   ],
+   "controls": [
+    {
+     "name": "message",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "tone",
+     "kind": "enum",
+     "options": [
+      "success",
+      "danger",
+      "warning",
+      "info"
+     ],
+     "value": ""
+    }
+   ],
+   "flags": [
+    ".success",
+    ".danger",
+    ".warning",
+    ".info",
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-alert",
+   "example": "Alert(\"Your changes were saved.\").success\nAlert(\"The server is not answering.\").danger",
+   "preview": true,
+   "outputs": []
+  },
+  {
+   "name": "Toast",
+   "slug": "toast",
+   "family": "Feedback",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Temporary notification.",
+   "plain": "Temporary notification.",
+   "signature": "Toast(_ message: String, tone: Enum)",
+   "block": false,
+   "legacy": false,
+   "props": [
+    {
+     "name": "message",
+     "type": "String  (positional)",
+     "meaning": "The message"
+    },
+    {
+     "name": "tone:",
+     "type": ".success .danger .warning .info",
+     "meaning": "Kind of notice"
+    }
+   ],
+   "controls": [
+    {
+     "name": "message",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "tone",
+     "kind": "enum",
+     "options": [
+      "success",
+      "danger",
+      "warning",
+      "info"
+     ],
+     "value": ""
+    }
+   ],
+   "flags": [
+    ".success",
+    ".danger",
+    ".warning",
+    ".info",
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-toast",
+   "example": "state saved = false\nif saved { Toast(\"Saved\").success }",
+   "preview": false,
+   "outputs": []
+  },
+  {
+   "name": "Modal",
+   "slug": "modal",
+   "family": "Feedback",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Modal `<dialog>`, opened by a state flag; the browser supplies focus trapping and Escape. `on close` runs when it closes, however it was closed.",
+   "plain": "Modal <dialog>, opened by a state flag; the browser supplies focus trapping and Escape. on close runs when it closes, however it was closed.",
+   "signature": "Modal(visible: State, title: String, closable: Bool) { … }",
+   "block": true,
+   "legacy": false,
+   "props": [
+    {
+     "name": "visible:",
+     "type": "State",
+     "meaning": "State flag that opens and closes it"
+    },
+    {
+     "name": "title:",
+     "type": "String",
+     "meaning": "Heading shown at the top"
+    },
+    {
+     "name": "closable:",
+     "type": "Bool",
+     "meaning": "A close button in the heading row, which closes it as Escape does"
+    }
+   ],
+   "controls": [
+    {
+     "name": "title",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "closable",
+     "kind": "bool",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [
+    ".closable",
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [
+    {
+     "name": "close",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [
+    {
+     "name": "Modal.Title",
+     "kind": "modal-title",
+     "detail": "What the modal's heading draws, in place of its title:'s words, which stay its name: Modal.Title { Text { \"Rename \"  Code(name) } }.",
+     "fallback": ""
+    },
+    {
+     "name": "Modal.Footer",
+     "kind": "modal-footer",
+     "detail": "The modal's action row.",
+     "fallback": ""
+    }
+   ],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-modal",
+   "example": "state open = false\nButton(\"Delete\") { on click { open = true } }\nModal(visible: open, title: \"Delete deploys.wf?\").closable {\n    Modal.Title { Markdown(\"Delete `deploys.wf`?\") }\n    Text(\"This cannot be undone.\")\n    Modal.Footer { Button(\"Cancel\") { on click { open = false } } }\n}",
+   "preview": false,
+   "outputs": []
+  },
+  {
+   "name": "Modal.Title",
+   "slug": "modal-title",
+   "family": "Feedback",
+   "owner": "Modal",
+   "ownerSlug": "modal",
+   "summary": "What the modal's heading draws, in place of its `title:`'s words, which stay its name: `Modal.Title { Text { \"Rename \"  Code(name) } }`.",
+   "plain": "What the modal's heading draws, in place of its title:'s words, which stay its name: Modal.Title { Text { \"Rename \"  Code(name) } }.",
+   "signature": "Modal.Title { … }",
+   "block": true,
+   "legacy": false,
+   "props": [],
+   "controls": [],
+   "flags": [
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "state open = false\nButton(\"Delete\") { on click { open = true } }\nModal(visible: open, title: \"Delete deploys.wf?\").closable {\n    Modal.Title { Markdown(\"Delete `deploys.wf`?\") }\n    Text(\"This cannot be undone.\")\n    Modal.Footer { Button(\"Cancel\") { on click { open = false } } }\n}",
+   "preview": false,
+   "outputs": []
+  },
+  {
+   "name": "Modal.Footer",
+   "slug": "modal-footer",
+   "family": "Feedback",
+   "owner": "Modal",
+   "ownerSlug": "modal",
+   "summary": "The modal's action row.",
+   "plain": "The modal's action row.",
+   "signature": "Modal.Footer { … }",
+   "block": true,
+   "legacy": false,
+   "props": [],
+   "controls": [],
+   "flags": [
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "state open = false\nButton(\"Delete\") { on click { open = true } }\nModal(visible: open, title: \"Delete deploys.wf?\").closable {\n    Modal.Title { Markdown(\"Delete `deploys.wf`?\") }\n    Text(\"This cannot be undone.\")\n    Modal.Footer { Button(\"Cancel\") { on click { open = false } } }\n}",
+   "preview": false,
+   "outputs": []
+  },
+  {
+   "name": "Popover",
+   "slug": "popover",
+   "family": "Feedback",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "A layer at a control: drawn above everything, placed against its `anchor:`, closed by `Escape` or a press outside, which write `false` back to `visible:` and fire `on close`.",
+   "plain": "A layer at a control: drawn above everything, placed against its anchor:, closed by Escape or a press outside, which write false back to visible: and fire on close.",
+   "signature": "Popover(visible: State, anchor: Any, at: Any, …) { … }",
+   "block": true,
+   "legacy": false,
+   "props": [
+    {
+     "name": "visible:",
+     "type": "State",
+     "meaning": "State flag that opens and closes it"
+    },
+    {
+     "name": "anchor:",
+     "type": "Any",
+     "meaning": "What it is placed against: an element's `ref:`, or a point `{ x: e.clientX, y: e.clientY }`"
+    },
+    {
+     "name": "at:",
+     "type": "Any",
+     "meaning": "A point to place it at, `{ x: e.clientX, y: e.clientY }`: where the pointer asked for a context menu"
+    },
+    {
+     "name": "placement:",
+     "type": ".bottom .bottomStart .bottomEnd .top .topStart .topEnd .left .leftStart .leftEnd .right .rightStart .rightEnd",
+     "meaning": "Where it goes against its anchor; it flips to the other side when there is no room. Unset, `.bottomStart`"
+    },
+    {
+     "name": "offset:",
+     "type": "Number",
+     "meaning": "How far from the anchor, in px"
+    },
+    {
+     "name": "label:",
+     "type": "String",
+     "meaning": "What it is, for a screen reader: its accessible name"
+    },
+    {
+     "name": "arrow:",
+     "type": "Bool",
+     "meaning": "A point toward the anchor"
+    }
+   ],
+   "controls": [
+    {
+     "name": "placement",
+     "kind": "enum",
+     "options": [
+      "bottom",
+      "bottomStart",
+      "bottomEnd",
+      "top",
+      "topStart"
+     ],
+     "value": "bottom"
+    },
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "arrow",
+     "kind": "bool",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [
+    ".bottom",
+    ".bottomStart",
+    ".bottomEnd",
+    ".top",
+    ".topStart",
+    ".topEnd",
+    ".left",
+    ".leftStart",
+    ".leftEnd",
+    ".right",
+    ".rightStart",
+    ".rightEnd",
+    ".arrow",
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [
+    {
+     "name": "close",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-popover",
+   "example": "state open = false\nButton(\"Branches\", ref: branches) { on click { open = !open } }\nPopover(visible: open, anchor: branches, placement: .bottomStart, label: \"Branches\").arrow {\n    on close(reason) { log(reason) }\n    Text(\"main\")\n}",
+   "preview": false,
+   "outputs": []
+  },
+  {
+   "name": "Dialog",
+   "slug": "dialog",
+   "family": "Feedback",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Confirmation `<dialog>`, opened by a state flag. `on close` runs when it closes, however it was closed.",
+   "plain": "Confirmation <dialog>, opened by a state flag. on close runs when it closes, however it was closed.",
+   "signature": "Dialog(visible: State, title: String, closable: Bool) { … }",
+   "block": true,
+   "legacy": false,
+   "props": [
+    {
+     "name": "visible:",
+     "type": "State",
+     "meaning": "State flag that opens and closes it"
+    },
+    {
+     "name": "title:",
+     "type": "String",
+     "meaning": "Heading shown at the top"
+    },
+    {
+     "name": "closable:",
+     "type": "Bool",
+     "meaning": "A close button in the heading row, which closes it as Escape does"
+    }
+   ],
+   "controls": [
+    {
+     "name": "title",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "closable",
+     "kind": "bool",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [
+    ".closable",
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [
+    {
+     "name": "close",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [
+    {
+     "name": "Dialog.Title",
+     "kind": "dialog-title",
+     "detail": "What the dialog's heading draws, in place of its title:'s words, which stay its name.",
+     "fallback": ""
+    }
+   ],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-dialog",
+   "example": "state asking = false\nDialog(visible: asking, title: \"Leave without saving notes.md?\") {\n    Dialog.Title { Markdown(\"Leave without saving `notes.md`?\") }\n    Text(\"Your draft will be lost.\")\n}",
+   "preview": false,
+   "outputs": []
+  },
+  {
+   "name": "Dialog.Title",
+   "slug": "dialog-title",
+   "family": "Feedback",
+   "owner": "Dialog",
+   "ownerSlug": "dialog",
+   "summary": "What the dialog's heading draws, in place of its `title:`'s words, which stay its name.",
+   "plain": "What the dialog's heading draws, in place of its title:'s words, which stay its name.",
+   "signature": "Dialog.Title { … }",
+   "block": true,
+   "legacy": false,
+   "props": [],
+   "controls": [],
+   "flags": [
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "state asking = false\nDialog(visible: asking, title: \"Leave without saving notes.md?\") {\n    Dialog.Title { Markdown(\"Leave without saving `notes.md`?\") }\n    Text(\"Your draft will be lost.\")\n}",
+   "preview": false,
+   "outputs": []
+  },
+  {
+   "name": "Spinner",
+   "slug": "spinner",
+   "family": "Feedback",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Loading indicator, announced as a status.",
+   "plain": "Loading indicator, announced as a status.",
+   "signature": "Spinner(size: Enum)",
+   "block": false,
+   "legacy": false,
+   "props": [
+    {
+     "name": "size:",
+     "type": ".sm .md .lg",
+     "meaning": "Its size"
+    }
+   ],
+   "controls": [
+    {
+     "name": "size",
+     "kind": "enum",
+     "options": [
+      "sm",
+      "md",
+      "lg"
+     ],
+     "value": "md"
+    }
+   ],
+   "flags": [
+    ".sm",
+    ".md",
+    ".lg",
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-spinner",
+   "example": "Spinner\nSpinner.lg",
+   "preview": true,
+   "outputs": []
+  },
+  {
+   "name": "Progress",
+   "slug": "progress",
+   "family": "Feedback",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Progress bar; a `value` that reads state moves with it.",
+   "plain": "Progress bar; a value that reads state moves with it.",
+   "signature": "Progress(value: Number, max: Number)",
+   "block": false,
+   "legacy": false,
+   "props": [
+    {
+     "name": "value:",
+     "type": "Number",
+     "meaning": "Current value"
+    },
+    {
+     "name": "max:",
+     "type": "Number",
+     "meaning": "Value at 100%"
+    }
+   ],
+   "controls": [],
+   "flags": [
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-progress",
+   "example": "Progress(value: 40, max: 100)",
+   "preview": true,
+   "outputs": []
+  },
+  {
+   "name": "Skeleton",
+   "slug": "skeleton",
+   "family": "Feedback",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Placeholder shape shown while content loads.",
+   "plain": "Placeholder shape shown while content loads.",
+   "signature": "Skeleton(height: String, width: String, size: String, …)",
+   "block": false,
+   "legacy": false,
+   "props": [
+    {
+     "name": "height:",
+     "type": "String",
+     "meaning": "CSS height"
+    },
+    {
+     "name": "width:",
+     "type": "String",
+     "meaning": "CSS width"
+    },
+    {
+     "name": "size:",
+     "type": "String",
+     "meaning": "Diameter of a `circle`"
+    },
+    {
+     "name": "circle:",
+     "type": "Bool",
+     "meaning": "A round placeholder"
+    }
+   ],
+   "controls": [
+    {
+     "name": "height",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "width",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "size",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "circle",
+     "kind": "bool",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [
+    ".circle",
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-skeleton",
+   "example": "Skeleton(height: \"20px\", width: \"200px\")\nSkeleton(size: \"48px\").circle",
+   "preview": true,
+   "outputs": []
+  },
+  {
+   "name": "Button",
+   "slug": "button",
+   "family": "Actions",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Button. Its block holds what it shows; `on click` what it does.",
+   "plain": "Button. Its block holds what it shows; on click what it does.",
+   "signature": "Button(_ label: String, tone: Enum, size: Enum, shape: Enum, …) { … }",
+   "block": true,
+   "legacy": false,
+   "props": [
+    {
+     "name": "label",
+     "type": "String  (positional)",
+     "meaning": "The label"
+    },
+    {
+     "name": "tone:",
+     "type": ".primary .secondary .success .danger .warning .info",
+     "meaning": "Colour"
+    },
+    {
+     "name": "size:",
+     "type": ".sm .md .lg",
+     "meaning": "Its size"
+    },
+    {
+     "name": "shape:",
+     "type": ".rounded .pill",
+     "meaning": "Corner shape"
+    },
+    {
+     "name": "width:",
+     "type": ".full",
+     "meaning": "Width"
+    },
+    {
+     "name": "outlined:",
+     "type": "Bool",
+     "meaning": "A border and no fill"
+    },
+    {
+     "name": "type:",
+     "type": ".button .submit .reset",
+     "meaning": "Its role inside a form"
+    },
+    {
+     "name": "to:",
+     "type": "Path",
+     "meaning": "Route to navigate to; the link whose `to` matches the current route carries `.active` and `aria-current=\"page\"`"
+    },
+    {
+     "name": "disabled:",
+     "type": "Bool",
+     "meaning": "Whether the control is inert"
+    }
+   ],
+   "controls": [
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "tone",
+     "kind": "enum",
+     "options": [
+      "primary",
+      "secondary",
+      "success",
+      "danger",
+      "warning"
+     ],
+     "value": ""
+    },
+    {
+     "name": "size",
+     "kind": "enum",
+     "options": [
+      "sm",
+      "md",
+      "lg"
+     ],
+     "value": "md"
+    },
+    {
+     "name": "shape",
+     "kind": "enum",
+     "options": [
+      "rounded",
+      "pill"
+     ],
+     "value": ""
+    },
+    {
+     "name": "width",
+     "kind": "enum",
+     "options": [
+      "full"
+     ],
+     "value": ""
+    },
+    {
+     "name": "outlined",
+     "kind": "bool",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [
+    ".primary",
+    ".secondary",
+    ".success",
+    ".danger",
+    ".warning",
+    ".info",
+    ".sm",
+    ".md",
+    ".lg",
+    ".rounded",
+    ".pill",
+    ".full",
+    ".outlined",
+    ".button",
+    ".submit",
+    ".reset",
+    ".disabled",
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-btn",
+   "example": "Button(\"Save\").primary { on click { log(\"saved\") } }\nButton(\"Delete\").danger.outlined.sm\nButton(\"Send\", type: .submit).primary.full",
+   "preview": true,
+   "outputs": []
+  },
+  {
+   "name": "IconButton",
+   "slug": "iconbutton",
+   "family": "Actions",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Icon-only button. `label` is its accessible name, never visible text.",
+   "plain": "Icon-only button. label is its accessible name, never visible text.",
+   "signature": "IconButton(icon: String, label: String, size: Enum, …) { … }",
+   "block": true,
+   "legacy": false,
+   "props": [
+    {
+     "name": "icon:",
+     "type": "String",
+     "meaning": "One of the built-in icon names"
+    },
+    {
+     "name": "label:",
+     "type": "String",
+     "meaning": "Accessible name (`aria-label` and `title`)"
+    },
+    {
+     "name": "size:",
+     "type": ".sm .md .lg",
+     "meaning": "Its size"
+    },
+    {
+     "name": "tone:",
+     "type": ".primary .danger",
+     "meaning": "Colour"
+    },
+    {
+     "name": "type:",
+     "type": ".button .submit .reset",
+     "meaning": "Its role inside a form"
+    },
+    {
+     "name": "disabled:",
+     "type": "Bool",
+     "meaning": "Whether the control is inert"
+    }
+   ],
+   "controls": [
+    {
+     "name": "icon",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "size",
+     "kind": "enum",
+     "options": [
+      "sm",
+      "md",
+      "lg"
+     ],
+     "value": "md"
+    },
+    {
+     "name": "tone",
+     "kind": "enum",
+     "options": [
+      "primary",
+      "danger"
+     ],
+     "value": ""
+    },
+    {
+     "name": "type",
+     "kind": "enum",
+     "options": [
+      "button",
+      "submit",
+      "reset"
+     ],
+     "value": "button"
+    },
+    {
+     "name": "disabled",
+     "kind": "bool",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [
+    ".sm",
+    ".md",
+    ".lg",
+    ".primary",
+    ".danger",
+    ".button",
+    ".submit",
+    ".reset",
+    ".disabled",
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-icon-btn",
+   "example": "IconButton(icon: \"close\", label: \"Close\")\nIconButton(icon: \"edit\", label: \"Edit the title\").primary.sm",
+   "preview": true,
+   "outputs": []
+  },
+  {
+   "name": "ButtonGroup",
+   "slug": "buttongroup",
+   "family": "Actions",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Buttons joined into one row.",
+   "plain": "Buttons joined into one row.",
+   "signature": "ButtonGroup { … }",
+   "block": true,
+   "legacy": false,
+   "props": [],
+   "controls": [],
+   "flags": [
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-btn-group",
+   "example": "ButtonGroup {\n    Button(\"Day\")\n    Button(\"Week\")\n    Button(\"Month\")\n}",
+   "preview": true,
+   "outputs": []
+  },
+  {
+   "name": "Dropdown",
+   "slug": "dropdown",
+   "family": "Actions",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Button that opens a menu of `Dropdown.Item`s.",
+   "plain": "Button that opens a menu of Dropdown.Items.",
+   "signature": "Dropdown(_ label: String) { … }",
+   "block": true,
+   "legacy": false,
+   "props": [
+    {
+     "name": "label",
+     "type": "String  (positional)",
+     "meaning": "Label of the button that opens it"
+    }
+   ],
+   "controls": [
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [
+    {
+     "name": "Dropdown.Item",
+     "kind": "dropdown-item",
+     "detail": "One entry of the menu.",
+     "fallback": ""
+    },
+    {
+     "name": "Dropdown.Divider",
+     "kind": "dropdown-divider",
+     "detail": "A rule between groups of entries.",
+     "fallback": ""
+    }
+   ],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-dropdown",
+   "example": "Dropdown(label: \"Actions\") {\n    Dropdown.Item { Text(\"Duplicate\") }\n    Dropdown.Divider\n    Dropdown.Item { Text(\"Archive\") }\n}",
+   "preview": false,
+   "outputs": []
+  },
+  {
+   "name": "Dropdown.Item",
+   "slug": "dropdown-item",
+   "family": "Actions",
+   "owner": "Dropdown",
+   "ownerSlug": "dropdown",
+   "summary": "One entry of the menu.",
+   "plain": "One entry of the menu.",
+   "signature": "Dropdown.Item { … }",
+   "block": true,
+   "legacy": false,
+   "props": [],
+   "controls": [],
+   "flags": [
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "Dropdown(label: \"Actions\") {\n    Dropdown.Item { Text(\"Duplicate\") }\n    Dropdown.Divider\n    Dropdown.Item { Text(\"Archive\") }\n}",
+   "preview": false,
+   "outputs": []
+  },
+  {
+   "name": "Dropdown.Divider",
+   "slug": "dropdown-divider",
+   "family": "Actions",
+   "owner": "Dropdown",
+   "ownerSlug": "dropdown",
+   "summary": "A rule between groups of entries.",
+   "plain": "A rule between groups of entries.",
+   "signature": "Dropdown.Divider",
+   "block": false,
+   "legacy": false,
+   "props": [],
+   "controls": [],
+   "flags": [
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "Dropdown(label: \"Actions\") {\n    Dropdown.Item { Text(\"Duplicate\") }\n    Dropdown.Divider\n    Dropdown.Item { Text(\"Archive\") }\n}",
+   "preview": false,
+   "outputs": []
+  },
+  {
+   "name": "Image",
+   "slug": "image",
+   "family": "Media",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Image; `alt` is required for accessibility (rule A01). Given an `image` the program declares, it becomes a `<picture>` with every width the build wrote.",
+   "plain": "Image; alt is required for accessibility (rule A01). Given an image the program declares, it becomes a <picture> with every width the build wrote.",
+   "signature": "Image(_ source: Any, src: String, sizes: String, placeholder: Enum, …)",
+   "block": false,
+   "legacy": false,
+   "props": [
+    {
+     "name": "source",
+     "type": "Any  (positional)",
+     "meaning": "An `image` the program declares, or a URL"
+    },
+    {
+     "name": "src:",
+     "type": "String",
+     "meaning": "Image URL"
+    },
+    {
+     "name": "sizes:",
+     "type": "String",
+     "meaning": "How wide it will be shown, so the browser picks a width: `(max-width: 768px) 100vw, 1200px`"
+    },
+    {
+     "name": "placeholder:",
+     "type": ".blur .color .none",
+     "meaning": "What fills the box while the image loads"
+    },
+    {
+     "name": "alt:",
+     "type": "String",
+     "meaning": "Text alternative; empty for a purely decorative image"
+    },
+    {
+     "name": "width:",
+     "type": "Number",
+     "meaning": "Intrinsic width"
+    },
+    {
+     "name": "height:",
+     "type": "Number",
+     "meaning": "Intrinsic height"
+    },
+    {
+     "name": "loading:",
+     "type": ".lazy .eager",
+     "meaning": "Unset, the first image on a page is eager at high priority and the rest lazy"
+    },
+    {
+     "name": "shape:",
+     "type": ".rounded .circle",
+     "meaning": "Shape"
+    }
+   ],
+   "controls": [
+    {
+     "name": "src",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "sizes",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "placeholder",
+     "kind": "enum",
+     "options": [
+      "blur",
+      "color",
+      "none"
+     ],
+     "value": ""
+    },
+    {
+     "name": "alt",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "loading",
+     "kind": "enum",
+     "options": [
+      "lazy",
+      "eager"
+     ],
+     "value": "lazy"
+    },
+    {
+     "name": "shape",
+     "kind": "enum",
+     "options": [
+      "rounded",
+      "circle"
+     ],
+     "value": ""
+    }
+   ],
+   "flags": [
+    ".blur",
+    ".color",
+    ".none",
+    ".lazy",
+    ".eager",
+    ".rounded",
+    ".circle",
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-image",
+   "example": "Image(src: \"/team.jpg\", alt: \"The team at the launch\", width: 1200, height: 630)\nImage(src: \"/flourish.svg\", alt: \"\")",
+   "preview": false,
+   "outputs": []
+  },
+  {
+   "name": "Video",
+   "slug": "video",
+   "family": "Media",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Video player. Without `captions` it draws an `A09` warning: a video nobody can hear is a video nobody can follow.",
+   "plain": "Video player. Without captions it draws an A09 warning: a video nobody can hear is a video nobody can follow.",
+   "signature": "Video(src: String, controls: Bool, autoplay: Bool, …)",
+   "block": false,
+   "legacy": false,
+   "props": [
+    {
+     "name": "src:",
+     "type": "String",
+     "meaning": "Video URL"
+    },
+    {
+     "name": "controls:",
+     "type": "Bool",
+     "meaning": "Show the browser's playback controls"
+    },
+    {
+     "name": "autoplay:",
+     "type": "Bool",
+     "meaning": "Start playing when shown"
+    },
+    {
+     "name": "poster:",
+     "type": "String",
+     "meaning": "The frame shown before it plays"
+    },
+    {
+     "name": "muted:",
+     "type": "Bool",
+     "meaning": "Start with the sound off"
+    },
+    {
+     "name": "loop:",
+     "type": "Bool",
+     "meaning": "Start again when it ends"
+    },
+    {
+     "name": "playsinline:",
+     "type": "Bool",
+     "meaning": "Play where it sits, rather than full screen"
+    },
+    {
+     "name": "captions:",
+     "type": "String",
+     "meaning": "A WebVTT file of captions, which becomes a `<track>`"
+    },
+    {
+     "name": "width:",
+     "type": "Number",
+     "meaning": "Intrinsic width"
+    },
+    {
+     "name": "height:",
+     "type": "Number",
+     "meaning": "Intrinsic height"
+    }
+   ],
+   "controls": [
+    {
+     "name": "src",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "controls",
+     "kind": "bool",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "autoplay",
+     "kind": "bool",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "poster",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "muted",
+     "kind": "bool",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "loop",
+     "kind": "bool",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [
+    ".controls",
+    ".autoplay",
+    ".muted",
+    ".loop",
+    ".playsinline",
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data",
+    "media"
+   ],
+   "cssClass": "wf-video",
+   "example": "Video(src: \"/demo.mp4\", captions: \"/demo.en.vtt\", poster: \"/demo.jpg\").controls",
+   "preview": false,
+   "outputs": []
+  },
+  {
+   "name": "Audio",
+   "slug": "audio",
+   "family": "Media",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Audio player. `transcript` links what was said, which is what a reader who cannot hear it needs.",
+   "plain": "Audio player. transcript links what was said, which is what a reader who cannot hear it needs.",
+   "signature": "Audio(src: String, controls: Bool, autoplay: Bool, …)",
+   "block": false,
+   "legacy": false,
+   "props": [
+    {
+     "name": "src:",
+     "type": "String",
+     "meaning": "Audio URL"
+    },
+    {
+     "name": "controls:",
+     "type": "Bool",
+     "meaning": "Show the browser's playback controls"
+    },
+    {
+     "name": "autoplay:",
+     "type": "Bool",
+     "meaning": "Start playing when shown"
+    },
+    {
+     "name": "loop:",
+     "type": "Bool",
+     "meaning": "Start again when it ends"
+    },
+    {
+     "name": "transcript:",
+     "type": "String",
+     "meaning": "A link to what was said, shown beneath the player"
+    }
+   ],
+   "controls": [
+    {
+     "name": "src",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "controls",
+     "kind": "bool",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "autoplay",
+     "kind": "bool",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "loop",
+     "kind": "bool",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "transcript",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [
+    ".controls",
+    ".autoplay",
+    ".loop",
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-audio",
+   "example": "Audio(src: \"/episode-1.mp3\", transcript: \"/episode-1.txt\").controls",
+   "preview": false,
+   "outputs": []
+  },
+  {
+   "name": "Frame",
+   "slug": "frame",
+   "family": "Media",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Another page, shown inside this one: an `iframe` — the page at `src:`, or the HTML `srcdoc:` gives it, sandboxed as `sandbox:` says. `on message(m)` hears what that page posts to this one (`m.data`), and nothing any other page posts. Without `title:` it draws an `A17` warning: a frame is announced by its title.",
+   "plain": "Another page, shown inside this one: an iframe — the page at src:, or the HTML srcdoc: gives it, sandboxed as sandbox: says. on message(m) hears what that page posts to this one (m.data), and nothing any other page posts. Without title: it draws an A17 warning: a frame is announced by its title.",
+   "signature": "Frame(src: String, srcdoc: String, title: String, …)",
+   "block": false,
+   "legacy": false,
+   "props": [
+    {
+     "name": "src:",
+     "type": "String",
+     "meaning": "The address of the page it shows"
+    },
+    {
+     "name": "srcdoc:",
+     "type": "String",
+     "meaning": "The HTML it draws in place of an address, sandboxed as `sandbox:` says; a value that reads state draws the new HTML as it changes"
+    },
+    {
+     "name": "title:",
+     "type": "String",
+     "meaning": "What it shows, in a few words: its accessible name"
+    },
+    {
+     "name": "sandbox:",
+     "type": "String",
+     "meaning": "What the framed page may do: `\"allow-scripts allow-forms\"`; empty, it may do nothing"
+    },
+    {
+     "name": "allow:",
+     "type": "String",
+     "meaning": "The features it may use: `\"fullscreen; clipboard-write\"`"
+    },
+    {
+     "name": "loading:",
+     "type": ".lazy .eager",
+     "meaning": "Unset, at once"
+    }
+   ],
+   "controls": [
+    {
+     "name": "src",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "srcdoc",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "title",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "sandbox",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "allow",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "loading",
+     "kind": "enum",
+     "options": [
+      "lazy",
+      "eager"
+     ],
+     "value": "lazy"
+    }
+   ],
+   "flags": [
+    ".lazy",
+    ".eager",
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [
+    {
+     "name": "message",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    },
+    {
+     "name": "load",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-frame",
+   "example": "Frame(src: \"https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ\", title: \"The launch talk\", allow: \"fullscreen\")\nstate heard = \"\"\nFrame(src: \"/preview/\", title: \"Preview\", sandbox: \"allow-scripts\") {\n    on message(m) { heard = m.data }\n}\nstate version = 1\nFrame(srcdoc: \"<p>Version {version}</p>\", title: \"Example\", sandbox: \"\")",
+   "preview": false,
+   "outputs": []
+  },
+  {
+   "name": "Icon",
+   "slug": "icon",
+   "family": "Media",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "One of the built-in SVG icons, rendered inline.",
+   "plain": "One of the built-in SVG icons, rendered inline.",
+   "signature": "Icon(_ name: String, size: Enum, tone: Enum, muted: Bool)",
+   "block": false,
+   "legacy": false,
+   "props": [
+    {
+     "name": "name",
+     "type": "String  (positional)",
+     "meaning": "The icon name"
+    },
+    {
+     "name": "size:",
+     "type": ".sm .md .lg",
+     "meaning": "Its size"
+    },
+    {
+     "name": "tone:",
+     "type": ".primary .secondary .success .danger .warning .info",
+     "meaning": "Colour"
+    },
+    {
+     "name": "muted:",
+     "type": "Bool",
+     "meaning": "Dimmed, for secondary text"
+    }
+   ],
+   "controls": [
+    {
+     "name": "name",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "size",
+     "kind": "enum",
+     "options": [
+      "sm",
+      "md",
+      "lg"
+     ],
+     "value": "md"
+    },
+    {
+     "name": "tone",
+     "kind": "enum",
+     "options": [
+      "primary",
+      "secondary",
+      "success",
+      "danger",
+      "warning"
+     ],
+     "value": ""
+    },
+    {
+     "name": "muted",
+     "kind": "bool",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [
+    ".sm",
+    ".md",
+    ".lg",
+    ".primary",
+    ".secondary",
+    ".success",
+    ".danger",
+    ".warning",
+    ".info",
+    ".muted",
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-icon",
+   "example": "Icon(\"search\")\nIcon(\"check\").lg.success",
+   "preview": true,
+   "outputs": []
+  },
+  {
+   "name": "Carousel",
+   "slug": "carousel",
+   "family": "Media",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Slide track with named controls and dots; optional autoplay.",
+   "plain": "Slide track with named controls and dots; optional autoplay.",
+   "signature": "Carousel(label: String, autoplay: Bool, interval: Number) { … }",
+   "block": true,
+   "legacy": false,
+   "props": [
+    {
+     "name": "label:",
+     "type": "String",
+     "meaning": "Accessible name of the region"
+    },
+    {
+     "name": "autoplay:",
+     "type": "Bool",
+     "meaning": "Advance automatically"
+    },
+    {
+     "name": "interval:",
+     "type": "Number",
+     "meaning": "Milliseconds between slides"
+    }
+   ],
+   "controls": [
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "autoplay",
+     "kind": "bool",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [
+    ".autoplay",
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [
+    {
+     "name": "Carousel.Slide",
+     "kind": "carousel-slide",
+     "detail": "One slide.",
+     "fallback": ""
+    }
+   ],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-carousel",
+   "example": "Carousel(label: \"Recent work\", autoplay: true, interval: 5000) {\n    Carousel.Slide { Image(src: \"/one.jpg\", alt: \"A bridge at dusk\") }\n    Carousel.Slide { Image(src: \"/two.jpg\", alt: \"The harbour\") }\n}",
+   "preview": false,
+   "outputs": []
+  },
+  {
+   "name": "Carousel.Slide",
+   "slug": "carousel-slide",
+   "family": "Media",
+   "owner": "Carousel",
+   "ownerSlug": "carousel",
+   "summary": "One slide.",
+   "plain": "One slide.",
+   "signature": "Carousel.Slide { … }",
+   "block": true,
+   "legacy": false,
+   "props": [],
+   "controls": [],
+   "flags": [
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "Carousel(label: \"Recent work\", autoplay: true, interval: 5000) {\n    Carousel.Slide { Image(src: \"/one.jpg\", alt: \"A bridge at dusk\") }\n    Carousel.Slide { Image(src: \"/two.jpg\", alt: \"The harbour\") }\n}",
+   "preview": false,
+   "outputs": []
+  },
+  {
+   "name": "Text",
+   "slug": "text",
+   "family": "Typography",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "A paragraph of text. `{…}` in the string reads state and stays live.",
+   "plain": "A paragraph of text. {…} in the string reads state and stays live.",
+   "signature": "Text(_ content: Any, tone: Enum, size: Enum, align: Enum, …)",
+   "block": false,
+   "legacy": false,
+   "props": [
+    {
+     "name": "content",
+     "type": "Any  (positional)",
+     "meaning": "The text"
+    },
+    {
+     "name": "tone:",
+     "type": ".primary .secondary .success .danger .warning .info",
+     "meaning": "Colour"
+    },
+    {
+     "name": "size:",
+     "type": ".sm .md .lg",
+     "meaning": "Its size"
+    },
+    {
+     "name": "align:",
+     "type": ".left .center .right",
+     "meaning": "Text alignment"
+    },
+    {
+     "name": "transform:",
+     "type": ".uppercase .lowercase",
+     "meaning": "Letter case"
+    },
+    {
+     "name": "kind:",
+     "type": ".heading .subtitle",
+     "meaning": "Typographic role"
+    },
+    {
+     "name": "bold:",
+     "type": "Bool",
+     "meaning": "Bold"
+    },
+    {
+     "name": "italic:",
+     "type": "Bool",
+     "meaning": "Italic"
+    },
+    {
+     "name": "underline:",
+     "type": "Bool",
+     "meaning": "Underlined"
+    },
+    {
+     "name": "muted:",
+     "type": "Bool",
+     "meaning": "Dimmed, for secondary text"
+    }
+   ],
+   "controls": [
+    {
+     "name": "tone",
+     "kind": "enum",
+     "options": [
+      "primary",
+      "secondary",
+      "success",
+      "danger",
+      "warning"
+     ],
+     "value": ""
+    },
+    {
+     "name": "size",
+     "kind": "enum",
+     "options": [
+      "sm",
+      "md",
+      "lg"
+     ],
+     "value": "md"
+    },
+    {
+     "name": "align",
+     "kind": "enum",
+     "options": [
+      "left",
+      "center",
+      "right"
+     ],
+     "value": ""
+    },
+    {
+     "name": "transform",
+     "kind": "enum",
+     "options": [
+      "uppercase",
+      "lowercase"
+     ],
+     "value": ""
+    },
+    {
+     "name": "kind",
+     "kind": "enum",
+     "options": [
+      "heading",
+      "subtitle"
+     ],
+     "value": ""
+    },
+    {
+     "name": "bold",
+     "kind": "bool",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [
+    ".primary",
+    ".secondary",
+    ".success",
+    ".danger",
+    ".warning",
+    ".info",
+    ".sm",
+    ".md",
+    ".lg",
+    ".left",
+    ".center",
+    ".right",
+    ".uppercase",
+    ".lowercase",
+    ".heading",
+    ".subtitle",
+    ".bold",
+    ".italic",
+    ".underline",
+    ".muted",
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-text",
+   "example": "Text(\"Hello, world\")\nText(\"Last updated today\").muted.sm\nText(\"Important\").bold.danger",
+   "preview": true,
+   "outputs": []
+  },
+  {
+   "name": "Heading",
+   "slug": "heading",
+   "family": "Typography",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Heading; `level` picks the tag (`h2` when none is given).",
+   "plain": "Heading; level picks the tag (h2 when none is given).",
+   "signature": "Heading(_ content: Any, level: Enum, align: Enum, muted: Bool)",
+   "block": false,
+   "legacy": false,
+   "props": [
+    {
+     "name": "content",
+     "type": "Any  (positional)",
+     "meaning": "The heading text"
+    },
+    {
+     "name": "level:",
+     "type": ".h1 .h2 .h3 .h4 .h5 .h6",
+     "meaning": "Heading level: the tag, and its place in the outline"
+    },
+    {
+     "name": "align:",
+     "type": ".left .center .right",
+     "meaning": "Text alignment"
+    },
+    {
+     "name": "muted:",
+     "type": "Bool",
+     "meaning": "Dimmed, for secondary text"
+    }
+   ],
+   "controls": [
+    {
+     "name": "level",
+     "kind": "enum",
+     "options": [
+      "h1",
+      "h2",
+      "h3",
+      "h4",
+      "h5"
+     ],
+     "value": ""
+    },
+    {
+     "name": "align",
+     "kind": "enum",
+     "options": [
+      "left",
+      "center",
+      "right"
+     ],
+     "value": ""
+    },
+    {
+     "name": "muted",
+     "kind": "bool",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [
+    ".h1",
+    ".h2",
+    ".h3",
+    ".h4",
+    ".h5",
+    ".h6",
+    ".left",
+    ".center",
+    ".right",
+    ".muted",
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-heading",
+   "example": "Heading(\"Pricing\").h1\nHeading(\"Frequently asked\").h2",
+   "preview": true,
+   "outputs": []
+  },
+  {
+   "name": "Code",
+   "slug": "code",
+   "family": "Typography",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Inline code, or a code block with `block`; `language:` colours it.",
+   "plain": "Inline code, or a code block with block; language: colours it.",
+   "signature": "Code(_ content: Any, block: Bool, language: String)",
+   "block": false,
+   "legacy": false,
+   "props": [
+    {
+     "name": "content",
+     "type": "Any  (positional)",
+     "meaning": "The code"
+    },
+    {
+     "name": "block:",
+     "type": "Bool",
+     "meaning": "A multi-line block"
+    },
+    {
+     "name": "language:",
+     "type": "String",
+     "meaning": "Colours the code as this language: `wf`, `json`, `bash` or `css`"
+    }
+   ],
+   "controls": [
+    {
+     "name": "block",
+     "kind": "bool",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "language",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [
+    ".block",
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-code",
+   "example": "Text(\"Run \")\nCode(\"wf serve\")\nCode(\"page Home(path: \\\"/\\\") { Text(\\\"Hi\\\") }\", language: \"wf\").block",
+   "preview": true,
+   "outputs": []
+  },
+  {
+   "name": "Markdown",
+   "slug": "markdown",
+   "family": "Typography",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Markdown text rendered as HTML: headings, paragraphs, lists, quotes, code, links, emphasis. The text is escaped first, so HTML in it is shown, not run, and a link or picture whose URL a browser would run is drawn as its words. `.inert` is for text somebody else wrote.",
+   "plain": "Markdown text rendered as HTML: headings, paragraphs, lists, quotes, code, links, emphasis. The text is escaped first, so HTML in it is shown, not run, and a link or picture whose URL a browser would run is drawn as its words. .inert is for text somebody else wrote.",
+   "signature": "Markdown(_ text: String, inert: Bool)",
+   "block": false,
+   "legacy": false,
+   "props": [
+    {
+     "name": "text",
+     "type": "String  (positional)",
+     "meaning": "The Markdown text"
+    },
+    {
+     "name": "inert:",
+     "type": "Bool",
+     "meaning": "Text somebody else wrote, such as a language server's documentation: its entities are decoded, a link is drawn as its words and a picture is left out"
+    }
+   ],
+   "controls": [
+    {
+     "name": "text",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "inert",
+     "kind": "bool",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [
+    ".inert",
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-markdown",
+   "example": "state docs = \"Returns &lt;T&gt;, as [the guide](/docs) says.\"\nMarkdown(\"Some **bold** text and a [link](/docs).\")\nMarkdown(docs).inert",
+   "preview": true,
+   "outputs": []
+  },
+  {
+   "name": "Unsafe",
+   "slug": "unsafe",
+   "family": "Typography",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "The one door for markup a page did not write. It has a single part, `Unsafe.Html`.",
+   "plain": "The one door for markup a page did not write. It has a single part, Unsafe.Html.",
+   "signature": "Unsafe",
+   "block": false,
+   "legacy": false,
+   "props": [],
+   "controls": [],
+   "flags": [
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [],
+   "parts": [
+    {
+     "name": "Unsafe.Html",
+     "kind": "unsafe-html",
+     "detail": "Markup, put in as markup. It is **not** sanitised — the name says so — and sanitize(…) is one call away for anything the project did not write itself.",
+     "fallback": ""
+    }
+   ],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "state body = \"<p>From the CMS</p>\"\nUnsafe.Html(sanitize(body))",
+   "preview": false,
+   "outputs": []
+  },
+  {
+   "name": "Unsafe.Html",
+   "slug": "unsafe-html",
+   "family": "Typography",
+   "owner": "Unsafe",
+   "ownerSlug": "unsafe",
+   "summary": "Markup, put in as markup. It is **not** sanitised — the name says so — and `sanitize(…)` is one call away for anything the project did not write itself.",
+   "plain": "Markup, put in as markup. It is **not** sanitised — the name says so — and sanitize(…) is one call away for anything the project did not write itself.",
+   "signature": "Unsafe.Html(_ markup: String)",
+   "block": false,
+   "legacy": false,
+   "props": [
+    {
+     "name": "markup",
+     "type": "String  (positional)",
+     "meaning": "The HTML to insert"
+    }
+   ],
+   "controls": [
+    {
+     "name": "markup",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-html",
+   "example": "state body = \"<p>From the CMS</p>\"\nUnsafe.Html(sanitize(body))",
+   "preview": false,
+   "outputs": []
+  },
+  {
+   "name": "Blockquote",
+   "slug": "blockquote",
+   "family": "Typography",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Quotation: the text, or its block as the quoted content.",
+   "plain": "Quotation: the text, or its block as the quoted content.",
+   "signature": "Blockquote(_ content: Any) { … }",
+   "block": true,
+   "legacy": false,
+   "props": [
+    {
+     "name": "content",
+     "type": "Any  (positional)",
+     "meaning": "The quoted text"
+    }
+   ],
+   "controls": [],
+   "flags": [
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-blockquote",
+   "example": "Blockquote { Text(\"Make it work, make it right, make it fast.\") }",
+   "preview": true,
+   "outputs": []
+  },
+  {
+   "name": "TableOfContents",
+   "slug": "tableofcontents",
+   "family": "PDF",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "The document's headings with the page each lands on, each a link to it.",
+   "plain": "The document's headings with the page each lands on, each a link to it.",
+   "signature": "TableOfContents(levels: Number, title: String)",
+   "block": false,
+   "legacy": false,
+   "props": [
+    {
+     "name": "levels:",
+     "type": "Number",
+     "meaning": "How deep it lists: 1 is the `h1`s only (default 3)"
+    },
+    {
+     "name": "title:",
+     "type": "String",
+     "meaning": "A heading above the list"
+    }
+   ],
+   "controls": [
+    {
+     "name": "title",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-toc",
+   "example": "TableOfContents(levels: 2)",
+   "preview": false,
+   "outputs": [
+    "pdf"
+   ]
+  },
+  {
+   "name": "Document",
+   "slug": "document",
+   "family": "PDF",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Root of a PDF document: the paper, the margins and what the file says about itself.",
+   "plain": "Root of a PDF document: the paper, the margins and what the file says about itself.",
+   "signature": "Document(page_size: Enum, size: String, landscape: Bool, …) { … }",
+   "block": true,
+   "legacy": false,
+   "props": [
+    {
+     "name": "page_size:",
+     "type": ".A4 .A3 .A5 .Letter .Legal",
+     "meaning": "Paper size (also `size:`)"
+    },
+    {
+     "name": "size:",
+     "type": "String",
+     "meaning": "Paper size: `A4`, `Letter`, `Tabloid`, or two lengths, `210mm 297mm`"
+    },
+    {
+     "name": "landscape:",
+     "type": "Bool",
+     "meaning": "Turn the paper on its side"
+    },
+    {
+     "name": "margin:",
+     "type": "Any",
+     "meaning": "The page margins: one length, or top right bottom left (`72`, `20mm 25mm`)"
+    },
+    {
+     "name": "title:",
+     "type": "String",
+     "meaning": "The file's title, shown by a reader in place of its name"
+    },
+    {
+     "name": "author:",
+     "type": "String",
+     "meaning": "The file's author; several separated by commas"
+    },
+    {
+     "name": "subject:",
+     "type": "String",
+     "meaning": "What the document is about"
+    },
+    {
+     "name": "keywords:",
+     "type": "String",
+     "meaning": "Comma-separated keywords"
+    },
+    {
+     "name": "lang:",
+     "type": "String",
+     "meaning": "The document's language, for screen readers and hyphenation"
+    }
+   ],
+   "controls": [
+    {
+     "name": "page_size",
+     "kind": "enum",
+     "options": [
+      "A4",
+      "A3",
+      "A5",
+      "Letter",
+      "Legal"
+     ],
+     "value": "A4"
+    },
+    {
+     "name": "size",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "landscape",
+     "kind": "bool",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "title",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "author",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "subject",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [
+    ".A4",
+    ".A3",
+    ".A5",
+    ".Letter",
+    ".Legal",
+    ".landscape",
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-document",
+   "example": "Document(page_size: \"A4\") {\n    Section { Heading(\"Report\").h1  Paragraph(\"Revenue grew.\") }\n}",
+   "preview": false,
+   "outputs": [
+    "pdf"
+   ]
+  },
+  {
+   "name": "Section",
+   "slug": "section",
+   "family": "PDF",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Groups content with spacing; on the web, a `<section>`.",
+   "plain": "Groups content with spacing; on the web, a <section>.",
+   "signature": "Section { … }",
+   "block": true,
+   "legacy": false,
+   "props": [],
+   "controls": [],
+   "flags": [
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-section",
+   "example": "Section {\n    Heading(\"Terms\").h2\n    Text(\"Payment within 30 days.\")\n}",
+   "preview": false,
+   "outputs": [
+    "pdf"
+   ]
+  },
+  {
+   "name": "Paragraph",
+   "slug": "paragraph",
+   "family": "PDF",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Block of text with paragraph spacing.",
+   "plain": "Block of text with paragraph spacing.",
+   "signature": "Paragraph(_ content: Any, tone: Enum, size: Enum, align: Enum, …)",
+   "block": false,
+   "legacy": false,
+   "props": [
+    {
+     "name": "content",
+     "type": "Any  (positional)",
+     "meaning": "The text"
+    },
+    {
+     "name": "tone:",
+     "type": ".primary .secondary .success .danger .warning .info",
+     "meaning": "Colour"
+    },
+    {
+     "name": "size:",
+     "type": ".sm .md .lg",
+     "meaning": "Its size"
+    },
+    {
+     "name": "align:",
+     "type": ".left .center .right",
+     "meaning": "Text alignment"
+    },
+    {
+     "name": "transform:",
+     "type": ".uppercase .lowercase",
+     "meaning": "Letter case"
+    },
+    {
+     "name": "kind:",
+     "type": ".heading .subtitle",
+     "meaning": "Typographic role"
+    },
+    {
+     "name": "bold:",
+     "type": "Bool",
+     "meaning": "Bold"
+    },
+    {
+     "name": "italic:",
+     "type": "Bool",
+     "meaning": "Italic"
+    },
+    {
+     "name": "underline:",
+     "type": "Bool",
+     "meaning": "Underlined"
+    },
+    {
+     "name": "muted:",
+     "type": "Bool",
+     "meaning": "Dimmed, for secondary text"
+    }
+   ],
+   "controls": [
+    {
+     "name": "tone",
+     "kind": "enum",
+     "options": [
+      "primary",
+      "secondary",
+      "success",
+      "danger",
+      "warning"
+     ],
+     "value": ""
+    },
+    {
+     "name": "size",
+     "kind": "enum",
+     "options": [
+      "sm",
+      "md",
+      "lg"
+     ],
+     "value": "md"
+    },
+    {
+     "name": "align",
+     "kind": "enum",
+     "options": [
+      "left",
+      "center",
+      "right"
+     ],
+     "value": ""
+    },
+    {
+     "name": "transform",
+     "kind": "enum",
+     "options": [
+      "uppercase",
+      "lowercase"
+     ],
+     "value": ""
+    },
+    {
+     "name": "kind",
+     "kind": "enum",
+     "options": [
+      "heading",
+      "subtitle"
+     ],
+     "value": ""
+    },
+    {
+     "name": "bold",
+     "kind": "bool",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [
+    ".primary",
+    ".secondary",
+    ".success",
+    ".danger",
+    ".warning",
+    ".info",
+    ".sm",
+    ".md",
+    ".lg",
+    ".left",
+    ".center",
+    ".right",
+    ".uppercase",
+    ".lowercase",
+    ".heading",
+    ".subtitle",
+    ".bold",
+    ".italic",
+    ".underline",
+    ".muted",
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-text",
+   "example": "Paragraph(\"A block of prose, with the spacing a paragraph has.\")",
+   "preview": false,
+   "outputs": [
+    "pdf"
+   ]
+  },
+  {
+   "name": "Header",
+   "slug": "header",
+   "family": "PDF",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Repeated at the top of every PDF page (or those `on:` names), where `page` and `pages` are the page's number and the count; a `<header>` on the web.",
+   "plain": "Repeated at the top of every PDF page (or those on: names), where page and pages are the page's number and the count; a <header> on the web.",
+   "signature": "Header(on: Enum) { … }",
+   "block": true,
+   "legacy": false,
+   "props": [
+    {
+     "name": "on:",
+     "type": ".all .first .rest .odd .even",
+     "meaning": "Which pages it is drawn on"
+    }
+   ],
+   "controls": [
+    {
+     "name": "on",
+     "kind": "enum",
+     "options": [
+      "all",
+      "first",
+      "rest",
+      "odd",
+      "even"
+     ],
+     "value": "all"
+    }
+   ],
+   "flags": [
+    ".all",
+    ".first",
+    ".rest",
+    ".odd",
+    ".even",
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-header",
+   "example": "Header { Text(\"Company Inc.\").muted.sm }",
+   "preview": false,
+   "outputs": [
+    "pdf"
+   ]
+  },
+  {
+   "name": "Footer",
+   "slug": "footer",
+   "family": "PDF",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Repeated at the bottom of every PDF page (or those `on:` names), where `page` and `pages` are the page's number and the count; a `<footer>` on the web.",
+   "plain": "Repeated at the bottom of every PDF page (or those on: names), where page and pages are the page's number and the count; a <footer> on the web.",
+   "signature": "Footer(on: Enum) { … }",
+   "block": true,
+   "legacy": false,
+   "props": [
+    {
+     "name": "on:",
+     "type": ".all .first .rest .odd .even",
+     "meaning": "Which pages it is drawn on"
+    }
+   ],
+   "controls": [
+    {
+     "name": "on",
+     "kind": "enum",
+     "options": [
+      "all",
+      "first",
+      "rest",
+      "odd",
+      "even"
+     ],
+     "value": "all"
+    }
+   ],
+   "flags": [
+    ".all",
+    ".first",
+    ".rest",
+    ".odd",
+    ".even",
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-footer",
+   "example": "Footer { Text(\"© Company Inc.\").muted.sm }",
+   "preview": false,
+   "outputs": [
+    "pdf"
+   ]
+  },
+  {
+   "name": "Background",
+   "slug": "background",
+   "family": "PDF",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Drawn behind each PDF page's content, the size of the page: a cover, a band, a full-bleed picture.",
+   "plain": "Drawn behind each PDF page's content, the size of the page: a cover, a band, a full-bleed picture.",
+   "signature": "Background(on: Enum) { … }",
+   "block": true,
+   "legacy": false,
+   "props": [
+    {
+     "name": "on:",
+     "type": ".all .first .rest .odd .even",
+     "meaning": "Which pages it is drawn on"
+    }
+   ],
+   "controls": [
+    {
+     "name": "on",
+     "kind": "enum",
+     "options": [
+      "all",
+      "first",
+      "rest",
+      "odd",
+      "even"
+     ],
+     "value": "all"
+    }
+   ],
+   "flags": [
+    ".all",
+    ".first",
+    ".rest",
+    ".odd",
+    ".even",
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-background",
+   "example": "Background(on: .first) { Stack { style { height: 100%; background: linear-gradient(160deg, #1d4ed8, #0f172a) } } }",
+   "preview": false,
+   "outputs": [
+    "pdf"
+   ]
+  },
+  {
+   "name": "Watermark",
+   "slug": "watermark",
+   "family": "PDF",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Large, faint, rotated text behind each PDF page's content.",
+   "plain": "Large, faint, rotated text behind each PDF page's content.",
+   "signature": "Watermark(_ text: String, on: Enum)",
+   "block": false,
+   "legacy": false,
+   "props": [
+    {
+     "name": "text",
+     "type": "String  (positional)",
+     "meaning": "The text"
+    },
+    {
+     "name": "on:",
+     "type": ".all .first .rest .odd .even",
+     "meaning": "Which pages it is drawn on"
+    }
+   ],
+   "controls": [
+    {
+     "name": "text",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "on",
+     "kind": "enum",
+     "options": [
+      "all",
+      "first",
+      "rest",
+      "odd",
+      "even"
+     ],
+     "value": "all"
+    }
+   ],
+   "flags": [
+    ".all",
+    ".first",
+    ".rest",
+    ".odd",
+    ".even",
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-watermark",
+   "example": "Watermark(\"DRAFT\")",
+   "preview": false,
+   "outputs": [
+    "pdf"
+   ]
+  },
+  {
+   "name": "PageBreak",
+   "slug": "pagebreak",
+   "family": "PDF",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Forces a new PDF page.",
+   "plain": "Forces a new PDF page.",
+   "signature": "PageBreak",
+   "block": false,
+   "legacy": false,
+   "props": [],
+   "controls": [],
+   "flags": [
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-page-break",
+   "example": "Text(\"End of chapter one.\")\nPageBreak\nHeading(\"Chapter two\").h2",
+   "preview": false,
+   "outputs": [
+    "pdf"
+   ]
+  },
+  {
+   "name": "Presentation",
+   "slug": "presentation",
+   "family": "Slides",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Root of a slide deck; its children must be slides.",
+   "plain": "Root of a slide deck; its children must be slides.",
+   "signature": "Presentation { … }",
+   "block": true,
+   "legacy": false,
+   "props": [],
+   "controls": [],
+   "flags": [
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-presentation",
+   "example": "Presentation {\n    TitleSlide(\"Q1 review\", subtitle: \"March 2026\")\n    Slide { Heading(\"Highlights\").h1 }\n}",
+   "preview": false,
+   "outputs": [
+    "slides"
+   ]
+  },
+  {
+   "name": "Slide",
+   "slug": "slide",
+   "family": "Slides",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "One slide, one PDF page; content is top-aligned and clipped at the bottom margin.",
+   "plain": "One slide, one PDF page; content is top-aligned and clipped at the bottom margin.",
+   "signature": "Slide { … }",
+   "block": true,
+   "legacy": false,
+   "props": [],
+   "controls": [],
+   "flags": [
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-slide",
+   "example": "Presentation {\n    Slide {\n        Heading(\"Revenue\").h1\n        Text(\"Up 18% on last quarter.\")\n    }\n}",
+   "preview": false,
+   "outputs": [
+    "slides"
+   ]
+  },
+  {
+   "name": "TitleSlide",
+   "slug": "titleslide",
+   "family": "Slides",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Cover slide: title and subtitle, vertically centred.",
+   "plain": "Cover slide: title and subtitle, vertically centred.",
+   "signature": "TitleSlide(_ title: String, subtitle: String)",
+   "block": false,
+   "legacy": false,
+   "props": [
+    {
+     "name": "title",
+     "type": "String  (positional)",
+     "meaning": "The title"
+    },
+    {
+     "name": "subtitle:",
+     "type": "String",
+     "meaning": "The subtitle"
+    }
+   ],
+   "controls": [
+    {
+     "name": "title",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "subtitle",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-title-slide",
+   "example": "Presentation { TitleSlide(\"Q1 review\", subtitle: \"Acme, March 2026\") }",
+   "preview": false,
+   "outputs": [
+    "slides"
+   ]
+  },
+  {
+   "name": "SectionSlide",
+   "slug": "sectionslide",
+   "family": "Slides",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Full-bleed coloured band with a centred label.",
+   "plain": "Full-bleed coloured band with a centred label.",
+   "signature": "SectionSlide(_ label: String, tone: Enum)",
+   "block": false,
+   "legacy": false,
+   "props": [
+    {
+     "name": "label",
+     "type": "String  (positional)",
+     "meaning": "The label"
+    },
+    {
+     "name": "tone:",
+     "type": ".primary .success .danger .warning .info",
+     "meaning": "Colour of the band"
+    }
+   ],
+   "controls": [
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "tone",
+     "kind": "enum",
+     "options": [
+      "primary",
+      "success",
+      "danger",
+      "warning",
+      "info"
+     ],
+     "value": ""
+    }
+   ],
+   "flags": [
+    ".primary",
+    ".success",
+    ".danger",
+    ".warning",
+    ".info",
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-section-slide",
+   "example": "Presentation { SectionSlide(\"Numbers\").primary }",
+   "preview": false,
+   "outputs": [
+    "slides"
+   ]
+  },
+  {
+   "name": "TwoColumn",
+   "slug": "twocolumn",
+   "family": "Slides",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Two equal columns; takes exactly two `Container` children.",
+   "plain": "Two equal columns; takes exactly two Container children.",
+   "signature": "TwoColumn { … }",
+   "block": true,
+   "legacy": false,
+   "props": [],
+   "controls": [],
+   "flags": [
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-two-column",
+   "example": "Presentation {\n    TwoColumn {\n        Container { Heading(\"Wins\").h3 }\n        Container { Heading(\"Risks\").h3 }\n    }\n}",
+   "preview": false,
+   "outputs": [
+    "slides"
+   ]
+  },
+  {
+   "name": "ImageSlide",
+   "slug": "imageslide",
+   "family": "Slides",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Image slide with an optional caption.",
+   "plain": "Image slide with an optional caption.",
+   "signature": "ImageSlide(src: String, caption: String)",
+   "block": false,
+   "legacy": false,
+   "props": [
+    {
+     "name": "src:",
+     "type": "String",
+     "meaning": "Image path (required)"
+    },
+    {
+     "name": "caption:",
+     "type": "String",
+     "meaning": "Caption under the image"
+    }
+   ],
+   "controls": [
+    {
+     "name": "src",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "caption",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-image-slide",
+   "example": "Presentation { ImageSlide(src: \"chart.png\", caption: \"Revenue by month\") }",
+   "preview": false,
+   "outputs": [
+    "slides"
+   ]
+  },
+  {
+   "name": "TabPage",
+   "slug": "tabpage",
+   "family": "Original spellings",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "One tab inside `Tabs` (the original spelling of `Tabs.Page`).",
+   "plain": "One tab inside Tabs (the original spelling of Tabs.Page).",
+   "signature": "TabPage(_ label: String) { … }",
+   "block": true,
+   "legacy": true,
+   "props": [
+    {
+     "name": "label",
+     "type": "String  (positional)",
+     "meaning": "The tab's label"
+    }
+   ],
+   "controls": [
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-tab-page",
+   "example": "",
+   "preview": false,
+   "outputs": []
+  },
+  {
+   "name": "Thead",
+   "slug": "thead",
+   "family": "Original spellings",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Table header section (the original spelling of `Table.Head`).",
+   "plain": "Table header section (the original spelling of Table.Head).",
+   "signature": "Thead { … }",
+   "block": true,
+   "legacy": true,
+   "props": [],
+   "controls": [],
+   "flags": [
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "",
+   "preview": false,
+   "outputs": []
+  },
+  {
+   "name": "Tbody",
+   "slug": "tbody",
+   "family": "Original spellings",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Table body section (the original spelling of `Table.Body`).",
+   "plain": "Table body section (the original spelling of Table.Body).",
+   "signature": "Tbody { … }",
+   "block": true,
+   "legacy": true,
+   "props": [],
+   "controls": [],
+   "flags": [
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "",
+   "preview": false,
+   "outputs": []
+  },
+  {
+   "name": "Trow",
+   "slug": "trow",
+   "family": "Original spellings",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Table row (the original spelling of `Table.Row`).",
+   "plain": "Table row (the original spelling of Table.Row).",
+   "signature": "Trow { … }",
+   "block": true,
+   "legacy": true,
+   "props": [],
+   "controls": [],
+   "flags": [
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "",
+   "preview": false,
+   "outputs": []
+  },
+  {
+   "name": "Tcell",
+   "slug": "tcell",
+   "family": "Original spellings",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Table cell (the original spelling of `Table.Cell`).",
+   "plain": "Table cell (the original spelling of Table.Cell).",
+   "signature": "Tcell(_ content: Any, header: Bool) { … }",
+   "block": true,
+   "legacy": true,
+   "props": [
+    {
+     "name": "content",
+     "type": "Any  (positional)",
+     "meaning": "The cell's content"
+    },
+    {
+     "name": "header:",
+     "type": "Bool",
+     "meaning": "Render as a `<th>`"
+    }
+   ],
+   "controls": [
+    {
+     "name": "header",
+     "kind": "bool",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [
+    ".header",
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data",
+    "table"
+   ],
+   "cssClass": "",
+   "example": "",
+   "preview": false,
+   "outputs": []
+  },
+  {
+   "name": "Option",
+   "slug": "option",
+   "family": "Original spellings",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "One choice in a `Select` (the original spelling of `Select.Option`).",
+   "plain": "One choice in a Select (the original spelling of Select.Option).",
+   "signature": "Option(_ label: String, value: Any)",
+   "block": false,
+   "legacy": true,
+   "props": [
+    {
+     "name": "label",
+     "type": "String  (positional)",
+     "meaning": "The visible label"
+    },
+    {
+     "name": "value:",
+     "type": "Any",
+     "meaning": "The value sent with the form"
+    }
+   ],
+   "controls": [
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "",
+   "preview": false,
+   "outputs": []
+  },
+  {
+   "name": "Route",
+   "slug": "route",
+   "family": "Original spellings",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Maps a path to a page (the original grammar; pages now declare their paths).",
+   "plain": "Maps a path to a page (the original grammar; pages now declare their paths).",
+   "signature": "Route(path: Path, page: Declaration)",
+   "block": false,
+   "legacy": true,
+   "props": [
+    {
+     "name": "path:",
+     "type": "Path",
+     "meaning": "URL pattern"
+    },
+    {
+     "name": "page:",
+     "type": "Declaration",
+     "meaning": "The page to render"
+    }
+   ],
+   "controls": [],
+   "flags": [
+    ".dropInside",
+    ".trapFocus"
+   ],
+   "events": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "",
+   "preview": false,
+   "outputs": []
+  }
+ ],
+ "universal": {
+  "props": [
+   {
+    "name": "animate:",
+    "type": ".fadeIn .fadeOut .slideUp .slideDown .slideLeft .slideRight .scaleIn .scaleOut .bounce .shake .pulse .spin .expand .collapse",
+    "meaning": "Animation played when the element appears"
+   },
+   {
+    "name": "exit:",
+    "type": ".fadeIn .fadeOut .slideUp .slideDown .slideLeft .slideRight .scaleIn .scaleOut .bounce .shake .pulse .spin .expand .collapse",
+    "meaning": "Animation played when the element leaves"
+   },
+   {
+    "name": "speed:",
+    "type": ".fast .normal .slow",
+    "meaning": "How fast its animation runs"
+   },
+   {
+    "name": "duration:",
+    "type": "String",
+    "meaning": "Animation length, e.g. `300ms`"
+   },
+   {
+    "name": "delay:",
+    "type": "String",
+    "meaning": "Wait before the animation starts"
+   },
+   {
+    "name": "easing:",
+    "type": ".standard .spring .ease .easeIn .easeOut .easeInOut .linear .bouncy .smooth",
+    "meaning": "How the animation is paced — a named easing, or any CSS timing function"
+   },
+   {
+    "name": "stagger:",
+    "type": "String",
+    "meaning": "Delay added per item of a list, e.g. `50ms`"
+   },
+   {
+    "name": "on:",
+    "type": ".mount .enterView",
+    "meaning": "When its animation plays"
+   },
+   {
+    "name": "count:",
+    "type": "String",
+    "meaning": "How long the number it shows takes to count to a new value, e.g. `600ms`"
+   },
+   {
+    "name": "shared:",
+    "type": "String",
+    "meaning": "A name this element keeps across a route change, so the browser carries it from one page to the next"
+   },
+   {
+    "name": "class:",
+    "type": "String",
+    "meaning": "Classes added beside the engine's, from the project's own stylesheets"
+   },
+   {
+    "name": "ref:",
+    "type": "State",
+    "meaning": "A handle on the element, usable as the element: `ref: nameInput`, then `nameInput.focus()`"
+   },
+   {
+    "name": "drag:",
+    "type": "Any",
+    "meaning": "What it carries when it is picked up — by a mouse moved a few pixels, or a finger held still — and dropped on something with `on receive(d)`"
+   },
+   {
+    "name": "dragGroup:",
+    "type": "String",
+    "meaning": "Which drops it belongs to: a drag goes only to targets of its own group, so tabs and tree rows stay apart"
+   },
+   {
+    "name": "dropValue:",
+    "type": "Any",
+    "meaning": "What this target is, as a drag sees it: `d.over` in the drag's `on dragmove(d)` and in `on receive(d)`"
+   },
+   {
+    "name": "dropAxis:",
+    "type": ".y .x",
+    "meaning": "Which way its list runs, for where a drop lands"
+   },
+   {
+    "name": "dropInside:",
+    "type": "Bool",
+    "meaning": "A drop on its middle lands inside it — a folder, a container — as well as before or after"
+   },
+   {
+    "name": "trapFocus:",
+    "type": "Bool",
+    "meaning": "While true, focus moves into it and Tab and Shift+Tab stay inside; when it turns false or the element leaves, focus goes back where it was"
+   },
+   {
+    "name": "mount:",
+    "type": "Any",
+    "meaning": "Run with the element each time it is made — `mount: (n) => initTilt(n)` — and what it returns is the handle `update:` and `cleanup:` get"
+   },
+   {
+    "name": "update:",
+    "type": "Any",
+    "meaning": "Run with the handle again whenever the state it reads changes: `update: (h) => h.setMax(max)`"
+   },
+   {
+    "name": "cleanup:",
+    "type": "Any",
+    "meaning": "Run with the handle when the element leaves — a route change, an `if` branch, a list item: `cleanup: (h) => h.destroy()`"
+   }
+  ],
+  "events": [
+   {
+    "name": "click",
+    "kind": "",
+    "detail": "The element was clicked or activated",
+    "fallback": ""
+   },
+   {
+    "name": "input",
+    "kind": "",
+    "detail": "The value changed, on every keystroke",
+    "fallback": ""
+   },
+   {
+    "name": "change",
+    "kind": "",
+    "detail": "The value was committed",
+    "fallback": ""
+   },
+   {
+    "name": "submit",
+    "kind": "",
+    "detail": "The form was submitted",
+    "fallback": ""
+   },
+   {
+    "name": "focus",
+    "kind": "",
+    "detail": "The element received focus",
+    "fallback": ""
+   },
+   {
+    "name": "blur",
+    "kind": "",
+    "detail": "The element lost focus",
+    "fallback": ""
+   },
+   {
+    "name": "keydown",
+    "kind": "",
+    "detail": "A key went down; `e.key` names it",
+    "fallback": ""
+   },
+   {
+    "name": "longpress",
+    "kind": "",
+    "detail": "Held still for half a second; `p.x`, `p.y` say where. The click it ends with is not a click",
+    "fallback": ""
+   },
+   {
+    "name": "swipe",
+    "kind": "",
+    "detail": "A finger or a pen swept across it; `s.direction` is \"left\", \"right\", \"up\" or \"down\"",
+    "fallback": ""
+   },
+   {
+    "name": "receive",
+    "kind": "",
+    "detail": "Something with `drag:` was dropped on it; `d.value` is what, `d.position` \"before\", \"after\" or \"inside\"",
+    "fallback": ""
+   },
+   {
+    "name": "dragmove",
+    "kind": "",
+    "detail": "On what is dragged, while it moves: `d.over` is the target's `dropValue` or null, `d.position` where it would land",
+    "fallback": ""
+   },
+   {
+    "name": "key",
+    "kind": "",
+    "detail": "One key, named: `on key(\"ctrl+k\") { }`",
+    "fallback": ""
+   },
+   {
+    "name": "keyup",
+    "kind": "",
+    "detail": "A key came up",
+    "fallback": ""
+   },
+   {
+    "name": "keypress",
+    "kind": "",
+    "detail": "A character key was pressed",
+    "fallback": ""
+   },
+   {
+    "name": "mouseenter",
+    "kind": "",
+    "detail": "The pointer entered the element",
+    "fallback": ""
+   },
+   {
+    "name": "mouseleave",
+    "kind": "",
+    "detail": "The pointer left the element",
+    "fallback": ""
+   },
+   {
+    "name": "dblclick",
+    "kind": "",
+    "detail": "The element was double-clicked",
+    "fallback": ""
+   },
+   {
+    "name": "auxclick",
+    "kind": "",
+    "detail": "A button other than the main one was clicked; `e.button` is which — 1 is the middle, which closes a tab",
+    "fallback": ""
+   },
+   {
+    "name": "focusin",
+    "kind": "",
+    "detail": "Focus moved onto the element or something inside it",
+    "fallback": ""
+   },
+   {
+    "name": "focusout",
+    "kind": "",
+    "detail": "Focus left the element or something inside it",
+    "fallback": ""
+   },
+   {
+    "name": "contextmenu",
+    "kind": "",
+    "detail": "The context menu was asked for; `e.preventDefault()` keeps the browser's",
+    "fallback": ""
+   },
+   {
+    "name": "mousedown",
+    "kind": "",
+    "detail": "A mouse button went down over the element",
+    "fallback": ""
+   },
+   {
+    "name": "mouseup",
+    "kind": "",
+    "detail": "A mouse button came up over the element",
+    "fallback": ""
+   },
+   {
+    "name": "mousemove",
+    "kind": "",
+    "detail": "The mouse moved over the element",
+    "fallback": ""
+   },
+   {
+    "name": "mouseover",
+    "kind": "",
+    "detail": "The pointer moved onto the element or one of its children",
+    "fallback": ""
+   },
+   {
+    "name": "mouseout",
+    "kind": "",
+    "detail": "The pointer moved off the element or one of its children",
+    "fallback": ""
+   },
+   {
+    "name": "pointerdown",
+    "kind": "",
+    "detail": "A pointer — mouse, pen or touch — went down",
+    "fallback": ""
+   },
+   {
+    "name": "pointerup",
+    "kind": "",
+    "detail": "A pointer came up",
+    "fallback": ""
+   },
+   {
+    "name": "pointermove",
+    "kind": "",
+    "detail": "A pointer moved",
+    "fallback": ""
+   },
+   {
+    "name": "pointerenter",
+    "kind": "",
+    "detail": "A pointer entered the element",
+    "fallback": ""
+   },
+   {
+    "name": "pointerleave",
+    "kind": "",
+    "detail": "A pointer left the element",
+    "fallback": ""
+   },
+   {
+    "name": "pointercancel",
+    "kind": "",
+    "detail": "The browser took the pointer back, for a scroll or a gesture",
+    "fallback": ""
+   },
+   {
+    "name": "touchstart",
+    "kind": "",
+    "detail": "A finger touched the element",
+    "fallback": ""
+   },
+   {
+    "name": "touchend",
+    "kind": "",
+    "detail": "A finger left the element",
+    "fallback": ""
+   },
+   {
+    "name": "touchmove",
+    "kind": "",
+    "detail": "A finger moved across the element",
+    "fallback": ""
+   },
+   {
+    "name": "wheel",
+    "kind": "",
+    "detail": "The wheel or trackpad scrolled over the element",
+    "fallback": ""
+   },
+   {
+    "name": "scroll",
+    "kind": "",
+    "detail": "The element's content scrolled",
+    "fallback": ""
+   },
+   {
+    "name": "focusin",
+    "kind": "",
+    "detail": "The element or something inside it received focus",
+    "fallback": ""
+   },
+   {
+    "name": "focusout",
+    "kind": "",
+    "detail": "The element or something inside it lost focus",
+    "fallback": ""
+   },
+   {
+    "name": "reset",
+    "kind": "",
+    "detail": "The form was reset",
+    "fallback": ""
+   },
+   {
+    "name": "invalid",
+    "kind": "",
+    "detail": "A control failed the browser's own validation",
+    "fallback": ""
+   },
+   {
+    "name": "select",
+    "kind": "",
+    "detail": "Text in a field was selected",
+    "fallback": ""
+   },
+   {
+    "name": "copy",
+    "kind": "",
+    "detail": "Something was copied from the element",
+    "fallback": ""
+   },
+   {
+    "name": "cut",
+    "kind": "",
+    "detail": "Something was cut from the element",
+    "fallback": ""
+   },
+   {
+    "name": "paste",
+    "kind": "",
+    "detail": "Something was pasted into the element; `e.clipboardData` holds it",
+    "fallback": ""
+   },
+   {
+    "name": "dragstart",
+    "kind": "",
+    "detail": "The element started being dragged",
+    "fallback": ""
+   },
+   {
+    "name": "drag",
+    "kind": "",
+    "detail": "The element is being dragged",
+    "fallback": ""
+   },
+   {
+    "name": "dragend",
+    "kind": "",
+    "detail": "A drag of the element ended",
+    "fallback": ""
+   },
+   {
+    "name": "dragenter",
+    "kind": "",
+    "detail": "Something dragged entered the element",
+    "fallback": ""
+   },
+   {
+    "name": "dragover",
+    "kind": "",
+    "detail": "Something dragged is over the element; `e.preventDefault()` allows a drop",
+    "fallback": ""
+   },
+   {
+    "name": "dragleave",
+    "kind": "",
+    "detail": "Something dragged left the element",
+    "fallback": ""
+   },
+   {
+    "name": "drop",
+    "kind": "",
+    "detail": "Something was dropped on the element; `e.dataTransfer` holds it",
+    "fallback": ""
+   },
+   {
+    "name": "load",
+    "kind": "",
+    "detail": "An image, video or frame finished loading",
+    "fallback": ""
+   },
+   {
+    "name": "error",
+    "kind": "",
+    "detail": "An image, video or script failed to load",
+    "fallback": ""
+   },
+   {
+    "name": "play",
+    "kind": "",
+    "detail": "A video or audio started playing",
+    "fallback": ""
+   },
+   {
+    "name": "pause",
+    "kind": "",
+    "detail": "A video or audio paused",
+    "fallback": ""
+   },
+   {
+    "name": "ended",
+    "kind": "",
+    "detail": "A video or audio reached its end",
+    "fallback": ""
+   },
+   {
+    "name": "timeupdate",
+    "kind": "",
+    "detail": "A playing video or audio moved on",
+    "fallback": ""
+   },
+   {
+    "name": "animationend",
+    "kind": "",
+    "detail": "A CSS animation on the element ended",
+    "fallback": ""
+   },
+   {
+    "name": "transitionend",
+    "kind": "",
+    "detail": "A CSS transition on the element ended",
+    "fallback": ""
+   },
+   {
+    "name": "toggle",
+    "kind": "",
+    "detail": "A details element opened or closed",
+    "fallback": ""
+   }
+  ]
+ },
+ "icons": [
+  "close",
+  "menu",
+  "search",
+  "home",
+  "user",
+  "settings",
+  "check",
+  "plus",
+  "minus",
+  "edit",
+  "trash",
+  "star",
+  "heart",
+  "mail",
+  "bell",
+  "download",
+  "upload",
+  "eye",
+  "link",
+  "calendar",
+  "filter",
+  "chevron-down",
+  "chevron-right",
+  "chevron-left",
+  "info",
+  "warning",
+  "arrow-left",
+  "arrow-right",
+  "logout",
+  "copy",
+  "sun",
+  "moon",
+  "folder",
+  "folder-plus",
+  "folder-off",
+  "file",
+  "file-plus",
+  "refresh",
+  "alert-circle",
+  "clock",
+  "dot",
+  "diff",
+  "book",
+  "git-pull-request",
+  "pin",
+  "git-branch",
+  "more-horizontal",
+  "window-minimize",
+  "window-maximize",
+  "outline",
+  "help-circle",
+  "collapse-all",
+  "locate",
+  "chevron-up",
+  "globe",
+  "external-link",
+  "panel-down",
+  "panel-up",
+  "code",
+  "monitor",
+  "git-commit",
+  "play",
+  "layers",
+  "insert",
+  "grid",
+  "list",
+  "square",
+  "pill",
+  "image",
+  "sparkle",
+  "lock",
+  "type",
+  "pointer",
+  "reach",
+  "frame",
+  "line",
+  "pipette",
+  "comment",
+  "hand",
+  "zoom",
+  "ruler",
+  "eye-off",
+  "unlock"
+ ]
+}

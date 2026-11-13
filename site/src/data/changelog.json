@@ -580,7 +580,7 @@
       "after": ""
      },
      {
-      "text": "**WebP is lossy at `build.media.quality`** ([chapter 42](/docs/guide/config#buildmedia)),\nthrough libwebp, keeping alpha: a 23 kB PNG that came out as 189 kB of\nWebP is now 5 kB. A file that would be no smaller than its original is\nnot written, and `wf assets --plan` says which widths were dropped.",
+      "text": "**WebP is lossy at `build.media.quality`** ([chapter 42](/reference/config#buildmedia)),\nthrough libwebp, keeping alpha: a 23 kB PNG that came out as 189 kB of\nWebP is now 5 kB. A file that would be no smaller than its original is\nnot written, and `wf assets --plan` says which widths were dropped.",
       "points": [],
       "after": ""
      },
@@ -595,7 +595,7 @@
    {
     "title": "For tools",
     "id": "5.12.0-for-tools",
-    "intro": "Each is for a tool built on the compiler\n([chapter 41](/docs/guide/cli#building-a-tool-on-the-compiler)); paths\nare under `webfluent::`.",
+    "intro": "Each is for a tool built on the compiler\n([chapter 41](/reference/cli#building-a-tool-on-the-compiler)); paths\nare under `webfluent::`.",
     "items": [
      {
       "text": "**`agent::edit`** replaces each `old_text` where it is found exactly\nonce: exactly, then ignoring line endings, then the indent, then with\ntypographic quotes and dashes read as ASCII. Text found twice names its\nlines, text found nowhere the three nearest, and the edits apply all or\nnone. `ChangeSet::edit` makes them on a file the set has read, and\nrefuses one that moved since; a missing file is `WebFluentError::NotFound`.\n`ChangeSet::edited` shows what the edits would make of a file, before\nand after, without changing the set, and `ChangeSet::dir` names the\nproject's folder.",
@@ -783,12 +783,12 @@
       "after": ""
      },
      {
-      "text": "**Source maps** ([chapter 39](/docs/guide/config)).\n`build.sourcemap` was in the config and nothing read it. It now writes a\nversion 3 map beside the bundle and each page's chunk (`app.js.map`,\n`pages/Home.js.map`), with the sources' text, so a stack trace reads\nback to the `.wf` line each statement came from. The scripts are\notherwise byte for byte what they are without one.",
+      "text": "**Source maps** ([chapter 39](/reference/config)).\n`build.sourcemap` was in the config and nothing read it. It now writes a\nversion 3 map beside the bundle and each page's chunk (`app.js.map`,\n`pages/Home.js.map`), with the sources' text, so a stack trace reads\nback to the `.wf` line each statement came from. The scripts are\notherwise byte for byte what they are without one.",
       "points": [],
       "after": ""
      },
      {
-      "text": "**`wf init --locales`** ([chapter 38](/docs/guide/cli#wf-init)).\n`wf init my-app --locales en,ar` (spa or static, the default first)\nstarts a project translated: the i18n config and `meta.lang`, every\nvisible string of the starter through `t()`, a language switch built\nfrom the locales, and `src/translations/<locale>.json` for each. A tag\nthat is not one, a tag named twice and an empty list are refused, and so\nare locales for `pdf` and `slides`.",
+      "text": "**`wf init --locales`** ([chapter 38](/reference/cli#wf-init)).\n`wf init my-app --locales en,ar` (spa or static, the default first)\nstarts a project translated: the i18n config and `meta.lang`, every\nvisible string of the starter through `t()`, a language switch built\nfrom the locales, and `src/translations/<locale>.json` for each. A tag\nthat is not one, a tag named twice and an empty list are refused, and so\nare locales for `pdf` and `slides`.",
       "points": [],
       "after": ""
      },
@@ -803,7 +803,7 @@
    {
     "title": "For tools",
     "id": "5.11.0-for-tools",
-    "intro": "Each is for a tool built on the compiler\n([chapter 38](/docs/guide/cli#building-a-tool-on-the-compiler)); paths\nare under `webfluent::`.",
+    "intro": "Each is for a tool built on the compiler\n([chapter 38](/reference/cli#building-a-tool-on-the-compiler)); paths\nare under `webfluent::`.",
     "items": [
      {
       "text": "**`VERSION`**: the compiler's version, as `wf --version` prints it.",
@@ -899,7 +899,7 @@
     "intro": "",
     "items": [
      {
-      "text": "**Starters that work on first use** ([chapter 38](/docs/guide/cli#wf-init)).\n`wf init spa` has `Day` and `Night` themes with a switch that calls\n`setTheme`, a task list that adds a task on Enter through a `Form` and\nasks in a `Modal` before deleting one, a Settings page with validated\nfields, and `tests/app.wf` and `tests/tasks.wf`. `wf init static` has a\nvalidated contact form with a required agreement `Checkbox`, English and\nArabic translations, and `tests/site.wf`. `wf test` passes in a new\nproject.",
+      "text": "**Starters that work on first use** ([chapter 38](/reference/cli#wf-init)).\n`wf init spa` has `Day` and `Night` themes with a switch that calls\n`setTheme`, a task list that adds a task on Enter through a `Form` and\nasks in a `Modal` before deleting one, a Settings page with validated\nfields, and `tests/app.wf` and `tests/tasks.wf`. `wf init static` has a\nvalidated contact form with a required agreement `Checkbox`, English and\nArabic translations, and `tests/site.wf`. `wf test` passes in a new\nproject.",
       "points": [],
       "after": ""
      },
@@ -914,7 +914,7 @@
       "after": ""
      },
      {
-      "text": "**`on auxclick`, `on focusin` and `on focusout` on any element**\n([chapter 37](/docs/reference#on-every-element)).\n`on auxclick(e)` hears a click with a button other than the main one\n(`e.button == 1` is the middle button, to close a tab); `on focusin` and\n`on focusout` hear focus move onto or off the element or anything inside\nit.",
+      "text": "**`on auxclick`, `on focusin` and `on focusout` on any element**\n([chapter 37](/reference#on-every-element)).\n`on auxclick(e)` hears a click with a button other than the main one\n(`e.button == 1` is the middle button, to close a tab); `on focusin` and\n`on focusout` hear focus move onto or off the element or anything inside\nit.",
       "points": [],
       "after": ""
      },
@@ -944,7 +944,7 @@
       "after": ""
      },
      {
-      "text": "**`Markdown(text).inert`** ([chapter 37](/docs/reference#markdown)),\nfor text somebody else wrote, such as a language server's documentation:\nentities are decoded and shown as text, a link is its words and a\npicture is left out.",
+      "text": "**`Markdown(text).inert`** ([chapter 37](/reference#markdown)),\nfor text somebody else wrote, such as a language server's documentation:\nentities are decoded and shown as text, a link is its words and a\npicture is left out.",
       "points": [],
       "after": ""
      }
@@ -954,7 +954,7 @@
    {
     "title": "For tools",
     "id": "5.10.0-for-tools",
-    "intro": "Each is for a tool built on the compiler\n([chapter 38](/docs/guide/cli#building-a-tool-on-the-compiler)); paths\nare under `webfluent::`.",
+    "intro": "Each is for a tool built on the compiler\n([chapter 38](/reference/cli#building-a-tool-on-the-compiler)); paths\nare under `webfluent::`.",
     "items": [
      {
       "text": "**A build of one route.** `BuildOptions::only_route` (`Some(\"/posts/hello\")`)\nrenders the page answering that route, for a preview that cannot wait\nfor a whole build. With a `BuildCache`, a page the cache holds for its\ncurrent inputs, in memory or on disk, is reused (`pages_reused`); any\nother page this session has painted is written as it was last painted\nand counted in the new `BuildReport::pages_deferred`; a page never\npainted is rendered. The next build without the option renders what was\ndeferred, and its output equals a build from nothing. Without a cache it\nbuilds everything, and what was last painted is kept only in memory, so\na `BuildCache::on_disk` reopened in a new session defers nothing.",
@@ -992,7 +992,7 @@
       "after": ""
      },
      {
-      "text": "**The registry** ([chapter 38](/docs/guide/cli#wf-docs-wf-registry-wf-types)):\n`wf registry --json` lists the new icons, `auxclick`, `focusin` and\n`focusout` among every element's events, and `danger` on `Menu.Item`.",
+      "text": "**The registry** ([chapter 38](/reference/cli#wf-docs-wf-registry-wf-types)):\n`wf registry --json` lists the new icons, `auxclick`, `focusin` and\n`focusout` among every element's events, and `danger` on `Menu.Item`.",
       "points": [],
       "after": ""
      },
@@ -1060,12 +1060,12 @@
       "after": ""
      },
      {
-      "text": "**Column spans leave room for the gap** ([chapter 37](/docs/reference#column)).\n`span: 8` and `span: 4` in a `Row` with a gap came to 100% plus the gap,\nand the second always wrapped; each span now gives up its share of the\ngap, a gap or a span given per breakpoint too. A PDF lays a\n`Column` out at its `span:`, where every column came out equal, and the\nPDF engine's `calc()` is a real parser: no spaces needed, nested\nparentheses, unary minus, functions inside, and a sum of a percentage\nand points resolved against the box it lands in\n([chapter 34](/docs/guide/pdf-and-slides#the-engine)).",
+      "text": "**Column spans leave room for the gap** ([chapter 37](/reference#column)).\n`span: 8` and `span: 4` in a `Row` with a gap came to 100% plus the gap,\nand the second always wrapped; each span now gives up its share of the\ngap, a gap or a span given per breakpoint too. A PDF lays a\n`Column` out at its `span:`, where every column came out equal, and the\nPDF engine's `calc()` is a real parser: no spaces needed, nested\nparentheses, unary minus, functions inside, and a sum of a percentage\nand points resolved against the box it lands in\n([chapter 34](/docs/guide/pdf-and-slides#the-engine)).",
       "points": [],
       "after": ""
      },
      {
-      "text": "**The `Navbar` follows the theme** ([chapter 37](/docs/reference#navbar)).\nIts background was a fixed translucent white; it is now the theme's\nsurface, and its text the theme's text colour.",
+      "text": "**The `Navbar` follows the theme** ([chapter 37](/reference#navbar)).\nIts background was a fixed translucent white; it is now the theme's\nsurface, and its text the theme's text colour.",
       "points": [],
       "after": ""
      },
@@ -1095,7 +1095,7 @@
       "after": ""
      },
      {
-      "text": "**`() => …` takes no arguments** ([chapter 14](/docs/guide/expressions#fields-calls-and-methods)).\nIt was typed as taking one, so it could fail to fit a script parameter\nwhose JSDoc says `() => boolean`.",
+      "text": "**`() => …` takes no arguments** ([chapter 14](/reference/expressions#fields-calls-and-methods)).\nIt was typed as taking one, so it could fail to fit a script parameter\nwhose JSDoc says `() => boolean`.",
       "points": [],
       "after": ""
      },
@@ -1105,12 +1105,12 @@
       "after": ""
      },
      {
-      "text": "**The check does less** ([chapter 38](/docs/guide/cli#wf-check)).\nThe `env` lint lexes only a file whose text could name `env.…`, and the\noutput checks work out what a build can evaluate only once they find a\n`Chart` or a `QrCode`: on Halyard the check went from 28 ms to 18 ms.\nIts phases also run side by side, which helps most on a busy machine.",
+      "text": "**The check does less** ([chapter 38](/reference/cli#wf-check)).\nThe `env` lint lexes only a file whose text could name `env.…`, and the\noutput checks work out what a build can evaluate only once they find a\n`Chart` or a `QrCode`: on Halyard the check went from 28 ms to 18 ms.\nIts phases also run side by side, which helps most on a busy machine.",
       "points": [],
       "after": ""
      },
      {
-      "text": "**A build into another folder reuses the cache**\n([chapter 38](/docs/guide/cli#wf-build)). The cache's key held the\noutput folder, so two builds of one project into different folders, as\nan editor's previews are, never shared a page.",
+      "text": "**A build into another folder reuses the cache**\n([chapter 38](/reference/cli#wf-build)). The cache's key held the\noutput folder, so two builds of one project into different folders, as\nan editor's previews are, never shared a page.",
       "points": [],
       "after": ""
      },
@@ -1125,12 +1125,12 @@
       "after": ""
      },
      {
-      "text": "**Every built-in takes what any element takes**\n([chapter 37](/docs/reference)). `role:`,\n`tabindex:`, `aria-*`, `data-*` and `on` handlers reached a `Popover`,\n`Menu`, `Tooltip`, `Modal`, `VirtualList`, `Splitter`, `Tabs`,\n`Sidebar`, `Slider` and the rest only in part, or not at all; each now\nwrites them on its element, in the live page, the pre-render and the\ntemplate engine alike, as `C04` says. `disabled: true` disables a\n`Slider`, `DatePicker` or `FileUpload`. An `html:` written on an element\nis an attribute, never markup.",
+      "text": "**Every built-in takes what any element takes**\n([chapter 37](/reference)). `role:`,\n`tabindex:`, `aria-*`, `data-*` and `on` handlers reached a `Popover`,\n`Menu`, `Tooltip`, `Modal`, `VirtualList`, `Splitter`, `Tabs`,\n`Sidebar`, `Slider` and the rest only in part, or not at all; each now\nwrites them on its element, in the live page, the pre-render and the\ntemplate engine alike, as `C04` says. `disabled: true` disables a\n`Slider`, `DatePicker` or `FileUpload`. An `html:` written on an element\nis an attribute, never markup.",
       "points": [],
       "after": ""
      },
      {
-      "text": "**A long list drawn before its box is laid out**\n([chapter 37](/docs/reference#virtuallist)) paints the\nright rows in its first frame, the row `reveal:` names among them, where\nit drew about forty and trimmed them a frame later.",
+      "text": "**A long list drawn before its box is laid out**\n([chapter 37](/reference#virtuallist)) paints the\nright rows in its first frame, the row `reveal:` names among them, where\nit drew about forty and trimmed them a frame later.",
       "points": [],
       "after": ""
      },
@@ -1200,7 +1200,7 @@
       "after": ""
      },
      {
-      "text": "**`VirtualList`** ([chapter 37](/docs/reference)): a\nlong list drawn a window at a time, rows measured or of a fixed height,\n`reveal:` to scroll one into view, and `V12` for a long list that is\nnot windowed.",
+      "text": "**`VirtualList`** ([chapter 37](/reference)): a\nlong list drawn a window at a time, rows measured or of a fixed height,\n`reveal:` to scroll one into view, and `V12` for a long list that is\nnot windowed.",
       "points": [],
       "after": ""
      },
@@ -1250,7 +1250,7 @@
    {
     "title": "For tools",
     "id": "5.9.0-for-tools",
-    "intro": "Every one reads the project through a `Vfs`, so an editor's unsaved\nbuffers count ([chapter 38](/docs/guide/cli#building-a-tool-on-the-compiler)).",
+    "intro": "Every one reads the project through a `Vfs`, so an editor's unsaved\nbuffers count ([chapter 38](/reference/cli#building-a-tool-on-the-compiler)).",
     "items": [
      {
       "text": "**Printing and reprinting**: `webfluent::print`, `reprint` and\n`edit::rewrite_*` change an element, a statement or a declaration in the\ntree and write the smallest edit, every other byte as it was.",

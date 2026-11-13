@@ -445,7 +445,7 @@ image, are still refused."#),
 `list`, `square`, `pill`, `image`, `sparkle`, `lock` and `type`. An icon
 drawn in the browser now carries `data-icon`, as a pre-rendered one did,
 so a style keyed on the name matches both."#),
-                    Change(text: #"**WebP is lossy at `build.media.quality`** ([chapter 42](/docs/guide/config#buildmedia)),
+                    Change(text: #"**WebP is lossy at `build.media.quality`** ([chapter 42](/reference/config#buildmedia)),
 through libwebp, keeping alpha: a 23 kB PNG that came out as 189 kB of
 WebP is now 5 kB. A file that would be no smaller than its original is
 not written, and `wf assets --plan` says which widths were dropped."#),
@@ -453,7 +453,7 @@ not written, and `wf assets --plan` says which widths were dropped."#),
 does. The config accepted it and built a single-page app."#)
                 ]),
                 NotesSection(title: #"For tools"#, id: "5.12.0-for-tools", intro: #"Each is for a tool built on the compiler
-([chapter 41](/docs/guide/cli#building-a-tool-on-the-compiler)); paths
+([chapter 41](/reference/cli#building-a-tool-on-the-compiler)); paths
 are under `webfluent::`."#, items: [
                     Change(text: #"**`agent::edit`** replaces each `old_text` where it is found exactly
 once: exactly, then ignoring line endings, then the indent, then with
@@ -570,13 +570,13 @@ of `title:`'s words, so a heading can set a name apart in code;
 named Close, in the heading row. It closes the dialog as Escape does, so
 `on close` runs and `visible:` follows. Both work in the live page, the
 pre-render and the template engine."#),
-                    Change(text: #"**Source maps** ([chapter 39](/docs/guide/config)).
+                    Change(text: #"**Source maps** ([chapter 39](/reference/config)).
 `build.sourcemap` was in the config and nothing read it. It now writes a
 version 3 map beside the bundle and each page's chunk (`app.js.map`,
 `pages/Home.js.map`), with the sources' text, so a stack trace reads
 back to the `.wf` line each statement came from. The scripts are
 otherwise byte for byte what they are without one."#),
-                    Change(text: #"**`wf init --locales`** ([chapter 38](/docs/guide/cli#wf-init)).
+                    Change(text: #"**`wf init --locales`** ([chapter 38](/reference/cli#wf-init)).
 `wf init my-app --locales en,ar` (spa or static, the default first)
 starts a project translated: the i18n config and `meta.lang`, every
 visible string of the starter through `t()`, a language switch built
@@ -588,7 +588,7 @@ are locales for `pdf` and `slides`."#),
 that is gone, and `file-plus` for New file."#)
                 ]),
                 NotesSection(title: #"For tools"#, id: "5.11.0-for-tools", intro: #"Each is for a tool built on the compiler
-([chapter 38](/docs/guide/cli#building-a-tool-on-the-compiler)); paths
+([chapter 38](/reference/cli#building-a-tool-on-the-compiler)); paths
 are under `webfluent::`."#, items: [
                     Change(text: #"**`VERSION`**: the compiler's version, as `wf --version` prints it."#),
                     Change(text: #"**`BuildOptions::sourcemap`** asks for maps whatever the config says,
@@ -646,7 +646,7 @@ built on the compiler asks of it — icons, events, a member's `///`, a
 build of one route, a faster check; and a pre-render, a test and a PDF
 that draw what the live page draws."#, sections: [
                 NotesSection(title: #"Additions"#, id: "5.10.0-additions", items: [
-                    Change(text: #"**Starters that work on first use** ([chapter 38](/docs/guide/cli#wf-init)).
+                    Change(text: #"**Starters that work on first use** ([chapter 38](/reference/cli#wf-init)).
 `wf init spa` has `Day` and `Night` themes with a switch that calls
 `setTheme`, a task list that adds a task on Enter through a `Form` and
 asks in a `Modal` before deleting one, a Settings page with validated
@@ -668,7 +668,7 @@ long as it shows, for example to save when the window is left. Both
 listen on the window; `on keydown` and `on keyup` still listen on the
 document."#),
                     Change(text: #"**`on auxclick`, `on focusin` and `on focusout` on any element**
-([chapter 37](/docs/reference#on-every-element)).
+([chapter 37](/reference#on-every-element)).
 `on auxclick(e)` hears a click with a button other than the main one
 (`e.button == 1` is the middle button, to close a tab); `on focusin` and
 `on focusout` hear focus move onto or off the element or anything inside
@@ -702,13 +702,13 @@ another node the block moves there with its state, and null keeps it
 aside. Its handlers, `emit` and lifetimes belong to where it is written.
 `Portal` is now a built-in's name, so a project's own component or store
 of that name is reported."#),
-                    Change(text: #"**`Markdown(text).inert`** ([chapter 37](/docs/reference#markdown)),
+                    Change(text: #"**`Markdown(text).inert`** ([chapter 37](/reference#markdown)),
 for text somebody else wrote, such as a language server's documentation:
 entities are decoded and shown as text, a link is its words and a
 picture is left out."#)
                 ]),
                 NotesSection(title: #"For tools"#, id: "5.10.0-for-tools", intro: #"Each is for a tool built on the compiler
-([chapter 38](/docs/guide/cli#building-a-tool-on-the-compiler)); paths
+([chapter 38](/reference/cli#building-a-tool-on-the-compiler)); paths
 are under `webfluent::`."#, items: [
                     Change(text: #"**A build of one route.** `BuildOptions::only_route` (`Some("/posts/hello")`)
 renders the page answering that route, for a preview that cannot wait
@@ -752,7 +752,7 @@ a server an editor runs for its preview can send what `wf serve` sends."#),
 files, as (path, text) pairs with the project's name still `{{name}}`;
 `init::create` writes them, and `.gitignore`, `AGENTS.md` and `public/`
 beside them."#),
-                    Change(text: #"**The registry** ([chapter 38](/docs/guide/cli#wf-docs-wf-registry-wf-types)):
+                    Change(text: #"**The registry** ([chapter 38](/reference/cli#wf-docs-wf-registry-wf-types)):
 `wf registry --json` lists the new icons, `auxclick`, `focusin` and
 `focusout` among every element's events, and `danger` on `Menu.Item`."#),
                     Change(text: #"**Paged layout.** `paged::style::Length::Mix(points, percent)` holds a
@@ -840,7 +840,7 @@ a `t()` with a count in the default locale's CLDR form. `expect` decodes
 every numeric entity and the common named ones, so `expect "It isn't"`
 matches. In a test that acts, `expect` treats any run of white space as
 one space, as a test that looks already did."#),
-                    Change(text: #"**Column spans leave room for the gap** ([chapter 37](/docs/reference#column)).
+                    Change(text: #"**Column spans leave room for the gap** ([chapter 37](/reference#column)).
 `span: 8` and `span: 4` in a `Row` with a gap came to 100% plus the gap,
 and the second always wrapped; each span now gives up its share of the
 gap, a gap or a span given per breakpoint too. A PDF lays a
@@ -849,7 +849,7 @@ PDF engine's `calc()` is a real parser: no spaces needed, nested
 parentheses, unary minus, functions inside, and a sum of a percentage
 and points resolved against the box it lands in
 ([chapter 34](/docs/guide/pdf-and-slides#the-engine))."#),
-                    Change(text: #"**The `Navbar` follows the theme** ([chapter 37](/docs/reference#navbar)).
+                    Change(text: #"**The `Navbar` follows the theme** ([chapter 37](/reference#navbar)).
 Its background was a fixed translucent white; it is now the theme's
 surface, and its text the theme's text colour."#),
                     Change(text: #"**`setLocale` is remembered** ([chapter 21](/docs/guide/i18n#which-locale-a-page-opens-in))
@@ -875,7 +875,7 @@ are measured now; a list that only grows at its end measures nothing."#),
 A drag or an arrow key starts from the region's drawn size, not the
 bound value, and a reset writes `reset:` as given, so `reset: 0` can
 mean the region's default share."#),
-                    Change(text: #"**`() => …` takes no arguments** ([chapter 14](/docs/guide/expressions#fields-calls-and-methods)).
+                    Change(text: #"**`() => …` takes no arguments** ([chapter 14](/reference/expressions#fields-calls-and-methods)).
 It was typed as taking one, so it could fail to fit a script parameter
 whose JSDoc says `() => boolean`."#),
                     Change(text: #"**`webfluent` on Windows** ([chapter 2](/docs/guide/getting-started#windows-powershell)).
@@ -886,13 +886,13 @@ install the binary as `webfluent.exe`, so `webfluent build` works;
 release had its own, so the next one replaces it instead of installing
 beside it. The Node binding looks for `webfluent.exe` and `wf.exe` by
 their full names ([chapter 35](/docs/guide/server-rendering#from-node))."#),
-                    Change(text: #"**The check does less** ([chapter 38](/docs/guide/cli#wf-check)).
+                    Change(text: #"**The check does less** ([chapter 38](/reference/cli#wf-check)).
 The `env` lint lexes only a file whose text could name `env.…`, and the
 output checks work out what a build can evaluate only once they find a
 `Chart` or a `QrCode`: on Halyard the check went from 28 ms to 18 ms.
 Its phases also run side by side, which helps most on a busy machine."#),
                     Change(text: #"**A build into another folder reuses the cache**
-([chapter 38](/docs/guide/cli#wf-build)). The cache's key held the
+([chapter 38](/reference/cli#wf-build)). The cache's key held the
 output folder, so two builds of one project into different folders, as
 an editor's previews are, never shared a page."#),
                     Change(text: #"**Markdown links are checked, and backslash escapes work**
@@ -911,7 +911,7 @@ its Escape comes before a popover's beneath it, and a press inside it no
 longer closes that popover. `on close` on a modal is its event, with no
 `V09`."#),
                     Change(text: #"**Every built-in takes what any element takes**
-([chapter 37](/docs/reference)). `role:`,
+([chapter 37](/reference)). `role:`,
 `tabindex:`, `aria-*`, `data-*` and `on` handlers reached a `Popover`,
 `Menu`, `Tooltip`, `Modal`, `VirtualList`, `Splitter`, `Tabs`,
 `Sidebar`, `Slider` and the rest only in part, or not at all; each now
@@ -920,7 +920,7 @@ template engine alike, as `C04` says. `disabled: true` disables a
 `Slider`, `DatePicker` or `FileUpload`. An `html:` written on an element
 is an attribute, never markup."#),
                     Change(text: #"**A long list drawn before its box is laid out**
-([chapter 37](/docs/reference#virtuallist)) paints the
+([chapter 37](/reference#virtuallist)) paints the
 right rows in its first frame, the row `reveal:` names among them, where
 it drew about forty and trimmed them a frame later."#),
                     Change(text: #"**A pre-rendered modal** has its title as its heading, as the live page
@@ -971,7 +971,7 @@ window's events itself; `trapFocus` keeps focus inside a panel."#),
                     Change(text: #"**Gestures** ([chapter 9](/docs/guide/events#gestures-drag-long-press-swipe-and-the-splitter)). `drag:` and
 `on receive(d)` with a ghost, edge scroll and Escape; `on longpress`,
 `on swipe`; and `Splitter` between two regions, with its size kept."#),
-                    Change(text: #"**`VirtualList`** ([chapter 37](/docs/reference)): a
+                    Change(text: #"**`VirtualList`** ([chapter 37](/reference)): a
 long list drawn a window at a time, rows measured or of a fixed height,
 `reveal:` to scroll one into view, and `V12` for a long list that is
 not windowed."#),
@@ -1002,7 +1002,7 @@ table the browser's `Intl.PluralRules` reads), and exactly none is
 `key.zero` in any language."#)
                 ]),
                 NotesSection(title: #"For tools"#, id: "5.9.0-for-tools", intro: #"Every one reads the project through a `Vfs`, so an editor's unsaved
-buffers count ([chapter 38](/docs/guide/cli#building-a-tool-on-the-compiler))."#, items: [
+buffers count ([chapter 38](/reference/cli#building-a-tool-on-the-compiler))."#, items: [
                     Change(text: #"**Printing and reprinting**: `webfluent::print`, `reprint` and
 `edit::rewrite_*` change an element, a statement or a declaration in the
 tree and write the smallest edit, every other byte as it was."#),

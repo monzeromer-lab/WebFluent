@@ -262,7 +262,7 @@ fn main() {
 
         Heading("Configuration", id: "configuration").h3
 
-        Markdown("`config::ProjectConfig::load(dir)` reads `webfluent.app.json` with every default filled in, and `load_via(vfs, dir)` reads it through a `Vfs`. Its fields are the file's keys ([Configuration](/docs/guide/config)).")
+        Markdown("`config::ProjectConfig::load(dir)` reads `webfluent.app.json` with every default filled in, and `load_via(vfs, dir)` reads it through a `Vfs`. Its fields are the file's keys ([Configuration](/reference/config)).")
 
         Heading("Errors", id: "errors").h3
 

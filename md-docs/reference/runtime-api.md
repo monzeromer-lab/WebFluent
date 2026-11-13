@@ -1,7 +1,7 @@
 ---
 chapter: 46
 kind: "reference"
-route: "guide/runtime"
+route: "/reference/runtime"
 group: "reference"
 blurb: "window.WF — the runtime every compiled page calls, usable from a script of your own, the console or a library's callback."
 description: "The runtime reference, window.WF: signals, elements, motion, routing, data, stores and their inspection, widgets, safety, text and boot, module by module."

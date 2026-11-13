@@ -33,7 +33,7 @@ page TutorialGuide(path: "/docs/guide/tutorial", title: "Tutorial: Shelf", descr
   }
 }"#, title: "json")
 
-        Markdown("`ssg` pre-renders each page. `csp` ships a Content-Security-Policy and makes the build check its own output against it. [Configuration](/docs/guide/config) lists every key.\n\n**Check it:** run `wf check`. It prints `No .wf files found in src/` — correct, because `src/` is empty until the next step.")
+        Markdown("`ssg` pre-renders each page. `csp` ships a Content-Security-Policy and makes the build check its own output against it. [Configuration](/reference/config) lists every key.\n\n**Check it:** run `wf check`. It prints `No .wf files found in src/` — correct, because `src/` is empty until the next step.")
 
         Heading("Step 2: Describe the books", id: "step-2-describe-the-books").h2
 

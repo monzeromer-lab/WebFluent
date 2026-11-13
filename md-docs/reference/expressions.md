@@ -1,7 +1,7 @@
 ---
 chapter: 18
 kind: "reference"
-route: "guide/expressions"
+route: "/reference/expressions"
 group: "concepts"
 blurb: "The expression language: literals, interpolation, operators, values that choose, calls, methods, formatting, regexes, tokens and await."
 description: "Literals, interpolation and formatted splices, operators and precedence, if and match as values, lambdas, methods, format and ago, regexes, tokens, await."

@@ -901,14 +901,16 @@ fn the_editor_grammar_corpus_is_current_with_the_guide() {
     );
 }
 
-/// The documentation site's search and its components reference are written
-/// by `scripts/docsite/data.py`, from the guide and from `wf registry --json`,
-/// and nothing held the committed files to what it writes — so a section
-/// added to the guide was missing from the site's search until someone
-/// remembered to rerun it. This runs it into a scratch directory, with the
-/// binary this test run just built, and compares.
+/// The documentation site's search and its reference pages are written by
+/// `scripts/docsite/data.py` and `scripts/docsite/reference.py`, from the
+/// guide and from `wf registry/commands/config schema/theme --json` (with
+/// the data beside them for tools), and
+/// nothing held the committed files to what they write — so a section added
+/// to the guide was missing from the site's search until someone remembered
+/// to rerun it. This runs both into a scratch directory, with the binary
+/// this test run just built, and compares.
 #[test]
-fn the_sites_search_and_registry_are_current() {
+fn the_sites_search_and_reference_data_are_current() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR"));
     if std::process::Command::new("python3")
         .arg("--version")
@@ -921,21 +923,33 @@ fn the_sites_search_and_registry_are_current() {
     let out = std::env::temp_dir().join(format!("wf-site-data-{}", std::process::id()));
     let _ = std::fs::remove_dir_all(&out);
     std::fs::create_dir_all(&out).unwrap();
-    let run = std::process::Command::new("python3")
-        .arg(root.join("scripts/docsite/data.py"))
-        .env("WF_SITE_DATA_OUT", &out)
-        .env("WF_BIN", env!("CARGO_BIN_EXE_wf"))
-        .output()
-        .expect("run the generator");
-    assert!(
-        run.status.success(),
-        "the generator failed: {}",
-        String::from_utf8_lossy(&run.stderr)
-    );
+    for (script, var) in [
+        ("data.py", "WF_SITE_DATA_OUT"),
+        ("reference.py", "WF_REFERENCE_OUT"),
+    ] {
+        let run = std::process::Command::new("python3")
+            .arg(root.join("scripts/docsite").join(script))
+            .env(var, &out)
+            .env("WF_BIN", env!("CARGO_BIN_EXE_wf"))
+            .output()
+            .expect("run the generator");
+        assert!(
+            run.status.success(),
+            "{script} failed: {}",
+            String::from_utf8_lossy(&run.stderr)
+        );
+    }
     let mut stale = Vec::new();
     for (name, committed) in [
         ("search-index.json", "site/public/search-index.json"),
-        ("registry.json", "site/src/registry.json"),
+        ("components.json", "site/src/data/components.json"),
+        ("commands.json", "site/src/data/commands.json"),
+        ("config.json", "site/src/data/config.json"),
+        ("tokens.json", "site/src/data/tokens.json"),
+        ("Builtins.wf", "site/src/pages/reference/Builtins.wf"),
+        ("Cli.wf", "site/src/pages/reference/Cli.wf"),
+        ("Config.wf", "site/src/pages/reference/Config.wf"),
+        ("Tokens.wf", "site/src/pages/reference/Tokens.wf"),
     ] {
         let want = std::fs::read_to_string(out.join(name)).unwrap();
         let have = std::fs::read_to_string(root.join(committed)).unwrap_or_default();
@@ -946,7 +960,7 @@ fn the_sites_search_and_registry_are_current() {
     let _ = std::fs::remove_dir_all(&out);
     assert!(
         stale.is_empty(),
-        "these are behind the guide or the registry; run `cargo xtask site`: {stale:?}"
+        "these are behind the guide or the compiler; run `cargo xtask site`: {stale:?}"
     );
 }
 

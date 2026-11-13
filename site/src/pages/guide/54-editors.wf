@@ -115,7 +115,7 @@ page EditorsGuide(path: "/reference/editors", title: "Editors", description: "Ed
             }
         }
 
-        Markdown("The [command line reference](/docs/guide/cli#wf-lsp) lists each of these in full.")
+        Markdown("The [command line reference](/reference/cli#wf-lsp) lists each of these in full.")
 
         Heading("How it finds the project", id: "how-it-finds-the-project").h3
 
@@ -202,6 +202,6 @@ page EditorsGuide(path: "/reference/editors", title: "Editors", description: "Ed
 
         Heading("Other editors", id: "other-editors").h2
 
-        Markdown("Any editor with LSP support runs `wf-lsp` over standard input and output for the `webfluent` file type (`*.wf`, `*.wfx`), with `webfluent.app.json` as the root marker. The command line reference has the configuration for [Neovim](/docs/guide/cli#neovim), [Helix](/docs/guide/cli#helix) and [Emacs](/docs/guide/cli#emacs). For highlighting in an editor that reads Tree-sitter, use the grammars above.\n\n[WebFluent Studio](/docs/guide/getting-started#webfluent-studio) is an editor of its own, with the language server, a live preview and a designer in one window.")
+        Markdown("Any editor with LSP support runs `wf-lsp` over standard input and output for the `webfluent` file type (`*.wf`, `*.wfx`), with `webfluent.app.json` as the root marker. The command line reference has the configuration for [Neovim](/reference/cli#neovim), [Helix](/reference/cli#helix) and [Emacs](/reference/cli#emacs). For highlighting in an editor that reads Tree-sitter, use the grammars above.\n\n[WebFluent Studio](/docs/guide/getting-started#webfluent-studio) is an editor of its own, with the language server, a live preview and a designer in one window.")
     }
 }

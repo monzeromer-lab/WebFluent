@@ -1,6 +1,7 @@
 /// The props of one entry, as the reference lists them: the name in mono
 /// link ink, the type or the cases in mono, and one line of meaning.
-component PropsTable(rows: [Map], caption: String = "Props") {
+/// `nameLabel` heads the first column when its rows are not props.
+component PropsTable(rows: [Map], caption: String = "Props", nameLabel: String = "") {
     Table(caption: caption, class: "props-table") {
         style {
             width: 100%
@@ -19,7 +20,7 @@ component PropsTable(rows: [Map], caption: String = "Props") {
         }
         Table.Head {
             Table.Row {
-                Table.Cell(t("ref.prop")).header
+                Table.Cell(if nameLabel != "" { nameLabel } else { t("ref.prop") }).header
                 Table.Cell(t("ref.type")).header
                 Table.Cell(t("ref.meaning")).header
             }

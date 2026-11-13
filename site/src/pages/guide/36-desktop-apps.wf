@@ -69,7 +69,7 @@ page DesktopGuide(path: "/docs/guide/desktop", title: "Desktop apps", descriptio
                 Line(command: "cargo tauri dev")
             ])
 
-        Markdown("This command runs `wf serve` and opens the app's window on it. Saving a `.wf` file rebuilds and reloads the window, and a build that fails shows its error over the page, as it does in a browser ([CLI](/docs/guide/cli)). Saving a Rust file rebuilds the app. If `dev.port` is not `3000`, change `devUrl` to match.\n\nTo build the installers, run:")
+        Markdown("This command runs `wf serve` and opens the app's window on it. Saving a `.wf` file rebuilds and reloads the window, and a build that fails shows its error over the page, as it does in a browser ([CLI](/reference/cli)). Saving a Rust file rebuilds the app. If `dev.port` is not `3000`, change `devUrl` to match.\n\nTo build the installers, run:")
 
         Terminal(lines: [
                 Line(command: "cargo tauri build")

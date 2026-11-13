@@ -181,7 +181,7 @@ test "the cart shows what is in it"(data: { Cart: { items: [{ id: "a", qty: 2 }]
                 Line(command: "wf build && wf verify")
             ])
 
-        Markdown("`wf verify` serves the build and opens every route in headless Chrome. It fails on:\n\n- an uncaught exception or a `console.error`;\n- a request that failed, or an image that did not load;\n- a page that rendered no text.\n\nFor each route it prints the first contentful paint, the size and the requests. It also lists the built-ins no page drew — a fact about coverage, not a failure. Its options:\n\n- `--budget 400` fails a route that takes more than 400 ms to paint;\n- `--json` prints the report for a pipeline;\n- `--returning-visitor` visits every route again with storage holding what the previous build's pages kept.\n\n[CLI](/docs/guide/cli#wf-verify) has the details.")
+        Markdown("`wf verify` serves the build and opens every route in headless Chrome. It fails on:\n\n- an uncaught exception or a `console.error`;\n- a request that failed, or an image that did not load;\n- a page that rendered no text.\n\nFor each route it prints the first contentful paint, the size and the requests. It also lists the built-ins no page drew — a fact about coverage, not a failure. Its options:\n\n- `--budget 400` fails a route that takes more than 400 ms to paint;\n- `--json` prints the report for a pipeline;\n- `--returning-visitor` visits every route again with storage holding what the previous build's pages kept.\n\n[CLI](/reference/cli#wf-verify) has the details.")
 
         Heading("Run the checks in CI", id: "run-the-checks-in-ci").h2
 

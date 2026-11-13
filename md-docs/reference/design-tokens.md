@@ -1,7 +1,7 @@
 ---
 chapter: 45
 kind: "reference"
-route: "guide/tokens"
+route: "/reference/tokens"
 group: "reference"
 blurb: "Every token of the baseline theme, with its value: the colours, type, spacing, radii, shadows, motion and breakpoints every built-in is drawn with."
 description: "Every baseline design token with its default value, how a theme overrides one, and how a style block or a stylesheet reads it, by full or short name."

@@ -1,14 +1,11 @@
 #!/usr/bin/env python3
-"""Write the documentation site's data files.
+"""Write the documentation site's search index.
 
-- `site/src/registry.json`: the components reference, from `wf registry
-  --json` — one entry per built-in with its signature, props, flags,
-  parts, events and the group it belongs to. The reference pages read it
-  as `data registry`.
-- `site/public/search-index.json`: every chapter, section, component and
-  diagnostic code, with the terms each section is about, for the header's
-  search. It is a file the site fetches the first time the search box is
-  used, not part of every page's bundle.
+`site/public/search-index.json`: every chapter, section, component and
+diagnostic code, with the terms each section is about, for the header's
+search. It is a file the site fetches the first time the search box is
+used, not part of every page's bundle. The reference's own data is
+`reference.py`'s.
 
 Rerun after the registry or the guide changes: `cargo xtask site`.
 """
@@ -33,85 +30,13 @@ spec = importlib.util.spec_from_file_location("guide", ROOT / "scripts" / "docsi
 guide = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(guide)
 sys.path.insert(0, str(ROOT / "scripts" / "docsite"))
-from examples import EXAMPLES  # noqa: E402
+import reference  # noqa: E402
 
 
-def legacy(c):
-    s = c["summary"]
-    return "original spelling" in s or "original grammar" in s
-
-
-def prop_row(p, positional=False):
-    if p.get("cases"):
-        ty = " ".join(f".{c['name']}" for c in p["cases"])
-    else:
-        ty = p["type"]
-    name = p["name"] if positional else f"{p['name']}:"
-    if positional:
-        ty += "  (positional)"
-    elif p.get("required"):
-        ty += "  (required)"
-    return {"name": name, "type": ty, "meaning": p["summary"]}
-
-
-def signature(c, owner=None):
-    name = f"{owner}.{c['name']}" if owner else c["name"]
-    pos = c.get("positional")
-    args = ([pos["name"]] if pos else []) + [f"{p['name']}: …" for p in c["props"][:3]]
-    sig = name + ("(" + ", ".join(args) + ")" if args else "")
-    if c["children"] == "elements":
-        sig += " { … }"
-    return sig
-
-
-def registry():
-    data = json.loads(subprocess.check_output([str(wf), "registry", "--json"]))
-    comps = data["components"]
-    tops = [c for c in comps if c["owner"] is None and not legacy(c)]
-    groups = []
-    for c in tops:
-        if c["group"] not in groups:
-            groups.append(c["group"])
-    out = []
-    for c in tops:
-        pos = c.get("positional")
-        props = ([prop_row(pos, True)] if pos else []) + [prop_row(p) for p in c["props"]]
-        flags = [f".{f['name']}" for f in c["flags"] if f["prop"] not in ("animate", "speed")]
-        parts = []
-        for p in comps:
-            if p["owner"] != c["name"]:
-                continue
-            ppos = p.get("positional")
-            parts.append({
-                "name": f"{c['name']}.{p['name']}",
-                "signature": signature(p, c["name"]),
-                "summary": p["summary"],
-                "props": ([prop_row(ppos, True)] if ppos else []) + [prop_row(q) for q in p["props"]],
-                "flags": [f".{f['name']}" for f in p["flags"] if f["prop"] not in ("animate", "speed")],
-            })
-        siblings = [s["name"] for s in tops if s["group"] == c["group"] and s["name"] != c["name"]]
-        out.append({
-            "name": c["name"],
-            "slug": c["name"].lower(),
-            "group": c["group"],
-            "summary": c["summary"],
-            "plain": c["summary"].replace("`", ""),
-            "signature": signature(c),
-            "block": c["children"] == "elements",
-            "props": props,
-            "flags": flags,
-            "events": [{"name": f"on {e}", "meaning": ""} for e in c["events"]],
-            "parts": parts,
-            "attributes": c.get("attributes") or [],
-            "nearby": siblings[:4],
-            "example": EXAMPLES.get(c["name"], ""),
-            "cssClass": c.get("class") or "",
-        })
-    universal = {
-        "props": [prop_row(p) for p in data["universal"]["props"]],
-        "events": [{"name": f"on {e['name']}", "meaning": e["summary"]} for e in data["universal"]["events"]],
-    }
-    return {"groups": groups, "components": out, "universal": universal, "icons": data["icons"], "count": len(out)}
+def builtins():
+    """Every built-in, as the reference pages list it (`reference.py`)."""
+    reg = json.loads(subprocess.check_output([str(wf), "registry", "--json"]))
+    return reference.components(reg)["items"]
 
 
 STOP = set("""about after again also always another because before being between both cannot could does doesn during each either every first from have here into itself just like made make many more most much must need never only other over same should since some such than that their them then there these they this those through under until very what when where which while with within without would your yours""".split())
@@ -164,21 +89,22 @@ def search_index():
             })
     # Every built-in, by name, with what it takes.
     ref = guide.front_matter(ROOT / "md-docs" / "reference" / "components.md")[0]
-    for c in registry()["components"]:
+    for c in builtins():
+        if c["legacy"]:
+            continue
         rows.append({
             "chapter": f"{ref['chapter']:02d}",
             "title": "Components reference",
             "section": c["name"],
-            "route": f"/docs/reference/{c['slug']}",
+            "route": f"/reference/{c['slug']}",
             "words": terms(c["summary"] + " " + " ".join(f"`{p['name']}`" for p in c["props"])),
         })
     return rows
 
 
 if __name__ == "__main__":
-    (SITE / "registry.json").write_text(json.dumps(registry(), indent=1) + "\n")
     # Fetched on demand, so it is written compact, into `public/`.
     public = SITE if os.environ.get("WF_SITE_DATA_OUT") else ROOT / "site" / "public"
     public.mkdir(parents=True, exist_ok=True)
     (public / "search-index.json").write_text(json.dumps(search_index(), separators=(",", ":"), ensure_ascii=False) + "\n")
-    print(f"wrote {SITE / 'registry.json'} and {public / 'search-index.json'}")
+    print(f"wrote {public / 'search-index.json'}")
