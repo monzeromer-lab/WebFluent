@@ -1,0 +1,2 @@
+function Page_InterimLearn(params){const _root=document.createDocumentFragment();const _e1591=WF.el("h1",{className:"wf-heading"},()=>WF.i18n.t("nav.learn"));_root.appendChild(_e1591);const _e1592=WF.el("a",{className:"wf-link",href:WF._basePath+"/docs/guide/getting-started"},()=>WF.i18n.t("ch.02"));WF.activeLink(_e1592,"/docs/guide/getting-started",false);_root.appendChild(_e1592);return _root;}
+WF.page("InterimLearn",Page_InterimLearn);

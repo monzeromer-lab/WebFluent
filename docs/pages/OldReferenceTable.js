@@ -1,0 +1,2 @@
+function Page_OldReferenceTable(params){const _root=document.createDocumentFragment();const _e1753=WF.el("h1",{className:"wf-heading"},"Table");_root.appendChild(_e1753);const _e1754=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/table"},"Table");WF.activeLink(_e1754,"/reference/table",false);_root.appendChild(_e1754);return _root;}
+WF.page("OldReferenceTable",Page_OldReferenceTable);

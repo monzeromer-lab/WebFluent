@@ -1,0 +1,2 @@
+function Page_OldReferenceDocument(params){const _root=document.createDocumentFragment();const _e1665=WF.el("h1",{className:"wf-heading"},"Document");_root.appendChild(_e1665);const _e1666=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/document"},"Document");WF.activeLink(_e1666,"/reference/document",false);_root.appendChild(_e1666);return _root;}
+WF.page("OldReferenceDocument",Page_OldReferenceDocument);

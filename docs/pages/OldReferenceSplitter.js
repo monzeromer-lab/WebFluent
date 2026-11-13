@@ -1,0 +1,2 @@
+function Page_OldReferenceSplitter(params){const _root=document.createDocumentFragment();const _e1747=WF.el("h1",{className:"wf-heading"},"Splitter");_root.appendChild(_e1747);const _e1748=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/splitter"},"Splitter");WF.activeLink(_e1748,"/reference/splitter",false);_root.appendChild(_e1748);return _root;}
+WF.page("OldReferenceSplitter",Page_OldReferenceSplitter);

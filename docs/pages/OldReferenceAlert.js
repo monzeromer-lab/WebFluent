@@ -1,0 +1,2 @@
+function Page_OldReferenceAlert(params){const _root=document.createDocumentFragment();const _e1627=WF.el("h1",{className:"wf-heading"},"Alert");_root.appendChild(_e1627);const _e1628=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/alert"},"Alert");WF.activeLink(_e1628,"/reference/alert",false);_root.appendChild(_e1628);return _root;}
+WF.page("OldReferenceAlert",Page_OldReferenceAlert);

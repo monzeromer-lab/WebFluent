@@ -1,0 +1,2 @@
+function Page_OldReferenceCode(params){const _root=document.createDocumentFragment();const _e1653=WF.el("h1",{className:"wf-heading"},"Code");_root.appendChild(_e1653);const _e1654=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/code"},"Code");WF.activeLink(_e1654,"/reference/code",false);_root.appendChild(_e1654);return _root;}
+WF.page("OldReferenceCode",Page_OldReferenceCode);

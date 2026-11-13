@@ -1,0 +1,2 @@
+function Page_OldGuideProjectStructure(params){const _root=document.createDocumentFragment();const _e1611=WF.el("h1",{className:"wf-heading"},"Project structure");_root.appendChild(_e1611);const _e1612=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/project"},"Project structure");WF.activeLink(_e1612,"/reference/project",false);_root.appendChild(_e1612);return _root;}
+WF.page("OldGuideProjectStructure",Page_OldGuideProjectStructure);

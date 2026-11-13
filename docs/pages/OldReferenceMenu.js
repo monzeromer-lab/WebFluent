@@ -1,0 +1,2 @@
+function Page_OldReferenceMenu(params){const _root=document.createDocumentFragment();const _e1703=WF.el("h1",{className:"wf-heading"},"Menu");_root.appendChild(_e1703);const _e1704=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/menu"},"Menu");WF.activeLink(_e1704,"/reference/menu",false);_root.appendChild(_e1704);return _root;}
+WF.page("OldReferenceMenu",Page_OldReferenceMenu);

@@ -1,0 +1,2 @@
+function Page_OldReferenceInput(params){const _root=document.createDocumentFragment();const _e1695=WF.el("h1",{className:"wf-heading"},"Input");_root.appendChild(_e1695);const _e1696=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/input"},"Input");WF.activeLink(_e1696,"/reference/input",false);_root.appendChild(_e1696);return _root;}
+WF.page("OldReferenceInput",Page_OldReferenceInput);

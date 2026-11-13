@@ -1,0 +1,2 @@
+function Page_InterimFromSvelte(params){const _root=document.createDocumentFragment();const _e1603=WF.el("h1",{className:"wf-heading"},()=>WF.i18n.t("ch.04"));_root.appendChild(_e1603);const _e1604=WF.el("a",{className:"wf-link",href:WF._basePath+"/docs/guide/coming-from"},()=>WF.i18n.t("ch.04"));WF.activeLink(_e1604,"/docs/guide/coming-from",false);_root.appendChild(_e1604);return _root;}
+WF.page("InterimFromSvelte",Page_InterimFromSvelte);

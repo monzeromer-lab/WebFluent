@@ -1,0 +1,2 @@
+function Page_OldReferenceChart(params){const _root=document.createDocumentFragment();const _e1649=WF.el("h1",{className:"wf-heading"},"Chart");_root.appendChild(_e1649);const _e1650=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/chart"},"Chart");WF.activeLink(_e1650,"/reference/chart",false);_root.appendChild(_e1650);return _root;}
+WF.page("OldReferenceChart",Page_OldReferenceChart);

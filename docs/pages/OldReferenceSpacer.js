@@ -1,0 +1,2 @@
+function Page_OldReferenceSpacer(params){const _root=document.createDocumentFragment();const _e1743=WF.el("h1",{className:"wf-heading"},"Spacer");_root.appendChild(_e1743);const _e1744=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/spacer"},"Spacer");WF.activeLink(_e1744,"/reference/spacer",false);_root.appendChild(_e1744);return _root;}
+WF.page("OldReferenceSpacer",Page_OldReferenceSpacer);

@@ -1,0 +1,2 @@
+function Page_OldReferenceAvatar(params){const _root=document.createDocumentFragment();const _e1631=WF.el("h1",{className:"wf-heading"},"Avatar");_root.appendChild(_e1631);const _e1632=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/avatar"},"Avatar");WF.activeLink(_e1632,"/reference/avatar",false);_root.appendChild(_e1632);return _root;}
+WF.page("OldReferenceAvatar",Page_OldReferenceAvatar);

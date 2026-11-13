@@ -1,0 +1,2 @@
+function Page_OldGuideGrammar(params){const _root=document.createDocumentFragment();const _e1609=WF.el("h1",{className:"wf-heading"},"Grammar");_root.appendChild(_e1609);const _e1610=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/grammar"},"Grammar");WF.activeLink(_e1610,"/reference/grammar",false);_root.appendChild(_e1610);return _root;}
+WF.page("OldGuideGrammar",Page_OldGuideGrammar);

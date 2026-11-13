@@ -1,0 +1,2 @@
+function Page_InterimFromVue(params){const _root=document.createDocumentFragment();const _e1601=WF.el("h1",{className:"wf-heading"},()=>WF.i18n.t("ch.04"));_root.appendChild(_e1601);const _e1602=WF.el("a",{className:"wf-link",href:WF._basePath+"/docs/guide/coming-from"},()=>WF.i18n.t("ch.04"));WF.activeLink(_e1602,"/docs/guide/coming-from",false);_root.appendChild(_e1602);return _root;}
+WF.page("InterimFromVue",Page_InterimFromVue);

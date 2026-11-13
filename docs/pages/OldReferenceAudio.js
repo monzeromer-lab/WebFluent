@@ -1,0 +1,2 @@
+function Page_OldReferenceAudio(params){const _root=document.createDocumentFragment();const _e1629=WF.el("h1",{className:"wf-heading"},"Audio");_root.appendChild(_e1629);const _e1630=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/audio"},"Audio");WF.activeLink(_e1630,"/reference/audio",false);_root.appendChild(_e1630);return _root;}
+WF.page("OldReferenceAudio",Page_OldReferenceAudio);

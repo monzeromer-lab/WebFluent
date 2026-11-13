@@ -1,0 +1,2 @@
+function Page_OldReferenceBlockquote(params){const _root=document.createDocumentFragment();const _e1637=WF.el("h1",{className:"wf-heading"},"Blockquote");_root.appendChild(_e1637);const _e1638=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/blockquote"},"Blockquote");WF.activeLink(_e1638,"/reference/blockquote",false);_root.appendChild(_e1638);return _root;}
+WF.page("OldReferenceBlockquote",Page_OldReferenceBlockquote);

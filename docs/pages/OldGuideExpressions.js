@@ -1,0 +1,2 @@
+function Page_OldGuideExpressions(params){const _root=document.createDocumentFragment();const _e1607=WF.el("h1",{className:"wf-heading"},"Expressions");_root.appendChild(_e1607);const _e1608=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/expressions"},"Expressions");WF.activeLink(_e1608,"/reference/expressions",false);_root.appendChild(_e1608);return _root;}
+WF.page("OldGuideExpressions",Page_OldGuideExpressions);

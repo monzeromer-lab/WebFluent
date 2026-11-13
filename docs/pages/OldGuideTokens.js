@@ -1,0 +1,2 @@
+function Page_OldGuideTokens(params){const _root=document.createDocumentFragment();const _e1621=WF.el("h1",{className:"wf-heading"},"Design tokens");_root.appendChild(_e1621);const _e1622=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/tokens"},"Design tokens");WF.activeLink(_e1622,"/reference/tokens",false);_root.appendChild(_e1622);return _root;}
+WF.page("OldGuideTokens",Page_OldGuideTokens);

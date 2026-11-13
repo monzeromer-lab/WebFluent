@@ -1,0 +1,2 @@
+function Page_OldReferenceRow(params){const _root=document.createDocumentFragment();const _e1727=WF.el("h1",{className:"wf-heading"},"Row");_root.appendChild(_e1727);const _e1728=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/row"},"Row");WF.activeLink(_e1728,"/reference/row",false);_root.appendChild(_e1728);return _root;}
+WF.page("OldReferenceRow",Page_OldReferenceRow);

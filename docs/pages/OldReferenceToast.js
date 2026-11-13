@@ -1,0 +1,2 @@
+function Page_OldReferenceToast(params){const _root=document.createDocumentFragment();const _e1767=WF.el("h1",{className:"wf-heading"},"Toast");_root.appendChild(_e1767);const _e1768=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/toast"},"Toast");WF.activeLink(_e1768,"/reference/toast",false);_root.appendChild(_e1768);return _root;}
+WF.page("OldReferenceToast",Page_OldReferenceToast);

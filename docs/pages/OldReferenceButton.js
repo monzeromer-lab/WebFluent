@@ -1,0 +1,2 @@
+function Page_OldReferenceButton(params){const _root=document.createDocumentFragment();const _e1641=WF.el("h1",{className:"wf-heading"},"Button");_root.appendChild(_e1641);const _e1642=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/button"},"Button");WF.activeLink(_e1642,"/reference/button",false);_root.appendChild(_e1642);return _root;}
+WF.page("OldReferenceButton",Page_OldReferenceButton);

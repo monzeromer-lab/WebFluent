@@ -27,8 +27,8 @@
     <link rel="preload" href="/fonts/instrument-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="/fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="/styles.css">
-    <link rel="stylesheet" href="/pages/NotFound.css" data-wf-page-css="NotFound">
     <script src="/js/analytics.js" defer></script>
+    <script src="/js/old-links.js" defer></script>
     <script src="/js/video.js" defer></script>
     <script src="/app.js" defer></script>
     <script src="/pages/NotFound.js" data-wf-page="NotFound" defer></script>
@@ -40,9 +40,9 @@
             <a class="wf-link bp-skip" href="#bp-main">Skip to the content</a>
             <div class="wf-row wf-align--center wf-s55053fdc bp-header" role="banner">
                 <div class="wf-row wf-align--center wf-gap--md wf-sfe495c12 bp-wrap">
-                    <a class="wf-link wf-sd56ba8fe" href="/" aria-label="WebFluent, home">
+                    <a class="wf-link wf-sa4fc1f4b" href="/" aria-label="WebFluent, home">
                         <img class="wf-image wf-s4b9d0b60" src="/favicon.svg" alt="" decoding="async" loading="eager" fetchpriority="high">
-                        <p class="wf-text wf-s9919642b bp-hide-sm">WebFluent</p>
+                        <p class="wf-text wf-s9919642b">WebFluent</p>
                         <p class="wf-text bp-label bp-num">6.0</p>
                     </a>
                     <div class="wf-row wf-s92924cc4 bp-tabs" role="navigation" aria-label="Main">
@@ -50,16 +50,16 @@
                         <a class="wf-link bp-tab" href="/recipes">Recipes</a>
                         <a class="wf-link bp-tab" href="/reference">Reference</a>
                         <a class="wf-link bp-tab" href="/errors">Errors</a>
-                        <a class="wf-link bp-tab" href="/playground">Playground</a>
                         <a class="wf-link bp-tab" href="/showcase">Showcase</a>
                     </div>
                     <div class="wf-row wf-align--center wf-gap--sm wf-sff642a95">
-                        <button class="wf-btn wf-s9b841342 bp-field" aria-label="Search the docs" aria-keyshortcuts="Meta+K Control+K" aria-haspopup="dialog" type="button">
+                        <button class="wf-btn wf-sf8ab46ec bp-field bp-search" aria-label="Search the docs" aria-keyshortcuts="Meta+K Control+K" aria-haspopup="dialog" type="button">
                             <i class="wf-icon" data-icon="search"></i>
                             <p class="wf-text wf-sf55a2627 bp-hide-sm">Search the docs</p>
                             <p class="wf-text bp-kbd bp-hide-sm">Ctrl+K</p>
                         </button>
-                        <div class="wf-row wf-align--center wf-gap--sm wf-sf0e17348 bp-select bp-hide-sm">
+                        <div class="wf-row wf-align--center wf-gap--sm wf-s808638b6 bp-select bp-hide-sm">
+                            <p class="wf-text wf-s29c127bc bp-building-label" aria-hidden="true">Building</p>
                             <select class="wf-select" aria-label="Building">
                                 <option value="website">Website</option>
                                 <option value="app">Web app</option>
@@ -68,12 +68,16 @@
                                 <option value="elements">Custom elements</option>
                                 <option value="desktop">Desktop / phone</option>
                             </select>
+                            <i class="wf-icon wf-s94250744" data-icon="chevron-down" aria-hidden="true"></i>
                         </div>
                         <button class="wf-icon-btn bp-icon-button" data-track="select_content" data-track-content-type="theme" type="button"></button>
-                        <div class="wf-row wf-align--center wf-gap--xs wf-s286d925a">
+                        <div class="wf-row wf-align--center wf-gap--xs wf-s286d925a bp-hide-sm">
                             <button class="wf-btn bp-button" title="This page is in English only; the switch changes the interface." data-track="select_content" data-track-content-type="language" type="button"></button>
                         </div>
-                        <a class="wf-link bp-button bp-hide-sm" href="https://github.com/monzeromer-lab/WebFluent" data-tone="quiet">GitHub</a>
+                        <a class="wf-link bp-button bp-hide-sm" href="https://github.com/monzeromer-lab/WebFluent" data-tone="quiet" aria-label="GitHub">
+                            <i class="wf-icon" data-icon="git-branch"></i>
+                            <p class="wf-text">GitHub</p>
+                        </a>
                         <button class="wf-icon-btn wf-sde8ec4aa bp-icon-button" data-icon="menu" aria-label="Menu" title="Menu" aria-expanded="false" type="button"></button>
                     </div>
                 </div>
@@ -102,14 +106,25 @@
                     </div>
                 </div>
             </dialog>
-            <div class="wf-container wf-sf1fa98fb">
-                <div class="wf-stack wf-gap--md">
-                    <p class="wf-text wf-s1da4450d">404</p>
-                    <h1 class="wf-heading wf-s6f73d8d3">Nothing lives here</h1>
-                    <p class="wf-text wf-s99329845">The address you followed does not match any page. The guide&#x27;s first chapter is a good place to start again.</p>
-                    <div class="wf-row wf-gap--sm">
-                        <a class="wf-link site-button site-button-primary" href="/">Back home</a>
-                        <a class="wf-link site-button site-button-outlined" href="/docs/guide/getting-started">Guide</a>
+            <div class="wf-stack wf-gap--lg wf-sc59816eb bp-main bp-wrap" role="main" id="bp-main" tabindex="-1">
+                <div class="wf-stack wf-gap--sm wf-s4e4189b1">
+                    <p class="wf-text wf-sb24910e4 bp-label bp-num" data-tone="construction">404</p>
+                    <h1 class="wf-heading wf-sdfc6d99e">Nothing lives here</h1>
+                    <p class="wf-text bp-lede">The address you followed does not match any page. The guide&#x27;s first chapter is a good place to start again.</p>
+                </div>
+                <button class="wf-btn wf-s79ef03bf bp-field" type="button">
+                    <i class="wf-icon" data-icon="search"></i>
+                    <p class="wf-text wf-sd0eb91d0">Search the docs</p>
+                    <p class="wf-text bp-kbd">Ctrl+K</p>
+                </button>
+                <div class="wf-stack wf-gap--sm wf-s3df5f255">
+                    <h2 class="wf-heading wf-s5dcf4ea5">The main sections</h2>
+                    <div class="wf-grid wf-gap--sm wf-ra22141b3">
+                        <a class="wf-link wf-s70571e62 bp-card" href="/learn">Learn</a>
+                        <a class="wf-link wf-s70571e62 bp-card" href="/recipes">Recipes</a>
+                        <a class="wf-link wf-s70571e62 bp-card" href="/reference">Reference</a>
+                        <a class="wf-link wf-s70571e62 bp-card" href="/errors">Errors</a>
+                        <a class="wf-link wf-s70571e62 bp-card" href="/showcase">Showcase</a>
                     </div>
                 </div>
             </div>
@@ -137,7 +152,6 @@
                     </div>
                     <div class="wf-stack wf-gap--xs wf-s17061b4c">
                         <p class="wf-text wf-scba75cc6 bp-section-label">For agents</p>
-                        <a class="wf-link" href="/llms.txt">llms.txt</a>
                         <a class="wf-link" href="/reference/cli/context">wf context</a>
                         <a class="wf-link" href="/changelog">Changelog</a>
                     </div>

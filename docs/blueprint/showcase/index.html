@@ -28,6 +28,7 @@
     <link rel="preload" href="/fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="/styles.css">
     <script src="/js/analytics.js" defer></script>
+    <script src="/js/old-links.js" defer></script>
     <script src="/js/video.js" defer></script>
     <script src="/app.js" defer></script>
     <script src="/pages/BlueprintShowcase.js" data-wf-page="BlueprintShowcase" defer></script>
@@ -39,9 +40,9 @@
             <a class="wf-link bp-skip" href="#bp-main">Skip to the content</a>
             <div class="wf-row wf-align--center wf-s55053fdc bp-header" role="banner">
                 <div class="wf-row wf-align--center wf-gap--md wf-sfe495c12 bp-wrap">
-                    <a class="wf-link wf-sd56ba8fe" href="/" aria-label="WebFluent, home">
+                    <a class="wf-link wf-sa4fc1f4b" href="/" aria-label="WebFluent, home">
                         <img class="wf-image wf-s4b9d0b60" src="/favicon.svg" alt="" decoding="async" loading="eager" fetchpriority="high">
-                        <p class="wf-text wf-s9919642b bp-hide-sm">WebFluent</p>
+                        <p class="wf-text wf-s9919642b">WebFluent</p>
                         <p class="wf-text bp-label bp-num">6.0</p>
                     </a>
                     <div class="wf-row wf-s92924cc4 bp-tabs" role="navigation" aria-label="Main">
@@ -49,16 +50,16 @@
                         <a class="wf-link bp-tab" href="/recipes">Recipes</a>
                         <a class="wf-link bp-tab" href="/reference">Reference</a>
                         <a class="wf-link bp-tab" href="/errors">Errors</a>
-                        <a class="wf-link bp-tab" href="/playground">Playground</a>
                         <a class="wf-link bp-tab" href="/showcase">Showcase</a>
                     </div>
                     <div class="wf-row wf-align--center wf-gap--sm wf-sff642a95">
-                        <button class="wf-btn wf-s9b841342 bp-field" aria-label="Search the docs" aria-keyshortcuts="Meta+K Control+K" aria-haspopup="dialog" type="button">
+                        <button class="wf-btn wf-sf8ab46ec bp-field bp-search" aria-label="Search the docs" aria-keyshortcuts="Meta+K Control+K" aria-haspopup="dialog" type="button">
                             <i class="wf-icon" data-icon="search"></i>
                             <p class="wf-text wf-sf55a2627 bp-hide-sm">Search the docs</p>
                             <p class="wf-text bp-kbd bp-hide-sm">Ctrl+K</p>
                         </button>
-                        <div class="wf-row wf-align--center wf-gap--sm wf-sf0e17348 bp-select bp-hide-sm">
+                        <div class="wf-row wf-align--center wf-gap--sm wf-s808638b6 bp-select bp-hide-sm">
+                            <p class="wf-text wf-s29c127bc bp-building-label" aria-hidden="true">Building</p>
                             <select class="wf-select" aria-label="Building">
                                 <option value="website">Website</option>
                                 <option value="app">Web app</option>
@@ -67,12 +68,16 @@
                                 <option value="elements">Custom elements</option>
                                 <option value="desktop">Desktop / phone</option>
                             </select>
+                            <i class="wf-icon wf-s94250744" data-icon="chevron-down" aria-hidden="true"></i>
                         </div>
                         <button class="wf-icon-btn bp-icon-button" data-track="select_content" data-track-content-type="theme" type="button"></button>
-                        <div class="wf-row wf-align--center wf-gap--xs wf-s286d925a">
+                        <div class="wf-row wf-align--center wf-gap--xs wf-s286d925a bp-hide-sm">
                             <a class="wf-link bp-button" href="/ar/blueprint/showcase" data-track="select_content" data-track-content-type="language"></a>
                         </div>
-                        <a class="wf-link bp-button bp-hide-sm" href="https://github.com/monzeromer-lab/WebFluent" data-tone="quiet">GitHub</a>
+                        <a class="wf-link bp-button bp-hide-sm" href="https://github.com/monzeromer-lab/WebFluent" data-tone="quiet" aria-label="GitHub">
+                            <i class="wf-icon" data-icon="git-branch"></i>
+                            <p class="wf-text">GitHub</p>
+                        </a>
                         <button class="wf-icon-btn wf-sde8ec4aa bp-icon-button" data-icon="menu" aria-label="Menu" title="Menu" aria-expanded="false" type="button"></button>
                     </div>
                 </div>
@@ -101,70 +106,57 @@
                     </div>
                 </div>
             </dialog>
-            <div class="wf-stack wf-gap--lg wf-se670daad bp-main bp-wrap" role="main" id="bp-main" tabindex="-1">
-                <div class="wf-row bp-labels">
-                    <p class="wf-text bp-label" data-tone="kind" data-kind="showcase">Showcase</p>
-                </div>
+            <div class="wf-stack wf-gap--lg wf-s6834cce6 bp-main bp-wrap" role="main" id="bp-main" tabindex="-1">
                 <div class="wf-stack wf-gap--sm wf-s4e4189b1">
                     <h1 class="wf-heading wf-s1cf4ddba">Made with WebFluent</h1>
-                    <p class="wf-text bp-lede">Real outputs: sites, PDFs and decks, each with its source and the recipe that makes it.</p>
+                    <div class="wf-markdown bp-lede">
+<p>Real outputs: sites, PDFs and decks, each with its source and the recipe that makes it.</p>
+                    </div>
                 </div>
-                <div class="wf-row wf-gap--xs wf-s22411b77" role="group" aria-label="Show outputs of a kind">
-                    <button class="wf-btn bp-button" aria-pressed="true" type="button">Website</button>
-                    <button class="wf-btn bp-button" aria-pressed="false" type="button">Web app</button>
-                    <button class="wf-btn bp-button" aria-pressed="false" type="button">PDF</button>
-                    <button class="wf-btn bp-button" aria-pressed="false" type="button">Slides</button>
-                    <button class="wf-btn bp-button" aria-pressed="false" type="button">Custom elements</button>
-                    <button class="wf-btn bp-button" aria-pressed="false" type="button">Desktop / phone</button>
-                </div>
-                <div class="wf-grid wf-gap--md wf-re81ba7c6">
-                    <div class="wf-stack wf-sb959d94b bp-sheet" data-current="true">
-                        <div class="wf-stack wf-s3fd38d7e bp-grid">
-                            <p class="wf-text bp-label">Website</p>
+                <div class="wf-row wf-align--center wf-gap--sm wf-sda9feb06" role="group" aria-label="Show outputs of a kind"></div>
+                <div class="wf-grid wf-gap--md wf-r76790d05">
+                    <div class="wf-stack bp-sheet bp-show-tile">
+                        <div class="wf-stack bp-grid bp-show-tile__picture">
                         </div>
-                        <div class="wf-stack wf-gap--sm wf-s9e2d27c6">
-                            <p class="wf-text wf-s208d0164">The WebFluent site</p>
+                        <div class="wf-stack wf-gap--sm bp-show-tile__body">
+                            <p class="wf-text bp-show-tile__title" lang="en">The WebFluent site</p>
                             <div class="wf-row bp-labels">
                                 <p class="wf-text bp-label">Website</p>
-                                <p class="wf-text bp-label bp-num">41 kB</p>
                                 <p class="wf-text bp-label bp-num">64 pages</p>
+                                <p class="wf-text bp-label bp-num">41 kB</p>
                             </div>
-                            <div class="wf-row wf-gap--sm wf-sf133fa13">
-                                <a class="wf-link bp-button" href="https://github.com/monzeromer-lab/WebFluent">View source</a>
-                                <a class="wf-link bp-button" href="/recipes/static-site" data-tone="quiet">The recipe</a>
+                            <div class="wf-row wf-gap--sm wf-sbdb8e45d">
+                                <a class="wf-link bp-button" href="https://github.com/monzeromer-lab/WebFluent" data-tone="quiet">View source</a>
                             </div>
                         </div>
                     </div>
-                    <div class="wf-stack wf-sb959d94b bp-sheet">
-                        <div class="wf-stack wf-s3fd38d7e bp-grid">
-                            <p class="wf-text bp-label">PDF</p>
+                    <div class="wf-stack bp-sheet bp-show-tile">
+                        <div class="wf-stack bp-grid bp-show-tile__picture">
                         </div>
-                        <div class="wf-stack wf-gap--sm wf-s9e2d27c6">
-                            <p class="wf-text wf-s208d0164">An invoice</p>
+                        <div class="wf-stack wf-gap--sm bp-show-tile__body">
+                            <p class="wf-text bp-show-tile__title" lang="en">An invoice</p>
                             <div class="wf-row bp-labels">
                                 <p class="wf-text bp-label">PDF</p>
-                                <p class="wf-text bp-label bp-num">28 kB</p>
                                 <p class="wf-text bp-label bp-num">2 pages</p>
+                                <p class="wf-text bp-label bp-num">28 kB</p>
                             </div>
-                            <div class="wf-row wf-gap--sm wf-sf133fa13">
-                                <a class="wf-link bp-button" href="https://github.com/monzeromer-lab/WebFluent">View source</a>
-                                <a class="wf-link bp-button" href="/recipes/pdf-invoice" data-tone="quiet">The recipe</a>
+                            <div class="wf-row wf-gap--sm wf-sbdb8e45d">
+                                <a class="wf-link bp-button" href="https://github.com/monzeromer-lab/WebFluent" data-tone="quiet">View source</a>
                             </div>
                         </div>
                     </div>
-                    <div class="wf-stack wf-sb959d94b bp-sheet">
-                        <div class="wf-stack wf-s3fd38d7e bp-grid">
-                            <p class="wf-text bp-label">Slides</p>
+                    <div class="wf-stack bp-sheet bp-show-tile">
+                        <div class="wf-stack bp-grid bp-show-tile__picture">
                         </div>
-                        <div class="wf-stack wf-gap--sm wf-s9e2d27c6">
-                            <p class="wf-text wf-s208d0164">A quarterly review</p>
+                        <div class="wf-stack wf-gap--sm bp-show-tile__body">
+                            <p class="wf-text bp-show-tile__title" lang="en">A quarterly review</p>
                             <div class="wf-row bp-labels">
                                 <p class="wf-text bp-label">Slides</p>
-                                <p class="wf-text bp-label bp-num">96 kB</p>
                                 <p class="wf-text bp-label bp-num">12 pages</p>
+                                <p class="wf-text bp-label bp-num">96 kB</p>
                             </div>
-                            <div class="wf-row wf-gap--sm wf-sf133fa13">
-                                <a class="wf-link bp-button" href="https://github.com/monzeromer-lab/WebFluent">View source</a>
+                            <div class="wf-row wf-gap--sm wf-sbdb8e45d">
+                                <a class="wf-link bp-button" href="https://github.com/monzeromer-lab/WebFluent" data-tone="quiet">View source</a>
                             </div>
                         </div>
                     </div>
@@ -194,7 +186,6 @@
                     </div>
                     <div class="wf-stack wf-gap--xs wf-s17061b4c">
                         <p class="wf-text wf-scba75cc6 bp-section-label">For agents</p>
-                        <a class="wf-link" href="/llms.txt">llms.txt</a>
                         <a class="wf-link" href="/reference/cli/context">wf context</a>
                         <a class="wf-link" href="/changelog">Changelog</a>
                     </div>

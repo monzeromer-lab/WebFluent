@@ -1,0 +1,2 @@
+function Page_OldReferenceQrcode(params){const _root=document.createDocumentFragment();const _e1721=WF.el("h1",{className:"wf-heading"},"QrCode");_root.appendChild(_e1721);const _e1722=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/qrcode"},"QrCode");WF.activeLink(_e1722,"/reference/qrcode",false);_root.appendChild(_e1722);return _root;}
+WF.page("OldReferenceQrcode",Page_OldReferenceQrcode);

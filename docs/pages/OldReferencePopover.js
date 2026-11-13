@@ -1,0 +1,2 @@
+function Page_OldReferencePopover(params){const _root=document.createDocumentFragment();const _e1713=WF.el("h1",{className:"wf-heading"},"Popover");_root.appendChild(_e1713);const _e1714=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/popover"},"Popover");WF.activeLink(_e1714,"/reference/popover",false);_root.appendChild(_e1714);return _root;}
+WF.page("OldReferencePopover",Page_OldReferencePopover);

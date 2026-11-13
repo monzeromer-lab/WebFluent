@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project structure</title>
+    <meta name="description" content="Where files go, how they merge into one program, naming in a global namespace, wf generate, what to commit, and how to grow a project.">
+    <link rel="canonical" href="https://webfluent.monzeromer.dev/reference/project">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Project structure">
+    <meta property="og:site_name" content="WebFluent">
+    <meta property="og:description" content="Where files go, how they merge into one program, naming in a global namespace, wf generate, what to commit, and how to grow a project.">
+    <meta property="og:url" content="https://webfluent.monzeromer.dev/reference/project">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="ar_AR">
+    <meta property="og:image" content="https://webfluent.monzeromer.dev/og.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Project structure">
+    <meta name="twitter:description" content="Where files go, how they merge into one program, naming in a global namespace, wf generate, what to commit, and how to grow a project.">
+    <meta name="twitter:image" content="https://webfluent.monzeromer.dev/og.png">
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/reference/project#webpage","url":"https://webfluent.monzeromer.dev/reference/project","name":"Project structure","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"Where files go, how they merge into one program, naming in a global namespace, wf generate, what to commit, and how to grow a project.","inLanguage":"en"},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/reference/project#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Reference","item":"https://webfluent.monzeromer.dev/reference"},{"@type":"ListItem","position":3,"name":"Project structure","item":"https://webfluent.monzeromer.dev/reference/project"}]}]}</script>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="preload" href="/fonts/instrument-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="/styles.css">
+    <script src="/js/analytics.js" defer></script>
+    <script src="/js/old-links.js" defer></script>
+    <script src="/js/video.js" defer></script>
+    <script src="/app.js" defer></script>
+    <script src="/pages/ProjectGuide.js" data-wf-page="ProjectGuide" defer></script>
+</head>
+<body>
+    <a class="wf-skip-link" href="#wf-content">Skip to content</a>
+    <div id="app">
+        <main id="wf-main">
+            <a class="wf-link bp-skip" href="#bp-main">Skip to the content</a>
+            <div class="wf-row wf-align--center wf-s55053fdc bp-header" role="banner">
+                <div class="wf-row wf-align--center wf-gap--md wf-sfe495c12 bp-wrap">
+                    <a class="wf-link wf-sa4fc1f4b" href="/" aria-label="WebFluent, home">
+                        <img class="wf-image wf-s4b9d0b60" src="/favicon.svg" alt="" decoding="async" loading="eager" fetchpriority="high">
+                        <p class="wf-text wf-s9919642b">WebFluent</p>
+                        <p class="wf-text bp-label bp-num">6.0</p>
+                    </a>
+                    <div class="wf-row wf-s92924cc4 bp-tabs" role="navigation" aria-label="Main">
+                        <a class="wf-link bp-tab" href="/learn">Learn</a>
+                        <a class="wf-link bp-tab" href="/recipes">Recipes</a>
+                        <a class="wf-link bp-tab active active" href="/reference" aria-current="page" aria-current="page">Reference</a>
+                        <a class="wf-link bp-tab" href="/errors">Errors</a>
+                        <a class="wf-link bp-tab" href="/showcase">Showcase</a>
+                    </div>
+                    <div class="wf-row wf-align--center wf-gap--sm wf-sff642a95">
+                        <button class="wf-btn wf-sf8ab46ec bp-field bp-search" aria-label="Search the docs" aria-keyshortcuts="Meta+K Control+K" aria-haspopup="dialog" type="button">
+                            <i class="wf-icon" data-icon="search"></i>
+                            <p class="wf-text wf-sf55a2627 bp-hide-sm">Search the docs</p>
+                            <p class="wf-text bp-kbd bp-hide-sm">Ctrl+K</p>
+                        </button>
+                        <div class="wf-row wf-align--center wf-gap--sm wf-s808638b6 bp-select bp-hide-sm">
+                            <p class="wf-text wf-s29c127bc bp-building-label" aria-hidden="true">Building</p>
+                            <select class="wf-select" aria-label="Building">
+                                <option value="website">Website</option>
+                                <option value="app">Web app</option>
+                                <option value="pdf">PDF</option>
+                                <option value="slides">Slides</option>
+                                <option value="elements">Custom elements</option>
+                                <option value="desktop">Desktop / phone</option>
+                            </select>
+                            <i class="wf-icon wf-s94250744" data-icon="chevron-down" aria-hidden="true"></i>
+                        </div>
+                        <button class="wf-icon-btn bp-icon-button" data-track="select_content" data-track-content-type="theme" type="button"></button>
+                        <div class="wf-row wf-align--center wf-gap--xs wf-s286d925a bp-hide-sm">
+                            <button class="wf-btn bp-button" title="This page is in English only; the switch changes the interface." data-track="select_content" data-track-content-type="language" type="button"></button>
+                        </div>
+                        <a class="wf-link bp-button bp-hide-sm" href="https://github.com/monzeromer-lab/WebFluent" data-tone="quiet" aria-label="GitHub">
+                            <i class="wf-icon" data-icon="git-branch"></i>
+                            <p class="wf-text">GitHub</p>
+                        </a>
+                        <button class="wf-icon-btn wf-sde8ec4aa bp-icon-button" data-icon="menu" aria-label="Menu" title="Menu" aria-expanded="false" type="button"></button>
+                    </div>
+                </div>
+            </div>
+            <dialog class="wf-modal bp-palette" aria-labelledby="wf-dlg-s1">
+                <div class="wf-modal__content">
+                    <div class="wf-modal__header"><h3 id="wf-dlg-s1">Search</h3></div>
+                    <div class="wf-modal__body">
+                        <div class="wf-stack wf-sa8e464d0">
+                            <div class="wf-row wf-align--center wf-gap--sm wf-s02e7a482 bp-field">
+                                <i class="wf-icon" data-icon="search"></i>
+                                <input class="wf-input" placeholder="Search the guide" aria-label="Search the guide" type="search" autofocus>
+                                <p class="wf-text bp-kbd">esc</p>
+                            </div>
+                            <div class="wf-row wf-s434e64fb bp-tabs" role="tablist" aria-label="Narrow the search">
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="true" type="button">All</button>
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">Learn</button>
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">Recipes</button>
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">Reference</button>
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">Errors</button>
+                            </div>
+                            <div class="wf-stack wf-s3f6dffee" role="listbox" aria-label="Search results">
+                                <p class="wf-text wf-s3205a3d6 bp-small">Type a word: a component, a code such as T05, or a task.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </dialog>
+            <div class="wf-row wf-align--start wf-sa997482c bp-wrap">
+                <div class="wf-stack wf-gap--sm wf-s60d92c01 bp-sidebar" role="navigation" aria-label="The book">
+                    <div class="wf-stack wf-gap--xs wf-s733182cd">
+                        <div class="wf-row wf-justify--between wf-align--center wf-s42821ebd">
+                            <p class="wf-text wf-s0a7b959f">The book</p>
+                            <p class="wf-text bp-small bp-num">0 of 54</p>
+                        </div>
+                        <div class="wf-stack bp-meter">
+                            <progress class="wf-progress" value="0" max="54" aria-label="0 of 54"></progress>
+                        </div>
+                    </div>
+                    <div class="wf-stack bp-navlist">
+                        <!--wf-if-->
+                        <a class="wf-link bp-navlink" href="/docs/guide/introduction">
+                            <p class="wf-text bp-step" aria-hidden="true">1</p>
+                            <p class="wf-text wf-s126131e6">Introduction</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/docs/guide/getting-started">
+                            <p class="wf-text bp-step" aria-hidden="true">2</p>
+                            <p class="wf-text wf-s126131e6">Getting started</p>
+                            <p class="wf-text wf-sf65d7946 bp-label" data-tone="construction">tour</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/docs/guide/tutorial">
+                            <p class="wf-text bp-step" aria-hidden="true">3</p>
+                            <p class="wf-text wf-s126131e6">Tutorial: Shelf</p>
+                            <p class="wf-text wf-sf65d7946 bp-label" data-tone="construction">tour</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/docs/guide/coming-from">
+                            <p class="wf-text bp-step" aria-hidden="true">4</p>
+                            <p class="wf-text wf-s126131e6">Coming from React, Vue or Svelte</p>
+                        </a>
+                        <p class="wf-text bp-navgroup">Tutorials and recipes</p>
+                        <a class="wf-link bp-navlink" href="/docs/tutorials/todos">
+                            <p class="wf-text bp-step" aria-hidden="true">5</p>
+                            <p class="wf-text wf-s126131e6">Tutorial: Todos</p>
+                            <p class="wf-text wf-sf65d7946 bp-label" data-tone="construction">tour</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/docs/tutorials/field-notes">
+                            <p class="wf-text bp-step" aria-hidden="true">6</p>
+                            <p class="wf-text wf-s126131e6">Tutorial: Field Notes</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/docs/tutorials/pocket">
+                            <p class="wf-text bp-step" aria-hidden="true">7</p>
+                            <p class="wf-text wf-s126131e6">Tutorial: Pocket</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/docs/guide/recipes">
+                            <p class="wf-text bp-step" aria-hidden="true">8</p>
+                            <p class="wf-text wf-s126131e6">Recipes</p>
+                        </a>
+                        <p class="wf-text bp-navgroup">Concepts</p>
+                        <a class="wf-link bp-navlink" href="/docs/guide/language-basics">
+                            <p class="wf-text bp-step" aria-hidden="true">9</p>
+                            <p class="wf-text wf-s126131e6">Language basics</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/docs/guide/pages-and-routing">
+                            <p class="wf-text bp-step" aria-hidden="true">10</p>
+                            <p class="wf-text wf-s126131e6">Pages and routing</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/docs/guide/elements">
+                            <p class="wf-text bp-step" aria-hidden="true">11</p>
+                            <p class="wf-text wf-s126131e6">Elements</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/docs/guide/state">
+                            <p class="wf-text bp-step" aria-hidden="true">12</p>
+                            <p class="wf-text wf-s126131e6">State and reactivity</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/docs/guide/events">
+                            <p class="wf-text bp-step" aria-hidden="true">13</p>
+                            <p class="wf-text wf-s126131e6">Events</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/docs/guide/control-flow">
+                            <p class="wf-text bp-step" aria-hidden="true">14</p>
+                            <p class="wf-text wf-s126131e6">Control flow</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/docs/guide/components">
+                            <p class="wf-text bp-step" aria-hidden="true">15</p>
+                            <p class="wf-text wf-s126131e6">Components</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/docs/guide/stores">
+                            <p class="wf-text bp-step" aria-hidden="true">16</p>
+                            <p class="wf-text wf-s126131e6">Stores</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/docs/guide/types">
+                            <p class="wf-text bp-step" aria-hidden="true">17</p>
+                            <p class="wf-text wf-s126131e6">Types</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/reference/expressions">
+                            <p class="wf-text bp-step" aria-hidden="true">18</p>
+                            <p class="wf-text wf-s126131e6">Expressions</p>
+                        </a>
+                        <p class="wf-text bp-navgroup">Guides: interface</p>
+                        <a class="wf-link bp-navlink" href="/docs/guide/styling">
+                            <p class="wf-text bp-step" aria-hidden="true">19</p>
+                            <p class="wf-text wf-s126131e6">Styling</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/docs/guide/motion">
+                            <p class="wf-text bp-step" aria-hidden="true">20</p>
+                            <p class="wf-text wf-s126131e6">Motion</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/docs/guide/media">
+                            <p class="wf-text bp-step" aria-hidden="true">21</p>
+                            <p class="wf-text wf-s126131e6">Media</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/docs/guide/accessibility">
+                            <p class="wf-text bp-step" aria-hidden="true">22</p>
+                            <p class="wf-text wf-s126131e6">Accessibility</p>
+                        </a>
+                        <p class="wf-text bp-navgroup">Guides: data</p>
+                        <a class="wf-link bp-navlink" href="/docs/guide/forms">
+                            <p class="wf-text bp-step" aria-hidden="true">23</p>
+                            <p class="wf-text wf-s126131e6">Forms and validation</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/docs/guide/data">
+                            <p class="wf-text bp-step" aria-hidden="true">24</p>
+                            <p class="wf-text wf-s126131e6">Fetching data</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/docs/guide/realtime">
+                            <p class="wf-text bp-step" aria-hidden="true">25</p>
+                            <p class="wf-text wf-s126131e6">Real-time</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/docs/guide/offline">
+                            <p class="wf-text bp-step" aria-hidden="true">26</p>
+                            <p class="wf-text wf-s126131e6">Offline</p>
+                        </a>
+                        <p class="wf-text bp-navgroup">Guides: content</p>
+                        <a class="wf-link bp-navlink" href="/docs/guide/content">
+                            <p class="wf-text bp-step" aria-hidden="true">27</p>
+                            <p class="wf-text wf-s126131e6">Content</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/docs/guide/i18n">
+                            <p class="wf-text bp-step" aria-hidden="true">28</p>
+                            <p class="wf-text wf-s126131e6">Internationalisation</p>
+                        </a>
+                        <p class="wf-text bp-navgroup">Guides: quality</p>
+                        <a class="wf-link bp-navlink" href="/docs/guide/testing">
+                            <p class="wf-text bp-step" aria-hidden="true">29</p>
+                            <p class="wf-text wf-s126131e6">Testing</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/docs/guide/security">
+                            <p class="wf-text bp-step" aria-hidden="true">30</p>
+                            <p class="wf-text wf-s126131e6">Security</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/docs/guide/performance">
+                            <p class="wf-text bp-step" aria-hidden="true">31</p>
+                            <p class="wf-text wf-s126131e6">Performance</p>
+                        </a>
+                        <p class="wf-text bp-navgroup">Guides: shipping</p>
+                        <a class="wf-link bp-navlink active" href="/reference/project" aria-current="page">
+                            <p class="wf-text bp-step" aria-hidden="true">32</p>
+                            <p class="wf-text wf-s126131e6">Project structure</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/docs/guide/static-and-spa">
+                            <p class="wf-text bp-step" aria-hidden="true">33</p>
+                            <p class="wf-text wf-s126131e6">Static or single-page</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/docs/guide/deploying">
+                            <p class="wf-text bp-step" aria-hidden="true">34</p>
+                            <p class="wf-text wf-s126131e6">Deploying</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/docs/guide/environments">
+                            <p class="wf-text bp-step" aria-hidden="true">35</p>
+                            <p class="wf-text wf-s126131e6">Environments</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/docs/guide/desktop">
+                            <p class="wf-text bp-step" aria-hidden="true">36</p>
+                            <p class="wf-text wf-s126131e6">Desktop apps</p>
+                        </a>
+                        <p class="wf-text bp-navgroup">Other outputs</p>
+                        <a class="wf-link bp-navlink" href="/docs/guide/pdf-and-slides">
+                            <p class="wf-text bp-step" aria-hidden="true">37</p>
+                            <p class="wf-text wf-s126131e6">PDF and slides</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/docs/guide/server-rendering">
+                            <p class="wf-text bp-step" aria-hidden="true">38</p>
+                            <p class="wf-text wf-s126131e6">Server rendering</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/docs/guide/interop">
+                            <p class="wf-text bp-step" aria-hidden="true">39</p>
+                            <p class="wf-text wf-s126131e6">JavaScript interop</p>
+                        </a>
+                        <p class="wf-text bp-navgroup">Reference</p>
+                        <a class="wf-link bp-navlink" href="/reference">
+                            <p class="wf-text bp-step" aria-hidden="true">40</p>
+                            <p class="wf-text wf-s126131e6">Components reference</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/reference/cli">
+                            <p class="wf-text bp-step" aria-hidden="true">41</p>
+                            <p class="wf-text wf-s126131e6">Command line and editors</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/reference/config">
+                            <p class="wf-text bp-step" aria-hidden="true">42</p>
+                            <p class="wf-text wf-s126131e6">Configuration</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/errors">
+                            <p class="wf-text bp-step" aria-hidden="true">43</p>
+                            <p class="wf-text wf-s126131e6">Diagnostics</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/reference/built-ins">
+                            <p class="wf-text bp-step" aria-hidden="true">44</p>
+                            <p class="wf-text wf-s126131e6">Built-ins</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/reference/tokens">
+                            <p class="wf-text bp-step" aria-hidden="true">45</p>
+                            <p class="wf-text wf-s126131e6">Design tokens</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/reference/runtime">
+                            <p class="wf-text bp-step" aria-hidden="true">46</p>
+                            <p class="wf-text wf-s126131e6">Runtime API</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/reference/grammar">
+                            <p class="wf-text bp-step" aria-hidden="true">47</p>
+                            <p class="wf-text wf-s126131e6">Grammar</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/reference/browser-support">
+                            <p class="wf-text bp-step" aria-hidden="true">48</p>
+                            <p class="wf-text wf-s126131e6">Browser support</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/reference/glossary">
+                            <p class="wf-text bp-step" aria-hidden="true">49</p>
+                            <p class="wf-text wf-s126131e6">Glossary</p>
+                        </a>
+                        <p class="wf-text bp-navgroup">Help</p>
+                        <a class="wf-link bp-navlink" href="/docs/guide/troubleshooting">
+                            <p class="wf-text bp-step" aria-hidden="true">50</p>
+                            <p class="wf-text wf-s126131e6">Troubleshooting</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/docs/guide/upgrading">
+                            <p class="wf-text bp-step" aria-hidden="true">51</p>
+                            <p class="wf-text wf-s126131e6">Upgrading</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/docs/guide/contributing">
+                            <p class="wf-text bp-step" aria-hidden="true">52</p>
+                            <p class="wf-text wf-s126131e6">Contributing</p>
+                        </a>
+                        <p class="wf-text bp-navgroup">Reference</p>
+                        <a class="wf-link bp-navlink" href="/reference/library">
+                            <p class="wf-text bp-step" aria-hidden="true">53</p>
+                            <p class="wf-text wf-s126131e6">Library</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/reference/editors">
+                            <p class="wf-text bp-step" aria-hidden="true">54</p>
+                            <p class="wf-text wf-s126131e6">Editors</p>
+                        </a>
+                    </div>
+                </div>
+                <div class="wf-stack wf-gap--lg wf-s54d43750 bp-main docs-main" role="main" id="bp-main" tabindex="-1">
+                    <div class="wf-row bp-labels">
+                        <p class="wf-text bp-label" data-tone="kind" data-kind="reference">Reference</p>
+                        <p class="wf-text bp-label">Guides: shipping</p>
+                        <div class="wf-row wf-gap--xs bp-labels" aria-label="Works in">
+                        </div>
+                    </div>
+                    <div class="wf-stack wf-gap--sm wf-s4e4189b1">
+                        <h1 class="wf-heading wf-s900776cd">Project structure</h1>
+                        <p class="wf-text bp-lede">Where files go, how the compiler reads them, how names work across a project, and how a project grows without getting lost.</p>
+                    </div>
+                    <div class="wf-stack wf-gap--lg wf-s399b38f0 bp-prose docs-article" dir="ltr">
+                        <div class="wf-stack wf-gap--lg" id="wf-content" tabindex="-1">
+                            <div class="wf-markdown">
+<p>A WebFluent project is a config file and a folder of sources that the compiler reads as one program. The folders are a convention for you and your team; the compiler does not care where a declaration lives. This chapter explains how a project is laid out and read, then shows you how to add files, choose what to commit and keep a growing project in order.</p>
+<p>In this chapter:</p>
+<ul>
+<li>the conventional layout, and which files are required;</li>
+<li>how the compiler merges every file into one program, and what that means for names;</li>
+<li>what happens to the files that are not <code>.wf</code>;</li>
+<li>how to generate starter files, what to commit, and how to organise a project as it grows.</li>
+</ul>
+                            </div>
+                            <h2 class="wf-heading" id="the-layout">The layout</h2>
+                            <div class="wf-markdown">
+<p>This is the layout <code>wf init</code> starts from, with every kind of file a project can hold:</p>
+                            </div>
+                            <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                                <div class="wf-row wf-s2c416341 bp-console__bar">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                        <p class="wf-text wf-s23a4ddd5 bp-mono">text</p>
+                                    </div>
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="text" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block bp-console__code">my-site/
+├── AGENTS.md               the language reference, for a coding agent (`wf init` writes it)
+├── webfluent.app.json      the config (see Configuration)
+├── .env                    build-time values, not committed (see Environments)
+├── src/
+│   ├── App.wf              the app shell and the Router
+│   ├── theme.wf            themes
+│   ├── types.wf            shared types, enums, constants, data
+│   ├── api.wf              services
+│   ├── pages/              one page per file
+│   ├── components/         components
+│   ├── stores/             stores
+│   ├── styles.css          your own stylesheets, anywhere under src/
+│   ├── tilt.js             your own scripts, anywhere under src/
+│   ├── translations/       en.json, ar.json (with &quot;i18n&quot; in the config)
+│   ├── posts.json          data files a `data` declaration reads
+│   └── about.md            Markdown pages
+├── public/                 copied to the build's root: favicon, fonts, images
+├── tests/                  `test` declarations, and __snapshots__/
+└── build/                  what `wf build` writes (not committed)</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>Only two things are required: <code>webfluent.app.json</code> and one <code>.wf</code> or <code>.wfx</code> file under <code>src/</code>. Everything else is convention. The config is covered in <a href="/reference/config">Configuration</a>, and <code>.env</code> in <a href="/docs/guide/environments">Environments</a>.</p>
+                            </div>
+                            <h2 class="wf-heading" id="one-program-with-no-imports">One program, with no imports</h2>
+                            <div class="wf-markdown">
+<p>The compiler reads every <code>.wf</code> and <code>.wfx</code> file under <code>src/</code> and merges them into a single program. A page uses a component declared in another file, and a component uses a store, by name. There is nothing to import.</p>
+<p>For example, a component declared in <code>src/components/PriceCard.wf</code> and a page in <code>src/pages/Pricing.wf</code> work together with no import between them. Here they are in one block:</p>
+                            </div>
+                            <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                                <div class="wf-row wf-s2c416341 bp-console__bar">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                        <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-cmt">// In src/components/PriceCard.wf</span>
+<span class="wf-tok-kw">component</span> <span class="wf-tok-name">PriceCard</span>(_ <span class="wf-tok-prop">plan</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">price</span>: <span class="wf-tok-name">Number</span>) {
+    <span class="wf-tok-name">Card</span> {
+        <span class="wf-tok-name">Text</span>(plan).bold
+        <span class="wf-tok-name">Text</span>(format(price, .currency))
+    }
+}
+
+<span class="wf-tok-cmt">// In src/pages/Pricing.wf</span>
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">Pricing</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/pricing&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Pricing&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Plans and prices.&quot;</span>) {
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Pricing&quot;</span>).h1
+    <span class="wf-tok-name">PriceCard</span>(<span class="wf-tok-str">&quot;Team&quot;</span>, <span class="wf-tok-prop">price</span>: <span class="wf-tok-num">49</span>)
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>The compiler reads <code>App.wf</code> (or <code>App.wfx</code>) first, then the rest in path order. The order matters for nothing but the order of equal things in the output.</p>
+<p><code>use Store</code> at the top of a page or component says that it reads that store. It documents the dependency for the reader and the editor; it does not scope anything, and a page reads a store by name with or without it.</p>
+                            </div>
+                            <h2 class="wf-heading" id="names-across-a-project">Names across a project</h2>
+                            <div class="wf-markdown">
+<p>Because every file is one program, the namespace is global. Two components, two pages, two stores, two types or two constants with one name is an <code>E102</code> error, naming both places.</p>
+<p>The conventions that keep names apart:</p>
+<ul>
+<li><strong>Declared names are PascalCase</strong>: pages, components, stores, types, enums, themes, services and animations.</li>
+<li><strong>Constants are UPPER_SNAKE</strong> by convention: <code>API</code>, <code>PAGE_SIZE</code>.</li>
+<li><strong>A page's name is its identity, not its title.</strong> Add a suffix when the name would collide with a component: <code>page PostPage</code> beside <code>component Post</code>.</li>
+<li><strong>A component that one page uses</strong> can live in that page's file.</li>
+</ul>
+                            </div>
+                            <h2 class="wf-heading" id="files-that-are-not-wf">Files that are not .wf</h2>
+                            <div class="wf-markdown">
+<p>The build reads other files too. What each becomes:</p>
+                            </div>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">Files that are not .wf</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">File</th>
+                                        <th scope="col">Where</th>
+                                        <th scope="col">Becomes</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>*.css</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>anywhere under <code>src/</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>bundled into <code>styles.css</code>, in path order, after the built-ins' rules</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>*.js</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>anywhere under <code>src/</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>copied to <code>js/</code> as written and linked on every page before the compiled code; its top-level names are in scope (<a href="/docs/guide/interop">JavaScript interop</a>)</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>*.md</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>under <code>src/</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>a page (<a href="/docs/guide/content#write-a-page-as-a-md-file">Content</a>)</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>*.json</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>named by a <code>data</code> declaration</p>
+                                            </div>
+                                        </td>
+                                        <td>a constant, read at build time</td>
+                                    </tr>
+                                    <tr>
+                                        <td>images</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>named by an <code>image</code> declaration</p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>resized, hashed files and a <code>&lt;picture&gt;</code> (<a href="/docs/guide/media">Media</a>)</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>translations/*.json</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>the <code>i18n.dir</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>the locale tables (<a href="/docs/guide/i18n">Internationalization</a>)</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>anything</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>public/</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>copied as it is to the build's root: <code>public/favicon.svg</code> is <code>/favicon.svg</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <h2 class="wf-heading" id="generate-a-starter-file">Generate a starter file</h2>
+                            <div class="wf-markdown">
+<p>To add a page, a component or a store with the boilerplate written for you, run <code>wf generate</code>:</p>
+                            </div>
+                            <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                                <div class="wf-row wf-s2c416341 bp-console__bar">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                        <p class="wf-text wf-s23a4ddd5 bp-mono">bash</p>
+                                    </div>
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-prompt">$ </span>wf generate page Pricing
+<span class="wf-tok-prompt">$ </span>wf generate component PriceCard
+<span class="wf-tok-prompt">$ </span>wf generate store Cart</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>Each command writes a starter declaration in the conventional folder:</p>
+                            </div>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">Generate a starter file</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Command</th>
+                                        <th scope="col">Writes</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>wf generate page Pricing</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>src/pages/Pricing.wf</code>, with <code>path: &quot;/pricing&quot;</code>, a title, a description and an <code>h1</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>wf generate component PriceCard</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>src/components/PriceCard.wf</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>wf generate store Cart</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>src/stores/cart.wf</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="wf-markdown">
+<p>In a project written in <code>.wfx</code>, the files are <code>.wfx</code>. <code>wf generate</code> never overwrites a file: when one exists, it says so and stops. Add <code>-d DIR</code> to generate into a project other than the current directory.</p>
+                            </div>
+                            <h2 class="wf-heading" id="choose-what-to-commit">Choose what to commit</h2>
+                            <div class="wf-markdown">
+<p>Commit the sources and the config:</p>
+<ul>
+<li><code>webfluent.app.json</code></li>
+<li><code>src/</code></li>
+<li><code>public/</code></li>
+<li><code>tests/</code>, with its <code>__snapshots__/</code></li>
+</ul>
+<p>Leave out what the build writes and what is private. Add these lines to <code>.gitignore</code>:</p>
+                            </div>
+                            <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                                <div class="wf-row wf-s2c416341 bp-console__bar">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                        <p class="wf-text wf-s23a4ddd5 bp-mono">text</p>
+                                    </div>
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="text" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block bp-console__code">build/
+.wf-cache/
+.wf-sizes.json
+.env</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><code>.wf-cache/</code> holds resized images between builds. <code>.wf-sizes.json</code> records what the last build weighed, for <code>wf build --stats</code> to compare against. <code>.env</code> holds build-time values that may be private.</p>
+                            </div>
+                            <h2 class="wf-heading" id="organise-a-growing-project">Organise a growing project</h2>
+                            <div class="wf-markdown">
+<p>As a project grows, these habits keep it readable:</p>
+<ul>
+<li><strong>Group by feature once folders get long.</strong> A <code>src/billing/</code> folder that holds the billing pages, components, store and types reads better than four folders that each hold a slice of it. The compiler does not mind either way.</li>
+<li><strong>Put each service in one place.</strong> Write one <code>api</code> per backend, in its own file, with the types its endpoints return beside it.</li>
+<li><strong>Keep shared types together</strong>, in a <code>types.wf</code> per area, so the editor's go-to-definition lands somewhere predictable.</li>
+<li><strong>Document as you declare.</strong> A <code>///</code> comment above a component, a prop, an event or a type shows on hover and in <code>wf docs</code>, the gallery of everything the project declares.</li>
+<li><strong>Hold every file to the formatter.</strong> <code>wf fmt --check</code> in CI keeps every file in one layout (<a href="/docs/guide/testing#run-the-checks-in-ci">Testing</a>).</li>
+</ul>
+                            </div>
+                            <h2 class="wf-heading" id="quick-reference">Quick reference</h2>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">Quick reference</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Topic</th>
+                                        <th scope="col">Rule</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Required files</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>webfluent.app.json</code> and one <code>.wf</code> or <code>.wfx</code> file under <code>src/</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Reading order</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>App.wf</code> first, then the rest in path order</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Imports</td>
+                                        <td>none: every declaration is in scope by name</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>use Store</code></p>
+                                            </div>
+                                        </td>
+                                        <td>documents a dependency; scopes nothing</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Duplicate names</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>E102</code>, naming both places</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>public/</code></p>
+                                            </div>
+                                        </td>
+                                        <td>copied to the build&#x27;s root as it is</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Starter files</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>wf generate page</code>, <code>component</code> or <code>store</code>, then the name</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>Not committed</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>build/</code>, <code>.wf-cache/</code>, <code>.wf-sizes.json</code>, <code>.env</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="wf-row wf-gap--md wf-s94f7a6f9" role="navigation" aria-label="Pages either side">
+                        <a class="wf-link wf-s1266eee5 bp-card" href="/docs/guide/performance">
+                            <p class="wf-text bp-small">Previous</p>
+                            <p class="wf-text wf-s70571e62">Performance</p>
+                        </a>
+                        <a class="wf-link wf-sc16e0c24 bp-card" href="/docs/guide/static-and-spa">
+                            <p class="wf-text bp-small">Next</p>
+                            <p class="wf-text wf-s70571e62">Static or single-page</p>
+                        </a>
+                    </div>
+                </div>
+                <div class="wf-stack wf-gap--lg wf-s2502f5f4 bp-rail" role="navigation" aria-label="On this page">
+                    <div class="wf-stack wf-gap--xs wf-se8e8f072">
+                        <p class="wf-text wf-sa736415c bp-section-label">On this page</p>
+                        <a class="wf-link wf-s23505038" href="#the-layout">The layout</a>
+                        <a class="wf-link wf-s23505038" href="#one-program-with-no-imports">One program, with no imports</a>
+                        <a class="wf-link wf-s23505038" href="#names-across-a-project">Names across a project</a>
+                        <a class="wf-link wf-s23505038" href="#files-that-are-not-wf">Files that are not .wf</a>
+                        <a class="wf-link wf-s23505038" href="#generate-a-starter-file">Generate a starter file</a>
+                        <a class="wf-link wf-s23505038" href="#choose-what-to-commit">Choose what to commit</a>
+                        <a class="wf-link wf-s23505038" href="#organise-a-growing-project">Organise a growing project</a>
+                        <a class="wf-link wf-s23505038" href="#quick-reference">Quick reference</a>
+                    </div>
+                    <a class="wf-link wf-s48d899f5" href="https://github.com/monzeromer-lab/WebFluent/blob/master/md-docs/reference/project-structure.md">
+                        <i class="wf-icon" data-icon="edit"></i>
+                        <p class="wf-text">Edit this page</p>
+                    </a>
+                </div>
+            </div>
+        </main>
+        <footer class="wf-footer wf-s2213a098">
+            <div class="wf-stack wf-gap--lg wf-s84d7918c bp-wrap">
+                <div class="wf-grid wf-gap--lg wf-r67559659">
+                    <div class="wf-stack wf-gap--xs wf-s17061b4c">
+                        <p class="wf-text wf-scba75cc6 bp-section-label">Learn</p>
+                        <a class="wf-link" href="/learn/01-getting-started">The tour</a>
+                        <a class="wf-link" href="/learn">The book</a>
+                        <a class="wf-link" href="/about">About essays</a>
+                    </div>
+                    <div class="wf-stack wf-gap--xs wf-s17061b4c">
+                        <p class="wf-text wf-scba75cc6 bp-section-label">Do</p>
+                        <a class="wf-link" href="/recipes">Recipes</a>
+                        <a class="wf-link" href="/coming-from/react">Coming from…</a>
+                        <a class="wf-link" href="/showcase">Showcase</a>
+                    </div>
+                    <div class="wf-stack wf-gap--xs wf-s17061b4c">
+                        <p class="wf-text wf-scba75cc6 bp-section-label">Look up</p>
+                        <a class="wf-link" href="/reference">Components</a>
+                        <a class="wf-link" href="/reference/cli">CLI and config</a>
+                        <a class="wf-link" href="/errors">Errors</a>
+                    </div>
+                    <div class="wf-stack wf-gap--xs wf-s17061b4c">
+                        <p class="wf-text wf-scba75cc6 bp-section-label">For agents</p>
+                        <a class="wf-link" href="/reference/cli/context">wf context</a>
+                        <a class="wf-link" href="/changelog">Changelog</a>
+                    </div>
+                </div>
+                <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-sd146f653">
+                    <p class="wf-text bp-small">Every code block in the guide is real WebFluent 6.0, parsed, type-checked and compiled by the test suite.</p>
+                    <div class="wf-row wf-align--center wf-gap--md wf-sa3c9b727">
+                        <a class="wf-link wf-sf9ca1a0e" href="https://github.com/monzeromer-lab/WebFluent">Source</a>
+                        <button class="wf-btn link-button" type="button">Cookie settings</button>
+                        <p class="wf-text bp-small">© 2026 Monzer Omer</p>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

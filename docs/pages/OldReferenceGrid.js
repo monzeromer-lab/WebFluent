@@ -1,0 +1,2 @@
+function Page_OldReferenceGrid(params){const _root=document.createDocumentFragment();const _e1679=WF.el("h1",{className:"wf-heading"},"Grid");_root.appendChild(_e1679);const _e1680=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/grid"},"Grid");WF.activeLink(_e1680,"/reference/grid",false);_root.appendChild(_e1680);return _root;}
+WF.page("OldReferenceGrid",Page_OldReferenceGrid);

@@ -1,0 +1,2 @@
+function Page_OldReferenceList(params){const _root=document.createDocumentFragment();const _e1699=WF.el("h1",{className:"wf-heading"},"List");_root.appendChild(_e1699);const _e1700=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/list"},"List");WF.activeLink(_e1700,"/reference/list",false);_root.appendChild(_e1700);return _root;}
+WF.page("OldReferenceList",Page_OldReferenceList);

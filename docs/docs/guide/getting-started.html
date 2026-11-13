@@ -28,6 +28,7 @@
     <link rel="preload" href="/fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="/styles.css">
     <script src="/js/analytics.js" defer></script>
+    <script src="/js/old-links.js" defer></script>
     <script src="/js/video.js" defer></script>
     <script src="/app.js" defer></script>
     <script src="/pages/GettingStartedGuide.js" data-wf-page="GettingStartedGuide" defer></script>
@@ -39,26 +40,26 @@
             <a class="wf-link bp-skip" href="#bp-main">Skip to the content</a>
             <div class="wf-row wf-align--center wf-s55053fdc bp-header" role="banner">
                 <div class="wf-row wf-align--center wf-gap--md wf-sfe495c12 bp-wrap">
-                    <a class="wf-link wf-sd56ba8fe" href="/" aria-label="WebFluent, home">
+                    <a class="wf-link wf-sa4fc1f4b" href="/" aria-label="WebFluent, home">
                         <img class="wf-image wf-s4b9d0b60" src="/favicon.svg" alt="" decoding="async" loading="eager" fetchpriority="high">
-                        <p class="wf-text wf-s9919642b bp-hide-sm">WebFluent</p>
+                        <p class="wf-text wf-s9919642b">WebFluent</p>
                         <p class="wf-text bp-label bp-num">6.0</p>
                     </a>
                     <div class="wf-row wf-s92924cc4 bp-tabs" role="navigation" aria-label="Main">
-                        <a class="wf-link bp-tab" href="/learn">Learn</a>
+                        <a class="wf-link bp-tab active" href="/learn" aria-current="page">Learn</a>
                         <a class="wf-link bp-tab" href="/recipes">Recipes</a>
                         <a class="wf-link bp-tab" href="/reference">Reference</a>
                         <a class="wf-link bp-tab" href="/errors">Errors</a>
-                        <a class="wf-link bp-tab" href="/playground">Playground</a>
                         <a class="wf-link bp-tab" href="/showcase">Showcase</a>
                     </div>
                     <div class="wf-row wf-align--center wf-gap--sm wf-sff642a95">
-                        <button class="wf-btn wf-s9b841342 bp-field" aria-label="Search the docs" aria-keyshortcuts="Meta+K Control+K" aria-haspopup="dialog" type="button">
+                        <button class="wf-btn wf-sf8ab46ec bp-field bp-search" aria-label="Search the docs" aria-keyshortcuts="Meta+K Control+K" aria-haspopup="dialog" type="button">
                             <i class="wf-icon" data-icon="search"></i>
                             <p class="wf-text wf-sf55a2627 bp-hide-sm">Search the docs</p>
                             <p class="wf-text bp-kbd bp-hide-sm">Ctrl+K</p>
                         </button>
-                        <div class="wf-row wf-align--center wf-gap--sm wf-sf0e17348 bp-select bp-hide-sm">
+                        <div class="wf-row wf-align--center wf-gap--sm wf-s808638b6 bp-select bp-hide-sm">
+                            <p class="wf-text wf-s29c127bc bp-building-label" aria-hidden="true">Building</p>
                             <select class="wf-select" aria-label="Building">
                                 <option value="website">Website</option>
                                 <option value="app">Web app</option>
@@ -67,12 +68,16 @@
                                 <option value="elements">Custom elements</option>
                                 <option value="desktop">Desktop / phone</option>
                             </select>
+                            <i class="wf-icon wf-s94250744" data-icon="chevron-down" aria-hidden="true"></i>
                         </div>
                         <button class="wf-icon-btn bp-icon-button" data-track="select_content" data-track-content-type="theme" type="button"></button>
-                        <div class="wf-row wf-align--center wf-gap--xs wf-s286d925a">
+                        <div class="wf-row wf-align--center wf-gap--xs wf-s286d925a bp-hide-sm">
                             <button class="wf-btn bp-button" title="This page is in English only; the switch changes the interface." data-track="select_content" data-track-content-type="language" type="button"></button>
                         </div>
-                        <a class="wf-link bp-button bp-hide-sm" href="https://github.com/monzeromer-lab/WebFluent" data-tone="quiet">GitHub</a>
+                        <a class="wf-link bp-button bp-hide-sm" href="https://github.com/monzeromer-lab/WebFluent" data-tone="quiet" aria-label="GitHub">
+                            <i class="wf-icon" data-icon="git-branch"></i>
+                            <p class="wf-text">GitHub</p>
+                        </a>
                         <button class="wf-icon-btn wf-sde8ec4aa bp-icon-button" data-icon="menu" aria-label="Menu" title="Menu" aria-expanded="false" type="button"></button>
                     </div>
                 </div>
@@ -106,10 +111,10 @@
                     <div class="wf-stack wf-gap--xs wf-s733182cd">
                         <div class="wf-row wf-justify--between wf-align--center wf-s42821ebd">
                             <p class="wf-text wf-s0a7b959f">The book</p>
-                            <p class="wf-text bp-small bp-num">0 of 52</p>
+                            <p class="wf-text bp-small bp-num">0 of 54</p>
                         </div>
                         <div class="wf-stack bp-meter">
-                            <progress class="wf-progress" value="0" max="52" aria-label="0 of 52"></progress>
+                            <progress class="wf-progress" value="0" max="54" aria-label="0 of 54"></progress>
                         </div>
                     </div>
                     <div class="wf-stack bp-navlist">
@@ -187,7 +192,7 @@
                             <p class="wf-text bp-step" aria-hidden="true">17</p>
                             <p class="wf-text wf-s126131e6">Types</p>
                         </a>
-                        <a class="wf-link bp-navlink" href="/docs/guide/expressions">
+                        <a class="wf-link bp-navlink" href="/reference/expressions">
                             <p class="wf-text bp-step" aria-hidden="true">18</p>
                             <p class="wf-text wf-s126131e6">Expressions</p>
                         </a>
@@ -248,7 +253,7 @@
                             <p class="wf-text wf-s126131e6">Performance</p>
                         </a>
                         <p class="wf-text bp-navgroup">Guides: shipping</p>
-                        <a class="wf-link bp-navlink" href="/docs/guide/project-structure">
+                        <a class="wf-link bp-navlink" href="/reference/project">
                             <p class="wf-text bp-step" aria-hidden="true">32</p>
                             <p class="wf-text wf-s126131e6">Project structure</p>
                         </a>
@@ -282,43 +287,43 @@
                             <p class="wf-text wf-s126131e6">JavaScript interop</p>
                         </a>
                         <p class="wf-text bp-navgroup">Reference</p>
-                        <a class="wf-link bp-navlink" href="/docs/reference">
+                        <a class="wf-link bp-navlink" href="/reference">
                             <p class="wf-text bp-step" aria-hidden="true">40</p>
                             <p class="wf-text wf-s126131e6">Components reference</p>
                         </a>
-                        <a class="wf-link bp-navlink" href="/docs/guide/cli">
+                        <a class="wf-link bp-navlink" href="/reference/cli">
                             <p class="wf-text bp-step" aria-hidden="true">41</p>
                             <p class="wf-text wf-s126131e6">Command line and editors</p>
                         </a>
-                        <a class="wf-link bp-navlink" href="/docs/guide/config">
+                        <a class="wf-link bp-navlink" href="/reference/config">
                             <p class="wf-text bp-step" aria-hidden="true">42</p>
                             <p class="wf-text wf-s126131e6">Configuration</p>
                         </a>
-                        <a class="wf-link bp-navlink" href="/docs/guide/diagnostics">
+                        <a class="wf-link bp-navlink" href="/errors">
                             <p class="wf-text bp-step" aria-hidden="true">43</p>
                             <p class="wf-text wf-s126131e6">Diagnostics</p>
                         </a>
-                        <a class="wf-link bp-navlink" href="/docs/guide/built-ins">
+                        <a class="wf-link bp-navlink" href="/reference/built-ins">
                             <p class="wf-text bp-step" aria-hidden="true">44</p>
                             <p class="wf-text wf-s126131e6">Built-ins</p>
                         </a>
-                        <a class="wf-link bp-navlink" href="/docs/guide/tokens">
+                        <a class="wf-link bp-navlink" href="/reference/tokens">
                             <p class="wf-text bp-step" aria-hidden="true">45</p>
                             <p class="wf-text wf-s126131e6">Design tokens</p>
                         </a>
-                        <a class="wf-link bp-navlink" href="/docs/guide/runtime">
+                        <a class="wf-link bp-navlink" href="/reference/runtime">
                             <p class="wf-text bp-step" aria-hidden="true">46</p>
                             <p class="wf-text wf-s126131e6">Runtime API</p>
                         </a>
-                        <a class="wf-link bp-navlink" href="/docs/guide/grammar">
+                        <a class="wf-link bp-navlink" href="/reference/grammar">
                             <p class="wf-text bp-step" aria-hidden="true">47</p>
                             <p class="wf-text wf-s126131e6">Grammar</p>
                         </a>
-                        <a class="wf-link bp-navlink" href="/docs/guide/browser-support">
+                        <a class="wf-link bp-navlink" href="/reference/browser-support">
                             <p class="wf-text bp-step" aria-hidden="true">48</p>
                             <p class="wf-text wf-s126131e6">Browser support</p>
                         </a>
-                        <a class="wf-link bp-navlink" href="/docs/guide/glossary">
+                        <a class="wf-link bp-navlink" href="/reference/glossary">
                             <p class="wf-text bp-step" aria-hidden="true">49</p>
                             <p class="wf-text wf-s126131e6">Glossary</p>
                         </a>
@@ -334,6 +339,15 @@
                         <a class="wf-link bp-navlink" href="/docs/guide/contributing">
                             <p class="wf-text bp-step" aria-hidden="true">52</p>
                             <p class="wf-text wf-s126131e6">Contributing</p>
+                        </a>
+                        <p class="wf-text bp-navgroup">Reference</p>
+                        <a class="wf-link bp-navlink" href="/reference/library">
+                            <p class="wf-text bp-step" aria-hidden="true">53</p>
+                            <p class="wf-text wf-s126131e6">Library</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/reference/editors">
+                            <p class="wf-text bp-step" aria-hidden="true">54</p>
+                            <p class="wf-text wf-s126131e6">Editors</p>
                         </a>
                     </div>
                 </div>
@@ -537,7 +551,7 @@ Starting dev server at http://localhost:3000/</code>
 <ul>
 <li><strong>VS Code</strong> — the extension, <a href="https://github.com/monzeromer-lab/webfluent-vscode">webfluent-vscode</a>, brings highlighting and the language server. Until it is on the Marketplace, install the <code>.vsix</code> from its latest release with <strong>Extensions: Install from VSIX</strong>.</li>
 <li><strong>Zed</strong> — the extension, <a href="https://github.com/monzeromer-lab/webfluent-zed">webfluent-zed</a>, brings Tree-sitter highlighting, the outline, snippets and the language server (found on <code>PATH</code>, or downloaded from the latest release). Install it with <strong>zed: install dev extension</strong>, pointed at a clone of it.</li>
-<li><strong>Neovim, Helix, Emacs, or any other editor with LSP</strong> — run <code>wf-lsp</code> over stdio for the <code>webfluent</code> file type (<code>*.wf</code>, <code>*.wfx</code>). <a href="/docs/guide/cli#editors">Editors</a> has the configuration for each.</li>
+<li><strong>Neovim, Helix, Emacs, or any other editor with LSP</strong> — run <code>wf-lsp</code> over stdio for the <code>webfluent</code> file type (<code>*.wf</code>, <code>*.wfx</code>). <a href="/reference/cli#editors">Editors</a> has the configuration for each.</li>
 </ul>
                             </div>
                             <h3 class="wf-heading" id="webfluent-studio">WebFluent Studio</h3>
@@ -718,7 +732,7 @@ Starting dev server at http://localhost:3000/</code>
 <li><code>page Home(path: &quot;/&quot;, title: …, description: …)</code> declares a page. <code>title</code> and <code>description</code> become the <code>&lt;title&gt;</code>, the meta description, the Open Graph and Twitter cards and the JSON-LD. If you leave them out, the build warns you.</li>
 <li><code>state count = 0</code> is a signal. <code>Text(&quot;… {count} …&quot;)</code> reads it, so the text updates when it changes.</li>
 <li>In <code>Button(&quot;Click me&quot;).primary { on click { … } }</code>, the label is the one positional argument, <code>.primary</code> is a flag (a case of the button's <code>tone</code> prop), and the block holds the click handler.</li>
-<li><code>Container</code>, <code>Heading</code>, <code>Text</code>, <code>Paragraph</code>, <code>Navbar</code> and <code>Link</code> are built-ins. The <a href="/docs/reference">components reference</a> lists all of them.</li>
+<li><code>Container</code>, <code>Heading</code>, <code>Text</code>, <code>Paragraph</code>, <code>Navbar</code> and <code>Link</code> are built-ins. The <a href="/reference">components reference</a> lists all of them.</li>
 </ul>
                             </div>
                             <h2 class="wf-heading" id="what-a-build-produces">What a build produces</h2>
@@ -774,7 +788,7 @@ public/               copied to the build's root (images, fonts, favicon)
 tests/*.wf            `test &quot;…&quot; { }` declarations for `wf test`</code>
                             </div>
                             <div class="wf-markdown">
-<p>The compiler reads every <code>.wf</code> or <code>.wfx</code> file under <code>src/</code> and merges them into one program, so a page in one file uses a component from another without importing it. The folders are a convention, not a rule. <a href="/docs/guide/project-structure">Project structure</a> covers naming, organisation and the config, and the <a href="/docs/guide/config">configuration reference</a> lists every key.</p>
+<p>The compiler reads every <code>.wf</code> or <code>.wfx</code> file under <code>src/</code> and merges them into one program, so a page in one file uses a component from another without importing it. The folders are a convention, not a rule. <a href="/reference/project">Project structure</a> covers naming, organisation and the config, and the <a href="/reference/config">configuration reference</a> lists every key.</p>
 <p>The config needs only a name:</p>
                             </div>
                             <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
@@ -845,7 +859,6 @@ tests/*.wf            `test &quot;…&quot; { }` declarations for `wf test`</cod
                     </div>
                     <div class="wf-stack wf-gap--xs wf-s17061b4c">
                         <p class="wf-text wf-scba75cc6 bp-section-label">For agents</p>
-                        <a class="wf-link" href="/llms.txt">llms.txt</a>
                         <a class="wf-link" href="/reference/cli/context">wf context</a>
                         <a class="wf-link" href="/changelog">Changelog</a>
                     </div>

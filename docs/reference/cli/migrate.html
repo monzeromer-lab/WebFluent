@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>wf migrate — Reference</title>
+    <meta name="description" content="wf migrate: Carry a project forward: WebFluent 2 sources to the current grammar, then a 3 project to what 4 allows. What it writes, and every option it…">
+    <link rel="canonical" href="https://webfluent.monzeromer.dev/reference/cli/migrate">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="wf migrate — Reference">
+    <meta property="og:site_name" content="WebFluent">
+    <meta property="og:description" content="wf migrate: Carry a project forward: WebFluent 2 sources to the current grammar, then a 3 project to what 4 allows. What it writes, and every option it…">
+    <meta property="og:url" content="https://webfluent.monzeromer.dev/reference/cli/migrate">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="ar_AR">
+    <meta property="og:image" content="https://webfluent.monzeromer.dev/og.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="wf migrate — Reference">
+    <meta name="twitter:description" content="wf migrate: Carry a project forward: WebFluent 2 sources to the current grammar, then a 3 project to what 4 allows. What it writes, and every option it…">
+    <meta name="twitter:image" content="https://webfluent.monzeromer.dev/og.png">
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/reference/cli/migrate#webpage","url":"https://webfluent.monzeromer.dev/reference/cli/migrate","name":"wf migrate — Reference","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"wf migrate: Carry a project forward: WebFluent 2 sources to the current grammar, then a 3 project to what 4 allows. What it writes, and every option it…","inLanguage":"en"},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/reference/cli/migrate#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Reference","item":"https://webfluent.monzeromer.dev/reference"},{"@type":"ListItem","position":3,"name":"Command line — Reference","item":"https://webfluent.monzeromer.dev/reference/cli"},{"@type":"ListItem","position":4,"name":"wf migrate — Reference","item":"https://webfluent.monzeromer.dev/reference/cli/migrate"}]}]}</script>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="preload" href="/fonts/instrument-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="/styles.css">
+    <script src="/js/analytics.js" defer></script>
+    <script src="/js/old-links.js" defer></script>
+    <script src="/js/video.js" defer></script>
+    <script src="/app.js" defer></script>
+    <script src="/pages/CliMigrate.js" data-wf-page="CliMigrate" defer></script>
+</head>
+<body>
+    <a class="wf-skip-link" href="#wf-main">Skip to content</a>
+    <div id="app">
+        <main id="wf-main">
+            <a class="wf-link bp-skip" href="#bp-main">Skip to the content</a>
+            <div class="wf-row wf-align--center wf-s55053fdc bp-header" role="banner">
+                <div class="wf-row wf-align--center wf-gap--md wf-sfe495c12 bp-wrap">
+                    <a class="wf-link wf-sa4fc1f4b" href="/" aria-label="WebFluent, home">
+                        <img class="wf-image wf-s4b9d0b60" src="/favicon.svg" alt="" decoding="async" loading="eager" fetchpriority="high">
+                        <p class="wf-text wf-s9919642b">WebFluent</p>
+                        <p class="wf-text bp-label bp-num">6.0</p>
+                    </a>
+                    <div class="wf-row wf-s92924cc4 bp-tabs" role="navigation" aria-label="Main">
+                        <a class="wf-link bp-tab" href="/learn">Learn</a>
+                        <a class="wf-link bp-tab" href="/recipes">Recipes</a>
+                        <a class="wf-link bp-tab active" href="/reference" aria-current="page">Reference</a>
+                        <a class="wf-link bp-tab" href="/errors">Errors</a>
+                        <a class="wf-link bp-tab" href="/showcase">Showcase</a>
+                    </div>
+                    <div class="wf-row wf-align--center wf-gap--sm wf-sff642a95">
+                        <button class="wf-btn wf-sf8ab46ec bp-field bp-search" aria-label="Search the docs" aria-keyshortcuts="Meta+K Control+K" aria-haspopup="dialog" type="button">
+                            <i class="wf-icon" data-icon="search"></i>
+                            <p class="wf-text wf-sf55a2627 bp-hide-sm">Search the docs</p>
+                            <p class="wf-text bp-kbd bp-hide-sm">Ctrl+K</p>
+                        </button>
+                        <div class="wf-row wf-align--center wf-gap--sm wf-s808638b6 bp-select bp-hide-sm">
+                            <p class="wf-text wf-s29c127bc bp-building-label" aria-hidden="true">Building</p>
+                            <select class="wf-select" aria-label="Building">
+                                <option value="website">Website</option>
+                                <option value="app">Web app</option>
+                                <option value="pdf">PDF</option>
+                                <option value="slides">Slides</option>
+                                <option value="elements">Custom elements</option>
+                                <option value="desktop">Desktop / phone</option>
+                            </select>
+                            <i class="wf-icon wf-s94250744" data-icon="chevron-down" aria-hidden="true"></i>
+                        </div>
+                        <button class="wf-icon-btn bp-icon-button" data-track="select_content" data-track-content-type="theme" type="button"></button>
+                        <div class="wf-row wf-align--center wf-gap--xs wf-s286d925a bp-hide-sm">
+                            <button class="wf-btn bp-button" title="This page is in English only; the switch changes the interface." data-track="select_content" data-track-content-type="language" type="button"></button>
+                        </div>
+                        <a class="wf-link bp-button bp-hide-sm" href="https://github.com/monzeromer-lab/WebFluent" data-tone="quiet" aria-label="GitHub">
+                            <i class="wf-icon" data-icon="git-branch"></i>
+                            <p class="wf-text">GitHub</p>
+                        </a>
+                        <button class="wf-icon-btn wf-sde8ec4aa bp-icon-button" data-icon="menu" aria-label="Menu" title="Menu" aria-expanded="false" type="button"></button>
+                    </div>
+                </div>
+            </div>
+            <dialog class="wf-modal bp-palette" aria-labelledby="wf-dlg-s1">
+                <div class="wf-modal__content">
+                    <div class="wf-modal__header"><h3 id="wf-dlg-s1">Search</h3></div>
+                    <div class="wf-modal__body">
+                        <div class="wf-stack wf-sa8e464d0">
+                            <div class="wf-row wf-align--center wf-gap--sm wf-s02e7a482 bp-field">
+                                <i class="wf-icon" data-icon="search"></i>
+                                <input class="wf-input" placeholder="Search the guide" aria-label="Search the guide" type="search" autofocus>
+                                <p class="wf-text bp-kbd">esc</p>
+                            </div>
+                            <div class="wf-row wf-s434e64fb bp-tabs" role="tablist" aria-label="Narrow the search">
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="true" type="button">All</button>
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">Learn</button>
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">Recipes</button>
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">Reference</button>
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">Errors</button>
+                            </div>
+                            <div class="wf-stack wf-s3f6dffee" role="listbox" aria-label="Search results">
+                                <p class="wf-text wf-s3205a3d6 bp-small">Type a word: a component, a code such as T05, or a task.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </dialog>
+            <div class="wf-row wf-align--start wf-sa997482c bp-wrap">
+                <div class="wf-stack wf-gap--sm wf-sa359f878 bp-sidebar" role="navigation" aria-label="Reference">
+                    <div class="wf-row wf-align--center wf-gap--sm wf-scc2d619f bp-field">
+                        <i class="wf-icon" data-icon="filter"></i>
+                        <input class="wf-input" placeholder="Filter" aria-label="Filter" type="search">
+                    </div>
+                    <div class="wf-stack bp-navlist">
+                        <!--wf-if-->
+                        <a class="wf-link bp-navlink" href="/reference/cli/init">wf init</a>
+                        <a class="wf-link bp-navlink" href="/reference/cli/build">wf build</a>
+                        <a class="wf-link bp-navlink" href="/reference/cli/check">wf check</a>
+                        <a class="wf-link bp-navlink" href="/reference/cli/config">wf config</a>
+                        <a class="wf-link bp-navlink" href="/reference/cli/motion">wf motion</a>
+                        <a class="wf-link bp-navlink" href="/reference/cli/context">wf context</a>
+                        <a class="wf-link bp-navlink" href="/reference/cli/translations">wf translations</a>
+                        <a class="wf-link bp-navlink" href="/reference/cli/scope">wf scope</a>
+                        <a class="wf-link bp-navlink" href="/reference/cli/rules">wf rules</a>
+                        <a class="wf-link bp-navlink" href="/reference/cli/theme">wf theme</a>
+                        <a class="wf-link bp-navlink" href="/reference/cli/components">wf components</a>
+                        <a class="wf-link bp-navlink" href="/reference/cli/assets">wf assets</a>
+                        <a class="wf-link bp-navlink" href="/reference/cli/commands">wf commands</a>
+                        <a class="wf-link bp-navlink" href="/reference/cli/fix">wf fix</a>
+                        <a class="wf-link bp-navlink" href="/reference/cli/explain">wf explain</a>
+                        <a class="wf-link bp-navlink" href="/reference/cli/serve">wf serve</a>
+                        <a class="wf-link bp-navlink" href="/reference/cli/generate">wf generate</a>
+                        <a class="wf-link bp-navlink" href="/reference/cli/render">wf render</a>
+                        <a class="wf-link bp-navlink active" href="/reference/cli/migrate" aria-current="page">wf migrate</a>
+                        <a class="wf-link bp-navlink" href="/reference/cli/docs">wf docs</a>
+                        <a class="wf-link bp-navlink" href="/reference/cli/test">wf test</a>
+                        <a class="wf-link bp-navlink" href="/reference/cli/audit">wf audit</a>
+                        <a class="wf-link bp-navlink" href="/reference/cli/verify">wf verify</a>
+                        <a class="wf-link bp-navlink" href="/reference/cli/registry">wf registry</a>
+                        <a class="wf-link bp-navlink" href="/reference/cli/types">wf types</a>
+                        <a class="wf-link bp-navlink" href="/reference/cli/fmt">wf fmt</a>
+                    </div>
+                </div>
+                <div class="wf-stack wf-gap--lg wf-s54d43750 bp-main reference-main" role="main" id="bp-main" tabindex="-1">
+                    <div class="wf-row wf-align--center wf-gap--xs wf-s2327e38b" role="navigation" aria-label="Breadcrumb">
+                        <a class="wf-link" href="/reference">Reference</a>
+                        <p class="wf-text" aria-hidden="true">/</p>
+                        <p class="wf-text wf-s7ecabb29" aria-current="page">Command line</p>
+                    </div>
+                    <div class="wf-stack wf-gap--sm wf-s982ede03">
+                        <div class="wf-row bp-labels">
+                            <p class="wf-text bp-label" data-tone="kind" data-kind="reference">Reference</p>
+                        </div>
+                        <h1 class="wf-heading wf-sdfc6d99e">wf migrate</h1>
+                        <p class="wf-text bp-lede">Carry a project forward: WebFluent 2 sources to the current grammar, then a 3 project to what 4 allows</p>
+                        <code class="wf-code wf-s5539681c bp-ltr" dir="ltr">wf migrate [PATH] [options]</code>
+                        <div class="wf-row bp-labels">
+                            <div class="wf-row wf-gap--xs bp-labels" aria-label="Works in">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="wf-stack wf-gap--lg wf-s4bec642b bp-ltr" dir="ltr">
+                        <div class="wf-markdown bp-prose">
+<p><strong>Writes:</strong> the project's source files.</p>
+                        </div>
+                        <div class="wf-markdown bp-prose">
+<p><strong>Preview:</strong> <code>--check</code> says what it would do without doing it.</p>
+                        </div>
+                        <h2 class="wf-heading" id="options">Options</h2>
+                        <table class="wf-table wf-sc1856efc props-table">
+                            <caption class="wf-visually-hidden">Options of wf migrate</caption>
+                            <thead>
+                                <tr>
+                                    <th scope="col">Option</th>
+                                    <th scope="col">Type</th>
+                                    <th scope="col">Meaning</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>[PATH]</td>
+                                    <td>path</td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p>Project directory (default: current directory), or one .wf file</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>--check</td>
+                                    <td>flag</td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p>Report what would change without writing anything</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>--stdout</td>
+                                    <td>flag</td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p>Print the migrated text of one file to stdout instead of writing it</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>--wfx</td>
+                                    <td>flag</td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p>Write the migrated files in the indented layout, as <code>.wfx</code></p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <a class="wf-link" href="/reference/cli">Every command</a>
+                    </div>
+                    <div class="wf-stack wf-gap--sm bp-prose"></div>
+                </div>
+                <div class="wf-stack wf-gap--lg wf-s2502f5f4 bp-rail" role="navigation" aria-label="On this page">
+                    <div class="wf-stack wf-gap--xs wf-se8e8f072">
+                        <p class="wf-text wf-sa736415c bp-section-label">On this page</p>
+                        <a class="wf-link wf-s23505038" href="#options">Options</a>
+                    </div>
+                    <a class="wf-link wf-s48d899f5" href="https://github.com/monzeromer-lab/WebFluent/blob/master/wf commands --json">
+                        <i class="wf-icon" data-icon="edit"></i>
+                        <p class="wf-text">Edit this page</p>
+                    </a>
+                </div>
+            </div>
+        </main>
+        <footer class="wf-footer wf-s2213a098">
+            <div class="wf-stack wf-gap--lg wf-s84d7918c bp-wrap">
+                <div class="wf-grid wf-gap--lg wf-r67559659">
+                    <div class="wf-stack wf-gap--xs wf-s17061b4c">
+                        <p class="wf-text wf-scba75cc6 bp-section-label">Learn</p>
+                        <a class="wf-link" href="/learn/01-getting-started">The tour</a>
+                        <a class="wf-link" href="/learn">The book</a>
+                        <a class="wf-link" href="/about">About essays</a>
+                    </div>
+                    <div class="wf-stack wf-gap--xs wf-s17061b4c">
+                        <p class="wf-text wf-scba75cc6 bp-section-label">Do</p>
+                        <a class="wf-link" href="/recipes">Recipes</a>
+                        <a class="wf-link" href="/coming-from/react">Coming from…</a>
+                        <a class="wf-link" href="/showcase">Showcase</a>
+                    </div>
+                    <div class="wf-stack wf-gap--xs wf-s17061b4c">
+                        <p class="wf-text wf-scba75cc6 bp-section-label">Look up</p>
+                        <a class="wf-link" href="/reference">Components</a>
+                        <a class="wf-link" href="/reference/cli">CLI and config</a>
+                        <a class="wf-link" href="/errors">Errors</a>
+                    </div>
+                    <div class="wf-stack wf-gap--xs wf-s17061b4c">
+                        <p class="wf-text wf-scba75cc6 bp-section-label">For agents</p>
+                        <a class="wf-link" href="/reference/cli/context">wf context</a>
+                        <a class="wf-link" href="/changelog">Changelog</a>
+                    </div>
+                </div>
+                <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-sd146f653">
+                    <p class="wf-text bp-small">Every code block in the guide is real WebFluent 6.0, parsed, type-checked and compiled by the test suite.</p>
+                    <div class="wf-row wf-align--center wf-gap--md wf-sa3c9b727">
+                        <a class="wf-link wf-sf9ca1a0e" href="https://github.com/monzeromer-lab/WebFluent">Source</a>
+                        <button class="wf-btn link-button" type="button">Cookie settings</button>
+                        <p class="wf-text bp-small">© 2026 Monzer Omer</p>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

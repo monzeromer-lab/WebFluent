@@ -1,0 +1,2 @@
+function Page_OldGuideConfig(params){const _root=document.createDocumentFragment();const _e1625=WF.el("h1",{className:"wf-heading"},"Configuration");_root.appendChild(_e1625);const _e1626=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/config"},"Configuration");WF.activeLink(_e1626,"/reference/config",false);_root.appendChild(_e1626);return _root;}
+WF.page("OldGuideConfig",Page_OldGuideConfig);

@@ -1,0 +1,2 @@
+function Page_OldReferenceSection(params){const _root=document.createDocumentFragment();const _e1729=WF.el("h1",{className:"wf-heading"},"Section");_root.appendChild(_e1729);const _e1730=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/section"},"Section");WF.activeLink(_e1730,"/reference/section",false);_root.appendChild(_e1730);return _root;}
+WF.page("OldReferenceSection",Page_OldReferenceSection);

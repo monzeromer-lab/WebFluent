@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C02 — A prop the component does not declare</title>
+    <meta name="description" content="Your own component is called with a prop it does not declare. Nothing in it reads the value, so the call does not do what it says; often a misspelling.">
+    <link rel="canonical" href="https://webfluent.monzeromer.dev/errors/C02">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="C02 — A prop the component does not declare">
+    <meta property="og:site_name" content="WebFluent">
+    <meta property="og:description" content="Your own component is called with a prop it does not declare. Nothing in it reads the value, so the call does not do what it says; often a misspelling.">
+    <meta property="og:url" content="https://webfluent.monzeromer.dev/errors/C02">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="ar_AR">
+    <meta property="og:image" content="https://webfluent.monzeromer.dev/og.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="C02 — A prop the component does not declare">
+    <meta name="twitter:description" content="Your own component is called with a prop it does not declare. Nothing in it reads the value, so the call does not do what it says; often a misspelling.">
+    <meta name="twitter:image" content="https://webfluent.monzeromer.dev/og.png">
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/errors/C02#webpage","url":"https://webfluent.monzeromer.dev/errors/C02","name":"C02 — A prop the component does not declare","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"Your own component is called with a prop it does not declare. Nothing in it reads the value, so the call does not do what it says; often a misspelling.","inLanguage":"en"},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/errors/C02#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Diagnostics","item":"https://webfluent.monzeromer.dev/errors"},{"@type":"ListItem","position":3,"name":"C02 — A prop the component does not declare","item":"https://webfluent.monzeromer.dev/errors/C02"}]}]}</script>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="preload" href="/fonts/instrument-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="/styles.css">
+    <script src="/js/analytics.js" defer></script>
+    <script src="/js/old-links.js" defer></script>
+    <script src="/js/video.js" defer></script>
+    <script src="/app.js" defer></script>
+    <script src="/pages/ErrorC02.js" data-wf-page="ErrorC02" defer></script>
+</head>
+<body>
+    <a class="wf-skip-link" href="#wf-main">Skip to content</a>
+    <div id="app">
+        <main id="wf-main">
+            <a class="wf-link bp-skip" href="#bp-main">Skip to the content</a>
+            <div class="wf-row wf-align--center wf-s55053fdc bp-header" role="banner">
+                <div class="wf-row wf-align--center wf-gap--md wf-sfe495c12 bp-wrap">
+                    <a class="wf-link wf-sa4fc1f4b" href="/" aria-label="WebFluent, home">
+                        <img class="wf-image wf-s4b9d0b60" src="/favicon.svg" alt="" decoding="async" loading="eager" fetchpriority="high">
+                        <p class="wf-text wf-s9919642b">WebFluent</p>
+                        <p class="wf-text bp-label bp-num">6.0</p>
+                    </a>
+                    <div class="wf-row wf-s92924cc4 bp-tabs" role="navigation" aria-label="Main">
+                        <a class="wf-link bp-tab" href="/learn">Learn</a>
+                        <a class="wf-link bp-tab" href="/recipes">Recipes</a>
+                        <a class="wf-link bp-tab" href="/reference">Reference</a>
+                        <a class="wf-link bp-tab active" href="/errors" aria-current="page">Errors</a>
+                        <a class="wf-link bp-tab" href="/showcase">Showcase</a>
+                    </div>
+                    <div class="wf-row wf-align--center wf-gap--sm wf-sff642a95">
+                        <button class="wf-btn wf-sf8ab46ec bp-field bp-search" aria-label="Search the docs" aria-keyshortcuts="Meta+K Control+K" aria-haspopup="dialog" type="button">
+                            <i class="wf-icon" data-icon="search"></i>
+                            <p class="wf-text wf-sf55a2627 bp-hide-sm">Search the docs</p>
+                            <p class="wf-text bp-kbd bp-hide-sm">Ctrl+K</p>
+                        </button>
+                        <div class="wf-row wf-align--center wf-gap--sm wf-s808638b6 bp-select bp-hide-sm">
+                            <p class="wf-text wf-s29c127bc bp-building-label" aria-hidden="true">Building</p>
+                            <select class="wf-select" aria-label="Building">
+                                <option value="website">Website</option>
+                                <option value="app">Web app</option>
+                                <option value="pdf">PDF</option>
+                                <option value="slides">Slides</option>
+                                <option value="elements">Custom elements</option>
+                                <option value="desktop">Desktop / phone</option>
+                            </select>
+                            <i class="wf-icon wf-s94250744" data-icon="chevron-down" aria-hidden="true"></i>
+                        </div>
+                        <button class="wf-icon-btn bp-icon-button" data-track="select_content" data-track-content-type="theme" type="button"></button>
+                        <div class="wf-row wf-align--center wf-gap--xs wf-s286d925a bp-hide-sm">
+                            <button class="wf-btn bp-button" title="This page is in English only; the switch changes the interface." data-track="select_content" data-track-content-type="language" type="button"></button>
+                        </div>
+                        <a class="wf-link bp-button bp-hide-sm" href="https://github.com/monzeromer-lab/WebFluent" data-tone="quiet" aria-label="GitHub">
+                            <i class="wf-icon" data-icon="git-branch"></i>
+                            <p class="wf-text">GitHub</p>
+                        </a>
+                        <button class="wf-icon-btn wf-sde8ec4aa bp-icon-button" data-icon="menu" aria-label="Menu" title="Menu" aria-expanded="false" type="button"></button>
+                    </div>
+                </div>
+            </div>
+            <dialog class="wf-modal bp-palette" aria-labelledby="wf-dlg-s1">
+                <div class="wf-modal__content">
+                    <div class="wf-modal__header"><h3 id="wf-dlg-s1">Search</h3></div>
+                    <div class="wf-modal__body">
+                        <div class="wf-stack wf-sa8e464d0">
+                            <div class="wf-row wf-align--center wf-gap--sm wf-s02e7a482 bp-field">
+                                <i class="wf-icon" data-icon="search"></i>
+                                <input class="wf-input" placeholder="Search the guide" aria-label="Search the guide" type="search" autofocus>
+                                <p class="wf-text bp-kbd">esc</p>
+                            </div>
+                            <div class="wf-row wf-s434e64fb bp-tabs" role="tablist" aria-label="Narrow the search">
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="true" type="button">All</button>
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">Learn</button>
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">Recipes</button>
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">Reference</button>
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">Errors</button>
+                            </div>
+                            <div class="wf-stack wf-s3f6dffee" role="listbox" aria-label="Search results">
+                                <p class="wf-text wf-s3205a3d6 bp-small">Type a word: a component, a code such as T05, or a task.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </dialog>
+            <div class="wf-row wf-align--start wf-sa997482c bp-wrap">
+                <div class="wf-stack wf-gap--sm wf-sa359f878 bp-sidebar" role="navigation" aria-label="Errors">
+                    <div class="wf-row wf-align--center wf-gap--sm wf-scc2d619f bp-field">
+                        <i class="wf-icon" data-icon="filter"></i>
+                        <input class="wf-input" placeholder="Filter" aria-label="Filter" type="search">
+                    </div>
+                    <div class="wf-stack bp-navlist">
+                        <!--wf-if-->
+                        <a class="wf-link bp-navlink" href="/errors/E001">E001 Text the compiler cannot read</a>
+                        <a class="wf-link bp-navlink" href="/errors/E002">E002 A syntax error</a>
+                        <a class="wf-link bp-navlink" href="/errors/E003">E003 Indentation that lines up with no block</a>
+                        <a class="wf-link bp-navlink" href="/errors/E004">E004 A file in the WebFluent 2 grammar</a>
+                        <a class="wf-link bp-navlink" href="/errors/E005">E005 A file the formatter will not change</a>
+                        <a class="wf-link bp-navlink" href="/errors/E101">E101 A component nothing declares</a>
+                        <a class="wf-link bp-navlink" href="/errors/E102">E102 A name declared twice</a>
+                        <a class="wf-link bp-navlink" href="/errors/E103">E103 A flag, case, part, event or slot the component does not have</a>
+                        <a class="wf-link bp-navlink" href="/errors/E104">E104 A layout with nowhere to put the page</a>
+                        <a class="wf-link bp-navlink" href="/errors/E105">E105 A statement a render block cannot hold</a>
+                        <a class="wf-link bp-navlink" href="/errors/E106">E106 Script or a whole style in an attribute</a>
+                        <a class="wf-link bp-navlink" href="/errors/E107">E107 A URL a browser would run</a>
+                        <a class="wf-link bp-navlink" href="/errors/E108">E108 An env name that is not public</a>
+                        <a class="wf-link bp-navlink" href="/errors/E109">E109 An element this output cannot draw</a>
+                        <a class="wf-link bp-navlink" href="/errors/E110">E110 A project script that cannot be a plain script</a>
+                        <a class="wf-link bp-navlink" href="/errors/E111">E111 A setting that cannot work</a>
+                        <a class="wf-link bp-navlink" href="/errors/E112">E112 A setting nothing reads</a>
+                        <a class="wf-link bp-navlink" href="/errors/E113">E113 An argument that cannot be positional</a>
+                        <a class="wf-link bp-navlink" href="/errors/E114">E114 emit outside a component</a>
+                        <a class="wf-link bp-navlink" href="/errors/E115">E115 A project script the compiler could not read</a>
+                        <a class="wf-link bp-navlink" href="/errors/E116">E116 A tag that cannot be a custom element&#x27;s</a>
+                        <a class="wf-link bp-navlink" href="/errors/E117">E117 A key combination no keyboard sends</a>
+                        <a class="wf-link bp-navlink" href="/errors/E118">E118 A name the language already has</a>
+                        <a class="wf-link bp-navlink" href="/errors/E901">E901 The compiler wrote JavaScript a browser would refuse</a>
+                        <a class="wf-link bp-navlink" href="/errors/E902">E902 Output its own security policy refuses</a>
+                        <a class="wf-link bp-navlink" href="/errors/E119">E119 A hidden direction control in the source</a>
+                        <a class="wf-link bp-navlink" href="/errors/E120">E120 Something nests too deeply</a>
+                        <a class="wf-link bp-navlink" href="/errors/E121">E121 A render that would do too much</a>
+                        <p class="wf-text bp-navgroup">Types</p>
+                        <a class="wf-link bp-navlink" href="/errors/T01">T01 A value of the wrong type</a>
+                        <a class="wf-link bp-navlink" href="/errors/T02">T02 A case the enum does not have</a>
+                        <a class="wf-link bp-navlink" href="/errors/T04">T04 A value that may be null, read as if it were not</a>
+                        <a class="wf-link bp-navlink" href="/errors/T05">T05 A field or method that does not exist</a>
+                        <a class="wf-link bp-navlink" href="/errors/T06">T06 A member a store or service does not have</a>
+                        <a class="wf-link bp-navlink" href="/errors/T07">T07 A condition that is always true</a>
+                        <a class="wf-link bp-navlink" href="/errors/T08">T08 A loop over something that is not a list</a>
+                        <a class="wf-link bp-navlink" href="/errors/T09">T09 An emit that does not match its event</a>
+                        <a class="wf-link bp-navlink" href="/errors/T10">T10 A call with the wrong arguments</a>
+                        <a class="wf-link bp-navlink" href="/errors/T11">T11 A match on something that cannot be matched</a>
+                        <a class="wf-link bp-navlink" href="/errors/T12">T12 A secret where it would escape</a>
+                        <a class="wf-link bp-navlink" href="/errors/T13">T13 A name nothing declares</a>
+                        <a class="wf-link bp-navlink" href="/errors/T16">T16 A method a number, a string or a list does not have</a>
+                        <a class="wf-link bp-navlink" href="/errors/T14">T14 A comparison that is always the same</a>
+                        <a class="wf-link bp-navlink" href="/errors/T17">T17 An async result used before it is awaited</a>
+                        <a class="wf-link bp-navlink" href="/errors/T19">T19 A value that may be null, shown as text</a>
+                        <a class="wf-link bp-navlink" href="/errors/T20">T20 A list or a record shown as text</a>
+                        <a class="wf-link bp-navlink" href="/errors/T18">T18 Arithmetic on something that is not a number</a>
+                        <a class="wf-link bp-navlink" href="/errors/T15">T15 A match that misses a case, or has one twice</a>
+                        <a class="wf-link bp-navlink" href="/errors/T22">T22 A handler that names more values than its event sends</a>
+                        <a class="wf-link bp-navlink" href="/errors/T21">T21 A resource match with no error arm</a>
+                        <p class="wf-text bp-navgroup">Components</p>
+                        <a class="wf-link bp-navlink" href="/errors/C01">C01 A required prop or field left out</a>
+                        <a class="wf-link bp-navlink active" href="/errors/C02" aria-current="page">C02 A prop the component does not declare</a>
+                        <a class="wf-link bp-navlink" href="/errors/C03">C03 A part outside the component it belongs to</a>
+                        <a class="wf-link bp-navlink" href="/errors/C04">C04 An attribute a built-in does not declare</a>
+                        <a class="wf-link bp-navlink" href="/errors/C05">C05 A positional argument a built-in does not take</a>
+                        <a class="wf-link bp-navlink" href="/errors/C06">C06 A positional argument bound by order</a>
+                        <a class="wf-link bp-navlink" href="/errors/C07">C07 A drag or a gesture on a component with no one element</a>
+                        <p class="wf-text bp-navgroup">Routes</p>
+                        <a class="wf-link bp-navlink" href="/errors/R01">R01 A route to nothing</a>
+                        <a class="wf-link bp-navlink" href="/errors/R02">R02 A route parameter and a page parameter that do not match</a>
+                        <a class="wf-link bp-navlink" href="/errors/R03">R03 An app with no Router, or with two</a>
+                        <a class="wf-link bp-navlink" href="/errors/R04">R04 A relative URL on a nested route</a>
+                        <a class="wf-link bp-navlink" href="/errors/R05">R05 A translation of no page, or two in one language</a>
+                        <p class="wf-text bp-navgroup">State and reactivity</p>
+                        <a class="wf-link bp-navlink" href="/errors/X01">X01 An assignment to something that cannot change</a>
+                        <a class="wf-link bp-navlink" href="/errors/X02">X02 An effect that feeds itself</a>
+                        <a class="wf-link bp-navlink" href="/errors/X04">X04 A derived value that changes something</a>
+                        <a class="wf-link bp-navlink" href="/errors/X05">X05 use of a store nothing declares</a>
+                        <a class="wf-link bp-navlink" href="/errors/X06">X06 A state that copies a live value once</a>
+                        <p class="wf-text bp-navgroup">Forms and bindings</p>
+                        <a class="wf-link bp-navlink" href="/errors/F01">F01 A bind: to something that cannot be written</a>
+                        <a class="wf-link bp-navlink" href="/errors/F02">F02 A bind: to a state the control cannot hold</a>
+                        <a class="wf-link bp-navlink" href="/errors/F03">F03 A validate block no control can satisfy</a>
+                        <a class="wf-link bp-navlink" href="/errors/F04">F04 A checkbox that shows a state and never changes it</a>
+                        <a class="wf-link bp-navlink" href="/errors/F05">F05 A select whose value is none of its options</a>
+                        <p class="wf-text bp-navgroup">Data and assets</p>
+                        <a class="wf-link bp-navlink" href="/errors/D01">D01 A file the project does not have</a>
+                        <a class="wf-link bp-navlink" href="/errors/D02">D02 A persisted value storage cannot keep</a>
+                        <a class="wf-link bp-navlink" href="/errors/D03">D03 A persisted value every instance shares</a>
+                        <a class="wf-link bp-navlink" href="/errors/D04">D04 A persisted shape changed with no new version</a>
+                        <a class="wf-link bp-navlink" href="/errors/D05">D05 An asset from another origin with no integrity hash</a>
+                        <p class="wf-text bp-navgroup">Translations</p>
+                        <a class="wf-link bp-navlink" href="/errors/I01">I01 A message no translation has</a>
+                        <a class="wf-link bp-navlink" href="/errors/I02">I02 A message and its call that disagree</a>
+                        <a class="wf-link bp-navlink" href="/errors/I03">I03 A message one locale has and another does not</a>
+                        <a class="wf-link bp-navlink" href="/errors/I04">I04 A locale the project does not have</a>
+                        <a class="wf-link bp-navlink" href="/errors/I05">I05 Words a reader sees that are not translated</a>
+                        <p class="wf-text bp-navgroup">Accessibility</p>
+                        <a class="wf-link bp-navlink" href="/errors/A01">A01 An image with no alt text</a>
+                        <a class="wf-link bp-navlink" href="/errors/A02">A02 An icon button with no name</a>
+                        <a class="wf-link bp-navlink" href="/errors/A03">A03 An input with no label</a>
+                        <a class="wf-link bp-navlink" href="/errors/A04">A04 A control with no label</a>
+                        <a class="wf-link bp-navlink" href="/errors/A05">A05 A button with no text</a>
+                        <a class="wf-link bp-navlink" href="/errors/A06">A06 A link with no text</a>
+                        <a class="wf-link bp-navlink" href="/errors/A07">A07 An empty heading</a>
+                        <a class="wf-link bp-navlink" href="/errors/A08">A08 A dialog with no title</a>
+                        <a class="wf-link bp-navlink" href="/errors/A09">A09 Media nobody can follow without sound</a>
+                        <a class="wf-link bp-navlink" href="/errors/A10">A10 A table with no header row</a>
+                        <a class="wf-link bp-navlink" href="/errors/A11">A11 A skipped heading level</a>
+                        <a class="wf-link bp-navlink" href="/errors/A12">A12 A page without exactly one h1</a>
+                        <a class="wf-link bp-navlink" href="/errors/A13">A13 Colours without enough contrast</a>
+                        <a class="wf-link bp-navlink" href="/errors/A14">A14 A role whose children are the wrong kind</a>
+                        <a class="wf-link bp-navlink" href="/errors/A15">A15 An aria-label that does not contain the visible text</a>
+                        <a class="wf-link bp-navlink" href="/errors/A16">A16 One id on several elements</a>
+                        <a class="wf-link bp-navlink" href="/errors/A17">A17 A frame with no title</a>
+                        <p class="wf-text bp-navgroup">Search and sharing</p>
+                        <a class="wf-link bp-navlink" href="/errors/S01">S01 A page with no title</a>
+                        <a class="wf-link bp-navlink" href="/errors/S02">S02 A page with no description</a>
+                        <a class="wf-link bp-navlink" href="/errors/S03">S03 A description too long for a search result</a>
+                        <a class="wf-link bp-navlink" href="/errors/S04">S04 Two pages on one route</a>
+                        <p class="wf-text bp-navgroup">What is kept in the browser</p>
+                        <a class="wf-link bp-navlink" href="/errors/P01">P01 A persisted value with no way forward</a>
+                        <a class="wf-link bp-navlink" href="/errors/P02">P02 A migration that never runs</a>
+                        <a class="wf-link bp-navlink" href="/errors/P03">P03 A persisted value in a route-scoped store</a>
+                        <p class="wf-text bp-navgroup">Declared and never read</p>
+                        <a class="wf-link bp-navlink" href="/errors/U01">U01 A state nothing reads</a>
+                        <a class="wf-link bp-navlink" href="/errors/U02">U02 A derived value nothing reads</a>
+                        <a class="wf-link bp-navlink" href="/errors/U03">U03 A component nothing places</a>
+                        <a class="wf-link bp-navlink" href="/errors/U04">U04 A store member nothing reads</a>
+                        <a class="wf-link bp-navlink" href="/errors/U05">U05 An action nothing calls</a>
+                        <a class="wf-link bp-navlink" href="/errors/U06">U06 Code after return</a>
+                        <a class="wf-link bp-navlink" href="/errors/U07">U07 An allow that allows nothing</a>
+                        <a class="wf-link bp-navlink" href="/errors/U08">U08 A condition that is always the same</a>
+                        <a class="wf-link bp-navlink" href="/errors/U09">U09 An unkeyed loop whose items hold state</a>
+                        <a class="wf-link bp-navlink" href="/errors/U10">U10 An else no value reaches</a>
+                        <p class="wf-text bp-navgroup">Vocabulary</p>
+                        <a class="wf-link bp-navlink" href="/errors/V01">V01 A bare word that means nothing</a>
+                        <a class="wf-link bp-navlink" href="/errors/V02">V02 A flag no stylesheet styles</a>
+                        <a class="wf-link bp-navlink" href="/errors/V03">V03 Markup put in as markup</a>
+                        <a class="wf-link bp-navlink" href="/errors/V04">V04 A class that is the engine&#x27;s</a>
+                        <a class="wf-link bp-navlink" href="/errors/V05">V05 A CSS property no browser knows</a>
+                        <a class="wf-link bp-navlink" href="/errors/V06">V06 A design token the theme does not declare</a>
+                        <a class="wf-link bp-navlink" href="/errors/V07">V07 A number where CSS wants a length</a>
+                        <a class="wf-link bp-navlink" href="/errors/V08">V08 An icon the runtime does not draw</a>
+                        <a class="wf-link bp-navlink" href="/errors/V09">V09 An event the element does not fire</a>
+                        <a class="wf-link bp-navlink" href="/errors/V12">V12 A long list that is not windowed</a>
+                        <a class="wf-link bp-navlink" href="/errors/V10">V10 A Host tag it does not make</a>
+                        <a class="wf-link bp-navlink" href="/errors/V11">V11 A component named like a built-in</a>
+                    </div>
+                </div>
+                <div class="wf-stack wf-gap--lg wf-s54d43750 bp-main" role="main" id="bp-main" tabindex="-1">
+                    <div class="wf-row wf-align--center wf-gap--xs wf-s2327e38b" role="navigation" aria-label="Breadcrumb">
+                        <a class="wf-link" href="/errors">Errors</a>
+                        <p class="wf-text" aria-hidden="true">/</p>
+                        <p class="wf-text wf-s7ecabb29" aria-current="page">Components</p>
+                    </div>
+                    <div class="wf-row bp-labels">
+                        <p class="wf-text bp-label" data-tone="kind" data-kind="error">Error</p>
+                        <p class="wf-text bp-label" data-tone="error">C02</p>
+                        <p class="wf-text bp-label">Error</p>
+                        <p class="wf-text bp-label">Components</p>
+                    </div>
+                    <div class="wf-stack wf-gap--sm wf-s4e4189b1">
+                        <h1 class="wf-heading wf-s22f8f836">A prop the component does not declare</h1>
+                        <p class="wf-text bp-lede">Your own component is called with a prop it does not declare. Nothing in it reads the value, so the call does not do what it says; often a misspelling.</p>
+                    </div>
+                    <div class="wf-stack wf-gap--sm wf-s982ede03">
+                        <h2 class="wf-heading wf-s5dcf4ea5" id="printed">What the compiler said</h2>
+                        <div class="wf-stack wf-sa8e464d0 bp-diagnostic bp-ltr" role="group" aria-label="Finding " dir="ltr">
+                            <p class="wf-text wf-sf972ec5f bp-mono">error[C02]: `Badge2` declares no prop `colour`
+ --&gt; src/App.wf:4:19
+  |
+4 |     Badge2(&quot;New&quot;, colour: &quot;red&quot;)
+  |                   ^^^^^^
+  = help: It is passed anyway, but nothing in the component reads it
+  = docs: https://webfluent.monzeromer.dev/errors/C02</p>
+                        </div>
+                    </div>
+                    <div class="wf-stack wf-gap--sm wf-s982ede03">
+                        <h2 class="wf-heading wf-s5dcf4ea5" id="fix">The fix</h2>
+                        <div class="wf-stack bp-prose">
+                            <div class="wf-stack wf-gap--sm">
+                                <p class="wf-text wf-sb24910e4 bp-label" data-tone="error">Broken</p>
+                                <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                                    <div class="wf-row wf-s2c416341 bp-console__bar">
+                                        <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                            <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
+                                        </div>
+                                        <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                    </div>
+                                    <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-kw">component</span> <span class="wf-tok-name">Badge2</span>(_ <span class="wf-tok-prop">label</span>: <span class="wf-tok-name">String</span>) { <span class="wf-tok-name">Text</span>(label) }
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">P</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;T&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;D&quot;</span>) {
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Badges&quot;</span>).h1
+    <span class="wf-tok-name">Badge2</span>(<span class="wf-tok-str">&quot;New&quot;</span>, <span class="wf-tok-prop">colour</span>: <span class="wf-tok-str">&quot;red&quot;</span>)
+}</code>
+                                </div>
+                                <div class="wf-markdown">
+<p>Correct the spelling, or declare the prop on the component.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="wf-row wf-align--center wf-gap--sm wf-sa7dc02f0 bp-raised">
+                        <p class="wf-text wf-s4052500d">lints may lower it:</p>
+                        <code class="wf-code wf-s48f7bba6 bp-ltr" dir="ltr">&quot;lints&quot;: { &quot;C02&quot;: &quot;warn&quot; }</code>
+                    </div>
+                </div>
+                <div class="wf-stack wf-gap--lg wf-s2502f5f4 bp-rail" role="navigation" aria-label="On this page">
+                    <div class="wf-stack wf-gap--xs wf-se8e8f072">
+                        <p class="wf-text wf-sa736415c bp-section-label">On this page</p>
+                        <a class="wf-link wf-s23505038" href="#printed">What the compiler said</a>
+                        <a class="wf-link wf-s23505038" href="#fix">The fix</a>
+                    </div>
+                    <a class="wf-link wf-s48d899f5" href="https://github.com/monzeromer-lab/WebFluent/blob/master/md-docs/errors/C02.md">
+                        <i class="wf-icon" data-icon="edit"></i>
+                        <p class="wf-text">Edit this page</p>
+                    </a>
+                </div>
+            </div>
+        </main>
+        <footer class="wf-footer wf-s2213a098">
+            <div class="wf-stack wf-gap--lg wf-s84d7918c bp-wrap">
+                <div class="wf-grid wf-gap--lg wf-r67559659">
+                    <div class="wf-stack wf-gap--xs wf-s17061b4c">
+                        <p class="wf-text wf-scba75cc6 bp-section-label">Learn</p>
+                        <a class="wf-link" href="/learn/01-getting-started">The tour</a>
+                        <a class="wf-link" href="/learn">The book</a>
+                        <a class="wf-link" href="/about">About essays</a>
+                    </div>
+                    <div class="wf-stack wf-gap--xs wf-s17061b4c">
+                        <p class="wf-text wf-scba75cc6 bp-section-label">Do</p>
+                        <a class="wf-link" href="/recipes">Recipes</a>
+                        <a class="wf-link" href="/coming-from/react">Coming from…</a>
+                        <a class="wf-link" href="/showcase">Showcase</a>
+                    </div>
+                    <div class="wf-stack wf-gap--xs wf-s17061b4c">
+                        <p class="wf-text wf-scba75cc6 bp-section-label">Look up</p>
+                        <a class="wf-link" href="/reference">Components</a>
+                        <a class="wf-link" href="/reference/cli">CLI and config</a>
+                        <a class="wf-link" href="/errors">Errors</a>
+                    </div>
+                    <div class="wf-stack wf-gap--xs wf-s17061b4c">
+                        <p class="wf-text wf-scba75cc6 bp-section-label">For agents</p>
+                        <a class="wf-link" href="/reference/cli/context">wf context</a>
+                        <a class="wf-link" href="/changelog">Changelog</a>
+                    </div>
+                </div>
+                <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-sd146f653">
+                    <p class="wf-text bp-small">Every code block in the guide is real WebFluent 6.0, parsed, type-checked and compiled by the test suite.</p>
+                    <div class="wf-row wf-align--center wf-gap--md wf-sa3c9b727">
+                        <a class="wf-link wf-sf9ca1a0e" href="https://github.com/monzeromer-lab/WebFluent">Source</a>
+                        <button class="wf-btn link-button" type="button">Cookie settings</button>
+                        <p class="wf-text bp-small">© 2026 Monzer Omer</p>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

@@ -1,0 +1,2 @@
+function Page_OldReferenceText(params){const _root=document.createDocumentFragment();const _e1761=WF.el("h1",{className:"wf-heading"},"Text");_root.appendChild(_e1761);const _e1762=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/text"},"Text");WF.activeLink(_e1762,"/reference/text",false);_root.appendChild(_e1762);return _root;}
+WF.page("OldReferenceText",Page_OldReferenceText);

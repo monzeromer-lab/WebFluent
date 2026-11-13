@@ -1,0 +1,2 @@
+function Page_OldReferenceSkeleton(params){const _root=document.createDocumentFragment();const _e1737=WF.el("h1",{className:"wf-heading"},"Skeleton");_root.appendChild(_e1737);const _e1738=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/skeleton"},"Skeleton");WF.activeLink(_e1738,"/reference/skeleton",false);_root.appendChild(_e1738);return _root;}
+WF.page("OldReferenceSkeleton",Page_OldReferenceSkeleton);

@@ -1,0 +1,2 @@
+function Page_OldReferencePagebreak(params){const _root=document.createDocumentFragment();const _e1709=WF.el("h1",{className:"wf-heading"},"PageBreak");_root.appendChild(_e1709);const _e1710=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/pagebreak"},"PageBreak");WF.activeLink(_e1710,"/reference/pagebreak",false);_root.appendChild(_e1710);return _root;}
+WF.page("OldReferencePagebreak",Page_OldReferencePagebreak);
