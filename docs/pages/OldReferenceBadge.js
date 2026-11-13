@@ -1,2 +1,2 @@
-function Page_OldReferenceBadge(params){const _root=document.createDocumentFragment();const _e1606=WF.el("h1",{className:"wf-heading"},"Badge");_root.appendChild(_e1606);const _e1607=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/badge"},"Badge");WF.activeLink(_e1607,"/reference/badge",false);_root.appendChild(_e1607);return _root;}
+function Page_OldReferenceBadge(params){const _root=document.createDocumentFragment();const _e1584=WF.el("h1",{className:"wf-heading"},"Badge");_root.appendChild(_e1584);const _e1585=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/badge"},"Badge");WF.activeLink(_e1585,"/reference/badge",false);_root.appendChild(_e1585);return _root;}
 WF.page("OldReferenceBadge",Page_OldReferenceBadge);

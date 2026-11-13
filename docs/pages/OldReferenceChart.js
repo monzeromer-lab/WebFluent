@@ -1,2 +1,2 @@
-function Page_OldReferenceChart(params){const _root=document.createDocumentFragment();const _e1620=WF.el("h1",{className:"wf-heading"},"Chart");_root.appendChild(_e1620);const _e1621=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/chart"},"Chart");WF.activeLink(_e1621,"/reference/chart",false);_root.appendChild(_e1621);return _root;}
+function Page_OldReferenceChart(params){const _root=document.createDocumentFragment();const _e1598=WF.el("h1",{className:"wf-heading"},"Chart");_root.appendChild(_e1598);const _e1599=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/chart"},"Chart");WF.activeLink(_e1599,"/reference/chart",false);_root.appendChild(_e1599);return _root;}
 WF.page("OldReferenceChart",Page_OldReferenceChart);

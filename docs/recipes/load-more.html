@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/theme.js"></script>
     <title>Load more as the reader asks — Recipes</title>
     <meta name="description" content="Add the next page of results below the ones shown when the reader asks: an api endpoint called with paginate: .page and a Load more button.">
     <link rel="canonical" href="https://webfluent.monzeromer.dev/recipes/load-more">
@@ -37,7 +38,6 @@
     <script src="/pages/RecipeLoadMore.js" data-wf-page="RecipeLoadMore" defer></script>
 </head>
 <body>
-    <a class="wf-skip-link" href="#wf-main">Skip to content</a>
     <div id="app">
         <main id="wf-main">
             <a class="wf-link bp-skip" href="#bp-main">Skip to the content</a>

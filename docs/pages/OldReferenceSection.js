@@ -1,2 +1,2 @@
-function Page_OldReferenceSection(params){const _root=document.createDocumentFragment();const _e1700=WF.el("h1",{className:"wf-heading"},"Section");_root.appendChild(_e1700);const _e1701=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/section"},"Section");WF.activeLink(_e1701,"/reference/section",false);_root.appendChild(_e1701);return _root;}
+function Page_OldReferenceSection(params){const _root=document.createDocumentFragment();const _e1678=WF.el("h1",{className:"wf-heading"},"Section");_root.appendChild(_e1678);const _e1679=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/section"},"Section");WF.activeLink(_e1679,"/reference/section",false);_root.appendChild(_e1679);return _root;}
 WF.page("OldReferenceSection",Page_OldReferenceSection);

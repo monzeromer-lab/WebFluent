@@ -4,9 +4,13 @@
     <meta charset="UTF-8">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/theme.js"></script>
     <title>Tutorial: Todos</title>
     <meta name="description" content="A beginner WebFluent tutorial: a todo app with a persisted store, a component, a keyed list, a filter in the address and tests, in 20 minutes.">
     <link rel="canonical" href="https://webfluent.monzeromer.dev/learn/03-tutorial-todos">
+    <link rel="alternate" hreflang="ar" href="https://webfluent.monzeromer.dev/ar/learn/03-tutorial-todos">
+    <link rel="alternate" hreflang="en" href="https://webfluent.monzeromer.dev/learn/03-tutorial-todos">
+    <link rel="alternate" hreflang="x-default" href="https://webfluent.monzeromer.dev/learn/03-tutorial-todos">
     <meta property="og:type" content="website">
     <meta property="og:title" content="Tutorial: Todos">
     <meta property="og:site_name" content="WebFluent">
@@ -37,7 +41,6 @@
     <script src="/pages/Learn03TutorialTodos.js" data-wf-page="Learn03TutorialTodos" defer></script>
 </head>
 <body>
-    <a class="wf-skip-link" href="#wf-content">Skip to content</a>
     <div id="app">
         <main id="wf-main">
             <a class="wf-link bp-skip" href="#bp-main">Skip to the content</a>
@@ -76,7 +79,7 @@
                         </div>
                         <button class="wf-icon-btn bp-icon-button" data-track="select_content" data-track-content-type="theme" type="button"></button>
                         <div class="wf-row wf-align--center wf-gap--xs wf-s286d925a bp-hide-sm">
-                            <button class="wf-btn bp-button" title="This page is in English only; the switch changes the interface." data-track="select_content" data-track-content-type="language" type="button"></button>
+                            <a class="wf-link bp-button" href="/ar/learn/03-tutorial-todos" data-track="select_content" data-track-content-type="language"></a>
                         </div>
                         <a class="wf-link bp-button bp-hide-md" href="https://github.com/monzeromer-lab/WebFluent" data-tone="quiet" aria-label="GitHub">
                             <i class="wf-icon" data-icon="git-branch"></i>
@@ -822,6 +825,36 @@ page Home(path: &quot;/&quot;, title: &quot;Todos&quot;, description: &quot;A sm
 <p>Bind a <code>state</code>, as the page binds <code>draft</code>, and change the store through its actions (<a href="/errors/F01">F01</a>).</p>
                             </div>
                         </div>
+                    </div>
+                    <div class="wf-stack wf-gap--sm wf-sce9164cb bp-raised">
+                        <h2 class="wf-heading wf-s457972d6">What you learned</h2>
+                        <ul class="wf-list wf-s64f6b0c0">
+                            <li class="wf-list__item">
+                                <div class="wf-markdown">
+<p>Describe data with a <code>type</code> and an <code>enum</code></p>
+                                </div>
+                            </li>
+                            <li class="wf-list__item">
+                                <div class="wf-markdown">
+<p>Keep a list across reloads in a store with <code>persist</code>, changed only by its actions</p>
+                                </div>
+                            </li>
+                            <li class="wf-list__item">
+                                <div class="wf-markdown">
+<p>Give each row of a list its own <code>state</code> in a component</p>
+                                </div>
+                            </li>
+                            <li class="wf-list__item">
+                                <div class="wf-markdown">
+<p>Key a list with <code>for … by</code>, and keep a filter in the address with <code>query</code></p>
+                                </div>
+                            </li>
+                            <li class="wf-list__item">
+                                <div class="wf-markdown">
+<p>Test a page by typing and clicking, with <code>wf test</code></p>
+                                </div>
+                            </li>
+                        </ul>
                     </div>
                     <div class="wf-row wf-gap--md wf-s94f7a6f9" role="navigation" aria-label="Pages either side">
                         <a class="wf-link wf-s1266eee5 bp-card" href="/learn/02-tutorial-shelf">

@@ -1,2 +1,2 @@
-function Page_OldGuideConfig(params){const _root=document.createDocumentFragment();const _e1596=WF.el("h1",{className:"wf-heading"},"Configuration");_root.appendChild(_e1596);const _e1597=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/config"},"Configuration");WF.activeLink(_e1597,"/reference/config",false);_root.appendChild(_e1597);return _root;}
+function Page_OldGuideConfig(params){const _root=document.createDocumentFragment();const _e1574=WF.el("h1",{className:"wf-heading"},"Configuration");_root.appendChild(_e1574);const _e1575=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/config"},"Configuration");WF.activeLink(_e1575,"/reference/config",false);_root.appendChild(_e1575);return _root;}
 WF.page("OldGuideConfig",Page_OldGuideConfig);

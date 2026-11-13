@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/theme.js"></script>
     <title>Components</title>
     <meta name="description" content="Declare components: typed props, enum props, events, slots and scoped slots, parts, local state, stores, and how to design them.">
     <link rel="canonical" href="https://webfluent.monzeromer.dev/learn/10-components">
@@ -37,7 +38,6 @@
     <script src="/pages/Learn10Components.js" data-wf-page="Learn10Components" defer></script>
 </head>
 <body>
-    <a class="wf-skip-link" href="#wf-content">Skip to content</a>
     <div id="app">
         <main id="wf-main">
             <a class="wf-link bp-skip" href="#bp-main">Skip to the content</a>
@@ -1013,6 +1013,36 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 <p>Name only what the event sends, <code>on change(next)</code>, or declare a second parameter and <code>emit</code> it. See <a href="/errors/T22">T22</a>.</p>
                             </div>
                         </div>
+                    </div>
+                    <div class="wf-stack wf-gap--sm wf-sce9164cb bp-raised">
+                        <h2 class="wf-heading wf-s457972d6">What you learned</h2>
+                        <ul class="wf-list wf-s64f6b0c0">
+                            <li class="wf-list__item">
+                                <div class="wf-markdown">
+<p>Declare a component with typed props and defaults, and call it like a built-in</p>
+                                </div>
+                            </li>
+                            <li class="wf-list__item">
+                                <div class="wf-markdown">
+<p>Fire an <code>event</code> with <code>emit</code> and handle it on the call</p>
+                                </div>
+                            </li>
+                            <li class="wf-list__item">
+                                <div class="wf-markdown">
+<p>Take content with <code>children</code>, named slots and scoped slots</p>
+                                </div>
+                            </li>
+                            <li class="wf-list__item">
+                                <div class="wf-markdown">
+<p>Give a component parts and its own state</p>
+                                </div>
+                            </li>
+                            <li class="wf-list__item">
+                                <div class="wf-markdown">
+<p>Design an interface: a value down, an event up</p>
+                                </div>
+                            </li>
+                        </ul>
                     </div>
                     <div class="wf-row wf-gap--md wf-s94f7a6f9" role="navigation" aria-label="Pages either side">
                         <a class="wf-link wf-s1266eee5 bp-card" href="/learn/09-control-flow">

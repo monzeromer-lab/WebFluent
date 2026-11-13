@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/theme.js"></script>
     <title>Fetching data</title>
     <meta name="description" content="Describe an API once with retries, caching and typed errors; show a resource with match; fetch in an action; update optimistically; read data files.">
     <link rel="canonical" href="https://webfluent.monzeromer.dev/learn/15-data">
@@ -37,7 +38,6 @@
     <script src="/pages/Learn15Data.js" data-wf-page="Learn15Data" defer></script>
 </head>
 <body>
-    <a class="wf-skip-link" href="#wf-content">Skip to content</a>
     <div id="app">
         <main id="wf-main">
             <a class="wf-link bp-skip" href="#bp-main">Skip to the content</a>
@@ -1718,6 +1718,36 @@ page P(path: &quot;/&quot;, title: &quot;Users&quot;, description: &quot;Everyon
 <p>Read it through <code>?.</code> with a fallback, <code>{users.data?.length ?? 0}</code>, or show it inside the <code>ready</code> arm, where the binding is never null (<a href="/errors/T04">T04</a>).</p>
                             </div>
                         </div>
+                    </div>
+                    <div class="wf-stack wf-gap--sm wf-sce9164cb bp-raised">
+                        <h2 class="wf-heading wf-s457972d6">What you learned</h2>
+                        <ul class="wf-list wf-s64f6b0c0">
+                            <li class="wf-list__item">
+                                <div class="wf-markdown">
+<p>Show a request's loading, error and ready states with <code>resource</code> and <code>match</code></p>
+                                </div>
+                            </li>
+                            <li class="wf-list__item">
+                                <div class="wf-markdown">
+<p>Tell a refresh (<code>refreshing</code>, the data stays) from a first load (<code>loading</code>)</p>
+                                </div>
+                            </li>
+                            <li class="wf-list__item">
+                                <div class="wf-markdown">
+<p>Describe a service once with <code>api</code>, typed, retried, cached and cancelled</p>
+                                </div>
+                            </li>
+                            <li class="wf-list__item">
+                                <div class="wf-markdown">
+<p>Fetch on demand with <code>await fetch</code> in an action, and roll back an <code>optimistic</code> change</p>
+                                </div>
+                            </li>
+                            <li class="wf-list__item">
+                                <div class="wf-markdown">
+<p>Read a JSON file at build time with <code>data</code>, and render a page per item with <code>paths:</code></p>
+                                </div>
+                            </li>
+                        </ul>
                     </div>
                     <div class="wf-row wf-gap--md wf-s94f7a6f9" role="navigation" aria-label="Pages either side">
                         <a class="wf-link wf-s1266eee5 bp-card" href="/learn/14-forms">

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/theme.js"></script>
+    <title>WebFluent لمطوّري React</title>
+    <meta name="description" content="أفكار React في WebFluent: الحالة، والقيم المشتقة، والتأثيرات، والخصائص، والأبناء، والأحداث، والسياق، والمسارات، والقوائم، والجلب، جنبًا إلى جنب.">
+    <link rel="canonical" href="https://webfluent.monzeromer.dev/ar/coming-from/react">
+    <link rel="alternate" hreflang="en" href="https://webfluent.monzeromer.dev/coming-from/react">
+    <link rel="alternate" hreflang="ar" href="https://webfluent.monzeromer.dev/ar/coming-from/react">
+    <link rel="alternate" hreflang="x-default" href="https://webfluent.monzeromer.dev/coming-from/react">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="WebFluent لمطوّري React">
+    <meta property="og:site_name" content="WebFluent">
+    <meta property="og:description" content="أفكار React في WebFluent: الحالة، والقيم المشتقة، والتأثيرات، والخصائص، والأبناء، والأحداث، والسياق، والمسارات، والقوائم، والجلب، جنبًا إلى جنب.">
+    <meta property="og:url" content="https://webfluent.monzeromer.dev/ar/coming-from/react">
+    <meta property="og:locale" content="ar_AR">
+    <meta property="og:locale:alternate" content="en_US">
+    <meta property="og:image" content="https://webfluent.monzeromer.dev/og.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="WebFluent لمطوّري React">
+    <meta name="twitter:description" content="أفكار React في WebFluent: الحالة، والقيم المشتقة، والتأثيرات، والخصائص، والأبناء، والأحداث، والسياق، والمسارات، والقوائم، والجلب، جنبًا إلى جنب.">
+    <meta name="twitter:image" content="https://webfluent.monzeromer.dev/og.png">
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/ar/coming-from/react#webpage","url":"https://webfluent.monzeromer.dev/ar/coming-from/react","name":"WebFluent لمطوّري React","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"أفكار React في WebFluent: الحالة، والقيم المشتقة، والتأثيرات، والخصائص، والأبناء، والأحداث، والسياق، والمسارات، والقوائم، والجلب، جنبًا إلى جنب.","inLanguage":"ar"},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/ar/coming-from/react#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"WebFluent — مواقع وملفات PDF وعروض شرائح من لغة واحدة","item":"https://webfluent.monzeromer.dev/ar"},{"@type":"ListItem","position":3,"name":"WebFluent لمطوّري React","item":"https://webfluent.monzeromer.dev/ar/coming-from/react"}]}]}</script>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="preload" href="/fonts/instrument-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="/styles.css">
+    <script src="/js/analytics.js" defer></script>
+    <script src="/js/live.js" defer></script>
+    <script src="/js/old-links-map.js" defer></script>
+    <script src="/js/old-links-pages.js" defer></script>
+    <script src="/js/old-links.js" defer></script>
+    <script src="/js/video.js" defer></script>
+    <script src="/app.js" defer></script>
+    <script src="/pages/ComingFromReactAr.js" data-wf-page="ComingFromReactAr" defer></script>
+</head>
+<body>
+    <div id="app">
+        <main id="wf-main">
+            <a class="wf-link bp-skip" href="#bp-main">انتقل إلى المحتوى</a>
+            <div class="wf-row wf-align--center wf-s55053fdc bp-header" role="banner">
+                <div class="wf-row wf-align--center wf-gap--md wf-sfe495c12 bp-wrap">
+                    <a class="wf-link wf-sa4fc1f4b" href="/" aria-label="WebFluent، الرئيسية">
+                        <img class="wf-image wf-s4b9d0b60" src="/favicon.svg" alt="" decoding="async" loading="eager" fetchpriority="high">
+                        <p class="wf-text wf-s9919642b">WebFluent</p>
+                        <p class="wf-text bp-label bp-num">6.0</p>
+                    </a>
+                    <div class="wf-row wf-s92924cc4 bp-tabs" role="navigation" aria-label="الأقسام الرئيسية">
+                        <a class="wf-link bp-tab" href="/learn">تعلّم</a>
+                        <a class="wf-link bp-tab" href="/recipes">وصفات</a>
+                        <a class="wf-link bp-tab" href="/reference">المرجع</a>
+                        <a class="wf-link bp-tab" href="/errors">الأخطاء</a>
+                        <a class="wf-link bp-tab" href="/playground">الملعب</a>
+                        <a class="wf-link bp-tab" href="/showcase">المعرض</a>
+                    </div>
+                    <div class="wf-row wf-align--center wf-gap--sm wf-sff642a95">
+                        <button class="wf-btn wf-sf8ab46ec bp-field bp-search" aria-label="ابحث في التوثيق" aria-keyshortcuts="Meta+K Control+K" aria-haspopup="dialog" type="button">
+                            <i class="wf-icon" data-icon="search"></i>
+                            <p class="wf-text wf-sf55a2627 bp-hide-sm">ابحث في التوثيق</p>
+                            <p class="wf-text bp-kbd bp-hide-sm">Ctrl+K</p>
+                        </button>
+                        <div class="wf-row wf-align--center wf-gap--sm wf-s808638b6 bp-select bp-hide-md">
+                            <p class="wf-text wf-s29c127bc bp-building-label" aria-hidden="true">ما تبنيه</p>
+                            <select class="wf-select" aria-label="ما تبنيه">
+                                <option value="website">موقع</option>
+                                <option value="app">تطبيق ويب</option>
+                                <option value="pdf">PDF</option>
+                                <option value="slides">شرائح</option>
+                                <option value="elements">عناصر مخصّصة</option>
+                                <option value="desktop">سطح المكتب / الهاتف</option>
+                            </select>
+                            <i class="wf-icon wf-s94250744" data-icon="chevron-down" aria-hidden="true"></i>
+                        </div>
+                        <button class="wf-icon-btn bp-icon-button" data-track="select_content" data-track-content-type="theme" type="button"></button>
+                        <div class="wf-row wf-align--center wf-gap--xs wf-s286d925a bp-hide-sm">
+                            <a class="wf-link bp-button" href="/coming-from/react" data-track="select_content" data-track-content-type="language"></a>
+                        </div>
+                        <a class="wf-link bp-button bp-hide-md" href="https://github.com/monzeromer-lab/WebFluent" data-tone="quiet" aria-label="GitHub">
+                            <i class="wf-icon" data-icon="git-branch"></i>
+                            <p class="wf-text">GitHub</p>
+                        </a>
+                        <button class="wf-icon-btn wf-sde8ec4aa bp-icon-button" data-icon="menu" aria-label="القائمة" title="القائمة" aria-expanded="false" type="button"></button>
+                    </div>
+                </div>
+            </div>
+            <dialog class="wf-modal bp-palette" aria-labelledby="wf-dlg-s1">
+                <div class="wf-modal__content">
+                    <div class="wf-modal__header"><h3 id="wf-dlg-s1">البحث</h3></div>
+                    <div class="wf-modal__body">
+                        <div class="wf-stack wf-sa8e464d0">
+                            <div class="wf-row wf-align--center wf-gap--sm wf-s02e7a482 bp-field">
+                                <i class="wf-icon" data-icon="search"></i>
+                                <input class="wf-input" placeholder="ابحث في الدليل" aria-label="ابحث في الدليل" type="search" autofocus>
+                                <p class="wf-text bp-kbd">esc</p>
+                            </div>
+                            <div class="wf-row wf-s434e64fb bp-tabs" role="tablist" aria-label="حصر البحث">
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="true" type="button">الكل</button>
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">تعلّم</button>
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">وصفات</button>
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">المرجع</button>
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">الأخطاء</button>
+                            </div>
+                            <div class="wf-stack wf-s3f6dffee" role="listbox" aria-label="نتائج البحث">
+                                <p class="wf-text wf-s3205a3d6 bp-small">اكتب كلمة: مكوّنًا، أو رمزًا مثل T05، أو مهمة.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </dialog>
+            <div class="wf-row wf-align--start wf-sa997482c bp-wrap">
+                <div class="wf-stack wf-gap--lg wf-s54d43750 bp-main" role="main" id="bp-main" tabindex="-1">
+                    <div class="wf-row bp-labels">
+                        <p class="wf-text bp-label" data-tone="kind" data-kind="comingfrom">قادم من</p>
+                    </div>
+                    <div class="wf-stack wf-gap--sm wf-s4e4189b1">
+                        <h1 class="wf-heading wf-s1cf4ddba">WebFluent لمطوّري React</h1>
+                        <p class="wf-text bp-lede">معظم ما تعرفه من React ينتقل معك: مكوّنات لها خصائص (props)، وحالة، وموجّه مسارات (router)، ومتاجر مشتركة. الفرق الذي عليك أن تتذكّره أن WebFluent مترجم (compiler) بترميز ذي أنواع، وليس مكتبة: جسم المكوّن يعمل مرة واحدة، ولا يتحدّث إلا النص أو السمة أو النمط الذي يقرأ قيمة تغيّرت. لا خطافات (hooks)، ولا مصفوفات اعتماديات، ولا دوال ضبط (setters).</p>
+                    </div>
+                    <div class="wf-row wf-s27c5a318 bp-tabs" role="navigation" aria-label="أوراق غش أخرى">
+                        <a class="wf-link bp-tab active" href="/ar/coming-from/react" aria-current="page">React</a>
+                        <a class="wf-link bp-tab" href="/coming-from/vue">Vue</a>
+                        <a class="wf-link bp-tab" href="/coming-from/svelte">Svelte</a>
+                        <a class="wf-link bp-tab" href="/coming-from/html-css">HTML وCSS</a>
+                        <a class="wf-link bp-tab" href="/coming-from/latex">LaTeX وTypst</a>
+                    </div>
+                    <div class="wf-stack wf-s5027cce6" role="table" aria-label="React وWebFluent جنبًا إلى جنب">
+                        <div class="wf-grid wf-gap--sm wf-s5b3920f5 wf-r40037c32 bp-hide-sm" role="row">
+                            <p class="wf-text bp-section-label" role="columnheader">المفهوم</p>
+                            <p class="wf-text bp-section-label" role="columnheader">React</p>
+                            <p class="wf-text bp-section-label" role="columnheader">WebFluent</p>
+                        </div>
+                    </div>
+                    <div class="wf-stack wf-gap--md wf-s28a8547f bp-prose">
+                        <h2 class="wf-heading" id="differences">أشياء تعمل بشكل مختلف</h2>
+                    </div>
+                    <div class="wf-stack wf-gap--md wf-s9cf581b3 bp-prose">
+                        <h2 class="wf-heading" id="port">مكوّن منقول</h2>
+                    </div>
+                </div>
+                <div class="wf-stack wf-gap--lg wf-s2502f5f4 bp-rail" role="navigation" aria-label="في هذه الصفحة">
+                    <div class="wf-stack wf-gap--xs wf-se8e8f072">
+                        <p class="wf-text wf-sa736415c bp-section-label">في هذه الصفحة</p>
+                        <a class="wf-link wf-s23505038" href="#differences">أشياء تعمل بشكل مختلف</a>
+                        <a class="wf-link wf-s23505038" href="#port">مكوّن منقول</a>
+                    </div>
+                    <div class="wf-stack wf-gap--xs wf-see94d5ab">
+                        <button class="wf-btn wf-sfd73f012 bp-rail-action" type="button">
+                            <i class="wf-icon" data-icon="copy"></i>
+                            <p class="wf-text">انسخ الصفحة بصيغة Markdown</p>
+                        </button>
+                        <button class="wf-btn wf-sfd73f012 bp-rail-action" type="button">
+                            <i class="wf-icon" data-icon="file"></i>
+                            <p class="wf-text">افتحها بصيغة Markdown</p>
+                        </button>
+                    </div>
+                    <a class="wf-link wf-s48d899f5" href="https://github.com/monzeromer-lab/WebFluent/blob/master/md-docs/ar/coming-from/react.md">
+                        <i class="wf-icon" data-icon="edit"></i>
+                        <p class="wf-text">عدّل هذه الصفحة</p>
+                    </a>
+                </div>
+            </div>
+        </main>
+        <footer class="wf-footer wf-s2213a098">
+            <div class="wf-stack wf-gap--lg wf-s84d7918c bp-wrap">
+                <div class="wf-grid wf-gap--lg wf-r67559659">
+                    <div class="wf-stack wf-gap--xs wf-s17061b4c">
+                        <p class="wf-text wf-scba75cc6 bp-section-label">تعلّم</p>
+                        <a class="wf-link" href="/learn/01-getting-started">الجولة</a>
+                        <a class="wf-link" href="/learn">الكتاب</a>
+                        <a class="wf-link" href="/about">مقالات</a>
+                    </div>
+                    <div class="wf-stack wf-gap--xs wf-s17061b4c">
+                        <p class="wf-text wf-scba75cc6 bp-section-label">اصنع</p>
+                        <a class="wf-link" href="/recipes">وصفات</a>
+                        <a class="wf-link" href="/playground">الملعب</a>
+                        <a class="wf-link" href="/coming-from/react">قادم من…</a>
+                        <a class="wf-link" href="/showcase">المعرض</a>
+                    </div>
+                    <div class="wf-stack wf-gap--xs wf-s17061b4c">
+                        <p class="wf-text wf-scba75cc6 bp-section-label">ابحث عن</p>
+                        <a class="wf-link" href="/reference">المكوّنات</a>
+                        <a class="wf-link" href="/reference/cli">سطر الأوامر والإعدادات</a>
+                        <a class="wf-link" href="/errors">الأخطاء</a>
+                    </div>
+                    <div class="wf-stack wf-gap--xs wf-s17061b4c">
+                        <p class="wf-text wf-scba75cc6 bp-section-label">للوكلاء</p>
+                        <a class="wf-link" href="/reference/cli/context">wf context</a>
+                        <a class="wf-link" href="/changelog">سجل التغييرات</a>
+                    </div>
+                </div>
+                <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-sd146f653">
+                    <p class="wf-text bp-small">كل كتلة شيفرة في الدليل هي WebFluent 6.0 حقيقية، تُحلَّل وتُفحص أنواعها وتُترجم ضمن مجموعة الاختبارات.</p>
+                    <div class="wf-row wf-align--center wf-gap--md wf-sa3c9b727">
+                        <a class="wf-link wf-sf9ca1a0e" href="https://github.com/monzeromer-lab/WebFluent">الشيفرة المصدرية</a>
+                        <button class="wf-btn link-button" type="button">إعدادات ملفات تعريف الارتباط</button>
+                        <p class="wf-text bp-small">منذر عمر</p>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

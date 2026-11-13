@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/theme.js"></script>
     <title>Control flow</title>
     <meta name="description" content="if, if let, for … by, VirtualList, show and match, in render blocks and in actions, and if and match as values.">
     <link rel="canonical" href="https://webfluent.monzeromer.dev/learn/09-control-flow">
@@ -37,7 +38,6 @@
     <script src="/pages/Learn09ControlFlow.js" data-wf-page="Learn09ControlFlow" defer></script>
 </head>
 <body>
-    <a class="wf-skip-link" href="#wf-content">Skip to content</a>
     <div id="app">
         <main id="wf-main">
             <a class="wf-link bp-skip" href="#bp-main">Skip to the content</a>
@@ -701,6 +701,36 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 <p>Give the missing case an arm, <code>.failed { Alert(&quot;Failed&quot;).danger }</code>, or add an <code>else</code>. See <a href="/errors/T15">T15</a>.</p>
                             </div>
                         </div>
+                    </div>
+                    <div class="wf-stack wf-gap--sm wf-sce9164cb bp-raised">
+                        <h2 class="wf-heading wf-s457972d6">What you learned</h2>
+                        <ul class="wf-list wf-s64f6b0c0">
+                            <li class="wf-list__item">
+                                <div class="wf-markdown">
+<p>Show a branch with <code>if</code>, and read a value that may be null with <code>if let</code></p>
+                                </div>
+                            </li>
+                            <li class="wf-list__item">
+                                <div class="wf-markdown">
+<p>Draw a list with <code>for … by</code>, keyed so items keep their state</p>
+                                </div>
+                            </li>
+                            <li class="wf-list__item">
+                                <div class="wf-markdown">
+<p>Window a long list with <code>VirtualList</code></p>
+                                </div>
+                            </li>
+                            <li class="wf-list__item">
+                                <div class="wf-markdown">
+<p>Hide without removing with <code>show</code></p>
+                                </div>
+                            </li>
+                            <li class="wf-list__item">
+                                <div class="wf-markdown">
+<p>Draw one arm per case with <code>match</code>, payloads included</p>
+                                </div>
+                            </li>
+                        </ul>
                     </div>
                     <div class="wf-row wf-gap--md wf-s94f7a6f9" role="navigation" aria-label="Pages either side">
                         <a class="wf-link wf-s1266eee5 bp-card" href="/learn/08-events">

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/theme.js"></script>
     <title>الملعب — WebFluent</title>
     <meta name="description" content="اكتب WebFluent في متصفحك: يبني المترجم الحقيقي، مترجمًا إلى WebAssembly، الصفحة وHTML وCSS وJavaScript أو ملف PDF وأنت تكتب. لا يُرسل شيء إلى خادم.">
     <link rel="canonical" href="https://webfluent.monzeromer.dev/ar/playground">
@@ -24,7 +25,7 @@
     <meta name="twitter:title" content="الملعب — WebFluent">
     <meta name="twitter:description" content="اكتب WebFluent في متصفحك: يبني المترجم الحقيقي، مترجمًا إلى WebAssembly، الصفحة وHTML وCSS وJavaScript أو ملف PDF وأنت تكتب. لا يُرسل شيء إلى خادم.">
     <meta name="twitter:image" content="https://webfluent.monzeromer.dev/og.png">
-    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/ar/playground#webpage","url":"https://webfluent.monzeromer.dev/ar/playground","name":"الملعب — WebFluent","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"اكتب WebFluent في متصفحك: يبني المترجم الحقيقي، مترجمًا إلى WebAssembly، الصفحة وHTML وCSS وJavaScript أو ملف PDF وأنت تكتب. لا يُرسل شيء إلى خادم.","inLanguage":"ar"},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/ar/playground#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"الملعب — WebFluent","item":"https://webfluent.monzeromer.dev/ar/playground"}]}]}</script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/ar/playground#webpage","url":"https://webfluent.monzeromer.dev/ar/playground","name":"الملعب — WebFluent","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"اكتب WebFluent في متصفحك: يبني المترجم الحقيقي، مترجمًا إلى WebAssembly، الصفحة وHTML وCSS وJavaScript أو ملف PDF وأنت تكتب. لا يُرسل شيء إلى خادم.","inLanguage":"ar"},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/ar/playground#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"WebFluent — مواقع وملفات PDF وعروض شرائح من لغة واحدة","item":"https://webfluent.monzeromer.dev/ar"},{"@type":"ListItem","position":3,"name":"الملعب — WebFluent","item":"https://webfluent.monzeromer.dev/ar/playground"}]}]}</script>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="preload" href="/fonts/instrument-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
@@ -40,40 +41,39 @@
     <script src="/pages/PlaygroundAr.js" data-wf-page="PlaygroundAr" defer></script>
 </head>
 <body>
-    <a class="wf-skip-link" href="#wf-main">Skip to content</a>
     <div id="app">
         <main id="wf-main">
-            <a class="wf-link bp-skip" href="#bp-main">Skip to the content</a>
+            <a class="wf-link bp-skip" href="#bp-main">انتقل إلى المحتوى</a>
             <div class="wf-row wf-align--center wf-s55053fdc bp-header" role="banner">
                 <div class="wf-row wf-align--center wf-gap--md wf-sfe495c12 bp-wrap">
-                    <a class="wf-link wf-sa4fc1f4b" href="/" aria-label="WebFluent, home">
+                    <a class="wf-link wf-sa4fc1f4b" href="/" aria-label="WebFluent، الرئيسية">
                         <img class="wf-image wf-s4b9d0b60" src="/favicon.svg" alt="" decoding="async" loading="eager" fetchpriority="high">
                         <p class="wf-text wf-s9919642b">WebFluent</p>
                         <p class="wf-text bp-label bp-num">6.0</p>
                     </a>
-                    <div class="wf-row wf-s92924cc4 bp-tabs" role="navigation" aria-label="Main">
-                        <a class="wf-link bp-tab" href="/learn">Learn</a>
-                        <a class="wf-link bp-tab" href="/recipes">Recipes</a>
-                        <a class="wf-link bp-tab" href="/reference">Reference</a>
-                        <a class="wf-link bp-tab" href="/errors">Errors</a>
-                        <a class="wf-link bp-tab" href="/playground">Playground</a>
-                        <a class="wf-link bp-tab" href="/showcase">Showcase</a>
+                    <div class="wf-row wf-s92924cc4 bp-tabs" role="navigation" aria-label="الأقسام الرئيسية">
+                        <a class="wf-link bp-tab" href="/learn">تعلّم</a>
+                        <a class="wf-link bp-tab" href="/recipes">وصفات</a>
+                        <a class="wf-link bp-tab" href="/reference">المرجع</a>
+                        <a class="wf-link bp-tab" href="/errors">الأخطاء</a>
+                        <a class="wf-link bp-tab" href="/playground">الملعب</a>
+                        <a class="wf-link bp-tab" href="/showcase">المعرض</a>
                     </div>
                     <div class="wf-row wf-align--center wf-gap--sm wf-sff642a95">
-                        <button class="wf-btn wf-sf8ab46ec bp-field bp-search" aria-label="Search the docs" aria-keyshortcuts="Meta+K Control+K" aria-haspopup="dialog" type="button">
+                        <button class="wf-btn wf-sf8ab46ec bp-field bp-search" aria-label="ابحث في التوثيق" aria-keyshortcuts="Meta+K Control+K" aria-haspopup="dialog" type="button">
                             <i class="wf-icon" data-icon="search"></i>
-                            <p class="wf-text wf-sf55a2627 bp-hide-sm">Search the docs</p>
+                            <p class="wf-text wf-sf55a2627 bp-hide-sm">ابحث في التوثيق</p>
                             <p class="wf-text bp-kbd bp-hide-sm">Ctrl+K</p>
                         </button>
                         <div class="wf-row wf-align--center wf-gap--sm wf-s808638b6 bp-select bp-hide-md">
-                            <p class="wf-text wf-s29c127bc bp-building-label" aria-hidden="true">Building</p>
-                            <select class="wf-select" aria-label="Building">
-                                <option value="website">Website</option>
-                                <option value="app">Web app</option>
+                            <p class="wf-text wf-s29c127bc bp-building-label" aria-hidden="true">ما تبنيه</p>
+                            <select class="wf-select" aria-label="ما تبنيه">
+                                <option value="website">موقع</option>
+                                <option value="app">تطبيق ويب</option>
                                 <option value="pdf">PDF</option>
-                                <option value="slides">Slides</option>
-                                <option value="elements">Custom elements</option>
-                                <option value="desktop">Desktop / phone</option>
+                                <option value="slides">شرائح</option>
+                                <option value="elements">عناصر مخصّصة</option>
+                                <option value="desktop">سطح المكتب / الهاتف</option>
                             </select>
                             <i class="wf-icon wf-s94250744" data-icon="chevron-down" aria-hidden="true"></i>
                         </div>
@@ -85,29 +85,29 @@
                             <i class="wf-icon" data-icon="git-branch"></i>
                             <p class="wf-text">GitHub</p>
                         </a>
-                        <button class="wf-icon-btn wf-sde8ec4aa bp-icon-button" data-icon="menu" aria-label="Menu" title="Menu" aria-expanded="false" type="button"></button>
+                        <button class="wf-icon-btn wf-sde8ec4aa bp-icon-button" data-icon="menu" aria-label="القائمة" title="القائمة" aria-expanded="false" type="button"></button>
                     </div>
                 </div>
             </div>
             <dialog class="wf-modal bp-palette" aria-labelledby="wf-dlg-s1">
                 <div class="wf-modal__content">
-                    <div class="wf-modal__header"><h3 id="wf-dlg-s1">Search</h3></div>
+                    <div class="wf-modal__header"><h3 id="wf-dlg-s1">البحث</h3></div>
                     <div class="wf-modal__body">
                         <div class="wf-stack wf-sa8e464d0">
                             <div class="wf-row wf-align--center wf-gap--sm wf-s02e7a482 bp-field">
                                 <i class="wf-icon" data-icon="search"></i>
-                                <input class="wf-input" placeholder="Search the guide" aria-label="Search the guide" type="search" autofocus>
+                                <input class="wf-input" placeholder="ابحث في الدليل" aria-label="ابحث في الدليل" type="search" autofocus>
                                 <p class="wf-text bp-kbd">esc</p>
                             </div>
-                            <div class="wf-row wf-s434e64fb bp-tabs" role="tablist" aria-label="Narrow the search">
-                                <button class="wf-btn bp-tab" role="tab" aria-selected="true" type="button">All</button>
-                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">Learn</button>
-                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">Recipes</button>
-                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">Reference</button>
-                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">Errors</button>
+                            <div class="wf-row wf-s434e64fb bp-tabs" role="tablist" aria-label="حصر البحث">
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="true" type="button">الكل</button>
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">تعلّم</button>
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">وصفات</button>
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">المرجع</button>
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">الأخطاء</button>
                             </div>
-                            <div class="wf-stack wf-s3f6dffee" role="listbox" aria-label="Search results">
-                                <p class="wf-text wf-s3205a3d6 bp-small">Type a word: a component, a code such as T05, or a task.</p>
+                            <div class="wf-stack wf-s3f6dffee" role="listbox" aria-label="نتائج البحث">
+                                <p class="wf-text wf-s3205a3d6 bp-small">اكتب كلمة: مكوّنًا، أو رمزًا مثل T05، أو مهمة.</p>
                             </div>
                         </div>
                     </div>
@@ -116,28 +116,28 @@
             <div class="wf-stack wf-s8dd6d7fe bp-main" role="main" id="bp-main" tabindex="-1">
                 <div class="wf-row wf-align--center wf-justify--between wf-gap--md wf-s6716ae36">
                     <div class="wf-row wf-align--center wf-gap--sm wf-s41685e4c">
-                        <p class="wf-text bp-label" data-tone="kind" data-kind="playground">Playground</p>
-                        <h1 class="wf-heading wf-s591e8882">Playground</h1>
+                        <p class="wf-text bp-label" data-tone="kind" data-kind="playground">ملعب</p>
+                        <h1 class="wf-heading wf-s591e8882">الملعب</h1>
                         <p class="wf-text bp-mono bp-small">counter</p>
                     </div>
                     <div class="wf-row wf-align--center wf-gap--sm wf-s22411b77">
-                        <select class="wf-select bp-select" aria-label="Examples">
-                            <option value="counter">Counter</option>
-                            <option value="todos">Todo list with a store</option>
-                            <option value="sign-up">Form with validation</option>
-                            <option value="salam">Arabic, right to left</option>
-                            <option value="invoice">Invoice (PDF)</option>
-                            <option value="deck">Slide deck</option>
+                        <select class="wf-select bp-select" aria-label="أمثلة">
+                            <option value="counter">عدّاد</option>
+                            <option value="todos">قائمة مهام بمخزن</option>
+                            <option value="sign-up">نموذج مع تحقق</option>
+                            <option value="salam">العربية، من اليمين إلى اليسار</option>
+                            <option value="invoice">فاتورة (PDF)</option>
+                            <option value="deck">عرض شرائح</option>
                         </select>
-                        <button class="wf-btn bp-button" type="button">Share</button>
-                        <button class="wf-btn bp-button" type="button">Download</button>
-                        <button class="wf-btn bp-button" data-tone="action" type="button">Run</button>
+                        <button class="wf-btn bp-button" type="button">شارك</button>
+                        <button class="wf-btn bp-button" type="button">نزّل</button>
+                        <button class="wf-btn bp-button" data-tone="action" type="button">شغّل</button>
                     </div>
                 </div>
                 <div class="wf-grid wf-gap--md wf-s26f41a90 wf-r585a824e">
-                    <div class="wf-stack bp-pane bp-hide-sm" role="group" aria-label="Files">
+                    <div class="wf-stack bp-pane bp-hide-sm" role="group" aria-label="الملفات">
                         <div class="wf-row bp-pane__bar">
-                            <p class="wf-text bp-section-label">Files</p>
+                            <p class="wf-text bp-section-label">الملفات</p>
                         </div>
                         <div class="wf-stack wf-s099eb36a">
                             <button class="wf-btn bp-file" aria-current="true" type="button">src/pages/Home.wf</button>
@@ -154,7 +154,7 @@
                         <div class="wf-row bp-console__foot bp-live-status" aria-live="polite">
                             <div class="wf-row wf-align--center wf-gap--sm wf-s22411b77">
                                 <p class="wf-text bp-dot" aria-hidden="true"></p>
-                                <p class="wf-text">Type, and the compiler in your browser builds it as you go</p>
+                                <p class="wf-text">اكتب، ويبنيه المترجم في متصفحك أولاً بأول</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--sm wf-s31ee2170">
                             </div>
@@ -162,66 +162,66 @@
                     </div>
                     <div class="wf-stack bp-pane">
                         <div class="wf-row bp-pane__bar">
-                            <p class="wf-text bp-section-label">Preview</p>
-                            <div class="wf-row wf-gap--xs wf-s6e1406d8" role="group" aria-label="Preview size">
-                                <button class="wf-btn bp-button" aria-pressed="true" data-tone="quiet" type="button">Desktop</button>
-                                <button class="wf-btn bp-button" aria-pressed="false" data-tone="quiet" type="button">Phone</button>
+                            <p class="wf-text bp-section-label">المعاينة</p>
+                            <div class="wf-row wf-gap--xs wf-s6e1406d8" role="group" aria-label="حجم المعاينة">
+                                <button class="wf-btn bp-button" aria-pressed="true" data-tone="quiet" type="button">سطح المكتب</button>
+                                <button class="wf-btn bp-button" aria-pressed="false" data-tone="quiet" type="button">الهاتف</button>
                             </div>
                         </div>
                         <div class="wf-stack wf-se8991db2 bp-grid">
-                            <p class="wf-text wf-s87b79271 bp-small">Nothing built yet.</p>
+                            <p class="wf-text wf-s87b79271 bp-small">لم يُبنَ شيء بعد.</p>
                         </div>
                     </div>
                 </div>
                 <div class="wf-stack wf-s5027cce6 bp-console bp-ltr" dir="ltr">
                     <div class="wf-row bp-console__bar">
-                        <div class="wf-row bp-tabs" role="tablist" aria-label="What the build wrote">
+                        <div class="wf-row bp-tabs" role="tablist" aria-label="ما كتبه البناء">
                             <button class="wf-btn bp-tab" role="tab" aria-selected="true" type="button">HTML</button>
                             <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">CSS</button>
                             <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">JS</button>
                             <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">PDF</button>
-                            <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">Findings 0</button>
+                            <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">النتائج 0</button>
                         </div>
                     </div>
-                    <code class="wf-code wf-code--block wf-s154a8dd8 bp-console__code">Nothing here.</code>
+                    <code class="wf-code wf-code--block wf-s154a8dd8 bp-console__code">لا شيء هنا.</code>
                 </div>
-                <p class="wf-text bp-small">The Playground runs the same compiler as wf build, compiled to WebAssembly. Nothing you write is sent to a server.</p>
+                <p class="wf-text bp-small">يشغّل الملعب المترجم نفسه الذي يشغّله wf build، مترجمًا إلى WebAssembly. لا يُرسل شيء مما تكتبه إلى خادم.</p>
             </div>
         </main>
         <footer class="wf-footer wf-s2213a098">
             <div class="wf-stack wf-gap--lg wf-s84d7918c bp-wrap">
                 <div class="wf-grid wf-gap--lg wf-r67559659">
                     <div class="wf-stack wf-gap--xs wf-s17061b4c">
-                        <p class="wf-text wf-scba75cc6 bp-section-label">Learn</p>
-                        <a class="wf-link" href="/learn/01-getting-started">The tour</a>
-                        <a class="wf-link" href="/learn">The book</a>
-                        <a class="wf-link" href="/about">About essays</a>
+                        <p class="wf-text wf-scba75cc6 bp-section-label">تعلّم</p>
+                        <a class="wf-link" href="/learn/01-getting-started">الجولة</a>
+                        <a class="wf-link" href="/learn">الكتاب</a>
+                        <a class="wf-link" href="/about">مقالات</a>
                     </div>
                     <div class="wf-stack wf-gap--xs wf-s17061b4c">
-                        <p class="wf-text wf-scba75cc6 bp-section-label">Do</p>
-                        <a class="wf-link" href="/recipes">Recipes</a>
-                        <a class="wf-link" href="/playground">Playground</a>
-                        <a class="wf-link" href="/coming-from/react">Coming from…</a>
-                        <a class="wf-link" href="/showcase">Showcase</a>
+                        <p class="wf-text wf-scba75cc6 bp-section-label">اصنع</p>
+                        <a class="wf-link" href="/recipes">وصفات</a>
+                        <a class="wf-link" href="/playground">الملعب</a>
+                        <a class="wf-link" href="/coming-from/react">قادم من…</a>
+                        <a class="wf-link" href="/showcase">المعرض</a>
                     </div>
                     <div class="wf-stack wf-gap--xs wf-s17061b4c">
-                        <p class="wf-text wf-scba75cc6 bp-section-label">Look up</p>
-                        <a class="wf-link" href="/reference">Components</a>
-                        <a class="wf-link" href="/reference/cli">CLI and config</a>
-                        <a class="wf-link" href="/errors">Errors</a>
+                        <p class="wf-text wf-scba75cc6 bp-section-label">ابحث عن</p>
+                        <a class="wf-link" href="/reference">المكوّنات</a>
+                        <a class="wf-link" href="/reference/cli">سطر الأوامر والإعدادات</a>
+                        <a class="wf-link" href="/errors">الأخطاء</a>
                     </div>
                     <div class="wf-stack wf-gap--xs wf-s17061b4c">
-                        <p class="wf-text wf-scba75cc6 bp-section-label">For agents</p>
+                        <p class="wf-text wf-scba75cc6 bp-section-label">للوكلاء</p>
                         <a class="wf-link" href="/reference/cli/context">wf context</a>
-                        <a class="wf-link" href="/changelog">Changelog</a>
+                        <a class="wf-link" href="/changelog">سجل التغييرات</a>
                     </div>
                 </div>
                 <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-sd146f653">
-                    <p class="wf-text bp-small">Every code block in the guide is real WebFluent 6.0, parsed, type-checked and compiled by the test suite.</p>
+                    <p class="wf-text bp-small">كل كتلة شيفرة في الدليل هي WebFluent 6.0 حقيقية، تُحلَّل وتُفحص أنواعها وتُترجم ضمن مجموعة الاختبارات.</p>
                     <div class="wf-row wf-align--center wf-gap--md wf-sa3c9b727">
-                        <a class="wf-link wf-sf9ca1a0e" href="https://github.com/monzeromer-lab/WebFluent">Source</a>
-                        <button class="wf-btn link-button" type="button">Cookie settings</button>
-                        <p class="wf-text bp-small">© 2026 Monzer Omer</p>
+                        <a class="wf-link wf-sf9ca1a0e" href="https://github.com/monzeromer-lab/WebFluent">الشيفرة المصدرية</a>
+                        <button class="wf-btn link-button" type="button">إعدادات ملفات تعريف الارتباط</button>
+                        <p class="wf-text bp-small">منذر عمر</p>
                     </div>
                 </div>
             </div>

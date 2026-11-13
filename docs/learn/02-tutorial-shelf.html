@@ -4,9 +4,13 @@
     <meta charset="UTF-8">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/theme.js"></script>
     <title>Tutorial: Shelf</title>
     <meta name="description" content="A step-by-step tutorial: build a reading-list site with WebFluent, test it, and deploy it to GitHub Pages.">
     <link rel="canonical" href="https://webfluent.monzeromer.dev/learn/02-tutorial-shelf">
+    <link rel="alternate" hreflang="ar" href="https://webfluent.monzeromer.dev/ar/learn/02-tutorial-shelf">
+    <link rel="alternate" hreflang="en" href="https://webfluent.monzeromer.dev/learn/02-tutorial-shelf">
+    <link rel="alternate" hreflang="x-default" href="https://webfluent.monzeromer.dev/learn/02-tutorial-shelf">
     <meta property="og:type" content="website">
     <meta property="og:title" content="Tutorial: Shelf">
     <meta property="og:site_name" content="WebFluent">
@@ -37,7 +41,6 @@
     <script src="/pages/Learn02TutorialShelf.js" data-wf-page="Learn02TutorialShelf" defer></script>
 </head>
 <body>
-    <a class="wf-skip-link" href="#wf-content">Skip to content</a>
     <div id="app">
         <main id="wf-main">
             <a class="wf-link bp-skip" href="#bp-main">Skip to the content</a>
@@ -76,7 +79,7 @@
                         </div>
                         <button class="wf-icon-btn bp-icon-button" data-track="select_content" data-track-content-type="theme" type="button"></button>
                         <div class="wf-row wf-align--center wf-gap--xs wf-s286d925a bp-hide-sm">
-                            <button class="wf-btn bp-button" title="This page is in English only; the switch changes the interface." data-track="select_content" data-track-content-type="language" type="button"></button>
+                            <a class="wf-link bp-button" href="/ar/learn/02-tutorial-shelf" data-track="select_content" data-track-content-type="language"></a>
                         </div>
                         <a class="wf-link bp-button bp-hide-md" href="https://github.com/monzeromer-lab/WebFluent" data-tone="quiet" aria-label="GitHub">
                             <i class="wf-icon" data-icon="git-branch"></i>
@@ -1237,6 +1240,36 @@ page Home(path: &quot;/&quot;, title: &quot;Shelf&quot;, description: &quot;Book
 <p>Read a member the store declares, or declare the one you need: <code>derived count = saved.length</code> (<a href="/errors/T06">T06</a>).</p>
                             </div>
                         </div>
+                    </div>
+                    <div class="wf-stack wf-gap--sm wf-sce9164cb bp-raised">
+                        <h2 class="wf-heading wf-s457972d6">What you learned</h2>
+                        <ul class="wf-list wf-s64f6b0c0">
+                            <li class="wf-list__item">
+                                <div class="wf-markdown">
+<p>Read a JSON file at build time as typed data, with <code>type</code> and <code>data</code></p>
+                                </div>
+                            </li>
+                            <li class="wf-list__item">
+                                <div class="wf-markdown">
+<p>Keep what a reader chooses across visits in a <code>store</code> with <code>persist</code></p>
+                                </div>
+                            </li>
+                            <li class="wf-list__item">
+                                <div class="wf-markdown">
+<p>Write a component and place it in a keyed <code>for … by</code></p>
+                                </div>
+                            </li>
+                            <li class="wf-list__item">
+                                <div class="wf-markdown">
+<p>Render one page per item with a <code>:slug</code> route and <code>paths:</code></p>
+                                </div>
+                            </li>
+                            <li class="wf-list__item">
+                                <div class="wf-markdown">
+<p>Validate a form, add a theme, test with clicks and deploy</p>
+                                </div>
+                            </li>
+                        </ul>
                     </div>
                     <div class="wf-row wf-gap--md wf-s94f7a6f9" role="navigation" aria-label="Pages either side">
                         <a class="wf-link wf-s1266eee5 bp-card" href="/learn/01-getting-started">

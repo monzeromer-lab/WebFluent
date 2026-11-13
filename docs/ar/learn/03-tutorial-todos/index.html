@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/theme.js"></script>
+    <title>درس: قائمة المهام</title>
+    <meta name="description" content="درس WebFluent للمبتدئين: تطبيق مهام بمخزن محفوظ ومكوّن وقائمة بمفاتيح ومرشّح في العنوان واختبارات، في 20 دقيقة.">
+    <link rel="canonical" href="https://webfluent.monzeromer.dev/ar/learn/03-tutorial-todos">
+    <link rel="alternate" hreflang="ar" href="https://webfluent.monzeromer.dev/ar/learn/03-tutorial-todos">
+    <link rel="alternate" hreflang="en" href="https://webfluent.monzeromer.dev/learn/03-tutorial-todos">
+    <link rel="alternate" hreflang="x-default" href="https://webfluent.monzeromer.dev/learn/03-tutorial-todos">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="درس: قائمة المهام">
+    <meta property="og:site_name" content="WebFluent">
+    <meta property="og:description" content="درس WebFluent للمبتدئين: تطبيق مهام بمخزن محفوظ ومكوّن وقائمة بمفاتيح ومرشّح في العنوان واختبارات، في 20 دقيقة.">
+    <meta property="og:url" content="https://webfluent.monzeromer.dev/ar/learn/03-tutorial-todos">
+    <meta property="og:locale" content="ar_AR">
+    <meta property="og:locale:alternate" content="en_US">
+    <meta property="og:image" content="https://webfluent.monzeromer.dev/og.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="درس: قائمة المهام">
+    <meta name="twitter:description" content="درس WebFluent للمبتدئين: تطبيق مهام بمخزن محفوظ ومكوّن وقائمة بمفاتيح ومرشّح في العنوان واختبارات، في 20 دقيقة.">
+    <meta name="twitter:image" content="https://webfluent.monzeromer.dev/og.png">
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/ar/learn/03-tutorial-todos#webpage","url":"https://webfluent.monzeromer.dev/ar/learn/03-tutorial-todos","name":"درس: قائمة المهام","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"درس WebFluent للمبتدئين: تطبيق مهام بمخزن محفوظ ومكوّن وقائمة بمفاتيح ومرشّح في العنوان واختبارات، في 20 دقيقة.","inLanguage":"ar"},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/ar/learn/03-tutorial-todos#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"WebFluent — مواقع وملفات PDF وعروض شرائح من لغة واحدة","item":"https://webfluent.monzeromer.dev/ar"},{"@type":"ListItem","position":3,"name":"درس: قائمة المهام","item":"https://webfluent.monzeromer.dev/ar/learn/03-tutorial-todos"}]}]}</script>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="preload" href="/fonts/instrument-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="/styles.css">
+    <script src="/js/analytics.js" defer></script>
+    <script src="/js/live.js" defer></script>
+    <script src="/js/old-links-map.js" defer></script>
+    <script src="/js/old-links-pages.js" defer></script>
+    <script src="/js/old-links.js" defer></script>
+    <script src="/js/video.js" defer></script>
+    <script src="/app.js" defer></script>
+    <script src="/pages/Learn03TutorialTodosAr.js" data-wf-page="Learn03TutorialTodosAr" defer></script>
+</head>
+<body>
+    <div id="app">
+        <main id="wf-main">
+            <a class="wf-link bp-skip" href="#bp-main">انتقل إلى المحتوى</a>
+            <div class="wf-row wf-align--center wf-s55053fdc bp-header" role="banner">
+                <div class="wf-row wf-align--center wf-gap--md wf-sfe495c12 bp-wrap">
+                    <a class="wf-link wf-sa4fc1f4b" href="/" aria-label="WebFluent، الرئيسية">
+                        <img class="wf-image wf-s4b9d0b60" src="/favicon.svg" alt="" decoding="async" loading="eager" fetchpriority="high">
+                        <p class="wf-text wf-s9919642b">WebFluent</p>
+                        <p class="wf-text bp-label bp-num">6.0</p>
+                    </a>
+                    <div class="wf-row wf-s92924cc4 bp-tabs" role="navigation" aria-label="الأقسام الرئيسية">
+                        <a class="wf-link bp-tab active" href="/learn" aria-current="page">تعلّم</a>
+                        <a class="wf-link bp-tab" href="/recipes">وصفات</a>
+                        <a class="wf-link bp-tab" href="/reference">المرجع</a>
+                        <a class="wf-link bp-tab" href="/errors">الأخطاء</a>
+                        <a class="wf-link bp-tab" href="/playground">الملعب</a>
+                        <a class="wf-link bp-tab" href="/showcase">المعرض</a>
+                    </div>
+                    <div class="wf-row wf-align--center wf-gap--sm wf-sff642a95">
+                        <button class="wf-btn wf-sf8ab46ec bp-field bp-search" aria-label="ابحث في التوثيق" aria-keyshortcuts="Meta+K Control+K" aria-haspopup="dialog" type="button">
+                            <i class="wf-icon" data-icon="search"></i>
+                            <p class="wf-text wf-sf55a2627 bp-hide-sm">ابحث في التوثيق</p>
+                            <p class="wf-text bp-kbd bp-hide-sm">Ctrl+K</p>
+                        </button>
+                        <div class="wf-row wf-align--center wf-gap--sm wf-s808638b6 bp-select bp-hide-md">
+                            <p class="wf-text wf-s29c127bc bp-building-label" aria-hidden="true">ما تبنيه</p>
+                            <select class="wf-select" aria-label="ما تبنيه">
+                                <option value="website">موقع</option>
+                                <option value="app">تطبيق ويب</option>
+                                <option value="pdf">PDF</option>
+                                <option value="slides">شرائح</option>
+                                <option value="elements">عناصر مخصّصة</option>
+                                <option value="desktop">سطح المكتب / الهاتف</option>
+                            </select>
+                            <i class="wf-icon wf-s94250744" data-icon="chevron-down" aria-hidden="true"></i>
+                        </div>
+                        <button class="wf-icon-btn bp-icon-button" data-track="select_content" data-track-content-type="theme" type="button"></button>
+                        <div class="wf-row wf-align--center wf-gap--xs wf-s286d925a bp-hide-sm">
+                            <a class="wf-link bp-button" href="/learn/03-tutorial-todos" data-track="select_content" data-track-content-type="language"></a>
+                        </div>
+                        <a class="wf-link bp-button bp-hide-md" href="https://github.com/monzeromer-lab/WebFluent" data-tone="quiet" aria-label="GitHub">
+                            <i class="wf-icon" data-icon="git-branch"></i>
+                            <p class="wf-text">GitHub</p>
+                        </a>
+                        <button class="wf-icon-btn wf-sde8ec4aa bp-icon-button" data-icon="menu" aria-label="القائمة" title="القائمة" aria-expanded="false" type="button"></button>
+                    </div>
+                </div>
+            </div>
+            <dialog class="wf-modal bp-palette" aria-labelledby="wf-dlg-s1">
+                <div class="wf-modal__content">
+                    <div class="wf-modal__header"><h3 id="wf-dlg-s1">البحث</h3></div>
+                    <div class="wf-modal__body">
+                        <div class="wf-stack wf-sa8e464d0">
+                            <div class="wf-row wf-align--center wf-gap--sm wf-s02e7a482 bp-field">
+                                <i class="wf-icon" data-icon="search"></i>
+                                <input class="wf-input" placeholder="ابحث في الدليل" aria-label="ابحث في الدليل" type="search" autofocus>
+                                <p class="wf-text bp-kbd">esc</p>
+                            </div>
+                            <div class="wf-row wf-s434e64fb bp-tabs" role="tablist" aria-label="حصر البحث">
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="true" type="button">الكل</button>
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">تعلّم</button>
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">وصفات</button>
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">المرجع</button>
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">الأخطاء</button>
+                            </div>
+                            <div class="wf-stack wf-s3f6dffee" role="listbox" aria-label="نتائج البحث">
+                                <p class="wf-text wf-s3205a3d6 bp-small">اكتب كلمة: مكوّنًا، أو رمزًا مثل T05، أو مهمة.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </dialog>
+            <div class="wf-row wf-align--start wf-sa997482c bp-wrap">
+                <div class="wf-stack wf-gap--sm wf-s60d92c01 bp-sidebar" role="navigation" aria-label="الكتاب">
+                    <div class="wf-stack wf-gap--xs wf-s733182cd">
+                        <div class="wf-row wf-justify--between wf-align--center wf-s42821ebd">
+                            <p class="wf-text wf-s0a7b959f">الكتاب</p>
+                            <p class="wf-text bp-small bp-num">0 من 17</p>
+                        </div>
+                        <div class="wf-stack bp-meter">
+                            <progress class="wf-progress" value="0" max="17" aria-label="0 من 17"></progress>
+                        </div>
+                    </div>
+                    <div class="wf-stack bp-navlist">
+                        <!--wf-if-->
+                        <a class="wf-link bp-navlink" href="/ar/learn/01-getting-started">
+                            <p class="wf-text bp-step" aria-hidden="true">1</p>
+                            <p class="wf-text wf-s126131e6">الشروع في العمل</p>
+                            <p class="wf-text wf-sf65d7946 bp-label" data-tone="construction">جولة</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/ar/learn/02-tutorial-shelf">
+                            <p class="wf-text bp-step" aria-hidden="true">2</p>
+                            <p class="wf-text wf-s126131e6">درس: Shelf</p>
+                            <p class="wf-text wf-sf65d7946 bp-label" data-tone="construction">جولة</p>
+                        </a>
+                        <a class="wf-link bp-navlink active" href="/ar/learn/03-tutorial-todos" aria-current="page">
+                            <p class="wf-text bp-step" aria-hidden="true">3</p>
+                            <p class="wf-text wf-s126131e6">درس: قائمة المهام</p>
+                            <p class="wf-text wf-sf65d7946 bp-label" data-tone="construction">جولة</p>
+                        </a>
+                        <p class="wf-text bp-navgroup">اللغة</p>
+                        <a class="wf-link bp-navlink" href="/learn/04-language-basics">
+                            <p class="wf-text bp-step" aria-hidden="true">4</p>
+                            <p class="wf-text wf-s126131e6">أساسيات اللغة</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/learn/05-pages-and-routing">
+                            <p class="wf-text bp-step" aria-hidden="true">5</p>
+                            <p class="wf-text wf-s126131e6">الصفحات والتوجيه</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/learn/06-elements">
+                            <p class="wf-text bp-step" aria-hidden="true">6</p>
+                            <p class="wf-text wf-s126131e6">العناصر</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/learn/07-state-and-reactivity">
+                            <p class="wf-text bp-step" aria-hidden="true">7</p>
+                            <p class="wf-text wf-s126131e6">الحالة والتفاعلية</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/learn/08-events">
+                            <p class="wf-text bp-step" aria-hidden="true">8</p>
+                            <p class="wf-text wf-s126131e6">الأحداث</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/learn/09-control-flow">
+                            <p class="wf-text bp-step" aria-hidden="true">9</p>
+                            <p class="wf-text wf-s126131e6">التحكم في التدفق</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/learn/10-components">
+                            <p class="wf-text bp-step" aria-hidden="true">10</p>
+                            <p class="wf-text wf-s126131e6">المكوّنات</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/learn/11-stores">
+                            <p class="wf-text bp-step" aria-hidden="true">11</p>
+                            <p class="wf-text wf-s126131e6">المخازن</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/learn/12-types">
+                            <p class="wf-text bp-step" aria-hidden="true">12</p>
+                            <p class="wf-text wf-s126131e6">الأنواع</p>
+                        </a>
+                        <p class="wf-text bp-navgroup">البناء بها</p>
+                        <a class="wf-link bp-navlink" href="/learn/13-styling">
+                            <p class="wf-text bp-step" aria-hidden="true">13</p>
+                            <p class="wf-text wf-s126131e6">التصميم</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/learn/14-forms">
+                            <p class="wf-text bp-step" aria-hidden="true">14</p>
+                            <p class="wf-text wf-s126131e6">النماذج والتحقق</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/learn/15-data">
+                            <p class="wf-text bp-step" aria-hidden="true">15</p>
+                            <p class="wf-text wf-s126131e6">جلب البيانات</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/learn/16-testing">
+                            <p class="wf-text bp-step" aria-hidden="true">16</p>
+                            <p class="wf-text wf-s126131e6">الاختبار</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/learn/17-pdf-and-slides">
+                            <p class="wf-text bp-step" aria-hidden="true">17</p>
+                            <p class="wf-text wf-s126131e6">PDF والشرائح</p>
+                        </a>
+                    </div>
+                </div>
+                <div class="wf-stack wf-gap--lg wf-s54d43750 bp-main docs-main" role="main" id="bp-main" tabindex="-1">
+                    <div class="wf-row bp-labels">
+                        <p class="wf-text bp-label" data-tone="kind" data-kind="tutorial">درس</p>
+                        <p class="wf-text bp-label">الجولة</p>
+                        <div class="wf-row wf-gap--xs bp-labels" aria-label="يعمل في">
+                        </div>
+                    </div>
+                    <div class="wf-stack wf-gap--sm wf-s4e4189b1">
+                        <h1 class="wf-heading wf-s900776cd">درس: قائمة المهام</h1>
+                        <p class="wf-text bp-lede">ابنِ قائمة مهام تبقى في متصفح القارئ: أنواع، ومخزن يتذكّر، ومكوّن، ومرشّح في العنوان، واختبارات تنقر.</p>
+                    </div>
+                    <div class="wf-stack wf-gap--lg wf-s399b38f0 bp-prose docs-article" dir="rtl">
+                        <div class="wf-stack wf-gap--lg" id="wf-content" tabindex="-1">
+                            <div class="wf-markdown">
+<p>يبني هذا الدرس قائمة مهام تبقى في متصفح القارئ، فيها مخزن (store) ومكوّن ومرشّح في العنوان واختبارات تنقر.</p>
+<p>هو أول ثلاثة دروس يبني كل منها مشروعًا كاملًا، خطوة بخطوة. كل مشروع موجود كاملًا في المستودع تحت <code>examples/tutorials/</code>، ولا يحتاج أي منها إلى خادم: ما يحفظه المشروع يحفظه في متصفح القارئ.</p>
+                            </div>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">درس: قائمة المهام</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">الدرس</th>
+                                        <th scope="col">ما تبنيه</th>
+                                        <th scope="col">ما يعلّمه</th>
+                                        <th scope="col">الوقت</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><a href="/ar/learn/03-tutorial-todos">قائمة المهام</a></p>
+                                            </div>
+                                        </td>
+                                        <td>قائمة بما عليك فعله: أضف، وعلّم، وأعد التسمية، ورشّح</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>الأنواع، ومخزن بـ <code>persist</code>، ومكوّن، وقائمة بمفاتيح، ومرشّح في العنوان، واختبارات تنقر</p>
+                                            </div>
+                                        </td>
+                                        <td>20 دقيقة</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><a href="/recipes/build-a-notebook-site">Field Notes</a></p>
+                                            </div>
+                                        </td>
+                                        <td>موقع دفتر ملاحظات، مبني بناءً ثابتًا، بصفحة لكل ملاحظة</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>ملفات <code>data</code>، وتخطيط، وصفحات <code>:slug</code> مع <code>paths:</code>، وصفحات Markdown، والبحث والوسوم، وما يمكن لصفحة مُعدّة مسبقًا أن تعرفه</p>
+                                            </div>
+                                        </td>
+                                        <td>ساعة</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><a href="/recipes/build-a-budget-app">Pocket</a></p>
+                                            </div>
+                                        </td>
+                                        <td>متتبّع ميزانية بلوحة معلومات ونماذج ولغتين</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>Money</code> و<code>Date</code>، والمجاميع المشتقة، وترحيل <code>persist</code>، و<code>validate</code>، ونافذة حوار واختصارات، والتدويل (i18n) والنص من اليمين إلى اليسار، وسكربت من كتابتك، والعمل دون اتصال</p>
+                                            </div>
+                                        </td>
+                                        <td>بضع ساعات</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="wf-markdown">
+<p>إن لم تكتب WebFluent من قبل، فابدأ بـ<a href="/ar/learn/02-tutorial-shelf">درس Shelf</a>: نصف ساعته الأولى ألطف.</p>
+<p><strong>ما ستبنيه.</strong> قائمة بما عليك فعله، تبقى في متصفح القارئ: أضف مهمة، وعلّمها منجزة، وأعد تسميتها، واحذفها، واعرض المفتوحة منها فقط. هي صفحة واحدة ومخزن واحد ومكوّن واحد. المشروع المكتمل هو <a href="https://github.com/monzeromer-lab/WebFluent/tree/master/examples/tutorials/easy-todos"><code>examples/tutorials/easy-todos</code></a>.</p>
+<p><strong>الوقت:</strong> نحو 20 دقيقة.</p>
+                            </div>
+                            <h2 class="wf-heading" id="قبل-أن-تبدأ">قبل أن تبدأ</h2>
+                            <div class="wf-markdown">
+<p>تحتاج إلى:</p>
+<ul>
+<li><code>wf</code> مثبّتًا وفي <code>PATH</code> لديك — يطبع <code>wf --version</code> القيمة <code>wf 6.0.0</code> أو أحدث (<a href="/ar/learn/01-getting-started">البدء</a>).</li>
+<li>Chrome أو Chromium على الجهاز، للاختبارات التي تنقر ولـ<code>wf verify</code>. اضبط <code>WF_CHROME</code> على مساره إن لم يكن في مكان معتاد.</li>
+<li>Git، لجلب المشاريع المكتملة.</li>
+</ul>
+<p>كل كتلة شيفرة يسمّي سطرها الأول ملفًا — <code>// src/stores/Todos.wf</code> — هي ذلك الملف، أو مجموعة متتالية من أسطره، كما هي في المشروع تمامًا. يُلزم اختبارٌ هذا الفصل بالمشاريع، فالشيفرة التي تقرؤها هنا هي الشيفرة التي تُبنى.</p>
+<p>لتبدأ من مشروع مكتمل بدلًا من ذلك، انسخ المستودع وشغّل أحد المشاريع:</p>
+                            </div>
+                            <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                                <div class="wf-row wf-s2c416341 bp-console__bar">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                        <p class="wf-text wf-s23a4ddd5 bp-mono">bash</p>
+                                    </div>
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="نسخ" data-track="copy_code" data-track-item-id="bash" type="button">نسخ</button>
+                                </div>
+                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-prompt">$ </span>git clone https://github.com/monzeromer-lab/WebFluent
+<span class="wf-tok-prompt">$ </span>cd WebFluent/examples/tutorials/easy-todos
+<span class="wf-tok-prompt">$ </span>wf serve</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><strong>تحقّق:</strong> تطبع الطرفية <code>Starting dev server at http://localhost:3000/</code>، ويعرض ذلك العنوان المشروع.</p>
+<p>لا تحتاج في هذا الدرس إلا إلى <code>wf</code> وChrome. تكتب كل ملف في هذا المشروع بنفسك، والكتل أدناه تحمل كل ملف كاملًا، إلا الاختبارات، إذ يظهر منها واحد من ستة.</p>
+                            </div>
+                            <h2 class="wf-heading" id="الخطوة-1-أنشئ-المشروع">الخطوة 1: أنشئ المشروع</h2>
+                            <div class="wf-markdown">
+<p>أنشئ مشروع صفحة واحدة وادخل إليه:</p>
+                            </div>
+                            <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                                <div class="wf-row wf-s2c416341 bp-console__bar">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                        <p class="wf-text wf-s23a4ddd5 bp-mono">bash</p>
+                                    </div>
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="نسخ" data-track="copy_code" data-track-item-id="bash" type="button">نسخ</button>
+                                </div>
+                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-prompt">$ </span>wf init todos -t spa
+<span class="wf-tok-prompt">$ </span>cd todos</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>احذف كل ما وضعه القالب في <code>src/</code> و<code>tests/</code>: ستكتب كل ملف بنفسك، واختبارات القالب ستفشل دون صفحاته. ثم استبدل <code>webfluent.app.json</code> بهذا:</p>
+                            </div>
+                            <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                                <div class="wf-row wf-s2c416341 bp-console__bar">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                        <p class="wf-text wf-s23a4ddd5 bp-mono">json</p>
+                                    </div>
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="نسخ" data-track="copy_code" data-track-item-id="json" type="button">نسخ</button>
+                                </div>
+                                <code class="wf-code wf-code--block bp-console__code">{
+  <span class="wf-tok-prop">&quot;name&quot;</span>: <span class="wf-tok-str">&quot;todos&quot;</span>,
+  <span class="wf-tok-prop">&quot;version&quot;</span>: <span class="wf-tok-str">&quot;1.0.0&quot;</span>,
+  <span class="wf-tok-prop">&quot;theme&quot;</span>: { <span class="wf-tok-prop">&quot;name&quot;</span>: <span class="wf-tok-str">&quot;Paper&quot;</span>, <span class="wf-tok-prop">&quot;dark&quot;</span>: <span class="wf-tok-str">&quot;Night&quot;</span> },
+  <span class="wf-tok-prop">&quot;build&quot;</span>: { <span class="wf-tok-prop">&quot;output&quot;</span>: <span class="wf-tok-str">&quot;./build&quot;</span>, <span class="wf-tok-prop">&quot;output_type&quot;</span>: <span class="wf-tok-str">&quot;spa&quot;</span>, <span class="wf-tok-prop">&quot;csp&quot;</span>: <span class="wf-tok-kw">true</span> },
+  <span class="wf-tok-prop">&quot;meta&quot;</span>: {
+    <span class="wf-tok-prop">&quot;title&quot;</span>: <span class="wf-tok-str">&quot;Todos&quot;</span>,
+    <span class="wf-tok-prop">&quot;description&quot;</span>: <span class="wf-tok-str">&quot;A small list of things to do, kept in your browser.&quot;</span>,
+    <span class="wf-tok-prop">&quot;lang&quot;</span>: <span class="wf-tok-str">&quot;en&quot;</span>,
+    <span class="wf-tok-prop">&quot;favicon&quot;</span>: <span class="wf-tok-str">&quot;/favicon.svg&quot;</span>
+  }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<ul>
+<li><code>&quot;output_type&quot;: &quot;spa&quot;</code> يصنع تطبيق صفحة واحدة: غلاف HTML واحد، تُبدَّل فيه الصفحات دون إعادة تحميل (<a href="/about/static-or-single-page">المواقع الثابتة وتطبيقات الصفحة الواحدة</a>).</li>
+<li><code>&quot;csp&quot;: true</code> يشحن سياسة أمان المحتوى ويُلزم البناء بها (<a href="/about/security">الأمان</a>).</li>
+<li>يسمّي <code>theme</code> سمتين (themes)، <code>Paper</code> و<code>Night</code>، تكتبهما في الخطوة التالية.</li>
+</ul>
+<p><strong>تحقّق:</strong> يطبع <code>wf check</code> الرسالة <code>IO Error: No .wf files found in src/</code>. هذا متوقّع: يبقى <code>src/</code> فارغًا حتى الخطوة التالية.</p>
+                            </div>
+                            <h2 class="wf-heading" id="الخطوة-2-أعطه-مظهرا-خاصا-به">الخطوة 2: أعطه مظهرًا خاصًا به</h2>
+                            <div class="wf-markdown">
+<p>الإعدادات تسمّي سمة، فصرّح بها أولًا. لا تسمّي السمة إلا رموز التصميم (design tokens) التي تغيّرها؛ ويبقى كل رمز آخر على قيمته الافتراضية (<a href="/learn/13-styling">التنسيق</a>). <code>Night</code> هي السمة المسمّاة <code>&quot;dark&quot;</code> في الإعدادات، وتستعملها الصفحة حين يكون نظام القارئ على الوضع الداكن:</p>
+                            </div>
+                            <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                                <div class="wf-row wf-s2c416341 bp-console__bar">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                        <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="نسخ" data-track="copy_code" data-track-item-id="wf" type="button">نسخ</button>
+                                </div>
+                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-cmt">// src/theme.wf</span>
+<span class="wf-tok-cmt">/// Warm paper and ink, with one teal for what you can act on.</span>
+<span class="wf-tok-kw">theme</span> <span class="wf-tok-name">Paper</span> {
+    color-<span class="wf-tok-prop">primary</span>: <span class="wf-tok-num">#0F766E</span>
+    color-<span class="wf-tok-prop">background</span>: <span class="wf-tok-num">#F6F4EF</span>
+    color-<span class="wf-tok-prop">surface</span>: <span class="wf-tok-num">#FFFFFF</span>
+    color-<span class="wf-tok-prop">text</span>: <span class="wf-tok-num">#1F2328</span>
+    color-text-<span class="wf-tok-prop">muted</span>: <span class="wf-tok-num">#5E6670</span>
+    color-<span class="wf-tok-prop">border</span>: <span class="wf-tok-num">#E4E0D8</span>
+    font-<span class="wf-tok-prop">family</span>: system-ui, -apple-system, <span class="wf-tok-str">&quot;Segoe UI&quot;</span>, <span class="wf-tok-name">Roboto</span>, sans-serif
+    radius-<span class="wf-tok-prop">md</span>: <span class="wf-tok-num">10px</span>
+}
+
+<span class="wf-tok-cmt">/// The same page after dark.</span>
+<span class="wf-tok-kw">theme</span> <span class="wf-tok-name">Night</span> {
+    color-<span class="wf-tok-prop">primary</span>: <span class="wf-tok-num">#2DD4BF</span>
+    color-<span class="wf-tok-prop">background</span>: <span class="wf-tok-num">#14171A</span>
+    color-<span class="wf-tok-prop">surface</span>: <span class="wf-tok-num">#1C2024</span>
+    color-<span class="wf-tok-prop">text</span>: <span class="wf-tok-num">#ECEEF0</span>
+    color-text-<span class="wf-tok-prop">muted</span>: <span class="wf-tok-num">#A3ABB3</span>
+    color-<span class="wf-tok-prop">border</span>: <span class="wf-tok-num">#2C3238</span>
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>الصفحة التي تكتبها في الخطوة 6 تسمّي أصنافًا (classes) — <code>card</code> و<code>todo</code> و<code>is-done</code> و<code>filters</code> — ويُنسّقها <code>src/todos.css</code>. يجمع البناء كل ملف <code>.css</code> تحت <code>src/</code>، فلا يحتاج الملف إلى رابط. هذه أربع من قواعده؛ انسخ الملف كاملًا من <a href="https://github.com/monzeromer-lab/WebFluent/blob/master/examples/tutorials/easy-todos/src/todos.css">المشروع المكتمل</a>:</p>
+                            </div>
+                            <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                                <div class="wf-row wf-s2c416341 bp-console__bar">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                        <p class="wf-text wf-s23a4ddd5 bp-mono">css</p>
+                                    </div>
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="نسخ" data-track="copy_code" data-track-item-id="css" type="button">نسخ</button>
+                                </div>
+                                <code class="wf-code wf-code--block bp-console__code">.todo { <span class="wf-tok-prop">flex-wrap</span>: nowrap; <span class="wf-tok-prop">padding</span>: <span class="wf-tok-num">0.6rem</span> <span class="wf-tok-num">0.25rem</span>; <span class="wf-tok-prop">border-top</span>: <span class="wf-tok-num">1px</span> solid var(--color-border); }
+.todo__title { <span class="wf-tok-prop">flex</span>: <span class="wf-tok-num">1</span>; }
+.todo.is-done .todo__title { <span class="wf-tok-prop">text-decoration</span>: line-through; <span class="wf-tok-prop">color</span>: var(--color-text-muted); }
+.filters a.is-on { <span class="wf-tok-prop">background</span>: var(--color-background); <span class="wf-tok-prop">color</span>: var(--color-text); <span class="wf-tok-prop">font-weight</span>: <span class="wf-tok-num">600</span>; }</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>كل لون رمز، <code>var(--color-border)</code>، فتعيد السمة الداكنة تلوين الصفحة دون قاعدة خاصة بها.</p>
+<p><strong>تحقّق:</strong> يطبع <code>wf check</code> الرسالة <code>No problems in todos.</code></p>
+                            </div>
+                            <h2 class="wf-heading" id="الخطوة-3-صف-المهمة">الخطوة 3: صِف المهمة</h2>
+                            <div class="wf-markdown">
+<p>يسمّي <code>type</code> الحقول التي تملكها القيمة، ويُلزم المدقّق كل استعمال بها (<a href="/learn/12-types">الأنواع</a>). و<code>enum</code> مجموعة ثابتة من الحالات:</p>
+                            </div>
+                            <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                                <div class="wf-row wf-s2c416341 bp-console__bar">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                        <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="نسخ" data-track="copy_code" data-track-item-id="wf" type="button">نسخ</button>
+                                </div>
+                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-cmt">// src/types.wf</span>
+<span class="wf-tok-cmt">/// One thing to do.</span>
+<span class="wf-tok-kw">type</span> <span class="wf-tok-name">Todo</span> {
+    <span class="wf-tok-prop">id</span>: <span class="wf-tok-name">Uuid</span>
+    <span class="wf-tok-prop">title</span>: <span class="wf-tok-name">String</span>
+    <span class="wf-tok-prop">done</span>: <span class="wf-tok-name">Bool</span> = <span class="wf-tok-kw">false</span>
+}
+
+<span class="wf-tok-cmt">/// Which todos the list shows.</span>
+<span class="wf-tok-kw">enum</span> <span class="wf-tok-name">Filter</span> { all, open, done }</code>
+                            </div>
+                            <div class="wf-markdown">
+<ul>
+<li><code>Uuid</code> من الأنواع التي تأتي مع اللغة؛ و<code>uuid()</code> تصنع قيمة منه.</li>
+<li>للحقل <code>done</code> قيمة افتراضية، فيمكن للمهمة الجديدة أن تُغفله.</li>
+<li>تُكتب الحالة بنقطة، <code>.open</code>، حيثما يُطلب <code>Filter</code>.</li>
+</ul>
+<p>لأن المدقّق يعرف الحقول، فإن <code>todo.titel</code> خطأ في الموضع الذي كُتب فيه، والرسالة تسمّي الحقل الذي قصدته.</p>
+<p><strong>تحقّق:</strong> يطبع <code>wf check</code> الرسالة <code>No problems in todos.</code></p>
+                            </div>
+                            <h2 class="wf-heading" id="الخطوة-4-اكتب-مخزنا-يتذكر">الخطوة 4: اكتب مخزنًا يتذكّر</h2>
+                            <div class="wf-markdown">
+<p>يحمل المخزن حالة يمكن لأي صفحة أو مكوّن قراءتها (<a href="/learn/11-stores">المخازن</a>). هذا المخزن يحفظ القائمة:</p>
+                            </div>
+                            <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                                <div class="wf-row wf-s2c416341 bp-console__bar">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                        <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="نسخ" data-track="copy_code" data-track-item-id="wf" type="button">نسخ</button>
+                                </div>
+                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-cmt">// src/stores/Todos.wf</span>
+<span class="wf-tok-cmt">/// The list, kept in the browser between visits.</span>
+<span class="wf-tok-kw">store</span> <span class="wf-tok-name">Todos</span> {
+    <span class="wf-tok-kw">persist</span> <span class="wf-tok-prop">items</span>: [<span class="wf-tok-name">Todo</span>] = []
+
+    <span class="wf-tok-kw">derived</span> open = items.filter(todo =&gt; !todo.done)
+    <span class="wf-tok-kw">derived</span> done = items.filter(todo =&gt; todo.done)
+
+    <span class="wf-tok-kw">action</span> add(<span class="wf-tok-prop">title</span>: <span class="wf-tok-name">String</span>) {
+        <span class="wf-tok-kw">let</span> text = title.trim()
+        <span class="wf-tok-kw">if</span> text == <span class="wf-tok-str">&quot;&quot;</span> { <span class="wf-tok-kw">return</span> }
+        items = items.concat([<span class="wf-tok-name">Todo</span>(<span class="wf-tok-prop">id</span>: uuid(), <span class="wf-tok-prop">title</span>: text)])
+    }
+
+    <span class="wf-tok-kw">action</span> toggle(<span class="wf-tok-prop">id</span>: <span class="wf-tok-name">Uuid</span>) {
+        items = items.map(todo =&gt; <span class="wf-tok-kw">if</span> todo.id == id { { ...todo, <span class="wf-tok-prop">done</span>: !todo.done } } <span class="wf-tok-kw">else</span> { todo })
+    }
+
+    <span class="wf-tok-kw">action</span> rename(<span class="wf-tok-prop">id</span>: <span class="wf-tok-name">Uuid</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-name">String</span>) {
+        <span class="wf-tok-kw">let</span> text = title.trim()
+        <span class="wf-tok-kw">if</span> text == <span class="wf-tok-str">&quot;&quot;</span> { <span class="wf-tok-kw">return</span> }
+        items = items.map(todo =&gt; <span class="wf-tok-kw">if</span> todo.id == id { { ...todo, <span class="wf-tok-prop">title</span>: text } } <span class="wf-tok-kw">else</span> { todo })
+    }
+
+    <span class="wf-tok-kw">action</span> remove(<span class="wf-tok-prop">id</span>: <span class="wf-tok-name">Uuid</span>) {
+        items = items.filter(todo =&gt; todo.id != id)
+    }
+
+    <span class="wf-tok-kw">action</span> clearDone() {
+        items = items.filter(todo =&gt; !todo.done)
+    }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<ul>
+<li><code>persist</code> حالة (<code>state</code>) تُحفظ في تخزين المتصفح. تبقى القائمة بعد إعادة التحميل، ويتبع التبويب الثاني الأول، دون أن تكتب شيفرة تخزين.</li>
+<li>القيمة المشتقة (<code>derived</code>) تتبع ما تقرؤه: <code>open</code> هي دائمًا المهام التي لم تُنجز بعد.</li>
+<li>الإجراء (action) هو المكان الوحيد الذي تتغيّر فيه الحالة. <code>{ ...todo, done: !todo.done }</code> هي المهمة نفسها مع تغيير حقل واحد.</li>
+<li>يغيّر <code>rename</code> و<code>remove</code> و<code>clearDone</code> القائمة بالطريقة نفسها.</li>
+</ul>
+                            </div>
+                            <div class="wf-stack wf-s37f4bada bp-aside" role="note" aria-label="ملاحظة" data-kind="note">
+                                <p class="wf-text bp-aside__label">ملاحظة</p>
+                                <div class="wf-markdown">
+<p><strong>قادم من Vue؟</strong> القيمة <code>derived</code> هي <code>computed</code> بلا دالة تكتبها ولا <code>.value</code> تقرؤه: <code>Todos.open</code> هي القائمة نفسها. انظر <a href="/coming-from/vue">القادمون من Vue</a>.</p>
+                                </div>
+                            </div>
+                            <div class="wf-markdown">
+<p><strong>تحقّق:</strong> يطبع <code>wf check</code> سبعة تحذيرات <code>U04</code>، مثل `<code>warning[U04]: </code>Todos.open<code> is declared but never read</code>`. هذا متوقّع: لا شيء يقرأ المخزن بعد. الصفحة في الخطوة 6 تقرأ كل عضو فيه، فتزول التحذيرات.</p>
+                            </div>
+                            <h2 class="wf-heading" id="الخطوة-5-ابن-صفا-واحدا">الخطوة 5: ابنِ صفًا واحدًا</h2>
+                            <div class="wf-markdown">
+<p>المكوّن عنصر من صنعك (<a href="/learn/10-components">المكوّنات</a>). هذا المكوّن يرسم مهمة واحدة، ويتيح للقارئ إعادة تسميتها في مكانها:</p>
+                            </div>
+                            <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                                <div class="wf-row wf-s2c416341 bp-console__bar">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                        <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="نسخ" data-track="copy_code" data-track-item-id="wf" type="button">نسخ</button>
+                                </div>
+                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-cmt">// src/components/TodoRow.wf</span>
+<span class="wf-tok-cmt">/// One row of the list: a box to tick, the title, and buttons to rename and</span>
+<span class="wf-tok-cmt">/// remove it.</span>
+<span class="wf-tok-kw">component</span> <span class="wf-tok-name">TodoRow</span>(_ <span class="wf-tok-prop">todo</span>: <span class="wf-tok-name">Todo</span>) {
+    <span class="wf-tok-kw">use</span> <span class="wf-tok-name">Todos</span>
+    <span class="wf-tok-kw">state</span> editing = <span class="wf-tok-kw">false</span>
+    <span class="wf-tok-kw">state</span> draft = todo.title
+
+    <span class="wf-tok-kw">action</span> save() {
+        <span class="wf-tok-name">Todos</span>.rename(todo.id, draft)
+        editing = <span class="wf-tok-kw">false</span>
+    }
+
+    <span class="wf-tok-name">Row</span>(<span class="wf-tok-prop">class</span>: [<span class="wf-tok-str">&quot;todo&quot;</span>, <span class="wf-tok-kw">if</span> todo.done { <span class="wf-tok-str">&quot;is-done&quot;</span> }], <span class="wf-tok-prop">align</span>: .center, <span class="wf-tok-prop">gap</span>: .sm) {
+        <span class="wf-tok-name">Checkbox</span>(<span class="wf-tok-prop">checked</span>: todo.done, aria-<span class="wf-tok-prop">label</span>: <span class="wf-tok-str">&quot;Done: {todo.title}&quot;</span>) {
+            <span class="wf-tok-kw">on</span> change { <span class="wf-tok-name">Todos</span>.toggle(todo.id) }
+        }
+        <span class="wf-tok-kw">if</span> editing {
+            <span class="wf-tok-cmt">// `mount:` runs when the input is made: the cursor goes straight in.</span>
+            <span class="wf-tok-name">Input</span>(<span class="wf-tok-prop">bind</span>: draft, aria-<span class="wf-tok-prop">label</span>: <span class="wf-tok-str">&quot;New title for {todo.title}&quot;</span>, <span class="wf-tok-prop">class</span>: <span class="wf-tok-str">&quot;todo__edit&quot;</span>, <span class="wf-tok-prop">mount</span>: (n) =&gt; n.focus()) {
+                <span class="wf-tok-kw">on</span> key(<span class="wf-tok-str">&quot;Enter&quot;</span>) { save() }
+                <span class="wf-tok-kw">on</span> key(<span class="wf-tok-str">&quot;Escape&quot;</span>) { draft = todo.title  editing = <span class="wf-tok-kw">false</span> }
+                <span class="wf-tok-kw">on</span> blur { save() }
+            }
+        } <span class="wf-tok-kw">else</span> {
+            <span class="wf-tok-name">Text</span>(todo.title, <span class="wf-tok-prop">class</span>: <span class="wf-tok-str">&quot;todo__title&quot;</span>)
+            <span class="wf-tok-name">IconButton</span>(<span class="wf-tok-prop">icon</span>: <span class="wf-tok-str">&quot;edit&quot;</span>, <span class="wf-tok-prop">label</span>: <span class="wf-tok-str">&quot;Rename {todo.title}&quot;</span>, <span class="wf-tok-prop">class</span>: <span class="wf-tok-str">&quot;todo__action&quot;</span>).sm {
+                <span class="wf-tok-kw">on</span> click { draft = todo.title  editing = <span class="wf-tok-kw">true</span> }
+            }
+        }
+        <span class="wf-tok-name">IconButton</span>(<span class="wf-tok-prop">icon</span>: <span class="wf-tok-str">&quot;trash&quot;</span>, <span class="wf-tok-prop">label</span>: <span class="wf-tok-str">&quot;Remove {todo.title}&quot;</span>, <span class="wf-tok-prop">class</span>: <span class="wf-tok-str">&quot;todo__action&quot;</span>).sm {
+            <span class="wf-tok-kw">on</span> click { <span class="wf-tok-name">Todos</span>.remove(todo.id) }
+        }
+    }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<ul>
+<li><code>_ todo</code> هي الخاصية (prop) الموضعية الوحيدة للمكوّن، فيُكتب الاستدعاء <code>TodoRow(todo)</code>.</li>
+<li>حالته (<code>state</code>) ملك لكل صف: إعادة تسمية صف لا تضع الصفوف الأخرى في وضع التحرير.</li>
+<li>يضيف <code>class:</code> أصنافًا إلى أصناف العنصر نفسه. ويمكن لصيغة القائمة أن تحمل <code>if</code>، فلا تضيف <code>is-done</code> إلا ما دامت المهمة منجزة.</li>
+<li>لكل عنصر تحكّم اسم يُتاح لتقنيات المساعدة. مربع الاختيار وأزرار الأيقونات تقول أي مهمة تعمل عليها، فيمكن لقارئ الشاشة — ولاختبارات الخطوة 7 — أن يميّز بينها (<a href="/about/accessibility">إمكانية الوصول</a>).</li>
+</ul>
+<p><strong>تحقّق:</strong> يطبع <code>wf check</code> التحذير <code>U03</code> لـ<code>TodoRow</code> (لا شيء يضعه بعد) وأربعة تحذيرات <code>U04</code>. لم تعد <code>toggle</code> و<code>rename</code> و<code>remove</code> الخاصة بالمخزن تظهر: الصف يستدعيها.</p>
+                            </div>
+                            <h2 class="wf-heading" id="الخطوة-6-اكتب-الصفحة">الخطوة 6: اكتب الصفحة</h2>
+                            <div class="wf-markdown">
+<p>تحمل الصفحة مربع المهمة الجديدة والمرشّحات والقائمة. هذا نصفها الأول:</p>
+                            </div>
+                            <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                                <div class="wf-row wf-s2c416341 bp-console__bar">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                        <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="نسخ" data-track="copy_code" data-track-item-id="wf" type="button">نسخ</button>
+                                </div>
+                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-cmt">// src/pages/Home.wf</span>
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">Home</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Todos&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;A small list of things to do, kept in your browser.&quot;</span>) {
+    <span class="wf-tok-kw">use</span> <span class="wf-tok-name">Todos</span>
+    <span class="wf-tok-kw">state</span> draft = <span class="wf-tok-str">&quot;&quot;</span>
+
+    <span class="wf-tok-cmt">// The filter lives in the address — `/?show=open` — so a reload or a</span>
+    <span class="wf-tok-cmt">// shared link keeps it.</span>
+    <span class="wf-tok-kw">derived</span> <span class="wf-tok-prop">filter</span>: <span class="wf-tok-name">Filter</span> = <span class="wf-tok-kw">if</span> query.show == <span class="wf-tok-str">&quot;open&quot;</span> { .open } <span class="wf-tok-kw">else</span> <span class="wf-tok-kw">if</span> query.show == <span class="wf-tok-str">&quot;done&quot;</span> { .done } <span class="wf-tok-kw">else</span> { .all }
+    <span class="wf-tok-kw">derived</span> shown = <span class="wf-tok-kw">match</span> filter {
+        .open { <span class="wf-tok-name">Todos</span>.open }
+        .done { <span class="wf-tok-name">Todos</span>.done }
+        .all { <span class="wf-tok-name">Todos</span>.items }
+    }
+
+    <span class="wf-tok-kw">action</span> add() {
+        <span class="wf-tok-name">Todos</span>.add(draft)
+        draft = <span class="wf-tok-str">&quot;&quot;</span>
+    }
+
+    <span class="wf-tok-name">Stack</span>(<span class="wf-tok-prop">class</span>: <span class="wf-tok-str">&quot;card&quot;</span>, <span class="wf-tok-prop">gap</span>: .md) {
+        <span class="wf-tok-name">Row</span>(<span class="wf-tok-prop">justify</span>: .between, <span class="wf-tok-prop">align</span>: .baseline) {
+            <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Todos&quot;</span>).h1
+            <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;{Todos.open.length} left&quot;</span>, <span class="wf-tok-prop">class</span>: <span class="wf-tok-str">&quot;count&quot;</span>)
+        }
+
+        <span class="wf-tok-name">Row</span>(<span class="wf-tok-prop">class</span>: <span class="wf-tok-str">&quot;new&quot;</span>, <span class="wf-tok-prop">gap</span>: .sm) {
+            <span class="wf-tok-name">Input</span>(<span class="wf-tok-prop">bind</span>: draft, <span class="wf-tok-prop">placeholder</span>: <span class="wf-tok-str">&quot;What needs doing?&quot;</span>, aria-<span class="wf-tok-prop">label</span>: <span class="wf-tok-str">&quot;New todo&quot;</span>) {
+                <span class="wf-tok-kw">on</span> key(<span class="wf-tok-str">&quot;Enter&quot;</span>) { add() }
+            }
+            <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Add&quot;</span>, <span class="wf-tok-prop">disabled</span>: draft.trim() == <span class="wf-tok-str">&quot;&quot;</span>).primary {
+                <span class="wf-tok-kw">on</span> click { add() }
+            }
+        }</code>
+                            </div>
+                            <div class="wf-markdown">
+<ul>
+<li><code>bind: draft</code> يربط حقل الإدخال بالحالة في الاتجاهين: الكتابة تغيّر <code>draft</code>، و<code>draft = &quot;&quot;</code> تفرغ المربع.</li>
+<li><code>query</code> هي سلسلة الاستعلام في العنوان بوصفها قيمة، تبقى محدّثة. لذا يتبع <code>filter</code> العنوان، ويتبع <code>shown</code> المرشّح <code>filter</code>.</li>
+<li>يجب أن يغطي <code>match</code> على <code>enum</code> كل حالة. إن أضفت حالة رابعة إلى <code>Filter</code>، يصبح هذا الـ<code>match</code> خطأ حتى يعالجها.</li>
+</ul>
+<p>يرسم النصف الثاني المرشّحات والقائمة، ويغلق الصفحة. أضفه تحت النصف الأول، بعد سطر فارغ:</p>
+                            </div>
+                            <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                                <div class="wf-row wf-s2c416341 bp-console__bar">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                        <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="نسخ" data-track="copy_code" data-track-item-id="wf" type="button">نسخ</button>
+                                </div>
+                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-cmt">// src/pages/Home.wf</span>
+        <span class="wf-tok-name">Row</span>(<span class="wf-tok-prop">class</span>: <span class="wf-tok-str">&quot;filters&quot;</span>, <span class="wf-tok-prop">gap</span>: .xs, <span class="wf-tok-prop">align</span>: .center) {
+            <span class="wf-tok-name">Link</span>(<span class="wf-tok-str">&quot;All&quot;</span>, <span class="wf-tok-prop">to</span>: <span class="wf-tok-str">&quot;/?show=all&quot;</span>, <span class="wf-tok-prop">class</span>: { <span class="wf-tok-str">&quot;is-on&quot;</span>: filter == .all })
+            <span class="wf-tok-name">Link</span>(<span class="wf-tok-str">&quot;Open&quot;</span>, <span class="wf-tok-prop">to</span>: <span class="wf-tok-str">&quot;/?show=open&quot;</span>, <span class="wf-tok-prop">class</span>: { <span class="wf-tok-str">&quot;is-on&quot;</span>: filter == .open })
+            <span class="wf-tok-name">Link</span>(<span class="wf-tok-str">&quot;Done&quot;</span>, <span class="wf-tok-prop">to</span>: <span class="wf-tok-str">&quot;/?show=done&quot;</span>, <span class="wf-tok-prop">class</span>: { <span class="wf-tok-str">&quot;is-on&quot;</span>: filter == .done })
+            <span class="wf-tok-name">Spacer</span>
+            <span class="wf-tok-kw">if</span> <span class="wf-tok-name">Todos</span>.done.length &gt; <span class="wf-tok-num">0</span> {
+                <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Clear done&quot;</span>).sm {
+                    <span class="wf-tok-kw">on</span> click { <span class="wf-tok-name">Todos</span>.clearDone() }
+                }
+            }
+        }
+
+        <span class="wf-tok-kw">if</span> shown.length == <span class="wf-tok-num">0</span> {
+            <span class="wf-tok-name">Text</span>(<span class="wf-tok-kw">if</span> <span class="wf-tok-name">Todos</span>.items.length == <span class="wf-tok-num">0</span> { <span class="wf-tok-str">&quot;Nothing yet — add your first todo above.&quot;</span> } <span class="wf-tok-kw">else</span> { <span class="wf-tok-str">&quot;Nothing here.&quot;</span> }, <span class="wf-tok-prop">class</span>: <span class="wf-tok-str">&quot;empty&quot;</span>)
+        }
+        <span class="wf-tok-name">Stack</span>(<span class="wf-tok-prop">class</span>: <span class="wf-tok-str">&quot;list&quot;</span>) {
+            <span class="wf-tok-kw">for</span> todo <span class="wf-tok-kw">in</span> shown <span class="wf-tok-kw">by</span> todo.id {
+                <span class="wf-tok-name">TodoRow</span>(todo, <span class="wf-tok-prop">animate</span>: .fadeIn, <span class="wf-tok-prop">exit</span>: .fadeOut)
+            }
+        }
+    }
+    <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Your list stays in this browser, and nowhere else.&quot;</span>, <span class="wf-tok-prop">class</span>: <span class="wf-tok-str">&quot;hint&quot;</span>)
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<ul>
+<li><code>for … by todo.id</code> قائمة بمفاتيح. حين تُعاد تسمية مهمة، أو يخفيها المرشّح، لا يتغيّر إلا صفها؛ وتحتفظ الصفوف الأخرى بعناصرها، ويحتفظ الصف قيد التحرير بمؤشّره (<a href="/learn/09-control-flow">التحكم في التدفق</a>).</li>
+<li><code>animate:</code> و<code>exit:</code> يُظهران الصف ويُخفيانه بتلاشٍ.</li>
+<li>خريطة الأصناف، <code>{ &quot;is-on&quot;: filter == .all }</code>، تفعّل الصنف ما دام شرطه قائمًا.</li>
+</ul>
+                            </div>
+                            <div class="wf-stack wf-s37f4bada bp-aside" role="note" aria-label="ملاحظة" data-kind="note">
+                                <p class="wf-text bp-aside__label">ملاحظة</p>
+                                <div class="wf-markdown">
+<p><strong>قادم من React؟</strong> يوضع المفتاح على الحلقة، <code>by todo.id</code>، لا بوصفه خاصية <code>key</code> على الصف. انظر <a href="/coming-from/react">القادمون من React</a>.</p>
+                                </div>
+                            </div>
+                            <div class="wf-markdown">
+<p>أخيرًا، التصريح <code>app</code> هو الإطار الذي تجلس فيه كل صفحة. يحدّد <code>Router</code> موضع رسم الصفحة الحالية:</p>
+                            </div>
+                            <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                                <div class="wf-row wf-s2c416341 bp-console__bar">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                        <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="نسخ" data-track="copy_code" data-track-item-id="wf" type="button">نسخ</button>
+                                </div>
+                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-cmt">// src/App.wf</span>
+<span class="wf-tok-cmt">// The frame every page sits in: a narrow column, centred.</span>
+<span class="wf-tok-kw">app</span> {
+    <span class="wf-tok-name">Container</span>(<span class="wf-tok-prop">class</span>: <span class="wf-tok-str">&quot;shell&quot;</span>) {
+        <span class="wf-tok-name">Router</span>
+    }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>الآن شغّل خادم التطوير في طرفية ثانية، واتركه يعمل. كل حفظ يعيد بناء المشروع ويعيد تحميل الصفحة:</p>
+                            </div>
+                            <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                                <div class="wf-row wf-s2c416341 bp-console__bar">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                        <p class="wf-text wf-s23a4ddd5 bp-mono">bash</p>
+                                    </div>
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="نسخ" data-track="copy_code" data-track-item-id="bash" type="button">نسخ</button>
+                                </div>
+                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-prompt">$ </span>wf serve</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><strong>تحقّق:</strong> يطبع <code>wf check</code> الرسالة <code>No problems in todos.</code>، ويعرض &lt;http://localhost:3000/&gt; بطاقة عنوانها <strong>Todos</strong> فيها <code>0 left</code> و <em>Nothing yet — add your first todo above.</em> اكتب مهمة واضغط Enter: تظهر، ويصبح العدّاد <code>1 left</code>. أعد تحميل الصفحة، فتجد المهمة ما زالت هناك. انقر <strong>Open</strong>، فيصبح العنوان <code>/?show=open</code>.</p>
+<p>إن طبع الخادم <code>No theme Paper is declared in this project</code>، فالأرجح أنك تخطّيت <code>src/theme.wf</code> في الخطوة 2. وإن ظهر عضو في المخزن بالتحذير <code>U04</code> هنا، فالأرجح أنك أغفلت جزءًا من الصفحة.</p>
+                            </div>
+                            <h2 class="wf-heading" id="الخطوة-7-اكتب-الاختبارات">الخطوة 7: اكتب الاختبارات</h2>
+                            <div class="wf-markdown">
+<p>يرسم الاختبار ما يصرّح به، ثم ينفّذ خطواته بالترتيب. يكتب في عنصر التحكم المسمّى <strong>New todo</strong> وينقر الزر المسمّى <strong>Add</strong>، كما يفعل القارئ (<a href="/learn/16-testing">الاختبار</a>). أنشئ <code>tests/todos.wf</code> بهذا الاختبار:</p>
+                            </div>
+                            <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                                <div class="wf-row wf-s2c416341 bp-console__bar">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                        <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="نسخ" data-track="copy_code" data-track-item-id="wf" type="button">نسخ</button>
+                                </div>
+                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-cmt">// tests/todos.wf</span>
+<span class="wf-tok-kw">test</span> <span class="wf-tok-str">&quot;adding a todo puts it in the list&quot;</span> {
+    <span class="wf-tok-kw">use</span> <span class="wf-tok-name">Todos</span>
+    <span class="wf-tok-kw">state</span> draft = <span class="wf-tok-str">&quot;&quot;</span>
+    <span class="wf-tok-name">Input</span>(<span class="wf-tok-prop">bind</span>: draft, aria-<span class="wf-tok-prop">label</span>: <span class="wf-tok-str">&quot;New todo&quot;</span>)
+    <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Add&quot;</span>) { <span class="wf-tok-kw">on</span> click { <span class="wf-tok-name">Todos</span>.add(draft)  draft = <span class="wf-tok-str">&quot;&quot;</span> } }
+    <span class="wf-tok-kw">for</span> todo <span class="wf-tok-kw">in</span> <span class="wf-tok-name">Todos</span>.items <span class="wf-tok-kw">by</span> todo.id { <span class="wf-tok-name">TodoRow</span>(todo) }
+    <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;{Todos.open.length} left&quot;</span>)
+
+    <span class="wf-tok-kw">expect</span> <span class="wf-tok-str">&quot;0 left&quot;</span>
+    <span class="wf-tok-kw">type</span> <span class="wf-tok-str">&quot;Buy bread&quot;</span> into <span class="wf-tok-str">&quot;New todo&quot;</span>
+    click <span class="wf-tok-str">&quot;Add&quot;</span>
+    <span class="wf-tok-kw">expect</span> <span class="wf-tok-str">&quot;Buy bread&quot;</span>
+    <span class="wf-tok-kw">expect</span> <span class="wf-tok-str">&quot;1 left&quot;</span>
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>الاختبار الذي ينقر أو يكتب يعمل في Chrome بلا واجهة (headless). في المشروع المكتمل ستة اختبارات في <a href="https://github.com/monzeromer-lab/WebFluent/blob/master/examples/tutorials/easy-todos/tests/todos.wf"><code>tests/todos.wf</code></a>: اثنان ينظران إلى صف فقط، وأربعة تنقر — إضافة مهمة، ورفض مهمة فارغة، والتعليم ثم المسح، وإعادة التسمية مع بقاء صف واحد لكل مهمة. انسخ الملف لتحصل عليها كلها، ثم شغّلها:</p>
+                            </div>
+                            <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                                <div class="wf-row wf-s2c416341 bp-console__bar">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                        <p class="wf-text wf-s23a4ddd5 bp-mono">bash</p>
+                                    </div>
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="نسخ" data-track="copy_code" data-track-item-id="bash" type="button">نسخ</button>
+                                </div>
+                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-prompt">$ </span>wf test</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><strong>تحقّق:</strong> مع الملف كاملًا، ينتهي <code>wf test</code> بـ<code>6 passed, 0 failed, 2 snapshot(s) written</code>. الاختباران اللذان ينظران فقط يكتبان لقطة (snapshot) لما رسماه تحت <code>tests/__snapshots__/</code>، وتُقارَن بها التشغيلات اللاحقة.</p>
+<p>إن أفاد اختبار ينقر بأنه لم يجد متصفحًا، فإن Chrome ليس حيث يبحث <code>wf</code>: اضبط <code>WF_CHROME</code> على مساره.</p>
+                            </div>
+                            <h2 class="wf-heading" id="الخطوة-8-ابنه">الخطوة 8: ابنِه</h2>
+                            <div class="wf-markdown">
+<p>افحص المشروع واختبره وابنِه:</p>
+                            </div>
+                            <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                                <div class="wf-row wf-s2c416341 bp-console__bar">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                        <p class="wf-text wf-s23a4ddd5 bp-mono">bash</p>
+                                    </div>
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="نسخ" data-track="copy_code" data-track-item-id="bash" type="button">نسخ</button>
+                                </div>
+                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-prompt">$ </span>wf check
+<span class="wf-tok-prompt">$ </span>wf test
+<span class="wf-tok-prompt">$ </span>wf build</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>يبلّغ <code>wf check</code> عن كل نتيجة ولا يكتب شيئًا. ويكتب <code>wf build</code> المجلد <code>build/</code>، الذي يقدّمه أي مضيف ثابت — يغطي <a href="/recipes">النشر</a> GitHub Pages وNetlify وغيرهما. لتحمّل الصفحة المبنية في متصفح حقيقي قبل النشر، شغّل <code>wf verify</code>: يفشل عند خطأ، أو ملف مفقود، أو صفحة لا ترسم شيئًا.</p>
+<p><strong>تحقّق:</strong> ينتهي <code>wf build</code> بـ<code>Build complete.</code>، ويحتوي <code>build/</code> على <code>index.html</code> و<code>app.js</code> و<code>styles.css</code>.</p>
+                            </div>
+                            <h2 class="wf-heading" id="ما-بنيته">ما بنيته</h2>
+                            <div class="wf-markdown">
+<ul>
+<li><code>type</code> و<code>enum</code>، يُلزَم بهما كل استعمال (<a href="/learn/12-types">الأنواع</a>).</li>
+<li>مخزن تبقى قائمته بعد إعادة التحميل بفضل <code>persist</code>، وقيم <code>derived</code> تتبعها (<a href="/learn/11-stores">المخازن</a>).</li>
+<li>مكوّن له حالته الخاصة، وأسماء متاحة لتقنيات المساعدة على كل عنصر تحكم (<a href="/learn/10-components">المكوّنات</a>).</li>
+<li>قائمة بمفاتيح، ومرشّح محفوظ في العنوان بـ<code>query</code> (<a href="/learn/09-control-flow">التحكم في التدفق</a>).</li>
+<li>سمة بنسخة داكنة، وورقة أنماط خاصة بالمشروع (<a href="/learn/13-styling">التنسيق</a>).</li>
+<li>اختبارات تنظر واختبارات تنقر (<a href="/learn/16-testing">الاختبار</a>).</li>
+</ul>
+                            </div>
+                            <h2 class="wf-heading" id="أخطاء-شائعة">أخطاء شائعة</h2>
+                            <div class="wf-markdown">
+<p><code>match</code> يُغفل حالة. يجب أن يسمّي <code>match</code> على <code>enum</code> كل حالة، لذا فإن إغفال <code>.all</code> خطأ:</p>
+                            </div>
+                            <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                                <div class="wf-row wf-s2c416341 bp-console__bar">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                        <p class="wf-text wf-s23a4ddd5 bp-mono">wf · draws T15</p>
+                                    </div>
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="نسخ" data-track="copy_code" data-track-item-id="wf · draws T15" type="button">نسخ</button>
+                                </div>
+                                <code class="wf-code wf-code--block bp-console__code">enum Filter { all, open, done }
+
+page Home(path: &quot;/&quot;, title: &quot;Todos&quot;, description: &quot;A small list of things to do.&quot;) {
+    state filter: Filter = .all
+    derived label = match filter {
+        .open { &quot;Open&quot; }
+        .done { &quot;Done&quot; }
+    }
+    Heading(&quot;Todos&quot;).h1
+    Text(label)
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>أضف الفرع الناقص، <code>.all { &quot;All&quot; }</code>، أو فرع <code>else</code> (<a href="/errors/T15">T15</a>).</p>
+<p>قائمة بلا <code>by</code>. دون مفتاح، يُعاد رسم الصف الذي يحمل عنصر تحكم كلما تغيّرت القائمة، فيفقد المربع الذي كان القارئ يستعمله موضعه:</p>
+                            </div>
+                            <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                                <div class="wf-row wf-s2c416341 bp-console__bar">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                        <p class="wf-text wf-s23a4ddd5 bp-mono">wf · draws U09</p>
+                                    </div>
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="نسخ" data-track="copy_code" data-track-item-id="wf · draws U09" type="button">نسخ</button>
+                                </div>
+                                <code class="wf-code wf-code--block bp-console__code">type Todo { id: String, title: String }
+
+page Home(path: &quot;/&quot;, title: &quot;Todos&quot;, description: &quot;A small list of things to do.&quot;) {
+    state items: [Todo] = [Todo(id: &quot;1&quot;, title: &quot;Buy bread&quot;)]
+    Heading(&quot;Todos&quot;).h1
+    for todo in items {
+        Checkbox(label: todo.title)
+    }
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>اجعل مفتاح القائمة ما يميّز كل عنصر: <code>for todo in items by todo.id</code> (<a href="/errors/U09">U09</a>).</p>
+<p>عنصر تحكم مربوط بقيمة <code>derived</code>. يكتب <code>bind:</code> إلى ما يسمّيه، والقيمة المشتقة تُحسَب ولا يُسنَد إليها أبدًا:</p>
+                            </div>
+                            <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                                <div class="wf-row wf-s2c416341 bp-console__bar">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                        <p class="wf-text wf-s23a4ddd5 bp-mono">wf · draws F01</p>
+                                    </div>
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="نسخ" data-track="copy_code" data-track-item-id="wf · draws F01" type="button">نسخ</button>
+                                </div>
+                                <code class="wf-code wf-code--block bp-console__code">store Todos {
+    state items: [String] = []
+    derived open = items.length
+}
+
+page Home(path: &quot;/&quot;, title: &quot;Todos&quot;, description: &quot;A small list of things to do.&quot;) {
+    use Todos
+    Heading(&quot;Todos&quot;).h1
+    Input(bind: Todos.open, label: &quot;Open&quot;)
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>اربط <code>state</code>، كما تربط الصفحة <code>draft</code>، وغيّر المخزن عبر إجراءاته (<a href="/errors/F01">F01</a>).</p>
+                            </div>
+                            <h2 class="wf-heading" id="التالي">التالي</h2>
+                            <div class="wf-markdown">
+<p><a href="/recipes/build-a-notebook-site">درس: Field Notes</a> يبني موقعًا مولَّدًا بناءً ثابتًا على ما علّمه هذا الدرس.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="wf-stack wf-gap--sm wf-sce9164cb bp-raised">
+                        <h2 class="wf-heading wf-s457972d6">ما تعلّمته</h2>
+                        <ul class="wf-list wf-s64f6b0c0">
+                            <li class="wf-list__item">
+                                <div class="wf-markdown">
+<p>صِف البيانات بـ <code>type</code> و<code>enum</code></p>
+                                </div>
+                            </li>
+                            <li class="wf-list__item">
+                                <div class="wf-markdown">
+<p>احفظ قائمة عبر إعادة التحميل في مخزن بـ <code>persist</code>، لا تغيّرها إلا إجراءاته</p>
+                                </div>
+                            </li>
+                            <li class="wf-list__item">
+                                <div class="wf-markdown">
+<p>أعطِ كل صف من القائمة <code>state</code> خاصة به في مكوّن</p>
+                                </div>
+                            </li>
+                            <li class="wf-list__item">
+                                <div class="wf-markdown">
+<p>اربط القائمة بمفتاح بـ <code>for … by</code>، واحفظ المرشّح في العنوان بـ <code>query</code></p>
+                                </div>
+                            </li>
+                            <li class="wf-list__item">
+                                <div class="wf-markdown">
+<p>اختبر صفحة بالكتابة والنقر، بـ <code>wf test</code></p>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="wf-row wf-gap--md wf-s94f7a6f9" role="navigation" aria-label="الصفحتان المجاورتان">
+                        <a class="wf-link wf-s1266eee5 bp-card" href="/ar/learn/02-tutorial-shelf">
+                            <p class="wf-text bp-small">السابق</p>
+                            <p class="wf-text wf-s70571e62">درس: Shelf</p>
+                        </a>
+                        <a class="wf-link wf-sc16e0c24 bp-card" href="/learn/04-language-basics">
+                            <p class="wf-text bp-small">التالي</p>
+                            <p class="wf-text wf-s70571e62">أساسيات اللغة</p>
+                        </a>
+                    </div>
+                </div>
+                <div class="wf-stack wf-gap--lg wf-s2502f5f4 bp-rail" role="navigation" aria-label="في هذه الصفحة">
+                    <div class="wf-stack wf-gap--xs wf-se8e8f072">
+                        <p class="wf-text wf-sa736415c bp-section-label">في هذه الصفحة</p>
+                        <a class="wf-link wf-s23505038" href="#قبل-أن-تبدأ">قبل أن تبدأ</a>
+                        <a class="wf-link wf-s23505038" href="#الخطوة-1-أنشئ-المشروع">الخطوة 1: أنشئ المشروع</a>
+                        <a class="wf-link wf-s23505038" href="#الخطوة-2-أعطه-مظهرا-خاصا-به">الخطوة 2: أعطه مظهرًا خاصًا به</a>
+                        <a class="wf-link wf-s23505038" href="#الخطوة-3-صف-المهمة">الخطوة 3: صِف المهمة</a>
+                        <a class="wf-link wf-s23505038" href="#الخطوة-4-اكتب-مخزنا-يتذكر">الخطوة 4: اكتب مخزنًا يتذكّر</a>
+                        <a class="wf-link wf-s23505038" href="#الخطوة-5-ابن-صفا-واحدا">الخطوة 5: ابنِ صفًا واحدًا</a>
+                        <a class="wf-link wf-s23505038" href="#الخطوة-6-اكتب-الصفحة">الخطوة 6: اكتب الصفحة</a>
+                        <a class="wf-link wf-s23505038" href="#الخطوة-7-اكتب-الاختبارات">الخطوة 7: اكتب الاختبارات</a>
+                        <a class="wf-link wf-s23505038" href="#الخطوة-8-ابنه">الخطوة 8: ابنِه</a>
+                        <a class="wf-link wf-s23505038" href="#ما-بنيته">ما بنيته</a>
+                        <a class="wf-link wf-s23505038" href="#أخطاء-شائعة">أخطاء شائعة</a>
+                        <a class="wf-link wf-s23505038" href="#التالي">التالي</a>
+                    </div>
+                    <div class="wf-stack wf-gap--xs wf-see94d5ab">
+                        <button class="wf-btn wf-sfd73f012 bp-rail-action" type="button">
+                            <i class="wf-icon" data-icon="copy"></i>
+                            <p class="wf-text">انسخ الصفحة بصيغة Markdown</p>
+                        </button>
+                        <button class="wf-btn wf-sfd73f012 bp-rail-action" type="button">
+                            <i class="wf-icon" data-icon="file"></i>
+                            <p class="wf-text">افتحها بصيغة Markdown</p>
+                        </button>
+                    </div>
+                    <a class="wf-link wf-s48d899f5" href="https://github.com/monzeromer-lab/WebFluent/blob/master/md-docs/ar/learn/03-tutorial-todos.md">
+                        <i class="wf-icon" data-icon="edit"></i>
+                        <p class="wf-text">عدّل هذه الصفحة</p>
+                    </a>
+                </div>
+            </div>
+        </main>
+        <footer class="wf-footer wf-s2213a098">
+            <div class="wf-stack wf-gap--lg wf-s84d7918c bp-wrap">
+                <div class="wf-grid wf-gap--lg wf-r67559659">
+                    <div class="wf-stack wf-gap--xs wf-s17061b4c">
+                        <p class="wf-text wf-scba75cc6 bp-section-label">تعلّم</p>
+                        <a class="wf-link" href="/learn/01-getting-started">الجولة</a>
+                        <a class="wf-link" href="/learn">الكتاب</a>
+                        <a class="wf-link" href="/about">مقالات</a>
+                    </div>
+                    <div class="wf-stack wf-gap--xs wf-s17061b4c">
+                        <p class="wf-text wf-scba75cc6 bp-section-label">اصنع</p>
+                        <a class="wf-link" href="/recipes">وصفات</a>
+                        <a class="wf-link" href="/playground">الملعب</a>
+                        <a class="wf-link" href="/coming-from/react">قادم من…</a>
+                        <a class="wf-link" href="/showcase">المعرض</a>
+                    </div>
+                    <div class="wf-stack wf-gap--xs wf-s17061b4c">
+                        <p class="wf-text wf-scba75cc6 bp-section-label">ابحث عن</p>
+                        <a class="wf-link" href="/reference">المكوّنات</a>
+                        <a class="wf-link" href="/reference/cli">سطر الأوامر والإعدادات</a>
+                        <a class="wf-link" href="/errors">الأخطاء</a>
+                    </div>
+                    <div class="wf-stack wf-gap--xs wf-s17061b4c">
+                        <p class="wf-text wf-scba75cc6 bp-section-label">للوكلاء</p>
+                        <a class="wf-link" href="/reference/cli/context">wf context</a>
+                        <a class="wf-link" href="/changelog">سجل التغييرات</a>
+                    </div>
+                </div>
+                <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-sd146f653">
+                    <p class="wf-text bp-small">كل كتلة شيفرة في الدليل هي WebFluent 6.0 حقيقية، تُحلَّل وتُفحص أنواعها وتُترجم ضمن مجموعة الاختبارات.</p>
+                    <div class="wf-row wf-align--center wf-gap--md wf-sa3c9b727">
+                        <a class="wf-link wf-sf9ca1a0e" href="https://github.com/monzeromer-lab/WebFluent">الشيفرة المصدرية</a>
+                        <button class="wf-btn link-button" type="button">إعدادات ملفات تعريف الارتباط</button>
+                        <p class="wf-text bp-small">منذر عمر</p>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

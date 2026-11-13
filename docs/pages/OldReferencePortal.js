@@ -1,2 +1,2 @@
-function Page_OldReferencePortal(params){const _root=document.createDocumentFragment();const _e1686=WF.el("h1",{className:"wf-heading"},"Portal");_root.appendChild(_e1686);const _e1687=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/portal"},"Portal");WF.activeLink(_e1687,"/reference/portal",false);_root.appendChild(_e1687);return _root;}
+function Page_OldReferencePortal(params){const _root=document.createDocumentFragment();const _e1664=WF.el("h1",{className:"wf-heading"},"Portal");_root.appendChild(_e1664);const _e1665=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/portal"},"Portal");WF.activeLink(_e1665,"/reference/portal",false);_root.appendChild(_e1665);return _root;}
 WF.page("OldReferencePortal",Page_OldReferencePortal);

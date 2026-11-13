@@ -1,2 +1,2 @@
-function Page_Playground(params){const _root=document.createDocumentFragment();const _e1560=Component_PlaygroundShell({other:"/ar/playground"});_root.appendChild(_e1560);return _root;}
+function Page_Playground(params){const _root=document.createDocumentFragment();const _e1538=Component_PlaygroundShell({other:"/ar/playground"});_root.appendChild(_e1538);return _root;}
 WF.page("Playground",Page_Playground);

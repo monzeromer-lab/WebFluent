@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/theme.js"></script>
     <title>Types</title>
     <meta name="description" content="The type language, built-in types, records and enums, refinements, inference and narrowing, typed network data, and the checks the compiler runs.">
     <link rel="canonical" href="https://webfluent.monzeromer.dev/learn/12-types">
@@ -37,7 +38,6 @@
     <script src="/pages/Learn12Types.js" data-wf-page="Learn12Types" defer></script>
 </head>
 <body>
-    <a class="wf-skip-link" href="#wf-content">Skip to content</a>
     <div id="app">
         <main id="wf-main">
             <a class="wf-link bp-skip" href="#bp-main">Skip to the content</a>
@@ -1434,6 +1434,36 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
 <p>Say what to show instead, <code>Text(&quot;Note: {todo.note ?? &quot;none&quot;}&quot;)</code>, or draw the line only when there is a note with <code>if let</code>. See <a href="/errors/T19">T19</a>.</p>
                             </div>
                         </div>
+                    </div>
+                    <div class="wf-stack wf-gap--sm wf-sce9164cb bp-raised">
+                        <h2 class="wf-heading wf-s457972d6">What you learned</h2>
+                        <ul class="wf-list wf-s64f6b0c0">
+                            <li class="wf-list__item">
+                                <div class="wf-markdown">
+<p>Annotate state, props and parameters, and declare records with <code>type</code></p>
+                                </div>
+                            </li>
+                            <li class="wf-list__item">
+                                <div class="wf-markdown">
+<p>Use the built-in types: <code>Date</code>, <code>Money</code>, <code>Duration</code>, <code>Url</code>, <code>Secret</code> and the rest</p>
+                                </div>
+                            </li>
+                            <li class="wf-list__item">
+                                <div class="wf-markdown">
+<p>Declare an <code>enum</code> whose cases carry payloads</p>
+                                </div>
+                            </li>
+                            <li class="wf-list__item">
+                                <div class="wf-markdown">
+<p>Narrow a value that may be <code>null</code> with <code>if let</code>, <code>?.</code> and <code>??</code></p>
+                                </div>
+                            </li>
+                            <li class="wf-list__item">
+                                <div class="wf-markdown">
+<p>Type data from the network with an annotated <code>resource</code></p>
+                                </div>
+                            </li>
+                        </ul>
                     </div>
                     <div class="wf-row wf-gap--md wf-s94f7a6f9" role="navigation" aria-label="Pages either side">
                         <a class="wf-link wf-s1266eee5 bp-card" href="/learn/11-stores">

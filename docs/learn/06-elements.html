@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/theme.js"></script>
     <title>Elements</title>
     <meta name="description" content="The element call shape: positional, named props, flags and enum cases, the block and its order, attributes, parts, and the families of built-ins.">
     <link rel="canonical" href="https://webfluent.monzeromer.dev/learn/06-elements">
@@ -37,7 +38,6 @@
     <script src="/pages/Learn06Elements.js" data-wf-page="Learn06Elements" defer></script>
 </head>
 <body>
-    <a class="wf-skip-link" href="#wf-content">Skip to content</a>
     <div id="app">
         <main id="wf-main">
             <a class="wf-link bp-skip" href="#bp-main">Skip to the content</a>
@@ -977,6 +977,36 @@
 <p>Wrap it in its owner, <code>Card { Card.Body { … } }</code>, or use a plain <code>Stack</code> (<a href="/errors/C03">C03</a>).</p>
                             </div>
                         </div>
+                    </div>
+                    <div class="wf-stack wf-gap--sm wf-sce9164cb bp-raised">
+                        <h2 class="wf-heading wf-s457972d6">What you learned</h2>
+                        <ul class="wf-list wf-s64f6b0c0">
+                            <li class="wf-list__item">
+                                <div class="wf-markdown">
+<p>Read and write any element call: <code>Name(value, prop: value).flag { block }</code></p>
+                                </div>
+                            </li>
+                            <li class="wf-list__item">
+                                <div class="wf-markdown">
+<p>Pick an enum prop's case by name (<code>gap: .md</code>) or as a flag (<code>.primary</code>)</p>
+                                </div>
+                            </li>
+                            <li class="wf-list__item">
+                                <div class="wf-markdown">
+<p>Put HTML attributes such as <code>aria-*</code>, <code>data-*</code> and <code>id</code> on an element</p>
+                                </div>
+                            </li>
+                            <li class="wf-list__item">
+                                <div class="wf-markdown">
+<p>Place parts inside their owner: <code>Card.Header</code>, <code>Table.Row</code></p>
+                                </div>
+                            </li>
+                            <li class="wf-list__item">
+                                <div class="wf-markdown">
+<p>Know which built-in family to reach for, and what the compiler checks on each call</p>
+                                </div>
+                            </li>
+                        </ul>
                     </div>
                     <div class="wf-row wf-gap--md wf-s94f7a6f9" role="navigation" aria-label="Pages either side">
                         <a class="wf-link wf-s1266eee5 bp-card" href="/learn/05-pages-and-routing">

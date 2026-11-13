@@ -1,2 +1,2 @@
-function Page_OldReferenceToast(params){const _root=document.createDocumentFragment();const _e1738=WF.el("h1",{className:"wf-heading"},"Toast");_root.appendChild(_e1738);const _e1739=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/toast"},"Toast");WF.activeLink(_e1739,"/reference/toast",false);_root.appendChild(_e1739);return _root;}
+function Page_OldReferenceToast(params){const _root=document.createDocumentFragment();const _e1716=WF.el("h1",{className:"wf-heading"},"Toast");_root.appendChild(_e1716);const _e1717=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/toast"},"Toast");WF.activeLink(_e1717,"/reference/toast",false);_root.appendChild(_e1717);return _root;}
 WF.page("OldReferenceToast",Page_OldReferenceToast);

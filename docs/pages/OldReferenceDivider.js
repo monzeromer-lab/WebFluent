@@ -1,2 +1,2 @@
-function Page_OldReferenceDivider(params){const _root=document.createDocumentFragment();const _e1634=WF.el("h1",{className:"wf-heading"},"Divider");_root.appendChild(_e1634);const _e1635=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/divider"},"Divider");WF.activeLink(_e1635,"/reference/divider",false);_root.appendChild(_e1635);return _root;}
+function Page_OldReferenceDivider(params){const _root=document.createDocumentFragment();const _e1612=WF.el("h1",{className:"wf-heading"},"Divider");_root.appendChild(_e1612);const _e1613=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/divider"},"Divider");WF.activeLink(_e1613,"/reference/divider",false);_root.appendChild(_e1613);return _root;}
 WF.page("OldReferenceDivider",Page_OldReferenceDivider);

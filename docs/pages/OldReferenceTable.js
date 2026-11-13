@@ -1,2 +1,2 @@
-function Page_OldReferenceTable(params){const _root=document.createDocumentFragment();const _e1724=WF.el("h1",{className:"wf-heading"},"Table");_root.appendChild(_e1724);const _e1725=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/table"},"Table");WF.activeLink(_e1725,"/reference/table",false);_root.appendChild(_e1725);return _root;}
+function Page_OldReferenceTable(params){const _root=document.createDocumentFragment();const _e1702=WF.el("h1",{className:"wf-heading"},"Table");_root.appendChild(_e1702);const _e1703=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/table"},"Table");WF.activeLink(_e1703,"/reference/table",false);_root.appendChild(_e1703);return _root;}
 WF.page("OldReferenceTable",Page_OldReferenceTable);

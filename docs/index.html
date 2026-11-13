@@ -4,9 +4,13 @@
     <meta charset="UTF-8">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="./theme.js"></script>
     <title>WebFluent — websites, PDFs and slide decks from one language</title>
     <meta name="description" content="A typed language and one binary that build a static site, a single-page app, a PDF or a slide deck. No Node, no bundler, no config.">
     <link rel="canonical" href="https://webfluent.monzeromer.dev/">
+    <link rel="alternate" hreflang="en" href="https://webfluent.monzeromer.dev/">
+    <link rel="alternate" hreflang="ar" href="https://webfluent.monzeromer.dev/ar">
+    <link rel="alternate" hreflang="x-default" href="https://webfluent.monzeromer.dev/">
     <meta property="og:type" content="website">
     <meta property="og:title" content="WebFluent — websites, PDFs and slide decks from one language">
     <meta property="og:site_name" content="WebFluent">
@@ -37,7 +41,6 @@
     <script src="./pages/Home.js" data-wf-page="Home" defer></script>
 </head>
 <body>
-    <a class="wf-skip-link" href="#wf-main">Skip to content</a>
     <div id="app">
         <main id="wf-main">
             <a class="wf-link bp-skip" href="#bp-main">Skip to the content</a>
@@ -76,7 +79,7 @@
                         </div>
                         <button class="wf-icon-btn bp-icon-button" data-track="select_content" data-track-content-type="theme" type="button"></button>
                         <div class="wf-row wf-align--center wf-gap--xs wf-s286d925a bp-hide-sm">
-                            <button class="wf-btn bp-button" title="This page is in English only; the switch changes the interface." data-track="select_content" data-track-content-type="language" type="button"></button>
+                            <a class="wf-link bp-button" href="/ar" data-track="select_content" data-track-content-type="language"></a>
                         </div>
                         <a class="wf-link bp-button bp-hide-md" href="https://github.com/monzeromer-lab/WebFluent" data-tone="quiet" aria-label="GitHub">
                             <i class="wf-icon" data-icon="git-branch"></i>

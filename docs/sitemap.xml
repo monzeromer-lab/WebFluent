@@ -4,9 +4,6 @@
     <loc>https://webfluent.monzeromer.dev/changelog</loc>
   </url>
   <url>
-    <loc>https://webfluent.monzeromer.dev/docs</loc>
-  </url>
-  <url>
     <loc>https://webfluent.monzeromer.dev/errors/E001</loc>
   </url>
   <url>
@@ -391,6 +388,9 @@
     <loc>https://webfluent.monzeromer.dev/</loc>
   </url>
   <url>
+    <loc>https://webfluent.monzeromer.dev/ar</loc>
+  </url>
+  <url>
     <loc>https://webfluent.monzeromer.dev/playground</loc>
   </url>
   <url>
@@ -409,16 +409,28 @@
     <loc>https://webfluent.monzeromer.dev/coming-from/react</loc>
   </url>
   <url>
+    <loc>https://webfluent.monzeromer.dev/ar/coming-from/react</loc>
+  </url>
+  <url>
     <loc>https://webfluent.monzeromer.dev/coming-from/svelte</loc>
   </url>
   <url>
     <loc>https://webfluent.monzeromer.dev/coming-from/vue</loc>
   </url>
   <url>
+    <loc>https://webfluent.monzeromer.dev/ar/learn/01-getting-started</loc>
+  </url>
+  <url>
     <loc>https://webfluent.monzeromer.dev/learn/01-getting-started</loc>
   </url>
   <url>
+    <loc>https://webfluent.monzeromer.dev/ar/learn/02-tutorial-shelf</loc>
+  </url>
+  <url>
     <loc>https://webfluent.monzeromer.dev/learn/02-tutorial-shelf</loc>
+  </url>
+  <url>
+    <loc>https://webfluent.monzeromer.dev/ar/learn/03-tutorial-todos</loc>
   </url>
   <url>
     <loc>https://webfluent.monzeromer.dev/learn/03-tutorial-todos</loc>

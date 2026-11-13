@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/theme.js"></script>
     <title>Events</title>
     <meta name="description" content="DOM event handlers, the event object, keyboard shortcuts, component events, modals, menus, popovers, gestures and window events.">
     <link rel="canonical" href="https://webfluent.monzeromer.dev/learn/08-events">
@@ -37,7 +38,6 @@
     <script src="/pages/Learn08Events.js" data-wf-page="Learn08Events" defer></script>
 </head>
 <body>
-    <a class="wf-skip-link" href="#wf-content">Skip to content</a>
     <div id="app">
         <main id="wf-main">
             <a class="wf-link bp-skip" href="#bp-main">Skip to the content</a>
@@ -928,6 +928,36 @@
 <p>Write <code>cmd+k</code>, or <code>mod+k</code> for ⌘ on a Mac and Ctrl elsewhere (<a href="/errors/E117">E117</a>).</p>
                             </div>
                         </div>
+                    </div>
+                    <div class="wf-stack wf-gap--sm wf-sce9164cb bp-raised">
+                        <h2 class="wf-heading wf-s457972d6">What you learned</h2>
+                        <ul class="wf-list wf-s64f6b0c0">
+                            <li class="wf-list__item">
+                                <div class="wf-markdown">
+<p>Handle a DOM event with <code>on click { }</code>, and read the event with <code>on keydown(e) { }</code></p>
+                                </div>
+                            </li>
+                            <li class="wf-list__item">
+                                <div class="wf-markdown">
+<p>Answer a key or a chord with <code>on key(&quot;mod+k&quot;)</code>, on an element or for the whole app</p>
+                                </div>
+                            </li>
+                            <li class="wf-list__item">
+                                <div class="wf-markdown">
+<p>Fire your component's own events with <code>event</code> and <code>emit</code></p>
+                                </div>
+                            </li>
+                            <li class="wf-list__item">
+                                <div class="wf-markdown">
+<p>Open modals, menus, popovers and tooltips from state, and know how they stack</p>
+                                </div>
+                            </li>
+                            <li class="wf-list__item">
+                                <div class="wf-markdown">
+<p>Drag, drop, long-press, swipe and listen to the window</p>
+                                </div>
+                            </li>
+                        </ul>
                     </div>
                     <div class="wf-row wf-gap--md wf-s94f7a6f9" role="navigation" aria-label="Pages either side">
                         <a class="wf-link wf-s1266eee5 bp-card" href="/learn/07-state-and-reactivity">

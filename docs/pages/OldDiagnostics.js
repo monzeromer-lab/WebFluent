@@ -1,2 +1,2 @@
-function Page_OldDiagnostics(params){const _root=document.createDocumentFragment();const _e1574=WF.el("h1",{className:"wf-heading"},()=>WF.i18n.t("ch.43"));_root.appendChild(_e1574);const _e1575=WF.el("a",{className:"wf-link",href:WF._basePath+"/errors"},()=>WF.i18n.t("ch.43"));WF.activeLink(_e1575,"/errors",false);_root.appendChild(_e1575);return _root;}
+function Page_OldDiagnostics(params){const _root=document.createDocumentFragment();const _e1552=WF.el("h1",{className:"wf-heading"},()=>WF.i18n.t("ch.43"));_root.appendChild(_e1552);const _e1553=WF.el("a",{className:"wf-link",href:WF._basePath+"/errors"},()=>WF.i18n.t("ch.43"));WF.activeLink(_e1553,"/errors",false);_root.appendChild(_e1553);return _root;}
 WF.page("OldDiagnostics",Page_OldDiagnostics);

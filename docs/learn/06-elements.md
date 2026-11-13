@@ -245,7 +245,7 @@ page Article(path: "/", title: "Article", description: "Every kind of text.") {
     Paragraph("Prose, as a <p>.")
     Code("let x = 1").block
     Blockquote("A quotation.")
-    Markdown("**Bold** and a [link](https://webfluent.monzeromer.dev/docs.md)")   // see Content
+    Markdown("**Bold** and a [link](https://webfluent.monzeromer.dev/docs)")   // see Content
 }
 ```
 

@@ -1,2 +1,2 @@
-function Page_BlueprintPlayground(params){const _root=document.createDocumentFragment();const _e945=Component_PreviewPlayground({});_root.appendChild(_e945);return _root;}
+function Page_BlueprintPlayground(params){const _root=document.createDocumentFragment();const _e935=Component_PreviewPlayground({});_root.appendChild(_e935);return _root;}
 WF.page("BlueprintPlayground",Page_BlueprintPlayground);

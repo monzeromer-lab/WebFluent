@@ -1,2 +1,2 @@
-function Page_WasDocsGuideTypes(params){const _root=document.createDocumentFragment();const _e9533=WF.el("h1",{className:"wf-heading"},"Moved");_root.appendChild(_e9533);const _e9534=WF.el("a",{className:"wf-link",href:WF._basePath+"/learn/12-types"},"Go on");WF.activeLink(_e9534,"/learn/12-types",false);_root.appendChild(_e9534);return _root;}
+function Page_WasDocsGuideTypes(params){const _root=document.createDocumentFragment();const _e9888=WF.el("h1",{className:"wf-heading"},"Moved");_root.appendChild(_e9888);const _e9889=WF.el("a",{className:"wf-link",href:WF._basePath+"/learn/12-types"},"Go on");WF.activeLink(_e9889,"/learn/12-types",false);_root.appendChild(_e9889);return _root;}
 WF.page("WasDocsGuideTypes",Page_WasDocsGuideTypes);

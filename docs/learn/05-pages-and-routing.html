@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/theme.js"></script>
     <title>Pages and routing</title>
     <meta name="description" content="Page attributes, routes and typed parameters, query strings, layouts, guards, pages in other languages, head tags and the 404 page.">
     <link rel="canonical" href="https://webfluent.monzeromer.dev/learn/05-pages-and-routing">
@@ -37,7 +38,6 @@
     <script src="/pages/Learn05PagesAndRouting.js" data-wf-page="Learn05PagesAndRouting" defer></script>
 </head>
 <body>
-    <a class="wf-skip-link" href="#wf-content">Skip to content</a>
     <div id="app">
         <main id="wf-main">
             <a class="wf-link bp-skip" href="#bp-main">Skip to the content</a>
@@ -949,6 +949,36 @@ page Home(path: &quot;/&quot;, title: &quot;Home&quot;, description: &quot;The f
 <p>Add <code>slot</code> at the top of <code>Shell</code> and <code>children</code> inside its <code>Stack</code> (<a href="/errors/E104">E104</a>).</p>
                             </div>
                         </div>
+                    </div>
+                    <div class="wf-stack wf-gap--sm wf-sce9164cb bp-raised">
+                        <h2 class="wf-heading wf-s457972d6">What you learned</h2>
+                        <ul class="wf-list wf-s64f6b0c0">
+                            <li class="wf-list__item">
+                                <div class="wf-markdown">
+<p>Declare a <code>page</code> with its <code>path:</code>, <code>title:</code> and <code>description:</code></p>
+                                </div>
+                            </li>
+                            <li class="wf-list__item">
+                                <div class="wf-markdown">
+<p>Frame every page with <code>app</code> and a <code>Router</code>, and a section with a <code>layout:</code></p>
+                                </div>
+                            </li>
+                            <li class="wf-list__item">
+                                <div class="wf-markdown">
+<p>Read route parameters, <code>query</code> and <code>hash</code>, and move with <code>Link</code> and <code>navigate()</code></p>
+                                </div>
+                            </li>
+                            <li class="wf-list__item">
+                                <div class="wf-markdown">
+<p>Publish a page in another language with <code>lang:</code> and <code>translates:</code></p>
+                                </div>
+                            </li>
+                            <li class="wf-list__item">
+                                <div class="wf-markdown">
+<p>Guard a route, add head tags, and answer every other route with <code>path: &quot;*&quot;</code></p>
+                                </div>
+                            </li>
+                        </ul>
                     </div>
                     <div class="wf-row wf-gap--md wf-s94f7a6f9" role="navigation" aria-label="Pages either side">
                         <a class="wf-link wf-s1266eee5 bp-card" href="/learn/04-language-basics">

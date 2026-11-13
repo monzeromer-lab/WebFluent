@@ -1,2 +1,2 @@
-function Page_OldReferenceText(params){const _root=document.createDocumentFragment();const _e1732=WF.el("h1",{className:"wf-heading"},"Text");_root.appendChild(_e1732);const _e1733=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/text"},"Text");WF.activeLink(_e1733,"/reference/text",false);_root.appendChild(_e1733);return _root;}
+function Page_OldReferenceText(params){const _root=document.createDocumentFragment();const _e1710=WF.el("h1",{className:"wf-heading"},"Text");_root.appendChild(_e1710);const _e1711=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/text"},"Text");WF.activeLink(_e1711,"/reference/text",false);_root.appendChild(_e1711);return _root;}
 WF.page("OldReferenceText",Page_OldReferenceText);
