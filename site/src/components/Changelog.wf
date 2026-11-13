@@ -1,0 +1,175 @@
+/// The changelog's parts: the shape of a release as
+/// scripts/docsite/changelog.py reads it from RELEASE_NOTES.md, and the
+/// components the generated page, `pages/Changelog.wf`, places one call per
+/// release.
+
+/// One change in a release: what it says, the points under it, and what
+/// follows them.
+type Change {
+    text: String,
+    points: [String] = [],
+    after: String = ""
+}
+
+/// One `##` section of a release's notes: what comes before its list, the
+/// list, and what follows it.
+type NotesSection {
+    title: String,
+    id: String,
+    intro: String = "",
+    items: [Change] = [],
+    after: String = ""
+}
+
+/// One release.
+type ReleaseNotes {
+    version: String,
+    id: String,
+    date: String = "",
+    when: String = "",
+    summary: String = "",
+    sections: [NotesSection] = [],
+    count: Number = 0
+}
+
+/// One release: its version, which is its anchor, its date and summary,
+/// then its sections. Only the newest shows every section from the start;
+/// an older one shows its first and keeps the rest a click away.
+component ReleaseEntry(_ release: ReleaseNotes, latest: Bool = false) {
+    state all = false
+
+    Stack(gap: .md, id: release.id, class: "changelog-release") {
+        style {
+            gap: 16px
+            padding-top: 32px
+            border-top: 1px solid $line
+            scroll-margin-top: 80px
+        }
+
+        Row(align: .center, gap: .sm) {
+            style { flex-wrap: wrap; gap: 8px 12px }
+            Heading(release.version, class: "bp-mono").h2 { style { margin: 0; font-size: 26px; line-height: 1.2; font-weight: 650 } }
+            Link("#{release.id}", href: "#{release.id}", class: "bp-mono", aria-label: t("changelog.anchor", { version: release.version })) {
+                style { color: $muted; font-size: 13px; text-decoration: none; &:hover { color: $ink } }
+            }
+            if latest {
+                Text(t("changelog.latest"), class: "bp-label", data-tone: "kind")
+            }
+            if release.when != "" {
+                Text(release.when).muted { style { margin: 0; font-size: 14px } }
+            }
+        }
+
+        if release.summary != "" {
+            Markdown(release.summary, class: "bp-prose")
+        }
+
+        for section, k in release.sections by section.id {
+            if latest || k == 0 {
+                NotesBlock(section, shown: if latest { 4 } else { 3 })
+            } else {
+                show all {
+                    NotesBlock(section, shown: 4)
+                }
+            }
+        }
+
+        if !latest && release.sections.length > 1 {
+            Button(if all { t("changelog.fewer") } else { t("changelog.all", { count: release.count }) }, aria-expanded: all).sm.outlined {
+                style { align-self: flex-start }
+                on click { all = !all }
+            }
+        }
+    }
+}
+
+/// One section of a release: its title and how many changes it lists, then
+/// the first few, the rest a click away.
+component NotesBlock(_ section: NotesSection, shown: Number = 4) {
+    state open = false
+    derived hidden = section.items.length - shown
+
+    Stack(gap: .sm, id: section.id, class: "bp-prose") {
+        style { gap: 8px; scroll-margin-top: 80px }
+
+        Row(align: .center, gap: .sm) {
+            Heading(section.title).h3 { style { margin: 0 } }
+            if section.items.length > 0 {
+                Text("{section.items.length}", class: "bp-label")
+            }
+        }
+
+        if section.intro != "" {
+            Markdown(section.intro)
+        }
+
+        if section.items.length > 0 {
+            List {
+                style { display: flex; flex-direction: column; gap: 8px; margin: 0; padding-inline-start: 20px; & > [hidden] { display: none } }
+                for change, j in section.items by j {
+                    List.Item(hidden: !open && j >= shown) {
+                        Markdown(change.text)
+                        if change.points.length > 0 {
+                            List {
+                                style { margin: 4px 0 0; padding-inline-start: 20px }
+                                for point, n in change.points by n {
+                                    List.Item { Markdown(point) }
+                                }
+                            }
+                        }
+                        if change.after != "" {
+                            Markdown(change.after)
+                        }
+                    }
+                }
+            }
+        }
+
+        if hidden > 0 {
+            Button(if open { t("changelog.fewer") } else { t("changelog.more", { count: hidden }) }, aria-expanded: open).sm {
+                style { align-self: flex-start }
+                on click { open = !open }
+            }
+        }
+
+        if section.after != "" {
+            Markdown(section.after)
+        }
+    }
+}
+
+/// Every release in the sidebar, under its major version. Each is a link to
+/// its place on this page, so none is drawn as the current page.
+component VersionList(releases: [ReleaseNotes] = []) {
+    Stack(gap: .sm, role: "navigation", aria-label: t("changelog.versions"), class: "bp-sidebar") {
+        style {
+            display: none
+            gap: 12px
+            width: 232px
+            flex-shrink: 0
+            align-self: flex-start
+            position: sticky
+            top: $header-h
+            max-height: calc(100vh - 60px)
+            overflow-y: auto
+            box-sizing: border-box
+            padding: 24px 12px 32px 0
+            @md { display: flex }
+        }
+
+        Stack(class: "bp-navlist") {
+            for release, i in releases by release.id {
+                if i == 0 || releases[i - 1]?.version.split(".")[0] != release.version.split(".")[0] {
+                    Text(t("changelog.major", { major: release.version.split(".")[0] }), class: "bp-navgroup")
+                }
+                Link(href: "#{release.id}", class: "bp-navlink") {
+                    style { display: flex; justify-content: space-between; gap: 8px }
+                    Text(release.version, class: "bp-mono")
+                    if release.date != "" {
+                        Text(release.date.slice(5)).muted { style { margin: 0; font-size: 12px } }
+                    }
+                }
+            }
+        }
+    }
+}

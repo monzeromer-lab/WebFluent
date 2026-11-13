@@ -6,7 +6,8 @@ compiler, in order: `python3 scripts/docsite` (or `cargo xtask site`).
    (`site/src/components/Guide.wf`), the chapter titles in `en.json` and the
    guide's contents table
 3. `data.py` — `site/src/registry.json` and `site/public/search-index.json`
-4. `changelog.py` — `site/src/data/changelog.json`, from `RELEASE_NOTES.md`
+4. `changelog.py` — `site/src/data/changelog.json` and the page that draws
+   it, `site/src/pages/Changelog.wf`, from `RELEASE_NOTES.md`
 
 With `--check`, each writes into a scratch directory instead and the run
 fails if anything committed differs from what it would write. `WF_BIN`
@@ -73,13 +74,15 @@ def main() -> None:
         run("guide.py", {"WF_GUIDE_OUT": str(tmp / "guide")})
         (tmp / "data").mkdir()
         run("data.py", {"WF_SITE_DATA_OUT": str(tmp / "data")})
-        run("changelog.py", {"WF_CHANGELOG_OUT": str(tmp / "changelog.json")})
+        (tmp / "changelog").mkdir()
+        run("changelog.py", {"WF_CHANGELOG_OUT": str(tmp / "changelog")})
         pairs = [
             (tmp / "components.md", ROOT / "md-docs/reference/components.md"),
             (tmp / "guide/book/Guide.wf", ROOT / "site/src/components/Guide.wf"),
             (tmp / "data/registry.json", ROOT / "site/src/registry.json"),
             (tmp / "data/search-index.json", ROOT / "site/public/search-index.json"),
-            (tmp / "changelog.json", ROOT / "site/src/data/changelog.json"),
+            (tmp / "changelog/changelog.json", ROOT / "site/src/data/changelog.json"),
+            (tmp / "changelog/Changelog.wf", ROOT / "site/src/pages/Changelog.wf"),
         ]
         committed = ROOT / "site/src/pages/guide"
         fresh = {p.name for p in (tmp / "guide").glob("*.wf")}

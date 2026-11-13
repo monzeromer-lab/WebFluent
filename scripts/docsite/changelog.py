@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
-"""Write the site's changelog, `site/src/data/changelog.json`, from
-`RELEASE_NOTES.md`: one entry per release, newest first, read by
-`site/src/pages/Changelog.wf`.
+"""Write the site's changelog from `RELEASE_NOTES.md`: the releases as
+data, `site/src/data/changelog.json`, and the page that draws them,
+`site/src/pages/Changelog.wf`, one call per release with its notes written
+in place. A `data` file is part of every page's `app.js`; written into the
+page, the notes are in that page's chunk alone. The components the page
+places are `site/src/components/Changelog.wf`.
 
 Each release is `# WebFluent vX Release Notes`, a summary, then `##`
 sections. A section is what comes before its list (`intro`), its top-level
@@ -14,7 +17,8 @@ Anchors are stable: a release is `#<version>` as its heading writes it
 (`/changelog#6.0.0`), a section `#<version>-<slug>`. A release's date is
 its tag's (`v6.0.0`, or `v3.1.0` for `v3.1`); with no tag to read — a
 shallow clone — the date already in the committed file is kept.
-`WF_CHANGELOG_OUT` writes elsewhere, for `--check`.
+`WF_CHANGELOG_OUT` names a directory to write both files into instead, for
+`--check`.
 """
 import json
 import os
@@ -29,7 +33,10 @@ import guide  # noqa: E402
 ROOT = Path(__file__).resolve().parents[2]
 NOTES = ROOT / "RELEASE_NOTES.md"
 COMMITTED = ROOT / "site" / "src" / "data" / "changelog.json"
-OUT = Path(os.environ.get("WF_CHANGELOG_OUT") or COMMITTED)
+PAGE = ROOT / "site" / "src" / "pages" / "Changelog.wf"
+SCRATCH = os.environ.get("WF_CHANGELOG_OUT")
+OUT = Path(SCRATCH) / "changelog.json" if SCRATCH else COMMITTED
+PAGE_OUT = Path(SCRATCH) / "Changelog.wf" if SCRATCH else PAGE
 REPO = "https://github.com/monzeromer-lab/WebFluent"
 MONTHS = ["January", "February", "March", "April", "May", "June", "July",
           "August", "September", "October", "November", "December"]
@@ -199,12 +206,119 @@ def releases() -> list[dict]:
     return out
 
 
+def lit(text: str) -> str:
+    """`text` as a WebFluent string literal, as written: raw, so a sample
+    of code in the notes keeps its quotes and braces."""
+    return guide.wf_raw(text) if text else '""'
+
+
+def strings(items: list[str], ind: str) -> str:
+    if not items:
+        return "[]"
+    inner = ",\n".join(f"{ind}    {lit(i)}" for i in items)
+    return f"[\n{inner}\n{ind}]"
+
+
+def change(c: dict, ind: str) -> str:
+    args = [f"text: {lit(c['text'])}"]
+    if c["points"]:
+        args.append(f"points: {strings(c['points'], ind)}")
+    if c["after"]:
+        args.append(f"after: {lit(c['after'])}")
+    return "Change(" + ", ".join(args) + ")"
+
+
+def section(s: dict, ind: str) -> str:
+    args = [f"title: {lit(s['title'])}", f'id: "{s["id"]}"']
+    if s["intro"]:
+        args.append(f"intro: {lit(s['intro'])}")
+    if s["items"]:
+        inner = ",\n".join(f"{ind}    {change(c, ind + '    ')}" for c in s["items"])
+        args.append(f"items: [\n{inner}\n{ind}]")
+    if s["after"]:
+        args.append(f"after: {lit(s['after'])}")
+    return "NotesSection(" + ", ".join(args) + ")"
+
+
+def release(r: dict, ind: str) -> str:
+    args = [f'version: "{r["version"]}"', f'id: "{r["id"]}"']
+    for key in ("date", "when"):
+        if r[key]:
+            args.append(f'{key}: "{r[key]}"')
+    if r["summary"]:
+        args.append(f"summary: {lit(r['summary'])}")
+    if r["sections"]:
+        inner = ",\n".join(f"{ind}    {section(s, ind + '    ')}" for s in r["sections"])
+        args.append(f"sections: [\n{inner}\n{ind}]")
+    args.append(f"count: {r['count']}")
+    return "ReleaseNotes(" + ", ".join(args) + ")"
+
+
+PAGE_HEAD = """/// Every release, newest first, each at its own address
+/// (`/changelog#6.0.0`), written from RELEASE_NOTES.md by
+/// scripts/docsite/changelog.py; edit the notes, not this file.
+page Changelog(path: "/changelog", title: "Changelog — WebFluent", description: "What changed in each WebFluent release, newest first: additions, fixes, editor and library changes, and what to do when you upgrade.") {
+    SiteHeader(docs: true)
+
+    Row(align: .start, class: "bp-wrap") {
+        style { flex-wrap: nowrap; gap: 0; @md { gap: 32px } @xl { gap: 48px } }
+
+        VersionList(releases: VERSIONS)
+
+        // One per page: the skip link's target. wf-allow(A16)
+
+        Stack(gap: .lg, role: "main", id: "bp-main", tabindex: "-1", class: "bp-main") {
+            style { gap: 24px; padding: 32px 0 72px; @md { padding-top: 40px } }
+
+            Breadcrumbs(trail: [Place(key: "nav.reference", to: "/reference")], current: t("footer.changelog"))
+
+            Stack(gap: .sm) {
+                style { gap: 12px }
+                Row(class: "bp-labels") { KindLabel(.reference) }
+                Heading(t("footer.changelog")).h1 { style { margin: 0; font-size: clamp(30px, 5vw, 40px); line-height: 1.08; font-weight: 600; letter-spacing: -0.02em } }
+                Markdown(t("changelog.lede"), class: "bp-lede")
+                Row(gap: .md) {
+                    style { flex-wrap: wrap; font-size: 14px }
+                    Link(t("changelog.github"), href: "{REPO}/releases")
+                    Link("RELEASE_NOTES.md", href: "{REPO}/blob/master/RELEASE_NOTES.md")
+                }
+            }
+"""
+
+PAGE_TAIL = """        }
+
+        OnThisPage(sections: RAIL, source: "RELEASE_NOTES.md")
+    }
+}
+"""
+
+
+def page(found: list[dict]) -> str:
+    ind = "            "
+    versions = ",\n".join(
+        f'{ind}    ReleaseNotes(version: "{r["version"]}", id: "{r["id"]}"'
+        + (f', date: "{r["date"]}"' if r["date"] else "") + ")"
+        for r in found
+    )
+    rail = ", ".join(f'Anchor(id: "{s["id"]}", label: {lit(s["title"])})' for s in found[0]["sections"])
+    calls = "\n".join(
+        f"\n{ind}ReleaseEntry({release(r, ind)}" + (", latest: true" if i == 0 else "") + ")"
+        for i, r in enumerate(found)
+    )
+    head = PAGE_HEAD.replace("VERSIONS", f"[\n{versions}\n        ]")
+    return head + calls + "\n" + PAGE_TAIL.replace("RAIL", f"[{rail}]")
+
+
 def main():
     ROUTES.update(routes())
     found = releases()
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(found, ensure_ascii=False, indent=1) + "\n")
-    print(f"wrote {len(found)} releases to {OUT}")
+    PAGE_OUT.write_text(page(found))
+    # The site's files are held to the formatter by tests/fmt_corpus.rs.
+    wf = Path(os.environ["WF_BIN"]) if os.environ.get("WF_BIN") else ROOT / "target" / "debug" / "wf"
+    subprocess.run([str(wf) if wf.exists() else "wf", "fmt", str(PAGE_OUT)], check=False, capture_output=True)
+    print(f"wrote {len(found)} releases to {OUT} and {PAGE_OUT}")
 
 
 if __name__ == "__main__":
