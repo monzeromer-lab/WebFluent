@@ -1,6 +1,6 @@
 # WebFluent docs rewrite: the plan
 
-Status: **Phase 0 in progress.** The guide's sources are in the new tree (§14); the theme, the templates and the remaining designs are not started.
+Status: **Phase 0 nearly done.** The guide's sources, the Blueprint theme, shell and templates, and every design are in (§14). The generator and the fence strings are left.
 Version 2, 2026-11-13. It replaces the first plan (2026-11-12). The design decisions in that plan stand, and are folded in here. The first plan was written before 6.0 and before the compiler ran in a browser, so the parts it left open are now settled with numbers.
 
 This file is the single source of truth for the rewrite. Every phase ends in a site that can ship.
@@ -682,10 +682,24 @@ At the end of Phase 0 the site is in Blueprint, and nothing it says has changed 
   - `recipes/common-tasks.md` and the multi-task recipe chapters (Phase 2);
   - `coming-from/react-vue-svelte.md` into three pages (Phase 2).
 
+**Also done (merged 2026-11-13, `9d934cb7`, `294b9e85`, site rebuilt in `9dc34e4f`):**
+
+- **Designs:** Showcase, 404, essay, Changelog, and Arabic T2 and T4, on the canvas and in `blueprint-pages/`.
+- **Theme and shell:**
+  - Night by default, Day as the alternate;
+  - Instrument Sans;
+  - every component in §7.4;
+  - templates T1–T9 (`DocsShell` is T2), previewed at `/blueprint/*` and `/ar/blueprint/*`, marked `noindex`;
+  - the header with search, the Building switch, the theme toggle and the language switch.
+- **Known gaps:**
+  - The header and footer link to routes that arrive in Phases 1–3.
+  - `Guide.wf`'s chapter list is written by hand: the generator should write it, then retire `DocSidebar.wf` (`U03`).
+  - **Compiler:** a reader who chose Day sees one Night frame first, because the config can't say "dark by default".
+  - **Compiler:** `t()` ignores a page's `lang:`, so pre-rendered `/ar/` pages show English interface text until the reader switches language.
+
 **Still to do in Phase 0:**
 
-- W4: theme, shell and templates (proposed as its own session).
-- The missing designs (proposed as their own session).
+- The generator writes `Guide.wf` and stops writing `DocSidebar.wf`.
 - `cargo xtask site` and the `scripts/site/` package (§5.2).
 - The new fence strings (§5.5).
 - A front-matter schema check for the fields added later (`outputs`, `since`, `prereqs`, `related`).
