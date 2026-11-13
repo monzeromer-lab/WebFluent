@@ -5,6 +5,7 @@
 //! cargo xtask api [--update]           the public API, held to tests/public-api.txt
 //! cargo xtask golden [--update]        every project's output, held to tests/golden/
 //! cargo xtask fuzz <target> [seconds]  one fuzz target (parse, fmt, layout, markdown, sanitize)
+//! cargo xtask bench                    wf check, wf build and the language server, timed
 //! ```
 //!
 //! Each command runs `cargo` the way CI does, so a tree that passes here
@@ -30,6 +31,7 @@ fn main() -> ExitCode {
         "api" => api(&root, rest),
         "golden" => golden(&root, rest),
         "fuzz" => fuzz(&root, rest),
+        "bench" => bench(&root, rest),
         "-h" | "--help" | "help" => {
             print_help();
             Ok(())
@@ -49,7 +51,7 @@ fn main() -> ExitCode {
 
 fn print_help() {
     let doc = include_str!("main.rs");
-    for line in doc.lines().skip(3).take(4) {
+    for line in doc.lines().skip(3).take(5) {
         println!("{}", line.trim_start_matches("//! "));
     }
 }
@@ -253,4 +255,142 @@ fn fuzz(root: &Path, args: &[String]) -> Result<(), String> {
         &[&toolchain, "fuzz", "run", target, "--", &limit],
         &[],
     )
+}
+
+/// How many times each command is timed; the median is what is kept.
+const BENCH_RUNS: usize = 5;
+
+/// `wf check`, `wf build` and the language server's answers, timed on the
+/// documentation site and on a copy four times its size, each beside what
+/// the last run on this machine measured (kept in
+/// `target/xtask-bench.txt`; numbers from another machine say nothing
+/// here). Needs `python3` for the copies and the server's script.
+fn bench(root: &Path, args: &[String]) -> Result<(), String> {
+    if !args.is_empty() {
+        return Err("usage: cargo xtask bench".to_string());
+    }
+    run(
+        root,
+        "Release build",
+        "cargo",
+        &["build", "--release", "-p", "webfluent", "-p", "wf-lsp"],
+        &[],
+    )?;
+    let target = root.join("target");
+    let wf = target.join("release").join("wf");
+    let lsp = target.join("release").join("wf-lsp");
+    let work = target.join("xtask-bench");
+    let site = work.join("site");
+    let big = work.join("site-x4");
+    // The site writes to ../docs; a copy writes inside itself.
+    let copy = "import json,shutil,sys\n\
+                src,dst=sys.argv[1],sys.argv[2]\n\
+                shutil.rmtree(dst,ignore_errors=True)\n\
+                shutil.copytree(src,dst,ignore=shutil.ignore_patterns('build'))\n\
+                p=dst+'/webfluent.app.json';c=json.load(open(p))\n\
+                c['build']['output']='./build';json.dump(c,open(p,'w'),indent=2)";
+    let site_text = site.to_string_lossy().to_string();
+    let big_text = big.to_string_lossy().to_string();
+    let source = root.join("site").to_string_lossy().to_string();
+    run(
+        root,
+        "A copy of the documentation site",
+        "python3",
+        &["-c", copy, &source, &site_text],
+        &[],
+    )?;
+    let grow = root
+        .join("scripts/bench/grow.py")
+        .to_string_lossy()
+        .to_string();
+    run(
+        root,
+        "The site at four times its size",
+        "python3",
+        &[&grow, &site_text, &big_text, "4"],
+        &[],
+    )?;
+
+    let mut now: Vec<(String, f64)> = Vec::new();
+    for (label, dir) in [("site", &site_text), ("site x4", &big_text)] {
+        for command in ["check", "build"] {
+            let ms = median_ms(&wf, &[command, "-d", dir])?;
+            now.push((format!("wf {command}, {label}"), ms));
+        }
+        let out = Command::new("python3")
+            .arg(root.join("scripts/bench/lsp.py"))
+            .arg(&lsp)
+            .arg(dir)
+            .arg("src/pages/Reference.wf")
+            .output()
+            .map_err(|e| format!("could not run the server's script: {e}"))?;
+        if !out.status.success() {
+            return Err(format!(
+                "the server's script failed:\n{}",
+                String::from_utf8_lossy(&out.stderr)
+            ));
+        }
+        // `hover    0.5 ms median (max …)`: the name, then the first number.
+        for line in String::from_utf8_lossy(&out.stdout).lines() {
+            let Some(at) = line.find(|c: char| c.is_ascii_digit()) else {
+                continue;
+            };
+            let number: String = line[at..]
+                .chars()
+                .take_while(|c| c.is_ascii_digit() || *c == '.')
+                .collect();
+            if let Ok(ms) = number.parse::<f64>() {
+                now.push((format!("lsp {}, {label}", line[..at].trim()), ms));
+            }
+        }
+    }
+
+    let record = target.join("xtask-bench.txt");
+    let before: std::collections::BTreeMap<String, f64> = std::fs::read_to_string(&record)
+        .unwrap_or_default()
+        .lines()
+        .filter_map(|l| {
+            let (ms, name) = l.split_once('\t')?;
+            Some((name.to_string(), ms.parse().ok()?))
+        })
+        .collect();
+    println!("\n{:<44} {:>10} {:>10}", "", "now", "last");
+    let mut text = String::new();
+    for (name, ms) in &now {
+        let last = before
+            .get(name)
+            .map_or_else(|| "-".to_string(), |b| format!("{b:.1} ms"));
+        println!("{name:<44} {ms:>7.1} ms {last:>10}");
+        text.push_str(&format!("{ms}\t{name}\n"));
+    }
+    std::fs::write(&record, text)
+        .map_err(|e| format!("could not write {}: {e}", record.display()))?;
+    println!("\nkept in {}", record.display());
+    Ok(())
+}
+
+/// The median wall time of `program args` over [`BENCH_RUNS`] runs, after
+/// one run to warm the disk's cache.
+fn median_ms(program: &Path, args: &[&str]) -> Result<f64, String> {
+    let mut times = Vec::with_capacity(BENCH_RUNS);
+    for run in 0..=BENCH_RUNS {
+        let started = Instant::now();
+        let out = Command::new(program)
+            .args(args)
+            .output()
+            .map_err(|e| format!("could not run {}: {e}", program.display()))?;
+        if !out.status.success() {
+            return Err(format!(
+                "{} {} failed:\n{}",
+                program.display(),
+                args.join(" "),
+                String::from_utf8_lossy(&out.stdout)
+            ));
+        }
+        if run > 0 {
+            times.push(started.elapsed().as_secs_f64() * 1e3);
+        }
+    }
+    times.sort_by(f64::total_cmp);
+    Ok(times[times.len() / 2])
 }

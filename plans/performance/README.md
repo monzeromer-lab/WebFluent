@@ -7,41 +7,69 @@ Measured 2026-11-13 on this machine (16 cores), release builds of `wf` and
 
 ## Done so far (2026-11-13)
 
+Measured with `cargo xtask bench`, which prints each figure beside the
+last run on the same machine.
+
 | | Before | After |
 |---|---|---|
-| `wf build`, documentation site | 4.4 s | 0.89 s |
-| `wf build`, the site at 4× its size | not measured | 2.55 s |
-| A hover, completion or outline, site | 46 ms | 0.5 ms |
-| The same, at 4× | 155 ms | 0.5 ms |
-| An edit's findings, site | 145 ms | 81 ms |
-| The same, at 4× | 305 ms | 164 ms |
+| `wf build`, documentation site | 4.4 s | 0.36 s |
+| `wf build`, the site at 4× its size | not measured | 0.91 s |
+| `wf check`, site | 82 ms | 62 ms |
+| `wf check`, at 4× | 260 ms | 163 ms |
+| A hover, completion or outline, site | 46 ms | 0.1–0.2 ms |
+| The same, at 4× | 155 ms | 0.1–0.3 ms |
+| An edit's findings, site | 145 ms | 74 ms |
+| The same, at 4× | 305 ms | 126 ms |
+| The wf-lsp test over the whole site (debug) | 167 s | 10 s |
 
-What changed:
-1. The language server answers from the project as last analysed, and
-   analyses it again only after an edit, an open, a close, a save or a
-   file changed on disk (or after 500 ms when the editor does not report
-   those).
-2. A project analysed again reuses each file's parse while its text is
-   the same; the pause before an edit is checked is 50 ms, not 75.
-3. A `Static` list or map shares its contents (`Arc`), so reading a
-   `data` constant no longer copies it.
-4. Pages are painted on every core, and the `.gz` files are compressed
-   on every core; both are written in the order they always were.
+What changed, in the order it was done:
+
+**The language server**
+1. It answers from the project as last analysed, and analyses again only
+   after:
+   - an edit, an open, a close or a save;
+   - a file changed on disk (or after 500 ms when the editor does not
+     report that).
+2. A project analysed again reuses each file's parse while its text is the
+   same. The pause before an edit is checked is 50 ms, not 75.
+3. Each file keeps its tokens, made once per edit rather than once per
+   request.
+4. The project keeps the checker's type table:
+   - the one the check after an edit made;
+   - or one made the first time a hover asks for it.
+   
+   A hover no longer type-checks the whole program.
+
+**Data and parallel work**
+5. A `Static` list or map shares its contents (`Arc`), so reading a `data`
+   constant no longer copies it.
+6. Pages are painted on every core, and the `.gz` files are compressed on
+   every core. Both are written in the order they always were.
+
+**The allocator and the compressor**
+7. `wf` and `wf-lsp` allocate with mimalloc. The system allocator made the
+   threads wait on its lock.
+8. The compressor compares eight bytes at a time and keeps its tables per
+   thread. It finds the same matches.
+
+**Serial passes**
+9. A build weighs its output from the `.gz` files it has just written,
+   instead of compressing everything again, one file at a time.
+10. The tokens a build reads are found in one pass rather than one pass
+    per token.
+11. The pages a policy is held to are read back on every core.
 
 Every change was held to the golden output, byte for byte.
 
-Left from the list below:
-- the edit path's 21 ms (site) / 76 ms (4×) of checking, which is the
-  whole program's check every time;
-- the per-page translation and component tables;
-- the hasher;
-- the compressor's own speed;
-- `wf check` refusing an output folder outside the project;
-- a `cargo xtask bench` that keeps the numbers.
-
-The slow wf-lsp test (`real_code_tests`, about 170 s) calls the request
-handlers directly on one project about 70,000 times in a debug build. It
-does not go through the server's cache, so this work did not speed it up.
+**Left:**
+- An edit's findings still come from checking the whole program:
+  - about 20 ms on the site and 75 ms at 4×, after the 50 ms pause;
+  - a check per file is the next step there.
+- A page still clones the translation table and the component table.
+- On the site at 4×, the serial stages left are these, each worth a look:
+  - analysis (about 180 ms);
+  - JavaScript (about 160 ms);
+  - painting (about 230 ms, across cores).
 
 ## Is it the tests, or the tools?
 
@@ -183,13 +211,12 @@ repeating it is.
   a temporary `pprof` guard around `webfluent::cli::main` in a scratch
   build, which is how the profile above was taken.
 
-To be added as part of the work, so that a regression shows:
-- a `cargo xtask bench` that runs both and compares with the last
-  recorded numbers;
-- criterion benchmarks for parse, check and the evaluator.
+`cargo xtask bench` runs both, and compares with the last recorded
+numbers. Not added yet: criterion benchmarks for parse, check and the
+evaluator.
 
 ## Found on the way
 
-`wf check` refuses a project whose `build.output` points outside it,
-although a check writes nothing. It should not need
-`--allow-output-outside`.
+`wf check` refused a project whose `build.output` points outside it,
+although a check writes nothing. It now takes `--allow-output-outside`,
+as `wf build` does.
