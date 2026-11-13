@@ -339,9 +339,10 @@ does. The build copies `public/` to the root of `build/` as it is.
 `app.js` carries only the parts of the runtime the program reaches. The
 runtime is a set of feature modules — `each` for a `for`, `router` for a
 second page, `net` for a `resource`, `icons` for an `Icon` — and the build
-works out which ones the code it just wrote calls. A page of static text
-carries 2 of the 41 modules: an `app.js` of 6.8 kB gzipped. `wf build
---stats` shows what a build weighs, and [Performance](../about/performance.md)
+works out which ones the code it just wrote calls, then keeps only the
+functions of those that the calls reach, with their names shortened. A
+page of static text is an `app.js` of 1.9 kB gzipped. `wf build --stats`
+shows what a build weighs, and [Performance](../about/performance.md)
 explains how to read it.
 
 ## The project, in brief

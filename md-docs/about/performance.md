@@ -26,11 +26,15 @@ You get these without setting anything:
 
 - **Only the runtime you use.** The *runtime* is the JavaScript the
   compiled pages call. It is a set of modules, and a build keeps only the
-  ones its code reaches. A single-page build of one page of static text
-  carries 2 of the 41 modules: an `app.js` of 18.9 kB, 6.5 kB gzipped.
+  ones its code reaches, and of those only the functions its calls reach.
+  A single-page build of one page of static text is an `app.js` of
+  4.9 kB, 1.9 kB gzipped.
+- **Short names.** A minified build shortens the runtime's own names, its
+  top-level ones and each function's locals. What your pages call keeps
+  its name.
 - **A chunk per page.** `build.split` (on by default) writes each page's
   code and styles as their own files, loaded the first time its route is
-  shown.
+  shown. A site of one page is one file.
 - **Pre-rendered HTML.** With `build.ssg`, each page's HTML is written at
   build time, so the first paint needs no script.
 - **One pruned stylesheet.** It holds the rules of only the built-ins you
@@ -53,42 +57,43 @@ To see the size of everything a build writes, run the build with
 wf build --stats
 ```
 
-This is the output for the [tutorial](../learn/02-tutorial-shelf.md)'s site, trimmed:
+This is the output for the project `wf init -t spa` makes, trimmed:
 
 ```text
   What it weighs
-    app.js                               70.6 kB  (21.7 kB gzipped)
-    styles.css                           21.7 kB  (4.5 kB gzipped)
-    index.html                            5.2 kB  (1.3 kB gzipped)
-    suggest/index.html                    2.8 kB  (0.9 kB gzipped)
-    pages/Suggest.js                      2.2 kB  (0.9 kB gzipped)
-    pages/Home.js                         1.4 kB  (0.7 kB gzipped)
+    app.js                               49.5 kB  (16.7 kB gzipped)
+    styles.css                           26.5 kB  (5.0 kB gzipped)
+    pages/Settings.js                     8.8 kB  (2.2 kB gzipped)
+    pages/Profile.js                      5.5 kB  (1.5 kB gzipped)
+    pages/Tasks.js                        4.2 kB  (1.3 kB gzipped)
+    pages/Home.js                         3.5 kB  (1.1 kB gzipped)
     …
-    total                               118.7 kB
+    total                                99.7 kB
 
-  Runtime: 15 of 41 modules, 142.6 kB of 377.6 kB (before minifying)
-    core          38.1 kB  always
-    motion        19.5 kB  needed by when, match, each, router
-    router        15.4 kB  WF.router
-    form          13.4 kB  WF.form
-    hydrate       12.0 kB  WF.hydrating
-    each          10.3 kB  WF.each
-    store          9.0 kB  WF.store
-    keep           7.3 kB  needed by store
-    field          5.2 kB  WF.field
+  Runtime: 19 of 44 modules, 122.8 kB of 404.6 kB kept, 110.1 kB with its names shortened (before minifying)
+    core          26.3 kB  always
+    router        13.5 kB  WF.router
+    form          12.7 kB  WF.form
+    motion        12.6 kB  enter:
+    each          10.6 kB  WF.each
+    store          9.1 kB  WF.store
+    keep           8.9 kB  WF.persist
+    field          2.7 kB  WF.field
     …
-    left out: helpers format offline peer scalars text slot show browser …
+    left out: keys format offline peer scalars text slot browser host …
 
-  Tokens: 26 nothing in the output names, left out
+  Tokens: 30 nothing in the output names, left out
 ```
 
 Read it in three parts:
 
 - **What it weighs** lists every text file with its gzipped size. The
-  tutorial's form brings in `form` and `field`, its store brings in `store`
-  and `keep`, and its second page brings in `router`.
-- **Runtime** lists each module with what reached it. When a module you did
-  not expect is in the build, look here first.
+  starter's form brings in `form` and `field`, its store brings in `store`
+  and `keep`, its second page brings in `router`, and its entry animations
+  bring in `motion`.
+- **Runtime** lists each module with what the build kept of it — the
+  functions the program reaches — and what reached it. When a module you
+  did not expect is in the build, look here first.
 - **Tokens** counts the design tokens the build left out because nothing
   names them.
 

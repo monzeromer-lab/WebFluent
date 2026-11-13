@@ -6,7 +6,7 @@ page PerformanceGuide(path: "/docs/guide/performance", title: "Performance", des
 
         Heading("What the build already does", id: "what-the-build-already-does").h2
 
-        Markdown("You get these without setting anything:\n\n- **Only the runtime you use.** The *runtime* is the JavaScript the compiled pages call. It is a set of modules, and a build keeps only the ones its code reaches. A single-page build of one page of static text carries 2 of the 41 modules: an `app.js` of 18.9 kB, 6.5 kB gzipped.\n- **A chunk per page.** `build.split` (on by default) writes each page's code and styles as their own files, loaded the first time its route is shown.\n- **Pre-rendered HTML.** With `build.ssg`, each page's HTML is written at build time, so the first paint needs no script.\n- **One pruned stylesheet.** It holds the rules of only the built-ins you use, and only the design tokens something names.\n- **Precompressed files.** A `.gz` file sits beside every text file, for a host that serves it. `wf serve` sends the same bytes, so Lighthouse run against the dev server measures what a deploy sends.\n- **Images at every width**, with `width` and `height` so nothing shifts, a placeholder while they load, the first image eager and the rest lazy ([Media](/recipes)).\n- **Minified output.** `build.minify` (on by default) strips comments and white space.")
+        Markdown("You get these without setting anything:\n\n- **Only the runtime you use.** The *runtime* is the JavaScript the compiled pages call. It is a set of modules, and a build keeps only the ones its code reaches, and of those only the functions its calls reach. A single-page build of one page of static text is an `app.js` of 4.9 kB, 1.9 kB gzipped.\n- **Short names.** A minified build shortens the runtime's own names, its top-level ones and each function's locals. What your pages call keeps its name.\n- **A chunk per page.** `build.split` (on by default) writes each page's code and styles as their own files, loaded the first time its route is shown. A site of one page is one file.\n- **Pre-rendered HTML.** With `build.ssg`, each page's HTML is written at build time, so the first paint needs no script.\n- **One pruned stylesheet.** It holds the rules of only the built-ins you use, and only the design tokens something names.\n- **Precompressed files.** A `.gz` file sits beside every text file, for a host that serves it. `wf serve` sends the same bytes, so Lighthouse run against the dev server measures what a deploy sends.\n- **Images at every width**, with `width` and `height` so nothing shifts, a placeholder while they load, the first image eager and the rest lazy ([Media](/recipes)).\n- **Minified output.** `build.minify` (on by default) strips comments and white space.")
 
         Heading("See what a build weighs", id: "see-what-a-build-weighs").h2
 
@@ -16,34 +16,33 @@ page PerformanceGuide(path: "/docs/guide/performance", title: "Performance", des
                 Line(command: "wf build --stats")
             ])
 
-        Markdown("This is the output for the [tutorial](/docs/guide/tutorial)'s site, trimmed:")
+        Markdown("This is the output for the project `wf init -t spa` makes, trimmed:")
 
         CodeBlock(#"  What it weighs
-    app.js                               70.6 kB  (21.7 kB gzipped)
-    styles.css                           21.7 kB  (4.5 kB gzipped)
-    index.html                            5.2 kB  (1.3 kB gzipped)
-    suggest/index.html                    2.8 kB  (0.9 kB gzipped)
-    pages/Suggest.js                      2.2 kB  (0.9 kB gzipped)
-    pages/Home.js                         1.4 kB  (0.7 kB gzipped)
+    app.js                               49.5 kB  (16.7 kB gzipped)
+    styles.css                           26.5 kB  (5.0 kB gzipped)
+    pages/Settings.js                     8.8 kB  (2.2 kB gzipped)
+    pages/Profile.js                      5.5 kB  (1.5 kB gzipped)
+    pages/Tasks.js                        4.2 kB  (1.3 kB gzipped)
+    pages/Home.js                         3.5 kB  (1.1 kB gzipped)
     …
-    total                               118.7 kB
+    total                                99.7 kB
 
-  Runtime: 15 of 41 modules, 142.6 kB of 377.6 kB (before minifying)
-    core          38.1 kB  always
-    motion        19.5 kB  needed by when, match, each, router
-    router        15.4 kB  WF.router
-    form          13.4 kB  WF.form
-    hydrate       12.0 kB  WF.hydrating
-    each          10.3 kB  WF.each
-    store          9.0 kB  WF.store
-    keep           7.3 kB  needed by store
-    field          5.2 kB  WF.field
+  Runtime: 19 of 44 modules, 122.8 kB of 404.6 kB kept, 110.1 kB with its names shortened (before minifying)
+    core          26.3 kB  always
+    router        13.5 kB  WF.router
+    form          12.7 kB  WF.form
+    motion        12.6 kB  enter:
+    each          10.6 kB  WF.each
+    store          9.1 kB  WF.store
+    keep           8.9 kB  WF.persist
+    field          2.7 kB  WF.field
     …
-    left out: helpers format offline peer scalars text slot show browser …
+    left out: keys format offline peer scalars text slot browser host …
 
-  Tokens: 26 nothing in the output names, left out"#, title: "text")
+  Tokens: 30 nothing in the output names, left out"#, title: "text")
 
-        Markdown("Read it in three parts:\n\n- **What it weighs** lists every text file with its gzipped size. The tutorial's form brings in `form` and `field`, its store brings in `store` and `keep`, and its second page brings in `router`.\n- **Runtime** lists each module with what reached it. When a module you did not expect is in the build, look here first.\n- **Tokens** counts the design tokens the build left out because nothing names them.\n\nEach build records its sizes in `.wf-sizes.json` beside the project, so the next `--stats` shows how each file moved since the last build (for example, `+20 B`).\n\nThe project's own scripts are listed by their path under `js/`, such as `js/tilt.js` ([JavaScript interop](/recipes)). The build copies them as written: it does not minify a file it promises to ship byte for byte.")
+        Markdown("Read it in three parts:\n\n- **What it weighs** lists every text file with its gzipped size. The starter's form brings in `form` and `field`, its store brings in `store` and `keep`, its second page brings in `router`, and its entry animations bring in `motion`.\n- **Runtime** lists each module with what the build kept of it — the functions the program reaches — and what reached it. When a module you did not expect is in the build, look here first.\n- **Tokens** counts the design tokens the build left out because nothing names them.\n\nEach build records its sizes in `.wf-sizes.json` beside the project, so the next `--stats` shows how each file moved since the last build (for example, `+20 B`).\n\nThe project's own scripts are listed by their path under `js/`, such as `js/tilt.js` ([JavaScript interop](/recipes)). The build copies them as written: it does not minify a file it promises to ship byte for byte.")
 
         Heading("Set a size budget", id: "set-a-size-budget").h2
 

@@ -1828,11 +1828,19 @@ fn print_stats(
     let names: Vec<&str> = modules.iter().map(|m| m.name).collect();
     let left_out = crate::web::runtime::dropped(&names);
     let all = crate::web::runtime::full().len();
+    // What the build keeps of the modules it ships — the functions the
+    // program reaches — and, when it shortens names, what that comes to.
+    let kept: usize = modules.iter().map(|m| m.bytes).sum();
+    let shortened = if runtime_bytes < kept {
+        format!(", {} with its names shortened", kb(runtime_bytes))
+    } else {
+        String::new()
+    };
     out.say(format!(
-        "\n  Runtime: {} of {} modules, {} of {} (before minifying)",
+        "\n  Runtime: {} of {} modules, {} of {} kept{shortened} (before minifying)",
         modules.len(),
         modules.len() + left_out.len(),
-        kb(runtime_bytes),
+        kb(kept),
         kb(all)
     ));
     let mut by_size: Vec<&crate::web::runtime::Kept> = modules.iter().collect();

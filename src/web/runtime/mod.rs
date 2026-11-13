@@ -237,6 +237,8 @@ fn calls_in(program: &str) -> BTreeSet<&str> {
 #[derive(Debug)]
 pub struct Kept {
     pub name: &'static str,
+    /// What of the module the build keeps, before minifying: the functions
+    /// the program reaches, not the whole module.
     pub bytes: usize,
     /// The call, the attribute, or the module that reached it.
     pub reason: String,
@@ -255,6 +257,53 @@ pub fn report(program: &str, full: bool) -> Vec<Kept> {
         modules_for(program)
     };
     let called = calls_in(program);
+    // What of each module the build keeps: its declarations the program
+    // reaches, and its statements.
+    let mut kept_bytes: std::collections::HashMap<&str, usize> = std::collections::HashMap::new();
+    if !full {
+        let mut body = String::new();
+        let mut owner: Vec<(usize, &'static str)> = Vec::new();
+        for m in MODULES.iter().filter(|m| want.contains(m.name)) {
+            owner.push((body.len(), m.name));
+            if m.name == "icons" {
+                body.push_str(&prune_icons(m.source, program));
+            } else {
+                body.push_str(m.source);
+            }
+            if !body.ends_with('\n') {
+                body.push('\n');
+            }
+        }
+        let mut roots: BTreeSet<&str> = MODULES
+            .iter()
+            .filter(|m| want.contains(m.name))
+            .flat_map(|m| m.exports.iter())
+            .filter(|(name, _)| called.contains(name))
+            .map(|(_, local)| *local)
+            .collect();
+        roots.insert("_basePath");
+        let items = items(&body);
+        for (item, keep) in items.iter().zip(reached(&items, &roots)) {
+            if !keep {
+                continue;
+            }
+            // By its first line of code: a comment run before it may still
+            // be the end of the module before.
+            let lead = item
+                .text
+                .split_inclusive('\n')
+                .take_while(|l| l.trim().is_empty() || l.trim_start().starts_with("//"))
+                .map(str::len)
+                .sum::<usize>();
+            let at = item.text.as_ptr() as usize - body.as_ptr() as usize + lead;
+            let name = owner
+                .iter()
+                .rev()
+                .find(|(start, _)| *start <= at)
+                .map_or("core", |(_, name)| name);
+            *kept_bytes.entry(name).or_default() += item.text.len();
+        }
+    }
     MODULES
         .iter()
         .filter(|m| want.contains(m.name))
@@ -275,10 +324,10 @@ pub fn report(program: &str, full: bool) -> Vec<Kept> {
                     .collect();
                 format!("needed by {}", by.join(", "))
             };
-            let bytes = if m.name == "icons" && !full {
-                prune_icons(m.source, program).len()
-            } else {
+            let bytes = if full {
                 m.source.len()
+            } else {
+                kept_bytes.get(m.name).copied().unwrap_or(0)
             };
             Kept {
                 name: m.name,
@@ -854,6 +903,17 @@ fn scan(text: &str) -> (Vec<(usize, usize)>, Vec<u8>) {
 /// those name, and so on.
 fn keep_reached(body: &str, roots: &BTreeSet<&str>) -> String {
     let items = items(body);
+    items
+        .iter()
+        .zip(reached(&items, roots))
+        .filter(|(_, k)| *k)
+        .map(|(item, _)| item.text)
+        .collect()
+}
+
+/// Which of `items` a build keeps: every statement, the `roots`, and what
+/// those name, transitively.
+fn reached(items: &[Item<'_>], roots: &BTreeSet<&str>) -> Vec<bool> {
     let mut by_name: std::collections::HashMap<&str, Vec<usize>> = std::collections::HashMap::new();
     for (ix, item) in items.iter().enumerate() {
         if let Some(name) = item.declares {
@@ -884,12 +944,7 @@ fn keep_reached(body: &str, roots: &BTreeSet<&str>) -> String {
             reach(name, &mut keep, &mut queue);
         }
     }
-    items
-        .iter()
-        .zip(&keep)
-        .filter(|(_, k)| **k)
-        .map(|(item, _)| item.text)
-        .collect()
+    keep
 }
 
 /// The icon table, with the glyphs the program never names left out.

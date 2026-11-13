@@ -2374,7 +2374,7 @@ For values a machine supplies (a deploy pipeline injecting a brand colour),
 build/
 ├── index.html            # the shell (SPA) or the pre-rendered page (SSG)
 ├── app.js                # the runtime this program needs, stores, components
-├── pages/<Name>.js       # one chunk per Page, loaded when its route shows
+├── pages/<Name>.js       # one chunk per Page, loaded when its route shows (not for one page)
 ├── pages/<Name>.css      # the style rules only that page reaches
 ├── styles.css            # tokens, only the component rules the project uses,
 │                         # the project's own .css files, and the compiled
@@ -2389,14 +2389,22 @@ reaches. The runtime is a set of feature modules (`each`, `router`, `net`,
 `format`, `icons`, `carousel`, …), and a build reads what it needs from the
 bundle it just wrote: every `WF.<name>` the code generator emitted, closed
 over each module's dependencies, plus the glyphs the program names, which
-are the only ones the icon table keeps. A page that shows static text
-carries 2 of the 41 modules — an `app.js` of 6.8 kB gzipped; a `for` adds
-`each`, a second page adds `router`, a `resource` adds `net`.
+are the only ones the icon table keeps. Then it goes further than the
+module: of the modules it ships it keeps only the functions those calls
+reach, and `WF` carries only the names the program calls — a `for` adds
+`each`, a second page adds `router`, a `resource` adds `net`, and a
+`Router` with no `transition:` carries no transition player. A minified
+build (not `wf serve`'s) then shortens the runtime's own names, its
+top-level ones and each function's locals; what the program calls on `WF`
+keeps its name. A page that shows static text is an `app.js` of 1.9 kB
+gzipped.
 
-Nothing is hand-marked, so the set cannot fall behind the compiler. A name
-a build cannot see — an icon assembled at run time, a `WF.*` call in a
-hand-written `<script>` — is the one case it gets wrong, and
-`"build": { "runtime": "full" }` ships every module for it.
+Calls from outside the bundle count as calls: the project's own scripts,
+an `elements` build's definitions. Nothing is hand-marked, so the set
+cannot fall behind the compiler. A name a build cannot see — an icon
+assembled at run time, a `WF.*` call built from a string — is the one case
+it gets wrong, and `"build": { "runtime": "full" }` ships everything for
+it.
 
 `:root` carries only the design tokens something in the output names —
 a stylesheet, a script, a page, a file copied from `public/` — and the
@@ -2404,17 +2412,16 @@ tokens those name in turn.
 
 `wf build --stats` prints what the build weighs: every text file with its
 gzipped size and how it moved since the last build, and each runtime module
-with its size and what reached it.
+with what the build kept of it and what reached it.
 
 ```
   What it weighs
-    app.js                                19.6 kB  (6.8 kB gzipped)  −0.1 kB
-    styles.css                            14.5 kB  (3.5 kB gzipped)
+    styles.css                             5.2 kB  (1.5 kB gzipped)
+    app.js                                 4.9 kB  (1.9 kB gzipped)  −0.1 kB
 
-  Runtime: 2 of 41 modules, 42.9 kB of 382.2 kB (before minifying)
-    core          39.9 kB  always
-    pages          2.5 kB  WF.page
-    left out: motion helpers format offline peer scalars form text when match …
+  Runtime: 1 of 44 modules, 14.8 kB of 404.6 kB kept, 13.8 kB with its names shortened (before minifying)
+    core          14.8 kB  always
+    left out: theme keys nodes motion helpers format offline peer scalars form …
 ```
 
 `build.budget` names a gzipped size an output must stay under. A build over
@@ -2442,6 +2449,8 @@ what a deployed site sends. Hosts that ignore `.gz` files lose nothing.
 bundle and the sheets. `build.split` (on by default) writes each page as its
 own chunk: a static build's page links `app.js` and its chunk side by side,
 and a single-page build fetches a chunk the first time its route is shown.
+A site of one page is not split: its code and its rules are in `app.js`
+and `styles.css`.
 A literal in a `style { }` block is compiled into a stylesheet rule under a
 class named by the block's content, so a hundred identical cards share one
 rule; only a value that reads state is set on the element. With `split`, a
