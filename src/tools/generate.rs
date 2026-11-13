@@ -113,8 +113,6 @@ pub fn is_indented(src_dir: &Path) -> bool {
 
 /// [`is_indented`], looking through `vfs`.
 pub fn is_indented_via(vfs: &dyn Vfs, src_dir: &Path) -> bool {
-    let mut has_wfx = false;
-    let mut has_wf = false;
     fn walk(vfs: &dyn Vfs, dir: &Path, has_wfx: &mut bool, has_wf: &mut bool) {
         let Ok(entries) = vfs.read_dir(dir) else {
             return;
@@ -129,6 +127,9 @@ pub fn is_indented_via(vfs: &dyn Vfs, src_dir: &Path) -> bool {
             }
         }
     }
+
+    let mut has_wfx = false;
+    let mut has_wf = false;
     walk(vfs, src_dir, &mut has_wfx, &mut has_wf);
     has_wfx && !has_wf
 }

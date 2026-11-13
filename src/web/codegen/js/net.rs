@@ -7,7 +7,6 @@ use super::{
 
 /// The names of the resources a body declares, at any depth.
 pub(super) fn resource_names(stmts: &[Statement]) -> Vec<String> {
-    let mut names = Vec::new();
     fn walk(stmts: &[Statement], names: &mut Vec<String>) {
         for stmt in stmts {
             match &stmt.kind {
@@ -37,6 +36,8 @@ pub(super) fn resource_names(stmts: &[Statement]) -> Vec<String> {
             }
         }
     }
+
+    let mut names = Vec::new();
     walk(stmts, &mut names);
     names
 }

@@ -28,6 +28,7 @@ struct ElementBody {
 }
 
 /// The WebFluent parser — converts a token stream into an AST.
+#[derive(Debug)]
 pub struct Parser {
     tokens: Vec<Token>,
     pos: usize,

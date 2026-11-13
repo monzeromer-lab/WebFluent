@@ -14,7 +14,7 @@ use std::sync::{Arc, Mutex, OnceLock};
 use ttf_parser::{Face as TtfFace, name_id};
 
 /// One face: a family at one weight and slant (or a variable range).
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct Face {
     pub family: String,
     /// The lightest and heaviest weight it draws; equal for a static face.
@@ -53,6 +53,7 @@ pub struct Pick {
     pub synthetic_italic: bool,
 }
 
+#[derive(Debug)]
 pub struct FontDb {
     pub faces: Vec<Face>,
     /// Family (lower case) → faces.

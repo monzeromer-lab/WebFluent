@@ -64,6 +64,7 @@ pub struct Visit {
 }
 
 /// One page a browser has open.
+#[derive(Debug)]
 pub struct Page {
     target: String,
     session: String,
@@ -77,6 +78,7 @@ impl Page {
     }
 }
 
+#[derive(Debug)]
 pub struct Browser {
     /// A script every page runs before its own: what `--returning-visitor`
     /// puts in storage.

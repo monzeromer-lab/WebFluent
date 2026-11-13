@@ -26,11 +26,13 @@ use super::style::{
 use super::text::{Item, Line};
 
 /// A link drawn on a page: where, and to what.
+#[derive(Debug)]
 pub struct LinkBox {
     pub rect: (f32, f32, f32, f32),
     pub href: String,
 }
 
+#[derive(Debug)]
 pub struct Painter<'a> {
     /// The tree being painted: the document's, or a running element's.
     pub tree: &'a Tree,
@@ -76,6 +78,8 @@ fn fill(c: Rgba) -> Fill {
 /// A rectangle with each corner rounded: top-left, top-right, bottom-right,
 /// bottom-left.
 pub fn rounded(x: f32, y: f32, w: f32, h: f32, r: [f32; 4]) -> Option<Path> {
+    const K: f32 = 0.552_284_8;
+
     if w <= 0.0 || h <= 0.0 {
         return None;
     }
@@ -86,7 +90,6 @@ pub fn rounded(x: f32, y: f32, w: f32, h: f32, r: [f32; 4]) -> Option<Path> {
         pb.push_rect(Rect::from_xywh(x, y, w, h)?);
         return pb.finish();
     }
-    const K: f32 = 0.552_284_8;
     pb.move_to(x + r[0], y);
     pb.line_to(x + w - r[1], y);
     pb.cubic_to(

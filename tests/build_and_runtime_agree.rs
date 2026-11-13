@@ -43,7 +43,6 @@ fn runtime_exports() -> BTreeSet<String> {
 
 /// `WF.<name>` in the code generator's source, outside its tests.
 fn emitted_runtime_calls() -> BTreeSet<String> {
-    let mut names = BTreeSet::new();
     // The code generator, and the files of it that sit in lower layers.
     fn walk(dir: &std::path::Path, out: &mut Vec<std::path::PathBuf>) {
         for entry in std::fs::read_dir(dir).unwrap().flatten() {
@@ -55,6 +54,8 @@ fn emitted_runtime_calls() -> BTreeSet<String> {
             }
         }
     }
+
+    let mut names = BTreeSet::new();
     let mut paths = Vec::new();
     walk(&root().join("src/web/codegen"), &mut paths);
     paths.extend(

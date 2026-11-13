@@ -20,6 +20,7 @@ fn oops(what: impl std::fmt::Display) -> WebFluentError {
 }
 
 /// An open connection to a DevTools endpoint.
+#[derive(Debug)]
 pub struct Socket {
     stream: TcpStream,
     reader: BufReader<TcpStream>,

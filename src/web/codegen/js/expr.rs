@@ -31,7 +31,7 @@ pub const LIST_AND_STRING_HELPERS: &[&str] = &[
 /// How the receiver of a method call is held, which decides whether a
 /// mutating method assigns back through a signal, through a store's setter,
 /// or mutates the value in place.
-#[derive(Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Holder {
     /// A local, a parameter, a literal: nothing reactive reads it.
     Plain,
@@ -178,6 +178,14 @@ impl JsCodegen {
             (Expr::BoolLiteral(b), _) => format!("{b}"),
             (Expr::Null, _) => "null".to_string(),
             (Expr::Identifier(name), Cx::Page) => {
+                // The names the generated code uses for a route's
+                // parameters, a handler's event and a keyed loop's
+                // bindings. They are read as themselves — unless the page
+                // declared one of them, in which case the declaration
+                // wins: a `state key` used to compile to a bare global,
+                // so it rendered as nothing and never updated.
+                const IMPLICIT: &[&str] = &["params", "value", "key", "event", "e"];
+
                 // A live binding — an arm's, an `if let`'s, a keyed loop's —
                 // is read through its accessor, wherever it is read.
                 if self.is_live(name) {
@@ -236,13 +244,6 @@ impl JsCodegen {
                 if self.body.page_params.contains(name) {
                     return format!("params.{name}");
                 }
-                // The names the generated code uses for a route's
-                // parameters, a handler's event and a keyed loop's
-                // bindings. They are read as themselves — unless the page
-                // declared one of them, in which case the declaration
-                // wins: a `state key` used to compile to a bare global,
-                // so it rendered as nothing and never updated.
-                const IMPLICIT: &[&str] = &["params", "value", "key", "event", "e"];
                 // An action named as a value — `addEventListener("scroll",
                 // track)`, a callback handed to a library — is the function
                 // itself. It used to be read as a signal, `_track()`, which

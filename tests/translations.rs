@@ -340,6 +340,20 @@ const AR: &str = r#"{
 
 #[test]
 fn a_project_s_table_is_each_thing_it_should_be() {
+    fn find(
+        e: &webfluent::syntax::parser::ast::Expr,
+        out: &mut Vec<webfluent::syntax::parser::ast::Expr>,
+    ) {
+        if let webfluent::syntax::parser::ast::Expr::FunctionCall(n, _) = e
+            && n == "t"
+        {
+            out.push(e.clone());
+        }
+        for c in e.children() {
+            find(c, out);
+        }
+    }
+
     let dir = project(&[
         (
             "webfluent.app.json",
@@ -433,19 +447,6 @@ fn a_project_s_table_is_each_thing_it_should_be() {
     // The inspector's binding.
     let program = webfluent::parse_source(PAGE, "Inbox.wf").unwrap();
     let mut calls = Vec::new();
-    fn find(
-        e: &webfluent::syntax::parser::ast::Expr,
-        out: &mut Vec<webfluent::syntax::parser::ast::Expr>,
-    ) {
-        if let webfluent::syntax::parser::ast::Expr::FunctionCall(n, _) = e
-            && n == "t"
-        {
-            out.push(e.clone());
-        }
-        for c in e.children() {
-            find(c, out);
-        }
-    }
     let p = program
         .declarations
         .iter()

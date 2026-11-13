@@ -754,6 +754,18 @@ fn a_test_file_runs_in_its_project_and_expects_read_text() {
 /// and on the live page. Its rule was compiled and put on nothing.
 #[test]
 fn a_calls_style_styles_the_components_root() {
+    // Every stylesheet the build wrote, wherever it put it.
+    fn all_css(at: &std::path::Path, out: &mut String) {
+        for e in std::fs::read_dir(at).into_iter().flatten().flatten() {
+            let p = e.path();
+            if p.is_dir() {
+                all_css(&p, out);
+            } else if p.extension().is_some_and(|x| x == "css") {
+                out.push_str(&std::fs::read_to_string(&p).unwrap_or_default());
+            }
+        }
+    }
+
     let dir = built_project(
         "callstyle",
         r#"{ "name": "t", "build": { "ssg": true, "minify": false, "split": false } }"#,
@@ -770,17 +782,6 @@ fn a_calls_style_styles_the_components_root() {
          \x20   }\n\
          }\n",
     );
-    // Every stylesheet the build wrote, wherever it put it.
-    fn all_css(at: &std::path::Path, out: &mut String) {
-        for e in std::fs::read_dir(at).into_iter().flatten().flatten() {
-            let p = e.path();
-            if p.is_dir() {
-                all_css(&p, out);
-            } else if p.extension().is_some_and(|x| x == "css") {
-                out.push_str(&std::fs::read_to_string(&p).unwrap_or_default());
-            }
-        }
-    }
     let mut css = String::new();
     all_css(&dir.join("build"), &mut css);
     let at = css

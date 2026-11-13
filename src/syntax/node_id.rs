@@ -283,7 +283,7 @@ pub fn visit_nodes<'a>(program: &'a Program, visit: &mut dyn FnMut(&'a UIElement
 }
 
 /// What the walk knows where a node is.
-#[derive(Clone, Default)]
+#[derive(Debug, Clone, Default)]
 pub struct Ctx {
     file: Option<String>,
     parent: Option<NodeId>,

@@ -172,6 +172,7 @@ pub fn script_tags(config: &ProjectConfig, root: &str) -> String {
 /// needs from this page's depth (`"."` at the root, `".."` one level down).
 /// What a `meta.preload` file is, to the browser: its `as`, and the type
 /// that lets a browser skip a format it cannot use.
+#[derive(Debug)]
 pub struct PreloadKind {
     pub r#as: &'static str,
     pub mime: Option<&'static str>,

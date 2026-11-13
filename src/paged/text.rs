@@ -65,6 +65,7 @@ pub struct Cluster {
 }
 
 /// A paragraph shaped and ready to be broken into lines.
+#[derive(Debug)]
 pub struct Shaped {
     pub text: String,
     pub items: Vec<Item>,

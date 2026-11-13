@@ -113,6 +113,19 @@ pub struct Options<'a> {
     pub system_fonts: bool,
 }
 
+impl std::fmt::Debug for Options<'_> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Options")
+            .field("paper", &self.paper)
+            .field("font_size", &self.font_size)
+            .field("font_family", &self.font_family)
+            .field("font_dirs", &self.font_dirs)
+            .field("system_fonts", &self.system_fonts)
+            .finish_non_exhaustive()
+    }
+}
+
+#[derive(Debug)]
 pub struct Output {
     pub bytes: Vec<u8>,
     pub pages: usize,
@@ -255,6 +268,14 @@ const NO_PDF: &str = "this build of the compiler has no PDF engine (a WebAssembl
     )
 )]
 pub fn render(html: &str, css: &str, opts: &Options<'_>) -> Result<Output, String> {
+    // The running elements, each built for each page it is drawn on.
+    struct RunningFrag {
+        page: usize,
+        kind: u8,
+        tree: Tree,
+        frag: Frag,
+    }
+
     #[cfg(not(wf_pdf))]
     {
         let _ = (html, css, opts);
@@ -359,13 +380,6 @@ pub fn render(html: &str, css: &str, opts: &Options<'_>) -> Result<Output, Strin
     }
     let count = pages.count;
 
-    // The running elements, each built for each page it is drawn on.
-    struct RunningFrag {
-        page: usize,
-        kind: u8,
-        tree: Tree,
-        frag: Frag,
-    }
     let mut running: Vec<RunningFrag> = Vec::new();
     let lists: [(u8, &Vec<(On, usize)>); 4] = [
         (0, &tree.running.backgrounds),

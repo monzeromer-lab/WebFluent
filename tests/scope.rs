@@ -82,6 +82,18 @@ fn the_picker_lists_what_completion_holds_typed_as_the_checker_types_it() {
             // read in a reasonable time.
             let step = (at.len() / 25).max(1);
             for offset in at.into_iter().step_by(step) {
+                // Every field path reads as the row it hangs from.
+                fn under(rows: &[paths::Entry], wrong: &mut Vec<String>) {
+                    for r in rows {
+                        for m in &r.members {
+                            if m.path != format!("{}.{}", r.path, m.name) {
+                                wrong.push(format!("{} under {}", m.path, r.path));
+                            }
+                        }
+                        under(&r.members, wrong);
+                    }
+                }
+
                 checked += 1;
                 let rows = paths::at(&program, &info, ix, offset);
                 let listed: HashSet<&str> = rows
@@ -125,17 +137,6 @@ fn the_picker_lists_what_completion_holds_typed_as_the_checker_types_it() {
                             "{}: {} is {} in the picker, {t} to the checker",
                             files[ix], r.name, r.ty
                         ));
-                    }
-                }
-                // Every field path reads as the row it hangs from.
-                fn under(rows: &[paths::Entry], wrong: &mut Vec<String>) {
-                    for r in rows {
-                        for m in &r.members {
-                            if m.path != format!("{}.{}", r.path, m.name) {
-                                wrong.push(format!("{} under {}", m.path, r.path));
-                            }
-                        }
-                        under(&r.members, wrong);
                     }
                 }
                 under(&rows, &mut wrong);
@@ -339,6 +340,10 @@ fn row<'a>(rows: &'a [paths::Entry], path: &str) -> &'a paths::Entry {
 
 #[test]
 fn each_row_is_the_one_it_should_be() {
+    fn depth(r: &paths::Entry) -> usize {
+        1 + r.members.iter().map(depth).max().unwrap_or(0)
+    }
+
     let program = webfluent::parse_source(DEPLOYS, "deploys.wf").unwrap();
     let info = webfluent::sema::types::check(&program, &|_| "deploys.wf".into());
     let ix = program
@@ -414,9 +419,6 @@ fn each_row_is_the_one_it_should_be() {
     let tree = row(&rows, "tree");
     assert!(tree.optional);
     assert_eq!(row(&rows, "tree.parent.label").ty, "String");
-    fn depth(r: &paths::Entry) -> usize {
-        1 + r.members.iter().map(depth).max().unwrap_or(0)
-    }
     assert!(depth(tree) <= 4, "{}", depth(tree));
 
     // Inside an action: its parameter and its let, before the page's.

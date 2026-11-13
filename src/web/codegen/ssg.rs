@@ -187,6 +187,7 @@ fn static_expr(value: &Static) -> Expr {
 ///
 /// These used to be five separate parameters threaded through two public
 /// functions, which had grown to eight arguments apiece.
+#[derive(Debug)]
 pub struct SiteContext<'a> {
     pub config: &'a ProjectConfig,
     /// The `App` shell's body, if the project has one.
@@ -2232,7 +2233,7 @@ pub(crate) fn render_builtin<C: Paint>(name: &str, ui: &UIElement, ctx: &mut C) 
 }
 
 /// A field's label, hint and error, resolved to text.
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub struct FieldParts {
     pub label: Option<String>,
     pub hint: Option<String>,
@@ -2836,6 +2837,7 @@ fn address_text(expr: &Expr, scope: &Scope) -> Option<String> {
 }
 
 /// A modal or a dialog as a static renderer paints it (`static_dialog`).
+#[derive(Debug)]
 pub struct DialogPaint<'a> {
     /// Its classes: the base class, its variants, the author's.
     pub root_class: &'a str,

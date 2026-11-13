@@ -34,12 +34,18 @@ use crate::line_index::LineIndex;
 /// The editor's text for an open file, and the last parse of it that
 /// succeeded — what the server reads from while the text mid-edit does not
 /// parse. Its spans are a little stale by then; its names are not.
+#[derive(Debug)]
 pub struct OpenText {
     pub text: Arc<str>,
     pub last_valid: Option<Arc<Program>>,
 }
 
 /// One source file, parsed.
+#[expect(
+    clippy::struct_excessive_bools,
+    reason = "independent facts about a file the server holds"
+)]
+#[derive(Debug)]
 pub struct SourceFile {
     pub uri: Url,
     pub path: PathBuf,
@@ -75,6 +81,7 @@ impl SourceFile {
 }
 
 /// A project: its files, and their declarations merged into one program.
+#[derive(Debug)]
 pub struct Project {
     /// The directory holding `webfluent.app.json`, when there is one.
     pub root: Option<PathBuf>,
@@ -105,11 +112,12 @@ pub struct Project {
 
 /// Files read through a [`Vfs`], keyed by path, reused while the file is
 /// unchanged. A buffer, which has no time to key it by, is never kept.
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub struct FileCache {
     entries: DashMap<PathBuf, Arc<CachedFile>>,
 }
 
+#[derive(Debug)]
 struct CachedFile {
     modified: SystemTime,
     len: u64,

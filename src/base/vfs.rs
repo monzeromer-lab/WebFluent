@@ -176,7 +176,15 @@ pub struct OverlayVfs {
     layers: BTreeMap<PathBuf, Layer>,
 }
 
-#[derive(Clone)]
+impl std::fmt::Debug for OverlayVfs {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("OverlayVfs")
+            .field("layers", &self.layers)
+            .finish_non_exhaustive()
+    }
+}
+
+#[derive(Debug, Clone)]
 enum Layer {
     Text(Arc<str>),
     /// A file that is not text: a picture, a font.
@@ -432,6 +440,16 @@ pub struct Confined<'a> {
     /// The root, resolved: `None` where it is not on a disk.
     real_root: Option<PathBuf>,
     skipped: std::sync::Mutex<BTreeMap<PathBuf, &'static str>>,
+}
+
+impl std::fmt::Debug for Confined<'_> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Confined")
+            .field("root", &self.root)
+            .field("real_root", &self.real_root)
+            .field("skipped", &self.skipped)
+            .finish_non_exhaustive()
+    }
 }
 
 impl<'a> Confined<'a> {

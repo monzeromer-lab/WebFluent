@@ -32,6 +32,7 @@ use crate::syntax::parser::ast::{
 };
 
 /// A project's tests, read and ready to run.
+#[derive(Debug)]
 pub struct Tests {
     /// What every test renders with: everything but pages, the app and the
     /// tests, of the project's sources.
@@ -861,7 +862,7 @@ pub trait Browser {
 
 /// What a test's site is built with, beside its program: the project's
 /// theme settings, its own scripts, its translations and its styles.
-#[derive(Clone, Copy)]
+#[derive(Debug, Clone, Copy)]
 pub struct Site<'a> {
     pub theme: &'a ThemeConfig,
     pub scripts: &'a [crate::project::project_js::Script],

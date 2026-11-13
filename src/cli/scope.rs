@@ -8,6 +8,20 @@ use crate::diagnostics::error::{Result, WebFluentError};
 /// stores it uses, and a template's data — each with its type and where it
 /// comes from.
 pub(crate) fn run_scope(dir: &Path, place: &str, data: Option<&Path>, json: bool) -> Result<()> {
+    fn print(entries: &[crate::scope::paths::Entry], indent: usize) {
+        for e in entries {
+            println!(
+                "{:indent$}{:<24} {:<20} {}",
+                "",
+                e.path,
+                e.ty,
+                e.from,
+                indent = indent
+            );
+            print(&e.members, indent + 2);
+        }
+    }
+
     let bad = || WebFluentError::edit(format!("`{place}` is not FILE:LINE or FILE:LINE:COL"));
     let mut parts = place.rsplitn(3, ':').collect::<Vec<_>>();
     parts.reverse();
@@ -46,19 +60,6 @@ pub(crate) fn run_scope(dir: &Path, place: &str, data: Option<&Path>, json: bool
             serde_json::to_string_pretty(&entries).unwrap_or_default()
         );
         return Ok(());
-    }
-    fn print(entries: &[crate::scope::paths::Entry], indent: usize) {
-        for e in entries {
-            println!(
-                "{:indent$}{:<24} {:<20} {}",
-                "",
-                e.path,
-                e.ty,
-                e.from,
-                indent = indent
-            );
-            print(&e.members, indent + 2);
-        }
     }
     print(&entries, 0);
     Ok(())

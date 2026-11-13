@@ -15,6 +15,7 @@ use super::style::{Display, ListStyle, Style};
 use super::text::{Item, Shaped};
 
 /// A picture a box draws: decoded later, sized now.
+#[derive(Debug)]
 pub enum Asset {
     Raster {
         data: Vec<u8>,
@@ -26,6 +27,7 @@ pub enum Asset {
     },
 }
 
+#[derive(Debug)]
 pub enum Kind {
     /// A block, flex or grid container (by its style's `display`).
     Container,
@@ -51,6 +53,7 @@ pub enum Kind {
     PageBreak,
 }
 
+#[derive(Debug)]
 pub struct LBox {
     pub style: Rc<Style>,
     pub kind: Kind,
@@ -62,6 +65,7 @@ pub struct LBox {
 }
 
 /// An inline element's style, for its background and its link.
+#[derive(Debug)]
 pub struct Span {
     pub style: Rc<Style>,
     pub href: Option<String>,
@@ -99,7 +103,7 @@ impl On {
     }
 }
 
-#[derive(Default)]
+#[derive(Debug, Default)]
 /// The running elements, by the element each is built from.
 pub struct Running {
     pub headers: Vec<(On, usize)>,
@@ -108,6 +112,7 @@ pub struct Running {
     pub watermarks: Vec<(On, usize)>,
 }
 
+#[derive(Debug)]
 pub struct Tree {
     pub boxes: Vec<LBox>,
     pub shaped: Vec<Shaped>,
@@ -147,6 +152,16 @@ pub struct Builder<'a> {
     /// Each picture read so far, by its address: one picture a document
     /// shows on every row is read, decoded and embedded once.
     loaded: std::collections::HashMap<String, Option<usize>>,
+}
+
+impl std::fmt::Debug for Builder<'_> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Builder")
+            .field("tree", &self.tree)
+            .field("page_vars", &self.page_vars)
+            .field("keep_running", &self.keep_running)
+            .finish_non_exhaustive()
+    }
 }
 
 /// What the template engine writes for `page` and `pages` inside a running

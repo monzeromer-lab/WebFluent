@@ -30,6 +30,7 @@ use std::collections::BTreeSet;
 
 /// One feature of the runtime: a fragment of the closure, what it puts on
 /// `WF`, what it needs, and what in a program reaches it.
+#[derive(Debug)]
 pub struct Module {
     /// The module's name, as `deps` spell it.
     pub name: &'static str,

@@ -36,15 +36,6 @@ fn current_major() -> u32 {
 }
 
 fn files() -> Vec<PathBuf> {
-    let root = root();
-    let mut out = vec![
-        root.join("README.md"),
-        root.join("Cargo.toml"),
-        root.join("AGENTS.md"),
-        root.join("crates/wf-lsp/Cargo.toml"),
-        root.join("bindings/node/README.md"),
-        root.join("editors/vscode/README.md"),
-    ];
     fn walk(dir: &Path, exts: &[&str], out: &mut Vec<PathBuf>) {
         let Ok(entries) = fs::read_dir(dir) else {
             return;
@@ -62,6 +53,16 @@ fn files() -> Vec<PathBuf> {
             }
         }
     }
+
+    let root = root();
+    let mut out = vec![
+        root.join("README.md"),
+        root.join("Cargo.toml"),
+        root.join("AGENTS.md"),
+        root.join("crates/wf-lsp/Cargo.toml"),
+        root.join("bindings/node/README.md"),
+        root.join("editors/vscode/README.md"),
+    ];
     walk(&root.join("md-docs"), &["md"], &mut out);
     walk(&root.join("site/src"), &["wf", "json"], &mut out);
     out.retain(|p| {

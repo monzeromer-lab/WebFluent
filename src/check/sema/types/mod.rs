@@ -546,6 +546,10 @@ enum Body {
     Imperative,
 }
 
+#[expect(
+    clippy::struct_excessive_bools,
+    reason = "independent facts about where the checker is"
+)]
 struct Checker<'a, 'p> {
     world: &'a World<'p>,
     file: &'a str,

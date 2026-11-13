@@ -106,7 +106,7 @@ serde_json = "1.0.149"
 # prints every count.
 [workspace.lints.rust]
 unsafe_op_in_unsafe_fn = "warn"
-missing_debug_implementations = "allow"          # 58
+missing_debug_implementations = "warn"
 missing_docs = "allow"                           # 1570
 unreachable_pub = "warn"
 rust_2018_idioms = { level = "warn", priority = -1 }
@@ -127,7 +127,7 @@ missing_assert_message = "allow"                 # 4
 allow_attributes = "allow"                       # 2, tests/common: shared helpers an expect cannot cover
 allow_attributes_without_reason = "warn"
 fn_params_excessive_bools = "warn"
-struct_excessive_bools = "allow"                 # 7
+struct_excessive_bools = "warn"
 clone_on_ref_ptr = "warn"
 redundant_clone = "warn"
 rc_buffer = "warn"
@@ -183,6 +183,7 @@ option_option = "warn"
 self_only_used_in_recursion = "warn"
 float_cmp = "warn"
 needless_pass_by_value = "warn"
+items_after_statements = "warn"
 # Every map the compiler passes around is its own, built with std's hasher;
 # generalising each function over BuildHasher would add a type parameter
 # that no caller ever sets.

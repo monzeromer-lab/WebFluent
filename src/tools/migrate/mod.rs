@@ -1390,7 +1390,6 @@ fn route_page(route: &UIElement) -> Option<&str> {
 /// The [`std::io::Error`] of a directory that cannot be listed or a file
 /// that cannot be read.
 pub fn source_files(dir: &Path) -> std::io::Result<Vec<(PathBuf, String)>> {
-    let mut paths = Vec::new();
     fn walk(
         root: &Path,
         dir: &Path,
@@ -1423,6 +1422,8 @@ pub fn source_files(dir: &Path) -> std::io::Result<Vec<(PathBuf, String)>> {
         }
         Ok(())
     }
+
+    let mut paths = Vec::new();
     let root = std::fs::canonicalize(dir)?;
     walk(
         &root,

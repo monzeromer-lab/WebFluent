@@ -124,6 +124,17 @@ pub struct ChangeSet {
     seen: BTreeMap<String, u64>,
 }
 
+impl std::fmt::Debug for ChangeSet {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("ChangeSet")
+            .field("dir", &self.dir)
+            .field("changes", &self.changes)
+            .field("read", &self.read)
+            .field("seen", &self.seen)
+            .finish_non_exhaustive()
+    }
+}
+
 impl ChangeSet {
     /// An empty set over `base` — the disk, or the editor's buffers over it
     /// — for the project at `dir`.

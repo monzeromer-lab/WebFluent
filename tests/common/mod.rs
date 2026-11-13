@@ -181,8 +181,9 @@ pub(crate) fn template_html(src: &str) -> String {
 /// The runtime is hand-written; scanning it for codegen defects only produces
 /// false positives. It is everything up to the close of its closure.
 pub(crate) fn spa_generated(src: &str) -> String {
-    let js = spa_js(src);
     const END: &str = "\n})();\n";
+
+    let js = spa_js(src);
     match js.find(END) {
         Some(at) => js[at + END.len()..].to_string(),
         None => js,

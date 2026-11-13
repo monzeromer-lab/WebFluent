@@ -1093,6 +1093,26 @@ fn every_diagnostic_example_shows_what_the_build_prints() {
 /// and every code the compiler has is filed somewhere.
 #[test]
 fn every_diagnostic_example_draws_its_code() {
+    fn walk(dir: &Path, named: &mut Vec<String>) {
+        for e in std::fs::read_dir(dir).unwrap().flatten() {
+            let p = e.path();
+            if p.is_dir() {
+                walk(&p, named);
+            } else if p.extension().is_some_and(|x| x == "rs") {
+                let text = std::fs::read_to_string(&p).unwrap();
+                for piece in text.split('"').skip(1).step_by(2) {
+                    let b = piece.as_bytes();
+                    let looks = (piece.len() == 3 || piece.len() == 4)
+                        && b"ETCRFXIDASPUV".contains(&b[0])
+                        && b[1..].iter().all(u8::is_ascii_digit);
+                    if looks && !named.contains(&piece.to_string()) {
+                        named.push(piece.to_string());
+                    }
+                }
+            }
+        }
+    }
+
     let mut failures = Vec::new();
     let mut shown: Vec<String> = Vec::new();
     for (name, text) in chapters() {
@@ -1148,25 +1168,6 @@ fn every_diagnostic_example_draws_its_code() {
 
     let src_dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("src");
     let mut named: Vec<String> = Vec::new();
-    fn walk(dir: &Path, named: &mut Vec<String>) {
-        for e in std::fs::read_dir(dir).unwrap().flatten() {
-            let p = e.path();
-            if p.is_dir() {
-                walk(&p, named);
-            } else if p.extension().is_some_and(|x| x == "rs") {
-                let text = std::fs::read_to_string(&p).unwrap();
-                for piece in text.split('"').skip(1).step_by(2) {
-                    let b = piece.as_bytes();
-                    let looks = (piece.len() == 3 || piece.len() == 4)
-                        && b"ETCRFXIDASPUV".contains(&b[0])
-                        && b[1..].iter().all(u8::is_ascii_digit);
-                    if looks && !named.contains(&piece.to_string()) {
-                        named.push(piece.to_string());
-                    }
-                }
-            }
-        }
-    }
     walk(&src_dir, &mut named);
     let unregistered: Vec<&String> = named
         .iter()
@@ -1396,6 +1397,15 @@ fn the_configuration_chapter_prints_the_real_defaults() {
 /// built-in function, every config key, every command and flag, every icon.
 #[test]
 fn the_guide_names_everything_the_language_has() {
+    fn keys(v: &serde_json::Value, out: &mut Vec<String>) {
+        if let Some(map) = v.as_object() {
+            for (k, v) in map {
+                out.push(k.clone());
+                keys(v, out);
+            }
+        }
+    }
+
     let mut missing = Vec::new();
     let mut need = |chapter_stem: &str, text: &str, words: &[&str]| {
         for w in words {
@@ -1457,14 +1467,6 @@ fn the_guide_names_everything_the_language_has() {
     let config_text = chapter("-configuration");
     let real =
         serde_json::to_value(webfluent::config::ProjectConfig::default_config("my-site")).unwrap();
-    fn keys(v: &serde_json::Value, out: &mut Vec<String>) {
-        if let Some(map) = v.as_object() {
-            for (k, v) in map {
-                out.push(k.clone());
-                keys(v, out);
-            }
-        }
-    }
     let mut config_keys = Vec::new();
     keys(&real, &mut config_keys);
     for extra in [

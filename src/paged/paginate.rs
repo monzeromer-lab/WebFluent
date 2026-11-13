@@ -15,6 +15,7 @@ use super::style::{Break, Position};
 /// Less than this from a page's top is "at the top".
 const EPS: f32 = 0.5;
 
+#[derive(Debug)]
 pub struct Pages {
     pub count: usize,
     /// Frags drawn on a page beyond the flow: repeated table headers.

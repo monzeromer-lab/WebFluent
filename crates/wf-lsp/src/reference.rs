@@ -48,6 +48,7 @@ pub use webfluent::registry::requests::{
     RESOURCE_OPTIONS, page_event_doc,
 };
 
+#[derive(Debug)]
 pub struct KeywordDoc {
     pub name: &'static str,
     pub summary: &'static str,
@@ -56,7 +57,7 @@ pub struct KeywordDoc {
     pub place: Place,
 }
 
-#[derive(Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Place {
     TopLevel,
     /// A page's or a component's body.

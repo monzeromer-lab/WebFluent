@@ -28,6 +28,7 @@ use crate::syntax::parser::ast::{
 };
 
 /// The endpoints, the record types and the enums a specification describes.
+#[derive(Debug)]
 pub struct Imported {
     pub endpoints: Vec<Endpoint>,
     pub types: Vec<TypeDecl>,

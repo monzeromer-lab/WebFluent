@@ -239,10 +239,6 @@ fn build_document(name: &str) -> (String, std::path::PathBuf) {
 /// Build an example under `examples/<group>/<name>` in a copy laid out as the
 /// repository is, so its `../../documents/fonts` resolves.
 fn build_example(group: &str, name: &str) -> (String, std::path::PathBuf) {
-    let examples = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("examples");
-    let root = examples.join(group);
-    let tmp = std::env::temp_dir().join(format!("wf-{group}-{}-{name}", std::process::id()));
-    let _ = std::fs::remove_dir_all(&tmp);
     fn copy(from: &std::path::Path, to: &std::path::Path) {
         std::fs::create_dir_all(to).unwrap();
         for e in std::fs::read_dir(from).unwrap().flatten() {
@@ -258,6 +254,11 @@ fn build_example(group: &str, name: &str) -> (String, std::path::PathBuf) {
             }
         }
     }
+
+    let examples = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("examples");
+    let root = examples.join(group);
+    let tmp = std::env::temp_dir().join(format!("wf-{group}-{}-{name}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&tmp);
     copy(
         &examples.join("documents/fonts"),
         &tmp.join("documents/fonts"),

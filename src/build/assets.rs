@@ -502,10 +502,6 @@ impl Finder<'_> {
     /// The values of `webfluent.app.json` that name a file: a site path,
     /// or a bare name (`favicon.svg`) the head writes from the root.
     fn config(&mut self, text: &str) {
-        let Ok(value) = serde_json::from_str::<serde_json::Value>(text) else {
-            return;
-        };
-        let mut strings = Vec::new();
         fn walk<'v>(v: &'v serde_json::Value, path: &str, out: &mut Vec<(String, &'v str)>) {
             match v {
                 serde_json::Value::String(s) => out.push((path.to_string(), s)),
@@ -530,6 +526,11 @@ impl Finder<'_> {
                 _ => {}
             }
         }
+
+        let Ok(value) = serde_json::from_str::<serde_json::Value>(text) else {
+            return;
+        };
+        let mut strings = Vec::new();
         walk(&value, "", &mut strings);
         let mut searched_from = BTreeMap::<String, usize>::new();
         for (key, s) in strings {

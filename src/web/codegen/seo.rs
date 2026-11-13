@@ -1647,10 +1647,6 @@ page Guide(path: "/docs/getting-started", title: "Getting Started") { Text("x") 
     }
 
     fn to_of(program: &Program, page: usize) -> Vec<String> {
-        let Declaration::Page(p) = &program.declarations[page] else {
-            unreachable!()
-        };
-        let mut found = Vec::new();
         fn walk(stmts: &[Statement], found: &mut Vec<String>) {
             for s in stmts {
                 match &s.kind {
@@ -1682,6 +1678,11 @@ page Guide(path: "/docs/getting-started", title: "Getting Started") { Text("x") 
                 }
             }
         }
+
+        let Declaration::Page(p) = &program.declarations[page] else {
+            unreachable!()
+        };
+        let mut found = Vec::new();
         walk(&p.body, &mut found);
         found
     }

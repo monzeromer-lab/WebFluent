@@ -175,9 +175,6 @@ fn uses_of(
     declared: &dyn Fn(&str) -> bool,
     stylesheets: &[(String, String)],
 ) -> BTreeMap<String, Vec<Use>> {
-    let mut out: BTreeMap<String, Vec<Use>> = BTreeMap::new();
-    let var = regex::Regex::new(r"var\(--([A-Za-z0-9_-]+)").expect("a regex");
-    let mut add = |name: String, u: Use| out.entry(name).or_default().push(u);
     fn props(stmts: &[Statement], f: &mut dyn FnMut(&StyleProperty)) {
         for s in stmts {
             if let StatementKind::UIElement(ui) = &s.kind {
@@ -201,6 +198,10 @@ fn uses_of(
             }
         }
     }
+
+    let mut out: BTreeMap<String, Vec<Use>> = BTreeMap::new();
+    let var = regex::Regex::new(r"var\(--([A-Za-z0-9_-]+)").expect("a regex");
+    let mut add = |name: String, u: Use| out.entry(name).or_default().push(u);
     for (i, d) in program.declarations.iter().enumerate() {
         let Some(body) = crate::syntax::print::body_of(d) else {
             continue;
@@ -523,8 +524,6 @@ mod tests {
 
     #[test]
     fn a_theme_named_is_viewed_whatever_the_config_selects() {
-        let root = std::env::temp_dir().join(format!("wf-view-of-{}", std::process::id()));
-        let _ = std::fs::remove_dir_all(&root);
         struct Dir(std::path::PathBuf);
         impl Dir {
             fn path(&self) -> &std::path::Path {
@@ -536,6 +535,9 @@ mod tests {
                 let _ = std::fs::remove_dir_all(&self.0);
             }
         }
+
+        let root = std::env::temp_dir().join(format!("wf-view-of-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&root);
         let dir = Dir(root);
         std::fs::create_dir_all(dir.path().join("src")).unwrap();
         std::fs::write(dir.path().join("src/theme.wf"), SRC).unwrap();

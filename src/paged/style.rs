@@ -296,6 +296,7 @@ pub enum VerticalAlign {
 
 /// A box's computed style.
 #[derive(Debug, Clone)]
+#[expect(clippy::struct_excessive_bools, reason = "CSS properties that are each on or off, independently")]
 pub struct Style {
     // ─── Inherited ──────────────────────────────────────────────
     pub color: Rgba,

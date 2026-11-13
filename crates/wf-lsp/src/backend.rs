@@ -48,12 +48,14 @@ use crate::rename::{prepare_rename, rename};
 use crate::symbols::{document_symbols, workspace_symbols};
 
 /// An open editor buffer.
+#[derive(Debug)]
 struct OpenDocument {
     text: Arc<str>,
     /// The last parse of this buffer that succeeded.
     last_valid: Option<Arc<Program>>,
 }
 
+#[derive(Debug)]
 pub struct Backend {
     client: Client,
     documents: DashMap<PathBuf, OpenDocument>,

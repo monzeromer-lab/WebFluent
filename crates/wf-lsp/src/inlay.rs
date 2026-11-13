@@ -11,13 +11,6 @@ use crate::project::Project;
 const LONGEST: usize = 40;
 
 pub fn inlay_hints(project: &Project, file_ix: usize, range: Range) -> Vec<InlayHint> {
-    let file = &project.files[file_ix];
-    if file.script || file.markdown || file.parsed.is_err() {
-        return Vec::new();
-    }
-    let source: &str = &file.source;
-    let info = webfluent::sema::types::check(&project.program, &|_| String::new());
-    let mut out = Vec::new();
     fn walk<'a>(stmts: &'a [Statement], found: &mut Vec<(&'a Statement, &'a str)>) {
         for stmt in stmts {
             match &stmt.kind {
@@ -32,6 +25,14 @@ pub fn inlay_hints(project: &Project, file_ix: usize, range: Range) -> Vec<Inlay
             }
         }
     }
+
+    let file = &project.files[file_ix];
+    if file.script || file.markdown || file.parsed.is_err() {
+        return Vec::new();
+    }
+    let source: &str = &file.source;
+    let info = webfluent::sema::types::check(&project.program, &|_| String::new());
+    let mut out = Vec::new();
     for (decl_ix, decl) in project.declarations_of(file_ix) {
         let mut found = Vec::new();
         walk(analysis::body_of(decl), &mut found);

@@ -71,7 +71,18 @@ pub struct Project<'a> {
     pub incomplete: bool,
 }
 
+impl std::fmt::Debug for Project<'_> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Project")
+            .field("dir", &self.dir)
+            .field("declaration_files", &self.declaration_files)
+            .field("incomplete", &self.incomplete)
+            .finish_non_exhaustive()
+    }
+}
+
 /// What came back.
+#[derive(Debug)]
 pub struct Checked {
     /// Every finding, coded, de-duplicated, in order.
     pub diagnostics: Vec<Diagnostic>,

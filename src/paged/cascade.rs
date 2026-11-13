@@ -221,6 +221,7 @@ pub fn drawn_on_paper(property: &str) -> bool {
 }
 
 /// The sheets of a page, indexed for matching.
+#[derive(Debug)]
 pub struct Styler {
     rules: Vec<IndexedRule>,
     /// Rules by the rightmost compound's first class, id, or tag; rules with
@@ -232,6 +233,7 @@ pub struct Styler {
     pub units: Units,
 }
 
+#[derive(Debug)]
 struct IndexedRule {
     selector: Selector,
     declarations: Rc<[Declaration]>,

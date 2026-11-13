@@ -276,12 +276,13 @@ fn within_line(lines: &[&str], i: usize, old: &str, new: &str, typographic: bool
 /// `new` moved from the indent `old` was written at to the indent of the
 /// lines it replaces.
 fn reindent(new: &str, old: &str, replaced: &[&str]) -> String {
-    let indent = |l: &str| l.len() - l.trim_start().len();
     fn first<'a>(mut ls: impl Iterator<Item = &'a str>) -> Option<(usize, String)> {
         let l = ls.find(|l| !l.trim().is_empty())?;
         let n = l.len() - l.trim_start().len();
         Some((n, l[..n].to_owned()))
     }
+
+    let indent = |l: &str| l.len() - l.trim_start().len();
     let (Some((written, _)), Some((there, prefix))) =
         (first(old.lines()), first(replaced.iter().copied()))
     else {

@@ -1809,10 +1809,6 @@ fn style_value(value: &Expr, ctx: &RenderContext<'_>) -> Option<String> {
 
 /// Whether a piece of a style value from the data is a piece of one value.
 fn safe_style_piece(text: &str) -> bool {
-    if text.contains([';', '{', '}', '\\', '<', '>']) {
-        return false;
-    }
-    let lower = text.to_ascii_lowercase();
     // Every function that fetches what it names, and the old ones that ran
     // script.
     const FETCHING: &[&str] = &[
@@ -1825,6 +1821,11 @@ fn safe_style_piece(text: &str) -> bool {
         "expression(",
         "@import",
     ];
+
+    if text.contains([';', '{', '}', '\\', '<', '>']) {
+        return false;
+    }
+    let lower = text.to_ascii_lowercase();
     !FETCHING.iter().any(|f| lower.contains(f))
 }
 

@@ -53,20 +53,6 @@ fn key_problem(spelling: &str) -> Option<String> {
 
 /// What is wrong with one step of a key combination.
 fn key_step_problem(spelling: &str) -> Option<String> {
-    let parts: Vec<String> = spelling
-        .to_ascii_lowercase()
-        .split('+')
-        .map(|p| p.trim().to_string())
-        .collect();
-    let (key, modifiers) = parts.split_last()?;
-    if key.is_empty() {
-        return Some("names no key after its modifiers".to_string());
-    }
-    for m in modifiers {
-        if !KEY_MODIFIERS.contains(&m.as_str()) {
-            return Some(format!("names `{m}`, which is not a modifier"));
-        }
-    }
     const NAMED: &[&str] = &[
         "enter",
         "return",
@@ -97,6 +83,21 @@ fn key_step_problem(spelling: &str) -> Option<String> {
         "scrolllock",
         "numlock",
     ];
+
+    let parts: Vec<String> = spelling
+        .to_ascii_lowercase()
+        .split('+')
+        .map(|p| p.trim().to_string())
+        .collect();
+    let (key, modifiers) = parts.split_last()?;
+    if key.is_empty() {
+        return Some("names no key after its modifiers".to_string());
+    }
+    for m in modifiers {
+        if !KEY_MODIFIERS.contains(&m.as_str()) {
+            return Some(format!("names `{m}`, which is not a modifier"));
+        }
+    }
     let function_key = key
         .strip_prefix('f')
         .and_then(|n| n.parse::<u8>().ok())
@@ -1863,9 +1864,6 @@ impl ParserV2 {
     /// Whether a call statement — `load()`, `Store.load(x)` — starts here,
     /// at the top level of a page or component, where it is set-up code.
     fn setup_call_ahead(&self, body: Body) -> bool {
-        if !matches!(body, Body::Page | Body::Component) {
-            return false;
-        }
         const KEYWORDS: &[&str] = &[
             "state",
             "derived",
@@ -1888,6 +1886,10 @@ impl ParserV2 {
             "style",
             "transition",
         ];
+
+        if !matches!(body, Body::Page | Body::Component) {
+            return false;
+        }
         // `row(item: t)` hands a scoped slot its values: not a call.
         let scoped = matches!(self.kind_at(1), TokenType::OpenParen)
             && matches!(self.kind_at(2), TokenType::Identifier(_))
@@ -4015,11 +4017,12 @@ impl ParserV2 {
     /// `match x { .a { e1 } .b { e2 } else { e3 } }` as a chain of
     /// conditionals; a resource match is a statement, not an expression.
     fn parse_match_expression(&mut self) -> Result<Expr> {
+        // An arm: its case and the name it binds, or neither for `else`.
+        type Arm = (Option<(String, Option<String>)>, Expr);
+
         self.expect_word("match")?;
         let subject = self.parse_expression()?;
         self.expect(&TokenType::OpenBrace, "`{`")?;
-        // An arm: its case and the name it binds, or neither for `else`.
-        type Arm = (Option<(String, Option<String>)>, Expr);
         let mut arms: Vec<Arm> = Vec::new();
         while !self.check(&TokenType::CloseBrace) && !self.at_end() {
             let case = if self.eat(&TokenType::Dot) {

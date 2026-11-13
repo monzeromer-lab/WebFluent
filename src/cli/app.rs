@@ -627,14 +627,15 @@ fn describe_commands() -> serde_json::Value {
         cmd.get_arguments()
             .filter(|a| !matches!(a.get_id().as_str(), "help" | "version"))
             .map(|a| {
-                let flag = matches!(a.get_action(), clap::ArgAction::SetTrue | clap::ArgAction::SetFalse);
-                let values: Vec<String> = a.get_possible_values().iter().map(|v| v.get_name().to_string()).collect();
-                let defaults: Vec<String> = a.get_default_values().iter().map(|v| v.to_string_lossy().to_string()).collect();
                 // What a control for it takes: read from the type the
                 // command line parses the value into. Compared as types:
                 // clap prints a type's name only in a debug build, and a
                 // release `wf` said every path was text.
                 use std::any::TypeId;
+
+                let flag = matches!(a.get_action(), clap::ArgAction::SetTrue | clap::ArgAction::SetFalse);
+                let values: Vec<String> = a.get_possible_values().iter().map(|v| v.get_name().to_string()).collect();
+                let defaults: Vec<String> = a.get_default_values().iter().map(|v| v.to_string_lossy().to_string()).collect();
                 let parsed = a.get_value_parser().type_id();
                 let numbers = [
                     TypeId::of::<u8>(),

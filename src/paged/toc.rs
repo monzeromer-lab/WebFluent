@@ -6,6 +6,7 @@
 use super::html::{Dom, NodeKind};
 
 /// One entry: the heading it names, and the text node its page goes in.
+#[derive(Debug)]
 pub struct Entry {
     pub heading: usize,
     pub page_text: usize,

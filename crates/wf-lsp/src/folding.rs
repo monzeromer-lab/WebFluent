@@ -8,6 +8,20 @@ use crate::analysis;
 use crate::project::Project;
 
 pub fn folding_ranges(project: &Project, file_ix: usize) -> Vec<FoldingRange> {
+    fn walk(stmts: &[Statement], fold: &mut dyn FnMut(Span)) {
+        for stmt in stmts {
+            let bodies = analysis::child_bodies(stmt);
+            let has_block = !bodies.is_empty()
+                || matches!(&stmt.kind, StatementKind::UIElement(el) if el.style_block.is_some() || el.body_span.is_some());
+            if has_block {
+                fold(stmt.span);
+            }
+            for body in bodies {
+                walk(body, fold);
+            }
+        }
+    }
+
     let file = &project.files[file_ix];
     if file.script || file.markdown {
         return Vec::new();
@@ -28,19 +42,6 @@ pub fn folding_ranges(project: &Project, file_ix: usize) -> Vec<FoldingRange> {
             });
         }
     };
-    fn walk(stmts: &[Statement], fold: &mut dyn FnMut(Span)) {
-        for stmt in stmts {
-            let bodies = analysis::child_bodies(stmt);
-            let has_block = !bodies.is_empty()
-                || matches!(&stmt.kind, StatementKind::UIElement(el) if el.style_block.is_some() || el.body_span.is_some());
-            if has_block {
-                fold(stmt.span);
-            }
-            for body in bodies {
-                walk(body, fold);
-            }
-        }
-    }
     for (_, decl) in project.declarations_of(file_ix) {
         if let Some(span) = analysis::decl_span(decl) {
             fold(span, &mut out);

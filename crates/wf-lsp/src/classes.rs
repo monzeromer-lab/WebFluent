@@ -15,6 +15,7 @@ use webfluent::syntax::lexer::{Token, TokenType};
 use crate::project::Project;
 
 /// One class a stylesheet defines: the first rule that names it.
+#[derive(Debug)]
 pub struct Defined {
     pub name: String,
     /// Index into `project.stylesheet_files`.

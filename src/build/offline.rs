@@ -8,6 +8,7 @@
 use serde_json::json;
 
 /// What goes into one `sw.js`.
+#[derive(Debug)]
 pub struct Worker<'a> {
     /// Changes whenever anything the build wrote changes.
     pub version: &'a str,

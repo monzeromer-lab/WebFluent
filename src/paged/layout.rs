@@ -99,6 +99,7 @@ enum Leaf {
     Empty,
 }
 
+#[derive(Debug)]
 pub struct Layout<'a> {
     pub tree: &'a Tree,
     pub db: &'a FontDb,

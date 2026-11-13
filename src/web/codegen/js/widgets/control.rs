@@ -37,7 +37,6 @@ pub(in super::super) fn refinement_in_bodies(stmt: &Statement, name: &str) -> Ve
 
 /// The states a body's `validate` blocks guard.
 pub(in super::super) fn validated_names(stmts: &[Statement]) -> Vec<String> {
-    let mut out = Vec::new();
     fn walk(stmts: &[Statement], out: &mut Vec<String>) {
         for stmt in stmts {
             if let StatementKind::Validate(v) = &stmt.kind {
@@ -48,6 +47,8 @@ pub(in super::super) fn validated_names(stmts: &[Statement]) -> Vec<String> {
             }
         }
     }
+
+    let mut out = Vec::new();
     walk(stmts, &mut out);
     out
 }

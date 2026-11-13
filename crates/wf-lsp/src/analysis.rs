@@ -68,6 +68,7 @@ pub fn element_at(stmts: &[Statement], offset: usize) -> Option<&UIElement> {
 }
 
 /// What the cursor is on inside an element, when it is on a specific part.
+#[derive(Debug)]
 pub enum ElementPart<'a> {
     /// The component name itself.
     Name,

@@ -10,6 +10,10 @@ pub(crate) use crate::build::read_project;
 
 /// How a build, or a check, reports.
 #[derive(Debug, Clone, Copy, Default)]
+#[expect(
+    clippy::struct_excessive_bools,
+    reason = "independent switches, each one of `wf build`'s flags"
+)]
 pub(crate) struct Options {
     /// Print what the output weighs.
     pub stats: bool,

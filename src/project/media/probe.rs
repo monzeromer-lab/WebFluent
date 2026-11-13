@@ -20,6 +20,7 @@ use crate::diagnostics::error::{Result, WebFluentError};
 pub const MAX_PIXELS: u64 = 50_000_000;
 
 /// An image, decoded once.
+#[derive(Debug)]
 pub struct Probed {
     pub image: DynamicImage,
     pub width: u32,

@@ -42,6 +42,10 @@ use std::path::{Path, PathBuf};
 use std::time::Duration;
 
 /// What to build, where to read it from, and how to report.
+#[expect(
+    clippy::struct_excessive_bools,
+    reason = "independent switches, each one of `wf build`'s flags"
+)]
 pub struct BuildOptions<'a> {
     /// The directory holding `webfluent.app.json`.
     pub project_dir: &'a Path,
@@ -90,6 +94,25 @@ pub struct BuildOptions<'a> {
     /// the report: `wf build` prints them as they come, so a build that
     /// spends a while on its images shows where it is.
     pub on_line: Option<&'a dyn Fn(&BuildLine)>,
+}
+
+impl std::fmt::Debug for BuildOptions<'_> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("BuildOptions")
+            .field("project_dir", &self.project_dir)
+            .field("output_dir", &self.output_dir)
+            .field("allow_output_outside", &self.allow_output_outside)
+            .field("stats", &self.stats)
+            .field("format", &self.format)
+            .field("deny_warnings", &self.deny_warnings)
+            .field("dev", &self.dev)
+            .field("color", &self.color)
+            .field("cache", &self.cache)
+            .field("studio", &self.studio)
+            .field("sourcemap", &self.sourcemap)
+            .field("only_route", &self.only_route)
+            .finish_non_exhaustive()
+    }
 }
 
 impl<'a> BuildOptions<'a> {
@@ -465,6 +488,7 @@ fn stop_on(out: &Out<'_>, diagnostics: &[Diagnostic], options: &BuildOptions<'_>
 }
 
 /// What the checks found in a project, and the program they read.
+#[derive(Debug)]
 pub struct Analysis {
     /// Every declaration that parsed, as written.
     pub program: Program,

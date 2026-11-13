@@ -136,6 +136,7 @@ pub fn guard_with<'a>(url: &'a str, also: &[String]) -> &'a str {
 }
 
 /// One piece of an address: text the source wrote, or a value spliced in.
+#[derive(Debug)]
 pub enum AddressPart {
     Text(String),
     Value(String),
@@ -186,8 +187,9 @@ mod tests {
 
     #[test]
     fn a_spliced_value_is_encoded_where_it_stands_for_a_value() {
-        let address = |parts: Vec<AddressPart>| join_address(&parts);
         use AddressPart::{Text, Value};
+
+        let address = |parts: Vec<AddressPart>| join_address(&parts);
         assert_eq!(
             address(vec![Text("/team/".into()), Value("R&D/Ops".into())]),
             "/team/R%26D%2FOps"

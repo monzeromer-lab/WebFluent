@@ -186,7 +186,6 @@ pub fn uses(program: &Program, file_of: &dyn Fn(usize) -> String) -> Vec<Use> {
 /// The keys the runtime asks for on its own: a `validate` rule written
 /// without a message shows `form.<rule>`.
 pub fn implied(program: &Program) -> BTreeMap<String, &'static str> {
-    let mut out = BTreeMap::new();
     fn walk(
         stmts: &[crate::syntax::parser::ast::Statement],
         out: &mut BTreeMap<String, &'static str>,
@@ -202,6 +201,8 @@ pub fn implied(program: &Program) -> BTreeMap<String, &'static str> {
             }
         }
     }
+
+    let mut out = BTreeMap::new();
     for d in &program.declarations {
         walk(crate::syntax::parser::walk::body_of(d), &mut out);
     }

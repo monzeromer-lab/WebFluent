@@ -200,6 +200,10 @@ pub struct ThemeConfig {
 
 /// Build pipeline configuration — output directory, minification, SSG, and PDF settings.
 #[derive(Debug, Serialize, Deserialize, Clone)]
+#[expect(
+    clippy::struct_excessive_bools,
+    reason = "independent settings, as `webfluent.app.json` spells them"
+)]
 pub struct BuildConfig {
     /// The components `output_type: "elements"` publishes, by name. Each
     /// becomes a custom element whose tag is its name in kebab-case:

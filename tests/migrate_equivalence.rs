@@ -41,7 +41,6 @@ fn copy_tree(from: &Path, to: &Path) {
 
 /// Every file under `dir`, keyed by relative path.
 fn outputs(dir: &Path) -> BTreeMap<String, Vec<u8>> {
-    let mut out = BTreeMap::new();
     fn walk(dir: &Path, root: &Path, out: &mut BTreeMap<String, Vec<u8>>) {
         for entry in std::fs::read_dir(dir).unwrap().flatten() {
             let path = entry.path();
@@ -57,6 +56,8 @@ fn outputs(dir: &Path) -> BTreeMap<String, Vec<u8>> {
             }
         }
     }
+
+    let mut out = BTreeMap::new();
     walk(dir, dir, &mut out);
     out
 }
