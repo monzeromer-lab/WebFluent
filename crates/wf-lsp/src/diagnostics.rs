@@ -95,7 +95,17 @@ pub fn project_diagnostics_via(
             incomplete,
         },
     );
-    for finding in checked.diagnostics {
+    let webfluent::diagnostics::check::Checked {
+        diagnostics,
+        lowered,
+        types,
+        ..
+    } = checked;
+    project.keep_types(types);
+    // The lowered program is the build's; freeing a whole program's tree is
+    // a good part of a check, so it is done off the path an edit waits on.
+    std::thread::spawn(move || drop(lowered));
+    for finding in diagnostics {
         if let Some(&ix) = by_label.get(finding.file.as_str()) {
             findings.push((ix, finding));
         }

@@ -968,7 +968,7 @@ fn declaration_doc(project: &Project, decl: &Declaration) -> String {
 
 /// The type the checker infers for a binding, when it is more than `Any`.
 pub fn type_of_binding(project: &Project, decl_ix: usize, binding: &Binding) -> Option<Type> {
-    let info = webfluent::sema::types::check(&project.program, &|_| String::new());
+    let info = project.types();
     let ty = info
         .type_at(decl_ix, &binding.name, binding.span)
         .cloned()

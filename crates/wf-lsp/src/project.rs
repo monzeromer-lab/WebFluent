@@ -113,6 +113,9 @@ pub struct Project {
     /// What the build writes — a site, a PDF, a deck — which decides what
     /// may be drawn, so what the editor offers.
     pub output_type: OutputType,
+    /// What the type checker makes of the program, worked out the first
+    /// time a request asks and kept for as long as the project is.
+    types: std::sync::OnceLock<webfluent::sema::types::TypeInfo>,
 }
 
 /// Files read through a [`Vfs`], keyed by path, reused while the file is
@@ -227,6 +230,19 @@ impl FileCache {
 }
 
 impl Project {
+    /// What the type checker makes of the program: worked out once for
+    /// this project, then shared by every request that asks.
+    /// Keep `types` as what the type checker makes of this project: the
+    /// check after an edit has just worked it out, so a hover need not.
+    pub fn keep_types(&self, types: webfluent::sema::types::TypeInfo) {
+        let _ = self.types.set(types);
+    }
+
+    pub fn types(&self) -> &webfluent::sema::types::TypeInfo {
+        self.types
+            .get_or_init(|| webfluent::sema::types::check(&self.program, &|_| String::new()))
+    }
+
     /// The project containing `uri`. `open_text` supplies the editor's text
     /// for files that are open, which takes precedence over the disk.
     pub fn load(
@@ -469,6 +485,7 @@ impl Project {
                 .map(|c| c.build.output_type)
                 .unwrap_or_default(),
             config: project_config,
+            types: std::sync::OnceLock::new(),
         }
     }
 
@@ -513,6 +530,7 @@ impl Project {
             env_names: Vec::new(),
             config: None,
             output_type: OutputType::default(),
+            types: std::sync::OnceLock::new(),
         }
     }
 
