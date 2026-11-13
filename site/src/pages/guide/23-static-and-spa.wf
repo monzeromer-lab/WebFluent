@@ -1,0 +1,223 @@
+/// Chapter 23 of the guide, written from md-docs/about/static-and-spa.md by
+/// scripts/docsite/guide.py; edit the guide, not this file.
+page AboutStaticOrSinglePage(path: "/about/static-or-single-page", title: "Static or single-page", description: "Static pages or a single-page app: build.ssg, hydration, what the pre-rendered HTML holds, paths for dynamic routes, 404s and hosting needs.", layout: DocsShell("Static or single-page", kind: .explanation, chapter: t("nav.group.about"), blurb: "The same source builds as pre-rendered pages or as one app shell. What each gives you, what the pre-rendered page holds, and how dynamic routes are rendered.", source: "md-docs/about/static-and-spa.md", sections: [Anchor(id: "two-shapes-of-build", label: "Two shapes of build"), Anchor(id: "when-to-choose-each", label: "When to choose each"), Anchor(id: "hydration", label: "Hydration"), Anchor(id: "what-the-static-paint-knows", label: "What the static paint knows"), Anchor(id: "switch-between-static-and-single-page", label: "Switch between static and single-page"), Anchor(id: "pre-render-a-dynamic-route-with-paths", label: "Pre-render a dynamic route with paths:"), Anchor(id: "add-a-404-page", label: "Add a 404 page"), Anchor(id: "serve-a-single-page-build", label: "Serve a single-page build"), Anchor(id: "serve-the-site-under-a-sub-path", label: "Serve the site under a sub-path"), Anchor(id: "quick-reference", label: "Quick reference")], prevTo: "/about/what-a-build-ships", prevLabel: t("ch.22"), nextTo: "/about/upgrading", nextLabel: t("ch.24"))) {
+    Stack(gap: .lg) {
+        Markdown("The same WebFluent source builds a site in one of two shapes: a static site, with a pre-rendered HTML file for every route, or a single-page app, with one shell that draws every page in the browser. One setting, `build.ssg`, picks the shape, and you can change it at any time. This chapter explains what each shape gives you and how a static page comes to life, then shows you how to pre-render dynamic routes, add a 404 page and host either shape.\n\nIn this chapter:\n\n- what the two shapes write, and when to choose each;\n- how hydration takes over a pre-rendered page;\n- what the build can and cannot know when it pre-renders;\n- how to switch shapes, pre-render dynamic routes, add a 404 page, serve a single-page build and serve the site under a sub-path.")
+
+        Heading("Two shapes of build", id: "two-shapes-of-build").h2
+
+        Markdown("`build.ssg` decides what `wf build` writes:")
+
+        Table(caption: "Two shapes of build") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("").header
+                    Table.Cell.header { Markdown("Static (`\"ssg\": true`)") }
+                    Table.Cell.header { Markdown("Single-page (`\"ssg\": false`)") }
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell("What is written")
+                    Table.Cell { Markdown("One HTML file per route — `index.html`, `about/index.html`, `posts/hello/index.html` — each the page's first paint") }
+                    Table.Cell { Markdown("One `index.html` shell; the router draws every page in the browser") }
+                }
+                Table.Row {
+                    Table.Cell("First paint")
+                    Table.Cell("Immediate: the text is in the HTML")
+                    Table.Cell("After the script loads and runs")
+                }
+                Table.Row {
+                    Table.Cell("Search engines and link previews")
+                    Table.Cell("See the real page")
+                    Table.Cell("See the shell (with its title and tags) until they run the script")
+                }
+                Table.Row {
+                    Table.Cell("Moving between pages")
+                    Table.Cell("A real page load")
+                    Table.Cell("Instant, with no reload; focus and scroll handled, the title announced")
+                }
+                Table.Row {
+                    Table.Cell("The host")
+                    Table.Cell("Any static host, as it is")
+                    Table.Cell { Markdown("Must answer every path with `index.html` (the \"SPA fallback\")") }
+                }
+                Table.Row {
+                    Table.Cell("Interactive")
+                    Table.Cell { Markdown("Yes, once the script *hydrates* the page in place") }
+                    Table.Cell("Yes")
+                }
+            }
+        }
+
+        Markdown("The source is the same either way. Only the output changes.")
+
+        Heading("When to choose each", id: "when-to-choose-each").h2
+
+        Markdown("**Choose static** for anything people find by searching or share by link: marketing sites, docs, blogs, shops. The text is in the HTML, so search engines and link previews see the real page.\n\n**Choose single-page** for an app behind a sign-in, where every page is personal and moving between pages fast matters more than the first paint. Choose it too when your host cannot serve a file per route.")
+
+        Heading("Hydration", id: "hydration").h2
+
+        Markdown("A static page is readable before any script runs. When `app.js` arrives, it *hydrates* the page: it draws the page beside the one already there, then takes the painted one over in place.\n\nWhat happens to each part of the page:\n\n- An element nothing holds on to stays exactly as it was painted. Its attributes are brought up to date; it is never moved or drawn again.\n- An element that a handler, an effect, a `ref` or a widget holds is put where the painted one stood, inside the painted parent.\n- Text that a signal keeps current changes inside the painted element.\n\nThe reader never sees the page flash or redraw, and keeps their scroll position, their focus and anything they had selected. The page's largest paint stays the first one, which is what a search engine's speed score measures.\n\nUnder `wf serve`, the runtime compares the page it took over with the one it drew, and says so in the console when they differ. A difference is a WebFluent bug, never yours.")
+
+        Heading("What the static paint knows", id: "what-the-static-paint-knows").h2
+
+        Markdown("The *static paint* is the HTML the build pre-renders for a page. To paint it, the build evaluates the page as far as it can know the values:")
+
+        Table(caption: "What the static paint knows") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Source").header
+                    Table.Cell("In the pre-rendered HTML").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("Literals, `const`, `data`, `image`, `env`") }
+                    Table.Cell("Painted")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`state` initial values, and `derived` values over them") }
+                    Table.Cell("Painted")
+                }
+                Table.Row {
+                    Table.Cell("Stores, from their initial values")
+                    Table.Cell("Painted")
+                }
+                Table.Row {
+                    Table.Cell("Components")
+                    Table.Cell("Expanded, with props substituted and slots filled")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`t(\"…\")`") }
+                    Table.Cell("In the default locale")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`format`, `ago`, the list and string helpers") }
+                    Table.Cell("Computed, with a built-in table of locales")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`resource` and `api` calls") }
+                    Table.Cell { Markdown("The `loading` arm; the live page fetches and replaces it") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`await fetch` in an action") }
+                    Table.Cell("Nothing, until the action runs")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`viewport`, `query`, `hash`, `theme`, `network`") }
+                    Table.Cell("Unknown — a condition on them is drawn once the page is live")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("Anything read from `window`, `document`, `localStorage`") }
+                    Table.Cell("Unknown")
+                }
+            }
+        }
+
+        Markdown("For the first paint to be right, prefer what the build can see:\n\n- **Data files over fetches** for content that changes only when you deploy ([Fetching data](/learn/15-data)).\n- **[Responsive values](/learn/13-styling#responsive-values) over `viewport`** for layout.")
+
+        Heading("Switch between static and single-page", id: "switch-between-static-and-single-page").h2
+
+        Markdown("To build a static site, set `ssg` in the config:")
+
+        CodeBlock(#"{ "build": { "ssg": true } }"#, title: "json")
+
+        Markdown("`\"output_type\": \"static\"` means the same as `\"ssg\": true`. Set `ssg` to `false`, or leave it out, for a single-page build.\n\n`wf init -t static` starts a project with `ssg` on; `wf init -t spa` starts one with it off. You can change your mind at any time — the source does not change.")
+
+        Heading("Pre-render a dynamic route with paths:", id: "pre-render-a-dynamic-route-with-paths").h2
+
+        Markdown("A page on a `:param` route, such as `/posts/:slug`, has no single file to write. To pre-render it, list the values in `paths:`, and the build writes one HTML file for each.\n\nThis blog writes one file per post in `posts.json`:")
+
+        CodeBlock(#"type Post { slug: String, title: String, date: String, body: String }
+
+data posts: [Post] = "posts.json"
+
+page PostPage(path: "/posts/:slug", slug: String, title: "Post", description: "A post.", paths: posts.map(p => p.slug)) {
+    derived post = posts.find(p => p.slug == slug)
+    head { meta(property: "og:title", content: post?.title ?? "Post") }
+    if let p = post {
+        Heading(p.title).h1
+        Markdown(p.body)
+    } else {
+        Alert("No such post").warning
+    }
+}"#, title: "wf")
+
+        Markdown("For a post whose slug is `hello`, the build writes `posts/hello/index.html`, with that post painted and listed in the sitemap.\n\nThe rules for `paths:`:\n\n- It must be known at build time: a `data` file, a `const` or a literal list.\n- For a route with several parameters, each value is a map that names them: `paths: pairs.map(x => \{ year: x.y, slug: x.s \})`.\n- Each value is seeded as the parameter (and as `params.slug`), painted, and listed in the sitemap.\n- A value that is not in `paths:` has no file, so a static host answers with `404.html`.\n- A single-page build does not need `paths:` at all.")
+
+        Heading("Give each file its own title", id: "give-each-file-its-own-title").h3
+
+        Markdown("`title:` and `description:` may name the page's parameters — `title: \"\{slug\} — Blog\"` — and each file gets its own. A title may also look the entry up: `title: \"\{posts.find(p => p.slug == slug)?.title ?? slug\} — Blog\"`. Tags beyond the title and description go in `head \{ \}` ([Content](/recipes/search-and-link-previews#add-tags-for-one-page)).")
+
+        Heading("Add a 404 page", id: "add-a-404-page").h2
+
+        Markdown("To show a page for a route no other page claims, declare a page on the `*` route:")
+
+        CodeBlock(#"page NotFound(path: "*", title: "Not found", description: "There is no page at this address.") {
+    Heading("Page not found").h1
+    Link("Go to the home page", to: "/")
+}"#, title: "wf")
+
+        Markdown("The router shows it for any address no page claims. In a static build it is also written as `404.html`, which GitHub Pages, Netlify, Cloudflare Pages and most static hosts serve for a path they have no file for.")
+
+        Heading("Serve a single-page build", id: "serve-a-single-page-build").h2
+
+        Markdown("A single-page build has one file, `index.html`, so every path a reader might open — `/users/42` — has to reach it. Most hosts need one line for this; [Deploying](/recipes) has each in full:")
+
+        CodeBlock(#"Netlify / Cloudflare Pages   public/_redirects:  /*  /index.html  200
+nginx                        try_files $uri $uri/ /index.html;
+Vercel                       "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]"#, title: "text")
+
+        Callout("Without this rule, the home page works, but a reload on any other address is a 404.", kind: .warning)
+
+        Heading("Serve the site under a sub-path", id: "serve-the-site-under-a-sub-path").h2
+
+        Markdown("To serve the site under a path such as `/my-site` — a GitHub Pages project site — set `build.base_path`:")
+
+        CodeBlock(#"{ "build": { "ssg": true, "base_path": "/my-site" } }"#, title: "json")
+
+        Markdown("The build prefixes every link, every asset and the router's paths with it. Write your paths from the site's root as if there were no prefix: `Link(\"About\", to: \"/about\")` links to `/my-site/about`.")
+
+        Heading("Quick reference", id: "quick-reference").h2
+
+        Table(caption: "Quick reference") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Goal").header
+                    Table.Cell("Setting or syntax").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell("Pre-render every route")
+                    Table.Cell { Markdown("`\"build\": \{ \"ssg\": true \}` or `\"output_type\": \"static\"`") }
+                }
+                Table.Row {
+                    Table.Cell("One app shell")
+                    Table.Cell { Markdown("`\"build\": \{ \"ssg\": false \}` (the default)") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("Pre-render a `:param` route") }
+                    Table.Cell { Markdown("`paths:` on the page, known at build time") }
+                }
+                Table.Row {
+                    Table.Cell("A title per pre-rendered file")
+                    Table.Cell { Markdown("`title: \"\{slug\} — Blog\"`") }
+                }
+                Table.Row {
+                    Table.Cell("A 404 page")
+                    Table.Cell { Markdown("`page NotFound(path: \"*\", …)`, written as `404.html` when static") }
+                }
+                Table.Row {
+                    Table.Cell("A single-page build on a host")
+                    Table.Cell { Markdown("Answer every path with `index.html`") }
+                }
+                Table.Row {
+                    Table.Cell("A site under a sub-path")
+                    Table.Cell { Markdown("`\"build\": \{ \"base_path\": \"/my-site\" \}`") }
+                }
+            }
+        }
+    }
+}

@@ -26,7 +26,7 @@ page Likes(path: "/", title: "Likes", description: "A like that shows at once.")
 }"#, title: "wf")
         }
         variations {
-            Markdown("`optimistic(holder, change)` does the same with less code inside an action. It applies the change at once, and if anything later in the action throws, the change is taken back ([Fetching data](/docs/guide/data#show-a-change-before-the-server-agrees)):")
+            Markdown("`optimistic(holder, change)` does the same with less code inside an action. It applies the change at once, and if anything later in the action throws, the change is taken back ([Fetching data](/learn/15-data#show-a-change-before-the-server-agrees)):")
 
             CodeBlock(#"action like(id: String) {
     optimistic(items, list => list.map(i => if i.id == id { Item(id: i.id, liked: !i.liked) } else { i }))
@@ -34,7 +34,7 @@ page Likes(path: "/", title: "Likes", description: "A like that shows at once.")
 }"#, title: "wf")
 
         }
-        Markdown("- `let before = items` keeps the list as it was. A [`let`](/docs/guide/state#actions-and-locals) is local to the action.\n- The next line gives `items` a new list with the one item flipped. The button repaints at once, before any request leaves.\n- The request is [awaited](/docs/guide/data#fetch-on-demand-with-await-fetch) inside `try`. If it fails, the `catch` puts `before` back and sets `error`, and the `Toast` tells the reader.")
+        Markdown("- `let before = items` keeps the list as it was. A [`let`](/learn/07-state-and-reactivity#actions-and-locals) is local to the action.\n- The next line gives `items` a new list with the one item flipped. The button repaints at once, before any request leaves.\n- The request is [awaited](/learn/15-data#fetch-on-demand-with-await-fetch) inside `try`. If it fails, the `catch` puts `before` back and sets `error`, and the `Toast` tells the reader.")
 
     }
 }

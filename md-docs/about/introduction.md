@@ -1,12 +1,13 @@
 ---
-chapter: 1
+chapter: 18
 kind: "about"
-route: "guide/introduction"
-group: "start"
+route: "/about/why"
+from: ["/docs/guide/introduction"]
+group: "about"
 blurb: "What WebFluent is, what it does for you, where it fits and where it does not, and how to find your way around this guide."
 description: "What WebFluent is, the five ideas behind it, when to use it and when not to, and how the guide is organised by what you need."
 ---
-# 1. Introduction
+# Introduction
 
 WebFluent is a programming language for websites, PDFs and slide decks. You
 write `.wf` files that say what each page shows, the state behind it, and

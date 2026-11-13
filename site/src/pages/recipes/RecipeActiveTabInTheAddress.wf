@@ -14,7 +14,7 @@ page RecipeActiveTabInTheAddress(path: "/recipes/active-tab-in-the-address", tit
     if tab == "billing" { Text("Billing settings") }
 }"#, title: "wf")
         }
-        Markdown("- [`hash`](/docs/guide/pages-and-routing#query-strings-and-fragments) is the address's fragment without the `#`, kept current by the runtime.\n- `tab` is a [`derived`](/docs/guide/state#derived) value: the fragment when there is one, `\"profile\"` when there is none.\n- Each tab is a `Link` to the same page with another fragment. Following it changes `hash`, `tab` follows, and the matching `if` draws its panel. The back button steps through the tabs the reader opened.\n\nTo keep several settings in the address, such as a sort and a filter, use the query string instead: see [Keep filters in the address](/recipes/filters-in-the-address).")
+        Markdown("- [`hash`](/learn/05-pages-and-routing#query-strings-and-fragments) is the address's fragment without the `#`, kept current by the runtime.\n- `tab` is a [`derived`](/learn/07-state-and-reactivity#derived) value: the fragment when there is one, `\"profile\"` when there is none.\n- Each tab is a `Link` to the same page with another fragment. Following it changes `hash`, `tab` follows, and the matching `if` draws its panel. The back button steps through the tabs the reader opened.\n\nTo keep several settings in the address, such as a sort and a filter, use the query string instead: see [Keep filters in the address](/recipes/filters-in-the-address).")
 
     }
 }

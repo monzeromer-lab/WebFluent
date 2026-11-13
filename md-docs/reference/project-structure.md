@@ -1,12 +1,12 @@
 ---
-chapter: 32
+chapter: 31
 kind: "reference"
 route: "/reference/project"
-group: "ship"
+group: "reference"
 blurb: "Where files go, how the compiler reads them, how names work across a project, and how a project grows without getting lost."
 description: "Where files go, how they merge into one program, naming in a global namespace, wf generate, what to commit, and how to grow a project."
 ---
-# 32. Project structure
+# Project structure
 
 A WebFluent project is a config file and a folder of sources that the
 compiler reads as one program. The folders are a convention for you and

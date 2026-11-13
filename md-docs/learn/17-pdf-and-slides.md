@@ -1,12 +1,13 @@
 ---
-chapter: 37
+chapter: 17
 kind: "tutorial"
-route: "guide/pdf-and-slides"
-group: "outputs"
+route: "/learn/17-pdf-and-slides"
+from: ["/docs/guide/pdf-and-slides"]
+group: "build"
 blurb: "Compile the same language to a paginated PDF document or a slide deck — invoices, reports and talks, laid out with CSS as on the web."
 description: "Make PDF documents and slide decks: the paged engine, CSS layout, page breaks, fonts, Arabic, headers, page numbers, contents, charts and QR codes."
 ---
-# 37. PDF and slides
+# 17. PDF and slides
 
 This chapter shows you how to compile a WebFluent project to paper: a
 paginated PDF document, such as an invoice or a report, or a slide deck for

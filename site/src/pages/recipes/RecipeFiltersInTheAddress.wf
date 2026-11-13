@@ -13,7 +13,7 @@ page RecipeFiltersInTheAddress(path: "/recipes/filters-in-the-address", title: "
     Text("Sorted by {sort}")
 }"#, title: "wf")
         }
-        Markdown("- [`query`](/docs/guide/pages-and-routing#query-strings-and-fragments) is the address's query string as a map: `query.sort` is `\"price\"` for `?sort=price`, and null when the address has no `sort`.\n- `sort` is a [`derived`](/docs/guide/state#derived) value, so `??` gives it a default and it follows the address.\n- Each choice is a `Link` to the same page with another query. A query string is not part of the route, so `/products?sort=price` is still the `Products` page; only `sort` changes.\n\nTo change the query from an action instead of a link, call `navigate(\"/products?sort=price\")`.")
+        Markdown("- [`query`](/learn/05-pages-and-routing#query-strings-and-fragments) is the address's query string as a map: `query.sort` is `\"price\"` for `?sort=price`, and null when the address has no `sort`.\n- `sort` is a [`derived`](/learn/07-state-and-reactivity#derived) value, so `??` gives it a default and it follows the address.\n- Each choice is a `Link` to the same page with another query. A query string is not part of the route, so `/products?sort=price` is still the `Products` page; only `sort` changes.\n\nTo change the query from an action instead of a link, call `navigate(\"/products?sort=price\")`.")
 
     }
 }

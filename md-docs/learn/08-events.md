@@ -1,12 +1,13 @@
 ---
-chapter: 13
+chapter: 8
 kind: "tutorial"
-route: "guide/events"
-group: "concepts"
+route: "/learn/08-events"
+from: ["/docs/guide/events"]
+group: "language"
 blurb: "Handlers on elements, keyboard shortcuts, the events components fire, the overlays a page opens, and drag and drop."
 description: "DOM event handlers, the event object, keyboard shortcuts, component events, modals, menus, popovers, gestures and window events."
 ---
-# 13. Events
+# 8. Events
 
 An event handler is the code that runs when something happens: a click, a key,
 a drop, a component saying it changed. You write it as `on <event> { … }`

@@ -22,7 +22,7 @@ page RecipeInstallWfInCi(path: "/recipes/install-wf-in-ci", title: "Install wf o
 
         Heading("Prepare the site before the first deploy", id: "prepare-the-site-before-the-first-deploy").h2
 
-        Markdown("Do these once, before the first deploy:\n\n1. Set `meta.site_url` in `webfluent.app.json` to the address the site will have. If the site lives under a sub-path (`/docs`), also set `build.base_path`.\n2. Decide between a static build and a single-page build ([Static sites and SPAs](/docs/guide/static-and-spa)). A single-page build needs the host to answer every path with `index.html`.\n3. Build the site and load it in a real browser:\n\n   ```bash wf build wf verify ```\n\n   `wf verify` loads every page in headless Chrome and fails on a script error, a failed request or a blank page.\n\nAfter the deploy, [check it](/recipes/check-a-deploy).")
+        Markdown("Do these once, before the first deploy:\n\n1. Set `meta.site_url` in `webfluent.app.json` to the address the site will have. If the site lives under a sub-path (`/docs`), also set `build.base_path`.\n2. Decide between a static build and a single-page build ([Static sites and SPAs](/about/static-or-single-page)). A single-page build needs the host to answer every path with `index.html`.\n3. Build the site and load it in a real browser:\n\n   ```bash wf build wf verify ```\n\n   `wf verify` loads every page in headless Chrome and fails on a script error, a failed request or a blank page.\n\nAfter the deploy, [check it](/recipes/check-a-deploy).")
 
     }
 }

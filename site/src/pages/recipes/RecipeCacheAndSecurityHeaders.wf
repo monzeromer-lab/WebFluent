@@ -9,7 +9,7 @@ page RecipeCacheAndSecurityHeaders(path: "/recipes/cache-and-security-headers", 
   Referrer-Policy: strict-origin-when-cross-origin
   X-Frame-Options: DENY"#, title: "text")
         }
-        Markdown("1. `/*` applies the headers under it to every path of the site.\n2. `Content-Security-Policy` is the same policy every page already carries as a `<meta>` tag, plus `frame-ancestors`, which a browser ignores in a `<meta>` tag ([Security](/docs/guide/security#ship-a-content-security-policy)).\n3. `X-Content-Type-Options`, `Referrer-Policy` and `X-Frame-Options` only work as real HTTP headers, so they are in this file and nowhere else.\n\nThe build writes no cache headers: those are yours to set, by the kind of file.")
+        Markdown("1. `/*` applies the headers under it to every path of the site.\n2. `Content-Security-Policy` is the same policy every page already carries as a `<meta>` tag, plus `frame-ancestors`, which a browser ignores in a `<meta>` tag ([Security](/about/security#ship-a-content-security-policy)).\n3. `X-Content-Type-Options`, `Referrer-Policy` and `X-Frame-Options` only work as real HTTP headers, so they are in this file and nowhere else.\n\nThe build writes no cache headers: those are yours to set, by the kind of file.")
 
         Heading("Set cache headers", id: "set-cache-headers").h2
 
@@ -51,7 +51,7 @@ page RecipeCacheAndSecurityHeaders(path: "/recipes/cache-and-security-headers", 
 
         Heading("Set security headers", id: "set-security-headers").h2
 
-        Markdown("Netlify and Cloudflare Pages read `build/_headers` as it is. On any other host, set the same headers in its configuration, as the hosting recipes show: [nginx](/recipes/serve-with-nginx), [Apache](/recipes/serve-with-apache), [Caddy](/recipes/serve-with-caddy) and [Vercel](/recipes/deploy-to-vercel). Serve the site over HTTPS, and turn on HSTS once you are sure HTTPS works everywhere. [Security](/docs/guide/security#before-you-deploy) has the full checklist.\n\nAfter the deploy, [check the headers it sends](/recipes/check-a-deploy).")
+        Markdown("Netlify and Cloudflare Pages read `build/_headers` as it is. On any other host, set the same headers in its configuration, as the hosting recipes show: [nginx](/recipes/serve-with-nginx), [Apache](/recipes/serve-with-apache), [Caddy](/recipes/serve-with-caddy) and [Vercel](/recipes/deploy-to-vercel). Serve the site over HTTPS, and turn on HSTS once you are sure HTTPS works everywhere. [Security](/about/security#before-you-deploy) has the full checklist.\n\nAfter the deploy, [check the headers it sends](/recipes/check-a-deploy).")
 
     }
 }

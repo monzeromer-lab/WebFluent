@@ -93,7 +93,7 @@ Then `wf init my-site`."#, title: "markdown")
 
         Heading("Frame .md pages with a layout", id: "frame-md-pages-with-a-layout").h3
 
-        Markdown("`layout: DocsShell` frames the body in a component with a default slot — the same kind of component a `.wf` page names as its `layout:` ([Pages and routing](/docs/guide/pages-and-routing#layouts)). In `DocsShell`, `slot` declares the default slot and `children` is where the page's body lands, beside the sidebar.\n\n(`wf docs` is something else: a gallery of every component the project can use — [CLI](/reference/cli#wf-docs).)")
+        Markdown("`layout: DocsShell` frames the body in a component with a default slot — the same kind of component a `.wf` page names as its `layout:` ([Pages and routing](/learn/05-pages-and-routing#layouts)). In `DocsShell`, `slot` declares the default slot and `children` is where the page's body lands, beside the sidebar.\n\n(`wf docs` is something else: a gallery of every component the project can use — [CLI](/reference/cli#wf-docs).)")
 
     }
 }

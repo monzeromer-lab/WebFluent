@@ -134,7 +134,7 @@ fn main() -> webfluent::Result<()> {
                 }
                 Table.Row {
                     Table.Cell { Markdown("`render_pdf`, `render_slides`") }
-                    Table.Cell { Markdown("PDF bytes, laid out by the paged engine of [PDF and slides](/docs/guide/pdf-and-slides)") }
+                    Table.Cell { Markdown("PDF bytes, laid out by the paged engine of [PDF and slides](/learn/17-pdf-and-slides)") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`render_pdf_report`, `render_slides_report`") }

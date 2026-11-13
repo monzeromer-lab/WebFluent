@@ -17,6 +17,16 @@
       return;
     }
   }
+  // A page of the guide that moved (old-links-pages.js, written with the
+  // guide): the same section of the page where it is now.
+  if (typeof OLD_PAGES === "object" && path !== "") {
+    var at = path.replace(/^.*?(\/docs\/)/, "/docs/");
+    var moved = OLD_PAGES[at];
+    if (moved) {
+      location.replace(path.slice(0, path.length - at.length) + moved + location.hash);
+      return;
+    }
+  }
   if (!/\/docs\/guide\/diagnostics$/.test(path)) return;
   var base = path.slice(0, path.length - "/docs/guide/diagnostics".length);
   var code = /^#([a-z]\d{2,3})(-|$)/i.exec(location.hash);

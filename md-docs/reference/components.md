@@ -1,12 +1,12 @@
 ---
-chapter: 40
+chapter: 32
 kind: "reference"
 route: "/reference"
 group: "reference"
 blurb: "Every built-in with its props, cases, flags, events, slots and parts — generated from the compiler's own registry."
 description: "The components reference: every built-in element, its props, flags, events, slots, parts, attribute families and an example."
 ---
-# 40. Components reference
+# Components reference
 
 Generated from the compiler's registry (`wf registry --json`) by `scripts/docsite/components.py`, with an example of each from `scripts/docsite/examples.py`; edit those, not this file.
 

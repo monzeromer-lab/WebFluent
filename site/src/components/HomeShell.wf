@@ -270,14 +270,14 @@ type Labelled {
 
 const HOME_WAYS: [Way] = [
     Way(key: "nav.learn", to: "/learn", places: [
-        Labelled(label: "Getting started", to: "/docs/guide/getting-started"),
-        Labelled(label: "State and reactivity", to: "/docs/guide/state"),
-        Labelled(label: "Tutorial: Shelf", to: "/docs/guide/tutorial")
+        Labelled(label: "Getting started", to: "/learn/01-getting-started"),
+        Labelled(label: "State and reactivity", to: "/learn/07-state-and-reactivity"),
+        Labelled(label: "Tutorial: Shelf", to: "/learn/02-tutorial-shelf")
     ]),
     Way(key: "nav.recipes", to: "/recipes", places: [
-        Labelled(label: "Debounce a search", to: "/docs/guide/recipes#debounce-a-search"),
-        Labelled(label: "Add a dark-mode switch", to: "/docs/guide/recipes#add-a-dark-mode-switch"),
-        Labelled(label: "Deploy a site", to: "/docs/guide/deploying")
+        Labelled(label: "Debounce a search", to: "/recipes/debounce-a-search"),
+        Labelled(label: "Add a dark-mode switch", to: "/recipes/dark-mode-switch"),
+        Labelled(label: "Deploy to GitHub Pages", to: "/recipes/deploy-to-github-pages")
     ]),
     Way(key: "nav.reference", to: "/reference", places: [
         Labelled(label: "Button", to: "/reference/button"),

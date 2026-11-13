@@ -22,7 +22,7 @@ page RecipeValidationMessages(path: "/recipes/validation-messages", title: "Show
     if sent { Alert("Welcome aboard.").success }
 }"#, title: "wf")
         }
-        Markdown("- Each [`validate`](/docs/guide/forms#validate-a-field) block names a state and lists its rules. A rule may take a message after it; without one, the rule's own is used.\n- `matches(password)` holds `confirm` to whatever `password` is now.\n- The control bound to a state shows that state's message. Each control shows its own message when the reader leaves it, with the accessible wiring an `error:` gets.\n- `Form(bind: form)` hands the page a handle: `form.valid` disables the button until every rule passes, and `form.reset()` clears the form after a submit.\n- A submit that fails moves focus to the first problem and does not run the `on submit` handler.\n\n[Forms](/docs/guide/forms) lists every rule.")
+        Markdown("- Each [`validate`](/learn/14-forms#validate-a-field) block names a state and lists its rules. A rule may take a message after it; without one, the rule's own is used.\n- `matches(password)` holds `confirm` to whatever `password` is now.\n- The control bound to a state shows that state's message. Each control shows its own message when the reader leaves it, with the accessible wiring an `error:` gets.\n- `Form(bind: form)` hands the page a handle: `form.valid` disables the button until every rule passes, and `form.reset()` clears the form after a submit.\n- A submit that fails moves focus to the first problem and does not run the `on submit` handler.\n\n[Forms](/learn/14-forms) lists every rule.")
 
     }
 }

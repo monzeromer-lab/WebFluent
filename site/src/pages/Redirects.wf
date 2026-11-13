@@ -2,35 +2,35 @@
 /// documentation's landing page. A guard that never holds is a redirect.
 page GuideIndex(path: "/docs/guide", title: "Guide", description: "The WebFluent guide, from the first wf init to a complete application.", guard: false, redirect: "/docs", noindex: true) {
     Heading(t("nav.guide")).h1
-    Link(t("ch.01"), to: "/docs")
+    Link(t("ch.18"), to: "/docs")
 }
 
 /// Chapters that moved when the guide was reorganised, so an old link still
 /// lands on the page that holds what it pointed at.
-page OldEventsAndForms(path: "/docs/guide/events-and-forms", title: "Events", description: "This chapter moved.", guard: false, redirect: "/docs/guide/events", noindex: true) {
-    Heading(t("ch.13")).h1
-    Link(t("ch.13"), to: "/docs/guide/events")
+page OldEventsAndForms(path: "/docs/guide/events-and-forms", title: "Events", description: "This chapter moved.", guard: false, redirect: "/learn/08-events", noindex: true) {
+    Heading(t("ch.08")).h1
+    Link(t("ch.08"), to: "/learn/08-events")
 }
 
-page OldOutputs(path: "/docs/guide/outputs", title: "PDF and slides", description: "This chapter moved.", guard: false, redirect: "/docs/guide/pdf-and-slides", noindex: true) {
-    Heading(t("ch.37")).h1
-    Link(t("ch.37"), to: "/docs/guide/pdf-and-slides")
+page OldOutputs(path: "/docs/guide/outputs", title: "PDF and slides", description: "This chapter moved.", guard: false, redirect: "/learn/17-pdf-and-slides", noindex: true) {
+    Heading(t("ch.17")).h1
+    Link(t("ch.17"), to: "/learn/17-pdf-and-slides")
 }
 
 page OldTooling(path: "/docs/guide/tooling", title: "Command line and editors", description: "This chapter moved.", guard: false, redirect: "/reference/cli", noindex: true) {
-    Heading(t("ch.41")).h1
-    Link(t("ch.41"), to: "/reference/cli")
+    Heading(t("ch.33")).h1
+    Link(t("ch.33"), to: "/reference/cli")
 }
 
 /// The cookbook became the tutorials: three projects built step by step.
-page OldCookbook(path: "/docs/cookbook", title: "Tutorials", description: "This chapter moved.", guard: false, redirect: "/docs/tutorials/todos", noindex: true) {
-    Heading(t("ch.05")).h1
-    Link(t("ch.05"), to: "/docs/tutorials/todos")
+page OldCookbook(path: "/docs/cookbook", title: "Tutorials", description: "This chapter moved.", guard: false, redirect: "/learn/03-tutorial-todos", noindex: true) {
+    Heading(t("ch.03")).h1
+    Link(t("ch.03"), to: "/learn/03-tutorial-todos")
 }
 
 /// The tutorials were one chapter; each is its own page now, and the
 /// first one is where the section starts.
-page OldTutorials(path: "/docs/tutorials", title: "Tutorials", description: "This chapter moved.", guard: false, redirect: "/docs/tutorials/todos", noindex: true) {
-    Heading(t("ch.05")).h1
-    Link(t("ch.05"), to: "/docs/tutorials/todos")
+page OldTutorials(path: "/docs/tutorials", title: "Tutorials", description: "This chapter moved.", guard: false, redirect: "/learn/03-tutorial-todos", noindex: true) {
+    Heading(t("ch.03")).h1
+    Link(t("ch.03"), to: "/learn/03-tutorial-todos")
 }

@@ -1,12 +1,13 @@
 ---
-chapter: 9
+chapter: 4
 kind: "tutorial"
-route: "guide/language-basics"
-group: "concepts"
+route: "/learn/04-language-basics"
+from: ["/docs/guide/language-basics"]
+group: "language"
 blurb: "The shape of every .wf file: the thirteen kinds of declaration, naming, comments, the two kinds of body, the two layouts and how strings are written."
 description: "Declarations, naming, comments, render and imperative bodies, the braced and the indented layout, and how to write strings in WebFluent."
 ---
-# 9. Language basics
+# 4. Language basics
 
 A WebFluent program is a set of declarations: pages, components, stores and
 the rest, each a keyword followed by a name and a body. Learn the thirteen

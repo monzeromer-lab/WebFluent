@@ -1,0 +1,576 @@
+/// Chapter 12 of the guide, written from md-docs/learn/12-types.md by
+/// scripts/docsite/guide.py; edit the guide, not this file.
+page Learn12Types(path: "/learn/12-types", title: "Types", description: "The type language, built-in types, records and enums, refinements, inference and narrowing, typed network data, and the checks the compiler runs.", layout: DocsShell("Types", kind: .tutorial, chapter: t("nav.group.language"), blurb: "A gradual, structural type checker that changes no output and names every mistake where you wrote it.", source: "md-docs/learn/12-types.md", sections: [Anchor(id: "a-first-type-error", label: "A first type error"), Anchor(id: "the-type-language", label: "The type language"), Anchor(id: "the-types-the-language-brings-with-it", label: "The types the language brings with it"), Anchor(id: "records-type", label: "Records: type"), Anchor(id: "enums", label: "Enums"), Anchor(id: "shapes-of-map-literals", label: "Shapes of map literals"), Anchor(id: "where-types-come-from", label: "Where types come from"), Anchor(id: "bidirectional-inference", label: "Bidirectional inference"), Anchor(id: "narrowing-optionals", label: "Narrowing optionals"), Anchor(id: "typing-data-from-the-network", label: "Typing data from the network"), Anchor(id: "the-checks", label: "The checks"), Anchor(id: "what-the-checker-does-not-check", label: "What the checker does not check"), Anchor(id: "in-the-editor", label: "In the editor"), Anchor(id: "quick-reference", label: "Quick reference")], prevTo: "/learn/11-stores", prevLabel: t("ch.11"), nextTo: "/learn/13-styling", nextLabel: t("ch.13"))) {
+    Stack(gap: .lg) {
+        Markdown("WebFluent has a type checker that runs in `wf build`, `wf check` and the editor, before any output is written. It is *gradual*: a program that declares no types still checks, because whatever the checker cannot work out has the type `Any`, and `Any` agrees with everything. Every annotation you add lets the checker say more. It is also *structural*: a value fits a type when it has the right fields, whatever it was declared as. The checker changes nothing in the output; it only reports.\n\n**In this chapter**\n\n- The type language, and the types that come with the language\n- Records (`type`), enums and the shapes of map literals\n- Where the checker gets a type from, and how it infers one\n- Narrowing a value that may be `null`\n- Typing data from the network\n- The checks, and what the checker does not check")
+
+        Heading("A first type error", id: "a-first-type-error").h2
+
+        Markdown("This page declares an `Invoice` record and builds one with the wrong kind of value for `total`:")
+
+        CodeBlock(#"type Invoice { id: String, total: Number, paid: Bool = false }
+
+page Invoices(path: "/", title: "Invoices", description: "What is owed.") {
+    state invoice: Invoice = Invoice(id: "INV-001", total: "120")
+    Heading("Invoice {invoice.id}").h1
+    Text("Owed: {invoice.total}")
+}"#, title: "wf · draws T01")
+
+        Markdown("The build stops, pointing at the field:")
+
+        CodeBlock(#"error[T01]: `total` of `Invoice` is `Number`, but `"120"` is `String`
+ --> src/App.wf:4:53"#, title: "text")
+
+        Markdown("Writing `total: 120` fixes it. Had the invoice been an untyped map, `\{ id: \"INV-001\", total: \"120\" \}`, the page would build, and `invoice.total` would be a string at run time.")
+
+        Heading("The type language", id: "the-type-language").h2
+
+        Table(caption: "The type language") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Type").header
+                    Table.Cell("Written").header
+                    Table.Cell("Values").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell("String")
+                    Table.Cell { Markdown("`String`") }
+                    Table.Cell { Markdown("`\"text\"`, `\"with \{interpolation\}\"`") }
+                }
+                Table.Row {
+                    Table.Cell("Number")
+                    Table.Cell { Markdown("`Number` (`Int` and `Float` are accepted as other spellings of it)") }
+                    Table.Cell { Markdown("`42`, `3.14`") }
+                }
+                Table.Row {
+                    Table.Cell("Bool")
+                    Table.Cell { Markdown("`Bool`") }
+                    Table.Cell { Markdown("`true`, `false`") }
+                }
+                Table.Row {
+                    Table.Cell("List")
+                    Table.Cell { Markdown("`[String]`, `[Todo]`") }
+                    Table.Cell { Markdown("`[a, b]`") }
+                }
+                Table.Row {
+                    Table.Cell("Map")
+                    Table.Cell { Markdown("`Map`") }
+                    Table.Cell { Markdown("`\{ key: value \}` — an object with unknown keys") }
+                }
+                Table.Row {
+                    Table.Cell("Optional")
+                    Table.Cell { Markdown("`String?`, `Todo?`") }
+                    Table.Cell { Markdown("a value or `null`") }
+                }
+                Table.Row {
+                    Table.Cell("Record")
+                    Table.Cell { Markdown("the `type`'s name") }
+                    Table.Cell { Markdown("`Todo(id: \"a\", title: \"b\")`") }
+                }
+                Table.Row {
+                    Table.Cell("Enum")
+                    Table.Cell { Markdown("the `enum`'s name") }
+                    Table.Cell { Markdown("`.case`") }
+                }
+                Table.Row {
+                    Table.Cell("Any")
+                    Table.Cell { Markdown("`Any`") }
+                    Table.Cell("anything; what is not known")
+                }
+            }
+        }
+
+        Markdown("You write a type after a colon on a `state`, a prop, an action parameter, a `type` field, a route parameter, a `let` or a `resource`. This page uses several:")
+
+        CodeBlock(#"page Typed(path: "/") {
+    state name: String = ""
+    state count: Number = 0
+    state tags: [String] = []
+    state picked: String? = null
+    state profile: Map = {}
+    action greet(who: String, times: Number) { log("hi {who} × {times}") }
+    derived pick = picked ?? "none"
+    Text("{name} {count} {tags.length} {pick}")
+    Button("Go") { on click { greet(name, count) } }
+}"#, title: "wf")
+
+        Heading("The types the language brings with it", id: "the-types-the-language-brings-with-it").h2
+
+        Markdown("Eleven more types come with the language. Each is a **plain JSON value at run time**, with no wrapper object, so it crosses a `fetch`, a `persist`, the static paint (the HTML the build pre-renders for a page) and the template engine unchanged. `.native()` hands a real platform object to a library that wants one.")
+
+        Table(caption: "The types the language brings with it") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Type").header
+                    Table.Cell("Carried by").header
+                    Table.Cell("Written as a literal").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`Date`") }
+                    Table.Cell { Markdown("`\"2026-03-14\"`") }
+                    Table.Cell { Markdown("`@2026-03-14`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`Time`") }
+                    Table.Cell { Markdown("`\"09:30\"`") }
+                    Table.Cell { Markdown("`@09:30`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`DateTime`") }
+                    Table.Cell("ISO 8601")
+                    Table.Cell { Markdown("`@2026-03-14T09:30Z`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`Duration`") }
+                    Table.Cell("milliseconds")
+                    Table.Cell { Markdown("`3.days`, `90.minutes`, `250.ms`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`Money`") }
+                    Table.Cell { Markdown("`\{ amount: 1299, currency: \"EUR\" \}`") }
+                    Table.Cell { Markdown("`€12.99`, `$9.99`, `£4.50`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`Url`") }
+                    Table.Cell("a string")
+                    Table.Cell { Markdown("`\"https://example.com\"`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`Email`") }
+                    Table.Cell("a string")
+                    Table.Cell { Markdown("`\"ada@example.com\"`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`Color`") }
+                    Table.Cell("a string")
+                    Table.Cell { Markdown("`#0F766E`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`Uuid`") }
+                    Table.Cell("a string")
+                    Table.Cell { Markdown("`uuid()` makes a fresh one") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`File`") }
+                    Table.Cell { Markdown("the browser's `File`") }
+                    Table.Cell { Markdown("what a `FileUpload` yields") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`Secret`") }
+                    Table.Cell("a string")
+                    Table.Cell("—")
+                }
+            }
+        }
+
+        Markdown("Money is held in **minor units** — cents, pence — so its arithmetic is whole-number arithmetic and nothing drifts. A duration is milliseconds, so it adds to a moment. `uuid()` is where a `Uuid` comes from: it uses the platform's own generator where there is one, and otherwise builds a version-4 UUID from the best randomness available.\n\nThis page books a stay with dates, money and a refined number:")
+
+        CodeBlock(#"type Booking {
+    id: Uuid
+    guest: Email
+    from: Date
+    nights: Number(1..=30)
+    total: Money
+}
+
+page Stay(path: "/", title: "Stay", description: "One booking.") {
+    state from: Date = @2026-03-14
+    state nights: Number = 5
+    state total: Money = €249.00
+
+    derived checkout = from.plus(days: nights)
+    derived weekday = checkout.weekday()
+    derived late = now.date().isAfter(checkout)
+
+    Heading("Your stay").h1
+    Text("Out on {checkout}, a weekday of {weekday}")
+    Text("Due {format(total)}")
+    if late { Alert("Checkout has passed").warning }
+}"#, title: "wf")
+
+        Markdown("Everything the language **computes** is a call; everything the carrier **already has** is a field. So `total.amount` and `total.currency` are fields, and `from.year()` and `checkout.weekday()` are calls.")
+
+        Table(caption: "The types the language brings with it") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Type").header
+                    Table.Cell("Methods").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`Date` `Time` `DateTime`") }
+                    Table.Cell { Markdown("`.year() .month() .day() .weekday() .hour() .minute() .second()`, `.plus(days: 3)` and `.minus(…)` (which take `years months weeks days hours minutes seconds ms`), `.isBefore(d) .isAfter(d) .isSame(d)`, `.until(d)` (a `Duration`), `.startOfDay() .startOfWeek() .startOfMonth() .endOfDay()`, `.native()`; `DateTime` also `.date() .time() .inZone(\"Europe/Berlin\")`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`Duration`") }
+                    Table.Cell { Markdown("`.days() .hours() .minutes() .seconds() .ms()`, `.plus(d)`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`Money`") }
+                    Table.Cell { Markdown("`.plus(m) .minus(m) .times(n) .convert(rate, \"USD\")`; `format(m)` needs no style and no currency code") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`Url`") }
+                    Table.Cell { Markdown("`.host() .path() .query()`, `.with(query: \{ page: 2 \})`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`Email`") }
+                    Table.Cell { Markdown("`.domain()`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`Color`") }
+                    Table.Cell { Markdown("`.mix(other, 0.2) .lighten(0.1) .darken(0.1) .alpha(0.5) .contrast(other)`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`File`") }
+                    Table.Cell { Markdown("`.preview()` — an object URL, revoked when the scope that made it leaves; the fields `.name .size .type`") }
+                }
+            }
+        }
+
+        Markdown("Adding a month lands on a day that exists: `@2026-01-31.plus(months: 1)` is the 28th of February, not the 3rd of March. All of these methods also run at build time, so the static paint shows the answer instead of a blank that fills in when the page hydrates.")
+
+        Heading("A literal is held to its type", id: "a-literal-is-held-to-its-type").h3
+
+        Markdown("A string written where one of these types is wanted is read as that type, and checked where you wrote it:")
+
+        CodeBlock(#"state site: Url = "https://example.com"     // fine
+state bad: Url = "example"                  // T01: A URL has a scheme"#, title: "wf")
+
+        Heading("now", id: "now").h3
+
+        Markdown("`now` is a `DateTime` that keeps itself current. It updates every minute by default, or as often as a page asks with `now(every: …)`:")
+
+        CodeBlock(#"page Feed(path: "/", title: "Feed", description: "What happened lately.") {
+    state posted: DateTime = @2026-03-14T09:30:00Z
+    derived age = posted.until(now)
+    Text("{ago(posted)} — {age.minutes()} minutes")
+    Text("ticking: {now(every: 1.seconds)}")
+}"#, title: "wf")
+
+        Markdown("Read `now` where it is shown or in a `derived` value. A `state` takes its initial value once, so `state clock = now(every: 1.seconds)` stays at the moment the page opened (`X06`; see [State and reactivity](/learn/07-state-and-reactivity)).")
+
+        Heading("A condition on a type", id: "a-condition-on-a-type").h3
+
+        Markdown("Any type may say what its values must be. The compiler holds every value it can read to that condition:")
+
+        CodeBlock(#"state nights: Number(1..=30) = 12
+state pass: String(minLength: 8) = "correcthorse"
+state start: Date(after: @2026-01-01) = @2026-03-14"#, title: "wf")
+
+        Markdown("The conditions are `min`, `max`, `minLength`, `maxLength`, `pattern`, `after` and `before`, and a range for the two ends at once: `1..=30` includes the end, `0..10` excludes it. A value that arrives at run time — typed into a field, say — is refused by validation, from the same condition, so a refined type needs no `validate` rule for it (see [Forms](/learn/14-forms)).")
+
+        Heading("Secret is not a string", id: "secret-is-not-a-string").h3
+
+        Markdown("A `Secret` is a string the compiler will not let escape. Each of these lines is a `T12`:")
+
+        CodeBlock(#"state token: Secret = ""
+Text(token)                     // shown
+Text("Bearer {token}")          // in text — which is how it ends up in a URL
+persist token: Secret = ""      // kept in the browser
+log(token)                      // in the console, and often in a log service"#, title: "wf")
+
+        Markdown("Joining it with `+` or handing it to a browser global such as `console`, a storage or a `fetch` address is a `T12` too, and a secret has no string members to read. Hold it in `state`, which ends with the visit; what must outlive the visit belongs on the server.")
+
+        Heading("Your own name wins", id: "your-own-name-wins").h3
+
+        Markdown("A `type` the program declares takes the name back from the language. A project with its own `type Color \{ name: String \}` means that record everywhere it writes `Color`.")
+
+        Heading("Records: type", id: "records-type").h2
+
+        Markdown("A *record* is a value with named, typed fields, declared with `type`:")
+
+        CodeBlock(#"enum Tone { neutral, info, danger }
+
+type Todo {
+    id: String
+    title: String
+    done: Bool = false
+    tone: Tone = .neutral
+    note: String?
+}
+
+type Admin = Todo { owner: String }
+
+page Records(path: "/") {
+    state todos: [Todo] = [
+        Todo(id: "1", title: "Write the docs"),
+        Todo(id: "2", title: "Ship", done: true, tone: .info, note: "Friday"),
+    ]
+    state special: Admin = Admin(id: "3", title: "Review", owner: "sam")
+    for todo in todos by todo.id {
+        Row(gap: .sm) {
+            Text(todo.title)
+            if let n = todo.note { Badge(n).info }
+        }
+    }
+    Text("{special.owner} owns {special.title}")
+}"#, title: "wf")
+
+        Markdown("- You may separate fields with newlines or commas.\n- You build a record by naming its fields: `Todo(id: \"1\", title: \"x\")`. A field with a default may be left out, and a `T?` field defaults to `null`. Leaving out a field with no default is `C01`.\n- A record whose fields can all be left out is built with none given, `Offers()`, wherever a value goes: a prop's default (`component Card(offers: Offers = Offers())`), a field's default, a `const`, a `state`, an argument.\n- `type Admin = Todo \{ owner: String \}` extends a record: an `Admin` has every field of `Todo`, then its own.\n- Records are structural: `\{ id: \"a\", title: \"b\" \}` given where a `Todo` is wanted is a `Todo`, and its fields are checked against the record's.\n- A `Map` fits any record, and a record fits a `Map`. So JSON from `fetch` fits a `type` it was never declared as.")
+
+        Heading("Enums", id: "enums").h2
+
+        Markdown("An *enum* is a type with a fixed set of *cases*. A case may carry a *payload* — values that travel with it:")
+
+        CodeBlock(#"enum Size { sm, md, lg }
+enum Status { idle, running(job: String), failed(reason: String), done(count: Number) }
+
+page Enums(path: "/") {
+    state size: Size = .md
+    state s: Status = .idle
+    Button("Bigger") { on click { size = .lg } }
+    Button("Start") { on click { s = .running("build-42") } }
+    Text(match size { .sm { "small" } .md { "medium" } else { "large" } })
+    match s {
+        .running(job) { Text("Running {job}") }
+        .failed(reason) { Alert(reason).danger }
+        .done(n) { Text("{n} done") }
+        else { Text("Idle") }
+    }
+}"#, title: "wf")
+
+        Markdown("- You write a case as `.name`. On its own it is a case of an enum not yet known; where a `Size` is wanted it becomes a `Size`, and `.huge` there is `T02`.\n- A case with a payload, `.failed(\"x\")`, is checked like a call. A `match` arm binds the payload: `.failed(r)` gives `r` the type `String`.\n- At run time a bare case is its name and a case with a payload is a list, `[\"failed\", \"timed out\"]`, so `size == .lg` still compares cases.\n- A `match` with no `else` must give every case an arm (`T15`).\n- An enum prop is written to a component's root element as `data-<prop>` (see [Enum props](/learn/10-components#enum-props)).")
+
+        Heading("Shapes of map literals", id: "shapes-of-map-literals").h2
+
+        Markdown("A map literal has the fields it was written with. `\{ name: \"\", age: 0 \}` has the *shape* `\{ name: String, age: Number \}`, and reading `form.nam` is `T05`, with the fields it does have. A shape fits a `Map`, a record with the same fields, and any shape it agrees with. An empty `\{\}` and a literal with a spread say nothing about their keys, so they are plain `Map`s.")
+
+        CodeBlock(#"page Shapes(path: "/") {
+    state form = { name: "", age: 0, tags: ["new"] }
+    Input(bind: form.name, label: "Name")
+    Text("{form.name} is {form.age} with {form.tags.length} tags")
+}"#, title: "wf")
+
+        Heading("Where types come from", id: "where-types-come-from").h2
+
+        Markdown("The checker reads a type from five places.\n\n**Declared:** annotations, a `type`'s fields, an `enum`'s cases, a page's route parameters, an event's parameters, a component's props.\n\n**Inferred:** a literal; a list of literals (`[1, 2]` is `[Number]`, `[]` is `[Any]`); a record construction; a `derived` value from its expression; a `state` from its initial value (one that starts as `null` is `Any?`); a `for` binding from the list's item type; a `match` arm's binding; an `if let` binding; a lambda's parameters from what the method expects (`items.filter(item => …)` gives `item` the item type).\n\n**From the registry:** the type of every built-in prop, and what a `bind:` needs — `Checkbox` and `Switch` a `Bool`, `Slider` a `Number`, `Input` a `String` or a `Number` by its input type.\n\n**From the method tables:**\n\n- On a `String`: `trim`, `toLowerCase`, `toUpperCase`, `replace`, `slice`, `padStart`, `repeat`, `capitalize`, `truncate(n)` → `String`; `length`, `indexOf` → `Number`; `includes`, `startsWith`, `endsWith` → `Bool`; `split` → `[String]`.\n- On a list: `map` → `[U]` from the lambda; `filter`, `slice`, `concat`, `sort`, `sortBy`, `unique`, `take`, `flatMap` → `[T]`; `find`, `first`, `last` → `T?`; `some`, `every`, `includes` → `Bool`; `length`, `sum`, `indexOf`, `findIndex` → `Number`; `join` → `String`; `groupBy` → `Map`; `reduce` → the initial value's type.\n- On a `Number`: `toFixed`, `toString` → `String`.\n\nAny other method is `Any`. The full lists are in [Built-ins](/reference/built-ins).\n\n**From stores:** `Todos.items` has the type of the store's state, and `Todos.add` the signature of its action.\n\nBrowser globals (`window`, `document`, `JSON`, `Math`, `Date`, …) are `Any`.")
+
+        Heading("Bidirectional inference", id: "bidirectional-inference").h2
+
+        Markdown("The checker works in both directions. When the context wants a type, it checks the expression against that type; otherwise it reads the type off the expression. The comments show what each `derived` value is inferred to be:")
+
+        CodeBlock(#"type Row { id: Number, label: String, score: Number? }
+
+page Infer(path: "/") {
+    state rows: [Row] = [Row(id: 1, label: "a"), Row(id: 2, label: "b", score: 9)]
+    derived labels = rows.map(r => r.label)                 // [String]
+    derived best = rows.find(r => r.score != null)          // Row?
+    derived total = rows.reduce((n, r) => n + (r.score ?? 0), 0)   // Number
+    derived kind = if total > 5 { "high" } else { "low" }   // String
+    derived firstScore = best?.score ?? 0                   // Number
+    derived joined = labels.join(", ")                      // String
+    Text("{joined} {kind} {firstScore}")
+}"#, title: "wf")
+
+        Markdown("The rules for operators and forms:\n\n- `a ?? b` is `a` without its `null`, joined with `b`.\n- `a?.b` is `b`'s type made optional, and the rest of the chain with it.\n- `if` and `match` used as values have the type both arms fit: the same type, `T?` when one arm is `null`, and `Any` otherwise.\n- `-`, `*`, `/` and `%` give a `Number`; `+` gives a `String` when either side is one; comparisons and `&&`, `||`, `!` give a `Bool`.\n- `await e` on a `fetch` is `Any` unless you annotate it: `let r: [Row] = await fetch(…)`.\n- `let \{ a, b \} = m` and `let [x, y] = l` bind the fields and the items.")
+
+        Heading("Narrowing optionals", id: "narrowing-optionals").h2
+
+        Markdown("A value of type `T?` may be `null`, so you must *narrow* it — prove it is not `null` — before you read a field or method off it. Reading one without narrowing is `T04`. Each of these forms narrows a name within its branch:")
+
+        CodeBlock(#"type Todo { id: String, title: String, note: String? }
+
+page Narrow(path: "/") {
+    state sel: Todo? = null
+    state todo: Todo = Todo(id: "1", title: "x")
+    if let n = todo.note { Text("{n.length} chars") }
+    if sel != null { Text(sel.title) }
+    if sel { Text(sel.title) }
+    derived label = if sel != null { sel.title } else { "none" }
+    Text(todo.note ?? "no note")
+    Text(sel?.title ?? "nothing selected")
+    Button("Pick") { on click { sel = todo } }
+}"#, title: "wf")
+
+        Markdown("Narrowing follows the flow of a block: it holds in the branch the condition guards, not after it. A check for `null` also narrows the `else` branch, and the code after `if x == null \{ return \}`. An item at a fixed index, such as `todos[0]`, may be missing, so it counts as `T?` unless a condition like `todos.length > 0` encloses it.\n\nA list narrows too: `xs.filter(x => x != null)` is a list of the items that are there, so a `[Todo?]` filtered that way is a `[Todo]` whose items need no `?.`.")
+
+        Callout("Splicing a value that may be `null` into text shows the word `null` on the page. The checker warns (`T19`); say what to show instead with `??`, as in `Text(todo.note ?? \"no note\")`.", kind: .warning)
+
+        Heading("Typing data from the network", id: "typing-data-from-the-network").h2
+
+        Markdown("`fetch` returns `Any`, because the checker cannot see what a URL will return. Annotate the resource or the local variable to type its value:")
+
+        CodeBlock(#"type Deploy { id: String, status: String, startedAt: String }
+
+page Deploys(path: "/") {
+    resource deploys: [Deploy] = fetch("/api/deploys")
+    match deploys {
+        loading { Spinner }
+        error(e) { Alert("Failed: {e.message}").danger }
+        ready(rows) {
+            for d in rows by d.id { Text("{d.id} {d.status} {ago(d.startedAt)}") }
+        }
+    }
+}"#, title: "wf")
+
+        Markdown("The checker trusts the annotation. A development build (`wf serve`) also holds each response to its declared type, and a mismatch is a `.parse` error that names the place, such as `$[1].status is missing`.\n\nWhen the server publishes an OpenAPI specification, let the compiler read it instead: `api Backend from \"openapi.json\"` types every endpoint, parameter, response and error from the file, and turns each named schema into a `type`, or an `enum` for a string with cases (see [Data and APIs](/learn/15-data#read-the-service-from-an-openapi-file)). An `api` you write by hand types its calls the same way: `get users() -> [User]`.")
+
+        Heading("The checks", id: "the-checks").h2
+
+        Markdown("The type checker reports these codes. All are errors except `T19`, `T20` and `T21`, which are warnings.")
+
+        Table(caption: "The checks") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Code").header
+                    Table.Cell("When").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`T01`") }
+                    Table.Cell { Markdown("A value of the wrong type given to a prop, a state, a field, a parameter, an assignment, an argument, or a `bind:`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`T02`") }
+                    Table.Cell("A case the enum does not have")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`T04`") }
+                    Table.Cell { Markdown("A field or method read off a value that may be `null`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`T05`") }
+                    Table.Cell("A field or method a record or shape does not have")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`T06`") }
+                    Table.Cell("A member or action a store does not have, or an endpoint a service does not have")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`T07`") }
+                    Table.Cell("A list, a record or an action used as a condition, which is always true")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`T08`") }
+                    Table.Cell { Markdown("A `for` over something that is not a list") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`T09`") }
+                    Table.Cell { Markdown("An `emit` whose arguments do not match the event's") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`T10`") }
+                    Table.Cell("A call with the wrong arguments: too many or too few, a name the callee does not take, or one of the wrong kind")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`T11`") }
+                    Table.Cell { Markdown("A `match` on something that is neither a resource nor an enum, or an arm the value cannot take") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`T12`") }
+                    Table.Cell { Markdown("A `Secret` where it would escape — shown, spliced into text, joined with `+`, handed to a browser global, logged, or kept with `persist`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`T13`") }
+                    Table.Cell("A name, or a function called, that nothing declares — which the browser would throw on")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`T14`") }
+                    Table.Cell { Markdown("A comparison that is always the same: `\"1\" == 1`, a record against a string, an enum against a case it does not have") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`T15`") }
+                    Table.Cell { Markdown("A `match` with no `else` that misses a case of the enum, or has a case twice") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`T16`") }
+                    Table.Cell("A method a number, a string or a list does not have, with the nearest one it does")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`T17`") }
+                    Table.Cell { Markdown("An async action's result used before it is awaited, or `await` where it cannot run") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`T18`") }
+                    Table.Cell("Arithmetic on something that is not a number")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`T19`") }
+                    Table.Cell { Markdown("A value that may be `null` spliced into text (warning)") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`T20`") }
+                    Table.Cell("A list or a record shown as text (warning)")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`T21`") }
+                    Table.Cell { Markdown("A resource `match` with no `error` arm and no `else` (warning)") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`T22`") }
+                    Table.Cell("A handler that names more values than its event sends")
+                }
+            }
+        }
+
+        Markdown("Most findings come with a hint: a conversion (`Number(value)`, `\"\{value\}\"`), the cases an enum takes, the fields a record has, or one of the narrowing forms above. `wf explain T05` prints a code's full entry, and [Diagnostics](/errors) has every code with an example.")
+
+        Heading("What the checker does not check", id: "what-the-checker-does-not-check").h2
+
+        Markdown("- It does not check a lambda's body against a return type.\n- It does not change a name's type across assignments: `state x = 1` stays a `Number`, and assigning a string to it is `T01`.\n- It does not know what a plain `fetch` returns. Annotate it, or describe the service with an `api`.")
+
+        Heading("In the editor", id: "in-the-editor").h2
+
+        Markdown("Hover shows a name's inferred type: `state draft: String`, `derived remaining: Number`, `Todos.add: action(String)`. Completion after `.` offers a record's fields, an enum's cases where one is wanted, and the methods of a `String`, a `Number` or a list. A type error appears as a diagnostic on the argument it belongs to. To set up the editor, see [Editors](/reference/cli#editors).")
+
+        Heading("Quick reference", id: "quick-reference").h2
+
+        Table(caption: "Quick reference") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Syntax").header
+                    Table.Cell("Meaning").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`state x: T = v`") }
+                    Table.Cell { Markdown("Annotate a state; props, parameters, fields and `let` take `: T` the same way") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`[T]` · `T?` · `Map` · `Any`") }
+                    Table.Cell { Markdown("A list, a value that may be `null`, an object with unknown keys, anything") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`type Name \{ field: T = default \}`") }
+                    Table.Cell("Declare a record")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`type B = A \{ extra: T \}`") }
+                    Table.Cell("Extend a record")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`Name(field: v)` · `Name()`") }
+                    Table.Cell("Build a record")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`enum Name \{ a, b(x: T) \}`") }
+                    Table.Cell("Declare an enum, with an optional payload per case")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`.case` · `.case(v)`") }
+                    Table.Cell("Write a case")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`Number(1..=30)` · `String(minLength: 8)`") }
+                    Table.Cell("A type with a condition")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`if let x = v \{ … \}` · `v ?? d` · `v?.f`") }
+                    Table.Cell { Markdown("Narrow or read through `null`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`resource r: [T] = fetch(…)`") }
+                    Table.Cell("Type data from the network")
+                }
+            }
+        }
+    }
+}

@@ -14,7 +14,7 @@ page RecipeTweenOnChange(path: "/recipes/tween-on-change", title: "Tween a prope
     }
 }"#, title: "wf")
         }
-        Markdown("- The `style \{ \}` value of `max-height` reads `open`, so it follows the state: `3rem` closed, `20rem` open ([Styling](/docs/guide/styling)).\n- `transition \{ max-height: 250ms ease-in-out \}` tweens that property whenever its value changes, over 250ms. Each line names a property, then its length and easing; a design token may stand for either.\n- An element's block is ordered `style`, then `transition`, then its handlers and children.\n\nA reader who asked for reduced motion gets no tween: the card changes height at once ([Respect reduced motion](/recipes/motion-defaults#respect-reduced-motion)).")
+        Markdown("- The `style \{ \}` value of `max-height` reads `open`, so it follows the state: `3rem` closed, `20rem` open ([Styling](/learn/13-styling)).\n- `transition \{ max-height: 250ms ease-in-out \}` tweens that property whenever its value changes, over 250ms. Each line names a property, then its length and easing; a design token may stand for either.\n- An element's block is ordered `style`, then `transition`, then its handlers and children.\n\nA reader who asked for reduced motion gets no tween: the card changes height at once ([Respect reduced motion](/recipes/motion-defaults#respect-reduced-motion)).")
 
     }
 }

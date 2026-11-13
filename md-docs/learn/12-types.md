@@ -1,12 +1,13 @@
 ---
-chapter: 17
+chapter: 12
 kind: "tutorial"
-route: "guide/types"
-group: "concepts"
+route: "/learn/12-types"
+from: ["/docs/guide/types"]
+group: "language"
 blurb: "A gradual, structural type checker that changes no output and names every mistake where you wrote it."
 description: "The type language, built-in types, records and enums, refinements, inference and narrowing, typed network data, and the checks the compiler runs."
 ---
-# 17. Types
+# 12. Types
 
 WebFluent has a type checker that runs in `wf build`, `wf check` and the
 editor, before any output is written. It is *gradual*: a program that

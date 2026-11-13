@@ -15,7 +15,7 @@ page Shop(path: "/", title: "Shop", description: "Everything we sell.") {
     CartBadge(count: Cart.count)
 }"#, title: "wf")
         }
-        Markdown("- `CartBadge` declares a `count` [prop](/docs/guide/components#props) and knows nothing about `Cart`.\n- The page reads the [store](/docs/guide/stores#a-first-store) after `use Cart` and passes `Cart.count` down.\n- A prop that reads state stays live inside the component, so the badge repaints when `Cart.count` changes.")
+        Markdown("- `CartBadge` declares a `count` [prop](/learn/10-components#props) and knows nothing about `Cart`.\n- The page reads the [store](/learn/11-stores#a-first-store) after `use Cart` and passes `Cart.count` down.\n- A prop that reads state stays live inside the component, so the badge repaints when `Cart.count` changes.")
 
     }
 }

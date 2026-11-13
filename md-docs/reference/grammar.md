@@ -1,12 +1,12 @@
 ---
-chapter: 47
+chapter: 38
 kind: "reference"
 route: "/reference/grammar"
 group: "reference"
 blurb: "Every keyword and where it may appear, the shapes of declarations, statements and expressions, operators and precedence, and the literals."
 description: "The WebFluent grammar on one page: keywords, declarations, render and imperative blocks, components, tests, styles, operators, precedence and literals."
 ---
-# 47. Grammar
+# Grammar
 
 This page is a map of what the parser accepts: each keyword, each
 statement, and where it may be written. The other chapters say what each

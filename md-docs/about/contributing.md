@@ -1,12 +1,13 @@
 ---
-chapter: 52
+chapter: 25
 kind: "about"
-route: "guide/contributing"
-group: "help"
+route: "/about/contributing"
+from: ["/docs/guide/contributing"]
+group: "about"
 blurb: "How the compiler is put together, how to build and test it, and how to change the language, a built-in or this guide."
 description: "Build and test the compiler, find your way around the repository and its pipeline, and change a built-in, the grammar, the runtime or this guide."
 ---
-# 52. Contributing
+# Contributing
 
 This chapter is for working on WebFluent itself: the compiler, the
 runtime, the editor support or this guide. It tells you how to build and

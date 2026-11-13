@@ -101,6 +101,7 @@ def main() -> None:
             (tmp / "changelog/Changelog.wf", ROOT / "site/src/pages/Changelog.wf"),
         ]
         pairs.append((tmp / "recipes/old-links-map.js", ROOT / "site/src/old-links-map.js"))
+        pairs.append((tmp / "guide/old-links-pages.js", ROOT / "site/src/old-links-pages.js"))
         written = ROOT / "site/src/pages/comingfrom"
         fresh = {p.name for p in (tmp / "comingfrom").glob("*.wf")}
         have = {p.name for p in written.glob("*.wf")}

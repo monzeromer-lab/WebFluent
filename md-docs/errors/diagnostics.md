@@ -2,11 +2,11 @@
 chapter: 43
 kind: "error"
 route: "/errors"
-group: "reference"
+group: "help"
 blurb: "Every error and warning the compiler reports — what it means, a program that draws it, the message, and the fix."
 description: "Every WebFluent error and warning, by code — what it means, a program that draws it, the message the compiler prints, and the fix."
 ---
-# 43. Diagnostics
+# Diagnostics
 
 This chapter is the reference for every finding the compiler reports. Each
 finding has a code, such as `T05`, and each code has a page of its own,

@@ -27,7 +27,7 @@ page Settings(path: "/settings", title: "Settings", description: "How the site l
     }
 }"#, title: "wf")
         }
-        Markdown("- **Two themes.** `Night` names only the tokens that change in the dark; every token it leaves out keeps its value. The config's `theme.dark` says which theme is the dark one ([Styling](/docs/guide/styling#dark-mode)).\n- **`setTheme`** takes `\"light\"`, `\"dark\"` or `\"system\"`, and the choice is kept across visits. With `\"system\"`, the dark theme applies whenever the reader's system prefers dark (`prefers-color-scheme: dark`).\n- **`theme`** reads the choice, and stays current. A `Bool` prop given a condition follows it, so `outlined: theme != \"light\"` outlines every button but the chosen one.")
+        Markdown("- **Two themes.** `Night` names only the tokens that change in the dark; every token it leaves out keeps its value. The config's `theme.dark` says which theme is the dark one ([Styling](/learn/13-styling#dark-mode)).\n- **`setTheme`** takes `\"light\"`, `\"dark\"` or `\"system\"`, and the choice is kept across visits. With `\"system\"`, the dark theme applies whenever the reader's system prefers dark (`prefers-color-scheme: dark`).\n- **`theme`** reads the choice, and stays current. A `Bool` prop given a condition follows it, so `outlined: theme != \"light\"` outlines every button but the chosen one.")
 
     }
 }

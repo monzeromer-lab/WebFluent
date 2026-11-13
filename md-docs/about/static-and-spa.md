@@ -1,12 +1,13 @@
 ---
-chapter: 33
+chapter: 23
 kind: "about"
-route: "guide/static-and-spa"
-group: "ship"
+route: "/about/static-or-single-page"
+from: ["/docs/guide/static-and-spa"]
+group: "about"
 blurb: "The same source builds as pre-rendered pages or as one app shell. What each gives you, what the pre-rendered page holds, and how dynamic routes are rendered."
 description: "Static pages or a single-page app: build.ssg, hydration, what the pre-rendered HTML holds, paths for dynamic routes, 404s and hosting needs."
 ---
-# 33. Static or single-page
+# Static or single-page
 
 The same WebFluent source builds a site in one of two shapes: a static
 site, with a pre-rendered HTML file for every route, or a single-page app,

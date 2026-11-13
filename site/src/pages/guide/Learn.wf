@@ -1,0 +1,101 @@
+/// `/learn`, written from the front matter of md-docs/learn/ by
+/// scripts/docsite/guide.py; edit the pages, not this file.
+page LearnIndex(path: "/learn", title: "Learn WebFluent", description: "The WebFluent book, from the first page to PDFs and slides.") {
+    SiteHeader(section: "/learn")
+    Stack(gap: .lg, role: "main", id: "bp-main", tabindex: "-1", class: "bp-main bp-wrap") {
+        style { gap: 28px; padding-top: 40px; padding-bottom: 72px; @md { padding-top: 56px } }
+        Stack(gap: .sm) {
+            style { gap: 14px; max-width: 760px }
+            Row(class: "bp-labels") { KindLabel(.tutorial) }
+            Heading(t("nav.learn")).h1 { style { margin: 0; font-size: clamp(30px, 5vw, 44px); line-height: 1.08; font-weight: 650; letter-spacing: -0.025em } }
+            Text("The book: seventeen chapters, read in order. The first three are a tour that ends with a working site and an app; the rest teach the language, then how to build with it.", class: "bp-lede")
+        }
+        BookProgress(chapters: GUIDE)
+        Stack(gap: .md) {
+            style { gap: 14px }
+            Heading(t("nav.group.tour"), id: "tour").h2 { style { margin: 0; font-size: 22px; font-weight: 650 } }
+            Grid(columns: { base: 1, md: 2 }, gap: .md) {
+                Link(to: "/learn/01-getting-started", class: "bp-card") {
+                    Text("1. Getting started") { style { font-weight: 650 } }
+                    Text("Install the compiler, make a project, run it, change it and see the change — then set up your editor, or WebFluent Studio, and see what a build writes.", class: "bp-small")
+                }
+                Link(to: "/learn/02-tutorial-shelf", class: "bp-card") {
+                    Text("2. Tutorial: Shelf") { style { font-weight: 650 } }
+                    Text("Build a small, complete site — data, components, a store, a form, a theme, a test — and put it on the web.", class: "bp-small")
+                }
+                Link(to: "/learn/03-tutorial-todos", class: "bp-card") {
+                    Text("3. Tutorial: Todos") { style { font-weight: 650 } }
+                    Text("Build a todo list kept in the reader's browser — types, a store that remembers, a component, a filter in the address and tests that click.", class: "bp-small")
+                }
+            }
+        }
+        Stack(gap: .md) {
+            style { gap: 14px }
+            Heading(t("nav.group.language"), id: "language").h2 { style { margin: 0; font-size: 22px; font-weight: 650 } }
+            Grid(columns: { base: 1, md: 2 }, gap: .md) {
+                Link(to: "/learn/04-language-basics", class: "bp-card") {
+                    Text("4. Language basics") { style { font-weight: 650 } }
+                    Text("The shape of every .wf file: the thirteen kinds of declaration, naming, comments, the two kinds of body, the two layouts and how strings are written.", class: "bp-small")
+                }
+                Link(to: "/learn/05-pages-and-routing", class: "bp-card") {
+                    Text("5. Pages and routing") { style { font-weight: 650 } }
+                    Text("A page is a route and what it shows. Each page names its own path, the app shell frames every page, and a layout frames a section.", class: "bp-small")
+                }
+                Link(to: "/learn/06-elements", class: "bp-card") {
+                    Text("6. Elements") { style { font-weight: 650 } }
+                    Text("Everything on screen is an element, and every element is written the same way: a name, one positional value, named props, flags and a block.", class: "bp-small")
+                }
+                Link(to: "/learn/07-state-and-reactivity", class: "bp-card") {
+                    Text("7. State and reactivity") { style { font-weight: 650 } }
+                    Text("A state is a signal, and only what reads it updates: no tree re-renders, no subscriptions to manage.", class: "bp-small")
+                }
+                Link(to: "/learn/08-events", class: "bp-card") {
+                    Text("8. Events") { style { font-weight: 650 } }
+                    Text("Handlers on elements, keyboard shortcuts, the events components fire, the overlays a page opens, and drag and drop.", class: "bp-small")
+                }
+                Link(to: "/learn/09-control-flow", class: "bp-card") {
+                    Text("9. Control flow") { style { font-weight: 650 } }
+                    Text("Five statements decide what a page shows: if, if let, for, show and match. Each adds and removes elements as its condition changes.", class: "bp-small")
+                }
+                Link(to: "/learn/10-components", class: "bp-card") {
+                    Text("10. Components") { style { font-weight: 650 } }
+                    Text("A component is a reusable element you declare: typed props, events, slots, parts and a body, checked like a built-in.", class: "bp-small")
+                }
+                Link(to: "/learn/11-stores", class: "bp-card") {
+                    Text("11. Stores") { style { font-weight: 650 } }
+                    Text("A store is state shared by every page and component that uses it, built the first time something reads it.", class: "bp-small")
+                }
+                Link(to: "/learn/12-types", class: "bp-card") {
+                    Text("12. Types") { style { font-weight: 650 } }
+                    Text("A gradual, structural type checker that changes no output and names every mistake where you wrote it.", class: "bp-small")
+                }
+            }
+        }
+        Stack(gap: .md) {
+            style { gap: 14px }
+            Heading(t("nav.group.build"), id: "build").h2 { style { margin: 0; font-size: 22px; font-weight: 650 } }
+            Grid(columns: { base: 1, md: 2 }, gap: .md) {
+                Link(to: "/learn/13-styling", class: "bp-card") {
+                    Text("13. Styling") { style { font-weight: 650 } }
+                    Text("Restyle the whole site with a theme, one element with a style block, and many elements with your own stylesheet — and make the layout responsive.", class: "bp-small")
+                }
+                Link(to: "/learn/14-forms", class: "bp-card") {
+                    Text("14. Forms and validation") { style { font-weight: 650 } }
+                    Text("Bind controls to state, validate what the reader types, upload files, and show what the server said.", class: "bp-small")
+                }
+                Link(to: "/learn/15-data", class: "bp-card") {
+                    Text("15. Fetching data") { style { font-weight: 650 } }
+                    Text("Get data onto a page: describe a service once, show a request's states, fetch on demand, and read files at build time.", class: "bp-small")
+                }
+                Link(to: "/learn/16-testing", class: "bp-card") {
+                    Text("16. Testing") { style { font-weight: 650 } }
+                    Text("Tests written in WebFluent: render a component and read what it shows, or click through it in a real browser — then check every page in one.", class: "bp-small")
+                }
+                Link(to: "/learn/17-pdf-and-slides", class: "bp-card") {
+                    Text("17. PDF and slides") { style { font-weight: 650 } }
+                    Text("Compile the same language to a paginated PDF document or a slide deck — invoices, reports and talks, laid out with CSS as on the web.", class: "bp-small")
+                }
+            }
+        }
+    }
+}

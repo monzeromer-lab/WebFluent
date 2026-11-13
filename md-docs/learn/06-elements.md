@@ -1,12 +1,13 @@
 ---
-chapter: 11
+chapter: 6
 kind: "tutorial"
-route: "guide/elements"
-group: "concepts"
+route: "/learn/06-elements"
+from: ["/docs/guide/elements"]
+group: "language"
 blurb: "Everything on screen is an element, and every element is written the same way: a name, one positional value, named props, flags and a block."
 description: "The element call shape: positional, named props, flags and enum cases, the block and its order, attributes, parts, and the families of built-ins."
 ---
-# 11. Elements
+# 6. Elements
 
 Everything a page shows is an element: a built-in such as `Button`, or a
 component you declare. Every element is written in the same shape, so once

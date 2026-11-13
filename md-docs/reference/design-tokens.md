@@ -1,12 +1,12 @@
 ---
-chapter: 45
+chapter: 36
 kind: "reference"
 route: "/reference/tokens"
 group: "reference"
 blurb: "Every token of the baseline theme, with its value: the colours, type, spacing, radii, shadows, motion and breakpoints every built-in is drawn with."
 description: "Every baseline design token with its default value, how a theme overrides one, and how a style block or a stylesheet reads it, by full or short name."
 ---
-# 45. Design tokens
+# Design tokens
 
 This chapter lists every design token of the baseline theme with its value,
 and how a style reads one. A *design token* is a named value — a colour, a

@@ -643,12 +643,15 @@ fn the_sidebar_lists_every_chapter_of_the_guide() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR"));
 
     // The chapters, from the directory the guide actually is.
+    // The book is `learn/`: the essays, the reference and the errors are
+    // reached from their own parts of the site.
     let chapters: Vec<(String, String)> = crate::common::guide_chapters()
         .into_iter()
+        .filter(|(_, path, _)| path.starts_with("learn/"))
         .map(|(n, path, _)| (format!("{n:02}"), path))
         .collect();
     assert!(
-        chapters.len() > 15,
+        chapters.len() == 17,
         "expected the whole guide, got {chapters:?}"
     );
 
@@ -1385,19 +1388,7 @@ fn a_link_that_names_a_chapter_number_goes_to_that_chapter() {
 /// it in a length a search result shows whole.
 #[test]
 fn every_chapter_says_where_it_lives() {
-    let groups = [
-        "start",
-        "tutorials",
-        "concepts",
-        "ui",
-        "data",
-        "content",
-        "quality",
-        "ship",
-        "outputs",
-        "reference",
-        "help",
-    ];
+    let groups = ["tour", "language", "build", "about", "reference", "help"];
     let mut routes: Vec<String> = Vec::new();
     let mut failures = Vec::new();
     for (name, text) in chapters() {
@@ -1452,10 +1443,19 @@ fn every_chapter_says_where_it_lives() {
             }
             other => failures.push(format!("{name}: `kind: {other:?}` is none of {kinds:?}")),
         }
+        // A chapter of the book carries its number in its title; a page
+        // elsewhere is not read in order, and carries none.
         let number: usize = meta("chapter").and_then(|n| n.parse().ok()).unwrap_or(0);
         let body = text.split_once("\n---\n").map_or(text.as_str(), |(_, b)| b);
-        if !body.starts_with(&format!("# {number}. ")) {
-            failures.push(format!("{name}: its title is not numbered {number}"));
+        if name.starts_with("learn/") {
+            if !body.starts_with(&format!("# {number}. ")) {
+                failures.push(format!("{name}: its title is not numbered {number}"));
+            }
+        } else if body.lines().next().is_some_and(|l| {
+            l.strip_prefix("# ")
+                .is_some_and(|t| t.split_once(". ").is_some_and(|(n, _)| n.parse::<u32>().is_ok()))
+        }) {
+            failures.push(format!("{name}: only a chapter of the book is numbered"));
         }
     }
     assert!(failures.is_empty(), "{}", failures.join("\n"));

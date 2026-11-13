@@ -1,12 +1,13 @@
 ---
-chapter: 50
+chapter: 44
 kind: "error"
-route: "guide/troubleshooting"
+route: "/errors/troubleshooting"
+from: ["/docs/guide/troubleshooting"]
 group: "help"
 blurb: "The problems people meet, what causes each, and the fix — from installing to deploying, plus the questions that come up most."
 description: "What you see when something goes wrong — install errors, build stops, blank pages after deploy, 404s on reload, CSP blocks, styles — the cause and the fix."
 ---
-# 50. Troubleshooting
+# Troubleshooting
 
 This chapter lists the problems people meet with WebFluent, titled by what
 you see. Each entry gives the cause, then the fix.

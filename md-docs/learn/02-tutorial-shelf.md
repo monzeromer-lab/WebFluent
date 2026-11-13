@@ -1,12 +1,13 @@
 ---
-chapter: 3
+chapter: 2
 kind: "tutorial"
-route: "guide/tutorial"
-group: "start"
+route: "/learn/02-tutorial-shelf"
+from: ["/docs/guide/tutorial"]
+group: "tour"
 blurb: "Build a small, complete site — data, components, a store, a form, a theme, a test — and put it on the web."
 description: "A step-by-step tutorial: build a reading-list site with WebFluent, test it, and deploy it to GitHub Pages."
 ---
-# 3. Tutorial: Shelf
+# 2. Tutorial: Shelf
 
 In this tutorial you build **Shelf**, a small site that lists books worth
 reading and lets a reader keep the ones they want. Each step adds one piece,

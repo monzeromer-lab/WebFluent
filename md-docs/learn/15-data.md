@@ -1,12 +1,13 @@
 ---
-chapter: 24
+chapter: 15
 kind: "tutorial"
-route: "guide/data"
-group: "data"
+route: "/learn/15-data"
+from: ["/docs/guide/data"]
+group: "build"
 blurb: "Get data onto a page: describe a service once, show a request's states, fetch on demand, and read files at build time."
 description: "Describe an API once with retries, caching and typed errors; show a resource with match; fetch in an action; update optimistically; read data files."
 ---
-# 24. Fetching data
+# 15. Fetching data
 
 This chapter shows you how to get data onto a page and send data back: from
 a request the page makes when it shows, from a request an action makes on

@@ -1,12 +1,13 @@
 ---
-chapter: 2
+chapter: 1
 kind: "tutorial"
-route: "guide/getting-started"
-group: "start"
+route: "/learn/01-getting-started"
+from: ["/docs/guide/getting-started"]
+group: "tour"
 blurb: "Install the compiler, make a project, run it, change it and see the change — then set up your editor, or WebFluent Studio, and see what a build writes."
 description: "Install wf, check the install, create a first project, run the dev server and make a change. Then set up the language server and read the build."
 ---
-# 2. Getting started
+# 1. Getting started
 
 In about ten minutes you install the compiler, create a project, run it in
 your browser, change one line and see the page follow. The rest of the

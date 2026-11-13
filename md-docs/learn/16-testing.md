@@ -1,12 +1,13 @@
 ---
-chapter: 29
+chapter: 16
 kind: "tutorial"
-route: "guide/testing"
-group: "quality"
+route: "/learn/16-testing"
+from: ["/docs/guide/testing"]
+group: "build"
 blurb: "Tests written in WebFluent: render a component and read what it shows, or click through it in a real browser — then check every page in one."
 description: "How to write wf tests: render tests with snapshots, seeded stores, tests that click and type in headless Chrome, wf verify, and running them in CI."
 ---
-# 29. Testing
+# 16. Testing
 
 This chapter shows you how to test a WebFluent project: render a component
 and check what it shows, click and type through a page in a real browser,

@@ -1,12 +1,13 @@
 ---
-chapter: 12
+chapter: 7
 kind: "tutorial"
-route: "guide/state"
-group: "concepts"
+route: "/learn/07-state-and-reactivity"
+from: ["/docs/guide/state"]
+group: "language"
 blurb: "A state is a signal, and only what reads it updates: no tree re-renders, no subscriptions to manage."
 description: "state, derived, effect, actions and let, persist, timers, automatic clean-up, element handles and the browser's values."
 ---
-# 12. State and reactivity
+# 7. State and reactivity
 
 A `state` is a value the page can change. Anything that reads it — a text, an
 attribute, a `derived` value, an `effect`, a style splice — updates when it

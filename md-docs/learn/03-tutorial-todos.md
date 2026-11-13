@@ -1,12 +1,13 @@
 ---
-chapter: 5
+chapter: 3
 kind: "tutorial"
-route: "tutorials/todos"
-group: "tutorials"
+route: "/learn/03-tutorial-todos"
+from: ["/docs/tutorials/todos"]
+group: "tour"
 blurb: "Build a todo list kept in the reader's browser — types, a store that remembers, a component, a filter in the address and tests that click."
 description: "A beginner WebFluent tutorial: a todo app with a persisted store, a component, a keyed list, a filter in the address and tests, in 20 minutes."
 ---
-# 5. Tutorial: Todos
+# 3. Tutorial: Todos
 
 This is the first of three tutorials that each build a whole project, step by step. Each project is complete in the repository under `examples/tutorials/`, and none needs a server: what a project keeps, it keeps in the reader's browser.
 

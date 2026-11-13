@@ -1,12 +1,12 @@
 ---
-chapter: 53
+chapter: 41
 kind: "reference"
 route: "/reference/library"
 group: "reference"
 blurb: "The compiler as a library: the Rust crate's documented API, the Node package, and wf.js in a browser."
 description: "The compiler as a library: the webfluent crate (Template, build, memory, vfs, diagnostics, config, errors, semver), the Node package and wf.js."
 ---
-# 53. Library
+# Library
 
 This page is the reference for the compiler used as a library: the
 `webfluent` crate in a Rust program, the `webfluent` package in Node, and

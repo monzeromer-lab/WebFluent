@@ -1,12 +1,13 @@
 ---
-chapter: 16
+chapter: 11
 kind: "tutorial"
-route: "guide/stores"
-group: "concepts"
+route: "/learn/11-stores"
+from: ["/docs/guide/stores"]
+group: "language"
 blurb: "A store is state shared by every page and component that uses it, built the first time something reads it."
 description: "Stores: declaration, scopes, use, actions, persist and migrations, connections, loading data, debugging, testing, and when to use one."
 ---
-# 16. Stores
+# 11. Stores
 
 A *store* holds state that more than one page or component shares: the
 cart, the signed-in user, the theme, a cache of what was fetched. It holds

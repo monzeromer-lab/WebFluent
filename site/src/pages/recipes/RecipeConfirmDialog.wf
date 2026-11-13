@@ -29,7 +29,7 @@ page Account(path: "/", title: "Account", description: "Close your account.") {
     if gone { Alert("Account deleted.").info }
 }"#, title: "wf")
         }
-        Markdown("- `Confirm` takes the question as its positional `title`, whether it shows as `visible`, and a `danger` prop that turns the confirm button red. `tone:` picks the button's case from a condition instead of a fixed flag.\n- It declares two [events](/docs/guide/components#events), `confirm` and `cancel`, and each button fires one with `emit`. The component decides nothing; the page does.\n- `slot` declares a default [slot](/docs/guide/components#slots), and `children` places it inside the dialog. The caller's block fills it, so the question's detail is the caller's to write.\n- The page owns `asking`. **Delete account** sets it, and both handlers clear it, which closes the [dialog](/docs/guide/events#overlays-modals-dialogs-toasts-and-menus).")
+        Markdown("- `Confirm` takes the question as its positional `title`, whether it shows as `visible`, and a `danger` prop that turns the confirm button red. `tone:` picks the button's case from a condition instead of a fixed flag.\n- It declares two [events](/learn/10-components#events), `confirm` and `cancel`, and each button fires one with `emit`. The component decides nothing; the page does.\n- `slot` declares a default [slot](/learn/10-components#slots), and `children` places it inside the dialog. The caller's block fills it, so the question's detail is the caller's to write.\n- The page owns `asking`. **Delete account** sets it, and both handlers clear it, which closes the [dialog](/learn/08-events#overlays-modals-dialogs-toasts-and-menus).")
 
     }
 }

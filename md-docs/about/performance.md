@@ -1,12 +1,13 @@
 ---
-chapter: 31
+chapter: 22
 kind: "about"
-route: "guide/performance"
-group: "quality"
+route: "/about/what-a-build-ships"
+from: ["/docs/guide/performance"]
+group: "about"
 blurb: "Learn what a build already does to be fast, see what it weighs, set budgets that warn, time pages in a browser, and avoid what makes a site slow."
 description: "What a build does to be fast, wf build --stats, size budgets, paint timings from wf verify, and the few things that make a site slow."
 ---
-# 31. Performance
+# Performance
 
 This chapter shows you how to keep a WebFluent site fast. Most of the work
 is already done by the build. Your part is to measure what it writes, set a

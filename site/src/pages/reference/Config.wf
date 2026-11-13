@@ -176,13 +176,13 @@ page ConfigPage(path: "/reference/config", title: "Configuration — Reference",
                             Table.Cell { Markdown("`output_type`") }
                             Table.Cell { Markdown("`spa`, `static`, `pdf`, `slides`, `elements`") }
                             Table.Cell { Markdown("`\"spa\"`") }
-                            Table.Cell { Markdown("What the project builds: `spa` is a website; `static` is a website whose every page is pre-rendered, as `ssg: true` builds it; `pdf` a document; `slides` a deck; `elements` custom elements ([PDF and slides](/docs/guide/pdf-and-slides), [custom elements](/recipes/publish-custom-elements)).") }
+                            Table.Cell { Markdown("What the project builds: `spa` is a website; `static` is a website whose every page is pre-rendered, as `ssg: true` builds it; `pdf` a document; `slides` a deck; `elements` custom elements ([PDF and slides](/learn/17-pdf-and-slides), [custom elements](/recipes/publish-custom-elements)).") }
                         }
                         Table.Row {
                             Table.Cell { Markdown("`ssg`") }
                             Table.Cell("boolean")
                             Table.Cell { Markdown("`false`") }
-                            Table.Cell { Markdown("Pre-renders every page to its own HTML file, so it is read before any script runs ([Static sites and SPAs](/docs/guide/static-and-spa)).") }
+                            Table.Cell { Markdown("Pre-renders every page to its own HTML file, so it is read before any script runs ([Static sites and SPAs](/about/static-or-single-page)).") }
                         }
                         Table.Row {
                             Table.Cell { Markdown("`base_path`") }
@@ -230,7 +230,7 @@ page ConfigPage(path: "/reference/config", title: "Configuration — Reference",
                             Table.Cell { Markdown("`csp`") }
                             Table.Cell("boolean")
                             Table.Cell { Markdown("`false` (`true` in a project `wf init` makes)") }
-                            Table.Cell { Markdown("Emits a Content-Security-Policy and a `_headers` file, and checks the output against the policy ([Security](/docs/guide/security#ship-a-content-security-policy)).") }
+                            Table.Cell { Markdown("Emits a Content-Security-Policy and a `_headers` file, and checks the output against the policy ([Security](/about/security#ship-a-content-security-policy)).") }
                         }
                         Table.Row {
                             Table.Cell { Markdown("`budget`") }
@@ -302,7 +302,7 @@ page ConfigPage(path: "/reference/config", title: "Configuration — Reference",
 
                 Heading("build.pdf", id: "build-pdf").h3
 
-                Markdown("The page and type of a PDF build ([PDF and slides](/docs/guide/pdf-and-slides)).")
+                Markdown("The page and type of a PDF build ([PDF and slides](/learn/17-pdf-and-slides)).")
 
                 Table(caption: "build.pdf") {
                     Table.Head {
@@ -361,7 +361,7 @@ page ConfigPage(path: "/reference/config", title: "Configuration — Reference",
 
                 Heading("build.slides", id: "build-slides").h3
 
-                Markdown("The page and type of a slide deck ([PDF and slides](/docs/guide/pdf-and-slides)).")
+                Markdown("The page and type of a slide deck ([PDF and slides](/learn/17-pdf-and-slides)).")
 
                 Table(caption: "build.slides") {
                     Table.Head {
@@ -661,7 +661,7 @@ page ConfigPage(path: "/reference/config", title: "Configuration — Reference",
                     }
                 }
 
-                Markdown("An entry of `connect`, `img` or `frame` that has a path, or that is a keyword, is `E111`. [Security](/docs/guide/security#allow-requests-images-and-frames-from-other-origins) covers these settings and `wasm` and `style_elements`.\n\nAn entry of `meta.scripts` takes one of these forms:")
+                Markdown("An entry of `connect`, `img` or `frame` that has a path, or that is a keyword, is `E111`. [Security](/about/security#allow-requests-images-and-frames-from-other-origins) covers these settings and `wasm` and `style_elements`.\n\nAn entry of `meta.scripts` takes one of these forms:")
 
                 Table(caption: "meta") {
                     Table.Head {
@@ -718,7 +718,7 @@ page ConfigPage(path: "/reference/config", title: "Configuration — Reference",
                             Table.Cell { Markdown("`dark`") }
                             Table.Cell("string")
                             Table.Cell("unset")
-                            Table.Cell { Markdown("The `theme` declaration that stands in for dark mode: when the reader prefers dark, or `setTheme(\"dark\")` asks ([Styling](/docs/guide/styling#dark-mode)).") }
+                            Table.Cell { Markdown("The `theme` declaration that stands in for dark mode: when the reader prefers dark, or `setTheme(\"dark\")` asks ([Styling](/learn/13-styling#dark-mode)).") }
                         }
                         Table.Row {
                             Table.Cell { Markdown("`builtin`") }

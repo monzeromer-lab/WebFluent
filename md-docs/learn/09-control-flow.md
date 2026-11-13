@@ -1,12 +1,13 @@
 ---
-chapter: 14
+chapter: 9
 kind: "tutorial"
-route: "guide/control-flow"
-group: "concepts"
+route: "/learn/09-control-flow"
+from: ["/docs/guide/control-flow"]
+group: "language"
 blurb: "Five statements decide what a page shows: if, if let, for, show and match. Each adds and removes elements as its condition changes."
 description: "if, if let, for … by, VirtualList, show and match, in render blocks and in actions, and if and match as values."
 ---
-# 14. Control flow
+# 9. Control flow
 
 Five statements decide what a page shows: `if`, `if let`, `for`, `show` and
 `match`. Each one follows the state it reads, adding and removing elements as

@@ -11,6 +11,7 @@ for a pipe table. It also writes the book's chapter list,
 `site/src/components/Guide.wf`. The guide is the source: rerun after it
 changes, `cargo xtask site`.
 """
+import json
 import os
 import re
 import sys
@@ -59,15 +60,10 @@ PROSE_ROUTES = ("/reference/cli", "/reference/config", "/reference/tokens")
 # A chapter's `group:` is one of these; its English name is the site's
 # `nav.group.<key>` (the Arabic one is written by hand).
 GROUP_NAMES = {
-    "start": "Get started",
-    "tutorials": "Tutorials and recipes",
-    "concepts": "Concepts",
-    "ui": "Guides: interface",
-    "data": "Guides: data",
-    "content": "Guides: content",
-    "quality": "Guides: quality",
-    "ship": "Guides: shipping",
-    "outputs": "Other outputs",
+    "tour": "The tour",
+    "language": "The language",
+    "build": "Building with it",
+    "about": "About",
     "reference": "Reference",
     "help": "Help",
 }
@@ -96,6 +92,8 @@ def read_meta(path: Path) -> dict:
     for key in ("chapter", "kind", "route", "group", "blurb", "description"):
         if key not in meta:
             raise SystemExit(f"md-docs/{rel}: the front matter has no `{key}:`")
+    if meta["group"] not in GROUP_NAMES:
+        raise SystemExit(f"md-docs/{rel}: `group: {meta['group']}` is none of {tuple(GROUP_NAMES)}")
     if meta["kind"] not in KINDS:
         raise SystemExit(f"md-docs/{rel}: `kind: {meta['kind']}` is none of {KINDS}")
     title_line = next(l for l in body.split("\n") if l.startswith("# "))
@@ -143,8 +141,20 @@ site_path = href
 
 
 def page_name(route: str) -> str:
-    last = route.rstrip("/").split("/")[-1]
-    return "".join(w.capitalize() for w in re.split(r"[^a-z0-9]+", last) if w) + "Guide"
+    parts = route.strip("/").split("/")
+    last = parts[-1]
+    name = "".join(w.capitalize() for w in re.split(r"[^a-z0-9]+", last) if w)
+    # A chapter of the book is `/learn/07-state-and-reactivity`: its name
+    # starts with the part of the site it is in, not with a digit.
+    if name[:1].isdigit() or parts[0] in ("learn", "about"):
+        return parts[0].capitalize() + name
+    return name + "Guide"
+
+
+def folder(num: str) -> str:
+    """The part of the guide a page is in: `learn`, `about`, `reference`,
+    `errors`. Pages read on, from one to the next, inside their part."""
+    return META[num]["path"].split("/")[0]
 
 
 TITLES = {}
@@ -317,6 +327,35 @@ def emit_callout(kind, lines, out, ind):
     out.append("")
 
 
+def emit_quiz(lines, out, ind, qid):
+    """A ```` ```quiz ```` block: the question, then a line per choice —
+    `+ ` the right one, `- ` the others — each with ` -- ` and why.
+
+        ```quiz
+        Which of these ticks every second?
+        - state clock = now(every: 1.seconds) -- A state takes `now` once.
+        + derived clock = now(every: 1.seconds) -- A derived value follows it.
+        ```
+    """
+    question, choices = [], []
+    for line in lines:
+        m = re.match(r"^([+-]) (.*?)(?: -- (.*))?$", line)
+        if m:
+            choices.append((m.group(1) == "+", m.group(2).strip(), (m.group(3) or "").strip()))
+        elif line.strip():
+            question.append(line.strip())
+    if not question or sum(1 for c in choices if c[0]) != 1:
+        raise SystemExit(f"a quiz in {qid} needs a question and exactly one `+` choice")
+    rows = ",\n".join(
+        f'{ind}    QuizChoice(text: "{wf_string(t)}", right: {"true" if r else "false"}, why: "{wf_string(w)}")'
+        for r, t, w in choices
+    )
+    out.append(f'{ind}Quiz("{wf_string(" ".join(question))}", id: "{wf_string(qid)}", choices: [')
+    out.append(rows)
+    out.append(f"{ind}])")
+    out.append("")
+
+
 def body(md: str, title: str, ind: str = "        "):
     """A page's Markdown as WebFluent elements: the lines of the body, and
     its `##` sections as `(anchor, label)`. `CURRENT["dir"]` must be the
@@ -378,6 +417,9 @@ def body(md: str, title: str, ind: str = "        "):
                 code.append(lines[i])
                 i += 1
             i += 1
+            if lang == "quiz":
+                emit_quiz(code, out, ind, f"{title}#{len(sections)}")
+                continue
             emit_code(lang, "\n".join(code), out, ind, info=info)
             continue
         # A GitHub alert — `> [!TIP]` and the quoted lines under it — is a
@@ -418,7 +460,7 @@ def convert(num: str, md: str):
     out, sections = body(md, title)
     blurb, description = META[num]["blurb"], META[num]["description"]
     n = int(num)
-    order = sorted(META)
+    order = [m for m in sorted(META) if folder(m) == folder(num)]
     at = order.index(num)
     prev_num = order[at - 1] if at > 0 else None
     next_num = order[at + 1] if at + 1 < len(order) else None
@@ -432,9 +474,18 @@ def convert(num: str, md: str):
     return header, out, prev_num, next_num
 
 
+def learned(num: str) -> str:
+    """What a chapter says its reader learned (`learned:` in its front
+    matter), as the shell's list under the page."""
+    items = META[num].get("learned") or []
+    if not items:
+        return ""
+    return ", learned: [" + ", ".join(f'"{wf_string(i)}"' for i in items) + "]"
+
+
 BOOK_HEAD = """/// The guide, in the book sidebar's shape: written from each chapter's
 /// front matter by scripts/docsite/guide.py; edit the guide, not this file.
-/// The first three chapters of `learn/` are the tour.
+/// The first three chapters are the tour.
 const GUIDE: [Chapter] = [
 """
 
@@ -443,13 +494,101 @@ def book() -> str:
     rows = []
     for num in sorted(META):
         meta = META[num]
-        tour = meta["path"].startswith(("learn/01-", "learn/02-", "learn/03-"))
+        if folder(num) != "learn":
+            continue
+        tour = meta["group"] == "tour"
         rows.append(
             f'    Chapter(n: {int(num)}, title: "{wf_string(meta["title"])}", key: "ch.{num}", '
             f'to: "{href(meta["route"])}", part: "nav.group.{meta["group"]}", '
             f'tour: {"true" if tour else "false"})'
         )
     return BOOK_HEAD + ",\n".join(rows) + "\n]\n"
+
+
+def part_index(part: str) -> str:
+    """`/learn` (the book: how far the reader is, then every chapter by its
+    part) or `/about` (the essays), from the pages' front matter."""
+    nums = [n for n in sorted(META) if folder(n) == part]
+    learn = part == "learn"
+    name, path = ("Learn", "/learn") if learn else ("About", "/about")
+    title = "Learn WebFluent" if learn else "About WebFluent"
+    lede = ("The book: seventeen chapters, read in order. The first three are a tour that ends "
+            "with a working site and an app; the rest teach the language, then how to build with it."
+            if learn else
+            "Essays on why WebFluent works as it does: read once, for the argument, not looked up.")
+    desc = ("The WebFluent book, from the first page to PDFs and slides." if learn
+            else "Why WebFluent works as it does: essays on its design.")
+    out = [
+        f"/// `{path}`, written from the front matter of md-docs/{part}/ by",
+        "/// scripts/docsite/guide.py; edit the pages, not this file.",
+        f'page {name}Index(path: "{path}", title: "{title}", description: "{desc}") {{',
+        f'    SiteHeader(section: "{path}")',
+        '    Stack(gap: .lg, role: "main", id: "bp-main", tabindex: "-1", class: "bp-main bp-wrap") {',
+        "        style { gap: 28px; padding-top: 40px; padding-bottom: 72px; @md { padding-top: 56px } }",
+        "        Stack(gap: .sm) {",
+        "            style { gap: 14px; max-width: 760px }",
+        f'            Row(class: "bp-labels") {{ KindLabel(.{"tutorial" if learn else "explanation"}) }}',
+        f'            Heading(t("nav.{"learn" if learn else "about"}")).h1 {{ style {{ margin: 0; font-size: clamp(30px, 5vw, 44px); line-height: 1.08; font-weight: 650; letter-spacing: -0.025em }} }}',
+        f'            Text("{wf_string(lede)}", class: "bp-lede")',
+        "        }",
+    ]
+    if learn:
+        out.append("        BookProgress(chapters: GUIDE)")
+    group = None
+    for n in nums:
+        meta = META[n]
+        if meta["group"] != group:
+            if group is not None:
+                out += ["            }", "        }"]
+            group = meta["group"]
+            out += [
+                "        Stack(gap: .md) {",
+                "            style { gap: 14px }",
+                f'            Heading(t("nav.group.{group}"), id: "{group}").h2 {{ style {{ margin: 0; font-size: 22px; font-weight: 650 }} }}',
+                "            Grid(columns: { base: 1, md: 2 }, gap: .md) {",
+            ]
+        label = f'{int(n)}. ' if learn else ""
+        out += [
+            f'                Link(to: "{href(meta["route"])}", class: "bp-card") {{',
+            f'                    Text("{label}{wf_string(meta["title"])}") {{ style {{ font-weight: 650 }} }}',
+            f'                    Text("{wf_string(meta["blurb"])}", class: "bp-small")',
+            "                }",
+        ]
+    if group is not None:
+        out += ["            }", "        }"]
+    out += ["    }", "}", ""]
+    return "\n".join(out)
+
+
+def moved() -> tuple[str, str]:
+    """A page at each address a chapter used to have (`from:` in its front
+    matter), sending the reader to where it is now; and the same pairs for
+    `site/src/old-links.js`, which keeps the `#section` of an old link."""
+    pairs = {}
+    for n in sorted(META):
+        for old in META[n].get("from") or []:
+            pairs[old] = href(META[n]["route"])
+    out = [
+        "/// The guide's old addresses: each sends the reader to the page that is",
+        "/// there now. Written by scripts/docsite/guide.py from each page's `from:`.",
+        "",
+    ]
+    for old, to in sorted(pairs.items()):
+        name = "Was" + "".join(w.capitalize() for w in re.split(r"[^a-z0-9]+", old) if w)
+        out += [
+            f'page {name}(path: "{old}", title: "Moved", description: "This page moved.", guard: false, redirect: "{to}", noindex: true) {{',
+            '    Heading("Moved").h1',
+            f'    Link("Go on", to: "{to}")',
+            "}",
+            "",
+        ]
+    js = (
+        "// Each old address of a page of the guide, and where it is now: written\n"
+        "// by scripts/docsite/guide.py, read by old-links.js, which keeps the\n"
+        "// `#section` of an old link.\n"
+        f"const OLD_PAGES = {json.dumps(dict(sorted(pairs.items())), indent=1)};\n"
+    )
+    return "\n".join(out), js
 
 
 def contents_table() -> str:
@@ -504,6 +643,11 @@ def main():
         header[2] = header[2].replace("PREVNEXT", prevnext)
         text = "\n".join(header + body).rstrip() + "\n    }\n}\n"
         (OUT / f"{num}-{META[num]['slug']}.wf").write_text(text)
+    (OUT / "Learn.wf").write_text(part_index("learn"))
+    (OUT / "About.wf").write_text(part_index("about"))
+    moved_wf, moved_js = moved()
+    (OUT / "Moved.wf").write_text(moved_wf)
+    (OUT / "old-links-pages.js" if os.environ.get("WF_GUIDE_OUT") else ROOT / "site" / "src" / "old-links-pages.js").write_text(moved_js)
     print(f"wrote {len(converted)} chapters to {OUT}")
 
     # The book's chapter list, beside the pages when a test asks for a
@@ -524,6 +668,8 @@ def main():
             del en[key]
         for num in sorted(META):
             en[f"ch.{num}"] = META[num]["title"]
+        for key in [k for k in en if k.startswith("nav.group.") and k[10:] not in GROUP_NAMES]:
+            del en[key]
         for key, name in GROUP_NAMES.items():
             en[f"nav.group.{key}"] = name
         en_path.write_text(json.dumps(en, ensure_ascii=False, indent=2) + "\n")

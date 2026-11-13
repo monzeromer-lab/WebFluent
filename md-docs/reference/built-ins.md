@@ -1,12 +1,12 @@
 ---
-chapter: 44
+chapter: 35
 kind: "reference"
 route: "/reference/built-ins"
 group: "reference"
 blurb: "Every function, browser value, method and global the language gives a program, in one place."
 description: "Built-in functions, browser values like viewport, query, now and network, string, list and number methods, the built-in types, and browser globals."
 ---
-# 44. Built-ins
+# Built-ins
 
 This page lists everything a program can call or read without declaring
 it: the functions the language adds, the browser values it keeps current,

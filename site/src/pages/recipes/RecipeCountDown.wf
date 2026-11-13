@@ -11,7 +11,7 @@ page RecipeCountDown(path: "/recipes/count-down", title: "Count down — Recipes
     Text(if left == 0 { "Done" } else { "{left}s" })
 }"#, title: "wf")
         }
-        Markdown("- `left` is a [`state`](/docs/guide/state#state) holding the seconds that remain.\n- [`every(1000)`](/docs/guide/state#timers) runs its block every 1000 milliseconds. The `if` stops the count at zero.\n- The `Progress` bar and the `Text` both read `left`, so they repaint on every tick. The text says **Done** at zero.\n\nThe timer stops when the page leaves, so a reader who navigates away leaves no interval running.")
+        Markdown("- `left` is a [`state`](/learn/07-state-and-reactivity#state) holding the seconds that remain.\n- [`every(1000)`](/learn/07-state-and-reactivity#timers) runs its block every 1000 milliseconds. The `if` stops the count at zero.\n- The `Progress` bar and the `Text` both read `left`, so they repaint on every tick. The text says **Done** at zero.\n\nThe timer stops when the page leaves, so a reader who navigates away leaves no interval running.")
 
     }
 }

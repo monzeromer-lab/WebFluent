@@ -24,7 +24,7 @@ page RecipeResponsiveNavigation(path: "/recipes/responsive-navigation", title: "
     }
 }"#, title: "wf")
         }
-        Markdown("- [`viewport.md`](/docs/guide/state#the-browser-as-values) is true while the window is at least the `md` breakpoint wide. The runtime updates it when a breakpoint is crossed, so the `if` swaps the row for the button as the window narrows.\n- On a narrow screen, the `IconButton` toggles `open`. Its `label:` is the button's accessible name, since the icon has no text.\n- `show open` keeps the links in the page and hides them while `open` is false. `animate: .slideDown` plays as they appear.\n\nThe pre-rendered page does not know the window's width, so what depends on `viewport` is drawn once the page is live. For layout alone — a row that becomes a column — prefer [responsive values](/docs/guide/styling#responsive-values), which are right in the first paint.")
+        Markdown("- [`viewport.md`](/learn/07-state-and-reactivity#the-browser-as-values) is true while the window is at least the `md` breakpoint wide. The runtime updates it when a breakpoint is crossed, so the `if` swaps the row for the button as the window narrows.\n- On a narrow screen, the `IconButton` toggles `open`. Its `label:` is the button's accessible name, since the icon has no text.\n- `show open` keeps the links in the page and hides them while `open` is false. `animate: .slideDown` plays as they appear.\n\nThe pre-rendered page does not know the window's width, so what depends on `viewport` is drawn once the page is live. For layout alone — a row that becomes a column — prefer [responsive values](/learn/13-styling#responsive-values), which are right in the first paint.")
 
     }
 }

@@ -1,6 +1,8 @@
 /// One question at the end of a chapter: the choices, and — once the reader
 /// checks — why the one they picked is right or wrong.
-component Quiz(_ question: String, choices: [QuizChoice] = []) {
+/// A checked answer is counted (`track`, behind the reader's consent), by
+/// the quiz's `id`, so a chapter whose answers run wrong can be rewritten.
+component Quiz(_ question: String, id: String = "", choices: [QuizChoice] = []) {
     state picked = -1
     state checked = false
     derived verdict = choices[picked]
@@ -22,7 +24,10 @@ component Quiz(_ question: String, choices: [QuizChoice] = []) {
         Row(align: .center, gap: .md) {
             style { flex-wrap: wrap; gap: 12px }
             Button(t("quiz.check"), disabled: picked < 0, class: "bp-button", data-tone: "action") {
-                on click { checked = true }
+                on click {
+                    checked = true
+                    if let v = verdict { track("quiz_answer", { quiz: id, choice: picked, right: v.right }) }
+                }
             }
             if checked {
                 if let v = verdict {

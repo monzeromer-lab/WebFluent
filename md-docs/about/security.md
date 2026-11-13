@@ -1,12 +1,13 @@
 ---
-chapter: 30
+chapter: 21
 kind: "about"
-route: "guide/security"
-group: "quality"
+route: "/about/security"
+from: ["/docs/guide/security"]
+group: "about"
 blurb: "What the compiler guarantees, what it cannot, and the decisions left to you: markup, secrets, storage, headers and a deployment checklist."
 description: "What WebFluent enforces, and how to handle outside markup, sessions, env secrets, uploads, CSP headers, other origins and a deploy checklist."
 ---
-# 30. Security
+# Security
 
 This chapter shows you how to keep a WebFluent site safe: what the compiler
 already stops, what it cannot stop, and the decisions it leaves to you.

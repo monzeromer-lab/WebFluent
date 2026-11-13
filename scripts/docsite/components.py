@@ -15,12 +15,12 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "scripts" / "docsite"))
 from examples import EXAMPLES  # noqa: E402
-# The page is `md-docs/reference/components.md`; its number is its place in
-# the guide, kept in its own front matter, not something this script decides.
+# The page is `md-docs/reference/components.md`; its front matter is its own,
+# kept as it is.
 TARGET = ROOT / "md-docs" / "reference" / "components.md"
 # `WF_COMPONENTS_OUT` writes the page elsewhere, for `cargo xtask site --check`.
 OUT_PATH = Path(os.environ["WF_COMPONENTS_OUT"]) if os.environ.get("WF_COMPONENTS_OUT") else TARGET
-NUMBER = int(re.search(r"^chapter: (\d+)$", TARGET.read_text(), re.M).group(1))
+
 wf = Path(os.environ["WF_BIN"]) if os.environ.get("WF_BIN") else ROOT / "target" / "debug" / "wf"
 if not wf.exists():
     wf = "wf"
@@ -44,7 +44,7 @@ def prop_line(p):
     return f"| `{p['name']}:`{required} | {ty} | {esc(p['summary'])} |"
 
 out = []
-out.append(f"# {NUMBER}. Components reference\n")
+out.append("# Components reference\n")
 FRONT = TARGET.read_text().split("\n---\n", 1)[0] + "\n---"
 out.insert(0, FRONT)
 out.append("Generated from the compiler's registry (`wf registry --json`) by `scripts/docsite/components.py`, with an example of each from `scripts/docsite/examples.py`; edit those, not this file.\n")

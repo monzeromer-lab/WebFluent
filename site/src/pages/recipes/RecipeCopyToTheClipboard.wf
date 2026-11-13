@@ -14,7 +14,7 @@ page RecipeCopyToTheClipboard(path: "/recipes/copy-to-the-clipboard", title: "Co
     if copied { Toast("Copied").success }
 }"#, title: "wf")
         }
-        Markdown("- `navigator.clipboard` and `location` are browser globals, used as written with no prefix.\n- `writeText` returns a promise, so the [action](/docs/guide/state#actions-and-locals) awaits it. `await` makes the action async, and `copied` is set only once the text is on the clipboard.\n- The button's click handler calls `copy` with the page's own address.\n- When `copied` turns true, the `Toast` appears to confirm it.")
+        Markdown("- `navigator.clipboard` and `location` are browser globals, used as written with no prefix.\n- `writeText` returns a promise, so the [action](/learn/07-state-and-reactivity#actions-and-locals) awaits it. `await` makes the action async, and `copied` is set only once the text is on the clipboard.\n- The button's click handler calls `copy` with the page's own address.\n- When `copied` turns true, the `Toast` appears to confirm it.")
 
     }
 }

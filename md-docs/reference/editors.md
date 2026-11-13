@@ -1,12 +1,12 @@
 ---
-chapter: 54
+chapter: 42
 kind: "reference"
 route: "/reference/editors"
 group: "reference"
 blurb: "The language server, wf-lsp, and what the VS Code and Zed extensions and the Tree-sitter grammars each support."
 description: "Editor support for WebFluent: what wf-lsp answers, what the VS Code and Zed extensions and the Tree-sitter grammars support, and how to install each."
 ---
-# 54. Editors
+# Editors
 
 This page is the reference for WebFluent's editor support: the language
 server, `wf-lsp`, and the three repositories built around it. It lists

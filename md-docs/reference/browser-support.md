@@ -1,12 +1,12 @@
 ---
-chapter: 48
+chapter: 39
 kind: "reference"
 route: "/reference/browser-support"
 group: "reference"
 blurb: "Which browsers a WebFluent site targets, and what each newer platform feature falls back to where a browser lacks it."
 description: "The browsers a WebFluent site targets, and the fallback for each newer platform feature it uses where a browser lacks it."
 ---
-# 48. Browser support
+# Browser support
 
 This page lists the browsers a WebFluent site targets, and what each newer
 platform feature the runtime uses falls back to where a browser lacks it.

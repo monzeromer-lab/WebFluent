@@ -409,21 +409,21 @@ fn the_guide_s_anchors_are_the_site_s() {
     let mut checked = 0;
     for ch in &chapters {
         let Some(route) = &ch.route else { continue };
-        let slug = route.trim_start_matches("guide/");
-        let Some(page) = std::fs::read_dir(root.join("site/src/pages/guide"))
+        // The page the guide's script wrote for it, by the address it
+        // answers.
+        let at = if route.starts_with('/') {
+            route.clone()
+        } else {
+            format!("/docs/{route}")
+        };
+        let Some(text) = std::fs::read_dir(root.join("site/src/pages/guide"))
             .unwrap()
             .flatten()
-            .find(|e| {
-                e.file_name()
-                    .to_string_lossy()
-                    .trim_end_matches(".wf")
-                    .split_once('-')
-                    .is_some_and(|(_, s)| s == slug)
-            })
+            .map(|e| std::fs::read_to_string(e.path()).unwrap_or_default())
+            .find(|text| text.contains(&format!("(path: \"{at}\",")))
         else {
             continue;
         };
-        let text = std::fs::read_to_string(page.path()).unwrap();
         let ids: Vec<String> = anchors
             .captures_iter(&text)
             .map(|c| c[1].to_string())
@@ -447,7 +447,7 @@ fn the_guide_s_anchors_are_the_site_s() {
     assert_eq!(anchor("`style { }`"), "style");
     let forms = chapters
         .iter()
-        .find(|c| c.route.as_deref() == Some("guide/forms"))
+        .find(|c| c.route.as_deref() == Some("/learn/14-forms"))
         .unwrap();
     assert_eq!(
         forms.cite(Some("validate-a-field")),

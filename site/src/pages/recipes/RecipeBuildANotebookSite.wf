@@ -4,7 +4,7 @@ page RecipeBuildANotebookSite(path: "/recipes/build-a-notebook-site", title: "Bu
     RecipeShell("Build a statically generated notebook", summary: "**What you will build.** A notebook kept in public — notes from a garden, a kitchen and a few trips — built as a static site. The notes are a JSON file the build reads. Every page, including one page per note, is written out as HTML that a search engine can read. The one thing a reader changes, the notes they save for later, stays in their browser. The finished project is [`examples/tutorials/medium-field-notes`](https://github.com/monzeromer-lab/WebFluent/tree/master/examples/tutorials/medium-field-notes).  **Time:** about an hour.", outputs: [], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "before-you-start", label: "Before you start"), Anchor(id: "step-1-create-a-static-project-and-its-look", label: "Step 1: Create a static project and its look"), Anchor(id: "step-2-type-the-data", label: "Step 2: Type the data"), Anchor(id: "step-3-write-the-shell-and-a-layout", label: "Step 3: Write the shell and a layout"), Anchor(id: "step-4-build-a-card", label: "Step 4: Build a card"), Anchor(id: "step-5-search-and-filter-the-front-page", label: "Step 5: Search and filter the front page"), Anchor(id: "step-6-give-each-note-a-page", label: "Step 6: Give each note a page"), Anchor(id: "step-7-list-the-tags-and-write-a-page-in-markdown", label: "Step 7: List the tags, and write a page in Markdown"), Anchor(id: "step-8-keep-the-reader-s-saved-notes", label: "Step 8: Keep the reader's saved notes"), Anchor(id: "step-9-test-it-and-run-the-checks-a-static-site-needs", label: "Step 9: Test it, and run the checks a static site needs"), Anchor(id: "what-you-built", label: "What you built")], related: [RelatedLink(kind: "Recipe", title: "Build a budget app that works offline", to: "/recipes/build-a-budget-app")], source: "md-docs/recipes/build-a-notebook-site.md", how: false, hasVariations: false) {
         Heading("Before you start", id: "before-you-start").h2
 
-        Markdown("You need `wf`, Chrome and a copy of the repository (see [Before you start](/docs/tutorials/todos#before-you-start) in the Todos tutorial). This tutorial shows the part of each file that teaches something new, so work in the finished project and read each file as its step comes up:")
+        Markdown("You need `wf`, Chrome and a copy of the repository (see [Before you start](/learn/03-tutorial-todos#before-you-start) in the Todos tutorial). This tutorial shows the part of each file that teaches something new, so work in the finished project and read each file as its step comes up:")
 
         Terminal(lines: [
                 Line(command: "cd WebFluent/examples/tutorials/medium-field-notes"),
@@ -46,7 +46,7 @@ page RecipeBuildANotebookSite(path: "/recipes/build-a-notebook-site", title: "Bu
   }
 }"#, title: "json")
 
-        Markdown("- `\"ssg\": true` pre-renders every page to its own `index.html`. When the page loads, the script takes it over in place — *hydration* ([Static sites and SPAs](/docs/guide/static-and-spa)).\n- `site_url` lets the build write what search engines and link previews read: a canonical address, Open Graph tags, JSON-LD, `sitemap.xml` and `robots.txt` ([Content](/recipes)).\n\nThe dark theme names only the tokens that change:")
+        Markdown("- `\"ssg\": true` pre-renders every page to its own `index.html`. When the page loads, the script takes it over in place — *hydration* ([Static sites and SPAs](/about/static-or-single-page)).\n- `site_url` lets the build write what search engines and link previews read: a canonical address, Open Graph tags, JSON-LD, `sitemap.xml` and `robots.txt` ([Content](/recipes)).\n\nThe dark theme names only the tokens that change:")
 
         CodeBlock(#"// src/theme.wf
 /// The dark theme: only the tokens that change.
@@ -71,11 +71,11 @@ theme Dusk {
 
         CodeBlock("// src/types.wf\n/// One note in the notebook.\ntype Note \{\n    slug: String\n    title: String\n    date: Date\n    tags: [String]\n    summary: String\n    minutes: Number\n    body: String\n\}\n\n/// Every note, read from `notes.json` when the site is built.\ndata notes: [Note] = \"notes.json\"", title: "wf")
 
-        Markdown("- `data` reads a JSON file at build time. The result is a constant, typed by the annotation, inlined into the bundle and seeded into every pre-rendered page ([Fetching data](/docs/guide/data)).\n- The checker holds the program to `Note`: a page that reads `note.titel` is an error where it is written.\n- `date` is a `Date`: a plain `\"2026-03-08\"` string the language knows how to format. `\{note.date:.date(long)\}` shows `March 8, 2026`.\n\n`src/notes.json` holds seven notes, each with a Markdown `body`.\n\n**Check it:** `wf check` prints `No problems in field-notes.` If one note in `notes.json` has a field that `Note` does not declare, the check reports `T05` at the `data` line and names the field; if a note leaves out a field `Note` requires, it reports `C01`.")
+        Markdown("- `data` reads a JSON file at build time. The result is a constant, typed by the annotation, inlined into the bundle and seeded into every pre-rendered page ([Fetching data](/learn/15-data)).\n- The checker holds the program to `Note`: a page that reads `note.titel` is an error where it is written.\n- `date` is a `Date`: a plain `\"2026-03-08\"` string the language knows how to format. `\{note.date:.date(long)\}` shows `March 8, 2026`.\n\n`src/notes.json` holds seven notes, each with a Markdown `body`.\n\n**Check it:** `wf check` prints `No problems in field-notes.` If one note in `notes.json` has a field that `Note` does not declare, the check reports `T05` at the `data` line and names the field; if a note leaves out a field `Note` requires, it reports `C01`.")
 
         Heading("Step 3: Write the shell and a layout", id: "step-3-write-the-shell-and-a-layout").h2
 
-        Markdown("The `app` declaration wraps every page. The current page is drawn where `Router` stands, inside `<main>`, so the skip link each page carries jumps past the navigation ([Pages and routing](/docs/guide/pages-and-routing)). The start of `src/App.wf`:")
+        Markdown("The `app` declaration wraps every page. The current page is drawn where `Router` stands, inside `<main>`, so the skip link each page carries jumps past the navigation ([Pages and routing](/learn/05-pages-and-routing)). The start of `src/App.wf`:")
 
         CodeBlock(#"// src/App.wf
 app {
@@ -144,7 +144,7 @@ component NoteCard(
     }
 }"#, title: "wf")
 
-        Markdown("- A `///` comment above a component or a prop is its documentation. Your editor shows it when you hover a call ([Components](/docs/guide/components)).\n- A splice may say how to show its value: `\{note.date:.date(long)\}` is `format(note.date, .date, \"long\")`, written where it is read ([Expressions](/reference/expressions)).\n- `TagList` is a row of `#tag` links to `/?tag=…`.\n\n**Check it:** the front page shows a card per note, each with a line such as `March 8, 2026 · 4 min read`, a title, a summary and its tags.")
+        Markdown("- A `///` comment above a component or a prop is its documentation. Your editor shows it when you hover a call ([Components](/learn/10-components)).\n- A splice may say how to show its value: `\{note.date:.date(long)\}` is `format(note.date, .date, \"long\")`, written where it is read ([Expressions](/reference/expressions)).\n- `TagList` is a row of `#tag` links to `/?tag=…`.\n\n**Check it:** the front page shows a card per note, each with a line such as `March 8, 2026 · 4 min read`, a title, a summary and its tags.")
 
         Heading("Step 5: Search and filter the front page", id: "step-5-search-and-filter-the-front-page").h2
 
@@ -163,7 +163,7 @@ component NoteCard(
     derived visible = shown.map(n => n.slug)
     derived allTags = all.flatMap(n => n.tags).unique().sort()"#, title: "wf")
 
-        Markdown("`q` is bound to the search box, and everything else follows it. `sortBy`, `flatMap` and `unique` are list helpers the language brings. Each also runs at build time, so the pre-rendered page shows the sorted list ([State and reactivity](/docs/guide/state)).\n\nA static site adds one idea here. Its HTML is written once, before any reader arrives, so the HTML cannot depend on what only the browser knows, such as the address's query or what is in storage. So the finder draws every note and hides the ones that do not match:")
+        Markdown("`q` is bound to the search box, and everything else follows it. `sortBy`, `flatMap` and `unique` are list helpers the language brings. Each also runs at build time, so the pre-rendered page shows the sorted list ([State and reactivity](/learn/07-state-and-reactivity)).\n\nA static site adds one idea here. Its HTML is written once, before any reader arrives, so the HTML cannot depend on what only the browser knows, such as the address's query or what is in storage. So the finder draws every note and hides the ones that do not match:")
 
         CodeBlock(#"// src/components/NoteFinder.wf
             // Every note is drawn, and the ones that do not match are hidden.
@@ -202,7 +202,7 @@ page NotePage(path: "/notes/:slug", slug: String,
         CodeBlock(#"// src/pages/NotePage.wf
             Markdown(n.body)"#, title: "wf")
 
-        Markdown("`Markdown` renders headings, lists, quotes, emphasis and links, at build time and live. It escapes the text first, so HTML in a note is shown, not run ([Elements](/docs/guide/elements)). Below the note, `related` lists the three newest notes that share a tag with it — a `derived` value like any other.\n\n**Check it:** click a note's title. Its page shows the whole note, and the browser tab shows its title followed by `— Field Notes`. After `wf build`, `build/notes/` holds seven folders, one per note.")
+        Markdown("`Markdown` renders headings, lists, quotes, emphasis and links, at build time and live. It escapes the text first, so HTML in a note is shown, not run ([Elements](/learn/06-elements)). Below the note, `related` lists the three newest notes that share a tag with it — a `derived` value like any other.\n\n**Check it:** click a note's title. Its page shows the whole note, and the browser tab shows its title followed by `— Field Notes`. After `wf build`, `build/notes/` holds seven folders, one per note.")
 
         Heading("Step 7: List the tags, and write a page in Markdown", id: "step-7-list-the-tags-and-write-a-page-in-markdown").h2
 
@@ -213,7 +213,7 @@ page NotePage(path: "/notes/:slug", slug: String,
             for tag in allTags by tag {
                 derived filed = notes.filter(n => n.tags.includes(tag)).sortBy(n => n.date).reverse()"#, title: "wf")
 
-        Markdown("- A layout prop takes one value per breakpoint: one column on a phone, two from `md` up. It compiles to a media query, so the first paint is already right ([Styling](/docs/guide/styling)).\n- A `derived` value inside a `for` is worked out for each item.\n\nThe About page is not a `.wf` file at all. `src/about.md` is a page: its front matter names its path, title, description and layout, and the rest is its Markdown:")
+        Markdown("- A layout prop takes one value per breakpoint: one column on a phone, two from `md` up. It compiles to a media query, so the first paint is already right ([Styling](/learn/13-styling)).\n- A `derived` value inside a `for` is worked out for each item.\n\nThe About page is not a `.wf` file at all. `src/about.md` is a page: its front matter names its path, title, description and layout, and the rest is its Markdown:")
 
         CodeBlock(#"---
 path: /about
@@ -236,7 +236,7 @@ store Saved {
 
     derived count = slugs.length"#, title: "wf")
 
-        Markdown("`persist` keeps the list in the browser across visits. There is no account, and nothing is sent anywhere ([Stores](/docs/guide/stores)).\n\nThe button that saves a note says whether it is pressed, the way assistive technology reads it:")
+        Markdown("`persist` keeps the list in the browser across visits. There is no account, and nothing is sent anywhere ([Stores](/learn/11-stores)).\n\nThe button that saves a note says whether it is pressed, the way assistive technology reads it:")
 
         CodeBlock(#"// src/components/SaveButton.wf
 /// Saves a note for later, or takes it off the saved list.
@@ -251,11 +251,11 @@ component SaveButton(_ slug: String, title: String) {
     }
 }"#, title: "wf")
 
-        Markdown("`aria-pressed` follows the state, and `styles.css` styles the pressed button with `[aria-pressed=\"true\"]`, so the look and the meaning are one attribute ([Accessibility](/docs/guide/accessibility)). The Saved page lists `notes.filter(n => Saved.slugs.includes(n.slug))`, and the navbar's badge shows `Saved.count`.\n\n**Check it:** click **Save** on a card. It reads **Saved**, and the navbar shows a `1` badge beside **Saved**. Reload the page: the note is still saved, and `/saved` lists it.")
+        Markdown("`aria-pressed` follows the state, and `styles.css` styles the pressed button with `[aria-pressed=\"true\"]`, so the look and the meaning are one attribute ([Accessibility](/about/accessibility)). The Saved page lists `notes.filter(n => Saved.slugs.includes(n.slug))`, and the navbar's badge shows `Saved.count`.\n\n**Check it:** click **Save** on a card. It reads **Saved**, and the navbar shows a `1` badge beside **Saved**. Reload the page: the note is still saved, and `/saved` lists it.")
 
         Heading("Step 9: Test it, and run the checks a static site needs", id: "step-9-test-it-and-run-the-checks-a-static-site-needs").h2
 
-        Markdown("A test reads the project's `data` file, as any page does ([Testing](/docs/guide/testing)):")
+        Markdown("A test reads the project's `data` file, as any page does ([Testing](/learn/16-testing)):")
 
         CodeBlock(#"// tests/NoteFinder.wf
 test "a search that matches nothing says so, and clears" {
@@ -281,7 +281,7 @@ test "a search that matches nothing says so, and clears" {
 
         Heading("What you built", id: "what-you-built").h2
 
-        Markdown("- A static build, with canonical addresses, a sitemap and link previews ([Content](/recipes)).\n- Typed data read from a JSON file at build time ([Fetching data](/docs/guide/data)).\n- A shell, and a layout every page names ([Pages and routing](/docs/guide/pages-and-routing)).\n- A page per note from one `:slug` page and `paths:`, and a page written in Markdown ([Content](/recipes)).\n- A search and a filter that work in pre-rendered HTML ([Static sites and SPAs](/docs/guide/static-and-spa)).\n- A reader's saved list, with a pressed state assistive technology reads ([Accessibility](/docs/guide/accessibility)).")
+        Markdown("- A static build, with canonical addresses, a sitemap and link previews ([Content](/recipes)).\n- Typed data read from a JSON file at build time ([Fetching data](/learn/15-data)).\n- A shell, and a layout every page names ([Pages and routing](/learn/05-pages-and-routing)).\n- A page per note from one `:slug` page and `paths:`, and a page written in Markdown ([Content](/recipes)).\n- A search and a filter that work in pre-rendered HTML ([Static sites and SPAs](/about/static-or-single-page)).\n- A reader's saved list, with a pressed state assistive technology reads ([Accessibility](/about/accessibility)).")
 
     }
 }

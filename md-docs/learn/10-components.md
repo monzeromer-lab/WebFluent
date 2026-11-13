@@ -1,12 +1,13 @@
 ---
-chapter: 15
+chapter: 10
 kind: "tutorial"
-route: "guide/components"
-group: "concepts"
+route: "/learn/10-components"
+from: ["/docs/guide/components"]
+group: "language"
 blurb: "A component is a reusable element you declare: typed props, events, slots, parts and a body, checked like a built-in."
 description: "Declare components: typed props, enum props, events, slots and scoped slots, parts, local state, stores, and how to design them."
 ---
-# 15. Components
+# 10. Components
 
 A *component* is a reusable element you declare yourself. It has typed
 props, the events it fires, the slots its caller fills, the parts it

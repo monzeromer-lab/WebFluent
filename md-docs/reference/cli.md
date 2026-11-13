@@ -1,12 +1,12 @@
 ---
-chapter: 41
+chapter: 33
 kind: "reference"
 route: "/reference/cli"
 group: "reference"
 blurb: "Every wf command and flag, the dev server, and the language server in each editor."
 description: "The wf command line — every command and flag, from init, build and serve to render, migrate and verify — and how to set up the language server in your editor."
 ---
-# 41. Command line and editors
+# Command line and editors
 
 This chapter is the reference for `wf`, the one binary that creates, builds,
 serves, checks, formats, tests, renders and describes a WebFluent project,

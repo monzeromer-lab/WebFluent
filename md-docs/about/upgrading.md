@@ -1,12 +1,13 @@
 ---
-chapter: 51
+chapter: 24
 kind: "about"
-route: "guide/upgrading"
-group: "help"
+route: "/about/upgrading"
+from: ["/docs/guide/upgrading"]
+group: "about"
 blurb: "What changed in each release, what to do when you upgrade, and how wf migrate carries an older project forward."
 description: "How to upgrade wf, what each release from 4.0 to 6.0 asks of a project, and moving a WebFluent 2 or 3 project forward with wf migrate."
 ---
-# 51. Upgrading
+# Upgrading
 
 This chapter tells you what each release asks of your project when you
 upgrade, newest first. Most releases need nothing from you; the ones that

@@ -1,12 +1,13 @@
 ---
-chapter: 22
+chapter: 20
 kind: "about"
-route: "guide/accessibility"
-group: "ui"
+route: "/about/accessibility"
+from: ["/docs/guide/accessibility"]
+group: "about"
 blurb: "Build pages that work with a keyboard, a screen reader or voice control: what the built-ins do, what the compiler checks, and what is still yours to do."
 description: "What the built-ins do for keyboard and screen-reader users, the A01–A17 checks, what is still yours to do, and how to test it."
 ---
-# 22. Accessibility
+# Accessibility
 
 This chapter shows you how to build pages that people can use with a
 keyboard, a screen reader, voice control, zoom or reduced motion. Most of

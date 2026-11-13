@@ -1,12 +1,13 @@
 ---
-chapter: 19
+chapter: 13
 kind: "tutorial"
-route: "guide/styling"
-group: "ui"
+route: "/learn/13-styling"
+from: ["/docs/guide/styling"]
+group: "build"
 blurb: "Restyle the whole site with a theme, one element with a style block, and many elements with your own stylesheet — and make the layout responsive."
 description: "Themes and tokens, style blocks with live values, nested rules and media queries, transitions, classes and stylesheets, dark mode, responsive layout."
 ---
-# 19. Styling
+# 13. Styling
 
 This chapter shows you how to change the way your site looks, from the whole
 site down to one element. Every built-in element already ships styled, so

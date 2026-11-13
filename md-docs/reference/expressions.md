@@ -1,12 +1,12 @@
 ---
-chapter: 18
+chapter: 30
 kind: "reference"
 route: "/reference/expressions"
-group: "concepts"
+group: "reference"
 blurb: "The expression language: literals, interpolation, operators, values that choose, calls, methods, formatting, regexes, tokens and await."
 description: "Literals, interpolation and formatted splices, operators and precedence, if and match as values, lambdas, methods, format and ago, regexes, tokens, await."
 ---
-# 18. Expressions
+# Expressions
 
 An expression is anything that has a value: a prop's value, a condition,
 the right side of a `state` or a `derived`, or the inside of `{…}` in a

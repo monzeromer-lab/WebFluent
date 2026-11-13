@@ -1,12 +1,13 @@
 ---
-chapter: 10
+chapter: 5
 kind: "tutorial"
-route: "guide/pages-and-routing"
-group: "concepts"
+route: "/learn/05-pages-and-routing"
+from: ["/docs/guide/pages-and-routing"]
+group: "language"
 blurb: "A page is a route and what it shows. Each page names its own path, the app shell frames every page, and a layout frames a section."
 description: "Page attributes, routes and typed parameters, query strings, layouts, guards, the app shell, per-page head tags and the 404 page."
 ---
-# 10. Pages and routing
+# 5. Pages and routing
 
 A page is a route and what it shows. Each page names its own path, so there
 is no separate route table to keep in step with your pages.

@@ -1,12 +1,12 @@
 ---
-chapter: 42
+chapter: 34
 kind: "reference"
 route: "/reference/config"
 group: "reference"
 blurb: "Every key of webfluent.app.json, its default, and what it changes."
 description: "Every key of webfluent.app.json, its type and default: project, build, media, PDF, slides, dev, motion, meta, theme, i18n, env, offline and lints."
 ---
-# 42. Configuration
+# Configuration
 
 This chapter is the reference for `webfluent.app.json`, the file beside
 `src/` that holds a project's settings. Look up a key here to find its

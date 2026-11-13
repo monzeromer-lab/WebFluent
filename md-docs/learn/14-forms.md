@@ -1,12 +1,13 @@
 ---
-chapter: 23
+chapter: 14
 kind: "tutorial"
-route: "guide/forms"
-group: "data"
+route: "/learn/14-forms"
+from: ["/docs/guide/forms"]
+group: "build"
 blurb: "Bind controls to state, validate what the reader types, upload files, and show what the server said."
 description: "Bind every control to state, use the Form handle, write validate rules, upload files, send a form to an API, and show server errors and pending state."
 ---
-# 23. Forms and validation
+# 14. Forms and validation
 
 This chapter shows you how to build a form: controls that read and write
 state, rules that say what each value must be, and a submit that sends the

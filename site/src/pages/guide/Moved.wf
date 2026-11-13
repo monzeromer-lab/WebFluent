@@ -1,0 +1,127 @@
+/// The guide's old addresses: each sends the reader to the page that is
+/// there now. Written by scripts/docsite/guide.py from each page's `from:`.
+
+page WasDocsGuideAccessibility(path: "/docs/guide/accessibility", title: "Moved", description: "This page moved.", guard: false, redirect: "/about/accessibility", noindex: true) {
+    Heading("Moved").h1
+    Link("Go on", to: "/about/accessibility")
+}
+
+page WasDocsGuideComponents(path: "/docs/guide/components", title: "Moved", description: "This page moved.", guard: false, redirect: "/learn/10-components", noindex: true) {
+    Heading("Moved").h1
+    Link("Go on", to: "/learn/10-components")
+}
+
+page WasDocsGuideContributing(path: "/docs/guide/contributing", title: "Moved", description: "This page moved.", guard: false, redirect: "/about/contributing", noindex: true) {
+    Heading("Moved").h1
+    Link("Go on", to: "/about/contributing")
+}
+
+page WasDocsGuideControlFlow(path: "/docs/guide/control-flow", title: "Moved", description: "This page moved.", guard: false, redirect: "/learn/09-control-flow", noindex: true) {
+    Heading("Moved").h1
+    Link("Go on", to: "/learn/09-control-flow")
+}
+
+page WasDocsGuideData(path: "/docs/guide/data", title: "Moved", description: "This page moved.", guard: false, redirect: "/learn/15-data", noindex: true) {
+    Heading("Moved").h1
+    Link("Go on", to: "/learn/15-data")
+}
+
+page WasDocsGuideElements(path: "/docs/guide/elements", title: "Moved", description: "This page moved.", guard: false, redirect: "/learn/06-elements", noindex: true) {
+    Heading("Moved").h1
+    Link("Go on", to: "/learn/06-elements")
+}
+
+page WasDocsGuideEvents(path: "/docs/guide/events", title: "Moved", description: "This page moved.", guard: false, redirect: "/learn/08-events", noindex: true) {
+    Heading("Moved").h1
+    Link("Go on", to: "/learn/08-events")
+}
+
+page WasDocsGuideForms(path: "/docs/guide/forms", title: "Moved", description: "This page moved.", guard: false, redirect: "/learn/14-forms", noindex: true) {
+    Heading("Moved").h1
+    Link("Go on", to: "/learn/14-forms")
+}
+
+page WasDocsGuideGettingStarted(path: "/docs/guide/getting-started", title: "Moved", description: "This page moved.", guard: false, redirect: "/learn/01-getting-started", noindex: true) {
+    Heading("Moved").h1
+    Link("Go on", to: "/learn/01-getting-started")
+}
+
+page WasDocsGuideIntroduction(path: "/docs/guide/introduction", title: "Moved", description: "This page moved.", guard: false, redirect: "/about/why", noindex: true) {
+    Heading("Moved").h1
+    Link("Go on", to: "/about/why")
+}
+
+page WasDocsGuideLanguageBasics(path: "/docs/guide/language-basics", title: "Moved", description: "This page moved.", guard: false, redirect: "/learn/04-language-basics", noindex: true) {
+    Heading("Moved").h1
+    Link("Go on", to: "/learn/04-language-basics")
+}
+
+page WasDocsGuidePagesAndRouting(path: "/docs/guide/pages-and-routing", title: "Moved", description: "This page moved.", guard: false, redirect: "/learn/05-pages-and-routing", noindex: true) {
+    Heading("Moved").h1
+    Link("Go on", to: "/learn/05-pages-and-routing")
+}
+
+page WasDocsGuidePdfAndSlides(path: "/docs/guide/pdf-and-slides", title: "Moved", description: "This page moved.", guard: false, redirect: "/learn/17-pdf-and-slides", noindex: true) {
+    Heading("Moved").h1
+    Link("Go on", to: "/learn/17-pdf-and-slides")
+}
+
+page WasDocsGuidePerformance(path: "/docs/guide/performance", title: "Moved", description: "This page moved.", guard: false, redirect: "/about/what-a-build-ships", noindex: true) {
+    Heading("Moved").h1
+    Link("Go on", to: "/about/what-a-build-ships")
+}
+
+page WasDocsGuideSecurity(path: "/docs/guide/security", title: "Moved", description: "This page moved.", guard: false, redirect: "/about/security", noindex: true) {
+    Heading("Moved").h1
+    Link("Go on", to: "/about/security")
+}
+
+page WasDocsGuideState(path: "/docs/guide/state", title: "Moved", description: "This page moved.", guard: false, redirect: "/learn/07-state-and-reactivity", noindex: true) {
+    Heading("Moved").h1
+    Link("Go on", to: "/learn/07-state-and-reactivity")
+}
+
+page WasDocsGuideStaticAndSpa(path: "/docs/guide/static-and-spa", title: "Moved", description: "This page moved.", guard: false, redirect: "/about/static-or-single-page", noindex: true) {
+    Heading("Moved").h1
+    Link("Go on", to: "/about/static-or-single-page")
+}
+
+page WasDocsGuideStores(path: "/docs/guide/stores", title: "Moved", description: "This page moved.", guard: false, redirect: "/learn/11-stores", noindex: true) {
+    Heading("Moved").h1
+    Link("Go on", to: "/learn/11-stores")
+}
+
+page WasDocsGuideStyling(path: "/docs/guide/styling", title: "Moved", description: "This page moved.", guard: false, redirect: "/learn/13-styling", noindex: true) {
+    Heading("Moved").h1
+    Link("Go on", to: "/learn/13-styling")
+}
+
+page WasDocsGuideTesting(path: "/docs/guide/testing", title: "Moved", description: "This page moved.", guard: false, redirect: "/learn/16-testing", noindex: true) {
+    Heading("Moved").h1
+    Link("Go on", to: "/learn/16-testing")
+}
+
+page WasDocsGuideTroubleshooting(path: "/docs/guide/troubleshooting", title: "Moved", description: "This page moved.", guard: false, redirect: "/errors/troubleshooting", noindex: true) {
+    Heading("Moved").h1
+    Link("Go on", to: "/errors/troubleshooting")
+}
+
+page WasDocsGuideTutorial(path: "/docs/guide/tutorial", title: "Moved", description: "This page moved.", guard: false, redirect: "/learn/02-tutorial-shelf", noindex: true) {
+    Heading("Moved").h1
+    Link("Go on", to: "/learn/02-tutorial-shelf")
+}
+
+page WasDocsGuideTypes(path: "/docs/guide/types", title: "Moved", description: "This page moved.", guard: false, redirect: "/learn/12-types", noindex: true) {
+    Heading("Moved").h1
+    Link("Go on", to: "/learn/12-types")
+}
+
+page WasDocsGuideUpgrading(path: "/docs/guide/upgrading", title: "Moved", description: "This page moved.", guard: false, redirect: "/about/upgrading", noindex: true) {
+    Heading("Moved").h1
+    Link("Go on", to: "/about/upgrading")
+}
+
+page WasDocsTutorialsTodos(path: "/docs/tutorials/todos", title: "Moved", description: "This page moved.", guard: false, redirect: "/learn/03-tutorial-todos", noindex: true) {
+    Heading("Moved").h1
+    Link("Go on", to: "/learn/03-tutorial-todos")
+}

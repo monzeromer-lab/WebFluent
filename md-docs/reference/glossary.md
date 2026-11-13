@@ -1,12 +1,12 @@
 ---
-chapter: 49
+chapter: 40
 kind: "reference"
 route: "/reference/glossary"
 group: "reference"
 blurb: "The words this guide uses, each in a sentence, with where to read more."
 description: "The terms this guide uses — state, signal, pre-rendered page, hydration, flag, part, slot, registry, scope and more — each in a sentence, with a link."
 ---
-# 49. Glossary
+# Glossary
 
 This glossary defines the words this guide uses, in alphabetical order.
 Each entry is one sentence, with a link to the chapter that explains the

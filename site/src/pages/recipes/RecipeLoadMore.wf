@@ -19,7 +19,7 @@ page Items(path: "/items", title: "Items", description: "Everything, a page at a
     }
 }"#, title: "wf")
         }
-        Markdown("- `Catalog` [describes the service](/docs/guide/data#describe-a-service-with-api): its `items` endpoint takes a `page` and returns a list of `Item`.\n- The resource calls it with `paginate: .page`, which gives it `.items`, `.loadMore()` and `.hasMore` ([Load results a page at a time](/docs/guide/data#load-results-a-page-at-a-time)).\n- `list.items` is every item loaded so far, so the `for` lists them all and `item.name` is checked against `Item`.\n- `list.loadMore()` moves `page` on by one and asks for the next page, as a refresh: the items already shown stay while it runs.\n- `list.pending` is true while a request runs, so the button cannot ask twice. `list.hasMore` turns false when a page comes back empty, and the button goes.")
+        Markdown("- `Catalog` [describes the service](/learn/15-data#describe-a-service-with-api): its `items` endpoint takes a `page` and returns a list of `Item`.\n- The resource calls it with `paginate: .page`, which gives it `.items`, `.loadMore()` and `.hasMore` ([Load results a page at a time](/learn/15-data#load-results-a-page-at-a-time)).\n- `list.items` is every item loaded so far, so the `for` lists them all and `item.name` is checked against `Item`.\n- `list.loadMore()` moves `page` on by one and asks for the next page, as a refresh: the items already shown stay while it runs.\n- `list.pending` is true while a request runs, so the button cannot ask twice. `list.hasMore` turns false when a page comes back empty, and the button goes.")
 
     }
 }

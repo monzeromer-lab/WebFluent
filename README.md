@@ -6,7 +6,7 @@ If you are an open-source contributor and find this project helpful and have exp
 
 **One binary. Websites, PDFs and slide decks from one language.** No Node, no framework, no build config — and no browser for your PDFs.
 
-**[See it](https://webfluent.monzeromer.dev/showcase)** · **[Docs](https://webfluent.monzeromer.dev)** · **[Tutorial](https://webfluent.monzeromer.dev/docs/guide/tutorial)** · **[Components](https://webfluent.monzeromer.dev/docs/reference)** · **[Studio](#webfluent-studio)** · **[Guide source](md-docs/)**
+**[See it](https://webfluent.monzeromer.dev/showcase)** · **[Docs](https://webfluent.monzeromer.dev)** · **[Tutorial](https://webfluent.monzeromer.dev/learn/02-tutorial-shelf)** · **[Components](https://webfluent.monzeromer.dev/docs/reference)** · **[Studio](#webfluent-studio)** · **[Guide source](md-docs/)**
 
 <!-- hero: one file, three outputs -->
 <p align="center"><img src="site/art/hero.png" alt="One WebFluent file rendered three ways: a web page, a PDF page and a slide" width="900"></p>

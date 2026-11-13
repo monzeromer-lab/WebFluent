@@ -22,7 +22,7 @@ page RecipePageThroughResults(path: "/recipes/page-through-results", title: "Pag
     }
 }"#, title: "wf")
         }
-        Markdown("- `page` and `perPage` are states, and the [resource](/docs/guide/data#show-a-request-with-resource) splices both into its address.\n- The server answers with the page's `items` and the number of `pages`. The `ready` arm lists the items and draws the buttons.\n- **Previous** and **Next** change `page`. A change of `page` changes the address, so the resource asks again ([Fetch again when state changes](/docs/guide/data#fetch-again-when-state-changes)).\n- Each button is disabled at its end of the list, so `page` stays between 1 and `r.pages`.\n\nTo add each page below the ones already shown instead of replacing them, see [Load more as the reader asks](/recipes/load-more).")
+        Markdown("- `page` and `perPage` are states, and the [resource](/learn/15-data#show-a-request-with-resource) splices both into its address.\n- The server answers with the page's `items` and the number of `pages`. The `ready` arm lists the items and draws the buttons.\n- **Previous** and **Next** change `page`. A change of `page` changes the address, so the resource asks again ([Fetch again when state changes](/learn/15-data#fetch-again-when-state-changes)).\n- Each button is disabled at its end of the list, so `page` stays between 1 and `r.pages`.\n\nTo add each page below the ones already shown instead of replacing them, see [Load more as the reader asks](/recipes/load-more).")
 
     }
 }
