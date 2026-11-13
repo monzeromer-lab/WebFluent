@@ -1,6 +1,28 @@
 /// The right-hand rail of a page: its headings, then — when the page names
-/// them — the codes a reader may meet here, and the page's source.
+/// them — the codes a reader may meet here; the page as Markdown, to copy
+/// or open (its twin, `/learn/07-state.md`, which an agent reads too); and
+/// the page's source.
 component OnThisPage(sections: [Anchor] = [], source: String = "md-docs", codes: [RelatedLink] = []) {
+    state copied = false
+
+    /// Where this page's twin is: the address with `.md` on the end.
+    action twin() {
+        let path = location.pathname.replace(/\/(index\.html)?$/, "").replace(/\.html$/, "")
+        return if path == "" { "/index.md" } else { "{path}.md" }
+    }
+
+    action copyPage() {
+        try {
+            let text = await fetch(twin(), as: .text)
+            await navigator.clipboard.writeText(text)
+            copied = true
+            setTimeout(() => uncopy(), 1600)
+        } catch e {
+            window.open(twin(), "_blank", "noopener")
+        }
+    }
+    action uncopy() { copied = false }
+
     Stack(gap: .lg, role: "navigation", aria-label: t("docs.onthispage"), class: "bp-rail") {
         style {
             display: none
@@ -48,6 +70,22 @@ component OnThisPage(sections: [Anchor] = [], source: String = "md-docs", codes:
                         Text(code.title)
                     }
                 }
+            }
+        }
+
+        Stack(gap: .xs) {
+            style { gap: 8px; padding-top: 20px; border-top: 1px solid $line }
+            Button(class: "bp-rail-action") {
+                style { display: flex; align-items: center; justify-content: flex-start; gap: 8px; padding: 0; border: 0; background: none; color: $muted; font-family: inherit; font-size: 13px; cursor: pointer; &:hover { color: $ink } & .wf-icon { display: inline-flex; font-size: 15px } & p { margin: 0 } }
+                on click { copyPage() }
+                Icon(if copied { "check" } else { "copy" })
+                Text(if copied { t("docs.copied") } else { t("docs.copy") })
+            }
+            Button(class: "bp-rail-action") {
+                style { display: flex; align-items: center; justify-content: flex-start; gap: 8px; padding: 0; border: 0; background: none; color: $muted; font-family: inherit; font-size: 13px; cursor: pointer; &:hover { color: $ink } & .wf-icon { display: inline-flex; font-size: 15px } & p { margin: 0 } }
+                on click { window.open(twin(), "_blank", "noopener") }
+                Icon("file")
+                Text(t("docs.markdown"))
             }
         }
 

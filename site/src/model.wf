@@ -16,6 +16,8 @@ type SearchRow {
     title: String,
     section: String,
     route: String,
+    kind: String = "",
+    also: String = "",
     words: String = ""
 }
 

@@ -6,7 +6,7 @@ If you are an open-source contributor and find this project helpful and have exp
 
 **One binary. Websites, PDFs and slide decks from one language.** No Node, no framework, no build config — and no browser for your PDFs.
 
-**[See it](https://webfluent.monzeromer.dev/showcase)** · **[Docs](https://webfluent.monzeromer.dev)** · **[Tutorial](https://webfluent.monzeromer.dev/learn/02-tutorial-shelf)** · **[Components](https://webfluent.monzeromer.dev/docs/reference)** · **[Studio](#webfluent-studio)** · **[Guide source](md-docs/)**
+**[See it](https://webfluent.monzeromer.dev/showcase)** · **[Docs](https://webfluent.monzeromer.dev)** · **[Tutorial](https://webfluent.monzeromer.dev/learn/02-tutorial-shelf)** · **[Components](https://webfluent.monzeromer.dev/reference)** · **[Studio](#webfluent-studio)** · **[Guide source](md-docs/)**
 
 <!-- hero: one file, three outputs -->
 <p align="center"><img src="site/art/hero.png" alt="One WebFluent file rendered three ways: a web page, a PDF page and a slide" width="900"></p>
@@ -217,7 +217,7 @@ wf migrate [path] [--check] [--wfx]         Bring an older project up to date (W
 
 - **[See it](https://webfluent.monzeromer.dev/showcase)** — real PDFs and decks rendered from the examples, opened straight in your browser
 - **[The documentation](https://webfluent.monzeromer.dev)** — built with WebFluent itself: getting started, a tutorial that ends in a deployed site, the language, and deploying
-- **[Reference](https://webfluent.monzeromer.dev/docs/reference)** — every component, [CLI command](md-docs/reference/cli.md), [config key](md-docs/reference/configuration.md), [diagnostic](md-docs/errors/diagnostics.md) and [keyword](md-docs/reference/grammar.md)
+- **[Reference](https://webfluent.monzeromer.dev/reference)** — every component, [CLI command](md-docs/reference/cli.md), [config key](md-docs/reference/configuration.md), [diagnostic](md-docs/errors/diagnostics.md) and [keyword](md-docs/reference/grammar.md)
 - **[PDF benchmark](bench/pdf/RESULTS.md)** — WebFluent against headless Chrome on the same invoice: method, machine and results, reproducible with `just bench-pdf`
 - **[Troubleshooting](md-docs/errors/troubleshooting.md)** and **[upgrading](md-docs/about/upgrading.md)**
 - **[The guide's source](md-docs/)** — the same chapters as Markdown; every code block in them is compiled by the test suite

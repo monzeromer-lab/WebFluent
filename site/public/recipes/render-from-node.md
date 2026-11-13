@@ -1,0 +1,109 @@
+# Render templates from Node
+
+> Render WebFluent templates from Node.js with the webfluent package: an Express server that answers with an invoice as HTML or as a PDF.
+
+The page: https://webfluent.monzeromer.dev/recipes/render-from-node
+
+The Node binding is a small wrapper around `wf render`: it renders a
+template with your data as HTML, a fragment, a PDF or slides. This Express
+server answers with an invoice in either form. You need Node.js, npm and
+the `wf` command, and a template like the one in
+[Render a template with data](https://webfluent.monzeromer.dev/recipes/render-a-template.md). This one is
+`templates/invoice.wf`:
+
+```wf
+page Invoice(path: "/", title: "Invoice {number}", description: "An invoice.") {
+    Heading("Invoice #{number}").h1
+    Text("Bill to: {customer.name}")
+    Table {
+        Table.Head { Table.Row { Table.Cell("Item")  Table.Cell("Qty")  Table.Cell("Amount") } }
+        Table.Body {
+            for item in items {
+                Table.Row {
+                    Table.Cell(item.name)
+                    Table.Cell("{item.qty}")
+                    Table.Cell(format(item.price * item.qty, .currency))
+                }
+            }
+        }
+    }
+    if paid { Badge("Paid").success } else { Badge("Due").warning }
+    Text("Total: {format(total, .currency)}").bold.lg
+}
+```
+
+Install the binding and Express:
+
+```bash
+npm install webfluent express
+```
+
+This is the server, `server.js`:
+
+```js
+// server.js
+const path = require("node:path");
+const express = require("express");
+const { Template } = require("webfluent");
+
+// Every .wf and .wfx under templates/, as one template; its Invoice page.
+const invoice = Template.fromDir(path.join(__dirname, "templates")).page("Invoice");
+
+// Your own data source; one invoice, kept in memory here.
+const invoices = {
+  "INV-001": {
+    number: "INV-001",
+    customer: { name: "Acme Corp" },
+    items: [{ name: "Widget", qty: 5, price: 9.99 }],
+    total: 49.95,
+    paid: false,
+  },
+};
+
+const app = express();
+
+// The PDF route comes first, so `/invoices/INV-001.pdf` is not read as an id.
+app.get("/invoices/:id.pdf", async (req, res) => {
+  const data = invoices[req.params.id];
+  if (!data) return res.sendStatus(404);
+  res.type("application/pdf").send(await invoice.renderPdfAsync(data));
+});
+
+app.get("/invoices/:id", async (req, res) => {
+  const data = invoices[req.params.id];
+  if (!data) return res.sendStatus(404);
+  res.send(await invoice.renderHtmlAsync(data));
+});
+
+app.listen(3000, () => console.log("http://localhost:3000/invoices/INV-001"));
+```
+
+Run `node server.js` and open `/invoices/INV-001` for the page, or
+`/invoices/INV-001.pdf` for the PDF.
+
+## How it works
+
+- `Template.fromDir` reads every template under the directory, with
+  components shared, and `page("Invoice")` picks the page to render.
+  `Template.fromFile` and `Template.fromString` load one template instead.
+  The server loads it once, at start-up.
+- Every render has a synchronous form (`renderHtml`, `renderHtmlFragment`,
+  `renderPdf`, `renderSlides`) and an `…Async` form that does not block the
+  event loop. Use the `…Async` forms in a server, as this one does.
+- `withTheme`, `withTokens` and `withLang` set what the Rust API sets
+  ([Render templates from Rust](https://webfluent.monzeromer.dev/recipes/render-from-rust.md#configure-a-render)),
+  and each returns the template, so they chain before a render.
+- A render runs `wf` once and takes a few milliseconds. The data goes over
+  standard input, so nothing is written to disk.
+
+The binding needs `wf` itself installed. It looks for it at `WF_BIN`, then
+on `PATH`, then in `~/.webfluent/bin` and `~/.cargo/bin` (and, outside
+Windows, `/usr/local/bin` and `/usr/bin`). Its version is the compiler's.
+
+## Troubleshooting
+
+| What you see | What to do |
+|---|---|
+| `WebFluent CLI (wf) not found` | Install `wf`, or set `WF_BIN` to the binary's path |
+| The render fails with "no page called …" | Pass `page()` one of the names the message lists |
+| A `{name}` renders empty | The data has no top-level key `name`; check the object's spelling and nesting |

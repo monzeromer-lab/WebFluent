@@ -63,6 +63,45 @@ def terms(text: str, cap: int = 24) -> str:
     return " ".join(seen[:cap])
 
 
+# What a reader coming from another framework, or from LaTeX, types, and
+# the section that teaches the WebFluent way. A row holding a synonym is
+# ranked with the rows whose names match, so `useState` finds `state`
+# first. Each target must be a section the index has.
+SYNONYMS = {
+    "/learn/07-state-and-reactivity#state": ["useState", "ref", "reactive", "$state", "signal", "data()", "setState"],
+    "/learn/07-state-and-reactivity#derived": ["useMemo", "computed", "$derived", "memo", "selector", "getter"],
+    "/learn/07-state-and-reactivity#effect": ["useEffect", "watch", "watchEffect", "$effect", "onMount", "componentDidMount", "$:"],
+    "/learn/07-state-and-reactivity#persist": ["localStorage", "sessionStorage", "useLocalStorage"],
+    "/learn/09-control-flow#for": ["v-for", "{#each}", "#each", ".map(", "map", "ngFor", "key"],
+    "/learn/09-control-flow#if-else-if-else": ["v-if", "v-else", "{#if}", "#if", "ngIf", "ternary", "&&"],
+    "/learn/09-control-flow#show": ["v-show", "display none", "hidden"],
+    "/learn/09-control-flow#match": ["switch", "case", "{#await}", "pattern matching"],
+    "/learn/10-components#props": ["props", "defineProps", "export let", "$props", "propTypes", "@Input"],
+    "/learn/10-components#slots": ["slot", "children", "props.children", "<slot>", "v-slot", "render props", "ng-content"],
+    "/learn/10-components#events": ["emit", "$emit", "defineEmits", "createEventDispatcher", "callback prop", "@Output", "onChange prop"],
+    "/learn/08-events#handlers": ["onClick", "@click", "on:click", "v-on", "addEventListener", "onclick", "(click)"],
+    "/learn/13-styling#add-a-class": ["className", ":class", "class:", "clsx", "classnames", "ngClass"],
+    "/learn/13-styling#style-one-element": ["style={{}}", ":style", "inline style", "css-in-js", "styled-components", "emotion"],
+    "/learn/13-styling#dark-mode": ["prefers-color-scheme", "dark theme", "color scheme"],
+    "/learn/15-data#show-a-request-with-resource": ["fetch", "useSWR", "useQuery", "axios", "tanstack query", "react query", "loader", "{#await}"],
+    "/learn/15-data#describe-a-service-with-api": ["axios instance", "api client", "openapi", "swagger", "trpc"],
+    "/learn/11-stores#a-first-store": ["context", "useContext", "provide", "inject", "redux", "zustand", "pinia", "vuex", "writable", "global state"],
+    "/learn/14-forms#bind-a-control-to-state": ["v-model", "bind:value", "controlled input", "onChange", "two-way binding", "ngModel"],
+    "/learn/14-forms#validate-a-field": ["yup", "zod", "formik", "react-hook-form", "vee-validate", "validation"],
+    "/learn/05-pages-and-routing#declaring-a-page": ["react-router", "vue-router", "sveltekit", "next.js", "route", "routes", "<Route>"],
+    "/learn/05-pages-and-routing#links-and-navigation": ["<a href>", "router-link", "useNavigate", "router.push", "goto"],
+    "/learn/05-pages-and-routing#per-page-head-tags": ["<head>", "helmet", "useHead", "svelte:head", "meta tags"],
+    "/learn/17-pdf-and-slides#make-a-pdf-document": ["\\documentclass", "\\section", "#set page", "latex", "typst", "pdf"],
+    "/learn/17-pdf-and-slides#control-where-pages-break": ["\\newpage", "#pagebreak", "page break"],
+    "/learn/17-pdf-and-slides#set-the-paper-headers-and-footers": ["fancyhdr", "header footer", "page number"],
+    "/learn/17-pdf-and-slides#make-a-slide-deck": ["beamer", "powerpoint", "keynote", "reveal.js", "slides"],
+    "/learn/16-testing#before-you-start": ["jest", "vitest", "testing library", "cypress", "playwright", "getByText"],
+}
+
+# The search's tabs: the part of the site a row is in.
+KIND_OF_FOLDER = {"learn": "learn", "about": "learn", "reference": "reference", "errors": "errors"}
+
+
 def search_index():
     rows = []
     for f in guide.chapter_files():
@@ -73,7 +112,11 @@ def search_index():
         title = meta["title"]
         if route == guide.REFERENCE_ROUTE:
             continue  # its entries come from the registry, below
-        rows.append({"chapter": num, "title": title, "section": "", "route": guide.href(route), "words": terms(meta["description"])})
+        kind = KIND_OF_FOLDER.get(meta["path"].split("/")[0], "learn")
+        # Only the book's chapters show a number beside a result.
+        if kind != "learn" or meta["path"].startswith("about/"):
+            num = ""
+        rows.append({"chapter": num, "title": title, "section": "", "route": guide.href(route), "kind": kind, "words": terms(meta["description"])})
         # Every `##` and `###` section, with what its text is about.
         parts = re.split(r"^(#{2,3}) (.+)$", md, flags=re.M)
         for k in range(1, len(parts), 3):
@@ -85,6 +128,7 @@ def search_index():
                 "title": title,
                 "section": text,
                 "route": f"{guide.href(route)}#{guide.slug(text)}",
+                "kind": kind,
                 "words": terms(parts[k + 2]),
             })
     # Every recipe, by its title and what its text is about.
@@ -93,20 +137,43 @@ def search_index():
         if f.name == "index.md":
             continue
         title = next(l[2:].strip() for l in md.splitlines() if l.startswith("# "))
-        rows.append({"chapter": "", "title": "Recipes", "section": title, "route": meta["route"],
+        rows.append({"chapter": "", "title": "Recipes", "section": title, "route": meta["route"], "kind": "recipes",
                      "words": terms(meta.get("description", "") + " " + md)})
+    # Every cheat sheet, by the framework it starts from.
+    for f in sorted((ROOT / "md-docs" / "coming-from").glob("*.md")):
+        meta, md = guide.front_matter(f)
+        title = next(l[2:].strip() for l in md.splitlines() if l.startswith("# "))
+        rows.append({"chapter": "", "title": "Coming from", "section": title, "route": meta["route"], "kind": "learn",
+                     "also": meta.get("framework", ""), "words": terms(meta.get("description", "") + " " + md)})
+    # Every diagnostic, by its code and what it says: `T05` jumps to its page.
+    for f in sorted((ROOT / "md-docs" / "errors").glob("*.md")):
+        meta, md = guide.front_matter(f)
+        if "code" not in meta:
+            continue
+        title = next(l[2:].strip() for l in md.splitlines() if l.startswith("# "))
+        rows.append({"chapter": "", "title": "Errors", "section": title, "route": meta["route"], "kind": "errors",
+                     "words": terms(meta.get("description", ""))})
+    # Every command.
+    for c in json.loads(subprocess.check_output([str(wf), "commands", "--json"]))["commands"]:
+        rows.append({"chapter": "", "title": "Commands", "section": f"wf {c['name']}", "route": f"/reference/cli/{c['name']}",
+                     "kind": "reference", "words": terms(c["summary"])})
     # Every built-in, by name, with what it takes.
-    ref = guide.front_matter(ROOT / "md-docs" / "reference" / "components.md")[0]
     for c in builtins():
         if c["legacy"]:
             continue
         rows.append({
-            "chapter": f"{ref['chapter']:02d}",
+            "chapter": "",
             "title": "Components reference",
             "section": c["name"],
             "route": f"/reference/{c['slug']}",
+            "kind": "reference",
             "words": terms(c["summary"] + " " + " ".join(f"`{p['name']}`" for p in c["props"])),
         })
+    by_route = {r["route"]: r for r in rows}
+    for route, also in SYNONYMS.items():
+        if route not in by_route:
+            raise SystemExit(f"scripts/docsite/data.py: a synonym names {route}, which the index does not have")
+        by_route[route]["also"] = "|".join(a.lower() for a in also)
     return rows
 
 

@@ -7,9 +7,12 @@ store Search {
 }
 
 /// Search, as a palette over the page: one field, the kinds to narrow by,
-/// and what matched — a heading first, then a section whose words mention
-/// the term. The index is a file of its own, fetched the first time the
-/// palette opens rather than carried by every page.
+/// and what matched, in this order: a name or a code that is the term
+/// (`Button`, `T05`, `wf build`); a section another framework's word leads
+/// to (`useState` finds `state`); a heading that holds the term; a section
+/// whose words mention it. Enter opens the first. The index is a file of
+/// its own, fetched the first time the palette opens rather than carried by
+/// every page.
 component SearchPalette {
     use Search
     state q = ""
@@ -23,10 +26,23 @@ component SearchPalette {
         try { rows = await fetch(SEARCH_INDEX) } catch e { asked = false }
     }
 
+    // A row the index wrote without synonyms has no `also` (the file is
+    // fetched, so the type's default does not fill it in).
     derived term = q.trim().toLowerCase()
-    derived named = rows.filter(r => term != "" && "{r.title} {r.section}".toLowerCase().includes(term))
-    derived mentioned = rows.filter(r => term != "" && !"{r.title} {r.section}".toLowerCase().includes(term) && r.words.includes(term))
-    derived hits = [...named, ...mentioned].take(12)
+    derived pool = rows.filter(r => term != "" && (kind == "all" || r.kind == kind))
+    derived exact = pool.filter(r => r.section.toLowerCase() == term || r.section.toLowerCase().startsWith("{term} —"))
+    derived led = pool.filter(r => !exact.includes(r) && (r.also ?? "").split("|").includes(term))
+    derived named = pool.filter(r => !exact.includes(r) && !led.includes(r) && "{r.title} {r.section}".toLowerCase().includes(term))
+    derived mentioned = pool.filter(r => !exact.includes(r) && !led.includes(r) && !"{r.title} {r.section}".toLowerCase().includes(term) && (r.words.includes(term) || (r.also ?? "").includes(term)))
+    derived hits = [...exact, ...led, ...named, ...mentioned].take(12)
+
+    action go() {
+        if let first = hits[0] {
+            Search.hide()
+            q = ""
+            navigate(first.route)
+        }
+    }
 
     on key("mod+k") { if Search.open { Search.hide() } else { Search.reveal()  load() } }
     on key("/") { if !Search.open { Search.reveal()  load() } }
@@ -42,6 +58,7 @@ component SearchPalette {
                 Input(bind: q, placeholder: t("search.placeholder"), aria-label: t("search.label"), type: "search", autofocus: true) {
                     on focus { load() }
                     on input { load() }
+                    on key("Enter") { go() }
                 }
                 Text("esc", class: "bp-kbd")
             }

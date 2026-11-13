@@ -12,9 +12,9 @@ language doesn't change.
 
 This file collects what WebFluent Studio, itself a WebFluent app in Tauri,
 learned the hard way, plus what Tauri 2.12's own sources say about phones. The
-guide's chapter "Desktop apps" (`md-docs/36-desktop-apps.md`, or
-`/docs/guide/desktop` on the site) is the step-by-step version, and it also
-covers Electron.
+recipe "Make a desktop or phone app with Tauri" (`md-docs/recipes/tauri-app.md`, or
+`/recipes/tauri-app` on the site) is the step-by-step version; Electron has its
+own, `/recipes/electron-app`.
 
 ## Contents
 

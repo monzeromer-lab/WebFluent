@@ -490,5 +490,8 @@
   "nav.group.language": "اللغة",
   "nav.group.build": "البناء بها",
   "nav.group.about": "عن WebFluent",
-  "nav.about": "عن WebFluent"
+  "nav.about": "عن WebFluent",
+  "docs.copy": "انسخ الصفحة بصيغة Markdown",
+  "docs.copied": "نُسخت",
+  "docs.markdown": "افتحها بصيغة Markdown"
 }

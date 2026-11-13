@@ -2203,3 +2203,169 @@ fn the_book_is_written_to_its_rules() {
     }
     assert!(failures.is_empty(), "{}", failures.join("\n"));
 }
+
+/// Every page the site publishes has a Markdown twin at its address plus
+/// `.md` (`/` is `/index.md`), for an agent and for *Copy page*; and
+/// `llms.txt` lists them. The pages are the built sitemap's.
+#[test]
+fn every_published_page_has_a_markdown_twin() {
+    let root = Path::new(env!("CARGO_MANIFEST_DIR"));
+    let sitemap = std::fs::read_to_string(root.join("docs/sitemap.xml")).expect("docs/sitemap.xml");
+    let llms = std::fs::read_to_string(root.join("site/public/llms.txt")).expect("llms.txt");
+    let loc = regex::Regex::new(r"<loc>https?://[^/<]+(/[^<]*)</loc>").unwrap();
+    let mut failures = Vec::new();
+    let mut pages = 0;
+    for m in loc.captures_iter(&sitemap) {
+        let route = m[1].trim_end_matches('/');
+        let twin = if route.is_empty() {
+            "index.md".to_string()
+        } else {
+            format!("{}.md", route.trim_start_matches('/'))
+        };
+        pages += 1;
+        if !root.join("site/public").join(&twin).is_file() {
+            failures.push(format!("{route}/: no twin at site/public/{twin}"));
+        } else if !route.starts_with("/ar/") && !llms.contains(&format!("/{twin})")) {
+            failures.push(format!("{route}/: llms.txt does not list /{twin}"));
+        }
+    }
+    assert!(pages > 300, "{pages} pages in the sitemap");
+    assert!(failures.is_empty(), "{}", failures.join("\n"));
+}
+
+/// The search finds the WebFluent way under another framework's word:
+/// `useState`, `v-for`, `onClick` and `\newpage` each lead to the section
+/// that teaches it, and a code is a row of its own, so `T05` jumps to it.
+#[test]
+fn the_search_knows_other_frameworks_words() {
+    let root = Path::new(env!("CARGO_MANIFEST_DIR"));
+    let rows: Vec<serde_json::Value> = serde_json::from_str(
+        &std::fs::read_to_string(root.join("site/public/search-index.json")).unwrap(),
+    )
+    .unwrap();
+    let led_to = |word: &str| -> Vec<String> {
+        rows.iter()
+            .filter(|r| {
+                r["also"]
+                    .as_str()
+                    .is_some_and(|a| a.split('|').any(|w| w == word))
+            })
+            .map(|r| r["route"].as_str().unwrap().to_string())
+            .collect()
+    };
+    for (word, route) in [
+        ("usestate", "/learn/07-state-and-reactivity#state"),
+        ("computed", "/learn/07-state-and-reactivity#derived"),
+        ("v-for", "/learn/09-control-flow#for"),
+        ("onclick", "/learn/08-events#handlers"),
+        ("classname", "/learn/13-styling#add-a-class"),
+        ("usequery", "/learn/15-data#show-a-request-with-resource"),
+        (
+            "\\newpage",
+            "/learn/17-pdf-and-slides#control-where-pages-break",
+        ),
+    ] {
+        assert_eq!(led_to(word), [route], "`{word}`");
+    }
+    let t05: Vec<_> = rows
+        .iter()
+        .filter(|r| {
+            r["section"]
+                .as_str()
+                .is_some_and(|s| s.starts_with("T05 —"))
+        })
+        .collect();
+    assert_eq!(t05.len(), 1);
+    assert_eq!(t05[0]["route"], "/errors/T05");
+    assert!(
+        rows.iter().all(|r| r["kind"].is_string()),
+        "a row with no kind"
+    );
+}
+
+/// What an agent reads before the site — `AGENTS.md` (which `wf init`
+/// writes into every project), the README and the skill — says the same as
+/// the site and the compiler, where a script can tell:
+///
+/// - every page of the site they send a reader to is a page the site
+///   publishes, not a redirect left behind by a move;
+/// - `AGENTS.md` names every built-in the registry has (but the legacy
+///   spellings), and its icon list is the runtime's, with the right count.
+#[test]
+fn the_agent_files_agree_with_the_site_and_the_compiler() {
+    let root = Path::new(env!("CARGO_MANIFEST_DIR"));
+    let sitemap = std::fs::read_to_string(root.join("docs/sitemap.xml")).expect("docs/sitemap.xml");
+    let loc = regex::Regex::new(r"<loc>https?://[^/<]+(/[^<]*)</loc>").unwrap();
+    let live: Vec<String> = loc
+        .captures_iter(&sitemap)
+        .map(|c| c[1].trim_end_matches('/').to_string())
+        .collect();
+    let mut files = vec![root.join("AGENTS.md"), root.join("README.md")];
+    let mut stack = vec![root.join("skills")];
+    while let Some(dir) = stack.pop() {
+        for e in std::fs::read_dir(dir).unwrap().flatten() {
+            let p = e.path();
+            if p.is_dir() {
+                stack.push(p);
+            } else if p.extension().is_some_and(|x| x == "md") {
+                files.push(p);
+            }
+        }
+    }
+    let site =
+        regex::Regex::new(r"https://webfluent\.monzeromer\.dev(/[A-Za-z0-9/_.-]*)?").unwrap();
+    let path = regex::Regex::new(r"`(/docs/[a-z0-9/-]+)`").unwrap();
+    let mut failures = Vec::new();
+    for file in &files {
+        let text = std::fs::read_to_string(file).unwrap();
+        let name = file.strip_prefix(root).unwrap().display().to_string();
+        let routes = site
+            .captures_iter(&text)
+            .map(|c| c.get(1).map_or("", |m| m.as_str()).to_string())
+            .chain(path.captures_iter(&text).map(|c| c[1].to_string()));
+        for route in routes {
+            let route = route.trim_end_matches(['/', '.']).to_string();
+            let file_like =
+                route.ends_with(".md") || route.ends_with(".txt") || route.ends_with(".json");
+            if !route.is_empty() && !file_like && !live.contains(&route) {
+                failures.push(format!("{name}: {route} is no page the site publishes"));
+            }
+        }
+    }
+
+    let agents = std::fs::read_to_string(root.join("AGENTS.md")).unwrap();
+    for c in webfluent::registry::components() {
+        let legacy =
+            c.summary.contains("original spelling") || c.summary.contains("original grammar");
+        let named = regex::Regex::new(&format!(r"\b{}\b", regex::escape(c.name))).unwrap();
+        if !legacy && !named.is_match(&agents) {
+            failures.push(format!("AGENTS.md: the built-in `{}` is not named", c.name));
+        }
+    }
+    let icons = webfluent::registry::ICONS;
+    let listed: Vec<&str> = agents
+        .split_once("Available icons:")
+        .and_then(|(_, rest)| rest.split_once("Usage:"))
+        .map(|(list, _)| list)
+        .unwrap_or_default()
+        .split('`')
+        .skip(1)
+        .step_by(2)
+        .collect();
+    let mut want: Vec<&str> = icons.to_vec();
+    let mut have = listed.clone();
+    want.sort_unstable();
+    have.sort_unstable();
+    if want != have {
+        failures.push(format!(
+            "AGENTS.md: the icon list is not the runtime's ({} listed, {} drawn)",
+            have.len(),
+            want.len()
+        ));
+    }
+    let count = format!("{} built-in SVG icons", icons.len());
+    if agents.matches("built-in SVG icons").count() != agents.matches(&count).count() {
+        failures.push(format!("AGENTS.md: an icon count other than `{count}`"));
+    }
+    assert!(failures.is_empty(), "{}", failures.join("\n"));
+}

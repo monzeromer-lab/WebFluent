@@ -1,0 +1,420 @@
+# WebFluent
+
+> A web-first language: one typed `.wf` source compiles to a static site, a web app, a PDF or a slide deck. The compiler refuses, with a code and a fix, what would fail in the browser.
+
+Every page below is Markdown. The language's whole reference in one file is [AGENTS.md](https://github.com/monzeromer-lab/WebFluent/blob/master/AGENTS.md), which `wf init` writes into every project; [llms-full.txt](https://webfluent.monzeromer.dev/llms-full.txt) is the book, the recipes and the reference's prose in one file.
+
+## Start
+
+- [WebFluent](https://webfluent.monzeromer.dev/index.md): One language, one binary: a static site, a single-page app, a PDF or a slide deck from the same file. No Node, and no browser for your PDFs.
+- [Changelog](https://webfluent.monzeromer.dev/changelog.md): What each release of WebFluent changed.
+- [Documentation](https://webfluent.monzeromer.dev/docs.md)
+- [Playground](https://webfluent.monzeromer.dev/playground.md): The compiler, in the browser.
+- [Showcase](https://webfluent.monzeromer.dev/showcase.md): Sites, documents and decks made with WebFluent.
+
+## Learn
+
+- [Learn WebFluent](https://webfluent.monzeromer.dev/learn.md)
+- [Getting started](https://webfluent.monzeromer.dev/learn/01-getting-started.md): Install wf, check the install, create a first project, run the dev server and make a change. Then set up the language server and read the build.
+- [Tutorial: Shelf](https://webfluent.monzeromer.dev/learn/02-tutorial-shelf.md): A step-by-step tutorial: build a reading-list site with WebFluent, test it, and deploy it to GitHub Pages.
+- [Tutorial: Todos](https://webfluent.monzeromer.dev/learn/03-tutorial-todos.md): A beginner WebFluent tutorial: a todo app with a persisted store, a component, a keyed list, a filter in the address and tests, in 20 minutes.
+- [Language basics](https://webfluent.monzeromer.dev/learn/04-language-basics.md): Declarations, naming, comments, render and imperative bodies, the braced and the indented layout, and how to write strings in WebFluent.
+- [Pages and routing](https://webfluent.monzeromer.dev/learn/05-pages-and-routing.md): Page attributes, routes and typed parameters, query strings, layouts, guards, pages in other languages, head tags and the 404 page.
+- [Elements](https://webfluent.monzeromer.dev/learn/06-elements.md): The element call shape: positional, named props, flags and enum cases, the block and its order, attributes, parts, and the families of built-ins.
+- [State and reactivity](https://webfluent.monzeromer.dev/learn/07-state-and-reactivity.md): state, derived, effect, actions and let, persist, timers, automatic clean-up, element handles and the browser's values.
+- [Events](https://webfluent.monzeromer.dev/learn/08-events.md): DOM event handlers, the event object, keyboard shortcuts, component events, modals, menus, popovers, gestures and window events.
+- [Control flow](https://webfluent.monzeromer.dev/learn/09-control-flow.md): if, if let, for … by, VirtualList, show and match, in render blocks and in actions, and if and match as values.
+- [Components](https://webfluent.monzeromer.dev/learn/10-components.md): Declare components: typed props, enum props, events, slots and scoped slots, parts, local state, stores, and how to design them.
+- [Stores](https://webfluent.monzeromer.dev/learn/11-stores.md): Stores: declaration, scopes, use, actions, persist and migrations, connections, loading data, debugging, testing, and when to use one.
+- [Types](https://webfluent.monzeromer.dev/learn/12-types.md): The type language, built-in types, records and enums, refinements, inference and narrowing, typed network data, and the checks the compiler runs.
+- [Styling](https://webfluent.monzeromer.dev/learn/13-styling.md): Themes and tokens, style blocks with live values, nested rules and media queries, transitions, classes and stylesheets, dark mode, responsive layout.
+- [Forms and validation](https://webfluent.monzeromer.dev/learn/14-forms.md): Bind every control to state, use the Form handle, write validate rules, upload files, send a form to an API, and show server errors and pending state.
+- [Fetching data](https://webfluent.monzeromer.dev/learn/15-data.md): Describe an API once with retries, caching and typed errors; show a resource with match; fetch in an action; update optimistically; read data files.
+- [Testing](https://webfluent.monzeromer.dev/learn/16-testing.md): How to write wf tests: render tests with snapshots, seeded stores, tests that click and type in headless Chrome, wf verify, and running them in CI.
+- [PDF and slides](https://webfluent.monzeromer.dev/learn/17-pdf-and-slides.md): Make PDF documents and slide decks: the paged engine, CSS layout, page breaks, fonts, Arabic, headers, page numbers, contents, charts and QR codes.
+
+## Recipes
+
+- [Recipes](https://webfluent.monzeromer.dev/recipes.md): Complete, runnable answers to “how do I…”: each recipe is one task, its whole code, and how it works.
+- [Keep the active tab in the address](https://webfluent.monzeromer.dev/recipes/active-tab-in-the-address.md): Keep the active tab in the address's #fragment, so it survives a reload and a shared link opens on the same tab.
+- [Add a picture, sized for every screen](https://webfluent.monzeromer.dev/recipes/add-a-picture.md): Show a picture from public/ or declared with image: the build writes it at every width, sets its size, and gives it a placeholder while it loads.
+- [Animate a list](https://webfluent.monzeromer.dev/recipes/animate-a-list.md): Animate a list's items as they arrive, move and leave: a keyed for … by, with animate:, exit: and stagger: on each item's element.
+- [Animate an element in and out](https://webfluent.monzeromer.dev/recipes/animate-in-and-out.md): Play an animation when an element appears or leaves: a flag or animate: on the way in, exit: on the way out, with speed, delay and easing.
+- [Run a sequence of animations](https://webfluent.monzeromer.dev/recipes/animation-sequence.md): Start a group of animations one after another on a clock: wrap the elements in sequence { } and each in a step, with after: from the step before.
+- [Serve an API on the same origin](https://webfluent.monzeromer.dev/recipes/api-on-the-same-origin.md): Serve the site at / and its backend at /api from one origin, so pages call it without CORS and a session cookie works with no extra setting.
+- [Build a budget app that works offline](https://webfluent.monzeromer.dev/recipes/build-a-budget-app.md): An advanced WebFluent tutorial: a budget tracker with Money, a persist migration, validation, shortcuts, Arabic and English, and offline support.
+- [Build a statically generated notebook](https://webfluent.monzeromer.dev/recipes/build-a-notebook-site.md): An intermediate WebFluent tutorial: a static notes site with data files, a page per note, Markdown, search, tags and saved notes, in about an hour.
+- [Set cache and security headers](https://webfluent.monzeromer.dev/recipes/cache-and-security-headers.md): Which Cache-Control each file of a WebFluent build should get, and the security headers the build writes to _headers for a host to send.
+- [Call WF from a script](https://webfluent.monzeromer.dev/recipes/call-wf-from-a-script.md): Call the WebFluent runtime, window.WF, from a script of your own: show a toast, navigate, or read a store, and keep the call in the build.
+- [Call your own JavaScript](https://webfluent.monzeromer.dev/recipes/call-your-own-script.md): Call a function of your own JavaScript from a WebFluent page: a plain script under src/, typed with JSDoc, linked on every page, its names in scope.
+- [Draw a chart from a library](https://webfluent.monzeromer.dev/recipes/chart-from-a-library.md): Draw a Chart.js chart on a page: load the library from a CDN, call it from a script of your own, and redraw the chart when the page's data changes.
+- [Check a deploy](https://webfluent.monzeromer.dev/recipes/check-a-deploy.md): Check a WebFluent site after each deploy: deep links that reload, text in the HTML, the response headers, link previews and the sitemap.
+- [Build a confirm dialog](https://webfluent.monzeromer.dev/recipes/confirm-dialog.md): Ask before a destructive action: a component that wraps a Dialog and fires confirm or cancel, with the question's detail written by the caller.
+- [Connect two readers' pages](https://webfluent.monzeromer.dev/recipes/connect-two-readers.md): Send messages straight from one reader's page to another's over a WebRTC data channel, with a `peer` opened by `rtc(…)` and no server relaying them.
+- [Copy to the clipboard](https://webfluent.monzeromer.dev/recipes/copy-to-the-clipboard.md): Copy text to the reader's clipboard from a button: an action that awaits the browser's clipboard, then shows a toast.
+- [Count a number to its new value](https://webfluent.monzeromer.dev/recipes/count-a-number.md): Make a number count to its new value instead of jumping: give its element count: with a length of time, and each step keeps its format.
+- [Count down](https://webfluent.monzeromer.dev/recipes/count-down.md): Count down once a second with an every timer that changes a state, and show the time left as a progress bar and text.
+- [Add a dark-mode switch](https://webfluent.monzeromer.dev/recipes/dark-mode-switch.md): Let the reader pick light, dark or the system's choice with setTheme, and mark the current choice by reading theme.
+- [Debounce a search](https://webfluent.monzeromer.dev/recipes/debounce-a-search.md): Search as the reader types, but only once they pause: keep what they typed apart from what you search for, and let a timer move one to the other.
+- [Deploy to Cloudflare Pages](https://webfluent.monzeromer.dev/recipes/deploy-to-cloudflare-pages.md): Deploy a WebFluent site to Cloudflare Pages: the build command and output folder to set, and a fallback for a single-page build.
+- [Deploy to GitHub Pages](https://webfluent.monzeromer.dev/recipes/deploy-to-github-pages.md): Deploy a WebFluent site to GitHub Pages with a GitHub Actions workflow, under the repository's sub-path and with no trailing-slash redirects.
+- [Deploy to Netlify](https://webfluent.monzeromer.dev/recipes/deploy-to-netlify.md): Deploy a WebFluent site to Netlify: a netlify.toml that installs wf and builds, a fallback for a single-page build, and the build's security headers.
+- [Deploy to Vercel](https://webfluent.monzeromer.dev/recipes/deploy-to-vercel.md): Deploy a WebFluent site to Vercel with a vercel.json that installs wf, builds, sets the security headers and rewrites a single-page build.
+- [Build a Docker image](https://webfluent.monzeromer.dev/recipes/docker-image.md): Build a Docker image of a WebFluent site: one stage installs wf and builds, a second serves the build with nginx.
+- [Drive an animation yourself](https://webfluent.monzeromer.dev/recipes/drive-an-animation.md): Play an animation from a handler with animate(element, name, duration) and a ref: handle, or play an element's own again with replayAnimation.
+- [Make a desktop app with Electron](https://webfluent.monzeromer.dev/recipes/electron-app.md): Make a WebFluent project an Electron desktop app: serve the build from its own origin, call Node from a page through a preload script, and package it.
+- [Use environment values, and keep secrets out](https://webfluent.monzeromer.dev/recipes/environments-and-secrets.md): Read settings such as an API address with env.NAME, set them per environment, and keep a private value such as an API key out of the bundle.
+- [Open a box to the height of its content](https://webfluent.monzeromer.dev/recipes/expand-to-content.md): Open a box to the height of its content, which CSS cannot animate to: .expand measures height: auto, animates to it, then lets the box grow.
+- [Keep filters in the address](https://webfluent.monzeromer.dev/recipes/filters-in-the-address.md): Keep a list's filter or sort in the query string, so it survives a reload, a shared link and the back button.
+- [Hand an element to a script](https://webfluent.monzeromer.dev/recipes/hand-an-element-to-a-script.md): Give an element to a script or a library and take it back when the element goes, with the mount:, update: and cleanup: props, or a bare node from Host.
+- [Install wf on a build machine](https://webfluent.monzeromer.dev/recipes/install-wf-in-ci.md): Install the wf compiler on a CI runner or a host's build machine, pin its version, and build the site there before each deploy.
+- [Keep writes made offline](https://webfluent.monzeromer.dev/recipes/keep-writes-made-offline.md): Keep the reader's changes when the network drops: with sync on, a write that fails offline is kept and sent in order when the connection returns.
+- [Declare your own keyframes](https://webfluent.monzeromer.dev/recipes/keyframes.md): Declare keyframes of your own with animation Name { } and play them with animate: .Name or exit: .Name, wherever a built-in animation goes.
+- [Load a library from a CDN](https://webfluent.monzeromer.dev/recipes/library-from-a-cdn.md): Load a JavaScript library from another origin with meta.scripts: in order, async or after the page, pinned by a hash, allowed by the policy.
+- [Run a script after each page draws](https://webfluent.monzeromer.dev/recipes/listen-for-wf-render.md): Run a script that finds elements itself after every drawing of the page: the first mount, the takeover of a pre-rendered page, and each route.
+- [Load more as the reader asks](https://webfluent.monzeromer.dev/recipes/load-more.md): Add the next page of results below the ones shown when the reader asks: an api endpoint called with paginate: .page and a Load more button.
+- [Write a page as a Markdown file](https://webfluent.monzeromer.dev/recipes/markdown-pages.md): Write a page as a Markdown file under `src/`: front matter names its route, title and layout, and the rest is the body, framed by a component.
+- [Migrate from external](https://webfluent.monzeromer.dev/recipes/migrate-from-external.md): Move a WebFluent 4 project off external declarations: wf migrate turns each into a meta.scripts entry, a plain script under src/, or an Element call.
+- [Set motion defaults, and respect reduced motion](https://webfluent.monzeromer.dev/recipes/motion-defaults.md): Set the duration and easing every animation uses by default, and make sure a reader who asked for reduced motion gets none.
+- [Offer a new version](https://webfluent.monzeromer.dev/recipes/offer-a-new-version.md): When a deploy lands, offer the reader the new version of an offline site: update.available says it is ready, and update.apply() reloads into it.
+- [Open a socket](https://webfluent.monzeromer.dev/recipes/open-a-socket.md): Hold a two-way connection to a server with a `socket`: it reconnects, keeps itself alive, and queues what you send while the line is down.
+- [Update at once, and roll back on failure](https://webfluent.monzeromer.dev/recipes/optimistic-updates.md): Show a change before the server agrees: update the state at once, send the request, and put the old value back if it fails.
+- [Page through results](https://webfluent.monzeromer.dev/recipes/page-through-results.md): Show a long list one page at a time: keep the page number in state, splice it into the request's address, and step it with buttons.
+- [Place a custom element from a library](https://webfluent.monzeromer.dev/recipes/place-a-custom-element.md): Place a custom element a library defines, such as Stripe's pricing table, with Element: its tag, attributes that follow state, and its events.
+- [Draw into a node a script made](https://webfluent.monzeromer.dev/recipes/portal.md): Fill a node a library made, such as an editor's tooltip or a map's popup, with WebFluent elements, using Portal(into:).
+- [Publish components as custom elements](https://webfluent.monzeromer.dev/recipes/publish-custom-elements.md): Build WebFluent components as standard custom elements that React, Vue, Svelte, WordPress or a plain HTML page can place by their tag.
+- [Render a template with data](https://webfluent.monzeromer.dev/recipes/render-a-template.md): Render a .wf template with JSON data to HTML, an HTML fragment, a PDF or slides with wf render, for invoices, emails and server responses.
+- [Render templates from Node](https://webfluent.monzeromer.dev/recipes/render-from-node.md): Render WebFluent templates from Node.js with the webfluent package: an Express server that answers with an invoice as HTML or as a PDF.
+- [Render templates from Rust](https://webfluent.monzeromer.dev/recipes/render-from-rust.md): Render WebFluent templates from a Rust program or server with the webfluent crate: load them once, then render HTML, fragments, PDFs and slides.
+- [Render Markdown](https://webfluent.monzeromer.dev/recipes/render-markdown.md): Show Markdown text on a page with `Markdown(text)`: headings, lists, tables, code and links, drawn the same at build time and in the browser.
+- [Make navigation responsive](https://webfluent.monzeromer.dev/recipes/responsive-navigation.md): Show navigation links on a wide screen and a menu button on a narrow one, by branching on viewport.
+- [Animate route changes](https://webfluent.monzeromer.dev/recipes/route-transitions.md): Animate every change of page: give the Router a transition: of .fade or .slide and a duration:, played through the View Transitions API.
+- [Run a script in a worker](https://webfluent.monzeromer.dev/recipes/run-a-worker.md): Keep slow work — a language service, a parser — off the page's thread with a `worker`: ask it and wait, tell it, and hear what it posts.
+- [Describe pages to search engines and link previews](https://webfluent.monzeromer.dev/recipes/search-and-link-previews.md): Give every page the title, description, canonical link, Open Graph tags and JSON-LD that search engines and link previews read.
+- [Send a message as the page unloads](https://webfluent.monzeromer.dev/recipes/send-on-unload.md): Record that something happened even as the reader leaves — an analytics event, a "reader left" signal — with `beacon(url, data)`.
+- [Serve a site with Apache](https://webfluent.monzeromer.dev/recipes/serve-with-apache.md): Serve a WebFluent build with Apache: an .htaccess file with the 404 page, a single-page fallback, security headers and compressed files.
+- [Serve a site with Caddy](https://webfluent.monzeromer.dev/recipes/serve-with-caddy.md): Serve a WebFluent build with Caddy: a Caddyfile site block that sends the build's gzip files and falls back to index.html for a single-page build.
+- [Serve a site with nginx](https://webfluent.monzeromer.dev/recipes/serve-with-nginx.md): Serve a WebFluent build with nginx: a server block with the build's gzip files, a 404 page, a single-page fallback, cache and security headers.
+- [Listen to server-sent events](https://webfluent.monzeromer.dev/recipes/server-sent-events.md): Receive a one-way flow of events from a server — prices, progress, a log — with a `stream` opened by `sse(…)`, and show the latest of each kind.
+- [Carry an element across a route change](https://webfluent.monzeromer.dev/recipes/shared-element.md): Carry one element from one page to the next, such as a cover picture that grows into the article's header, by giving it one shared: name on both.
+- [Show a carousel](https://webfluent.monzeromer.dev/recipes/show-a-carousel.md): Show slides one at a time with Carousel and Carousel.Slide: previous and next buttons, a dot per slide, and autoplay that pauses.
+- [Show another page in a frame](https://webfluent.monzeromer.dev/recipes/show-a-page-in-a-frame.md): Show another page inside yours with Frame (a video player, a map, a preview), hear what it posts back, and draw HTML you give it, sandboxed.
+- [Show an icon](https://webfluent.monzeromer.dev/recipes/show-an-icon.md): Draw one of the 83 built-in icons inline with Icon("name"), size and colour it with flags, and use one on a button or a sidebar item.
+- [Show code on a page](https://webfluent.monzeromer.dev/recipes/show-code.md): Show code on a page with `Code`: inline in a sentence, or as a block coloured by language — wf, json, bash or css — at build time and in the browser.
+- [Show what the network is doing](https://webfluent.monzeromer.dev/recipes/show-the-network.md): Change what a page does on a slow connection or none at all by reading `network`: online, connection speed, data saver and queued writes.
+- [Sign in with a session cookie](https://webfluent.monzeromer.dev/recipes/sign-in-with-a-session-cookie.md): Sign a reader in with an httpOnly session cookie: an api with credentials: .sameOrigin, a Session store, and a guarded account page.
+- [Publish a page in each language](https://webfluent.monzeromer.dev/recipes/site-in-two-languages.md): Have search engines find each language: write each page once per language at its own address, with lang: and translates: joining them.
+- [Pass a store's value to a component](https://webfluent.monzeromer.dev/recipes/store-value-as-a-prop.md): Pass one value from a store to a component as a prop, so the component stays reusable outside that store.
+- [Talk to the site's other tabs](https://webfluent.monzeromer.dev/recipes/talk-between-tabs.md): Keep a site's open tabs in step — a cart, a sign-in, a setting — with a `channel` opened by `broadcast(name)`, which every other tab hears.
+- [Make a desktop or phone app with Tauri](https://webfluent.monzeromer.dev/recipes/tauri-app.md): Make a WebFluent project a Tauri app for the desktop or a phone: set it up, run it while you work, call Rust from a page, hear its events, package it.
+- [Translate a site](https://webfluent.monzeromer.dev/recipes/translate-a-site.md): Translate a site into several languages: one JSON file per locale, t("key") wherever text goes, a language switch, plural forms and right to left.
+- [Translate by the words as written](https://webfluent.monzeromer.dev/recipes/translate-by-the-words.md): Translate a project written in one language without inventing keys: with literals on, each string is looked up by its own words.
+- [Tween a property when state changes](https://webfluent.monzeromer.dev/recipes/tween-on-change.md): Animate a style property that changes with state, such as a panel's height, with a transition { } block that names the property and its timing.
+- [Show validation messages on a form](https://webfluent.monzeromer.dev/recipes/validation-messages.md): Check a form as the reader fills it in: a validate block beside each state, and each control shows its own message.
+- [Add video and audio](https://webfluent.monzeromer.dev/recipes/video-and-audio.md): Play a video with Video(src:) and sound with Audio(src:), with the browser's controls, captions for the video and a transcript for the recording.
+- [Make a site work offline](https://webfluent.monzeromer.dev/recipes/work-offline.md): Make a site load with no network: add offline to the config, and the build writes a service worker that stores pages and shows a fallback.
+
+## Coming from
+
+- [WebFluent for HTML and CSS authors](https://webfluent.monzeromer.dev/coming-from/html-css.md): Plain HTML and CSS in WebFluent: elements, links, images, forms, classes, flexbox and grid, stylesheets, media queries and scripts, side by side.
+- [WebFluent for LaTeX and Typst authors](https://webfluent.monzeromer.dev/coming-from/latex.md): LaTeX and Typst ideas in WebFluent: page setup, headings, contents, page breaks, headers and footers, tables, figures, macros and slides.
+- [WebFluent for React developers](https://webfluent.monzeromer.dev/coming-from/react.md): React ideas in WebFluent: state, derived values, effects, props, children, events, context, routing, lists and fetching, side by side.
+- [WebFluent for Svelte developers](https://webfluent.monzeromer.dev/coming-from/svelte.md): Svelte ideas in WebFluent: $state, $derived, $effect, props, snippets, events, bind:, stores, routes, #if and #each, side by side.
+- [WebFluent for Vue developers](https://webfluent.monzeromer.dev/coming-from/vue.md): Vue ideas in WebFluent: refs, computed, watchers, props, slots, emits, v-model, Pinia, routing, v-if and v-for, side by side.
+
+## Reference
+
+- [Components reference](https://webfluent.monzeromer.dev/reference.md): The components reference: every built-in element, its props, flags, events, slots, parts, attribute families and an example.
+- [Alert](https://webfluent.monzeromer.dev/reference/alert.md): Inline notice; a danger or warning one is announced as an alert.
+- [Audio](https://webfluent.monzeromer.dev/reference/audio.md): Audio player. transcript links what was said, which is what a reader who cannot hear it needs.
+- [Avatar](https://webfluent.monzeromer.dev/reference/avatar.md): A picture of a person, or their initials.
+- [Background](https://webfluent.monzeromer.dev/reference/background.md): Drawn behind each PDF page's content, the size of the page: a cover, a band, a full-bleed picture.
+- [Badge](https://webfluent.monzeromer.dev/reference/badge.md): Small status label.
+- [Blockquote](https://webfluent.monzeromer.dev/reference/blockquote.md): Quotation: the text, or its block as the quoted content.
+- [Breadcrumb](https://webfluent.monzeromer.dev/reference/breadcrumb.md): Breadcrumb trail. An item without to is the current page.
+- [Breadcrumb.Item](https://webfluent.monzeromer.dev/reference/breadcrumb-item.md): One step of the trail.
+- [Browser support](https://webfluent.monzeromer.dev/reference/browser-support.md): The browsers a WebFluent site targets, and the fallback for each newer platform feature it uses where a browser lacks it.
+- [Built-ins](https://webfluent.monzeromer.dev/reference/built-ins.md): Built-in functions, browser values like viewport, query, now and network, string, list and number methods, the built-in types, and browser globals.
+- [Button](https://webfluent.monzeromer.dev/reference/button.md): Button. Its block holds what it shows; on click what it does.
+- [ButtonGroup](https://webfluent.monzeromer.dev/reference/buttongroup.md): Buttons joined into one row.
+- [Card](https://webfluent.monzeromer.dev/reference/card.md): Card surface with optional header, body and footer sections.
+- [Card.Body](https://webfluent.monzeromer.dev/reference/card-body.md): The card's content area.
+- [Card.Footer](https://webfluent.monzeromer.dev/reference/card-footer.md): The card's action area.
+- [Card.Header](https://webfluent.monzeromer.dev/reference/card-header.md): The card's heading area.
+- [Carousel](https://webfluent.monzeromer.dev/reference/carousel.md): Slide track with named controls and dots; optional autoplay.
+- [Carousel.Slide](https://webfluent.monzeromer.dev/reference/carousel-slide.md): One slide.
+- [Chart](https://webfluent.monzeromer.dev/reference/chart.md): A chart drawn as vector graphics when the page is built: bars, lines, areas, a pie or a donut over a list of records.
+- [Checkbox](https://webfluent.monzeromer.dev/reference/checkbox.md): Checkbox bound to a boolean state.
+- [Command line and editors](https://webfluent.monzeromer.dev/reference/cli.md): The wf command line — every command and flag, from init, build and serve to render, migrate and verify — and how to set up the language server in your editor.
+- [wf assets](https://webfluent.monzeromer.dev/reference/cli/assets.md): What `public/` holds — each file's kind, size and dimensions, and where the project names it — or what the media pipeline will make of one image
+- [wf audit](https://webfluent.monzeromer.dev/reference/cli/audit.md): What this project trusts: markup it did not write, other origins, what it keeps on the reader's machine, its `env` names, its policy and its dependencies
+- [wf build](https://webfluent.monzeromer.dev/reference/cli/build.md): Build the project (compile .wf files to HTML + CSS + JS)
+- [wf check](https://webfluent.monzeromer.dev/reference/cli/check.md): Check the project — every finding a build would report — and write nothing
+- [wf commands](https://webfluent.monzeromer.dev/reference/cli/commands.md): Every `wf` command, its options and what it writes, as data
+- [wf components](https://webfluent.monzeromer.dev/reference/cli/components.md): Every component a call can name — the built-ins and the project's — with what each takes: its props and their kinds, events, slots, parts and children
+- [wf config](https://webfluent.monzeromer.dev/reference/cli/config.md): Read and change `webfluent.app.json`: every setting, what the project sets, and an edit that keeps the file's shape
+- [wf context](https://webfluent.monzeromer.dev/reference/cli/context.md): What an agent is given: the files, the open file, the problems, the components, the theme, the config with only its public env, the guide, and what was withheld
+- [wf docs](https://webfluent.monzeromer.dev/reference/cli/docs.md): Write a component gallery: every built-in, and what the project declares
+- [wf explain](https://webfluent.monzeromer.dev/reference/cli/explain.md): What a diagnostic code means, a program that draws it, and the fix; with no code, every code
+- [wf fix](https://webfluent.monzeromer.dev/reference/cli/fix.md): Fix every finding that has a fix — or every one of a code — as `wf check` and the editor offer it, and say what is left
+- [wf fmt](https://webfluent.monzeromer.dev/reference/cli/fmt.md): Format a project's source files; with `--to`, rewrite them in the other layout: `.wfx` (blocks by indentation) or `.wf` (blocks in braces)
+- [wf generate](https://webfluent.monzeromer.dev/reference/cli/generate.md): Generate a new page, component, or store
+- [wf init](https://webfluent.monzeromer.dev/reference/cli/init.md): Create a new WebFluent project
+- [wf migrate](https://webfluent.monzeromer.dev/reference/cli/migrate.md): Carry a project forward: WebFluent 2 sources to the current grammar, then a 3 project to what 4 allows
+- [wf motion](https://webfluent.monzeromer.dev/reference/cli/motion.md): The animations an element can play, the eases and speeds, the route transitions and the project's default
+- [wf registry](https://webfluent.monzeromer.dev/reference/cli/registry.md): Describe every built-in component: props, cases, flags, events, slots, parts
+- [wf render](https://webfluent.monzeromer.dev/reference/cli/render.md): Render a .wf template with JSON data
+- [wf rules](https://webfluent.monzeromer.dev/reference/cli/rules.md): The rules a `validate` block may hold, the named patterns, when a form shows its messages, and every state the project holds to a rule
+- [wf scope](https://webfluent.monzeromer.dev/reference/cli/scope.md): What a path picker lists at a place: the names in scope there, each with its type and where it comes from, and the fields to go on into
+- [wf serve](https://webfluent.monzeromer.dev/reference/cli/serve.md): Start the development server
+- [wf test](https://webfluent.monzeromer.dev/reference/cli/test.md): Run the project's `test "…" { … }` declarations under tests/
+- [wf theme](https://webfluent.monzeromer.dev/reference/cli/theme.md): The theme the build uses: every token, declared or inherited, where each is used, and its contrast pairs
+- [wf translations](https://webfluent.monzeromer.dev/reference/cli/translations.md): The translations as a table: each locale's plural forms and what it lacks, each key's messages, and where a `t()` names it
+- [wf types](https://webfluent.monzeromer.dev/reference/cli/types.md): Describe what a project declares: enums, types, components, stores, pages
+- [wf verify](https://webfluent.monzeromer.dev/reference/cli/verify.md): Load every page of a built project in a real browser: errors, failed requests, paint timing, and which built-ins it drew
+- [Code](https://webfluent.monzeromer.dev/reference/code.md): Inline code, or a code block with block; language: colours it.
+- [Column](https://webfluent.monzeromer.dev/reference/column.md): A child of the 12-column grid, spanning span columns.
+- [Configuration](https://webfluent.monzeromer.dev/reference/config.md): Every key of webfluent.app.json, its type and default: project, build, media, PDF, slides, dev, motion, meta, theme, i18n, env, offline and lints.
+- [Container](https://webfluent.monzeromer.dev/reference/container.md): Centred wrapper with a maximum width and horizontal padding.
+- [DatePicker](https://webfluent.monzeromer.dev/reference/datepicker.md): Date input.
+- [Dialog](https://webfluent.monzeromer.dev/reference/dialog.md): Confirmation <dialog>, opened by a state flag. on close runs when it closes, however it was closed.
+- [Dialog.Title](https://webfluent.monzeromer.dev/reference/dialog-title.md): What the dialog's heading draws, in place of its title:'s words, which stay its name.
+- [Divider](https://webfluent.monzeromer.dev/reference/divider.md): Horizontal rule.
+- [Document](https://webfluent.monzeromer.dev/reference/document.md): Root of a PDF document: the paper, the margins and what the file says about itself.
+- [Dropdown](https://webfluent.monzeromer.dev/reference/dropdown.md): Button that opens a menu of Dropdown.Items.
+- [Dropdown.Divider](https://webfluent.monzeromer.dev/reference/dropdown-divider.md): A rule between groups of entries.
+- [Dropdown.Item](https://webfluent.monzeromer.dev/reference/dropdown-item.md): One entry of the menu.
+- [Editors](https://webfluent.monzeromer.dev/reference/editors.md): Editor support for WebFluent: what wf-lsp answers, what the VS Code and Zed extensions and the Tree-sitter grammars support, and how to install each.
+- [Element](https://webfluent.monzeromer.dev/reference/element.md): A custom element a script defines, placed by its tag: Element("stripe-pricing-table", publishable-key: key) { on ready { … } }. Every named argument is an attribute, every on handler an event it fires, and the block its children.
+- [Expressions](https://webfluent.monzeromer.dev/reference/expressions.md): Literals, interpolation and formatted splices, operators and precedence, if and match as values, lambdas, methods, format and ago, regexes, tokens, await.
+- [FileUpload](https://webfluent.monzeromer.dev/reference/fileupload.md): File input; handle the chosen files in on change.
+- [Footer](https://webfluent.monzeromer.dev/reference/footer.md): Repeated at the bottom of every PDF page (or those on: names), where page and pages are the page's number and the count; a <footer> on the web.
+- [Form](https://webfluent.monzeromer.dev/reference/form.md): Groups controls; on submit runs when it is submitted, and the page never navigates away.
+- [Frame](https://webfluent.monzeromer.dev/reference/frame.md): Another page, shown inside this one: an iframe — the page at src:, or the HTML srcdoc: gives it, sandboxed as sandbox: says. on message(m) hears what that page posts to this one (m.data), and nothing any other page posts. Without title: it draws an A17 warning: a frame is announced by its title.
+- [Glossary](https://webfluent.monzeromer.dev/reference/glossary.md): The terms this guide uses — state, signal, pre-rendered page, hydration, flag, part, slot, registry, scope and more — each in a sentence, with a link.
+- [Grammar](https://webfluent.monzeromer.dev/reference/grammar.md): The WebFluent grammar on one page: keywords, declarations, render and imperative blocks, components, tests, styles, operators, precedence and literals.
+- [Grid](https://webfluent.monzeromer.dev/reference/grid.md): CSS grid with a fixed number of columns.
+- [Header](https://webfluent.monzeromer.dev/reference/header.md): Repeated at the top of every PDF page (or those on: names), where page and pages are the page's number and the count; a <header> on the web.
+- [Heading](https://webfluent.monzeromer.dev/reference/heading.md): Heading; level picks the tag (h2 when none is given).
+- [Host](https://webfluent.monzeromer.dev/reference/host.md): A bare node handed to somebody else's code, with a lifetime. mount: runs with the node each time it is made, update: again whenever the state it reads changes, and cleanup: when the page, branch or list item it belongs to leaves. Every other element takes the same three.
+- [Icon](https://webfluent.monzeromer.dev/reference/icon.md): One of the built-in SVG icons, rendered inline.
+- [IconButton](https://webfluent.monzeromer.dev/reference/iconbutton.md): Icon-only button. label is its accessible name, never visible text.
+- [Image](https://webfluent.monzeromer.dev/reference/image.md): Image; alt is required for accessibility (rule A01). Given an image the program declares, it becomes a <picture> with every width the build wrote.
+- [ImageSlide](https://webfluent.monzeromer.dev/reference/imageslide.md): Image slide with an optional caption.
+- [Input](https://webfluent.monzeromer.dev/reference/input.md): Text field. With label, hint or error it is a labelled field.
+- [Library](https://webfluent.monzeromer.dev/reference/library.md): The compiler as a library: the webfluent crate (Template, build, memory, vfs, diagnostics, config, errors, semver), the Node package and wf.js.
+- [Link](https://webfluent.monzeromer.dev/reference/link.md): Client-side navigation link; its label or its block is the link text.
+- [List](https://webfluent.monzeromer.dev/reference/list.md): List of its children; ordered for a numbered list.
+- [List.Item](https://webfluent.monzeromer.dev/reference/list-item.md): One entry (<li>).
+- [Markdown](https://webfluent.monzeromer.dev/reference/markdown.md): Markdown text rendered as HTML: headings, paragraphs, lists, quotes, code, links, emphasis. The text is escaped first, so HTML in it is shown, not run, and a link or picture whose URL a browser would run is drawn as its words. .inert is for text somebody else wrote.
+- [Menu](https://webfluent.monzeromer.dev/reference/menu.md): A menu above everything: opened by its trigger: button, or by visible: at an anchor: or a point at: — a context menu. Escape, a press outside or a choice close it, write false back to visible: and fire on close.
+- [Menu.Divider](https://webfluent.monzeromer.dev/reference/menu-divider.md): A rule between groups of entries.
+- [Menu.Item](https://webfluent.monzeromer.dev/reference/menu-item.md): One entry of the menu; on click is what choosing it does.
+- [Menu.Sub](https://webfluent.monzeromer.dev/reference/menu-sub.md): An entry that opens a menu of its own beside it.
+- [Modal](https://webfluent.monzeromer.dev/reference/modal.md): Modal <dialog>, opened by a state flag; the browser supplies focus trapping and Escape. on close runs when it closes, however it was closed.
+- [Modal.Footer](https://webfluent.monzeromer.dev/reference/modal-footer.md): The modal's action row.
+- [Modal.Title](https://webfluent.monzeromer.dev/reference/modal-title.md): What the modal's heading draws, in place of its title:'s words, which stay its name: Modal.Title { Text { "Rename "  Code(name) } }.
+- [Navbar](https://webfluent.monzeromer.dev/reference/navbar.md): Top navigation bar with brand, links and action areas.
+- [Navbar.Actions](https://webfluent.monzeromer.dev/reference/navbar-actions.md): Buttons at the end of the bar.
+- [Navbar.Brand](https://webfluent.monzeromer.dev/reference/navbar-brand.md): The brand area, usually a link home.
+- [Navbar.Links](https://webfluent.monzeromer.dev/reference/navbar-links.md): The navigation links; collapses behind a toggle on small screens.
+- [Option](https://webfluent.monzeromer.dev/reference/option.md): One choice in a Select (the original spelling of Select.Option).
+- [PageBreak](https://webfluent.monzeromer.dev/reference/pagebreak.md): Forces a new PDF page.
+- [Paragraph](https://webfluent.monzeromer.dev/reference/paragraph.md): Block of text with paragraph spacing.
+- [Popover](https://webfluent.monzeromer.dev/reference/popover.md): A layer at a control: drawn above everything, placed against its anchor:, closed by Escape or a press outside, which write false back to visible: and fire on close.
+- [Portal](https://webfluent.monzeromer.dev/reference/portal.md): Its block, drawn into a node somebody else's code owns: an element a script hands over, or a ref: handle. When into: names another node the block moves there with its nodes and state; null keeps it aside until a node comes back; it goes when the page, branch or list item it is written in leaves. What is inside belongs to where it is written: its handlers, emit and lifetimes.
+- [Presentation](https://webfluent.monzeromer.dev/reference/presentation.md): Root of a slide deck; its children must be slides.
+- [Progress](https://webfluent.monzeromer.dev/reference/progress.md): Progress bar; a value that reads state moves with it.
+- [Project structure](https://webfluent.monzeromer.dev/reference/project.md): Where files go, how they merge into one program, naming in a global namespace, wf generate, what to commit, and how to grow a project.
+- [QrCode](https://webfluent.monzeromer.dev/reference/qrcode.md): A QR code for a URL or any text, drawn as vector graphics when the page is built.
+- [Radio](https://webfluent.monzeromer.dev/reference/radio.md): One choice of a group; every radio bound to the same state is one group.
+- [Route](https://webfluent.monzeromer.dev/reference/route.md): Maps a path to a page (the original grammar; pages now declare their paths).
+- [Router](https://webfluent.monzeromer.dev/reference/router.md): Where the current page renders. May sit at any depth inside app; pages declare their own paths.
+- [Row](https://webfluent.monzeromer.dev/reference/row.md): Horizontal flex layout. It stays a row at every width unless .stacks or a responsive direction says otherwise.
+- [Runtime API](https://webfluent.monzeromer.dev/reference/runtime.md): The runtime reference, window.WF: signals, elements, motion, routing, data, stores and their inspection, widgets, safety, text and boot, module by module.
+- [Section](https://webfluent.monzeromer.dev/reference/section.md): Groups content with spacing; on the web, a <section>.
+- [SectionSlide](https://webfluent.monzeromer.dev/reference/sectionslide.md): Full-bleed coloured band with a centred label.
+- [Select](https://webfluent.monzeromer.dev/reference/select.md): Drop-down of Select.Option children.
+- [Select.Option](https://webfluent.monzeromer.dev/reference/select-option.md): One choice: the visible label, and the value sent with the form.
+- [Sidebar](https://webfluent.monzeromer.dev/reference/sidebar.md): Side navigation. A Sidebar.Item whose to matches the current route is marked .active and aria-current="page".
+- [Sidebar.Divider](https://webfluent.monzeromer.dev/reference/sidebar-divider.md): A rule between groups of items.
+- [Sidebar.Header](https://webfluent.monzeromer.dev/reference/sidebar-header.md): The sidebar's heading area.
+- [Sidebar.Item](https://webfluent.monzeromer.dev/reference/sidebar-item.md): One navigation entry.
+- [Skeleton](https://webfluent.monzeromer.dev/reference/skeleton.md): Placeholder shape shown while content loads.
+- [Slide](https://webfluent.monzeromer.dev/reference/slide.md): One slide, one PDF page; content is top-aligned and clipped at the bottom margin.
+- [Slider](https://webfluent.monzeromer.dev/reference/slider.md): Range input. aria-* and its other attributes reach the input; with aria-valuetext the raw number is not shown beside the track.
+- [Spacer](https://webfluent.monzeromer.dev/reference/spacer.md): Vertical space; md when no size is given.
+- [Spinner](https://webfluent.monzeromer.dev/reference/spinner.md): Loading indicator, announced as a status.
+- [Splitter](https://webfluent.monzeromer.dev/reference/splitter.md): A handle that sets the size of a region beside it: dragged, between min: and max:; double-clicked or Enter, back to reset:; the arrow keys move it.
+- [Stack](https://webfluent.monzeromer.dev/reference/stack.md): Vertical flex layout.
+- [Switch](https://webfluent.monzeromer.dev/reference/switch.md): On/off toggle bound to a boolean state.
+- [Table](https://webfluent.monzeromer.dev/reference/table.md): Data table. Cells inside Table.Head render as <th scope="col">; caption is the table's accessible name, visually hidden.
+- [Table.Body](https://webfluent.monzeromer.dev/reference/table-body.md): Body section.
+- [Table.Cell](https://webfluent.monzeromer.dev/reference/table-cell.md): A cell. header makes it a <th> anywhere, as Table.Head does for its cells.
+- [Table.Head](https://webfluent.monzeromer.dev/reference/table-head.md): Header section; its cells become <th scope="col">.
+- [Table.Row](https://webfluent.monzeromer.dev/reference/table-row.md): A row.
+- [TableOfContents](https://webfluent.monzeromer.dev/reference/tableofcontents.md): The document's headings with the page each lands on, each a link to it.
+- [TabPage](https://webfluent.monzeromer.dev/reference/tabpage.md): One tab inside Tabs (the original spelling of Tabs.Page).
+- [Tabs](https://webfluent.monzeromer.dev/reference/tabs.md): Tab strip switching between its pages.
+- [Tabs.Page](https://webfluent.monzeromer.dev/reference/tabs-page.md): One tab and its panel.
+- [Tag](https://webfluent.monzeromer.dev/reference/tag.md): Compact chip.
+- [Tbody](https://webfluent.monzeromer.dev/reference/tbody.md): Table body section (the original spelling of Table.Body).
+- [Tcell](https://webfluent.monzeromer.dev/reference/tcell.md): Table cell (the original spelling of Table.Cell).
+- [Text](https://webfluent.monzeromer.dev/reference/text.md): A paragraph of text. {…} in the string reads state and stays live.
+- [Textarea](https://webfluent.monzeromer.dev/reference/textarea.md): Several lines of text. With label, hint or error it is a labelled field; with maxLength it counts what is left.
+- [Thead](https://webfluent.monzeromer.dev/reference/thead.md): Table header section (the original spelling of Table.Head).
+- [TitleSlide](https://webfluent.monzeromer.dev/reference/titleslide.md): Cover slide: title and subtitle, vertically centred.
+- [Toast](https://webfluent.monzeromer.dev/reference/toast.md): Temporary notification.
+- [Design tokens](https://webfluent.monzeromer.dev/reference/tokens.md): Every baseline design token with its default value, how a theme overrides one, and how a style block or a stylesheet reads it, by full or short name.
+- [Tooltip](https://webfluent.monzeromer.dev/reference/tooltip.md): Shows text above everything when its child is hovered (after delay:) or focused from the keyboard.
+- [Trow](https://webfluent.monzeromer.dev/reference/trow.md): Table row (the original spelling of Table.Row).
+- [TwoColumn](https://webfluent.monzeromer.dev/reference/twocolumn.md): Two equal columns; takes exactly two Container children.
+- [Unsafe](https://webfluent.monzeromer.dev/reference/unsafe.md): The one door for markup a page did not write. It has a single part, Unsafe.Html.
+- [Unsafe.Html](https://webfluent.monzeromer.dev/reference/unsafe-html.md): Markup, put in as markup. It is **not** sanitised — the name says so — and sanitize(…) is one call away for anything the project did not write itself.
+- [Video](https://webfluent.monzeromer.dev/reference/video.md): Video player. Without captions it draws an A09 warning: a video nobody can hear is a video nobody can follow.
+- [VirtualList](https://webfluent.monzeromer.dev/reference/virtuallist.md): A scrolling box that draws only the rows in view of the one keyed for inside it — for a tree, search results or a diff of thousands of rows.
+- [Watermark](https://webfluent.monzeromer.dev/reference/watermark.md): Large, faint, rotated text behind each PDF page's content.
+
+## Errors
+
+- [Diagnostics](https://webfluent.monzeromer.dev/errors.md): Every WebFluent error and warning, by code — what it means, a program that draws it, the message the compiler prints, and the fix.
+- [A01 — An image with no alt text](https://webfluent.monzeromer.dev/errors/A01.md): An `Image` with no `alt`. A screen reader reads the file name; a decorative image takes `alt: ""`.
+- [A02 — An icon button with no name](https://webfluent.monzeromer.dev/errors/A02.md): An `IconButton` with no `label:`, which is its accessible name.
+- [A03 — An input with no label](https://webfluent.monzeromer.dev/errors/A03.md): An `Input` with neither `label:` nor `placeholder:`.
+- [A04 — A control with no label](https://webfluent.monzeromer.dev/errors/A04.md): A `Checkbox`, `Radio`, `Switch`, `Slider` or `Textarea` with no `label:`.
+- [A05 — A button with no text](https://webfluent.monzeromer.dev/errors/A05.md): A `Button` with no text: no label, no `aria-label:`, and no `Text` in its block.
+- [A06 — A link with no text](https://webfluent.monzeromer.dev/errors/A06.md): A `Link` with no text.
+- [A07 — An empty heading](https://webfluent.monzeromer.dev/errors/A07.md): A `Heading` with no text.
+- [A08 — A dialog with no title](https://webfluent.monzeromer.dev/errors/A08.md): A `Modal` or `Dialog` with no `title:`, which is its accessible name.
+- [A09 — Media nobody can follow without sound](https://webfluent.monzeromer.dev/errors/A09.md): A `Video` with no `controls`, or a `Video` or `Audio` with no `captions:` or `transcript:`.
+- [A10 — A table with no header row](https://webfluent.monzeromer.dev/errors/A10.md): A `Table` with no `Table.Head`.
+- [A11 — A skipped heading level](https://webfluent.monzeromer.dev/errors/A11.md): A heading level skipped — `h2` straight to `h4`.
+- [A12 — A page without exactly one h1](https://webfluent.monzeromer.dev/errors/A12.md): A page with no `h1`, or more than one.
+- [A13 — Colours without enough contrast](https://webfluent.monzeromer.dev/errors/A13.md): A theme's colour pairing falls below the WCAG AA contrast ratio.
+- [A14 — A role whose children are the wrong kind](https://webfluent.monzeromer.dev/errors/A14.md): A `role:` that requires particular children holds a control that is not one.
+- [A15 — An `aria-label` that does not contain the visible text](https://webfluent.monzeromer.dev/errors/A15.md): A control's `aria-label` does not contain the text it shows, so what a voice-control user says does not match what they see.
+- [A16 — One id on several elements](https://webfluent.monzeromer.dev/errors/A16.md): A literal `id:` inside a `for`, or in a component placed more than once, gives several elements one id; a label's `for` and `aria-*` find only the first.
+- [A17 — A frame with no title](https://webfluent.monzeromer.dev/errors/A17.md): A `Frame` with no `title:`, which is its accessible name: a screen reader announces a frame by its title, and a frame without one as only a frame.
+- [C01 — A required prop or field left out](https://webfluent.monzeromer.dev/errors/C01.md): A component's prop, or a record's field, that has no default is not given. The value would be `undefined` where the declaration promises one.
+- [C02 — A prop the component does not declare](https://webfluent.monzeromer.dev/errors/C02.md): Your own component is called with a prop it does not declare. Nothing in it reads the value, so the call does not do what it says; often a misspelling.
+- [C03 — A part outside the component it belongs to](https://webfluent.monzeromer.dev/errors/C03.md): `Select.Option`, `Table.Row`, `Card.Header` — a part is placed inside its owner. Outside it, it draws a stray element with nothing around it.
+- [C04 — An attribute a built-in does not declare](https://webfluent.monzeromer.dev/errors/C04.md): A named argument a built-in has no prop for is written to its element as an HTML attribute. `aria-*`, `data-*` and the global attributes are…
+- [C05 — A positional argument a built-in does not take](https://webfluent.monzeromer.dev/errors/C05.md): The built-in takes its arguments by name; one written without a name is not given to anything.
+- [C06 — A positional argument bound by order](https://webfluent.monzeromer.dev/errors/C06.md): Your component declares no positional prop (`_ name`), so the argument is bound to its first prop. Mark that prop with `_` to say so.
+- [C07 — A drag or a gesture on a component with no one element](https://webfluent.monzeromer.dev/errors/C07.md): `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `on receive(d)`, `on dragmove(d)`, `on longpress` and `on swipe` written on your…
+- [D01 — A file the project does not have](https://webfluent.monzeromer.dev/errors/D01.md): A site-relative `src:`, `poster:`, `captions:` or `transcript:` names a file that is not in `public/`; the page asks for it and gets nothing.
+- [D02 — A persisted value storage cannot keep](https://webfluent.monzeromer.dev/errors/D02.md): `persist` writes its value to the browser's storage as JSON; a function, a file or a promise does not survive it.
+- [D03 — A persisted value every instance shares](https://webfluent.monzeromer.dev/errors/D03.md): A `persist` in a component placed more than once, or in a loop, is one stored value for all of them. `key:` gives each its own.
+- [D04 — A persisted shape changed with no new version](https://webfluent.monzeromer.dev/errors/D04.md): What a returning reader's browser holds is the old shape; the page reads it as the new one. Raising `version:`, with a `migrate` step, brings it forward.
+- [D05 — An asset from another origin with no integrity hash](https://webfluent.monzeromer.dev/errors/D05.md): A stylesheet, font or script loaded from another origin is code that origin can change after you read it. A `meta.integrity` hash is how the browser…
+- [E001 — Text the compiler cannot read](https://webfluent.monzeromer.dev/errors/E001.md): A character that begins nothing the language has, or a string, comment or splice that never closes. The file is not read past it.
+- [E002 — A syntax error](https://webfluent.monzeromer.dev/errors/E002.md): The text reads, but not as the language: a missing brace, a stray word, an argument list that does not close. The message names what was expected and…
+- [E003 — Indentation that lines up with no block](https://webfluent.monzeromer.dev/errors/E003.md): In a `.wfx` file a line opens a block by being followed by a deeper one, and closes blocks by coming back out. A line that comes back to an…
+- [E004 — A file in the WebFluent 2 grammar](https://webfluent.monzeromer.dev/errors/E004.md): WebFluent 3 reads one grammar. `wf migrate` rewrites a WebFluent 2 project in place.
+- [E005 — A file the formatter will not change](https://webfluent.monzeromer.dev/errors/E005.md): `wf fmt` holds its result to the file's tokens; when formatting would change what a file says, it leaves the file alone and says so.
+- [E101 — A component nothing declares](https://webfluent.monzeromer.dev/errors/E101.md): An element, a `layout:` or a part names a component that no `component` declares and no built-in has. Often a misspelling.
+- [E102 — A name declared twice](https://webfluent.monzeromer.dev/errors/E102.md): Two declarations with one name in one scope: two stores, two constants, a state and a derived of one name. It compiled to a script the browser…
+- [E103 — A flag, case, part, event or slot the component does not have](https://webfluent.monzeromer.dev/errors/E103.md): What a component takes comes from one registry for the built-ins and from the declaration for your own; a word that resolves to nothing there does…
+- [E104 — A layout with nowhere to put the page](https://webfluent.monzeromer.dev/errors/E104.md): A page's `layout:` is a component the page is placed in, at its default slot. A component that declares no `slot` has nowhere to put it.
+- [E105 — A statement a render block cannot hold](https://webfluent.monzeromer.dev/errors/E105.md): A page's or component's body draws; an assignment or a call that does something belongs in a handler, an `action` or an `effect`.
+- [E106 — Script or a whole style in an attribute](https://webfluent.monzeromer.dev/errors/E106.md): `onclick:` and the other `on*` attributes are script in a string, which the content security policy refuses and nothing checks. A handler is `on…
+- [E107 — A URL a browser would run](https://webfluent.monzeromer.dev/errors/E107.md): `javascript:`, `data:`, `vbscript:`, `blob:` and `file:` URLs run or load something the page did not write. A link takes `http`, `https`, `mailto`,…
+- [E108 — An `env` name that is not public](https://webfluent.monzeromer.dev/errors/E108.md): Whatever a page reads from `env` is in the bundle, where anyone can read it. A name a page reads must begin `PUBLIC_` or be listed in `public_env`.
+- [E109 — An element this output cannot draw](https://webfluent.monzeromer.dev/errors/E109.md): A PDF or a slide deck has no buttons, inputs, handlers or routes; an interactive element in one would be drawn as nothing.
+- [E110 — A project script that cannot be a plain script](https://webfluent.monzeromer.dev/errors/E110.md): A `.js` file under `src/` is linked as a plain browser script: one with `import` or `export`, one a file in `public/` would replace, or one whose…
+- [E111 — A setting that cannot work](https://webfluent.monzeromer.dev/errors/E111.md): A value in `webfluent.app.json` that names something that does not exist or asks for something the build cannot do.
+- [E112 — A setting nothing reads](https://webfluent.monzeromer.dev/errors/E112.md): A key in `webfluent.app.json` that is not a setting. Usually a misspelling, so the setting it meant keeps its default.
+- [E113 — An argument that cannot be positional](https://webfluent.monzeromer.dev/errors/E113.md): Only the first argument of a call may be written without its name, and only when the component declares a positional prop (`_ name`). Name the others.
+- [E114 — `emit` outside a component](https://webfluent.monzeromer.dev/errors/E114.md): An event belongs to a component, which declares it and fires it with `emit`; a page has none.
+- [E115 — A project script the compiler could not read](https://webfluent.monzeromer.dev/errors/E115.md): The file is still linked and may run fine in a browser, but the compiler could not read what it declares, so its names are not in scope for the program.
+- [E116 — A tag that cannot be a custom element's](https://webfluent.monzeromer.dev/errors/E116.md): `Element` names a custom element by its tag, first and as a string: lower case, with a hyphen (`"stripe-pricing-table"`).
+- [E117 — A key combination no keyboard sends](https://webfluent.monzeromer.dev/errors/E117.md): `on key(…)` names modifiers (`ctrl`, `shift`, `alt`, `meta`) and one key; a modifier it does not know, no key, or a key no keyboard has would never match.
+- [E118 — A name the language already has](https://webfluent.monzeromer.dev/errors/E118.md): A name the language gives a meaning cannot be a program's own — not a `state`, `derived`, `persist` or `let`, a prop, a route or action parameter, a…
+- [E119 — A hidden direction control in the source](https://webfluent.monzeromer.dev/errors/E119.md): An embedding, override or isolate control (U+202A–U+202E, U+2066–U+2069) is invisible and reorders what follows it, so the code a reader sees is not…
+- [E120 — Something nests too deeply](https://webfluent.monzeromer.dev/errors/E120.md): Brackets, blocks, components that place each other, or the links of one chain (`a.b.c`, `1 + 2 + 3`) nest more than 100 levels deep, which no pass of…
+- [E121 — A render that would do too much](https://webfluent.monzeromer.dev/errors/E121.md): A template's render would draw more elements and loop items, work out more, or write more markup than one render may: nested loops over vast ranges…
+- [E901 — The compiler wrote JavaScript a browser would refuse](https://webfluent.monzeromer.dev/errors/E901.md): The build reads back every script it writes, and this one would not run. It is a bug in WebFluent, not in the program; please report it with the…
+- [E902 — Output its own security policy refuses](https://webfluent.monzeromer.dev/errors/E902.md): The build holds every page to the content security policy it ships beside it — as it wrote the page, and as the page's own `head { }` tags would add…
+- [F01 — A `bind:` to something that cannot be written](https://webfluent.monzeromer.dev/errors/F01.md): `bind:` writes what the control holds back to what it names: a state, a store's state, or a field of a loop's item. A constant, a derived value, a…
+- [F02 — A `bind:` to a state the control cannot hold](https://webfluent.monzeromer.dev/errors/F02.md): A text field holds text, a number field (`.number`) a number, a checkbox a `Bool`. Bound to a state of another type, it writes the wrong kind of…
+- [F03 — A `validate` block no control can satisfy](https://webfluent.monzeromer.dev/errors/F03.md): The rules of a `validate` block are shown on the control bound to the state, and a form is valid when they pass. On a state no control binds, or a…
+- [F04 — A checkbox that shows a state and never changes it](https://webfluent.monzeromer.dev/errors/F04.md): `Checkbox(checked: x)` with no `bind:` and no `on change` draws `x`, and a click toggles the box while `x` stays as it was.
+- [F05 — A select whose value is none of its options](https://webfluent.monzeromer.dev/errors/F05.md): The bound state starts as a value no option has, so the select shows its first option while the state holds something else.
+- [I01 — A message no translation has](https://webfluent.monzeromer.dev/errors/I01.md): `t("key")` names a key no locale's file holds, so the page shows the key itself.
+- [I02 — A message and its call that disagree](https://webfluent.monzeromer.dev/errors/I02.md): The call passes a value the message does not use, or the message shows a placeholder the call does not pass, which then shows as written.
+- [I03 — A message one locale has and another does not](https://webfluent.monzeromer.dev/errors/I03.md): A reader in the locale that lacks it sees the key instead of the words.
+- [I04 — A locale the project does not have](https://webfluent.monzeromer.dev/errors/I04.md): `setLocale("xx")` names a locale `i18n.locales` does not list.
+- [I05 — Words a reader sees that are not translated](https://webfluent.monzeromer.dev/errors/I05.md): Under `i18n.literals`, text that splices more than a name, or a value shown by a name that does not say it is words, is never looked up: every reader…
+- [P01 — A persisted value with no way forward](https://webfluent.monzeromer.dev/errors/P01.md): A `persist` at `version: n` with nothing to bring an older version forward, so what a returning reader had is discarded.
+- [P02 — A migration that never runs](https://webfluent.monzeromer.dev/errors/P02.md): A `migrate` step above the declared `version:`.
+- [P03 — A persisted value in a route-scoped store](https://webfluent.monzeromer.dev/errors/P03.md): The route change drops the store, and the next read builds it again from storage, so the value comes straight back.
+- [R01 — A route to nothing](https://webfluent.monzeromer.dev/errors/R01.md): A link, a `navigate()` or a `Route` names a page or a path that no page has.
+- [R02 — A route parameter and a page parameter that do not match](https://webfluent.monzeromer.dev/errors/R02.md): A route's `:name` fills the page's parameter of that name; a `:name` with no parameter is read as nothing, and a parameter with no `:name` is never filled.
+- [R03 — An `app` with no `Router`, or with two](https://webfluent.monzeromer.dev/errors/R03.md): The current page is drawn where `app` places its `Router`. With none, no page is ever drawn; with two, the page has two places.
+- [R04 — A relative URL on a nested route](https://webfluent.monzeromer.dev/errors/R04.md): `"images/x.png"` is fetched relative to the page's address, so on `/blog/post` it is `/blog/images/x.png`. Written from the root, `"/images/x.png"`,…
+- [R05 — A translation of no page, or two in one language](https://webfluent.monzeromer.dev/errors/R05.md): `translates:` names the page this one is a translation of, and the pages it joins list each other as `hreflang` alternates, each in its own `lang:`.…
+- [S01 — A page with no title](https://webfluent.monzeromer.dev/errors/S01.md): A page has no `title:`.
+- [S02 — A page with no description](https://webfluent.monzeromer.dev/errors/S02.md): A page has no `description:`, so its search snippet is written for it.
+- [S03 — A description too long for a search result](https://webfluent.monzeromer.dev/errors/S03.md): A description longer than about 160 characters, which a search result truncates.
+- [S04 — Two pages on one route](https://webfluent.monzeromer.dev/errors/S04.md): Two pages claim one path, and only one of them can ever be reached.
+- [T01 — A value of the wrong type](https://webfluent.monzeromer.dev/errors/T01.md): A value given to a prop, a state, a field, a parameter or an assignment that is not of the type it is declared to hold.
+- [T02 — A case the enum does not have](https://webfluent.monzeromer.dev/errors/T02.md): `.loud` given where an enum is wanted that has no case `loud`.
+- [T04 — A value that may be null, read as if it were not](https://webfluent.monzeromer.dev/errors/T04.md): A field or method read from a value that may be `null`. `if let`, `??`, `?.` or a `!= null` check narrows it.
+- [T05 — A field or method that does not exist](https://webfluent.monzeromer.dev/errors/T05.md): A record, a map literal or a built-in value read for a field or method it does not have.
+- [T06 — A member a store or service does not have](https://webfluent.monzeromer.dev/errors/T06.md): A store's state, derived value or action, or a service's endpoint, that it does not declare.
+- [T07 — A condition that is always true](https://webfluent.monzeromer.dev/errors/T07.md): A list, a record or an action used as a condition: it is never `false`, so the branch always runs.
+- [T08 — A loop over something that is not a list](https://webfluent.monzeromer.dev/errors/T08.md): A `for` over a number, a string or a record.
+- [T09 — An `emit` that does not match its event](https://webfluent.monzeromer.dev/errors/T09.md): The arguments an `emit` passes are not the ones the event declares.
+- [T10 — A call with the wrong arguments](https://webfluent.monzeromer.dev/errors/T10.md): Too many or too few arguments, a name the callee does not take, or one of the wrong kind.
+- [T11 — A `match` on something that cannot be matched](https://webfluent.monzeromer.dev/errors/T11.md): A `match` is over a resource (`loading`, `error`, `ready`) or an enum (`.case`); its arms are of that kind.
+- [T12 — A secret where it would escape](https://webfluent.monzeromer.dev/errors/T12.md): A `Secret` shown by an element, spliced into text, logged or kept with `persist`.
+- [T13 — A name nothing declares](https://webfluent.monzeromer.dev/errors/T13.md): A name, or a function called, that no declaration, parameter, script or browser global provides — a ReferenceError the first time the page reads it.
+- [T14 — A comparison that is always the same](https://webfluent.monzeromer.dev/errors/T14.md): `==` or `!=` between values that can never be equal — a string and a number, a record and a string, an enum and a case it does not have — so the…
+- [T15 — A `match` that misses a case, or has one twice](https://webfluent.monzeromer.dev/errors/T15.md): A `match` with no `else` must give every case of the enum an arm — a value with a case it misses would match nothing. A case with two arms reaches…
+- [T16 — A method a number, a string or a list does not have](https://webfluent.monzeromer.dev/errors/T16.md): In the browser the call is `x.method is not a function`, the first time the line runs. The message suggests the nearest method there is.
+- [T17 — An async result used before it is awaited](https://webfluent.monzeromer.dev/errors/T17.md): An action that awaits hands back a promise; read as its result without `await` it is not one. `await` is written in an action, a handler, a timer or…
+- [T18 — Arithmetic on something that is not a number](https://webfluent.monzeromer.dev/errors/T18.md): `-`, `*`, `/` and `%` take numbers; on a string or a list the result is `NaN`. `+` joins text when one side is a string, and takes numbers otherwise.
+- [T19 — A value that may be null, shown as text](https://webfluent.monzeromer.dev/errors/T19.md): Spliced into text, `null` shows as `null` (and a missing value as `undefined`). Say what to show instead with `??`.
+- [T20 — A list or a record shown as text](https://webfluent.monzeromer.dev/errors/T20.md): A list in text runs its items together with commas, and a map or a record shows as `[object Object]`. Show a field, or join a list of text.
+- [T21 — A resource `match` with no `error` arm](https://webfluent.monzeromer.dev/errors/T21.md): When the request fails, a `match` with no `error` arm and no `else` shows nothing at all, and the reader is not told.
+- [T22 — A handler that names more values than its event sends](https://webfluent.monzeromer.dev/errors/T22.md): A handler names the values its event sends, in order: `on menu(key, x, y)` for a component's `event menu(key: String, x: Number, y: Number)`. A DOM…
+- [U01 — A state nothing reads](https://webfluent.monzeromer.dev/errors/U01.md): A `state` nothing in its page or component reads; an assignment alone does not read it.
+- [U02 — A derived value nothing reads](https://webfluent.monzeromer.dev/errors/U02.md): A `derived` nothing reads.
+- [U03 — A component nothing places](https://webfluent.monzeromer.dev/errors/U03.md): A component nothing places, names as a layout, or reaches as a part.
+- [U04 — A store member nothing reads](https://webfluent.monzeromer.dev/errors/U04.md): A store's state, derived value or action that nothing reads, inside the store or as `Store.member`.
+- [U05 — An action nothing calls](https://webfluent.monzeromer.dev/errors/U05.md): An action nothing calls; a name that starts with `_` is understood to be unused on purpose.
+- [U06 — Code after return](https://webfluent.monzeromer.dev/errors/U06.md): What follows a `return` in the same block never runs.
+- [U07 — An allow that allows nothing](https://webfluent.monzeromer.dev/errors/U07.md): A `// wf-allow(CODE)` comment covers the next line of code (or its own, at the end of one); when nothing it names is reported there, or it names an…
+- [U08 — A condition that is always the same](https://webfluent.monzeromer.dev/errors/U08.md): A literal condition, or a value compared with itself, decides the same way every time; one branch never runs.
+- [U09 — An unkeyed loop whose items hold state](https://webfluent.monzeromer.dev/errors/U09.md): With no `by`, a change to the list redraws every item, and what an item holds — a field being typed in, a component's own state — starts again.
+- [U10 — An `else` no value reaches](https://webfluent.monzeromer.dev/errors/U10.md): Every case of the enum has its own arm, so the `match`'s `else` never runs.
+- [V01 — A bare word that means nothing](https://webfluent.monzeromer.dev/errors/V01.md): A bare word in an argument that nothing in scope declares — a misspelled name, or a flag written without its dot.
+- [V02 — A flag no stylesheet styles](https://webfluent.monzeromer.dev/errors/V02.md): A flag whose class no stylesheet — the engine's or one of the project's — defines.
+- [V03 — Markup put in as markup](https://webfluent.monzeromer.dev/errors/V03.md): An `Unsafe.Html`, and whether what it puts in went through `sanitize`; and a `Frame(srcdoc:)` drawing HTML from a value, which is sandboxed…
+- [V04 — A class that is the engine's](https://webfluent.monzeromer.dev/errors/V04.md): A `class:` naming one of the built-ins' `wf-*` classes, which brings that built-in's rules with it.
+- [V05 — A CSS property no browser knows](https://webfluent.monzeromer.dev/errors/V05.md): A misspelled property — `colr:` — is ignored by the browser; nothing tells you why the style did not take.
+- [V06 — A design token the theme does not declare](https://webfluent.monzeromer.dev/errors/V06.md): `$name` compiles to `var(--name)`; a token the theme does not declare is never set, so the property falls back to nothing.
+- [V07 — A number where CSS wants a length](https://webfluent.monzeromer.dev/errors/V07.md): `width: {pct}` with a number is a length with no unit, which the browser drops. Give it one: `{pct}%`.
+- [V08 — An icon the runtime does not draw](https://webfluent.monzeromer.dev/errors/V08.md): `Icon` and `IconButton` draw the built-in icons; any other name shows as the word.
+- [V09 — An event the element does not fire](https://webfluent.monzeromer.dev/errors/V09.md): A handler names neither a DOM event nor one the element declares, so it never runs; often a misspelling (`on clik`).
+- [V10 — A `Host` tag it does not make](https://webfluent.monzeromer.dev/errors/V10.md): A `Host` is made of one of a few elements — `div`, `span`, `canvas`, `svg`, `section`, `figure`, `pre`, `p`, `ul`, `table`; any other tag is a `div`.
+- [V11 — A component named like a built-in](https://webfluent.monzeromer.dev/errors/V11.md): A call of a built-in's name draws the built-in, so a component of that name is never drawn — the case of a component written before WebFluent gained…
+- [V12 — A long list that is not windowed](https://webfluent.monzeromer.dev/errors/V12.md): A `VirtualList` draws only the rows in view of one keyed `for` — `for row in rows by row.id { … }` — that is the whole of its body; with anything…
+- [X01 — An assignment to something that cannot change](https://webfluent.monzeromer.dev/errors/X01.md): A `const`, a `derived` value, a prop, a route parameter, a loop variable or an action is assigned to. At run time the write throws, or changes a copy…
+- [X02 — An effect that feeds itself](https://webfluent.monzeromer.dev/errors/X02.md): An effect re-runs when what it reads changes. One that writes, every run, something it reads starts the next run itself: the page never settles, and…
+- [X04 — A derived value that changes something](https://webfluent.monzeromer.dev/errors/X04.md): A `derived` value is worked out whenever what it reads changes, as often as the page needs it; one that calls an action that assigns changes state…
+- [X05 — `use` of a store nothing declares](https://webfluent.monzeromer.dev/errors/X05.md): `use` names a store the page depends on; one that is not declared is a misspelling, and every read of it is nothing.
+- [X06 — A state that copies a live value once](https://webfluent.monzeromer.dev/errors/X06.md): `now`, `viewport`, `query`, `hash`, `theme`, `network` and `update` keep themselves current, but a `state` takes its initial value once: `state clock…
+- [Troubleshooting](https://webfluent.monzeromer.dev/errors/troubleshooting.md): What you see when something goes wrong — install errors, build stops, blank pages after deploy, 404s on reload, CSP blocks, styles — the cause and the fix.
+
+## About
+
+- [About WebFluent](https://webfluent.monzeromer.dev/about.md)
+- [Accessibility](https://webfluent.monzeromer.dev/about/accessibility.md): What the built-ins do for keyboard and screen-reader users, the A01–A17 checks, what is still yours to do, and how to test it.
+- [Contributing](https://webfluent.monzeromer.dev/about/contributing.md): Build and test the compiler, find your way around the repository and its pipeline, and change a built-in, the grammar, the runtime or this guide.
+- [How reactivity works](https://webfluent.monzeromer.dev/about/how-reactivity-works.md): How WebFluent's signals, derived values, effects and keyed lists work under the hood, and why what reads a value is what redraws.
+- [Security](https://webfluent.monzeromer.dev/about/security.md): What WebFluent enforces, and how to handle outside markup, sessions, env secrets, uploads, CSP headers, other origins and a deploy checklist.
+- [Static or single-page](https://webfluent.monzeromer.dev/about/static-or-single-page.md): Static pages or a single-page app: build.ssg, hydration, what the pre-rendered HTML holds, paths for dynamic routes, 404s and hosting needs.
+- [Upgrading](https://webfluent.monzeromer.dev/about/upgrading.md): How to upgrade wf, what each release from 4.0 to 6.0 asks of a project, and moving a WebFluent 2 or 3 project forward with wf migrate.
+- [What a build ships](https://webfluent.monzeromer.dev/about/what-a-build-ships.md): What a build does to be fast, wf build --stats, size budgets, paint timings from wf verify, and the few things that make a site slow.
+- [Why WebFluent](https://webfluent.monzeromer.dev/about/why.md): Why WebFluent exists: one meaning per word, a compiler that refuses what would fail in the browser, and one source for sites, PDFs and slides.

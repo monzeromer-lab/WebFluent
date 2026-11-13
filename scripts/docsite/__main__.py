@@ -11,8 +11,11 @@ compiler, in order: `python3 scripts/docsite` (or `cargo xtask site`).
 4. `reference.py` — the reference's pages (`site/src/pages/reference/`), and
    `site/src/data/{components,commands,config,tokens}.json` for tools, from
    `wf registry/commands/config schema/theme --json`
-5. `data.py` — `site/public/search-index.json`
-6. `changelog.py` — `site/src/data/changelog.json` and the page that draws
+5. `data.py` — `site/public/search-index.json`, with each row's kind and the
+   words another framework uses for it
+6. `twins.py` — a Markdown twin of every page (`site/public/**/*.md`),
+   `llms.txt` and `llms-full.txt`
+7. `changelog.py` — `site/src/data/changelog.json` and the page that draws
    it, `site/src/pages/Changelog.wf`, from `RELEASE_NOTES.md`
 
 With `--check`, each writes into a scratch directory instead and the run
@@ -75,6 +78,7 @@ def main() -> None:
         run("comingfrom.py", {})
         run("reference.py", {})
         run("data.py", {})
+        run("twins.py", {})
         run("changelog.py", {})
         return
 
@@ -88,6 +92,8 @@ def main() -> None:
         run("reference.py", {"WF_REFERENCE_OUT": str(tmp / "reference")})
         (tmp / "data").mkdir()
         run("data.py", {"WF_SITE_DATA_OUT": str(tmp / "data")})
+        (tmp / "twins").mkdir()
+        run("twins.py", {"WF_TWINS_OUT": str(tmp / "twins")})
         (tmp / "changelog").mkdir()
         run("changelog.py", {"WF_CHANGELOG_OUT": str(tmp / "changelog")})
         pairs = [
@@ -101,6 +107,13 @@ def main() -> None:
             (tmp / "changelog/Changelog.wf", ROOT / "site/src/pages/Changelog.wf"),
         ]
         pairs.append((tmp / "recipes/old-links-map.js", ROOT / "site/src/old-links-map.js"))
+        # The twins: every one written is committed, and nothing else is.
+        public = ROOT / "site/public"
+        fresh = {p.relative_to(tmp / "twins") for p in (tmp / "twins").rglob("*") if p.is_file()}
+        have = {p.relative_to(public) for p in public.rglob("*.md")} | {Path(n) for n in ("llms.txt", "llms-full.txt") if (public / n).exists()}
+        for name in sorted(fresh ^ have):
+            problems.append(f"site/public/{name}: {'missing' if name in fresh else 'not from twins.py'}")
+        pairs += [(tmp / "twins" / name, public / name) for name in sorted(fresh & have)]
         pairs.append((tmp / "guide/old-links-pages.js", ROOT / "site/src/old-links-pages.js"))
         written = ROOT / "site/src/pages/comingfrom"
         fresh = {p.name for p in (tmp / "comingfrom").glob("*.wf")}
