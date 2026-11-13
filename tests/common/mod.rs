@@ -663,6 +663,10 @@ pub(crate) fn guide_chapters() -> Vec<(u32, String, String)> {
 /// the `expect=` block before it: it must draw none of that code, and
 /// nothing else), `break="from:to"` (what *Break it* swaps) and `files=a,b`
 /// (the files of a multi-file example this block belongs to). `scripts/docsite/fences.py` reads the same words.
+#[expect(
+    clippy::struct_excessive_bools,
+    reason = "each is a word a fence may carry"
+)]
 #[derive(Debug, Default, Clone, PartialEq, Eq)]
 pub(crate) struct Fence {
     pub lang: String,

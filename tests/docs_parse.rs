@@ -1452,8 +1452,10 @@ fn every_chapter_says_where_it_lives() {
                 failures.push(format!("{name}: its title is not numbered {number}"));
             }
         } else if body.lines().next().is_some_and(|l| {
-            l.strip_prefix("# ")
-                .is_some_and(|t| t.split_once(". ").is_some_and(|(n, _)| n.parse::<u32>().is_ok()))
+            l.strip_prefix("# ").is_some_and(|t| {
+                t.split_once(". ")
+                    .is_some_and(|(n, _)| n.parse::<u32>().is_ok())
+            })
         }) {
             failures.push(format!("{name}: only a chapter of the book is numbered"));
         }
@@ -2068,8 +2070,9 @@ fn the_codes_each_builtin_can_raise_are_codes_the_compiler_has() {
         .collect();
     let builtins: Vec<String> = webfluent::registry::components()
         .flat_map(|c| {
-            std::iter::once(c.name.to_string())
-                .chain(webfluent::registry::parts_of(c.name).map(|p| format!("{}.{}", c.name, p.name)))
+            std::iter::once(c.name.to_string()).chain(
+                webfluent::registry::parts_of(c.name).map(|p| format!("{}.{}", c.name, p.name)),
+            )
         })
         .collect();
     let mut failures = Vec::new();
