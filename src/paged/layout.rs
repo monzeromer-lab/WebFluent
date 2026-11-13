@@ -469,11 +469,12 @@ impl<'a> Layout<'a> {
             } else {
                 FlexWrap::NoWrap
             },
-            justify_content: align_content(s.justify_content),
-            align_items: align_items(s.align_items),
+            // Unset is the layout mode's own default, `normal`.
+            justify_content: align_content(s.justify_content).unwrap_or(AlignContent::NORMAL),
+            align_items: align_items(s.align_items).unwrap_or(AlignItems::NORMAL),
             align_self: align_items(s.align_self),
-            align_content: align_content(s.align_content),
-            justify_items: align_items(s.justify_items),
+            align_content: align_content(s.align_content).unwrap_or(AlignContent::NORMAL),
+            justify_items: align_items(s.justify_items).unwrap_or(AlignItems::NORMAL),
             flex_grow: s.flex_grow,
             flex_shrink: s.flex_shrink,
             flex_basis: dim(s.flex_basis),
@@ -555,11 +556,11 @@ impl<'a> Layout<'a> {
                 st.display = Display::Flex;
                 st.flex_direction = FlexDirection::Column;
                 st.align_self = Some(AlignItems::STRETCH);
-                st.justify_content = Some(match s.vertical_align {
+                st.justify_content = match s.vertical_align {
                     VerticalAlign::Middle => AlignContent::CENTER,
                     VerticalAlign::Bottom => AlignContent::FLEX_END,
                     _ => AlignContent::FLEX_START,
-                });
+                };
             }
             Kind::Image { .. } => {
                 // A picture keeps its own size: it is not stretched as a
