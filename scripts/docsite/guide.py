@@ -107,6 +107,13 @@ def num_of(path: Path) -> str:
     return f'{front_matter(path)[0]["chapter"]:02d}'
 
 
+def site_path(route: str) -> str:
+    """Where a chapter's `route:` is on the site. The guide's own chapters
+    live under `/docs/` (`guide/state` is `/docs/guide/state`); a page
+    written at its final address names it whole (`/reference/library`)."""
+    return route if route.startswith("/") else f"/docs/{route}"
+
+
 def page_name(route: str) -> str:
     last = route.rstrip("/").split("/")[-1]
     return "".join(w.capitalize() for w in re.split(r"[^a-z0-9]+", last) if w) + "Guide"
@@ -178,7 +185,7 @@ def rewrite_links(text: str) -> str:
             return f"[{label}](/docs/guide/introduction)"
         page = next((meta for meta in META.values() if (GUIDE / meta["path"]).resolve() == resolved), None)
         if page:
-            return f"[{label}](/docs/{page['route']}{anchor})"
+            return f"[{label}]({site_path(page['route'])}{anchor})"
         try:
             inside = resolved.relative_to(ROOT)
         except ValueError:
@@ -385,7 +392,7 @@ def convert(num: str, md: str):
     header = [
         f'/// Chapter {n} of the guide, written from md-docs/{META[num]["path"]} by',
         "/// scripts/docsite/guide.py; edit the guide, not this file.",
-        f'page {name}(path: "/docs/{route}", title: "{wf_string(title)}", description: "{wf_string(description)}", layout: DocsShell("{wf_string(title)}", chapter: t("nav.group.{META[num]["group"]}"), blurb: "{wf_string(blurb)}", source: "md-docs/{META[num]["path"]}", sections: [{anchors}]' + "PREVNEXT" + ")) {",
+        f'page {name}(path: "{site_path(route)}", title: "{wf_string(title)}", description: "{wf_string(description)}", layout: DocsShell("{wf_string(title)}", chapter: t("nav.group.{META[num]["group"]}"), blurb: "{wf_string(blurb)}", source: "md-docs/{META[num]["path"]}", sections: [{anchors}]' + "PREVNEXT" + ")) {",
         "    Stack(gap: .lg) {",
     ]
     return header, out, prev_num, next_num
@@ -405,7 +412,7 @@ def book() -> str:
         tour = meta["path"].startswith(("learn/01-", "learn/02-", "learn/03-"))
         rows.append(
             f'    Chapter(n: {int(num)}, title: "{wf_string(meta["title"])}", key: "ch.{num}", '
-            f'to: "/docs/{meta["route"]}", part: "nav.group.{meta["group"]}", '
+            f'to: "{site_path(meta["route"])}", part: "nav.group.{meta["group"]}", '
             f'tour: {"true" if tour else "false"})'
         )
     return BOOK_HEAD + ",\n".join(rows) + "\n]\n"
@@ -444,9 +451,9 @@ def main():
     for num, (f, (header, body, prev_num, next_num)) in converted.items():
         prevnext = ""
         if prev_num:
-            prevnext += f', prevTo: "/docs/{META[prev_num]["route"]}", prevLabel: t("ch.{prev_num}")'
+            prevnext += f', prevTo: "{site_path(META[prev_num]["route"])}", prevLabel: t("ch.{prev_num}")'
         if next_num:
-            prevnext += f', nextTo: "/docs/{META[next_num]["route"]}", nextLabel: t("ch.{next_num}")'
+            prevnext += f', nextTo: "{site_path(META[next_num]["route"])}", nextLabel: t("ch.{next_num}")'
         header[2] = header[2].replace("PREVNEXT", prevnext)
         text = "\n".join(header + body).rstrip() + "\n    }\n}\n"
         (OUT / f"{num}-{META[num]['slug']}.wf").write_text(text)

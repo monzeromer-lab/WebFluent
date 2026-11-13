@@ -234,6 +234,15 @@
   "footer.llms": "llms.txt",
   "footer.context": "wf context",
   "footer.changelog": "Changelog",
+  "changelog.lede": "What changed in each release, newest first. Every version has its own address, such as `/changelog#6.0.0`.",
+  "changelog.versions": "Versions",
+  "changelog.major": "WebFluent {major}",
+  "changelog.github": "Releases on GitHub",
+  "changelog.latest": "Latest",
+  "changelog.anchor": "Link to {version}",
+  "changelog.more": "{count} more",
+  "changelog.fewer": "Show fewer",
+  "changelog.all": "Show all {count} changes",
   "book.label": "The book",
   "book.title": "The book",
   "book.progress": "{done} of {total}",
@@ -394,5 +403,7 @@
   "ch.49": "Glossary",
   "ch.50": "Troubleshooting",
   "ch.51": "Upgrading",
-  "ch.52": "Contributing"
+  "ch.52": "Contributing",
+  "ch.53": "Library",
+  "ch.54": "Editors"
 }

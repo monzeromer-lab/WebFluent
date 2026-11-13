@@ -53,5 +53,7 @@ const GUIDE: [Chapter] = [
     Chapter(n: 49, title: "Glossary", key: "ch.49", to: "/docs/guide/glossary", part: "nav.group.reference", tour: false),
     Chapter(n: 50, title: "Troubleshooting", key: "ch.50", to: "/docs/guide/troubleshooting", part: "nav.group.help", tour: false),
     Chapter(n: 51, title: "Upgrading", key: "ch.51", to: "/docs/guide/upgrading", part: "nav.group.help", tour: false),
-    Chapter(n: 52, title: "Contributing", key: "ch.52", to: "/docs/guide/contributing", part: "nav.group.help", tour: false)
+    Chapter(n: 52, title: "Contributing", key: "ch.52", to: "/docs/guide/contributing", part: "nav.group.help", tour: false),
+    Chapter(n: 53, title: "Library", key: "ch.53", to: "/reference/library", part: "nav.group.reference", tour: false),
+    Chapter(n: 54, title: "Editors", key: "ch.54", to: "/reference/editors", part: "nav.group.reference", tour: false)
 ]
