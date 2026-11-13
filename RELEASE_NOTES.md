@@ -30,6 +30,27 @@ is the Rust API (see "Upgrading").
 - **`worker` is offered where a statement starts**, beside `socket`,
   `stream`, `channel` and `peer`.
 
+## Faster
+
+Measured on the documentation site (77 files, 140 pages); `cargo xtask
+bench` reproduces the numbers.
+
+- **`wf build` takes 0.36 s instead of 4.4 s**, to the same bytes:
+  - pages are painted, compressed and read back on every core;
+  - a `data` constant is shared rather than copied each time a page reads
+    it;
+  - the compressor finds its matches faster, and is run once a file rather
+    than twice;
+  - `wf` allocates with mimalloc.
+- **`wf check` takes 62 ms instead of 82.**
+- **The language server answers in about 0.1 ms instead of 46:**
+  - it keeps the analysed project between requests, and analyses it again
+    only after a change;
+  - an unchanged file keeps its parse and its tokens.
+  
+  An edit's findings arrive in 74 ms instead of 145. Before, a hover cost
+  as much as checking the whole project and grew with it.
+
 ## Fixes
 
 - **No more `?lang=` alternates.** A project with several `i18n.locales`
@@ -77,6 +98,8 @@ is the Rust API (see "Upgrading").
 - **I/O errors name their file**, and a config or translation that is there
   but cannot be read is an error rather than the defaults.
 - SVG text is laid out with the document's own fonts.
+- **`wf check --allow-output-outside`**, as `wf build` has: a project whose
+  `build.output` is outside it could not be checked at all.
 
 ## Editors
 
@@ -92,6 +115,9 @@ is the Rust API (see "Upgrading").
   and slots for definitions and renames.
 - Both extensions download the release they pin and check it against
   `SHA256SUMS`.
+- VS Code colours a name in any script as the compiler reads one, and
+  tells a member (`e.message`) from a flag (`.danger`).
+- The grammars read a raw string inside code that does not parse yet.
 
 ## For tools (the Rust library)
 
@@ -117,6 +143,9 @@ is the Rust API (see "Upgrading").
   cases (`Declaration`, `Expr`, `StatementKind`, `TypeRef`, `Step`, …),
   `Plan`, `Tag`, `OutputType`, `RuntimeMode`, `ScriptLoad`,
   `init::Template`, `memory::Contents`, `EditOp` and `ArgRef`.
+- **Dependencies are up to date**: every crate at its newest release the
+  crate's Rust version accepts, `taffy` 0.15 and `miniz_oxide` 0.9 among
+  them. `usvg` 0.47 and `fontdb` 0.23 stay where `krilla-svg` holds them.
 - Every public `Result` says when it fails; builders are `#[must_use]`;
   the lexer, parser and code generator implement `Debug`; a choice that
   was two `bool`s is an enum.
