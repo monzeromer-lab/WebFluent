@@ -395,7 +395,7 @@ jobs:
       - name: Point the C build at clang and llvm-ar
         run: |
           set -euo pipefail
-          ar=$(command -v llvm-ar || ls /usr/bin/llvm-ar-* | sort -V | tail -1)
+          ar=$(command -v llvm-ar || find /usr/bin -name 'llvm-ar-*' | sort -V | tail -1)
           {
             echo "CC_wasm32_unknown_unknown=clang"
             echo "AR_wasm32_unknown_unknown=$ar"
