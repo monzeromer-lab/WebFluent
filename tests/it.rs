@@ -6,6 +6,8 @@
 
 mod common;
 
+mod mangled_runtime;
+
 #[path = "agent.rs"]
 mod agent;
 #[path = "arabic_source.rs"]

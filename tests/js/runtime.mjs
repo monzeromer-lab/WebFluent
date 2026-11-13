@@ -11,8 +11,11 @@ const MANIFEST = JSON.parse(
   readFileSync(new URL("../../src/web/runtime/modules/manifest.json", import.meta.url), "utf8"),
 );
 
-/// Every module, in one closure, exporting everything it holds.
+/// Every module, in one closure, exporting everything it holds. With
+/// `WF_RUNTIME` naming a file, that file instead: the runtime as a minified
+/// build shortens it, which `tests/mangled_runtime.rs` writes.
 export function fullRuntime() {
+  if (process.env.WF_RUNTIME) return readFileSync(process.env.WF_RUNTIME, "utf8");
   let out = MANIFEST.header;
   for (const m of MANIFEST.modules) {
     let src = readFileSync(

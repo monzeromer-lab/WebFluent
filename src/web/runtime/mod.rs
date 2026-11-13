@@ -28,6 +28,8 @@
 
 use std::collections::BTreeSet;
 
+mod locals;
+
 /// One feature of the runtime: a fragment of the closure, what it puts on
 /// `WF`, what it needs, and what in a program reaches it.
 #[derive(Debug)]
@@ -338,7 +340,16 @@ pub fn assemble_with(program: &str, full: bool, mangle: bool) -> String {
     }
     let renamed = if mangle {
         let (short, renamed) = mangle_names(&body, program);
-        body = short;
+        // Then each item's own names. Every top-level name counts as one,
+        // as the body now spells it, shipped or not: a `typeof` may name
+        // one that was left out.
+        let top: std::collections::HashSet<&str> = MODULES
+            .iter()
+            .flat_map(|m| items(m.source))
+            .filter_map(|item| item.declares)
+            .map(|name| renamed.get(name).map_or(name, String::as_str))
+            .collect();
+        body = locals::rename_locals(&short, &top);
         renamed
     } else {
         std::collections::HashMap::new()
@@ -705,6 +716,8 @@ fn scan(text: &str) -> (Vec<(usize, usize)>, Vec<u8>) {
                 last_code,
                 b'(' | b','
                     | b'='
+                    // `x => /…/`
+                    | b'>'
                     | b':'
                     | b'['
                     | b'!'
@@ -732,6 +745,10 @@ fn scan(text: &str) -> (Vec<(usize, usize)>, Vec<u8>) {
                 }
                 blank(from, i);
                 i += 1;
+                // The flags are the pattern's, not a name: `/x/gi`.
+                while i < bytes.len() && bytes[i].is_ascii_alphabetic() {
+                    i += 1;
+                }
                 last_code = b'/';
             }
             b'"' | b'\'' => {
@@ -765,6 +782,24 @@ fn scan(text: &str) -> (Vec<(usize, usize)>, Vec<u8>) {
                 }
                 last_code = c;
                 i += 1;
+            }
+            // A number, whole: the `e3` of `1e3` and the `x1f` of `0x1f` are
+            // not names.
+            c if c.is_ascii_digit() => {
+                let hex = bytes.get(i + 1).is_some_and(|b| matches!(b, b'x' | b'X'));
+                while i < bytes.len()
+                    && (bytes[i].is_ascii_alphanumeric() || bytes[i] == b'_' || bytes[i] == b'.')
+                {
+                    // `1e-3`: the sign belongs to the exponent.
+                    if !hex
+                        && matches!(bytes[i], b'e' | b'E')
+                        && matches!(bytes.get(i + 1), Some(b'-' | b'+'))
+                    {
+                        i += 1;
+                    }
+                    i += 1;
+                }
+                last_code = b'0';
             }
             c if c.is_ascii_alphabetic() || c == b'_' || c == b'$' => {
                 let start = i;
@@ -901,6 +936,12 @@ fn icon_name(line: &str) -> Option<&str> {
 /// Every module, for a caller that wants the whole runtime.
 pub fn full() -> String {
     assemble("", true)
+}
+
+/// [`full`], with its names shortened as a minified build shortens them.
+#[doc(hidden)]
+pub fn full_mangled() -> String {
+    assemble_with("", true, true)
 }
 
 /// The manifest as JSON, so the JavaScript tests assemble the runtime the
@@ -1142,7 +1183,17 @@ mod tests {
                             open = None;
                         }
                     }
+                    // A pattern's flags, `/…/gi`, and the letters of a
+                    // number, `1e3`, are not names either.
+                    let flags =
+                        before.ends_with('/') && word.bytes().all(|c| b"dgimsuyv".contains(&c));
+                    let in_number = before
+                        .bytes()
+                        .last()
+                        .is_some_and(|c| c.is_ascii_digit() || c == b'.');
                     let quoted = open.is_some()
+                        || flags
+                        || in_number
                         || line.trim_start().starts_with("//")
                         || line.trim_start().starts_with('*')
                         || line.trim_start().starts_with("/*")

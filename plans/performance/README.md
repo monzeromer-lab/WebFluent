@@ -139,9 +139,24 @@ register as hooks; `each`, whose row-sliding runs for every keyed list;
 `persist`, whose parts share one load path that keeps a returning reader's
 data.
 
-**Not done:** renaming the local names inside functions, which needs a
-real scope analysis; and the `--stats` runtime line, which still reports
-module sizes before function pruning.
+**Local names.** Each of the runtime's top-level items then has its own
+names shortened. The runtime is strict-mode code with no `with` and no
+`eval`, so a name in an item that is neither a top-level name nor a
+browser global is bound in that item, and can be renamed through it one
+for one. Keys, methods and getters keep their names, and a shorthand
+`{ a }` is written `{ a: b }`. Tests check that every browser global the
+runtime names is on the compiler's list (against Chrome's whole list),
+that every name taken for a local is bound in its item, and that no
+shorthand sits in a brace taken for a block. The JavaScript tests also run
+against the shortened runtime.
+
+| Project (gzipped `app.js`, `gzip -9`) | Top-level names only | And local names |
+|---|---|---|
+| `wf init -t static` | 16.2 kB | 14.8 kB |
+| `wf init -t spa` | 18.7 kB | 17.0 kB |
+
+**Not done:** the `--stats` runtime line still reports module sizes before
+function pruning.
 
 ## Is it the tests, or the tools?
 
