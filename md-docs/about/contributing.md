@@ -124,7 +124,7 @@ server, `wf docs` and the
    the registry, with the command below.
 
 ```bash
-python3 scripts/components-reference.py
+cargo xtask site
 ```
 
 ## Change the grammar
@@ -160,18 +160,21 @@ not edit it by hand.
 
 ## Change this guide
 
-The guide lives in `md-docs/`, one file per chapter, and is the source of
-the documentation site: `python3 scripts/site-from-guide.py` writes the
-site's chapter pages, sidebar and search index from it. Each chapter
-starts with a comment naming its route, its group in the sidebar, the line
-under its title and its search description. `spec/DOCS_STYLE.md` is the
+The guide lives in `md-docs/`, one file per chapter, in a folder for its
+kind of page (`learn/`, `recipes/`, `about/`, `reference/`, `errors/`,
+`coming-from/`), and is the source of the documentation site:
+`cargo xtask site` writes the site's chapter pages, the book's chapter list,
+the components reference and the search index from it, and
+`cargo xtask site --check` says whether they are current. Each chapter
+starts with front matter naming its number, its kind, its route, its group
+in the sidebar, the line under its title and its search description. `spec/DOCS_STYLE.md` is the
 house style every chapter follows.
 
 The test suite holds the guide to the compiler:
 
 - every `wf` code block parses, type-checks and compiles without a
   warning;
-- every `wf expect CODE` block draws exactly that code;
+- every `wf expect=CODE` block draws exactly that code;
 - every link between chapters, and every anchor, resolves;
 - every declaration, keyword, built-in, browser value, built-in function,
   config key, command and diagnostic code appears in it;

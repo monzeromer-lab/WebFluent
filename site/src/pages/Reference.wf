@@ -1,5 +1,5 @@
 /// The components reference, drawn from the registry's own data
-/// (`site/src/registry.json`, written by scripts/site-data.py): an index
+/// (`site/src/registry.json`, written by scripts/docsite/data.py): an index
 /// page, and one page per built-in.
 page ReferenceIndexPage(path: "/docs/reference", title: "Components reference", description: "Every built-in element, its props, flags, events, slots and parts — from the compiler's own registry.") {
     derived groups = registry.groups

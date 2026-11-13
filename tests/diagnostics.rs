@@ -200,7 +200,7 @@ fn every_finding_has_a_registered_code() {
     )
     .unwrap();
     let mut seen = 0;
-    for block in chapter.split("```wf expect ").skip(1) {
+    for block in chapter.split("```wf expect=").skip(1) {
         let body = block
             .split_once('\n')
             .unwrap()

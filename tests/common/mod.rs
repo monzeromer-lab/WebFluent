@@ -653,3 +653,79 @@ pub(crate) fn guide_chapters() -> Vec<(u32, String, String)> {
     out.sort();
     out
 }
+
+/// What a code fence in the guide says about its block: ```` ```wf page live ````.
+///
+/// The first word is the language; each word after it is one of
+/// `page` (a whole page: built, previewed and run), `live` (the reader may
+/// edit it), `no-check` (not compiled; the prose must say why),
+/// `expect=CODE` (it must draw that code), `break="from:to"` (what *Break it*
+/// swaps) and `files=a,b` (the files of a multi-file example this block
+/// belongs to). `scripts/docsite/fences.py` reads the same words.
+#[derive(Debug, Default, Clone, PartialEq, Eq)]
+pub(crate) struct Fence {
+    pub lang: String,
+    pub page: bool,
+    pub live: bool,
+    pub no_check: bool,
+    pub expect: Option<String>,
+    pub swap: Option<(String, String)>,
+    pub files: Vec<String>,
+}
+
+impl Fence {
+    /// A block the compiler is held to as an ordinary sample: neither one
+    /// that must fail nor one marked not to be checked.
+    pub(crate) fn is_sample(&self) -> bool {
+        self.expect.is_none() && !self.no_check
+    }
+}
+
+/// The fence `line` opens, if it opens one: `None` for a line that is not a
+/// fence or that closes one, `Some(Err(…))` for a word no fence takes.
+pub(crate) fn fence(line: &str) -> Option<Result<Fence, String>> {
+    let info = line.trim_end().strip_prefix("```")?.trim_start_matches('`');
+    if info.is_empty() {
+        return None;
+    }
+    let mut words = Vec::new();
+    let mut word = String::new();
+    let mut quoted = false;
+    for c in info.chars() {
+        match c {
+            '"' => quoted = !quoted,
+            c if c.is_whitespace() && !quoted => {
+                if !word.is_empty() {
+                    words.push(std::mem::take(&mut word));
+                }
+            }
+            c => word.push(c),
+        }
+    }
+    if !word.is_empty() {
+        words.push(word);
+    }
+    let mut out = Fence {
+        lang: words.remove(0),
+        ..Fence::default()
+    };
+    for w in words {
+        match w.split_once('=') {
+            None if w == "page" => out.page = true,
+            None if w == "live" => out.live = true,
+            None if w == "no-check" => out.no_check = true,
+            Some(("expect", code)) if !code.is_empty() => out.expect = Some(code.to_string()),
+            Some(("break", swap)) => match swap.split_once(':') {
+                Some((from, to)) if !from.is_empty() => {
+                    out.swap = Some((from.to_string(), to.to_string()));
+                }
+                _ => return Some(Err(format!("`break=` takes \"from:to\", not `{swap}`"))),
+            },
+            Some(("files", list)) => {
+                out.files = list.split(',').map(str::to_string).collect();
+            }
+            _ => return Some(Err(format!("`{w}` is no word a fence takes"))),
+        }
+    }
+    Some(Ok(out))
+}

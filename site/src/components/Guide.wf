@@ -1,13 +1,12 @@
-/// The guide as it stands, in the book sidebar's shape: written from
-/// `DocSidebar.wf`, which the site's generator keeps in step with the
-/// chapters. When the guide moves to `/learn`, the generator writes this
-/// list instead.
+/// The guide, in the book sidebar's shape: written from each chapter's
+/// front matter by scripts/docsite/guide.py; edit the guide, not this file.
+/// The first three chapters of `learn/` are the tour.
 const GUIDE: [Chapter] = [
-    Chapter(n: 1, title: "Introduction", key: "ch.01", to: "/docs/guide/introduction", part: "nav.group.start", tour: true),
+    Chapter(n: 1, title: "Introduction", key: "ch.01", to: "/docs/guide/introduction", part: "nav.group.start", tour: false),
     Chapter(n: 2, title: "Getting started", key: "ch.02", to: "/docs/guide/getting-started", part: "nav.group.start", tour: true),
     Chapter(n: 3, title: "Tutorial: Shelf", key: "ch.03", to: "/docs/guide/tutorial", part: "nav.group.start", tour: true),
     Chapter(n: 4, title: "Coming from React, Vue or Svelte", key: "ch.04", to: "/docs/guide/coming-from", part: "nav.group.start", tour: false),
-    Chapter(n: 5, title: "Tutorial: Todos", key: "ch.05", to: "/docs/tutorials/todos", part: "nav.group.tutorials", tour: false),
+    Chapter(n: 5, title: "Tutorial: Todos", key: "ch.05", to: "/docs/tutorials/todos", part: "nav.group.tutorials", tour: true),
     Chapter(n: 6, title: "Tutorial: Field Notes", key: "ch.06", to: "/docs/tutorials/field-notes", part: "nav.group.tutorials", tour: false),
     Chapter(n: 7, title: "Tutorial: Pocket", key: "ch.07", to: "/docs/tutorials/pocket", part: "nav.group.tutorials", tour: false),
     Chapter(n: 8, title: "Recipes", key: "ch.08", to: "/docs/guide/recipes", part: "nav.group.tutorials", tour: false),

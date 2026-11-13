@@ -3,22 +3,25 @@
 
 The registry is the compiler's own description of every built-in, so the
 reference can never drift from what the compiler accepts. Rerun after the
-registry changes: `python3 scripts/components-reference.py`.
+registry changes: `cargo xtask site`.
 """
 import json
+import os
 import re
 import subprocess
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(ROOT / "scripts"))
-from component_examples import EXAMPLES  # noqa: E402
+ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT / "scripts" / "docsite"))
+from examples import EXAMPLES  # noqa: E402
 # The page is `md-docs/reference/components.md`; its number is its place in
 # the guide, kept in its own front matter, not something this script decides.
 TARGET = ROOT / "md-docs" / "reference" / "components.md"
+# `WF_COMPONENTS_OUT` writes the page elsewhere, for `cargo xtask site --check`.
+OUT_PATH = Path(os.environ["WF_COMPONENTS_OUT"]) if os.environ.get("WF_COMPONENTS_OUT") else TARGET
 NUMBER = int(re.search(r"^chapter: (\d+)$", TARGET.read_text(), re.M).group(1))
-wf = ROOT / "target" / "debug" / "wf"
+wf = Path(os.environ["WF_BIN"]) if os.environ.get("WF_BIN") else ROOT / "target" / "debug" / "wf"
 if not wf.exists():
     wf = "wf"
 data = json.loads(subprocess.check_output([str(wf), "registry", "--json"]))
@@ -44,7 +47,7 @@ out = []
 out.append(f"# {NUMBER}. Components reference\n")
 FRONT = TARGET.read_text().split("\n---\n", 1)[0] + "\n---"
 out.insert(0, FRONT)
-out.append("Generated from the compiler's registry (`wf registry --json`) by `scripts/components-reference.py`, with an example of each from `scripts/component_examples.py`; edit those, not this file.\n")
+out.append("Generated from the compiler's registry (`wf registry --json`) by `scripts/docsite/components.py`, with an example of each from `scripts/docsite/examples.py`; edit those, not this file.\n")
 out.append("Every component is written `Name(positional, prop: value).flag { block }`. A **prop** is passed by name; the one **positional** prop, where there is one, comes first and unnamed. A **flag** is written after the parentheses with a dot: a `Bool` prop, or a case of one of the element's enum props (`Button(\"x\").primary.lg`). An **enum prop** takes a case written `.case` (`Row(gap: .md)`). Every element also takes the universal props and events listed at the end, and the HTML attribute families named on it (`aria-*`, `data-*`, and the global attributes such as `id`, `class`, `title`, `role`, `tabindex`).\n")
 
 groups = []
@@ -79,7 +82,7 @@ for g in groups:
         out.append(f"```\n{sig}\n```\n")
         example = EXAMPLES.get(name)
         if example is None:
-            sys.exit(f"scripts/component_examples.py has no example of {name}")
+            sys.exit(f"scripts/docsite/examples.py has no example of {name}")
         out.append(f"```wf\n{example}\n```\n")
         if c.get("class"):
             out.append(f"Renders with the class `{c['class']}`.\n")
@@ -138,5 +141,5 @@ out.append(" ".join(f"`{i}`" for i in data["icons"]) + "\n")
 
 out.append("## Next\n")
 out.append("[CLI](cli.md).\n")
-TARGET.write_text("\n".join(out))
-print(f"wrote {TARGET.relative_to(ROOT)}")
+OUT_PATH.write_text("\n".join(out))
+print(f"wrote {OUT_PATH}")

@@ -25,9 +25,15 @@ fn wf_blocks(markdown: &str) -> Vec<(usize, String, bool)> {
                     body.push('\n');
                 }
             }
-            None => match line.trim_end() {
-                "```wf" => current = Some((ix + 1, String::new(), false)),
-                "```wfx" => current = Some((ix + 1, String::new(), true)),
+            // A sample: a `wf` or `wfx` block that is neither meant to fail
+            // nor marked not to be checked.
+            None => match crate::common::fence(line) {
+                Some(Ok(f)) if f.is_sample() && f.lang == "wf" => {
+                    current = Some((ix + 1, String::new(), false));
+                }
+                Some(Ok(f)) if f.is_sample() && f.lang == "wfx" => {
+                    current = Some((ix + 1, String::new(), true));
+                }
                 _ => {}
             },
         }
@@ -615,8 +621,9 @@ fn the_design_tokens_chapter_is_the_baseline() {
 }
 
 /// The guide's pages are generated from `md-docs/` by
-/// `scripts/site-from-guide.py`, but the sidebar that links them is written
-/// by hand in `site/src/components/DocSidebar.wf`. They drifted: chapter 19,
+/// `scripts/docsite/guide.py`, and so is the book's chapter list,
+/// `site/src/components/Guide.wf`. The sidebar used to be written by hand,
+/// and the two drifted: chapter 19,
 /// Security, was added to the guide and never to the sidebar, so the page
 /// built, deployed and answered its URL while being reachable from no
 /// navigation at all — and the two chapters after it were left a number
@@ -635,14 +642,14 @@ fn the_sidebar_lists_every_chapter_of_the_guide() {
         "expected the whole guide, got {chapters:?}"
     );
 
-    let sidebar = std::fs::read_to_string(root.join("site/src/components/DocSidebar.wf"))
-        .expect("DocSidebar.wf");
+    let sidebar =
+        std::fs::read_to_string(root.join("site/src/components/Guide.wf")).expect("Guide.wf");
 
     for (num, stem) in &chapters {
         // Every chapter is in the rail, by its title: the rail shows
         // sections rather than numbers.
         assert!(
-            sidebar.contains(&format!("t(\"ch.{num}\")")),
+            sidebar.contains(&format!("key: \"ch.{num}\"")),
             "chapter {num} ({stem}) has no title in the sidebar"
         );
     }
@@ -652,7 +659,7 @@ fn the_sidebar_lists_every_chapter_of_the_guide() {
     let highest: u32 = chapters.last().unwrap().0.parse().unwrap();
     for over in (highest + 1)..=(highest + 3) {
         assert!(
-            !sidebar.contains(&format!("t(\"ch.{over:02}\")")),
+            !sidebar.contains(&format!("key: \"ch.{over:02}\"")),
             "the sidebar names chapter {over:02}, which the guide does not have"
         );
     }
@@ -672,7 +679,7 @@ fn the_sidebar_lists_every_chapter_of_the_guide() {
 }
 
 /// The guide's pages on the site are generated from `md-docs/` by
-/// `scripts/site-from-guide.py`, and nothing held the committed pages to what
+/// `scripts/docsite/guide.py`, and nothing held the committed pages to what
 /// the script would write. They fell behind: the documentation audit added
 /// five rows to the design-token table in `md-docs/learn/13-styling.md`, and the
 /// published Styling chapter never got them.
@@ -693,7 +700,7 @@ fn the_sites_guide_pages_are_current_with_the_guide() {
     let out = std::env::temp_dir().join(format!("wf-guide-fresh-{}", std::process::id()));
     let _ = std::fs::remove_dir_all(&out);
     let run = std::process::Command::new("python3")
-        .arg(root.join("scripts/site-from-guide.py"))
+        .arg(root.join("scripts/docsite/guide.py"))
         .env("WF_GUIDE_OUT", &out)
         .env("WF_BIN", env!("CARGO_BIN_EXE_wf"))
         .output()
@@ -728,16 +735,16 @@ fn the_sites_guide_pages_are_current_with_the_guide() {
             stale.push(name);
         }
     }
-    // The sidebar is written from the chapters' metadata too.
-    let want = std::fs::read_to_string(out.join("sidebar/DocSidebar.wf")).unwrap_or_default();
-    let have = std::fs::read_to_string(root.join("site/src/components/DocSidebar.wf")).unwrap();
+    // The book's chapter list is written from the chapters' front matter too.
+    let want = std::fs::read_to_string(out.join("book/Guide.wf")).unwrap_or_default();
+    let have = std::fs::read_to_string(root.join("site/src/components/Guide.wf")).unwrap();
     if want != have {
-        stale.push("site/src/components/DocSidebar.wf".to_string());
+        stale.push("site/src/components/Guide.wf".to_string());
     }
     let _ = std::fs::remove_dir_all(&out);
     assert!(
         stale.is_empty(),
-        "these pages are behind md-docs/; run `python3 scripts/site-from-guide.py`: {stale:?}"
+        "these pages are behind md-docs/; run `cargo xtask site`: {stale:?}"
     );
 }
 
@@ -895,7 +902,7 @@ fn the_editor_grammar_corpus_is_current_with_the_guide() {
 }
 
 /// The documentation site's search and its components reference are written
-/// by `scripts/site-data.py`, from the guide and from `wf registry --json`,
+/// by `scripts/docsite/data.py`, from the guide and from `wf registry --json`,
 /// and nothing held the committed files to what it writes — so a section
 /// added to the guide was missing from the site's search until someone
 /// remembered to rerun it. This runs it into a scratch directory, with the
@@ -915,7 +922,7 @@ fn the_sites_search_and_registry_are_current() {
     let _ = std::fs::remove_dir_all(&out);
     std::fs::create_dir_all(&out).unwrap();
     let run = std::process::Command::new("python3")
-        .arg(root.join("scripts/site-data.py"))
+        .arg(root.join("scripts/docsite/data.py"))
         .env("WF_SITE_DATA_OUT", &out)
         .env("WF_BIN", env!("CARGO_BIN_EXE_wf"))
         .output()
@@ -939,7 +946,7 @@ fn the_sites_search_and_registry_are_current() {
     let _ = std::fs::remove_dir_all(&out);
     assert!(
         stale.is_empty(),
-        "these are behind the guide or the registry; run `python3 scripts/site-data.py`: {stale:?}"
+        "these are behind the guide or the registry; run `cargo xtask site`: {stale:?}"
     );
 }
 
@@ -1013,7 +1020,10 @@ fn every_diagnostic_example_shows_what_the_build_prints() {
     let mut i = 0;
     while i < lines.len() {
         out.push(lines[i].to_string());
-        let Some(code) = lines[i].trim_end().strip_prefix("```wf expect ") else {
+        let Some(code) = crate::common::fence(lines[i])
+            .and_then(Result::ok)
+            .and_then(|f| f.expect)
+        else {
             i += 1;
             continue;
         };
@@ -1045,7 +1055,7 @@ fn every_diagnostic_example_shows_what_the_build_prints() {
             i = j + 1;
         }
         if shown.trim_end() != want.trim_end() {
-            stale.push(code.to_string());
+            stale.push(code);
         }
         out.push(String::new());
         out.push("```text".to_string());
@@ -1063,7 +1073,7 @@ fn every_diagnostic_example_shows_what_the_build_prints() {
     );
 }
 
-/// A ```` ```wf expect T04 ```` block is a program that draws `T04` on
+/// A ```` ```wf expect=T04 ```` block is a program that draws `T04` on
 /// purpose. Every one of them draws exactly the code it is filed under —
 /// and every code the compiler has is filed somewhere.
 #[test]
@@ -1093,7 +1103,10 @@ fn every_diagnostic_example_draws_its_code() {
     for (name, text) in chapters() {
         let mut lines = text.lines().enumerate();
         while let Some((at, line)) = lines.next() {
-            let Some(code) = line.trim_end().strip_prefix("```wf expect ") else {
+            let Some(code) = crate::common::fence(line)
+                .and_then(Result::ok)
+                .and_then(|f| f.expect)
+            else {
                 continue;
             };
             let mut body = String::new();
@@ -1111,7 +1124,7 @@ fn every_diagnostic_example_draws_its_code() {
                     at + 1
                 ));
             }
-            shown.push(code.to_string());
+            shown.push(code);
         }
     }
     assert!(failures.is_empty(), "{}", failures.join("\n"));
@@ -1138,7 +1151,7 @@ fn every_diagnostic_example_draws_its_code() {
         .collect();
     assert!(
         undocumented_examples.is_empty(),
-        "these codes have no ```wf expect …``` example in the guide: {undocumented_examples:?}"
+        "these codes have no ```wf expect=…``` example in the guide: {undocumented_examples:?}"
     );
 
     let src_dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("src");
@@ -1873,4 +1886,59 @@ fn the_skills_references_build_and_name_only_what_wf_has() {
         }
     }
     assert!(failures.is_empty(), "{}", failures.join("\n\n"));
+}
+
+/// Every code fence in the guide says only what a fence can say
+/// (`common::Fence`): a misspelt `expct=T05` would quietly make a block that
+/// must fail into a sample, and a `break=` on a block no reader edits would
+/// do nothing.
+#[test]
+fn every_fence_in_the_guide_says_what_a_fence_can() {
+    let codes: Vec<&str> = webfluent::diagnostics::codes::CODES
+        .iter()
+        .map(|c| c.code)
+        .collect();
+    let mut failures = Vec::new();
+    for (name, text) in crate::common::guide_pages() {
+        // The ticks of the fence that is open: a block inside a longer
+        // fence is the outer block's text, not a fence of the guide's.
+        let mut open: Option<usize> = None;
+        for (ix, line) in text.lines().enumerate() {
+            let ticks = line.chars().take_while(|c| *c == '`').count();
+            if ticks < 3 {
+                continue;
+            }
+            if let Some(n) = open {
+                if ticks >= n && line[ticks..].trim().is_empty() {
+                    open = None;
+                }
+                continue;
+            }
+            open = Some(ticks);
+            match crate::common::fence(line) {
+                None => {}
+                Some(Err(e)) => failures.push(format!("md-docs/{name}:{}: {e}", ix + 1)),
+                Some(Ok(f)) => {
+                    if let Some(code) = &f.expect
+                        && !codes.contains(&code.as_str())
+                    {
+                        failures.push(format!("md-docs/{name}:{}: {code} is no code", ix + 1));
+                    }
+                    if f.swap.is_some() && !f.live {
+                        failures.push(format!(
+                            "md-docs/{name}:{}: `break=` needs `live`: nothing edits this block",
+                            ix + 1
+                        ));
+                    }
+                    if (f.page || f.live || f.expect.is_some()) && f.lang != "wf" {
+                        failures.push(format!(
+                            "md-docs/{name}:{}: only a `wf` block is a page, live or expected to fail",
+                            ix + 1
+                        ));
+                    }
+                }
+            }
+        }
+    }
+    assert!(failures.is_empty(), "{}", failures.join("\n"));
 }

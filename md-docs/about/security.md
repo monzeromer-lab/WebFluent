@@ -202,7 +202,7 @@ behind a request.
 The compiler enforces the part it can. Declare a token as a `Secret`, and
 keeping it with `persist` is a `T12`:
 
-```wf expect T12
+```wf expect=T12
 page Account(path: "/", title: "Account", description: "Your account.") {
     persist _token: Secret = ""
     Heading("Account").h1

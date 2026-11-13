@@ -3,7 +3,7 @@
 > **Status: the house style of `md-docs/`, and the study it rests on.** Every
 > chapter of the guide follows it; a change to the guide is reviewed against
 > it. The site's chapter pages are generated from `md-docs/` by
-> `scripts/site-from-guide.py`, so following this file is how the site is
+> `scripts/docsite/guide.py`, so following this file is how the site is
 > written too.
 
 This file has three parts:
@@ -252,9 +252,9 @@ change.
 | Reference (`reference`) | reference | looking something up |
 | Help (`help`) | troubleshooting, upgrade notes | stuck, or upgrading |
 
-The file's number orders the chapters (`NN-slug.md`); to move a chapter,
-renumber it and update the links to it. The sections' names live in
-`GROUP_NAMES` in `scripts/site-from-guide.py`.
+A chapter's `chapter:` in its front matter orders the guide, whatever
+folder it is in; to move a chapter, renumber it and update the links to
+it. The sections' names live in `GROUP_NAMES` in `scripts/docsite/guide.py`.
 
 The documentation's landing page (`/docs`, `site/src/pages/Docs.wf`) routes
 a reader by need — *Learn*, *Understand*, *Build*, *Look up*, *Fix* —
@@ -326,7 +326,7 @@ the order they were added.
 **Diagnostic entry** (the diagnostics reference): `### CODE — Title` (the heading is the
 anchor the compiler links to; it must equal the code's title in
 `src/diagnostics/codes.rs`) → what it means → a program that draws it
-(`wf expect CODE`) → the message the compiler prints (a `text` block the
+(`wf expect=CODE`) → the message the compiler prints (a `text` block the
 test suite writes) → the fix, as a corrected program.
 
 ### 2.4 Asides
@@ -361,7 +361,7 @@ The guide is tested like code (`tests/docs_parse.rs`,
 - Every block that is a whole program with a `page` is **built and run**
   against a fake DOM: every button is clicked and every field typed into,
   and nothing may throw.
-- A ` ```wf expect CODE ` block must draw exactly `CODE`.
+- A ` ```wf expect=CODE ` block must draw exactly `CODE`.
 - Every `env.NAME` an example reads begins `PUBLIC_`.
 - Every link to a chapter lands on the chapter and on a heading it has.
 - The metadata is complete; the description fits a search result.

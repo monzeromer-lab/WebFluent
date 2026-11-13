@@ -890,7 +890,7 @@ pub fn docs_url(code: &str) -> String {
     format!("https://webfluent.monzeromer.dev/docs/guide/diagnostics#{anchor}")
 }
 
-/// A heading's anchor, as the site writes it (`scripts/site-from-guide.py`):
+/// A heading's anchor, as the site writes it (`scripts/docsite/guide.py`):
 /// backticks off, lower case, every run of anything but `a–z` and `0–9` a
 /// hyphen, none at either end.
 pub fn slug(heading: &str) -> String {

@@ -132,10 +132,9 @@ step "The docs site"
 # config, and the release the guide's install examples pin.
 sed -i "s/^  \"version\": \".*\"/  \"version\": \"$version\"/" site/webfluent.app.json
 sed -i "s/^const VERSION = \".*\"/const VERSION = \"${version%.*}\"/" site/src/model.wf
-sed -i -E "s/WF_VERSION=v[0-9]+\.[0-9]+\.[0-9]+/WF_VERSION=v$version/g" md-docs/*.md
+find md-docs -name '*.md' -exec sed -i -E "s/WF_VERSION=v[0-9]+\.[0-9]+\.[0-9]+/WF_VERSION=v$version/g" {} +
 cargo build --release --quiet
-python3 scripts/site-from-guide.py >/dev/null
-python3 scripts/site-data.py >/dev/null
+WF_BIN=target/release/wf python3 scripts/docsite >/dev/null
 # The gallery (/showcase): every example rendered by this compiler, with
 # previews. Needs pdftoppm and pdfinfo (poppler-utils) and magick.
 python3 scripts/showcase.py | tail -n1

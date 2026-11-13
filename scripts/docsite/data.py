@@ -10,7 +10,7 @@
   search. It is a file the site fetches the first time the search box is
   used, not part of every page's bundle.
 
-Rerun after the registry or the guide changes: `python3 scripts/site-data.py`.
+Rerun after the registry or the guide changes: `cargo xtask site`.
 """
 import json
 import os
@@ -18,7 +18,7 @@ import re
 import subprocess
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parents[2]
 # `WF_SITE_DATA_OUT` and `WF_BIN` let `tests/docs_parse.rs` write these into a
 # scratch directory with the binary it just built, and hold the committed
 # files to the result.
@@ -29,11 +29,11 @@ if not wf.exists():
 
 import importlib.util
 import sys
-spec = importlib.util.spec_from_file_location("guide", ROOT / "scripts" / "site-from-guide.py")
+spec = importlib.util.spec_from_file_location("guide", ROOT / "scripts" / "docsite" / "guide.py")
 guide = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(guide)
-sys.path.insert(0, str(ROOT / "scripts"))
-from component_examples import EXAMPLES  # noqa: E402
+sys.path.insert(0, str(ROOT / "scripts" / "docsite"))
+from examples import EXAMPLES  # noqa: E402
 
 
 def legacy(c):

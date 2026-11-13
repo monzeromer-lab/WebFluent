@@ -30,7 +30,7 @@ changes nothing in the output; it only reports.
 This page declares an `Invoice` record and builds one with the wrong kind
 of value for `total`:
 
-```wf expect T01
+```wf expect=T01
 type Invoice { id: String, total: Number, paid: Bool = false }
 
 page Invoices(path: "/", title: "Invoices", description: "What is owed.") {

@@ -32,7 +32,12 @@ fn page_examples(markdown: &str) -> Vec<(usize, String)> {
                     body.push('\n');
                 }
             }
-            None if line.trim_end() == "```wf" => current = Some((ix + 1, String::new())),
+            None if crate::common::fence(line)
+                .and_then(Result::ok)
+                .is_some_and(|f| f.lang == "wf" && f.is_sample()) =>
+            {
+                current = Some((ix + 1, String::new()));
+            }
             None => {}
         }
     }

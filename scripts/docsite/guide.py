@@ -6,14 +6,19 @@ Each chapter, `md-docs/<kind>/<name>.md`, becomes
 `/docs/<route>` framed by `DocsShell`, with a `Heading` per `##`/`###`,
 `Markdown` for prose and lists (so inline code, emphasis and links render),
 `CodeBlock` for a fenced block, `Terminal` for a shell block and `Table`
-for a pipe table. The guide is the source: rerun after it changes,
-`python3 scripts/site-from-guide.py`.
+for a pipe table. It also writes the book's chapter list,
+`site/src/components/Guide.wf`. The guide is the source: rerun after it
+changes, `cargo xtask site`.
 """
 import os
 import re
+import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import fences  # noqa: E402
+
+ROOT = Path(__file__).resolve().parents[2]
 GUIDE = ROOT / "md-docs"
 # `WF_GUIDE_OUT` and `WF_BIN` let `tests/docs_parse.rs` run this into a
 # scratch directory with the binary it just built, and hold the committed
@@ -236,10 +241,10 @@ def emit_code(lang, code, out, ind, num="", info=""):
         out.append(f"{ind}    ])")
     else:
         title = LANG_TITLES.get(lang, lang)
-        # `wf expect T04`: a program that draws that diagnostic, on purpose.
-        expect = re.match(r"expect\s+(\w+)", info)
-        if expect:
-            title = f"{title} · draws {expect.group(1)}"
+        # `wf expect=T04`: a program that draws that diagnostic, on purpose.
+        fence = fences.parse(f"{lang} {info}")
+        if fence.expect:
+            title = f"{title} · draws {fence.expect}"
         out.append(f"{ind}CodeBlock({wf_raw(code)}, title: \"{title}\")")
     out.append("")
 
@@ -379,58 +384,31 @@ def convert(num: str, md: str):
     anchors = ", ".join(f'Anchor(id: "{sid}", label: "{wf_string(label)}")' for sid, label in sections)
     header = [
         f'/// Chapter {n} of the guide, written from md-docs/{META[num]["path"]} by',
-        "/// scripts/site-from-guide.py; edit the guide, not this file.",
+        "/// scripts/docsite/guide.py; edit the guide, not this file.",
         f'page {name}(path: "/docs/{route}", title: "{wf_string(title)}", description: "{wf_string(description)}", layout: DocsShell("{wf_string(title)}", chapter: t("nav.group.{META[num]["group"]}"), blurb: "{wf_string(blurb)}", source: "md-docs/{META[num]["path"]}", sections: [{anchors}]' + "PREVNEXT" + ")) {",
         "    Stack(gap: .lg) {",
     ]
     return header, out, prev_num, next_num
 
 
-SIDEBAR_HEAD = """/// The guide's chapter nav, written from the chapters' own metadata by
-/// scripts/site-from-guide.py; edit the guide, not this file. 280px, a group
-/// per part of the guide under an overline label, each chapter with its
-/// number in mono; the one whose `to` matches the route carries the rail,
-/// the wash and the bold. Sections, not numbers: the reader finds a page by
-/// what it is for.
-component DocSidebar {
-    Sidebar(aria-label: t("nav.chapters")) {
-        style {
-            width: 280px
-            flex-shrink: 0
-            padding: 24px 16px
-            gap: 6px
-            border-inline-end: 1px solid $border
-            background: $color-background
-            overflow-y: auto
-            & .wf-sidebar__item { height: 32px; padding: 0 10px; gap: 10px; border-radius: 4px; font-size: 13px; line-height: 20px; color: $color-text-muted }
-            & .wf-sidebar__item:hover { background: $surface-hover; color: $color-text }
-            & .wf-sidebar__item.active { padding-inline-start: 7px; border-inline-start: 3px solid $color-primary; border-radius: 0 4px 4px 0; background: $brand-subtle; color: $color-text; font-weight: 600 }
-            & .wf-sidebar__item p { margin: 0 }
-            & .wf-sidebar__divider { display: none }
-            & .group-label { margin: 20px 0 16px; padding: 0 10px; font-size: 12px; line-height: 18px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: $ink-subtle }
-            & .group-label:first-child { margin-top: 0 }
-        }
+BOOK_HEAD = """/// The guide, in the book sidebar's shape: written from each chapter's
+/// front matter by scripts/docsite/guide.py; edit the guide, not this file.
+/// The first three chapters of `learn/` are the tour.
+const GUIDE: [Chapter] = [
 """
 
 
-def sidebar() -> str:
-    out = [SIDEBAR_HEAD]
-    # The landing page that sends a reader to the right part of the guide.
-    out.append('        Sidebar.Item(to: "/docs", icon: "home") { Text(t("nav.overview")) }')
-    group = None
+def book() -> str:
+    rows = []
     for num in sorted(META):
         meta = META[num]
-        if meta["group"] != group:
-            group = meta["group"]
-            out.append("")
-            out.append(f'        Text(t("nav.group.{group}"), class: "group-label")')
-        prefix = ", active: .prefix" if meta["route"] == REFERENCE_ROUTE else ""
-        out.append(
-            f'        Sidebar.Item(to: "/docs/{meta["route"]}"{prefix}) {{ Text(t("ch.{num}")) }}'
+        tour = meta["path"].startswith(("learn/01-", "learn/02-", "learn/03-"))
+        rows.append(
+            f'    Chapter(n: {int(num)}, title: "{wf_string(meta["title"])}", key: "ch.{num}", '
+            f'to: "/docs/{meta["route"]}", part: "nav.group.{meta["group"]}", '
+            f'tour: {"true" if tour else "false"})'
         )
-    out.append("    }")
-    out.append("}")
-    return "\n".join(out) + "\n"
+    return BOOK_HEAD + ",\n".join(rows) + "\n]\n"
 
 
 def contents_table() -> str:
@@ -474,11 +452,12 @@ def main():
         (OUT / f"{num}-{META[num]['slug']}.wf").write_text(text)
     print(f"wrote {len(converted)} chapters to {OUT}")
 
-    # The sidebar, beside the pages when a test asks for a scratch copy.
+    # The book's chapter list, beside the pages when a test asks for a
+    # scratch copy.
     testing = bool(os.environ.get("WF_GUIDE_OUT"))
-    sidebar_path = (OUT / "sidebar" / "DocSidebar.wf") if testing else ROOT / "site" / "src" / "components" / "DocSidebar.wf"
-    sidebar_path.parent.mkdir(parents=True, exist_ok=True)
-    sidebar_path.write_text(sidebar())
+    book_path = (OUT / "book" / "Guide.wf") if testing else ROOT / "site" / "src" / "components" / "Guide.wf"
+    book_path.parent.mkdir(parents=True, exist_ok=True)
+    book_path.write_text(book())
 
     if not testing:
         # The chapter titles the site shows in English, and the guide's own
@@ -506,7 +485,7 @@ def main():
     import subprocess
     wf = Path(os.environ["WF_BIN"]) if os.environ.get("WF_BIN") else ROOT / "target" / "debug" / "wf"
     subprocess.run([str(wf) if wf.exists() else "wf", "fmt", str(OUT)], check=False)
-    subprocess.run([str(wf) if wf.exists() else "wf", "fmt", str(sidebar_path)], check=False)
+    subprocess.run([str(wf) if wf.exists() else "wf", "fmt", str(book_path)], check=False)
 
 
 if __name__ == "__main__":

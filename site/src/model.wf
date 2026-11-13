@@ -31,7 +31,7 @@ const VERSION = "6.0"
 const INSTALL = "curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | bash"
 
 /// The components reference, written from `wf registry --json` by
-/// scripts/site-data.py: the groups, every built-in with its props, flags,
+/// scripts/docsite/data.py: the groups, every built-in with its props, flags,
 /// parts and events, and what every element takes.
 data registry: Map = "registry.json"
 

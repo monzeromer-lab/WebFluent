@@ -6,6 +6,7 @@
 //! cargo xtask golden [--update]        every project's output, held to tests/golden/
 //! cargo xtask fuzz <target> [seconds]  one fuzz target (parse, fmt, layout, markdown, sanitize)
 //! cargo xtask bench                    wf check, wf build and the language server, timed
+//! cargo xtask site [--check]           the docs site's files written from the guide and wf
 //! ```
 //!
 //! Each command runs `cargo` the way CI does, so a tree that passes here
@@ -32,6 +33,7 @@ fn main() -> ExitCode {
         "golden" => golden(&root, rest),
         "fuzz" => fuzz(&root, rest),
         "bench" => bench(&root, rest),
+        "site" => site(&root, rest),
         "-h" | "--help" | "help" => {
             print_help();
             Ok(())
@@ -51,7 +53,7 @@ fn main() -> ExitCode {
 
 fn print_help() {
     let doc = include_str!("main.rs");
-    for line in doc.lines().skip(3).take(5) {
+    for line in doc.lines().skip(3).take(6) {
         println!("{}", line.trim_start_matches("//! "));
     }
 }
@@ -236,6 +238,26 @@ fn golden(root: &Path, args: &[String]) -> Result<(), String> {
         &["test", "--release", "--test", "it", "--", "golden::"],
         env,
     )
+}
+
+/// The documentation site's generated files — its chapter pages, the
+/// book's chapter list, the components reference and the search index —
+/// written from `md-docs/` and the registry of a `wf` built from this tree;
+/// with `--check`, only whether the committed ones are current.
+fn site(root: &Path, args: &[String]) -> Result<(), String> {
+    let check = match args {
+        [] => false,
+        [flag] if flag == "--check" => true,
+        _ => return Err("usage: cargo xtask site [--check]".to_string()),
+    };
+    run(root, "Build wf", "cargo", &["build", "--bin", "wf"], &[])?;
+    let wf = root.join("target/debug/wf");
+    let wf = wf.to_string_lossy();
+    let mut script = vec!["scripts/docsite"];
+    if check {
+        script.push("--check");
+    }
+    run(root, "Site files", "python3", &script, &[("WF_BIN", &wf)])
 }
 
 /// One fuzz target for `seconds` (60 unless given). Needs cargo-fuzz and the

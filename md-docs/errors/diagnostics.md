@@ -186,7 +186,7 @@ Errors, except where an entry says otherwise.
 
 ### E001 — Text the compiler cannot read
 
-```wf expect E001
+```wf expect=E001
 page P(path: "/", title: "T", description: "D") {
     Heading("Hello).h1
 }
@@ -207,7 +207,7 @@ for the one beside it on the keyboard.
 
 ### E002 — A syntax error
 
-```wf expect E002
+```wf expect=E002
 page P(path: "/", title: "T", description: "D") {
     Heading("Hello").h1
     Text("a" Text("b")
@@ -243,7 +243,7 @@ page Home(path: "/")
 
 ### E004 — A file in the WebFluent 2 grammar
 
-```wf expect E004
+```wf expect=E004
 Page Home (path: "/") {
     Text("Hi")
 }
@@ -270,7 +270,7 @@ names by hand; please report the file, since it is a bug in `wf fmt`.
 
 ### E101 — A component nothing declares
 
-```wf expect E101
+```wf expect=E101
 page P(path: "/", title: "T", description: "D") {
     Heading("Save").h1
     Buton("Save")
@@ -291,7 +291,7 @@ error[E101]: unknown component `Buton`: no `component Buton` is declared
 
 ### E102 — A name declared twice
 
-```wf expect E102
+```wf expect=E102
 page P(path: "/", title: "T", description: "D") {
     state count = 0
     derived count = 1
@@ -315,7 +315,7 @@ where the first is.
 
 ### E103 — A flag, case, part, event or slot the component does not have
 
-```wf expect E103
+```wf expect=E103
 page P(path: "/", title: "T", description: "D") {
     Heading("Save").h1
     Button("Save").huge
@@ -337,7 +337,7 @@ slot the component takes.
 
 ### E104 — A layout with nowhere to put the page
 
-```wf expect E104
+```wf expect=E104
 component Shell { Text("frame") }
 page P(path: "/", title: "T", description: "D", layout: Shell) {
     Heading("Home").h1
@@ -359,7 +359,7 @@ belongs.
 
 ### E105 — A statement a render block cannot hold
 
-```wf expect E105
+```wf expect=E105
 page P(path: "/", title: "T", description: "D") {
     state n = 0
     Heading("Count").h1
@@ -381,7 +381,7 @@ error[E105]: `n` is not an element or a statement a render block can hold
 
 ### E106 — Script or a whole style in an attribute
 
-```wf expect E106
+```wf expect=E106
 page P(path: "/", title: "T", description: "D") {
     Heading("Save").h1
     Button("Save", onclick: "save()")
@@ -406,7 +406,7 @@ into a box over the whole page or a request to anywhere. A style is a
 `style { }` block, one property at a time, where a value that reads
 state sets that one property and nothing else.
 
-```wf expect E106
+```wf expect=E106
 page P(path: "/", title: "T", description: "D") {
     state look = "color: red"
     Heading("Note").h1
@@ -428,7 +428,7 @@ error[E106]: `style:` on Text would write a value as the element's whole inline 
 
 ### E107 — A URL a browser would run
 
-```wf expect E107
+```wf expect=E107
 page P(path: "/", title: "T", description: "D") {
     Heading("Go").h1
     Link("Go", to: "javascript:alert(1)")
@@ -454,7 +454,7 @@ reads would choose the script the page runs; a `meta(http-equiv:
 "refresh")` whose address comes from a value is an open redirect, and
 an `http-equiv` a value chooses could become one.
 
-```wf expect E107
+```wf expect=E107
 page P(path: "/", title: "T", description: "D") {
     head { script(src: query.lib) }
     Heading("Home").h1
@@ -509,7 +509,7 @@ nearest one that is: `` `build.minfy` is not a setting, and nothing reads it
 
 ### E113 — An argument that cannot be positional
 
-```wf expect E113
+```wf expect=E113
 component Card(_ name: String, price: Number = 0) { Text(name) }
 page P(path: "/", title: "T", description: "D") {
     Heading("Shop").h1
@@ -531,7 +531,7 @@ error[E113]: Only the first argument may be positional
 
 ### E114 — `emit` outside a component
 
-```wf expect E114
+```wf expect=E114
 page P(path: "/", title: "T", description: "D") {
     Heading("Save").h1
     Button("Save") { on click { emit saved() } }
@@ -559,7 +559,7 @@ line it names.
 
 ### E116 — A tag that cannot be a custom element's
 
-```wf expect E116
+```wf expect=E116
 page P(path: "/", title: "T", description: "D") {
     Heading("Pricing").h1
     Element("pricingtable")
@@ -598,7 +598,7 @@ message says; a library's origin goes in `meta.scripts`, a stylesheet's in
 
 ### E117 — A key combination no keyboard sends
 
-```wf expect E117
+```wf expect=E117
 page P(path: "/", title: "T", description: "D") {
     on key("ctrl+shfit+k") { log("search") }
     Heading("Search").h1
@@ -620,7 +620,7 @@ a letter, a digit, or a name — `Enter`, `Escape`, `ArrowDown`, `Tab`, `F2`.
 
 ### E118 — A name the language already has
 
-```wf expect E118
+```wf expect=E118
 page Deploy(path: "/", title: "Deploy", description: "Pick a target.") {
     state env = "staging"
     Heading("Deploy to {env}").h1
@@ -723,7 +723,7 @@ template, or work the value out on the server and hand it over.
 
 ### C01 — A required prop or field left out
 
-```wf expect C01
+```wf expect=C01
 type Todo { id: String, title: String, done: Bool = false }
 page P(path: "/", title: "T", description: "D") {
     state todo = Todo(title: "Write the docs")
@@ -750,7 +750,7 @@ a `Portal` with no `into:` would draw nowhere, and the fix passes
 
 ### C02 — A prop the component does not declare
 
-```wf expect C02
+```wf expect=C02
 component Badge2(_ label: String) { Text(label) }
 page P(path: "/", title: "T", description: "D") {
     Heading("Badges").h1
@@ -772,7 +772,7 @@ error[C02]: `Badge2` declares no prop `colour`
 
 ### C03 — A part outside the component it belongs to
 
-```wf expect C03
+```wf expect=C03
 page P(path: "/", title: "T", description: "D") {
     Heading("Plans").h1
     Select.Option("Pro", value: "pro")
@@ -796,7 +796,7 @@ Select.Option(…) }`.
 
 Warning.
 
-```wf expect C04
+```wf expect=C04
 page P(path: "/", title: "T", description: "D") {
     Heading("Save").h1
     Button("Save", colour: "red")
@@ -821,7 +821,7 @@ takes. `aria-*`, `data-*` and the global attributes (`id`, `role`,
 
 Warning.
 
-```wf expect C05
+```wf expect=C05
 page P(path: "/", title: "T", description: "D") {
     Heading("Rule").h1
     Divider("thin")
@@ -844,7 +844,7 @@ warning[C05]: Divider takes no positional argument
 
 Warning.
 
-```wf expect C06
+```wf expect=C06
 component Tag2(label: String) { Text(label) }
 page P(path: "/", title: "T", description: "D") {
     Heading("Tags").h1
@@ -866,7 +866,7 @@ warning[C06]: `Tag2` declares no positional prop; the argument binds to `label`
 
 ### C07 — A drag or a gesture on a component with no one element
 
-```wf expect C07
+```wf expect=C07
 component Rows2(_ name: String) {
     for x in [1, 2] { Text(name) }
 }
@@ -899,7 +899,7 @@ several elements has no one element to give them.
 
 ### X01 — An assignment to something that cannot change
 
-```wf expect X01
+```wf expect=X01
 const LIMIT = 3
 page P(path: "/", title: "T", description: "D") {
     Heading("Limit {LIMIT}").h1
@@ -924,7 +924,7 @@ variable is one pass's copy (change the item through its list).
 
 ### X02 — An effect that feeds itself
 
-```wf expect X02
+```wf expect=X02
 page P(path: "/", title: "T", description: "D") {
     state visits = 0
     effect { visits = visits + 1 }
@@ -947,7 +947,7 @@ handler that changes what it depends on.
 
 ### X04 — A derived value that changes something
 
-```wf expect X04
+```wf expect=X04
 page P(path: "/", title: "T", description: "D") {
     state count = 0
     action next() {
@@ -973,7 +973,7 @@ error[X04]: `ticket` is worked out by calling `next(…)`, which assigns `count`
 
 ### X05 — `use` of a store nothing declares
 
-```wf expect X05
+```wf expect=X05
 store Cart { state items = [] }
 page P(path: "/", title: "T", description: "D") {
     use Carts
@@ -995,7 +995,7 @@ error[X05]: `use Carts` names a store nothing declares
 
 ### X06 — A state that copies a live value once
 
-```wf expect X06
+```wf expect=X06
 page P(path: "/", title: "T", description: "D") {
     state posted = @2026-03-14T09:30:00Z
     state clock = now(every: 1.seconds)
@@ -1027,7 +1027,7 @@ live value read inside a lambda, which reads it each time it is called.
 
 ### F01 — A `bind:` to something that cannot be written
 
-```wf expect F01
+```wf expect=F01
 page P(path: "/", title: "T", description: "D") {
     state first = "Ada"
     derived name = first.toUpperCase()
@@ -1051,7 +1051,7 @@ that is worked out with `value:`.
 
 ### F02 — A `bind:` to a state the control cannot hold
 
-```wf expect F02
+```wf expect=F02
 page P(path: "/", title: "T", description: "D") {
     state qty = 1
     Heading("Order").h1
@@ -1074,7 +1074,7 @@ error[F02]: `bind:` on `Input` holds a `String`, but `qty` is `Number`
 
 ### F03 — A `validate` block no control can satisfy
 
-```wf expect F03
+```wf expect=F03
 page P(path: "/", title: "T", description: "D") {
     state email = ""
     validate email { required  email }
@@ -1100,7 +1100,7 @@ error[F03]: `validate email` guards a state no control binds, so its rules can n
 
 Warning.
 
-```wf expect F04
+```wf expect=F04
 page P(path: "/", title: "T", description: "D") {
     state agree = false
     Heading("Terms").h1
@@ -1124,7 +1124,7 @@ warning[F04]: this `Checkbox` shows `checked:` but nothing changes it, so a clic
 
 Warning.
 
-```wf expect F05
+```wf expect=F05
 page P(path: "/", title: "T", description: "D") {
     state plan = "basic"
     Heading("Plan").h1
@@ -1151,7 +1151,7 @@ warning[F05]: `plan` starts as `basic`, which is none of this select's options
 
 ### R01 — A route to nothing
 
-```wf expect R01
+```wf expect=R01
 page Home(path: "/", title: "T", description: "D") {
     Heading("Home").h1
     Link("About us", to: "/abuot")
@@ -1179,7 +1179,7 @@ another site is left alone.
 
 ### R02 — A route parameter and a page parameter that do not match
 
-```wf expect R02
+```wf expect=R02
 page Profile(path: "/u/:id", title: "T", description: "D") {
     Heading("Profile").h1
 }
@@ -1201,7 +1201,7 @@ has no `:name` for is never filled.
 
 ### R03 — An `app` with no `Router`, or with two
 
-```wf expect R03
+```wf expect=R03
 app {
     Navbar { Navbar.Brand { Text("Ledger") } }
 }
@@ -1227,7 +1227,7 @@ Router }`. (A program with no `app` at all routes its pages by itself.)
 
 Warning.
 
-```wf expect R04
+```wf expect=R04
 page Post(path: "/blog/first", title: "T", description: "D") {
     Heading("First post").h1
     Image(src: "images/cover.png", alt: "")
@@ -1250,7 +1250,7 @@ warning[R04]: `src: "images/cover.png"` is relative, so on `/blog/first` it is f
 
 Error.
 
-```wf expect R05
+```wf expect=R05
 page Home(path: "/", title: "Home", description: "D") {
     Heading("Home").h1
 }
@@ -1287,7 +1287,7 @@ exist (also `poster:`, `captions:`, `transcript:`, and a worker's
 
 ### D02 — A persisted value storage cannot keep
 
-```wf expect D02
+```wf expect=D02
 page P(path: "/", title: "T", description: "D") {
     persist pick = (x) => x + 1
     Heading("Pick").h1
@@ -1311,7 +1311,7 @@ the rest when it is read.
 
 Warning.
 
-```wf expect D03
+```wf expect=D03
 component Panel(_ title: String) {
     persist open = false
     Card { Text(title) }
@@ -1358,7 +1358,7 @@ Errors. The type checker's findings; a program that declares no types raises non
 
 ### T01 — A value of the wrong type
 
-```wf expect T01
+```wf expect=T01
 page P(path: "/", title: "T", description: "D") {
     state count: Number = 0
     Heading("Counter").h1
@@ -1382,7 +1382,7 @@ A number a built-in cannot be given is one too: a `Carousel(interval:)`
 outside 1 to 2147483647 milliseconds (`-5000` used to become a 0 ms
 autoplay), a `Column(span:)` that is not a whole number from 1 to 12.
 
-```wf expect T01
+```wf expect=T01
 page P(path: "/", title: "T", description: "D") {
     Heading("Grid").h1
     Row { Column(span: 13) { Text("Wide") } }
@@ -1401,7 +1401,7 @@ error[T01]: `span` of Column is 13, but a whole number of the 12 columns, from 1
 
 ### T02 — A case the enum does not have
 
-```wf expect T02
+```wf expect=T02
 enum Tone { calm, loud }
 page P(path: "/", title: "T", description: "D") {
     state tone: Tone = .quiet
@@ -1423,7 +1423,7 @@ error[T02]: `Tone` has no case `.quiet`
 
 ### T04 — A value that may be null, read as if it were not
 
-```wf expect T04
+```wf expect=T04
 type User { name: String, email: String? }
 page P(path: "/", title: "T", description: "D") {
     state user = User(name: "Ada", email: null)
@@ -1446,7 +1446,7 @@ error[T04]: `user.email` may be null, so `.toUpperCase()` may fail
 
 ### T05 — A field or method that does not exist
 
-```wf expect T05
+```wf expect=T05
 type User { name: String }
 page P(path: "/", title: "T", description: "D") {
     state user = User(name: "Ada")
@@ -1468,7 +1468,7 @@ error[T05]: `User` has no field `nmae`
 
 ### T06 — A member a store or service does not have
 
-```wf expect T06
+```wf expect=T06
 store Cart { state items = [] }
 page P(path: "/", title: "T", description: "D") {
     use Cart
@@ -1490,7 +1490,7 @@ error[T06]: `Cart` has no member `count`
 
 ### T07 — A condition that is always true
 
-```wf expect T07
+```wf expect=T07
 page P(path: "/", title: "T", description: "D") {
     state items = ["a"]
     Heading("List").h1
@@ -1512,7 +1512,7 @@ error[T07]: `if` reads `items` as a condition, but a list is always true
 
 ### T08 — A loop over something that is not a list
 
-```wf expect T08
+```wf expect=T08
 page P(path: "/", title: "T", description: "D") {
     state total = 3
     Heading("Loop").h1
@@ -1534,7 +1534,7 @@ error[T08]: `for` loops over a list, but `total` is `Number`
 
 ### T09 — An `emit` that does not match its event
 
-```wf expect T09
+```wf expect=T09
 component Stepper(_ start: Number) {
     event change(value: Number)
     Button("+") { on click { emit change(1, 2) } }
@@ -1555,7 +1555,7 @@ error[T09]: `emit change` passes 2 arguments, but the event takes 1
 
 ### T10 — A call with the wrong arguments
 
-```wf expect T10
+```wf expect=T10
 page P(path: "/", title: "T", description: "D") {
     state count = 0
     action add(by: Number) { count = count + by }
@@ -1577,7 +1577,7 @@ error[T10]: `add` takes 1 argument, but 2 are given
 
 ### T11 — A `match` on something that cannot be matched
 
-```wf expect T11
+```wf expect=T11
 page P(path: "/", title: "T", description: "D") {
     state n = 1
     Heading("Match").h1
@@ -1602,7 +1602,7 @@ error[T11]: `match` needs a resource or an enum, but `n` is `Number`
 
 ### T12 — A secret where it would escape
 
-```wf expect T12
+```wf expect=T12
 page P(path: "/", title: "T", description: "D") {
     state token: Secret = ""
     Heading("Token").h1
@@ -1624,7 +1624,7 @@ error[T12]: `token` is a `Secret`, and `Text` would show it
 
 ### T13 — A name nothing declares
 
-```wf expect T13
+```wf expect=T13
 page P(path: "/", title: "T", description: "D") {
     state count = 0
     Heading("Counter").h1
@@ -1651,7 +1651,7 @@ it is not held to this.
 
 ### T14 — A comparison that is always the same
 
-```wf expect T14
+```wf expect=T14
 page P(path: "/", title: "T", description: "D") {
     state count = 0
     Heading("Count").h1
@@ -1674,7 +1674,7 @@ error[T14]: `count` is `Number` and `"0"` is `String`, which are never equal, so
 
 ### T15 — A `match` that misses a case, or has one twice
 
-```wf expect T15
+```wf expect=T15
 enum Status { draft, review, live }
 page P(path: "/", title: "T", description: "D") {
     state status: Status = .draft
@@ -1702,7 +1702,7 @@ error[T15]: this `match` on `status` has no arm for `.review`, and no `else`
 
 ### T16 — A method a number, a string or a list does not have
 
-```wf expect T16
+```wf expect=T16
 page P(path: "/", title: "T", description: "D") {
     state names = ["Ada", "Grace"]
     Heading("People").h1
@@ -1724,7 +1724,7 @@ error[T16]: a `[String]` has no method `joined`
 
 ### T17 — An async result used before it is awaited
 
-```wf expect T17
+```wf expect=T17
 page P(path: "/", title: "T", description: "D") {
     state saved = false
     action save() { saved = true }
@@ -1750,7 +1750,7 @@ elements can read.
 
 ### T18 — Arithmetic on something that is not a number
 
-```wf expect T18
+```wf expect=T18
 page P(path: "/", title: "T", description: "D") {
     state price = "12"
     Heading("Total {price * 2}").h1
@@ -1774,7 +1774,7 @@ error[T18]: `*` takes numbers, but `price` is `String`
 
 Warning.
 
-```wf expect T19
+```wf expect=T19
 type User { name: String, nickname: String? }
 page P(path: "/", title: "T", description: "D") {
     state user = User(name: "Ada", nickname: null)
@@ -1800,7 +1800,7 @@ show the line only when there is one: `if let n = user.nickname { … }`.
 
 Warning.
 
-```wf expect T21
+```wf expect=T21
 page P(path: "/", title: "T", description: "D") {
     resource users = fetch("/api/users")
     Heading("Users").h1
@@ -1827,7 +1827,7 @@ warning[T21]: this `match` on `users` has no `error` arm, so a failed request sh
 
 Error.
 
-```wf expect T22
+```wf expect=T22
 component Entry(_ key: String) {
     event menu(key: String, x: Number, y: Number)
     Button(key) { on contextmenu(e) { e.preventDefault()  emit menu(key, e.clientX, e.clientY) } }
@@ -1863,7 +1863,7 @@ read what it carries from it: `on click(e) { … e.clientX … }`.
 
 Warning.
 
-```wf expect T20
+```wf expect=T20
 page P(path: "/", title: "T", description: "D") {
     state tags = ["a", "b"]
     Heading("Tags").h1
@@ -1924,7 +1924,7 @@ Warnings. What makes a page unusable with a screen reader, a keyboard or a voice
 
 ### A01 — An image with no alt text
 
-```wf expect A01
+```wf expect=A01
 page P(path: "/", title: "T", description: "D") {
     Heading("Photo").h1
     Image(src: "/team.jpg")
@@ -1945,7 +1945,7 @@ warning[A01]: Image missing "alt" attribute
 
 ### A02 — An icon button with no name
 
-```wf expect A02
+```wf expect=A02
 page P(path: "/", title: "T", description: "D") {
     Heading("Close").h1
     IconButton(icon: "close")
@@ -1966,7 +1966,7 @@ warning[A02]: IconButton missing accessible label
 
 ### A03 — An input with no label
 
-```wf expect A03
+```wf expect=A03
 page P(path: "/", title: "T", description: "D") {
     state name = ""
     Heading("Name").h1
@@ -1988,7 +1988,7 @@ warning[A03]: Input missing "label" or "placeholder" attribute
 
 ### A04 — A control with no label
 
-```wf expect A04
+```wf expect=A04
 page P(path: "/", title: "T", description: "D") {
     state agree = false
     Heading("Terms").h1
@@ -2010,7 +2010,7 @@ warning[A04]: Checkbox missing "label" attribute
 
 ### A05 — A button with no text
 
-```wf expect A05
+```wf expect=A05
 page P(path: "/", title: "T", description: "D") {
     Heading("Actions").h1
     Button { Icon("check") }
@@ -2035,7 +2035,7 @@ words, which show only on hover, do not.
 
 ### A06 — A link with no text
 
-```wf expect A06
+```wf expect=A06
 page P(path: "/", title: "T", description: "D") {
     Heading("Links").h1
     Link(to: "/about")
@@ -2056,7 +2056,7 @@ warning[A06]: Link has no text content
 
 ### A07 — An empty heading
 
-```wf expect A07
+```wf expect=A07
 page P(path: "/", title: "T", description: "D") {
     Heading("Title").h1
     Heading("").h2
@@ -2077,7 +2077,7 @@ warning[A07]: Heading has empty text content
 
 ### A08 — A dialog with no title
 
-```wf expect A08
+```wf expect=A08
 page P(path: "/", title: "T", description: "D") {
     state open = false
     Heading("Modal").h1
@@ -2099,7 +2099,7 @@ warning[A08]: Modal missing "title" attribute
 
 ### A09 — Media nobody can follow without sound
 
-```wf expect A09
+```wf expect=A09
 page P(path: "/", title: "T", description: "D") {
     Heading("Demo").h1
     Video(src: "/demo.mp4").controls
@@ -2120,7 +2120,7 @@ warning[A09]: Video missing "captions"
 
 ### A10 — A table with no header row
 
-```wf expect A10
+```wf expect=A10
 page P(path: "/", title: "T", description: "D") {
     Heading("Table").h1
     Table(caption: "Prices") { Table.Body { Table.Row { Table.Cell("Pen")  Table.Cell("2") } } }
@@ -2141,7 +2141,7 @@ warning[A10]: Table has no header row (`Table.Head`)
 
 ### A11 — A skipped heading level
 
-```wf expect A11
+```wf expect=A11
 page P(path: "/", title: "T", description: "D") {
     Heading("Title").h1
     Heading("Deep").h4
@@ -2162,7 +2162,7 @@ warning[A11]: Heading level skips from h1 to h4
 
 ### A12 — A page without exactly one h1
 
-```wf expect A12
+```wf expect=A12
 page P(path: "/", title: "T", description: "D") {
     Heading("Section").h2
 }
@@ -2182,7 +2182,7 @@ warning[A12]: Page has no h1 heading
 
 ### A13 — Colours without enough contrast
 
-```wf expect A13
+```wf expect=A13
 theme Faint {
     color-text: #BBBBBB
     color-background: #FFFFFF
@@ -2206,7 +2206,7 @@ warning[A13]: text on a card or surface has a contrast ratio of 1.83:1, below th
 
 ### A14 — A role whose children are the wrong kind
 
-```wf expect A14
+```wf expect=A14
 page P(path: "/", title: "T", description: "D") {
     Heading("Tabs").h1
     Row(role: "tablist") {
@@ -2230,7 +2230,7 @@ warning[A14]: role "tablist" requires children with role "tab", but holds a Butt
 
 ### A15 — An `aria-label` that does not contain the visible text
 
-```wf expect A15
+```wf expect=A15
 page P(path: "/", title: "T", description: "D") {
     Heading("Save").h1
     Button("Save", aria-label: "Submit the form")
@@ -2253,7 +2253,7 @@ warning[A15]: Button shows "save" but its aria-label says "Submit the form"
 
 Warning.
 
-```wf expect A16
+```wf expect=A16
 page P(path: "/", title: "T", description: "D") {
     state rows = ["a", "b"]
     Heading("Rows").h1
@@ -2277,7 +2277,7 @@ warning[A16]: `id: "row"` is inside a `for`, so the page has several elements wi
 
 Warning.
 
-```wf expect A17
+```wf expect=A17
 page P(path: "/", title: "T", description: "D") {
     Heading("Preview").h1
     Frame(src: "https://example.com/")
@@ -2302,7 +2302,7 @@ Warnings. What a search engine or a link preview would act on.
 
 ### S01 — A page with no title
 
-```wf expect S01
+```wf expect=S01
 page P(path: "/", description: "D") {
     Heading("No title").h1
 }
@@ -2322,7 +2322,7 @@ warning[S01]: Page P has no title
 
 ### S02 — A page with no description
 
-```wf expect S02
+```wf expect=S02
 page P(path: "/", title: "T") {
     Heading("No description").h1
 }
@@ -2342,7 +2342,7 @@ warning[S02]: Page P has no description
 
 ### S03 — A description too long for a search result
 
-```wf expect S03
+```wf expect=S03
 page P(path: "/", title: "T", description: "A description that goes on for far longer than any search result will ever show, because it keeps adding clauses, qualifications and asides until the snippet is cut mid-sentence.") {
     Heading("Long").h1
 }
@@ -2362,7 +2362,7 @@ warning[S03]: Page P's description is 178 characters; a search result shows abou
 
 ### S04 — Two pages on one route
 
-```wf expect S04
+```wf expect=S04
 page A(path: "/about", title: "A", description: "D") { Heading("A").h1 }
 page B(path: "/about", title: "B", description: "D") { Heading("B").h1 }
 ```
@@ -2385,7 +2385,7 @@ Warnings. `persist` values across releases.
 
 ### P01 — A persisted value with no way forward
 
-```wf expect P01
+```wf expect=P01
 store Cart {
     persist items: [String] = [] {
         version: 2
@@ -2407,7 +2407,7 @@ warning[P01]: `items` is at version 2, and nothing brings version 1 forward
 
 ### P02 — A migration that never runs
 
-```wf expect P02
+```wf expect=P02
 store Cart {
     persist items: [String] = [] {
         version: 1
@@ -2430,7 +2430,7 @@ warning[P02]: `migrate 1 -> 2` on `items` is past the declared version
 
 ### P03 — A persisted value in a route-scoped store
 
-```wf expect P03
+```wf expect=P03
 store Filters(scope: .route) {
     persist search = ""
 }
@@ -2454,7 +2454,7 @@ Warnings. A name beginning `_` is taken as unused on purpose.
 
 ### U01 — A state nothing reads
 
-```wf expect U01
+```wf expect=U01
 page P(path: "/", title: "T", description: "D") {
     state unused = 0
     Heading("Unused").h1
@@ -2475,7 +2475,7 @@ warning[U01]: `unused` is declared but never read
 
 ### U02 — A derived value nothing reads
 
-```wf expect U02
+```wf expect=U02
 page P(path: "/", title: "T", description: "D") {
     state n = 1
     derived doubled = n * 2
@@ -2497,7 +2497,7 @@ warning[U02]: `doubled` is declared but never read
 
 ### U03 — A component nothing places
 
-```wf expect U03
+```wf expect=U03
 component Orphan { Text("Nobody places me") }
 page P(path: "/", title: "T", description: "D") {
     Heading("Home").h1
@@ -2518,7 +2518,7 @@ warning[U03]: `Orphan` is declared but never placed
 
 ### U04 — A store member nothing reads
 
-```wf expect U04
+```wf expect=U04
 store Cart {
     state items = []
     state coupon = ""
@@ -2543,7 +2543,7 @@ warning[U04]: `Cart.coupon` is declared but never read
 
 ### U05 — An action nothing calls
 
-```wf expect U05
+```wf expect=U05
 page P(path: "/", title: "T", description: "D") {
     state n = 0
     action reset() { n = 0 }
@@ -2565,7 +2565,7 @@ warning[U05]: `reset` is declared but never read
 
 ### U06 — Code after return
 
-```wf expect U06
+```wf expect=U06
 page P(path: "/", title: "T", description: "D") {
     state n = 0
     action reset() {
@@ -2599,7 +2599,7 @@ only what `lints` could lower — a warning, or an error that ships no broken
 page. An allow that covers nothing it names is reported, so allows cannot
 outlive what they were written for.
 
-```wf expect U07
+```wf expect=U07
 page P(path: "/", title: "T", description: "D") {
     // wf-allow(U01)
     state shown = 0
@@ -2621,7 +2621,7 @@ warning[U07]: `wf-allow(U01)` allows nothing: no `U01` is reported on the line i
 
 ### U08 — A condition that is always the same
 
-```wf expect U08
+```wf expect=U08
 page P(path: "/", title: "T", description: "D") {
     Heading("Beta").h1
     if false { Text("Coming soon") }
@@ -2644,7 +2644,7 @@ warning[U08]: `false` is always false, so one branch never runs
 
 Warning.
 
-```wf expect U09
+```wf expect=U09
 page P(path: "/", title: "T", description: "D") {
     state rows = [{ id: 1, name: "a" }]
     Heading("Rows").h1
@@ -2666,7 +2666,7 @@ warning[U09]: this `for` has no `by`, and each item holds a `Input`, which start
 
 ### U10 — An `else` no value reaches
 
-```wf expect U10
+```wf expect=U10
 enum Tone { calm, loud }
 page P(path: "/", title: "T", description: "D") {
     state tone: Tone = .calm
@@ -2697,7 +2697,7 @@ Warnings.
 
 ### V01 — A bare word that means nothing
 
-```wf expect V01
+```wf expect=V01
 page P(path: "/", title: "T", description: "D") {
     Heading("Save").h1
     Button(primary)
@@ -2722,7 +2722,7 @@ and a case's payload, `.failed(why) { … }`, draw nothing.
 
 ### V03 — Markup put in as markup
 
-```wf expect V03
+```wf expect=V03
 page P(path: "/", title: "T", description: "D") {
     state body = "<b>Hi</b>"
     Heading("Markup").h1
@@ -2749,7 +2749,7 @@ and the warning says so. Writing `sandbox:` out is the reviewed case;
 `allow-scripts` with `allow-same-origin` undoes the sandbox, and is
 named again.
 
-```wf expect V03
+```wf expect=V03
 page P(path: "/", title: "T", description: "D") {
     state html = "<p>Hi</p>"
     Heading("Preview").h1
@@ -2779,7 +2779,7 @@ file under `src/`, or drop the flag.
 
 ### V04 — A class that is the engine's
 
-```wf expect V04
+```wf expect=V04
 page P(path: "/", title: "T", description: "D") {
     Heading("Classes").h1
     Card(class: "wf-btn") { Text("x") }
@@ -2802,7 +2802,7 @@ warning[V04]: `class:` names `wf-btn`, one of the engine's own classes
 
 Warning.
 
-```wf expect V05
+```wf expect=V05
 page P(path: "/", title: "T", description: "D") {
     Heading("Hello") {
         style { colr: red }
@@ -2825,7 +2825,7 @@ property is written `--name`.
 
 ### V06 — A design token the theme does not declare
 
-```wf expect V06
+```wf expect=V06
 page P(path: "/", title: "T", description: "D") {
     Heading("Hello") {
         style { color: $brnad }
@@ -2851,7 +2851,7 @@ your `theme { … }`.
 
 Warning.
 
-```wf expect V07
+```wf expect=V07
 page P(path: "/", title: "T", description: "D") {
     state pct = 40
     Heading("Progress").h1
@@ -2873,7 +2873,7 @@ warning[V07]: `width: {pct}` is a number with no unit, which the browser drops
 
 ### V08 — An icon the runtime does not draw
 
-```wf expect V08
+```wf expect=V08
 page P(path: "/", title: "T", description: "D") {
     Heading("Launch").h1
     Icon("rocket")
@@ -2894,7 +2894,7 @@ warning[V08]: `rocket` is not an icon the runtime draws; it will show as the wor
 
 ### V09 — An event the element does not fire
 
-```wf expect V09
+```wf expect=V09
 page P(path: "/", title: "T", description: "D") {
     Heading("Save").h1
     Button("Save") { on clik { log("saved") } }
@@ -2921,7 +2921,7 @@ A `Host` is made of one of a few elements: `div`, `span`, `canvas`, `svg`,
 the document, so it is an allow-list rather than whatever the string says.
 Any other tag is a `div`.
 
-```wf expect V10
+```wf expect=V10
 page P(path: "/", title: "T", description: "D") {
     Heading("Chart").h1
     Host(tag: "video", mount: (n) => n)
@@ -2949,7 +2949,7 @@ what the page shows is the built-in instead. It happens to a component
 written before WebFluent gained an element of the same name — a `Footer`
 from WebFluent 2, a `Chart` from before 5.2.
 
-```wf expect V11
+```wf expect=V11
 component Chart(_ title: String) {
     Text(title)
 }
@@ -2980,7 +2980,7 @@ no `by` — which has no way to keep a row's nodes as it scrolls — it draws
 every row, as a plain scrolling box does, and the length of the list is
 what the page pays for.
 
-```wf expect V12
+```wf expect=V12
 page P(path: "/", title: "T", description: "D") {
     state rows = ["a", "b"]
     Heading("Files").h1

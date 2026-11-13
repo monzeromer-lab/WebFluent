@@ -8,7 +8,7 @@ description: "The components reference: every built-in element, its props, flags
 ---
 # 40. Components reference
 
-Generated from the compiler's registry (`wf registry --json`) by `scripts/components-reference.py`, with an example of each from `scripts/component_examples.py`; edit those, not this file.
+Generated from the compiler's registry (`wf registry --json`) by `scripts/docsite/components.py`, with an example of each from `scripts/docsite/examples.py`; edit those, not this file.
 
 Every component is written `Name(positional, prop: value).flag { block }`. A **prop** is passed by name; the one **positional** prop, where there is one, comes first and unnamed. A **flag** is written after the parentheses with a dot: a `Bool` prop, or a case of one of the element's enum props (`Button("x").primary.lg`). An **enum prop** takes a case written `.case` (`Row(gap: .md)`). Every element also takes the universal props and events listed at the end, and the HTML attribute families named on it (`aria-*`, `data-*`, and the global attributes such as `id`, `class`, `title`, `role`, `tabindex`).
 

@@ -93,7 +93,7 @@ and `wf explain CODE` prints it in your terminal.
 For example, this button's `aria-label` does not contain the word it
 shows, so a voice-control user who says "click Save" may not reach it:
 
-```wf expect A15
+```wf expect=A15
 page Editor(path: "/", title: "Editor", description: "Write a note.") {
     Heading("Editor").h1
     Button("Save", aria-label: "Submit the form")
