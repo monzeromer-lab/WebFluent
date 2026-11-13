@@ -77,6 +77,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .wf-justify--between { justify-content: space-between; }
 .wf-justify--around { justify-content: space-around; }
 .wf-justify--evenly { justify-content: space-evenly; }
+/* ─── Column ────────────────────────────────────────── */
 .wf-col { flex: 1 1 0%; min-width: 0; }
 /* A span is its share of the row less its share of the gaps, so spans
    that add to 12 sit on one line: `8` and `4` in a row with a gap
@@ -93,6 +94,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .wf-col--10 { flex: 0 0 calc((100% + var(--wf-gap, 0px)) * 10 / 12 - var(--wf-gap, 0px)); max-width: calc((100% + var(--wf-gap, 0px)) * 10 / 12 - var(--wf-gap, 0px)); }
 .wf-col--11 { flex: 0 0 calc((100% + var(--wf-gap, 0px)) * 11 / 12 - var(--wf-gap, 0px)); max-width: calc((100% + var(--wf-gap, 0px)) * 11 / 12 - var(--wf-gap, 0px)); }
 .wf-col--12 { flex: 0 0 calc((100% + var(--wf-gap, 0px)) * 12 / 12 - var(--wf-gap, 0px)); max-width: calc((100% + var(--wf-gap, 0px)) * 12 / 12 - var(--wf-gap, 0px)); }
+/* ─── Grid ──────────────────────────────────────────── */
 .wf-grid { display: grid; gap: var(--spacing-md); }
 .wf-grid[data-cols="1"] { grid-template-columns: repeat(1, 1fr); }
 .wf-grid[data-cols="2"] { grid-template-columns: repeat(2, 1fr); }
@@ -106,6 +108,7 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .wf-grid[data-cols="10"] { grid-template-columns: repeat(10, 1fr); }
 .wf-grid[data-cols="11"] { grid-template-columns: repeat(11, 1fr); }
 .wf-grid[data-cols="12"] { grid-template-columns: repeat(12, 1fr); }
+/* ─── Layout (stacks and gaps) ──────────────────────── */
 .wf-stack { display: flex; flex-direction: column; gap: var(--spacing-md); }
 /* A gap a layout names wins over its default, so it comes after them. */
 .wf-gap--xs { --wf-gap: var(--spacing-xs); gap: var(--wf-gap); }
@@ -113,11 +116,13 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .wf-gap--md { --wf-gap: var(--spacing-md); gap: var(--wf-gap); }
 .wf-gap--lg { --wf-gap: var(--spacing-lg); gap: var(--wf-gap); }
 .wf-gap--xl { --wf-gap: var(--spacing-xl); gap: var(--wf-gap); }
+/* ─── Spacer ────────────────────────────────────────── */
 .wf-spacer { height: var(--spacing-md); }
 .wf-spacer--xs { height: var(--spacing-xs); }
 .wf-spacer--sm { height: var(--spacing-sm); }
 .wf-spacer--lg { height: var(--spacing-lg); }
 .wf-spacer--xl { height: var(--spacing-xl); }
+/* ─── Divider ───────────────────────────────────────── */
 /* A Divider's whole meaning is "draw a line" — the rule is the element, not its skin. */
 .wf-divider { border: none; border-top: 1px solid var(--color-border); margin: var(--spacing-md) 0; }
 .wf-divider--label { display: flex; align-items: center; gap: var(--spacing-md); border: none; margin: var(--spacing-md) 0; }
@@ -452,8 +457,10 @@ ol.wf-list { list-style: decimal; padding-left: var(--spacing-lg); }
 
 /* No h1–h6 scale here: the level the author wrote carries the UA's own sizing. */
 .wf-heading { margin: 0; line-height: var(--line-height-tight); }
+/* ─── Code ──────────────────────────────────────────── */
 .wf-code { font-family: var(--font-family-mono); }
 pre.wf-code, .wf-code--block { display: block; padding: var(--spacing-md); overflow-x: auto; white-space: pre; }
+/* ─── Highlight ─────────────────────────────────────── */
 .wf-tok-kw { color: var(--syntax-keyword); }
 .wf-tok-name { color: var(--syntax-function); }
 .wf-tok-str { color: var(--syntax-string); }
@@ -463,6 +470,7 @@ pre.wf-code, .wf-code--block { display: block; padding: var(--spacing-md); overf
 .wf-tok-cmt { color: var(--syntax-comment); }
 .wf-tok-prompt { color: var(--term-dim); }
 
+/* ─── Blockquote ────────────────────────────────────── */
 .wf-blockquote { border-inline-start: 4px solid currentColor; padding: var(--spacing-sm) var(--spacing-md); margin: 0; }
 
 /* ─── Variant Colors (shared, requested) ────────────── */

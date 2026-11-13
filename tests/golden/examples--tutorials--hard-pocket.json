@@ -22,9 +22,9 @@
     "pages/Settings.js": "4af2545ba4d15c53334ed8743f59bce874e719bea730159963e81c1e3498b6c0",
     "pages/Settings.js.gz": "7dad379b36b600c44ea19a2d7ac3f83e569c8e366e994a630e169c37652e0746",
     "robots.txt": "16ceb5ee3e0dc13aa9adf31a3ebbe45a1d965b8c2b9f72eaf84e5911e140ed95",
-    "styles.css": "3d08ed5da12446d6180c965419ca7c951db3e1da2ffd351bd5ffddfd2efbdd7a",
-    "styles.css.gz": "ef359fffe241e9bfd494806df6d07bbe4e3dbbfa8a5ed7d41d64fc884f43f5c1",
-    "sw.js": "4941cd5695e4173b15d0eee0b5b77c2c24f14a6dee0ec19545c79dc6d4109c62",
-    "sw.js.gz": "c2e35d0a6dd0944018c2d88a60fda795c62b14a2cd6311c51e8e16cc27d60188"
+    "styles.css": "c67edc095cc950cc54ce2b0b8989535281b816c2f59c65b1e422c017e28d0515",
+    "styles.css.gz": "081580fabd9cc0b6f839ca0978338870f9811321a2155005c1821f352dc3bd95",
+    "sw.js": "759ffc39a53bdd4b0e441054b7c5e4244f83e2fe54ee17f05ae20be4163d6fb8",
+    "sw.js.gz": "9e49c2bae6545ad96059c3ecfc189d5ec94ffb0078c7b729e543812062d2b4f9"
   }
 }

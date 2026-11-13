@@ -1255,12 +1255,13 @@ fn a_theme_leaves_the_tokens_it_does_not_name_alone() {
     );
     let root = css.split_once('}').map_or("", |(r, _)| r);
     let declared = root.matches("--").count();
-    // `:root` carries the tokens the output names, so this is not the whole
-    // baseline — but it is far more than the handful the theme declares, which
-    // is what would be left if the baseline were replaced rather than layered
-    // under it.
+    // `:root` carries only the tokens the output names, so this is not the
+    // whole baseline; but it is several times the five the theme declares,
+    // which is all that would be left if the baseline were replaced rather
+    // than layered under it.
+    let theme = 5;
     assert!(
-        declared > 40,
+        declared > theme * 3,
         "only {declared} tokens reached :root — the baseline was not layered under the theme"
     );
 }
@@ -1269,7 +1270,14 @@ fn a_theme_leaves_the_tokens_it_does_not_name_alone() {
 /// entire palette. It must survive there.
 #[test]
 fn a_theme_applies_in_structural_mode_too() {
-    let css = build_site("bespoke").read("styles.css");
+    // The shared sheet and the page's own: a style a single page writes is
+    // that page's, and a token nothing reads is left out of `:root`.
+    let site = build_site("bespoke");
+    let css = format!(
+        "{}{}",
+        site.read("styles.css"),
+        site.read("pages/Studio.css")
+    );
     for value in ["#FAF9F6", "'Editorial New',Georgia,serif"] {
         assert!(
             css.contains(value),
