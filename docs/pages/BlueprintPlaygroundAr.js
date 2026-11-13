@@ -1,2 +1,2 @@
-function Page_BlueprintPlaygroundAr(params){const _root=document.createDocumentFragment();const _e931=Component_PreviewPlayground({ar:true});_root.appendChild(_e931);return _root;}
+function Page_BlueprintPlaygroundAr(params){const _root=document.createDocumentFragment();const _e811=Component_PreviewPlayground({ar:true});_root.appendChild(_e811);return _root;}
 WF.page("BlueprintPlaygroundAr",Page_BlueprintPlaygroundAr);

@@ -117,7 +117,6 @@
                         <a class="wf-link bp-navlink" href="/docs/guide/introduction">
                             <p class="wf-text bp-step" aria-hidden="true">1</p>
                             <p class="wf-text wf-s126131e6">Introduction</p>
-                            <p class="wf-text wf-sf65d7946 bp-label" data-tone="construction">tour</p>
                         </a>
                         <a class="wf-link bp-navlink" href="/docs/guide/getting-started">
                             <p class="wf-text bp-step" aria-hidden="true">2</p>
@@ -137,6 +136,7 @@
                         <a class="wf-link bp-navlink" href="/docs/tutorials/todos">
                             <p class="wf-text bp-step" aria-hidden="true">5</p>
                             <p class="wf-text wf-s126131e6">Tutorial: Todos</p>
+                            <p class="wf-text wf-sf65d7946 bp-label" data-tone="construction">tour</p>
                         </a>
                         <a class="wf-link bp-navlink" href="/docs/tutorials/field-notes">
                             <p class="wf-text bp-step" aria-hidden="true">6</p>
@@ -487,7 +487,7 @@ spec/                        design notes and plans</code>
                                     </div>
                                     <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-prompt">$ </span>python3 scripts/components-reference.py</code>
+                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-prompt">$ </span>cargo xtask site</code>
                             </div>
                             <h2 class="wf-heading" id="change-the-grammar">Change the grammar</h2>
                             <div class="wf-markdown">
@@ -513,11 +513,11 @@ spec/                        design notes and plans</code>
                             </div>
                             <h2 class="wf-heading" id="change-this-guide">Change this guide</h2>
                             <div class="wf-markdown">
-<p>The guide lives in <code>md-docs/</code>, one file per chapter, and is the source of the documentation site: <code>python3 scripts/site-from-guide.py</code> writes the site's chapter pages, sidebar and search index from it. Each chapter starts with a comment naming its route, its group in the sidebar, the line under its title and its search description. <code>spec/DOCS_STYLE.md</code> is the house style every chapter follows.</p>
+<p>The guide lives in <code>md-docs/</code>, one file per chapter, in a folder for its kind of page (<code>learn/</code>, <code>recipes/</code>, <code>about/</code>, <code>reference/</code>, <code>errors/</code>, <code>coming-from/</code>), and is the source of the documentation site: <code>cargo xtask site</code> writes the site's chapter pages, the book's chapter list, the components reference and the search index from it, and <code>cargo xtask site --check</code> says whether they are current. Each chapter starts with front matter naming its number, its kind, its route, its group in the sidebar, the line under its title and its search description. <code>spec/DOCS_STYLE.md</code> is the house style every chapter follows.</p>
 <p>The test suite holds the guide to the compiler:</p>
 <ul>
 <li>every <code>wf</code> code block parses, type-checks and compiles without a warning;</li>
-<li>every <code>wf expect CODE</code> block draws exactly that code;</li>
+<li>every <code>wf expect=CODE</code> block draws exactly that code;</li>
 <li>every link between chapters, and every anchor, resolves;</li>
 <li>every declaration, keyword, built-in, browser value, built-in function, config key, command and diagnostic code appears in it;</li>
 <li>the tokens chapter is the baseline, and the configuration chapter's defaults are the compiler's;</li>

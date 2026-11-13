@@ -1,2 +1,2 @@
-function Page_BlueprintHome(params){const _root=document.createDocumentFragment();const _e916=Component_PreviewHome({});_root.appendChild(_e916);return _root;}
+function Page_BlueprintHome(params){const _root=document.createDocumentFragment();const _e796=Component_PreviewHome({});_root.appendChild(_e796);return _root;}
 WF.page("BlueprintHome",Page_BlueprintHome);

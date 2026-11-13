@@ -1,2 +1,2 @@
-function Page_BlueprintNotFoundAr(params){const _root=document.createDocumentFragment();const _e935=Component_PreviewNotFound({ar:true});_root.appendChild(_e935);return _root;}
+function Page_BlueprintNotFoundAr(params){const _root=document.createDocumentFragment();const _e815=Component_PreviewNotFound({ar:true});_root.appendChild(_e815);return _root;}
 WF.page("BlueprintNotFoundAr",Page_BlueprintNotFoundAr);
