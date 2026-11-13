@@ -743,4 +743,25 @@ At the end of Phase 0 the site is in Blueprint, and nothing it says has changed 
 - Live examples: Edit, Break it and Apply the fix.
 - The Playground compiles in the browser through `site/src/live.js` and `crates/wf-wasm`. Its PDF build loads on demand.
 
-**Left:** Phase 3 (the book at `/learn`, renumbering), Phase 5 (search synonyms, `.md` twins, `llms.txt`) and Launch.
+### Phase 3 — the book
+
+**Done (2026-11-13, `d2aa6f01`, `e2d5a821`, site rebuilt in `6dc25cae`):**
+
+- The book is `learn/01–17` at `/learn/NN-slug`, numbered 1–17 in three parts: the tour, the language, building with it. `/learn` is its contents page, with progress.
+- The essays are at `/about/*`: Why WebFluent, the new How reactivity works, Accessibility, Security, What a build ships, Static or single-page, Upgrading and Contributing.
+- Other pages keep a number only for order (essays 18–25, reference 30–42, errors 43–44) and carry none in their titles.
+- Every old address is in its page's `from:`. `guide.py` writes a redirect page for each (`pages/guide/Moved.wf`), and `old-links-pages.js` keeps the `#section`.
+- Each chapter:
+  - says what it is in its first sentence;
+  - has a `learned:` list;
+  - has interference asides linking the Coming-from sheets;
+  - ends with `## Common mistakes`: two or three `wf expect=CODE` programs, each linked to its error page.
+- Chapters 7, 10, 11 and 15 close on a quiz. A ```` ```quiz ```` block in Markdown becomes `Quiz`, and a checked answer is sent through `track("quiz_answer")`, behind consent.
+- `docs_parse::the_book_is_written_to_its_rules` holds the book to all of this, and to the banned words.
+
+**Found while writing, not fixed:**
+
+- A `derived` built with `reduce` renders empty in a `wf test` render.
+- A component placed only in a test draws U03.
+
+**Left:** Phase 5 (search synonyms, `.md` twins, `llms.txt`) and Launch.
