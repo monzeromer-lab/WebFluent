@@ -1185,7 +1185,9 @@ fn run(options: &BuildOptions<'_>, out: &Out<'_>) -> Result<()> {
     // Each page in its own chunk, fetched when its route shows, and its own
     // sheet beside it when it has rules no other page reaches.
     let chunks = js_codegen.take_chunks();
-    picks_theme |= chunks.iter().any(|(_, source)| source.contains("WF.setTheme("));
+    picks_theme |= chunks
+        .iter()
+        .any(|(_, source)| source.contains("WF.setTheme("));
     if picks_theme {
         write_theme_boot(&output_dir)?;
     }
