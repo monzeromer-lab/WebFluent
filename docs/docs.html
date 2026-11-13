@@ -2,13 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Documentation</title>
     <meta name="description" content="Learn WebFluent, build with it, look up every element, command and setting, and fix what went wrong — start here.">
     <link rel="canonical" href="https://webfluent.monzeromer.dev/docs">
-    <link rel="alternate" hreflang="en" href="https://webfluent.monzeromer.dev/docs?lang=en">
-    <link rel="alternate" hreflang="ar" href="https://webfluent.monzeromer.dev/docs?lang=ar">
-    <link rel="alternate" hreflang="x-default" href="https://webfluent.monzeromer.dev/docs">
     <meta property="og:type" content="website">
     <meta property="og:title" content="Documentation">
     <meta property="og:site_name" content="WebFluent">
@@ -23,8 +21,7 @@
     <meta name="twitter:title" content="Documentation">
     <meta name="twitter:description" content="Learn WebFluent, build with it, look up every element, command and setting, and fix what went wrong — start here.">
     <meta name="twitter:image" content="https://webfluent.monzeromer.dev/og.png">
-    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs#webpage","url":"https://webfluent.monzeromer.dev/docs","name":"Documentation","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"Learn WebFluent, build with it, look up every element, command and setting, and fix what went wrong — start here."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Documentation","item":"https://webfluent.monzeromer.dev/docs"}]}]}</script>
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs#webpage","url":"https://webfluent.monzeromer.dev/docs","name":"Documentation","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"Learn WebFluent, build with it, look up every element, command and setting, and fix what went wrong — start here.","inLanguage":"en"},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Documentation","item":"https://webfluent.monzeromer.dev/docs"}]}]}</script>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
@@ -46,7 +43,7 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.14</p>
+                            <p class="wf-text wf-s859a58d7">6.0</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
@@ -408,7 +405,7 @@
 <ul>
 <li><strong>Every example is tested.</strong> Each <code>wf</code> code block in the guide is parsed, type-checked and built by the compiler's test suite on every release, and each whole page is run against a browser DOM. If you copy an example, it compiles.</li>
 <li><strong>The reference is generated.</strong> The components, the configuration defaults, the design tokens and the diagnostics are read from the compiler itself, so they cannot fall behind it.</li>
-<li><strong>This is version 5.14.</strong> <code>wf --version</code> prints the version you have; <a href="/docs/guide/upgrading">Upgrading</a> lists what changed in each release.</li>
+<li><strong>This is version 6.0.</strong> <code>wf --version</code> prints the version you have; <a href="/docs/guide/upgrading">Upgrading</a> lists what changed in each release.</li>
 <li><strong>Found a mistake?</strong> Every chapter has an <em>Edit this page</em> link to its source in <a href="https://github.com/monzeromer-lab/WebFluent">the repository</a>.</li>
 </ul>
                             </div>
@@ -454,7 +451,7 @@
                             <p class="wf-text wf-s7c2fb5e9">wf</p>
                             <p class="wf-text wf-s312df231">WebFluent</p>
                         </div>
-                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.14, parsed, type-checked and compiled by the test suite.</p>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 6.0, parsed, type-checked and compiled by the test suite.</p>
                     </div>
                     <div class="wf-row wf-gap--xl wf-align--start wf-s45b84406 footer-columns">
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
@@ -482,7 +479,7 @@
                     </div>
                 </div>
                 <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-s6ee62d46">
-                    <p class="wf-text">WebFluent 5.14 — MPL-2.0</p>
+                    <p class="wf-text">WebFluent 6.0 — MPL-2.0</p>
                     <div class="wf-row wf-align--center wf-gap--md">
                         <button class="wf-btn link-button" type="button">Cookie settings</button>
                         <p class="wf-text">© 2026 Monzer Omer</p>

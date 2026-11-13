@@ -2,13 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pages and routing</title>
     <meta name="description" content="Page attributes, routes and typed parameters, query strings, layouts, guards, the app shell, per-page head tags and the 404 page.">
     <link rel="canonical" href="https://webfluent.monzeromer.dev/docs/guide/pages-and-routing">
-    <link rel="alternate" hreflang="en" href="https://webfluent.monzeromer.dev/docs/guide/pages-and-routing?lang=en">
-    <link rel="alternate" hreflang="ar" href="https://webfluent.monzeromer.dev/docs/guide/pages-and-routing?lang=ar">
-    <link rel="alternate" hreflang="x-default" href="https://webfluent.monzeromer.dev/docs/guide/pages-and-routing">
     <meta property="og:type" content="website">
     <meta property="og:title" content="Pages and routing">
     <meta property="og:site_name" content="WebFluent">
@@ -23,8 +21,7 @@
     <meta name="twitter:title" content="Pages and routing">
     <meta name="twitter:description" content="Page attributes, routes and typed parameters, query strings, layouts, guards, the app shell, per-page head tags and the 404 page.">
     <meta name="twitter:image" content="https://webfluent.monzeromer.dev/og.png">
-    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/pages-and-routing#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/pages-and-routing","name":"Pages and routing","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"Page attributes, routes and typed parameters, query strings, layouts, guards, the app shell, per-page head tags and the 404 page."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/pages-and-routing#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Documentation","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Pages and routing","item":"https://webfluent.monzeromer.dev/docs/guide/pages-and-routing"}]}]}</script>
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/pages-and-routing#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/pages-and-routing","name":"Pages and routing","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"Page attributes, routes and typed parameters, query strings, layouts, guards, the app shell, per-page head tags and the 404 page.","inLanguage":"en"},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/pages-and-routing#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Documentation","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Pages and routing","item":"https://webfluent.monzeromer.dev/docs/guide/pages-and-routing"}]}]}</script>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
@@ -45,7 +42,7 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.14</p>
+                            <p class="wf-text wf-s859a58d7">6.0</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
@@ -386,6 +383,32 @@
                                     <tr>
                                         <td>
                                             <div class="wf-markdown">
+<p><code>lang:</code></p>
+                                            </div>
+                                        </td>
+                                        <td></td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>The language the page is written in, when it is not the site's: <code>&quot;en&quot;</code>, <code>&quot;ar&quot;</code>, <code>&quot;pt-BR&quot;</code>. It sets <code>&lt;html lang dir&gt;</code>, <code>og:locale</code> and the JSON-LD's <code>inLanguage</code> (<a href="/docs/guide/i18n#a-page-in-its-own-language">A page in its own language</a>)</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>translates:</code></p>
+                                            </div>
+                                        </td>
+                                        <td></td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>The page this one is a translation of, by name: <code>translates: Home</code>. Translations list each other as <code>hreflang</code> alternates</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
 <p><code>layout:</code></p>
                                             </div>
                                         </td>
@@ -697,6 +720,7 @@
 }</code>
                             </div>
                             <div class="wf-markdown">
+<p>A tag's <code>src:</code> and <code>href:</code> go through the same scheme check as every address, at build time and on the live page, so a value never points one at <code>javascript:</code> or <code>data:</code>. A <code>script(src:)</code> is written out, never read from a value, and a <code>meta(http-equiv: &quot;refresh&quot;)</code> may not take its address from one (<code>E107</code>): whoever controls the value would choose what the page runs or where the reader goes.</p>
 <p><code>title:</code> and <code>description:</code> are page attributes, not head tags. From them and the config, the compiler writes the standard tags itself: charset, viewport, description, canonical, Open Graph, Twitter card and JSON-LD.</p>
                             </div>
                             <h2 class="wf-heading" id="the-catch-all-page">The catch-all page</h2>
@@ -915,7 +939,7 @@
                             <p class="wf-text wf-s7c2fb5e9">wf</p>
                             <p class="wf-text wf-s312df231">WebFluent</p>
                         </div>
-                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.14, parsed, type-checked and compiled by the test suite.</p>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 6.0, parsed, type-checked and compiled by the test suite.</p>
                     </div>
                     <div class="wf-row wf-gap--xl wf-align--start wf-s45b84406 footer-columns">
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
@@ -943,7 +967,7 @@
                     </div>
                 </div>
                 <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-s6ee62d46">
-                    <p class="wf-text">WebFluent 5.14 — MPL-2.0</p>
+                    <p class="wf-text">WebFluent 6.0 — MPL-2.0</p>
                     <div class="wf-row wf-align--center wf-gap--md">
                         <button class="wf-btn link-button" type="button">Cookie settings</button>
                         <p class="wf-text">© 2026 Monzer Omer</p>

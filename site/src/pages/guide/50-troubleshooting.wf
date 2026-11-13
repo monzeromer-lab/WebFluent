@@ -12,7 +12,7 @@ page TroubleshootingGuide(path: "/docs/guide/troubleshooting", title: "Troublesh
 
         Heading("The installer cannot find the latest version", id: "the-installer-cannot-find-the-latest-version").h3
 
-        Markdown("The installer asks GitHub's API for the latest release, and GitHub limits requests that are not signed in.\n\nPin a version instead, and run the installer again with it set: `WF_VERSION=v5.14.0`.")
+        Markdown("The installer asks GitHub's API for the latest release, and GitHub limits requests that are not signed in.\n\nPin a version instead, and run the installer again with it set: `WF_VERSION=v6.0.0`.")
 
         Heading("There is no binary for Linux on ARM", id: "there-is-no-binary-for-linux-on-arm").h3
 

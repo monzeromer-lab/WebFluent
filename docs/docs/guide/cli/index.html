@@ -2,13 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Command line and editors</title>
     <meta name="description" content="The wf command line — every command and flag, from init, build and serve to render, migrate and verify — and how to set up the language server in your editor.">
     <link rel="canonical" href="https://webfluent.monzeromer.dev/docs/guide/cli">
-    <link rel="alternate" hreflang="en" href="https://webfluent.monzeromer.dev/docs/guide/cli?lang=en">
-    <link rel="alternate" hreflang="ar" href="https://webfluent.monzeromer.dev/docs/guide/cli?lang=ar">
-    <link rel="alternate" hreflang="x-default" href="https://webfluent.monzeromer.dev/docs/guide/cli">
     <meta property="og:type" content="website">
     <meta property="og:title" content="Command line and editors">
     <meta property="og:site_name" content="WebFluent">
@@ -23,8 +21,7 @@
     <meta name="twitter:title" content="Command line and editors">
     <meta name="twitter:description" content="The wf command line — every command and flag, from init, build and serve to render, migrate and verify — and how to set up the language server in your editor.">
     <meta name="twitter:image" content="https://webfluent.monzeromer.dev/og.png">
-    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/cli#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/cli","name":"Command line and editors","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"The wf command line — every command and flag, from init, build and serve to render, migrate and verify — and how to set up the language server in your editor."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/cli#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Documentation","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Command line and editors","item":"https://webfluent.monzeromer.dev/docs/guide/cli"}]}]}</script>
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/cli#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/cli","name":"Command line and editors","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"The wf command line — every command and flag, from init, build and serve to render, migrate and verify — and how to set up the language server in your editor.","inLanguage":"en"},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/cli#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Documentation","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Command line and editors","item":"https://webfluent.monzeromer.dev/docs/guide/cli"}]}]}</script>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
@@ -45,7 +42,7 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.14</p>
+                            <p class="wf-text wf-s859a58d7">6.0</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
@@ -292,7 +289,7 @@
                                     <tr>
                                         <td>
                                             <div class="wf-markdown">
-<p><code>wf build [-d, --dir DIR] [--stats] [--format FORMAT] [--deny-warnings] [--cache] [--studio]</code></p>
+<p><code>wf build [-d, --dir DIR] [--stats] [--format FORMAT] [--deny-warnings] [--cache] [--studio] [--allow-output-outside]</code></p>
                                             </div>
                                         </td>
                                         <td>Compiles the project; fails on errors, prints warnings</td>
@@ -300,12 +297,12 @@
                                     <tr>
                                         <td>
                                             <div class="wf-markdown">
-<p><code>wf serve [-d, --dir DIR]</code></p>
+<p><code>wf serve [-d, --dir DIR] [--host ADDRESS] [--allow-output-outside]</code></p>
                                             </div>
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p>Builds, serves on <code>dev.port</code>, and rebuilds and reloads on every save</p>
+<p>Builds, serves on <code>dev.port</code> to this machine, and rebuilds and reloads on every save</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -320,7 +317,7 @@
                                     <tr>
                                         <td>
                                             <div class="wf-markdown">
-<p><code>wf check [-d, --dir DIR] [--format FORMAT] [--deny-warnings]</code></p>
+<p><code>wf check [-d, --dir DIR] [--format FORMAT] [--deny-warnings] [--allow-output-outside]</code></p>
                                             </div>
                                         </td>
                                         <td>Reports every finding a build would report, and writes nothing</td>
@@ -368,7 +365,7 @@
                                     <tr>
                                         <td>
                                             <div class="wf-markdown">
-<p><code>wf verify [PATH] [--json] [--budget MS] [--returning-visitor]</code></p>
+<p><code>wf verify [PATH] [--json] [--budget MS] [--returning-visitor] [--allow-output-outside]</code></p>
                                             </div>
                                         </td>
                                         <td>Loads every built page in headless Chrome</td>
@@ -707,6 +704,20 @@
                                         <td>off</td>
                                         <td>Prints what the build weighs.</td>
                                     </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>--allow-output-outside</code></p>
+                                            </div>
+                                        </td>
+                                        <td>—</td>
+                                        <td>off</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Lets <code>build.output</code> name a directory outside the project (below).</p>
+                                            </div>
+                                        </td>
+                                    </tr>
                                 </tbody>
                             </table>
                             <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
@@ -720,6 +731,7 @@
 <span class="wf-tok-prompt">$ </span>wf build --format github --deny-warnings</code>
                             </div>
                             <div class="wf-markdown">
+<p><strong>A build stays inside its project.</strong> It reads only the project's own files: a <code>data</code>, <code>image</code>, <code>api … from</code> or <code>i18n.dir</code> names a path inside the project (an absolute path or a <code>..</code> is an error), and a symbolic link that leads out of the project — or to nothing, or back into a directory above it — is left out of every walk, with a warning naming it. A link that stays inside is followed. It writes only inside its project too: <code>build.output</code> is refused when it climbs out (<code>../site</code>, <code>/var/www</code>) or is a link to somewhere else, and a link already inside the output is refused rather than written through. <code>--allow-output-outside</code> is how the person running the build lets it write elsewhere; a project's config cannot ask for it. A build removes only the <code>.gz</code> files an earlier build wrote (it keeps their names in <code>.wf-cache/precompressed.json</code>); any other <code>.gz</code> in the output is left alone.</p>
 <p>An error stops the build and prints the file, line, column, message and a hint. A warning prints and the build goes on.</p>
 <p><code>--format</code> takes four values:</p>
                             </div>
@@ -807,6 +819,38 @@
                                         </td>
                                         <td>The project to serve.</td>
                                     </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>--host</code></p>
+                                            </div>
+                                        </td>
+                                        <td>an address</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>127.0.0.1</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Where to listen: this machine only, unless told otherwise. <code>0.0.0.0</code> lets a phone on the same network reach it.</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>--allow-output-outside</code></p>
+                                            </div>
+                                        </td>
+                                        <td>—</td>
+                                        <td>off</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Lets <code>build.output</code> name a directory outside the project.</p>
+                                            </div>
+                                        </td>
+                                    </tr>
                                 </tbody>
                             </table>
                             <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
@@ -816,10 +860,12 @@
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-prompt">$ </span>wf serve</code>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-prompt">$ </span>wf serve
+<span class="wf-tok-prompt">$ </span>wf serve --host 0.0.0.0     # a phone on this network, at the address it prints</code>
                             </div>
                             <div class="wf-markdown">
-<p>The server listens on <code>dev.port</code> (3000). It watches <code>src/</code>, <code>public/</code> and the config, rebuilds on a change, and reloads every open tab. Each rebuild is a <code>wf build --cache</code>, so only the pages the change reached are rendered again.</p>
+<p>The server listens on <code>dev.port</code> (3000), on <code>127.0.0.1</code>: nothing else on the network can reach it unless <code>--host</code> says so. It watches <code>src/</code>, <code>public/</code> and the config, rebuilds on a change, and reloads every open tab. Each rebuild is a <code>wf build --cache</code>, so only the pages the change reached are rendered again.</p>
+<p>It serves the build and nothing beside it: an address that climbs out (<code>/../</code>, written plainly or as <code>%2e%2e</code>), holds a backslash or a NUL, or reaches a link out of the build is a <code>404</code>. It answers only a request whose <code>Host</code> is a name it is reached by — <code>localhost</code>, an address written as numbers, the <code>--host</code> it was given, and with <code>--host 0.0.0.0</code> a <code>.local</code> name — so a page on another site cannot point a name of its own at this machine and read the build (DNS rebinding); any other gets a <code>421</code>. It answers several requests at once, streams files rather than reading them whole, and compresses a file once until it changes.</p>
 <p>When a build fails, the last good page stays up and the error is drawn over it — file, line, message and hint — until a save fixes it. The overlay is served at <code>/__wf/dev.js</code>, and the build's state, as JSON, at <code>/__wf/status</code>.</p>
 <p>Every page the server sends also carries a <strong>stores</strong> button. It shows what each store holds, a log of every action with the state on each side of it, and lets you put a store back to before an action ran (<a href="/docs/guide/stores#looking-at-one-while-it-runs">Stores</a>). The service worker of an offline site is removed under <code>wf serve</code>, so an edit is never hidden behind its cache.</p>
 <p>A request that is not a navigation — a <code>fetch</code>, a script, an image — for a file the build did not write gets a <code>404</code>, as a host would send, and a line in the terminal naming the file. Only a navigation gets the single-page shell. (Answering a missing API with the shell's HTML makes the page fail to parse it, far from the cause.)</p>
@@ -968,6 +1014,20 @@
                                         <td>—</td>
                                         <td>off</td>
                                         <td>Fails on a warning too.</td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>--allow-output-outside</code></p>
+                                            </div>
+                                        </td>
+                                        <td>—</td>
+                                        <td>off</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Accepts a <code>build.output</code> outside the project, as <a href="#wf-build"><code>wf build</code></a> does; without it the check reports what the build would refuse.</p>
+                                            </div>
+                                        </td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -1328,6 +1388,20 @@
                                         <td>off</td>
                                         <td>Visits every route again as a returning reader (below).</td>
                                     </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>--allow-output-outside</code></p>
+                                            </div>
+                                        </td>
+                                        <td>—</td>
+                                        <td>off</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>Lets <code>build.output</code> name a directory outside the project.</p>
+                                            </div>
+                                        </td>
+                                    </tr>
                                 </tbody>
                             </table>
                             <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
@@ -1340,6 +1414,7 @@
                                 <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-prompt">$ </span>wf build &amp;&amp; wf verify</code>
                             </div>
                             <div class="wf-markdown">
+<p>Chrome runs with its sandbox. Where it cannot start with one (a container that gives it none) it is started again without, and <code>wf verify</code> says so; <code>WF_CHROME_NO_SANDBOX=1</code> skips the first try. Its profile is a private directory with a name nobody can guess, and the browser and the profile go when <code>wf verify</code> or <code>wf test</code> ends — however it ends, a signal included.</p>
 <p><code>wf build</code> reports what the compiler wrote; <code>wf verify</code> reports what a browser does with it. It builds nothing: it starts a headless Chrome, serves what <code>wf build</code> wrote, and opens every route the project has — a <code>:param</code> route at each value its <code>paths:</code> names, or at a placeholder (<code>/user/1</code>) when it names none.</p>
 <p>A route fails on any of these:</p>
 <ul>
@@ -1647,7 +1722,7 @@
                                         <td>a language tag</td>
                                         <td>
                                             <div class="wf-markdown">
-<p><code>en</code></p>
+<p>the page's <code>lang:</code>, else <code>en</code></p>
                                             </div>
                                         </td>
                                         <td>
@@ -1807,7 +1882,7 @@
 <span class="wf-tok-prompt">$ </span>wf commands --json</code>
                             </div>
                             <div class="wf-markdown">
-<p>For each command it gives what the command does, each option — its flag, what it takes (<code>nothing</code> for a flag, a <code>word</code> from the values it lists, a <code>number</code>, a <code>path</code>, <code>text</code>) and its default — what the command writes, and the flag that shows it first and writes nothing (<code>fmt --check</code>, <code>migrate --check</code>, <code>fix --dry-run</code>). Build a tool page, a command palette or a script from this output instead of from a copy of this chapter. The library has the same as <code>webfluent::commands</code>.</p>
+<p>For each command it gives what the command does, each option — its flag, what it takes (<code>nothing</code> for a flag, a <code>word</code> from the values it lists, a <code>number</code>, a <code>path</code>, <code>text</code>) and its default — what the command writes, and the flag that shows it first and writes nothing (<code>fmt --check</code>, <code>migrate --check</code>, <code>fix --dry-run</code>). Build a tool page, a command palette or a script from this output instead of from a copy of this chapter. The library has the same as <code>webfluent::commands</code> (with the <code>internals</code> feature, outside semver).</p>
                             </div>
                             <h3 class="wf-heading" id="wf-assets">wf assets</h3>
                             <div class="wf-markdown">
@@ -1890,7 +1965,7 @@
                             <div class="wf-markdown">
 <p>For each file it prints its kind (image, font, video, audio, document, code, data), its size, a picture's dimensions, and every place the project names it: a prop the registry types as a file (<code>Image</code>'s <code>src</code>, <code>Video</code>'s <code>poster</code> and <code>captions</code>), a page's <code>image:</code>, a <code>const</code>, an <code>image</code> declaration, a <code>data</code> file's strings, a value in <code>webfluent.app.json</code>, a stylesheet's <code>url(…)</code>, a project script, or a manifest. A file a browser or a host asks for by name — <code>favicon.ico</code>, <code>robots.txt</code>, <code>.well-known/…</code> — counts as used. Anything else nothing names counts as unused.</p>
 <p><code>--plan PATH</code> applies the project's <code>build.media</code> to one picture: each width it writes, in each format, with the file's name and size — for example <em>3 widths × 1 format · 3 files · about 84 kB</em>. A size is exact once <code>wf build</code> has written the file (it is read from <code>.wf-cache/media/</code>), or when the picture is small enough to encode on the spot. Otherwise it is estimated from strips of the picture encoded at that width, and says <code>about</code>. The plan names a format the build cannot write, with the reason, and a width it skips because the file would be no smaller than the original. With <code>--json</code>, the same sentences are in the <code>said</code> field.</p>
-<p>The library has the same as <code>webfluent::assets::{list, plan}</code>. It reads through a <code>Vfs</code>, so an editor's unsaved buffers count.</p>
+<p>The library has the same as <code>webfluent::build::assets::{list, plan}</code>. It reads through a <code>Vfs</code>, so an editor's unsaved buffers count.</p>
 <p>See also: <a href="/docs/guide/media">Media</a>.</p>
                             </div>
                             <h3 class="wf-heading" id="wf-theme">wf theme</h3>
@@ -2011,7 +2086,7 @@
 <li>the project's default length and pacing (<code>motion</code> in the config, or the engine's);</li>
 <li><code>data-wf-motion=&quot;reduce&quot;</code>, the attribute an editor sets on the page's root to show the page as a reader who asked for less motion sees it.</li>
 </ul>
-<p>The library has it as <code>webfluent::motion::catalogue</code>.</p>
+<p>The library has it as <code>webfluent::motion::catalogue</code> (with the <code>internals</code> feature, outside semver).</p>
 <p>See also: <a href="/docs/guide/motion">Motion</a>.</p>
                             </div>
                             <h3 class="wf-heading" id="wf-context">wf context</h3>
@@ -2115,7 +2190,7 @@
 <li>the guide: each chapter's title, blurb and sections to cite (<code>16 Forms and validation › What a value must be: validate</code>), or with <code>--guide full</code> the chapters whole;</li>
 <li>what was withheld, and why.</li>
 </ul>
-<p>The library has it as <code>webfluent::agent::context</code>. An agent's edits go through <code>webfluent::agent::changeset::ChangeSet</code>: a layer over the editor's buffers that the compiler builds before anyone reads it. It refuses paths outside the project, in <code>.git/</code>, in the build's output and <code>.env</code> files; reads the config with its private values withheld and keeps them through a write; and is accepted whole, by file or by hunk. <code>ChangeSet::edit</code> makes an agent's anchored edits (<code>webfluent::agent::edit</code>): each <code>old_text</code> must be found once in a file the set has read — exactly, then ignoring what ends a line, then the indent, then typographic quotes and dashes — and a file that moved under the set since it was read is refused until it is read again. Text found twice names its lines; text found nowhere names the nearest.</p>
+<p>The library has it as <code>webfluent::agent::context</code> (with the <code>internals</code> feature, outside semver). An agent's edits go through <code>webfluent::agent::changeset::ChangeSet</code>: a layer over the editor's buffers that the compiler builds before anyone reads it. It refuses paths outside the project, in <code>.git/</code>, in the build's output and <code>.env</code> files; reads the config with its private values withheld and keeps them through a write; and is accepted whole, by file or by hunk. <code>ChangeSet::edit</code> makes an agent's anchored edits (<code>webfluent::agent::edit</code>): each <code>old_text</code> must be found once in a file the set has read — exactly, then ignoring what ends a line, then the indent, then typographic quotes and dashes — and a file that moved under the set since it was read is refused until it is read again. Text found twice names its lines; text found nowhere names the nearest.</p>
                             </div>
                             <h3 class="wf-heading" id="wf-translations">wf translations</h3>
                             <div class="wf-markdown">
@@ -2207,7 +2282,7 @@
 <p>A key is unused when nothing names it: no <code>t()</code>, no key built at run time that may be it, and no <code>validate</code> rule that shows it.</p>
 <p><code>--json</code> prints the whole table: every key, plural keys with each form, each message in each locale with its placeholders and line, every place a <code>t()</code> names the key, and the calls that name a key no locale has (<code>I01</code>).</p>
 <p><code>--plurals</code> prints each locale's forms; with <code>--json</code>, also the form each of a run of counts takes.</p>
-<p>The library has it as <code>webfluent::i18n::table</code>, whose <code>set_message</code> writes one message back and keeps every other byte of the file.</p>
+<p>The library has it as <code>webfluent::i18n::table</code> (with the <code>internals</code> feature, outside semver), whose <code>set_message</code> writes one message back and keeps every other byte of the file.</p>
 <p>See also: <a href="/docs/guide/i18n">Internationalisation</a>.</p>
                             </div>
                             <h3 class="wf-heading" id="wf-scope">wf scope</h3>
@@ -2300,7 +2375,7 @@
 <li>the members of every store it <code>use</code>s;</li>
 <li>with <code>--data</code>, the template's data.</li>
 </ol>
-<p>Each row has its type as the checker infers it, its shape (<code>bool</code>, <code>number</code>, <code>text</code>, <code>moment</code>, <code>list</code>, <code>record</code>, <code>enum</code> …), whether it may be <code>null</code>, where it comes from (<code>for d in live</code>, <code>member of Deploys</code>), and a record's fields to go on into (<code>d.region.code</code>). The library has it as <code>webfluent::scope</code>.</p>
+<p>Each row has its type as the checker infers it, its shape (<code>bool</code>, <code>number</code>, <code>text</code>, <code>moment</code>, <code>list</code>, <code>record</code>, <code>enum</code> …), whether it may be <code>null</code>, where it comes from (<code>for d in live</code>, <code>member of Deploys</code>), and a record's fields to go on into (<code>d.region.code</code>). The library has it as <code>webfluent::scope</code> (with the <code>internals</code> feature, outside semver).</p>
                             </div>
                             <h3 class="wf-heading" id="wf-rules">wf rules</h3>
                             <div class="wf-markdown">
@@ -2364,7 +2439,7 @@
 <li><code>data-wf-validation=&quot;shown&quot;</code>, the attribute a preview sets on the page's root to show every message at once;</li>
 <li>every state the project holds to a rule, with its rules in order (those its type implies first) and whether the page checks them as the reader types.</li>
 </ul>
-<p>The library has it as <code>webfluent::validation</code>.</p>
+<p>The library has it as <code>webfluent::validation</code> (with the <code>internals</code> feature, outside semver).</p>
 <p>See also: <a href="/docs/guide/forms">Forms</a>.</p>
                             </div>
                             <h3 class="wf-heading" id="wf-components">wf components</h3>
@@ -2421,7 +2496,7 @@
                             </div>
                             <div class="wf-markdown">
 <p>For each prop it gives the kind of value it takes (<code>text</code>, <code>number</code>, <code>enum</code> and its cases, <code>file</code> and what kind, <code>state</code>, <code>path</code>, a declared <code>record</code>, a <code>list</code>, <code>date</code>, <code>color</code>, <code>money</code> …), whether it is the positional one, its default as written, a range where its type declares one (<code>Number(0..=100)</code>), and whether <code>.name</code> alone sets it. Then it gives the component's events, its slots and what each hands its fill, its parts and their owner, the attribute families its root takes, and whether it takes children.</p>
-<p>This is the table the checker reads a call against. An inspector draws a control per prop from it, and an Insert panel knows what may go where. The library has it as <code>webfluent::registry::schema::of_project_via</code>.</p>
+<p>This is the table the checker reads a call against. An inspector draws a control per prop from it, and an Insert panel knows what may go where. The library has it as <code>webfluent::registry::schema::of_project_via</code> (with the <code>internals</code> feature, outside semver).</p>
                             </div>
                             <h3 class="wf-heading" id="wf-docs">wf docs</h3>
                             <div class="wf-markdown">
@@ -2695,11 +2770,11 @@
                             </div>
                             <h3 class="wf-heading" id="zed">Zed</h3>
                             <div class="wf-markdown">
-<p>The extension is in <code>editors/zed</code>. It is not in Zed's extension registry yet, so install it with <code>zed: install dev extension</code>, pointing at that folder. It provides Tree-sitter highlighting, the outline, brackets, indentation, snippets and the language server (found on <code>PATH</code>, or downloaded from the latest release), for <code>.wf</code> and <code>.wfx</code>.</p>
+<p>The extension is <a href="https://github.com/monzeromer-lab/webfluent-zed">webfluent-zed</a>. It is not in Zed's extension registry yet, so clone it and install it with <code>zed: install dev extension</code>, pointing at the clone. It provides Tree-sitter highlighting, the outline, brackets, indentation, snippets and the language server (found on <code>PATH</code>, or downloaded from the latest release), for <code>.wf</code> and <code>.wfx</code>.</p>
                             </div>
                             <h3 class="wf-heading" id="vs-code">VS Code</h3>
                             <div class="wf-markdown">
-<p>The extension is in <code>editors/vscode</code>: TextMate highlighting and the language server. Until it is on the Marketplace, run <code>npm ci &amp;&amp; npm run package</code> in that folder, then install the <code>.vsix</code> with <strong>Extensions: Install from VSIX</strong>.</p>
+<p>The extension is <a href="https://github.com/monzeromer-lab/webfluent-vscode">webfluent-vscode</a>: TextMate highlighting and the language server. Until it is on the Marketplace, install the <code>.vsix</code> from its latest release with <strong>Extensions: Install from VSIX</strong>.</p>
                             </div>
                             <h3 class="wf-heading" id="neovim">Neovim</h3>
                             <div class="wf-markdown">
@@ -2761,7 +2836,7 @@ command = &quot;wf-lsp&quot;</code>
                             </div>
                             <h3 class="wf-heading" id="other-editors">Other editors</h3>
                             <div class="wf-markdown">
-<p>Any editor with LSP support can run <code>wf-lsp</code> over standard input and output; the project root is the folder that holds <code>webfluent.app.json</code>. For highlighting in an editor that reads Tree-sitter, use the grammars in <code>editors/tree-sitter-webfluent</code> (braces) and <code>editors/tree-sitter-webfluentx</code> (indentation).</p>
+<p>Any editor with LSP support can run <code>wf-lsp</code> over standard input and output; the project root is the folder that holds <code>webfluent.app.json</code>. For highlighting in an editor that reads Tree-sitter, use the grammars in <a href="https://github.com/monzeromer-lab/tree-sitter-webfluent">tree-sitter-webfluent</a>: <code>webfluent/</code> (braces) and <code>webfluentx/</code> (indentation).</p>
                             </div>
                             <h2 class="wf-heading" id="building-a-tool-on-the-compiler">Building a tool on the compiler</h2>
                             <div class="wf-markdown">
@@ -3004,7 +3079,7 @@ command = &quot;wf-lsp&quot;</code>
                             <p class="wf-text wf-s7c2fb5e9">wf</p>
                             <p class="wf-text wf-s312df231">WebFluent</p>
                         </div>
-                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.14, parsed, type-checked and compiled by the test suite.</p>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 6.0, parsed, type-checked and compiled by the test suite.</p>
                     </div>
                     <div class="wf-row wf-gap--xl wf-align--start wf-s45b84406 footer-columns">
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
@@ -3032,7 +3107,7 @@ command = &quot;wf-lsp&quot;</code>
                     </div>
                 </div>
                 <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-s6ee62d46">
-                    <p class="wf-text">WebFluent 5.14 — MPL-2.0</p>
+                    <p class="wf-text">WebFluent 6.0 — MPL-2.0</p>
                     <div class="wf-row wf-align--center wf-gap--md">
                         <button class="wf-btn link-button" type="button">Cookie settings</button>
                         <p class="wf-text">© 2026 Monzer Omer</p>

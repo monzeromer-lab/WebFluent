@@ -2,13 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Diagnostics</title>
     <meta name="description" content="Every WebFluent error and warning, by code — what it means, a program that draws it, the message the compiler prints, and the fix.">
     <link rel="canonical" href="https://webfluent.monzeromer.dev/docs/guide/diagnostics">
-    <link rel="alternate" hreflang="en" href="https://webfluent.monzeromer.dev/docs/guide/diagnostics?lang=en">
-    <link rel="alternate" hreflang="ar" href="https://webfluent.monzeromer.dev/docs/guide/diagnostics?lang=ar">
-    <link rel="alternate" hreflang="x-default" href="https://webfluent.monzeromer.dev/docs/guide/diagnostics">
     <meta property="og:type" content="website">
     <meta property="og:title" content="Diagnostics">
     <meta property="og:site_name" content="WebFluent">
@@ -23,8 +21,7 @@
     <meta name="twitter:title" content="Diagnostics">
     <meta name="twitter:description" content="Every WebFluent error and warning, by code — what it means, a program that draws it, the message the compiler prints, and the fix.">
     <meta name="twitter:image" content="https://webfluent.monzeromer.dev/og.png">
-    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/diagnostics#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/diagnostics","name":"Diagnostics","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"Every WebFluent error and warning, by code — what it means, a program that draws it, the message the compiler prints, and the fix."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/diagnostics#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Documentation","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Diagnostics","item":"https://webfluent.monzeromer.dev/docs/guide/diagnostics"}]}]}</script>
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/diagnostics#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/diagnostics","name":"Diagnostics","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"Every WebFluent error and warning, by code — what it means, a program that draws it, the message the compiler prints, and the fix.","inLanguage":"en"},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/diagnostics#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Documentation","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Diagnostics","item":"https://webfluent.monzeromer.dev/docs/guide/diagnostics"}]}]}</script>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
@@ -45,7 +42,7 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.14</p>
+                            <p class="wf-text wf-s859a58d7">6.0</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
@@ -787,7 +784,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;, la
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Put it in <code>on click { }</code>, an <code>action</code> or an <code>effect</code>.</p>
                             </div>
-                            <h3 class="wf-heading" id="e106-script-in-an-attribute">E106 — Script in an attribute</h3>
+                            <h3 class="wf-heading" id="e106-script-or-a-whole-style-in-an-attribute">E106 — Script or a whole style in an attribute</h3>
                             <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
@@ -813,10 +810,42 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;, la
 3 |     Button(&quot;Save&quot;, onclick: &quot;save()&quot;)
   |                    ^^^^^^^
   = help: Write the handler instead: `Button(…) { on click { … } }`
-  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#e106-script-in-an-attribute</code>
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#e106-script-or-a-whole-style-in-an-attribute</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> <code>Button(&quot;Save&quot;) { on click { save() } }</code>.</p>
+<p><code>style:</code> is refused the same way: it would write a value as the element's whole <code>style=</code> attribute, which a value from data can turn into a box over the whole page or a request to anywhere. A style is a <code>style { }</code> block, one property at a time, where a value that reads state sets that one property and nothing else.</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf · draws E106</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf · draws E106" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
+    state look = &quot;color: red&quot;
+    Heading(&quot;Note&quot;).h1
+    Text(&quot;Hi&quot;, style: look)
+}</code>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">text</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="text" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">error[E106]: `style:` on Text would write a value as the element's whole inline style
+ --&gt; src/App.wf:4:16
+  |
+4 |     Text(&quot;Hi&quot;, style: look)
+  |                ^^^^^
+  = help: Write a style block instead: `Text(…) { style { color: {tone} } }`, one property at a time
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#e106-script-or-a-whole-style-in-an-attribute</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><strong>Fix:</strong> <code>Text(&quot;Hi&quot;) { style { color: {tone} } }</code>.</p>
                             </div>
                             <h3 class="wf-heading" id="e107-a-url-a-browser-would-run">E107 — A URL a browser would run</h3>
                             <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
@@ -848,6 +877,37 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;, la
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> A relative URL, or <code>http</code>, <code>https</code>, <code>mailto</code>, <code>tel</code>, <code>sms</code>, <code>ftp</code>.</p>
+<p>A page's <code>head { }</code> is held to the same rule, and more: a <code>script(src:)</code> must be written out, since whoever controls a value it reads would choose the script the page runs; a <code>meta(http-equiv: &quot;refresh&quot;)</code> whose address comes from a value is an open redirect, and an <code>http-equiv</code> a value chooses could become one.</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf · draws E107</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf · draws E107" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
+    head { script(src: query.lib) }
+    Heading(&quot;Home&quot;).h1
+}</code>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">text</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="text" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">error[E107]: `head { script(src: …) }` loads a script a value chooses: whoever controls the value runs code as this site
+ --&gt; src/App.wf:2:12
+  |
+2 |     head { script(src: query.lib) }
+  |            ^^^^^^
+  = help: Write the address out — `script(src: &quot;/analytics.js&quot;)` — and keep what varies in the script's own data
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#e107-a-url-a-browser-would-run</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><strong>Fix:</strong> <code>head { script(src: &quot;/analytics.js&quot;) }</code>; send a reader on with <code>navigate(…)</code>, which keeps to the site's routes.</p>
                             </div>
                             <h3 class="wf-heading" id="e108-an-env-name-that-is-not-public">E108 — An env name that is not public</h3>
                             <div class="wf-markdown">
@@ -1050,6 +1110,14 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                             <div class="wf-markdown">
 <p>Warning. An embedding, override or isolate control — U+202A to U+202E, U+2066 to U+2069 — is invisible, and it reorders what follows it: a comment that seems to close, or a string that seems to hold one word, can hide code that runs (Trojan Source, CVE-2021-42574). The editor draws each as a mark; the check names each by its line, its column and its Unicode name. <strong>Fix:</strong> remove it. Arabic beside Latin needs no control: each run takes the direction of its own letters.</p>
 <p>Names may be written in Arabic, or any script: a name starts with a letter and goes on with letters, digits, <code>_</code> and the marks of its letters, as UAX #31 says (<code>state عددٌ = 3</code>), and is one name however its letters were typed — أ precomposed or ا with a combining hamza (NFC).</p>
+                            </div>
+                            <h3 class="wf-heading" id="e120-something-nests-too-deeply">E120 — Something nests too deeply</h3>
+                            <div class="wf-markdown">
+<p>Error. Brackets inside brackets, blocks inside blocks, a splice inside a string inside a splice, the links of one chain (<code>a.b.c</code>, <code>1 + 2 + 3</code>, each link nesting the value one level deeper) and, in a template, components that place one another — counted together, more than 100 levels deep. The parser, the checker and the template engine each stop there and say so, where each would otherwise run out of stack. The deepest program of this guide, the examples and the site nests 15 levels. <strong>Fix:</strong> name a part of it — a <code>let</code> in an action, a <code>derived</code> value, a component — and use the name. A component that places itself stops when its data does; one whose data does not end is this error too.</p>
+                            </div>
+                            <h3 class="wf-heading" id="e121-a-render-that-would-do-too-much">E121 — A render that would do too much</h3>
+                            <div class="wf-markdown">
+<p>Error, from the template engine (<code>wf render</code>, <code>Template::render_*</code>). One render may take ten million steps — an element drawn, a loop item, a unit of working a value out — and write 256 MB of markup, and one expression may make about half a million list items or 32 MB of text. A render past any of them stops and says where, instead of growing until the server runs out of memory: two nested <code>for</code> loops over ranges of a billion, a loop over the data inside a loop over the data that is too large, or <code>(1..=1000000).map(i =&gt; 1..=1000000)</code>. A build that meets such an expression at build time leaves it to the page, as it does any value it cannot work out. <strong>Fix:</strong> draw less — page the data before it reaches the template, or work the value out on the server and hand it over.</p>
                             </div>
                             <h2 class="wf-heading" id="components">Components</h2>
                             <h3 class="wf-heading" id="c01-a-required-prop-or-field-left-out">C01 — A required prop or field left out</h3>
@@ -1756,6 +1824,43 @@ page Home(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;)
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Write it from the site's root: <code>&quot;/images/cover.png&quot;</code>.</p>
                             </div>
+                            <h3 class="wf-heading" id="r05-a-translation-of-no-page-or-two-in-one-language">R05 — A translation of no page, or two in one language</h3>
+                            <div class="wf-markdown">
+<p>Error.</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf · draws R05</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf · draws R05" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page Home(path: &quot;/&quot;, title: &quot;Home&quot;, description: &quot;D&quot;) {
+    Heading(&quot;Home&quot;).h1
+}
+
+page HomeEn(path: &quot;/en&quot;, title: &quot;Home&quot;, description: &quot;D&quot;, lang: &quot;en&quot;, translates: Hom) {
+    Heading(&quot;Home&quot;).h1
+}</code>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">text</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="text" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">error[R05]: `HomeEn` translates `Hom`, and no page is named `Hom`
+ --&gt; src/App.wf:5:1
+  |
+5 | page HomeEn(path: &quot;/en&quot;, title: &quot;Home&quot;, description: &quot;D&quot;, lang: &quot;en&quot;, translates: Hom) {
+  | ^^^^
+  = help: Did you mean `Home`?
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#r05-a-translation-of-no-page-or-two-in-one-language</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><code>translates:</code> names the page this one is a translation of, and the pages it joins list each other as <code>hreflang</code> alternates, each in its own <code>lang:</code>. Two pages of one group in the same language — or both with no <code>lang:</code>, so both in the site's — would be two alternates for one language. <strong>Fix:</strong> name a page the program declares, and give each translation the <code>lang:</code> it is written in.</p>
+                            </div>
                             <h2 class="wf-heading" id="data-and-assets">Data and assets</h2>
                             <h3 class="wf-heading" id="d01-a-file-the-project-does-not-have">D01 — A file the project does not have</h3>
                             <div class="wf-markdown">
@@ -1874,6 +1979,34 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Give the state a value of its type, or convert: <code>Number(text)</code>, <code>&quot;{n}&quot;</code>. If the state really holds either, declare it <code>Any</code>.</p>
+<p>A number a built-in cannot be given is one too: a <code>Carousel(interval:)</code> outside 1 to 2147483647 milliseconds (<code>-5000</code> used to become a 0 ms autoplay), a <code>Column(span:)</code> that is not a whole number from 1 to 12.</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf · draws T01</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf · draws T01" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
+    Heading(&quot;Grid&quot;).h1
+    Row { Column(span: 13) { Text(&quot;Wide&quot;) } }
+}</code>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">text</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="text" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">error[T01]: `span` of Column is 13, but a whole number of the 12 columns, from 1 to 12, is wanted
+ --&gt; src/App.wf:3:11
+  |
+3 |     Row { Column(span: 13) { Text(&quot;Wide&quot;) } }
+  |           ^^^^^^
+  = help: `span: 6` is half the row
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#t01-a-value-of-the-wrong-type</code>
                             </div>
                             <h3 class="wf-heading" id="t02-a-case-the-enum-does-not-have">T02 — A case the enum does not have</h3>
                             <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
@@ -3744,6 +3877,38 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                             </div>
                             <div class="wf-markdown">
 <p><strong>Fix:</strong> Wrap markup from outside the project in <code>sanitize(…)</code>: <code>Unsafe.Html(sanitize(body))</code>.</p>
+<p>A <code>Frame(srcdoc:)</code> drawing HTML from a value is named too: that HTML is a document of its own, scripts and all. Unless the call says what the frame may do, it may do nothing — the build gives it <code>sandbox=&quot;&quot;</code> — and the warning says so. Writing <code>sandbox:</code> out is the reviewed case; <code>allow-scripts</code> with <code>allow-same-origin</code> undoes the sandbox, and is named again.</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf · draws V03</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf · draws V03" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
+    state html = &quot;&lt;p&gt;Hi&lt;/p&gt;&quot;
+    Heading(&quot;Preview&quot;).h1
+    Frame(srcdoc: html, title: &quot;Preview&quot;)
+}</code>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">text</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="text" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565">warning[V03]: `Frame(srcdoc:)` draws HTML from a value as a document; it is sandboxed (`sandbox=&quot;&quot;`), so nothing in it runs
+ --&gt; src/App.wf:4:5
+  |
+4 |     Frame(srcdoc: html, title: &quot;Preview&quot;)
+  |     ^^^^^
+  = help: Say what it may do with `sandbox:` — `sandbox: &quot;&quot;` keeps it as it is now; `allow-scripts` and `allow-same-origin` together undo the sandbox
+  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#v03-markup-put-in-as-markup</code>
+                            </div>
+                            <div class="wf-markdown">
+<p><strong>Fix:</strong> <code>Frame(srcdoc: html, title: &quot;Preview&quot;, sandbox: &quot;&quot;)</code>.</p>
                             </div>
                             <h3 class="wf-heading" id="v02-a-flag-no-stylesheet-styles">V02 — A flag no stylesheet styles</h3>
                             <div class="wf-markdown">
@@ -4117,7 +4282,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                             <p class="wf-text wf-s7c2fb5e9">wf</p>
                             <p class="wf-text wf-s312df231">WebFluent</p>
                         </div>
-                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.14, parsed, type-checked and compiled by the test suite.</p>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 6.0, parsed, type-checked and compiled by the test suite.</p>
                     </div>
                     <div class="wf-row wf-gap--xl wf-align--start wf-s45b84406 footer-columns">
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
@@ -4145,7 +4310,7 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                     </div>
                 </div>
                 <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-s6ee62d46">
-                    <p class="wf-text">WebFluent 5.14 — MPL-2.0</p>
+                    <p class="wf-text">WebFluent 6.0 — MPL-2.0</p>
                     <div class="wf-row wf-align--center wf-gap--md">
                         <button class="wf-btn link-button" type="button">Cookie settings</button>
                         <p class="wf-text">© 2026 Monzer Omer</p>

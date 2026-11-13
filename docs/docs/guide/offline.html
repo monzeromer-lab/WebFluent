@@ -2,13 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Offline</title>
     <meta name="description" content="Offline support: precaching routes, a fallback page, cache policies, writes kept for later, the update flow, testing it, and its limits.">
     <link rel="canonical" href="https://webfluent.monzeromer.dev/docs/guide/offline">
-    <link rel="alternate" hreflang="en" href="https://webfluent.monzeromer.dev/docs/guide/offline?lang=en">
-    <link rel="alternate" hreflang="ar" href="https://webfluent.monzeromer.dev/docs/guide/offline?lang=ar">
-    <link rel="alternate" hreflang="x-default" href="https://webfluent.monzeromer.dev/docs/guide/offline">
     <meta property="og:type" content="website">
     <meta property="og:title" content="Offline">
     <meta property="og:site_name" content="WebFluent">
@@ -23,8 +21,7 @@
     <meta name="twitter:title" content="Offline">
     <meta name="twitter:description" content="Offline support: precaching routes, a fallback page, cache policies, writes kept for later, the update flow, testing it, and its limits.">
     <meta name="twitter:image" content="https://webfluent.monzeromer.dev/og.png">
-    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/offline#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/offline","name":"Offline","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"Offline support: precaching routes, a fallback page, cache policies, writes kept for later, the update flow, testing it, and its limits."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/offline#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Documentation","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Offline","item":"https://webfluent.monzeromer.dev/docs/guide/offline"}]}]}</script>
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/offline#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/offline","name":"Offline","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"Offline support: precaching routes, a fallback page, cache policies, writes kept for later, the update flow, testing it, and its limits.","inLanguage":"en"},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/offline#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Documentation","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Offline","item":"https://webfluent.monzeromer.dev/docs/guide/offline"}]}]}</script>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
@@ -45,7 +42,7 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.14</p>
+                            <p class="wf-text wf-s859a58d7">6.0</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
@@ -360,12 +357,16 @@
                             <h2 class="wf-heading" id="keep-writes-made-offline">Keep writes made offline</h2>
                             <div class="wf-markdown">
 <p>To keep the reader's changes when the network drops, set <code>&quot;sync&quot;: true</code>. A write — any method but <code>GET</code> and <code>HEAD</code>, made through <code>fetch</code> or an <code>api</code> — that fails because the network is gone is then kept instead of thrown. The call resolves with nothing, so what the page showed stays shown.</p>
+<p>Only a write that failed for want of a network is kept: the browser says it is offline, or the site's own server could not be reached. A request to another origin that is refused while the browser is online — a CORS refusal, a closed port — fails as it would without <code>sync</code>.</p>
+<p>A credential is never stored with a kept write. What an <code>api</code>'s <code>on request</code> hook adds — an <code>Authorization</code> header from the session — is added again when the write is sent, by the hook as it is then: a write made before a logout goes out with no one's token, never the old one. A write whose call carries a credential header itself (<code>headers: { &quot;Authorization&quot;: token }</code>) cannot be kept without it, so it is not kept, and its call fails as it would without <code>sync</code>.</p>
 <p>When the connection returns, the kept writes are sent in order:</p>
 <ul>
 <li>by Background Sync, where the browser has it, so a closed tab still sends them;</li>
 <li>by the page otherwise, the next time it is open.</li>
 </ul>
 <p>A server that answers has the write, even if it refuses it. A server that is down, or asks the client to wait, keeps the write waiting for later. A <code>File</code> body is not kept, and its call fails as it would without <code>sync</code>.</p>
+<p>A write whose service adds credentials with its hook is sent by a page that has that service open, so the worker leaves it — and the writes after it, to keep them in order — for the next such page.</p>
+<p>To forget every kept write — when the reader logs out, say — call <code>WF.clearQueued()</code> from one of the project's scripts.</p>
 <p><code>network.queued</code> is how many writes are waiting. Show it so the reader knows their changes are safe:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
@@ -405,6 +406,11 @@
                             </div>
                             <div class="wf-markdown">
 <p><code>update.apply()</code> takes the new version and reloads the page once. It never reloads on the first install, which only takes over a page that already works, and never twice for one update. The old version's store is deleted when the new one takes over.</p>
+                            </div>
+                            <h2 class="wf-heading" id="what-the-worker-keeps">What the worker keeps</h2>
+                            <div class="wf-markdown">
+<p>What a <code>cache</code> entry fetches is kept in the worker's runtime store, the 200 most recently fetched answers, for the next reader of the device — so an answer that is one reader's is never kept: one the server marks <code>Cache-Control: no-store</code> or <code>private</code>, one asked for with an <code>Authorization</code> header, and one that varies by <code>Cookie</code> or <code>Authorization</code>. Mark what is personal <code>private</code> and it stays off the device.</p>
+<p>Two sites on one origin under different <code>base_path</code>s keep apart: each has its own stores, kept writes and <code>persist</code> values (<code>wf:/shop:cart</code>), and neither deletes, serves or sends the other's. A site at the root keeps the names it always had, and one under a base path reads a value kept under the old name once and keeps it under the new one.</p>
                             </div>
                             <div class="wf-stack wf-gap--xs wf-s39f8973e callout" role="note" aria-label="Note" data-kind="note">
                                 <div class="wf-row wf-align--center wf-gap--xs callout-label">
@@ -469,6 +475,7 @@
                         <a class="wf-link wf-s3e136ca4" href="#turn-on-offline-support">Turn on offline support</a>
                         <a class="wf-link wf-s3e136ca4" href="#keep-writes-made-offline">Keep writes made offline</a>
                         <a class="wf-link wf-s3e136ca4" href="#offer-a-new-version">Offer a new version</a>
+                        <a class="wf-link wf-s3e136ca4" href="#what-the-worker-keeps">What the worker keeps</a>
                         <a class="wf-link wf-s3e136ca4" href="#test-it-offline">Test it offline</a>
                         <a class="wf-link wf-s3e136ca4" href="#troubleshooting">Troubleshooting</a>
                     </div>
@@ -498,7 +505,7 @@
                             <p class="wf-text wf-s7c2fb5e9">wf</p>
                             <p class="wf-text wf-s312df231">WebFluent</p>
                         </div>
-                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.14, parsed, type-checked and compiled by the test suite.</p>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 6.0, parsed, type-checked and compiled by the test suite.</p>
                     </div>
                     <div class="wf-row wf-gap--xl wf-align--start wf-s45b84406 footer-columns">
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
@@ -526,7 +533,7 @@
                     </div>
                 </div>
                 <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-s6ee62d46">
-                    <p class="wf-text">WebFluent 5.14 — MPL-2.0</p>
+                    <p class="wf-text">WebFluent 6.0 — MPL-2.0</p>
                     <div class="wf-row wf-align--center wf-gap--md">
                         <button class="wf-btn link-button" type="button">Cookie settings</button>
                         <p class="wf-text">© 2026 Monzer Omer</p>

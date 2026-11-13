@@ -2,13 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Server rendering</title>
     <meta name="description" content="Use WebFluent as a template engine: wf render, the Rust API and the Node binding, with HTML, fragment and PDF output, pages, themes and data.">
     <link rel="canonical" href="https://webfluent.monzeromer.dev/docs/guide/server-rendering">
-    <link rel="alternate" hreflang="en" href="https://webfluent.monzeromer.dev/docs/guide/server-rendering?lang=en">
-    <link rel="alternate" hreflang="ar" href="https://webfluent.monzeromer.dev/docs/guide/server-rendering?lang=ar">
-    <link rel="alternate" hreflang="x-default" href="https://webfluent.monzeromer.dev/docs/guide/server-rendering">
     <meta property="og:type" content="website">
     <meta property="og:title" content="Server rendering">
     <meta property="og:site_name" content="WebFluent">
@@ -23,8 +21,7 @@
     <meta name="twitter:title" content="Server rendering">
     <meta name="twitter:description" content="Use WebFluent as a template engine: wf render, the Rust API and the Node binding, with HTML, fragment and PDF output, pages, themes and data.">
     <meta name="twitter:image" content="https://webfluent.monzeromer.dev/og.png">
-    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/server-rendering#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/server-rendering","name":"Server rendering","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"Use WebFluent as a template engine: wf render, the Rust API and the Node binding, with HTML, fragment and PDF output, pages, themes and data."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/server-rendering#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Documentation","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Server rendering","item":"https://webfluent.monzeromer.dev/docs/guide/server-rendering"}]}]}</script>
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/server-rendering#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/server-rendering","name":"Server rendering","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"Use WebFluent as a template engine: wf render, the Rust API and the Node binding, with HTML, fragment and PDF output, pages, themes and data.","inLanguage":"en"},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/server-rendering#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Documentation","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Server rendering","item":"https://webfluent.monzeromer.dev/docs/guide/server-rendering"}]}]}</script>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
@@ -45,7 +42,7 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.14</p>
+                            <p class="wf-text wf-s859a58d7">6.0</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
@@ -394,7 +391,7 @@
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p>Sets the document's language, <code>&lt;html lang&gt;</code> (default <code>en</code>)</p>
+<p>Sets the document's language, <code>&lt;html lang&gt;</code> (default: the page's <code>lang:</code>, else <code>en</code>)</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -435,7 +432,7 @@
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="toml" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">[dependencies]
-webfluent = { version = &quot;5&quot;, default-features = false }
+webfluent = { version = &quot;6&quot;, default-features = false }
 serde = { version = &quot;1&quot;, features = [&quot;derive&quot;] }</code>
                             </div>
                             <div class="wf-markdown">
@@ -631,7 +628,7 @@ let pdf: Vec&lt;u8&gt; = templates
 <ul>
 <li><code>with_theme(name)</code> picks a theme;</li>
 <li><code>with_tokens(&amp;[(name, value)])</code> sets design tokens over the theme's;</li>
-<li><code>with_lang(&quot;ar&quot;)</code> sets the language (a right-to-left language also sets <code>dir=&quot;rtl&quot;</code>);</li>
+<li><code>with_lang(&quot;ar&quot;)</code> sets the language (a right-to-left language also sets <code>dir=&quot;rtl&quot;</code>); without it, the page's own <code>lang:</code> is used, else <code>en</code>;</li>
 <li><code>with_pdf(PdfConfig { .. })</code> sets page size, margins and fonts;</li>
 <li><code>with_slides(SlidesConfig { .. })</code> sets a deck's options.</li>
 </ul>
@@ -647,7 +644,82 @@ let pdf: Vec&lt;u8&gt; = templates
                                 </div>
                                 <div class="wf-markdown">
 <p>Every value the data supplies is escaped as text. A URL from the data that a browser would run — <code>javascript:</code>, <code>data:</code> — is dropped from <code>href</code> and <code>src</code>, as the browser build drops it. An <code>Image</code>'s <code>src</code> keeps a picture carried in its address (<code>data:image/png;base64,…</code>), as the browser build keeps it.</p>
+<p>A value the data puts in a <code>style { }</code> block is one value, as the live page sets one property at a time: a piece with a <code>;</code>, a brace or a backslash, or one that fetches something (<code>url(…)</code>, <code>image-set(…)</code>), leaves its declaration out. What the template writes around a splice — <code>background: url({img})</code> — is the template's own. A <code>class:</code> from the data is escaped inside its attribute.</p>
                                 </div>
+                            </div>
+                            <h3 class="wf-heading" id="limits-of-one-render">Limits of one render</h3>
+                            <div class="wf-markdown">
+<p>A render is bounded, so one request cannot take a server with it:</p>
+                            </div>
+                            <table class="wf-table">
+                                <caption class="wf-visually-hidden">Limits of one render</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Limit</th>
+                                        <th scope="col">What is past it</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>100 levels of nesting — elements, and the components they place, counted together</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>E120</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>10,000,000 steps — elements drawn, loop items, units of working a value out</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>E121</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>256 MB of markup</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>E121</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>About 500,000 list items or 32 MB of text made by one expression</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>E121</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>&gt;</code> quotes in <code>Markdown</code> nested 32 deep</p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>The deeper <code>&gt;</code> is shown as text</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>A precision past 100 digits (<code>toFixed</code>, <code>format(…, .decimal, n)</code>)</p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>toFixed</code> shows nothing, as the browser throws; <code>format</code> writes 100</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                            <div class="wf-markdown">
+<p>Each error is a <code>WebFluentError::Diagnostics</code> naming the code and the element where the render stopped.</p>
                             </div>
                             <h2 class="wf-heading" id="render-from-node">Render from Node</h2>
                             <div class="wf-markdown">
@@ -864,6 +936,18 @@ app.get(&quot;/invoices/:id.pdf&quot;, async (req, res) =&gt; {
                                             </div>
                                         </td>
                                     </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>The render fails with <code>E120</code> or <code>E121</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>The template nests too deeply, or the render does too much; see <a href="#limits-of-one-render">Limits of one render</a></p>
+                                            </div>
+                                        </td>
+                                    </tr>
                                 </tbody>
                             </table>
                         </div>
@@ -917,7 +1001,7 @@ app.get(&quot;/invoices/:id.pdf&quot;, async (req, res) =&gt; {
                             <p class="wf-text wf-s7c2fb5e9">wf</p>
                             <p class="wf-text wf-s312df231">WebFluent</p>
                         </div>
-                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.14, parsed, type-checked and compiled by the test suite.</p>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 6.0, parsed, type-checked and compiled by the test suite.</p>
                     </div>
                     <div class="wf-row wf-gap--xl wf-align--start wf-s45b84406 footer-columns">
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
@@ -945,7 +1029,7 @@ app.get(&quot;/invoices/:id.pdf&quot;, async (req, res) =&gt; {
                     </div>
                 </div>
                 <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-s6ee62d46">
-                    <p class="wf-text">WebFluent 5.14 — MPL-2.0</p>
+                    <p class="wf-text">WebFluent 6.0 — MPL-2.0</p>
                     <div class="wf-row wf-align--center wf-gap--md">
                         <button class="wf-btn link-button" type="button">Cookie settings</button>
                         <p class="wf-text">© 2026 Monzer Omer</p>

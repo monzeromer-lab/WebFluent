@@ -88,7 +88,7 @@ exclude = ["editors/zed", "fuzz"]
 
 # What every crate here shares. `just bump` sets the version once, here.
 [workspace.package]
-version = "5.14.0"
+version = "6.0.0"
 edition = "2024"
 authors = ["Monzer Omer <monzer.a.omer@gmail.com>"]
 license = "MPL-2.0"

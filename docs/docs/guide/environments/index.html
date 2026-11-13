@@ -2,13 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Environments</title>
     <meta name="description" content="Set env values from the config, a .env file or the shell; learn which wins; keep private names out of the bundle; and build once per environment.">
     <link rel="canonical" href="https://webfluent.monzeromer.dev/docs/guide/environments">
-    <link rel="alternate" hreflang="en" href="https://webfluent.monzeromer.dev/docs/guide/environments?lang=en">
-    <link rel="alternate" hreflang="ar" href="https://webfluent.monzeromer.dev/docs/guide/environments?lang=ar">
-    <link rel="alternate" hreflang="x-default" href="https://webfluent.monzeromer.dev/docs/guide/environments">
     <meta property="og:type" content="website">
     <meta property="og:title" content="Environments">
     <meta property="og:site_name" content="WebFluent">
@@ -23,8 +21,7 @@
     <meta name="twitter:title" content="Environments">
     <meta name="twitter:description" content="Set env values from the config, a .env file or the shell; learn which wins; keep private names out of the bundle; and build once per environment.">
     <meta name="twitter:image" content="https://webfluent.monzeromer.dev/og.png">
-    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/environments#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/environments","name":"Environments","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"Set env values from the config, a .env file or the shell; learn which wins; keep private names out of the bundle; and build once per environment."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/environments#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Documentation","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Environments","item":"https://webfluent.monzeromer.dev/docs/guide/environments"}]}]}</script>
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/environments#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/environments","name":"Environments","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"Set env values from the config, a .env file or the shell; learn which wins; keep private names out of the bundle; and build once per environment.","inLanguage":"en"},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/environments#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Documentation","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Environments","item":"https://webfluent.monzeromer.dev/docs/guide/environments"}]}]}</script>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
@@ -45,7 +42,7 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.14</p>
+                            <p class="wf-text wf-s859a58d7">6.0</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
@@ -304,7 +301,11 @@
 
    ```bash PUBLIC_API=https://api.example.com wf build ```
 
-   The shell supplies a name that the config or `.env` already declares, or any name that is public (see the next section). It does not bring in every variable the build happens to run with, such as `HOME`.
+   The shell supplies a name that begins `PUBLIC_`, or a private name the config or `.env` already declares. It does not bring in every variable the build happens to run with, such as `HOME`.
+
+   A name that `public_env` makes public without the prefix takes its value from the config or `.env` only — `public_env` is part of the project, and a project you cloned could list `AWS_SECRET_ACCESS_KEY` there to publish your shell's value. To let the shell supply one, name it in `WF_ALLOW_SHELL_ENV`, comma-separated:
+
+   ```bash WF_ALLOW_SHELL_ENV=ANALYTICS_ID ANALYTICS_ID=UA-2 wf build ```
 </code></pre>
                             </div>
                             <div class="wf-stack wf-gap--xs wf-s39f8973e callout" role="note" aria-label="Note" data-kind="note">
@@ -347,7 +348,7 @@
                                     <p class="wf-text">Caution</p>
                                 </div>
                                 <div class="wf-markdown">
-<p>Adding a name to <code>public_env</code> publishes its value to every reader of the site. A secret that a third party needs belongs in a request your server makes, not in a page (<a href="/docs/guide/security#keep-secrets-out-of-the-bundle">Security</a>).</p>
+<p>Adding a name to <code>public_env</code> publishes its value to every reader of the site, and every build says so with a warning naming it. A secret that a third party needs belongs in a request your server makes, not in a page (<a href="/docs/guide/security#keep-secrets-out-of-the-bundle">Security</a>).</p>
                                 </div>
                             </div>
                             <h2 class="wf-heading" id="name-your-own-values-something-other-than-env">Name your own values something other than env</h2>
@@ -512,7 +513,7 @@
                             <p class="wf-text wf-s7c2fb5e9">wf</p>
                             <p class="wf-text wf-s312df231">WebFluent</p>
                         </div>
-                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.14, parsed, type-checked and compiled by the test suite.</p>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 6.0, parsed, type-checked and compiled by the test suite.</p>
                     </div>
                     <div class="wf-row wf-gap--xl wf-align--start wf-s45b84406 footer-columns">
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
@@ -540,7 +541,7 @@
                     </div>
                 </div>
                 <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-s6ee62d46">
-                    <p class="wf-text">WebFluent 5.14 — MPL-2.0</p>
+                    <p class="wf-text">WebFluent 6.0 — MPL-2.0</p>
                     <div class="wf-row wf-align--center wf-gap--md">
                         <button class="wf-btn link-button" type="button">Cookie settings</button>
                         <p class="wf-text">© 2026 Monzer Omer</p>

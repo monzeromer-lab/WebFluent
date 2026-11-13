@@ -2,13 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Internationalisation</title>
     <meta name="description" content="Translation files, t() with placeholders and plurals, choosing and switching the locale, right-to-left, and locale-aware formatting.">
     <link rel="canonical" href="https://webfluent.monzeromer.dev/docs/guide/i18n">
-    <link rel="alternate" hreflang="en" href="https://webfluent.monzeromer.dev/docs/guide/i18n?lang=en">
-    <link rel="alternate" hreflang="ar" href="https://webfluent.monzeromer.dev/docs/guide/i18n?lang=ar">
-    <link rel="alternate" hreflang="x-default" href="https://webfluent.monzeromer.dev/docs/guide/i18n">
     <meta property="og:type" content="website">
     <meta property="og:title" content="Internationalisation">
     <meta property="og:site_name" content="WebFluent">
@@ -23,8 +21,7 @@
     <meta name="twitter:title" content="Internationalisation">
     <meta name="twitter:description" content="Translation files, t() with placeholders and plurals, choosing and switching the locale, right-to-left, and locale-aware formatting.">
     <meta name="twitter:image" content="https://webfluent.monzeromer.dev/og.png">
-    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/i18n#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/i18n","name":"Internationalisation","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"Translation files, t() with placeholders and plurals, choosing and switching the locale, right-to-left, and locale-aware formatting."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/i18n#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Documentation","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Internationalisation","item":"https://webfluent.monzeromer.dev/docs/guide/i18n"}]}]}</script>
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/i18n#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/i18n","name":"Internationalisation","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"Translation files, t() with placeholders and plurals, choosing and switching the locale, right-to-left, and locale-aware formatting.","inLanguage":"en"},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/i18n#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Documentation","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Internationalisation","item":"https://webfluent.monzeromer.dev/docs/guide/i18n"}]}]}</script>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
@@ -45,7 +42,7 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.14</p>
+                            <p class="wf-text wf-s859a58d7">6.0</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
@@ -508,7 +505,7 @@
                             <div class="wf-markdown">
 <p>A page opens in <code>default_locale</code>, with two exceptions:</p>
 <ol>
-<li><strong>The address names a locale.</strong> <code>?lang=&lt;code&gt;</code>, for one of the configured locales, opens the page in it: <code>/about?lang=ar</code> is the Arabic page. This is the address the build gives each language in the <code>hreflang</code> alternates it writes for search engines, so a reader who arrives from a search result in Arabic reads Arabic. It does not change the reader's kept choice.</li>
+<li><strong>The address names a locale.</strong> <code>?lang=&lt;code&gt;</code>, for one of the configured locales, opens the page in it: <code>/about?lang=ar</code> is the Arabic page, for a link you share. It does not change the reader's kept choice. It is not an address a search engine indexes: its HTML, and its canonical link, are the default locale's, so the build lists no <code>?lang=</code> address as an <code>hreflang</code> alternate. To have each language found, give it pages of its own (<a href="#a-page-in-its-own-language">A page in its own language</a>).</li>
 <li><strong>The reader chose a locale before.</strong> <code>setLocale(code)</code> keeps the code in the reader's <code>localStorage</code>, under <code>wf:locale</code>, and every page loaded after that opens in it, on this visit and the next. Choosing <code>default_locale</code> again forgets it.</li>
 </ol>
 <p>So a static site, which loads each page afresh, keeps the reader's language from page to page, and a language switch can be a pair of buttons:</p>
@@ -532,8 +529,36 @@
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p>The runtime does not guess from the browser's language. Nothing is kept until the reader chooses, so a first visit, and a search engine's crawler, get the <code>?lang=</code> locale or the default. To start a first visit in the browser's language, keep whether the reader has chosen in a store with <code>persist</code>, and until they have, call <code>setLocale(navigator.language.slice(0, 2))</code> from an <code>effect</code> in the app.</p>
-<p>A static build pre-renders every page once, in the default locale; another locale is applied as the page loads. The <code>?lang=</code> alternates are what search engines index for the other languages.</p>
+<p>The runtime does not guess from the browser's language. Nothing is kept until the reader chooses, so a first visit gets the <code>?lang=</code> locale or the default, and a search engine's crawler the default. To start a first visit in the browser's language, keep whether the reader has chosen in a store with <code>persist</code>, and until they have, call <code>setLocale(navigator.language.slice(0, 2))</code> from an <code>effect</code> in the app.</p>
+<p>A static build pre-renders every page once, in the default locale; another locale is applied as the page loads. So a search engine indexes only the default locale's text. For each language to be found, give it pages of its own (<a href="#a-page-in-its-own-language">A page in its own language</a>).</p>
+                            </div>
+                            <h2 class="wf-heading" id="a-page-in-its-own-language">A page in its own language</h2>
+                            <div class="wf-markdown">
+<p><code>t()</code> and <code>setLocale</code> translate a page in the browser, at one address. A search engine indexes what that address's HTML says, which is the default locale. A site that wants each language found writes each page once per language, at an address of its own, and says so:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Home</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;منذر عمر&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;مهندس خلفيات.&quot;</span>) {
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;مرحباً&quot;</span>).h1
+}
+
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">HomeEn</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/en&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Monzer Omer&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Engineer.&quot;</span>,
+            <span class="wf-tok-prop">lang</span>: <span class="wf-tok-str">&quot;en&quot;</span>, <span class="wf-tok-prop">translates</span>: <span class="wf-tok-name">Home</span>) {
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Hello&quot;</span>).h1
+}</code>
+                            </div>
+                            <div class="wf-markdown">
+<ul>
+<li><strong><code>lang:</code></strong> is the language the page is written in. A page without one is in the site's (<code>meta.lang</code>, or <code>default_locale</code>). The page is written <code>&lt;html lang=&quot;en&quot;&gt;</code>, with <code>dir=&quot;rtl&quot;</code> for a language written right to left, and its <code>og:locale</code> and its JSON-LD's <code>inLanguage</code> say the same. The router sets <code>lang</code> and <code>dir</code> on <code>&lt;html&gt;</code> when it shows the page, and puts back the site's (or the locale the reader chose) on a page without one.</li>
+<li><strong><code>translates:</code></strong> names the page this one is a translation of. Pages joined this way — <code>HomeFr</code> may translate <code>Home</code> too — each list all of them as <code>hreflang</code> alternates, at their own addresses and canonical to themselves, with <code>x-default</code> for the one in the site's language, and each names the others' languages as <code>og:locale:alternate</code>.</li>
+<li>A <code>:param</code> page's translation is matched by its parameters: <code>/en/posts/:slug</code> for <code>/posts/:slug</code>, filled with the same <code>slug</code>.</li>
+</ul>
+<p>A <code>translates:</code> that names no page, or two translations of one page in one language, is <code>R05</code>.</p>
                             </div>
                             <h2 class="wf-heading" id="format-numbers-and-dates-for-the-locale">Format numbers and dates for the locale</h2>
                             <div class="wf-markdown">
@@ -551,7 +576,7 @@
 <p>For a paragraph or a page of prose:</p>
 <ul>
 <li>Under <code>&quot;literals&quot;: true</code>, <code>Markdown(&quot;…&quot;)</code> written in place is words like any other text: its whole source, <code>**</code> and all, is the key.</li>
-<li>Text inside a <code>.md</code> page is not passed through <code>t</code>. Keep one Markdown file per locale and route by a <code>:locale</code> parameter, or keep the text in the translation file under a key and render <code>Markdown(t(&quot;about.body&quot;))</code>.</li>
+<li>Text inside a <code>.md</code> page is not passed through <code>t</code>. Keep one Markdown file per locale, each with its own <code>path</code>, <code>lang</code> and <code>translates</code> in its front matter, or keep the text in the translation file under a key and render <code>Markdown(t(&quot;about.body&quot;))</code>.</li>
 </ul>
                             </div>
                             <h2 class="wf-heading" id="check-what-each-locale-lacks">Check what each locale lacks</h2>
@@ -626,7 +651,7 @@
                                 </tbody>
                             </table>
                             <div class="wf-markdown">
-<p>From Rust the table is <code>webfluent::i18n::table</code>, which can also write one message back into its file with every other byte as it was.</p>
+<p>From Rust the table is <code>webfluent::i18n::table</code> (with the <code>internals</code> feature, outside semver), which can also write one message back into its file with every other byte as it was.</p>
                             </div>
                             <h2 class="wf-heading" id="checklist">Checklist</h2>
                             <div class="wf-markdown">
@@ -639,6 +664,7 @@
 <li>alignment, and icons that imply a direction (arrows);</li>
 <li>any <code>left</code> or <code>right</code> in your own CSS;</li>
 <li>a Latin code or figure inside Arabic text, which needs a left-to-right run of its own (<code>direction: ltr; unicode-bidi: isolate</code>) to keep its parts in order.</li>
+<li>If each language should be found by search, each has pages of its own, with <code>lang:</code> and <code>translates:</code>, and <code>wf check</code> reports no <code>R05</code>.</li>
 </ul>
                             </div>
                         </div>
@@ -663,6 +689,7 @@
                         <a class="wf-link wf-s3e136ca4" href="#translate-by-the-words-as-written">Translate by the words as written</a>
                         <a class="wf-link wf-s3e136ca4" href="#switch-the-locale">Switch the locale</a>
                         <a class="wf-link wf-s3e136ca4" href="#choose-the-locale-a-page-opens-in">Choose the locale a page opens in</a>
+                        <a class="wf-link wf-s3e136ca4" href="#a-page-in-its-own-language">A page in its own language</a>
                         <a class="wf-link wf-s3e136ca4" href="#format-numbers-and-dates-for-the-locale">Format numbers and dates for the locale</a>
                         <a class="wf-link wf-s3e136ca4" href="#translate-long-form-text">Translate long-form text</a>
                         <a class="wf-link wf-s3e136ca4" href="#check-what-each-locale-lacks">Check what each locale lacks</a>
@@ -694,7 +721,7 @@
                             <p class="wf-text wf-s7c2fb5e9">wf</p>
                             <p class="wf-text wf-s312df231">WebFluent</p>
                         </div>
-                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.14, parsed, type-checked and compiled by the test suite.</p>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 6.0, parsed, type-checked and compiled by the test suite.</p>
                     </div>
                     <div class="wf-row wf-gap--xl wf-align--start wf-s45b84406 footer-columns">
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
@@ -722,7 +749,7 @@
                     </div>
                 </div>
                 <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-s6ee62d46">
-                    <p class="wf-text">WebFluent 5.14 — MPL-2.0</p>
+                    <p class="wf-text">WebFluent 6.0 — MPL-2.0</p>
                     <div class="wf-row wf-align--center wf-gap--md">
                         <button class="wf-btn link-button" type="button">Cookie settings</button>
                         <p class="wf-text">© 2026 Monzer Omer</p>

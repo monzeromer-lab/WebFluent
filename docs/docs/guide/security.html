@@ -2,13 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Security</title>
     <meta name="description" content="What WebFluent enforces, and how to handle outside markup, sessions, env secrets, uploads, CSP headers, other origins and a deploy checklist.">
     <link rel="canonical" href="https://webfluent.monzeromer.dev/docs/guide/security">
-    <link rel="alternate" hreflang="en" href="https://webfluent.monzeromer.dev/docs/guide/security?lang=en">
-    <link rel="alternate" hreflang="ar" href="https://webfluent.monzeromer.dev/docs/guide/security?lang=ar">
-    <link rel="alternate" hreflang="x-default" href="https://webfluent.monzeromer.dev/docs/guide/security">
     <meta property="og:type" content="website">
     <meta property="og:title" content="Security">
     <meta property="og:site_name" content="WebFluent">
@@ -23,8 +21,7 @@
     <meta name="twitter:title" content="Security">
     <meta name="twitter:description" content="What WebFluent enforces, and how to handle outside markup, sessions, env secrets, uploads, CSP headers, other origins and a deploy checklist.">
     <meta name="twitter:image" content="https://webfluent.monzeromer.dev/og.png">
-    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/security#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/security","name":"Security","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"What WebFluent enforces, and how to handle outside markup, sessions, env secrets, uploads, CSP headers, other origins and a deploy checklist."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/security#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Documentation","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Security","item":"https://webfluent.monzeromer.dev/docs/guide/security"}]}]}</script>
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/security#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/security","name":"Security","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"What WebFluent enforces, and how to handle outside markup, sessions, env secrets, uploads, CSP headers, other origins and a deploy checklist.","inLanguage":"en"},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/security#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Documentation","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Security","item":"https://webfluent.monzeromer.dev/docs/guide/security"}]}]}</script>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
@@ -45,7 +42,7 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.14</p>
+                            <p class="wf-text wf-s859a58d7">6.0</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
@@ -268,10 +265,14 @@
 <p>These are properties of the output, not advice. You do not have to turn them on.</p>
 <ul>
 <li><strong>Text is text.</strong> Every string an element shows goes in as a text node. <code>&quot;&lt;script&gt;&quot;</code> in your data can never become a script. The one exception has <code>Unsafe</code> in its name (<a href="#show-markup-you-did-not-write">Show markup you did not write</a>). An <code>html:</code> argument on an element is an attribute called <code>html</code>, as any argument an element does not declare is (<code>C04</code>), and never markup.</li>
-<li><strong>No inline handlers.</strong> Events are bound with <code>addEventListener</code>. <code>Button(&quot;x&quot;, onclick: expr)</code> is a compile error, because an <code>on*</code> attribute is the one place a browser runs an attribute's value. Write <code>on click { }</code> instead.</li>
+<li><strong>No inline handlers.</strong> Events are bound with <code>addEventListener</code>. <code>Button(&quot;x&quot;, onclick: expr)</code> is a compile error, because an <code>on*</code> attribute is the one place a browser runs an attribute's value. Write <code>on click { }</code> instead. <code>style:</code> is refused the same way (<code>E106</code>): a value from data would be the element's whole inline style. A <code>style { }</code> block sets one property at a time.</li>
+<li><strong>An attribute holds its value.</strong> A <code>class:</code> from data, a page title from a route parameter or front matter, a chart's or a QR code's colour: each is escaped for where it is written, and a colour must be a colour (<code>#0F766E</code>, <code>red</code>, <code>rgb(…)</code>, <code>var(--x)</code>) or the default is drawn.</li>
 <li><strong>No URL a browser would run.</strong> <code>href:</code>, <code>src:</code>, <code>to:</code>, <code>poster:</code> and <code>navigate()</code> take a URL whose scheme is <code>http</code>, <code>https</code>, <code>mailto</code>, <code>tel</code>, <code>sms</code> or <code>ftp</code>, or a URL with no scheme at all. The compiler refuses a literal where you write it, and the runtime refuses a value that exists only at run time at the moment it is used. A page may never point at <code>javascript:</code>, <code>data:</code>, <code>vbscript:</code>, <code>blob:</code> or <code>file:</code>.</li>
 <li><strong>Except a picture in its address.</strong> A <code>data:image/png;base64,…</code> or <code>data:image/svg+xml,…</code> URL is allowed where a picture is drawn: an <code>Image</code>'s or an <code>Avatar</code>'s <code>src:</code>, a Markdown picture, and an <code>&lt;img&gt;</code> that <code>sanitize</code> keeps. An <code>&lt;img&gt;</code> never runs what it shows, not even an SVG's scripts. A link, a frame or a form never takes one, and <code>data:text/html</code> is not a picture.</li>
-<li><strong>No handle on your page.</strong> A link with <code>target:</code> carries <code>rel=&quot;noopener noreferrer&quot;</code>, so the page it opens cannot navigate yours.</li>
+<li><strong>No handle on your page.</strong> A link with <code>target:</code> carries <code>rel=&quot;noopener noreferrer&quot;</code>, so the page it opens cannot navigate yours; <code>sanitize</code> adds both to such a link whatever its <code>rel</code> said, and keeps <code>opener</code> on none.</li>
+<li><strong><code>navigate()</code> stays on the site.</strong> A value the page was handed — <code>navigate(query.next ?? &quot;/&quot;)</code> after a sign-in — goes to a page of the site; an address on another origin (<code>//elsewhere.example</code>) is refused, and the reader stays where they are. Leave the site with a <code>Link</code>.</li>
+<li><strong>A frame drawing HTML from a value runs none of it.</strong> A <code>Frame(srcdoc: value)</code> with no <code>sandbox:</code> is given <code>sandbox=&quot;&quot;</code>, and the build names it (<code>V03</code>). Its <code>on message</code> hears only what that frame's own document posts, from the origin that document has, not a page it navigated to.</li>
+<li><strong>A page's <code>head { }</code> points nowhere a browser runs.</strong> Its <code>src:</code> and <code>href:</code> go through the scheme check at build time and in the browser. A <code>script(src:)</code> must be written out, and a refresh may not take its address from a value (<code>E107</code>): either would let whoever controls the value choose what the page runs or where the reader goes.</li>
 <li><strong>Markdown is escaped first.</strong> <code>Markdown(text)</code> shows any HTML in the text instead of running it. Its links and pictures go through the same scheme check as every other URL: a link to a <code>javascript:</code> URL is drawn as its words, with no link, at build time and in the browser alike. So is one that puts a backslash before its colon (<code>javascript\:</code>), which Markdown reads as the colon it escapes. For text somebody else wrote, such as a language server's documentation, <code>Markdown(text).inert</code> draws no link or picture at all (<a href="/docs/guide/content#show-text-somebody-else-wrote-with-inert">Content</a>).</li>
 <li><strong>A <code>Secret</code> cannot escape.</strong> It may not be shown, spliced into a string, logged or persisted. Each is a <code>T12</code>, reported at the line that does it.</li>
 <li><strong>A non-public <code>env</code> name cannot be read from a page.</strong> See <a href="#keep-secrets-out-of-the-bundle">Keep secrets out of the bundle</a>.</li>
@@ -375,10 +376,11 @@ api <span class="wf-tok-name">Backend</span>(<span class="wf-tok-prop">base</spa
 <span class="wf-tok-kw">store</span> <span class="wf-tok-name">Session</span> {
     <span class="wf-tok-kw">state</span> <span class="wf-tok-prop">user</span>: <span class="wf-tok-name">User</span>? = <span class="wf-tok-kw">null</span>
     <span class="wf-tok-kw">action</span> load() { user = <span class="wf-tok-kw">await</span> <span class="wf-tok-name">Backend</span>.me() }
-    <span class="wf-tok-kw">action</span> out() { <span class="wf-tok-kw">await</span> <span class="wf-tok-name">Backend</span>.signOut()  user = <span class="wf-tok-kw">null</span>  <span class="wf-tok-kw">navigate</span>(<span class="wf-tok-str">&quot;/&quot;</span>) }
+    <span class="wf-tok-kw">action</span> out() { <span class="wf-tok-kw">await</span> <span class="wf-tok-name">Backend</span>.signOut()  user = <span class="wf-tok-kw">null</span>  <span class="wf-tok-name">Backend</span>.me.invalidate()  <span class="wf-tok-kw">navigate</span>(<span class="wf-tok-str">&quot;/&quot;</span>) }
 }</code>
                             </div>
                             <div class="wf-markdown">
+<p><code>Backend.me.invalidate()</code> on sign-out drops what the endpoint cached, so the next reader of the tab is not shown the last one's; do the same for every endpoint whose answer is one reader's. An answer cached under one <code>Authorization</code> header is never served for another, but a cookie cannot be read, so the cache cannot tell one cookie's reader from the next.</p>
 <p>A page <em>may</em> keep what a page may show: a display name, a theme, a preference. If a value would matter to someone who stole it, it belongs behind a request.</p>
 <p>The compiler enforces the part it can. Declare a token as a <code>Secret</code>, and keeping it with <code>persist</code> is a <code>T12</code>:</p>
                             </div>
@@ -414,8 +416,10 @@ api <span class="wf-tok-name">Backend</span>(<span class="wf-tok-prop">base</spa
 <p>With this config:</p>
 <ul>
 <li>a page may read <code>env.PUBLIC_API</code> and <code>env.ANALYTICS_ID</code>;</li>
-<li><code>env.STRIPE_SECRET</code>, read from a page, a component, a store or an <code>api</code> block, is an <code>E108</code> compile error naming the file and the line.</li>
+<li><code>env.STRIPE_SECRET</code>, read from a page, a component, a store or an <code>api</code> block, is an <code>E108</code> compile error naming the file and the line;</li>
+<li>every build warns that <code>env.ANALYTICS_ID</code> goes into the bundle, since its name does not say so.</li>
 </ul>
+<p><code>public_env</code> comes with the project, so it cannot reach into the shell of whoever builds it: a name it lists without the <code>PUBLIC_</code> prefix takes its value from the config or <code>.env</code>, and from the shell only when <code>WF_ALLOW_SHELL_ENV</code> names it (<a href="/docs/guide/environments">Environments</a>).</p>
 <p>The value of <code>STRIPE_SECRET</code> is still there for <code>wf render</code>, which runs on a server where a secret stays secret (<a href="/docs/guide/server-rendering">Server rendering</a>). A secret that has to reach a third party belongs in a request your server makes, not in a page. <a href="/docs/guide/environments">Environments</a> covers where <code>env</code> values come from.</p>
                             </div>
                             <h2 class="wf-heading" id="check-uploads-on-the-server">Check uploads on the server</h2>
@@ -433,7 +437,7 @@ api <span class="wf-tok-name">Backend</span>(<span class="wf-tok-prop">base</spa
                             <div class="wf-markdown">
 <p>A Content-Security-Policy (CSP) tells the browser which scripts, styles, images and connections a page may use. To ship one, set <code>&quot;build&quot;: { &quot;csp&quot;: true }</code>. A project <code>wf init</code> creates has it on. The build then writes:</p>
 <ul>
-<li>a <code>&lt;meta http-equiv=&quot;Content-Security-Policy&quot;&gt;</code> in every page;</li>
+<li>a <code>&lt;meta http-equiv=&quot;Content-Security-Policy&quot;&gt;</code> in every page, right after <code>&lt;meta charset&gt;</code>: a meta policy governs only what the browser parses after it, so it stands before the title, the sharing tags and a page's own <code>head { }</code> tags, which a page's data reaches;</li>
 <li>a <code>_headers</code> file for hosts that read one (Netlify, Cloudflare Pages, Vercel; other hosts ignore it).</li>
 </ul>
 <p><code>frame-ancestors</code> is only in <code>_headers</code>, because a browser ignores it in a meta tag. A policy that carried it there would say one thing and do another.</p>
@@ -481,7 +485,7 @@ api <span class="wf-tok-name">Backend</span>(<span class="wf-tok-prop">base</spa
                             </div>
                             <h3 class="wf-heading" id="let-the-build-check-its-own-output">Let the build check its own output</h3>
                             <div class="wf-markdown">
-<p><strong>The build holds every page to the policy it ships.</strong> It reads each HTML file back and stops on anything the policy would block: an inline <code>&lt;script&gt;</code>, a <code>&lt;style&gt;</code>, a <code>style=</code> attribute, an <code>on*</code> attribute, or a script or stylesheet from an origin the policy never named. A policy is a promise about what a page contains; without this check, the browser would enforce it and show a blank page.</p>
+<p><strong>The build holds every page to the policy it ships.</strong> It reads each HTML file back and stops on anything the policy would block: an inline <code>&lt;script&gt;</code>, a <code>&lt;style&gt;</code>, a <code>style=</code> attribute, an <code>on*</code> attribute, a script or stylesheet from an origin the policy never named or from an address that names no place (<code>data:</code>, <code>javascript:</code>), a <code>&lt;base&gt;</code>, or a refresh that sends the reader to another site. It reads the HTML as a browser does — names in any case, attributes apart by white space or a <code>/</code>, values quoted or not. A policy is a promise about what a page contains; without this check, the browser would enforce it and show a blank page. A page the check refuses is removed from the output, so a deploy that ignores the failed build does not publish it.</p>
 <p>A page's own <code>head { script(src: …) }</code> or stylesheet <code>link</code> is added on the live page, after the HTML is written, so the compiler checks it where you write it instead: one from an origin the config does not declare is an <code>E902</code> on that line.</p>
 <p>One thing is allowed rather than refused: a <code>style { }</code> value that <strong>reads state</strong> is written on the element, because it has nowhere else to go. When a build emits one, <code>style-src</code> gains <code>'unsafe-inline'</code> and the build names the pages that caused it, so the stricter policy is one edit away. A literal in a <code>style { }</code> block is already a shared class and costs nothing.</p>
                             </div>
@@ -605,7 +609,7 @@ api <span class="wf-tok-name">Backend</span>(<span class="wf-tok-prop">base</spa
                             <p class="wf-text wf-s7c2fb5e9">wf</p>
                             <p class="wf-text wf-s312df231">WebFluent</p>
                         </div>
-                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.14, parsed, type-checked and compiled by the test suite.</p>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 6.0, parsed, type-checked and compiled by the test suite.</p>
                     </div>
                     <div class="wf-row wf-gap--xl wf-align--start wf-s45b84406 footer-columns">
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
@@ -633,7 +637,7 @@ api <span class="wf-tok-name">Backend</span>(<span class="wf-tok-prop">base</spa
                     </div>
                 </div>
                 <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-s6ee62d46">
-                    <p class="wf-text">WebFluent 5.14 — MPL-2.0</p>
+                    <p class="wf-text">WebFluent 6.0 — MPL-2.0</p>
                     <div class="wf-row wf-align--center wf-gap--md">
                         <button class="wf-btn link-button" type="button">Cookie settings</button>
                         <p class="wf-text">© 2026 Monzer Omer</p>

@@ -2,13 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Real-time</title>
     <meta name="description" content="WebSockets, server-sent events, broadcast channels, WebRTC peers and workers: opening, matching, sending, options, reconnection and typed messages.">
     <link rel="canonical" href="https://webfluent.monzeromer.dev/docs/guide/realtime">
-    <link rel="alternate" hreflang="en" href="https://webfluent.monzeromer.dev/docs/guide/realtime?lang=en">
-    <link rel="alternate" hreflang="ar" href="https://webfluent.monzeromer.dev/docs/guide/realtime?lang=ar">
-    <link rel="alternate" hreflang="x-default" href="https://webfluent.monzeromer.dev/docs/guide/realtime">
     <meta property="og:type" content="website">
     <meta property="og:title" content="Real-time">
     <meta property="og:site_name" content="WebFluent">
@@ -23,8 +21,7 @@
     <meta name="twitter:title" content="Real-time">
     <meta name="twitter:description" content="WebSockets, server-sent events, broadcast channels, WebRTC peers and workers: opening, matching, sending, options, reconnection and typed messages.">
     <meta name="twitter:image" content="https://webfluent.monzeromer.dev/og.png">
-    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/realtime#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/realtime","name":"Real-time","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"WebSockets, server-sent events, broadcast channels, WebRTC peers and workers: opening, matching, sending, options, reconnection and typed messages."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/realtime#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Documentation","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Real-time","item":"https://webfluent.monzeromer.dev/docs/guide/realtime"}]}]}</script>
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/realtime#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/realtime","name":"Real-time","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"WebSockets, server-sent events, broadcast channels, WebRTC peers and workers: opening, matching, sending, options, reconnection and typed messages.","inLanguage":"en"},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/realtime#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Documentation","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Real-time","item":"https://webfluent.monzeromer.dev/docs/guide/realtime"}]}]}</script>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
@@ -45,7 +42,7 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.14</p>
+                            <p class="wf-text wf-s859a58d7">6.0</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
@@ -503,6 +500,23 @@
                                             </div>
                                         </td>
                                     </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>keep:</code></p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>How many messages <code>.messages</code> holds, the newest; the oldest go first</p>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p><code>500</code></p>
+                                            </div>
+                                        </td>
+                                    </tr>
                                 </tbody>
                             </table>
                             <h3 class="wf-heading" id="type-the-messages">Type the messages</h3>
@@ -558,7 +572,7 @@
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p>Each event name is kept apart, so <code>ticks.last(&quot;price&quot;)</code> is the last price and not the last event of any kind; <code>ticks.last()</code> is the last unnamed message. <code>ticks.messages</code> holds every message in order. A message whose data parses as JSON arrives as a value.</p>
+<p>Each event name is kept apart, so <code>ticks.last(&quot;price&quot;)</code> is the last price and not the last event of any kind; <code>ticks.last()</code> is the last unnamed message. <code>ticks.messages</code> holds the messages in order — the last 500, or as many as <code>keep:</code> says. A message whose data parses as JSON arrives as a value.</p>
 <p>The browser reconnects a stream on its own and resumes from the last event id the server sent. Pass <code>credentials: true</code> to send the site's cookies with the request.</p>
                             </div>
                             <h2 class="wf-heading" id="talk-to-the-site-s-other-tabs">Talk to the site&#x27;s other tabs</h2>
@@ -734,10 +748,14 @@
 <p><code>.messages</code></p>
                                             </div>
                                         </td>
-                                        <td>every message, in order</td>
-                                        <td>every message, in order</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>the messages, in order: the last 500, or <code>keep:</code></p>
+                                            </div>
+                                        </td>
+                                        <td>the same</td>
                                         <td>—</td>
-                                        <td>every message, in order</td>
+                                        <td>the same</td>
                                     </tr>
                                     <tr>
                                         <td>
@@ -747,7 +765,7 @@
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p>the last message, or the last whose <code>type</code> is <code>kind</code></p>
+<p>the last message, or the last whose <code>type</code> is <code>kind</code>, among those <code>.messages</code> holds</p>
                                             </div>
                                         </td>
                                         <td>the last under an event&#x27;s name</td>
@@ -832,6 +850,7 @@
                                 </tbody>
                             </table>
                             <div class="wf-markdown">
+<p>A connection left open all day would otherwise hold every message it was ever sent, so <code>.messages</code> keeps the newest 500 and lets the oldest go. <code>keep:</code> on the connection says another number — <code>ws(url, keep: 50)</code>, <code>sse(url, keep: 2000)</code> — and <code>keep: 0</code> keeps none, for a connection whose <code>on message</code> handler stores what it needs itself.</p>
 <p>A store may hold any of these too. It opens the connection when the store is first read and closes it with the store; a page reads it as <code>Lang.css.state</code>, and the store's actions read it by its name.</p>
                             </div>
                             <h2 class="wf-heading" id="run-a-script-in-a-worker">Run a script in a worker</h2>
@@ -1059,7 +1078,7 @@ self.onmessage = ({ data }) =&gt; {
                             <p class="wf-text wf-s7c2fb5e9">wf</p>
                             <p class="wf-text wf-s312df231">WebFluent</p>
                         </div>
-                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.14, parsed, type-checked and compiled by the test suite.</p>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 6.0, parsed, type-checked and compiled by the test suite.</p>
                     </div>
                     <div class="wf-row wf-gap--xl wf-align--start wf-s45b84406 footer-columns">
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
@@ -1087,7 +1106,7 @@ self.onmessage = ({ data }) =&gt; {
                     </div>
                 </div>
                 <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-s6ee62d46">
-                    <p class="wf-text">WebFluent 5.14 — MPL-2.0</p>
+                    <p class="wf-text">WebFluent 6.0 — MPL-2.0</p>
                     <div class="wf-row wf-align--center wf-gap--md">
                         <button class="wf-btn link-button" type="button">Cookie settings</button>
                         <p class="wf-text">© 2026 Monzer Omer</p>

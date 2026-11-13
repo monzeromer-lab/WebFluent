@@ -2,13 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fetching data</title>
     <meta name="description" content="Describe an API once with retries, caching and typed errors; show a resource with match; fetch in an action; update optimistically; read data files.">
     <link rel="canonical" href="https://webfluent.monzeromer.dev/docs/guide/data">
-    <link rel="alternate" hreflang="en" href="https://webfluent.monzeromer.dev/docs/guide/data?lang=en">
-    <link rel="alternate" hreflang="ar" href="https://webfluent.monzeromer.dev/docs/guide/data?lang=ar">
-    <link rel="alternate" hreflang="x-default" href="https://webfluent.monzeromer.dev/docs/guide/data">
     <meta property="og:type" content="website">
     <meta property="og:title" content="Fetching data">
     <meta property="og:site_name" content="WebFluent">
@@ -23,8 +21,7 @@
     <meta name="twitter:title" content="Fetching data">
     <meta name="twitter:description" content="Describe an API once with retries, caching and typed errors; show a resource with match; fetch in an action; update optimistically; read data files.">
     <meta name="twitter:image" content="https://webfluent.monzeromer.dev/og.png">
-    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/data#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/data","name":"Fetching data","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"Describe an API once with retries, caching and typed errors; show a resource with match; fetch in an action; update optimistically; read data files."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/data#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Documentation","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Fetching data","item":"https://webfluent.monzeromer.dev/docs/guide/data"}]}]}</script>
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/data#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/data","name":"Fetching data","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"Describe an API once with retries, caching and typed errors; show a resource with match; fetch in an action; update optimistically; read data files.","inLanguage":"en"},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/data#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Documentation","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Fetching data","item":"https://webfluent.monzeromer.dev/docs/guide/data"}]}]}</script>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
@@ -45,7 +42,7 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.14</p>
+                            <p class="wf-text wf-s859a58d7">6.0</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
@@ -529,7 +526,7 @@
 <ul>
 <li>A refresh that fails keeps the data and <code>&quot;ready&quot;</code>, and sets <code>name.error</code> until the next answer, so the arm can say the data is stale.</li>
 <li>A first load that fails is <code>&quot;error&quot;</code>, and its <code>reload()</code> is a first load again.</li>
-<li>A request that changed is a first load again, shown as <code>loading</code>. A request changes when an address or an argument that reads state now names something else — another environment, another page — because the data on screen would be the wrong data. With <code>paginate:</code>, the next page is a refresh instead.</li>
+<li>A request that changed is a first load again, shown as <code>loading</code>. A request changes when an address or an argument that reads state now names something else — another environment, another page — because the data on screen would be the wrong data. What the last request brought goes with it: <code>name.data</code> is <code>null</code> (and a paged resource's <code>name.items</code> empty) until the answer arrives, and stays so if it fails, so a <code>derived</code> value over it never reads the other request's answer. With <code>paginate:</code>, the next page is a refresh instead.</li>
 </ul>
 <p>Pressing <strong>Production</strong> above changes <code>stage</code>, so the list shows its <code>loading</code> arm and then the production servers.</p>
                             </div>
@@ -809,7 +806,7 @@ api <span class="wf-tok-name">Backend</span>(<span class="wf-tok-prop">base</spa
                                         <td>Cache</td>
                                         <td>
                                             <div class="wf-markdown">
-<p><code>cache: .swr(60.seconds)</code>, <code>.none</code>, <code>.forever</code> — keyed by method, address and body, and revalidated with <code>ETag</code></p>
+<p><code>cache: .swr(60.seconds)</code>, <code>.none</code>, <code>.forever</code> — keyed by method, address, body and credentials, revalidated with <code>ETag</code>, and holding the 256 answers read most recently</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -1217,7 +1214,7 @@ get report(id: String) at &quot;reports/:id&quot; as: .blob</code>
                             <div class="wf-markdown">
 <ul>
 <li><strong>The verb</strong> is <code>get</code>, <code>post</code>, <code>put</code>, <code>patch</code>, <code>delete</code>, <code>head</code> or <code>options</code>.</li>
-<li><strong>Path parameters.</strong> A parameter the path names (<code>:id</code>) goes in the path. One that is empty (<code>null</code> or <code>&quot;&quot;</code>) is not sent at all, since <code>users/</code> would be the whole collection, not the user. The call ends as <code>.aborted</code>, and a resource over it stays <code>loading</code> until the value arrives.</li>
+<li><strong>Path parameters.</strong> A parameter the path names (<code>:id</code>) goes in the path. One that is empty (<code>null</code> or <code>&quot;&quot;</code>) is not sent at all, since <code>users/</code> would be the whole collection, not the user; nor is one that is <code>.</code> or <code>..</code>, which the browser reads as this folder or the one above. The call ends as <code>.aborted</code>, and a resource over it stays <code>loading</code> until the value arrives.</li>
 <li><strong>The body.</strong> A parameter called <code>body</code> is the request body; a map is sent as JSON. A <code>File</code> parameter makes the call a multipart upload.</li>
 <li><strong>Query parameters.</strong> Every other parameter goes in the query string, and one that is <code>null</code> is left out.</li>
 <li><strong>What comes back.</strong> <code>-&gt; T</code> is what a success returns. Without it the call returns <code>Any</code>, and <code>204 No Content</code> returns nothing.</li>
@@ -1256,7 +1253,7 @@ api <span class="wf-tok-name">Catalog</span>(<span class="wf-tok-prop">base</spa
                             </div>
                             <div class="wf-markdown">
 <ul>
-<li><code>.items</code> gathers every page loaded so far.</li>
+<li><code>.items</code> gathers every page loaded so far. It is a list of what a page holds — the answer, when the endpoint returns a list, or its <code>items</code> field — so <code>item.name</code> is checked against <code>Item</code>.</li>
 <li><code>.loadMore()</code> moves <code>page</code> on by one and fetches the next page, as a refresh.</li>
 <li><code>.hasMore</code> turns false when a page comes back empty.</li>
 </ul>
@@ -1627,7 +1624,7 @@ api <span class="wf-tok-name">Catalog</span>(<span class="wf-tok-prop">base</spa
                             <p class="wf-text wf-s7c2fb5e9">wf</p>
                             <p class="wf-text wf-s312df231">WebFluent</p>
                         </div>
-                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.14, parsed, type-checked and compiled by the test suite.</p>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 6.0, parsed, type-checked and compiled by the test suite.</p>
                     </div>
                     <div class="wf-row wf-gap--xl wf-align--start wf-s45b84406 footer-columns">
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
@@ -1655,7 +1652,7 @@ api <span class="wf-tok-name">Catalog</span>(<span class="wf-tok-prop">base</spa
                     </div>
                 </div>
                 <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-s6ee62d46">
-                    <p class="wf-text">WebFluent 5.14 — MPL-2.0</p>
+                    <p class="wf-text">WebFluent 6.0 — MPL-2.0</p>
                     <div class="wf-row wf-align--center wf-gap--md">
                         <button class="wf-btn link-button" type="button">Cookie settings</button>
                         <p class="wf-text">© 2026 Monzer Omer</p>

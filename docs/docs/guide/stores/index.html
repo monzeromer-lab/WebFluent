@@ -2,13 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stores</title>
     <meta name="description" content="Stores: declaration, scopes, use, actions, persist and migrations, connections, loading data, debugging, testing, and when to use one.">
     <link rel="canonical" href="https://webfluent.monzeromer.dev/docs/guide/stores">
-    <link rel="alternate" hreflang="en" href="https://webfluent.monzeromer.dev/docs/guide/stores?lang=en">
-    <link rel="alternate" hreflang="ar" href="https://webfluent.monzeromer.dev/docs/guide/stores?lang=ar">
-    <link rel="alternate" hreflang="x-default" href="https://webfluent.monzeromer.dev/docs/guide/stores">
     <meta property="og:type" content="website">
     <meta property="og:title" content="Stores">
     <meta property="og:site_name" content="WebFluent">
@@ -23,8 +21,7 @@
     <meta name="twitter:title" content="Stores">
     <meta name="twitter:description" content="Stores: declaration, scopes, use, actions, persist and migrations, connections, loading data, debugging, testing, and when to use one.">
     <meta name="twitter:image" content="https://webfluent.monzeromer.dev/og.png">
-    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/stores#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/stores","name":"Stores","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"Stores: declaration, scopes, use, actions, persist and migrations, connections, loading data, debugging, testing, and when to use one."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/stores#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Documentation","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Stores","item":"https://webfluent.monzeromer.dev/docs/guide/stores"}]}]}</script>
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/stores#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/stores","name":"Stores","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"Stores: declaration, scopes, use, actions, persist and migrations, connections, loading data, debugging, testing, and when to use one.","inLanguage":"en"},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/stores#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Documentation","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Stores","item":"https://webfluent.monzeromer.dev/docs/guide/stores"}]}]}</script>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
@@ -45,7 +42,7 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.14</p>
+                            <p class="wf-text wf-s859a58d7">6.0</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
@@ -694,7 +691,8 @@ window.wfStorage = {
                             </div>
                             <h2 class="wf-heading" id="loading-data-into-a-store">Loading data into a store</h2>
                             <div class="wf-markdown">
-<p>A store can own a <code>resource</code> (see <a href="/docs/guide/data">Data and APIs</a>), or fill its state from a fetch in an action that a page calls:</p>
+<p>A store can own a <code>resource</code> (see <a href="/docs/guide/data">Data and APIs</a>). It is asked for the first time something reads the store, and lives as long as the store does — not as long as the page that happened to read it first — so another page that reads the store finds what has already arrived, and nothing is asked for again. It is abandoned with the store: a <code>.route</code> store's when its route leaves, to be asked for afresh when the route comes back.</p>
+<p>Inside the store it is <code>rows</code>, anywhere else <code>Deploys.rows</code>, and its <code>state</code>, <code>data</code>, <code>error</code>, <code>refreshing</code> and <code>pending</code> follow it in both. Its address and options read the store's own state, so an action that moves one asks again:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -703,26 +701,48 @@ window.wfStorage = {
                                     </div>
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">store</span> <span class="wf-tok-name">Deploys</span> {
-    <span class="wf-tok-kw">state</span> <span class="wf-tok-prop">rows</span>: [<span class="wf-tok-name">Map</span>] = []
-    <span class="wf-tok-kw">state</span> loaded = <span class="wf-tok-kw">false</span>
-    <span class="wf-tok-kw">action</span> load() {
-        <span class="wf-tok-kw">if</span> loaded { <span class="wf-tok-kw">return</span> }
-        <span class="wf-tok-kw">let</span> r = <span class="wf-tok-kw">await</span> fetch(<span class="wf-tok-str">&quot;/api/deploys&quot;</span>)
-        rows = r.rows
-        loaded = <span class="wf-tok-kw">true</span>
-    }
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">type</span> <span class="wf-tok-name">Deploy</span> { <span class="wf-tok-prop">id</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">status</span>: <span class="wf-tok-name">String</span> }
+
+<span class="wf-tok-kw">store</span> <span class="wf-tok-name">Deploys</span> {
+    <span class="wf-tok-kw">state</span> <span class="wf-tok-kw">page</span> = <span class="wf-tok-num">1</span>
+    <span class="wf-tok-kw">resource</span> <span class="wf-tok-prop">rows</span>: [<span class="wf-tok-name">Deploy</span>] = fetch(<span class="wf-tok-str">&quot;/api/deploys?page={page}&quot;</span>)
+    <span class="wf-tok-kw">derived</span> failing = (rows.data ?? []).filter(d =&gt; d.status == <span class="wf-tok-str">&quot;failed&quot;</span>).length
+    <span class="wf-tok-kw">action</span> next() { <span class="wf-tok-kw">page</span> = <span class="wf-tok-kw">page</span> + <span class="wf-tok-num">1</span> }
+    <span class="wf-tok-kw">action</span> refresh() { rows.reload() }
 }
 
 <span class="wf-tok-kw">page</span> <span class="wf-tok-name">DeploysPage</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/deploys&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Deploys&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Every deploy.&quot;</span>) {
-    <span class="wf-tok-kw">use</span> <span class="wf-tok-name">Deploys</span>
-    <span class="wf-tok-name">Deploys</span>.load()
-    <span class="wf-tok-kw">if</span> !<span class="wf-tok-name">Deploys</span>.loaded { <span class="wf-tok-name">Spinner</span> }
-    <span class="wf-tok-kw">for</span> d <span class="wf-tok-kw">in</span> <span class="wf-tok-name">Deploys</span>.rows <span class="wf-tok-kw">by</span> d.id { <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;{d.id}: {d.status}&quot;</span>) }
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Deploys&quot;</span>).h1
+    <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;{Deploys.failing} failing&quot;</span>)
+    <span class="wf-tok-kw">match</span> <span class="wf-tok-name">Deploys</span>.rows {
+        <span class="wf-tok-kw">loading</span> { <span class="wf-tok-name">Spinner</span>() }
+        <span class="wf-tok-kw">error</span>(e) { <span class="wf-tok-name">Text</span>(e.message) }
+        <span class="wf-tok-kw">ready</span>(rows) {
+            <span class="wf-tok-kw">for</span> d <span class="wf-tok-kw">in</span> rows <span class="wf-tok-kw">by</span> d.id { <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;{d.id}: {d.status}&quot;</span>) }
+        }
+    }
+    <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Refresh&quot;</span>, <span class="wf-tok-prop">disabled</span>: <span class="wf-tok-name">Deploys</span>.rows.pending) { <span class="wf-tok-kw">on</span> click { <span class="wf-tok-name">Deploys</span>.refresh() } }
+    <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Next page&quot;</span>) { <span class="wf-tok-kw">on</span> click { <span class="wf-tok-name">Deploys</span>.next() } }
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p>A call at the top of a page's body, such as <code>Deploys.load()</code>, is set-up code: it runs once, when the page renders. The <code>if loaded { return }</code> line keeps a second visit from fetching again.</p>
+<p>A resource over a service's endpoint is owned the same way — <code>resource list = Catalog.items(page: page, paginate: .page)</code> — and its <code>loadMore()</code> moves the store's <code>page</code>. The resource is the store's to replace: <code>Deploys.rows = …</code> is an <code>X01</code>, as it is inside the store.</p>
+<p>When an action decides what is kept — a reply merged into rows already held, a list built from several calls — fill the store's state from a <code>fetch</code> instead, and call the action where the data is first wanted:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">store</span> <span class="wf-tok-name">Feed</span> {
+    <span class="wf-tok-kw">state</span> <span class="wf-tok-prop">items</span>: [<span class="wf-tok-name">Map</span>] = []
+    <span class="wf-tok-kw">action</span> more() {
+        <span class="wf-tok-kw">let</span> r = <span class="wf-tok-kw">await</span> fetch(<span class="wf-tok-str">&quot;/api/feed?after={items.length}&quot;</span>)
+        items = [...items, ...r.items]
+    }
+}</code>
                             </div>
                             <h2 class="wf-heading" id="stores-in-the-pre-rendered-page">Stores in the pre-rendered page</h2>
                             <div class="wf-markdown">
@@ -996,7 +1016,7 @@ window.wfStorage = {
                             <p class="wf-text wf-s7c2fb5e9">wf</p>
                             <p class="wf-text wf-s312df231">WebFluent</p>
                         </div>
-                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.14, parsed, type-checked and compiled by the test suite.</p>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 6.0, parsed, type-checked and compiled by the test suite.</p>
                     </div>
                     <div class="wf-row wf-gap--xl wf-align--start wf-s45b84406 footer-columns">
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
@@ -1024,7 +1044,7 @@ window.wfStorage = {
                     </div>
                 </div>
                 <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-s6ee62d46">
-                    <p class="wf-text">WebFluent 5.14 — MPL-2.0</p>
+                    <p class="wf-text">WebFluent 6.0 — MPL-2.0</p>
                     <div class="wf-row wf-align--center wf-gap--md">
                         <button class="wf-btn link-button" type="button">Cookie settings</button>
                         <p class="wf-text">© 2026 Monzer Omer</p>

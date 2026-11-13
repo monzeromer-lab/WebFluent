@@ -2,13 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contributing</title>
     <meta name="description" content="Build and test the compiler, find your way around the repository and its pipeline, and change a built-in, the grammar, the runtime or this guide.">
     <link rel="canonical" href="https://webfluent.monzeromer.dev/docs/guide/contributing">
-    <link rel="alternate" hreflang="en" href="https://webfluent.monzeromer.dev/docs/guide/contributing?lang=en">
-    <link rel="alternate" hreflang="ar" href="https://webfluent.monzeromer.dev/docs/guide/contributing?lang=ar">
-    <link rel="alternate" hreflang="x-default" href="https://webfluent.monzeromer.dev/docs/guide/contributing">
     <meta property="og:type" content="website">
     <meta property="og:title" content="Contributing">
     <meta property="og:site_name" content="WebFluent">
@@ -23,8 +21,7 @@
     <meta name="twitter:title" content="Contributing">
     <meta name="twitter:description" content="Build and test the compiler, find your way around the repository and its pipeline, and change a built-in, the grammar, the runtime or this guide.">
     <meta name="twitter:image" content="https://webfluent.monzeromer.dev/og.png">
-    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/contributing#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/contributing","name":"Contributing","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"Build and test the compiler, find your way around the repository and its pipeline, and change a built-in, the grammar, the runtime or this guide."},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/contributing#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Documentation","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Contributing","item":"https://webfluent.monzeromer.dev/docs/guide/contributing"}]}]}</script>
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/contributing#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/contributing","name":"Contributing","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"Build and test the compiler, find your way around the repository and its pipeline, and change a built-in, the grammar, the runtime or this guide.","inLanguage":"en"},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/contributing#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Documentation","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Contributing","item":"https://webfluent.monzeromer.dev/docs/guide/contributing"}]}]}</script>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
@@ -45,7 +42,7 @@
                         <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
                             <p class="wf-text wf-sb993cc9b">wf</p>
                             <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">5.14</p>
+                            <p class="wf-text wf-s859a58d7">6.0</p>
                         </div>
                     </a>
                     <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
@@ -312,7 +309,7 @@
                             </div>
                             <h2 class="wf-heading" id="the-repository">The repository</h2>
                             <div class="wf-markdown">
-<p>Each part of the project has its own folder:</p>
+<p>Each part of the project has its own folder. Under <code>src/</code>, the compiler is in layers, bottom first; a module uses only its own layer and the ones above it in this list, which <code>tests/module_layers.rs</code> holds it to:</p>
                             </div>
                             <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
                                 <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
@@ -322,26 +319,39 @@
                                     <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="text" type="button">Copy</button>
                                 </div>
                                 <code class="wf-code wf-code--block wf-sa8223565">src/
-  lexer/, parser/, syntax/   source → tokens → tree; the .wfx layout in layout/
-  sema/                      semantic checks, and the type checker (types.rs)
-  linter/                    accessibility, contrast, unused, vocabulary, PDF and slide rules
+  base/                      spans, text helpers, the file systems a build reads and writes
+  diagnostics/               every finding's code (codes.rs), fixes and output; the error types
+  syntax/                    lexer/, parser/, the .wfx layout/, the printers and the formatter
   registry/                  every built-in's props, cases, flags, events, slots, parts
-  codegen/                   JavaScript, HTML, CSS, the pre-rendered page, SEO, the service worker
-  runtime/modules/           the browser runtime, one file per module
-  themes/                    the baseline tokens and the built-ins' CSS
+  project/                   config, themes/ (tokens and the built-ins' CSS), i18n, scripts, data, media
+  check/                     sema/ (names, the type checker), linter/, validation, scopes, edits
+  web/                       codegen/ (JS, HTML, CSS, the pre-rendered page, SEO), runtime/modules/, motion
+  paged/                     the PDF and slides engine
   template/                  the template engine behind `wf render`
-  media/                     the image pipeline
-  diagnostics/               every finding's code (codes.rs), checks, fixes and output
-  print.rs, reprint.rs       the tree written back as source, and the smallest edit
-  edit.rs                    an editor's edits: change the tree, write only what changed
-  style_value.rs             a style value's shape, read into its parts and written narrowest
+  build/                     `wf build` as a library call, its cache, assets, the service worker
+  tools/                     migrate, test, verify, audit, studio, agent, init, generate, docs
   cli/                       each `wf` command
 crates/wf-lsp/               the language server
-editors/                     VS Code, Zed and the Tree-sitter grammars
+editors/                     VS Code, Zed and the Tree-sitter grammars: submodules, each its own repository
 md-docs/                     this guide
 site/                        the documentation site, written in WebFluent
 tests/                       Rust integration tests, tests/js (runtime), tests/browser (Chrome)
 spec/                        design notes and plans</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>The editors live in their own repositories — <a href="https://github.com/monzeromer-lab/tree-sitter-webfluent">tree-sitter-webfluent</a>, <a href="https://github.com/monzeromer-lab/webfluent-zed">webfluent-zed</a> and <a href="https://github.com/monzeromer-lab/webfluent-vscode">webfluent-vscode</a> — linked here as submodules under <code>editors/</code>. Building and testing the compiler needs none of them. To work on one, or to run the checks that hold them to the compiler (<code>just zed-check</code>), check them out:</p>
+                            </div>
+                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
+                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
+                                        <p class="wf-text wf-s6dc9a872">bash</p>
+                                    </div>
+                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-prompt">$ </span>git submodule update --init</code>
+                            </div>
+                            <div class="wf-markdown">
+<p>A change there is committed and pushed in its own repository; then the submodule's new commit is committed here (<code>git add editors/zed</code>).</p>
                             </div>
                             <h2 class="wf-heading" id="the-pipeline">The pipeline</h2>
                             <div class="wf-markdown">
@@ -365,7 +375,7 @@ spec/                        design notes and plans</code>
                             <div class="wf-markdown">
 <ol>
 <li>Edit the built-in's entry in <code>src/registry/builtins.rs</code>.</li>
-<li>Update its CSS in <code>src/themes/</code> and its code generation in <code>src/codegen/</code>.</li>
+<li>Update its CSS in <code>src/project/themes/</code> and its code generation in <code>src/web/codegen/</code>.</li>
 <li>Rewrite the <a href="/docs/reference">components reference</a> from the registry, with the command below.</li>
 </ol>
                             </div>
@@ -382,16 +392,16 @@ spec/                        design notes and plans</code>
                             <div class="wf-markdown">
 <p>A change to the grammar touches every place that reads or writes source:</p>
 <ul>
-<li>the parser, in <code>src/parser/v2.rs</code>;</li>
+<li>the parser, in <code>src/syntax/parser/v2.rs</code>;</li>
 <li>the formatter and the <code>.wfx</code> layout;</li>
-<li>the printer, in <code>src/print.rs</code>;</li>
-<li>both Tree-sitter grammars, in <code>editors/</code>.</li>
+<li>the printer, in <code>src/syntax/print.rs</code>;</li>
+<li>both Tree-sitter grammars, in <a href="https://github.com/monzeromer-lab/tree-sitter-webfluent">tree-sitter-webfluent</a> (checked out here as the <code>editors/tree-sitter-webfluent</code> submodule).</li>
 </ul>
 <p>The guide's own code blocks are the grammar's test corpus. <code>tests/printer_corpus.rs</code> prints every statement of every project in the repository back in its place and holds it to the same tree, and <code>tests/reprint_corpus.rs</code> holds every edit to changing only its own bytes.</p>
                             </div>
                             <h2 class="wf-heading" id="change-the-runtime">Change the runtime</h2>
                             <div class="wf-markdown">
-<p>Edit or add a module in <code>src/runtime/modules/</code>, and add a test for it in <code>tests/js/</code>. The manifest that says what reaches each module, <code>src/runtime/modules/manifest.json</code>, is written by a Rust test, so you do not edit it by hand.</p>
+<p>Edit or add a module in <code>src/web/runtime/modules/</code>, and add a test for it in <code>tests/js/</code>. The manifest that says what reaches each module, <code>src/web/runtime/modules/manifest.json</code>, is written by a Rust test, so you do not edit it by hand.</p>
                             </div>
                             <h2 class="wf-heading" id="add-a-diagnostic">Add a diagnostic</h2>
                             <div class="wf-markdown">
@@ -467,7 +477,7 @@ spec/                        design notes and plans</code>
                             <p class="wf-text wf-s7c2fb5e9">wf</p>
                             <p class="wf-text wf-s312df231">WebFluent</p>
                         </div>
-                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 5.14, parsed, type-checked and compiled by the test suite.</p>
+                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 6.0, parsed, type-checked and compiled by the test suite.</p>
                     </div>
                     <div class="wf-row wf-gap--xl wf-align--start wf-s45b84406 footer-columns">
                         <div class="wf-stack wf-gap--xs wf-sf27948d8">
@@ -495,7 +505,7 @@ spec/                        design notes and plans</code>
                     </div>
                 </div>
                 <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-s6ee62d46">
-                    <p class="wf-text">WebFluent 5.14 — MPL-2.0</p>
+                    <p class="wf-text">WebFluent 6.0 — MPL-2.0</p>
                     <div class="wf-row wf-align--center wf-gap--md">
                         <button class="wf-btn link-button" type="button">Cookie settings</button>
                         <p class="wf-text">© 2026 Monzer Omer</p>
