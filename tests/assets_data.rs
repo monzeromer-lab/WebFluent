@@ -688,8 +688,16 @@ fn over_the_site_every_use_is_where_it_says() {
     assert!(listing.assets.len() >= 20);
     let checked = uses_are_where_they_say(&root, &listing);
     assert!(checked >= 30, "{checked} uses");
-    // A file the site names in any source is not unused.
-    for a in listing.assets.iter().filter(|a| a.unused()) {
+    // A file the site names in any source is not unused. A page's Markdown
+    // twin (`/about/security.md`, written by scripts/docsite/twins.py) and
+    // the maps beside them (`llms.txt`) are for agents, not named by a page
+    // — and a twin shares its path with the chapter's source,
+    // `md-docs/about/security.md`, which a page does name.
+    for a in listing
+        .assets
+        .iter()
+        .filter(|a| a.unused() && !a.path.ends_with(".md") && !a.path.starts_with("/llms"))
+    {
         let name = a.path.trim_start_matches('/');
         let named = Command::new("grep")
             .args(["-rlF", name, "src", "webfluent.app.json"])
