@@ -93,22 +93,27 @@ Built output, gzipped, before → after:
   reflow, focus, reduced motion) lose the selectors that name a component
   whose section went.
 
-**Next: prune the runtime by function, not by module.** `core` (44 kB
-before minifying) ships whole to every project. A small project reaches
-about half of it:
+**The runtime is now pruned by function, not only by module.** A build
+splits the modules it ships into their top-level declarations, and keeps:
+- what runs at load;
+- every function the program calls through `WF`;
+- every declaration those name, transitively.
 
-| Project | Functions reached | Share of `core`'s source |
+`WF` exports only what is called. Calls from outside the bundle count too:
+a project's own scripts, an `elements` build's definitions, the dev
+server's stores panel and the studio. `build.runtime: "full"` still ships
+everything.
+
+| Project (gzipped `app.js`) | Before | After |
 |---|---|---|
-| counter | 41 of 107 | 44% |
-| static starter | 45 of 107 | 49% |
-| SPA starter | 55 of 107 | 58% |
+| counter example | 9.0 kB | 4.9 kB |
+| `wf init -t static` | 21.3 kB | 18.1 kB |
+| `wf init -t spa` | 23.5 kB | 19.6 kB |
+| motion fixture | 12.0 kB | 7.6 kB |
 
-That count follows calls from the generated code through `core`'s own
-functions, but not from the other modules shipped, so it is slightly low.
-
-The runtime is plain declarations in one closure, so the compiler can
-follow calls exactly and emit only the functions reached. It gets "only
-the code a page needs" without writing helpers out at every use.
+Tests hold it to the 721 JavaScript tests, every real-browser suite and
+the golden output. A unit test checks that every export, called on its
+own, reaches everything it names.
 
 ## Is it the tests, or the tools?
 
