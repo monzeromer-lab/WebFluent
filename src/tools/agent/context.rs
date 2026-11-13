@@ -99,42 +99,51 @@ pub fn anchor(title: &str) -> String {
     out
 }
 
-/// The guide's chapters, read from its files (`md-docs/NN-slug.md`).
+/// A value of a page's front matter: `"…"` is a JSON string, anything else
+/// is as written.
+fn front_value(raw: &str) -> String {
+    let raw = raw.trim();
+    serde_json::from_str::<String>(raw).unwrap_or_else(|_| raw.to_string())
+}
+
+/// The guide's chapters, read from its pages (`md-docs/<kind>/<slug>.md`).
+/// A page is a chapter when its front matter names one (`chapter: 12`);
+/// they come in that order, whatever folder each is in.
 pub fn chapters(files: &[(&str, &str)], depth: Depth) -> Vec<Chapter> {
     let mut out = Vec::new();
     for (file, text) in files {
-        let Some((digits, _)) = file.split_once('-') else {
+        let Some(rest) = text.strip_prefix("---\n") else {
             continue;
         };
-        let Ok(number) = digits.parse::<u32>() else {
+        let Some((front, body)) = rest.split_once("\n---\n") else {
+            continue;
+        };
+        let mut number = None;
+        let mut route = None;
+        let mut blurb = None;
+        for line in front.lines() {
+            let Some((key, value)) = line.split_once(':') else {
+                continue;
+            };
+            match key.trim() {
+                "chapter" => number = value.trim().parse::<u32>().ok(),
+                "route" => route = Some(front_value(value)),
+                "blurb" => blurb = Some(front_value(value)),
+                _ => {}
+            }
+        }
+        let Some(number) = number else {
             continue;
         };
         let mut title = String::new();
-        let mut route = None;
-        let mut blurb = None;
         let mut sections = Vec::new();
         let mut fenced = false;
-        let mut meta = false;
-        for line in text.lines() {
+        for line in body.lines() {
             if line.starts_with("```") {
                 fenced = !fenced;
                 continue;
             }
             if fenced {
-                continue;
-            }
-            if line.starts_with("<!--") {
-                meta = true;
-                continue;
-            }
-            if meta {
-                if line.starts_with("-->") {
-                    meta = false;
-                } else if let Some(r) = line.strip_prefix("route:") {
-                    route = Some(r.trim().to_string());
-                } else if let Some(b) = line.strip_prefix("blurb:") {
-                    blurb = Some(b.trim().to_string());
-                }
                 continue;
             }
             if let Some(t) = line.strip_prefix("# ") {
@@ -168,6 +177,7 @@ pub fn chapters(files: &[(&str, &str)], depth: Depth) -> Vec<Chapter> {
             text: (depth == Depth::Full).then(|| text.to_string()),
         });
     }
+    out.sort_by_key(|c| c.number);
     out
 }
 

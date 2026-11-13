@@ -594,3 +594,62 @@ pub(crate) fn css_defines_class(css: &str, class: &str) -> bool {
     }
     false
 }
+
+/// Every page of the guide, `md-docs/**/*.md`: its path under `md-docs/`
+/// (`learn/07-state-and-reactivity.md`) and its text, in path order. The
+/// guide's own `README.md` is one of them.
+pub(crate) fn guide_pages() -> Vec<(String, String)> {
+    fn walk(dir: &std::path::Path, out: &mut Vec<std::path::PathBuf>) {
+        for entry in std::fs::read_dir(dir).expect("md-docs").flatten() {
+            let path = entry.path();
+            if path.is_dir() {
+                walk(&path, out);
+            } else if path.extension().is_some_and(|x| x == "md") {
+                out.push(path);
+            }
+        }
+    }
+    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("md-docs");
+    let mut paths = Vec::new();
+    walk(&root, &mut paths);
+    let mut out: Vec<(String, String)> = paths
+        .into_iter()
+        .map(|p| {
+            let rel = p
+                .strip_prefix(&root)
+                .unwrap()
+                .to_string_lossy()
+                .replace('\\', "/");
+            (rel, std::fs::read_to_string(&p).unwrap())
+        })
+        .collect();
+    out.sort();
+    out
+}
+
+/// A value of a guide page's front matter (`chapter: 12`, `route: "guide/state"`),
+/// a quoted one read as the JSON string it is.
+pub(crate) fn front_matter(text: &str, key: &str) -> Option<String> {
+    let front = text.strip_prefix("---\n")?.split_once("\n---\n")?.0;
+    front.lines().find_map(|line| {
+        let (k, v) = line.split_once(':')?;
+        (k.trim() == key).then(|| {
+            let v = v.trim();
+            serde_json::from_str::<String>(v).unwrap_or_else(|_| v.to_string())
+        })
+    })
+}
+
+/// The guide's chapters — the pages whose front matter numbers them — as
+/// `(number, path under md-docs/, text)`, in chapter order.
+pub(crate) fn guide_chapters() -> Vec<(u32, String, String)> {
+    let mut out: Vec<(u32, String, String)> = guide_pages()
+        .into_iter()
+        .filter_map(|(path, text)| {
+            let n = front_matter(&text, "chapter")?.parse().ok()?;
+            Some((n, path, text))
+        })
+        .collect();
+    out.sort();
+    out
+}

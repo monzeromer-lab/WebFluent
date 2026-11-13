@@ -47,23 +47,25 @@ fn capabilities() {
     }
 }
 
-// The guide, `md-docs/*.md`, listed for `include_str!`, so `wf` carries the
-// chapters of exactly the compiler it was built from (`agent::guide`).
+// The guide, every `md-docs/**/*.md`, listed for `include_str!`, so `wf`
+// carries the pages of exactly the compiler it was built from
+// (`agent::guide`). A page is named by its path under `md-docs/`
+// (`learn/07-state-and-reactivity.md`).
 fn guide() {
     let dir = Path::new("md-docs");
     println!("cargo:rerun-if-changed=md-docs");
-    let mut names: Vec<String> = std::fs::read_dir(dir)
-        .map(|r| {
-            r.flatten()
-                .map(|e| e.file_name().to_string_lossy().into_owned())
-                .filter(|n| n.ends_with(".md"))
-                .collect()
-        })
-        .unwrap_or_default();
+    let mut paths = Vec::new();
+    walk(dir, &mut paths);
+    let mut names: Vec<String> = paths
+        .iter()
+        .filter(|p| p.extension().is_some_and(|x| x == "md"))
+        .filter_map(|p| p.strip_prefix(dir).ok())
+        .map(|p| p.to_string_lossy().replace('\\', "/"))
+        .collect();
     names.sort();
     let root = std::env::var("CARGO_MANIFEST_DIR").unwrap_or_default();
     let mut out = String::from(
-        "/// Every chapter of `md-docs/`, by file name, in name order.\npub(crate) static FILES: &[(&str, &str)] = &[\n",
+        "/// Every page of `md-docs/`, by its path there, in path order.\npub(crate) static FILES: &[(&str, &str)] = &[\n",
     );
     for name in &names {
         let path = Path::new(&root).join("md-docs").join(name);

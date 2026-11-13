@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Write the documentation site's chapter pages from `md-docs/`.
 
-Each `md-docs/NN-slug.md` becomes `site/src/pages/guide/NN-slug.wf`: a page
-at `/docs/<route>` framed by `DocsShell`, with a `Heading` per `##`/`###`,
+Each chapter, `md-docs/<kind>/<name>.md`, becomes
+`site/src/pages/guide/NN-<slug>.wf` (NN is its `chapter:`): a page at
+`/docs/<route>` framed by `DocsShell`, with a `Heading` per `##`/`###`,
 `Markdown` for prose and lists (so inline code, emphasis and links render),
 `CodeBlock` for a fenced block, `Terminal` for a shell block and `Table`
 for a pipe table. The guide is the source: rerun after it changes,
@@ -20,20 +21,24 @@ GUIDE = ROOT / "md-docs"
 OUT = Path(os.environ.get("WF_GUIDE_OUT") or ROOT / "site" / "src" / "pages" / "guide")
 REPO = "https://github.com/monzeromer-lab/WebFluent"
 
-# Each chapter says where it lives and what it is, in a comment under its
-# title — its route, its group in the sidebar, the line under the title and
-# the description a search result shows:
+# Each chapter says where it lives and what it is in its front matter — its
+# number, its kind, its route, its group in the sidebar, the line under the
+# title and the description a search result shows (a quoted value is a JSON
+# string):
 #
-#     <!--
-#     route: guide/state
-#     group: basics
-#     blurb: …
-#     description: …
-#     -->
+#     ---
+#     chapter: 12
+#     kind: "tutorial"
+#     route: "guide/state"
+#     group: "concepts"
+#     blurb: "…"
+#     description: "…"
+#     ---
 #
 # so a chapter is added by writing it, and nothing here holds a copy of the
 # outline to fall behind it.
-META = {}  # number → {route, group, blurb, description, slug, title}
+META = {}  # number → {route, group, blurb, description, slug, title, path}
+KINDS = ("tutorial", "recipe", "about", "reference", "error", "coming-from")
 GROUP_ORDER = []
 # The chapter drawn from the registry, not from its Markdown.
 REFERENCE_ROUTE = "reference"
@@ -55,23 +60,46 @@ GROUP_NAMES = {
 }
 
 
-def read_meta(num: str, path: Path) -> dict:
+def front_matter(path: Path) -> tuple[dict, str]:
+    """A page's front matter, and the text after it."""
+    import json
     text = path.read_text()
-    m = re.search(r"<!--\s*\n(.*?)-->", text, re.S)
-    if not m:
-        raise SystemExit(f"{path.name}: no metadata comment under the title")
+    if not text.startswith("---\n") or "\n---\n" not in text[4:]:
+        raise SystemExit(f"{path}: no front matter")
+    head, body = text[4:].split("\n---\n", 1)
     meta = {}
-    for line in m.group(1).splitlines():
-        if ":" in line:
-            key, _, value = line.partition(":")
-            meta[key.strip()] = value.strip()
-    for key in ("route", "group", "blurb", "description"):
+    for line in head.splitlines():
+        key, sep, value = line.partition(":")
+        if not sep:
+            continue
+        value = value.strip()
+        meta[key.strip()] = json.loads(value) if value[:1] in '"[' or value.isdigit() else value
+    return meta, body
+
+
+def read_meta(path: Path) -> dict:
+    meta, body = front_matter(path)
+    rel = path.relative_to(GUIDE).as_posix()
+    for key in ("chapter", "kind", "route", "group", "blurb", "description"):
         if key not in meta:
-            raise SystemExit(f"{path.name}: the metadata has no `{key}:`")
-    title_line = next(l for l in text.split("\n") if l.startswith("# "))
+            raise SystemExit(f"md-docs/{rel}: the front matter has no `{key}:`")
+    if meta["kind"] not in KINDS:
+        raise SystemExit(f"md-docs/{rel}: `kind: {meta['kind']}` is none of {KINDS}")
+    title_line = next(l for l in body.split("\n") if l.startswith("# "))
     meta["title"] = re.sub(r"^# (\d+\.\s*)?", "", title_line).strip()
-    meta["slug"] = path.name[3:-3]
+    meta["slug"] = re.sub(r"^\d\d-", "", path.stem)
+    meta["path"] = rel
     return meta
+
+
+def chapter_files() -> list[Path]:
+    """Every page of the guide that is a chapter, in chapter order."""
+    pages = [p for p in sorted(GUIDE.rglob("*.md")) if p.parent != GUIDE]
+    return sorted(pages, key=lambda p: front_matter(p)[0]["chapter"])
+
+
+def num_of(path: Path) -> str:
+    return f'{front_matter(path)[0]["chapter"]:02d}'
 
 
 def page_name(route: str) -> str:
@@ -123,8 +151,12 @@ def plain(text: str) -> str:
     return re.sub(r"[`*_]", "", text).strip()
 
 
+# The page being converted, so a relative link resolves from its folder.
+CURRENT = {"dir": GUIDE}
+
+
 def rewrite_links(text: str) -> str:
-    """Guide-relative links as site routes."""
+    """Links between the guide's pages as site routes."""
 
     def repl(m):
         label, target = m.group(1), m.group(2)
@@ -134,14 +166,20 @@ def rewrite_links(text: str) -> str:
             anchor = "#" + anchor
         if target == "":
             return f"[{label}]({anchor})"
-        chapter = re.match(r"(\d\d)-[a-z0-9-]+\.md$", target)
-        if chapter:
-            route = META[chapter.group(1)]["route"]
-            return f"[{label}](/docs/{route}{anchor})"
-        if target == "README.md":
+        if re.match(r"^[a-z]+:", target) or target.startswith("/"):
+            return m.group(0)
+        resolved = (CURRENT["dir"] / target).resolve()
+        if resolved == (GUIDE / "README.md").resolve():
             return f"[{label}](/docs/guide/introduction)"
-        if target.startswith("../"):
-            return f"[{label}]({REPO}/blob/master/{target[3:]}{anchor})"
+        page = next((meta for meta in META.values() if (GUIDE / meta["path"]).resolve() == resolved), None)
+        if page:
+            return f"[{label}](/docs/{page['route']}{anchor})"
+        try:
+            inside = resolved.relative_to(ROOT)
+        except ValueError:
+            return m.group(0)
+        if not str(inside).startswith("md-docs"):
+            return f"[{label}]({REPO}/blob/master/{inside.as_posix()}{anchor})"
         return m.group(0)
 
     return re.sub(r"\[([^\]]+)\]\(([^)\s]+)\)", repl, text)
@@ -240,6 +278,7 @@ def emit_callout(kind, lines, out, ind):
 
 
 def convert(num: str, md: str):
+    CURRENT["dir"] = (GUIDE / META[num]["path"]).parent
     route = META[num]["route"]
     name = page_name(route)
     lines = md.split("\n")
@@ -339,9 +378,9 @@ def convert(num: str, md: str):
     next_num = order[at + 1] if at + 1 < len(order) else None
     anchors = ", ".join(f'Anchor(id: "{sid}", label: "{wf_string(label)}")' for sid, label in sections)
     header = [
-        f'/// Chapter {n} of the guide, written from md-docs/{num}-{{slug}}.md by',
+        f'/// Chapter {n} of the guide, written from md-docs/{META[num]["path"]} by',
         "/// scripts/site-from-guide.py; edit the guide, not this file.",
-        f'page {name}(path: "/docs/{route}", title: "{wf_string(title)}", description: "{wf_string(description)}", layout: DocsShell("{wf_string(title)}", chapter: t("nav.group.{META[num]["group"]}"), blurb: "{wf_string(blurb)}", source: "md-docs/{num}-{META[num]["slug"]}.md", sections: [{anchors}]' + "PREVNEXT" + ")) {",
+        f'page {name}(path: "/docs/{route}", title: "{wf_string(title)}", description: "{wf_string(description)}", layout: DocsShell("{wf_string(title)}", chapter: t("nav.group.{META[num]["group"]}"), blurb: "{wf_string(blurb)}", source: "md-docs/{META[num]["path"]}", sections: [{anchors}]' + "PREVNEXT" + ")) {",
         "    Stack(gap: .lg) {",
     ]
     return header, out, prev_num, next_num
@@ -404,7 +443,7 @@ def contents_table() -> str:
         if meta["group"] != group:
             group = meta["group"]
             rows.append(f"| | **{names.get(group, group)}** | |")
-        rows.append(f"| {int(num)} | [{meta['title']}]({num}-{meta['slug']}.md) | {meta['blurb']} |")
+        rows.append(f"| {int(num)} | [{meta['title']}]({meta['path']}) | {meta['blurb']} |")
     return "\n".join(rows)
 
 
@@ -412,28 +451,27 @@ def main():
     OUT.mkdir(parents=True, exist_ok=True)
     for old in OUT.glob("*.wf"):
         old.unlink()
-    files = sorted(GUIDE.glob("[0-9][0-9]-*.md"))
+    files = chapter_files()
     for f in files:
-        META[f.name[:2]] = read_meta(f.name[:2], f)
+        META[num_of(f)] = read_meta(f)
     converted = {}
     for f in files:
-        num = f.name[:2]
+        num = num_of(f)
         # The components reference is drawn from the registry's own data,
         # `site/src/registry.json`, not from its chapter.
         if META[num]["route"] == REFERENCE_ROUTE:
             TITLES[num] = META[num]["title"]
             continue
-        converted[num] = (f, convert(num, f.read_text()))
+        converted[num] = (f, convert(num, front_matter(f)[1]))
     for num, (f, (header, body, prev_num, next_num)) in converted.items():
         prevnext = ""
         if prev_num:
             prevnext += f', prevTo: "/docs/{META[prev_num]["route"]}", prevLabel: t("ch.{prev_num}")'
         if next_num:
             prevnext += f', nextTo: "/docs/{META[next_num]["route"]}", nextLabel: t("ch.{next_num}")'
-        header[0] = header[0].replace("{slug}", f.name[3:-3])
         header[2] = header[2].replace("PREVNEXT", prevnext)
         text = "\n".join(header + body).rstrip() + "\n    }\n}\n"
-        (OUT / f"{f.name[:-3]}.wf").write_text(text)
+        (OUT / f"{num}-{META[num]['slug']}.wf").write_text(text)
     print(f"wrote {len(converted)} chapters to {OUT}")
 
     # The sidebar, beside the pages when a test asks for a scratch copy.

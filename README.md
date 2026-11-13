@@ -60,7 +60,7 @@ cd my-app
 wf serve              # http://localhost:3000, rebuilds on save
 ```
 
-`wf build` writes the finished site to `build/` — static files any host serves. [Deploying](md-docs/34-deploying.md) has GitHub Pages, Netlify, Vercel, Cloudflare and nginx.
+`wf build` writes the finished site to `build/` — static files any host serves. [Deploying](md-docs/recipes/deploying.md) has GitHub Pages, Netlify, Vercel, Cloudflare and nginx.
 
 <sub>If the shell cannot find `wf`, open a new terminal — the installer adds its directory to your `PATH` in your shell's startup file. `WF_INSTALL_DIR` installs elsewhere, `WF_VERSION` pins a release.</sub>
 
@@ -217,9 +217,9 @@ wf migrate [path] [--check] [--wfx]         Bring an older project up to date (W
 
 - **[See it](https://webfluent.monzeromer.dev/showcase)** — real PDFs and decks rendered from the examples, opened straight in your browser
 - **[The documentation](https://webfluent.monzeromer.dev)** — built with WebFluent itself: getting started, a tutorial that ends in a deployed site, the language, and deploying
-- **[Reference](https://webfluent.monzeromer.dev/docs/reference)** — every component, [CLI command](md-docs/41-cli.md), [config key](md-docs/42-configuration.md), [diagnostic](md-docs/43-diagnostics.md) and [keyword](md-docs/47-grammar.md)
+- **[Reference](https://webfluent.monzeromer.dev/docs/reference)** — every component, [CLI command](md-docs/reference/cli.md), [config key](md-docs/reference/configuration.md), [diagnostic](md-docs/errors/diagnostics.md) and [keyword](md-docs/reference/grammar.md)
 - **[PDF benchmark](bench/pdf/RESULTS.md)** — WebFluent against headless Chrome on the same invoice: method, machine and results, reproducible with `just bench-pdf`
-- **[Troubleshooting](md-docs/50-troubleshooting.md)** and **[upgrading](md-docs/51-upgrading.md)**
+- **[Troubleshooting](md-docs/errors/troubleshooting.md)** and **[upgrading](md-docs/about/upgrading.md)**
 - **[The guide's source](md-docs/)** — the same chapters as Markdown; every code block in them is compiled by the test suite
 
 ## How it works

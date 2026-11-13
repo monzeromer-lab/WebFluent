@@ -383,7 +383,7 @@ The guide is tested like code (`tests/docs_parse.rs`,
       *obviously*, *of course*, *note that*.
 - [ ] *This* is followed by the noun it means ("this prop", not "this").
 - [ ] One term per idea, used every time (see the
-      [glossary](../md-docs/49-glossary.md)): *page*, *element*,
+      [glossary](../md-docs/reference/glossary.md)): *page*, *element*,
       *component*, *prop*, *flag*, *case*, *block*, *state*, *derived
       value*, *action*, *store*, *pre-rendered page* (the *static paint*).
 - [ ] A term the reader has not met is defined, or linked, the first time.

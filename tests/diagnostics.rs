@@ -196,7 +196,7 @@ fn a_template_s_errors_are_coded_findings() {
 #[test]
 fn every_finding_has_a_registered_code() {
     let chapter = std::fs::read_to_string(
-        Path::new(env!("CARGO_MANIFEST_DIR")).join("md-docs/43-diagnostics.md"),
+        Path::new(env!("CARGO_MANIFEST_DIR")).join("md-docs/errors/diagnostics.md"),
     )
     .unwrap();
     let mut seen = 0;

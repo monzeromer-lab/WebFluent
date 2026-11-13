@@ -857,7 +857,7 @@ pub fn info(code: &str) -> Option<&'static CodeInfo> {
 
 /// The diagnostics chapter, which holds an entry for every code (the docs
 /// test sees to it).
-const CHAPTER: &str = include_str!("../../md-docs/43-diagnostics.md");
+const CHAPTER: &str = include_str!("../../md-docs/errors/diagnostics.md");
 
 /// The guide's section for `code` (`### T06 — …`), as Markdown, without its
 /// heading: what `wf explain` prints after the summary, and what an editor

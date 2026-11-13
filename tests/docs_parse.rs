@@ -536,16 +536,8 @@ fn the_specs_parse() {
 /// The developer guide under `md-docs/`: every block is real WebFluent 3.
 #[test]
 fn the_guide_parses() {
-    let dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("md-docs");
     let mut failures = Vec::new();
-    let mut names: Vec<String> = std::fs::read_dir(dir)
-        .unwrap()
-        .flatten()
-        .map(|e| e.file_name().to_string_lossy().to_string())
-        .filter(|n| n.ends_with(".md"))
-        .collect();
-    names.sort();
-    for name in names {
+    for (name, _) in crate::common::guide_pages() {
         failures.extend(check_strictly(&format!("md-docs/{name}")));
     }
     assert!(failures.is_empty(), "{}", failures.join("\n\n"));
@@ -557,7 +549,7 @@ fn the_guide_parses() {
 /// with `WF_WRITE_TOKENS=1` to rewrite it after the baseline changes.
 #[test]
 fn the_design_tokens_chapter_is_the_baseline() {
-    let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("md-docs/45-design-tokens.md");
+    let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("md-docs/reference/design-tokens.md");
     let chapter = std::fs::read_to_string(&path).unwrap();
     let tokens = webfluent::themes::tokens::default_tokens();
     let groups: &[(&str, &[&str])] = &[
@@ -618,7 +610,7 @@ fn the_design_tokens_chapter_is_the_baseline() {
     assert_eq!(
         &chapter[start..end],
         want,
-        "md-docs/45-design-tokens.md is behind the baseline; run with WF_WRITE_TOKENS=1"
+        "md-docs/reference/design-tokens.md is behind the baseline; run with WF_WRITE_TOKENS=1"
     );
 }
 
@@ -634,19 +626,10 @@ fn the_sidebar_lists_every_chapter_of_the_guide() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR"));
 
     // The chapters, from the directory the guide actually is.
-    let mut chapters: Vec<(String, String)> = std::fs::read_dir(root.join("md-docs"))
-        .expect("md-docs")
-        .filter_map(std::result::Result::ok)
-        .filter_map(|e| {
-            let name = e.file_name().to_string_lossy().to_string();
-            let (num, rest) = name.split_once('-')?;
-            if num.len() != 2 || !num.chars().all(|c| c.is_ascii_digit()) {
-                return None;
-            }
-            Some((num.to_string(), rest.trim_end_matches(".md").to_string()))
-        })
+    let chapters: Vec<(String, String)> = crate::common::guide_chapters()
+        .into_iter()
+        .map(|(n, path, _)| (format!("{n:02}"), path))
         .collect();
-    chapters.sort();
     assert!(
         chapters.len() > 15,
         "expected the whole guide, got {chapters:?}"
@@ -691,7 +674,7 @@ fn the_sidebar_lists_every_chapter_of_the_guide() {
 /// The guide's pages on the site are generated from `md-docs/` by
 /// `scripts/site-from-guide.py`, and nothing held the committed pages to what
 /// the script would write. They fell behind: the documentation audit added
-/// five rows to the design-token table in `md-docs/19-styling.md`, and the
+/// five rows to the design-token table in `md-docs/learn/13-styling.md`, and the
 /// published Styling chapter never got them.
 ///
 /// This runs the script into a scratch directory, formatted by the binary
@@ -778,17 +761,18 @@ fn corpus_documents() -> Vec<(String, Option<&'static str>)> {
         ("README.md".to_string(), None),
         ("RELEASE_NOTES.md".to_string(), Some("# WebFluent v2.2")),
     ];
-    for dir in ["spec", "md-docs"] {
-        let mut names: Vec<String> = std::fs::read_dir(root.join(dir))
-            .unwrap()
-            .flatten()
-            .map(|e| e.file_name().to_string_lossy().to_string())
-            .filter(|n| n.ends_with(".md"))
-            .collect();
-        names.sort();
-        for name in names {
-            docs.push((format!("{dir}/{name}"), None));
-        }
+    let mut names: Vec<String> = std::fs::read_dir(root.join("spec"))
+        .unwrap()
+        .flatten()
+        .map(|e| e.file_name().to_string_lossy().to_string())
+        .filter(|n| n.ends_with(".md"))
+        .collect();
+    names.sort();
+    for name in names {
+        docs.push((format!("spec/{name}"), None));
+    }
+    for (name, _) in crate::common::guide_pages() {
+        docs.push((format!("md-docs/{name}"), None));
     }
     docs
 }
@@ -967,21 +951,12 @@ fn the_sites_search_and_registry_are_current() {
 // somewhere a reader will find it, and the defaults it prints are the
 // compiler's own.
 
-/// The guide's chapters, in order: `(file name, text)`.
+/// The guide's chapters, in chapter order: `(path under md-docs/, text)`.
 fn chapters() -> Vec<(String, String)> {
-    let dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("md-docs");
-    let mut out: Vec<(String, String)> = std::fs::read_dir(&dir)
-        .unwrap()
-        .flatten()
-        .map(|e| e.file_name().to_string_lossy().to_string())
-        .filter(|n| n.len() > 3 && n[..2].chars().all(|c| c.is_ascii_digit()) && n.ends_with(".md"))
-        .map(|n| {
-            let text = std::fs::read_to_string(dir.join(&n)).unwrap();
-            (n, text)
-        })
-        .collect();
-    out.sort();
-    out
+    crate::common::guide_chapters()
+        .into_iter()
+        .map(|(_, path, text)| (path, text))
+        .collect()
 }
 
 fn chapter(stem: &str) -> String {
@@ -1030,7 +1005,7 @@ fn every_finding(src: &str) -> Vec<String> {
 #[test]
 fn every_diagnostic_example_shows_what_the_build_prints() {
     let write = std::env::var_os("WF_WRITE_DIAGNOSTICS").is_some();
-    let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("md-docs/43-diagnostics.md");
+    let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("md-docs/errors/diagnostics.md");
     let text = std::fs::read_to_string(&path).unwrap();
     let lines: Vec<&str> = text.lines().collect();
     let mut out: Vec<String> = Vec::new();
@@ -1083,7 +1058,7 @@ fn every_diagnostic_example_shows_what_the_build_prints() {
     }
     assert!(
         stale.is_empty(),
-        "md-docs/43-diagnostics.md shows output the compiler no longer prints for {stale:?}; \
+        "md-docs/errors/diagnostics.md shows output the compiler no longer prints for {stale:?}; \
          rewrite it with `WF_WRITE_DIAGNOSTICS=1 cargo test --test it -- docs_parse::every_diagnostic_example_shows`"
     );
 }
@@ -1143,7 +1118,7 @@ fn every_diagnostic_example_draws_its_code() {
 
     // Every code the registry holds has an entry in the diagnostics
     // chapter, and every code the compiler's source names is registered.
-    let diagnostics = chapter("-diagnostics");
+    let diagnostics = chapter("/diagnostics");
     let registered: Vec<&str> = webfluent::diagnostics::codes::CODES
         .iter()
         .map(|c| c.code)
@@ -1209,6 +1184,24 @@ fn slug(text: &str) -> String {
     out.trim_matches('-').to_string()
 }
 
+/// Where a link written in the guide page `from` goes, as a path under
+/// `md-docs/` (`learn/07-state-and-reactivity.md`), or `None` when it
+/// leaves the guide for the rest of the repository.
+fn guide_path(from: &str, link: &str) -> Option<String> {
+    let mut parts: Vec<&str> = from.split('/').collect();
+    parts.pop();
+    for piece in link.split('/') {
+        match piece {
+            "" | "." => {}
+            ".." => {
+                parts.pop()?;
+            }
+            p => parts.push(p),
+        }
+    }
+    Some(parts.join("/"))
+}
+
 /// Every link from one chapter to another lands on a chapter that exists,
 /// and on a heading it has; every link to a file of the repository finds it.
 #[test]
@@ -1265,13 +1258,24 @@ fn every_link_in_the_guide_lands() {
                 }
                 continue;
             }
-            if let Some(repo_path) = file.strip_prefix("../") {
-                if !root.join(repo_path).exists() {
+            let Some(resolved) = guide_path(name, file) else {
+                // Out of the guide: a file of the repository.
+                if !root
+                    .join("md-docs")
+                    .join(name)
+                    .parent()
+                    .unwrap()
+                    .join(file)
+                    .exists()
+                {
                     failures.push(format!("{name}: {file} does not exist"));
                 }
                 continue;
+            };
+            if resolved == "README.md" {
+                continue;
             }
-            match all.iter().find(|(n, _)| n == file) {
+            match all.iter().find(|(n, _)| *n == resolved) {
                 None => failures.push(format!("{name}: {file} is not a chapter")),
                 Some((_, target_text)) => {
                     if !anchor.is_empty() && !anchors(target_text).contains(&anchor.to_string()) {
@@ -1297,13 +1301,19 @@ fn a_link_that_names_a_chapter_number_goes_to_that_chapter() {
             let number: String = after.chars().take_while(char::is_ascii_digit).collect();
             if let Some(close) = after.find("](") {
                 let target = &after[close + 2..];
-                if target.len() > 2 && target[..2].chars().all(|c| c.is_ascii_digit()) {
-                    let file: usize = target[..2].parse().unwrap();
-                    if number.parse::<usize>().ok() != Some(file) {
-                        failures.push(format!(
-                            "{name}: \"chapter {number}\" links to chapter {file}"
-                        ));
-                    }
+                let target = &target[..target.find([')', '#']).unwrap_or(target.len())];
+                let to = guide_path(&name, target).and_then(|path| {
+                    crate::common::guide_chapters()
+                        .into_iter()
+                        .find(|(_, p, _)| *p == path)
+                        .map(|(n, _, _)| n as usize)
+                });
+                if let Some(file) = to
+                    && number.parse::<usize>().ok() != Some(file)
+                {
+                    failures.push(format!(
+                        "{name}: \"chapter {number}\" links to chapter {file}"
+                    ));
                 }
             }
             rest = &after[1..];
@@ -1332,18 +1342,14 @@ fn every_chapter_says_where_it_lives() {
     let mut routes: Vec<String> = Vec::new();
     let mut failures = Vec::new();
     for (name, text) in chapters() {
-        let meta = |key: &str| {
-            text.lines()
-                .take(10)
-                .find_map(|l| l.strip_prefix(&format!("{key}: ")).map(str::to_string))
-        };
+        let meta = |key: &str| crate::common::front_matter(&text, key);
         let (Some(route), Some(group), Some(blurb), Some(description)) = (
             meta("route"),
             meta("group"),
             meta("blurb"),
             meta("description"),
         ) else {
-            failures.push(format!("{name}: its metadata comment is incomplete"));
+            failures.push(format!("{name}: its front matter is incomplete"));
             continue;
         };
         if !groups.contains(&group.as_str()) {
@@ -1362,8 +1368,34 @@ fn every_chapter_says_where_it_lives() {
             failures.push(format!("{name}: the route {route} is taken"));
         }
         routes.push(route);
-        let number: usize = name[..2].parse().unwrap();
-        if !text.starts_with(&format!("# {number}. ")) {
+        let kinds = [
+            "tutorial",
+            "recipe",
+            "about",
+            "reference",
+            "error",
+            "coming-from",
+        ];
+        match meta("kind") {
+            Some(kind) if kinds.contains(&kind.as_str()) => {
+                // A page lives in the folder of its kind.
+                let folder = match kind.as_str() {
+                    "tutorial" => "learn",
+                    "recipe" => "recipes",
+                    "error" => "errors",
+                    other => other,
+                };
+                if !name.starts_with(&format!("{folder}/")) {
+                    failures.push(format!(
+                        "{name}: a {kind} page belongs in md-docs/{folder}/"
+                    ));
+                }
+            }
+            other => failures.push(format!("{name}: `kind: {other:?}` is none of {kinds:?}")),
+        }
+        let number: usize = meta("chapter").and_then(|n| n.parse().ok()).unwrap_or(0);
+        let body = text.split_once("\n---\n").map_or(text.as_str(), |(_, b)| b);
+        if !body.starts_with(&format!("# {number}. ")) {
             failures.push(format!("{name}: its title is not numbered {number}"));
         }
     }
@@ -1374,7 +1406,7 @@ fn every_chapter_says_where_it_lives() {
 /// project that names only itself is loaded as, written out.
 #[test]
 fn the_configuration_chapter_prints_the_real_defaults() {
-    let text = chapter("-configuration");
+    let text = chapter("/configuration");
     let start = text.find("<!-- defaults -->").expect("the defaults marker");
     let end = text.find("<!-- /defaults -->").expect("its end");
     let block = &text[start..end];
@@ -1388,7 +1420,7 @@ fn the_configuration_chapter_prints_the_real_defaults() {
     }
     assert_eq!(
         printed, real,
-        "md-docs/42-configuration.md prints defaults the compiler does not have"
+        "md-docs/reference/configuration.md prints defaults the compiler does not have"
     );
 }
 
@@ -1423,7 +1455,7 @@ fn the_guide_names_everything_the_language_has() {
     // Every keyword a statement starts with, in the grammar.
     need(
         "grammar",
-        &chapter("-grammar"),
+        &chapter("/grammar"),
         &[
             "state", "persist", "derived", "effect", "cleanup", "action", "use", "resource",
             "validate", "socket", "stream", "channel", "peer", "every", "after", "on key", "head",
@@ -1433,7 +1465,7 @@ fn the_guide_names_everything_the_language_has() {
         ],
     );
     // Browser values and helpers, in the built-ins reference.
-    let built_ins = chapter("-built-ins");
+    let built_ins = chapter("/built-ins");
     let values: Vec<&str> = webfluent::codegen::js::BROWSER_VALUES.to_vec();
     need("built-ins", &built_ins, &values);
     let helpers: Vec<&str> = webfluent::codegen::js::LIST_AND_STRING_HELPERS.to_vec();
@@ -1464,7 +1496,7 @@ fn the_guide_names_everything_the_language_has() {
         ],
     );
     // Every key of the config, in the configuration reference.
-    let config_text = chapter("-configuration");
+    let config_text = chapter("/configuration");
     let real =
         serde_json::to_value(webfluent::config::ProjectConfig::default_config("my-site")).unwrap();
     let mut config_keys = Vec::new();
@@ -1483,7 +1515,7 @@ fn the_guide_names_everything_the_language_has() {
     let config_refs: Vec<&str> = config_keys.iter().map(String::as_str).collect();
     need("configuration", &config_text, &config_refs);
     // Every command and its flags, in the CLI reference.
-    let cli = chapter("-cli");
+    let cli = chapter("/cli");
     let help = std::process::Command::new(env!("CARGO_BIN_EXE_wf"))
         .arg("--help")
         .output()
@@ -1516,7 +1548,7 @@ fn the_guide_names_everything_the_language_has() {
         }
     }
     // Every icon, in the media chapter.
-    let media = chapter("-media");
+    let media = chapter("/media");
     for icon in webfluent::registry::ICONS {
         if !media.contains(&format!("`{icon}`")) {
             missing.push(format!("the media chapter does not name the icon `{icon}`"));

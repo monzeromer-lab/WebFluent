@@ -115,19 +115,17 @@ fn file_blocks(markdown: &str) -> Vec<(usize, String, String)> {
 
 #[test]
 fn the_chapters_show_the_projects_as_they_are() {
-    // One chapter per tutorial: `md-docs/NN-tutorial-<project>.md`.
+    // One page per tutorial project: `md-docs/<kind>/…tutorial-<project>.md`.
+    // Shelf, the first tutorial, writes its files step by step and has no
+    // finished project to compare with.
     let mut stale = Vec::new();
     let mut shown = 0;
-    let mut chapters: Vec<_> = std::fs::read_dir(root().join("md-docs"))
-        .unwrap()
-        .flatten()
-        .map(|e| e.file_name().to_string_lossy().to_string())
-        .filter(|n| n.contains("-tutorial-") && n.ends_with(".md"))
+    let chapters: Vec<(String, String)> = crate::common::guide_pages()
+        .into_iter()
+        .filter(|(n, _)| n.contains("tutorial-") && !n.contains("tutorial-shelf"))
         .collect();
-    chapters.sort();
     assert_eq!(chapters.len(), 3, "{chapters:?}");
-    for name in chapters {
-        let chapter = std::fs::read_to_string(root().join("md-docs").join(&name)).unwrap();
+    for (name, chapter) in chapters {
         for (line, path, body) in file_blocks(&chapter) {
             shown += 1;
             let found = projects().iter().any(|p| {

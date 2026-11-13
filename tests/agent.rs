@@ -375,12 +375,10 @@ fn the_context_names_what_it_gives() {
         context.tokens,
         [] as [(std::string::String, std::string::String); 0]
     );
+    // A chapter is a page whose front matter numbers it; the README is not.
     let numbered = guide()
         .iter()
-        .filter(|(f, _)| {
-            f.split_once('-')
-                .is_some_and(|(n, _)| n.parse::<u32>().is_ok())
-        })
+        .filter(|(_, text)| crate::common::front_matter(text, "chapter").is_some())
         .count();
     assert_eq!(
         context.guide.len(),

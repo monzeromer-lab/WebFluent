@@ -6,6 +6,7 @@ reference can never drift from what the compiler accepts. Rerun after the
 registry changes: `python3 scripts/components-reference.py`.
 """
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -13,10 +14,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "scripts"))
 from component_examples import EXAMPLES  # noqa: E402
-# The chapter is whichever `NN-components-reference.md` the guide has: its
-# number is its place in the guide, not something this script decides.
-TARGET = next((ROOT / "md-docs").glob("[0-9][0-9]-components-reference.md"))
-NUMBER = int(TARGET.name[:2])
+# The page is `md-docs/reference/components.md`; its number is its place in
+# the guide, kept in its own front matter, not something this script decides.
+TARGET = ROOT / "md-docs" / "reference" / "components.md"
+NUMBER = int(re.search(r"^chapter: (\d+)$", TARGET.read_text(), re.M).group(1))
 wf = ROOT / "target" / "debug" / "wf"
 if not wf.exists():
     wf = "wf"
@@ -41,13 +42,8 @@ def prop_line(p):
 
 out = []
 out.append(f"# {NUMBER}. Components reference\n")
-out.append("""<!--
-route: reference
-group: reference
-blurb: Every built-in with its props, cases, flags, events, slots and parts — generated from the compiler's own registry.
-description: The components reference: every built-in element, its props, flags, events, slots, parts, attribute families and an example.
--->
-""")
+FRONT = TARGET.read_text().split("\n---\n", 1)[0] + "\n---"
+out.insert(0, FRONT)
 out.append("Generated from the compiler's registry (`wf registry --json`) by `scripts/components-reference.py`, with an example of each from `scripts/component_examples.py`; edit those, not this file.\n")
 out.append("Every component is written `Name(positional, prop: value).flag { block }`. A **prop** is passed by name; the one **positional** prop, where there is one, comes first and unnamed. A **flag** is written after the parentheses with a dot: a `Bool` prop, or a case of one of the element's enum props (`Button(\"x\").primary.lg`). An **enum prop** takes a case written `.case` (`Row(gap: .md)`). Every element also takes the universal props and events listed at the end, and the HTML attribute families named on it (`aria-*`, `data-*`, and the global attributes such as `id`, `class`, `title`, `role`, `tabindex`).\n")
 
@@ -141,6 +137,6 @@ out.append("The names `Icon(…)`, `IconButton(icon:)` and `Sidebar.Item(icon:)`
 out.append(" ".join(f"`{i}`" for i in data["icons"]) + "\n")
 
 out.append("## Next\n")
-out.append("[CLI](41-cli.md).\n")
+out.append("[CLI](cli.md).\n")
 TARGET.write_text("\n".join(out))
 print(f"wrote {TARGET.relative_to(ROOT)}")

@@ -140,11 +140,11 @@ def terms(text: str, cap: int = 24) -> str:
 
 def search_index():
     rows = []
-    for f in sorted((ROOT / "md-docs").glob("[0-9][0-9]-*.md")):
-        num = f.name[:2]
-        meta = guide.read_meta(num, f)
+    for f in guide.chapter_files():
+        meta = guide.read_meta(f)
+        num = f"{meta['chapter']:02d}"
         route = meta["route"]
-        md = f.read_text()
+        md = guide.front_matter(f)[1]
         title = meta["title"]
         if route == guide.REFERENCE_ROUTE:
             continue  # its entries come from the registry, below
@@ -163,10 +163,10 @@ def search_index():
                 "words": terms(parts[k + 2]),
             })
     # Every built-in, by name, with what it takes.
-    ref = next(f for f in (ROOT / "md-docs").glob("[0-9][0-9]-components-reference.md"))
+    ref = guide.front_matter(ROOT / "md-docs" / "reference" / "components.md")[0]
     for c in registry()["components"]:
         rows.append({
-            "chapter": ref.name[:2],
+            "chapter": f"{ref['chapter']:02d}",
             "title": "Components reference",
             "section": c["name"],
             "route": f"/docs/reference/{c['slug']}",

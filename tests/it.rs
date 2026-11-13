@@ -50,6 +50,8 @@ mod diagnostics;
 mod docs_audit_fixes;
 #[path = "docs_parse.rs"]
 mod docs_parse;
+#[path = "docs_urls.rs"]
+mod docs_urls;
 #[path = "e2e_rendered.rs"]
 mod e2e_rendered;
 #[path = "e2e_sites.rs"]

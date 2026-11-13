@@ -87,14 +87,11 @@ fn page_examples(markdown: &str) -> Vec<(usize, String)> {
 /// Every example, built into `target/e2e/guide/<chapter>-<line>/`. Returns
 /// the directory names that built, and the failures.
 fn build_all() -> (Vec<String>, Vec<String>) {
-    let guide = repo_root().join("md-docs");
     let out_root = repo_root().join("target/e2e/guide");
     let _ = std::fs::remove_dir_all(&out_root);
-    let mut names: Vec<String> = std::fs::read_dir(&guide)
-        .unwrap()
-        .flatten()
-        .map(|e| e.file_name().to_string_lossy().to_string())
-        .filter(|n| n.ends_with(".md") && n[..2].chars().all(|c| c.is_ascii_digit()))
+    let mut names: Vec<String> = crate::common::guide_chapters()
+        .into_iter()
+        .map(|(_, path, _)| path)
         // A template reads the JSON it is rendered with, not a browser.
         .filter(|n| !n.contains("server-rendering"))
         .collect();
@@ -102,10 +99,10 @@ fn build_all() -> (Vec<String>, Vec<String>) {
     let mut built = Vec::new();
     let mut failures = Vec::new();
     for name in names {
-        let markdown = std::fs::read_to_string(guide.join(&name)).unwrap();
+        let markdown = std::fs::read_to_string(repo_root().join("md-docs").join(&name)).unwrap();
         let scripts = chapter_scripts(&markdown);
         for (line, src) in page_examples(&markdown) {
-            let dir_name = format!("{}-{line}", &name[..name.len() - 3]);
+            let dir_name = format!("{}-{line}", name[..name.len() - 3].replace('/', "--"));
             let dir = out_root.join(&dir_name);
             std::fs::create_dir_all(dir.join("src")).unwrap();
             let i18n = if src.contains("t(\"") || src.contains("setLocale") {
