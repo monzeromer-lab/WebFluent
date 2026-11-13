@@ -1,16 +1,11 @@
-/* The site's own rules, in the MO design system: the pieces the design
+/* The site's own rules, kept for the pages not yet on Blueprint: the pieces the design
    repeats — overlines, the two button shapes, chips, pills — and the
    guide's prose rendered from Markdown. Colours are the theme's tokens. */
 
-/* The faces are served from the site (variable, Latin), not from Google
-   Fonts: a stylesheet on another origin held up every page's first paint by
-   about a second on a phone. `meta.preload` fetches both with the page. */
-@font-face { font-family: "Inter"; font-style: normal; font-weight: 400 800; font-display: swap; src: url("/fonts/inter-latin.woff2") format("woff2"); }
-@font-face { font-family: "JetBrains Mono"; font-style: normal; font-weight: 400 600; font-display: swap; src: url("/fonts/jetbrains-mono-latin.woff2") format("woff2"); }
-
+/* The faces are declared in blueprint.css. */
 body { font-family: var(--font-family); }
 
-.overline { margin: 0; font-size: 12px; line-height: 18px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-subtle); }
+.overline { margin: 0; font-size: 13px; line-height: 18px; font-weight: 600; color: var(--muted); }
 .overline.accent { color: var(--accent-ink); }
 
 .site-button {
@@ -137,7 +132,7 @@ pre.wf-code, .wf-code--block { white-space: pre; }
 /* The analytics question: a card at the foot of the screen. It floats, so
    it never moves the page, and it is an overlay, so it carries the overlay
    surface and shadow. */
-.consent { position: fixed; z-index: 300; inset-inline: 16px; bottom: 16px; gap: 8px; padding: 16px; border-radius: 10px; background: var(--surface-overlay); border: 1px solid var(--color-border); box-shadow: var(--shadow-lg); }
+.consent { position: fixed; z-index: 300; inset-inline: 16px; bottom: 16px; gap: 8px; padding: 16px; border-radius: 4px; background: var(--surface-overlay); border: 1px solid var(--color-border); box-shadow: var(--shadow-lg); }
 .consent-title { margin: 0; font-size: 15px; line-height: 20px; font-weight: 600; color: var(--color-text); }
 .consent-text { margin: 0; font-size: 13px; line-height: 20px; color: var(--color-text-muted); }
 .consent-actions { justify-content: flex-end; gap: 8px; margin-top: 4px; flex-wrap: wrap; }

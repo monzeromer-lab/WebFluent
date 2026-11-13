@@ -1,0 +1,28 @@
+/// Several files of one example, a tab each: a component and the page that
+/// uses it, a stylesheet beside them.
+component CodeTabs(files: [CodeFile] = []) {
+    state current = 0
+    state copied = false
+    derived file = files[current] ?? CodeFile(name: "", code: "")
+
+    action copy() {
+        copied = true
+        try { navigator.clipboard.writeText(file.code) } catch e { log(e) }
+        setTimeout(() => settle(), 1600)
+    }
+    action settle() { copied = false }
+
+    Stack(class: "bp-console bp-ltr", dir: "ltr") {
+        style { gap: 0; min-width: 0 }
+        Row(class: "bp-console__bar") {
+            style { flex-wrap: nowrap }
+            Row(role: "tablist", aria-label: t("example.files"), class: "bp-tabs") {
+                for f, i in files by f.name {
+                    Button(f.name, role: "tab", aria-selected: i == current, class: "bp-tab") { on click { current = i } }
+                }
+            }
+            Button(if copied { t("code.copied") } else { t("code.copy") }, aria-label: t("code.copy"), class: "bp-button") { on click { copy() } }
+        }
+        Code(file.code, language: file.language, class: "bp-console__code").block
+    }
+}

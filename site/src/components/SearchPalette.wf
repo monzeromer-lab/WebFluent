@@ -1,0 +1,82 @@
+/// Whether the search palette is open. The header's trigger, ⌘K (Ctrl+K)
+/// and `/` open it; Escape and a choice close it.
+store Search {
+    state open = false
+    action reveal() { open = true }
+    action hide() { open = false }
+}
+
+/// Search, as a palette over the page: one field, the kinds to narrow by,
+/// and what matched — a heading first, then a section whose words mention
+/// the term. The index is a file of its own, fetched the first time the
+/// palette opens rather than carried by every page.
+component SearchPalette {
+    use Search
+    state q = ""
+    state kind = "all"
+    state rows: [SearchRow] = []
+    state asked = false
+
+    action load() {
+        if asked { return }
+        asked = true
+        try { rows = await fetch(SEARCH_INDEX) } catch e { asked = false }
+    }
+
+    derived term = q.trim().toLowerCase()
+    derived named = rows.filter(r => term != "" && "{r.title} {r.section}".toLowerCase().includes(term))
+    derived mentioned = rows.filter(r => term != "" && !"{r.title} {r.section}".toLowerCase().includes(term) && r.words.includes(term))
+    derived hits = [...named, ...mentioned].take(12)
+
+    on key("mod+k") { if Search.open { Search.hide() } else { Search.reveal()  load() } }
+    on key("/") { if !Search.open { Search.reveal()  load() } }
+
+    Modal(visible: Search.open, title: t("search.title"), class: "bp-palette") {
+        on close { Search.hide()  q = "" }
+
+        Stack {
+            style { gap: 0 }
+            Row(align: .center, gap: .sm, class: "bp-field") {
+                style { margin: 12px; cursor: text; & input { flex: 1 1 auto; min-width: 0; height: 40px; padding: 0; border: 0; outline: none; background: transparent; color: $ink; font-family: inherit; font-size: 16px } }
+                Icon("search")
+                Input(bind: q, placeholder: t("search.placeholder"), aria-label: t("search.label"), type: "search", autofocus: true) {
+                    on focus { load() }
+                    on input { load() }
+                }
+                Text("esc", class: "bp-kbd")
+            }
+
+            Row(role: "tablist", aria-label: t("search.kinds"), class: "bp-tabs") {
+                style { padding: 0 12px; border-bottom: 1px solid $line }
+                Button(t("search.all"), role: "tab", aria-selected: kind == "all", class: "bp-tab") { on click { kind = "all" } }
+                Button(t("nav.learn"), role: "tab", aria-selected: kind == "learn", class: "bp-tab") { on click { kind = "learn" } }
+                Button(t("nav.recipes"), role: "tab", aria-selected: kind == "recipes", class: "bp-tab") { on click { kind = "recipes" } }
+                Button(t("nav.reference"), role: "tab", aria-selected: kind == "reference", class: "bp-tab") { on click { kind = "reference" } }
+                Button(t("nav.errors"), role: "tab", aria-selected: kind == "errors", class: "bp-tab") { on click { kind = "errors" } }
+            }
+
+            Stack(role: "listbox", aria-label: t("search.results")) {
+                style { gap: 2px; padding: 8px; max-height: 380px; overflow-y: auto }
+                if term == "" {
+                    Text(t("search.hint"), class: "bp-small") { style { padding: 12px } }
+                } else if hits.length == 0 {
+                    Text(t("search.none"), class: "bp-small") { style { padding: 12px } }
+                } else {
+                    for hit in hits by hit.route {
+                        Link(to: hit.route, role: "option", class: "bp-hit") {
+                            on click { Search.hide()  q = "" }
+                            Text(hit.chapter, class: "bp-num bp-muted") { style { width: 22px; flex-shrink: 0; font-size: 12px } }
+                            Stack {
+                                style { gap: 1px; min-width: 0 }
+                                Text(if hit.section != "" { hit.section } else { hit.title }) { style { font-size: 14px; font-weight: 500 } }
+                                if hit.section != "" {
+                                    Text(hit.title, class: "bp-small")
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

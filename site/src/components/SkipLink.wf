@@ -1,0 +1,6 @@
+/// The first thing a keyboard reaches: a link past the header and the
+/// sidebars to the page's own content, which every template marks
+/// `id: "bp-main"`.
+component SkipLink {
+    Link(t("skip.main"), href: "#bp-main", class: "bp-skip")
+}

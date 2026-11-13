@@ -1,0 +1,63 @@
+/// T7, the Playground: the project's files, the editor, the running page,
+/// what the build wrote and found, the tests; Share, Download and the
+/// examples. At this level nothing compiles: the panes show what the site
+/// built, and the compiler in the browser arrives later.
+component PlaygroundShell(files: [CodeFile] = [], preview: String = "", html: String = "", css: String = "", js: String = "", findings: String = "", tests: [Map] = [], examples: [Place] = [], other: String = "", lang: String = "en") {
+    state current = files[0]?.name ?? ""
+    derived file = files.find(f => f.name == current)
+
+    SiteHeader(docs: true, other: other, lang: lang)
+
+    // One per page: the skip link's target. wf-allow(A16)
+
+    Stack(role: "main", id: "bp-main", tabindex: "-1", class: "bp-main") {
+        style { gap: 16px; padding: 16px; @md { padding: 20px 24px } }
+
+        Row(align: .center, justify: .between, gap: .md) {
+            style { flex-wrap: wrap; gap: 12px }
+            Row(align: .center, gap: .sm) {
+                style { flex-wrap: wrap; gap: 10px }
+                KindLabel(.playground)
+                Heading(t("playground.title")).h1 { style { margin: 0; font-size: 22px; line-height: 1.2; font-weight: 650 } }
+            }
+            Row(align: .center, gap: .sm) {
+                style { flex-wrap: wrap; gap: 8px }
+                Select(bind: current, aria-label: t("playground.examples"), class: "bp-select") {
+                    for f in files by f.name {
+                        Select.Option(f.name, value: f.name)
+                    }
+                }
+                Button(t("playground.share"), class: "bp-button")
+                Button(t("playground.download"), class: "bp-button")
+                Button(t("playground.run"), class: "bp-button", data-tone: "action")
+            }
+        }
+
+        Grid(columns: { base: 1, lg: 2 }, gap: .md) {
+            style { gap: 16px; align-items: stretch; @xl { grid-template-columns: 200px minmax(0, 1fr) minmax(0, 1fr) } }
+            FileTree(files: files.map(f => f.name), current: current, class: "bp-hide-sm") {
+                on pick(name) { current = name }
+            }
+            if let f = file {
+                Editor(f.code, file: f.name)
+            }
+            PreviewPane(src: preview)
+        }
+
+        Grid(columns: { base: 1, lg: 2 }, gap: .md) {
+            style { gap: 16px }
+            OutputTabs(html: html, css: css, js: js, findings: findings)
+            TestPanel(tests: tests)
+        }
+
+        if examples.length > 0 {
+            Row(align: .center, gap: .sm) {
+                style { flex-wrap: wrap; gap: 8px 16px; font-size: 14px; & a { color: $link } & p { margin: 0 } }
+                Text(t("playground.examples"), class: "bp-section-label")
+                for ex in examples by ex.to {
+                    Link(t(ex.key), to: ex.to)
+                }
+            }
+        }
+    }
+}

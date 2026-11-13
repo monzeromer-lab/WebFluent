@@ -1,0 +1,26 @@
+/// The events an entry fires: the name a handler is written with, what it
+/// sends, and when.
+component EventsTable(rows: [PropRow] = [], caption: String = "") {
+    if rows.length > 0 {
+        Stack(class: "bp-table-wrap") {
+            Table(caption: if caption != "" { caption } else { t("ref.events.caption") }, class: "bp-table") {
+                Table.Head {
+                    Table.Row {
+                        Table.Cell(t("ref.event")).header
+                        Table.Cell(t("ref.sends")).header
+                        Table.Cell(t("ref.meaning")).header
+                    }
+                }
+                Table.Body {
+                    for row in rows by row.name {
+                        Table.Row {
+                            Table.Cell { Code("on {row.name}") }
+                            Table.Cell { Code(if row.kind != "" { row.kind } else { "—" }) }
+                            Table.Cell(row.detail)
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

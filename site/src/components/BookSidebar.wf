@@ -1,0 +1,64 @@
+/// The chapters a reader has opened, kept across visits: the book's
+/// progress.
+store Book {
+    persist read: [String] = []
+
+    action visit(path: String) {
+        if path != "" && !read.includes(path) {
+            read = read.concat([path])
+        }
+    }
+}
+
+/// The book's sidebar: how far the reader has got, then every chapter with
+/// its number (a tick once read, "tour" on the first three), grouped by the
+/// part it is in, and the current one carrying the cyan rule.
+component BookSidebar(chapters: [Chapter] = [], title: String = "") {
+    use Book
+    derived total = chapters.length
+    derived done = chapters.filter(c => Book.read.includes(c.to)).length
+
+    Stack(gap: .sm, role: "navigation", aria-label: t("book.label"), class: "bp-sidebar") {
+        style {
+            display: none
+            gap: 12px
+            width: $sidebar-w
+            flex-shrink: 0
+            align-self: flex-start
+            position: sticky
+            top: $header-h
+            max-height: calc(100vh - 60px)
+            overflow-y: auto
+            box-sizing: border-box
+            padding: 24px 12px 32px 0
+            @md { display: flex }
+        }
+
+        Stack(gap: .xs) {
+            style { gap: 8px; padding: 0 12px }
+            Row(justify: .between, align: .center) {
+                style { flex-wrap: nowrap }
+                Text(if title != "" { title } else { t("book.title") }) { style { margin: 0; font-size: 14px; font-weight: 650 } }
+                Text(t("book.progress", { done: done, total: total }), class: "bp-small bp-num")
+            }
+            Stack(class: "bp-meter") {
+                Progress(value: done, max: if total > 0 { total } else { 1 }, aria-label: t("book.progress", { done: done, total: total }))
+            }
+        }
+
+        Stack(class: "bp-navlist") {
+            for chapter, i in chapters by chapter.to {
+                if chapter.part != "" && (i == 0 || chapters[i - 1]?.part != chapter.part) {
+                    Text(t(chapter.part), class: "bp-navgroup")
+                }
+                Link(to: chapter.to, class: "bp-navlink") {
+                    Text(if Book.read.includes(chapter.to) { "✓" } else { "{chapter.n}" }, class: "bp-step", data-done: Book.read.includes(chapter.to), aria-hidden: "true")
+                    Text(if chapter.key != "" { t(chapter.key) } else { chapter.title }) { style { flex: 1 1 auto; min-width: 0 } }
+                    if chapter.tour {
+                        Text(t("book.tour"), class: "bp-label", data-tone: "construction") { style { height: 18px; font-size: 11px } }
+                    }
+                }
+            }
+        }
+    }
+}

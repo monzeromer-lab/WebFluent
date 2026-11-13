@@ -1,0 +1,86 @@
+/// T1, the home page: "What are you making?" — the six outputs, which set
+/// the Building switch — then the hero: one sentence, what it means, and
+/// an example beside it; the three ways in (Learn, Recipes, Reference);
+/// one example per output (the page's body); and the install line.
+component HomeShell(_ title: String, lede: String = "", other: String = "", lang: String = "en") {
+    slot hero
+    slot
+    use Building
+
+    SiteHeader(other: other, lang: lang)
+
+    // One per page: the skip link's target. wf-allow(A16)
+
+    Stack(role: "main", id: "bp-main", tabindex: "-1", class: "bp-main") {
+        style { gap: 0 }
+
+        Stack(gap: .md, class: "bp-wrap") {
+            style { gap: 14px; padding-top: 32px; padding-bottom: 8px; @md { padding-top: 48px } }
+            Text(t("home.making"), class: "bp-section-label")
+            Row(role: "group", aria-label: t("home.making"), gap: .xs) {
+                style { flex-wrap: wrap; gap: 8px }
+                for o in OUTPUTS by o {
+                    Button(t("building.{o}"), aria-pressed: Building.output == o, class: "bp-button") {
+                        on click { Building.pick(o) }
+                    }
+                }
+            }
+        }
+
+        Grid(columns: { base: 1, lg: 2 }, gap: .xl, class: "bp-wrap") {
+            style { gap: 32px; padding-top: 32px; padding-bottom: 56px; align-items: center; @lg { gap: 48px; padding-top: 48px; padding-bottom: 80px } }
+            Stack(gap: .md) {
+                style { gap: 20px; min-width: 0 }
+                Heading(title, class: "bp-display").h1
+                if lede != "" {
+                    Text(lede, class: "bp-lede")
+                }
+                Row(gap: .sm) {
+                    style { flex-wrap: wrap; gap: 10px }
+                    Link(t("home.tour"), to: "/learn/01-getting-started", class: "bp-button", data-tone: "action")
+                    Link(t("home.book"), to: "/learn", class: "bp-button")
+                    Link(t("home.react"), to: "/coming-from/react", class: "bp-button", data-tone: "quiet")
+                }
+            }
+            Stack {
+                style { min-width: 0 }
+                hero
+            }
+        }
+
+        Stack(gap: .md, class: "bp-wrap") {
+            style { gap: 16px; padding-bottom: 56px }
+            Heading(t("home.ways"), class: "bp-h2").h2
+            Grid(columns: { base: 1, md: 3 }, gap: .md) {
+                Link(to: "/learn", class: "bp-card") {
+                    Text(t("nav.learn")) { style { font-size: 19px; font-weight: 650 } }
+                    Text(t("home.ways.learn"), class: "bp-small")
+                }
+                Link(to: "/recipes", class: "bp-card") {
+                    Text(t("nav.recipes")) { style { font-size: 19px; font-weight: 650 } }
+                    Text(t("home.ways.recipes"), class: "bp-small")
+                }
+                Link(to: "/reference", class: "bp-card") {
+                    Text(t("nav.reference")) { style { font-size: 19px; font-weight: 650 } }
+                    Text(t("home.ways.reference"), class: "bp-small")
+                }
+            }
+        }
+
+        Stack(gap: .md, class: "bp-wrap") {
+            style { gap: 16px; padding-bottom: 56px; min-width: 0 }
+            Heading(t("home.outputs"), class: "bp-h2").h2
+            children
+        }
+
+        Stack(class: "bp-grid") {
+            style { border-top: 1px solid $line; border-bottom: 1px solid $line }
+            Stack(gap: .md, class: "bp-wrap") {
+                style { gap: 16px; padding-top: 48px; padding-bottom: 48px; max-width: 760px }
+                Heading(t("home.install"), class: "bp-h2").h2
+                Text(t("home.install.body"), class: "bp-lede")
+                CodeBlock(INSTALL, title: "bash")
+            }
+        }
+    }
+}

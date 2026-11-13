@@ -1,0 +1,18 @@
+/// English or العربية. A page with a translation links to it (`other`); a
+/// page without one switches the interface's language and says the page
+/// itself is English only. `lang` is the language the page is written in.
+component LangSwitch(other: String = "", lang: String = "en") {
+    derived arabic = lang == "ar" || (lang == "en" && other == "" && locale == "ar")
+    derived name = if arabic { t("lang.en") } else { t("lang.ar") }
+
+    Row(align: .center, gap: .xs) {
+        style { flex-wrap: nowrap; gap: 6px; flex-shrink: 0 }
+        if other != "" {
+            Link(name, to: other, lang: if arabic { "en" } else { "ar" }, class: "bp-button", data-track: "select_content", data-track-content-type: "language", data-track-item-id: if arabic { "en" } else { "ar" })
+        } else {
+            Button(name, lang: if arabic { "en" } else { "ar" }, title: t("lang.englishonly"), class: "bp-button", data-track: "select_content", data-track-content-type: "language", data-track-item-id: if arabic { "en" } else { "ar" }) {
+                on click { setLocale(if locale == "ar" { "en" } else { "ar" }) }
+            }
+        }
+    }
+}

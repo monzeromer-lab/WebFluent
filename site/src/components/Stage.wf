@@ -1,0 +1,34 @@
+/// A reference entry's stage: the element itself on the measuring grid,
+/// the controls above it, and Measure — off until asked — which outlines
+/// the subject and writes its real height, padding and radius in cyan.
+/// `measures` are those numbers, as the build measured them.
+component Stage(label: String = "", measures: [String] = []) {
+    slot controls
+    state measuring = false
+
+    Stack(class: "bp-sheet") {
+        style { gap: 0; overflow: hidden }
+        Row(align: .center, gap: .md) {
+            style { flex-wrap: wrap; gap: 12px 20px; padding: 10px 14px; border-bottom: 1px solid $line; background: $ground }
+            controls
+            Button(t("stage.measure"), aria-pressed: measuring, class: "bp-button", data-tone: "quiet") {
+                style { margin-inline-start: auto }
+                on click { measuring = !measuring }
+            }
+        }
+        Stack(class: "bp-stage bp-grid", data-measure: measuring, role: "group", aria-label: if label != "" { label } else { t("stage.label") }) {
+            style { border: 0; border-radius: 0; gap: 16px }
+            Stack(class: "bp-stage__subject") {
+                style { align-items: center }
+                children
+            }
+            if measuring && measures.length > 0 {
+                Row(class: "bp-measure", aria-live: "polite") {
+                    for m in measures by m {
+                        Text(m)
+                    }
+                }
+            }
+        }
+    }
+}

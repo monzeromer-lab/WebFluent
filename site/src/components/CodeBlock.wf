@@ -1,10 +1,10 @@
-/// A code block in a titled frame, as the design draws it: a 32px bar with
-/// the language and a Copy button, then the code coloured by the compiler's
-/// highlighter on the console surface. `title` names the file or the
-/// language; a title the highlighter knows colours the block.
+/// A code block on the console surface, dark in both themes: a bar with the
+/// file or language and Copy, then the code coloured by the compiler's
+/// highlighter. `title` names the file or the language; one the
+/// highlighter knows colours the block.
 component CodeBlock(_ code: String, title: String = "wf", note: String = "") {
     state copied = false
-    derived language = if title == "wf" || title == "wfx" || title == "json" || title == "css" { title } else if title == "shell" || title == "bash" { "bash" } else { "" }
+    derived language = if title == "wf" || title == "wfx" || title.endsWith(".wf") { "wf" } else if title == "json" || title == "css" { title } else if title == "shell" || title == "bash" { "bash" } else { "" }
 
     action copy() {
         copied = true
@@ -13,64 +13,22 @@ component CodeBlock(_ code: String, title: String = "wf", note: String = "") {
     }
     action reset() { copied = false }
 
-    // Code reads left to right in every locale, Arabic included.
-    Stack(class: "code-block", dir: "ltr") {
-        style {
-            gap: 0
-            border: 1px solid $color-border
-            border-radius: 6px
-            overflow: hidden
-            background: $term-bg
-        }
-        Row(align: .center, justify: .between) {
-            style {
-                flex-wrap: nowrap
-                gap: 12px
-                height: 40px
-                padding: 0 8px 0 12px
-                background: $color-background
-                border-bottom: 1px solid $color-border
-                @md { height: 32px; padding: 0 12px }
-            }
+    Stack(class: "bp-console code-block bp-ltr", dir: "ltr") {
+        style { gap: 0; min-width: 0 }
+        Row(class: "bp-console__bar") {
+            style { flex-wrap: nowrap; align-items: center }
             Row(align: .center, gap: .sm) {
-                style { flex-wrap: nowrap; min-width: 0; & p { margin: 0 } }
-                Text(title) { style { font-family: $font-family-mono; font-size: 12px; line-height: 18px; color: $color-text-muted } }
+                style { flex-wrap: nowrap; min-width: 0; padding: 0 6px; & p { margin: 0 } }
+                Text(title, class: "bp-mono") { style { font-size: 12px; color: $term-dim } }
                 if note != "" {
-                    Text(note) { style { font-size: 12px; line-height: 18px; color: $ink-subtle; white-space: nowrap; overflow: hidden; text-overflow: ellipsis } }
+                    Text(note) { style { font-size: 12px; color: $term-dim; white-space: nowrap; overflow: hidden; text-overflow: ellipsis } }
                 }
             }
-            Button(if copied { t("code.copied") } else { t("code.copy") }, aria-label: t("code.copy"), data-track: "copy_code", data-track-item-id: title) {
-                style {
-                    flex-shrink: 0
-                    height: 30px
-                    padding: 0 10px
-                    background: transparent
-                    border: 1px solid $color-border
-                    border-radius: 4px
-                    color: $ink-subtle
-                    font-family: inherit
-                    font-size: 12px
-                    line-height: 18px
-                    font-weight: 400
-                    @md { height: 22px; padding: 0 8px }
-                    &:hover { color: $color-text; border-color: $border-strong; background: transparent }
-                }
+            Button(if copied { t("code.copied") } else { t("code.copy") }, aria-label: t("code.copy"), class: "bp-button", data-track: "copy_code", data-track-item-id: title) {
+                style { margin-bottom: 0 }
                 on click { copy() }
             }
         }
-        Code(code, language: language).block {
-            style {
-                margin: 0
-                padding: 16px
-                background: $term-bg
-                color: $syntax-punct
-                font-family: $font-family-mono
-                font-size: 12px
-                line-height: 21px
-                white-space: pre
-                overflow-x: auto
-                border-radius: 0
-            }
-        }
+        Code(code, language: language, class: "bp-console__code").block
     }
 }

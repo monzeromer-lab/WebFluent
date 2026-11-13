@@ -1,87 +1,32 @@
-/// The site footer as the design draws it: the mark and one line about the
-/// guide, three columns of links under overline labels, and the legal line.
+/// The site's foot, in Blueprint: four columns — learn, do, look up, and
+/// what is there for agents — then the release this site was built by,
+/// the licence, and the analytics question again.
 component SiteFooter {
     Footer {
-        style {
-            padding: 24px 16px
-            border-top: 1px solid $color-border
-            background: $color-background
-            @md { padding: 32px 40px }
-        }
-        Stack(gap: .lg) {
-            style { gap: 24px; max-width: 1200px; margin: 0 auto }
-            Row(justify: .between, align: .start, gap: .xl) {
-                style { gap: 32px; flex-wrap: wrap; @md { gap: 48px } }
+        style { border-top: 1px solid $line; background: $sheet }
+        Stack(gap: .lg, class: "bp-wrap") {
+            style { gap: 32px; padding-top: 40px; padding-bottom: 32px }
 
-                Stack(gap: .sm) {
-                    style { gap: 8px; width: 300px; max-width: 100% }
-                    Row(align: .center, gap: .sm) {
-                        style { gap: 10px; flex-wrap: nowrap }
-                        Text("wf") {
-                            style {
-                                display: inline-flex
-                                align-items: center
-                                justify-content: center
-                                width: 24px
-                                height: 24px
-                                margin: 0
-                                border-radius: 4px
-                                background: $color-primary
-                                color: #FFFFFF
-                                font-family: $font-family-mono
-                                font-size: 12px
-                            }
+            Grid(columns: { base: 2, md: 4 }, gap: .lg) {
+                for group in FOOTER by group.key {
+                    Stack(gap: .xs) {
+                        style { gap: 4px; & a { display: inline-flex; align-items: center; min-height: 32px; color: $muted; font-size: 14px; text-decoration: none } & a:hover { color: $ink } }
+                        Text(t(group.key), class: "bp-section-label") { style { margin-bottom: 4px } }
+                        for place in group.places by place.to {
+                            Link(t(place.key), to: place.to)
                         }
-                        Text("WebFluent") { style { margin: 0; font-size: 15px; font-weight: 600 } }
-                    }
-                    Text(t("footer.built", { version: VERSION })) { style { margin: 0; font-size: 12px; line-height: 18px; color: $ink-subtle } }
-                }
-
-                Row(gap: .xl, align: .start, class: "footer-columns") {
-                    style {
-                        gap: 24px 32px
-                        flex-wrap: wrap
-                        & a { display: inline-flex; align-items: center; font-size: 13px; line-height: 20px; color: $color-text-muted; text-decoration: none }
-                        & a:hover { color: $color-text }
-                        @md { gap: 64px }
-                    }
-
-                    Stack(gap: .xs) {
-                        style { gap: 2px; min-width: 140px; @md { gap: 6px } }
-                        Text(t("footer.guide"), class: "overline")
-                        Link(t("ch.02"), to: "/docs/guide/getting-started")
-                        Link(t("ch.03"), to: "/docs/guide/tutorial")
-                        Link(t("ch.34"), to: "/docs/guide/deploying")
-                        Link(t("ch.50"), to: "/docs/guide/troubleshooting")
-                    }
-
-                    Stack(gap: .xs) {
-                        style { gap: 2px; min-width: 140px; @md { gap: 6px } }
-                        Text(t("footer.reference"), class: "overline")
-                        Link(t("footer.builtins"), to: "/docs/reference")
-                        Link(t("ch.41"), to: "/docs/guide/cli")
-                        Link(t("ch.42"), to: "/docs/guide/config")
-                        Link(t("footer.diagnostics"), to: "/docs/guide/diagnostics")
-                        Link(t("nav.tutorials"), to: "/docs/tutorials/todos")
-                    }
-
-                    Stack(gap: .xs) {
-                        style { gap: 2px; min-width: 140px; @md { gap: 6px } }
-                        Text(t("footer.project"), class: "overline")
-                        Link(t("footer.source"), href: REPO)
-                        Link(t("footer.releases"), href: "{REPO}/releases")
-                        Link(t("footer.issues"), href: "{REPO}/issues")
-                        Link(t("footer.studio"), href: STUDIO)
                     }
                 }
             }
 
             Row(justify: .between, align: .center, gap: .md) {
-                style { flex-wrap: wrap; padding-top: 16px; border-top: 1px solid $color-border; & p { margin: 0; font-size: 12px; line-height: 18px; color: $ink-subtle } }
-                Text(t("footer.licence", { version: VERSION }))
+                style { flex-wrap: wrap; gap: 12px 24px; padding-top: 20px; border-top: 1px solid $line }
+                Text(t("footer.built", { version: VERSION }), class: "bp-small")
                 Row(align: .center, gap: .md) {
+                    style { flex-wrap: wrap; gap: 8px 20px }
+                    Link(t("footer.source"), href: REPO) { style { color: $muted; font-size: 13px } }
                     Button(t("consent.settings"), class: "link-button") { on click { Consent.reopen() } }
-                    Text(t("footer.copyright"))
+                    Text(t("footer.copyright"), class: "bp-small")
                 }
             }
         }

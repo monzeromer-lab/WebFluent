@@ -1,0 +1,115 @@
+/// Placeholder content for the Blueprint previews under `/blueprint`: the
+/// data each template is shown with until the generators feed it real
+/// pages. Nothing here is linked from the site, and every preview is
+/// `noindex`.
+
+const SAMPLE_CODE = #"page Home(path: "/", title: "Hello") {
+    state count = 0
+    Heading("Hello, WebFluent").h1
+    Text("Clicked {count} times")
+    Button("+1").primary {
+        on click { count = count + 1 }
+    }
+}"#
+
+const SAMPLE_HTML = #"<main id="wf-main">
+  <h1 class="wf-heading">Hello, WebFluent</h1>
+  <p class="wf-text">Clicked 3 times</p>
+  <button class="wf-btn wf-btn--primary" type="button">+1</button>
+</main>"#
+
+const SAMPLE_CSS = #".wf-heading { font-size: var(--font-size-3xl); }
+.wf-btn--primary { background: var(--color-primary); color: #fff; }"#
+
+const SAMPLE_JS = #"const count = WF.signal(0);
+WF.page("Home", (root) => {
+  WF.el("p", { class: "wf-text" }, () => `Clicked ${count()} times`);
+  // on click: count.set(count() + 1)
+});"#
+
+/// The book as the rewrite draws it: eleven chapters, the first three the tour.
+const SAMPLE_BOOK: [Chapter] = [
+    Chapter(n: 1, title: "Getting started", to: "/learn/01-getting-started", part: "book.part.tour", tour: true),
+    Chapter(n: 2, title: "A first page", to: "/learn/02-a-first-page", part: "book.part.tour", tour: true),
+    Chapter(n: 3, title: "Elements and flags", to: "/learn/03-elements-and-flags", part: "book.part.tour", tour: true),
+    Chapter(n: 4, title: "State and reactivity", to: "/blueprint/chapter", part: "book.part.book"),
+    Chapter(n: 5, title: "Components", to: "/learn/05-components", part: "book.part.book"),
+    Chapter(n: 6, title: "Stores", to: "/learn/06-stores", part: "book.part.book"),
+    Chapter(n: 7, title: "Data and resources", to: "/learn/07-data", part: "book.part.book"),
+    Chapter(n: 8, title: "Styling and themes", to: "/learn/08-styling", part: "book.part.book"),
+    Chapter(n: 9, title: "Forms", to: "/learn/09-forms", part: "book.part.book"),
+    Chapter(n: 10, title: "PDF and slides", to: "/learn/10-pdf-and-slides", part: "book.part.book"),
+    Chapter(n: 11, title: "Shipping", to: "/learn/11-shipping", part: "book.part.book")
+]
+
+const SAMPLE_RECIPES: [IndexEntry] = [
+    IndexEntry(label: "Fetch and show a list", to: "/blueprint/recipe"),
+    IndexEntry(label: "Refresh on a timer", to: "/recipes/refresh-on-a-timer"),
+    IndexEntry(label: "Validate a sign-up form", to: "/recipes/validate-a-form"),
+    IndexEntry(label: "Add dark mode", to: "/recipes/dark-mode"),
+    IndexEntry(label: "Ship a PDF invoice", to: "/recipes/pdf-invoice"),
+    IndexEntry(label: "Translate to Arabic", to: "/recipes/translate"),
+    IndexEntry(label: "Test a click-through", to: "/recipes/test-a-click")
+]
+
+const SAMPLE_COMPONENTS: [IndexEntry] = [
+    IndexEntry(label: "Button", to: "/blueprint/reference", group: "Actions"),
+    IndexEntry(label: "IconButton", to: "/reference/iconbutton", group: "Actions"),
+    IndexEntry(label: "ButtonGroup", to: "/reference/buttongroup", group: "Actions"),
+    IndexEntry(label: "Dropdown", to: "/reference/dropdown", group: "Actions"),
+    IndexEntry(label: "Container", to: "/reference/container", group: "Layout"),
+    IndexEntry(label: "Row", to: "/reference/row", group: "Layout"),
+    IndexEntry(label: "Stack", to: "/reference/stack", group: "Layout"),
+    IndexEntry(label: "Grid", to: "/reference/grid", group: "Layout"),
+    IndexEntry(label: "Input", to: "/reference/input", group: "Forms"),
+    IndexEntry(label: "Select", to: "/reference/select", group: "Forms")
+]
+
+const SAMPLE_FAMILIES: [IndexEntry] = [
+    IndexEntry(label: "E · Syntax and structure", to: "/errors#e"),
+    IndexEntry(label: "T · Types", to: "/blueprint/error"),
+    IndexEntry(label: "C · Components", to: "/errors#c"),
+    IndexEntry(label: "R · Routes", to: "/errors#r"),
+    IndexEntry(label: "X · State", to: "/errors#x"),
+    IndexEntry(label: "A · Accessibility", to: "/errors#a")
+]
+
+const SAMPLE_CODES: [RelatedLink] = [
+    RelatedLink(kind: "X01", title: "Assigning a derived value", to: "/errors/X01"),
+    RelatedLink(kind: "X06", title: "A state that never ticks", to: "/errors/X06"),
+    RelatedLink(kind: "T17", title: "await outside an action", to: "/errors/T17")
+]
+
+const SAMPLE_PRINTED = #"error[T05]: `User` has no field `nmae`
+ --> src/pages/Profile.wf:3:18
+  |
+3 |     Heading(user.nmae).h1
+  |                  ^^^^
+  = help: Its fields are `id`, `name`"#
+
+const SAMPLE_FILES: [CodeFile] = [
+    CodeFile(name: "App.wf", code: "app \{\n    Router\n\}"),
+    CodeFile(name: "Home.wf", code: SAMPLE_CODE),
+    CodeFile(name: "theme.wf", code: "theme Brand \{\n    color-primary: #3D6FA3\n\}")
+]
+
+const SAMPLE_ROUTES: [Place] = [
+    Place(key: "nav.learn", to: "/learn"),
+    Place(key: "nav.recipes", to: "/recipes"),
+    Place(key: "nav.reference", to: "/reference"),
+    Place(key: "nav.errors", to: "/errors"),
+    Place(key: "nav.playground", to: "/playground"),
+    Place(key: "nav.showcase", to: "/showcase"),
+    Place(key: "footer.cli", to: "/reference/cli")
+]
+
+/// The running page an Example's preview frames.
+page BlueprintSample(path: "/blueprint/sample", title: "Sample", description: "The page Blueprint's example previews frame.", noindex: true) {
+    state count = 0
+    Stack(gap: .sm) {
+        style { padding: 24px; gap: 12px; align-items: flex-start }
+        Heading("Hello, WebFluent").h1 { style { margin: 0; font-size: 28px } }
+        Text("Clicked {count} times")
+        Button("+1").primary { on click { count = count + 1 } }
+    }
+}

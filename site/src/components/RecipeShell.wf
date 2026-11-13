@@ -1,0 +1,65 @@
+/// T3, a recipe: the title is the task; then the outputs it works in and
+/// the release it needs; the complete code first; how it works, step by
+/// step; variations; then related recipes and reference. The other recipes
+/// are in the sidebar.
+component RecipeShell(_ title: String, summary: String = "", outputs: [String] = [], since: String = "", recipes: [IndexEntry] = [], sections: [Anchor] = [], related: [RelatedLink] = [], source: String = "md-docs", other: String = "", lang: String = "en") {
+    slot code
+    slot variations
+    slot
+    use Building
+    // The page the reader arrived on suggests what they are building.
+    effect { if let first = outputs[0] { Building.arrive(first) } }
+
+    SiteHeader(other: other, lang: lang)
+
+    Row(align: .start, class: "bp-wrap") {
+        style { flex-wrap: nowrap; gap: 0; @md { gap: 32px } @xl { gap: 48px } }
+
+        IndexSidebar(entries: recipes, label: t("nav.recipes"))
+
+        // One per page: the skip link's target. wf-allow(A16)
+
+        Stack(gap: .lg, role: "main", id: "bp-main", tabindex: "-1", class: "bp-main") {
+            style { gap: 24px; padding: 32px 0 72px; @md { padding-top: 40px } }
+
+            Breadcrumbs(trail: [Place(key: "nav.recipes", to: "/recipes")])
+
+            Row(class: "bp-labels") {
+                KindLabel(.howto)
+                OutputBadges(outputs: outputs)
+                if since != "" {
+                    SinceBadge(since)
+                }
+            }
+
+            Stack(gap: .sm) {
+                style { gap: 14px }
+                Heading(title).h1 { style { margin: 0; font-size: clamp(30px, 5vw, 40px); line-height: 1.08; font-weight: 650; letter-spacing: -0.025em } }
+                if summary != "" {
+                    Text(summary, class: "bp-lede")
+                }
+            }
+
+            Stack(gap: .sm) {
+                style { gap: 12px; min-width: 0 }
+                code
+            }
+
+            Stack(gap: .lg, dir: if lang == "ar" { "rtl" } else { "ltr" }, class: "bp-prose") {
+                style { gap: 20px }
+                Heading(t("recipe.how"), id: "how-it-works").h2
+                children
+            }
+
+            Stack(gap: .md, class: "bp-prose") {
+                style { gap: 16px }
+                Heading(t("recipe.variations"), id: "variations").h2
+                variations
+            }
+
+            Related(links: related)
+        }
+
+        OnThisPage(sections: sections, source: source)
+    }
+}

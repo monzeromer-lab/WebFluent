@@ -1,0 +1,41 @@
+/// The sidebar of a reference, an error or a recipe page: a filter, then
+/// every entry under its group, the current one carrying the cyan rule.
+component IndexSidebar(entries: [IndexEntry] = [], label: String = "") {
+    state q = ""
+    derived term = q.trim().toLowerCase()
+    derived shown = entries.filter(e => term == "" || e.label.toLowerCase().includes(term))
+
+    Stack(gap: .sm, role: "navigation", aria-label: label, class: "bp-sidebar") {
+        style {
+            display: none
+            gap: 12px
+            width: 232px
+            flex-shrink: 0
+            align-self: flex-start
+            position: sticky
+            top: $header-h
+            max-height: calc(100vh - 60px)
+            overflow-y: auto
+            box-sizing: border-box
+            padding: 24px 12px 32px 0
+            @md { display: flex }
+        }
+
+        if entries.length > 8 {
+            Row(align: .center, gap: .sm, class: "bp-field") {
+                style { cursor: text; & input { flex: 1 1 auto; min-width: 0; height: 36px; padding: 0; border: 0; outline: none; background: transparent; color: $ink; font-family: inherit; font-size: 14px } }
+                Icon("filter")
+                Input(bind: q, placeholder: t("index.filter"), aria-label: t("index.filter"), type: "search")
+            }
+        }
+
+        Stack(class: "bp-navlist") {
+            for entry, i in shown by entry.to {
+                if entry.group != "" && (i == 0 || shown[i - 1]?.group != entry.group) {
+                    Text(entry.group, class: "bp-navgroup")
+                }
+                Link(entry.label, to: entry.to, class: "bp-navlink")
+            }
+        }
+    }
+}

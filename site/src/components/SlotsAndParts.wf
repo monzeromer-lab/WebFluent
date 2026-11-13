@@ -1,0 +1,32 @@
+/// What an entry takes besides props: the slots a caller fills, and the
+/// parts called under its name.
+component SlotsAndParts(slots: [PropRow] = [], parts: [PropRow] = []) {
+    Grid(columns: { base: 1, md: 2 }, gap: .md) {
+        Stack(gap: .sm, class: "bp-card") {
+            Heading(t("ref.slots")).h3 { style { margin: 0; font-size: 16px; font-weight: 600 } }
+            if slots.length == 0 {
+                Text(t("ref.noslots"), class: "bp-small")
+            }
+            for s in slots by s.name {
+                Stack(gap: .xs) {
+                    style { gap: 2px }
+                    Code(s.name) { style { color: $link } }
+                    Text(s.detail, class: "bp-small")
+                }
+            }
+        }
+        Stack(gap: .sm, class: "bp-card") {
+            Heading(t("ref.parts")).h3 { style { margin: 0; font-size: 16px; font-weight: 600 } }
+            if parts.length == 0 {
+                Text(t("ref.noparts"), class: "bp-small")
+            }
+            for p in parts by p.name {
+                Stack(gap: .xs) {
+                    style { gap: 2px }
+                    Code(p.name) { style { color: $link } }
+                    Text(p.detail, class: "bp-small")
+                }
+            }
+        }
+    }
+}

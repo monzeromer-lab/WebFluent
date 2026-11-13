@@ -1,0 +1,17 @@
+/// A recipe in the finder: the task as its title, one line on what it does,
+/// and the outputs it works in.
+component RecipeCard(_ title: String, summary: String = "", to: String = "", outputs: [String] = []) {
+    Link(to: to, class: "bp-card") {
+        style { height: 100%; box-sizing: border-box }
+        Text(title) { style { font-size: 16px; font-weight: 600; line-height: 1.35 } }
+        if summary != "" {
+            Text(summary, class: "bp-small")
+        }
+        Row(gap: .xs, class: "bp-labels") {
+            style { margin-top: auto; padding-top: 6px }
+            for o in outputs by o {
+                Text(t("building.{o}"), class: "bp-label")
+            }
+        }
+    }
+}

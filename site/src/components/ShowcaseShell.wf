@@ -1,0 +1,77 @@
+/// T8, the showcase: real outputs — sites, PDFs and decks — filtered by what
+/// they are, each a card with its preview, its size and its pages, and the
+/// way to its source and the recipe that makes it. The cards are the page's
+/// body; the filter follows the Building switch.
+component ShowcaseShell(_ title: String, lede: String = "", other: String = "", lang: String = "en") {
+    slot
+    use Building
+
+    SiteHeader(other: other, lang: lang)
+
+    // One per page: the skip link's target. wf-allow(A16)
+
+    Stack(gap: .lg, role: "main", id: "bp-main", tabindex: "-1", class: "bp-main bp-wrap") {
+        style { gap: 24px; padding-top: 40px; padding-bottom: 72px }
+
+        Row(class: "bp-labels") { KindLabel(.showcase) }
+        Stack(gap: .sm) {
+            style { gap: 14px }
+            Heading(title).h1 { style { margin: 0; font-size: clamp(30px, 5vw, 44px); line-height: 1.08; font-weight: 650; letter-spacing: -0.025em } }
+            if lede != "" {
+                Text(lede, class: "bp-lede")
+            }
+        }
+
+        Row(role: "group", aria-label: t("showcase.filter"), gap: .xs) {
+            style { flex-wrap: wrap; gap: 8px }
+            for o in OUTPUTS by o {
+                Button(t("building.{o}"), aria-pressed: Building.output == o, class: "bp-button") {
+                    on click { Building.pick(o) }
+                }
+            }
+        }
+
+        Grid(columns: { base: 1, md: 2, xl: 3 }, gap: .md) {
+            children
+        }
+    }
+}
+
+/// One output on the showcase: what it is, a picture of it on the grid, its
+/// size and pages, and the ways on.
+component ShowcaseTile(_ title: String, output: String = "website", size: String = "", pages: Number = 0, picture: String = "", alt: String = "", source: String = "", recipe: String = "") {
+    use Building
+    Stack(class: "bp-sheet", data-current: Building.output == output) {
+        style { gap: 0; overflow: hidden; &[data-current="true"] { border-color: $construction } }
+        Stack(class: "bp-grid") {
+            style { align-items: center; justify-content: center; aspect-ratio: 16 / 10; padding: 20px; border-bottom: 1px solid $line }
+            if picture != "" {
+                Image(src: picture, alt: alt) { style { max-width: 100%; max-height: 100%; border: 1px solid $line } }
+            } else {
+                Text(t("building.{output}"), class: "bp-label")
+            }
+        }
+        Stack(gap: .sm) {
+            style { gap: 10px; padding: 16px }
+            Text(title) { style { margin: 0; font-size: 16px; font-weight: 600 } }
+            Row(class: "bp-labels") {
+                Text(t("building.{output}"), class: "bp-label")
+                if size != "" {
+                    Text(size, class: "bp-label bp-num")
+                }
+                if pages > 0 {
+                    Text(t("showcase.pagecount", { count: pages }), class: "bp-label bp-num")
+                }
+            }
+            Row(gap: .sm) {
+                style { flex-wrap: wrap; gap: 8px; padding-top: 4px }
+                if source != "" {
+                    Link(t("showcase.source"), href: source, class: "bp-button")
+                }
+                if recipe != "" {
+                    Link(t("showcase.recipe"), to: recipe, class: "bp-button", data-tone: "quiet")
+                }
+            }
+        }
+    }
+}

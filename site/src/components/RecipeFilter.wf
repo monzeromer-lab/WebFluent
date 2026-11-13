@@ -1,0 +1,25 @@
+/// The recipe finder's filter: a field for the task, and the outputs as
+/// toggles. It says what changed; the page decides what to show.
+component RecipeFilter(text: String = "", output: String = "") {
+    event change(text: String, output: String)
+    state q = text
+    state picked = output
+
+    Stack(gap: .sm) {
+        style { gap: 12px }
+        Row(align: .center, gap: .sm, class: "bp-field") {
+            style { max-width: 520px; cursor: text; & input { flex: 1 1 auto; min-width: 0; height: 40px; padding: 0; border: 0; outline: none; background: transparent; color: $ink; font-family: inherit; font-size: 15px } }
+            Icon("search")
+            Input(bind: q, placeholder: t("recipes.filter"), aria-label: t("recipes.filter"), type: "search") {
+                on input { emit change(q, picked) }
+            }
+        }
+        Row(gap: .xs, role: "group", aria-label: t("outputs.label")) {
+            style { flex-wrap: wrap; gap: 6px }
+            Button(t("search.all"), aria-pressed: picked == "", class: "bp-button") { on click { picked = ""  emit change(q, picked) } }
+            for o in OUTPUTS by o {
+                Button(t("building.{o}"), aria-pressed: picked == o, class: "bp-button") { on click { picked = o  emit change(q, picked) } }
+            }
+        }
+    }
+}

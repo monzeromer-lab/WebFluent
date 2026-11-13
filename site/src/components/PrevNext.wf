@@ -1,0 +1,23 @@
+/// The pages either side, as two sheets: the previous one quiet, the next
+/// one the action.
+component PrevNext(prevTo: String = "", prevLabel: String = "", nextTo: String = "", nextLabel: String = "") {
+    if prevLabel != "" || nextLabel != "" {
+        Row(gap: .md, role: "navigation", aria-label: t("docs.either")) {
+            style { gap: 12px; flex-wrap: wrap; max-width: $prose-max; padding-top: 24px; border-top: 1px solid $line }
+            if prevLabel != "" {
+                Link(to: prevTo, class: "bp-card") {
+                    style { flex: 1 1 220px }
+                    Text(t("docs.previous"), class: "bp-small")
+                    Text(prevLabel) { style { font-weight: 600 } }
+                }
+            }
+            if nextLabel != "" {
+                Link(to: nextTo, class: "bp-card") {
+                    style { flex: 1 1 220px; align-items: flex-end; text-align: end; border-color: $action; background: $action-subtle }
+                    Text(t("docs.next"), class: "bp-small")
+                    Text(nextLabel) { style { font-weight: 600 } }
+                }
+            }
+        }
+    }
+}

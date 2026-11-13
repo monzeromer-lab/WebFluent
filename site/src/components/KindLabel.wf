@@ -1,0 +1,18 @@
+/// What kind of page this is. Each kind has one job, so the label tells a
+/// reader arriving from search what they will get.
+enum PageKind { tutorial, howto, reference, error, explanation, comingfrom, showcase, playground }
+
+/// A page's kind, as a label above its title.
+component KindLabel(_ kind: PageKind) {
+    derived name = match kind {
+        .tutorial { t("kind.tutorial") }
+        .howto { t("kind.howto") }
+        .reference { t("kind.reference") }
+        .error { t("kind.error") }
+        .explanation { t("kind.explanation") }
+        .comingfrom { t("kind.comingfrom") }
+        .showcase { t("kind.showcase") }
+        .playground { t("kind.playground") }
+    }
+    Text(name, class: "bp-label", data-tone: "kind")
+}

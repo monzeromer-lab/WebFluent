@@ -1,0 +1,20 @@
+/// The codes something can raise, or a family of codes: each as its label
+/// and its title, linked to its page.
+component CodeFamily(codes: [RelatedLink] = [], title: String = "") {
+    if codes.length > 0 {
+        Stack(gap: .sm) {
+            style { gap: 10px }
+            Heading(if title != "" { title } else { t("ref.codes") }).h2 { style { margin: 0; font-size: 19px; line-height: 1.3; font-weight: 600 } }
+            Stack(class: "bp-sheet") {
+                style { gap: 0 }
+                for c in codes by c.to {
+                    Link(to: c.to) {
+                        style { display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 8px 14px; border-bottom: 1px solid $line; color: $ink; text-decoration: none; &:last-child { border-bottom: 0 } &:hover { background: $raised; text-decoration: none } & p { margin: 0 } }
+                        Text(c.kind, class: "bp-label", data-tone: "error")
+                        Text(c.title)
+                    }
+                }
+            }
+        }
+    }
+}

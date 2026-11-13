@@ -1,0 +1,24 @@
+/// The project's tests in the Playground: each by name, passed or failed,
+/// and Run.
+component TestPanel(tests: [Map] = []) {
+    event run()
+    derived passed = tests.filter(x => x.passed).length
+
+    Stack(class: "bp-pane") {
+        Row(class: "bp-pane__bar") {
+            Text(t("playground.tests", { passed: passed, total: tests.length }), class: "bp-section-label bp-num")
+            Button(t("playground.run"), class: "bp-button", data-tone: "quiet") { on click { emit run() } }
+        }
+        Stack {
+            style { gap: 0 }
+            for test in tests by test.name {
+                Row(align: .center, gap: .sm) {
+                    style { flex-wrap: nowrap; gap: 10px; padding: 8px 12px; border-bottom: 1px solid $line; font-size: 13px; & p { margin: 0 } }
+                    Text("", class: "bp-dot", data-tone: if test.passed { "ok" } else { "error" }, aria-hidden: "true")
+                    Text(test.name) { style { flex: 1 1 auto } }
+                    Text(if test.passed { t("playground.passed") } else { t("playground.failed") }, class: "bp-small")
+                }
+            }
+        }
+    }
+}

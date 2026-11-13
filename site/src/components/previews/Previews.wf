@@ -1,0 +1,174 @@
+/// The Blueprint templates, each with placeholder content, in English and
+/// (under `/ar/`) in Arabic, so every template is built, verified and
+/// looked at before real pages use it. `noindex`: none of these is part of
+/// the site a reader finds.
+
+/// T1.
+component PreviewHome(ar: Bool = false) {
+    HomeShell(if ar { "لغة واحدة. كل صفحة تصنعها مفحوصة." } else { "One language. Every page it makes is checked." }, lede: if ar { "يحوّل WebFluent ملفًا واحدًا إلى موقع أو تطبيق أو PDF أو عرض شرائح." } else { "WebFluent compiles one typed file to a static site, an app, a PDF or a slide deck — and every example on this site is compiled by the release it documents." }, other: if ar { "/blueprint/home" } else { "/ar/blueprint/home" }, lang: if ar { "ar" } else { "en" }) {
+        hero { Example(SAMPLE_CODE, preview: "/blueprint/sample", html: SAMPLE_HTML, js: SAMPLE_JS) }
+        Grid(columns: { base: 1, lg: 2 }, gap: .md) {
+            Example(SAMPLE_CODE, file: "Site.wf", caption: if ar { "موقع" } else { "A website" }, playground: false)
+            Example("page Invoice(path: \"/\") \{\n    Document(size: \"A4\") \{\n        Heading(\"Invoice\").h1\n    \}\n\}", file: "Invoice.wf", caption: if ar { "مستند PDF" } else { "A PDF" }, playground: false)
+        }
+    }
+}
+
+/// T2.
+component PreviewChapter(ar: Bool = false) {
+    DocsShell(if ar { "الحالة والتفاعل" } else { "State and reactivity" }, chapter: if ar { "الفصل 4" } else { "Chapter 4" }, blurb: if ar { "قيمة تعلنها بـ state يقرؤها ما يعرضها، ولا يُعاد رسم إلا ما يقرؤها حين تتغير." } else { "A value you declare with state is read by whatever shows it — and only what reads it draws again when it changes." }, sections: [Anchor(id: "try-it", label: "Try it"), Anchor(id: "what-redraws", label: "What redraws"), Anchor(id: "check", label: "Check your understanding")], prevTo: "/learn/03-elements-and-flags", prevLabel: "3. Elements and flags", nextTo: "/learn/05-components", nextLabel: "5. Components", book: SAMPLE_BOOK, prereqs: [RelatedLink(kind: "Tutorial", title: "A first page", to: "/learn/02-a-first-page")], outputs: ["website", "app", "pdf"], learned: ["`state` holds a value that changes.", "Only what reads a value draws again.", "`derived` is worked out from other values."], codes: SAMPLE_CODES, other: if ar { "/blueprint/chapter" } else { "/ar/blueprint/chapter" }, lang: if ar { "ar" } else { "en" }) {
+        // wf-allow(A16)
+        Heading(if ar { "جرّبه" } else { "Try it" }, id: "try-it").h2
+        Example(SAMPLE_CODE, preview: "/blueprint/sample", html: SAMPLE_HTML, css: SAMPLE_CSS, js: SAMPLE_JS)
+        // wf-allow(A16)
+        Heading(if ar { "ما الذي يُعاد رسمه" } else { "What redraws" }, id: "what-redraws").h2
+        Markdown(if ar { "لا شيء يعيد تشغيل الصفحة كلها. يرى المترجم أن `Text` يقرأ `count`، فيربط عقدة النص تلك به." } else { "Nothing re-runs the whole page. The compiler sees that `Text(\"Clicked \{count\} times\")` reads `count`, and ties that one text node to it." })
+        Aside(if ar { "`useState` هو `state`، ولا دالة للتعيين: أسند إليه مباشرة." } else { "`useState` is `state`, and there is no setter: assign to it. [The cheat sheet](/blueprint/coming-from)." }, label: if ar { "قادم من React؟" } else { "Coming from React?" })
+        Callout("A `state` that reads `now` and is never assigned holds the moment the page opened.", kind: .warning)
+        // wf-allow(A16)
+        Heading(if ar { "تحقق من فهمك" } else { "Check your understanding" }, id: "check").h2
+        Quiz("A page has `state n = 0` and `derived d = n * 2`, and shows `Text(\"\{d\}\")`. You set `n = 5`. What redraws?", choices: [
+            QuizChoice(text: "The whole page draws again", why: "Nothing redraws a whole page; only what reads a value does."),
+            QuizChoice(text: "Only the text that reads d", right: true, why: "Only what reads d redraws, and it reads n through it."),
+            QuizChoice(text: "Nothing, until you call render()", why: "There is no render(): reading a value is what ties a node to it.")
+        ])
+    }
+}
+
+/// T2, the essay variant: no book beside it.
+component PreviewEssay(ar: Bool = false) {
+    DocsShell(if ar { "عن التفاعل" } else { "About reactivity" }, blurb: if ar { "لماذا لا يعيد WebFluent تشغيل الصفحة كلها." } else { "Why WebFluent never re-runs a whole page, and what it does instead." }, sections: [Anchor(id: "argument", label: "The argument")], kind: .explanation, other: if ar { "/blueprint/essay" } else { "/ar/blueprint/essay" }, lang: if ar { "ar" } else { "en" }) {
+        // wf-allow(A16)
+        Heading(if ar { "الحجة" } else { "The argument" }, id: "argument").h2
+        Markdown(if ar { "مقال له رأي. يُقرأ مرة واحدة." } else { "An essay argues a point of view. It is allowed to be read once and never again — so it says one thing, with an example, and stops." })
+        Aside(if ar { "ملاحظة جانبية بنقطة وخط." } else { "An aside is a dot and a leader line, never a box." })
+    }
+}
+
+/// T3.
+component PreviewRecipe(ar: Bool = false) {
+    RecipeShell(if ar { "كيف تجلب قائمة وتعرضها" } else { "How to fetch and show a list" }, summary: if ar { "اطلب قائمة من خادم، واعرض عنصرًا نائبًا حتى تصل، ثم ارسم كل عنصر." } else { "Ask a server for a list, show a placeholder while it comes, and draw each item. Done in 14 lines." }, outputs: ["website", "app"], since: "4.0", recipes: SAMPLE_RECIPES, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "variations", label: "Variations")], related: [RelatedLink(kind: "Reference", title: "resource", to: "/reference/resource"), RelatedLink(kind: "Recipe", title: "Refresh on a timer", to: "/recipes/refresh-on-a-timer")], other: if ar { "/blueprint/recipe" } else { "/ar/blueprint/recipe" }, lang: if ar { "ar" } else { "en" }) {
+        code { Example("type User \{ id: String, name: String \}\n\npage Team(path: \"/team\", title: \"Team\") \{\n    resource users: [User] = fetch(\"/api/users\", on: .focus)\n    match users \{\n        loading \{ Skeleton(height: \"20px\") \}\n        error(e) \{ Alert(e.message).danger \}\n        ready(list) \{\n            for u in list by u.id \{ Text(u.name) \}\n        \}\n    \}\n\}", file: "Team.wf") }
+        variations {
+            CodeTabs(files: [CodeFile(name: "Paged.wf", code: "resource users = Backend.users(page: n, paginate: .page)"), CodeFile(name: "Cached.wf", code: "resource users = Backend.users(cache: .swr(60.seconds))")])
+        }
+        TourStep(if ar { "صِف ما تعيده" } else { "Say what comes back" }, n: 1, body: if ar { "يحدد `type User` شكل كل عنصر." } else { "`type User` says what each item is, so a typo in `u.name` is caught before it ships." })
+        TourStep(if ar { "اطلبه" } else { "Ask for it" }, n: 2, body: if ar { "يطلب `resource` القائمة." } else { "`resource` asks once, and again when the reader comes back to the tab (`on: .focus`)." })
+    }
+}
+
+/// T4.
+component PreviewReference(ar: Bool = false) {
+    ReferenceItemShell("Button", summary: if ar { "عنصر تحكم يفعل شيئًا حين يُضغط." } else { "A control that does something when pressed. What it shows goes in its block; what it does goes in on click." }, signature: "Button(_ label: String, tone: Tone, size: Size, disabled: Bool)", since: "3.0", outputs: ["website", "app"], missing: ["pdf", "slides"], group: "Actions", entries: SAMPLE_COMPONENTS, sections: [Anchor(id: "props", label: "Props"), Anchor(id: "events", label: "Events"), Anchor(id: "examples", label: "Examples")], codes: [RelatedLink(kind: "A05", title: "A Button with no text", to: "/errors/A05"), RelatedLink(kind: "E103", title: "A flag it does not take", to: "/errors/E103")], other: if ar { "/blueprint/reference" } else { "/ar/blueprint/reference" }, lang: if ar { "ar" } else { "en" }) {
+        stage {
+            Stage(label: "Button", measures: ["height 36", "padding 0 12", "radius 4"]) {
+                controls { Text(if ar { "النغمة: أساسية" } else { "Tone: primary" }, class: "bp-label") }
+                Button("Save changes").primary
+            }
+        }
+        notes { Aside("A Button inside a Form never submits it unless it says `type: .submit`.") }
+        // wf-allow(A16)
+        Heading("Props", id: "props").h2
+        PropsTable(rows: [{ name: "tone", type: ".primary .secondary .danger", meaning: "The colour, by what it means." }, { name: "size", type: ".sm .md .lg", meaning: "How large it is." }, { name: "disabled", type: "Bool", meaning: "Whether it can be pressed." }], caption: "Props of Button")
+        // wf-allow(A16)
+        Heading("Events", id: "events").h2
+        EventsTable(rows: [PropRow(name: "click", kind: "MouseEvent", detail: "Pressed, by pointer or keyboard.")])
+        SlotsAndParts(slots: [PropRow(name: "children", kind: "", detail: "What the button shows beside its label.")])
+        // wf-allow(A16)
+        Heading("Examples", id: "examples").h2
+        ExampleRow("Submit a form", body: "Inside a Form, type: .submit sends it; every other button never does.", code: "Button(\"Join\", type: .submit).primary") {
+            Button("Join").primary
+        }
+    }
+}
+
+/// T5.
+component PreviewError(ar: Bool = false) {
+    ErrorShell("T05", title: if ar { "حقل أو دالة غير موجودة" } else { "A field or method that does not exist" }, family: "Types", summary: if ar { "قرأت حقلًا لا يعلنه نوع السجل." } else { "You read a field the record's type does not declare. In the browser it would quietly be undefined, so the compiler stops here instead." }, printed: SAMPLE_PRINTED, lowerable: false, families: SAMPLE_FAMILIES, related: [RelatedLink(kind: "T04", title: "A value that may be null", to: "/errors/T04"), RelatedLink(kind: "Learn", title: "Types and records", to: "/learn/07-data")], sections: [Anchor(id: "printed", label: "What the compiler said"), Anchor(id: "why", label: "Why"), Anchor(id: "fix", label: "The fix")], other: if ar { "/blueprint/error" } else { "/ar/blueprint/error" }, lang: if ar { "ar" } else { "en" }) {
+        broken { CodeBlock("Heading(user.nmae).h1", title: "Profile.wf") }
+        fixed { CodeBlock("Heading(user.name).h1", title: "Profile.wf") }
+        Markdown(if ar { "خطأ إملائي في اسم حقل هو أكثر ما يلتقطه مدقق الأنواع." } else { "A typo in a field name is the most common bug a type checker can catch before a reader sees it." })
+    }
+}
+
+/// T6.
+component PreviewComingFrom(ar: Bool = false) {
+    ComingFromShell(if ar { "WebFluent لمطوري React" } else { "WebFluent for React developers" }, summary: if ar { "عادتك على اليسار، وعادتنا على اليمين." } else { "Your idiom on the left, ours on the right. Five minutes to read — then try the tour." }, from: "React", sheets: [Place(key: "coming.react", to: "/blueprint/coming-from"), Place(key: "coming.vue", to: "/coming-from/vue"), Place(key: "coming.svelte", to: "/coming-from/svelte")], sections: [Anchor(id: "differences", label: "Things that will trip you"), Anchor(id: "port", label: "A port")], other: if ar { "/blueprint/coming-from" } else { "/ar/blueprint/coming-from" }, lang: if ar { "ar" } else { "en" }) {
+        differences { Aside("There is no setter: assign to the state. And no dependency array: what a value reads is what it follows.", label: "No setters, no dependency arrays") }
+        port { CodeTabs(files: [CodeFile(name: "Counter.jsx", code: "function Counter() \{\n  const [n, setN] = useState(0);\n  return <button onClick=\{() => setN(n + 1)\}>\{n\}</button>;\n\}", language: ""), CodeFile(name: "Counter.wf", code: "component Counter \{\n    state n = 0\n    Button(\"\{n\}\") \{ on click \{ n = n + 1 \} \}\n\}")]) }
+        CheatRow(if ar { "قيمة تتغير" } else { "A value that changes" }, theirs: "const [n, setN] = useState(0)", ours: "state n = 0")
+        CheatRow(if ar { "قيمة محسوبة" } else { "A value worked out" }, theirs: "const total = useMemo(() => sum(items), [items])", ours: "derived total = items.sum()")
+        CheatRow(if ar { "قائمة" } else { "A list" }, theirs: "\{items.map(i => <Row key=\{i.id\} />)\}", ours: "for i in items by i.id \{ Row(i) \}")
+    }
+}
+
+/// T7.
+component PreviewPlayground(ar: Bool = false) {
+    PlaygroundShell(files: SAMPLE_FILES, preview: "/blueprint/sample", html: SAMPLE_HTML, css: SAMPLE_CSS, js: SAMPLE_JS, findings: "No findings.", tests: [{ name: "greets by name", passed: true }, { name: "counts clicks", passed: true }, { name: "resets", passed: false }], examples: [Place(key: "building.website", to: "/blueprint/playground"), Place(key: "building.pdf", to: "/blueprint/playground")], other: if ar { "/blueprint/playground" } else { "/ar/blueprint/playground" }, lang: if ar { "ar" } else { "en" })
+}
+
+/// T8.
+component PreviewShowcase(ar: Bool = false) {
+    ShowcaseShell(if ar { "ما صُنع بـ WebFluent" } else { "Made with WebFluent" }, lede: if ar { "مواقع ومستندات وعروض حقيقية." } else { "Real outputs: sites, PDFs and decks, each with its source and the recipe that makes it." }, other: if ar { "/blueprint/showcase" } else { "/ar/blueprint/showcase" }, lang: if ar { "ar" } else { "en" }) {
+        ShowcaseTile("The WebFluent site", output: "website", size: "41 kB", pages: 64, source: REPO, recipe: "/recipes/static-site")
+        ShowcaseTile("An invoice", output: "pdf", size: "28 kB", pages: 2, source: REPO, recipe: "/recipes/pdf-invoice")
+        ShowcaseTile("A quarterly review", output: "slides", size: "96 kB", pages: 12, source: REPO)
+    }
+}
+
+/// T9.
+component PreviewNotFound(ar: Bool = false) {
+    NotFoundShell(routes: SAMPLE_ROUTES, other: if ar { "/blueprint/not-found" } else { "/ar/blueprint/not-found" }, lang: if ar { "ar" } else { "en" })
+}
+
+/// The previews, listed.
+component PreviewIndex(ar: Bool = false) {
+    SiteHeader(other: if ar { "/blueprint" } else { "/ar/blueprint" }, lang: if ar { "ar" } else { "en" })
+    // wf-allow(A16)
+    Stack(gap: .md, role: "main", id: "bp-main", class: "bp-main bp-wrap") {
+        style { gap: 20px; padding-top: 40px; padding-bottom: 72px }
+        Heading("Blueprint").h1 { style { margin: 0; font-size: 40px; font-weight: 650 } }
+        BookProgress(chapters: SAMPLE_BOOK)
+        RecipeFilter { on change(text, output) { log("{text} {output}") } }
+        Grid(columns: { base: 1, md: 3 }, gap: .md) {
+            RecipeCard("Fetch and show a list", summary: "A placeholder while it comes, then each item.", to: "/blueprint/recipe", outputs: ["website", "app"])
+            RecipeCard("Ship a PDF invoice", summary: "One page, a table and a total, printed by the compiler.", to: "/recipes/pdf-invoice", outputs: ["pdf"])
+            RecipeCard("Add dark mode", summary: "A second theme, and a switch that remembers.", to: "/recipes/dark-mode", outputs: ["website", "app"])
+        }
+        Grid(columns: { base: 1, md: 3 }, gap: .md) {
+            Link(to: if ar { "/ar/blueprint/home" } else { "/blueprint/home" }, class: "bp-card") { Text("T1 Home") }
+            Link(to: if ar { "/ar/blueprint/chapter" } else { "/blueprint/chapter" }, class: "bp-card") { Text("T2 Chapter") }
+            Link(to: if ar { "/ar/blueprint/essay" } else { "/blueprint/essay" }, class: "bp-card") { Text("T2 Essay") }
+            Link(to: if ar { "/ar/blueprint/recipe" } else { "/blueprint/recipe" }, class: "bp-card") { Text("T3 Recipe") }
+            Link(to: if ar { "/ar/blueprint/reference" } else { "/blueprint/reference" }, class: "bp-card") { Text("T4 Reference") }
+            Link(to: if ar { "/ar/blueprint/error" } else { "/blueprint/error" }, class: "bp-card") { Text("T5 Error") }
+            Link(to: if ar { "/ar/blueprint/coming-from" } else { "/blueprint/coming-from" }, class: "bp-card") { Text("T6 Coming from") }
+            Link(to: if ar { "/ar/blueprint/playground" } else { "/blueprint/playground" }, class: "bp-card") { Text("T7 Playground") }
+            Link(to: if ar { "/ar/blueprint/showcase" } else { "/blueprint/showcase" }, class: "bp-card") { Text("T8 Showcase") }
+            Link(to: if ar { "/ar/blueprint/not-found" } else { "/blueprint/not-found" }, class: "bp-card") { Text("T9 404") }
+        }
+    }
+}
+
+page BlueprintIndex(path: "/blueprint", title: "Blueprint", description: "The Blueprint templates with placeholder content.", noindex: true) { PreviewIndex }
+page BlueprintIndexAr(path: "/ar/blueprint", title: "Blueprint", description: "قوالب Blueprint بمحتوى نائب.", noindex: true, lang: "ar", translates: BlueprintIndex) { PreviewIndex(ar: true) }
+page BlueprintHome(path: "/blueprint/home", title: "T1 Home", description: "Blueprint's home template, with placeholder content.", noindex: true) { PreviewHome }
+page BlueprintHomeAr(path: "/ar/blueprint/home", title: "T1 الرئيسية", description: "قالب الصفحة الرئيسية بمحتوى نائب.", noindex: true, lang: "ar", translates: BlueprintHome) { PreviewHome(ar: true) }
+page BlueprintChapter(path: "/blueprint/chapter", title: "T2 Chapter", description: "Blueprint's chapter template, with placeholder content.", noindex: true) { PreviewChapter }
+page BlueprintChapterAr(path: "/ar/blueprint/chapter", title: "T2 فصل", description: "قالب الفصل بمحتوى نائب.", noindex: true, lang: "ar", translates: BlueprintChapter) { PreviewChapter(ar: true) }
+page BlueprintEssay(path: "/blueprint/essay", title: "T2 Essay", description: "Blueprint's essay template, with placeholder content.", noindex: true) { PreviewEssay }
+page BlueprintEssayAr(path: "/ar/blueprint/essay", title: "T2 مقال", description: "قالب المقال بمحتوى نائب.", noindex: true, lang: "ar", translates: BlueprintEssay) { PreviewEssay(ar: true) }
+page BlueprintRecipe(path: "/blueprint/recipe", title: "T3 Recipe", description: "Blueprint's recipe template, with placeholder content.", noindex: true) { PreviewRecipe }
+page BlueprintRecipeAr(path: "/ar/blueprint/recipe", title: "T3 وصفة", description: "قالب الوصفة بمحتوى نائب.", noindex: true, lang: "ar", translates: BlueprintRecipe) { PreviewRecipe(ar: true) }
+page BlueprintReference(path: "/blueprint/reference", title: "T4 Reference", description: "Blueprint's reference template, with placeholder content.", noindex: true) { PreviewReference }
+page BlueprintReferenceAr(path: "/ar/blueprint/reference", title: "T4 مرجع", description: "قالب المرجع بمحتوى نائب.", noindex: true, lang: "ar", translates: BlueprintReference) { PreviewReference(ar: true) }
+page BlueprintError(path: "/blueprint/error", title: "T5 Error", description: "Blueprint's error template, with placeholder content.", noindex: true) { PreviewError }
+page BlueprintErrorAr(path: "/ar/blueprint/error", title: "T5 خطأ", description: "قالب الخطأ بمحتوى نائب.", noindex: true, lang: "ar", translates: BlueprintError) { PreviewError(ar: true) }
+page BlueprintComingFrom(path: "/blueprint/coming-from", title: "T6 Coming from", description: "Blueprint's coming-from template, with placeholder content.", noindex: true) { PreviewComingFrom }
+page BlueprintComingFromAr(path: "/ar/blueprint/coming-from", title: "T6 قادم من", description: "قالب القادم من إطار آخر بمحتوى نائب.", noindex: true, lang: "ar", translates: BlueprintComingFrom) { PreviewComingFrom(ar: true) }
+page BlueprintPlayground(path: "/blueprint/playground", title: "T7 Playground", description: "Blueprint's playground template, with placeholder content.", noindex: true) { PreviewPlayground }
+page BlueprintPlaygroundAr(path: "/ar/blueprint/playground", title: "T7 الملعب", description: "قالب الملعب بمحتوى نائب.", noindex: true, lang: "ar", translates: BlueprintPlayground) { PreviewPlayground(ar: true) }
+page BlueprintShowcase(path: "/blueprint/showcase", title: "T8 Showcase", description: "Blueprint's showcase template, with placeholder content.", noindex: true) { PreviewShowcase }
+page BlueprintShowcaseAr(path: "/ar/blueprint/showcase", title: "T8 المعرض", description: "قالب المعرض بمحتوى نائب.", noindex: true, lang: "ar", translates: BlueprintShowcase) { PreviewShowcase(ar: true) }
+page BlueprintNotFound(path: "/blueprint/not-found", title: "T9 Not found", description: "Blueprint's 404 template, with placeholder content.", noindex: true) { PreviewNotFound }
+page BlueprintNotFoundAr(path: "/ar/blueprint/not-found", title: "T9 غير موجود", description: "قالب الصفحة غير الموجودة بمحتوى نائب.", noindex: true, lang: "ar", translates: BlueprintNotFound) { PreviewNotFound(ar: true) }

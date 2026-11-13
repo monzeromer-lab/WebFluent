@@ -1,0 +1,15 @@
+/// One step of the tour: its number, what to do, and the code that does it.
+component TourStep(_ title: String, n: Number = 1, body: String = "") {
+    Row(align: .start, gap: .md) {
+        style { flex-wrap: nowrap; gap: 16px; max-width: $prose-max }
+        Text("{n}", class: "bp-step", aria-hidden: "true") { style { width: 28px; height: 28px; font-size: 13px; background: $action; color: #FFFFFF } }
+        Stack(gap: .sm) {
+            style { gap: 10px; flex: 1 1 auto; min-width: 0 }
+            Heading(title).h3 { style { margin: 0; font-size: 19px; line-height: 1.3; font-weight: 600 } }
+            if body != "" {
+                Markdown(body)
+            }
+            children
+        }
+    }
+}
