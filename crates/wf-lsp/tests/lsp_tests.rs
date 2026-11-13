@@ -237,10 +237,9 @@ fn a_type_error_is_a_diagnostic_with_its_hint() {
     // The code is data with a link to its entry, and the range is the
     // value's whole span, not the first word of the line.
     assert!(
-        t01.code_description.as_ref().is_some_and(|c| c
-            .href
-            .as_str()
-            .ends_with("diagnostics#t01-a-value-of-the-wrong-type")),
+        t01.code_description
+            .as_ref()
+            .is_some_and(|c| c.href.as_str().ends_with("/errors/T01")),
         "{t01:?}"
     );
     assert!(

@@ -66,14 +66,21 @@ const fn same(n: &'static str) -> (&'static str, &'static str) {
 pub const MODULES: &[Module] = &[
     module!("core", exports: [
         same("signal"), same("effect"), same("computed"), same("scoped"), same("onCleanup"),
-        same("every"), same("after"), same("listen"), same("onKey"), same("keyIs"), same("keyLabel"), same("keyAria"), same("allowSchemes"),
+        same("every"), same("after"), same("listen"), same("allowSchemes"),
         same("ref"), same("safeUrl"), same("safePicture"), same("jsonAttr"), same("el"), same("bound"), same("text"), same("props"),
         same("onRoot"), same("mark"), same("rootAttrs"), same("classes"), same("caseOf"), same("payload"),
         same("emit"), same("navigate"), same("setSsgMode"), same("setBasePath"),
-        same("theme"), same("setTheme"), same("mount"), same("mainOf"), same("live"),
+        same("mount"), same("mainOf"), same("live"),
     ], deps: [], triggers: []),
     // What a branch, a list and a route need to put nodes in and take them
     // out; they ship it, and motion only when something animates.
+    // The reader's light or dark choice: `theme`, `setTheme`, applied before
+    // a page is drawn.
+    module!("theme", exports: [same("theme"), same("setTheme")], deps: [], triggers: []),
+    // Key combinations: `on key("mod+k")`, `keyIs`, `keyLabel`. Listening
+    // starts when the runtime loads, so a chord hears its first step.
+    module!("keys", exports: [same("onKey"), same("keyIs"), same("keyLabel"), same("keyAria")],
+        deps: [], triggers: []),
     module!("nodes", exports: [], deps: [], triggers: []),
     // Reached by a call (`WF.counted`, `WF.animate` …) or by what the code
     // generator writes when something animates: an animation's config
@@ -150,7 +157,7 @@ pub const MODULES: &[Module] = &[
     module!("layer", exports: [
         same("layer"), same("placeAt"), same("menu"), same("submenu"), same("tooltip"),
         same("trapFocus"), same("uid"),
-    ], deps: [], triggers: []),
+    ], deps: ["keys"], triggers: []),
     module!("announce", exports: [same("announce")], deps: [], triggers: []),
     module!("field", exports: [same("field"), same("choiceError")], deps: [], triggers: []),
     module!("carousel", exports: [same("carousel")], deps: ["field"], triggers: []),
@@ -291,6 +298,13 @@ pub fn dropped(kept: &[&str]) -> Vec<&'static str> {
 
 /// The runtime a program needs, as JavaScript. `full` ships every module.
 pub fn assemble(program: &str, full: bool) -> String {
+    assemble_with(program, full, false)
+}
+
+/// [`assemble`], with the runtime's own names shortened when `mangle`
+/// (a minified build that is not the dev server's): `_watchListeners` is
+/// `Bq`. What a program reads, `WF.<name>`, is as it was.
+pub fn assemble_with(program: &str, full: bool, mangle: bool) -> String {
     let want = if full {
         MODULES.iter().map(|m| m.name).collect()
     } else {
@@ -322,6 +336,14 @@ pub fn assemble(program: &str, full: bool) -> String {
         roots.insert("_basePath");
         body = keep_reached(&body, &roots);
     }
+    let renamed = if mangle {
+        let (short, renamed) = mangle_names(&body, program);
+        body = short;
+        renamed
+    } else {
+        std::collections::HashMap::new()
+    };
+    let local = |name: &str| renamed.get(name).map_or(name, String::as_str).to_string();
     let mut out = String::with_capacity(body.len() + 4096);
     out.push_str(HEADER);
     out.push_str(&body);
@@ -329,20 +351,216 @@ pub fn assemble(program: &str, full: bool) -> String {
     for chunk in exports.chunks(6) {
         let line: Vec<String> = chunk
             .iter()
-            .map(|(name, local)| {
-                if name == local {
+            .map(|(name, inside)| {
+                let inside = local(inside);
+                if *name == inside {
                     (*name).to_string()
                 } else {
-                    format!("{name}: {local}")
+                    format!("{name}: {inside}")
                 }
             })
             .collect();
         out.push_str(&format!("    {},\n", line.join(", ")));
     }
     // The base path is read by every link a static build writes.
-    out.push_str("    get _basePath() { return _basePath; },\n");
+    out.push_str(&format!(
+        "    get _basePath() {{ return {}; }},\n",
+        local("_basePath")
+    ));
     out.push_str("  };\n})();\n");
     out
+}
+
+/// Whether the `(` after `at` closes on a `{` — a method's body, as in
+/// `{ name(a) { … } }` — rather than on what follows a call.
+fn method_follows(bytes: &[u8], at: usize) -> bool {
+    let Some(open) = bytes[at..].iter().position(|&c| c == b'(').map(|n| at + n) else {
+        return false;
+    };
+    let mut depth = 0usize;
+    for (i, &c) in bytes.iter().enumerate().skip(open) {
+        match c {
+            b'(' => depth += 1,
+            b')' => {
+                depth -= 1;
+                if depth == 0 {
+                    return bytes[i + 1..]
+                        .iter()
+                        .find(|c| !c.is_ascii_whitespace())
+                        .is_some_and(|&c| c == b'{');
+                }
+            }
+            _ => {}
+        }
+    }
+    false
+}
+
+/// What a shortened name may start with, and go on with.
+const FIRST: &[u8] = b"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_$";
+const REST: &[u8] = b"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_$0123456789";
+
+/// The words JavaScript reserves, which no shortened name may be.
+const RESERVED: &[&str] = &[
+    "do",
+    "if",
+    "in",
+    "for",
+    "let",
+    "new",
+    "try",
+    "var",
+    "case",
+    "else",
+    "enum",
+    "eval",
+    "null",
+    "this",
+    "true",
+    "void",
+    "with",
+    "await",
+    "break",
+    "catch",
+    "class",
+    "const",
+    "false",
+    "super",
+    "throw",
+    "while",
+    "yield",
+    "delete",
+    "export",
+    "import",
+    "public",
+    "return",
+    "static",
+    "switch",
+    "typeof",
+    "default",
+    "extends",
+    "finally",
+    "package",
+    "private",
+    "continue",
+    "debugger",
+    "function",
+    "arguments",
+    "interface",
+    "protected",
+    "implements",
+    "instanceof",
+    "of",
+    "as",
+    "get",
+    "set",
+    "NaN",
+    "Infinity",
+    "undefined",
+];
+
+/// `body` with its top-level names shortened, and what each became.
+///
+/// A name is renamed wherever it is code (never in a string, a comment, a
+/// pattern, or after a `.`), so a local that shares it is renamed with it
+/// and still means what it did. A name that is ever written where it could
+/// be an object's key — `{ name: …}`, `{ name }`, `{ name() {} }` — is left
+/// as it is, since renaming it there would rename the key. A new name
+/// clashes with nothing the runtime or the program names.
+fn mangle_names(body: &str, program: &str) -> (String, std::collections::HashMap<String, String>) {
+    use std::collections::{HashMap, HashSet};
+    let (spans, code) = scan(body);
+    let declared: HashSet<&str> = items(body).iter().filter_map(|i| i.declares).collect();
+    // Neighbours are read where the code is: a comment between `{` and a
+    // method's name is not what comes before it.
+    let bytes = code.as_slice();
+    let significant_before = |at: usize| {
+        bytes[..at]
+            .iter()
+            .copied()
+            .rev()
+            .find(|c| !c.is_ascii_whitespace())
+            .unwrap_or(b'\n')
+    };
+    let significant_after = |at: usize| {
+        bytes[at..]
+            .iter()
+            .copied()
+            .find(|c| !c.is_ascii_whitespace())
+            .unwrap_or(b'\n')
+    };
+    let word_before = |at: usize| {
+        let trimmed = std::str::from_utf8(&bytes[..at]).unwrap_or("").trim_end();
+        let start = trimmed
+            .rfind(|c: char| !(c.is_ascii_alphanumeric() || c == '_' || c == '$'))
+            .map_or(0, |n| n + 1);
+        &trimmed[start..]
+    };
+    let mut unsafe_names: HashSet<&str> = HashSet::new();
+    let mut uses: HashMap<&str, usize> = HashMap::new();
+    let mut taken: HashSet<&str> = HashSet::new();
+    for &(start, end) in &spans {
+        let word = &body[start..end];
+        taken.insert(word);
+        if !declared.contains(word) {
+            continue;
+        }
+        *uses.entry(word).or_default() += 1;
+        let before = significant_before(start);
+        let after = significant_after(end);
+        // `{ name: …`, `{ name, …`, `…, name }`, and `{ name(…) {` — a key,
+        // a shorthand or a method; a call, `{ name(…);`, is none of them.
+        let key_place = matches!(before, b'{' | b',')
+            && match after {
+                b':' | b',' | b'}' => true,
+                b'(' => method_follows(bytes, end),
+                _ => false,
+            };
+        let accessor = matches!(word_before(start), "get" | "set" | "static" | "async");
+        if key_place || accessor {
+            unsafe_names.insert(word);
+        }
+    }
+    // What the program names, so a short name never hides one of its own.
+    for (start, end) in identifiers(program) {
+        taken.insert(&program[start..end]);
+    }
+    let mut order: Vec<(&str, usize)> = uses
+        .into_iter()
+        .filter(|(name, _)| !unsafe_names.contains(name) && name.len() > 2)
+        .collect();
+    order.sort_by(|a, b| b.1.cmp(&a.1).then(a.0.cmp(b.0)));
+    let mut counter = 0usize;
+    let mut next_name = || loop {
+        let mut n = counter;
+        counter += 1;
+        let mut name = String::new();
+        name.push(char::from(FIRST[n % FIRST.len()]));
+        n /= FIRST.len();
+        while n > 0 {
+            n -= 1;
+            name.push(char::from(REST[n % REST.len()]));
+            n /= REST.len();
+        }
+        if !taken.contains(name.as_str()) && !RESERVED.contains(&name.as_str()) {
+            return name;
+        }
+    };
+    let renamed: HashMap<String, String> = order
+        .into_iter()
+        .map(|(name, _)| (name.to_string(), next_name()))
+        .collect();
+    let mut out = String::with_capacity(body.len());
+    let mut at = 0;
+    for (start, end) in spans {
+        if let Some(short) = renamed.get(&body[start..end]) {
+            out.push_str(&body[at..start]);
+            out.push_str(short);
+            at = end;
+        }
+    }
+    out.push_str(&body[at..]);
+    (out, renamed)
 }
 
 /// One top-level item of the runtime's closure: a declaration, with the
@@ -409,32 +627,191 @@ fn declared_name(line: &str) -> Option<&str> {
     (end > 0).then(|| &rest[..end])
 }
 
-/// Every identifier `text` names, comment lines and property names
-/// (`x.name`, but not `...name`) aside. Strings count: a name in one is
-/// kept rather than risked.
+/// Every identifier `text` names as code: not in a comment, not in a
+/// string (a closure's names cannot be reached through one), and not a
+/// property name (`x.name`, though `...name` is). A template literal's
+/// `${…}` is code, and a regular expression is skipped as a whole.
 fn names_in(text: &str) -> BTreeSet<&str> {
-    let mut out = BTreeSet::new();
-    for line in text.lines() {
-        if line.trim_start().starts_with("//") {
+    identifiers(text)
+        .into_iter()
+        .map(|(a, b)| &text[a..b])
+        .collect()
+}
+
+/// Where each name [`names_in`] reads sits in `text`, as byte ranges, in
+/// order.
+fn identifiers(text: &str) -> Vec<(usize, usize)> {
+    scan(text).0
+}
+
+/// [`identifiers`], and `text` with its comments, and the insides of its
+/// strings, patterns and template text, made spaces: where the code is.
+fn scan(text: &str) -> (Vec<(usize, usize)>, Vec<u8>) {
+    let bytes = text.as_bytes();
+    let mut code = bytes.to_vec();
+    let mut blank = |from: usize, to: usize| {
+        for b in &mut code[from.min(bytes.len())..to.min(bytes.len())] {
+            *b = b' ';
+        }
+    };
+    let mut out = Vec::new();
+    // The template literals open around the scan, each with the depth of
+    // `{` inside its current `${`.
+    let mut templates: Vec<usize> = Vec::new();
+    let mut in_template_text = false;
+    let mut last_code = b'\n';
+    let mut i = 0;
+    while i < bytes.len() {
+        let c = bytes[i];
+        if in_template_text {
+            match c {
+                b'\\' => i += 2,
+                b'`' => {
+                    in_template_text = false;
+                    templates.pop();
+                    last_code = b'`';
+                    i += 1;
+                }
+                b'$' if bytes.get(i + 1) == Some(&b'{') => {
+                    in_template_text = false;
+                    if let Some(depth) = templates.last_mut() {
+                        *depth = 0;
+                    }
+                    last_code = b'{';
+                    i += 2;
+                }
+                _ => {
+                    blank(i, i + 1);
+                    i += 1;
+                }
+            }
             continue;
         }
-        let mut from = 0;
-        while let Some(at) =
-            line[from..].find(|c: char| c.is_ascii_alphabetic() || c == '_' || c == '$')
-        {
-            let start = from + at;
-            let word = &line[start..];
-            let end = word
-                .find(|c: char| !(c.is_ascii_alphanumeric() || c == '_' || c == '$'))
-                .unwrap_or(word.len());
-            let before = &line[..start];
-            if !before.ends_with('.') || before.ends_with("...") {
-                out.insert(&word[..end]);
+        match c {
+            b'/' if bytes.get(i + 1) == Some(&b'/') => {
+                let to = text[i..].find('\n').map_or(bytes.len(), |n| i + n);
+                blank(i, to);
+                i = to;
             }
-            from = start + end;
+            b'/' if bytes.get(i + 1) == Some(&b'*') => {
+                let to = text[i + 2..]
+                    .find("*/")
+                    .map_or(bytes.len(), |n| i + 2 + n + 2);
+                blank(i, to);
+                i = to;
+            }
+            // A regular expression where an expression may start.
+            b'/' if matches!(
+                last_code,
+                b'(' | b','
+                    | b'='
+                    | b':'
+                    | b'['
+                    | b'!'
+                    | b'&'
+                    | b'|'
+                    | b'?'
+                    | b'{'
+                    | b'}'
+                    | b';'
+                    | b'\n'
+            ) =>
+            {
+                let from = i + 1;
+                i += 1;
+                let mut in_class = false;
+                while i < bytes.len() && bytes[i] != b'\n' {
+                    match bytes[i] {
+                        b'\\' => i += 1,
+                        b'[' => in_class = true,
+                        b']' => in_class = false,
+                        b'/' if !in_class => break,
+                        _ => {}
+                    }
+                    i += 1;
+                }
+                blank(from, i);
+                i += 1;
+                last_code = b'/';
+            }
+            b'"' | b'\'' => {
+                i += 1;
+                let from = i;
+                while i < bytes.len() && bytes[i] != c && bytes[i] != b'\n' {
+                    i += if bytes[i] == b'\\' { 2 } else { 1 };
+                }
+                blank(from, i);
+                i += 1;
+                last_code = b'"';
+            }
+            b'`' => {
+                templates.push(0);
+                in_template_text = true;
+                i += 1;
+            }
+            b'{' => {
+                if let Some(depth) = templates.last_mut() {
+                    *depth += 1;
+                }
+                last_code = c;
+                i += 1;
+            }
+            b'}' => {
+                match templates.last_mut() {
+                    // The `}` that closes a template's `${`.
+                    Some(0) => in_template_text = true,
+                    Some(depth) => *depth -= 1,
+                    None => {}
+                }
+                last_code = c;
+                i += 1;
+            }
+            c if c.is_ascii_alphabetic() || c == b'_' || c == b'$' => {
+                let start = i;
+                while i < bytes.len()
+                    && (bytes[i].is_ascii_alphanumeric() || bytes[i] == b'_' || bytes[i] == b'$')
+                {
+                    i += 1;
+                }
+                let before = &text[..start];
+                if !before.ends_with('.') || before.ends_with("...") {
+                    out.push((start, i));
+                }
+                // After a word an expression may start (`return /x/`) or
+                // not (`a / b`); `return`, `typeof` and the like are the
+                // ones that start one.
+                last_code = if matches!(
+                    &text[start..i],
+                    "return"
+                        | "typeof"
+                        | "case"
+                        | "in"
+                        | "of"
+                        | "delete"
+                        | "void"
+                        | "throw"
+                        | "new"
+                        | "yield"
+                        | "await"
+                ) {
+                    b'('
+                } else {
+                    b'a'
+                };
+            }
+            c if c.is_ascii_whitespace() => {
+                if c == b'\n' && last_code != b'a' && last_code != b')' && last_code != b']' {
+                    last_code = b'\n';
+                }
+                i += 1;
+            }
+            _ => {
+                last_code = c;
+                i += 1;
+            }
         }
     }
-    out
+    (out, code)
 }
 
 /// `body` with every declaration nothing reaches left out. What runs at
@@ -683,6 +1060,98 @@ mod tests {
                             "`WF.{name}` reaches `{word}`, which was cut"
                         );
                     }
+                }
+            }
+        }
+    }
+
+    /// The scan skips strings, comments and regular expressions, and
+    /// nothing else: every word it does not report appears in one of them
+    /// (or after a `.`), so a mistaken skip cannot cut a function a page
+    /// needs.
+    #[test]
+    fn mangling_shortens_names_but_never_a_key() {
+        let body = "  function counter(start) { return { counter: start, label() { return 1; } }; }\n\
+                    \x20 function helper(value) { if (value) { helper(value - 1); } return counter(value); }\n\
+                    \x20 function label() { return \"helper\"; }\n\
+                    \x20 const options = { label };\n\
+                    \x20 function send(v) { return { state: 1,\n    /// Send it.\n    send(value) { return v; } }; }\n\
+                    \x20 register(() => helper(options));\n";
+        let (short, renamed) = mangle_names(body, "WF.helper()");
+        // `helper` is code everywhere it is written: renamed, but not in the string.
+        let new = &renamed["helper"];
+        assert!(short.contains(&format!("function {new}(value)")), "{short}");
+        assert!(
+            short.contains(&format!("{{ {new}(value - 1); }}")),
+            "{short}"
+        );
+        assert!(short.contains("return \"helper\""), "{short}");
+        // `counter` is a key, `label` a method and a shorthand: left alone.
+        assert!(!renamed.contains_key("counter"), "{renamed:?}");
+        assert!(!renamed.contains_key("label"), "{renamed:?}");
+        // A method with a comment above it is a method still.
+        assert!(!renamed.contains_key("send"), "{renamed:?}");
+        // A new name is nothing the body or the program already names.
+        for name in renamed.values() {
+            assert!(!body.contains(&format!(" {name}(")), "{name}");
+            assert!(!RESERVED.contains(&name.as_str()));
+        }
+    }
+
+    #[test]
+    fn the_scan_skips_only_strings_comments_and_patterns() {
+        for m in MODULES {
+            for item in items(m.source) {
+                let found = names_in(item.text);
+                let mut from = 0;
+                let text = item.text;
+                while let Some(at) =
+                    text[from..].find(|c: char| c.is_ascii_alphabetic() || c == '_' || c == '$')
+                {
+                    let start = from + at;
+                    let end = text[start..]
+                        .find(|c: char| !(c.is_ascii_alphanumeric() || c == '_' || c == '$'))
+                        .map_or(text.len(), |n| start + n);
+                    let word = &text[start..end];
+                    from = end;
+                    if found.contains(word) || text[..start].ends_with('.') {
+                        continue;
+                    }
+                    let line_start = text[..start].rfind('\n').map_or(0, |n| n + 1);
+                    let line = &text
+                        [line_start..text[start..].find('\n').map_or(text.len(), |n| start + n)];
+                    let col = start - line_start;
+                    let before = &line[..col];
+                    // Whether the word sits inside a quote on its line, escapes
+                    // and a pattern's `[…]` honoured.
+                    let mut open: Option<char> = None;
+                    let mut escaped = false;
+                    let mut in_class = false;
+                    for ch in before.chars() {
+                        if escaped {
+                            escaped = false;
+                        } else if ch == '\\' {
+                            escaped = true;
+                        } else if open == Some('/') && ch == '[' {
+                            in_class = true;
+                        } else if open == Some('/') && ch == ']' {
+                            in_class = false;
+                        } else if open.is_none() && matches!(ch, '"' | '\'' | '`' | '/') {
+                            open = Some(ch);
+                        } else if open == Some(ch) && !in_class {
+                            open = None;
+                        }
+                    }
+                    let quoted = open.is_some()
+                        || line.trim_start().starts_with("//")
+                        || line.trim_start().starts_with('*')
+                        || line.trim_start().starts_with("/*")
+                        || before.contains("//");
+                    assert!(
+                        quoted,
+                        "`{word}` in {} was skipped outside a string, comment or pattern:\n{line}",
+                        m.name
+                    );
                 }
             }
         }

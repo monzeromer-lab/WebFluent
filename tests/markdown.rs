@@ -205,7 +205,7 @@ fn a_built_site_takes_its_base_path_and_never_paints_a_link_a_browser_would_run(
         "{html}"
     );
     assert!(!html.to_lowercase().contains("javascript:"), "{html}");
-    let js = std::fs::read_to_string(dir.join("build/pages/P.js")).unwrap();
+    let js = std::fs::read_to_string(dir.join("build/app.js")).unwrap();
     assert!(js.contains("inert:!0") || js.contains("inert:true"), "{js}");
     let _ = std::fs::remove_dir_all(&dir);
 }

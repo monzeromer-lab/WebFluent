@@ -4,13 +4,12 @@
   ],
   "files": {
     "_headers": "6346b0222198fb8bcb1b20d9b54cfdd41492b1ee39f30f1c7456001d7678f1a8",
-    "app.js": "eff7df374f86db3ef0cf1896cc203cb87bd5bff233a5c077104f3a5176cd4a4f",
-    "app.js.gz": "724cb8b5e3c48663f59b8fc4456d28a39deaa1fe2509fd8d770dc23ea3cbc717",
-    "index.html": "a5bb6d9715aef88724703e11797500a44b940204c697c2aaff239f574e2c8ce5",
-    "index.html.gz": "67d659241137db5174090fdd7c6967ed34e2ef411ba9802e12d12e0cced181eb",
+    "app.js": "30a45cba10ec0b4eaf58fcc5ab35577e10fa8d09a7cc2f23eafcdad59a77615d",
+    "app.js.gz": "fa5394aa7fcdfd7cecf65cb6bdb4084f359026b498d5352a2c441e5088280ac2",
+    "index.html": "bf233a3eac622421ed685bd87eef9a4100072fdd1f7cab145d37a6a7270b5fcd",
+    "index.html.gz": "ee87651416e7e8c983e0ec1155dd61785015c3850a52be978f6d44efbd3798b5",
     "logo.svg": "66b0ab6f878cd2c2f820c7b93a864c54fc3b39ddd81f4a50a22cd6f8f3dba640",
     "logo.svg.gz": "dca12e287c321b04d7c2852fa9665321889a00c265c3d846ab81680dfe520725",
-    "pages/Home.js": "9f26173f79f0e78a98c1d1cd3b49265fa1d854cefd496cb2ad3872f139640f0b",
     "robots.txt": "16ceb5ee3e0dc13aa9adf31a3ebbe45a1d965b8c2b9f72eaf84e5911e140ed95",
     "styles.css": "d2edc3531175fd914e49f0992e51a7fd6c71ed2950c1b477eeafdd7841277fa3",
     "styles.css.gz": "990d859d4320a19c1e129b98d3d9c03847e7963cd4adfe3b1471a3af919cc3d7"

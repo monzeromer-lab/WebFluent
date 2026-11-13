@@ -37,22 +37,6 @@
           "listen"
         ],
         [
-          "onKey",
-          "onKey"
-        ],
-        [
-          "keyIs",
-          "keyIs"
-        ],
-        [
-          "keyLabel",
-          "keyLabel"
-        ],
-        [
-          "keyAria",
-          "keyAria"
-        ],
-        [
           "allowSchemes",
           "allowSchemes"
         ],
@@ -129,14 +113,6 @@
           "setBasePath"
         ],
         [
-          "theme",
-          "theme"
-        ],
-        [
-          "setTheme",
-          "setTheme"
-        ],
-        [
           "mount",
           "mount"
         ],
@@ -150,6 +126,44 @@
         ]
       ],
       "name": "core",
+      "triggers": []
+    },
+    {
+      "deps": [],
+      "exports": [
+        [
+          "theme",
+          "theme"
+        ],
+        [
+          "setTheme",
+          "setTheme"
+        ]
+      ],
+      "name": "theme",
+      "triggers": []
+    },
+    {
+      "deps": [],
+      "exports": [
+        [
+          "onKey",
+          "onKey"
+        ],
+        [
+          "keyIs",
+          "keyIs"
+        ],
+        [
+          "keyLabel",
+          "keyLabel"
+        ],
+        [
+          "keyAria",
+          "keyAria"
+        ]
+      ],
+      "name": "keys",
       "triggers": []
     },
     {
@@ -886,7 +900,9 @@
       "triggers": []
     },
     {
-      "deps": [],
+      "deps": [
+        "keys"
+      ],
       "exports": [
         [
           "layer",

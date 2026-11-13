@@ -1,11 +1,9 @@
 {
   "diagnostics": [],
   "files": {
-    "app.js": "1fbd30d5ae5853ceb641e987a6c53c91e0a2fbb7962782c6db6c924634af798a",
-    "app.js.gz": "e58bc17f7ec2532e62f47ac2aa166b55f767e4ede3212d84028d843f9b13d448",
-    "index.html": "0173af0a611fa0e6a5973e368cb80dc7c62d37b9f543e975b84f02b905763c39",
-    "pages/Chat.js": "8d3e86dff6e907e61bbed588dd867adfc5e91b5248de29c812ad44c9d547f1ea",
-    "pages/Chat.js.gz": "54cd55784d415ff4d67a6aa69fc6480ac9505fda99fb97c983731ebb36398251",
+    "app.js": "4d0b817ba179744af1f4f9314bf94af0caf1884a4d3c85034e14e3712aaf8b6c",
+    "app.js.gz": "3118646e54054329729cecff073adb8a6e8d6ebfc3829067279b03677f2afd0b",
+    "index.html": "c01da947fb8d194b0170b200bf756c45baac0d5709fedd356a4c35dd05e29ce1",
     "robots.txt": "16ceb5ee3e0dc13aa9adf31a3ebbe45a1d965b8c2b9f72eaf84e5911e140ed95",
     "styles.css": "b4506ed1ba8a454f3a438925e03328662b442783c6f3248bc6296fa087456fc5",
     "styles.css.gz": "ddbecdd53c35e434a2c5bd79a096f362bf119c684fff80153be1b00256e42d9a"

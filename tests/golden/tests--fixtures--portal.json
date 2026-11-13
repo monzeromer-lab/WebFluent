@@ -2,13 +2,11 @@
   "diagnostics": [],
   "files": {
     "_headers": "ab659ef6aa87e4994c047f0afe74c1882b43db8b48e5ed9315716374a749c4b2",
-    "app.js": "5e4beb45b953c6079d25f9448bbb7e964f053db6e3a260612fefc825e3bf79fa",
-    "app.js.gz": "066f454776d6868ece714813dc92647be796bd8218e274dd5aa36f33b9b87332",
-    "index.html": "dff0ffb5e5c55bb8ad29a921596c898db57e414568beaacd2d7256b660cc688b",
-    "index.html.gz": "f5f9ec67f3ffe2031b8b7b675841a695c4cd93e75f7448963340b4bc74c6c428",
+    "app.js": "9e339e1b47c8c63855e6ab0011cb18b02111e3c1e53505a913cf175e78f09b99",
+    "app.js.gz": "ef073f47c94314063f9a28aec1203b676c1cf4bfd97b7db92415bc24094b2242",
+    "index.html": "55a74c97365166d898731083f29cb1580d1379c2f03c1312f58e65c8cf44e68f",
+    "index.html.gz": "5e79329a866f0d1aae9f07cbff41c9fe753d2d10528487f2489e88a00d16af9e",
     "js/popups.js": "9be74126ea6434d75386621b4b6fe9f63d23069d7da2839e29ffc6750d3fd490",
-    "pages/Home.js": "b9852fc82163a4d9755aa6b9eaaac0cff4ed61fa696f2d95d1ef83ffb147b4c8",
-    "pages/Home.js.gz": "be310391fbc0f7b26045b74195687538b6a680198c442f44e9e785dd80be87db",
     "robots.txt": "16ceb5ee3e0dc13aa9adf31a3ebbe45a1d965b8c2b9f72eaf84e5911e140ed95",
     "styles.css": "086dcca30fa6a8f8a033afd6a8237a9c3f4d56ee247d77c720e602113c18a3ea",
     "styles.css.gz": "8faf3e095e9c498f4d34f089e4caba1a3a7e58c5f4ca08c5e482b484bf8f4fd6"

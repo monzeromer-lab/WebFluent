@@ -100,6 +100,9 @@ pub struct JsOptions {
     /// The service worker `offline` in the config asks for is registered;
     /// `Some(true)` also keeps writes made offline (`sync`).
     pub offline: Option<bool>,
+    /// The runtime's own names are shortened (a minified build that is not
+    /// the dev server's, which keeps them readable).
+    pub mangle: bool,
 }
 
 /// JavaScript code generator — compiles the AST to a JS bundle with reactivity and routing.
@@ -130,6 +133,8 @@ pub struct JsCodegen {
     /// Ship every runtime module rather than the ones the program reaches
     /// (`build.runtime: "full"`).
     full_runtime: bool,
+    /// Shorten the runtime's own names ([`JsOptions::mangle`]).
+    mangle: bool,
     /// The runtime modules this build kept, and the bytes they came to, for
     /// `wf build --stats`. Filled by `generate`.
     runtime_modules: Vec<&'static str>,
@@ -389,6 +394,7 @@ impl JsCodegen {
             env: std::collections::BTreeMap::default(),
             output: String::new(),
             full_runtime: false,
+            mangle: false,
             runtime_modules: Vec::new(),
             runtime_report: Vec::new(),
             runtime_bytes: 0,
@@ -447,7 +453,9 @@ impl JsCodegen {
             split_pages,
             full_runtime,
             offline,
+            mangle,
         } = options;
+        self.mangle = *mangle;
         self.ssg_mode = *ssg;
         self.dev = *dev;
         self.split_pages = *split_pages;
@@ -1175,7 +1183,7 @@ impl JsCodegen {
         reached.push_str(&self.external_callers);
         self.runtime_report = runtime::report(&reached, self.full_runtime);
         self.runtime_modules = self.runtime_report.iter().map(|k| k.name).collect();
-        let mut out = runtime::assemble(&reached, self.full_runtime);
+        let mut out = runtime::assemble_with(&reached, self.full_runtime, self.mangle);
         self.runtime_bytes = out.len();
         out.push('\n');
         out.push_str(&self.output);

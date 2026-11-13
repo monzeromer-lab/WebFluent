@@ -665,8 +665,7 @@ fn project_stylesheets_are_bundled_and_class_names_reach_the_element() {
         "a state's initial value is painted:\n{html}"
     );
     let chunk =
-        std::fs::read_to_string(repo_root().join("target/e2e/_class_ssg/build/pages/Home.js"))
-            .unwrap();
+        std::fs::read_to_string(repo_root().join("target/e2e/_class_ssg/build/app.js")).unwrap();
     assert!(
         chunk.contains("WF.classes(") && chunk.contains("()=>_tone()"),
         "the runtime follows the state:\n{chunk}"
@@ -1270,14 +1269,10 @@ fn a_theme_leaves_the_tokens_it_does_not_name_alone() {
 /// entire palette. It must survive there.
 #[test]
 fn a_theme_applies_in_structural_mode_too() {
-    // The shared sheet and the page's own: a style a single page writes is
-    // that page's, and a token nothing reads is left out of `:root`.
+    // A one-page site is one sheet: the page's style rules are in it, and a
+    // token nothing reads is left out of `:root`.
     let site = build_site("bespoke");
-    let css = format!(
-        "{}{}",
-        site.read("styles.css"),
-        site.read("pages/Studio.css")
-    );
+    let css = site.read("styles.css");
     for value in ["#FAF9F6", "'Editorial New',Georgia,serif"] {
         assert!(
             css.contains(value),

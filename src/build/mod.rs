@@ -646,6 +646,17 @@ fn run(options: &BuildOptions<'_>, out: &Out<'_>) -> Result<()> {
     // directory — a file an older layout left behind is a real problem,
     // but not one this build can answer for.
     let mut written_html: Vec<PathBuf> = Vec::new();
+    // A site of one page has nothing to load later: its page is part of the
+    // bundle, rather than a second file fetched to draw the first screen.
+    if program
+        .declarations
+        .iter()
+        .filter(|d| matches!(d, Declaration::Page(_)))
+        .count()
+        <= 1
+    {
+        config.build.split = false;
+    }
     let config = config;
     out.findings(&diagnostics);
     stop_on(out, &diagnostics, options)?;
@@ -815,6 +826,7 @@ fn run(options: &BuildOptions<'_>, out: &Out<'_>) -> Result<()> {
             split_pages: config.build.split,
             full_runtime: config.build.runtime == crate::project::config::RuntimeMode::Full,
             offline: config.offline.as_ref().map(|offline| offline.sync),
+            mangle: config.build.minify && !options.dev,
         })
         // What calls into the runtime from outside the bundle: a project's own
         // scripts, and the custom elements an `elements` build defines after it.

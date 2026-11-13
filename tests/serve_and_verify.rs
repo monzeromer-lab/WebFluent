@@ -141,7 +141,7 @@ fn the_dev_server_answers_only_a_navigation_with_the_shell_and_builds_for_develo
     );
 
     // A development build: the resource carries its type's shape.
-    let page = std::fs::read_to_string(dir.join("build/pages/Home.js")).unwrap();
+    let page = std::fs::read_to_string(dir.join("build/app.js")).unwrap();
     assert!(
         page.replace(' ', "").contains(r#"shape:["l",["r","User""#),
         "{page}"
@@ -156,7 +156,7 @@ fn the_dev_server_answers_only_a_navigation_with_the_shell_and_builds_for_develo
     // `wf build` writes for a host: no shapes.
     let (code, _, err) = wf(&dir, &["build"]);
     assert_eq!(code, 0, "{err}");
-    let page = std::fs::read_to_string(dir.join("build/pages/Home.js")).unwrap();
+    let page = std::fs::read_to_string(dir.join("build/app.js")).unwrap();
     assert!(!page.replace(' ', "").contains("shape:["), "{page}");
 }
 

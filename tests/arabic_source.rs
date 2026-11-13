@@ -91,6 +91,6 @@ fn a_store_its_state_and_its_action_named_in_arabic_build() {
     let report = webfluent::build::build(&BuildOptions::new(&dir, &FsVfs))
         .unwrap_or_else(|f| panic!("{:?}", f.report.diagnostics));
     assert!(report.diagnostics.iter().all(|d| !d.code.starts_with('E')));
-    let app = std::fs::read_to_string(dir.join("build/pages/Home.js")).unwrap();
+    let app = std::fs::read_to_string(dir.join("build/app.js")).unwrap();
     assert!(app.contains("أضف"), "{app}");
 }

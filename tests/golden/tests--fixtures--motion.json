@@ -1,12 +1,10 @@
 {
   "diagnostics": [],
   "files": {
-    "app.js": "503e50d4de9aedc00e81222b50aa555687f0d4e5b6bd9972e3998d3f3e6e96ae",
-    "app.js.gz": "d4a3d8af5c4353ab5359744bb80d7c1e0344791eae83163a4b187e77833283fd",
-    "index.html": "b57536db574c5687923727c20bf70c79302fd423c57d167aba94852f2c23ef34",
-    "index.html.gz": "7fb92f657501ef3fa217a9cb302c8668e612c713c505c09ff49fb42e96d53e6b",
-    "pages/Home.js": "980232acbd32a45792e9d090206b4c5f14940dc5019c850b5353e86372ab496d",
-    "pages/Home.js.gz": "2d01dea2ecc3c9adc53440255121d3e59748583e92d7a188d265df36a5ecb966",
+    "app.js": "5e37b76118b68a2e158aa5a575873da5938c922c9e27dc7fa478d634d248b699",
+    "app.js.gz": "7d6867ca981f693e832fdce577b9d840b7d20accc205560bb456ff69150d7ce8",
+    "index.html": "d340474952c31bd920a9fe40242bc44ce3fe74cd24ed1a5523e0dfab9ee779fe",
+    "index.html.gz": "8431ae693f8e930dedc6f833a61e16181515632cdeebe07980445b4b475253dd",
     "robots.txt": "16ceb5ee3e0dc13aa9adf31a3ebbe45a1d965b8c2b9f72eaf84e5911e140ed95",
     "styles.css": "cb1dc797bbcef632bf65b6bf85edf3722b1395c671cf1ec92f4037dcf458689c",
     "styles.css.gz": "6282b2ed3be2142429386cffbc740f61a9ffab1faa4ffe0358067234a918e4d9"

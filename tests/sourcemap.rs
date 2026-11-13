@@ -41,6 +41,12 @@ fn project(name: &str, settings: Settings) -> PathBuf {
         "page Home(path: \"/\", title: \"Home\", description: \"The home page.\") {\n    state n = 0\n    NoteRow(label: \"one\")\n    Button(\"Add\") {\n        on click { n = n + 1 }\n    }\n    Text(\"home counts {n}\")\n    Heading(\"Home\").h1\n}\n",
     )
     .unwrap();
+    // A second page, so each is its own chunk (a one-page site is one file).
+    std::fs::write(
+        dir.join("src/pages/about.wf"),
+        "page About(path: \"/about\", title: \"About\", description: \"About.\") {\n    Heading(\"About\").h1\n}\n",
+    )
+    .unwrap();
     let options = webfluent::build::BuildOptions::new(&dir, &webfluent::vfs::FsVfs);
     webfluent::build::build(&options).expect("it builds");
     dir

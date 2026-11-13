@@ -4,12 +4,10 @@
     "{\"code\":\"A16\",\"severity\":\"warning\",\"message\":\"`id: \\\"item\\\"` is inside a `for`, so the page has several elements with one id\",\"file\":\"src/pages/Home.wf\",\"line\":11,\"column\":13,\"end_line\":0,\"end_column\":0,\"hint\":\"Make it unique — `id: \\\"row-{item.id}\\\"` — or drop it; a label's `for` and `aria-*` find one element by id\",\"related\":[],\"fixes\":[],\"tags\":[]}"
   ],
   "files": {
-    "app.js": "d1bccc26e85baa289d9140c140ea1055dd6c97f948484ac69f5711771329a633",
-    "app.js.gz": "182b11c3941a4c2587b08c8e397202a968ffa5d4f036f8f65eb13276353860b3",
-    "index.html": "0f79338c4b88a9fa1ae71276dc72aa0913f9c26afbaaf998cd43150e8ccbba79",
-    "index.html.gz": "404e00ce5b3c99e5a44a41701a155598a38b1b8b9ac45360e5f172bc9baf8b61",
-    "pages/Home.js": "1a066265f4e545322beabb7696fa4ca03593ebc7f90143398476ba8127a111c1",
-    "pages/Home.js.gz": "143def5e685a9c0e51313e975571ec31f27d4c4dd25484fd93deb07805c612b5",
+    "app.js": "b3b9b904bfb9e95ffe78eec3821c030f3d3ccf1b0d74111502ae241129dd43ac",
+    "app.js.gz": "2464d2648a4293d73d9160d87d0ff9d58785d76be99e255dfb3e0494c9f0b9a0",
+    "index.html": "508a6ca34ed908771ff7c5696656cda497c2e46fdd322dee00b5c56b468bdc93",
+    "index.html.gz": "1001d9d597e11bbf2d323abd6889f06089546f16c72b8f80bfcfd826548bfbd3",
     "robots.txt": "16ceb5ee3e0dc13aa9adf31a3ebbe45a1d965b8c2b9f72eaf84e5911e140ed95",
     "styles.css": "d106b1a93b7eac091963adb78916953688f17e4bf4c7fc30dd492ba9a37d978e",
     "styles.css.gz": "a0729e0d3c6194299ca5eec71f4f79213fc7956474eb0d507734669c26c28302"

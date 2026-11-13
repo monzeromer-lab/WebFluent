@@ -242,7 +242,7 @@ fn a_message_with_a_count_picks_its_plural_form_at_build_time_and_live() {
         html.contains(">3 items for Sam<"),
         "the static paint reads the seeded state: {html}"
     );
-    let js = std::fs::read_to_string(dir.join("build/pages/Home.js")).unwrap();
+    let js = std::fs::read_to_string(dir.join("build/app.js")).unwrap();
     assert!(
         js.contains("WF.i18n.t(\"items\", ({count:_n(),name:\"Sam\"}))")
             || js.contains("WF.i18n.t(\"items\",({count:_n(),name:\"Sam\"}))"),
@@ -293,7 +293,7 @@ fn a_store_action_wins_over_a_list_method_of_the_same_name() {
     .unwrap();
     let (ok, out) = wf(&dir, &["build"]);
     assert!(ok, "{out}");
-    let js = std::fs::read_to_string(dir.join("build/pages/Home.js")).unwrap();
+    let js = std::fs::read_to_string(dir.join("build/app.js")).unwrap();
     // A store is an object of state and actions, not a list: mapping these
     // onto `splice`/`WF.take` left the handler calling what was never there.
     assert!(
@@ -327,7 +327,7 @@ fn remove_on_a_state_list_goes_through_the_signal_so_the_view_repaints() {
     .unwrap();
     let (ok, out) = wf(&dir, &["build"]);
     assert!(ok, "{out}");
-    let js = std::fs::read_to_string(dir.join("build/pages/Home.js")).unwrap();
+    let js = std::fs::read_to_string(dir.join("build/app.js")).unwrap();
     // An in-place `splice` changes the list the signal already holds, so
     // nothing reading it repaints — `remove` sets the signal, as `push` does.
     assert!(

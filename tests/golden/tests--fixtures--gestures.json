@@ -2,15 +2,12 @@
   "diagnostics": [],
   "files": {
     "_headers": "6346b0222198fb8bcb1b20d9b54cfdd41492b1ee39f30f1c7456001d7678f1a8",
-    "app.js": "39965c55951c98fd87fc081946a6b38828e90b5f621963cda8fa378be1981e1a",
-    "app.js.gz": "befa41b904f66cd8bc9750f2ea926aa1f1efc85ce59c5838fcd439dfc4ef0a9b",
-    "index.html": "353c7ea6ad633fe8d7cc1ce99ce50f50cf5465fe05469995afa7fc7101520e1c",
-    "index.html.gz": "a2581993b90a1f3287b6269d04068ccb99e1eb5c5fd0a7b0a79e8b49e4fa65d4",
-    "pages/Home.css": "2ac1002979df6b2cab2f7f347c34e286a681a590dc6e7bcf1d486a15a4e300fb",
-    "pages/Home.js": "16a1df7c361d2051e5352e9a6eaf8070c05b2f4525fbdc053f42f25b61218e1d",
-    "pages/Home.js.gz": "306435f176913dd9dbc22bd3fe98d054abd69b550967df3230178427d931f7c8",
+    "app.js": "294cbc5dfc9e536dc9cd159ecc06280b574056bf4dddea97883896218dd3cd77",
+    "app.js.gz": "e6617ad6ac23d231d3ef88ca344bf1015dc2da16ec7f07750307569c0e8c8c3d",
+    "index.html": "21cd8b42de97454eb63750d1fb9a1a73fec919f0d0795244e7dd564a71049b54",
+    "index.html.gz": "5cb09e2e97e31bfd3f1ff6a3551cb19458332f71978c1db958c8564f67b590d4",
     "robots.txt": "16ceb5ee3e0dc13aa9adf31a3ebbe45a1d965b8c2b9f72eaf84e5911e140ed95",
-    "styles.css": "4063fe450449d28c2cca3974116cffdb1920a4eef020b7b16d63c573cb598d5a",
-    "styles.css.gz": "f8114dac83fe3a3af484511fd24059fe7aaa7c07ce272a7dbb1f28d6e99ce8f1"
+    "styles.css": "f0cee6d740a3304d1d44d49715d3c46a3108e34772e6a111f350f5642cddbd8a",
+    "styles.css.gz": "63adaefaead211c1ebdcdd3dcd46df618f049dae8be2973b090c97a8c7b582a1"
   }
 }

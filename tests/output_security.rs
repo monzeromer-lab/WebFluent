@@ -385,6 +385,11 @@ fn a_chart_from_data_in_a_static_build_draws_no_markup_of_its_own() {
                  Chart(kind: .bar, data: d.rows, x: \"m\", y: \"v\", colors: d.cs, ink: d.ink)\n    \
                  QrCode(\"https://example.com\", color: d.ink, background: d.ink)\n}\n",
             ),
+            // A second page, so this one's code is a chunk of its own.
+            (
+                "src/pages/About.wf",
+                "page About(path: \"/about\", title: \"About\", description: \"a\") {\n    Heading(\"About\").h1\n}\n",
+            ),
         ],
     );
     build(&dir);
@@ -436,7 +441,7 @@ fn a_head_link_from_data_never_names_a_url_a_browser_runs() {
         assert!(!lower.contains("data:text"), "{url}: {html}");
         assert!(html.contains("href=\"/favicon.png\""), "{html}");
         // The live page guards what it writes too.
-        let js = read(&dir, "build/pages/Home.js");
+        let js = read(&dir, "build/app.js");
         assert!(js.contains("WF.head("), "{js}");
         let runtime = read(&dir, "build/app.js");
         assert!(
@@ -513,6 +518,11 @@ fn a_frame_drawing_html_from_a_value_is_sandboxed_unless_it_says_otherwise() {
                  Frame(srcdoc: html, title: \"two\")\n    \
                  Frame(srcdoc: d.h, title: \"three\", sandbox: \"allow-scripts\")\n    \
                  Frame(srcdoc: \"<p>written here</p>\", title: \"four\")\n}\n",
+            ),
+            // A second page, so this one's code is a chunk of its own.
+            (
+                "src/pages/About.wf",
+                "page About(path: \"/about\", title: \"About\", description: \"a\") {\n    Heading(\"About\").h1\n}\n",
             ),
         ],
     );

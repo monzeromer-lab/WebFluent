@@ -45,7 +45,7 @@
       return;
     }
     const shell = _begin(container);
-    themeSignal();
+    _start();
     _newPage();
     const el = renderFn();
     if (el instanceof Node) shell.appendChild(el);
