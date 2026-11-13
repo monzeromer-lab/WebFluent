@@ -39,8 +39,12 @@ Surveyed 2026-11-13, after the 6.0.0 release; carried out 2026-11-14.
   survey in this file's history).
 - `bench/pdf`, `docs/` (the built site) and `scripts/site-art.sh`.
 
-## Still to decide
+- **The external drive's worktrees.** The four `launch/*` worktrees
+  (`wf-bench`, `wf-launch`, `wf-showcase`, `wf-videos`) were removed on
+  2026-11-14, along with their branches. Their links still pointed at the
+  repository's old place on that drive, so `git worktree repair` came first.
+  All four were merged with nothing uncommitted; only build output,
+  dependencies and the PDF benchmark's last results (`bench/pdf/out/`) went
+  with them.
 
-- The four `launch/*` worktrees on the external drive (`wf-bench`,
-  `wf-launch`, `wf-showcase`, `wf-videos`). They are merged, but they live
-  on another disk.
+The repository now has `master` and no other branch or worktree.
