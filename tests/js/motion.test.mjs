@@ -25,7 +25,8 @@ function run({ reducedMotion = false, tokens = {}, module = "show" } = {}) {
   const fn = new Function(
     "window", "document", "Node", "Element", "DocumentFragment", "setTimeout",
     "getComputedStyle", "IntersectionObserver", "requestAnimationFrame",
-    `${runtimeFor(module)}\nreturn WF;`,
+    // The module under test, and motion, as a program that animates gets.
+    `${runtimeFor([module, "motion"])}\nreturn WF;`,
   );
   const WF = fn(
     window, document, dom.Node, dom.Element, dom.DocumentFragment,
@@ -246,7 +247,7 @@ test("a number arrives even where no frame ever comes", async () => {
   const fn = new Function(
     "window", "document", "Node", "Element", "DocumentFragment", "setTimeout",
     "getComputedStyle", "IntersectionObserver", "requestAnimationFrame",
-    `${runtimeFor("show")}\nreturn WF;`,
+    `${runtimeFor(["show", "motion"])}\nreturn WF;`,
   );
   const WF = fn(
     dom.window, dom.document, dom.Node, dom.Element, dom.DocumentFragment,

@@ -4,8 +4,8 @@
     "{\"code\":\"A16\",\"severity\":\"warning\",\"message\":\"`id: \\\"item\\\"` is inside a `for`, so the page has several elements with one id\",\"file\":\"src/pages/Home.wf\",\"line\":11,\"column\":13,\"end_line\":0,\"end_column\":0,\"hint\":\"Make it unique — `id: \\\"row-{item.id}\\\"` — or drop it; a label's `for` and `aria-*` find one element by id\",\"related\":[],\"fixes\":[],\"tags\":[]}"
   ],
   "files": {
-    "app.js": "6cd80d77f5bfd849297c5d99c44aeebf8fa75446ca949769bac6c5d1e1f9afc3",
-    "app.js.gz": "8dcf654db7f8aa6fded9ed094e22b642407cce6fc46730349224084e6c00196a",
+    "app.js": "7a00f7d3ed006ab21a8a05f8402ea35f5553854ff01584fc9c5678bdc983e467",
+    "app.js.gz": "a16752d942234c930d8e4fac83d821f69f416a50765182cf3dcb004334789722",
     "index.html": "0f79338c4b88a9fa1ae71276dc72aa0913f9c26afbaaf998cd43150e8ccbba79",
     "index.html.gz": "404e00ce5b3c99e5a44a41701a155598a38b1b8b9ac45360e5f172bc9baf8b61",
     "pages/Home.js": "1a066265f4e545322beabb7696fa4ca03593ebc7f90143398476ba8127a111c1",

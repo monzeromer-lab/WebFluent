@@ -72,10 +72,17 @@ pub const MODULES: &[Module] = &[
         same("emit"), same("navigate"), same("setSsgMode"), same("setBasePath"),
         same("theme"), same("setTheme"), same("mount"), same("mainOf"), same("live"),
     ], deps: [], triggers: []),
+    // What a branch, a list and a route need to put nodes in and take them
+    // out; they ship it, and motion only when something animates.
+    module!("nodes", exports: [], deps: [], triggers: []),
+    // Reached by a call (`WF.counted`, `WF.animate` …) or by what the code
+    // generator writes when something animates: an animation's config
+    // (`enter:`, `exit:`), a mark on an element (`data-wf-exit`,
+    // `data-wf-animate`) or a router's `transition:`.
     module!("motion", exports: [
         same("animate"), same("replay"), same("animateIn"), same("animateOut"),
         same("expand"), same("countTo"), same("counted"), same("onEnterView"), same("shared"),
-    ], deps: [], triggers: []),
+    ], deps: ["nodes"], triggers: ["enter:", "exit:", "data-wf-exit", "data-wf-animate", "transition:"]),
     module!("helpers", exports: [
         same("sortBy"), same("groupBy"), same("unique"), same("take"), same("removeAt"), same("setIn"), same("mutated"),
         same("range"),
@@ -100,17 +107,17 @@ pub const MODULES: &[Module] = &[
     module!("form", exports: [same("form"), same("validate")], deps: ["announce"], triggers: []),
     module!("text", exports: [same("markdown"), same("highlight")],
         deps: [], triggers: ["markdown: ", "highlight: { code:"]),
-    module!("when", exports: [same("when"), same("held")], deps: ["motion"], triggers: []),
-    module!("match", exports: [same("match")], deps: ["motion"], triggers: []),
-    module!("slot", exports: [same("slot")], deps: ["motion"], triggers: []),
-    module!("each", exports: [same("each")], deps: ["motion"], triggers: []),
-    module!("show", exports: [same("show")], deps: ["motion"], triggers: []),
+    module!("when", exports: [same("when"), same("held")], deps: ["nodes"], triggers: []),
+    module!("match", exports: [same("match")], deps: ["nodes"], triggers: []),
+    module!("slot", exports: [same("slot")], deps: ["nodes"], triggers: []),
+    module!("each", exports: [same("each")], deps: ["nodes"], triggers: []),
+    module!("show", exports: [same("show")], deps: ["nodes"], triggers: []),
     module!("browser", exports: [
         same("viewport"), same("query"), same("hash"), same("now"), same("network"),
     ],
         deps: [], triggers: []),
     module!("router", exports: [same("router"), same("params"), same("activeLink")],
-        deps: ["motion", "match", "pages", "announce"], triggers: []),
+        deps: ["nodes", "match", "pages", "announce"], triggers: []),
     module!("pages", exports: [same("page"), same("loadPage"), same("loadSheet")],
         deps: [], triggers: []),
     module!("host", exports: [same("attach"), same("portal")], deps: [], triggers: []),
@@ -136,7 +143,7 @@ pub const MODULES: &[Module] = &[
         same("dialog"), same("popup"), same("tabs"),
     ], deps: [], triggers: []),
     module!("worker", exports: [same("worker")], deps: [], triggers: []),
-    module!("windowed", exports: [same("windowed")], deps: ["motion"], triggers: []),
+    module!("windowed", exports: [same("windowed")], deps: ["nodes"], triggers: []),
     module!("gesture", exports: [
         same("gesture"), same("draggable"), same("dropTarget"), same("splitter"),
     ], deps: [], triggers: []),
@@ -444,17 +451,36 @@ mod tests {
         let want = modules_for("WF.each(p, l, i);");
         assert!(want.contains("each"));
         assert!(
-            want.contains("motion"),
-            "`each` plays enter and exit animations"
+            want.contains("nodes"),
+            "a list puts nodes in and takes them out"
+        );
+        assert!(
+            !want.contains("motion"),
+            "a list that animates nothing carries no animations"
         );
         assert!(want.contains("core"));
         assert!(!want.contains("router"), "one list is not a router");
         assert!(!want.contains("carousel"));
+        // A list, a branch or a route that animates brings motion with it.
+        for animated in [
+            "WF.each(p, l, i, { enter: \"fadeIn\" });",
+            "WF.when(p, c, t, e, { exit: \"fadeOut\" });",
+            "WF.mark(n, { \"data-wf-exit\": \"fadeOut\" });",
+            "WF.mark(n, { \"data-wf-animate\": \"fadeIn\" });",
+            "WF.router(routes, c, { transition: \"fade\" });",
+            "WF.counted(n, v, \"600ms\");",
+        ] {
+            assert!(modules_for(animated).contains("motion"), "{animated}");
+        }
         // A router brings the pieces a route change uses.
         let want = modules_for("WF.router(routes, c);");
-        for m in ["router", "pages", "announce", "match", "motion", "core"] {
+        for m in ["router", "pages", "announce", "match", "nodes", "core"] {
             assert!(want.contains(m), "a router needs `{m}`");
         }
+        assert!(
+            !want.contains("motion"),
+            "a route change without a transition plays nothing"
+        );
         // An attribute reaches a module that exports nothing.
         assert!(modules_for("WF.el(\"i\", { \"data-icon\": \"home\" })").contains("icons"));
         assert!(!modules_for("WF.el(\"i\", {})").contains("icons"));

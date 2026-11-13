@@ -154,6 +154,14 @@
     },
     {
       "deps": [],
+      "exports": [],
+      "name": "nodes",
+      "triggers": []
+    },
+    {
+      "deps": [
+        "nodes"
+      ],
       "exports": [
         [
           "animate",
@@ -193,7 +201,13 @@
         ]
       ],
       "name": "motion",
-      "triggers": []
+      "triggers": [
+        "enter:",
+        "exit:",
+        "data-wf-exit",
+        "data-wf-animate",
+        "transition:"
+      ]
     },
     {
       "deps": [],
@@ -515,7 +529,7 @@
     },
     {
       "deps": [
-        "motion"
+        "nodes"
       ],
       "exports": [
         [
@@ -532,7 +546,7 @@
     },
     {
       "deps": [
-        "motion"
+        "nodes"
       ],
       "exports": [
         [
@@ -545,7 +559,7 @@
     },
     {
       "deps": [
-        "motion"
+        "nodes"
       ],
       "exports": [
         [
@@ -558,7 +572,7 @@
     },
     {
       "deps": [
-        "motion"
+        "nodes"
       ],
       "exports": [
         [
@@ -571,7 +585,7 @@
     },
     {
       "deps": [
-        "motion"
+        "nodes"
       ],
       "exports": [
         [
@@ -611,7 +625,7 @@
     },
     {
       "deps": [
-        "motion",
+        "nodes",
         "match",
         "pages",
         "announce"
@@ -837,7 +851,7 @@
     },
     {
       "deps": [
-        "motion"
+        "nodes"
       ],
       "exports": [
         [

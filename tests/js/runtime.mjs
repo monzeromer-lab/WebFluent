@@ -32,13 +32,14 @@ export function fullRuntime() {
   return out;
 }
 
-/// One module and what it needs, assembled the way a build would.
+/// One module (or several) and what it needs, assembled the way a build
+/// would.
 ///
 /// A module's source is a fragment of the closure, so a module alone is not a
 /// program; what can be asserted is that core plus a module plus the modules
 /// it declares reaching for evaluates, and exports what it says it does.
-export function runtimeFor(name) {
-  const want = new Set(["core", name]);
+export function runtimeFor(names) {
+  const want = new Set(["core", ...[].concat(names)]);
   for (let added = true; added; ) {
     added = false;
     for (const m of MANIFEST.modules) {
