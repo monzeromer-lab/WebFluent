@@ -193,7 +193,7 @@ fn for_each_expr(
 pub fn uses(program: &Program, file_of: &dyn Fn(usize) -> String) -> Vec<Use> {
     let mut out = Vec::new();
     for_each_expr(program, file_of, &mut |e, at, file| {
-        walk_expr(e, at, file, &mut out)
+        walk_expr(e, at, file, &mut out);
     });
     out
 }
@@ -222,7 +222,7 @@ fn passed_as_values(program: &Program) -> std::collections::HashSet<String> {
     let mut opaque = false;
     let mut literals = std::collections::HashSet::new();
     for_each_expr(program, &|_| String::new(), &mut |e, _, _| {
-        walk(e, &mut opaque, &mut literals)
+        walk(e, &mut opaque, &mut literals);
     });
     if opaque {
         literals
