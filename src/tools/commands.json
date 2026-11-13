@@ -890,6 +890,20 @@
           "takes": "text",
           "value_name": "CODE",
           "values": []
+        },
+        {
+          "default": null,
+          "flag": true,
+          "help": "Print JSON, for tools: one code, or every code without one",
+          "long": "json",
+          "name": "json",
+          "positional": false,
+          "repeats": false,
+          "required": false,
+          "short": null,
+          "takes": "nothing",
+          "value_name": "JSON",
+          "values": []
         }
       ],
       "preview": null,

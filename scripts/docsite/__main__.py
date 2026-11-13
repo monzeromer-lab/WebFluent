@@ -2,7 +2,8 @@
 compiler, in order: `python3 scripts/docsite` (or `cargo xtask site`).
 
 1. `components.py` — `md-docs/reference/components.md`, from `wf registry --json`
-2. `errors.py` — `site/src/data/errors.json` and the list of codes on
+2. `errors.py` — `site/src/data/errors.json`, a page per code
+   (`site/src/pages/ErrorPages.wf`) and the list of codes on
    `md-docs/errors/diagnostics.md`, from `wf explain --json` and each code's page
 3. `guide.py` — the site's chapter pages, the book's chapter list
    (`site/src/components/Guide.wf`), the chapter titles in `en.json` and the
@@ -79,6 +80,7 @@ def main() -> None:
             (tmp / "components.md", ROOT / "md-docs/reference/components.md"),
             (tmp / "errors/errors.json", ROOT / "site/src/data/errors.json"),
             (tmp / "errors/diagnostics.md", ROOT / "md-docs/errors/diagnostics.md"),
+            (tmp / "errors/ErrorPages.wf", ROOT / "site/src/pages/ErrorPages.wf"),
             (tmp / "guide/book/Guide.wf", ROOT / "site/src/components/Guide.wf"),
             (tmp / "data/registry.json", ROOT / "site/src/registry.json"),
             (tmp / "data/search-index.json", ROOT / "site/public/search-index.json"),

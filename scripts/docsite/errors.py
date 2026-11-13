@@ -5,6 +5,10 @@
   and the code's page, `md-docs/errors/CODE.md`, split into what the error
   template draws — the program that draws the code, what the compiler
   prints for it, why the rule exists, and the fix.
+- `site/src/pages/ErrorPages.wf`: a page per code, its text written into
+  the page itself, so each page's words travel in its own chunk rather
+  than in every page's `app.js` (a `data` file is inlined there); and
+  `ERROR_INDEX`, the sidebar's list of codes, which every error page shares.
 - `md-docs/errors/diagnostics.md`: the list of every code by family,
   between `<!-- codes … -->` and `<!-- /codes -->`.
 
@@ -12,6 +16,7 @@
 `cargo xtask site --check`); `WF_BIN` names the `wf`. Rerun with
 `cargo xtask site`.
 """
+import importlib.util
 import json
 import os
 import re
@@ -25,6 +30,10 @@ OUT = Path(os.environ["WF_ERRORS_OUT"]) if os.environ.get("WF_ERRORS_OUT") else 
 wf = Path(os.environ["WF_BIN"]) if os.environ.get("WF_BIN") else ROOT / "target" / "debug" / "wf"
 if not wf.exists():
     wf = "wf"
+
+_spec = importlib.util.spec_from_file_location("guide", Path(__file__).resolve().parent / "guide.py")
+guide = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(guide)
 
 OPEN = "<!-- codes: written by scripts/docsite/errors.py -->"
 CLOSE = "<!-- /codes -->"
@@ -144,16 +153,83 @@ def main():
     new_index = index[:a] + "\n".join(listing) + "\n\n" + index[b:]
 
     data = json.dumps(entries, indent=1, ensure_ascii=False) + "\n"
+    pages = page_file(entries)
     if OUT:
         OUT.mkdir(parents=True, exist_ok=True)
         (OUT / "errors.json").write_text(data)
         (OUT / "diagnostics.md").write_text(new_index)
+        (OUT / "ErrorPages.wf").write_text(pages)
+        fmt(OUT / "ErrorPages.wf")
     else:
         target = ROOT / "site" / "src" / "data" / "errors.json"
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(data)
         INDEX.write_text(new_index)
+        (ROOT / "site" / "src" / "pages" / "ErrorPages.wf").write_text(pages)
+        fmt(ROOT / "site" / "src" / "pages" / "ErrorPages.wf")
     print(f"wrote {len(entries)} error pages' data")
+
+
+def fmt(path: Path) -> None:
+    subprocess.run([str(wf), "fmt", str(path)], check=False, capture_output=True)
+
+
+def q(text: str) -> str:
+    return '"' + guide.wf_string(text) + '"'
+
+
+def page_file(entries: list) -> str:
+    """Every code's page, its words written in."""
+    out = [
+        "/// A page for every code the compiler reports, at `/errors/CODE`: written",
+        "/// by scripts/docsite/errors.py from `wf explain --json` and each code's",
+        "/// page, `md-docs/errors/CODE.md`; edit those, not this file. The index,",
+        "/// `/errors`, is the guide's diagnostics chapter.",
+        "",
+        "/// The error pages' sidebar: every code, by family.",
+        "const ERROR_INDEX: [IndexEntry] = [",
+        ",\n".join(
+            f'    IndexEntry(label: {q(e["code"] + " " + e["plain"])}, to: "/errors/{e["code"]}", group: {q(e["group"])})'
+            for e in entries
+        ),
+        "]",
+        "",
+    ]
+    for e in entries:
+        anchors = [("printed", "error.printed")] if e["printed"] else []
+        if e["why"]:
+            anchors.append(("why", "error.why"))
+        anchors.append(("fix", "error.fix"))
+        sections = ", ".join(f'Anchor(id: "{a}", label: t("{k}"))' for a, k in anchors)
+        related = ", ".join(
+            f'RelatedLink(kind: {q(r["kind"])}, title: {q(r["title"])}, to: {q(r["to"])})' for r in e["related"]
+        )
+        title = f'{e["code"]} — {e["plain"]}'
+        out.append(
+            f'page Error{e["code"]}(path: "/errors/{e["code"]}", title: {q(title)}, '
+            f'description: {q(e["description"])}) {{'
+        )
+        out.append(
+            f'    ErrorShell("{e["code"]}", title: {q(e["plain"])}, severity: "{e["severity"]}", '
+            f'family: {q(e["group"])}, summary: {q(e["summary"])}, printed: {guide.wf_raw(e["printed"])}, '
+            f'lowerable: {"true" if e["lowerable"] else "false"}, why: {"true" if e["why"] else "false"}, '
+            f'example: false, families: ERROR_INDEX, related: [{related}], sections: [{sections}], '
+            f'source: "md-docs/errors/{e["code"]}.md") {{'
+        )
+        out.append("        fixed {")
+        out.append("            Stack(gap: .sm) {")
+        if e["broken"]:
+            out.append('                Text(t("error.broken"), class: "bp-label", data-tone: "error") { style { align-self: flex-start } }')
+            out.append(f'                CodeBlock({guide.wf_raw(e["broken"])}, title: "wf")')
+        out.append(f'                Markdown({q(e["fix"])})')
+        out.append("            }")
+        out.append("        }")
+        if e["why"]:
+            out.append(f'        Markdown({q(e["why"])})')
+        out.append("    }")
+        out.append("}")
+        out.append("")
+    return "\n".join(out)
 
 
 if __name__ == "__main__":

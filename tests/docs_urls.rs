@@ -160,30 +160,14 @@ fn every_diagnostic_link_6_0_prints_still_lands() {
 }
 
 /// The link this `wf` prints under a finding goes to a page the site has:
-/// `/errors/CODE`, one of the error pages' `paths:`.
+/// `/errors/CODE`, one of the pages `scripts/docsite/errors.py` writes.
 #[test]
 fn every_diagnostic_link_this_wf_prints_has_a_page() {
-    let data: serde_json::Value = serde_json::from_str(
-        &std::fs::read_to_string(root().join("site/src/data/errors.json")).unwrap(),
-    )
-    .unwrap();
-    let codes: Vec<&str> = data
-        .as_array()
-        .unwrap()
-        .iter()
-        .filter_map(|e| e["code"].as_str())
-        .collect();
-    assert!(routes().iter().any(|r| r == "/errors/:code"));
+    let routes = routes();
     for c in webfluent::diagnostics::codes::CODES {
         let url = webfluent::diagnostics::codes::docs_url(c.code);
-        assert_eq!(
-            url,
-            format!("https://webfluent.monzeromer.dev/errors/{}", c.code)
-        );
-        assert!(
-            codes.contains(&c.code),
-            "{} has no page in errors.json",
-            c.code
-        );
+        let path = format!("/errors/{}", c.code);
+        assert_eq!(url, format!("https://webfluent.monzeromer.dev{path}"));
+        assert!(routes.contains(&path), "{path} is no page of the site");
     }
 }
