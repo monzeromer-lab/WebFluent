@@ -148,7 +148,7 @@ def search_index():
         title = meta["title"]
         if route == guide.REFERENCE_ROUTE:
             continue  # its entries come from the registry, below
-        rows.append({"chapter": num, "title": title, "section": "", "route": f"/docs/{route}", "words": terms(meta["description"])})
+        rows.append({"chapter": num, "title": title, "section": "", "route": guide.href(route), "words": terms(meta["description"])})
         # Every `##` and `###` section, with what its text is about.
         parts = re.split(r"^(#{2,3}) (.+)$", md, flags=re.M)
         for k in range(1, len(parts), 3):
@@ -159,7 +159,7 @@ def search_index():
                 "chapter": num,
                 "title": title,
                 "section": text,
-                "route": f"/docs/{route}#{guide.slug(text)}",
+                "route": f"{guide.href(route)}#{guide.slug(text)}",
                 "words": terms(parts[k + 2]),
             })
     # Every built-in, by name, with what it takes.

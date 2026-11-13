@@ -1,19 +1,31 @@
 //! `wf explain T05`: what a code means, a program that draws it, what the
 //! compiler says, and the fix — the guide's entry, in the terminal. With no
-//! code, every code and its title.
+//! code, every code and its title. With `--json`, the same as data, for the
+//! documentation site and any other tool.
 
 use crate::diagnostics::codes::{self, CODES};
 use crate::diagnostics::error::{Result, WebFluentError};
 use crate::diagnostics::fixes::nearest;
 
-pub(crate) fn run_explain(code: Option<&str>) -> Result<()> {
+pub(crate) fn run_explain(code: Option<&str>, json: bool) -> Result<()> {
     match code {
+        None if json => {
+            let all: Vec<serde_json::Value> = CODES.iter().map(|c| entry(c.code)).collect();
+            println!("{}", serde_json::to_string_pretty(&all).unwrap_or_default());
+            Ok(())
+        }
         None => {
             print!("{}", index());
             Ok(())
         }
         Some(code) => {
-            if let Some(text) = explanation(code) {
+            if json && codes::info(&code.to_uppercase()).is_some() {
+                println!(
+                    "{}",
+                    serde_json::to_string_pretty(&entry(&code.to_uppercase())).unwrap_or_default()
+                );
+                Ok(())
+            } else if let Some(text) = explanation(code) {
                 print!("{text}");
                 Ok(())
             } else {
@@ -52,6 +64,25 @@ pub(crate) fn index() -> String {
         "\n`wf explain CODE` shows one: what it means, a program that draws it, and the fix.\n",
     );
     out
+}
+
+/// A code as data: what `wf explain CODE` prints, with the guide's section
+/// as the Markdown it is written in.
+pub(crate) fn entry(code: &str) -> serde_json::Value {
+    let Some(info) = codes::info(code) else {
+        return serde_json::Value::Null;
+    };
+    serde_json::json!({
+        "code": info.code,
+        "family": codes::family(info.code),
+        "severity": info.severity.word(),
+        "title": info.title,
+        "summary": info.summary,
+        "lowerable": codes::lowerable(info.code),
+        "unnecessary": info.unnecessary,
+        "section": section(info.code).unwrap_or_default(),
+        "url": codes::docs_url(info.code),
+    })
 }
 
 /// A code's entry: its title and severity, its summary, the guide's section
@@ -119,6 +150,18 @@ mod tests {
                 c.code
             );
         }
+    }
+
+    #[test]
+    fn every_code_is_data_too() {
+        for c in CODES {
+            let e = entry(c.code);
+            assert_eq!(e["code"], c.code);
+            assert_eq!(e["severity"], c.severity.word());
+            assert!(!e["section"].as_str().unwrap().is_empty(), "{}", c.code);
+        }
+        assert_eq!(entry("R01")["lowerable"], true);
+        assert_eq!(entry("T05")["lowerable"], false);
     }
 
     #[test]

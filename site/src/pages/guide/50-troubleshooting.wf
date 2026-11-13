@@ -2,7 +2,7 @@
 /// scripts/docsite/guide.py; edit the guide, not this file.
 page TroubleshootingGuide(path: "/docs/guide/troubleshooting", title: "Troubleshooting", description: "What you see when something goes wrong — install errors, build stops, blank pages after deploy, 404s on reload, CSP blocks, styles — the cause and the fix.", layout: DocsShell("Troubleshooting", chapter: t("nav.group.help"), blurb: "The problems people meet, what causes each, and the fix — from installing to deploying, plus the questions that come up most.", source: "md-docs/errors/troubleshooting.md", sections: [Anchor(id: "installing", label: "Installing"), Anchor(id: "building", label: "Building"), Anchor(id: "in-the-browser", label: "In the browser"), Anchor(id: "styling", label: "Styling"), Anchor(id: "data", label: "Data"), Anchor(id: "questions-people-ask", label: "Questions people ask")], prevTo: "/docs/guide/glossary", prevLabel: t("ch.49"), nextTo: "/docs/guide/upgrading", nextLabel: t("ch.51"))) {
     Stack(gap: .lg) {
-        Markdown("This chapter lists the problems people meet with WebFluent, titled by what you see. Each entry gives the cause, then the fix.\n\nA problem that comes with a code in brackets, such as `[T05]`, has its own entry in [Diagnostics](/docs/guide/diagnostics): search that chapter for the code, or run `wf explain T05` to print the entry in your terminal. This chapter covers what goes wrong without one, and the messages that need more context than the entry gives.\n\nIn this chapter:\n\n- [Installing](#installing)\n- [Building](#building)\n- [In the browser](#in-the-browser)\n- [Styling](#styling)\n- [Data](#data)\n- [Questions people ask](#questions-people-ask)")
+        Markdown("This chapter lists the problems people meet with WebFluent, titled by what you see. Each entry gives the cause, then the fix.\n\nA problem that comes with a code in brackets, such as `[T05]`, has its own entry in [Diagnostics](/errors): search that chapter for the code, or run `wf explain T05` to print the entry in your terminal. This chapter covers what goes wrong without one, and the messages that need more context than the entry gives.\n\nIn this chapter:\n\n- [Installing](#installing)\n- [Building](#building)\n- [In the browser](#in-the-browser)\n- [Styling](#styling)\n- [Data](#data)\n- [Questions people ask](#questions-people-ask)")
 
         Heading("Installing", id: "installing").h2
 
@@ -54,7 +54,7 @@ page TroubleshootingGuide(path: "/docs/guide/troubleshooting", title: "Troublesh
 
         Heading("A warning you do not understand", id: "a-warning-you-do-not-understand").h3
 
-        Markdown("Every warning has a code, and the code's entry explains it.\n\nRun `wf explain CODE` to print the entry; every code is also in [Diagnostics](/docs/guide/diagnostics), with an example and a fix. A named argument that the compiler writes to the element \"as an attribute\" (`C04`) is almost always a misspelled prop.")
+        Markdown("Every warning has a code, and the code's entry explains it.\n\nRun `wf explain CODE` to print the entry; every code is also in [Diagnostics](/errors), with an example and a fix. A named argument that the compiler writes to the element \"as an attribute\" (`C04`) is almost always a misspelled prop.")
 
         Heading("A project that built under 4.x stops on errors", id: "a-project-that-built-under-4-x-stops-on-errors").h3
 

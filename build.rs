@@ -76,8 +76,36 @@ fn guide() {
         ));
     }
     out.push_str("];\n");
-    let target = Path::new(&std::env::var("OUT_DIR").unwrap_or_default()).join("guide_files.rs");
-    std::fs::write(target, out).expect("write the guide's list");
+    let out_dir = std::env::var("OUT_DIR").unwrap_or_default();
+    std::fs::write(Path::new(&out_dir).join("guide_files.rs"), out)
+        .expect("write the guide's list");
+
+    // Each code's page, `md-docs/errors/T05.md`, for `wf explain` and the
+    // editor (`diagnostics::codes::guide_section`).
+    let mut pages = String::from(
+        "/// Every code's page under `md-docs/errors/`, by code.\npub(crate) static ERROR_PAGES: &[(&str, &str)] = &[\n",
+    );
+    for name in &names {
+        let Some(code) = name
+            .strip_prefix("errors/")
+            .and_then(|n| n.strip_suffix(".md"))
+        else {
+            continue;
+        };
+        if !code.chars().next().is_some_and(|c| c.is_ascii_uppercase())
+            || !code[1..].chars().all(|c| c.is_ascii_digit())
+        {
+            continue;
+        }
+        let path = Path::new(&root).join("md-docs").join(name);
+        pages.push_str(&format!(
+            "    ({code:?}, include_str!({:?})),\n",
+            path.display().to_string()
+        ));
+    }
+    pages.push_str("];\n");
+    std::fs::write(Path::new(&out_dir).join("error_pages.rs"), pages)
+        .expect("write the error pages' list");
 }
 
 fn walk(dir: &Path, out: &mut Vec<std::path::PathBuf>) {

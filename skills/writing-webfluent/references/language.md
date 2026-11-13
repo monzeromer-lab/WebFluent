@@ -40,7 +40,7 @@ wf scope FILE:LINE[:COL] [--data D] [--json]  # What can be read there: each nam
 wf translations [--missing L] [--unused] [--plurals] [--json] # The translations table: what each locale lacks, what nothing names
 wf context [--open FILE] [--guide full] [--json] # Everything an agent is given about the project, private env withheld
 wf components [--json]                    # Every component a call can name, built-in and the project's: props and their kinds, events, slots, parts
-wf explain [CODE]                         # A diagnostic's entry: meaning, example, fix
+wf explain [CODE] [--json]                       # A diagnostic's entry: meaning, example, fix
 wf serve [-d DIR] [--host ADDR]           # Dev server (localhost:3000, this machine only; --host 0.0.0.0 for a phone): rebuilds on save, reloads the page, shows a failed build's error over it
 wf generate page|component|store <name> [-d DIR]  # Scaffold a file, in the project's layout
 wf fmt [path] [--check] [--stdout]        # Format a project's sources (--check fails when one would change)
@@ -3026,7 +3026,7 @@ error[T05]: `User` has no field `nmae`
 3 |     Heading(user.nmae).h1
   |                  ^^^^
   = help: Its fields are `id`, `name`
-  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#t05-a-field-or-method-that-does-not-exist
+  = docs: https://webfluent.monzeromer.dev/errors/T05
 ```
 
 The place comes first in the `file:line:col` form problem matchers read;

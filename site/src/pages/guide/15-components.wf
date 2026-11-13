@@ -387,6 +387,6 @@ page Booking(path: "/", title: "Booking", description: "How many seats.") {
             }
         }
 
-        Markdown("[Components reference](/docs/reference) lists every built-in, and [Diagnostics](/docs/guide/diagnostics) every code named here.")
+        Markdown("[Components reference](/docs/reference) lists every built-in, and [Diagnostics](/errors) every code named here.")
     }
 }

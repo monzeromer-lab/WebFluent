@@ -510,7 +510,7 @@ page Deploys(path: "/") {
             }
         }
 
-        Markdown("Most findings come with a hint: a conversion (`Number(value)`, `\"\{value\}\"`), the cases an enum takes, the fields a record has, or one of the narrowing forms above. `wf explain T05` prints a code's full entry, and [Diagnostics](/docs/guide/diagnostics) has every code with an example.")
+        Markdown("Most findings come with a hint: a conversion (`Number(value)`, `\"\{value\}\"`), the cases an enum takes, the fields a record has, or one of the narrowing forms above. `wf explain T05` prints a code's full entry, and [Diagnostics](/errors) has every code with an example.")
 
         Heading("What the checker does not check", id: "what-the-checker-does-not-check").h2
 

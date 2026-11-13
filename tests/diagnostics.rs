@@ -195,10 +195,13 @@ fn a_template_s_errors_are_coded_findings() {
 /// holds — nothing the compiler says is uncoded.
 #[test]
 fn every_finding_has_a_registered_code() {
-    let chapter = std::fs::read_to_string(
-        Path::new(env!("CARGO_MANIFEST_DIR")).join("md-docs/errors/diagnostics.md"),
-    )
-    .unwrap();
+    // Every code's page, `md-docs/errors/CODE.md`, one after another.
+    let chapter: String = crate::common::guide_pages()
+        .into_iter()
+        .filter(|(n, _)| n.starts_with("errors/"))
+        .map(|(_, text)| text)
+        .collect::<Vec<_>>()
+        .join("\n");
     let mut seen = 0;
     for block in chapter.split("```wf expect=").skip(1) {
         let body = block
@@ -469,7 +472,7 @@ fn explain_shows_a_code_s_entry() {
         "{out}"
     );
     assert!(
-        out.contains("In the guide: https://webfluent.monzeromer.dev/docs/guide/diagnostics#t05-"),
+        out.contains("In the guide: https://webfluent.monzeromer.dev/errors/T05"),
         "{out}"
     );
     let (code, _, err) = wf(&dir, &["explain", "T5"]);

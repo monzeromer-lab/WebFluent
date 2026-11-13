@@ -126,7 +126,7 @@ page IntroductionGuide(path: "/docs/guide/introduction", title: "Introduction", 
                 Table.Row {
                     Table.Cell { Markdown("**Reference**") }
                     Table.Cell("reference")
-                    Table.Cell { Markdown("Every [component](/docs/reference), [command](/docs/guide/cli), [configuration key](/docs/guide/config), [diagnostic](/docs/guide/diagnostics), [built-in](/docs/guide/built-ins), [design token](/docs/guide/tokens), [runtime function](/docs/guide/runtime) and [grammar rule](/docs/guide/grammar), plus [browser support](/docs/guide/browser-support) and a [glossary](/docs/guide/glossary)") }
+                    Table.Cell { Markdown("Every [component](/docs/reference), [command](/docs/guide/cli), [configuration key](/docs/guide/config), [diagnostic](/errors), [built-in](/docs/guide/built-ins), [design token](/docs/guide/tokens), [runtime function](/docs/guide/runtime) and [grammar rule](/docs/guide/grammar), plus [browser support](/docs/guide/browser-support) and a [glossary](/docs/guide/glossary)") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("**Help**") }
@@ -138,7 +138,7 @@ page IntroductionGuide(path: "/docs/guide/introduction", title: "Introduction", 
 
         Heading("Where to start", id: "where-to-start").h2
 
-        Markdown("- **To learn WebFluent:** read [Getting started](/docs/guide/getting-started), work through the [tutorial](/docs/guide/tutorial), then read the *Concepts* section in order. Every example in them builds. For more practice, try the [three project tutorials](/docs/tutorials/todos).\n- **To understand it coming from a framework:** read [Coming from React, Vue or Svelte](/docs/guide/coming-from) first. It maps what you know to what is here.\n- **To build a feature:** go to the *Guides* page that names the task.\n- **To look something up:** use the reference chapters, starting with the [components reference](/docs/reference). They are generated from the compiler, or checked against it.\n- **To fix a problem:** start at [Troubleshooting](/docs/guide/troubleshooting). Every diagnostic code has an entry in [Diagnostics](/docs/guide/diagnostics).\n\nThe test suite parses, type-checks and compiles every `wf` code block in this guide, so what you read is what the compiler accepts. A block that leaves something out says so with a `…`.")
+        Markdown("- **To learn WebFluent:** read [Getting started](/docs/guide/getting-started), work through the [tutorial](/docs/guide/tutorial), then read the *Concepts* section in order. Every example in them builds. For more practice, try the [three project tutorials](/docs/tutorials/todos).\n- **To understand it coming from a framework:** read [Coming from React, Vue or Svelte](/docs/guide/coming-from) first. It maps what you know to what is here.\n- **To build a feature:** go to the *Guides* page that names the task.\n- **To look something up:** use the reference chapters, starting with the [components reference](/docs/reference). They are generated from the compiler, or checked against it.\n- **To fix a problem:** start at [Troubleshooting](/docs/guide/troubleshooting). Every diagnostic code has an entry in [Diagnostics](/errors).\n\nThe test suite parses, type-checks and compiles every `wf` code block in this guide, so what you read is what the compiler accepts. A block that leaves something out says so with a `…`.")
 
         Heading("Versions", id: "versions").h2
 

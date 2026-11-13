@@ -378,7 +378,7 @@ Nothing to change.
 ## 5.6
 
 5.6 refuses a name the language already has as a program's own
-([`E118`](../errors/diagnostics.md#e118-a-name-the-language-already-has)): a
+([`E118`](../errors/E118.md)): a
 `state env`, a loop's `t`, a `persist theme`, an action named `update`.
 Each compiled before, and read the language's value where the program
 meant its own — a page's `state env` showed `[object Object]`.
@@ -449,7 +449,7 @@ json` lists it as edits.
 config lowers a code or a family. An error may be lowered only when it
 ships no broken page: `R01`, `C02`, `S04`, `I01`, `I02`, `I04`. To accept
 one finding on one line, write `// wf-allow(CODE)`
-([Diagnostics](../errors/diagnostics.md#u07-an-allow-that-allows-nothing)).
+([Diagnostics](../errors/U07.md)).
 
 **What the compiler now writes for you** instead of reporting:
 

@@ -1012,8 +1012,27 @@ fn every_finding(src: &str) -> Vec<String> {
 #[test]
 fn every_diagnostic_example_shows_what_the_build_prints() {
     let write = std::env::var_os("WF_WRITE_DIAGNOSTICS").is_some();
-    let path = Path::new(env!("CARGO_MANIFEST_DIR")).join("md-docs/errors/diagnostics.md");
-    let text = std::fs::read_to_string(&path).unwrap();
+    let mut stale = Vec::new();
+    for (name, text) in crate::common::guide_pages() {
+        if !name.starts_with("errors/") {
+            continue;
+        }
+        let path = Path::new(env!("CARGO_MANIFEST_DIR"))
+            .join("md-docs")
+            .join(&name);
+        stale.extend(shows_what_the_build_prints(&path, &text, write));
+    }
+    assert!(
+        stale.is_empty(),
+        "md-docs/errors/ shows output the compiler no longer prints for {stale:?}; \
+         rewrite it with `WF_WRITE_DIAGNOSTICS=1 cargo test --test it -- docs_parse::every_diagnostic_example_shows`"
+    );
+}
+
+/// One page's `expect=` examples, held to what the build prints for them:
+/// the codes whose shown output is stale, after writing the page afresh
+/// when `write` says to.
+fn shows_what_the_build_prints(path: &Path, text: &str, write: bool) -> Vec<String> {
     let lines: Vec<&str> = text.lines().collect();
     let mut out: Vec<String> = Vec::new();
     let mut stale = Vec::new();
@@ -1062,15 +1081,11 @@ fn every_diagnostic_example_shows_what_the_build_prints() {
         out.extend(want.lines().map(str::to_string));
         out.push("```".to_string());
     }
-    if write {
-        std::fs::write(&path, format!("{}\n", out.join("\n"))).unwrap();
-        return;
+    if write && !stale.is_empty() {
+        std::fs::write(path, format!("{}\n", out.join("\n"))).unwrap();
+        return Vec::new();
     }
-    assert!(
-        stale.is_empty(),
-        "md-docs/errors/diagnostics.md shows output the compiler no longer prints for {stale:?}; \
-         rewrite it with `WF_WRITE_DIAGNOSTICS=1 cargo test --test it -- docs_parse::every_diagnostic_example_shows`"
-    );
+    stale
 }
 
 /// A ```` ```wf expect=T04 ```` block is a program that draws `T04` on
@@ -1100,7 +1115,7 @@ fn every_diagnostic_example_draws_its_code() {
 
     let mut failures = Vec::new();
     let mut shown: Vec<String> = Vec::new();
-    for (name, text) in chapters() {
+    for (name, text) in crate::common::guide_pages() {
         let mut lines = text.lines().enumerate();
         while let Some((at, line)) = lines.next() {
             let Some(code) = crate::common::fence(line)
@@ -1129,20 +1144,25 @@ fn every_diagnostic_example_draws_its_code() {
     }
     assert!(failures.is_empty(), "{}", failures.join("\n"));
 
-    // Every code the registry holds has an entry in the diagnostics
-    // chapter, and every code the compiler's source names is registered.
+    // Every code the registry holds has a page, `md-docs/errors/CODE.md`,
+    // and is listed on the diagnostics page; every code the compiler's
+    // source names is registered.
     let diagnostics = chapter("/diagnostics");
+    let pages = crate::common::guide_pages();
     let registered: Vec<&str> = webfluent::diagnostics::codes::CODES
         .iter()
         .map(|c| c.code)
         .collect();
     let missing: Vec<&&str> = registered
         .iter()
-        .filter(|c| !diagnostics.contains(&format!("### {c} ")))
+        .filter(|c| {
+            !pages.iter().any(|(n, _)| *n == format!("errors/{c}.md"))
+                || !diagnostics.contains(&format!("- [{c}]({c}.md)"))
+        })
         .collect();
     assert!(
         missing.is_empty(),
-        "the diagnostics chapter has no entry for {missing:?}"
+        "these codes have no page in md-docs/errors/, or are not listed on its index: {missing:?}"
     );
     let undocumented_examples: Vec<&&str> = registered
         .iter()
@@ -1220,7 +1240,8 @@ fn guide_path(from: &str, link: &str) -> Option<String> {
 #[test]
 fn every_link_in_the_guide_lands() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR"));
-    let all = chapters();
+    // Every page of the guide, a code's page under `errors/` included.
+    let all: Vec<(String, String)> = crate::common::guide_pages();
     let anchors = |text: &str| -> Vec<String> {
         text.lines()
             .filter_map(|l| l.strip_prefix("## ").or_else(|| l.strip_prefix("### ")))
@@ -1289,7 +1310,7 @@ fn every_link_in_the_guide_lands() {
                 continue;
             }
             match all.iter().find(|(n, _)| *n == resolved) {
-                None => failures.push(format!("{name}: {file} is not a chapter")),
+                None => failures.push(format!("{name}: {file} is not a page of the guide")),
                 Some((_, target_text)) => {
                     if !anchor.is_empty() && !anchors(target_text).contains(&anchor.to_string()) {
                         failures.push(format!("{name}: {file}#{anchor} is not a heading there"));

@@ -111,7 +111,7 @@ In this config, `env.PUBLIC_API` and `env.ANALYTICS_ID` are public, and
 
 A page may read `env.PUBLIC_API` and `env.ANALYTICS_ID`. Reading
 `env.STRIPE_SECRET` from a page is a compile error
-([`E108`](../errors/diagnostics.md#e108-an-env-name-that-is-not-public)) that names the file and the line.
+([`E108`](../errors/E108.md)) that names the file and the line.
 
 A private value is still available to [server rendering](server-rendering.md),
 which runs on a server, where a secret stays secret. It never reaches the
@@ -128,7 +128,7 @@ bundle: the build writes only public values into it.
 `env` is the language's name for these settings, and nothing else may use
 it. A `state`, a prop, a route parameter, a loop item or a top-level `const`
 called `env` is an error
-([`E118`](../errors/diagnostics.md#e118-a-name-the-language-already-has)). For a
+([`E118`](../errors/E118.md)). For a
 value that says which stage a page is about, use a name such as `target` or
 `stage`.
 

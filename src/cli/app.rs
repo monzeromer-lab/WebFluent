@@ -229,6 +229,9 @@ enum Commands {
     Explain {
         /// The code: `T05`, `A01`, `E101`
         code: Option<String>,
+        /// Print JSON, for tools: one code, or every code without one
+        #[arg(long)]
+        json: bool,
     },
     /// Start the development server
     Serve {
@@ -525,7 +528,7 @@ pub fn main() {
             Ok(())
         }
         Commands::Fix { dir, code, dry_run } => super::fix::run_fix(&dir, code.as_deref(), dry_run),
-        Commands::Explain { code } => super::explain::run_explain(code.as_deref()),
+        Commands::Explain { code, json } => super::explain::run_explain(code.as_deref(), json),
         Commands::Serve {
             dir,
             host,

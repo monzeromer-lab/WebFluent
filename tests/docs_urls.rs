@@ -112,23 +112,6 @@ fn every_page_the_6_0_site_listed_still_answers() {
     );
 }
 
-/// A heading's anchor, as the site writes it: backticks off, lower case,
-/// every run of anything but `a–z` and `0–9` a hyphen, none at either end.
-fn slug(text: &str) -> String {
-    let mut out = String::new();
-    let mut dash = false;
-    for c in text.replace('`', "").to_lowercase().chars() {
-        if c.is_ascii_alphanumeric() {
-            out.push(c);
-            dash = false;
-        } else if !dash {
-            out.push('-');
-            dash = true;
-        }
-    }
-    out.trim_matches('-').to_string()
-}
-
 /// The `docs:` link of every code, as 6.0 prints it. `WF_WRITE_DOCS_URLS=1`
 /// writes the fixture from the compiler under test — only ever for the
 /// release that gives the links out, never to make this test pass.
@@ -147,24 +130,60 @@ fn every_diagnostic_link_6_0_prints_still_lands() {
         );
         std::fs::write(&path, format!("{}\n", lines.join("\n"))).unwrap();
     }
-    let page = std::fs::read_to_string(root().join("md-docs/errors/diagnostics.md")).unwrap();
-    let anchors: Vec<String> = page
-        .lines()
-        .filter_map(|l| l.strip_prefix("### "))
-        .map(slug)
-        .collect();
+    // The old page answers, and sends a code's anchor to the code's page:
+    // the forwarding is `site/src/old-links.js`, which reads the code off
+    // the anchor (`#t05-…` → `/errors/T05`).
+    let routes = routes();
+    assert!(
+        routes.iter().any(|r| r == "/docs/guide/diagnostics"),
+        "the diagnostics chapter's old address has no page to forward from"
+    );
+    let forwarder = std::fs::read_to_string(root().join("site/src/old-links.js")).unwrap();
+    assert!(
+        forwarder.contains("/docs/guide/diagnostics") && forwarder.contains("\"/errors/\""),
+        "site/src/old-links.js no longer forwards the diagnostics chapter's anchors"
+    );
     let mut lost = Vec::new();
     for url in fixture("diagnostics-6.0.txt") {
         let (page_url, anchor) = url.split_once('#').unwrap_or((&url, ""));
+        let code = anchor.split('-').next().unwrap_or("").to_uppercase();
         if page_url != "https://webfluent.monzeromer.dev/docs/guide/diagnostics"
-            || !anchors.iter().any(|a| a == anchor)
+            || !root().join(format!("md-docs/errors/{code}.md")).exists()
         {
             lost.push(url);
         }
     }
     assert!(
         lost.is_empty(),
-        "these links, printed by every wf 6.0, no longer land on a heading of the \
-         diagnostics page; forward each anchor to its new page: {lost:#?}"
+        "these links, printed by every wf 6.0, name a code with no page now: {lost:#?}"
     );
+}
+
+/// The link this `wf` prints under a finding goes to a page the site has:
+/// `/errors/CODE`, one of the error pages' `paths:`.
+#[test]
+fn every_diagnostic_link_this_wf_prints_has_a_page() {
+    let data: serde_json::Value = serde_json::from_str(
+        &std::fs::read_to_string(root().join("site/src/data/errors.json")).unwrap(),
+    )
+    .unwrap();
+    let codes: Vec<&str> = data
+        .as_array()
+        .unwrap()
+        .iter()
+        .filter_map(|e| e["code"].as_str())
+        .collect();
+    assert!(routes().iter().any(|r| r == "/errors/:code"));
+    for c in webfluent::diagnostics::codes::CODES {
+        let url = webfluent::diagnostics::codes::docs_url(c.code);
+        assert_eq!(
+            url,
+            format!("https://webfluent.monzeromer.dev/errors/{}", c.code)
+        );
+        assert!(
+            codes.contains(&c.code),
+            "{} has no page in errors.json",
+            c.code
+        );
+    }
 }

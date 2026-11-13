@@ -10,7 +10,7 @@ page AccessibilityGuide(path: "/docs/guide/accessibility", title: "Accessibility
 
         Heading("Fix what the compiler reports", id: "fix-what-the-compiler-reports").h2
 
-        Markdown("The compiler checks every page for the mistakes it can see in the markup, and reports each as a warning on every build and in the editor. Each code has a full entry, with a fix, in [Diagnostics](/docs/guide/diagnostics#accessibility), and `wf explain CODE` prints it in your terminal.")
+        Markdown("The compiler checks every page for the mistakes it can see in the markup, and reports each as a warning on every build and in the editor. Each code has a full entry, with a fix, in [Diagnostics](/errors#accessibility), and `wf explain CODE` prints it in your terminal.")
 
         Table(caption: "Fix what the compiler reports") {
             Table.Head {

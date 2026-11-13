@@ -377,11 +377,12 @@ See also: [Configuration](configuration.md).
 Prints a diagnostic code's entry from [Diagnostics](../errors/diagnostics.md) in
 the terminal.
 
-**Usage:** `wf explain [CODE]`
+**Usage:** `wf explain [CODE] [--json]`
 
 | Option | Value | Default | Meaning |
 |---|---|---|---|
 | `CODE` | a code, such as `T05` | none | The code to explain. Without one, `wf explain` lists every code with its severity and title. |
+| `--json` | flag | off | Print JSON, for tools: the code's title, family, severity, summary, whether `lints` may lower it, its section of the guide as Markdown and its page. Without a code, every code. |
 
 ```bash
 wf explain T05

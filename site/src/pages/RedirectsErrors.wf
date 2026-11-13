@@ -1,0 +1,9 @@
+/// Diagnostics moved from one chapter to a page per code. Every `wf` up to
+/// 6.0 links a finding to `/docs/guide/diagnostics#<code>-<title>`; the
+/// fragment never reaches a server, so `src/old-links.js` sends such a link
+/// to `/errors/<CODE>` before the page draws, and this page sends the rest
+/// to the index.
+page OldDiagnostics(path: "/docs/guide/diagnostics", title: "Diagnostics", description: "This chapter moved to the errors index.", guard: false, redirect: "/errors", noindex: true) {
+    Heading(t("ch.43")).h1
+    Link(t("ch.43"), to: "/errors")
+}

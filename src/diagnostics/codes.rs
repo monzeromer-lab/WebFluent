@@ -855,24 +855,23 @@ pub fn info(code: &str) -> Option<&'static CodeInfo> {
     CODES.iter().find(|c| c.code == code)
 }
 
-/// The diagnostics chapter, which holds an entry for every code (the docs
-/// test sees to it).
-const CHAPTER: &str = include_str!("../../md-docs/errors/diagnostics.md");
+include!(concat!(env!("OUT_DIR"), "/error_pages.rs"));
 
-/// The guide's section for `code` (`### T06 — …`), as Markdown, without its
-/// heading: what `wf explain` prints after the summary, and what an editor
-/// shows when asked to explain a finding.
+/// A code's page, `md-docs/errors/T06.md`, as Markdown, without its front
+/// matter or its title: what `wf explain` prints after the summary, and what
+/// an editor shows when asked to explain a finding. Every code has one (the
+/// docs test sees to it).
 pub fn guide_section(code: &str) -> Option<&'static str> {
-    let heading = format!("### {code} — ");
-    let start = CHAPTER.find(&heading)?;
-    let body = &CHAPTER[start..];
-    let body = &body[body.find('\n')? + 1..];
-    let end = body
-        .match_indices("\n#")
-        .map(|(i, _)| i)
-        .find(|&i| body[i + 1..].starts_with("## ") || body[i + 1..].starts_with("### "))
-        .unwrap_or(body.len());
-    Some(body[..end].trim())
+    let (_, page) = ERROR_PAGES.iter().find(|(c, _)| *c == code)?;
+    let body = page
+        .strip_prefix("---\n")
+        .and_then(|rest| rest.split_once("\n---\n"))
+        .map_or(*page, |(_, body)| body);
+    let body = match body.strip_prefix("# ") {
+        Some(rest) => rest.split_once('\n').map_or("", |(_, b)| b),
+        None => body,
+    };
+    Some(body.trim())
 }
 
 /// The family a code belongs to: its letter.
@@ -880,14 +879,10 @@ pub fn family(code: &str) -> &str {
     &code[..code.len().min(1)]
 }
 
-/// Where the guide explains a code: the anchor the site gives the
-/// chapter's `### CODE — Title` heading.
+/// Where the documentation explains a code: its own page.
 pub fn docs_url(code: &str) -> String {
-    let anchor = match info(code) {
-        Some(c) => slug(&format!("{} — {}", c.code, c.title)),
-        None => code.to_lowercase(),
-    };
-    format!("https://webfluent.monzeromer.dev/docs/guide/diagnostics#{anchor}")
+    let code = info(code).map_or_else(|| code.to_uppercase(), |c| c.code.to_string());
+    format!("https://webfluent.monzeromer.dev/errors/{code}")
 }
 
 /// A heading's anchor, as the site writes it (`scripts/docsite/guide.py`):
@@ -958,21 +953,25 @@ mod tests {
     }
 
     #[test]
-    fn every_title_is_its_heading_in_the_guide() {
-        // The heading is the anchor `docs_url` links to.
-        let chapter = CHAPTER;
+    fn every_code_has_its_page_under_its_title() {
+        // `wf explain` prints the page, and `docs_url` links to it.
         for c in CODES {
-            let heading = format!("### {} — {}\n", c.code, c.title);
+            let (_, page) = ERROR_PAGES
+                .iter()
+                .find(|(code, _)| *code == c.code)
+                .unwrap_or_else(|| panic!("{} has no page in md-docs/errors/", c.code));
+            let heading = format!("\n# {} — {}\n", c.code, c.title);
             assert!(
-                chapter.contains(&heading),
-                "the guide's heading for {} is not `{}`",
+                page.contains(&heading),
+                "the page for {} is not titled `{}`",
                 c.code,
                 heading.trim()
             );
+            assert!(guide_section(c.code).is_some_and(|s| !s.is_empty()));
         }
         assert_eq!(
             docs_url("T05"),
-            "https://webfluent.monzeromer.dev/docs/guide/diagnostics#t05-a-field-or-method-that-does-not-exist"
+            "https://webfluent.monzeromer.dev/errors/T05"
         );
     }
 }

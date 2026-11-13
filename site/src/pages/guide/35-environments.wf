@@ -39,13 +39,13 @@ page Rows(path: "/", title: "Rows", description: "Rows from the API.") {
   "public_env": ["ANALYTICS_ID"]
 }"#, title: "json")
 
-        Markdown("A page may read `env.PUBLIC_API` and `env.ANALYTICS_ID`. Reading `env.STRIPE_SECRET` from a page is a compile error ([`E108`](/docs/guide/diagnostics#e108-an-env-name-that-is-not-public)) that names the file and the line.\n\nA private value is still available to [server rendering](/docs/guide/server-rendering), which runs on a server, where a secret stays secret. It never reaches the bundle: the build writes only public values into it.")
+        Markdown("A page may read `env.PUBLIC_API` and `env.ANALYTICS_ID`. Reading `env.STRIPE_SECRET` from a page is a compile error ([`E108`](/errors/E108)) that names the file and the line.\n\nA private value is still available to [server rendering](/docs/guide/server-rendering), which runs on a server, where a secret stays secret. It never reaches the bundle: the build writes only public values into it.")
 
         Callout("Adding a name to `public_env` publishes its value to every reader of the site, and every build says so with a warning naming it. A secret that a third party needs belongs in a request your server makes, not in a page ([Security](/docs/guide/security#keep-secrets-out-of-the-bundle)).", kind: .caution)
 
         Heading("Name your own values something other than env", id: "name-your-own-values-something-other-than-env").h2
 
-        Markdown("`env` is the language's name for these settings, and nothing else may use it. A `state`, a prop, a route parameter, a loop item or a top-level `const` called `env` is an error ([`E118`](/docs/guide/diagnostics#e118-a-name-the-language-already-has)). For a value that says which stage a page is about, use a name such as `target` or `stage`.")
+        Markdown("`env` is the language's name for these settings, and nothing else may use it. A `state`, a prop, a route parameter, a loop item or a top-level `const` called `env` is an error ([`E118`](/errors/E118)). For a value that says which stage a page is about, use a name such as `target` or `stage`.")
 
         Heading("Build once per environment", id: "build-once-per-environment").h2
 

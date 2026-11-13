@@ -169,7 +169,7 @@ page Home(path: "/", title: "Reading list", description: "Books worth reading.")
                 Row(align: .center) { Divider(class: "dot")  Text(t("check.point2")) }
                 Row(align: .center) { Divider(class: "dot")  Text(t("check.point3")) }
             }
-            Link("{t("check.link")} →", to: "/docs/guide/diagnostics") {
+            Link("{t("check.link")} →", to: "/errors") {
                 style { align-self: flex-start; font-size: 14px; line-height: 20px; font-weight: 600; color: $brand-ink; text-decoration: none; &:hover { text-decoration: underline } }
             }
         }
@@ -182,7 +182,7 @@ page Home(path: "/", title: "Reading list", description: "Books worth reading.")
 6 |     for book in books { Text(book.titel) }
   |                                   ^^^^^
   = help: Did you mean `title`? Its fields are `title`, `author`
-  = docs: https://webfluent.monzeromer.dev/docs/guide/diagnostics#t05-a-field-or-method-that-does-not-exist
+  = docs: https://webfluent.monzeromer.dev/errors/T05
 
 error: the build stopped: 1 error"#, title: "wf check")
         }

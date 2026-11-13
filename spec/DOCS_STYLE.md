@@ -238,9 +238,10 @@ dive*) rather than by alarm. A page that is half callouts has none.
 
 The guide is organised by what the reader is here to do. Each section is
 one kind of page, and the sidebar shows sections, not chapter numbers. A
-chapter's URL never changes when it moves between sections: released
-compilers link to `/docs/guide/diagnostics#…`, and a cool URI does not
-change.
+chapter's URL is kept when it moves: a page that moves leaves a redirect
+behind, and `tests/docs_urls.rs` holds the site to every address a release
+gave out — its sitemap, and the `docs:` link every finding printed
+(`/docs/guide/diagnostics#…` up to 6.0, `/errors/CODE` since).
 
 | Section (`group:`) | Kind | Reader |
 |---|---|---|

@@ -98,9 +98,32 @@ def read_meta(path: Path) -> dict:
 
 
 def chapter_files() -> list[Path]:
-    """Every page of the guide that is a chapter, in chapter order."""
+    """Every page of the guide that is a chapter, in chapter order. A page
+    with no `chapter:` — a code's page under `errors/` — is drawn by its own
+    page family, not as a chapter."""
     pages = [p for p in sorted(GUIDE.rglob("*.md")) if p.parent != GUIDE]
-    return sorted(pages, key=lambda p: front_matter(p)[0]["chapter"])
+    chapters = [p for p in pages if "chapter" in front_matter(p)[0]]
+    return sorted(chapters, key=lambda p: front_matter(p)[0]["chapter"])
+
+
+def href(route: str) -> str:
+    """Where a page's `route:` is on the site: as written when it starts
+    with `/` (`/errors/T05`), under `/docs/` otherwise (`guide/state`)."""
+    return route if route.startswith("/") else f"/docs/{route}"
+
+
+ROUTES: dict = {}
+
+
+def route_of(path: Path):
+    """The route of any page of the guide, chapter or not."""
+    if not ROUTES:
+        for p in GUIDE.rglob("*.md"):
+            if p.parent != GUIDE:
+                meta = front_matter(p)[0]
+                if "route" in meta:
+                    ROUTES[p.resolve()] = meta["route"]
+    return ROUTES.get(path.resolve())
 
 
 def num_of(path: Path) -> str:
@@ -176,9 +199,9 @@ def rewrite_links(text: str) -> str:
         resolved = (CURRENT["dir"] / target).resolve()
         if resolved == (GUIDE / "README.md").resolve():
             return f"[{label}](/docs/guide/introduction)"
-        page = next((meta for meta in META.values() if (GUIDE / meta["path"]).resolve() == resolved), None)
-        if page:
-            return f"[{label}](/docs/{page['route']}{anchor})"
+        route = route_of(resolved)
+        if route:
+            return f"[{label}]({href(route)}{anchor})"
         try:
             inside = resolved.relative_to(ROOT)
         except ValueError:
@@ -385,7 +408,7 @@ def convert(num: str, md: str):
     header = [
         f'/// Chapter {n} of the guide, written from md-docs/{META[num]["path"]} by',
         "/// scripts/docsite/guide.py; edit the guide, not this file.",
-        f'page {name}(path: "/docs/{route}", title: "{wf_string(title)}", description: "{wf_string(description)}", layout: DocsShell("{wf_string(title)}", chapter: t("nav.group.{META[num]["group"]}"), blurb: "{wf_string(blurb)}", source: "md-docs/{META[num]["path"]}", sections: [{anchors}]' + "PREVNEXT" + ")) {",
+        f'page {name}(path: "{href(route)}", title: "{wf_string(title)}", description: "{wf_string(description)}", layout: DocsShell("{wf_string(title)}", chapter: t("nav.group.{META[num]["group"]}"), blurb: "{wf_string(blurb)}", source: "md-docs/{META[num]["path"]}", sections: [{anchors}]' + "PREVNEXT" + ")) {",
         "    Stack(gap: .lg) {",
     ]
     return header, out, prev_num, next_num
@@ -405,7 +428,7 @@ def book() -> str:
         tour = meta["path"].startswith(("learn/01-", "learn/02-", "learn/03-"))
         rows.append(
             f'    Chapter(n: {int(num)}, title: "{wf_string(meta["title"])}", key: "ch.{num}", '
-            f'to: "/docs/{meta["route"]}", part: "nav.group.{meta["group"]}", '
+            f'to: "{href(meta["route"])}", part: "nav.group.{meta["group"]}", '
             f'tour: {"true" if tour else "false"})'
         )
     return BOOK_HEAD + ",\n".join(rows) + "\n]\n"
@@ -444,9 +467,9 @@ def main():
     for num, (f, (header, body, prev_num, next_num)) in converted.items():
         prevnext = ""
         if prev_num:
-            prevnext += f', prevTo: "/docs/{META[prev_num]["route"]}", prevLabel: t("ch.{prev_num}")'
+            prevnext += f', prevTo: "{href(META[prev_num]["route"])}", prevLabel: t("ch.{prev_num}")'
         if next_num:
-            prevnext += f', nextTo: "/docs/{META[next_num]["route"]}", nextLabel: t("ch.{next_num}")'
+            prevnext += f', nextTo: "{href(META[next_num]["route"])}", nextLabel: t("ch.{next_num}")'
         header[2] = header[2].replace("PREVNEXT", prevnext)
         text = "\n".join(header + body).rstrip() + "\n    }\n}\n"
         (OUT / f"{num}-{META[num]['slug']}.wf").write_text(text)

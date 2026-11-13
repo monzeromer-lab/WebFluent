@@ -56,7 +56,7 @@ page DocsHome(path: "/docs", title: "Documentation", description: "Learn WebFlue
         }
 
         DocPath("Fix", overline: "Help", body: "Every error and warning has a code. Run `wf explain CODE` in a terminal, or look it up here.", links: [
-            DocLink(label: "Diagnostics: every error and warning", to: "/docs/guide/diagnostics"),
+            DocLink(label: "Diagnostics: every error and warning", to: "/errors"),
             DocLink(label: "Troubleshooting", to: "/docs/guide/troubleshooting"),
             DocLink(label: "Upgrading from an older version", to: "/docs/guide/upgrading"),
             DocLink(label: "Glossary", to: "/docs/guide/glossary")

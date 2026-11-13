@@ -1,0 +1,40 @@
+/// A page for every code the compiler reports, at `/errors/CODE`, from
+/// `data/errors.json` — which scripts/docsite/errors.py writes from
+/// `wf explain --json` and each code's page, `md-docs/errors/CODE.md`. The
+/// index, `/errors`, is the guide's diagnostics chapter.
+type ErrorEntry {
+    code: String,
+    title: String,
+    plain: String,
+    severity: String,
+    family: String,
+    group: String,
+    summary: String,
+    lowerable: Bool,
+    description: String,
+    printed: String,
+    broken: String,
+    why: String,
+    fix: String,
+    related: [RelatedLink]
+}
+
+data errors: [ErrorEntry] = "data/errors.json"
+
+page ErrorPage(path: "/errors/:code", code: String, paths: errors.map(e => e.code), title: "{code} — {errors.find(e => e.code == code)?.plain ?? code}", description: "Error code {code}: what it means, what the compiler prints, and how to fix it.") {
+    derived families = errors.map(x => IndexEntry(label: "{x.code} {x.plain}", to: "/errors/{x.code}", group: x.group))
+    if let e = errors.find(x => x.code == code) {
+        ErrorShell(e.code, title: e.plain, severity: e.severity, family: e.group, summary: e.summary, printed: e.printed, lowerable: e.lowerable, why: e.why != "", example: false, families: families, related: e.related, sections: if e.why != "" { [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "why", label: t("error.why")), Anchor(id: "fix", label: t("error.fix"))] } else { [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))] }, source: "md-docs/errors/{e.code}.md") {
+            fixed {
+                Stack(gap: .sm) {
+                    if e.broken != "" {
+                        Text(t("error.broken"), class: "bp-label", data-tone: "error") { style { align-self: flex-start } }
+                        CodeBlock(e.broken, title: "wf")
+                    }
+                    Markdown(e.fix)
+                }
+            }
+            Markdown(e.why)
+        }
+    }
+}

@@ -95,7 +95,7 @@ spec/                        design notes and plans"#, title: "text")
 
         Heading("Add a diagnostic", id: "add-a-diagnostic").h2
 
-        Markdown("1. Give the finding a code, a severity and a title in `src/diagnostics/codes.rs`.\n2. Add an entry for it to [Diagnostics](/docs/guide/diagnostics), with a program that draws the code. The test suite compiles every example and checks that it draws its code, and a code with no entry in the guide fails a test.")
+        Markdown("1. Give the finding a code, a severity and a title in `src/diagnostics/codes.rs`.\n2. Add an entry for it to [Diagnostics](/errors), with a program that draws the code. The test suite compiles every example and checks that it draws its code, and a code with no entry in the guide fails a test.")
 
         Heading("Change this guide", id: "change-this-guide").h2
 

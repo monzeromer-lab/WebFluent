@@ -268,7 +268,7 @@ page CliGuide(path: "/docs/guide/cli", title: "Command line and editors", descri
             }
         }
 
-        Markdown("With `json` or `sarif`, the build's progress goes to standard error, so standard output holds the document alone.\n\n`--cache` keeps what it renders in `.wf-cache/build/`. A page is taken from the cache when its inputs are unchanged: its own text, every component it reaches, and what every page reads — the shell, the stores, constants and data, every page's title and route, the config, the translations and the compiler. The output is byte for byte what a build without `--cache` writes. A build with nothing to reuse fills the cache, and each build keeps only the entries it used.\n\n`--studio` stamps every element's root with `data-wf-node`, its node id, which is the same in the pre-rendered page and the live one. An instance of one of the project's components also carries `data-wf-call`: the calls that made it, innermost first. `nodes.json`, written beside the site, maps each id to where it is written (file, bytes, line), what it calls, its parent, the loops and branches it is inside, and what its arguments read. A build without `--studio` stamps nothing and removes any `nodes.json` it finds.\n\n`--stats` prints every text file with its gzipped size and how much it changed since the last build, the runtime modules the build kept and what reached each one, and the design tokens it left out.\n\nSee also: [Diagnostics](/docs/guide/diagnostics), [Performance](/docs/guide/performance).")
+        Markdown("With `json` or `sarif`, the build's progress goes to standard error, so standard output holds the document alone.\n\n`--cache` keeps what it renders in `.wf-cache/build/`. A page is taken from the cache when its inputs are unchanged: its own text, every component it reaches, and what every page reads — the shell, the stores, constants and data, every page's title and route, the config, the translations and the compiler. The output is byte for byte what a build without `--cache` writes. A build with nothing to reuse fills the cache, and each build keeps only the entries it used.\n\n`--studio` stamps every element's root with `data-wf-node`, its node id, which is the same in the pre-rendered page and the live one. An instance of one of the project's components also carries `data-wf-call`: the calls that made it, innermost first. `nodes.json`, written beside the site, maps each id to where it is written (file, bytes, line), what it calls, its parent, the loops and branches it is inside, and what its arguments read. A build without `--studio` stamps nothing and removes any `nodes.json` it finds.\n\n`--stats` prints every text file with its gzipped size and how much it changed since the last build, the runtime modules the build kept and what reached each one, and the design tokens it left out.\n\nSee also: [Diagnostics](/errors), [Performance](/docs/guide/performance).")
 
         Heading("wf serve", id: "wf-serve").h3
 
@@ -404,7 +404,7 @@ page CliGuide(path: "/docs/guide/cli", title: "Command line and editors", descri
                 Line(command: "wf check --deny-warnings")
             ])
 
-        Markdown("`wf check` is fast enough for a pre-commit hook. It exits `1` on a finding that would stop a build and `0` otherwise, and prints `No problems in NAME.` when there are none. A check that needs the written output — the security policy read back over the pages — runs only in `wf build`.\n\nSee also: [Diagnostics](/docs/guide/diagnostics).")
+        Markdown("`wf check` is fast enough for a pre-commit hook. It exits `1` on a finding that would stop a build and `0` otherwise, and prints `No problems in NAME.` when there are none. A check that needs the written output — the security policy read back over the pages — runs only in `wf build`.\n\nSee also: [Diagnostics](/errors).")
 
         Heading("wf fix", id: "wf-fix").h3
 
@@ -447,7 +447,7 @@ page CliGuide(path: "/docs/guide/cli", title: "Command line and editors", descri
                 Line(command: "wf fix --dry-run")
             ])
 
-        Markdown("A fix that overlaps another, or that the first fixes make way for, is taken on a second pass, and passes repeat until nothing more changes. `wf fix` then lists what is left: findings with no certain fix, which a person decides. `wf check` lists them too.\n\nSee also: [Diagnostics](/docs/guide/diagnostics).")
+        Markdown("A fix that overlaps another, or that the first fixes make way for, is taken on a second pass, and passes repeat until nothing more changes. `wf fix` then lists what is left: findings with no certain fix, which a person decides. `wf check` lists them too.\n\nSee also: [Diagnostics](/errors).")
 
         Heading("wf config", id: "wf-config").h3
 
@@ -508,7 +508,7 @@ page CliGuide(path: "/docs/guide/cli", title: "Command line and editors", descri
 
         Heading("wf explain", id: "wf-explain").h3
 
-        Markdown("Prints a diagnostic code's entry from [Diagnostics](/docs/guide/diagnostics) in the terminal.\n\n**Usage:** `wf explain [CODE]`")
+        Markdown("Prints a diagnostic code's entry from [Diagnostics](/errors) in the terminal.\n\n**Usage:** `wf explain [CODE] [--json]`")
 
         Table(caption: "wf explain") {
             Table.Head {
@@ -525,6 +525,12 @@ page CliGuide(path: "/docs/guide/cli", title: "Command line and editors", descri
                     Table.Cell { Markdown("a code, such as `T05`") }
                     Table.Cell("none")
                     Table.Cell { Markdown("The code to explain. Without one, `wf explain` lists every code with its severity and title.") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`--json`") }
+                    Table.Cell("flag")
+                    Table.Cell("off")
+                    Table.Cell { Markdown("Print JSON, for tools: the code's title, family, severity, summary, whether `lints` may lower it, its section of the guide as Markdown and its page. Without a code, every code.") }
                 }
             }
         }
