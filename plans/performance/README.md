@@ -5,6 +5,44 @@ Measured 2026-11-13 on this machine (16 cores), release builds of `wf` and
 (`site/`): 77 `.wf` files, 22,754 lines, 63 pages plus 77 pages from one
 `:slug` route, 732 files written.
 
+## Done so far (2026-11-13)
+
+| | Before | After |
+|---|---|---|
+| `wf build`, documentation site | 4.4 s | 0.89 s |
+| `wf build`, the site at 4× its size | not measured | 2.55 s |
+| A hover, completion or outline, site | 46 ms | 0.5 ms |
+| The same, at 4× | 155 ms | 0.5 ms |
+| An edit's findings, site | 145 ms | 81 ms |
+| The same, at 4× | 305 ms | 164 ms |
+
+What changed:
+1. The language server answers from the project as last analysed, and
+   analyses it again only after an edit, an open, a close, a save or a
+   file changed on disk (or after 500 ms when the editor does not report
+   those).
+2. A project analysed again reuses each file's parse while its text is
+   the same; the pause before an edit is checked is 50 ms, not 75.
+3. A `Static` list or map shares its contents (`Arc`), so reading a
+   `data` constant no longer copies it.
+4. Pages are painted on every core, and the `.gz` files are compressed
+   on every core; both are written in the order they always were.
+
+Every change was held to the golden output, byte for byte.
+
+Left from the list below:
+- the edit path's 21 ms (site) / 76 ms (4×) of checking, which is the
+  whole program's check every time;
+- the per-page translation and component tables;
+- the hasher;
+- the compressor's own speed;
+- `wf check` refusing an output folder outside the project;
+- a `cargo xtask bench` that keeps the numbers.
+
+The slow wf-lsp test (`real_code_tests`, about 170 s) calls the request
+handlers directly on one project about 70,000 times in a debug build. It
+does not go through the server's cache, so this work did not speed it up.
+
 ## Is it the tests, or the tools?
 
 Both, for different reasons.
