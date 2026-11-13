@@ -779,4 +779,33 @@ At the end of Phase 0 the site is in Blueprint, and nothing it says has changed 
 - **Agent files:** `docs_parse::the_agent_files_agree_with_the_site_and_the_compiler` checks that every site page `AGENTS.md`, the README and the skill link to is one the sitemap publishes. It also checks that `AGENTS.md` names every built-in, and that its icon list and count are the runtime's. It found and fixed two stale links.
 - **Tests:** `every_published_page_has_a_markdown_twin` and `the_search_knows_other_frameworks_words` hold the rest.
 
-**Left:** Launch (W8).
+### Launch
+
+**Done (2026-11-13; site rebuilt in `60b9a5ed`, old site tagged `site-v1`):**
+
+- **Decisions:** all four took the plan's recommendation: Instrument Sans; no assistant (Markdown twins and `llms.txt` only); the plain-text editor; `md-docs/` keeps its name.
+- **Compiler fixes the launch needed:**
+  - A page's `lang:` now picks its `t()` table, in the pre-render and live (`pageLocale` in the router), so `/ar/` pages are Arabic before any script runs.
+  - A program that calls `setTheme` gets `theme.js`, linked blocking and first, so a reader's chosen theme is on the first frame.
+  - The engine leaves out its English skip link when a page opens with its own.
+- **Arabic:**
+  - `/ar` (Home), `/ar/learn/01–03` and `/ar/coming-from/react`, from `md-docs/ar/` (`lang:`, `translates:`).
+  - `guide.py` and `comingfrom.py` write translations beside their pages, with `GUIDE_AR` for the sidebar.
+  - Anchors keep Arabic words.
+- **Other changes:**
+  - `/docs` sends readers to Home.
+  - The README links Learn and Recipes.
+  - A search with no results is counted when the palette closes.
+  - Chapters show their `learned:` lists; Phase 3 had dropped them.
+- **Checks:**
+  - `wf verify` loaded all 558 pages with no problems, far under a 1.5 s paint budget.
+  - `build.budget`: `app.js` 135 kB and `styles.css` 30 kB, gzipped.
+  - **Keyboard:** the skip link comes first, and focus shows a 2 px outline.
+  - **Contrast:** Night passes A13, and every Day pair is at least 4.6:1.
+  - **Reduced motion:** the engine's sheet stops all motion.
+  - **Right to left:** the only physical left/right rules are on code, deliberately.
+  - **Old URLs:** all 132 of the 6.0 site's addresses answer 200 on the deployed site.
+
+**Left for you:** submit `sitemap.xml` in Search Console, and listen to Learn, Reference, an error page and the Playground with a screen reader (Orca).
+
+**Follow-up:** `app.js` is 125 kB gzipped, and its route table is 102 kB of that before compression: every page's path and title, on every page. A static site could load the table only when the router needs it.
