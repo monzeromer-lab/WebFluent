@@ -1049,7 +1049,7 @@ fn run(options: &BuildOptions<'_>, out: &Out<'_>) -> Result<()> {
         // in order.
         let painted: Vec<String> = if options.cache.is_none() {
             out.report.borrow_mut().pages_rendered += jobs.len();
-            paint_all(&jobs, &paint)
+            in_parallel(&jobs, &paint)
         } else {
             jobs.iter()
                 .map(|job| match &job.params {
@@ -1822,6 +1822,48 @@ fn precompress(
     before: &std::collections::BTreeSet<String>,
     wrote: &mut std::collections::BTreeSet<String>,
 ) -> Result<()> {
+    // What to compress, found first; compressed on every core; written in
+    // the order the walk found it.
+    let mut texts: Vec<(PathBuf, Vec<u8>)> = Vec::new();
+    collect_texts(root, dir, before, &mut texts)?;
+    let compressed = in_parallel(&texts, &|(_, data): &(PathBuf, Vec<u8>)| {
+        (data.len() >= 1024)
+            .then(|| crate::web::codegen::gzip::gzip(data))
+            .filter(|gz| gz.len() < data.len())
+    });
+    let ours = |path: &Path| {
+        path.strip_prefix(root)
+            .ok()
+            .map(|rel| rel.to_string_lossy().replace('\\', "/"))
+            .is_some_and(|rel| before.contains(&rel))
+    };
+    for ((path, _), gz) in texts.iter().zip(compressed) {
+        let gz_path = PathBuf::from(format!("{}.gz", path.display()));
+        match gz {
+            Some(gz) => {
+                fs::write(&gz_path, gz)?;
+                if let Ok(rel) = gz_path.strip_prefix(root) {
+                    wrote.insert(rel.to_string_lossy().replace('\\', "/"));
+                }
+            }
+            None if ours(&gz_path) => {
+                let _ = fs::remove_file(&gz_path);
+            }
+            None => {}
+        }
+    }
+    Ok(())
+}
+
+/// Every text file under `dir` a `.gz` may stand beside, with its bytes;
+/// a `.gz` this build wrote before whose file is gone is removed on the
+/// way.
+fn collect_texts(
+    root: &Path,
+    dir: &Path,
+    before: &std::collections::BTreeSet<String>,
+    texts: &mut Vec<(PathBuf, Vec<u8>)>,
+) -> Result<()> {
     let ours = |path: &Path| {
         path.strip_prefix(root)
             .ok()
@@ -1831,7 +1873,7 @@ fn precompress(
     for entry in fs::read_dir(dir)? {
         let path = entry;
         if fs::is_dir(&path) {
-            precompress(root, &path, before, wrote)?;
+            collect_texts(root, &path, before, texts)?;
             continue;
         }
         let Some(ext) = path.extension().and_then(|e| e.to_str()) else {
@@ -1847,22 +1889,7 @@ fn precompress(
             continue;
         }
         let data = fs::read(&path)?;
-        let gz_path = PathBuf::from(format!("{}.gz", path.display()));
-        let gz = (data.len() >= 1024)
-            .then(|| crate::web::codegen::gzip::gzip(&data))
-            .filter(|gz| gz.len() < data.len());
-        match gz {
-            Some(gz) => {
-                fs::write(&gz_path, gz)?;
-                if let Ok(rel) = gz_path.strip_prefix(root) {
-                    wrote.insert(rel.to_string_lossy().replace('\\', "/"));
-                }
-            }
-            None if ours(&gz_path) => {
-                let _ = fs::remove_file(&gz_path);
-            }
-            None => {}
-        }
+        texts.push((path, data));
     }
     Ok(())
 }
@@ -2165,28 +2192,28 @@ struct Paint<'a> {
     params: Option<std::collections::HashMap<String, crate::project::static_eval::Static>>,
 }
 
-/// `paint` over every job, on as many threads as the machine has (at most
-/// one per job), each taking the next job not yet taken. The results come
-/// back in the jobs' order, so the files are written as they always were.
-fn paint_all(jobs: &[Paint<'_>], paint: &(dyn Fn(&Paint<'_>) -> String + Sync)) -> Vec<String> {
+/// `work` over every item, on as many threads as the machine has (at most
+/// one per item), each taking the next item not yet taken. The results come
+/// back in the items' order, so what is written from them is written as it
+/// always was. A machine that reports no parallelism (WebAssembly) does it
+/// in turn.
+fn in_parallel<T: Sync, R: Send>(items: &[T], work: &(dyn Fn(&T) -> R + Sync)) -> Vec<R> {
     let threads = std::thread::available_parallelism()
         .map_or(1, std::num::NonZero::get)
-        .min(jobs.len());
+        .min(items.len());
     if threads <= 1 {
-        return jobs.iter().map(paint).collect();
+        return items.iter().map(work).collect();
     }
     let next = std::sync::atomic::AtomicUsize::new(0);
-    let mut slots: Vec<Option<String>> = Vec::new();
-    slots.resize_with(jobs.len(), || None);
-    let done: Vec<Vec<(usize, String)>> = std::thread::scope(|scope| {
+    let done: Vec<Vec<(usize, R)>> = std::thread::scope(|scope| {
         let workers: Vec<_> = (0..threads)
             .map(|_| {
                 scope.spawn(|| {
                     let mut mine = Vec::new();
                     loop {
                         let ix = next.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
-                        let Some(job) = jobs.get(ix) else { break };
-                        mine.push((ix, paint(job)));
+                        let Some(item) = items.get(ix) else { break };
+                        mine.push((ix, work(item)));
                     }
                     mine
                 })
@@ -2195,17 +2222,19 @@ fn paint_all(jobs: &[Paint<'_>], paint: &(dyn Fn(&Paint<'_>) -> String + Sync)) 
         workers
             .into_iter()
             .map(|w| match w.join() {
-                Ok(painted) => painted,
+                Ok(done) => done,
                 Err(panic) => std::panic::resume_unwind(panic),
             })
             .collect()
     });
-    for (ix, html) in done.into_iter().flatten() {
-        slots[ix] = Some(html);
+    let mut slots: Vec<Option<R>> = Vec::new();
+    slots.resize_with(items.len(), || None);
+    for (ix, result) in done.into_iter().flatten() {
+        slots[ix] = Some(result);
     }
     slots
         .into_iter()
-        .map(|html| html.expect("every job was painted"))
+        .map(|result| result.expect("every item was worked"))
         .collect()
 }
 
