@@ -130,6 +130,10 @@ def num_of(path: Path) -> str:
     return f'{front_matter(path)[0]["chapter"]:02d}'
 
 
+# The same rule under the name the changelog script uses.
+site_path = href
+
+
 def page_name(route: str) -> str:
     last = route.rstrip("/").split("/")[-1]
     return "".join(w.capitalize() for w in re.split(r"[^a-z0-9]+", last) if w) + "Guide"

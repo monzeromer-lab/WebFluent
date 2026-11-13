@@ -90,4 +90,7 @@ suite, so what you read is what the compiler accepts.
 | 50 | [Troubleshooting](errors/troubleshooting.md) | The problems people meet, what causes each, and the fix — from installing to deploying, plus the questions that come up most. |
 | 51 | [Upgrading](about/upgrading.md) | What changed in each release, what to do when you upgrade, and how wf migrate carries an older project forward. |
 | 52 | [Contributing](about/contributing.md) | How the compiler is put together, how to build and test it, and how to change the language, a built-in or this guide. |
+| | **Reference** | |
+| 53 | [Library](reference/library.md) | The compiler as a library: the Rust crate's documented API, the Node package, and wf.js in a browser. |
+| 54 | [Editors](reference/editors.md) | The language server, wf-lsp, and what the VS Code and Zed extensions and the Tree-sitter grammars each support. |
 <!-- /contents -->
