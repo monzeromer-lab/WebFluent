@@ -5,12 +5,12 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' https://www.googletagmanager.com; style-src 'self'; connect-src 'self' https://*.google-analytics.com https://*.analytics.google.com https://www.googletagmanager.com; img-src 'self' data: https://*.google-analytics.com https://www.googletagmanager.com; font-src 'self'; frame-src 'self' https://www.youtube.com; object-src 'none'; base-uri 'none'; form-action 'self'">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Upgrading</title>
-    <meta name="description" content="How to upgrade wf, what each release from 4.0 to 5.12 asks of a project, and moving a WebFluent 2 or 3 project forward with wf migrate.">
+    <meta name="description" content="How to upgrade wf, what each release from 4.0 to 6.0 asks of a project, and moving a WebFluent 2 or 3 project forward with wf migrate.">
     <link rel="canonical" href="https://webfluent.monzeromer.dev/docs/guide/upgrading">
     <meta property="og:type" content="website">
     <meta property="og:title" content="Upgrading">
     <meta property="og:site_name" content="WebFluent">
-    <meta property="og:description" content="How to upgrade wf, what each release from 4.0 to 5.12 asks of a project, and moving a WebFluent 2 or 3 project forward with wf migrate.">
+    <meta property="og:description" content="How to upgrade wf, what each release from 4.0 to 6.0 asks of a project, and moving a WebFluent 2 or 3 project forward with wf migrate.">
     <meta property="og:url" content="https://webfluent.monzeromer.dev/docs/guide/upgrading">
     <meta property="og:locale" content="en_US">
     <meta property="og:locale:alternate" content="ar_AR">
@@ -19,9 +19,9 @@
     <meta property="og:image:height" content="630">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Upgrading">
-    <meta name="twitter:description" content="How to upgrade wf, what each release from 4.0 to 5.12 asks of a project, and moving a WebFluent 2 or 3 project forward with wf migrate.">
+    <meta name="twitter:description" content="How to upgrade wf, what each release from 4.0 to 6.0 asks of a project, and moving a WebFluent 2 or 3 project forward with wf migrate.">
     <meta name="twitter:image" content="https://webfluent.monzeromer.dev/og.png">
-    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/upgrading#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/upgrading","name":"Upgrading","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"How to upgrade wf, what each release from 4.0 to 5.12 asks of a project, and moving a WebFluent 2 or 3 project forward with wf migrate.","inLanguage":"en"},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/upgrading#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Documentation","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Upgrading","item":"https://webfluent.monzeromer.dev/docs/guide/upgrading"}]}]}</script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/upgrading#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/upgrading","name":"Upgrading","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"How to upgrade wf, what each release from 4.0 to 6.0 asks of a project, and moving a WebFluent 2 or 3 project forward with wf migrate.","inLanguage":"en"},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/upgrading#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Documentation","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"Upgrading","item":"https://webfluent.monzeromer.dev/docs/guide/upgrading"}]}]}</script>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
@@ -272,12 +272,12 @@
                                     <tr>
                                         <td>
                                             <div class="wf-markdown">
-<p><a href="#5-15">5.15</a></p>
+<p><a href="#6-0">6.0</a></p>
                                             </div>
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p>Nothing; to have each language of a translated site found, give it pages with <code>lang:</code> and <code>translates:</code></p>
+<p>Nothing for a project; to have each language of a translated site found, give it pages with <code>lang:</code> and <code>translates:</code>. A program using the Rust crate: see the release's notes</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -469,16 +469,25 @@
 <li>Build, and load the result with <code>wf verify</code>.</li>
 </ol>
                             </div>
-                            <h2 class="wf-heading" id="5-15">5.15</h2>
+                            <h2 class="wf-heading" id="6-0">6.0</h2>
                             <div class="wf-markdown">
-<p>5.15 lets a page be in a language of its own (<code>lang:</code>) and name the page it translates (<code>translates:</code>). Your project may notice these:</p>
+<p>6.0 lets a page be in a language of its own (<code>lang:</code>) and name the page it translates (<code>translates:</code>). Your project may notice these:</p>
 <ul>
 <li><strong>No more <code>?lang=</code> alternates.</strong> A project with several <code>i18n.locales</code> listed a <code>?lang=&lt;code&gt;</code> address per locale as an <code>hreflang</code> alternate. Each served the default locale's HTML with the bare address as its canonical, so search engines filed them as duplicates and ignored the set. They are gone; a <code>?lang=</code> link still opens the page in that locale. To have each language indexed, write its pages with <code>lang:</code> and <code>translates:</code> (<a href="/docs/guide/i18n#a-page-in-its-own-language">A page in its own language</a>).</li>
 <li><strong>Every page's JSON-LD names its language</strong>, <code>inLanguage</code>.</li>
 <li><strong><code>wf render</code> and <code>Template</code> use the page's <code>lang:</code></strong> when <code>--lang</code> or <code>with_lang</code> is not given; a page without one is still <code>en</code>.</li>
 <li><strong>A word <code>lang</code> or <code>translates</code> in a page header</strong> is the new option when it takes a string or a page name. A route parameter of that name is still one: <code>lang: String</code>.</li>
+<li><strong><code>wf check --allow-output-outside</code></strong>: a project whose <code>build.output</code> is outside it can be checked, as it is built.</li>
 </ul>
 <p>Run <code>wf check</code>.</p>
+<p>A program that uses the <code>webfluent</code> crate is what 6.0 breaks:</p>
+<ul>
+<li>the compiler's internal modules need <code>features = [&quot;internals&quot;]</code>;</li>
+<li>a path moved to its layer (<code>webfluent::fmt</code> is <code>webfluent::syntax::fmt</code>);</li>
+<li>a <code>match</code> on a public enum needs a <code>_</code> arm;</li>
+<li>an error is built with <code>WebFluentError::io(…)</code> and the like.</li>
+</ul>
+<p>The release notes list them all.</p>
                             </div>
                             <h2 class="wf-heading" id="5-12">5.12</h2>
                             <div class="wf-markdown">
@@ -820,7 +829,7 @@
                         <a class="wf-link wf-s3e136ca4" href="#at-a-glance">At a glance</a>
                         <a class="wf-link wf-s3e136ca4" href="#install-a-newer-version">Install a newer version</a>
                         <a class="wf-link wf-s3e136ca4" href="#upgrade-a-project">Upgrade a project</a>
-                        <a class="wf-link wf-s3e136ca4" href="#5-15">5.15</a>
+                        <a class="wf-link wf-s3e136ca4" href="#6-0">6.0</a>
                         <a class="wf-link wf-s3e136ca4" href="#5-12">5.12</a>
                         <a class="wf-link wf-s3e136ca4" href="#5-11">5.11</a>
                         <a class="wf-link wf-s3e136ca4" href="#5-10">5.10</a>

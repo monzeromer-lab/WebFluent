@@ -142,6 +142,6 @@ page IntroductionGuide(path: "/docs/guide/introduction", title: "Introduction", 
 
         Heading("Versions", id: "versions").h2
 
-        Markdown("This guide describes WebFluent 5, the stable line. Run `wf --version` to see which release you have. [Upgrading](/docs/guide/upgrading) lists what changed in each release.")
+        Markdown("This guide describes WebFluent 6, the stable line. Run `wf --version` to see which release you have. [Upgrading](/docs/guide/upgrading) lists what changed in each release.")
     }
 }

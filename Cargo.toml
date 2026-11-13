@@ -59,7 +59,7 @@ required-features = ["cli"]
 
 # `cli` is the `wf` command: its argument parser and the dev server. A
 # program that only renders templates leaves it out —
-# `webfluent = { version = "5", default-features = false }` — and builds
+# `webfluent = { version = "6", default-features = false }` — and builds
 # the compiler and the template engine alone.
 [features]
 default = ["cli"]

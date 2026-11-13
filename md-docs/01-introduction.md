@@ -181,7 +181,7 @@ leaves something out says so with a `…`.
 
 ## Versions
 
-This guide describes WebFluent 5, the stable line. Run `wf --version` to see
+This guide describes WebFluent 6, the stable line. Run `wf --version` to see
 which release you have. [Upgrading](51-upgrading.md) lists what changed in
 each release.
 

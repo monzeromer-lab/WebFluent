@@ -4,7 +4,7 @@
 route: guide/upgrading
 group: help
 blurb: What changed in each release, what to do when you upgrade, and how wf migrate carries an older project forward.
-description: How to upgrade wf, what each release from 4.0 to 5.12 asks of a project, and moving a WebFluent 2 or 3 project forward with wf migrate.
+description: How to upgrade wf, what each release from 4.0 to 6.0 asks of a project, and moving a WebFluent 2 or 3 project forward with wf migrate.
 -->
 
 This chapter tells you what each release asks of your project when you
@@ -26,7 +26,7 @@ In this chapter:
 
 | Release | What to do |
 |---|---|
-| [5.15](#5-15) | Nothing; to have each language of a translated site found, give it pages with `lang:` and `translates:` |
+| [6.0](#6-0) | Nothing for a project; to have each language of a translated site found, give it pages with `lang:` and `translates:`. A program using the Rust crate: see the release's notes |
 | [5.12](#5-12) | Run `wf check` (`E118`, `E102`); rename a store member called `valueOf` or `toString` |
 | [5.11](#5-11) | Run `wf check` (`C07`, `T22`), then `wf test --update` once you have read the new snapshots |
 | [5.10](#5-10) | Run `wf check` and `wf test --update`; check `Column` spans, `Menu` labels and bound checkboxes with their own `on change` |
@@ -68,9 +68,9 @@ After installing, bring each project forward:
    `wf test --update`.
 4. Build, and load the result with `wf verify`.
 
-## 5.15
+## 6.0
 
-5.15 lets a page be in a language of its own (`lang:`) and name the page
+6.0 lets a page be in a language of its own (`lang:`) and name the page
 it translates (`translates:`). Your project may notice these:
 
 - **No more `?lang=` alternates.** A project with several `i18n.locales`
@@ -86,8 +86,19 @@ it translates (`translates:`). Your project may notice these:
 - **A word `lang` or `translates` in a page header** is the new option
   when it takes a string or a page name. A route parameter of that name is
   still one: `lang: String`.
+- **`wf check --allow-output-outside`**: a project whose `build.output` is
+  outside it can be checked, as it is built.
 
 Run `wf check`.
+
+A program that uses the `webfluent` crate is what 6.0 breaks:
+
+- the compiler's internal modules need `features = ["internals"]`;
+- a path moved to its layer (`webfluent::fmt` is `webfluent::syntax::fmt`);
+- a `match` on a public enum needs a `_` arm;
+- an error is built with `WebFluentError::io(…)` and the like.
+
+The release notes list them all.
 
 ## 5.12
 
