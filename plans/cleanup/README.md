@@ -32,13 +32,6 @@ Surveyed 2026-11-13, after the 6.0.0 release; carried out 2026-11-14.
 - **`plans/refactoring/`** moved to `plans/archive/refactoring/`. Its
   `security-and-memory.md` is still confidential and still kept out of git
   through `.git/info/exclude`, under the new path.
-
-## Kept, on purpose
-
-- Every script, test, fixture and example: each one is used (see the
-  survey in this file's history).
-- `bench/pdf`, `docs/` (the built site) and `scripts/site-art.sh`.
-
 - **The external drive's worktrees.** The four `launch/*` worktrees
   (`wf-bench`, `wf-launch`, `wf-showcase`, `wf-videos`) were removed on
   2026-11-14, along with their branches. Their links still pointed at the
@@ -48,3 +41,9 @@ Surveyed 2026-11-13, after the 6.0.0 release; carried out 2026-11-14.
   with them.
 
 The repository now has `master` and no other branch or worktree.
+
+## Kept, on purpose
+
+- Every script, test, fixture and example: each one is used (see the
+  survey in this file's history).
+- `bench/pdf`, `docs/` (the built site) and `scripts/site-art.sh`.
