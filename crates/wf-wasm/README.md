@@ -39,7 +39,7 @@ iframe.src = await preview(out);             // a site, served as a host would
 |---|---|
 | `compile(files, config)` | `files`: path → text or bytes (`Uint8Array`). Resolves to `{ ok, files, binary, diagnostics, error, lines }` |
 | `check(files, config)` | every finding, nothing built (`wf check`) |
-| `preview(out, route?)` | publishes the build to a service worker (`preview-sw.js`) that serves it under `preview/` — every page, chunk, stylesheet and picture, routes included — and resolves to the address for an iframe. Build with `previewConfig(config)` so the pages ask for their files there. The iframe needs `sandbox="allow-scripts allow-same-origin"`; give the preview an origin of its own if the page around it holds anything worth protecting |
+| `preview(out, route?, slot?)` | publishes the build to a service worker (`preview-sw.js`) that serves it under `preview/` — every page, chunk, stylesheet and picture, routes included — and resolves to the address for an iframe. Build with `previewConfig(config, slot?)` so the pages ask for their files there. A `slot` (letters, digits, `-`, `_`) serves the build under `preview/<slot>/` and replaces only what that slot held, so a page can show several previews at once. The iframe needs `sandbox="allow-scripts allow-same-origin"`; give the preview an origin of its own if the page around it holds anything worth protecting |
 | `explain(code)` | `{ code, severity, title, summary, docs }` or `null` |
 | `registerFont(bytes)` | a face documents may be set in or fall back to (TTF/OTF, as it is, zlib or gzip); resolves to its family |
 | `preload({ document })` | start loading before the first call |

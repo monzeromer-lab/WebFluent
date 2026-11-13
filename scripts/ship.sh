@@ -132,6 +132,7 @@ step "The docs site"
 # config, and the release the guide's install examples pin.
 sed -i "s/^  \"version\": \".*\"/  \"version\": \"$version\"/" site/webfluent.app.json
 sed -i "s/^const VERSION = \".*\"/const VERSION = \"${version%.*}\"/" site/src/model.wf
+sed -i "s/^const WF_RELEASE = \".*\"/const WF_RELEASE = \"$version\"/" site/src/model.wf
 find md-docs -name '*.md' -exec sed -i -E "s/WF_VERSION=v[0-9]+\.[0-9]+\.[0-9]+/WF_VERSION=v$version/g" {} +
 cargo build --release --quiet
 WF_BIN=target/release/wf python3 scripts/docsite >/dev/null
@@ -139,6 +140,10 @@ WF_BIN=target/release/wf python3 scripts/docsite >/dev/null
 # previews. Needs pdftoppm and pdfinfo (poppler-utils) and magick.
 python3 scripts/showcase.py | tail -n1
 target/release/wf build -d site --allow-output-outside | tail -n1
+# The compiler the live examples and the Playground load, under
+# /wasm/$version/, held to its size budget.
+crates/wf-wasm/build.sh >/dev/null
+scripts/site-wasm.sh | tail -n4
 
 step "Release preflight"
 scripts/release-preflight.sh "$tag" || { restore; stop "the preflight failed; every file is back as it was"; }

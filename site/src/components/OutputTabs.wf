@@ -1,7 +1,11 @@
-/// What a build wrote, a tab per output, and what the compiler found.
-component OutputTabs(html: String = "", css: String = "", js: String = "", findings: String = "") {
+/// What a build wrote, a tab per output; the same project as a PDF, built
+/// by the compiler's PDF build only when the tab asks for it; and what the
+/// compiler found, as `wf` prints it.
+component OutputTabs(html: String = "", css: String = "", js: String = "", findings: [Map] = [], pdfStage: String = "", pdfRun: Number = 0, pdf: String = "", pdfFindings: [Map] = [], pdfBusy: Bool = false) {
+    event wantPdf()
     state tab = "html"
-    derived shown = if tab == "css" { css } else if tab == "js" { js } else if tab == "findings" { findings } else { html }
+    derived shown = if tab == "css" { css } else if tab == "js" { js } else { html }
+    derived language = if tab == "css" { "css" } else { "" }
 
     Stack(class: "bp-console bp-ltr", dir: "ltr") {
         style { gap: 0; min-width: 0 }
@@ -10,9 +14,45 @@ component OutputTabs(html: String = "", css: String = "", js: String = "", findi
                 Button(t("example.html"), role: "tab", aria-selected: tab == "html", class: "bp-tab") { on click { tab = "html" } }
                 Button(t("example.css"), role: "tab", aria-selected: tab == "css", class: "bp-tab") { on click { tab = "css" } }
                 Button(t("example.js"), role: "tab", aria-selected: tab == "js", class: "bp-tab") { on click { tab = "js" } }
-                Button(t("playground.findings"), role: "tab", aria-selected: tab == "findings", class: "bp-tab") { on click { tab = "findings" } }
+                Button(t("playground.pdf"), role: "tab", aria-selected: tab == "pdf", class: "bp-tab") { on click { tab = "pdf" } }
+                Button("{t("playground.findings")} {findings.length}", role: "tab", aria-selected: tab == "findings", class: "bp-tab") { on click { tab = "findings" } }
             }
         }
-        Code(if shown != "" { shown } else { t("playground.nothing") }, class: "bp-console__code").block { style { max-height: 260px } }
+        if tab == "findings" {
+            Stack(class: "bp-live-findings") {
+                style { border-top: 0; max-height: 420px; overflow: auto }
+                if findings.length == 0 {
+                    Text(t("playground.nothing"), class: "bp-small")
+                }
+                for f in findings by f.key {
+                    Diagnostic(f.printed, code: f.code, title: f.title, severity: f.severity, to: f.to)
+                }
+            }
+        } else if tab == "pdf" {
+            Stack(class: "bp-live-findings") {
+                style { border-top: 0 }
+                Row(align: .center, gap: .sm) {
+                    style { flex-wrap: wrap; gap: 12px; color: $term-ink }
+                    Button(t("playground.pdf.build"), class: "bp-button", data-tone: "action", disabled: pdfBusy) { on click { emit wantPdf() } }
+                    if pdfBusy {
+                        Spinner.sm
+                    }
+                    if pdfRun > 0 && pdf != "" {
+                        Link(t("playground.pdf.open"), to: "/wasm/{WF_RELEASE}/preview/{pdfStage}/{pdf}", target: "_blank")
+                    }
+                }
+                Text(t("playground.pdf.body"), class: "bp-small") { style { color: $term-dim } }
+                for f in pdfFindings by f.key {
+                    Diagnostic(f.printed, code: f.code, title: f.title, severity: f.severity, to: f.to)
+                }
+                if pdfRun > 0 && pdf != "" {
+                    Frame(src: "/wasm/{WF_RELEASE}/preview/{pdfStage}/{pdf}?run={pdfRun}", title: t("playground.pdf")) {
+                        style { width: 100%; min-height: 520px; border: 0; background: $sheet }
+                    }
+                }
+            }
+        } else {
+            Code(if shown != "" { shown } else { t("playground.nothing") }, language: language, class: "bp-console__code").block { style { max-height: 420px } }
+        }
     }
 }

@@ -13,7 +13,7 @@ component PreviewChapter(ar: Bool = false) {
     DocsShell(if ar { "الحالة والتفاعل" } else { "State and reactivity" }, chapter: if ar { "الفصل 4" } else { "Chapter 4" }, blurb: if ar { "قيمة تعلنها بـ state يقرؤها ما يعرضها، ولا يُعاد رسم إلا ما يقرؤها حين تتغير." } else { "A value you declare with state is read by whatever shows it — and only what reads it draws again when it changes." }, sections: [Anchor(id: "try-it", label: "Try it"), Anchor(id: "what-redraws", label: "What redraws"), Anchor(id: "check", label: "Check your understanding")], prevTo: "/learn/03-elements-and-flags", prevLabel: "3. Elements and flags", nextTo: "/learn/05-components", nextLabel: "5. Components", book: SAMPLE_BOOK, prereqs: [RelatedLink(kind: "Tutorial", title: "A first page", to: "/learn/02-a-first-page")], outputs: ["website", "app", "pdf"], learned: ["`state` holds a value that changes.", "Only what reads a value draws again.", "`derived` is worked out from other values."], codes: SAMPLE_CODES, other: if ar { "/blueprint/chapter" } else { "/ar/blueprint/chapter" }, lang: if ar { "ar" } else { "en" }) {
         // wf-allow(A16)
         Heading(if ar { "جرّبه" } else { "Try it" }, id: "try-it").h2
-        Example(SAMPLE_CODE, preview: "/blueprint/sample", html: SAMPLE_HTML, css: SAMPLE_CSS, js: SAMPLE_JS)
+        Example(SAMPLE_CODE, preview: "/blueprint/sample", html: SAMPLE_HTML, css: SAMPLE_CSS, js: SAMPLE_JS, live: true, mistake: SAMPLE_MISTAKE)
         // wf-allow(A16)
         Heading(if ar { "ما الذي يُعاد رسمه" } else { "What redraws" }, id: "what-redraws").h2
         Markdown(if ar { "لا شيء يعيد تشغيل الصفحة كلها. يرى المترجم أن `Text` يقرأ `count`، فيربط عقدة النص تلك به." } else { "Nothing re-runs the whole page. The compiler sees that `Text(\"Clicked \{count\} times\")` reads `count`, and ties that one text node to it." })
@@ -98,7 +98,11 @@ component PreviewComingFrom(ar: Bool = false) {
 
 /// T7.
 component PreviewPlayground(ar: Bool = false) {
-    PlaygroundShell(files: SAMPLE_FILES, preview: "/blueprint/sample", html: SAMPLE_HTML, css: SAMPLE_CSS, js: SAMPLE_JS, findings: "No findings.", tests: [{ name: "greets by name", passed: true }, { name: "counts clicks", passed: true }, { name: "resets", passed: false }], examples: [Place(key: "building.website", to: "/blueprint/playground"), Place(key: "building.pdf", to: "/blueprint/playground")], other: if ar { "/blueprint/playground" } else { "/ar/blueprint/playground" }, lang: if ar { "ar" } else { "en" })
+    PlaygroundShell(other: if ar { "/blueprint/playground" } else { "/ar/blueprint/playground" }, lang: if ar { "ar" } else { "en" })
+    Stack(class: "bp-wrap") {
+        style { padding-bottom: 32px }
+        TestPanel(tests: [{ name: "greets by name", passed: true }, { name: "counts clicks", passed: true }, { name: "resets", passed: false }])
+    }
 }
 
 /// T8.

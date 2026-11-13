@@ -413,6 +413,11 @@ jobs:
       - name: Build both packages the playground loads
         run: crates/wf-wasm/build.sh
 
+      # What the docs site ships under /wasm/<version>/, and what a reader
+      # downloads on a first edit and a first PDF, held to a budget.
+      - name: The compiler the docs site ships, within its size budget
+        run: scripts/site-wasm.sh "$RUNNER_TEMP/site"
+
       - name: Fuzz targets compile
         run: cargo check --manifest-path fuzz/Cargo.toml --bins
 

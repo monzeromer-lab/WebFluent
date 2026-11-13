@@ -7,6 +7,35 @@ component HomeShell(other: String = "", lang: String = "en") {
     use Building
     state count = 0
     state copied = false
+    // The hero's example, live once the reader edits it (see `Example`).
+    state draft = HOME_EXAMPLE
+    state editing = false
+    state stage = ""
+    state run = 0
+    state result: Map? = null
+    derived findings: [Map] = result?.findings ?? []
+    derived fixable = findings.find(f => f.fixed != "")
+
+    action edit() {
+        wfWarm(WASM)
+        if stage == "" { stage = wfSlot() }
+        editing = true
+    }
+    action edited(next: String) {
+        draft = next
+        build()
+    }
+    action build() {
+        wfBuild(WASM, stage, { "src/pages/Home.wf": draft }, EXAMPLE_CONFIG, (r) => heard(r))
+    }
+    action heard(r: Map) {
+        result = r
+        if r.ok { run = run + 1 }
+    }
+    action change(next: String) {
+        draft = next
+        build()
+    }
 
     action copyInstall() {
         copied = true
@@ -52,21 +81,52 @@ component HomeShell(other: String = "", lang: String = "en") {
                     style { gap: 0; @md { grid-template-columns: minmax(0, 3fr) minmax(0, 2fr) } }
                     Stack(class: "bp-home-example__code") {
                         style { min-width: 0 }
-                        CodeBlock(HOME_EXAMPLE, title: "Home.wf")
+                        if editing {
+                            Editor(draft, file: "Home.wf") {
+                                on edit(next) { edited(next) }
+                            }
+                        } else {
+                            CodeBlock(HOME_EXAMPLE, title: "Home.wf")
+                        }
                     }
-                    Stack(class: "bp-grid bp-home-example__preview", role: "group", aria-label: t("home.example.preview")) {
-                        Heading("Hello, WebFluent").h2
-                        Text("Clicked {count} times")
-                        Row(gap: .sm) {
-                            style { gap: 8px }
-                            Button("+1", class: "bp-button", data-tone: "action") { on click { count = count + 1 } }
-                            Button("Reset", class: "bp-button") { on click { count = 0 } }
+                    if run > 0 {
+                        Stack(class: "bp-grid bp-home-example__preview", role: "group", aria-label: t("home.example.preview")) {
+                            style { padding: 0 }
+                            Frame(src: "/wasm/{WF_RELEASE}/preview/{stage}/?run={run}", title: t("home.example.preview"), class: "bp-preview-frame")
+                        }
+                    } else {
+                        Stack(class: "bp-grid bp-home-example__preview", role: "group", aria-label: t("home.example.preview")) {
+                            Heading("Hello, WebFluent").h2
+                            Text("Clicked {count} times")
+                            Row(gap: .sm) {
+                                style { gap: 8px }
+                                Button("+1", class: "bp-button", data-tone: "action") { on click { count = count + 1 } }
+                                Button("Reset", class: "bp-button") { on click { count = 0 } }
+                            }
+                        }
+                    }
+                }
+                if findings.length > 0 {
+                    Stack(class: "bp-live-findings bp-ltr", dir: "ltr", role: "group", aria-label: t("live.findings")) {
+                        for f in findings by f.key {
+                            Diagnostic(f.printed, code: f.code, title: f.title, severity: f.severity, to: f.to)
                         }
                     }
                 }
                 Row(align: .center, class: "bp-home-example__status") {
-                    Text("", class: "bp-dot", aria-hidden: "true")
-                    Text(t("home.example.compiled", { version: VERSION }))
+                    style { flex-wrap: wrap; gap: 8px 12px }
+                    LiveStatus(editing: editing, result: result, version: VERSION, mistake: true, fixable: fixable != null, start: false) {
+                        style { flex: 1 1 auto; padding: 0; border: 0; background: transparent }
+                        on breakIt { change(draft.replace(HOME_MISTAKE[0], HOME_MISTAKE[1])) }
+                        on fix { if let f = fixable { change(f.fixed) } }
+                    }
+                    if !editing {
+                        Button(t("example.edit"), class: "bp-button", data-tone: "action", data-track: "edit_example", data-track-item-id: "home") {
+                            on mouseenter { wfWarm(WASM) }
+                            on focus { wfWarm(WASM) }
+                            on click { edit() }
+                        }
+                    }
                 }
             }
         }
@@ -148,6 +208,10 @@ component HomeShell(other: String = "", lang: String = "en") {
         }
     }
 }
+
+/// The hero's prepared mistake: Break it makes this change, which the
+/// compiler answers with a T13 and a fix.
+const HOME_MISTAKE = [#"Clicked {count}"#, #"Clicked {cout}"#]
 
 /// The hero's example: what the preview beside it draws.
 const HOME_EXAMPLE = #"page Home(path: "/", title: "Hello") {

@@ -1,6 +1,7 @@
-/// What the Playground built, running: at a desktop's width, or in a phone's
-/// frame.
-component PreviewPane(src: String = "", title: String = "") {
+/// What the Playground built, running — at a desktop's width, or in a
+/// phone's frame — served by the preview worker under
+/// `/wasm/<release>/preview/<stage>/`. A document shows its PDF.
+component PreviewPane(stage: String = "", run: Number = 0, pdf: String = "") {
     state phone = false
 
     Stack(class: "bp-pane") {
@@ -13,13 +14,18 @@ component PreviewPane(src: String = "", title: String = "") {
             }
         }
         Stack(class: "bp-grid") {
-            style { flex: 1 1 auto; min-height: 320px; padding: 16px }
-            if src != "" {
-                Frame(src: src, title: if title != "" { title } else { t("playground.preview") }, class: if phone { "bp-phone" } else { "" }) {
-                    style { flex: 1 1 auto; width: 100%; min-height: 300px; border: 1px solid $line; border-radius: 4px; background: $sheet }
+            style { flex: 1 1 auto; min-height: 420px; padding: 16px }
+            if run == 0 {
+                Text(t("playground.empty"), class: "bp-small") { style { margin: auto } }
+            } else if pdf != "" {
+                // The browser's own viewer, at a desktop's width.
+                Frame(src: "/wasm/{WF_RELEASE}/preview/{stage}/{pdf}?run={run}", title: t("playground.pdf")) {
+                    style { flex: 1 1 auto; width: 100%; min-height: 400px; border: 1px solid $line; border-radius: 4px; background: $sheet }
                 }
             } else {
-                Text(t("playground.empty"), class: "bp-small") { style { margin: auto } }
+                Frame(src: "/wasm/{WF_RELEASE}/preview/{stage}/?run={run}", title: t("playground.preview"), class: if phone { "bp-phone" } else { "" }) {
+                    style { flex: 1 1 auto; width: 100%; min-height: 400px; border: 1px solid $line; border-radius: 4px; background: $sheet }
+                }
             }
         }
     }

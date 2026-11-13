@@ -143,13 +143,20 @@ const previewScope = new URL("preview/", base);
 
 /**
  * `config` (JSON text or an object) with `build.base_path` set to where
- * `preview()` serves a build, so its pages ask for their files there.
+ * `preview()` serves a build, so its pages ask for their files there. A
+ * `slot` (a name of letters, digits, `-` and `_`) keeps this build apart
+ * from the others a page previews: each is served under `preview/<slot>/`.
  */
-export function previewConfig(config) {
+export function previewConfig(config, slot = "") {
   const object = typeof config === "string" ? JSON.parse(config) : structuredClone(config ?? {});
   object.name ??= "Playground";
-  object.build = { ...object.build, base_path: previewScope.pathname.replace(/\/$/, "") };
+  object.build = { ...object.build, base_path: slotScope(slot).pathname.replace(/\/$/, "") };
   return JSON.stringify(object);
+}
+
+function slotScope(slot) {
+  if (slot && !/^[A-Za-z0-9_-]+$/.test(slot)) throw new TypeError(`WebFluent: "${slot}" is not a preview slot's name`);
+  return slot ? new URL(`${slot}/`, previewScope) : previewScope;
 }
 
 let worker = null;
@@ -169,19 +176,21 @@ function previewWorker() {
 /**
  * Serve what `compile()` built (with `previewConfig`) under `preview/`, as a
  * host would — every page, chunk and picture — and resolve to the address
- * to load in an iframe. The iframe needs `allow-same-origin` beside
- * `allow-scripts` for the worker to answer it; give the preview an origin
- * of its own if the page around it holds anything worth protecting.
+ * to load in an iframe. With a `slot`, under `preview/<slot>/`, replacing
+ * only what that slot served before. The iframe needs `allow-same-origin`
+ * beside `allow-scripts` for the worker to answer it; give the preview an
+ * origin of its own if the page around it holds anything worth protecting.
  */
-export async function preview(out, route = "") {
+export async function preview(out, route = "", slot = "") {
+  const scope = slotScope(slot);
   const active = await previewWorker();
   const files = { ...out.files, ...out.binary };
   await new Promise((resolve) => {
     const channel = new MessageChannel();
     channel.port1.onmessage = resolve;
-    active.postMessage({ type: "wf-publish", files }, [channel.port2]);
+    active.postMessage({ type: "wf-publish", files, slot }, [channel.port2]);
   });
-  return new URL(route.replace(/^\//, ""), previewScope).href;
+  return new URL(route.replace(/^\//, ""), scope).href;
 }
 
 /**

@@ -1,18 +1,36 @@
 /// Where "Open in Playground" goes.
 const PLAYGROUND = "/playground"
 
-/// An example, at its static level: the code, highlighted, with Copy and a
+/// What an example is built with in the page: readable output, and no
+/// search snippet asked of a page that is only an example.
+const EXAMPLE_CONFIG = #"{ "name": "Example", "build": { "minify": false, "compress": false }, "lints": { "S02": "off" } }"#
+
+/// An example. At its static level: the code, highlighted, with Copy and a
 /// way into the Playground; and, for a page, what it compiled to — the
 /// running page beside the code, and its HTML, CSS and JavaScript a tab
 /// away — all captured when the site was built. `preview` is the address
 /// of the compiled page (`/examples/<hash>/`); the tabs a block has no
 /// text for are not drawn.
-component Example(_ code: String, file: String = "Home.wf", preview: String = "", html: String = "", css: String = "", js: String = "", caption: String = "", playground: Bool = true) {
+///
+/// With `live` (a whole page, the fence's `page live`), Edit turns the code
+/// into an editor: the compiler is fetched on the first keystroke (and on
+/// a hover or focus of Edit, ahead of it), builds the page as the reader
+/// types, draws what it finds as `wf` prints it, and shows the page it
+/// built. `mistake` is the fence's `break="from:to"`: Break it makes that
+/// change.
+component Example(_ code: String, file: String = "Home.wf", preview: String = "", html: String = "", css: String = "", js: String = "", caption: String = "", playground: Bool = true, live: Bool = false, mistake: String = "") {
     state tab = "code"
     state copied = false
-    derived shown = if tab == "html" { html } else if tab == "css" { css } else if tab == "js" { js } else { code }
+    state draft = code
+    state editing = false
+    state stage = ""
+    state run = 0
+    state result: Map? = null
+    derived findings: [Map] = result?.findings ?? []
+    derived fixable = findings.find(f => f.fixed != "")
+    derived shown = if tab == "html" { html } else if tab == "css" { css } else if tab == "js" { js } else { draft }
     derived language = if tab == "css" { "css" } else if tab == "code" { "wf" } else { "" }
-    derived split = preview != "" && tab == "code"
+    derived split = (preview != "" || run > 0) && tab == "code"
 
     action copy() {
         copied = true
@@ -20,6 +38,39 @@ component Example(_ code: String, file: String = "Home.wf", preview: String = ""
         setTimeout(() => settle(), 1600)
     }
     action settle() { copied = false }
+
+    action edit() {
+        wfWarm(WASM)
+        if stage == "" { stage = wfSlot() }
+        tab = "code"
+        editing = true
+    }
+    action edited(next: String) {
+        draft = next
+        build()
+    }
+    action build() {
+        let files = {}
+        files["src/pages/{file}"] = draft
+        wfBuild(WASM, stage, files, EXAMPLE_CONFIG, (r) => heard(r))
+    }
+    action heard(r: Map) {
+        result = r
+        if r.ok { run = run + 1 }
+    }
+    action breakIt() {
+        let parts = mistake.split(":")
+        draft = draft.replace(parts[0], parts.slice(1).join(":"))
+        build()
+    }
+    action fix(text: String) {
+        draft = text
+        build()
+    }
+    action reset() {
+        draft = code
+        build()
+    }
 
     Stack(gap: .xs, class: "bp-example") {
         style { gap: 8px; min-width: 0 }
@@ -32,13 +83,13 @@ component Example(_ code: String, file: String = "Home.wf", preview: String = ""
                 style { flex-wrap: nowrap }
                 Row(role: "tablist", aria-label: t("example.views"), class: "bp-tabs") {
                     Button(file, role: "tab", aria-selected: tab == "code", class: "bp-tab") { on click { tab = "code" } }
-                    if html != "" {
+                    if html != "" && !editing {
                         Button(t("example.html"), role: "tab", aria-selected: tab == "html", class: "bp-tab") { on click { tab = "html" } }
                     }
-                    if css != "" {
+                    if css != "" && !editing {
                         Button(t("example.css"), role: "tab", aria-selected: tab == "css", class: "bp-tab") { on click { tab = "css" } }
                     }
-                    if js != "" {
+                    if js != "" && !editing {
                         Button(t("example.js"), role: "tab", aria-selected: tab == "js", class: "bp-tab") { on click { tab = "js" } }
                     }
                 }
@@ -47,6 +98,13 @@ component Example(_ code: String, file: String = "Home.wf", preview: String = ""
                     if playground {
                         Link(t("example.playground"), to: PLAYGROUND, class: "bp-hide-sm")
                     }
+                    if live && !editing {
+                        Button(t("example.edit"), class: "bp-button", data-tone: "action", data-track: "edit_example", data-track-item-id: file) {
+                            on mouseenter { wfWarm(WASM) }
+                            on focus { wfWarm(WASM) }
+                            on click { edit() }
+                        }
+                    }
                     Button(if copied { t("code.copied") } else { t("code.copy") }, aria-label: t("code.copy"), class: "bp-button", data-track: "copy_code", data-track-item-id: file) {
                         on click { copy() }
                     }
@@ -54,21 +112,82 @@ component Example(_ code: String, file: String = "Home.wf", preview: String = ""
             }
             Stack(class: "bp-example__body", data-split: split) {
                 style { gap: 0; min-width: 0 }
-                Code(shown, language: language, class: "bp-console__code").block
+                if editing {
+                    Editor(draft, file: file, bar: false) {
+                        on edit(next) { edited(next) }
+                    }
+                } else {
+                    Code(shown, language: language, class: "bp-console__code").block
+                }
                 if split {
                     Stack(class: "bp-grid") {
                         style { min-height: 220px; border-top: 1px solid $console-line; @lg { border-top: 0; border-inline-start: 1px solid $console-line } }
-                        Frame(src: preview, title: t("example.preview", { file: file }), loading: .lazy) {
-                            style { flex: 1 1 auto; width: 100%; min-height: 220px; border: 0; background: transparent }
+                        if run > 0 {
+                            Frame(src: "/wasm/{WF_RELEASE}/preview/{stage}/?run={run}", title: t("example.preview", { file: file }), class: "bp-preview-frame")
+                        } else {
+                            Frame(src: preview, title: t("example.preview", { file: file }), loading: .lazy, class: "bp-preview-frame")
                         }
                     }
                 }
             }
-            Row(class: "bp-console__foot") {
-                Row(align: .center, gap: .sm) {
-                    style { flex-wrap: nowrap; gap: 8px }
-                    Text("", class: "bp-dot", data-tone: "ok", aria-hidden: "true")
-                    Text(t("example.checked", { version: VERSION }))
+            if findings.length > 0 {
+                Stack(class: "bp-live-findings", role: "group", aria-label: t("live.findings")) {
+                    for f in findings by f.key {
+                        Diagnostic(f.printed, code: f.code, title: f.title, severity: f.severity, to: f.to)
+                    }
+                }
+            }
+            LiveStatus(editing: editing, result: result, version: VERSION, mistake: mistake != "", fixable: fixable != null) {
+                on breakIt { breakIt() }
+                on fix { if let f = fixable { fix(f.fixed) } }
+                on reset { reset() }
+            }
+        }
+    }
+}
+
+/// The line under an example: what compiled it — the site's build, or the
+/// compiler in the reader's browser, how long it took and what it found —
+/// and, while it is live, Break it, Apply the fix and Start again.
+component LiveStatus(editing: Bool = false, result: Map? = null, version: String = "", mistake: Bool = false, fixable: Bool = false, start: Bool = true) {
+    event breakIt()
+    event fix()
+    event reset()
+    derived errors: Number = result?.errors ?? 0
+    derived warnings: Number = result?.warnings ?? 0
+    derived ms: Number = result?.ms ?? 0
+
+    Row(class: "bp-console__foot bp-live-status", aria-live: "polite") {
+        Row(align: .center, gap: .sm) {
+            style { flex-wrap: wrap; gap: 8px }
+            if !editing {
+                Text("", class: "bp-dot", data-tone: "ok", aria-hidden: "true")
+                Text(t("example.checked", { version: version }))
+            } else if result == null {
+                Text("", class: "bp-dot", aria-hidden: "true")
+                Text(t("live.ready"))
+            } else {
+                Text("", class: "bp-dot", data-tone: if errors > 0 { "error" } else { "ok" }, aria-hidden: "true")
+                if errors > 0 {
+                    Text(t("live.errors", { count: errors }))
+                } else {
+                    Text(t("live.compiled", { ms: ms }))
+                }
+                if warnings > 0 {
+                    Text(t("live.warnings", { count: warnings }), class: "bp-small")
+                }
+            }
+        }
+        if editing {
+            Row(align: .center, gap: .sm) {
+                style { flex-wrap: wrap; gap: 8px; margin-inline-start: auto }
+                if fixable {
+                    Button(t("live.fix"), class: "bp-button", data-tone: "action") { on click { emit fix() } }
+                } else if mistake {
+                    Button(t("live.break"), class: "bp-button") { on click { emit breakIt() } }
+                }
+                if start {
+                    Button(t("live.reset"), class: "bp-button", data-tone: "quiet") { on click { emit reset() } }
                 }
             }
         }

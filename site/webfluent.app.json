@@ -52,7 +52,8 @@
     ],
     "frame": [
       "https://www.youtube.com"
-    ]
+    ],
+    "wasm": true
   },
   "i18n": {
     "default_locale": "en",

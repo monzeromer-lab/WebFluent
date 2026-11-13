@@ -5,7 +5,8 @@
 // stopped while idle forgets its memory, a cache it does not) and answers
 // every request under its scope from them: `app.js`, a page's chunk, a
 // picture. A navigation to a route is answered with the page a static build
-// wrote for it (`about/index.html`, `about.html`), or the app's shell.
+// wrote for it (`about/index.html`, `about.html`), or the app's shell. A
+// build published to a slot is served under `<slot>/`, beside the others.
 
 const CACHE = "wf-preview";
 const scope = new URL(self.registration.scope);
@@ -28,11 +29,16 @@ self.addEventListener("activate", (event) => event.waitUntil(self.clients.claim(
 self.addEventListener("message", (event) => {
   if (event.data?.type !== "wf-publish") return;
   const reply = event.ports[0];
+  const slot = event.data.slot ? `${event.data.slot}/` : "";
+  const under = new URL(slot, scope).href;
   event.waitUntil((async () => {
-    await caches.delete(CACHE);
     const cache = await caches.open(CACHE);
+    // What this slot served before; with no slot, everything.
+    for (const request of await cache.keys()) {
+      if (request.url.startsWith(under)) await cache.delete(request);
+    }
     await Promise.all(Object.entries(event.data.files).map(([path, body]) =>
-      cache.put(new URL(path, scope).href, new Response(body, {
+      cache.put(new URL(path, under).href, new Response(body, {
         headers: { "content-type": typeOf(path), "cache-control": "no-store" },
       }))));
     reply?.postMessage({ ok: true });
@@ -54,10 +60,13 @@ self.addEventListener("fetch", (event) => {
       if (hit) return hit;
     }
     // A route no page was written for: the single-page app's shell, whose
-    // router draws it (or its 404).
+    // router draws it (or its 404) — the slot's, when the path is in one.
     if (event.request.mode === "navigate") {
-      const shell = await cache.match(new URL("index.html", scope).href);
-      if (shell) return shell;
+      const slot = path.split("/")[0];
+      for (const at of [`${slot}/index.html`, "index.html"]) {
+        const shell = await cache.match(new URL(at, scope).href);
+        if (shell) return shell;
+      }
     }
     return new Response(`${path} is not in this build`, { status: 404 });
   })());
