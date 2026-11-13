@@ -34,10 +34,10 @@ You should know `state` and `action`
 This chapter does not cover:
 
 - a connection the page holds open — a socket, a stream, a channel or a
-  peer — which is [Real-time](../recipes/realtime.md);
-- working without a network, which is [Offline](../recipes/offline.md);
+  peer — which is [Real-time](../recipes/index.md);
+- working without a network, which is [Offline](../recipes/index.md);
 - values fixed for each build, which are
-  [Environments](../recipes/environments.md).
+  [Environments](../recipes/index.md).
 
 ## Choose how to get data
 
@@ -532,7 +532,7 @@ and has no proxy, so an API on `localhost:8080` must allow that origin.
 
 The alternative is to serve the API and the site from one origin behind a
 reverse proxy, where `base: "/api"` needs no CORS at all
-([Deploying](../recipes/deploying.md#serve-an-api-on-the-same-origin)).
+([Deploying](../recipes/api-on-the-same-origin.md)).
 
 If the page's build ships a content security policy, list the API's origin
 in `meta.connect` too ([Security](../about/security.md)).
@@ -717,4 +717,4 @@ source of data puts in that HTML:
 
 ## Next
 
-[Real-time](../recipes/realtime.md).
+[Real-time](../recipes/index.md).

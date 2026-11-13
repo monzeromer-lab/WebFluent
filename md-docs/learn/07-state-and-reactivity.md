@@ -267,9 +267,9 @@ reads the browser the way it reads its own state:
 | `hash` | the URL's `#fragment`, without the `#` | the URL changes |
 | `theme` | `"light"`, `"dark"` or `"system"` — the reader's choice ([Styling](13-styling.md#dark-mode)) | `setTheme(…)` is called |
 | `now` | a `DateTime`, every minute; `now(every: 1.seconds)` for a finer clock ([Types](12-types.md#now)) | the clock ticks |
-| `network` | `.online`, `.effectiveType`, `.saveData`, `.downlink`, `.queued` ([Real-time](../recipes/realtime.md#show-what-the-network-is-doing)) | the connection changes |
-| `update` | `.available` and `.apply()` — a new version of an offline site ([Offline](../recipes/offline.md)) | a new build is installed |
-| `locale`, `dir` | the current locale and `"ltr"`/`"rtl"`, with i18n configured ([i18n](../recipes/i18n.md)) | `setLocale(…)` is called |
+| `network` | `.online`, `.effectiveType`, `.saveData`, `.downlink`, `.queued` ([Real-time](../recipes/show-the-network.md)) | the connection changes |
+| `update` | `.available` and `.apply()` — a new version of an offline site ([Offline](../recipes/index.md)) | a new build is installed |
+| `locale`, `dir` | the current locale and `"ltr"`/`"rtl"`, with i18n configured ([i18n](../recipes/index.md)) | `setLocale(…)` is called |
 
 This page reads four of them:
 

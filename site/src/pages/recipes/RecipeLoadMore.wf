@@ -1,0 +1,25 @@
+// A recipe, written from md-docs/recipes/load-more.md by scripts/docsite/recipes.py;
+// edit the recipe, not this file.
+page RecipeLoadMore(path: "/recipes/load-more", title: "Load more as the reader asks — Recipes", description: "To add the next page of results below the ones shown, call an endpoint with `paginate: .page`:") {
+    RecipeShell("Load more as the reader asks", summary: "To add the next page of results below the ones shown, call an endpoint with `paginate: .page`:", outputs: [], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Page through results", to: "/recipes/page-through-results"), RelatedLink(kind: "Recipe", title: "Show validation messages on a form", to: "/recipes/validation-messages"), RelatedLink(kind: "Recipe", title: "Sign in with a session cookie", to: "/recipes/sign-in-with-a-session-cookie")], source: "md-docs/recipes/load-more.md", how: true, hasVariations: false) {
+        code {
+            CodeBlock(#"type Item { id: String, name: String }
+
+api Catalog(base: "/api") {
+    get items(page: Number = 1) -> [Item]
+}
+
+page Items(path: "/items", title: "Items", description: "Everything, a page at a time.") {
+    state page = 1
+    resource list = Catalog.items(page: page, paginate: .page)
+    Heading("Items").h1
+    for item in list.items by item.id { Text(item.name) }
+    if list.hasMore {
+        Button("Load more", disabled: list.state == "loading") { on click { list.loadMore() } }
+    }
+}"#, title: "wf")
+        }
+        Markdown("`list.items` is every item loaded so far, and `list.loadMore()` asks for the next page.")
+
+    }
+}

@@ -114,14 +114,14 @@ repeat them on each element:
 |---|---|---|
 | `class:` | Adds classes from your own stylesheets. It adds; it never replaces | [15](13-styling.md#classes-and-your-own-stylesheet) |
 | `ref:` | Names a handle on the element: `box.focus()` | [8](07-state-and-reactivity.md#element-handles) |
-| `mount:`, `update:`, `cleanup:` | Hands the element to a script each time it is made, again when what `update` reads changes, and takes it back when it leaves | [32](../recipes/javascript-interop.md#hand-an-element-to-a-script-with-mount-update-and-cleanup) |
-| `animate:` or a flag (`.fadeIn`) | The animation it enters with | [20](../recipes/motion.md) |
-| `exit:` | The animation it leaves with | [20](../recipes/motion.md#animate-an-element-out) |
-| `delay:`, `duration:`, `speed:` (`.fast`, `.slow`), `easing:` | How the animation is timed | [20](../recipes/motion.md) |
-| `stagger:` | Inside a `for`, each item's delay grows by this much | [20](../recipes/motion.md#animate-a-list) |
-| `on:` | When the animation plays: `.mount` (the default) or `.enterView` | [20](../recipes/motion.md#play-an-animation-when-it-is-scrolled-to) |
-| `shared:` | A name the element keeps across a route change | [20](../recipes/motion.md#carry-an-element-across-a-route-change) |
-| `count:` | A number in its text counts up or down to its new value | [20](../recipes/motion.md#count-a-number-to-its-new-value) |
+| `mount:`, `update:`, `cleanup:` | Hands the element to a script each time it is made, again when what `update` reads changes, and takes it back when it leaves | [32](../recipes/hand-an-element-to-a-script.md) |
+| `animate:` or a flag (`.fadeIn`) | The animation it enters with | [20](../recipes/index.md) |
+| `exit:` | The animation it leaves with | [20](../recipes/animate-in-and-out.md#animate-an-element-out) |
+| `delay:`, `duration:`, `speed:` (`.fast`, `.slow`), `easing:` | How the animation is timed | [20](../recipes/index.md) |
+| `stagger:` | Inside a `for`, each item's delay grows by this much | [20](../recipes/animate-a-list.md) |
+| `on:` | When the animation plays: `.mount` (the default) or `.enterView` | [20](../recipes/index.md) |
+| `shared:` | A name the element keeps across a route change | [20](../recipes/shared-element.md) |
+| `count:` | A number in its text counts up or down to its new value | [20](../recipes/count-a-number.md) |
 
 The [components reference](../reference/components.md) lists every element's
 own props.
@@ -292,9 +292,9 @@ The built-ins fall into these families:
 | Forms | `Form`, `Input`, `Textarea`, `Select`, `Checkbox`, `Radio`, `Switch`, `Slider`, `DatePicker`, `FileUpload` ([Forms](14-forms.md)) |
 | Feedback | `Alert`, `Toast`, `Modal`, `Dialog`, `Popover`, `Spinner`, `Progress`, `Skeleton` ([Events](08-events.md#overlays-modals-dialogs-toasts-and-menus)) |
 | Actions | `Button`, `IconButton`, `ButtonGroup`, `Dropdown` |
-| Media | `Image`, `Video`, `Audio`, `Frame`, `Icon`, `Carousel` ([Media](../recipes/media.md)) |
+| Media | `Image`, `Video`, `Audio`, `Frame`, `Icon`, `Carousel` ([Media](../recipes/index.md)) |
 | Typography | `Text`, `Heading`, `Paragraph`, `Code`, `Blockquote`, `Markdown`, `Unsafe.Html` |
-| Somebody else's code | `Host`, `Element`, `Portal` ([JavaScript interop](../recipes/javascript-interop.md)) |
+| Somebody else's code | `Host`, `Element`, `Portal` ([JavaScript interop](../recipes/index.md)) |
 | Documents and decks | `Document`, `PageBreak`, `TableOfContents`, `Background`, `Watermark`, `Chart`, `QrCode`, `Presentation`, `Slide`, `TitleSlide`, `SectionSlide`, `TwoColumn`, `ImageSlide` ([PDF and slides](17-pdf-and-slides.md)) |
 | Routing | `Router` ([Pages](05-pages-and-routing.md#the-app-shell)) |
 

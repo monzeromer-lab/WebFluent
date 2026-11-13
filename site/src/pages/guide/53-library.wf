@@ -179,7 +179,7 @@ fn main() -> webfluent::Result<()> {
             }
         }
 
-        Markdown("A template is the static part of the language. [Server rendering](/docs/guide/server-rendering) shows what one may use, and how to render from a web server.")
+        Markdown("A template is the static part of the language. [Server rendering](/recipes) shows what one may use, and how to render from a web server.")
 
         Heading("Builds", id: "builds").h3
 

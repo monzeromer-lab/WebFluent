@@ -1,0 +1,17 @@
+// A recipe, written from md-docs/recipes/place-a-custom-element.md by scripts/docsite/recipes.py;
+// edit the recipe, not this file.
+page RecipePlaceACustomElement(path: "/recipes/place-a-custom-element", title: "Place a custom element from a library — Recipes", description: "To place a custom element that a library defines, use `Element` with the element's tag.") {
+    RecipeShell("Place a custom element from a library", summary: "To place a custom element that a library defines, use `Element` with the element's tag. This page places Stripe's pricing table and notes when it is ready:", outputs: [], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Call WF from a script", to: "/recipes/call-wf-from-a-script"), RelatedLink(kind: "Recipe", title: "Call your own JavaScript", to: "/recipes/call-your-own-script"), RelatedLink(kind: "Recipe", title: "Draw a chart from a library", to: "/recipes/chart-from-a-library")], source: "md-docs/recipes/place-a-custom-element.md", how: true, hasVariations: false) {
+        code {
+            CodeBlock(#"page Pricing(path: "/pricing", title: "Pricing", description: "Plans.") {
+    state loaded = false
+    Heading("Pricing").h1
+    Element("stripe-pricing-table", publishableKey: "pk_live_…", pricing-table-id: "prctbl_1") {
+        on ready { loaded = true }
+    }
+}"#, title: "wf")
+        }
+        Markdown("- The tag comes first. It is lower case, with a hyphen, as every custom element's tag is; any other tag is an `E116` error.\n- A named argument is an attribute: `publishableKey` is written `publishable-key`. An attribute follows state like any other value.\n- An `on` handler hears the events the element fires, whatever their names.\n- The block is the element's children.\n- `class:`, `style \{ \}` and `mount:` work as on any other element.\n\nThe script that defines the element (your own, or one in `meta.scripts`) upgrades it when it runs.")
+
+    }
+}

@@ -13,7 +13,7 @@ function openHelp() {
 
         Heading("Calling the runtime", id: "calling-the-runtime").h2
 
-        Markdown("These rules apply to every function in this chapter:\n\n- **Who calls it.** The compiled pages call the runtime. So may a project script under `src/` or in `meta.scripts`, a library's callback, or you in the browser's console.\n- **Which functions to call.** Most names here are what the compiler emits for a language feature, listed so you can read the output. The ones meant for your own code are marked **●**.\n- **Modules.** The runtime is a set of feature modules. Each table names the module a function belongs to, and a build ships only the modules its own code reaches. A script that calls a module nothing else uses needs `\"build\": \{ \"runtime\": \"full\" \}` ([JavaScript interop](/docs/guide/interop)).")
+        Markdown("These rules apply to every function in this chapter:\n\n- **Who calls it.** The compiled pages call the runtime. So may a project script under `src/` or in `meta.scripts`, a library's callback, or you in the browser's console.\n- **Which functions to call.** Most names here are what the compiler emits for a language feature, listed so you can read the output. The ones meant for your own code are marked **●**.\n- **Modules.** The runtime is a set of feature modules. Each table names the module a function belongs to, and a build ships only the modules its own code reaches. A script that calls a module nothing else uses needs `\"build\": \{ \"runtime\": \"full\" \}` ([JavaScript interop](/recipes)).")
 
         Heading("Events the runtime dispatches", id: "events-the-runtime-dispatches").h2
 
@@ -24,7 +24,7 @@ document.addEventListener("wf:render", (e) => {
   for (const t of document.querySelectorAll("table.sortable")) t.dataset.route = e.detail.route;
 });"#, title: "js")
 
-        Markdown("See also: [JavaScript interop](/docs/guide/interop#listen-for-wf-render-in-a-script-that-finds-elements-itself).")
+        Markdown("See also: [JavaScript interop](/recipes/listen-for-wf-render).")
 
         Heading("State", id: "state").h2
 

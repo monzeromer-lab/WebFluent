@@ -362,7 +362,7 @@ prop:
   `data-open: true` is `data-open="true"`, and `false` writes no attribute,
   except for an ARIA state, which keeps `"false"`.
 - `mount:`, `update:` and `cleanup:` (see
-  [JavaScript interop](../recipes/javascript-interop.md)).
+  [JavaScript interop](../recipes/index.md)).
 - `drag:`, the `drop…:` props, `on receive`, `on dragmove`, `on longpress`
   and `on swipe`. These need one root element: on a component whose body is
   an `if`, a `for` or several elements they are `C07`.
@@ -449,7 +449,7 @@ To use a JavaScript library — a chart, a map, an editor — call it from a
 `cleanup:`. To place somebody else's custom element, use
 `Element("tag-name", …)`. You can also publish your components as custom
 elements for another framework to place. All three are in
-[JavaScript interop](../recipes/javascript-interop.md).
+[JavaScript interop](../recipes/index.md).
 
 ## Components in the pre-rendered page
 

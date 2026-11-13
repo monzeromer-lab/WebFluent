@@ -1,0 +1,77 @@
+// A recipe, written from md-docs/recipes/work-offline.md by scripts/docsite/recipes.py;
+// edit the recipe, not this file.
+page RecipeWorkOffline(path: "/recipes/work-offline", title: "Make a site work offline — Recipes", description: "To store the site for when the network is gone, add `offline` to `webfluent.app.json`.") {
+    RecipeShell("Make a site work offline", summary: "To store the site for when the network is gone, add `offline` to `webfluent.app.json`.", outputs: [], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "before-you-start", label: "Before you start"), Anchor(id: "turn-on-offline-support", label: "Turn on offline support"), Anchor(id: "what-the-worker-keeps", label: "What the worker keeps"), Anchor(id: "test-it-offline", label: "Test it offline"), Anchor(id: "troubleshooting", label: "Troubleshooting")], related: [RelatedLink(kind: "Recipe", title: "Keep writes made offline", to: "/recipes/keep-writes-made-offline"), RelatedLink(kind: "Recipe", title: "Offer a new version", to: "/recipes/offer-a-new-version"), RelatedLink(kind: "Recipe", title: "Publish a page in each language", to: "/recipes/site-in-two-languages")], source: "md-docs/recipes/work-offline.md", how: false, hasVariations: false) {
+        Heading("Before you start", id: "before-you-start").h2
+
+        Markdown("- **Serve the site over HTTPS**, or from `localhost`. Browsers run service workers only from a secure origin.\n- **Serve `sw.js` fresh.** The page registers the worker with `updateViaCache: \"none\"`, so the browser asks for it on every visit — but a CDN in front can still hold a copy. Give `sw.js` the header `Cache-Control: no-cache` ([Deploying](/recipes/cache-and-security-headers#set-cache-headers)).\n- **Deploy everything in `build/` together.** The worker's version is a hash of every file the build wrote, so deploying half a build confuses it.")
+
+        Heading("Turn on offline support", id: "turn-on-offline-support").h2
+
+        Markdown("To store the site for when the network is gone, add `offline` to `webfluent.app.json`. The build then writes a service worker, `sw.js`, beside the pages:")
+
+        CodeBlock(#"{ "offline": {
+    "precache": ["/", "/docs/*"],
+    "fallback": "/offline",
+    "cache": { "/api/*": "network-first" },
+    "sync": true
+} }"#, title: "json")
+
+        Table(caption: "Turn on offline support") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Key").header
+                    Table.Cell("What it does").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`precache`") }
+                    Table.Cell { Markdown("The routes a first visit stores, as globs. `\"/\"` by default. Each route is stored with its own chunk and stylesheet, and the shell with them.") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`fallback`") }
+                    Table.Cell { Markdown("A page's `path`, shown for a route that was not stored.") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`cache`") }
+                    Table.Cell { Markdown("How a path the build did not write — an API, say — is fetched: `network-first`, `cache-first`, `stale-while-revalidate` or `network-only`. A path not named passes through untouched.") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`sync`") }
+                    Table.Cell { Markdown("Keep a write made with no network and send it later ([Keep writes made offline](/recipes/keep-writes-made-offline)).") }
+                }
+            }
+        }
+
+        Markdown("A stored route loads with no network at all. When there is a network, a navigation still goes to it first, so a page that changed is never served stale while the server is there to ask.\n\nThe `fallback` is an ordinary page of your site. This one tells the reader what happened:")
+
+        CodeBlock(#"page Offline(path: "/offline", title: "Offline", description: "Shown when a page was not stored.") {
+    Heading("You are offline").h1
+    Text("This page was not saved for offline use. It will load when you are back online.")
+    Link("Go to the home page", to: "/")
+}"#, title: "wf")
+
+        Heading("What the worker keeps", id: "what-the-worker-keeps").h2
+
+        Markdown("What a `cache` entry fetches is kept in the worker's runtime store, the 200 most recently fetched answers, for the next reader of the device — so an answer that is one reader's is never kept: one the server marks `Cache-Control: no-store` or `private`, one asked for with an `Authorization` header, and one that varies by `Cookie` or `Authorization`. Mark what is personal `private` and it stays off the device.\n\nTwo sites on one origin under different `base_path`s keep apart: each has its own stores, kept writes and `persist` values (`wf:/shop:cart`), and neither deletes, serves or sends the other's. A site at the root keeps the names it always had, and one under a base path reads a value kept under the old name once and keeps it under the new one.")
+
+        Callout("Under `wf serve` the worker removes itself. A page answered from its own store would hide every edit you make.", kind: .note)
+
+        Heading("Test it offline", id: "test-it-offline").h2
+
+        Markdown("Because `wf serve` removes the worker on purpose, test the built output with a plain static server. Build the site and serve `build/`:")
+
+        Terminal(lines: [
+                Line(command: "wf build"),
+                Line(command: "python3 -m http.server -d build")
+            ])
+
+        Markdown("Then, in the browser:\n\n1. Open the site. In the developer tools, open **Application → Service workers** and check the worker is activated.\n2. In the **Network** panel, tick **Offline** and reload. Stored routes load; every other route shows the `fallback` page.\n3. Make a write, then untick **Offline**. The write goes out, and `network.queued` drops to zero.\n\n`wf verify` runs against the built output too, and the repository's own browser tests hold the whole flow to a real Chrome.")
+
+        Heading("Troubleshooting", id: "troubleshooting").h2
+
+        Markdown("- **An upload made offline fails.** A `File` body is never kept: the call fails as it would without `sync`. Ask the reader to try again online.\n- **A write arrives at the server minutes late.** That is the design: a kept write is sent once it can be. Make the server's endpoints safe to receive late, and idempotent where a retry could repeat one.\n- **The API the site needs does not work offline.** What `cache` does not name passes straight through to the network. Give the API a `network-first` or `stale-while-revalidate` entry.\n- **A page that loaded offline yesterday has to be fetched again.** The browser decides how much it keeps, and can evict the store under storage pressure. The next visit with a network stores it again.\n- **Readers keep getting the old version.** Something in front of the site caches `sw.js`. Serve it with `Cache-Control: no-cache`.\n- **Nothing is stored when you test with `wf serve`.** The dev server removes the worker. Test the output of `wf build` with a static server.")
+
+    }
+}

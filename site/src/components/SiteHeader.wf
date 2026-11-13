@@ -59,11 +59,11 @@ component SiteHeader(docs: Bool = false, other: String = "", lang: String = "en"
                     Text(keyLabel("mod+k"), class: "bp-kbd bp-hide-sm")
                 }
 
-                BuildingSwitch(class: "bp-hide-sm")
+                BuildingSwitch(class: "bp-hide-md")
                 ThemeToggle
                 LangSwitch(other: other, lang: lang, class: "bp-hide-sm")
 
-                Link(href: REPO, class: "bp-button bp-hide-sm", data-tone: "quiet", aria-label: "GitHub") {
+                Link(href: REPO, class: "bp-button bp-hide-md", data-tone: "quiet", aria-label: "GitHub") {
                     Icon("git-branch")
                     Text("GitHub")
                 }
@@ -97,10 +97,10 @@ component SiteHeader(docs: Bool = false, other: String = "", lang: String = "en"
                 }
             }
             Divider { style { margin: 8px 0; border-color: $line } }
-            Row(align: .center, gap: .sm, class: "bp-only-sm") {
+            Row(align: .center, gap: .sm) {
                 style { flex-wrap: wrap; gap: 8px }
-                BuildingSwitch
-                LangSwitch(other: other, lang: lang)
+                BuildingSwitch(class: "bp-only-md")
+                LangSwitch(other: other, lang: lang, class: "bp-only-sm")
             }
             Link(t("nav.source"), href: REPO, class: "bp-navlink") { style { min-height: 44px } }
         }

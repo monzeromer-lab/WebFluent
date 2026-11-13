@@ -1,0 +1,6 @@
+// A recipe, written from md-docs/recipes/chart-from-a-library.md by scripts/docsite/recipes.py;
+// edit the recipe, not this file.
+page RecipeChartFromALibrary(path: "/recipes/chart-from-a-library", title: "Draw a chart from a library — Recipes", description: "To use a charting library, list its URL in `meta.scripts`, call it from a script of your own, and hand it a canvas with `Host`.") {
+    RecipeShell("Draw a chart from a library", summary: "To use a charting library, list its URL in `meta.scripts`, call it from a script of your own, and hand it a canvas with `Host`. The full example is in [JavaScript interop](/recipes/library-from-a-cdn).", outputs: [], since: "", recipes: RECIPE_INDEX, sections: [], related: [RelatedLink(kind: "Recipe", title: "Call WF from a script", to: "/recipes/call-wf-from-a-script"), RelatedLink(kind: "Recipe", title: "Call your own JavaScript", to: "/recipes/call-your-own-script"), RelatedLink(kind: "Recipe", title: "Draw into a node a script made", to: "/recipes/portal")], source: "md-docs/recipes/chart-from-a-library.md", how: false, hasVariations: false) {
+    }
+}

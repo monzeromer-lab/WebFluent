@@ -350,7 +350,7 @@ chapter by chapter, by what a reader is there to do.
 
 ## Additions
 
-- **Translate a project by its own words** ([chapter 28](md-docs/recipes/i18n.md#translate-by-the-words-as-written)).
+- **Translate a project by its own words** ([chapter 28](md-docs/recipes/translate-by-the-words.md)).
   With `"literals": true` in `i18n`, every string a reader sees (an
   element's text, its `label:`, `title:`, `placeholder:`, `aria-label:`
   and `alt:`, a record's text field, a value whose name says it is words,
@@ -361,11 +361,11 @@ chapter by chapter, by what a reader is there to do.
   words too. `wf test` translates the program as the build does. What no
   table can translate (a text splicing more than a name) is the new
   warning `I05`, where it is shown.
-- **Plural forms by the number in the text** ([chapter 28](md-docs/recipes/i18n.md#count-by-the-number-in-the-text)).
+- **Plural forms by the number in the text** ([chapter 28](md-docs/recipes/index.md)).
   A message with plural forms and exactly one number among its values
   takes its form by that number, so `Text("{files} files")` reads right
   in Arabic's two, few and many. With two numbers none is guessed.
-- **A locale may name its digits** ([chapter 28](md-docs/recipes/i18n.md#switch-the-locale)).
+- **A locale may name its digits** ([chapter 28](md-docs/recipes/translate-a-site.md#switch-the-locale)).
   `setLocale("ar-u-nu-arab")` reads the `ar` table and writes `format`,
   `ago` and every count in Arabic-Indic digits; `ar-u-nu-latn` is 0–9
   whatever the browser would pick. A date pattern's figures follow, and
@@ -380,10 +380,10 @@ chapter by chapter, by what a reader is there to do.
   reads them the same way. A bidirectional embedding, override or isolate
   control in the source, which draws code one way while it runs another,
   is the new warning `E119`.
-- **Markdown draws GFM tables** ([chapter 27](md-docs/recipes/content.md#write-a-table)),
+- **Markdown draws GFM tables** ([chapter 27](md-docs/recipes/index.md)),
   the same at build time and in the browser: a header row, a delimiter row
   whose colons align each column, and `\|` for a pipe inside a cell.
-- **`Frame(srcdoc: html, sandbox: "")`** ([chapter 21](md-docs/recipes/media.md#draw-html-you-give-the-frame))
+- **`Frame(srcdoc: html, sandbox: "")`** ([chapter 21](md-docs/recipes/index.md))
   is a declared prop, where it was an attribute passed through with a
   `C04` warning. A value that reads state is followed, so the frame
   redraws as it changes.
@@ -392,7 +392,7 @@ chapter by chapter, by what a reader is there to do.
   `<img>` is kept, in the live page, the pre-render and the template
   engine alike. A link, a frame, a form, and any `data:` that is not an
   image, are still refused.
-- **Fourteen icons** ([chapter 21](md-docs/recipes/media.md#show-an-icon)), 72 in all:
+- **Fourteen icons** ([chapter 21](md-docs/recipes/show-an-icon.md)), 72 in all:
   `code`, `monitor`, `git-commit`, `play`, `layers`, `insert`, `grid`,
   `list`, `square`, `pill`, `image`, `sparkle`, `lock` and `type`. An icon
   drawn in the browser now carries `data-icon`, as a pre-rendered one did,
@@ -547,7 +547,7 @@ hears, each test file with its own declarations.
   from the locales, and `src/translations/<locale>.json` for each. A tag
   that is not one, a tag named twice and an empty list are refused, and so
   are locales for `pdf` and `slides`.
-- **Three icons** ([chapter 28](md-docs/recipes/media.md#icons)), 58 in all:
+- **Three icons** ([chapter 28](md-docs/recipes/index.md)), 58 in all:
   `locate` for a panel that follows the caret, `folder-off` for a folder
   that is gone, and `file-plus` for New file.
 
@@ -646,7 +646,7 @@ that draw what the live page draws.
   (`e.button == 1` is the middle button, to close a tab); `on focusin` and
   `on focusout` hear focus move onto or off the element or anything inside
   it.
-- **23 icons for editors and tools** ([chapter 28](md-docs/recipes/media.md#icons)),
+- **23 icons for editors and tools** ([chapter 28](md-docs/recipes/index.md)),
   55 in all: `folder`, `folder-plus`, `file`, `refresh`, `alert-circle`,
   `clock`, `dot`, `diff`, `book`, `git-branch`, `git-pull-request`, `pin`,
   `more-horizontal`, `window-minimize`, `window-maximize`, `outline`,
@@ -667,7 +667,7 @@ that draw what the live page draws.
   the parser used to drop it. A `///` above anything else in a body is
   still dropped.
 
-- **`Portal`** ([chapter 32](md-docs/recipes/javascript-interop.md#portal--drawing-into-a-node-a-script-made)).
+- **`Portal`** ([chapter 32](md-docs/recipes/index.md)).
   `Portal(into: node) { … }` draws its block into a node somebody else's
   code made: an editor's tooltip, a map's popup, a chart's legend. The
   library keeps the node's place, its keys and its focus; the page keeps
@@ -780,7 +780,7 @@ are under `webfluent::`.
   was never attached. A bound `Checkbox` or `Radio` with its own
   `on change` lost the binding's write; the binding now writes first and
   the handler runs after it.
-- **Text that reads state follows it** ([chapter 21](md-docs/recipes/i18n.md#switching-the-locale)).
+- **Text that reads state follows it** ([chapter 21](md-docs/recipes/index.md)).
   Each of these was worked out once, when the page was drawn: the labels
   of `Checkbox`, `Radio`, `Switch`, `Slider`, `DatePicker` and
   `FileUpload`; a `Table`'s `caption:`; `Tabs.Page` titles; `Tooltip`
@@ -829,7 +829,7 @@ are under `webfluent::`.
 - **The `Navbar` follows the theme** ([chapter 37](md-docs/reference/components.md#navbar)).
   Its background was a fixed translucent white; it is now the theme's
   surface, and its text the theme's text colour.
-- **`setLocale` is remembered** ([chapter 21](md-docs/recipes/i18n.md#which-locale-a-page-opens-in))
+- **`setLocale` is remembered** ([chapter 21](md-docs/recipes/index.md))
   across page loads, in `localStorage` under `wf:locale`, so a static site
   keeps the reader's language from page to page. A `?lang=` address still
   wins, without changing the saved choice.
@@ -843,7 +843,7 @@ are under `webfluent::`.
   ([chapter 23](md-docs/about/security.md#what-the-compiler-guarantees)): a
   run-time value goes through `WF.safeUrl`.
 - **Long keyed lists no longer stall as they grow**
-  ([chapter 20](md-docs/recipes/motion.md#lists)). A keyed `for` read the place
+  ([chapter 20](md-docs/recipes/index.md)). A keyed `for` read the place
   of every item it kept before each change, so a 960-line log appended
   line by line froze the page for 3.5 s. Only items whose index changes
   are measured now; a list that only grows at its end measures nothing.
@@ -862,7 +862,7 @@ are under `webfluent::`.
   `wf.exe` does too. The `.msi` now keeps one `UpgradeCode`, where each
   release had its own, so the next one replaces it instead of installing
   beside it. The Node binding looks for `webfluent.exe` and `wf.exe` by
-  their full names ([chapter 35](md-docs/recipes/server-rendering.md#from-node)).
+  their full names ([chapter 35](md-docs/recipes/index.md)).
 - **The check does less** ([chapter 38](md-docs/reference/cli.md#wf-check)).
   The `env` lint lexes only a file whose text could name `env.…`, and the
   output checks work out what a build can evaluate only once they find a
@@ -874,7 +874,7 @@ are under `webfluent::`.
   an editor's previews are, never shared a page.
 
 - **Markdown links are checked, and backslash escapes work**
-  ([chapter 27](md-docs/recipes/content.md#backslash-escapes)). Every link and
+  ([chapter 27](md-docs/recipes/index.md)). Every link and
   picture in `Markdown` goes through the scheme check the rest of a page
   does, so `[x](javascript:…)` is drawn as its words. A backslash before
   punctuation draws that character (`\*` is `*`, not emphasis), as
@@ -957,17 +957,17 @@ builds on, each piece also a `wf` command.
   long list drawn a window at a time, rows measured or of a fixed height,
   `reveal:` to scroll one into view, and `V12` for a long list that is
   not windowed.
-- **`worker`** ([chapter 18](md-docs/recipes/realtime.md)): a Web Worker held
+- **`worker`** ([chapter 18](md-docs/recipes/index.md)): a Web Worker held
   like a connection, asked with `.request(method, params)` and heard with
   `on message`, restarted when it crashes; a store may hold connections.
-- **`Frame`** ([chapter 28](md-docs/recipes/media.md)): another page inside
+- **`Frame`** ([chapter 28](md-docs/recipes/index.md)): another page inside
   this one, its `on message` only that page's; `A17` for a frame with no
   title.
 - **`persist` follows its key** ([chapter 12](md-docs/learn/11-stores.md)):
   `key: Project.id` keeps one value per project; `in: .app` names a
   storage the project gives itself, which may answer later.
 - **The policy names an app's own schemes and WebAssembly**
-  ([chapter 33](md-docs/recipes/desktop-apps.md)): `meta.connect` and
+  ([chapter 33](md-docs/recipes/index.md)): `meta.connect` and
   `meta.frame` take `ipc:` or `wfpreview:`, `meta.wasm` lets a page compile
   WebAssembly, `meta.style_elements` lets a script write `<style>`.
 - **A build cache**: only the pages an edit changed are pre-rendered
@@ -978,7 +978,7 @@ builds on, each piece also a `wf` command.
   the page's root stills every animation as `prefers-reduced-motion` does,
   and `data-wf-validation="shown"` shows every field's message as a failed
   submit does.
-- **Plurals by CLDR** ([chapter 21](md-docs/recipes/i18n.md)): the build picks
+- **Plurals by CLDR** ([chapter 21](md-docs/recipes/index.md)): the build picks
   each count's form by the default locale's rules (CLDR 48, the same
   table the browser's `Intl.PluralRules` reads), and exactly none is
   `key.zero` in any language.
@@ -1053,7 +1053,7 @@ and the guide shows a project as a desktop app.
   value. A state the program does change — `state tab = query.tab ?? "all"`
   that a click then sets — is a starting value on purpose and draws
   nothing.
-- **Desktop apps, in the guide.** [Chapter 33](md-docs/recipes/desktop-apps.md)
+- **Desktop apps, in the guide.** [Chapter 33](md-docs/recipes/index.md)
   shows a project as a Tauri or an Electron app: the build settings a
   desktop needs, setting up each shell, the dev loop, calling the native
   side through typed functions in a script under `src/`, events, plugins,

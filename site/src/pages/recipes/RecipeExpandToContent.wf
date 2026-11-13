@@ -1,0 +1,18 @@
+// A recipe, written from md-docs/recipes/expand-to-content.md by scripts/docsite/recipes.py;
+// edit the recipe, not this file.
+page RecipeExpandToContent(path: "/recipes/expand-to-content", title: "Open a box to the height of its content — Recipes", description: "CSS cannot animate to `height: auto`.") {
+    RecipeShell("Open a box to the height of its content", summary: "CSS cannot animate to `height: auto`. To open a box to whatever height its content needs, use `.expand`: it measures the height `auto` would give, animates to that number, then hands the height back so the box keeps growing with its content:", outputs: [], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Add a dark-mode switch", to: "/recipes/dark-mode-switch"), RelatedLink(kind: "Recipe", title: "Add a picture, sized for every screen", to: "/recipes/add-a-picture"), RelatedLink(kind: "Recipe", title: "Add video and audio", to: "/recipes/video-and-audio")], source: "md-docs/recipes/expand-to-content.md", how: true, hasVariations: false) {
+        code {
+            CodeBlock(#"page Details(path: "/", title: "Details", description: "A box that opens smoothly.") {
+    state open = false
+    Heading("Details").h1
+    Button("Details") { on click { open = !open } }
+    show open {
+        Stack(animate: .expand) { Text("As much text as there is.") }
+    }
+}"#, title: "wf")
+        }
+        Markdown("`.expand` on the way in is `.collapse` on the way out, so the box needs no `exit:`.")
+
+    }
+}

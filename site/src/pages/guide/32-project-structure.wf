@@ -29,7 +29,7 @@ page ProjectGuide(path: "/reference/project", title: "Project structure", descri
 ├── tests/                  `test` declarations, and __snapshots__/
 └── build/                  what `wf build` writes (not committed)"#, title: "text")
 
-        Markdown("Only two things are required: `webfluent.app.json` and one `.wf` or `.wfx` file under `src/`. Everything else is convention. The config is covered in [Configuration](/reference/config), and `.env` in [Environments](/docs/guide/environments).")
+        Markdown("Only two things are required: `webfluent.app.json` and one `.wf` or `.wfx` file under `src/`. Everything else is convention. The config is covered in [Configuration](/reference/config), and `.env` in [Environments](/recipes).")
 
         Heading("One program, with no imports", id: "one-program-with-no-imports").h2
 
@@ -76,12 +76,12 @@ page Pricing(path: "/pricing", title: "Pricing", description: "Plans and prices.
                 Table.Row {
                     Table.Cell { Markdown("`*.js`") }
                     Table.Cell { Markdown("anywhere under `src/`") }
-                    Table.Cell { Markdown("copied to `js/` as written and linked on every page before the compiled code; its top-level names are in scope ([JavaScript interop](/docs/guide/interop))") }
+                    Table.Cell { Markdown("copied to `js/` as written and linked on every page before the compiled code; its top-level names are in scope ([JavaScript interop](/recipes))") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`*.md`") }
                     Table.Cell { Markdown("under `src/`") }
-                    Table.Cell { Markdown("a page ([Content](/docs/guide/content#write-a-page-as-a-md-file))") }
+                    Table.Cell { Markdown("a page ([Content](/recipes/markdown-pages))") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`*.json`") }
@@ -91,12 +91,12 @@ page Pricing(path: "/pricing", title: "Pricing", description: "Plans and prices.
                 Table.Row {
                     Table.Cell("images")
                     Table.Cell { Markdown("named by an `image` declaration") }
-                    Table.Cell { Markdown("resized, hashed files and a `<picture>` ([Media](/docs/guide/media))") }
+                    Table.Cell { Markdown("resized, hashed files and a `<picture>` ([Media](/recipes))") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`translations/*.json`") }
                     Table.Cell { Markdown("the `i18n.dir`") }
-                    Table.Cell { Markdown("the locale tables ([Internationalization](/docs/guide/i18n))") }
+                    Table.Cell { Markdown("the locale tables ([Internationalization](/recipes))") }
                 }
                 Table.Row {
                     Table.Cell("anything")

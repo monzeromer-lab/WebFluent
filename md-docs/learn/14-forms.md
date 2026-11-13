@@ -288,7 +288,7 @@ How the rules behave:
   `t("key")`, which is read in the reader's language. Without one, the rule
   uses its own message. A project with translations replaces those by
   naming the keys `form.required`, `form.email`, `form.minLength` and so on
-  ([Translations](../recipes/i18n.md)).
+  ([Translations](../recipes/index.md)).
 - **Arguments that read state.** An argument such as `max(Ledger.today)` is
   read again each time the rule is checked.
 - **Types.** A rule is checked against the type of what it guards:

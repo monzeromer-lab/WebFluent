@@ -159,7 +159,7 @@ The rules for `paths:`:
 look the entry up:
 `title: "{posts.find(p => p.slug == slug)?.title ?? slug} — Blog"`. Tags
 beyond the title and description go in `head { }`
-([Content](../recipes/content.md#describe-each-page-to-search-engines-and-link-previews)).
+([Content](../recipes/search-and-link-previews.md#describe-each-page-to-search-engines-and-link-previews)).
 
 ## Add a 404 page
 
@@ -181,7 +181,7 @@ and most static hosts serve for a path they have no file for.
 
 A single-page build has one file, `index.html`, so every path a reader
 might open — `/users/42` — has to reach it. Most hosts need one line for
-this; [Deploying](../recipes/deploying.md) has each in full:
+this; [Deploying](../recipes/index.md) has each in full:
 
 ```text
 Netlify / Cloudflare Pages   public/_redirects:  /*  /index.html  200
@@ -220,6 +220,6 @@ Write your paths from the site's root as if there were no prefix:
 
 ## Next
 
-- [Content](../recipes/content.md): Markdown pages, and what the build writes for
+- [Content](../recipes/index.md): Markdown pages, and what the build writes for
   search engines.
-- [Deploying](../recipes/deploying.md): put either shape on a host.
+- [Deploying](../recipes/index.md): put either shape on a host.

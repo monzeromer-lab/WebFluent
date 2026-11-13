@@ -180,7 +180,7 @@ A single-page build has one HTML file. When the reader reloads
 `/settings`, the host looks for a file at that path and has none.
 
 Configure the host to answer every path with `index.html`
-([Deploying](../recipes/deploying.md)), or build a static site with
+([Deploying](../recipes/index.md)), or build a static site with
 `build.ssg: true`, which writes a file for every page.
 
 ### "Refused to load the script" or "violates the following Content Security Policy"
@@ -196,7 +196,7 @@ policy for exactly that origin. An inline `<script>` in an HTML file in
 ### An icon shows as a word
 
 The name is not one of the 83 built-in icons
-([Media](../recipes/media.md#show-an-icon)), or the name is put together at run
+([Media](../recipes/show-an-icon.md)), or the name is put together at run
 time, which the build cannot see, so the build left its glyph out.
 
 Fix the name, or write it as a literal. If it must be built at run time,
@@ -216,9 +216,9 @@ the service worker is serving what it stored until the reader takes the
 new version.
 
 - Serve `app.js` with `Cache-Control: no-cache`
-  ([Deploying](../recipes/deploying.md#set-cache-headers)).
+  ([Deploying](../recipes/cache-and-security-headers.md#set-cache-headers)).
 - On an offline site, show an update button when `update.available` holds
-  ([Offline](../recipes/offline.md#offer-a-new-version)), or reload twice.
+  ([Offline](../recipes/offer-a-new-version.md)), or reload twice.
 
 ### Changes do not show under `wf serve`
 
@@ -329,7 +329,7 @@ yours.
 
 Allow your origin on the server, or serve the API from the same origin
 ([Fetching data](../learn/15-data.md#call-an-api-on-another-origin),
-[Deploying](../recipes/deploying.md#serve-an-api-on-the-same-origin)).
+[Deploying](../recipes/api-on-the-same-origin.md)).
 
 ### `env.MY_VALUE` is a compile error
 
@@ -337,7 +337,7 @@ A page may only read public names, because every value it reads ends up in
 the bundle, where anyone can read it (`E108`).
 
 If anyone may see the value, rename it `PUBLIC_MY_VALUE` or list it in
-`public_env` ([Environments](../recipes/environments.md)). If not, keep it on the
+`public_env` ([Environments](../recipes/index.md)). If not, keep it on the
 server.
 
 ### A value from `.env` or the shell is not used
@@ -353,7 +353,7 @@ Rebuild after changing a value, and declare the name in the config or
 ### Can I use npm packages?
 
 A library, yes: list its CDN address in `meta.scripts`
-([JavaScript interop](../recipes/javascript-interop.md)). Your own JavaScript is a
+([JavaScript interop](../recipes/index.md)). Your own JavaScript is a
 plain `.js` file under `src/`. There is no package manager for WebFluent
 code itself.
 
@@ -361,13 +361,13 @@ code itself.
 
 Yes. Publish your components as custom elements, and place their tags from
 React, Vue or any other page
-([JavaScript interop](../recipes/javascript-interop.md#publish-your-components-as-custom-elements)).
+([JavaScript interop](../recipes/publish-custom-elements.md)).
 
 ### Is there server-side rendering?
 
 Pages are pre-rendered at build time with `build.ssg`. For HTML made per
 request, render templates from your own server with the
-[template engine](../recipes/server-rendering.md).
+[template engine](../recipes/index.md).
 
 ### Does it support TypeScript?
 

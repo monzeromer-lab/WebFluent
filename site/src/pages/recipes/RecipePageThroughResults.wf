@@ -1,0 +1,28 @@
+// A recipe, written from md-docs/recipes/page-through-results.md by scripts/docsite/recipes.py;
+// edit the recipe, not this file.
+page RecipePageThroughResults(path: "/recipes/page-through-results", title: "Page through results — Recipes", description: "To show a long list a page at a time, keep the page number in state and splice it into the address:") {
+    RecipeShell("Page through results", summary: "To show a long list a page at a time, keep the page number in state and splice it into the address:", outputs: [], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Load more as the reader asks", to: "/recipes/load-more"), RelatedLink(kind: "Recipe", title: "Show validation messages on a form", to: "/recipes/validation-messages"), RelatedLink(kind: "Recipe", title: "Sign in with a session cookie", to: "/recipes/sign-in-with-a-session-cookie")], source: "md-docs/recipes/page-through-results.md", how: true, hasVariations: false) {
+        code {
+            CodeBlock(#"page Rows(path: "/", title: "Rows", description: "Every row, twenty at a time.") {
+    state page = 1
+    state perPage = 20
+    resource rows = fetch("/api/rows?page={page}&per={perPage}")
+    Heading("Rows").h1
+    match rows {
+        loading { Spinner }
+        error(e) { Text(e.message).danger }
+        ready(r) {
+            for row in r.items by row.id { Text(row.name) }
+            Row(gap: .sm, align: .center) {
+                Button("Previous", disabled: page == 1) { on click { page = page - 1 } }
+                Text("Page {page} of {r.pages}")
+                Button("Next", disabled: page >= r.pages) { on click { page = page + 1 } }
+            }
+        }
+    }
+}"#, title: "wf")
+        }
+        Markdown("A change of `page` changes the address, so the resource asks again.")
+
+    }
+}

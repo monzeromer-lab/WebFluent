@@ -46,7 +46,7 @@ The page's header takes these attributes:
 | `image_alt:` | | What that image shows, for a reader who cannot see it (`og:image:alt`). `meta.image_alt` in the config describes the site's image |
 | `type:` | | `og:type`: `"website"` (the default) or `"article"` |
 | `noindex:` | | `true` keeps the page out of search results and out of the sitemap |
-| `lang:` | | The language the page is written in, when it is not the site's: `"en"`, `"ar"`, `"pt-BR"`. It sets `<html lang dir>`, `og:locale` and the JSON-LD's `inLanguage` ([A page in its own language](../recipes/i18n.md#a-page-in-its-own-language)) |
+| `lang:` | | The language the page is written in, when it is not the site's: `"en"`, `"ar"`, `"pt-BR"`. It sets `<html lang dir>`, `og:locale` and the JSON-LD's `inLanguage` ([A page in its own language](../recipes/site-in-two-languages.md)) |
 | `translates:` | | The page this one is a translation of, by name: `translates: Home`. Translations list each other as `hreflang` alternates |
 | `layout:` | | The component that frames the page ([Layouts](#layouts)) |
 | `guard:` | | An expression that must hold for the route to render ([Guards](#guards)) |
@@ -87,7 +87,7 @@ The `Router` behaves like this:
   declare pages in can never shadow a route.
 - A project with no `app` declaration gets a bare router.
 - `Router(transition: .fade, duration: "200ms")` animates page changes
-  ([Motion](../recipes/motion.md#animate-route-changes)).
+  ([Motion](../recipes/route-transitions.md)).
 
 ## Links and navigation
 

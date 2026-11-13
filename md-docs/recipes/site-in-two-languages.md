@@ -1,0 +1,42 @@
+---
+kind: "recipe"
+route: "/recipes/site-in-two-languages"
+group: "reach"
+description: "`t()` and `setLocale` translate a page in the browser, at one address."
+from: ["/docs/guide/i18n#a-page-in-its-own-language"]
+---
+# Publish a page in each language
+
+`t()` and `setLocale` translate a page in the browser, at one address. A
+search engine indexes what that address's HTML says, which is the default
+locale. A site that wants each language found writes each page once per
+language, at an address of its own, and says so:
+
+```wf
+page Home(path: "/", title: "منذر عمر", description: "مهندس خلفيات.") {
+    Heading("مرحباً").h1
+}
+
+page HomeEn(path: "/en", title: "Monzer Omer", description: "Engineer.",
+            lang: "en", translates: Home) {
+    Heading("Hello").h1
+}
+```
+
+- **`lang:`** is the language the page is written in. A page without one
+  is in the site's (`meta.lang`, or `default_locale`). The page is written
+  `<html lang="en">`, with `dir="rtl"` for a language written right to
+  left, and its `og:locale` and its JSON-LD's `inLanguage` say the same.
+  The router sets `lang` and `dir` on `<html>` when it shows the page, and
+  puts back the site's (or the locale the reader chose) on a page without
+  one.
+- **`translates:`** names the page this one is a translation of. Pages
+  joined this way — `HomeFr` may translate `Home` too — each list all of
+  them as `hreflang` alternates, at their own addresses and canonical to
+  themselves, with `x-default` for the one in the site's language, and
+  each names the others' languages as `og:locale:alternate`.
+- A `:param` page's translation is matched by its parameters:
+  `/en/posts/:slug` for `/posts/:slug`, filled with the same `slug`.
+
+A `translates:` that names no page, or two translations of one page in one
+language, is `R05`.

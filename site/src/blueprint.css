@@ -352,3 +352,7 @@ a.bp-card:hover { border-color: var(--border-strong); text-decoration: none; }
 .bp-show-tile__picture img, .bp-show-tile__picture picture { max-width: 100%; max-height: 100%; object-fit: contain; border: 1px solid var(--line); background: #fff; }
 .bp-show-tile__body { flex: 1 1 auto; gap: 10px; padding: 14px 16px 16px; }
 .bp-show-tile__title { margin: 0; font-size: 15px; font-weight: 600; line-height: 1.35; }
+/* Between a tablet and a laptop the bar keeps search, Night/Day, the
+   language and the menu; the Building switch and GitHub are in the menu. */
+@media (max-width: 1023.98px) { .bp-hide-md { display: none !important; } }
+@media (min-width: 1024px) { .bp-only-md { display: none !important; } }

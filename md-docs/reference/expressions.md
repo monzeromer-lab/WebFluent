@@ -457,7 +457,7 @@ A constant may carry a type, as `PAGE_SIZE` does. Assigning to one is an
 `X01`. `env.NAME` reads a value fixed at build time — from the config's
 `env` map, a `.env` file or the shell. A page may read only a public name,
 one that begins `PUBLIC_` or that `public_env` lists;
-[Environments](../recipes/environments.md) has the rules.
+[Environments](../recipes/index.md) has the rules.
 
 ## Built-in functions
 
@@ -471,17 +471,17 @@ has an entry for each.
 | `log(x, …)` | Prints to the console |
 | `navigate(path)` | Changes the route ([Pages and routing](../learn/05-pages-and-routing.md#links-and-navigation)) |
 | `format(v, .style, opt)`, `ago(d)` | Formats a value ([above](#format-and-ago)) |
-| `t("key", args)`, `setLocale("ar")` | Translates, and switches the locale ([i18n](../recipes/i18n.md)) |
+| `t("key", args)`, `setLocale("ar")` | Translates, and switches the locale ([i18n](../recipes/index.md)) |
 | `setTheme("dark")` | `"dark"`, `"light"` or `"system"`, kept across visits ([Styling](../learn/13-styling.md#dark-mode)) |
 | `keyIs(e, "mod+s")`, `keyLabel("mod+s")` | Tests a key event against a shortcut, and writes a shortcut for this system |
 | `every(ms) { }`, `after(ms) { }` | Timers ([State and reactivity](../learn/07-state-and-reactivity.md#timers)) |
-| `animate(el, name, ms)`, `replayAnimation(el, name)` | Plays an animation by hand ([Motion](../recipes/motion.md#drive-an-animation-yourself)) |
+| `animate(el, name, ms)`, `replayAnimation(el, name)` | Plays an animation by hand ([Motion](../recipes/drive-an-animation.md)) |
 | `optimistic(holder, change)` | Shows a change before the server agrees ([Fetching data](../learn/15-data.md#show-a-change-before-the-server-agrees)) |
-| `beacon(url, data)` | Sends data in a way that outlives the page ([Real-time](../recipes/realtime.md)) |
+| `beacon(url, data)` | Sends data in a way that outlives the page ([Real-time](../recipes/index.md)) |
 | `sanitize(html)` | Passes markup through an allow-list ([Security](../about/security.md#show-markup-you-did-not-write)) |
 | `uuid()` | Makes a fresh `Uuid` ([Types](../learn/12-types.md#the-types-the-language-brings-with-it)) |
 | `fetch(url, options)` | Sends a request, through the same engine as `api` ([Fetching data](../learn/15-data.md#fetch-on-demand-with-await-fetch)) |
-| `ws(…)`, `sse(…)`, `broadcast(…)`, `rtc(…)`, `spawn(…)` | Open a socket, a stream, a channel, a peer or a worker, after `socket x =` and the rest ([Real-time](../recipes/realtime.md)) |
+| `ws(…)`, `sse(…)`, `broadcast(…)`, `rtc(…)`, `spawn(…)` | Open a socket, a stream, a channel, a peer or a worker, after `socket x =` and the rest ([Real-time](../recipes/index.md)) |
 
 The browser's own globals need no prefix and compile to themselves:
 `window`, `document`, `console`, `localStorage`, `sessionStorage`, `JSON`,

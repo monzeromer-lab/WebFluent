@@ -29,7 +29,7 @@ page IntroductionGuide(path: "/docs/guide/introduction", title: "Introduction", 
 
         Heading("When to use WebFluent", id: "when-to-use-webfluent").h2
 
-        Markdown("WebFluent fits well when you want:\n\n- a marketing site, a documentation site, a blog or a portfolio that must be fast, accessible and well indexed, with some interactivity;\n- a dashboard, an admin panel or an internal tool that talks to an API;\n- invoices, reports or slide decks generated from the same data as a site;\n- to work in a small team that would rather not maintain a JavaScript build chain.\n\nUse something else when:\n\n- you depend on a large ecosystem of framework-specific UI libraries. You can still embed any library through [JavaScript interop](/docs/guide/interop), but you write the binding yourself.\n- you need server-side rendering on every request with per-user data. A WebFluent site is static files plus a browser runtime, and your server stays your server. [Server rendering](/docs/guide/server-rendering) of templates does cover emails, invoices and HTML fragments.\n- you need a native mobile app.")
+        Markdown("WebFluent fits well when you want:\n\n- a marketing site, a documentation site, a blog or a portfolio that must be fast, accessible and well indexed, with some interactivity;\n- a dashboard, an admin panel or an internal tool that talks to an API;\n- invoices, reports or slide decks generated from the same data as a site;\n- to work in a small team that would rather not maintain a JavaScript build chain.\n\nUse something else when:\n\n- you depend on a large ecosystem of framework-specific UI libraries. You can still embed any library through [JavaScript interop](/recipes), but you write the binding yourself.\n- you need server-side rendering on every request with per-user data. A WebFluent site is static files plus a browser runtime, and your server stays your server. [Server rendering](/recipes) of templates does cover emails, invoices and HTML fragments.\n- you need a native mobile app.")
 
         Heading("How this guide is organised", id: "how-this-guide-is-organised").h2
 
@@ -86,7 +86,7 @@ page IntroductionGuide(path: "/docs/guide/introduction", title: "Introduction", 
                 Table.Row {
                     Table.Cell { Markdown("**Tutorials and recipes**") }
                     Table.Cell("tutorial, then how-to")
-                    Table.Cell { Markdown("Three whole projects — [Todos](/docs/tutorials/todos), [Field Notes](/docs/tutorials/field-notes) and [Pocket](/docs/tutorials/pocket) — and [recipes](/docs/guide/recipes) for the pieces most projects need") }
+                    Table.Cell { Markdown("Three whole projects — [Todos](/docs/tutorials/todos), [Field Notes](/recipes/build-a-notebook-site) and [Pocket](/recipes/build-a-budget-app) — and [recipes](/recipes) for the pieces most projects need") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("**Concepts**") }
@@ -96,17 +96,17 @@ page IntroductionGuide(path: "/docs/guide/introduction", title: "Introduction", 
                 Table.Row {
                     Table.Cell { Markdown("**Guides: interface**") }
                     Table.Cell("how-to")
-                    Table.Cell { Markdown("[Styling](/docs/guide/styling), [motion](/docs/guide/motion), [media](/docs/guide/media) and [accessibility](/docs/guide/accessibility)") }
+                    Table.Cell { Markdown("[Styling](/docs/guide/styling), [motion](/recipes), [media](/recipes) and [accessibility](/docs/guide/accessibility)") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("**Guides: data**") }
                     Table.Cell("how-to")
-                    Table.Cell { Markdown("[Forms](/docs/guide/forms), [fetching data](/docs/guide/data), [real-time connections](/docs/guide/realtime) and [offline](/docs/guide/offline)") }
+                    Table.Cell { Markdown("[Forms](/docs/guide/forms), [fetching data](/docs/guide/data), [real-time connections](/recipes) and [offline](/recipes)") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("**Guides: content**") }
                     Table.Cell("how-to")
-                    Table.Cell { Markdown("[Content and search](/docs/guide/content) and [translation](/docs/guide/i18n)") }
+                    Table.Cell { Markdown("[Content and search](/recipes) and [translation](/recipes)") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("**Guides: quality**") }
@@ -116,12 +116,12 @@ page IntroductionGuide(path: "/docs/guide/introduction", title: "Introduction", 
                 Table.Row {
                     Table.Cell { Markdown("**Guides: shipping**") }
                     Table.Cell("explanation, then how-to")
-                    Table.Cell { Markdown("[Project structure](/reference/project), [static or single-page](/docs/guide/static-and-spa), [deploying](/docs/guide/deploying), [environments](/docs/guide/environments) and [desktop apps](/docs/guide/desktop)") }
+                    Table.Cell { Markdown("[Project structure](/reference/project), [static or single-page](/docs/guide/static-and-spa), [deploying](/recipes), [environments](/recipes) and [desktop apps](/recipes)") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("**Other outputs**") }
                     Table.Cell("how-to")
-                    Table.Cell { Markdown("[PDF and slides](/docs/guide/pdf-and-slides), [server rendering](/docs/guide/server-rendering) and [JavaScript interop](/docs/guide/interop)") }
+                    Table.Cell { Markdown("[PDF and slides](/docs/guide/pdf-and-slides), [server rendering](/recipes) and [JavaScript interop](/recipes)") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("**Reference**") }

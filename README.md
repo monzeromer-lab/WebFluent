@@ -60,7 +60,7 @@ cd my-app
 wf serve              # http://localhost:3000, rebuilds on save
 ```
 
-`wf build` writes the finished site to `build/` — static files any host serves. [Deploying](md-docs/recipes/deploying.md) has GitHub Pages, Netlify, Vercel, Cloudflare and nginx.
+`wf build` writes the finished site to `build/` — static files any host serves. [Deploying](md-docs/recipes/index.md) has GitHub Pages, Netlify, Vercel, Cloudflare and nginx.
 
 <sub>If the shell cannot find `wf`, open a new terminal — the installer adds its directory to your `PATH` in your shell's startup file. `WF_INSTALL_DIR` installs elsewhere, `WF_VERSION` pins a release.</sub>
 

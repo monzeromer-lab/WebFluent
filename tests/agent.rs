@@ -375,15 +375,19 @@ fn the_context_names_what_it_gives() {
         context.tokens,
         [] as [(std::string::String, std::string::String); 0]
     );
-    // A chapter is a page whose front matter numbers it; the README is not.
+    // A chapter is a page whose front matter numbers it, and a recipe is
+    // given beside them; the README and a code's page are not.
     let numbered = guide()
         .iter()
-        .filter(|(_, text)| crate::common::front_matter(text, "chapter").is_some())
+        .filter(|(_, text)| {
+            crate::common::front_matter(text, "chapter").is_some()
+                || crate::common::front_matter(text, "kind").as_deref() == Some("recipe")
+        })
         .count();
     assert_eq!(
         context.guide.len(),
         numbered,
-        "every chapter, not the README"
+        "every chapter and recipe, not the README"
     );
     assert!(
         context

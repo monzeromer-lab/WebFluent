@@ -251,7 +251,7 @@ page Fade(path: "/fade", title: "Fade", description: "A card that fades in and o
 A duration may be a token — `$fast`, `$normal` or `$slow` — or a raw value
 such as `200ms ease-out`. A reader who asked their system for less motion
 gets no transition. Enter and exit animations, and other motion, are in
-[Motion](../recipes/motion.md).
+[Motion](../recipes/index.md).
 
 ## Classes and your own stylesheet
 
@@ -565,4 +565,4 @@ The build writes your styles to two places:
 
 ## Next
 
-[Motion](../recipes/motion.md): declare how an element enters and leaves, how a list staggers and how pages change — the runtime plays it, or skips it for readers who asked for less.
+[Motion](../recipes/index.md): declare how an element enters and leaves, how a list staggers and how pages change — the runtime plays it, or skips it for readers who asked for less.

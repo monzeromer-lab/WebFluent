@@ -42,7 +42,7 @@ Build complete.
 ```
 
 To produce one PDF per invoice from data, use the same templates with
-[server rendering](../recipes/server-rendering.md) instead.
+[server rendering](../recipes/index.md) instead.
 
 ## Choose what the build writes
 
@@ -53,7 +53,7 @@ To produce one PDF per invoice from data, use the same templates with
 | A website | `spa` (default), with `build.ssg` for pre-rendered pages; or `static`, which is the same as `ssg` | HTML, CSS and JavaScript ([Static sites and SPAs](../about/static-and-spa.md)) |
 | PDF document | `pdf` | One `.pdf`, paginated |
 | Slide deck | `slides` | One `.pdf`, one slide per page |
-| Custom elements | `elements` | `elements.js` for other frameworks ([JavaScript interop](../recipes/javascript-interop.md#publish-your-components-as-custom-elements)) |
+| Custom elements | `elements` | `elements.js` for other frameworks ([JavaScript interop](../recipes/publish-custom-elements.md)) |
 
 ## The paged engine
 
@@ -419,7 +419,7 @@ These keys under `build.slides` set the deck's size and chrome:
 
 ## Next
 
-- [Server rendering](../recipes/server-rendering.md) — render the same templates
+- [Server rendering](../recipes/index.md) — render the same templates
   with data, one PDF per record.
 - [Styling](13-styling.md) — the CSS a document and a deck are laid out
   with.

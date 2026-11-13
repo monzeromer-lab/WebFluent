@@ -40,7 +40,7 @@ These rules apply to every function in this chapter:
   the module a function belongs to, and a build ships only the modules its
   own code reaches. A script that calls a module nothing else uses needs
   `"build": { "runtime": "full" }`
-  ([JavaScript interop](../recipes/javascript-interop.md)).
+  ([JavaScript interop](../recipes/index.md)).
 
 ## Events the runtime dispatches
 
@@ -56,7 +56,7 @@ document.addEventListener("wf:render", (e) => {
 });
 ```
 
-See also: [JavaScript interop](../recipes/javascript-interop.md#listen-for-wf-render-in-a-script-that-finds-elements-itself).
+See also: [JavaScript interop](../recipes/listen-for-wf-render.md).
 
 ## State
 

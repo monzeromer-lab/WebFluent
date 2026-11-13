@@ -115,14 +115,19 @@ fn file_blocks(markdown: &str) -> Vec<(usize, String, String)> {
 
 #[test]
 fn the_chapters_show_the_projects_as_they_are() {
-    // One page per tutorial project: `md-docs/<kind>/…tutorial-<project>.md`.
+    // One page per tutorial project: Todos in the book; the notebook and the
+    // budget app among the recipes.
     // Shelf, the first tutorial, writes its files step by step and has no
     // finished project to compare with.
     let mut stale = Vec::new();
     let mut shown = 0;
     let chapters: Vec<(String, String)> = crate::common::guide_pages()
         .into_iter()
-        .filter(|(n, _)| n.contains("tutorial-") && !n.contains("tutorial-shelf"))
+        .filter(|(n, _)| {
+            n.ends_with("tutorial-todos.md")
+                || n.ends_with("build-a-notebook-site.md")
+                || n.ends_with("build-a-budget-app.md")
+        })
         .collect();
     assert_eq!(chapters.len(), 3, "{chapters:?}");
     for (name, chapter) in chapters {

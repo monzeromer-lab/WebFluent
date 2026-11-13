@@ -1,8 +1,10 @@
 /// T3, a recipe: the title is the task; then the outputs it works in and
 /// the release it needs; the complete code first; how it works, step by
 /// step; variations; then related recipes and reference. The other recipes
-/// are in the sidebar.
-component RecipeShell(_ title: String, summary: String = "", outputs: [String] = [], since: String = "", recipes: [IndexEntry] = [], sections: [Anchor] = [], related: [RelatedLink] = [], source: String = "md-docs", other: String = "", lang: String = "en") {
+/// are in the sidebar. `summary` is Markdown; `how` draws the "How it
+/// works" heading over the body (off when the body brings its own
+/// headings); `hasVariations` draws the variations.
+component RecipeShell(_ title: String, summary: String = "", outputs: [String] = [], since: String = "", recipes: [IndexEntry] = [], sections: [Anchor] = [], related: [RelatedLink] = [], source: String = "md-docs", how: Bool = true, hasVariations: Bool = true, other: String = "", lang: String = "en") {
     slot code
     slot variations
     slot
@@ -17,9 +19,8 @@ component RecipeShell(_ title: String, summary: String = "", outputs: [String] =
 
         IndexSidebar(entries: recipes, label: t("nav.recipes"))
 
-        // One per page: the skip link's target. wf-allow(A16)
-
-        Stack(gap: .lg, role: "main", id: "bp-main", tabindex: "-1", class: "bp-main") {
+        // One per page: the skip link's target.
+        Stack(gap: .lg, role: "main", id: "bp-main", tabindex: "-1", class: "bp-main") { // wf-allow(A16)
             style { gap: 24px; padding: 32px 0 72px; @md { padding-top: 40px } }
 
             Breadcrumbs(trail: [Place(key: "nav.recipes", to: "/recipes")])
@@ -36,7 +37,7 @@ component RecipeShell(_ title: String, summary: String = "", outputs: [String] =
                 style { gap: 14px }
                 Heading(title).h1 { style { margin: 0; font-size: clamp(30px, 5vw, 40px); line-height: 1.08; font-weight: 650; letter-spacing: -0.025em } }
                 if summary != "" {
-                    Text(summary, class: "bp-lede")
+                    Markdown(summary, class: "bp-lede")
                 }
             }
 
@@ -47,14 +48,18 @@ component RecipeShell(_ title: String, summary: String = "", outputs: [String] =
 
             Stack(gap: .lg, dir: if lang == "ar" { "rtl" } else { "ltr" }, class: "bp-prose") {
                 style { gap: 20px }
-                Heading(t("recipe.how"), id: "how-it-works").h2
+                if how {
+                    Heading(t("recipe.how"), id: "how-it-works").h2 // wf-allow(A16): one shell per page
+                }
                 children
             }
 
-            Stack(gap: .md, class: "bp-prose") {
-                style { gap: 16px }
-                Heading(t("recipe.variations"), id: "variations").h2
-                variations
+            if hasVariations {
+                Stack(gap: .md, class: "bp-prose") {
+                    style { gap: 16px }
+                    Heading(t("recipe.variations"), id: "variations").h2 // wf-allow(A16): one shell per page
+                    variations
+                }
             }
 
             Related(links: related)

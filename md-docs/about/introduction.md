@@ -124,11 +124,11 @@ Use something else when:
 
 - you depend on a large ecosystem of framework-specific UI libraries. You
   can still embed any library through
-  [JavaScript interop](../recipes/javascript-interop.md), but you write the binding
+  [JavaScript interop](../recipes/index.md), but you write the binding
   yourself.
 - you need server-side rendering on every request with per-user data. A
   WebFluent site is static files plus a browser runtime, and your server
-  stays your server. [Server rendering](../recipes/server-rendering.md) of templates
+  stays your server. [Server rendering](../recipes/index.md) of templates
   does cover emails, invoices and HTML fragments.
 - you need a native mobile app.
 
@@ -149,14 +149,14 @@ The guide is organised by what you are here to do, in eleven sections:
 | Section | Kind | What it covers |
 |---|---|---|
 | **Get started** | explanation, quick start, tutorial | What WebFluent is, installing it, a first site built step by step, and a map from React, Vue and Svelte |
-| **Tutorials and recipes** | tutorial, then how-to | Three whole projects — [Todos](../learn/03-tutorial-todos.md), [Field Notes](../recipes/tutorial-field-notes.md) and [Pocket](../recipes/tutorial-pocket.md) — and [recipes](../recipes/common-tasks.md) for the pieces most projects need |
+| **Tutorials and recipes** | tutorial, then how-to | Three whole projects — [Todos](../learn/03-tutorial-todos.md), [Field Notes](../recipes/build-a-notebook-site.md) and [Pocket](../recipes/build-a-budget-app.md) — and [recipes](../recipes/index.md) for the pieces most projects need |
 | **Concepts** | explanation, each ending in a quick-reference table | The language itself, in the order the ideas build on each other: from [Language basics](../learn/04-language-basics.md) to [Expressions](../reference/expressions.md) |
-| **Guides: interface** | how-to | [Styling](../learn/13-styling.md), [motion](../recipes/motion.md), [media](../recipes/media.md) and [accessibility](accessibility.md) |
-| **Guides: data** | how-to | [Forms](../learn/14-forms.md), [fetching data](../learn/15-data.md), [real-time connections](../recipes/realtime.md) and [offline](../recipes/offline.md) |
-| **Guides: content** | how-to | [Content and search](../recipes/content.md) and [translation](../recipes/i18n.md) |
+| **Guides: interface** | how-to | [Styling](../learn/13-styling.md), [motion](../recipes/index.md), [media](../recipes/index.md) and [accessibility](accessibility.md) |
+| **Guides: data** | how-to | [Forms](../learn/14-forms.md), [fetching data](../learn/15-data.md), [real-time connections](../recipes/index.md) and [offline](../recipes/index.md) |
+| **Guides: content** | how-to | [Content and search](../recipes/index.md) and [translation](../recipes/index.md) |
 | **Guides: quality** | how-to | [Testing](../learn/16-testing.md), [security](security.md) and [performance](performance.md) |
-| **Guides: shipping** | explanation, then how-to | [Project structure](../reference/project-structure.md), [static or single-page](static-and-spa.md), [deploying](../recipes/deploying.md), [environments](../recipes/environments.md) and [desktop apps](../recipes/desktop-apps.md) |
-| **Other outputs** | how-to | [PDF and slides](../learn/17-pdf-and-slides.md), [server rendering](../recipes/server-rendering.md) and [JavaScript interop](../recipes/javascript-interop.md) |
+| **Guides: shipping** | explanation, then how-to | [Project structure](../reference/project-structure.md), [static or single-page](static-and-spa.md), [deploying](../recipes/index.md), [environments](../recipes/index.md) and [desktop apps](../recipes/index.md) |
+| **Other outputs** | how-to | [PDF and slides](../learn/17-pdf-and-slides.md), [server rendering](../recipes/index.md) and [JavaScript interop](../recipes/index.md) |
 | **Reference** | reference | Every [component](../reference/components.md), [command](../reference/cli.md), [configuration key](../reference/configuration.md), [diagnostic](../errors/diagnostics.md), [built-in](../reference/built-ins.md), [design token](../reference/design-tokens.md), [runtime function](../reference/runtime-api.md) and [grammar rule](../reference/grammar.md), plus [browser support](../reference/browser-support.md) and a [glossary](../reference/glossary.md) |
 | **Help** | troubleshooting and upgrade notes | [Troubleshooting](../errors/troubleshooting.md), [upgrading](upgrading.md) and [contributing](contributing.md) |
 

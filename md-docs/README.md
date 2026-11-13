@@ -34,9 +34,6 @@ suite, so what you read is what the compiler accepts.
 | 4 | [Coming from React, Vue or Svelte](coming-from/react-vue-svelte.md) | What you already know, mapped to what is here — and the few places WebFluent works differently. |
 | | **Tutorials and recipes** | |
 | 5 | [Tutorial: Todos](learn/03-tutorial-todos.md) | Build a todo list kept in the reader's browser — types, a store that remembers, a component, a filter in the address and tests that click. |
-| 6 | [Tutorial: Field Notes](recipes/tutorial-field-notes.md) | Build a statically generated notebook: typed data files, a page per note, Markdown pages, search and tags, and what a pre-rendered page can know. |
-| 7 | [Tutorial: Pocket](recipes/tutorial-pocket.md) | Build a budget tracker: money and dates, derived totals, a storage migration, validated forms, a dialog and shortcuts, two languages and offline. |
-| 8 | [Recipes](recipes/common-tasks.md) | Small, complete pages for the jobs most projects meet: debounced search, paging, optimistic updates, a confirm dialog, dark mode and more. |
 | | **Concepts** | |
 | 9 | [Language basics](learn/04-language-basics.md) | The shape of every .wf file: the thirteen kinds of declaration, naming, comments, the two kinds of body, the two layouts and how strings are written. |
 | 10 | [Pages and routing](learn/05-pages-and-routing.md) | A page is a route and what it shows. Each page names its own path, the app shell frames every page, and a layout frames a section. |
@@ -50,17 +47,10 @@ suite, so what you read is what the compiler accepts.
 | 18 | [Expressions](reference/expressions.md) | The expression language: literals, interpolation, operators, values that choose, calls, methods, formatting, regexes, tokens and await. |
 | | **Guides: interface** | |
 | 19 | [Styling](learn/13-styling.md) | Restyle the whole site with a theme, one element with a style block, and many elements with your own stylesheet — and make the layout responsive. |
-| 20 | [Motion](recipes/motion.md) | Declare how an element enters and leaves, how a list staggers and how pages change — the runtime plays it, or skips it for readers who asked for less. |
-| 21 | [Media](recipes/media.md) | Add pictures the build resizes for every screen, video with captions, audio with a transcript, icons, carousels and frames. |
 | 22 | [Accessibility](about/accessibility.md) | Build pages that work with a keyboard, a screen reader or voice control: what the built-ins do, what the compiler checks, and what is still yours to do. |
 | | **Guides: data** | |
 | 23 | [Forms and validation](learn/14-forms.md) | Bind controls to state, validate what the reader types, upload files, and show what the server said. |
 | 24 | [Fetching data](learn/15-data.md) | Get data onto a page: describe a service once, show a request's states, fetch on demand, and read files at build time. |
-| 25 | [Real-time](recipes/realtime.md) | Hold a connection open — a socket, server-sent events, a channel every tab hears, a line to another reader's page, a worker — and read the network itself. |
-| 26 | [Offline](recipes/offline.md) | Turn on a service worker the build writes for you: the site works with no network, writes wait for the connection, and new versions are offered, not forced. |
-| | **Guides: content** | |
-| 27 | [Content](recipes/content.md) | Markdown, pages written as .md files, code on the page, and what the build writes for search engines and link previews. |
-| 28 | [Internationalisation](recipes/i18n.md) | Keep one JSON file per locale, read it with t(), and switch the whole site's language — and its direction — at once. |
 | | **Guides: quality** | |
 | 29 | [Testing](learn/16-testing.md) | Tests written in WebFluent: render a component and read what it shows, or click through it in a real browser — then check every page in one. |
 | 30 | [Security](about/security.md) | What the compiler guarantees, what it cannot, and the decisions left to you: markup, secrets, storage, headers and a deployment checklist. |
@@ -68,13 +58,8 @@ suite, so what you read is what the compiler accepts.
 | | **Guides: shipping** | |
 | 32 | [Project structure](reference/project-structure.md) | Where files go, how the compiler reads them, how names work across a project, and how a project grows without getting lost. |
 | 33 | [Static or single-page](about/static-and-spa.md) | The same source builds as pre-rendered pages or as one app shell. What each gives you, what the pre-rendered page holds, and how dynamic routes are rendered. |
-| 34 | [Deploying](recipes/deploying.md) | The build is a folder of static files. Put it on GitHub Pages, Netlify, Vercel, Cloudflare Pages, a server of your own, or a container. |
-| 35 | [Environments](recipes/environments.md) | Set values that change per build (an API address, a feature switch, a public key) from the config, a .env file or the shell, and choose which a page may read. |
-| 36 | [Desktop apps](recipes/desktop-apps.md) | Turn a WebFluent project into a Tauri or Electron desktop app, call the native side from a page, and package it. |
 | | **Other outputs** | |
 | 37 | [PDF and slides](learn/17-pdf-and-slides.md) | Compile the same language to a paginated PDF document or a slide deck — invoices, reports and talks, laid out with CSS as on the web. |
-| 38 | [Server rendering](recipes/server-rendering.md) | Render a .wf template with JSON on a server — an email, an invoice, a report, an HTML fragment — from the CLI, Rust or Node. |
-| 39 | [JavaScript interop](recipes/javascript-interop.md) | Write plain JavaScript beside your pages and call it by name; load a library from a CDN; hand an element to a script; place custom elements; publish your components. |
 | | **Reference** | |
 | 40 | [Components reference](reference/components.md) | Every built-in with its props, cases, flags, events, slots and parts — generated from the compiler's own registry. |
 | 41 | [Command line and editors](reference/cli.md) | Every wf command and flag, the dev server, and the language server in each editor. |

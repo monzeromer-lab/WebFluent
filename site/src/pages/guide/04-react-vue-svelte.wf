@@ -125,12 +125,12 @@ page ComingFromGuide(path: "/docs/guide/coming-from", title: "Coming from React,
                 Table.Row {
                     Table.Cell("Framer Motion / transitions")
                     Table.Cell { Markdown("`animate:`, `exit:`, `stagger:`, route transitions") }
-                    Table.Cell { Markdown("[Motion](/docs/guide/motion)") }
+                    Table.Cell { Markdown("[Motion](/recipes)") }
                 }
                 Table.Row {
                     Table.Cell("react-i18next / vue-i18n")
                     Table.Cell { Markdown("`t(\"key\", \{ name: x \})`, `setLocale(\"ar\")`") }
-                    Table.Cell { Markdown("[i18n](/docs/guide/i18n)") }
+                    Table.Cell { Markdown("[i18n](/recipes)") }
                 }
                 Table.Row {
                     Table.Cell("Next.js static export / Astro")
@@ -241,6 +241,6 @@ component Counter(start: Number = 0) {
 
         Heading("Things you might look for", id: "things-you-might-look-for").h2
 
-        Markdown("- **npm packages.** There is no package manager for WebFluent code. A JavaScript library is a URL in `meta.scripts`. Your own JavaScript is a plain `.js` file under `src/`, and `.wf` code calls its functions by name. `mount:` and `cleanup:` hand any element to a script for as long as the element exists. [JavaScript interop](/docs/guide/interop) shows a chart library end to end.\n- **Server components, or rendering on every request.** WebFluent does not do this. A WebFluent site is static files plus a browser runtime, served by any host and talking to your API. For HTML generated on a server, such as emails, invoices and fragments, see [Server rendering](/docs/guide/server-rendering).\n- **WebFluent inside an existing React or Vue app.** Publish components as custom elements and place their tags: [Custom elements](/docs/guide/interop#publish-your-components-as-custom-elements).\n- **HTMX.** The closest thing to `hx-get` is a `resource` whose URL reads state, and the closest thing to `hx-post` is an action that `await`s an `api` endpoint. The page stays static HTML until its script arrives, then updates in place.")
+        Markdown("- **npm packages.** There is no package manager for WebFluent code. A JavaScript library is a URL in `meta.scripts`. Your own JavaScript is a plain `.js` file under `src/`, and `.wf` code calls its functions by name. `mount:` and `cleanup:` hand any element to a script for as long as the element exists. [JavaScript interop](/recipes) shows a chart library end to end.\n- **Server components, or rendering on every request.** WebFluent does not do this. A WebFluent site is static files plus a browser runtime, served by any host and talking to your API. For HTML generated on a server, such as emails, invoices and fragments, see [Server rendering](/recipes).\n- **WebFluent inside an existing React or Vue app.** Publish components as custom elements and place their tags: [Custom elements](/recipes/publish-custom-elements).\n- **HTMX.** The closest thing to `hx-get` is a `resource` whose URL reads state, and the closest thing to `hx-post` is an action that `await`s an `api` endpoint. The page stays static HTML until its script arrives, then updates in place.")
     }
 }

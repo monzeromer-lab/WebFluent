@@ -56,14 +56,14 @@ Each keyword declares one kind of thing:
 | `api` | An HTTP service: its address, its endpoints and what they return | [17](15-data.md#describe-a-service-with-api) |
 | `const` | A value read everywhere | [14](../reference/expressions.md#constants) |
 | `data` | A JSON file read at build time, as a constant | [17](15-data.md#read-a-file-at-build-time-with-data) |
-| `image` | A picture the build resizes and hands to `Image` | [28](../recipes/media.md) |
-| `animation` | Keyframes | [20](../recipes/motion.md#declare-your-own-keyframes) |
+| `image` | A picture the build resizes and hands to `Image` | [28](../recipes/index.md) |
+| `animation` | Keyframes | [20](../recipes/keyframes.md) |
 | `test` | A render held to expectations and a snapshot | [24](16-testing.md) |
 
 Two other kinds of file under `src/` join the program. A `.css` file is a
 stylesheet the build bundles. A `.js` file is a plain browser script, and its
 top-level functions are in scope by name in your `.wf` code
-([JavaScript interop](../recipes/javascript-interop.md)).
+([JavaScript interop](../recipes/index.md)).
 
 Inside a body you write statements: `state`, `derived`, `effect`, `action`,
 `persist`, `resource`, `validate`, `socket`, `if`, `for`, `match` and more.

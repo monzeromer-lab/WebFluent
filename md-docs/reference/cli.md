@@ -118,7 +118,7 @@ writes a newer one, and an older project can take the current one from the
 `wf init` writes a shorter config than the full set of defaults, and turns
 `build.csp` on.
 
-See also: [Internationalisation](../recipes/i18n.md), [Configuration](configuration.md).
+See also: [Internationalisation](../recipes/index.md), [Configuration](configuration.md).
 
 ### `wf build`
 
@@ -584,7 +584,7 @@ A template is held to the same checks as a build: a component nothing
 declares, or a flag a component does not take, stops the render. The one
 difference is that the names a template reads come from its data.
 
-See also: [Server rendering](../recipes/server-rendering.md).
+See also: [Server rendering](../recipes/index.md).
 
 ## Upgrading
 
@@ -702,7 +702,7 @@ original. With `--json`, the same sentences are in the `said` field.
 The library has the same as `webfluent::build::assets::{list, plan}`. It reads
 through a `Vfs`, so an editor's unsaved buffers count.
 
-See also: [Media](../recipes/media.md).
+See also: [Media](../recipes/index.md).
 
 ### `wf theme`
 
@@ -764,7 +764,7 @@ It lists:
 
 The library has it as `webfluent::motion::catalogue` (with the `internals` feature, outside semver).
 
-See also: [Motion](../recipes/motion.md).
+See also: [Motion](../recipes/index.md).
 
 ### `wf context`
 
@@ -853,7 +853,7 @@ a run of counts takes.
 The library has it as `webfluent::i18n::table` (with the `internals` feature, outside semver), whose `set_message` writes
 one message back and keeps every other byte of the file.
 
-See also: [Internationalisation](../recipes/i18n.md).
+See also: [Internationalisation](../recipes/index.md).
 
 ### `wf scope`
 
@@ -1027,7 +1027,7 @@ the parameters and return type its JSDoc gives it.
 | `WF_VERSION` | `install.sh`, `install.ps1` | The release to install, such as `v5.11.0`, instead of the latest. |
 | `WF_CHROME` | `wf test`, `wf verify` | The Chrome or Chromium to drive, when it is not found on its own. |
 | `WF_BIN` | the Node binding | The `wf` binary to call. |
-| any `PUBLIC_…` name | `wf build` | A value for `env.NAME` ([Environments](../recipes/environments.md)). |
+| any `PUBLIC_…` name | `wf build` | A value for `env.NAME` ([Environments](../recipes/index.md)). |
 
 ## Editors
 

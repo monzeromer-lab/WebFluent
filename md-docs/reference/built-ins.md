@@ -104,7 +104,7 @@ Signature: `animate(element, name, duration)` → a handle
 
 Returns a handle with `play()`, `cancel()` and `finished` (a promise). It
 plays as soon as it is made. Where: handlers and actions. See
-[Motion](../recipes/motion.md#drive-an-animation-yourself).
+[Motion](../recipes/drive-an-animation.md).
 
 ```wf
 Card(ref: panel) { on mouseenter { animate(panel, "pulse", "400ms") } }
@@ -123,7 +123,7 @@ Signature: `beacon(url, data)` → `Bool`
 | `data` | `Map` or `String` | The body; a map is sent as JSON |
 
 Returns whether the browser accepted the send. Where: anywhere, usually a
-handler. See [Send a message as the page unloads](../recipes/realtime.md#send-a-message-as-the-page-unloads).
+handler. See [Send a message as the page unloads](../recipes/send-on-unload.md).
 
 ```wf
 beacon("/analytics", { event: "checkout", value: total })
@@ -143,7 +143,7 @@ Signature: `channel name = broadcast(channelName) { on message(m) { … } }`
 Returns a channel handle with `.post(value)`, `.messages`, `.last(kind)`,
 `.state` and `.close()`. Where: only after `channel name =`, in a page, a
 component or a store. The channel closes when its scope leaves. See
-[Talk to the site's other tabs](../recipes/realtime.md#talk-to-the-site-s-other-tabs).
+[Talk to the site's other tabs](../recipes/talk-between-tabs.md).
 
 ```wf
 channel cart = broadcast("cart") { on message(m) { Cart.merge(m) } }
@@ -318,7 +318,7 @@ Signature: `replayAnimation(element, name)`
 | `name` | `String` | The animation, such as `"fadeIn"` |
 
 Returns nothing. Where: handlers. See
-[Motion](../recipes/motion.md#drive-an-animation-yourself).
+[Motion](../recipes/drive-an-animation.md).
 
 ```wf
 Card.outlined.fadeIn { on mouseenter(e) { replayAnimation(e.currentTarget, "fadeIn") } }
@@ -339,7 +339,7 @@ Signature: `peer name = rtc(signal: send, initiator: Bool, ice: [servers]) { on 
 Returns a peer handle with `.send(value)`, `.signal(message)` (hand it what
 the other side sent), `.state`, `.messages` and `.close()`. Where: only after
 `peer name =`. See
-[Connect two readers' pages](../recipes/realtime.md#connect-two-readers-pages).
+[Connect two readers' pages](../recipes/connect-two-readers.md).
 
 ```wf
 peer link = rtc(signal: m => lobby.post(m), initiator: query.host == "1") { on message(m) { heard = m.text } }
@@ -378,7 +378,7 @@ Signature: `setLocale(locale)`
 Returns nothing. Every `t(…)`, `format` and `ago` redraws, and an RTL
 locale sets `dir="rtl"`. A literal locale the config does not list is an
 `I04`. Where: actions, handlers and effects. See
-[i18n](../recipes/i18n.md#switch-the-locale).
+[i18n](../recipes/translate-a-site.md#switch-the-locale).
 
 ```wf
 Button("العربية") { on click { setLocale("ar") } }
@@ -419,7 +419,7 @@ Signature: `worker name = spawn(path, restart: n, timeout: ms, type: .module) { 
 Returns a worker handle with `.request(method, params, options)`,
 `.send(value)`, `.last(kind)`, `.pending`, `.state` and `.restart()`.
 Where: only after `worker name =`, in a page, a component or a store. See
-[Run a script in a worker](../recipes/realtime.md#run-a-script-in-a-worker).
+[Run a script in a worker](../recipes/run-a-worker.md).
 
 ```wf
 worker css = spawn("/workers/css.js", restart: 1) { on message(m) { problems = m.items } }
@@ -439,7 +439,7 @@ Signature: `stream name = sse(url, events: [names])`
 
 Returns a stream handle with `.messages`, `.last(kind)`, `.state`,
 `.error` and `.close()`. Where: only after `stream name =`. See
-[Listen to server-sent events](../recipes/realtime.md#listen-to-server-sent-events).
+[Listen to server-sent events](../recipes/server-sent-events.md).
 
 ```wf
 stream ticks = sse("/events", events: ["price", "status"])
@@ -458,7 +458,7 @@ Signature: `t(key)`, `t(key, values)` → `String`
 
 Returns the message. A literal key no locale has is an `I01`; a value the
 message does not use, or a placeholder the call does not pass, is an
-`I02`. Where: anywhere. See [`t("key")`](../recipes/i18n.md#translate-text-with-t).
+`I02`. Where: anywhere. See [`t("key")`](../recipes/translate-a-site.md#translate-text-with-t).
 
 ```wf
 Text(t("cart.items", { count: Cart.count }))
@@ -491,7 +491,7 @@ Signature: `socket name = ws(url, protocols: [names], heartbeat: duration) { sen
 
 Returns a socket handle with `.send(value)`, `.messages`, `.last(kind)`,
 `.state`, `.error`, `.closure` and `.close()`. Where: only after
-`socket name =`. See [Open a socket](../recipes/realtime.md#open-a-socket).
+`socket name =`. See [Open a socket](../recipes/open-a-socket.md#open-a-socket).
 
 ```wf
 socket chat = ws("wss://example.com/chat", heartbeat: 20.seconds) { on message(m) { Feed.add(m) } }

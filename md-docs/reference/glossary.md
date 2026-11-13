@@ -113,7 +113,7 @@ called the *static paint*
 
 **Project script.** A `.js` file under `src/`: a plain browser script,
 linked on every page as written, whose top-level names `.wf` code calls
-directly ([JavaScript interop](../recipes/javascript-interop.md#call-your-own-script)).
+directly ([JavaScript interop](../recipes/call-your-own-script.md#call-your-own-script)).
 
 **Prop.** A value a component or built-in takes, passed by name — or, for
 the one marked `_`, by position ([Components](../learn/10-components.md#props)).
@@ -174,7 +174,7 @@ reads it ([Stores](../learn/11-stores.md)).
 
 **Template engine.** WebFluent used from a server, through `wf render`, Rust
 or Node, to render a `.wf` template with JSON data to HTML or PDF
-([Server rendering](../recipes/server-rendering.md)).
+([Server rendering](../recipes/index.md)).
 
 **Theme.** A `theme` declaration: the design tokens it changes from the
 baseline ([Styling](../learn/13-styling.md)).

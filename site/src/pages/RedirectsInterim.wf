@@ -16,11 +16,6 @@ page InterimAbout(path: "/about", title: "About", description: "Why WebFluent wo
     Link(t("ch.01"), to: "/docs/guide/introduction")
 }
 
-page InterimRecipes(path: "/recipes", title: "Recipes", description: "Complete answers to how do I.", guard: false, redirect: "/docs/guide/recipes", noindex: true) {
-    Heading(t("nav.recipes")).h1
-    Link(t("ch.08"), to: "/docs/guide/recipes")
-}
-
 page InterimFromReact(path: "/coming-from/react", title: "Coming from React", description: "What you know from React, in WebFluent.", guard: false, redirect: "/docs/guide/coming-from", noindex: true) {
     Heading(t("ch.04")).h1
     Link(t("ch.04"), to: "/docs/guide/coming-from")

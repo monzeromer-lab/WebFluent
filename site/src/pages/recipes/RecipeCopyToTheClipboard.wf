@@ -1,0 +1,18 @@
+// A recipe, written from md-docs/recipes/copy-to-the-clipboard.md by scripts/docsite/recipes.py;
+// edit the recipe, not this file.
+page RecipeCopyToTheClipboard(path: "/recipes/copy-to-the-clipboard", title: "Copy to the clipboard — Recipes", description: "To copy text, call the browser's clipboard from an action:") {
+    RecipeShell("Copy to the clipboard", summary: "To copy text, call the browser's clipboard from an action:", outputs: [], since: "", recipes: RECIPE_INDEX, sections: [], related: [RelatedLink(kind: "Recipe", title: "Build a confirm dialog", to: "/recipes/confirm-dialog"), RelatedLink(kind: "Recipe", title: "Count down", to: "/recipes/count-down"), RelatedLink(kind: "Recipe", title: "Debounce a search", to: "/recipes/debounce-a-search")], source: "md-docs/recipes/copy-to-the-clipboard.md", how: false, hasVariations: false) {
+        code {
+            CodeBlock(#"page Share(path: "/share", title: "Share", description: "Copy the link.") {
+    state copied = false
+    action copy(text: String) {
+        await navigator.clipboard.writeText(text)
+        copied = true
+    }
+    Heading("Share").h1
+    Button("Copy the link") { on click { copy(location.href) } }
+    if copied { Toast("Copied").success }
+}"#, title: "wf")
+        }
+    }
+}

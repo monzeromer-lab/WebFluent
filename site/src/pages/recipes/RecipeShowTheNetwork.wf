@@ -1,0 +1,44 @@
+// A recipe, written from md-docs/recipes/show-the-network.md by scripts/docsite/recipes.py;
+// edit the recipe, not this file.
+page RecipeShowTheNetwork(path: "/recipes/show-the-network", title: "Show what the network is doing — Recipes", description: "To change what a page does on a slow line or none at all, read `network`.") {
+    RecipeShell("Show what the network is doing", summary: "To change what a page does on a slow line or none at all, read `network`. Like `viewport`, it is a browser value that keeps itself current:", outputs: [], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Connect two readers' pages", to: "/recipes/connect-two-readers"), RelatedLink(kind: "Recipe", title: "Listen to server-sent events", to: "/recipes/server-sent-events"), RelatedLink(kind: "Recipe", title: "Open a socket", to: "/recipes/open-a-socket")], source: "md-docs/recipes/show-the-network.md", how: true, hasVariations: false) {
+        code {
+            CodeBlock(#"page Inbox(path: "/inbox", title: "Inbox", description: "Your messages.") {
+    Heading("Inbox").h1
+    if !network.online { Alert("You are offline — changes are queued.").warning }
+    if network.saveData { Text("Data saver is on.").muted }
+}"#, title: "wf")
+        }
+        Table(caption: "Show what the network is doing") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Member").header
+                    Table.Cell("What it is").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`network.online`") }
+                    Table.Cell("Whether the browser has a connection")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`network.effectiveType`") }
+                    Table.Cell { Markdown("How fast it is: `4g`, `3g`, …") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`network.saveData`") }
+                    Table.Cell("Whether the reader asked to save data")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`network.downlink`") }
+                    Table.Cell("The estimated bandwidth, in megabits per second")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`network.queued`") }
+                    Table.Cell { Markdown("How many writes wait for the connection, when the site works offline ([Offline](/recipes/keep-writes-made-offline))") }
+                }
+            }
+        }
+
+    }
+}

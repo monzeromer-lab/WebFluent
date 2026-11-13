@@ -1,0 +1,56 @@
+// A recipe, written from md-docs/recipes/cache-and-security-headers.md by scripts/docsite/recipes.py;
+// edit the recipe, not this file.
+page RecipeCacheAndSecurityHeaders(path: "/recipes/cache-and-security-headers", title: "Set cache and security headers — Recipes", description: "To let browsers keep files without serving a stale site, set `Cache-Control` by the kind of file:") {
+    RecipeShell("Set cache and security headers", summary: "To let browsers keep files without serving a stale site, set `Cache-Control` by the kind of file:", outputs: [], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "set-cache-headers", label: "Set cache headers"), Anchor(id: "set-security-headers", label: "Set security headers")], related: [RelatedLink(kind: "Recipe", title: "Build a Docker image", to: "/recipes/docker-image"), RelatedLink(kind: "Recipe", title: "Check a deploy", to: "/recipes/check-a-deploy"), RelatedLink(kind: "Recipe", title: "Deploy to Cloudflare Pages", to: "/recipes/deploy-to-cloudflare-pages")], source: "md-docs/recipes/cache-and-security-headers.md", how: false, hasVariations: false) {
+        Heading("Set cache headers", id: "set-cache-headers").h2
+
+        Markdown("To let browsers keep files without serving a stale site, set `Cache-Control` by the kind of file:")
+
+        Table(caption: "Set cache headers") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Files").header
+                    Table.Cell("Cache-Control").header
+                    Table.Cell("Why").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("HTML, `app.js`, `pages/*`, `styles.css`") }
+                    Table.Cell { Markdown("`no-cache` (revalidate every time)") }
+                    Table.Cell("their names do not change between builds")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`sw.js`") }
+                    Table.Cell { Markdown("`no-cache`") }
+                    Table.Cell { Markdown("a stale worker holds a stale site ([Offline](/recipes))") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("resized images (`hero.<hash>.960.webp`)") }
+                    Table.Cell { Markdown("`public, max-age=31536000, immutable`") }
+                    Table.Cell("the name changes when the file does")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`public/` files") }
+                    Table.Cell("your choice")
+                    Table.Cell("they keep the names you gave them")
+                }
+            }
+        }
+
+        Markdown("`no-cache` still lets the browser keep a copy. The browser asks the server each time, and a `304 Not Modified` answer means it does not download the file again.")
+
+        Heading("Set security headers", id: "set-security-headers").h2
+
+        Markdown("With `build.csp` on, every page carries its Content-Security-Policy as a `<meta>` tag. `build/_headers` holds the same policy, plus `X-Content-Type-Options`, `Referrer-Policy`, `X-Frame-Options` and the policy's `frame-ancestors`, which only work as real HTTP headers. This is the file a build writes:")
+
+        CodeBlock(#"/*
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'self'
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Frame-Options: DENY"#, title: "text")
+
+        Markdown("Netlify and Cloudflare Pages read the file. On any other host, set the same headers as the recipes above show. Serve the site over HTTPS, and turn on HSTS once you are sure HTTPS works everywhere. [Security](/docs/guide/security#before-you-deploy) has the full checklist.")
+
+    }
+}

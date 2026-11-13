@@ -152,7 +152,7 @@ Change it back, save, and the page returns.
 
 You have a working project. Stop the server with Ctrl+C when you are done.
 Run `wf build` to write the finished site to `build/`, ready for any static
-host ([Deploying](../recipes/deploying.md)).
+host ([Deploying](../recipes/index.md)).
 
 The rest of this chapter is optional set-up. To keep learning, go to the
 [tutorial](02-tutorial-shelf.md).
@@ -243,7 +243,7 @@ cd WebFluent && cargo install --path .
 
 `--locales en,ar` starts an `spa` or `static` project translated: its text
 is in `src/translations/`, one file per language, and the first locale is
-the default ([Internationalisation](../recipes/i18n.md#start-a-project-translated)).
+the default ([Internationalisation](../recipes/translate-a-site.md#start-a-project-translated)).
 
 If you are unsure between `spa` and `static`, start with `static`. Every
 page is real HTML before any script runs, which is better for search and for

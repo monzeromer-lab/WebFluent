@@ -64,7 +64,7 @@ page PagesAndRoutingGuide(path: "/docs/guide/pages-and-routing", title: "Pages a
                 Table.Row {
                     Table.Cell { Markdown("`lang:`") }
                     Table.Cell("")
-                    Table.Cell { Markdown("The language the page is written in, when it is not the site's: `\"en\"`, `\"ar\"`, `\"pt-BR\"`. It sets `<html lang dir>`, `og:locale` and the JSON-LD's `inLanguage` ([A page in its own language](/docs/guide/i18n#a-page-in-its-own-language))") }
+                    Table.Cell { Markdown("The language the page is written in, when it is not the site's: `\"en\"`, `\"ar\"`, `\"pt-BR\"`. It sets `<html lang dir>`, `og:locale` and the JSON-LD's `inLanguage` ([A page in its own language](/recipes/site-in-two-languages))") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`translates:`") }
@@ -118,7 +118,7 @@ page PagesAndRoutingGuide(path: "/docs/guide/pages-and-routing", title: "Pages a
     Footer { Text("© Acme").muted.sm }
 }"#, title: "wf")
 
-        Markdown("The `Router` behaves like this:\n\n- It is bare: it takes no children, and it may sit at any depth inside `app` (in a `Row`, a `Container`, a `Stack`).\n- Its route table is built from every page's `path:`, ordered by specificity: static segments before `:params`, and `*` last. The order you declare pages in can never shadow a route.\n- A project with no `app` declaration gets a bare router.\n- `Router(transition: .fade, duration: \"200ms\")` animates page changes ([Motion](/docs/guide/motion#animate-route-changes)).")
+        Markdown("The `Router` behaves like this:\n\n- It is bare: it takes no children, and it may sit at any depth inside `app` (in a `Row`, a `Container`, a `Stack`).\n- Its route table is built from every page's `path:`, ordered by specificity: static segments before `:params`, and `*` last. The order you declare pages in can never shadow a route.\n- A project with no `app` declaration gets a bare router.\n- `Router(transition: .fade, duration: \"200ms\")` animates page changes ([Motion](/recipes/route-transitions)).")
 
         Heading("Links and navigation", id: "links-and-navigation").h2
 

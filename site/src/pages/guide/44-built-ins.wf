@@ -199,7 +199,7 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
             }
         }
 
-        Markdown("Returns a handle with `play()`, `cancel()` and `finished` (a promise). It plays as soon as it is made. Where: handlers and actions. See [Motion](/docs/guide/motion#drive-an-animation-yourself).")
+        Markdown("Returns a handle with `play()`, `cancel()` and `finished` (a promise). It plays as soon as it is made. Where: handlers and actions. See [Motion](/recipes/drive-an-animation).")
 
         CodeBlock(#"Card(ref: panel) { on mouseenter { animate(panel, "pulse", "400ms") } }"#, title: "wf")
 
@@ -229,7 +229,7 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
             }
         }
 
-        Markdown("Returns whether the browser accepted the send. Where: anywhere, usually a handler. See [Send a message as the page unloads](/docs/guide/realtime#send-a-message-as-the-page-unloads).")
+        Markdown("Returns whether the browser accepted the send. Where: anywhere, usually a handler. See [Send a message as the page unloads](/recipes/send-on-unload).")
 
         CodeBlock(#"beacon("/analytics", { event: "checkout", value: total })"#, title: "wf")
 
@@ -254,7 +254,7 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
             }
         }
 
-        Markdown("Returns a channel handle with `.post(value)`, `.messages`, `.last(kind)`, `.state` and `.close()`. Where: only after `channel name =`, in a page, a component or a store. The channel closes when its scope leaves. See [Talk to the site's other tabs](/docs/guide/realtime#talk-to-the-site-s-other-tabs).")
+        Markdown("Returns a channel handle with `.post(value)`, `.messages`, `.last(kind)`, `.state` and `.close()`. Where: only after `channel name =`, in a page, a component or a store. The channel closes when its scope leaves. See [Talk to the site's other tabs](/recipes/talk-between-tabs).")
 
         CodeBlock(#"channel cart = broadcast("cart") { on message(m) { Cart.merge(m) } }"#, title: "wf")
 
@@ -514,7 +514,7 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
             }
         }
 
-        Markdown("Returns nothing. Where: handlers. See [Motion](/docs/guide/motion#drive-an-animation-yourself).")
+        Markdown("Returns nothing. Where: handlers. See [Motion](/recipes/drive-an-animation).")
 
         CodeBlock(#"Card.outlined.fadeIn { on mouseenter(e) { replayAnimation(e.currentTarget, "fadeIn") } }"#, title: "wf")
 
@@ -549,7 +549,7 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
             }
         }
 
-        Markdown("Returns a peer handle with `.send(value)`, `.signal(message)` (hand it what the other side sent), `.state`, `.messages` and `.close()`. Where: only after `peer name =`. See [Connect two readers' pages](/docs/guide/realtime#connect-two-readers-pages).")
+        Markdown("Returns a peer handle with `.send(value)`, `.signal(message)` (hand it what the other side sent), `.state`, `.messages` and `.close()`. Where: only after `peer name =`. See [Connect two readers' pages](/recipes/connect-two-readers).")
 
         CodeBlock(#"peer link = rtc(signal: m => lobby.post(m), initiator: query.host == "1") { on message(m) { heard = m.text } }"#, title: "wf")
 
@@ -599,7 +599,7 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
             }
         }
 
-        Markdown("Returns nothing. Every `t(…)`, `format` and `ago` redraws, and an RTL locale sets `dir=\"rtl\"`. A literal locale the config does not list is an `I04`. Where: actions, handlers and effects. See [i18n](/docs/guide/i18n#switch-the-locale).")
+        Markdown("Returns nothing. Every `t(…)`, `format` and `ago` redraws, and an RTL locale sets `dir=\"rtl\"`. A literal locale the config does not list is an `I04`. Where: actions, handlers and effects. See [i18n](/recipes/translate-a-site#switch-the-locale).")
 
         CodeBlock(#"Button("العربية") { on click { setLocale("ar") } }"#, title: "wf")
 
@@ -664,7 +664,7 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
             }
         }
 
-        Markdown("Returns a worker handle with `.request(method, params, options)`, `.send(value)`, `.last(kind)`, `.pending`, `.state` and `.restart()`. Where: only after `worker name =`, in a page, a component or a store. See [Run a script in a worker](/docs/guide/realtime#run-a-script-in-a-worker).")
+        Markdown("Returns a worker handle with `.request(method, params, options)`, `.send(value)`, `.last(kind)`, `.pending`, `.state` and `.restart()`. Where: only after `worker name =`, in a page, a component or a store. See [Run a script in a worker](/recipes/run-a-worker).")
 
         CodeBlock(#"worker css = spawn("/workers/css.js", restart: 1) { on message(m) { problems = m.items } }"#, title: "wf")
 
@@ -694,7 +694,7 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
             }
         }
 
-        Markdown("Returns a stream handle with `.messages`, `.last(kind)`, `.state`, `.error` and `.close()`. Where: only after `stream name =`. See [Listen to server-sent events](/docs/guide/realtime#listen-to-server-sent-events).")
+        Markdown("Returns a stream handle with `.messages`, `.last(kind)`, `.state`, `.error` and `.close()`. Where: only after `stream name =`. See [Listen to server-sent events](/recipes/server-sent-events).")
 
         CodeBlock(#"stream ticks = sse("/events", events: ["price", "status"])"#, title: "wf")
 
@@ -724,7 +724,7 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
             }
         }
 
-        Markdown("Returns the message. A literal key no locale has is an `I01`; a value the message does not use, or a placeholder the call does not pass, is an `I02`. Where: anywhere. See [`t(\"key\")`](/docs/guide/i18n#translate-text-with-t).")
+        Markdown("Returns the message. A literal key no locale has is an `I01`; a value the message does not use, or a placeholder the call does not pass, is an `I02`. Where: anywhere. See [`t(\"key\")`](/recipes/translate-a-site#translate-text-with-t).")
 
         CodeBlock(#"Text(t("cart.items", { count: Cart.count }))"#, title: "wf")
 
@@ -765,7 +765,7 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
             }
         }
 
-        Markdown("Returns a socket handle with `.send(value)`, `.messages`, `.last(kind)`, `.state`, `.error`, `.closure` and `.close()`. Where: only after `socket name =`. See [Open a socket](/docs/guide/realtime#open-a-socket).")
+        Markdown("Returns a socket handle with `.send(value)`, `.messages`, `.last(kind)`, `.state`, `.error`, `.closure` and `.close()`. Where: only after `socket name =`. See [Open a socket](/recipes/open-a-socket#open-a-socket).")
 
         CodeBlock(#"socket chat = ws("wss://example.com/chat", heartbeat: 20.seconds) { on message(m) { Feed.add(m) } }"#, title: "wf")
 

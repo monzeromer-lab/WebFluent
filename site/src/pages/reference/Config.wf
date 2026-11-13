@@ -176,7 +176,7 @@ page ConfigPage(path: "/reference/config", title: "Configuration — Reference",
                             Table.Cell { Markdown("`output_type`") }
                             Table.Cell { Markdown("`spa`, `static`, `pdf`, `slides`, `elements`") }
                             Table.Cell { Markdown("`\"spa\"`") }
-                            Table.Cell { Markdown("What the project builds: `spa` is a website; `static` is a website whose every page is pre-rendered, as `ssg: true` builds it; `pdf` a document; `slides` a deck; `elements` custom elements ([PDF and slides](/docs/guide/pdf-and-slides), [custom elements](/docs/guide/interop#publish-your-components-as-custom-elements)).") }
+                            Table.Cell { Markdown("What the project builds: `spa` is a website; `static` is a website whose every page is pre-rendered, as `ssg: true` builds it; `pdf` a document; `slides` a deck; `elements` custom elements ([PDF and slides](/docs/guide/pdf-and-slides), [custom elements](/recipes/publish-custom-elements)).") }
                         }
                         Table.Row {
                             Table.Cell { Markdown("`ssg`") }
@@ -194,7 +194,7 @@ page ConfigPage(path: "/reference/config", title: "Configuration — Reference",
                             Table.Cell { Markdown("`clean_urls`") }
                             Table.Cell { Markdown("`file`, `directory`") }
                             Table.Cell("unset")
-                            Table.Cell { Markdown("How a route's address avoids a redirect on a host that adds a trailing slash. `\"file\"` also writes `contact.html` beside `contact/index.html`; `\"directory\"` names every route `/contact/` in canonical links, the sitemap and links to pages ([Content](/docs/guide/content#keep-addresses-from-redirecting)).") }
+                            Table.Cell { Markdown("How a route's address avoids a redirect on a host that adds a trailing slash. `\"file\"` also writes `contact.html` beside `contact/index.html`; `\"directory\"` names every route `/contact/` in canonical links, the sitemap and links to pages ([Content](/recipes)).") }
                         }
                         Table.Row {
                             Table.Cell { Markdown("`split`") }
@@ -224,7 +224,7 @@ page ConfigPage(path: "/reference/config", title: "Configuration — Reference",
                             Table.Cell { Markdown("`runtime`") }
                             Table.Cell { Markdown("`auto`, `full`") }
                             Table.Cell { Markdown("`\"auto\"`") }
-                            Table.Cell { Markdown("`auto` ships only the runtime modules the program reaches; `full` ships every one, for a hand-written script that calls `WF` in ways the build cannot see ([JavaScript interop](/docs/guide/interop)).") }
+                            Table.Cell { Markdown("`auto` ships only the runtime modules the program reaches; `full` ships every one, for a hand-written script that calls `WF` in ways the build cannot see ([JavaScript interop](/recipes)).") }
                         }
                         Table.Row {
                             Table.Cell { Markdown("`csp`") }
@@ -261,7 +261,7 @@ page ConfigPage(path: "/reference/config", title: "Configuration — Reference",
 
                 Heading("build.media", id: "build-media").h3
 
-                Markdown("The image pipeline: how the build resizes and re-encodes the pictures a program names ([Media](/docs/guide/media)).")
+                Markdown("The image pipeline: how the build resizes and re-encodes the pictures a program names ([Media](/recipes)).")
 
                 Table(caption: "build.media") {
                     Table.Head {
@@ -473,7 +473,7 @@ page ConfigPage(path: "/reference/config", title: "Configuration — Reference",
 
                 Heading("motion", id: "motion").h2
 
-                Markdown("What an animation does when the element says nothing ([Motion](/docs/guide/motion)).")
+                Markdown("What an animation does when the element says nothing ([Motion](/recipes)).")
 
                 Table(caption: "motion") {
                     Table.Head {
@@ -548,7 +548,7 @@ page ConfigPage(path: "/reference/config", title: "Configuration — Reference",
                             Table.Cell { Markdown("`owner`") }
                             Table.Cell { Markdown("`organization`, `person`") }
                             Table.Cell { Markdown("`\"organization\"`") }
-                            Table.Cell { Markdown("Whether the site belongs to an organisation or a person: the JSON-LD node the site is published by ([Content](/docs/guide/content#say-who-the-site-belongs-to)).") }
+                            Table.Cell { Markdown("Whether the site belongs to an organisation or a person: the JSON-LD node the site is published by ([Content](/recipes)).") }
                         }
                         Table.Row {
                             Table.Cell { Markdown("`same_as`") }
@@ -608,7 +608,7 @@ page ConfigPage(path: "/reference/config", title: "Configuration — Reference",
                             Table.Cell { Markdown("`preload`") }
                             Table.Cell("list of paths")
                             Table.Cell { Markdown("`[]`") }
-                            Table.Cell { Markdown("Files on this site to fetch with the page, ahead of the stylesheets: a font a project `.css` file's `@font-face` names, the first screen's picture. `as` comes from the extension (a font is also `crossorigin`). A file on another origin is `E111` ([Content](/docs/guide/content#preload-fonts-served-from-the-site)).") }
+                            Table.Cell { Markdown("Files on this site to fetch with the page, ahead of the stylesheets: a font a project `.css` file's `@font-face` names, the first screen's picture. `as` comes from the extension (a font is also `crossorigin`). A file on another origin is `E111` ([Content](/recipes)).") }
                         }
                         Table.Row {
                             Table.Cell { Markdown("`stylesheets`") }
@@ -620,7 +620,7 @@ page ConfigPage(path: "/reference/config", title: "Configuration — Reference",
                             Table.Cell { Markdown("`scripts`") }
                             Table.Cell("list of scripts")
                             Table.Cell { Markdown("`[]`") }
-                            Table.Cell { Markdown("Libraries to load before the project's own scripts (below). Their origins join the policy ([JavaScript interop](/docs/guide/interop#load-a-library-from-a-cdn)).") }
+                            Table.Cell { Markdown("Libraries to load before the project's own scripts (below). Their origins join the policy ([JavaScript interop](/recipes/library-from-a-cdn)).") }
                         }
                         Table.Row {
                             Table.Cell { Markdown("`integrity`") }
@@ -778,7 +778,7 @@ page ConfigPage(path: "/reference/config", title: "Configuration — Reference",
                     }
                 }
 
-                Markdown("See also: [Internationalisation](/docs/guide/i18n).")
+                Markdown("See also: [Internationalisation](/recipes).")
 
                 Heading("env and publicenv", id: "env-and-publicenv").h2
 
@@ -809,7 +809,7 @@ page ConfigPage(path: "/reference/config", title: "Configuration — Reference",
                     }
                 }
 
-                Markdown("See also: [Environments](/docs/guide/environments).")
+                Markdown("See also: [Environments](/recipes).")
 
                 Heading("offline", id: "offline").h2
 
@@ -854,7 +854,7 @@ page ConfigPage(path: "/reference/config", title: "Configuration — Reference",
                     }
                 }
 
-                Markdown("See also: [Offline](/docs/guide/offline).")
+                Markdown("See also: [Offline](/recipes).")
 
                 Heading("lints", id: "lints").h2
 

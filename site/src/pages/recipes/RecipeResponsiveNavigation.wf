@@ -1,0 +1,28 @@
+// A recipe, written from md-docs/recipes/responsive-navigation.md by scripts/docsite/recipes.py;
+// edit the recipe, not this file.
+page RecipeResponsiveNavigation(path: "/recipes/responsive-navigation", title: "Make navigation responsive — Recipes", description: "To show links on a wide screen and a menu button on a narrow one, branch on `viewport`:") {
+    RecipeShell("Make navigation responsive", summary: "To show links on a wide screen and a menu button on a narrow one, branch on `viewport`:", outputs: [], since: "", recipes: RECIPE_INDEX, sections: [], related: [RelatedLink(kind: "Recipe", title: "Build a confirm dialog", to: "/recipes/confirm-dialog"), RelatedLink(kind: "Recipe", title: "Copy to the clipboard", to: "/recipes/copy-to-the-clipboard"), RelatedLink(kind: "Recipe", title: "Count down", to: "/recipes/count-down")], source: "md-docs/recipes/responsive-navigation.md", how: false, hasVariations: false) {
+        code {
+            CodeBlock(#"page Nav(path: "/", title: "Home", description: "Navigation that fits the screen.") {
+    state open = false
+    Heading("Home").h1
+    if viewport.md {
+        Row(gap: .md) {
+            Link("Home", to: "/")
+            Link("Docs", to: "/docs")
+            Link("Pricing", to: "/pricing")
+        }
+    } else {
+        IconButton(icon: "menu", label: "Open navigation") { on click { open = !open } }
+        show open {
+            Stack(gap: .sm, animate: .slideDown) {
+                Link("Home", to: "/")
+                Link("Docs", to: "/docs")
+                Link("Pricing", to: "/pricing")
+            }
+        }
+    }
+}"#, title: "wf")
+        }
+    }
+}

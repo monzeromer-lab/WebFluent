@@ -369,7 +369,7 @@ page ErrorE108(path: "/errors/E108", title: "E108 — An env name that is not pu
     ErrorShell("E108", title: "An env name that is not public", severity: "error", family: "Syntax and structure", summary: "Whatever a page reads from `env` is in the bundle, where anyone can read it. A name a page reads must begin `PUBLIC_` or be listed in `public_env`.", printed: #""#, lowerable: false, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "why", label: t("error.why")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/E108.md") {
         fixed {
             Stack(gap: .sm) {
-                Markdown("rename it `PUBLIC_…` or list it\nin `public_env` — only if anyone may read it ([chapter\n30](../recipes/environments.md)).")
+                Markdown("rename it `PUBLIC_…` or list it\nin `public_env` — only if anyone may read it ([chapter\n30](../recipes/index.md)).")
             }
         }
         Markdown("`env.STRIPE_SECRET` read in a page: `env.STRIPE_SECRET is not public, and a\npage reads what is in the bundle`.")

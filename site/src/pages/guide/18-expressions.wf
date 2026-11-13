@@ -341,7 +341,7 @@ page Settings(path: "/settings", title: "Settings", description: "The limits thi
     Text("Up to {MAX_ROWS} rows, {PAGE_SIZE} a page, from {API}")
 }"#, title: "wf")
 
-        Markdown("A constant may carry a type, as `PAGE_SIZE` does. Assigning to one is an `X01`. `env.NAME` reads a value fixed at build time — from the config's `env` map, a `.env` file or the shell. A page may read only a public name, one that begins `PUBLIC_` or that `public_env` lists; [Environments](/docs/guide/environments) has the rules.")
+        Markdown("A constant may carry a type, as `PAGE_SIZE` does. Assigning to one is an `X01`. `env.NAME` reads a value fixed at build time — from the config's `env` map, a `.env` file or the shell. A page may read only a public name, one that begins `PUBLIC_` or that `public_env` lists; [Environments](/recipes) has the rules.")
 
         Heading("Built-in functions", id: "built-in-functions").h2
 
@@ -369,7 +369,7 @@ page Settings(path: "/settings", title: "Settings", description: "The limits thi
                 }
                 Table.Row {
                     Table.Cell { Markdown("`t(\"key\", args)`, `setLocale(\"ar\")`") }
-                    Table.Cell { Markdown("Translates, and switches the locale ([i18n](/docs/guide/i18n))") }
+                    Table.Cell { Markdown("Translates, and switches the locale ([i18n](/recipes))") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`setTheme(\"dark\")`") }
@@ -385,7 +385,7 @@ page Settings(path: "/settings", title: "Settings", description: "The limits thi
                 }
                 Table.Row {
                     Table.Cell { Markdown("`animate(el, name, ms)`, `replayAnimation(el, name)`") }
-                    Table.Cell { Markdown("Plays an animation by hand ([Motion](/docs/guide/motion#drive-an-animation-yourself))") }
+                    Table.Cell { Markdown("Plays an animation by hand ([Motion](/recipes/drive-an-animation))") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`optimistic(holder, change)`") }
@@ -393,7 +393,7 @@ page Settings(path: "/settings", title: "Settings", description: "The limits thi
                 }
                 Table.Row {
                     Table.Cell { Markdown("`beacon(url, data)`") }
-                    Table.Cell { Markdown("Sends data in a way that outlives the page ([Real-time](/docs/guide/realtime))") }
+                    Table.Cell { Markdown("Sends data in a way that outlives the page ([Real-time](/recipes))") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`sanitize(html)`") }
@@ -409,7 +409,7 @@ page Settings(path: "/settings", title: "Settings", description: "The limits thi
                 }
                 Table.Row {
                     Table.Cell { Markdown("`ws(…)`, `sse(…)`, `broadcast(…)`, `rtc(…)`, `spawn(…)`") }
-                    Table.Cell { Markdown("Open a socket, a stream, a channel, a peer or a worker, after `socket x =` and the rest ([Real-time](/docs/guide/realtime))") }
+                    Table.Cell { Markdown("Open a socket, a stream, a channel, a peer or a worker, after `socket x =` and the rest ([Real-time](/recipes))") }
                 }
             }
         }

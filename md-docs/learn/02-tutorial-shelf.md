@@ -407,7 +407,7 @@ on submit {
 }
 ```
 
-([Data and APIs](15-data.md), [Environments](../recipes/environments.md).)
+([Data and APIs](15-data.md), [Environments](../recipes/index.md).)
 
 ## Step 8: Give the site a theme
 
@@ -574,7 +574,7 @@ Push the project to your `shelf` repository. In the repository's
 
 **Check it:** the **Actions** tab shows the **Deploy** workflow passing, and
 `https://<you>.github.io/shelf/` shows **Books worth reading**.
-[Deploying](../recipes/deploying.md) covers Netlify, Vercel, Cloudflare Pages,
+[Deploying](../recipes/index.md) covers Netlify, Vercel, Cloudflare Pages,
 nginx and other hosts.
 
 ## The whole program
@@ -764,14 +764,14 @@ Shelf is a whole site, and each part of it uses one idea of the language:
 | `validate` and `Form(bind: form)` | Validated forms | [Forms](14-forms.md) |
 | `theme Paper` and `theme Ink` | Design tokens and dark mode | [Styling](13-styling.md) |
 | `test "…" { … click … expect … }` | Tests that render and click | [Testing](16-testing.md) |
-| `wf build`, `wf verify` and a workflow | Building, checking and deploying | [Deploying](../recipes/deploying.md) |
+| `wf build`, `wf verify` and a workflow | Building, checking and deploying | [Deploying](../recipes/index.md) |
 
 To go further:
 
 - Read the language properly, starting at [Language basics](04-language-basics.md).
 - Talk to a real server: [Data and APIs](15-data.md).
-- Make the site work offline: [Offline](../recipes/offline.md).
-- Translate it: [Internationalisation](../recipes/i18n.md).
+- Make the site work offline: [Offline](../recipes/index.md).
+- Translate it: [Internationalisation](../recipes/index.md).
 - Build a bigger project: [Tutorials](03-tutorial-todos.md).
 
 ## Next

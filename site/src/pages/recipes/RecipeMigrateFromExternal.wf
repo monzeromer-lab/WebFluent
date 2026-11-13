@@ -1,0 +1,6 @@
+// A recipe, written from md-docs/recipes/migrate-from-external.md by scripts/docsite/recipes.py;
+// edit the recipe, not this file.
+page RecipeMigrateFromExternal(path: "/recipes/migrate-from-external", title: "Migrate from external — Recipes", description: "Before 4.2, you described JavaScript with `external` declarations; 4.2 removed them.") {
+    RecipeShell("Migrate from external", summary: "Before 4.2, you described JavaScript with `external` declarations; 4.2 removed them. `wf migrate` rewrites a project:  - A remote module becomes a `meta.scripts` entry. Its calls keep working, typed `Any`. - A local module becomes a plain script under `src/`, with its exports removed and its signatures as JSDoc. `X.f(…)` is rewritten to `f(…)`. - An `external element` call site becomes `Element(\"tag-name\", …)`.", outputs: [], since: "", recipes: RECIPE_INDEX, sections: [], related: [RelatedLink(kind: "Recipe", title: "Call WF from a script", to: "/recipes/call-wf-from-a-script"), RelatedLink(kind: "Recipe", title: "Call your own JavaScript", to: "/recipes/call-your-own-script"), RelatedLink(kind: "Recipe", title: "Draw a chart from a library", to: "/recipes/chart-from-a-library")], source: "md-docs/recipes/migrate-from-external.md", how: false, hasVariations: false) {
+    }
+}

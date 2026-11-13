@@ -53,8 +53,8 @@ Find the idea you know in the first column:
 | TypeScript | a built-in, gradual type checker; types are optional | [Types](../learn/12-types.md) |
 | CSS modules / scoped styles | `style { }` on the element, with tokens and nesting | [Styling](../learn/13-styling.md) |
 | Tailwind utility classes | flags (`.primary.lg`), layout props, design tokens | [Styling](../learn/13-styling.md) |
-| Framer Motion / transitions | `animate:`, `exit:`, `stagger:`, route transitions | [Motion](../recipes/motion.md) |
-| react-i18next / vue-i18n | `t("key", { name: x })`, `setLocale("ar")` | [i18n](../recipes/i18n.md) |
+| Framer Motion / transitions | `animate:`, `exit:`, `stagger:`, route transitions | [Motion](../recipes/index.md) |
+| react-i18next / vue-i18n | `t("key", { name: x })`, `setLocale("ar")` | [i18n](../recipes/index.md) |
 | Next.js static export / Astro | `build.ssg: true` | [Static or SPA](../about/static-and-spa.md) |
 | Testing Library + Playwright | `test "…" { … click "Save"  expect "Saved" }` | [Testing](../learn/16-testing.md) |
 | ESLint a11y plugin | accessibility checks on every build | [Accessibility](../about/accessibility.md) |
@@ -216,16 +216,16 @@ handlers and `javascript:` URLs do not compile. See [Security](../about/security
   JavaScript library is a URL in `meta.scripts`. Your own JavaScript is a
   plain `.js` file under `src/`, and `.wf` code calls its functions by name.
   `mount:` and `cleanup:` hand any element to a script for as long as the
-  element exists. [JavaScript interop](../recipes/javascript-interop.md) shows a
+  element exists. [JavaScript interop](../recipes/index.md) shows a
   chart library end to end.
 - **Server components, or rendering on every request.** WebFluent does not
   do this. A WebFluent site is static files plus a browser runtime, served
   by any host and talking to your API. For HTML generated on a server, such
   as emails, invoices and fragments, see
-  [Server rendering](../recipes/server-rendering.md).
+  [Server rendering](../recipes/index.md).
 - **WebFluent inside an existing React or Vue app.** Publish components as
   custom elements and place their tags:
-  [Custom elements](../recipes/javascript-interop.md#publish-your-components-as-custom-elements).
+  [Custom elements](../recipes/publish-custom-elements.md).
 - **HTMX.** The closest thing to `hx-get` is a `resource` whose URL reads
   state, and the closest thing to `hx-post` is an action that `await`s an
   `api` endpoint. The page stays static HTML until its script arrives, then

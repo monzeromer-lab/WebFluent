@@ -63,7 +63,7 @@ elements rather than rebuilding them:
 - **The active link.** The link to the current page carries
   `aria-current="page"`.
 - **Reduced motion.** A reader who asked for it gets no animation at all,
-  and a carousel does not play on its own ([Motion](../recipes/motion.md#respect-reduced-motion)).
+  and a carousel does not play on its own ([Motion](../recipes/motion-defaults.md#respect-reduced-motion)).
 - **Visible focus.** Every interactive built-in shows a focus ring for the
   keyboard (`:focus-visible`), but not on every click.
 

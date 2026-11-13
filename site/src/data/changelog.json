@@ -535,17 +535,17 @@
     "intro": "",
     "items": [
      {
-      "text": "**Translate a project by its own words** ([chapter 28](/docs/guide/i18n#translate-by-the-words-as-written)).\nWith `\"literals\": true` in `i18n`, every string a reader sees (an\nelement's text, its `label:`, `title:`, `placeholder:`, `aria-label:`\nand `alt:`, a record's text field, a value whose name says it is words,\nsuch as `caretText` or `emptyLabel`) is looked up in the locale's table\nby the text as written, and the source stays in the language it was\nwritten in. A string that splices a value is one key, with a placeholder\nnamed after it; Markdown written in place and a control's `labels:` are\nwords too. `wf test` translates the program as the build does. What no\ntable can translate (a text splicing more than a name) is the new\nwarning `I05`, where it is shown.",
+      "text": "**Translate a project by its own words** ([chapter 28](https://github.com/monzeromer-lab/WebFluent/blob/master/md-docs/recipes/translate-by-the-words.md)).\nWith `\"literals\": true` in `i18n`, every string a reader sees (an\nelement's text, its `label:`, `title:`, `placeholder:`, `aria-label:`\nand `alt:`, a record's text field, a value whose name says it is words,\nsuch as `caretText` or `emptyLabel`) is looked up in the locale's table\nby the text as written, and the source stays in the language it was\nwritten in. A string that splices a value is one key, with a placeholder\nnamed after it; Markdown written in place and a control's `labels:` are\nwords too. `wf test` translates the program as the build does. What no\ntable can translate (a text splicing more than a name) is the new\nwarning `I05`, where it is shown.",
       "points": [],
       "after": ""
      },
      {
-      "text": "**Plural forms by the number in the text** ([chapter 28](/docs/guide/i18n#count-by-the-number-in-the-text)).\nA message with plural forms and exactly one number among its values\ntakes its form by that number, so `Text(\"{files} files\")` reads right\nin Arabic's two, few and many. With two numbers none is guessed.",
+      "text": "**Plural forms by the number in the text** ([chapter 28](https://github.com/monzeromer-lab/WebFluent/blob/master/md-docs/recipes/index.md)).\nA message with plural forms and exactly one number among its values\ntakes its form by that number, so `Text(\"{files} files\")` reads right\nin Arabic's two, few and many. With two numbers none is guessed.",
       "points": [],
       "after": ""
      },
      {
-      "text": "**A locale may name its digits** ([chapter 28](/docs/guide/i18n#switch-the-locale)).\n`setLocale(\"ar-u-nu-arab\")` reads the `ar` table and writes `format`,\n`ago` and every count in Arabic-Indic digits; `ar-u-nu-latn` is 0–9\nwhatever the browser would pick. A date pattern's figures follow, and\n`a` is AM or PM in the locale's words. The document's `lang` stays the\nlanguage, so a stylesheet's `[lang=\"ar\"]` still matches.",
+      "text": "**A locale may name its digits** ([chapter 28](https://github.com/monzeromer-lab/WebFluent/blob/master/md-docs/recipes/translate-a-site.md#switch-the-locale)).\n`setLocale(\"ar-u-nu-arab\")` reads the `ar` table and writes `format`,\n`ago` and every count in Arabic-Indic digits; `ar-u-nu-latn` is 0–9\nwhatever the browser would pick. A date pattern's figures follow, and\n`a` is AM or PM in the locale's words. The document's `lang` stays the\nlanguage, so a stylesheet's `[lang=\"ar\"]` still matches.",
       "points": [],
       "after": ""
      },
@@ -560,12 +560,12 @@
       "after": ""
      },
      {
-      "text": "**Markdown draws GFM tables** ([chapter 27](/docs/guide/content#write-a-table)),\nthe same at build time and in the browser: a header row, a delimiter row\nwhose colons align each column, and `\\|` for a pipe inside a cell.",
+      "text": "**Markdown draws GFM tables** ([chapter 27](https://github.com/monzeromer-lab/WebFluent/blob/master/md-docs/recipes/index.md)),\nthe same at build time and in the browser: a header row, a delimiter row\nwhose colons align each column, and `\\|` for a pipe inside a cell.",
       "points": [],
       "after": ""
      },
      {
-      "text": "**`Frame(srcdoc: html, sandbox: \"\")`** ([chapter 21](/docs/guide/media#draw-html-you-give-the-frame))\nis a declared prop, where it was an attribute passed through with a\n`C04` warning. A value that reads state is followed, so the frame\nredraws as it changes.",
+      "text": "**`Frame(srcdoc: html, sandbox: \"\")`** ([chapter 21](https://github.com/monzeromer-lab/WebFluent/blob/master/md-docs/recipes/index.md))\nis a declared prop, where it was an attribute passed through with a\n`C04` warning. A value that reads state is followed, so the frame\nredraws as it changes.",
       "points": [],
       "after": ""
      },
@@ -575,7 +575,7 @@
       "after": ""
      },
      {
-      "text": "**Fourteen icons** ([chapter 21](/docs/guide/media#show-an-icon)), 72 in all:\n`code`, `monitor`, `git-commit`, `play`, `layers`, `insert`, `grid`,\n`list`, `square`, `pill`, `image`, `sparkle`, `lock` and `type`. An icon\ndrawn in the browser now carries `data-icon`, as a pre-rendered one did,\nso a style keyed on the name matches both.",
+      "text": "**Fourteen icons** ([chapter 21](https://github.com/monzeromer-lab/WebFluent/blob/master/md-docs/recipes/show-an-icon.md)), 72 in all:\n`code`, `monitor`, `git-commit`, `play`, `layers`, `insert`, `grid`,\n`list`, `square`, `pill`, `image`, `sparkle`, `lock` and `type`. An icon\ndrawn in the browser now carries `data-icon`, as a pre-rendered one did,\nso a style keyed on the name matches both.",
       "points": [],
       "after": ""
      },
@@ -793,7 +793,7 @@
       "after": ""
      },
      {
-      "text": "**Three icons** ([chapter 28](/docs/guide/media#icons)), 58 in all:\n`locate` for a panel that follows the caret, `folder-off` for a folder\nthat is gone, and `file-plus` for New file.",
+      "text": "**Three icons** ([chapter 28](https://github.com/monzeromer-lab/WebFluent/blob/master/md-docs/recipes/index.md)), 58 in all:\n`locate` for a panel that follows the caret, `folder-off` for a folder\nthat is gone, and `file-plus` for New file.",
       "points": [],
       "after": ""
      }
@@ -919,7 +919,7 @@
       "after": ""
      },
      {
-      "text": "**23 icons for editors and tools** ([chapter 28](/docs/guide/media#icons)),\n55 in all: `folder`, `folder-plus`, `file`, `refresh`, `alert-circle`,\n`clock`, `dot`, `diff`, `book`, `git-branch`, `git-pull-request`, `pin`,\n`more-horizontal`, `window-minimize`, `window-maximize`, `outline`,\n`help-circle`, `collapse-all`, `chevron-up`, `globe`, `external-link`,\n`panel-down` and `panel-up`. They go wherever an icon name does and are\ndrawn in `currentColor`.",
+      "text": "**23 icons for editors and tools** ([chapter 28](https://github.com/monzeromer-lab/WebFluent/blob/master/md-docs/recipes/index.md)),\n55 in all: `folder`, `folder-plus`, `file`, `refresh`, `alert-circle`,\n`clock`, `dot`, `diff`, `book`, `git-branch`, `git-pull-request`, `pin`,\n`more-horizontal`, `window-minimize`, `window-maximize`, `outline`,\n`help-circle`, `collapse-all`, `chevron-up`, `globe`, `external-link`,\n`panel-down` and `panel-up`. They go wherever an icon name does and are\ndrawn in `currentColor`.",
       "points": [],
       "after": ""
      },
@@ -939,7 +939,7 @@
       "after": ""
      },
      {
-      "text": "**`Portal`** ([chapter 32](/docs/guide/interop#portal--drawing-into-a-node-a-script-made)).\n`Portal(into: node) { … }` draws its block into a node somebody else's\ncode made: an editor's tooltip, a map's popup, a chart's legend. The\nlibrary keeps the node's place, its keys and its focus; the page keeps\nwhat is in it. `into:` takes an element, a `ref:` handle or null; named\nanother node the block moves there with its state, and null keeps it\naside. Its handlers, `emit` and lifetimes belong to where it is written.\n`Portal` is now a built-in's name, so a project's own component or store\nof that name is reported.",
+      "text": "**`Portal`** ([chapter 32](https://github.com/monzeromer-lab/WebFluent/blob/master/md-docs/recipes/index.md)).\n`Portal(into: node) { … }` draws its block into a node somebody else's\ncode made: an editor's tooltip, a map's popup, a chart's legend. The\nlibrary keeps the node's place, its keys and its focus; the page keeps\nwhat is in it. `into:` takes an element, a `ref:` handle or null; named\nanother node the block moves there with its state, and null keeps it\naside. Its handlers, `emit` and lifetimes belong to where it is written.\n`Portal` is now a built-in's name, so a project's own component or store\nof that name is reported.",
       "points": [],
       "after": ""
      },
@@ -1040,7 +1040,7 @@
       "after": ""
      },
      {
-      "text": "**Text that reads state follows it** ([chapter 21](/docs/guide/i18n#switching-the-locale)).\nEach of these was worked out once, when the page was drawn: the labels\nof `Checkbox`, `Radio`, `Switch`, `Slider`, `DatePicker` and\n`FileUpload`; a `Table`'s `caption:`; `Tabs.Page` titles; `Tooltip`\ntext; a `Modal`'s or `Dialog`'s `title:`; a `Menu`'s `trigger:` and a\n`Dropdown`'s `label:`; an `Avatar`'s `src:`, `alt:` and `initials:`; a\n`Skeleton`'s `width:`, `height:` and `size:`; and an `Icon`'s positional\nname (`Icon(if done { \"check\" } else { \"clock\" })`). So\n`Checkbox(label: t(\"…\"))` now changes language with `setLocale`. Fixed\ntext compiles as before.",
+      "text": "**Text that reads state follows it** ([chapter 21](https://github.com/monzeromer-lab/WebFluent/blob/master/md-docs/recipes/index.md)).\nEach of these was worked out once, when the page was drawn: the labels\nof `Checkbox`, `Radio`, `Switch`, `Slider`, `DatePicker` and\n`FileUpload`; a `Table`'s `caption:`; `Tabs.Page` titles; `Tooltip`\ntext; a `Modal`'s or `Dialog`'s `title:`; a `Menu`'s `trigger:` and a\n`Dropdown`'s `label:`; an `Avatar`'s `src:`, `alt:` and `initials:`; a\n`Skeleton`'s `width:`, `height:` and `size:`; and an `Icon`'s positional\nname (`Icon(if done { \"check\" } else { \"clock\" })`). So\n`Checkbox(label: t(\"…\"))` now changes language with `setLocale`. Fixed\ntext compiles as before.",
       "points": [],
       "after": ""
      },
@@ -1070,7 +1070,7 @@
       "after": ""
      },
      {
-      "text": "**`setLocale` is remembered** ([chapter 21](/docs/guide/i18n#which-locale-a-page-opens-in))\nacross page loads, in `localStorage` under `wf:locale`, so a static site\nkeeps the reader's language from page to page. A `?lang=` address still\nwins, without changing the saved choice.",
+      "text": "**`setLocale` is remembered** ([chapter 21](https://github.com/monzeromer-lab/WebFluent/blob/master/md-docs/recipes/index.md))\nacross page loads, in `localStorage` under `wf:locale`, so a static site\nkeeps the reader's language from page to page. A `?lang=` address still\nwins, without changing the saved choice.",
       "points": [],
       "after": ""
      },
@@ -1085,7 +1085,7 @@
       "after": ""
      },
      {
-      "text": "**Long keyed lists no longer stall as they grow**\n([chapter 20](/docs/guide/motion#lists)). A keyed `for` read the place\nof every item it kept before each change, so a 960-line log appended\nline by line froze the page for 3.5 s. Only items whose index changes\nare measured now; a list that only grows at its end measures nothing.",
+      "text": "**Long keyed lists no longer stall as they grow**\n([chapter 20](https://github.com/monzeromer-lab/WebFluent/blob/master/md-docs/recipes/index.md)). A keyed `for` read the place\nof every item it kept before each change, so a 960-line log appended\nline by line froze the page for 3.5 s. Only items whose index changes\nare measured now; a list that only grows at its end measures nothing.",
       "points": [],
       "after": ""
      },
@@ -1100,7 +1100,7 @@
       "after": ""
      },
      {
-      "text": "**`webfluent` on Windows** ([chapter 2](/docs/guide/getting-started#windows-powershell)).\nA bare `wf` runs `WF.msc`, the Windows Firewall console, which comes\nfirst on `PATH`. The `.msi`, the release zip and `install.ps1` now also\ninstall the binary as `webfluent.exe`, so `webfluent build` works;\n`wf.exe` does too. The `.msi` now keeps one `UpgradeCode`, where each\nrelease had its own, so the next one replaces it instead of installing\nbeside it. The Node binding looks for `webfluent.exe` and `wf.exe` by\ntheir full names ([chapter 35](/docs/guide/server-rendering#from-node)).",
+      "text": "**`webfluent` on Windows** ([chapter 2](/docs/guide/getting-started#windows-powershell)).\nA bare `wf` runs `WF.msc`, the Windows Firewall console, which comes\nfirst on `PATH`. The `.msi`, the release zip and `install.ps1` now also\ninstall the binary as `webfluent.exe`, so `webfluent build` works;\n`wf.exe` does too. The `.msi` now keeps one `UpgradeCode`, where each\nrelease had its own, so the next one replaces it instead of installing\nbeside it. The Node binding looks for `webfluent.exe` and `wf.exe` by\ntheir full names ([chapter 35](https://github.com/monzeromer-lab/WebFluent/blob/master/md-docs/recipes/index.md)).",
       "points": [],
       "after": ""
      },
@@ -1115,7 +1115,7 @@
       "after": ""
      },
      {
-      "text": "**Markdown links are checked, and backslash escapes work**\n([chapter 27](/docs/guide/content#backslash-escapes)). Every link and\npicture in `Markdown` goes through the scheme check the rest of a page\ndoes, so `[x](javascript:…)` is drawn as its words. A backslash before\npunctuation draws that character (`\\*` is `*`, not emphasis), as\nCommonMark has it, and the build and the browser draw Markdown alike,\nline breaks and white space included.",
+      "text": "**Markdown links are checked, and backslash escapes work**\n([chapter 27](https://github.com/monzeromer-lab/WebFluent/blob/master/md-docs/recipes/index.md)). Every link and\npicture in `Markdown` goes through the scheme check the rest of a page\ndoes, so `[x](javascript:…)` is drawn as its words. A backslash before\npunctuation draws that character (`\\*` is `*`, not emphasis), as\nCommonMark has it, and the build and the browser draw Markdown alike,\nline breaks and white space included.",
       "points": [],
       "after": ""
      },
@@ -1205,12 +1205,12 @@
       "after": ""
      },
      {
-      "text": "**`worker`** ([chapter 18](/docs/guide/realtime)): a Web Worker held\nlike a connection, asked with `.request(method, params)` and heard with\n`on message`, restarted when it crashes; a store may hold connections.",
+      "text": "**`worker`** ([chapter 18](https://github.com/monzeromer-lab/WebFluent/blob/master/md-docs/recipes/index.md)): a Web Worker held\nlike a connection, asked with `.request(method, params)` and heard with\n`on message`, restarted when it crashes; a store may hold connections.",
       "points": [],
       "after": ""
      },
      {
-      "text": "**`Frame`** ([chapter 28](/docs/guide/media)): another page inside\nthis one, its `on message` only that page's; `A17` for a frame with no\ntitle.",
+      "text": "**`Frame`** ([chapter 28](https://github.com/monzeromer-lab/WebFluent/blob/master/md-docs/recipes/index.md)): another page inside\nthis one, its `on message` only that page's; `A17` for a frame with no\ntitle.",
       "points": [],
       "after": ""
      },
@@ -1220,7 +1220,7 @@
       "after": ""
      },
      {
-      "text": "**The policy names an app's own schemes and WebAssembly**\n([chapter 33](/docs/guide/desktop)): `meta.connect` and\n`meta.frame` take `ipc:` or `wfpreview:`, `meta.wasm` lets a page compile\nWebAssembly, `meta.style_elements` lets a script write `<style>`.",
+      "text": "**The policy names an app's own schemes and WebAssembly**\n([chapter 33](https://github.com/monzeromer-lab/WebFluent/blob/master/md-docs/recipes/index.md)): `meta.connect` and\n`meta.frame` take `ipc:` or `wfpreview:`, `meta.wasm` lets a page compile\nWebAssembly, `meta.style_elements` lets a script write `<style>`.",
       "points": [],
       "after": ""
      },
@@ -1240,7 +1240,7 @@
       "after": ""
      },
      {
-      "text": "**Plurals by CLDR** ([chapter 21](/docs/guide/i18n)): the build picks\neach count's form by the default locale's rules (CLDR 48, the same\ntable the browser's `Intl.PluralRules` reads), and exactly none is\n`key.zero` in any language.",
+      "text": "**Plurals by CLDR** ([chapter 21](https://github.com/monzeromer-lab/WebFluent/blob/master/md-docs/recipes/index.md)): the build picks\neach count's form by the default locale's rules (CLDR 48, the same\ntable the browser's `Intl.PluralRules` reads), and exactly none is\n`key.zero` in any language.",
       "points": [],
       "after": ""
      }
@@ -1356,7 +1356,7 @@
       "after": ""
      },
      {
-      "text": "**Desktop apps, in the guide.** [Chapter 33](/docs/guide/desktop)\nshows a project as a Tauri or an Electron app: the build settings a\ndesktop needs, setting up each shell, the dev loop, calling the native\nside through typed functions in a script under `src/`, events, plugins,\nthe security policy and packaging. The chapters after it move up one,\nto 34–49.",
+      "text": "**Desktop apps, in the guide.** [Chapter 33](https://github.com/monzeromer-lab/WebFluent/blob/master/md-docs/recipes/index.md)\nshows a project as a Tauri or an Electron app: the build settings a\ndesktop needs, setting up each shell, the dev loop, calling the native\nside through typed functions in a script under `src/`, events, plugins,\nthe security policy and packaging. The chapters after it move up one,\nto 34–49.",
       "points": [],
       "after": ""
      }

@@ -1,6 +1,6 @@
 /// Chapter 9 of the guide, written from md-docs/learn/04-language-basics.md by
 /// scripts/docsite/guide.py; edit the guide, not this file.
-page LanguageBasicsGuide(path: "/docs/guide/language-basics", title: "Language basics", description: "Declarations, naming, comments, render and imperative bodies, the braced and the indented layout, and how to write strings in WebFluent.", layout: DocsShell("Language basics", kind: .tutorial, chapter: t("nav.group.concepts"), blurb: "The shape of every .wf file: the thirteen kinds of declaration, naming, comments, the two kinds of body, the two layouts and how strings are written.", source: "md-docs/learn/04-language-basics.md", sections: [Anchor(id: "declarations", label: "Declarations"), Anchor(id: "naming", label: "Naming"), Anchor(id: "comments", label: "Comments"), Anchor(id: "bodies", label: "Bodies"), Anchor(id: "two-layouts-wf-and-wfx", label: "Two layouts: .wf and .wfx"), Anchor(id: "strings", label: "Strings"), Anchor(id: "quick-reference", label: "Quick reference")], prevTo: "/docs/guide/recipes", prevLabel: t("ch.08"), nextTo: "/docs/guide/pages-and-routing", nextLabel: t("ch.10"))) {
+page LanguageBasicsGuide(path: "/docs/guide/language-basics", title: "Language basics", description: "Declarations, naming, comments, render and imperative bodies, the braced and the indented layout, and how to write strings in WebFluent.", layout: DocsShell("Language basics", kind: .tutorial, chapter: t("nav.group.concepts"), blurb: "The shape of every .wf file: the thirteen kinds of declaration, naming, comments, the two kinds of body, the two layouts and how strings are written.", source: "md-docs/learn/04-language-basics.md", sections: [Anchor(id: "declarations", label: "Declarations"), Anchor(id: "naming", label: "Naming"), Anchor(id: "comments", label: "Comments"), Anchor(id: "bodies", label: "Bodies"), Anchor(id: "two-layouts-wf-and-wfx", label: "Two layouts: .wf and .wfx"), Anchor(id: "strings", label: "Strings"), Anchor(id: "quick-reference", label: "Quick reference")], prevTo: "/docs/tutorials/todos", prevLabel: t("ch.05"), nextTo: "/docs/guide/pages-and-routing", nextLabel: t("ch.10"))) {
     Stack(gap: .lg) {
         Markdown("A WebFluent program is a set of declarations: pages, components, stores and the rest, each a keyword followed by a name and a body. Learn the thirteen kinds and the two kinds of body, and you can read any `.wf` file.\n\nIn this chapter:\n\n- the thirteen declarations, and the chapter that covers each\n- how names are written\n- comments, including the doc comments the editor shows\n- render blocks and imperative blocks, and what goes in each\n- the braced `.wf` layout and the indented `.wfx` layout\n- the three ways to write a string, and how a string splices in values")
 
@@ -81,12 +81,12 @@ test "chip shows its label" { Chip("Beta")  expect "Beta" }"#, title: "wf")
                 Table.Row {
                     Table.Cell { Markdown("`image`") }
                     Table.Cell { Markdown("A picture the build resizes and hands to `Image`") }
-                    Table.Cell { Markdown("[28](/docs/guide/media)") }
+                    Table.Cell { Markdown("[28](/recipes)") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`animation`") }
                     Table.Cell("Keyframes")
-                    Table.Cell { Markdown("[20](/docs/guide/motion#declare-your-own-keyframes)") }
+                    Table.Cell { Markdown("[20](/recipes/keyframes)") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`test`") }
@@ -96,7 +96,7 @@ test "chip shows its label" { Chip("Beta")  expect "Beta" }"#, title: "wf")
             }
         }
 
-        Markdown("Two other kinds of file under `src/` join the program. A `.css` file is a stylesheet the build bundles. A `.js` file is a plain browser script, and its top-level functions are in scope by name in your `.wf` code ([JavaScript interop](/docs/guide/interop)).\n\nInside a body you write statements: `state`, `derived`, `effect`, `action`, `persist`, `resource`, `validate`, `socket`, `if`, `for`, `match` and more. The [grammar](/reference/grammar) lists every keyword and where it may appear.")
+        Markdown("Two other kinds of file under `src/` join the program. A `.css` file is a stylesheet the build bundles. A `.js` file is a plain browser script, and its top-level functions are in scope by name in your `.wf` code ([JavaScript interop](/recipes)).\n\nInside a body you write statements: `state`, `derived`, `effect`, `action`, `persist`, `resource`, `validate`, `socket`, `if`, `for`, `match` and more. The [grammar](/reference/grammar) lists every keyword and where it may appear.")
 
         Heading("One program from many files", id: "one-program-from-many-files").h3
 

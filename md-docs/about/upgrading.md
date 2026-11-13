@@ -80,7 +80,7 @@ it translates (`translates:`). Your project may notice these:
   canonical, so search engines filed them as duplicates and ignored the
   set. They are gone; a `?lang=` link still opens the page in that locale.
   To have each language indexed, write its pages with `lang:` and
-  `translates:` ([A page in its own language](../recipes/i18n.md#a-page-in-its-own-language)).
+  `translates:` ([A page in its own language](../recipes/site-in-two-languages.md)).
 - **Every page's JSON-LD names its language**, `inLanguage`.
 - **`wf render` and `Template` use the page's `lang:`** when `--lang` or
   `with_lang` is not given; a page without one is still `en`.
@@ -501,7 +501,7 @@ New in 4.2:
 
 - **Your own JavaScript**: a plain `.js` file under `src/`, its top-level
   functions in scope by name, typed by its JSDoc
-  ([JavaScript interop](../recipes/javascript-interop.md)).
+  ([JavaScript interop](../recipes/index.md)).
 - **`meta.scripts`** loads a library from a CDN, imports a module with
   `as:`, and names its `globals`.
 - **`mount:`, `update:`, `cleanup:` on any element**, and a `wf:render`
@@ -522,11 +522,11 @@ page does. A route change used to leave it running.
 Nothing to change in your code. New in 4.1:
 
 - **Offline**: name `offline` in the config for a service worker, writes
-  kept for later, and an update flow ([Offline](../recipes/offline.md)).
+  kept for later, and an update flow ([Offline](../recipes/index.md)).
 - **Peers**: `peer link = rtc(signal: …)`, a WebRTC data channel to another
-  page ([Realtime](../recipes/realtime.md#connect-two-readers-pages)).
+  page ([Realtime](../recipes/connect-two-readers.md)).
 - **`env` from a `.env` file and the shell**, on top of the config
-  ([Environments](../recipes/environments.md)).
+  ([Environments](../recipes/index.md)).
 - **Unknown config keys are reported**, with the key they probably meant.
 - **Pagination**: `paginate: .page`, `.items`, `.loadMore()`, `.hasMore`.
 - **`?lang=` opens a page in that locale**, as the `hreflang` alternates

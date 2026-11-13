@@ -341,7 +341,17 @@ fn check_strictly(path: &str) -> Vec<String> {
         findings.errors.extend(typed.findings.errors);
         // A template reads its data's keys by name; everything else must
         // declare what it reads.
-        if !path.contains("server-rendering") && !path.contains("TEMPLATE_ENGINE") {
+        // A template reads the data it is rendered with: its names are the
+        // data's, which no strict check can see.
+        let template = [
+            "render-a-template",
+            "render-from-rust",
+            "render-from-node",
+            "TEMPLATE_ENGINE",
+        ]
+        .iter()
+        .any(|t| path.contains(t));
+        if !template {
             findings.errors.extend(typed.unresolved);
         }
         for e in &findings.errors {
@@ -980,8 +990,9 @@ fn chapters() -> Vec<(String, String)> {
         .collect()
 }
 
+/// The page of the guide whose path holds `stem`: a chapter or a recipe.
 fn chapter(stem: &str) -> String {
-    chapters()
+    crate::common::guide_pages()
         .into_iter()
         .find(|(n, _)| n.contains(stem))
         .unwrap_or_else(|| panic!("no chapter named like {stem}"))
@@ -1596,10 +1607,10 @@ fn the_guide_names_everything_the_language_has() {
         }
     }
     // Every icon, in the media chapter.
-    let media = chapter("/media");
+    let media = chapter("/show-an-icon");
     for icon in webfluent::registry::ICONS {
         if !media.contains(&format!("`{icon}`")) {
-            missing.push(format!("the media chapter does not name the icon `{icon}`"));
+            missing.push(format!("the icon recipe does not name the icon `{icon}`"));
         }
     }
     assert!(missing.is_empty(), "{}", missing.join("\n"));

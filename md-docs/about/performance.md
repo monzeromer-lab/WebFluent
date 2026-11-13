@@ -40,7 +40,7 @@ You get these without setting anything:
   against the dev server measures what a deploy sends.
 - **Images at every width**, with `width` and `height` so nothing shifts, a
   placeholder while they load, the first image eager and the rest lazy
-  ([Media](../recipes/media.md)).
+  ([Media](../recipes/index.md)).
 - **Minified output.** `build.minify` (on by default) strips comments and
   white space.
 
@@ -97,7 +97,7 @@ next `--stats` shows how each file moved since the last build (for example,
 `+20 B`).
 
 The project's own scripts are listed by their path under `js/`, such as
-`js/tilt.js` ([JavaScript interop](../recipes/javascript-interop.md)). The build
+`js/tilt.js` ([JavaScript interop](../recipes/index.md)). The build
 copies them as written: it does not minify a file it promises to ship byte
 for byte.
 
@@ -142,7 +142,7 @@ instead:
 | `"runtime": "full"` | It ships every module | Use it only when a hand-written script calls `WF` in ways the build cannot see, or an icon's name arrives at run time |
 | Web fonts | Each weight is a download | Use `display=swap` and few weights, or the baseline's system fonts |
 | An unkeyed list that changes | `for item in items` rebuilds the list | Key it: `for item in items by item.id` moves the nodes that stayed |
-| Pictures the build cannot process | An SVG, a URL or a path built at run time is used as written: one size, no placeholder | Use a literal `src:` into `public/`, or declare the picture with `image` ([Media](../recipes/media.md)) |
+| Pictures the build cannot process | An SVG, a URL or a path built at run time is used as written: one size, no placeholder | Use a literal `src:` into `public/`, or declare the picture with `image` ([Media](../recipes/index.md)) |
 
 ## Next
 

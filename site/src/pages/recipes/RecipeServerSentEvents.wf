@@ -1,0 +1,21 @@
+// A recipe, written from md-docs/recipes/server-sent-events.md by scripts/docsite/recipes.py;
+// edit the recipe, not this file.
+page RecipeServerSentEvents(path: "/recipes/server-sent-events", title: "Listen to server-sent events — Recipes", description: "To receive a one-way flow of events from a server, declare a `stream` with `sse(…)`.") {
+    RecipeShell("Listen to server-sent events", summary: "To receive a one-way flow of events from a server, declare a `stream` with `sse(…)`. `events:` names the event types to listen for, and `ticks.last(\"price\")` is the latest event of that name:", outputs: [], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Connect two readers' pages", to: "/recipes/connect-two-readers"), RelatedLink(kind: "Recipe", title: "Open a socket", to: "/recipes/open-a-socket"), RelatedLink(kind: "Recipe", title: "Run a script in a worker", to: "/recipes/run-a-worker")], source: "md-docs/recipes/server-sent-events.md", how: true, hasVariations: false) {
+        code {
+            CodeBlock(#"page Prices(path: "/prices", title: "Prices", description: "Live prices.") {
+    state price = 0
+    stream ticks = sse("/events", events: ["price"])
+    effect { if let p = ticks.last("price") { price = p } }
+
+    Heading("Prices").h1
+    match ticks {
+        open { Text("Price: {price}") }
+        else { Text("Connecting…").muted }
+    }
+}"#, title: "wf")
+        }
+        Markdown("Each event name is kept apart, so `ticks.last(\"price\")` is the last price and not the last event of any kind; `ticks.last()` is the last unnamed message. `ticks.messages` holds the messages in order — the last 500, or as many as `keep:` says. A message whose data parses as JSON arrives as a value.\n\nThe browser reconnects a stream on its own and resumes from the last event id the server sent. Pass `credentials: true` to send the site's cookies with the request.")
+
+    }
+}

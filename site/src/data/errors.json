@@ -204,7 +204,7 @@
   "printed": "",
   "broken": "",
   "why": "`env.STRIPE_SECRET` read in a page: `env.STRIPE_SECRET is not public, and a\npage reads what is in the bundle`.",
-  "fix": "rename it `PUBLIC_…` or list it\nin `public_env` — only if anyone may read it ([chapter\n30](../recipes/environments.md)).",
+  "fix": "rename it `PUBLIC_…` or list it\nin `public_env` — only if anyone may read it ([chapter\n30](../recipes/index.md)).",
   "related": []
  },
  {

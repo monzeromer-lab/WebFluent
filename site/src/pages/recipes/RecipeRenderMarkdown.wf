@@ -1,0 +1,96 @@
+// A recipe, written from md-docs/recipes/render-markdown.md by scripts/docsite/recipes.py;
+// edit the recipe, not this file.
+page RecipeRenderMarkdown(path: "/recipes/render-markdown", title: "Render Markdown — Recipes", description: "To show Markdown text on a page, pass it to `Markdown(text)`.") {
+    RecipeShell("Render Markdown", summary: "To show Markdown text on a page, pass it to `Markdown(text)`. It renders a small, predictable Markdown, the same at build time and in the browser, so a hydrated page repaints exactly what was painted.  This page shows release notes held in a state, and one line of inline Markdown:", outputs: [], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Describe pages to search engines and link previews", to: "/recipes/search-and-link-previews"), RelatedLink(kind: "Recipe", title: "Show code on a page", to: "/recipes/show-code"), RelatedLink(kind: "Recipe", title: "Write a page as a Markdown file", to: "/recipes/markdown-pages")], source: "md-docs/recipes/render-markdown.md", how: true, hasVariations: false) {
+        code {
+            CodeBlock(##"page Notes(path: "/", title: "Release notes", description: "What changed in this release.") {
+    state body = "# Release notes\n\nVersion **3.3** adds:\n\n- Markdown pages\n- `wf docs`\n\n> Ship it."
+    Markdown(body)
+    Markdown("Inline *emphasis*, a [link](/about) and an ![image](/img.png).")
+}"##, title: "wf")
+        }
+        Markdown("The page shows a \"Release notes\" heading, a paragraph with **3.3** in bold, a two-item list and a quote, then a line with emphasis, a link and a picture.\n\nWhat `Markdown` supports:")
+
+        Table(caption: "Render Markdown") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("Kind").header
+                    Table.Cell("Syntax").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell("Blocks")
+                    Table.Cell { Markdown("`#`–`######` headings; paragraphs; fenced code with a language (`` ```js ``); `>` quotes; `-`/`*` and `1.` lists (one level); `---` rules; GFM tables") }
+                }
+                Table.Row {
+                    Table.Cell("Inline")
+                    Table.Cell { Markdown("`` `code` ``, `**strong**`, `*em*` and `_em_`, links, images") }
+                }
+            }
+        }
+
+        Markdown("A paragraph's lines run together, as in CommonMark. To break a line, end it with two spaces or a `\\`.\n\nRaw HTML in the text is shown as text, not run, so Markdown from a user or an API is safe to render. A link or a picture goes through the scheme check every other URL does ([Security](/docs/guide/security#what-the-compiler-guarantees)):\n\n- A link or picture whose URL a browser would run — `javascript:`, `vbscript:`, a `data:` URL — is drawn as its words, with no link and no picture.\n- A picture carried in its address (`![dot](data:image/png;base64,…)`, `data:image/svg+xml,…`) is drawn, since an `<img>` runs nothing it shows. A link to one is still drawn as its words.\n- A site-relative URL (`/about`, `/img.png`) is addressed from the site's `base_path`, as `Link(to:)`'s is.")
+
+        Heading("Write a table", id: "write-a-table").h3
+
+        Markdown("To write a table, give a header row, a delimiter row with as many cells, then the rows, as in GitHub's Markdown:")
+
+        CodeBlock(#"| Function | Does | Where |
+|---|:-:|--:|
+| `log(x)` | Prints to the console | anywhere |
+| `t("key")` | A translation \| a plural | anywhere |"#, title: "markdown")
+
+        Markdown("The rules:\n\n- A `:` at the left, at both ends or at the right of a delimiter cell aligns its column left, centre or right.\n- The pipes at either end of a row may be left out, and `\\|` is a pipe inside a cell.\n- A row with fewer cells than the header has empty ones; cells past the header's are dropped.\n- The rows run to a blank line or another block, and a table may start right after a paragraph's last line.\n- A cell takes the inline Markdown a paragraph does.")
+
+        Heading("Escape a character with a backslash", id: "escape-a-character-with-a-backslash").h3
+
+        Markdown("To show a punctuation mark without its Markdown meaning, put a backslash before it, as in CommonMark:")
+
+        Table(caption: "Escape a character with a backslash") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("You write").header
+                    Table.Cell("It shows").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("`\\*not em\\*`") }
+                    Table.Cell { Markdown("`*not em*`, with no emphasis") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`\\[not a link\\](/x)`") }
+                    Table.Cell("the brackets and parentheses, with no link")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`\\#` at the start of a line") }
+                    Table.Cell { Markdown("`#`, with no heading") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`1\\.`") }
+                    Table.Cell { Markdown("`1.`, with no list") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`\\\\`") }
+                    Table.Cell("one backslash")
+                }
+            }
+        }
+
+        Markdown("Every ASCII punctuation mark can be escaped this way (`\\-`, `\\\{`, `\\(`, `\\_`, `\\&` and the rest), and an escaped mark is only the character it is: it makes no link, no emphasis and no entity.\n\nHow escapes behave in links:\n\n- In a link's words, an escaped bracket is a bracket like any other (`[a\\]b](/c)`). The words hold no unescaped `[`, so in `[a [b](/c)` only `b` is the link.\n- In a URL, an escape is read as the character it is, so `[x](javascript\\:alert\\(1\\))` is checked as the `javascript:alert(1)` URL it says, and drawn as its words.\n\nWhere a backslash is shown as written:\n\n- before anything that is not ASCII punctuation, as in `C:\\Users`;\n- in a code span or a fence, where nothing is Markdown;\n- at the end of a paragraph's, a heading's or a list item's last line, which has no line after it to break to.\n\nA fence's language takes escapes too: `c\\+\\+` after the backticks is `c++`.")
+
+        Heading("Show text somebody else wrote with .inert", id: "show-text-somebody-else-wrote-with-inert").h3
+
+        Markdown("Documentation from a language server, a `///` comment or a package's readme is text somebody else wrote. It often has HTML entities in it, and links and pictures that should not be followed or fetched from where you show it. To show it, add `.inert`:")
+
+        CodeBlock(#"page Hover(path: "/", title: "Hover", description: "Documentation from a language server.") {
+    state docs = "Returns a list of &lt;T&gt; &mdash; see [the guide](https://example.com/guide).\n\n![build](https://ci.example.com/badge.svg)"
+    Heading("Hover").h1
+    Markdown(docs).inert
+}"#, title: "wf")
+
+        Markdown("It draws one paragraph, `Returns a list of <T> — see the guide.`, with no link in it, and leaves the badge out. Under `.inert`:\n\n- **Entities are decoded, then escaped.** `&lt;color&gt;` shows as `<color>`, and a `<script>`, written out or encoded, is shown as text. In `` `code` `` and in a fence an entity stays as written, as CommonMark leaves it. The named entities are the ones documentation is written with — `&lt;` `&gt;` `&amp;` `&quot;` `&apos;` `&nbsp;`, the dashes, quotes and arrows, and a few signs — and any numeric entity works (`&#60;`, `&#x3C;`).\n- **A link is drawn as its words**, with no `<a>`.\n- **A picture is left out**, with the space after it. A paragraph of nothing but pictures is left out with them.\n- **Everything else is drawn as plain `Markdown` draws it**: paragraphs, fences, `code`, `**strong**`, `*em*` and `_em_`, headings, lists, quotes, rules and backslash escapes. A language server escapes its documentation this way: the CSS one writes `margin\\-top` and `&lt;length\\-percentage&gt;\\\{1,4\\\}`, which `.inert` shows as `margin-top` and `<length-percentage>\{1,4\}`. An escaped `&` begins no entity: `\\&lt;` shows the four characters `&lt;`.\n\n`inert:` also takes a value, `Markdown(docs, inert: untrusted)`, and follows it. Plain `Markdown` is unchanged: an entity in it shows as it was written, so a page that wrote `&lt;` to mean those four characters still shows them.")
+
+    }
+}

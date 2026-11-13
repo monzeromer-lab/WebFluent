@@ -1,0 +1,19 @@
+// A recipe, written from md-docs/recipes/store-value-as-a-prop.md by scripts/docsite/recipes.py;
+// edit the recipe, not this file.
+page RecipeStoreValueAsAProp(path: "/recipes/store-value-as-a-prop", title: "Pass a store's value to a component — Recipes", description: "A component that needs only one value from a store can take it as a prop instead of using the store.") {
+    RecipeShell("Pass a store's value to a component", summary: "A component that needs only one value from a store can take it as a prop instead of using the store. That keeps the component reusable outside that store:", outputs: [], since: "", recipes: RECIPE_INDEX, sections: [], related: [RelatedLink(kind: "Recipe", title: "Build a confirm dialog", to: "/recipes/confirm-dialog"), RelatedLink(kind: "Recipe", title: "Copy to the clipboard", to: "/recipes/copy-to-the-clipboard"), RelatedLink(kind: "Recipe", title: "Count down", to: "/recipes/count-down")], source: "md-docs/recipes/store-value-as-a-prop.md", how: false, hasVariations: false) {
+        code {
+            CodeBlock(#"store Cart { state count = 0 }
+
+component CartBadge(count: Number) {
+    if count > 0 { Badge("{count}").primary }
+}
+
+page Shop(path: "/", title: "Shop", description: "Everything we sell.") {
+    use Cart
+    Heading("Shop").h1
+    CartBadge(count: Cart.count)
+}"#, title: "wf")
+        }
+    }
+}

@@ -1,0 +1,268 @@
+// A recipe, written from md-docs/recipes/tauri-app.md by scripts/docsite/recipes.py;
+// edit the recipe, not this file.
+page RecipeTauriApp(path: "/recipes/tauri-app", title: "Make a desktop or phone app with Tauri — Recipes", description: "You need:") {
+    RecipeShell("Make a desktop or phone app with Tauri", summary: "You need:", outputs: [], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "before-you-start", label: "Before you start"), Anchor(id: "prepare-the-build-for-a-desktop", label: "Prepare the build for a desktop"), Anchor(id: "make-a-tauri-app", label: "Make a Tauri app"), Anchor(id: "troubleshooting", label: "Troubleshooting")], related: [RelatedLink(kind: "Recipe", title: "Build a Docker image", to: "/recipes/docker-image"), RelatedLink(kind: "Recipe", title: "Check a deploy", to: "/recipes/check-a-deploy"), RelatedLink(kind: "Recipe", title: "Deploy to Cloudflare Pages", to: "/recipes/deploy-to-cloudflare-pages")], source: "md-docs/recipes/tauri-app.md", how: false, hasVariations: false) {
+        Heading("Before you start", id: "before-you-start").h2
+
+        Markdown("You need:\n\n- a WebFluent project that builds with `wf build`;\n- for Tauri: Rust, and the system libraries listed in Tauri's [prerequisites](https://v2.tauri.app/start/prerequisites/);\n- for Electron: Node.js and npm.")
+
+        Heading("Prepare the build for a desktop", id: "prepare-the-build-for-a-desktop").h2
+
+        Markdown("The same project builds for the web and for a desktop. To leave out what only a website needs, set two keys in `webfluent.app.json`:")
+
+        CodeBlock(#"{
+    "build": { "compress": false },
+    "meta": { "sitemap": false }
+}"#, title: "json")
+
+        Markdown("- **`build.compress: false`** — the shell packs the folder into the app, so a `.gz` file beside every file would ship every file twice.\n- **`meta.sitemap: false`** — writes no `sitemap.xml` or `robots.txt`; nothing crawls an app. You can leave `meta.site_url` and the link-preview tags unset too.\n- **Leave `offline` out** — the files are already on the machine, so a service worker has nothing to keep.\n\nA single-page build and a static build both work ([Static sites and SPAs](/docs/guide/static-and-spa)), and addresses stay as they are. Both shells in this chapter answer a path the build has no file for with `index.html`, so reloading the window on `/settings` shows the settings page.\n\nAn app is often used with no network, and a font named in `meta.fonts` comes from another origin. To make a font always available, put the file in `public/` and declare it with `@font-face` in a `.css` file under `src/` ([Styling](/docs/guide/styling)).")
+
+        Heading("Make a Tauri app", id: "make-a-tauri-app").h2
+
+        Markdown("Tauri runs your build in the system's web view and gives the page a Rust side to call.")
+
+        Heading("Set up Tauri", id: "set-up-tauri").h3
+
+        Markdown("1. Install the Tauri CLI once:\n\n   ```bash cargo install tauri-cli --version \"^2\" --locked ```\n\n2. In the project's folder, create the Rust side:\n\n   ```bash cargo tauri init --app-name notes --window-title Notes \\ --frontend-dist ../build --dev-url http://localhost:3000 \\ --before-dev-command \"wf serve\" --before-build-command \"wf build\" ```\n\n   This writes `src-tauri/` beside `src/`: the Rust side, its `Cargo.toml` and `tauri.conf.json`. WebFluent never reads `src-tauri/`, and Tauri runs the two `wf` commands in the project's folder.\n\n3. Change two keys in `src-tauri/tauri.conf.json`:\n\n   ```json \{ \"identifier\": \"com.example.notes\", \"app\": \{ \"withGlobalTauri\": true \} \} ```\n\n   - **`identifier`** — a reverse-domain name of your own. `cargo tauri build` refuses the default, `com.tauri.dev`.\n   - **`withGlobalTauri`** — puts Tauri's JavaScript API on `window.__TAURI__`, every plugin's API included, so a plain script uses it with no `import` and no npm.\n\nLeave `app.security.csp` at `null`: every page already carries its own policy (see [Allow Tauri requests in the security policy](#allow-tauri-requests-in-the-security-policy)).")
+
+        Heading("Run the Tauri app while you work", id: "run-the-tauri-app-while-you-work").h3
+
+        Markdown("To work on the app, run:")
+
+        Terminal(lines: [
+                Line(command: "cargo tauri dev")
+            ])
+
+        Markdown("This command runs `wf serve` and opens the app's window on it. Saving a `.wf` file rebuilds and reloads the window, and a build that fails shows its error over the page, as it does in a browser ([CLI](/reference/cli)). Saving a Rust file rebuilds the app. If `dev.port` is not `3000`, change `devUrl` to match.\n\nTo build the installers, run:")
+
+        Terminal(lines: [
+                Line(command: "cargo tauri build")
+            ])
+
+        Markdown("This command runs `wf build`, embeds `build/` in the binary, and writes the installers under `src-tauri/target/release/bundle/`.")
+
+        Heading("Call a Rust command", id: "call-a-rust-command").h3
+
+        Markdown("A *command* is a Rust function a page may call. Write it in `src-tauri/src/lib.rs` and list it in `run()`. This file has two commands: `greet` returns a value, and `start_sync` returns at once and reports its progress as events:")
+
+        CodeBlock(#"use tauri::Emitter;
+
+#[tauri::command]
+fn greet(name: &str) -> String {
+    format!("Hello, {name}!")
+}
+
+#[tauri::command]
+fn start_sync(app: tauri::AppHandle) {
+    std::thread::spawn(move || {
+        for done in [25, 50, 75, 100] {
+            // … a quarter of the work …
+            let _ = app.emit("sync-progress", done);
+        }
+    });
+}
+
+// in run(), before .run(…):
+//     .invoke_handler(tauri::generate_handler![greet, start_sync])"#, title: "rust")
+
+        Markdown("A page calls a command through a script that names it. Write one function per command, typed with JSDoc, so `.wf` code calls `greet(name)` like any other function and the checker holds every call to its types:")
+
+        CodeBlock(#"// src/native.js
+/**
+ * Whether the page is inside the app, rather than a browser tab.
+ * @returns {boolean}
+ */
+function inApp() {
+  return "__TAURI__" in window;
+}
+
+/**
+ * Call a Rust command. What its `Err` holds arrives as an `Error`.
+ * @param {string} command
+ * @param {object} [args]
+ * @returns {Promise<any>}
+ */
+function invoke(command, args) {
+  if (!inApp()) return Promise.reject(new Error("This needs the desktop app."));
+  return window.__TAURI__.core.invoke(command, args).catch((err) => {
+    throw new Error(typeof err === "string" ? err : JSON.stringify(err));
+  });
+}
+
+/**
+ * @param {string} name
+ * @returns {Promise<string>}
+ */
+function greet(name) {
+  return invoke("greet", { name });
+}
+
+/** Start syncing; how far it has got arrives as `sync-progress`. */
+function startSync() {
+  return invoke("start_sync");
+}"#, title: "js")
+
+        Markdown("Three rules hold for every command:\n\n- **Arguments are named.** A command's parameters are the keys of the object, in camelCase: a Rust `note_id` is `\{ noteId \}`.\n- **A result is a promise.** A command that returns `Result<T, E>` resolves with the `T`. Its `Err` rejects, and `invoke` turns it into an `Error`, so a page's `catch e` reads `e.message`.\n- **`inApp()` is false in a browser tab** — `wf serve` opened in a browser, `wf test`, `wf verify` — where there is no native side. Each function answers there instead of throwing, so every page still loads.\n\nThe page awaits the function in an action and shows the reply:")
+
+        CodeBlock(#"page Hello(path: "/", title: "Hello", description: "Says hello from Rust.") {
+    state name = ""
+    state reply = ""
+
+    action ask() {
+        try {
+            reply = await greet(name)
+        } catch e {
+            reply = e.message
+        }
+    }
+
+    Heading("Hello").h1
+    if !inApp() {
+        Alert("Open this in the app to talk to Rust.").info
+    }
+    Input(bind: name, label: "Your name")
+    Button("Greet").primary { on click { ask() } }
+    Text(reply)
+}"#, title: "wf")
+
+        Markdown("In the app, typing `Ada` and pressing **Greet** shows `Hello, Ada!`. In a browser tab, the page shows the alert, and **Greet** shows `This needs the desktop app.`")
+
+        Heading("Listen for events from Rust", id: "listen-for-events-from-rust").h3
+
+        Markdown("`start_sync` returns at once and reports as it goes, with `app.emit(…)`. A page hears an event for as long as it shows, so tie the listener to the page's lifetime: `mount:` starts it, and `cleanup:` stops it when the page, branch or item leaves. First, wrap Tauri's `listen` in a script:")
+
+        CodeBlock(#"// src/events.js
+/**
+ * Hear an event the native side emits, until the function it returns is called.
+ * @param {string} name
+ * @param {(payload: any) => void} handler
+ * @returns {() => void}
+ */
+function onEvent(name, handler) {
+  if (!inApp()) return () => {};
+  const listening = window.__TAURI__.event.listen(name, (e) => handler(e.payload));
+  return () => { listening.then((stop) => stop()); };
+}"#, title: "js")
+
+        Markdown("Then hand the listener an action. This page shows a progress bar that fills as the events arrive:")
+
+        CodeBlock(#"page Sync(path: "/sync", title: "Sync", description: "How far the sync has got.") {
+    state done = 0
+    state problem = ""
+
+    action setDone(n: Number) { done = n }
+    action start() {
+        try {
+            await startSync()
+        } catch e {
+            problem = e.message
+        }
+    }
+
+    Stack(gap: .md,
+          mount: (n) => onEvent("sync-progress", setDone),
+          cleanup: (stop) => stop()) {
+        Heading("Sync").h1
+        Progress(value: done, max: 100)
+        Text("{done}%")
+        Button("Sync now") { on click { start() } }
+        Text(problem)
+    }
+}"#, title: "wf")
+
+        Markdown("Pressing **Sync now** moves the bar through 25, 50, 75 and 100%.")
+
+        Heading("Use a Tauri plugin", id: "use-a-tauri-plugin").h3
+
+        Markdown("A dialog, the file system, notifications, the clipboard, opening a link in the browser: each is a Tauri plugin. To add one, run the CLI. It adds the crate, the line in `run()`, and the plugin's default permission in `src-tauri/capabilities/default.json`:")
+
+        Terminal(lines: [
+                Line(command: "cargo tauri add dialog")
+            ])
+
+        Markdown("With `withGlobalTauri` on, the plugin's API is on `window.__TAURI__.dialog`. Wrap what a page uses, as with a command:")
+
+        CodeBlock(#"// src/dialogs.js
+/**
+ * Ask for a folder; `null` when the reader cancels.
+ * @returns {Promise<?string>}
+ */
+function pickFolder() {
+  if (!inApp()) return Promise.resolve(null);
+  return window.__TAURI__.dialog.open({ directory: true });
+}"#, title: "js")
+
+        Markdown("This page asks for a folder and shows the one the reader picked:")
+
+        CodeBlock(#"page Library(path: "/library", title: "Library", description: "Where the notes are kept.") {
+    state folder = ""
+
+    action choose() {
+        let picked = await pickFolder()
+        if picked != null {
+            folder = picked
+        }
+    }
+
+    Heading("Library").h1
+    Button("Choose a folder") { on click { choose() } }
+    if folder != "" {
+        Text("Notes are kept in {folder}.")
+    } else {
+        Text("No folder yet.").muted
+    }
+}"#, title: "wf")
+
+        Markdown("A plugin's call fails until its permission is granted. `cargo tauri add` grants the default set. Name anything beyond it — for example, a path the `fs` plugin may read — in the same capabilities file.")
+
+        Heading("Allow Tauri requests in the security policy", id: "allow-tauri-requests-in-the-security-policy").h3
+
+        Markdown("With `build.csp` on — as it is for a project `wf init` makes — every page says where it may send requests ([Security](/docs/guide/security)). Tauri sends each call as a request: to `http://ipc.localhost` on Windows and Android, and to `ipc://localhost` on macOS, Linux and iOS. Name both in `meta.connect`, the second as its scheme alone, which is how a policy names an app's own scheme:")
+
+        CodeBlock(#"{ "meta": { "connect": ["ipc:", "http://ipc.localhost"] } }"#, title: "json")
+
+        Markdown("Other settings follow the same pattern:\n\n- **A protocol of your own** (`register_uri_scheme_protocol`) is named the same way. For a frame the app fills from it, write `\"frame\": [\"myapp:\", \"http://myapp.localhost\"]`; a frame's `src` may then use that scheme.\n- **WebAssembly**: a page that compiles it adds `\"wasm\": true`.\n- **Style elements**: a page whose scripts write `<style>` elements adds `\"style_elements\": true`.")
+
+        Heading("Troubleshooting", id: "troubleshooting").h2
+
+        Table(caption: "Troubleshooting") {
+            Table.Head {
+                Table.Row {
+                    Table.Cell("What you see").header
+                    Table.Cell("What to check").header
+                }
+            }
+            Table.Body {
+                Table.Row {
+                    Table.Cell { Markdown("Every native call fails with `This needs the desktop app.`") }
+                    Table.Cell { Markdown("The page is open in a browser tab, not the app — or, with Tauri, `withGlobalTauri` is off, so `window.__TAURI__` is missing") }
+                }
+                Table.Row {
+                    Table.Cell("A Tauri call is blocked by the security policy")
+                    Table.Cell { Markdown("`meta.connect` names both `ipc:` and `http://ipc.localhost`") }
+                }
+                Table.Row {
+                    Table.Cell("A Tauri plugin's call fails")
+                    Table.Cell { Markdown("Its permission is not granted in `src-tauri/capabilities/default.json`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`cargo tauri build` refuses to run") }
+                    Table.Cell { Markdown("`identifier` in `tauri.conf.json` is still `com.tauri.dev`") }
+                }
+                Table.Row {
+                    Table.Cell("The Tauri window shows nothing while you work")
+                    Table.Cell { Markdown("`devUrl` does not match `dev.port`") }
+                }
+                Table.Row {
+                    Table.Cell("A packaged Electron app shows an empty window")
+                    Table.Cell { Markdown("The package is missing `build/`, or `wf build` did not run before packaging") }
+                }
+                Table.Row {
+                    Table.Cell("The app's text falls back to another font offline")
+                    Table.Cell { Markdown("The font comes from `meta.fonts`; put the file in `public/` and declare it with `@font-face`") }
+                }
+            }
+        }
+
+    }
+}

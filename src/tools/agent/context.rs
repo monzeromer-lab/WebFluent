@@ -47,10 +47,11 @@ pub struct Section {
 /// One chapter of the guide.
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct Chapter {
+    /// Its chapter number; 0 for a recipe, which has none.
     pub number: u32,
     pub file: String,
     pub title: String,
-    /// Where the site has it: `guide/forms`.
+    /// Where the site has it: `guide/forms`, or `/recipes/debounce-a-search`.
     pub route: Option<String>,
     pub blurb: Option<String>,
     pub sections: Vec<Section>,
@@ -62,7 +63,11 @@ impl Chapter {
     /// How the agent cites it: `16 Forms`, or `16 Forms › validate` for a
     /// section.
     pub fn cite(&self, anchor: Option<&str>) -> String {
-        let head = format!("{} {}", self.number, self.title);
+        let head = if self.number == 0 {
+            self.title.clone()
+        } else {
+            format!("{} {}", self.number, self.title)
+        };
         match anchor.and_then(|a| self.sections.iter().find(|s| s.anchor == a)) {
             Some(s) => format!("{head} › {}", s.title),
             None => head,
@@ -106,9 +111,11 @@ fn front_value(raw: &str) -> String {
     serde_json::from_str::<String>(raw).unwrap_or_else(|_| raw.to_string())
 }
 
-/// The guide's chapters, read from its pages (`md-docs/<kind>/<slug>.md`).
-/// A page is a chapter when its front matter names one (`chapter: 12`);
-/// they come in that order, whatever folder each is in.
+/// The guide's chapters and recipes, read from its pages
+/// (`md-docs/<kind>/<slug>.md`). A page is a chapter when its front matter
+/// names one (`chapter: 12`), and those come first, in that order; a recipe
+/// (`kind: "recipe"`, numbered 0) follows, by route. A code's page under
+/// `errors/` is `wf explain`'s, not here.
 pub fn chapters(files: &[(&str, &str)], depth: Depth) -> Vec<Chapter> {
     let mut out = Vec::new();
     for (file, text) in files {
@@ -121,6 +128,7 @@ pub fn chapters(files: &[(&str, &str)], depth: Depth) -> Vec<Chapter> {
         let mut number = None;
         let mut route = None;
         let mut blurb = None;
+        let mut recipe = false;
         for line in front.lines() {
             let Some((key, value)) = line.split_once(':') else {
                 continue;
@@ -129,10 +137,12 @@ pub fn chapters(files: &[(&str, &str)], depth: Depth) -> Vec<Chapter> {
                 "chapter" => number = value.trim().parse::<u32>().ok(),
                 "route" => route = Some(front_value(value)),
                 "blurb" => blurb = Some(front_value(value)),
+                "description" if blurb.is_none() => blurb = Some(front_value(value)),
+                "kind" => recipe = front_value(value) == "recipe",
                 _ => {}
             }
         }
-        let Some(number) = number else {
+        let Some(number) = number.or((recipe && route.is_some()).then_some(0)) else {
             continue;
         };
         let mut title = String::new();
@@ -177,7 +187,10 @@ pub fn chapters(files: &[(&str, &str)], depth: Depth) -> Vec<Chapter> {
             text: (depth == Depth::Full).then(|| text.to_string()),
         });
     }
-    out.sort_by_key(|c| c.number);
+    // Chapters by number, then the recipes by route.
+    out.sort_by(|a, b| {
+        (a.number == 0, a.number, &a.route).cmp(&(b.number == 0, b.number, &b.route))
+    });
     out
 }
 

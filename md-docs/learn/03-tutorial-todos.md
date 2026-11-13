@@ -13,8 +13,8 @@ This is the first of three tutorials that each build a whole project, step by st
 | Tutorial | What you build | What it teaches | Time |
 |---|---|---|---|
 | [Todos](03-tutorial-todos.md) | A list of things to do: add, tick, rename, filter | Types, a store with `persist`, a component, a keyed list, a filter in the address, tests that click | 20 minutes |
-| [Field Notes](../recipes/tutorial-field-notes.md) | A notebook site, statically built, a page per note | `data` files, a layout, `:slug` pages with `paths:`, Markdown pages, search and tags, what a pre-rendered page can know | An hour |
-| [Pocket](../recipes/tutorial-pocket.md) | A budget tracker with a dashboard, forms and two languages | `Money` and `Date`, derived totals, a `persist` migration, `validate`, a dialog and shortcuts, i18n and right-to-left text, a script of your own, offline | A couple of hours |
+| [Field Notes](../recipes/build-a-notebook-site.md) | A notebook site, statically built, a page per note | `data` files, a layout, `:slug` pages with `paths:`, Markdown pages, search and tags, what a pre-rendered page can know | An hour |
+| [Pocket](../recipes/build-a-budget-app.md) | A budget tracker with a dashboard, forms and two languages | `Money` and `Date`, derived totals, a `persist` migration, `validate`, a dialog and shortcuts, i18n and right-to-left text, a script of your own, offline | A couple of hours |
 
 If you have not written WebFluent before, start with [the Shelf tutorial](02-tutorial-shelf.md): it is a gentler first half hour.
 
@@ -452,7 +452,7 @@ wf build
 ```
 
 `wf check` reports every finding and writes nothing. `wf build` writes
-`build/`, which any static host serves — [Deploying](../recipes/deploying.md)
+`build/`, which any static host serves — [Deploying](../recipes/index.md)
 covers GitHub Pages, Netlify and the rest. To load the built page in a
 real browser before you deploy, run `wf verify`: it fails on an error, a
 missing file or a page that draws nothing.
@@ -475,4 +475,4 @@ missing file or a page that draws nothing.
 
 ## Next
 
-[Tutorial: Field Notes](../recipes/tutorial-field-notes.md) builds a statically generated site on what this one taught.
+[Tutorial: Field Notes](../recipes/build-a-notebook-site.md) builds a statically generated site on what this one taught.

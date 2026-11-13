@@ -82,7 +82,7 @@ them on.
   one that puts a backslash before its colon (`javascript\:`), which
   Markdown reads as the colon it escapes. For text somebody else wrote,
   such as a language server's documentation, `Markdown(text).inert` draws
-  no link or picture at all ([Content](../recipes/content.md#show-text-somebody-else-wrote-with-inert)).
+  no link or picture at all ([Content](../recipes/index.md)).
 - **A `Secret` cannot escape.** It may not be shown, spliced into a string,
   logged or persisted. Each is a `T12`, reported at the line that does it.
 - **A non-public `env` name cannot be read from a page.** See
@@ -235,13 +235,13 @@ With this config:
 `public_env` comes with the project, so it cannot reach into the shell of
 whoever builds it: a name it lists without the `PUBLIC_` prefix takes its
 value from the config or `.env`, and from the shell only when
-`WF_ALLOW_SHELL_ENV` names it ([Environments](../recipes/environments.md)).
+`WF_ALLOW_SHELL_ENV` names it ([Environments](../recipes/index.md)).
 
 The value of `STRIPE_SECRET` is still there for `wf render`, which runs on
 a server where a secret stays secret
-([Server rendering](../recipes/server-rendering.md)). A secret that has to reach a
+([Server rendering](../recipes/index.md)). A secret that has to reach a
 third party belongs in a request your server makes, not in a page.
-[Environments](../recipes/environments.md) covers where `env` values come from.
+[Environments](../recipes/index.md) covers where `env` values come from.
 
 ## Check uploads on the server
 
@@ -403,7 +403,7 @@ is markup, so markup from outside the project goes through
 
 A library from another origin belongs in `meta.scripts`, with an integrity
 hash, so a change at that origin cannot reach your readers
-([JavaScript interop](../recipes/javascript-interop.md)).
+([JavaScript interop](../recipes/index.md)).
 
 ## Audit the project
 

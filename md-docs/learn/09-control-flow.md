@@ -11,7 +11,7 @@ description: "if, if let, for … by, VirtualList, show and match, in render blo
 Five statements decide what a page shows: `if`, `if let`, `for`, `show` and
 `match`. Each one follows the state it reads, adding and removing elements as
 its condition changes, so you never update the page by hand. Each animates
-when you ask it to ([Motion](../recipes/motion.md)).
+when you ask it to ([Motion](../recipes/index.md)).
 
 In this chapter:
 

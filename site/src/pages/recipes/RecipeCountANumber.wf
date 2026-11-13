@@ -1,0 +1,16 @@
+// A recipe, written from md-docs/recipes/count-a-number.md by scripts/docsite/recipes.py;
+// edit the recipe, not this file.
+page RecipeCountANumber(path: "/recipes/count-a-number", title: "Count a number to its new value — Recipes", description: "To make a number arrive rather than jump, give its element `count:` with a length of time.") {
+    RecipeShell("Count a number to its new value", summary: "To make a number arrive rather than jump, give its element `count:` with a length of time. The number eases out as it gets there:", outputs: [], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Add a dark-mode switch", to: "/recipes/dark-mode-switch"), RelatedLink(kind: "Recipe", title: "Add a picture, sized for every screen", to: "/recipes/add-a-picture"), RelatedLink(kind: "Recipe", title: "Add video and audio", to: "/recipes/video-and-audio")], source: "md-docs/recipes/count-a-number.md", how: true, hasVariations: false) {
+        code {
+            CodeBlock(#"page Revenue(path: "/", title: "Revenue", description: "A figure that counts up.") {
+    state revenue = 0
+    Heading("Revenue").h1
+    Text(format(revenue, .currency), count: "600ms")
+    Button("Load") { on click { revenue = 1200 } }
+}"#, title: "wf")
+        }
+        Markdown("Press **Load** and the figure counts from `$0.00` to `$1,200.00`. The first value is shown as it is, so a page does not open by counting up from nothing. Every later value is counted to from the one before, and each step is formatted the way the first was: a currency counts as a currency.")
+
+    }
+}

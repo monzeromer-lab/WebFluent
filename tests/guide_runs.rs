@@ -94,11 +94,14 @@ fn page_examples(markdown: &str) -> Vec<(usize, String)> {
 fn build_all() -> (Vec<String>, Vec<String>) {
     let out_root = repo_root().join("target/e2e/guide");
     let _ = std::fs::remove_dir_all(&out_root);
-    let mut names: Vec<String> = crate::common::guide_chapters()
+    // Every chapter and every recipe: a code's page under `errors/` shows a
+    // program that fails on purpose.
+    let mut names: Vec<String> = crate::common::guide_pages()
         .into_iter()
-        .map(|(_, path, _)| path)
+        .map(|(path, _)| path)
+        .filter(|n| n.contains('/') && !n.starts_with("errors/") && !n.ends_with("/index.md"))
         // A template reads the JSON it is rendered with, not a browser.
-        .filter(|n| !n.contains("server-rendering"))
+        .filter(|n| !n.contains("render-a-template") && !n.contains("render-from-"))
         .collect();
     names.sort();
     let mut built = Vec::new();

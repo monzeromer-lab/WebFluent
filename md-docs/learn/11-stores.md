@@ -337,7 +337,7 @@ window.wfStorage = {
 };
 ```
 
-See [Desktop apps](../recipes/desktop-apps.md) for the rest of a desktop project.
+See [Desktop apps](../recipes/index.md) for the rest of a desktop project.
 
 ### Secrets are never persisted
 
@@ -349,7 +349,7 @@ instead (see [Security](../about/security.md)).
 ## A connection a store holds
 
 A store may hold a connection — a `socket`, a `stream`, a `channel`, a
-`peer` or a `worker` (see [Real-time](../recipes/realtime.md)) — for every page at
+`peer` or a `worker` (see [Real-time](../recipes/index.md)) — for every page at
 once. The connection opens when the store is first read and closes with the
 store; a `.route` store's connection closes when its route leaves. The
 store's actions and handlers name the connection as it is declared, and a

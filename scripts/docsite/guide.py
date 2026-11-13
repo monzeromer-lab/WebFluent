@@ -317,16 +317,13 @@ def emit_callout(kind, lines, out, ind):
     out.append("")
 
 
-def convert(num: str, md: str):
-    CURRENT["dir"] = (GUIDE / META[num]["path"]).parent
-    route = META[num]["route"]
-    name = page_name(route)
+def body(md: str, title: str, ind: str = "        "):
+    """A page's Markdown as WebFluent elements: the lines of the body, and
+    its `##` sections as `(anchor, label)`. `CURRENT["dir"]` must be the
+    page's folder, so its links resolve."""
     lines = md.split("\n")
-    title = META[num]["title"]
-    TITLES[num] = title
     sections = []
     out = []
-    ind = "        "
     buf = []
     i = 0
     caption = title
@@ -381,7 +378,7 @@ def convert(num: str, md: str):
                 code.append(lines[i])
                 i += 1
             i += 1
-            emit_code(lang, "\n".join(code), out, ind, num, info)
+            emit_code(lang, "\n".join(code), out, ind, info=info)
             continue
         # A GitHub alert — `> [!TIP]` and the quoted lines under it — is a
         # `Callout`: it renders as an alert on GitHub and as one here.
@@ -409,7 +406,16 @@ def convert(num: str, md: str):
         buf.append(line)
         i += 1
     emit_markdown(buf, out, ind)
+    return out, sections
 
+
+def convert(num: str, md: str):
+    CURRENT["dir"] = (GUIDE / META[num]["path"]).parent
+    route = META[num]["route"]
+    name = page_name(route)
+    title = META[num]["title"]
+    TITLES[num] = title
+    out, sections = body(md, title)
     blurb, description = META[num]["blurb"], META[num]["description"]
     n = int(num)
     order = sorted(META)

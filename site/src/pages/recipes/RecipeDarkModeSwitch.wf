@@ -1,0 +1,18 @@
+// A recipe, written from md-docs/recipes/dark-mode-switch.md by scripts/docsite/recipes.py;
+// edit the recipe, not this file.
+page RecipeDarkModeSwitch(path: "/recipes/dark-mode-switch", title: "Add a dark-mode switch — Recipes", description: "To let the reader pick light, dark or the system's choice, call `setTheme` and read `theme`:") {
+    RecipeShell("Add a dark-mode switch", summary: "To let the reader pick light, dark or the system's choice, call `setTheme` and read `theme`:", outputs: [], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Add a picture, sized for every screen", to: "/recipes/add-a-picture"), RelatedLink(kind: "Recipe", title: "Add video and audio", to: "/recipes/video-and-audio"), RelatedLink(kind: "Recipe", title: "Animate a list", to: "/recipes/animate-a-list")], source: "md-docs/recipes/dark-mode-switch.md", how: true, hasVariations: false) {
+        code {
+            CodeBlock(#"page Settings(path: "/settings", title: "Settings", description: "How the site looks.") {
+    Heading("Settings").h1
+    Row(gap: .sm) {
+        Button("Light", outlined: theme != "light") { on click { setTheme("light") } }
+        Button("Dark", outlined: theme != "dark") { on click { setTheme("dark") } }
+        Button("Match the system", outlined: theme != "system") { on click { setTheme("system") } }
+    }
+}"#, title: "wf")
+        }
+        Markdown("The switch needs a dark theme named in the config ([Styling](/docs/guide/styling#dark-mode)).")
+
+    }
+}

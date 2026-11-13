@@ -1,0 +1,18 @@
+// A recipe, written from md-docs/recipes/tween-on-change.md by scripts/docsite/recipes.py;
+// edit the recipe, not this file.
+page RecipeTweenOnChange(path: "/recipes/tween-on-change", title: "Tween a property when state changes — Recipes", description: "To animate a style property that changes with state, rather than an element arriving, add a `transition \{ \}` block that names the property and how…") {
+    RecipeShell("Tween a property when state changes", summary: "To animate a style property that changes with state, rather than an element arriving, add a `transition \{ \}` block that names the property and how long it takes ([Styling](/docs/guide/styling)):", outputs: [], since: "", recipes: RECIPE_INDEX, sections: [], related: [RelatedLink(kind: "Recipe", title: "Add a dark-mode switch", to: "/recipes/dark-mode-switch"), RelatedLink(kind: "Recipe", title: "Add a picture, sized for every screen", to: "/recipes/add-a-picture"), RelatedLink(kind: "Recipe", title: "Add video and audio", to: "/recipes/video-and-audio")], source: "md-docs/recipes/tween-on-change.md", how: false, hasVariations: false) {
+        code {
+            CodeBlock(#"page Tween(path: "/", title: "Tween", description: "A panel that grows.") {
+    state open = false
+    Heading("Tween").h1
+    Card {
+        style { max-height: {if open { "20rem" } else { "3rem" }}; overflow: hidden }
+        transition { max-height: 250ms ease-in-out }
+        Button("Toggle") { on click { open = !open } }
+        Text("Long content that reveals itself.")
+    }
+}"#, title: "wf")
+        }
+    }
+}

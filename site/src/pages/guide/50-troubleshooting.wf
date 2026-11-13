@@ -80,7 +80,7 @@ page TroubleshootingGuide(path: "/docs/guide/troubleshooting", title: "Troublesh
 
         Heading("Reloading any page but the home page is a 404", id: "reloading-any-page-but-the-home-page-is-a-404").h3
 
-        Markdown("A single-page build has one HTML file. When the reader reloads `/settings`, the host looks for a file at that path and has none.\n\nConfigure the host to answer every path with `index.html` ([Deploying](/docs/guide/deploying)), or build a static site with `build.ssg: true`, which writes a file for every page.")
+        Markdown("A single-page build has one HTML file. When the reader reloads `/settings`, the host looks for a file at that path and has none.\n\nConfigure the host to answer every path with `index.html` ([Deploying](/recipes)), or build a static site with `build.ssg: true`, which writes a file for every page.")
 
         Heading("\"Refused to load the script\" or \"violates the following Content Security Policy\"", id: "refused-to-load-the-script-or-violates-the-following-content-security-policy").h3
 
@@ -88,7 +88,7 @@ page TroubleshootingGuide(path: "/docs/guide/troubleshooting", title: "Troublesh
 
         Heading("An icon shows as a word", id: "an-icon-shows-as-a-word").h3
 
-        Markdown("The name is not one of the 83 built-in icons ([Media](/docs/guide/media#show-an-icon)), or the name is put together at run time, which the build cannot see, so the build left its glyph out.\n\nFix the name, or write it as a literal. If it must be built at run time, set `\"build\": \{ \"runtime\": \"full\" \}`, which ships every icon.")
+        Markdown("The name is not one of the 83 built-in icons ([Media](/recipes/show-an-icon)), or the name is put together at run time, which the build cannot see, so the build left its glyph out.\n\nFix the name, or write it as a literal. If it must be built at run time, set `\"build\": \{ \"runtime\": \"full\" \}`, which ships every icon.")
 
         Heading("WF.something is not a function from your own script", id: "wf-something-is-not-a-function-from-your-own-script").h3
 
@@ -96,7 +96,7 @@ page TroubleshootingGuide(path: "/docs/guide/troubleshooting", title: "Troublesh
 
         Heading("The page shows old content after a deploy", id: "the-page-shows-old-content-after-a-deploy").h3
 
-        Markdown("Either an HTTP cache is holding `app.js`, or — on a site with `offline` — the service worker is serving what it stored until the reader takes the new version.\n\n- Serve `app.js` with `Cache-Control: no-cache` ([Deploying](/docs/guide/deploying#set-cache-headers)).\n- On an offline site, show an update button when `update.available` holds ([Offline](/docs/guide/offline#offer-a-new-version)), or reload twice.")
+        Markdown("Either an HTTP cache is holding `app.js`, or — on a site with `offline` — the service worker is serving what it stored until the reader takes the new version.\n\n- Serve `app.js` with `Cache-Control: no-cache` ([Deploying](/recipes/cache-and-security-headers#set-cache-headers)).\n- On an offline site, show an update button when `update.available` holds ([Offline](/recipes/offer-a-new-version)), or reload twice.")
 
         Heading("Changes do not show under wf serve", id: "changes-do-not-show-under-wf-serve").h3
 
@@ -148,11 +148,11 @@ page TroubleshootingGuide(path: "/docs/guide/troubleshooting", title: "Troublesh
 
         Heading("A request fails with a CORS error", id: "a-request-fails-with-a-cors-error").h3
 
-        Markdown("The API is on another origin, and that server does not allow requests from yours.\n\nAllow your origin on the server, or serve the API from the same origin ([Fetching data](/docs/guide/data#call-an-api-on-another-origin), [Deploying](/docs/guide/deploying#serve-an-api-on-the-same-origin)).")
+        Markdown("The API is on another origin, and that server does not allow requests from yours.\n\nAllow your origin on the server, or serve the API from the same origin ([Fetching data](/docs/guide/data#call-an-api-on-another-origin), [Deploying](/recipes/api-on-the-same-origin)).")
 
         Heading("env.MYVALUE is a compile error", id: "env-myvalue-is-a-compile-error").h3
 
-        Markdown("A page may only read public names, because every value it reads ends up in the bundle, where anyone can read it (`E108`).\n\nIf anyone may see the value, rename it `PUBLIC_MY_VALUE` or list it in `public_env` ([Environments](/docs/guide/environments)). If not, keep it on the server.")
+        Markdown("A page may only read public names, because every value it reads ends up in the bundle, where anyone can read it (`E108`).\n\nIf anyone may see the value, rename it `PUBLIC_MY_VALUE` or list it in `public_env` ([Environments](/recipes)). If not, keep it on the server.")
 
         Heading("A value from .env or the shell is not used", id: "a-value-from-env-or-the-shell-is-not-used").h3
 
@@ -162,15 +162,15 @@ page TroubleshootingGuide(path: "/docs/guide/troubleshooting", title: "Troublesh
 
         Heading("Can I use npm packages?", id: "can-i-use-npm-packages").h3
 
-        Markdown("A library, yes: list its CDN address in `meta.scripts` ([JavaScript interop](/docs/guide/interop)). Your own JavaScript is a plain `.js` file under `src/`. There is no package manager for WebFluent code itself.")
+        Markdown("A library, yes: list its CDN address in `meta.scripts` ([JavaScript interop](/recipes)). Your own JavaScript is a plain `.js` file under `src/`. There is no package manager for WebFluent code itself.")
 
         Heading("Can I use it with React or Vue?", id: "can-i-use-it-with-react-or-vue").h3
 
-        Markdown("Yes. Publish your components as custom elements, and place their tags from React, Vue or any other page ([JavaScript interop](/docs/guide/interop#publish-your-components-as-custom-elements)).")
+        Markdown("Yes. Publish your components as custom elements, and place their tags from React, Vue or any other page ([JavaScript interop](/recipes/publish-custom-elements)).")
 
         Heading("Is there server-side rendering?", id: "is-there-server-side-rendering").h3
 
-        Markdown("Pages are pre-rendered at build time with `build.ssg`. For HTML made per request, render templates from your own server with the [template engine](/docs/guide/server-rendering).")
+        Markdown("Pages are pre-rendered at build time with `build.ssg`. For HTML made per request, render templates from your own server with the [template engine](/recipes).")
 
         Heading("Does it support TypeScript?", id: "does-it-support-typescript").h3
 

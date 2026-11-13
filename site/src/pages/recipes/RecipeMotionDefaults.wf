@@ -1,0 +1,28 @@
+// A recipe, written from md-docs/recipes/motion-defaults.md by scripts/docsite/recipes.py;
+// edit the recipe, not this file.
+page RecipeMotionDefaults(path: "/recipes/motion-defaults", title: "Set motion defaults, and respect reduced motion — Recipes", description: "To change what an animation does when the element names no duration or easing, set `motion` in `webfluent.app.json`:") {
+    RecipeShell("Set motion defaults, and respect reduced motion", summary: "To change what an animation does when the element names no duration or easing, set `motion` in `webfluent.app.json`:", outputs: [], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "set-the-default-duration-and-easing", label: "Set the default duration and easing"), Anchor(id: "respect-reduced-motion", label: "Respect reduced motion")], related: [RelatedLink(kind: "Recipe", title: "Add a dark-mode switch", to: "/recipes/dark-mode-switch"), RelatedLink(kind: "Recipe", title: "Add a picture, sized for every screen", to: "/recipes/add-a-picture"), RelatedLink(kind: "Recipe", title: "Add video and audio", to: "/recipes/video-and-audio")], source: "md-docs/recipes/motion-defaults.md", how: false, hasVariations: false) {
+        Heading("Set the default duration and easing", id: "set-the-default-duration-and-easing").h2
+
+        Markdown("To change what an animation does when the element names no duration or easing, set `motion` in `webfluent.app.json`:")
+
+        CodeBlock(#"{ "motion": { "duration": "180ms", "easing": "$ease-standard" } }"#, title: "json")
+
+        Markdown("These set the `animation-duration-normal` and `animation-easing-default` design tokens, so a theme may set them instead, and a style block reads the same values.")
+
+        Heading("Respect reduced motion", id: "respect-reduced-motion").h2
+
+        Markdown("A reader whose system asks for reduced motion (`prefers-reduced-motion`) gets none of the motion in this chapter: no animation started, no wait before removal, no FLIP, no route transition and no `transition \{ \}` tween. A box that expands is open at once, and a number that counts is shown at its value. The runtime and the engine's stylesheet do this for you.")
+
+        Callout("An `animation:` or `transition:` you write by hand in a `style \{ \}` block has no reduced-motion path. Wrap it in `@media (prefers-reduced-motion: no-preference) \{ \}`, or use the declared forms in this chapter, which have one.", kind: .warning)
+
+        Heading("Preview reduced motion", id: "preview-reduced-motion").h3
+
+        Markdown("To see a page as that reader does without changing your system's setting, set `data-wf-motion=\"reduce\"` on the document's root element, for example from the browser's console:")
+
+        CodeBlock(#"document.documentElement.setAttribute("data-wf-motion", "reduce")"#, title: "js")
+
+        Markdown("The stylesheet and the runtime honour the attribute exactly as they honour the reader's setting, and removing it plays everything again. An editor's preview sets it when you ask it for reduced motion.")
+
+    }
+}

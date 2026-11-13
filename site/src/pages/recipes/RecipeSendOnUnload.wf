@@ -1,0 +1,14 @@
+// A recipe, written from md-docs/recipes/send-on-unload.md by scripts/docsite/recipes.py;
+// edit the recipe, not this file.
+page RecipeSendOnUnload(path: "/recipes/send-on-unload", title: "Send a message as the page unloads — Recipes", description: "To record that something happened even when the reader is leaving — an analytics event, a \"reader left\" signal — call `beacon(url, data)`:") {
+    RecipeShell("Send a message as the page unloads", summary: "To record that something happened even when the reader is leaving — an analytics event, a \"reader left\" signal — call `beacon(url, data)`:", outputs: [], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Connect two readers' pages", to: "/recipes/connect-two-readers"), RelatedLink(kind: "Recipe", title: "Listen to server-sent events", to: "/recipes/server-sent-events"), RelatedLink(kind: "Recipe", title: "Open a socket", to: "/recipes/open-a-socket")], source: "md-docs/recipes/send-on-unload.md", how: true, hasVariations: false) {
+        code {
+            CodeBlock(#"page Checkout(path: "/checkout", title: "Checkout", description: "Pay for the order.") {
+    Heading("Checkout").h1
+    Button("Pay").primary { on click { beacon("/analytics", { event: "checkout", value: 42 }) } }
+}"#, title: "wf")
+        }
+        Markdown("`beacon` posts a small body with `navigator.sendBeacon`, which the browser delivers even as the page unloads, where a `fetch` would be cancelled.")
+
+    }
+}

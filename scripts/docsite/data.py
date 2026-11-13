@@ -87,6 +87,14 @@ def search_index():
                 "route": f"{guide.href(route)}#{guide.slug(text)}",
                 "words": terms(parts[k + 2]),
             })
+    # Every recipe, by its title and what its text is about.
+    for f in sorted((ROOT / "md-docs" / "recipes").glob("*.md")):
+        meta, md = guide.front_matter(f)
+        if f.name == "index.md":
+            continue
+        title = next(l[2:].strip() for l in md.splitlines() if l.startswith("# "))
+        rows.append({"chapter": "", "title": "Recipes", "section": title, "route": meta["route"],
+                     "words": terms(meta.get("description", "") + " " + md)})
     # Every built-in, by name, with what it takes.
     ref = guide.front_matter(ROOT / "md-docs" / "reference" / "components.md")[0]
     for c in builtins():
