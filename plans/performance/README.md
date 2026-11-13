@@ -71,6 +71,45 @@ Every change was held to the golden output, byte for byte.
   - JavaScript (about 160 ms);
   - painting (about 230 ms, across cores).
 
+## What a build ships (2026-11-13)
+
+Built output, gzipped, before → after:
+
+| Project | `app.js` | `styles.css` |
+|---|---|---|
+| counter example | 9.0 kB → 9.0 kB | 3.7 kB → 1.9 kB |
+| `wf init -t static` | 23.3 kB → 21.3 kB | 5.4 kB → 4.2 kB |
+| `wf init -t spa` (it animates) | 23.5 kB → 23.5 kB | 6.1 kB → 5.0 kB |
+
+**What changed:**
+- **Motion.** The runtime's animations (`motion`, 20 kB before minifying)
+  ship only to a program that animates. The node helpers that branches,
+  lists and routes need are a module of their own.
+- **The built-in stylesheet** keeps a component's section only when the
+  program draws that component. That covers the grid, columns, spacers,
+  dividers, code and its highlighting, blockquotes, Markdown, drag and
+  drop, and every document and slide element.
+- **Rule-level pruning.** The sections every page keeps (responsive
+  reflow, focus, reduced motion) lose the selectors that name a component
+  whose section went.
+
+**Next: prune the runtime by function, not by module.** `core` (44 kB
+before minifying) ships whole to every project. A small project reaches
+about half of it:
+
+| Project | Functions reached | Share of `core`'s source |
+|---|---|---|
+| counter | 41 of 107 | 44% |
+| static starter | 45 of 107 | 49% |
+| SPA starter | 55 of 107 | 58% |
+
+That count follows calls from the generated code through `core`'s own
+functions, but not from the other modules shipped, so it is slightly low.
+
+The runtime is plain declarations in one closure, so the compiler can
+follow calls exactly and emit only the functions reached. It gets "only
+the code a page needs" without writing helpers out at every use.
+
 ## Is it the tests, or the tools?
 
 Both, for different reasons.
