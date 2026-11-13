@@ -283,10 +283,22 @@ pub fn render_page_html_studio(
     let title = page.title.as_deref().unwrap_or(&config.name);
     let lang = crate::web::codegen::seo::page_lang(page, config);
 
-    let default_locale = config
+    let site_locale = config
         .i18n
         .as_ref()
         .map_or("en", |i| i.default_locale.as_str());
+    // A page written in a language of its own (`lang: "ar"`) speaks it: its
+    // `t()` text is painted from that language's table when the site has
+    // one (by the tag, or by its language alone: `ar-EG` reads `ar`), as
+    // the router shows it once the page is live.
+    let primary = lang.split(['-', '_']).next().unwrap_or(&lang);
+    let default_locale = if page.lang.is_some() && translations.contains_key(lang.as_str()) {
+        lang.as_str()
+    } else if page.lang.is_some() && translations.contains_key(primary) {
+        primary
+    } else {
+        site_locale
+    };
 
     let default_messages = translations
         .get(default_locale)

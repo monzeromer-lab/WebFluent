@@ -251,3 +251,81 @@ fn a_markdown_pages_language_is_held_to_a_tag_too() {
     assert!(text.contains("is not a language tag"), "{text}");
     let _ = std::fs::remove_dir_all(&dir);
 }
+
+/// A page written in a language of its own speaks it in its interface text
+/// too: its `t()` is painted from that language's table, so a pre-rendered
+/// `/ar/` page shows its header in Arabic before any script runs. A page in
+/// a language the site has no table for keeps the default's, and a region
+/// (`ar-EG`) reads its language's table. Live, the router does the same
+/// (`pageLocale`) and gives the reader's own locale back on leaving.
+#[test]
+fn a_page_in_its_own_language_paints_its_translations_in_it() {
+    let dir = project(
+        "t",
+        r#"{ "name": "Site", "build": { "output": "build", "ssg": true, "minify": false },
+  "i18n": { "default_locale": "en", "locales": ["en", "ar"] } }"#,
+        r#"app { Router }
+
+page Home(path: "/", title: "Home", description: "The front page.") {
+    Heading(t("hello")).h1
+}
+
+page HomeAr(path: "/ar", title: "الرئيسية", description: "الصفحة الأولى.", lang: "ar", translates: Home) {
+    Heading(t("hello")).h1
+}
+
+page HomeEg(path: "/eg", title: "الرئيسية", description: "الصفحة.", lang: "ar-EG") {
+    Heading(t("hello")).h1
+}
+
+page HomeFr(path: "/fr", title: "Accueil", description: "La page.", lang: "fr") {
+    Heading(t("hello")).h1
+}
+"#,
+    );
+    std::fs::create_dir_all(dir.join("src/translations")).unwrap();
+    std::fs::write(
+        dir.join("src/translations/en.json"),
+        r#"{ "hello": "Hello" }"#,
+    )
+    .unwrap();
+    std::fs::write(
+        dir.join("src/translations/ar.json"),
+        r#"{ "hello": "مرحباً" }"#,
+    )
+    .unwrap();
+    let out = wf(&dir, &["build"]);
+    assert!(
+        out.status.success(),
+        "{}",
+        String::from_utf8_lossy(&out.stderr)
+    );
+    let h1 = |file: &str| {
+        let html = read(&dir, file);
+        let at = html
+            .find("<h1")
+            .unwrap_or_else(|| panic!("{file}: no h1\n{html}"));
+        html[at..].split_once("</h1>").unwrap().0.to_string()
+    };
+    assert!(h1("index.html").contains("Hello"));
+    assert!(
+        h1("ar/index.html").contains("مرحباً"),
+        "{}",
+        h1("ar/index.html")
+    );
+    assert!(
+        h1("eg/index.html").contains("مرحباً"),
+        "{}",
+        h1("eg/index.html")
+    );
+    assert!(
+        h1("fr/index.html").contains("Hello"),
+        "{}",
+        h1("fr/index.html")
+    );
+    assert!(
+        read(&dir, "app.js").contains("pageLocale"),
+        "the router switches the locale live"
+    );
+    let _ = std::fs::remove_dir_all(&dir);
+}

@@ -198,6 +198,8 @@
         // any other is in the reader's chosen locale, or the site's language.
         // Only a site with such a page passes `options.lang`.
         if (options && options.lang) {
+          // Its `t()` text too, when the site has a table for its language.
+          if (i18nInstance && i18nInstance.pageLocale) i18nInstance.pageLocale(match.route.lang);
           const root = document.documentElement;
           const own = match.route.lang
             ? [match.route.lang, match.route.dir]

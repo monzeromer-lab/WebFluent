@@ -84,8 +84,13 @@
       return text;
     }
 
+    // The locale the reader is in when no page says otherwise: what they
+    // chose (`setLocale`), what a `?lang=` address asked for, or the site's.
+    let chosen = defaultLocale;
+
     function setLocale(newLocale, remember) {
       locale.set(newLocale);
+      if (remember !== false) chosen = newLocale;
       // The reader's choice is kept, as `setTheme`'s is: a static site loads
       // each page afresh, and one that picked Arabic was handed the next
       // page in English. Only a choice is kept — a `?lang=` address opens
@@ -103,7 +108,18 @@
       document.documentElement.setAttribute("dir", newDir);
     }
 
-    i18nInstance = { t, locale, dir, setLocale };
+    // A page written in a language of its own (`lang: "ar"`) speaks it
+    // while it shows, as its pre-rendered HTML does; leaving it gives the
+    // reader's own locale back. A language the site has no table for
+    // leaves the locale as it is.
+    function pageLocale(lang) {
+      const primary = lang ? String(lang).split(/[-_]/)[0] : null;
+      const own = lang && (translations[lang] ? lang : translations[primary] ? primary : null);
+      const want = own || chosen;
+      if (String(locale()) !== want) setLocale(want, false);
+    }
+
+    i18nInstance = { t, locale, dir, setLocale, pageLocale };
     // `?lang=ar` opens the page in that locale, for a link someone shares.
     // It is not an `hreflang` alternate: the address's HTML is the default
     // locale's, so a search engine indexes pages of their own (`lang:`,
@@ -113,11 +129,15 @@
         ? new URLSearchParams(location.search).get("lang")
         : null;
       if (asked && translations[tableOf(asked)]) {
+        chosen = asked;
         if (asked !== defaultLocale) setLocale(asked, false);
       } else {
         let kept = null;
         try { kept = window.localStorage.getItem("wf:locale"); } catch (e) { /* no storage */ }
-        if (kept && kept !== defaultLocale && translations[tableOf(kept)]) setLocale(kept, false);
+        if (kept && kept !== defaultLocale && translations[tableOf(kept)]) {
+          chosen = kept;
+          setLocale(kept, false);
+        }
       }
     } catch (e) { /* no location to read */ }
     return i18nInstance;
