@@ -117,8 +117,8 @@ fn a_static_build_stores_the_shell_the_named_routes_and_the_fallback() {
         "the bundle registers the worker"
     );
     assert!(
-        bundle.contains("wf:activate"),
-        "and carries the module that does it"
+        bundle.contains("/sw.js`"),
+        "and carries the function that does it"
     );
     let _ = std::fs::remove_dir_all(&dir);
 }

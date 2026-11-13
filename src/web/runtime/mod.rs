@@ -296,26 +296,38 @@ pub fn assemble(program: &str, full: bool) -> String {
     } else {
         modules_for(program)
     };
-    let mut out = String::with_capacity(64 * 1024);
-    out.push_str(HEADER);
+    let mut body = String::with_capacity(64 * 1024);
     for m in MODULES.iter().filter(|m| want.contains(m.name)) {
         let source = if m.name == "icons" && !full {
             std::borrow::Cow::Owned(prune_icons(m.source, program))
         } else {
             std::borrow::Cow::Borrowed(m.source)
         };
-        out.push_str(&source);
+        body.push_str(&source);
         if !source.ends_with('\n') {
-            out.push('\n');
+            body.push('\n');
         }
     }
+    // What goes on `WF`: every export of the modules shipped, or, pruned,
+    // the ones the program calls.
+    let called = calls_in(program);
+    let exports: Vec<(&str, &str)> = MODULES
+        .iter()
+        .filter(|m| want.contains(m.name))
+        .flat_map(|m| m.exports.iter().copied())
+        .filter(|(name, _)| full || called.contains(name))
+        .collect();
+    if !full {
+        let mut roots: BTreeSet<&str> = exports.iter().map(|(_, local)| *local).collect();
+        roots.insert("_basePath");
+        body = keep_reached(&body, &roots);
+    }
+    let mut out = String::with_capacity(body.len() + 4096);
+    out.push_str(HEADER);
+    out.push_str(&body);
     out.push_str("  return {\n");
-    for m in MODULES.iter().filter(|m| want.contains(m.name)) {
-        if m.exports.is_empty() {
-            continue;
-        }
-        let line: Vec<String> = m
-            .exports
+    for chunk in exports.chunks(6) {
+        let line: Vec<String> = chunk
             .iter()
             .map(|(name, local)| {
                 if name == local {
@@ -331,6 +343,141 @@ pub fn assemble(program: &str, full: bool) -> String {
     out.push_str("    get _basePath() { return _basePath; },\n");
     out.push_str("  };\n})();\n");
     out
+}
+
+/// One top-level item of the runtime's closure: a declaration, with the
+/// comment above it, or a statement that runs when the runtime loads.
+struct Item<'a> {
+    text: &'a str,
+    /// The name a declaration declares; `None` for a statement, which is
+    /// always kept.
+    declares: Option<&'a str>,
+}
+
+/// The runtime's closure split into its top-level items. A module is
+/// written at two spaces of indentation: an item starts on a line indented
+/// exactly that far that does not close a bracket, and a comment line
+/// belongs to the item after it.
+fn items(body: &str) -> Vec<Item<'_>> {
+    let mut starts: Vec<usize> = Vec::new();
+    let mut comment_run: Option<usize> = None;
+    let mut at = 0;
+    for line in body.split_inclusive('\n') {
+        let top = line.starts_with("  ") && !line[2..].starts_with([' ', '\t', '\n', '\r']);
+        let comment = top && line[2..].starts_with("//");
+        if comment {
+            comment_run.get_or_insert(at);
+        } else if top && !line[2..].starts_with(['}', ')', ']']) {
+            starts.push(comment_run.take().unwrap_or(at));
+        } else if line.trim().is_empty() {
+            // A blank line keeps a comment run open.
+        } else {
+            comment_run = None;
+        }
+        at += line.len();
+    }
+    if starts.first() != Some(&0) {
+        starts.insert(0, 0);
+    }
+    let mut out = Vec::with_capacity(starts.len());
+    for (k, &start) in starts.iter().enumerate() {
+        let end = starts.get(k + 1).copied().unwrap_or(body.len());
+        let text = &body[start..end];
+        let code = text
+            .lines()
+            .find(|l| l.starts_with("  ") && !l[2..].starts_with("//") && !l.trim().is_empty())
+            .unwrap_or("");
+        out.push(Item {
+            text,
+            declares: declared_name(code),
+        });
+    }
+    out
+}
+
+/// The name a top-level line declares: `function name`, `async function
+/// name`, `const name`, `let name`, `class name`.
+fn declared_name(line: &str) -> Option<&str> {
+    let rest = line.strip_prefix("  ")?;
+    let rest = rest.strip_prefix("async ").unwrap_or(rest);
+    let rest = ["function* ", "function ", "const ", "let ", "class "]
+        .iter()
+        .find_map(|k| rest.strip_prefix(k))?;
+    let end = rest
+        .find(|c: char| !(c.is_ascii_alphanumeric() || c == '_' || c == '$'))
+        .unwrap_or(rest.len());
+    (end > 0).then(|| &rest[..end])
+}
+
+/// Every identifier `text` names, comment lines and property names
+/// (`x.name`, but not `...name`) aside. Strings count: a name in one is
+/// kept rather than risked.
+fn names_in(text: &str) -> BTreeSet<&str> {
+    let mut out = BTreeSet::new();
+    for line in text.lines() {
+        if line.trim_start().starts_with("//") {
+            continue;
+        }
+        let mut from = 0;
+        while let Some(at) =
+            line[from..].find(|c: char| c.is_ascii_alphabetic() || c == '_' || c == '$')
+        {
+            let start = from + at;
+            let word = &line[start..];
+            let end = word
+                .find(|c: char| !(c.is_ascii_alphanumeric() || c == '_' || c == '$'))
+                .unwrap_or(word.len());
+            let before = &line[..start];
+            if !before.ends_with('.') || before.ends_with("...") {
+                out.insert(&word[..end]);
+            }
+            from = start + end;
+        }
+    }
+    out
+}
+
+/// `body` with every declaration nothing reaches left out. What runs at
+/// load is kept, and so is every declaration `roots` names, and every one
+/// those name, and so on.
+fn keep_reached(body: &str, roots: &BTreeSet<&str>) -> String {
+    let items = items(body);
+    let mut by_name: std::collections::HashMap<&str, Vec<usize>> = std::collections::HashMap::new();
+    for (ix, item) in items.iter().enumerate() {
+        if let Some(name) = item.declares {
+            by_name.entry(name).or_default().push(ix);
+        }
+    }
+    let mut keep = vec![false; items.len()];
+    let mut queue: Vec<usize> = Vec::new();
+    let reach = |name: &str, keep: &mut Vec<bool>, queue: &mut Vec<usize>| {
+        for &ix in by_name.get(name).map_or(&[][..], Vec::as_slice) {
+            if !keep[ix] {
+                keep[ix] = true;
+                queue.push(ix);
+            }
+        }
+    };
+    for (ix, item) in items.iter().enumerate() {
+        if item.declares.is_none() {
+            keep[ix] = true;
+            queue.push(ix);
+        }
+    }
+    for root in roots {
+        reach(root, &mut keep, &mut queue);
+    }
+    while let Some(ix) = queue.pop() {
+        for name in names_in(items[ix].text) {
+            reach(name, &mut keep, &mut queue);
+        }
+    }
+    items
+        .iter()
+        .zip(&keep)
+        .filter(|(_, k)| **k)
+        .map(|(item, _)| item.text)
+        .collect()
 }
 
 /// The icon table, with the glyphs the program never names left out.
@@ -486,6 +633,59 @@ mod tests {
         assert!(!modules_for("WF.el(\"i\", {})").contains("icons"));
         // A name that merely ends in WF is not a call.
         assert!(!modules_for("myWF.each()").contains("each"));
+    }
+
+    /// The runtime is cut down to the functions the program reaches: what
+    /// it calls, what those call, and everything that runs at load.
+    #[test]
+    fn only_the_functions_a_program_reaches_are_shipped() {
+        let body = "  // The first.\n  function first() { return second(); }\n\n  function second() { return 1; }\n  // Nothing calls this; `first` in a comment does not keep it.\n  function unused() { return 2; }\n  const table = { a: 1 };\n  register(() => table);\n";
+        let roots: BTreeSet<&str> = ["first"].into_iter().collect();
+        let kept = keep_reached(body, &roots);
+        assert!(kept.contains("function first"), "{kept}");
+        assert!(
+            kept.contains("function second"),
+            "what a kept function calls is kept"
+        );
+        assert!(
+            kept.contains("register(() => table);"),
+            "what runs at load is kept"
+        );
+        assert!(kept.contains("const table"), "and what it names");
+        assert!(!kept.contains("function unused"), "{kept}");
+        assert!(
+            kept.contains("// The first."),
+            "a comment goes with its item"
+        );
+    }
+
+    /// Every export, called on its own, makes a runtime whose names are all
+    /// declared: nothing a kept function reaches was cut.
+    #[test]
+    fn every_export_alone_reaches_everything_it_needs() {
+        for m in MODULES {
+            for (name, _) in m.exports {
+                let program = format!("WF.{name}();");
+                // What the shipped modules declare, before any is cut.
+                let shipped: String = MODULES
+                    .iter()
+                    .filter(|m| modules_for(&program).contains(m.name))
+                    .map(|m| m.source)
+                    .collect();
+                let declared: BTreeSet<&str> =
+                    items(&shipped).iter().filter_map(|i| i.declares).collect();
+                let js = assemble(&program, false);
+                let kept: BTreeSet<&str> = items(&js).iter().filter_map(|i| i.declares).collect();
+                for item in items(&js) {
+                    for word in names_in(item.text) {
+                        assert!(
+                            !declared.contains(word) || kept.contains(word),
+                            "`WF.{name}` reaches `{word}`, which was cut"
+                        );
+                    }
+                }
+            }
+        }
     }
 
     /// The smallest page carries the smallest runtime, and `full` carries it all.

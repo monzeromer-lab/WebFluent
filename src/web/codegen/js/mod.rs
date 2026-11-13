@@ -222,6 +222,10 @@ pub struct JsCodegen {
     /// Studio mode: stamp `data-wf-node` ids on rendered elements. Off for
     /// export/release builds, which must contain no debug attributes.
     studio: bool,
+    /// Text that calls into the runtime from outside the bundle — the
+    /// project's own scripts — read with the bundle when the runtime is
+    /// cut down to what is called.
+    external_callers: String,
     /// Deterministic node ids keyed by element span (empty unless in studio mode).
     node_ids: NodeMap,
     /// The page, component or app being emitted: whose element a span is.
@@ -414,6 +418,7 @@ impl JsCodegen {
             site_lang: String::new(),
             in_thead: false,
             studio: false,
+            external_callers: String::new(),
             node_ids: NodeMap::default(),
             node_owner: String::new(),
             split_pages: false,
@@ -448,6 +453,15 @@ impl JsCodegen {
         self.split_pages = *split_pages;
         self.full_runtime = *full_runtime;
         self.offline = *offline;
+        self
+    }
+
+    /// Code outside the bundle that calls into the runtime (`WF.clearQueued()`
+    /// in a project's script): what it names is kept when the runtime is
+    /// cut down to what is called.
+    #[must_use]
+    pub fn with_external_callers(mut self, code: impl Into<String>) -> Self {
+        self.external_callers = code.into();
         self
     }
 
@@ -1153,6 +1167,12 @@ impl JsCodegen {
             // The studio drives `WF.__debug` from outside the bundle.
             reached.push_str("WF.__debug");
         }
+        if self.dev {
+            // The dev server's stores panel reads and rewinds the stores.
+            reached.push_str(" WF.storeSnapshot WF.restoreStore WF.watchStores");
+        }
+        // A project's own scripts may call into the runtime too.
+        reached.push_str(&self.external_callers);
         self.runtime_report = runtime::report(&reached, self.full_runtime);
         self.runtime_modules = self.runtime_report.iter().map(|k| k.name).collect();
         let mut out = runtime::assemble(&reached, self.full_runtime);

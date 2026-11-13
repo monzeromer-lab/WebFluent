@@ -808,13 +808,25 @@ fn run(options: &BuildOptions<'_>, out: &Out<'_>) -> Result<()> {
         css.push_str(&crate::project::scoped_css::scoped_rules(&program));
         BTreeMap::default()
     };
-    let mut js_codegen = JsCodegen::new().with_options(&crate::web::codegen::JsOptions {
-        ssg: config.build.pre_renders(),
-        dev: options.dev,
-        split_pages: config.build.split,
-        full_runtime: config.build.runtime == crate::project::config::RuntimeMode::Full,
-        offline: config.offline.as_ref().map(|offline| offline.sync),
-    });
+    let mut js_codegen = JsCodegen::new()
+        .with_options(&crate::web::codegen::JsOptions {
+            ssg: config.build.pre_renders(),
+            dev: options.dev,
+            split_pages: config.build.split,
+            full_runtime: config.build.runtime == crate::project::config::RuntimeMode::Full,
+            offline: config.offline.as_ref().map(|offline| offline.sync),
+        })
+        // What calls into the runtime from outside the bundle: a project's own
+        // scripts, and the custom elements an `elements` build defines after it.
+        .with_external_callers({
+            let mut callers: Vec<String> = scripts.iter().map(|s| s.source.clone()).collect();
+            if config.build.output_type == OutputType::Elements {
+                callers.push(crate::web::codegen::elements::definitions(
+                    &program, &config,
+                ));
+            }
+            callers.join("\n")
+        });
     if let Some(i18n_config) = &config.i18n {
         js_codegen.set_i18n(i18n_config.default_locale.clone(), translations.clone());
     }
