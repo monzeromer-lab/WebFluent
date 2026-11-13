@@ -111,7 +111,7 @@ pub const MODULES: &[Module] = &[
         ("dateOf", "dateOf"), ("timeOf", "timeOf"),
         ("urlWith", "withParts"), ("urlQuery", "urlQuery"),
     ], deps: [], triggers: []),
-    module!("form", exports: [same("form"), same("validate")], deps: ["announce"], triggers: []),
+    module!("form", exports: [same("form"), same("validate"), same("askRules")], deps: ["announce"], triggers: []),
     module!("text", exports: [same("markdown"), same("highlight")],
         deps: [], triggers: ["markdown: ", "highlight: { code:"]),
     module!("when", exports: [same("when"), same("held")], deps: ["nodes"], triggers: []),
@@ -123,7 +123,7 @@ pub const MODULES: &[Module] = &[
         same("viewport"), same("query"), same("hash"), same("now"), same("network"),
     ],
         deps: [], triggers: []),
-    module!("router", exports: [same("router"), same("params"), same("activeLink")],
+    module!("router", exports: [same("router"), same("params"), same("activeLink"), same("playRoute")],
         deps: ["nodes", "match", "pages", "announce"], triggers: []),
     module!("pages", exports: [same("page"), same("loadPage"), same("loadSheet")],
         deps: [], triggers: []),
@@ -991,7 +991,7 @@ mod tests {
             "WF.when(p, c, t, e, { exit: \"fadeOut\" });",
             "WF.mark(n, { \"data-wf-exit\": \"fadeOut\" });",
             "WF.mark(n, { \"data-wf-animate\": \"fadeIn\" });",
-            "WF.router(routes, c, { transition: \"fade\" });",
+            "WF.router(routes, c, { transition: \"fade\", play: WF.playRoute });",
             "WF.counted(n, v, \"600ms\");",
         ] {
             assert!(modules_for(animated).contains("motion"), "{animated}");

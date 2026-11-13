@@ -115,6 +115,34 @@ Tests hold it to the 721 JavaScript tests, every real-browser suite and
 the golden output. A unit test checks that every export, called on its
 own, reaches everything it names.
 
+**Then, smaller pieces and shorter names:**
+- **Keys and the theme** are modules of their own, and the scan for what a
+  function names skips strings, comments and patterns.
+- **A one-page site** is not split into a chunk: its code is in `app.js`.
+- **Mangling.** A minified build that is not the dev server's renames the
+  runtime's top-level names, the most used first. Names that could be an
+  object's key are left alone. It saves about 7% of the runtime before
+  compression and 3.5% after, since most of what is left is local names
+  inside functions.
+- **Optional parts of big functions.** The route-transition player
+  (`playRoute`) and the asking of async rules (`askRules`) are exports of
+  their own, which the program passes in only when it uses them. A site
+  without `Router(transition:)` no longer carries the player.
+
+| Project (gzipped `app.js`, `gzip -9`) | Before | After |
+|---|---|---|
+| `wf init -t static` | 16.8 kB | 16.2 kB |
+| `wf init -t spa` | 19.3 kB | 18.7 kB |
+
+What was looked at and left alone: `el`, whose optional features already
+register as hooks; `each`, whose row-sliding runs for every keyed list;
+`persist`, whose parts share one load path that keeps a returning reader's
+data.
+
+**Not done:** renaming the local names inside functions, which needs a
+real scope analysis; and the `--stats` runtime line, which still reports
+module sizes before function pruning.
+
 ## Is it the tests, or the tools?
 
 Both, for different reasons.

@@ -817,10 +817,14 @@ impl JsCodegen {
             }
             rules.push(format!("{{ {} }}", parts.join(", ")));
         }
-        let form = match &self.body.current_form {
+        let mut form = match &self.body.current_form {
             Some(name) => format!(", form: {name}"),
             None => String::new(),
         };
+        // What asks an async rule ships only with a program that has one.
+        if v.rules.iter().any(|r| r.name == "async") {
+            form.push_str(", ask: WF.askRules");
+        }
         self.emit_line(&format!(
             "const {}_check = WF.validate(() => {}(), [{}], {{ name: \"{}\"{form} }});",
             sig(&v.name),

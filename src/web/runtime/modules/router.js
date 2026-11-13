@@ -63,12 +63,13 @@
   }
 
   // `options.transition` — `fade` or `slide` — plays the old page out and
-  // the new one in on a route change; `options.duration` times both.
+  // the new one in on a route change, through `options.play` (`playRoute`,
+  // which a program without a transition does not carry); `options.duration`
+  // times both.
   function router(routes, container, options) {
-    const motion = options && options.transition && options.transition !== "none"
-      ? { name: options.transition, duration: options.duration }
+    const play = options && options.transition && options.transition !== "none" && options.play
+      ? options.play
       : null;
-    const ways = { fade: ["fadeOut", "fadeIn"], slide: ["slideLeft", "slideRight"] };
     // The node the route is drawn into: the painted one, once a
     // pre-rendered page has been taken over (hydrate).
     const into = () => inPage(container);
@@ -242,79 +243,18 @@
       const draw = (renderFn) => {
         // The page arrived after the reader had already moved on.
         if (currentPath() !== path) return;
-        const [out, back] = motion ? ways[motion.name] || ways.fade : [];
-        // The first paint, and every one for a reader who asked for less
-        // motion, is immediate; a route change plays the old page out, then
-        // the new one in, and settles focus once the new page is still.
-        if (!motion || !rendered || reducedMotion()) {
+        // The first paint is immediate; a route change with a transition is
+        // played, and settles focus once the new page is still.
+        if (!play || !rendered) {
           paint(renderFn);
           settle();
           return;
         }
-        // Where the browser has the View Transitions API, it plays the
-        // change between the two paints itself — a crossfade, or the slide
-        // the sheet defines for `data-wf-transition="slide"` — and the
-        // class-based animation below is the fallback.
-        if (typeof document.startViewTransition === "function") {
-          const root = document.documentElement;
-          root.setAttribute("data-wf-transition", motion.name);
-          if (motion.duration) root.style.setProperty("--animation-duration-normal", motion.duration);
-          // The browser runs the callback once it has captured the old
-          // page, and capturing needs a painted frame. A page that is not
-          // painting — a background tab, a prerender — would never be
-          // handed one, so the route change is drawn anyway when the
-          // transition does not begin. A navigation is not decoration.
-          let painted = false;
-          const drawOnce = () => {
-            if (painted) return;
-            painted = true;
-            paint(renderFn);
-          };
-          let transition;
-          try {
-            transition = document.startViewTransition(drawOnce);
-          } catch (e) {
-            root.removeAttribute("data-wf-transition");
-            drawOnce();
-            settle();
-            return;
-          }
-          const done = () => {
-            root.removeAttribute("data-wf-transition");
-            if (motion.duration) root.style.removeProperty("--animation-duration-normal");
-            drawOnce();
-            settle();
-          };
-          if (transition && transition.finished && typeof transition.finished.then === "function") {
-            transition.finished.then(done, done);
-            // A skipped or aborted transition rejects these, and a
-            // rejection nobody is listening for is an error in the
-            // console. Nothing waits on them; they are answered so they
-            // are not reported.
-            for (const promise of [transition.ready, transition.updateCallbackDone]) {
-              if (promise && typeof promise.catch === "function") promise.catch(() => {});
-            }
-            // Whichever comes first: the transition, or the clock.
-            setTimeout(() => {
-              if (painted) return;
-              try {
-                if (transition.skipTransition) transition.skipTransition();
-              } catch (e) {
-                /* it had already finished or been abandoned */
-              }
-              done();
-            }, millis(motion.duration, 300) + 250);
-          } else {
-            done();
-          }
-          return;
-        }
-        const leaving = [...into().children];
-        Promise.all(leaving.map((n) => animateOut(n, out, motion.duration))).then(() => {
-          if (currentPath() !== path) return;
-          paint(renderFn);
-          const arriving = [...into().children];
-          Promise.all(arriving.map((n) => animateIn(n, back, motion.duration))).then(settle);
+        play(options, {
+          into,
+          paint: () => paint(renderFn),
+          settle,
+          current: () => currentPath() === path,
         });
       };
 
@@ -355,6 +295,88 @@
     };
 
     return routerInstance;
+  }
+
+  // A route change, played: the browser's View Transitions where it has
+  // them, otherwise the old page animated out and the new one in. What the
+  // router hands over: where the page is drawn (`into`), how to draw it
+  // (`paint`), what to do once it is still (`settle`), and whether the route
+  // is still the one being drawn (`current`).
+  function playRoute(options, page) {
+    const motion = { name: options.transition, duration: options.duration };
+    const ways = { fade: ["fadeOut", "fadeIn"], slide: ["slideLeft", "slideRight"] };
+    const [out, back] = ways[motion.name] || ways.fade;
+    // A reader who asked for less motion gets the new page at once.
+    if (reducedMotion()) {
+      page.paint();
+      page.settle();
+      return;
+    }
+    // Where the browser has the View Transitions API, it plays the
+    // change between the two paints itself — a crossfade, or the slide
+    // the sheet defines for `data-wf-transition="slide"` — and the
+    // class-based animation below is the fallback.
+    if (typeof document.startViewTransition === "function") {
+      const root = document.documentElement;
+      root.setAttribute("data-wf-transition", motion.name);
+      if (motion.duration) root.style.setProperty("--animation-duration-normal", motion.duration);
+      // The browser runs the callback once it has captured the old
+      // page, and capturing needs a painted frame. A page that is not
+      // painting — a background tab, a prerender — would never be
+      // handed one, so the route change is drawn anyway when the
+      // transition does not begin. A navigation is not decoration.
+      let painted = false;
+      const drawOnce = () => {
+        if (painted) return;
+        painted = true;
+        page.paint();
+      };
+      let transition;
+      try {
+        transition = document.startViewTransition(drawOnce);
+      } catch (e) {
+        root.removeAttribute("data-wf-transition");
+        drawOnce();
+        page.settle();
+        return;
+      }
+      const done = () => {
+        root.removeAttribute("data-wf-transition");
+        if (motion.duration) root.style.removeProperty("--animation-duration-normal");
+        drawOnce();
+        page.settle();
+      };
+      if (transition && transition.finished && typeof transition.finished.then === "function") {
+        transition.finished.then(done, done);
+        // A skipped or aborted transition rejects these, and a
+        // rejection nobody is listening for is an error in the
+        // console. Nothing waits on them; they are answered so they
+        // are not reported.
+        for (const promise of [transition.ready, transition.updateCallbackDone]) {
+          if (promise && typeof promise.catch === "function") promise.catch(() => {});
+        }
+        // Whichever comes first: the transition, or the clock.
+        setTimeout(() => {
+          if (painted) return;
+          try {
+            if (transition.skipTransition) transition.skipTransition();
+          } catch (e) {
+            /* it had already finished or been abandoned */
+          }
+          done();
+        }, millis(motion.duration, 300) + 250);
+      } else {
+        done();
+      }
+      return;
+    }
+    const leaving = [...page.into().children];
+    Promise.all(leaving.map((n) => animateOut(n, out, motion.duration))).then(() => {
+      if (!page.current()) return;
+      page.paint();
+      const arriving = [...page.into().children];
+      Promise.all(arriving.map((n) => animateIn(n, back, motion.duration))).then(page.settle);
+    });
   }
 
   function params() {

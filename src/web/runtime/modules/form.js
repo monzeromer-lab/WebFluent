@@ -140,31 +140,11 @@
       }
       return "";
     });
-    // An async rule answers after the rest have passed, so a name is not
-    // asked of the server on every keystroke of an invalid address.
+    // An async rule is asked by `askRules`, which the program hands over
+    // when it has one (`opts.ask`): a form without one does not carry it.
     const remote = signal("");
     const asyncRules = rules.filter((r) => r.name === "async");
-    if (asyncRules.length) {
-      let generation = 0;
-      let asked;
-      effect(() => {
-        const value = read();
-        if (fault()) { remote.set(""); asked = undefined; return; }
-        // One question per value: the rules and the value both wake this,
-        // and the server should hear about each value once.
-        if (value === asked) return;
-        asked = value;
-        const mine = ++generation;
-        pending.set(true);
-        Promise.all(asyncRules.map((r) => Promise.resolve(r.check(value)).then((ok) => (ok ? "" : ruleMessage(r)))))
-          .then((said) => {
-            if (mine !== generation) return;
-            remote.set(said.find(Boolean) || "");
-            pending.set(false);
-          })
-          .catch(() => { if (mine === generation) pending.set(false); });
-      });
-    }
+    if (asyncRules.length && opts.ask) opts.ask(read, asyncRules, fault, remote, pending);
 
     // What the server said about this field, which stands until the reader
     // changes the value it was said about.
@@ -188,6 +168,31 @@
     const entry = { message, shown, touched, pending, server, read };
     if (form) form.__register(opts.name || "", entry);
     return entry;
+  }
+
+  /// An async rule answers after the rest have passed, so a name is not
+  /// asked of the server on every keystroke of an invalid address. What it
+  /// says goes to `remote`; `pending` is true while it is asking.
+  function askRules(read, rules, fault, remote, pending) {
+    let generation = 0;
+    let asked;
+    effect(() => {
+      const value = read();
+      if (fault()) { remote.set(""); asked = undefined; return; }
+      // One question per value: the rules and the value both wake this,
+      // and the server should hear about each value once.
+      if (value === asked) return;
+      asked = value;
+      const mine = ++generation;
+      pending.set(true);
+      Promise.all(rules.map((r) => Promise.resolve(r.check(value)).then((ok) => (ok ? "" : ruleMessage(r)))))
+        .then((said) => {
+          if (mine !== generation) return;
+          remote.set(said.find(Boolean) || "");
+          pending.set(false);
+        })
+        .catch(() => { if (mine === generation) pending.set(false); });
+    });
   }
 
   /// The handle a `Form(bind: f)` gives: what every field says, together.

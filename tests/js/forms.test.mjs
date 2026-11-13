@@ -120,7 +120,7 @@ test("an async rule waits for the rest to pass, and says so while it asks", asyn
       { name: "email" },
       { name: "async", message: () => "That address is taken", check: async (v) => { asked.push(v); return v !== "taken@example.com"; } },
     ],
-    { show: "live" },
+    { show: "live", ask: WF.askRules },
   );
   await settle();
   assert.deepEqual(asked, [], "an address that is not one is not asked about");

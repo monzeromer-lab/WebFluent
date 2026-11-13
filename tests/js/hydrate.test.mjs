@@ -1176,7 +1176,7 @@ test("a route change plays through the View Transitions API where the browser ha
       { path: "/about", render: () => WF.el("p", {}, ["about"]) },
     ],
     container,
-    { transition: "slide", duration: "250ms" },
+    { transition: "slide", duration: "250ms", play: WF.playRoute },
   );
   assert.equal(started, 0, "the first paint is immediate");
   WF.navigate("/about");
@@ -1504,7 +1504,7 @@ test("a router with a transition plays the old page out and the new one in, then
       { path: "/about", title: "About", render: page("about") },
     ],
     container,
-    { transition: "slide", duration: "150ms" },
+    { transition: "slide", duration: "150ms", play: WF.playRoute },
   );
   // The first paint is immediate.
   assert.equal(container.querySelector("p").textContent, "home");

@@ -518,6 +518,10 @@
         [
           "validate",
           "validate"
+        ],
+        [
+          "askRules",
+          "askRules"
         ]
       ],
       "name": "form",
@@ -656,6 +660,10 @@
         [
           "activeLink",
           "activeLink"
+        ],
+        [
+          "playRoute",
+          "playRoute"
         ]
       ],
       "name": "router",

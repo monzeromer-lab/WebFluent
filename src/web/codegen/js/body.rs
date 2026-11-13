@@ -386,6 +386,10 @@ impl JsCodegen {
                             parts.push(format!("{k}: {value}"));
                         }
                     }
+                    // The player ships only with a program that asks for it.
+                    if parts.iter().any(|p| p.starts_with("transition")) {
+                        parts.push("play: WF.playRoute".to_string());
+                    }
                     parts
                 })
                 .unwrap_or_default();

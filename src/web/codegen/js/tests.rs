@@ -596,7 +596,7 @@ fn motion_off_a_branch_root_is_a_marker_and_the_router_takes_a_transition() {
         );
     assert!(
         out.contains(
-            "WF.router(_routes, _routerEl, { transition: \"slide\", duration: \"150ms\" });"
+            "WF.router(_routes, _routerEl, { transition: \"slide\", duration: \"150ms\", play: WF.playRoute });"
         ),
         "{out}"
     );

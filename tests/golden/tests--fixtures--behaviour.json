@@ -3,8 +3,8 @@
     "{\"code\":\"U03\",\"severity\":\"warning\",\"message\":\"`Clash` is declared but never placed\",\"file\":\"src/App.wf\",\"line\":33,\"column\":1,\"end_line\":0,\"end_column\":0,\"hint\":\"Place it in a page, name it as a layout, or remove it\",\"related\":[],\"fixes\":[{\"title\":\"Remove `Clash`\",\"edits\":[{\"file\":\"src/App.wf\",\"line\":33,\"column\":1,\"end_line\":49,\"end_column\":1,\"text\":\"\"}]}],\"tags\":[\"unnecessary\"]}"
   ],
   "files": {
-    "app.js": "578671627a025b475a8e344ce2fa8b1bb90bf961d6a11ee71f7a77ef9efc1129",
-    "app.js.gz": "9cac92f806a6cfe42028bf52c9a9ffd73ef64fcc0d1030173139938d602d54f4",
+    "app.js": "25bd2ebdd5ca85c214e86951e132860096c0ff25e4cae00d815d50801986ee6e",
+    "app.js.gz": "dc181435c9344d1efd6385225100d1c18fb82fdb1d88daf42553e42363832dc2",
     "index.html": "7596998b06cac5b415b1c8797522c8278a7b3ad39564b210fe71bd5b9059cb91",
     "robots.txt": "16ceb5ee3e0dc13aa9adf31a3ebbe45a1d965b8c2b9f72eaf84e5911e140ed95",
     "styles.css": "b4506ed1ba8a454f3a438925e03328662b442783c6f3248bc6296fa087456fc5",
