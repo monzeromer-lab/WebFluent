@@ -764,4 +764,19 @@ At the end of Phase 0 the site is in Blueprint, and nothing it says has changed 
 - A `derived` built with `reduce` renders empty in a `wf test` render.
 - A component placed only in a test draws U03.
 
-**Left:** Phase 5 (search synonyms, `.md` twins, `llms.txt`) and Launch.
+### Phase 5 — search and agents
+
+**Done (2026-11-13, `f2200252`, site rebuilt in `7a94573b`):**
+
+- **Search:**
+  - Each row of `search-index.json` has a `kind`, and the palette's tabs filter by it.
+  - Ranking: a name or code that is the term comes first (`Button`, `T05`, `wf build`), then a section another framework's word leads to (`data.py`'s `SYNONYMS`: `useState` finds `state`, `\\newpage` finds `PageBreak`), then headings, then the words of a section. Enter opens the first result.
+  - Error codes, the cheat sheets and the commands have rows of their own.
+- **Markdown twins:**
+  - `twins.py` writes a twin of every published page to `site/public/<route>.md`, 395 in all. Each comes from its `md-docs` source, or from the registry and commands for the reference, with its links pointed at the other twins.
+  - It also writes `llms.txt` (the map) and `llms-full.txt` (the prose, about 900 kB).
+  - The rail's **Copy page as Markdown** and **Open as Markdown** use the twins.
+- **Agent files:** `docs_parse::the_agent_files_agree_with_the_site_and_the_compiler` checks that every site page `AGENTS.md`, the README and the skill link to is one the sitemap publishes. It also checks that `AGENTS.md` names every built-in, and that its icon list and count are the runtime's. It found and fixed two stale links.
+- **Tests:** `every_published_page_has_a_markdown_twin` and `the_search_knows_other_frameworks_words` hold the rest.
+
+**Left:** Launch (W8).
