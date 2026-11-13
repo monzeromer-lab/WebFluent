@@ -10,7 +10,7 @@
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
 use dashmap::DashMap;
 use tower_lsp::jsonrpc::Result;
@@ -71,11 +71,29 @@ pub struct Backend {
     /// overtaken, and leaves the reporting to the later one.
     edits: AtomicU64,
     latest: DashMap<PathBuf, u64>,
+    /// Bumped by anything that can change what a project says: an edit, a
+    /// buffer opened or closed, a save, a file changed on disk.
+    generation: AtomicU64,
+    /// Each project as last analysed, by its root, with the generation it
+    /// was made at: a request between two changes reads it as it is.
+    projects: DashMap<PathBuf, Snapshot>,
 }
+
+/// A project as analysed at one generation.
+struct Snapshot {
+    generation: u64,
+    made: Instant,
+    project: Arc<Project>,
+}
+
+/// How long a project is trusted when the editor does not tell the server
+/// of files changed on disk: long enough for the burst of requests one
+/// keystroke brings, short enough that an edit made elsewhere shows.
+const UNWATCHED_FOR: Duration = Duration::from_millis(500);
 
 /// How long an edit waits for the next before the project is checked: a
 /// run of keystrokes is checked once, after it, rather than once a key.
-const SETTLE: Duration = Duration::from_millis(75);
+const SETTLE: Duration = Duration::from_millis(50);
 
 impl Backend {
     pub fn new(client: Client) -> Self {
@@ -88,6 +106,8 @@ impl Backend {
             published: DashMap::new(),
             edits: AtomicU64::new(0),
             latest: DashMap::new(),
+            generation: AtomicU64::new(0),
+            projects: DashMap::new(),
         }
     }
 
@@ -101,8 +121,26 @@ impl Backend {
             .unwrap_or_else(|()| PathBuf::from(uri.path()))
     }
 
-    /// The project `uri` belongs to, with every open buffer's text.
-    fn project(&self, uri: &Url) -> Project {
+    /// Something changed what a project may say: the next request analyses
+    /// it again.
+    fn invalidate(&self) {
+        self.generation.fetch_add(1, Ordering::Relaxed);
+    }
+
+    /// The project `uri` belongs to, with every open buffer's text: the one
+    /// last analysed when nothing has changed since, and a new analysis
+    /// otherwise.
+    fn project(&self, uri: &Url) -> Arc<Project> {
+        let root = crate::project::root_of(&Self::path_of(uri));
+        let generation = self.generation.load(Ordering::Relaxed);
+        let watched = self.watch_files.load(Ordering::Relaxed);
+        if let Some(snapshot) = self.projects.get(&root)
+            && snapshot.generation == generation
+            && (watched || snapshot.made.elapsed() < UNWATCHED_FOR)
+            && snapshot.project.file_index(uri).is_some()
+        {
+            return Arc::clone(&snapshot.project);
+        }
         let open = |path: &Path| -> Option<OpenText> {
             let doc = self.documents.get(path)?;
             Some(OpenText {
@@ -110,11 +148,20 @@ impl Backend {
                 last_valid: doc.last_valid.clone(),
             })
         };
-        Project::load(uri, &open, &self.cache)
+        let project = Arc::new(Project::load(uri, &open, &self.cache));
+        self.projects.insert(
+            root,
+            Snapshot {
+                generation,
+                made: Instant::now(),
+                project: Arc::clone(&project),
+            },
+        );
+        project
     }
 
     /// The project and the index of `uri` in it.
-    fn locate(&self, uri: &Url) -> Option<(Project, usize)> {
+    fn locate(&self, uri: &Url) -> Option<(Arc<Project>, usize)> {
         let project = self.project(uri);
         let ix = project.file_index(uri)?;
         Some((project, ix))
@@ -139,6 +186,7 @@ impl Backend {
                 last_valid: previous,
             },
         );
+        self.invalidate();
         if settle {
             tokio::time::sleep(SETTLE).await;
             if !self.current(&path, ticket) {
@@ -325,11 +373,13 @@ impl LanguageServer for Backend {
     async fn did_save(&self, params: DidSaveTextDocumentParams) {
         // The disk now agrees with the buffer; other files of the project
         // that read it from the disk are re-reported.
+        self.invalidate();
         let project = self.project(&params.text_document.uri);
         self.publish(&project).await;
     }
 
     async fn did_change_watched_files(&self, _: DidChangeWatchedFilesParams) {
+        self.invalidate();
         // A script, a stylesheet or a closed `.wf` file changed on disk: what
         // the open files say may have changed with it — a call to a function
         // a script no longer declares, a class a sheet no longer defines.
@@ -354,6 +404,7 @@ impl LanguageServer for Backend {
         let path = Self::path_of(&uri);
         self.documents.remove(&path);
         self.latest.remove(&path);
+        self.invalidate();
         self.published.remove(&uri);
         // What was read for projects nothing is open in any more goes.
         let roots: Vec<PathBuf> = self
@@ -362,6 +413,7 @@ impl LanguageServer for Backend {
             .map(|d| crate::project::root_of(d.key()))
             .collect();
         self.cache.retain_under(&roots);
+        self.projects.retain(|root, _| roots.contains(root));
         self.client.publish_diagnostics(uri, Vec::new(), None).await;
     }
 

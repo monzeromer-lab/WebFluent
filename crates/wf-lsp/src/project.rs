@@ -115,6 +115,17 @@ pub struct Project {
 #[derive(Debug, Default)]
 pub struct FileCache {
     entries: DashMap<PathBuf, Arc<CachedFile>>,
+    /// Each file's last parse that succeeded, with the text it was made
+    /// from: a file whose text has not changed is not parsed again.
+    parses: DashMap<PathBuf, Arc<ParsedFile>>,
+}
+
+#[derive(Debug)]
+struct ParsedFile {
+    source: Arc<str>,
+    label: String,
+    program: Arc<Program>,
+    index: LineIndex,
 }
 
 #[derive(Debug)]
@@ -130,6 +141,8 @@ impl FileCache {
     /// in a day holds only the ones it still has.
     pub fn retain_under(&self, roots: &[PathBuf]) {
         self.entries
+            .retain(|path, _| roots.iter().any(|root| path.starts_with(root)));
+        self.parses
             .retain(|path, _| roots.iter().any(|root| path.starts_with(root)));
     }
 
@@ -167,6 +180,44 @@ impl FileCache {
             }),
         );
         Some(source)
+    }
+}
+
+impl FileCache {
+    /// `source` parsed as the file at `path`, named `label` in findings,
+    /// with its line index: the parse kept from last time when the text is
+    /// the same, a new one otherwise.
+    fn parse(
+        &self,
+        path: &Path,
+        label: &str,
+        source: &Arc<str>,
+    ) -> (Result<Arc<Program>, WebFluentError>, LineIndex) {
+        if let Some(hit) = self.parses.get(path)
+            && hit.label == label
+            && (Arc::ptr_eq(&hit.source, source) || *hit.source == **source)
+        {
+            return (Ok(Arc::clone(&hit.program)), hit.index.clone());
+        }
+        let index = LineIndex::new(source);
+        let parsed = parse(source, label).map(Arc::new);
+        match &parsed {
+            Ok(program) => {
+                self.parses.insert(
+                    path.to_path_buf(),
+                    Arc::new(ParsedFile {
+                        source: Arc::clone(source),
+                        label: label.to_string(),
+                        program: Arc::clone(program),
+                        index: index.clone(),
+                    }),
+                );
+            }
+            Err(_) => {
+                self.parses.remove(path);
+            }
+        }
+        (parsed, index)
     }
 }
 
@@ -290,14 +341,14 @@ impl Project {
                 .unwrap_or(&file_path)
                 .to_string_lossy()
                 .to_string();
-            let parsed = parse(&source, &label).map(Arc::new);
+            let (parsed, index) = cache.parse(&file_path, &label, &source);
             let stale = parsed.is_err() && last_valid.is_some();
             let file_path_is_markdown = file_path.extension().is_some_and(|e| e == "md");
             fallbacks.push(last_valid);
             files.push(SourceFile {
                 uri: file_uri,
                 path: file_path,
-                index: LineIndex::new(&source),
+                index,
                 source,
                 parsed,
                 open,
