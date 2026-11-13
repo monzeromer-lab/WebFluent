@@ -45,6 +45,10 @@ const MAX_DEPTH: u32 = 32;
 
 /// A value the compiler could work out for itself.
 #[derive(Debug, Clone, PartialEq)]
+#[allow(
+    clippy::rc_buffer,
+    reason = "a list and a map are changed in place through `Arc::make_mut`, which needs a `Vec`"
+)]
 pub enum Static {
     Str(String),
     Num(f64),

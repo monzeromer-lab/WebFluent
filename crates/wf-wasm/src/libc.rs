@@ -39,7 +39,7 @@ unsafe fn block_of(ptr: *mut u8) -> (*mut u8, Layout) {
 }
 
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn malloc(size: usize) -> *mut u8 {
+pub(crate) unsafe extern "C" fn malloc(size: usize) -> *mut u8 {
     let Some(l) = layout(size) else {
         return std::ptr::null_mut();
     };
@@ -50,7 +50,7 @@ pub unsafe extern "C" fn malloc(size: usize) -> *mut u8 {
 }
 
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn calloc(count: usize, size: usize) -> *mut u8 {
+pub(crate) unsafe extern "C" fn calloc(count: usize, size: usize) -> *mut u8 {
     let Some(total) = count.checked_mul(size) else {
         return std::ptr::null_mut();
     };
@@ -64,7 +64,7 @@ pub unsafe extern "C" fn calloc(count: usize, size: usize) -> *mut u8 {
 }
 
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn free(ptr: *mut u8) {
+pub(crate) unsafe extern "C" fn free(ptr: *mut u8) {
     if ptr.is_null() {
         return;
     }
@@ -75,7 +75,7 @@ pub unsafe extern "C" fn free(ptr: *mut u8) {
 }
 
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn realloc(ptr: *mut u8, size: usize) -> *mut u8 {
+pub(crate) unsafe extern "C" fn realloc(ptr: *mut u8, size: usize) -> *mut u8 {
     if ptr.is_null() {
         // SAFETY: as `malloc`.
         return unsafe { malloc(size) };
@@ -93,36 +93,36 @@ pub unsafe extern "C" fn realloc(ptr: *mut u8, size: usize) -> *mut u8 {
 }
 
 #[unsafe(no_mangle)]
-pub extern "C" fn pow(x: f64, y: f64) -> f64 {
+pub(crate) extern "C" fn pow(x: f64, y: f64) -> f64 {
     libm::pow(x, y)
 }
 
 #[unsafe(no_mangle)]
-pub extern "C" fn powf(x: f32, y: f32) -> f32 {
+pub(crate) extern "C" fn powf(x: f32, y: f32) -> f32 {
     libm::powf(x, y)
 }
 
 #[unsafe(no_mangle)]
-pub extern "C" fn exp(x: f64) -> f64 {
+pub(crate) extern "C" fn exp(x: f64) -> f64 {
     libm::exp(x)
 }
 
 #[unsafe(no_mangle)]
-pub extern "C" fn expf(x: f32) -> f32 {
+pub(crate) extern "C" fn expf(x: f32) -> f32 {
     libm::expf(x)
 }
 
 #[unsafe(no_mangle)]
-pub extern "C" fn log(x: f64) -> f64 {
+pub(crate) extern "C" fn log(x: f64) -> f64 {
     libm::log(x)
 }
 
 #[unsafe(no_mangle)]
-pub extern "C" fn logf(x: f32) -> f32 {
+pub(crate) extern "C" fn logf(x: f32) -> f32 {
     libm::logf(x)
 }
 
 #[unsafe(no_mangle)]
-pub extern "C" fn log10(x: f64) -> f64 {
+pub(crate) extern "C" fn log10(x: f64) -> f64 {
     libm::log10(x)
 }

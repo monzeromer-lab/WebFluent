@@ -26,6 +26,8 @@ pub webfluent::build::Analysis::lowered: webfluent::syntax::parser::Program
 pub webfluent::build::Analysis::program: webfluent::syntax::parser::Program
 pub webfluent::build::Analysis::project_css: alloc::string::String
 pub webfluent::build::Analysis::scripts: alloc::vec::Vec<webfluent::project::project_js::Script>
+impl core::fmt::Debug for webfluent::build::Analysis
+pub fn webfluent::build::Analysis::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
 impl core::marker::Freeze for webfluent::build::Analysis
 impl core::marker::Send for webfluent::build::Analysis
 impl core::marker::Sync for webfluent::build::Analysis
@@ -98,6 +100,8 @@ pub webfluent::build::BuildOptions::studio: bool
 pub webfluent::build::BuildOptions::vfs: &'a dyn webfluent::vfs::Vfs
 impl<'a> webfluent::build::BuildOptions<'a>
 pub fn webfluent::build::BuildOptions<'a>::new(&'a std::path::Path, &'a dyn webfluent::vfs::Vfs) -> Self
+impl core::fmt::Debug for webfluent::build::BuildOptions<'_>
+pub fn webfluent::build::BuildOptions<'_>::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
 impl<'a> core::marker::Freeze for webfluent::build::BuildOptions<'a>
 impl<'a> !core::marker::Send for webfluent::build::BuildOptions<'a>
 impl<'a> !core::marker::Sync for webfluent::build::BuildOptions<'a>
@@ -1975,6 +1979,8 @@ impl core::clone::Clone for webfluent::syntax::node_id::Ctx
 pub fn webfluent::syntax::node_id::Ctx::clone(&self) -> Self
 impl core::default::Default for webfluent::syntax::node_id::Ctx
 pub fn webfluent::syntax::node_id::Ctx::default() -> Self
+impl core::fmt::Debug for webfluent::syntax::node_id::Ctx
+pub fn webfluent::syntax::node_id::Ctx::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
 impl core::marker::Freeze for webfluent::syntax::node_id::Ctx
 impl core::marker::Send for webfluent::syntax::node_id::Ctx
 impl core::marker::Sync for webfluent::syntax::node_id::Ctx
@@ -4954,6 +4960,8 @@ impl<'a> webfluent::vfs::Confined<'a>
 pub fn webfluent::vfs::Confined<'a>::escapes(&self, &std::path::Path) -> bool
 pub fn webfluent::vfs::Confined<'a>::new(&'a dyn webfluent::vfs::Vfs, &std::path::Path) -> Self
 pub fn webfluent::vfs::Confined<'a>::skipped(&self) -> alloc::vec::Vec<(std::path::PathBuf, &'static str)>
+impl core::fmt::Debug for webfluent::vfs::Confined<'_>
+pub fn webfluent::vfs::Confined<'_>::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
 impl webfluent::vfs::Vfs for webfluent::vfs::Confined<'_>
 pub fn webfluent::vfs::Confined<'_>::canonical(&self, &std::path::Path) -> core::option::Option<std::path::PathBuf>
 pub fn webfluent::vfs::Confined<'_>::copy_out(&self, &std::path::Path, &std::path::Path) -> core::io::error::Result<()>
@@ -5029,6 +5037,8 @@ pub fn webfluent::vfs::OverlayVfs::set(&mut self, impl core::convert::AsRef<std:
 pub fn webfluent::vfs::OverlayVfs::set_bytes(&mut self, impl core::convert::AsRef<std::path::Path>, impl core::convert::Into<alloc::rcs::arc::Arc<[u8]>>)
 impl core::clone::Clone for webfluent::vfs::OverlayVfs
 pub fn webfluent::vfs::OverlayVfs::clone(&self) -> Self
+impl core::fmt::Debug for webfluent::vfs::OverlayVfs
+pub fn webfluent::vfs::OverlayVfs::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
 impl webfluent::vfs::Vfs for webfluent::vfs::OverlayVfs
 pub fn webfluent::vfs::OverlayVfs::canonical(&self, &std::path::Path) -> core::option::Option<std::path::PathBuf>
 pub fn webfluent::vfs::OverlayVfs::copy_out(&self, &std::path::Path, &std::path::Path) -> core::io::error::Result<()>

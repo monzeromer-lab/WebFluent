@@ -23,6 +23,7 @@ pub fn scope<T>(body: impl FnOnce(&Scope) -> T) -> T {
 
 /// The stand-in for [`std::thread::Scope`].
 #[cfg(target_arch = "wasm32")]
+#[derive(Debug)]
 pub struct Scope;
 
 #[cfg(target_arch = "wasm32")]
@@ -34,6 +35,7 @@ impl Scope {
 
 /// A closure that has already run.
 #[cfg(target_arch = "wasm32")]
+#[derive(Debug)]
 pub struct Ran<T>(T);
 
 #[cfg(target_arch = "wasm32")]
@@ -44,6 +46,10 @@ impl<T> Ran<T> {
     ///
     /// Never: the closure ran on this thread, and a panic in it unwound
     /// here already. The `Result` matches [`std::thread::ScopedJoinHandle::join`].
+    #[allow(
+        clippy::unnecessary_wraps,
+        reason = "the same signature as a native thread's join"
+    )]
     pub fn join(self) -> std::thread::Result<T> {
         Ok(self.0)
     }

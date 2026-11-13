@@ -80,6 +80,7 @@ pub struct Backend {
 }
 
 /// A project as analysed at one generation.
+#[derive(Debug)]
 struct Snapshot {
     generation: u64,
     made: Instant,
