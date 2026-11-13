@@ -9,20 +9,21 @@ description: "What the built-ins do for keyboard and screen-reader users, the A0
 ---
 # Accessibility
 
-This chapter shows you how to build pages that people can use with a
-keyboard, a screen reader, voice control, zoom or reduced motion. Most of
-the work is done for you: the built-ins render the markup assistive
-technology expects, the router and forms manage focus, and the compiler
-checks every page on every build. What is left — meaning, wording, order —
-is yours, and this chapter lists it.
+This essay is about the accessibility a WebFluent page has before you do
+anything, the part the compiler checks on every build, and the part that
+stays yours: building pages people can use with a keyboard, a screen
+reader, voice control, zoom or reduced motion.
 
-In this chapter you will:
+Most inaccessible pages were not made that way on purpose. A `<div>` with
+a click handler looks like a button and is not one; a field whose label is
+a placeholder looks labelled until the reader types. Each is a small
+mistake that a checklist would catch, and checklists are read once.
 
-- learn what the built-ins already do, so you do not redo it;
-- fix what the compiler reports;
-- do the work no compiler can check;
-- label controls well;
-- test a page the way its readers use it.
+WebFluent moves as much of the checklist as it can out of your hands. The
+built-ins render the markup assistive technology expects, the router and
+forms manage focus, and the compiler reports what it can see as a finding
+with a code, on every build. That leaves the work no tool can do (meaning,
+wording, order) and frees your attention for it.
 
 ## Know what the built-ins do for you
 

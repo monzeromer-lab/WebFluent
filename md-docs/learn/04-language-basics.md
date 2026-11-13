@@ -6,12 +6,14 @@ from: ["/docs/guide/language-basics"]
 group: "language"
 blurb: "The shape of every .wf file: the thirteen kinds of declaration, naming, comments, the two kinds of body, the two layouts and how strings are written."
 description: "Declarations, naming, comments, render and imperative bodies, the braced and the indented layout, and how to write strings in WebFluent."
+learned: ["Name the thirteen declarations a `.wf` file may hold", "Tell a render block from an imperative block, and put an assignment where it belongs", "Write two statements on one line, with `;` or two spaces", "Switch a file between the braced `.wf` and the indented `.wfx` layout", "Splice values into a string, and write raw and block strings"]
 ---
 # 4. Language basics
 
-A WebFluent program is a set of declarations: pages, components, stores and
-the rest, each a keyword followed by a name and a body. Learn the thirteen
-kinds and the two kinds of body, and you can read any `.wf` file.
+This chapter covers the shape of every `.wf` file. A WebFluent program is a
+set of declarations: pages, components, stores and the rest, each a keyword
+followed by a name and a body. Learn the thirteen kinds and the two kinds of
+body, and you can read any `.wf` file.
 
 In this chapter:
 
@@ -46,25 +48,25 @@ test "chip shows its label" { Chip("Beta")  expect "Beta" }
 
 Each keyword declares one kind of thing:
 
-| Declaration | What it is | Chapter |
+| Declaration | What it is | Read more |
 |---|---|---|
-| `page` | A route and what it shows | [6](05-pages-and-routing.md) |
-| `component` | A reusable element with typed props, events, slots and parts | [11](10-components.md) |
-| `store` | State shared across pages | [12](11-stores.md) |
-| `theme` | Design tokens: colours, spacing, radii, fonts | [15](13-styling.md) |
-| `app` | The shell every page renders inside, with the `Router` | [6](05-pages-and-routing.md#the-app-shell) |
-| `type`, `enum` | Records and enumerations the type checker enforces | [13](12-types.md) |
-| `api` | An HTTP service: its address, its endpoints and what they return | [17](15-data.md#describe-a-service-with-api) |
-| `const` | A value read everywhere | [14](../reference/expressions.md#constants) |
-| `data` | A JSON file read at build time, as a constant | [17](15-data.md#read-a-file-at-build-time-with-data) |
-| `image` | A picture the build resizes and hands to `Image` | [28](../recipes/index.md) |
-| `animation` | Keyframes | [20](../recipes/keyframes.md) |
-| `test` | A render held to expectations and a snapshot | [24](16-testing.md) |
+| `page` | A route and what it shows | [Pages and routing](05-pages-and-routing.md) |
+| `component` | A reusable element with typed props, events, slots and parts | [Components](10-components.md) |
+| `store` | State shared across pages | [Stores](11-stores.md) |
+| `theme` | Design tokens: colours, spacing, radii, fonts | [Styling](13-styling.md) |
+| `app` | The shell every page renders inside, with the `Router` | [The app shell](05-pages-and-routing.md#the-app-shell) |
+| `type`, `enum` | Records and enumerations the type checker enforces | [Types](12-types.md) |
+| `api` | An HTTP service: its address, its endpoints and what they return | [Describe a service](15-data.md#describe-a-service-with-api) |
+| `const` | A value read everywhere | [Constants](../reference/expressions.md#constants) |
+| `data` | A JSON file read at build time, as a constant | [Read a file at build time](15-data.md#read-a-file-at-build-time-with-data) |
+| `image` | A picture the build resizes and hands to `Image` | [Add a picture](../recipes/add-a-picture.md) |
+| `animation` | Keyframes | [Keyframes](../recipes/keyframes.md) |
+| `test` | A render held to expectations and a snapshot | [Testing](16-testing.md) |
 
 Two other kinds of file under `src/` join the program. A `.css` file is a
 stylesheet the build bundles. A `.js` file is a plain browser script, and its
 top-level functions are in scope by name in your `.wf` code
-([JavaScript interop](../recipes/index.md)).
+([Call your own JavaScript](../recipes/call-your-own-script.md)).
 
 Inside a body you write statements: `state`, `derived`, `effect`, `action`,
 `persist`, `resource`, `validate`, `socket`, `if`, `for`, `match` and more.
@@ -76,6 +78,12 @@ All the files under `src/` merge into one program. A component declared in
 `components/Chip.wf` is usable from every page without an import. The
 compiler reads `App.wf` (or `App.wfx`) first, then the other files in name
 order, so a build is the same on every machine.
+
+> [!NOTE]
+> **Coming from React?** There is no `import` or `export` between `.wf`
+> files. A component, a store or a type declared in any file under `src/`
+> is in scope in every other one. See
+> [Coming from React](../coming-from/react.md).
 
 ## Naming
 
@@ -294,6 +302,50 @@ Use each form for a different kind of text:
 | `"Hi, {name}"` | A string with a live splice |
 | `"{total:.currency}"` | A splice with a format |
 | `#"…"#`, `"""…"""` | A raw string; a block string |
+
+## Common mistakes
+
+An assignment loose in a page body. A render block holds elements; code
+that changes something belongs in a handler, an action or an effect:
+
+```wf expect=E105
+page Counter(path: "/", title: "Counter", description: "A number that goes up.") {
+    state clicks = 0
+    Heading("Counter").h1
+    clicks = clicks + 1
+    Text("Clicked {clicks} times")
+}
+```
+
+Move the line into `Button("Add one") { on click { clicks = clicks + 1 } }`
+([E105](../errors/E105.md)).
+
+A comma between two statements. Commas separate arguments, never
+statements:
+
+```wf expect=E002
+page Score(path: "/", title: "Score", description: "Two teams, two numbers.") {
+    state home = 1, away = 2
+    Heading("Score").h1
+    Text("{home} – {away}")
+}
+```
+
+Write each statement on its own line, or separate them with `;` or two
+spaces: `state home = 1  state away = 2` ([E002](../errors/E002.md)).
+
+A name the language already has. `query`, `env`, `format`, `now` and the
+other built-in names cannot be a program's own:
+
+```wf expect=E118
+page Search(path: "/", title: "Search", description: "Find a book.") {
+    state query = ""
+    Heading("Search").h1
+    Input(bind: query, label: "Search")
+}
+```
+
+Choose another name, such as `term` ([E118](../errors/E118.md)).
 
 ## Next
 

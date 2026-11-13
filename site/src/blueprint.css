@@ -222,7 +222,7 @@ a.bp-card:hover { border-color: var(--border-strong); text-decoration: none; }
 .bp-diagnostic pre { margin: 0; padding: var(--space-3); overflow-x: auto; font-family: var(--font-family-mono); font-size: var(--type-code); line-height: var(--type-code-leading); white-space: pre; color: var(--term-ink); }
 
 /* ── Quiz ─────────────────────────────────────────────────────────────── */
-.bp-choice { display: flex; align-items: flex-start; gap: var(--space-3); padding: var(--space-3); border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--sheet); font-size: 15px; cursor: pointer; }
+.bp-choice { display: flex; align-items: flex-start; justify-content: flex-start; text-align: start; gap: var(--space-3); padding: var(--space-3); border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--sheet); font-size: 15px; cursor: pointer; }
 .bp-choice:hover { border-color: var(--border-strong); }
 .bp-choice[aria-pressed="true"] { border-color: var(--construction); }
 .bp-choice[data-verdict="right"] { border-color: var(--ok); background: var(--ok-subtle); }

@@ -7,19 +7,24 @@ group: "about"
 blurb: "Learn what a build already does to be fast, see what it weighs, set budgets that warn, time pages in a browser, and avoid what makes a site slow."
 description: "What a build does to be fast, wf build --stats, size budgets, paint timings from wf verify, and the few things that make a site slow."
 ---
-# Performance
+# What a build ships
 
-This chapter shows you how to keep a WebFluent site fast. Most of the work
-is already done by the build. Your part is to measure what it writes, set a
-limit that warns you when it grows, and avoid the few patterns that make a
-page slow.
+This essay is about what `wf build` writes, and why a WebFluent site is
+fast by default rather than by effort.
 
-In this chapter:
+Most slow sites are not slow because someone chose to make them slow. They
+are slow because every library, component and font arrived for a good
+reason, and nothing ever weighed the total. A framework cannot weigh it
+for you: it does not know which of its features your program uses, so it
+ships them all and leaves the pruning to a bundler that reads JavaScript
+it did not write.
 
-- What the build already does for you.
-- See what a build weighs, and why each runtime module is in it.
-- Set a size budget, and time each page in a real browser.
-- Avoid the patterns that make a site slow.
+A compiler that reads the whole program can do better. It knows which
+runtime modules the code it generated calls, which built-ins' rules the
+pages use, and which design tokens something names, so a build ships those
+and nothing else. Your part is smaller: look at what it writes, set a
+limit that warns you when it grows, and avoid the few patterns no compiler
+can fix.
 
 ## What the build already does
 
@@ -29,7 +34,7 @@ You get these without setting anything:
   compiled pages call. It is a set of modules, and a build keeps only the
   ones its code reaches, and of those only the functions its calls reach.
   A single-page build of one page of static text is an `app.js` of
-  4.9 kB, 1.9 kB gzipped.
+  4.9 kB, 1.8 kB gzipped.
 - **Short names.** A minified build shortens the runtime's own names, its
   top-level ones and each function's locals. What your pages call keeps
   its name.
@@ -45,7 +50,7 @@ You get these without setting anything:
   against the dev server measures what a deploy sends.
 - **Images at every width**, with `width` and `height` so nothing shifts, a
   placeholder while they load, the first image eager and the rest lazy
-  ([Media](../recipes/index.md)).
+  ([Add a picture](../recipes/add-a-picture.md)).
 - **Minified output.** `build.minify` (on by default) strips comments and
   white space.
 
@@ -103,7 +108,7 @@ next `--stats` shows how each file moved since the last build (for example,
 `+20 B`).
 
 The project's own scripts are listed by their path under `js/`, such as
-`js/tilt.js` ([JavaScript interop](../recipes/index.md)). The build
+`js/tilt.js` ([Call your own script](../recipes/call-your-own-script.md)). The build
 copies them as written: it does not minify a file it promises to ship byte
 for byte.
 
@@ -148,8 +153,8 @@ instead:
 | `"runtime": "full"` | It ships every module | Use it only when a hand-written script calls `WF` in ways the build cannot see, or an icon's name arrives at run time |
 | Web fonts | Each weight is a download | Use `display=swap` and few weights, or the baseline's system fonts |
 | An unkeyed list that changes | `for item in items` rebuilds the list | Key it: `for item in items by item.id` moves the nodes that stayed |
-| Pictures the build cannot process | An SVG, a URL or a path built at run time is used as written: one size, no placeholder | Use a literal `src:` into `public/`, or declare the picture with `image` ([Media](../recipes/index.md)) |
+| Pictures the build cannot process | An SVG, a URL or a path built at run time is used as written: one size, no placeholder | Use a literal `src:` into `public/`, or declare the picture with `image` ([Add a picture](../recipes/add-a-picture.md)) |
 
 ## Next
 
-[Project structure](../reference/project-structure.md): where files go, how the compiler reads them, how names work across a project, and how a project grows without getting lost.
+[Static or single-page](static-and-spa.md): the two shapes a build takes, and what each one gives a reader.

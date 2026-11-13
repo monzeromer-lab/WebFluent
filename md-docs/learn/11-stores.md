@@ -6,11 +6,12 @@ from: ["/docs/guide/stores"]
 group: "language"
 blurb: "A store is state shared by every page and component that uses it, built the first time something reads it."
 description: "Stores: declaration, scopes, use, actions, persist and migrations, connections, loading data, debugging, testing, and when to use one."
+learned: ["Declare a store and read it from any page as `Store.member`", "Choose how long a store lives with `scope:`", "Change a store through its actions, async ones included", "Keep a value across visits with `persist`, and migrate its shape", "Decide between a store and a page's own `state`"]
 ---
 # 11. Stores
 
-A *store* holds state that more than one page or component shares: the
-cart, the signed-in user, the theme, a cache of what was fetched. It holds
+This chapter covers *stores*. A store holds state that more than one page or
+component shares: the cart, the signed-in user, the theme, a cache of what was fetched. It holds
 `state`, `derived` values and actions, and every page that reads it sees
 the same values.
 
@@ -77,6 +78,12 @@ The checker knows every member and its type. `Cart.cont` is an error
 (`T06`, with the nearest member it does have), and `Cart.add("pen")` is an
 error because `add` takes an `Item` (`T01`).
 
+> [!NOTE]
+> **Coming from React?** There is no context provider to wrap the tree in,
+> and no selector to write. Declare the store once and read `Cart.count`
+> anywhere; only what reads `count` updates when it changes. See
+> [Coming from React](../coming-from/react.md).
+
 ## Store members
 
 A store holds the same members a page does: `state`, `persist`, `derived`
@@ -112,6 +119,12 @@ Inside the store you read its members by their bare names: `items`,
 `count`. Outside it, a page or component reads them through the store's
 name: `Cart.items`, `Cart.count`.
 
+> [!NOTE]
+> **Coming from Vue or Svelte?** `use Cart` is not Pinia's `useCartStore()`
+> and makes no copy; there is no `$cart` prefix either. Every reader gets the
+> one instance, by the store's name. See [Coming from Vue](../coming-from/vue.md)
+> and [Coming from Svelte](../coming-from/svelte.md).
+
 You may declare a store in any `.wf` file the build reads. By convention it
 goes in `src/stores/`, and `wf generate store Cart` writes it there. A page
 reaches a store by name from anywhere. `use` says which stores a page
@@ -120,12 +133,13 @@ limit what the page can reach.
 
 ## Store scope
 
-A store's *scope* says how long it lives. You set it in the declaration:
+A store's *scope* says how long it lives. You set it in the declaration;
+these three stores live for the page, the tab and the route:
 
 ```wf
-store Cart(scope: .app) { … }        // the default: as long as the page is open
-store Session(scope: .session) { … } // this tab's
-store Filters(scope: .route) { … }   // this route's
+store Cart(scope: .app) { state items: [String] = [] }        // the default: as long as the page is open
+store Session(scope: .session) { state step = 1 }             // this tab's
+store Filters(scope: .route) { state search = "" }            // this route's
 ```
 
 | Scope | Lives | Use it for |
@@ -466,14 +480,30 @@ nothing for any of it. See [Runtime API](../reference/runtime-api.md).
 ## Testing a store
 
 `wf test` renders a test with the project's stores at hand, and a test's
-`data` seeds a store by its name:
+`data` seeds a store by its name. This test seeds a cart with two of one
+item and reads what `CartSummary` shows:
 
 ```wf
+type Item { id: String, qty: Number = 1 }
+
+store Cart {
+    state items: [Item] = []
+    derived count = items.map(i => i.qty).sum()
+}
+
+component CartSummary() {
+    use Cart
+    Text("{Cart.count} items")
+}
+
 test "the cart shows what is in it"(data: { Cart: { items: [{ id: "a", qty: 2 }] } }) {
     CartSummary()
     expect "2 items"
 }
 ```
+
+In a project the store and the component live under `src/` and the test
+under `tests/`.
 
 A test that clicks a button runs the store's actions in a real browser.
 See [Testing](16-testing.md).
@@ -502,6 +532,83 @@ Put a value where the code that reads it can reach it, and no wider:
 | `persist x = v` | Keep a member across visits |
 | `persist x = v { in: …, version: n, sync: false, key: k }` | Where and how it is kept |
 | `migrate n -> m { … old … }` | Bring an older stored value forward |
+
+## Quiz
+
+```quiz
+A program declares a `Cart` store, and nothing has read it yet. When is the store built?
+- When the app boots -- Only `store Cart(eager: true)` is built at boot.
+- Each time a page says `use Cart`, as a fresh copy for that page -- Every reader shares one instance; `use` makes no copy.
++ The first time something reads one of its members or calls an action -- A store nothing reads is never built and costs nothing.
+```
+
+```quiz
+A page reads `Cart.count` but has no `use Cart` line. What happens?
++ It builds and works: `use` says which stores a page reads, and does not limit what it can reach -- A store is reached by its name from anywhere.
+- The build stops with `X05` -- `X05` is a `use` that names a store nothing declares, such as `use Carts`.
+- It builds, but `Cart.count` is always `0` on that page -- Every reader sees the same instance, with or without `use`.
+```
+
+```quiz
+`store Filters(scope: .route) { persist search = "" }`. The reader types a search, leaves the route and comes back. What is `search`?
+- `""`, because a `.route` store is dropped when the route changes -- The store is dropped, but the next read builds it again from storage.
++ What they typed: the value comes back from storage, which the build warns about (`P03`) -- Use `state` for what the route owns, and a wider scope for what outlives it.
+- An error: a `.route` store cannot hold `persist` -- It builds; `P03` is a warning.
+```
+
+## Common mistakes
+
+**A member the store does not have.** A name guessed from what the store
+ought to hold, rather than read from what it declares:
+
+```wf expect=T06
+store Cart {
+    state items: [String] = []
+    derived count = items.length
+}
+
+page P(path: "/", title: "T", description: "D") {
+    use Cart
+    Heading("Cart").h1
+    Text("{Cart.total} items")
+}
+```
+
+Read a member the store declares, `Cart.count`, or declare the one you need.
+See [T06](../errors/T06.md).
+
+**`use` with the store's name misspelled.** A store's name is capitalised,
+and `use` must name it exactly:
+
+```wf expect=X05
+store Cart { state items: [String] = [] }
+
+page P(path: "/", title: "T", description: "D") {
+    use cart
+    Heading("{Cart.items.length} in the cart").h1
+}
+```
+
+Write `use Cart`. See [X05](../errors/X05.md).
+
+**Assigning a store's `derived` value.** A `derived` value is worked out from
+the state it reads, so nothing may set it:
+
+```wf expect=X01
+store Cart {
+    state items: [String] = []
+    derived count = items.length
+}
+
+page P(path: "/", title: "T", description: "D") {
+    use Cart
+    Heading("{Cart.count} items").h1
+    Button("Empty") { on click { Cart.count = 0 } }
+}
+```
+
+Change the state it reads, through an action: `action clear() { items = [] }`,
+called as `Cart.clear()`. See [X01](../errors/X01.md).
 
 ## Next
 

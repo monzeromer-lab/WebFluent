@@ -6,12 +6,14 @@ from: ["/docs/guide/elements"]
 group: "language"
 blurb: "Everything on screen is an element, and every element is written the same way: a name, one positional value, named props, flags and a block."
 description: "The element call shape: positional, named props, flags and enum cases, the block and its order, attributes, parts, and the families of built-ins."
+learned: ["Read and write any element call: `Name(value, prop: value).flag { block }`", "Pick an enum prop's case by name (`gap: .md`) or as a flag (`.primary`)", "Put HTML attributes such as `aria-*`, `data-*` and `id` on an element", "Place parts inside their owner: `Card.Header`, `Table.Row`", "Know which built-in family to reach for, and what the compiler checks on each call"]
 ---
 # 6. Elements
 
-Everything a page shows is an element: a built-in such as `Button`, or a
-component you declare. Every element is written in the same shape, so once
-you can read one call you can read them all.
+This chapter covers WebFluent's elements: everything a page shows, whether a
+built-in such as `Button` or a component you declare. Every element is
+written in the same shape, so once you can read one call you can read them
+all.
 
 In this chapter:
 
@@ -60,9 +62,12 @@ page Editor(path: "/", title: "Editor", description: "A save button, fully dress
 }
 ```
 
-> [!WARNING]
-> A second positional argument is error `E113`. Name it instead: write
-> `Card("Laptop", price: 999)`, not `Card("Laptop", 999)`.
+> [!NOTE]
+> **Coming from JSX or a Vue template?** There are no tags and no string
+> attributes: `<Button variant="primary" size="lg">Save</Button>` is
+> `Button("Save").primary.lg`. A prop's value is an expression, never a
+> string to be parsed, and children go in the block. See
+> [Coming from React](../coming-from/react.md#the-map).
 
 ## Props, cases and flags
 
@@ -348,6 +353,47 @@ The compiler holds every element call to these rules:
 The [components reference](../reference/components.md) lists each built-in's
 props, flags, events, slots and parts; `wf registry --json` prints the same
 data for a tool.
+
+## Common mistakes
+
+**A second positional argument.** Only the first argument may go without a
+name, so a tone passed after the label does not build:
+
+```wf expect=E113
+page Trash(path: "/", title: "Trash", description: "Empty the trash.") {
+    Heading("Trash").h1
+    Button("Empty the trash", "danger")
+}
+```
+
+Write the tone as a flag, `Button("Empty the trash").danger`, or name it,
+`tone: .danger` ([E113](../errors/E113.md)).
+
+**A flag the element does not have.** Flags are not a shared vocabulary; each
+element takes its own, and a word it does not declare stops the build:
+
+```wf expect=E103
+page Save(path: "/", title: "Save", description: "A save button.") {
+    Heading("Save").h1
+    Button("Save").huge
+}
+```
+
+The finding lists the flags `Button` takes; `.lg` is its largest size
+([E103](../errors/E103.md)).
+
+**A part outside its owner.** A part only means something inside the element
+it belongs to:
+
+```wf expect=C03
+page Profile(path: "/", title: "Profile", description: "A profile card.") {
+    Heading("Profile").h1
+    Card.Body { Text("Sam, designer") }
+}
+```
+
+Wrap it in its owner, `Card { Card.Body { … } }`, or use a plain `Stack`
+([C03](../errors/C03.md)).
 
 ## Next
 

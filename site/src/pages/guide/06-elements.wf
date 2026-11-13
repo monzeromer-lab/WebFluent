@@ -1,8 +1,8 @@
 /// Chapter 6 of the guide, written from md-docs/learn/06-elements.md by
 /// scripts/docsite/guide.py; edit the guide, not this file.
-page Learn06Elements(path: "/learn/06-elements", title: "Elements", description: "The element call shape: positional, named props, flags and enum cases, the block and its order, attributes, parts, and the families of built-ins.", layout: DocsShell("Elements", kind: .tutorial, chapter: t("nav.group.language"), blurb: "Everything on screen is an element, and every element is written the same way: a name, one positional value, named props, flags and a block.", source: "md-docs/learn/06-elements.md", sections: [Anchor(id: "the-call-shape", label: "The call shape"), Anchor(id: "props-cases-and-flags", label: "Props, cases and flags"), Anchor(id: "attributes", label: "Attributes"), Anchor(id: "parts", label: "Parts"), Anchor(id: "text-and-headings", label: "Text and headings"), Anchor(id: "layout-elements", label: "Layout elements"), Anchor(id: "the-families-of-built-ins", label: "The families of built-ins"), Anchor(id: "what-an-element-renders", label: "What an element renders"), Anchor(id: "what-the-compiler-checks-on-every-element", label: "What the compiler checks on every element"), Anchor(id: "quick-reference", label: "Quick reference")], prevTo: "/learn/05-pages-and-routing", prevLabel: t("ch.05"), nextTo: "/learn/07-state-and-reactivity", nextLabel: t("ch.07"))) {
+page Learn06Elements(path: "/learn/06-elements", title: "Elements", description: "The element call shape: positional, named props, flags and enum cases, the block and its order, attributes, parts, and the families of built-ins.", layout: DocsShell("Elements", kind: .tutorial, chapter: t("nav.group.language"), blurb: "Everything on screen is an element, and every element is written the same way: a name, one positional value, named props, flags and a block.", source: "md-docs/learn/06-elements.md", sections: [Anchor(id: "the-call-shape", label: "The call shape"), Anchor(id: "props-cases-and-flags", label: "Props, cases and flags"), Anchor(id: "attributes", label: "Attributes"), Anchor(id: "parts", label: "Parts"), Anchor(id: "text-and-headings", label: "Text and headings"), Anchor(id: "layout-elements", label: "Layout elements"), Anchor(id: "the-families-of-built-ins", label: "The families of built-ins"), Anchor(id: "what-an-element-renders", label: "What an element renders"), Anchor(id: "what-the-compiler-checks-on-every-element", label: "What the compiler checks on every element"), Anchor(id: "quick-reference", label: "Quick reference"), Anchor(id: "common-mistakes", label: "Common mistakes")], prevTo: "/learn/05-pages-and-routing", prevLabel: t("ch.05"), nextTo: "/learn/07-state-and-reactivity", nextLabel: t("ch.07"))) {
     Stack(gap: .lg) {
-        Markdown("Everything a page shows is an element: a built-in such as `Button`, or a component you declare. Every element is written in the same shape, so once you can read one call you can read them all.\n\nIn this chapter:\n\n- the shape of an element call, and the order of its block\n- props, enum cases and flags, and the props every element takes\n- HTML attributes, and which element of a built-in receives them\n- parts, such as `Card.Header`\n- the text, heading and layout elements\n- the families of built-ins, the HTML they render, and what the compiler checks on every element")
+        Markdown("This chapter covers WebFluent's elements: everything a page shows, whether a built-in such as `Button` or a component you declare. Every element is written in the same shape, so once you can read one call you can read them all.\n\nIn this chapter:\n\n- the shape of an element call, and the order of its block\n- props, enum cases and flags, and the props every element takes\n- HTML attributes, and which element of a built-in receives them\n- parts, such as `Card.Header`\n- the text, heading and layout elements\n- the families of built-ins, the HTML they render, and what the compiler checks on every element")
 
         Heading("The call shape", id: "the-call-shape").h2
 
@@ -22,7 +22,7 @@ page Learn06Elements(path: "/learn/06-elements", title: "Elements", description:
     }
 }"#, title: "wf")
 
-        Callout("A second positional argument is error `E113`. Name it instead: write `Card(\"Laptop\", price: 999)`, not `Card(\"Laptop\", 999)`.", kind: .warning)
+        Callout("**Coming from JSX or a Vue template?** There are no tags and no string attributes: `<Button variant=\"primary\" size=\"lg\">Save</Button>` is `Button(\"Save\").primary.lg`. A prop's value is an expression, never a string to be parsed, and children go in the block. See [Coming from React](/coming-from/react#the-map).", kind: .note)
 
         Heading("Props, cases and flags", id: "props-cases-and-flags").h2
 
@@ -374,5 +374,30 @@ page Learn06Elements(path: "/learn/06-elements", title: "Elements", description:
         }
 
         Markdown("The [components reference](/reference) lists each built-in's props, flags, events, slots and parts; `wf registry --json` prints the same data for a tool.")
+
+        Heading("Common mistakes", id: "common-mistakes").h2
+
+        Markdown("**A second positional argument.** Only the first argument may go without a name, so a tone passed after the label does not build:")
+
+        CodeBlock(#"page Trash(path: "/", title: "Trash", description: "Empty the trash.") {
+    Heading("Trash").h1
+    Button("Empty the trash", "danger")
+}"#, title: "wf · draws E113")
+
+        Markdown("Write the tone as a flag, `Button(\"Empty the trash\").danger`, or name it, `tone: .danger` ([E113](/errors/E113)).\n\n**A flag the element does not have.** Flags are not a shared vocabulary; each element takes its own, and a word it does not declare stops the build:")
+
+        CodeBlock(#"page Save(path: "/", title: "Save", description: "A save button.") {
+    Heading("Save").h1
+    Button("Save").huge
+}"#, title: "wf · draws E103")
+
+        Markdown("The finding lists the flags `Button` takes; `.lg` is its largest size ([E103](/errors/E103)).\n\n**A part outside its owner.** A part only means something inside the element it belongs to:")
+
+        CodeBlock(#"page Profile(path: "/", title: "Profile", description: "A profile card.") {
+    Heading("Profile").h1
+    Card.Body { Text("Sam, designer") }
+}"#, title: "wf · draws C03")
+
+        Markdown("Wrap it in its owner, `Card \{ Card.Body \{ … \} \}`, or use a plain `Stack` ([C03](/errors/C03)).")
     }
 }

@@ -1,8 +1,8 @@
 /// Chapter 1 of the guide, written from md-docs/learn/01-getting-started.md by
 /// scripts/docsite/guide.py; edit the guide, not this file.
-page Learn01GettingStarted(path: "/learn/01-getting-started", title: "Getting started", description: "Install wf, check the install, create a first project, run the dev server and make a change. Then set up the language server and read the build.", layout: DocsShell("Getting started", kind: .tutorial, chapter: t("nav.group.tour"), blurb: "Install the compiler, make a project, run it, change it and see the change — then set up your editor, or WebFluent Studio, and see what a build writes.", source: "md-docs/learn/01-getting-started.md", sections: [Anchor(id: "before-you-start", label: "Before you start"), Anchor(id: "install", label: "Install"), Anchor(id: "check-the-install", label: "Check the install"), Anchor(id: "create-a-project", label: "Create a project"), Anchor(id: "run-the-dev-server", label: "Run the dev server"), Anchor(id: "make-a-change", label: "Make a change"), Anchor(id: "set-up-your-editor", label: "Set up your editor"), Anchor(id: "change-how-wf-is-installed", label: "Change how wf is installed"), Anchor(id: "choose-a-template", label: "Choose a template"), Anchor(id: "write-a-site-from-scratch", label: "Write a site from scratch"), Anchor(id: "what-a-build-produces", label: "What a build produces"), Anchor(id: "the-project-in-brief", label: "The project, in brief")], nextTo: "/learn/02-tutorial-shelf", nextLabel: t("ch.02"))) {
+page Learn01GettingStarted(path: "/learn/01-getting-started", title: "Getting started", description: "Install wf, check the install, create a first project, run the dev server and make a change. Then set up the language server and read the build.", layout: DocsShell("Getting started", kind: .tutorial, chapter: t("nav.group.tour"), blurb: "Install the compiler, make a project, run it, change it and see the change — then set up your editor, or WebFluent Studio, and see what a build writes.", source: "md-docs/learn/01-getting-started.md", sections: [Anchor(id: "before-you-start", label: "Before you start"), Anchor(id: "install", label: "Install"), Anchor(id: "check-the-install", label: "Check the install"), Anchor(id: "create-a-project", label: "Create a project"), Anchor(id: "run-the-dev-server", label: "Run the dev server"), Anchor(id: "make-a-change", label: "Make a change"), Anchor(id: "set-up-your-editor", label: "Set up your editor"), Anchor(id: "change-how-wf-is-installed", label: "Change how wf is installed"), Anchor(id: "choose-a-template", label: "Choose a template"), Anchor(id: "write-a-site-from-scratch", label: "Write a site from scratch"), Anchor(id: "what-a-build-produces", label: "What a build produces"), Anchor(id: "the-project-in-brief", label: "The project, in brief"), Anchor(id: "common-mistakes", label: "Common mistakes")], nextTo: "/learn/02-tutorial-shelf", nextLabel: t("ch.02"))) {
     Stack(gap: .lg) {
-        Markdown("In about ten minutes you install the compiler, create a project, run it in your browser, change one line and see the page follow. The rest of the chapter covers optional set-up: your editor, the other project templates, a site written from scratch, and what a build writes.")
+        Markdown("This chapter installs `wf`, the WebFluent compiler, and runs a first project in your browser. In about ten minutes you create the project, change one line and see the page follow. The rest of the chapter covers optional set-up: your editor, the other project templates, a site written from scratch, and what a build writes.")
 
         Heading("Before you start", id: "before-you-start").h2
 
@@ -50,7 +50,7 @@ page Learn01GettingStarted(path: "/learn/01-getting-started", title: "Getting st
 
         Markdown("**You see** the release you installed:")
 
-        CodeBlock(#"wf 5.11.0"#, title: "text")
+        CodeBlock(#"wf 6.0.0"#, title: "text")
 
         Markdown("If the shell says it cannot find `wf`, open a new terminal. The installer adds its directory to your `PATH` in your shell's startup file, and the terminal you ran it in read that file before the change.")
 
@@ -207,6 +207,8 @@ page About(path: "/about", title: "About", description: "What this site is for."
 
         Markdown("Save, and the dev server shows a navigation bar with **Home** and **About**. **Click me** counts your clicks. Here is what each part does:\n\n- `app \{ … \}` is the shell: what every page sits inside. `Router` is where the current page renders. There is no route table; each `page` names its own `path:`.\n- `page Home(path: \"/\", title: …, description: …)` declares a page. `title` and `description` become the `<title>`, the meta description, the Open Graph and Twitter cards and the JSON-LD. If you leave them out, the build warns you.\n- `state count = 0` is a signal. `Text(\"… \{count\} …\")` reads it, so the text updates when it changes.\n- In `Button(\"Click me\").primary \{ on click \{ … \} \}`, the label is the one positional argument, `.primary` is a flag (a case of the button's `tone` prop), and the block holds the click handler.\n- `Container`, `Heading`, `Text`, `Paragraph`, `Navbar` and `Link` are built-ins. The [components reference](/reference) lists all of them.")
 
+        Callout("**Coming from React?** There is no route table and no `import`. Each `page` names its own `path:`, and every file under `src/` is part of one program, so `App.wf` places pages and components it never imports. See [Coming from React](/coming-from/react).", kind: .note)
+
         Heading("What a build produces", id: "what-a-build-produces").h2
 
         Markdown("`wf build` writes the finished site to `build/`. A static build with two pages and a `path: \"*\"` page writes files like these:")
@@ -225,7 +227,7 @@ page About(path: "/about", title: "About", description: "What this site is for."
   sw.js               the service worker, when the config names "offline"
   *.gz                pre-compressed copies a host can serve as they are"#, title: "text")
 
-        Markdown("Do not edit anything in `build/`: the next build writes it again. Keep it out of version control; the `.gitignore` that `wf init` writes already does. The build copies `public/` to the root of `build/` as it is.\n\n`app.js` carries only the parts of the runtime the program reaches. The runtime is a set of feature modules — `each` for a `for`, `router` for a second page, `net` for a `resource`, `icons` for an `Icon` — and the build works out which ones the code it just wrote calls, then keeps only the functions of those that the calls reach, with their names shortened. A page of static text is an `app.js` of 1.9 kB gzipped. `wf build --stats` shows what a build weighs, and [Performance](/about/what-a-build-ships) explains how to read it.")
+        Markdown("Do not edit anything in `build/`: the next build writes it again. Keep it out of version control; the `.gitignore` that `wf init` writes already does. The build copies `public/` to the root of `build/` as it is.\n\n`app.js` carries only the parts of the runtime the program reaches. The runtime is a set of feature modules — `each` for a `for`, `router` for a second page, `net` for a `resource`, `icons` for an `Icon` — and the build works out which ones the code it has written calls, then keeps only the functions of those that the calls reach, with their names shortened. A page of static text is an `app.js` of 1.9 kB gzipped. `wf build --stats` shows what a build weighs, and [Performance](/about/what-a-build-ships) explains how to read it.")
 
         Heading("The project, in brief", id: "the-project-in-brief").h2
 
@@ -246,5 +248,44 @@ tests/*.wf            `test "…" { }` declarations for `wf test`"#, title: "tex
         Markdown("The compiler reads every `.wf` or `.wfx` file under `src/` and merges them into one program, so a page in one file uses a component from another without importing it. The folders are a convention, not a rule. [Project structure](/reference/project) covers naming, organisation and the config, and the [configuration reference](/reference/config) lists every key.\n\nThe config needs only a name:")
 
         CodeBlock(#"{ "name": "hello" }"#, title: "json")
+
+        Heading("Common mistakes", id: "common-mistakes").h2
+
+        Markdown("A flag with a typo. A flag is checked against the element that takes it, so `.mutd` is an error, not a style that quietly does nothing:")
+
+        CodeBlock(#"page Home(path: "/", title: "Hello", description: "A first site.") {
+    Heading("Hello").h1
+    Text("Welcome back.").mutd
+}"#, title: "wf · draws E103")
+
+        Markdown("Use one of the flags the message lists, here `.muted` ([E103](/errors/E103)).\n\nAn `app` with no `Router`. The shell is drawn, but no page ever is:")
+
+        CodeBlock(#"app {
+    Navbar {
+        Navbar.Brand { Text("Hello").heading }
+    }
+}
+
+page Home(path: "/", title: "Hello", description: "A first site.") {
+    Heading("Hello, world").h1
+}"#, title: "wf · draws R03")
+
+        Markdown("Put `Router` in the `app` where the current page should appear ([R03](/errors/R03)).\n\nA link to a page you have not written yet. The compiler checks every `to:` against the pages' paths:")
+
+        CodeBlock(#"app {
+    Navbar {
+        Navbar.Links {
+            Link("Home", to: "/")
+            Link("About", to: "/about")
+        }
+    }
+    Router
+}
+
+page Home(path: "/", title: "Hello", description: "A first site.") {
+    Heading("Hello, world").h1
+}"#, title: "wf · draws R01")
+
+        Markdown("Add the page, `page About(path: \"/about\", …)`, or fix the address ([R01](/errors/R01)).")
     }
 }

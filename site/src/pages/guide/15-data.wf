@@ -1,8 +1,8 @@
 /// Chapter 15 of the guide, written from md-docs/learn/15-data.md by
 /// scripts/docsite/guide.py; edit the guide, not this file.
-page Learn15Data(path: "/learn/15-data", title: "Fetching data", description: "Describe an API once with retries, caching and typed errors; show a resource with match; fetch in an action; update optimistically; read data files.", layout: DocsShell("Fetching data", kind: .tutorial, chapter: t("nav.group.build"), blurb: "Get data onto a page: describe a service once, show a request's states, fetch on demand, and read files at build time.", source: "md-docs/learn/15-data.md", sections: [Anchor(id: "before-you-start", label: "Before you start"), Anchor(id: "choose-how-to-get-data", label: "Choose how to get data"), Anchor(id: "show-a-request-with-resource", label: "Show a request with resource"), Anchor(id: "describe-a-service-with-api", label: "Describe a service with api"), Anchor(id: "fetch-on-demand-with-await-fetch", label: "Fetch on demand with await fetch"), Anchor(id: "read-a-file-at-build-time-with-data", label: "Read a file at build time with data"), Anchor(id: "where-data-lands-in-the-pre-rendered-page", label: "Where data lands in the pre-rendered page"), Anchor(id: "troubleshooting", label: "Troubleshooting")], prevTo: "/learn/14-forms", prevLabel: t("ch.14"), nextTo: "/learn/16-testing", nextLabel: t("ch.16"))) {
+page Learn15Data(path: "/learn/15-data", title: "Fetching data", description: "Describe an API once with retries, caching and typed errors; show a resource with match; fetch in an action; update optimistically; read data files.", layout: DocsShell("Fetching data", kind: .tutorial, chapter: t("nav.group.build"), blurb: "Get data onto a page: describe a service once, show a request's states, fetch on demand, and read files at build time.", source: "md-docs/learn/15-data.md", sections: [Anchor(id: "before-you-start", label: "Before you start"), Anchor(id: "choose-how-to-get-data", label: "Choose how to get data"), Anchor(id: "show-a-request-with-resource", label: "Show a request with resource"), Anchor(id: "describe-a-service-with-api", label: "Describe a service with api"), Anchor(id: "fetch-on-demand-with-await-fetch", label: "Fetch on demand with await fetch"), Anchor(id: "read-a-file-at-build-time-with-data", label: "Read a file at build time with data"), Anchor(id: "where-data-lands-in-the-pre-rendered-page", label: "Where data lands in the pre-rendered page"), Anchor(id: "troubleshooting", label: "Troubleshooting"), Anchor(id: "quiz", label: "Quiz"), Anchor(id: "common-mistakes", label: "Common mistakes")], prevTo: "/learn/14-forms", prevLabel: t("ch.14"), nextTo: "/learn/16-testing", nextLabel: t("ch.16"))) {
     Stack(gap: .lg) {
-        Markdown("This chapter shows you how to get data onto a page and send data back: from a request the page makes when it shows, from a request an action makes on demand, and from a file the build reads.\n\nYou will be able to:\n\n- show a request's loading, error and ready states with `resource` and `match`;\n- refresh data without the page going blank;\n- describe a service once with `api`, so every call is typed, retried, cached and cancelled for you;\n- read a service's surface from an OpenAPI file;\n- fetch on demand from an action, and show a change before the server agrees;\n- read a JSON file at build time and render one page per item in it.")
+        Markdown("This chapter is about getting data onto a WebFluent page and sending data back: from a request the page makes when it shows, from a request an action makes on demand, and from a file the build reads.\n\nYou will be able to:\n\n- show a request's loading, error and ready states with `resource` and `match`;\n- refresh data without the page going blank;\n- describe a service once with `api`, so every call is typed, retried, cached and cancelled for you;\n- read a service's surface from an OpenAPI file;\n- fetch on demand from an action, and show a change before the server agrees;\n- read a JSON file at build time and render one page per item in it.")
 
         Heading("Before you start", id: "before-you-start").h2
 
@@ -68,6 +68,8 @@ page Deploys(path: "/deploys", title: "Deploys", description: "Recent deploys.")
     }
     Button("Refresh") { on click { deploys.reload() } }
 }"#, title: "wf")
+
+        Callout("**Coming from React?** There, a fetch is a `useEffect` that sets `loading`, `error` and `data` states by hand, or a `useQuery`. A `resource` is the request and its state together: no effect, no flags to keep in step, and a `match` with one arm per state. See [Coming from React](/coming-from/react).", kind: .note)
 
         Markdown("How it works:\n\n- `resource name = fetch(url)` starts the request when the page renders.\n- The annotation (`: [Deploy]`) types the value. Without one, the value is `Any`.\n- A `match` over a resource has three arms — `loading`, `error(e)` and `ready(v)` — and may have an `else`. A resource `match` with no `error` arm and no `else` is `T21`.\n- The pre-rendered page — the HTML the build writes for a static site — shows the `loading` arm. The live page fetches and replaces it.\n- A failed response (one that is not `ok`) is an error whose `e.message` is `HTTP 500`, or whatever the status was.")
 
@@ -142,6 +144,8 @@ page Servers(path: "/servers", title: "Servers", description: "Every server, kep
         }
     }
 }"#, title: "wf")
+
+        Callout("**Coming from TanStack Query?** `isLoading` is `name.state == \"loading\"`, true only while there is nothing to show; `isFetching` is `name.pending`; and `name.refreshing` is a fetch while data is on screen. See [Coming from React](/coming-from/react).", kind: .note)
 
         Markdown("What a refresh keeps:\n\n- **The arm.** The `ready` arm's binding is live. Text, attributes, `if`, `if let`, a keyed `for … by` and component props inside the arm follow the new data. The arm is drawn again only when the arm changes — loading, ready, error.\n- **The rows.** A row whose key is still in the list keeps its nodes, its focus and its components' state. An input keeps what was typed.\n- **Unchanged data.** The parts of an answer equal to what was shown are kept as the same objects. An item is matched by its `id`, by its value, or by its place. An answer that changed nothing redraws nothing.\n\nWhat happens when a request fails, or changes:\n\n- A refresh that fails keeps the data and `\"ready\"`, and sets `name.error` until the next answer, so the arm can say the data is stale.\n- A first load that fails is `\"error\"`, and its `reload()` is a first load again.\n- A request that changed is a first load again, shown as `loading`. A request changes when an address or an argument that reads state now names something else — another environment, another page — because the data on screen would be the wrong data. What the last request brought goes with it: `name.data` is `null` (and a paged resource's `name.items` empty) until the answer arrives, and stays so if it fails, so a `derived` value over it never reads the other request's answer. With `paginate:`, the next page is a refresh instead.\n\nPressing **Production** above changes `stage`, so the list shows its `loading` arm and then the production servers.")
 
@@ -710,5 +714,70 @@ page PostPage(path: "/posts/:slug", slug: String, title: "Post", description: "A
                 }
             }
         }
+
+        Heading("Quiz", id: "quiz").h2
+
+        Quiz("A resource's `match` has a `loading` arm and a `ready` arm, and no other. What does the reader see when the request fails?", id: "Fetching data#9", choices: [
+            QuizChoice(text: "An error message the runtime draws for you", right: false, why: "The runtime draws only the arms you write; the build warns about the missing one with T21."),
+            QuizChoice(text: "Nothing where the `match` is, and the build warns with T21", right: true, why: "No arm matches `\"error\"`, so the place stays empty. Add `error(e) \{ … \}` or an `else`."),
+            QuizChoice(text: "The `loading` arm, until a retry succeeds", right: false, why: "A first load that fails is `\"error\"`, not `\"loading\"`.")
+        ])
+
+        Quiz("A resource is making its very first request. Which is true?", id: "Fetching data#9", choices: [
+            QuizChoice(text: "`pending` is true and `refreshing` is false", right: true, why: "`pending` covers every request of it, the first load included; `refreshing` only a request made again while data is shown."),
+            QuizChoice(text: "`refreshing` is true and `pending` is false", right: false, why: "It is the other way round: there is no data yet to refresh."),
+            QuizChoice(text: "Both are true", right: false, why: "`refreshing` is true only while data is on screen, and on a first load there is none.")
+        ])
+
+        Quiz("A resource with `on: .interval(30.seconds)` asks again while its list is on screen. What does its `match` show while that refresh runs?", id: "Fetching data#9", choices: [
+            QuizChoice(text: "The `loading` arm, then the new list", right: false, why: "Only a first load, or a request whose address changed, shows `loading`."),
+            QuizChoice(text: "An empty list until the answer arrives", right: false, why: "The data stays while a refresh runs; `name.data` is never cleared by one."),
+            QuizChoice(text: "The `ready` arm with the old list, then the answer drawn in place", right: true, why: "A refresh keeps `\"ready\"` and the data; rows whose key is still there keep their nodes.")
+        ])
+
+        Quiz("The address is `fetch(\"/api/servers?env=\{stage\}\")`, and a button sets `stage` from `\"test\"` to `\"prod\"`. What shows next?", id: "Fetching data#9", choices: [
+            QuizChoice(text: "The `loading` arm, then the production servers", right: true, why: "The request now names something else, so it is a first load; the test servers would be the wrong data."),
+            QuizChoice(text: "The test servers, with `refreshing` true, until the production servers arrive", right: false, why: "That is a refresh, which asks again for the same request; this one changed."),
+            QuizChoice(text: "Nothing changes until the reader reloads the page", right: false, why: "An address that reads state is fetched again whenever that state changes.")
+        ])
+
+        Heading("Common mistakes", id: "common-mistakes").h2
+
+        Markdown("**A `match` with no `error` arm.** When the request fails, no arm draws, and the reader is not told:")
+
+        CodeBlock(#"page P(path: "/", title: "Users", description: "Everyone.") {
+    resource users = fetch("/api/users")
+    Heading("Users").h1
+    match users {
+        loading { Spinner }
+        ready(list) { Text("{list.length} users") }
+    }
+}"#, title: "wf · draws T21")
+
+        Markdown("Add `error(e) \{ Alert(e.message).danger \}`, or an `else` ([T21](/errors/T21)).\n\n**A field the declared type does not have.** Once a resource is typed, every field read from it is checked against the `type`:")
+
+        CodeBlock(#"type User { id: String, name: String }
+
+page P(path: "/", title: "Users", description: "Everyone.") {
+    resource users: [User] = fetch("/api/users")
+    Heading("Users").h1
+    match users {
+        loading { Spinner }
+        error(e) { Alert(e.message).danger }
+        ready(list) { for u in list by u.id { Text(u.fullName) } }
+    }
+}"#, title: "wf · draws T05")
+
+        Markdown("Use the field the type declares, `u.name`, or add `fullName` to the `type` if the server sends it ([T05](/errors/T05)).\n\n**Reading `.data` as if it had arrived.** Before the first answer, `name.data` is `null`:")
+
+        CodeBlock(#"type User { id: String, name: String }
+
+page P(path: "/", title: "Users", description: "Everyone.") {
+    resource users: [User] = fetch("/api/users")
+    Heading("Users").h1
+    Text("{users.data.length} users")
+}"#, title: "wf · draws T04")
+
+        Markdown("Read it through `?.` with a fallback, `\{users.data?.length ?? 0\}`, or show it inside the `ready` arm, where the binding is never null ([T04](/errors/T04)).")
     }
 }

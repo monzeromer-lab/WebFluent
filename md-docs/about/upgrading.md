@@ -9,19 +9,22 @@ description: "How to upgrade wf, what each release from 4.0 to 6.0 asks of a pro
 ---
 # Upgrading
 
-This chapter tells you what each release asks of your project when you
-upgrade, newest first. Most releases need nothing from you; the ones that
-do say exactly what to change, and `wf check` points at every place.
+This page says what each release asks of your project when you upgrade,
+newest first, from 6.0 back to WebFluent 2.
+
+The policy behind it: a release should ask nothing of a project that
+works. When one does ask, it is because the old behaviour shipped a broken
+page, and the compiler then names every place that needs a change, with a
+code, instead of leaving you to find them in the browser. Most rows of the
+table below say "Nothing"; the others say which findings to look for.
 
 The full notes for every release are in
-[`RELEASE_NOTES.md`](../../RELEASE_NOTES.md). This chapter keeps only what an
-upgrade asks of you.
-
-In this chapter:
+[`RELEASE_NOTES.md`](../../RELEASE_NOTES.md). This page keeps only what an
+upgrade asks of you:
 
 - [Install a newer version](#install-a-newer-version)
 - [Upgrade a project](#upgrade-a-project)
-- The notes for each release, from [5.12](#5-12) back to
+- The notes for each release, from [6.0](#6-0) back to
   [WebFluent 2](#from-webfluent-2)
 
 ## At a glance
@@ -29,6 +32,7 @@ In this chapter:
 | Release | What to do |
 |---|---|
 | [6.0](#6-0) | Nothing for a project; to have each language of a translated site found, give it pages with `lang:` and `translates:`. A program using the Rust crate: see the release's notes |
+| [5.14, 5.13](#5-14-and-5-13) | Nothing |
 | [5.12](#5-12) | Run `wf check` (`E118`, `E102`); rename a store member called `valueOf` or `toString` |
 | [5.11](#5-11) | Run `wf check` (`C07`, `T22`), then `wf test --update` once you have read the new snapshots |
 | [5.10](#5-10) | Run `wf check` and `wf test --update`; check `Column` spans, `Menu` labels and bound checkboxes with their own `on change` |
@@ -62,7 +66,7 @@ compiler, and an older one reports what the new `wf` does not
 
 After installing, bring each project forward:
 
-1. Read this chapter's notes for every release between the version the
+1. Read this page's notes for every release between the version the
    project last built with and the new one.
 2. Run `wf check`. It writes nothing, and every finding names its code, its
    place and what to do.
@@ -88,8 +92,19 @@ it translates (`translates:`). Your project may notice these:
 - **A word `lang` or `translates` in a page header** is the new option
   when it takes a string or a page name. A route parameter of that name is
   still one: `lang: String`.
-- **`wf check --allow-output-outside`**: a project whose `build.output` is
-  outside it can be checked, as it is built.
+- **A build stays in its project.** A `build.output` outside the project
+  is refused unless `wf build` or `wf check` is given
+  `--allow-output-outside`.
+- **A `public_env` name without the `PUBLIC_` prefix** takes its value
+  from the config or `.env`, and from the shell only when
+  `WF_ALLOW_SHELL_ENV` names it.
+- **`wf serve` listens on this machine only.** To reach it from a phone,
+  run `wf serve --host 0.0.0.0`.
+- **`navigate()` stays on the site.** An address on another origin is
+  refused; leave the site with a `Link`.
+- **What used to be clamped is refused**: a status code past 599 or a
+  fractional one, a negative `Carousel(interval:)` (`T01`), and nesting
+  past 100 levels (`E120`).
 
 Run `wf check`.
 
@@ -101,6 +116,13 @@ A program that uses the `webfluent` crate is what 6.0 breaks:
 - an error is built with `WebFluentError::io(…)` and the like.
 
 The release notes list them all.
+
+## 5.14 and 5.13
+
+Nothing to change. 5.14 builds a project to the same bytes as 5.13 did;
+5.13 corrected the reference that `wf init` writes into a new project as
+`AGENTS.md`, so copy it again into a project made before it, or run
+`wf init` in a scratch folder and take its copy.
 
 ## 5.12
 

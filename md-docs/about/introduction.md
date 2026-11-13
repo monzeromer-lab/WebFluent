@@ -4,32 +4,23 @@ kind: "about"
 route: "/about/why"
 from: ["/docs/guide/introduction"]
 group: "about"
-blurb: "What WebFluent is, what it does for you, where it fits and where it does not, and how to find your way around this guide."
-description: "What WebFluent is, the five ideas behind it, when to use it and when not to, and how the guide is organised by what you need."
+blurb: "Why the language exists, and the choices it makes: one meaning per word, a compiler that refuses what would break in the browser, and one source for the web and for paper."
+description: "Why WebFluent exists: one meaning per word, a compiler that refuses what would fail in the browser, and one source for sites, PDFs and slides."
 ---
-# Introduction
+# Why WebFluent
 
-WebFluent is a programming language for websites, PDFs and slide decks. You
-write `.wf` files that say what each page shows, the state behind it, and
-what happens when the reader acts. The compiler, `wf`, turns those files
-into a finished site — HTML, CSS and a small JavaScript runtime — or into a
-PDF or a slide deck from the same source.
+This essay argues for WebFluent: why a language for websites, PDFs and
+slide decks should exist when JavaScript frameworks already do the job, and
+what it gives up to be what it is.
 
-The one thing to remember: the compiler knows every element, prop and type
-in your program, so most mistakes stop the build with a line number instead
-of failing quietly in the browser.
+The argument in one line: a website is a program whose mistakes are found
+by its readers, and most of those mistakes can be found by a compiler
+first, if the language is designed so that the compiler can see them.
 
-In this chapter:
+## What breaks a website
 
-- [A first page](#a-first-page), and what each line of it does
-- [What you get](#what-you-get) from the compiler
-- [The five ideas](#the-five-ideas) the language is built on
-- [When to use WebFluent](#when-to-use-webfluent), and when to use something else
-- [How this guide is organised](#how-this-guide-is-organised), and where to start
-
-## A first page
-
-This file is a complete page with a counter:
+Here is a page with a counter, the smallest program that has every part a
+site has: an address, text, state, and something the reader does.
 
 ```wf
 page Home(path: "/", title: "Hello", description: "A first WebFluent page.") {
@@ -42,152 +33,146 @@ page Home(path: "/", title: "Hello", description: "A first WebFluent page.") {
 }
 ```
 
-- `page Home(path: "/", …)` declares a page and the address it answers.
-  `title` and `description` become the browser tab's title, the search
-  snippet and the link-preview cards.
-- `state count = 0` declares a value that can change. Everything that reads
-  it updates when it does.
-- `Container`, `Heading`, `Text` and `Button` are built-in elements. `.h1`
-  and `.primary` are *flags*: short switches that pick a heading level or a
-  button's colour.
-- `on click { … }` is what happens when the reader clicks the button.
+Now count the ways the same page goes wrong in a typical stack. A class
+name misspelled in the markup does nothing. A prop a component does not
+take is ignored. A field read from a record that does not have it is
+`undefined`, and the page shows `undefined`. A value that may be `null`
+crashes the page only for the reader whose data has a gap. A link to a
+route that was renamed is a 404 that nobody sees until a reader follows
+it. None of these is a hard problem. Each one is a problem the toolchain
+had all the information to report, and did not.
 
-After `wf build`, the page is ready to deploy. Routing, reactivity, a styled
-button, accessible markup, the `<title>`, the meta description and the Open
-Graph tags are all in the output; you wrote none of them by hand.
+WebFluent starts from the other end. Every word in a program resolves to
+one declaration the compiler knows: a built-in in the registry, or a
+component, store, type or page the project declares. A word that resolves
+to nothing is an error, not a no-op.
 
-## What you get
+```wf expect=E103
+page Home(path: "/", title: "Hello", description: "A first WebFluent page.") {
+    Button("Save").primry
+}
+```
 
-- **One binary, no toolchain.** `wf` is the compiler, the dev server, the
-  formatter, the test runner and the language server. There is no
-  `node_modules`, no bundler and no configuration to write before the first
-  page.
-- **A compiler that checks your work.** Every built-in element and every
-  component you declare has a known set of props, flags, events and slots.
-  A misspelled prop, a flag the element does not take, a field a record
-  does not have, or a value that may be `null` read as if it were not — each
-  is an error with a line number and a hint, never a silent no-op in the
-  browser.
-- **Fine-grained reactivity.** A `state` is a *signal*: a value that tells
-  its readers when it changes. Only the text node or attribute that reads it
-  updates; nothing else re-renders.
-- **More than fifty designed components.** Layout, navigation, tables,
-  forms, overlays and media, styled by *design tokens* (named values for
-  colours, spacing and fonts) that a theme changes in a few lines.
-- **The web done properly by default.** Each page is pre-rendered to HTML.
-  You get one stylesheet pruned to what you used, a runtime cut down to what
-  the program reaches, an image pipeline, a sitemap, canonical links, Open
-  Graph and JSON-LD, a Content-Security-Policy that the build holds its own
-  output to, and accessibility checks on every build.
-- **Everything a site needs, built in.** Routing, stores, forms and
-  validation, typed HTTP services, WebSockets and WebRTC, offline support
-  with a service worker, translation with automatic right-to-left layout,
-  animation and dark mode.
-- **More than websites.** The same language compiles to PDF documents and
-  slide decks, renders templates with JSON data on a server, and publishes
-  components as custom elements that any framework can use.
+The build stops on that line, says that `Button` has no flag `primry`, and
+lists the ones it takes. The browser never sees the page.
 
-## The five ideas
+## One lexeme, one meaning
 
-1. **A project is a set of declarations.** Every `.wf` file holds
-   declarations of thirteen kinds: `page`, `component`, `store`, `theme`,
-   `app`, `type`, `enum`, `api`, `const`, `data`, `image`, `animation` and
-   `test`. This guide covers each one. A `.js` or `.css` file under `src/`
-   is part of the project too. Each page names its own route, so there is no
-   separate route table.
-2. **An element is a typed call.** In
-   `Button("Save", tone: .primary).lg { on click { save() } }` you see the
-   parts in order: one positional argument, named props, `.flag`s, then a
-   block. The compiler knows the props and cases of every built-in and of
-   every component you declare.
-3. **State is a signal.** After `state count = 0`, anything that reads
-   `count` follows it: `derived` values recompute, `effect`s run again, and
-   the page updates.
-4. **Styles are CSS, written on the element.**
-   `style { padding: $md; &:hover { background: $surface } }` holds raw CSS
-   values, design tokens written with `$`, and nested rules in CSS nesting
-   syntax.
-5. **The build is the whole site.** `wf build` writes everything a host
-   needs, and `wf serve` rebuilds it every time you save.
+The compiler can only check what it can read, so the grammar is built for
+reading. Each kind of word means one thing:
 
-## When to use WebFluent
+- A lowercase keyword declares: `page`, `component`, `store`, `state`,
+  `derived`, `action`, `type`, `enum`, `api`.
+- A capitalised name is an element or a type: `Button`, `Todo`.
+- `.primary` after a call sets a `Bool` prop or picks the case of an enum
+  prop, and nothing else.
+- `name: value` passes a prop. A block is the element's children.
+  `on click { }` is a handler. `style { }` is CSS.
 
-WebFluent fits well when you want:
+There is no second spelling for any of these, no attribute that is
+sometimes a prop and sometimes markup, no string that is sometimes a
+template. That is a constraint on the author, and it is the reason the
+compiler, the linters, the formatter and the language server can all read
+one registry and agree. When the editor offers you the flags of a `Button`
+after a dot, it is reading the same table the build refuses `primry` from.
 
-- a marketing site, a documentation site, a blog or a portfolio that must be
-  fast, accessible and well indexed, with some interactivity;
-- a dashboard, an admin panel or an internal tool that talks to an API;
-- invoices, reports or slide decks generated from the same data as a site;
-- to work in a small team that would rather not maintain a JavaScript build
-  chain.
+The cost is real: you cannot invent syntax, and a library cannot extend
+the grammar. A component you write is called exactly as a built-in is, and
+that is the extension point the language offers.
 
-Use something else when:
+## Refuse what would fail in the browser
 
-- you depend on a large ecosystem of framework-specific UI libraries. You
-  can still embed any library through
-  [JavaScript interop](../recipes/index.md), but you write the binding
-  yourself.
-- you need server-side rendering on every request with per-user data. A
-  WebFluent site is static files plus a browser runtime, and your server
-  stays your server. [Server rendering](../recipes/index.md) of templates
-  does cover emails, invoices and HTML fragments.
-- you need a native mobile app.
+A compiler that stopped at spelling would be a linter. WebFluent's goes
+further, because most of what fails in a browser is a type error or a
+reactivity error in disguise:
 
-## How this guide is organised
+- A value that may be `null`, read as if it were not, is `T04`. An
+  `if let`, a `??` or a `!= null` check narrows it.
+- A `state` that reads `now` once and so never ticks is `X06`; the fix the
+  compiler offers is `derived`.
+- An effect that writes what it reads, and so never settles, is `X02`.
+- A link to a path no page answers is `R01`.
+- A `Secret` shown, logged, spliced into a URL or kept with `persist` is
+  `T12`.
+- A page the build's own Content-Security-Policy would block is `E902`;
+  the build reads its output back and holds it to the policy it ships.
 
-Each page of the guide is one of four kinds, and each kind answers a
-different need:
+Each finding has a code, a place, a hint and, where there is one right
+answer, a fix the editor applies. The bet is that a project with no
+findings is a project whose pages load, and `wf verify` exists to test the
+bet: it opens every route in a real browser and fails on an uncaught error,
+a failed request or a page that drew nothing.
 
-| Kind | Read it when you… | It gives you |
-|---|---|---|
-| **Tutorial** | are learning, and want to build something | a lesson with a guaranteed working result |
-| **How-to guide** | have a goal, such as validating a form | the steps to that one result |
-| **Reference** | need a fact, such as a prop's default | a complete, exact description |
-| **Explanation** | want to understand how something works and why | the ideas, the reasons and the trade-offs |
+Types make most of this possible, and they are optional. A value the
+checker cannot work out is `Any`, which agrees with everything, so a
+program that declares no types checks as it always would. Every annotation
+you add narrows what the checker can say.
 
-The guide is organised by what you are here to do, in eleven sections:
+## Secure by construction, not by advice
 
-| Section | Kind | What it covers |
-|---|---|---|
-| **Get started** | explanation, quick start, tutorial | What WebFluent is, installing it, a first site built step by step, and a map from React, Vue and Svelte |
-| **Tutorials and recipes** | tutorial, then how-to | Three whole projects — [Todos](../learn/03-tutorial-todos.md), [Field Notes](../recipes/build-a-notebook-site.md) and [Pocket](../recipes/build-a-budget-app.md) — and [recipes](../recipes/index.md) for the pieces most projects need |
-| **Concepts** | explanation, each ending in a quick-reference table | The language itself, in the order the ideas build on each other: from [Language basics](../learn/04-language-basics.md) to [Expressions](../reference/expressions.md) |
-| **Guides: interface** | how-to | [Styling](../learn/13-styling.md), [motion](../recipes/index.md), [media](../recipes/index.md) and [accessibility](accessibility.md) |
-| **Guides: data** | how-to | [Forms](../learn/14-forms.md), [fetching data](../learn/15-data.md), [real-time connections](../recipes/index.md) and [offline](../recipes/index.md) |
-| **Guides: content** | how-to | [Content and search](../recipes/index.md) and [translation](../recipes/index.md) |
-| **Guides: quality** | how-to | [Testing](../learn/16-testing.md), [security](security.md) and [performance](performance.md) |
-| **Guides: shipping** | explanation, then how-to | [Project structure](../reference/project-structure.md), [static or single-page](static-and-spa.md), [deploying](../recipes/index.md), [environments](../recipes/index.md) and [desktop apps](../recipes/index.md) |
-| **Other outputs** | how-to | [PDF and slides](../learn/17-pdf-and-slides.md), [server rendering](../recipes/index.md) and [JavaScript interop](../recipes/index.md) |
-| **Reference** | reference | Every [component](../reference/components.md), [command](../reference/cli.md), [configuration key](../reference/configuration.md), [diagnostic](../errors/diagnostics.md), [built-in](../reference/built-ins.md), [design token](../reference/design-tokens.md), [runtime function](../reference/runtime-api.md) and [grammar rule](../reference/grammar.md), plus [browser support](../reference/browser-support.md) and a [glossary](../reference/glossary.md) |
-| **Help** | troubleshooting and upgrade notes | [Troubleshooting](../errors/troubleshooting.md), [upgrading](upgrading.md) and [contributing](contributing.md) |
+The same idea applies to security. Advice such as "escape your output" or
+"never put a token in `localStorage`" is agreed to in every review and hard to
+follow on every line. WebFluent turns the advice into properties of the
+output: every string an element shows is a text node; markup goes in only
+through `Unsafe.Html`, which is named so a review finds it; an `href:`
+whose scheme a browser would run is refused where it is written; an `env`
+name that is not public cannot be read from a page. The
+[security essay](security.md) lists each guarantee and what is still yours.
 
-## Where to start
+## One source for the web and for paper
 
-- **To learn WebFluent:** read [Getting started](../learn/01-getting-started.md),
-  work through the [tutorial](../learn/02-tutorial-shelf.md), then read the *Concepts* section
-  in order. Every example in them builds. For more practice, try the
-  [three project tutorials](../learn/03-tutorial-todos.md).
-- **To understand it coming from a framework:** read
-  [Coming from React, Vue or Svelte](../coming-from/react.md) first. It maps what
-  you know to what is here.
-- **To build a feature:** go to the *Guides* page that names the task.
-- **To look something up:** use the reference chapters, starting with the
-  [components reference](../reference/components.md). They are generated
-  from the compiler, or checked against it.
-- **To fix a problem:** start at [Troubleshooting](../errors/troubleshooting.md).
-  Every diagnostic code has an entry in [Diagnostics](../errors/diagnostics.md).
+A team that publishes a site usually publishes documents too: an invoice,
+a report, the slides for the quarter. These tend to live in a second
+toolchain, with a second set of styles that drifts from the first.
 
-The test suite parses, type-checks and compiles every `wf` code block in
-this guide, so what you read is what the compiler accepts. A block that
-leaves something out says so with a `…`.
+WebFluent lays a PDF out from the same HTML and CSS the page would get, by
+its own paged engine, with no browser and no external tool. A `Card` in a
+PDF looks like the `Card` on the site, a theme's tokens reach both, and a
+`Presentation` makes a deck from the same components. The same templates
+render with JSON data from Rust or Node on a server. One language, one
+look, one set of checks.
 
-## Versions
+## Fine-grained, with no virtual DOM
 
-This guide describes WebFluent 6, the stable line. Run `wf --version` to see
-which release you have. [Upgrading](upgrading.md) lists what changed in
-each release.
+A `state` is a signal. What reads it is what redraws: the text node that
+splices `{count}`, an attribute, a branch. Nothing re-renders a component
+to find out what changed, so there is no virtual DOM to diff and no memo
+to forget. [How reactivity works](how-reactivity-works.md) follows a click
+from the handler to the text node it changes.
 
-## Next
+## One binary
 
-[Getting started](../learn/01-getting-started.md): install `wf` and run your first
-project.
+`wf` is the compiler, the dev server, the formatter, the test runner, the
+language server and the template renderer. There is no `node_modules`, no
+bundler, and no configuration to write before the first page. A build
+writes only the runtime modules the program reaches and only the component
+rules it uses, so a page of text ships a few kilobytes of script. The
+[essay on what a build ships](performance.md) shows the numbers.
+
+## What it gives up
+
+A language with opinions is the wrong tool for some work:
+
+- **A framework's ecosystem.** There is no package of WebFluent
+  components to install from npm. Any browser library can be used from a
+  plain script under `src/` or a `meta.scripts` entry, but you write the
+  binding yourself.
+- **Rendering per request.** A WebFluent site is static files and a
+  browser runtime; your server stays your server. The template engine
+  renders HTML and PDFs with data on a server, but it runs no handlers
+  after the render.
+- **Freedom of syntax.** One spelling for each thing means none of your
+  own.
+
+If those costs are acceptable, what you get in return is a site whose
+mistakes the compiler finds before your readers do.
+
+## Where to go from here
+
+- To learn the language, start with
+  [Your first page](../learn/01-getting-started.md).
+- Coming from a framework, read
+  [Coming from React](../coming-from/react.md) (or Vue, or Svelte) first.
+- To look a fact up, use the [reference](../reference/components.md).
+- This guide describes WebFluent 6. [Upgrading](upgrading.md) lists what
+  each release changed.

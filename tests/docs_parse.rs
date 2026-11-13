@@ -2113,3 +2113,79 @@ fn the_codes_each_builtin_can_raise_are_codes_the_compiler_has() {
     }
     assert!(failures.is_empty(), "{}", failures.join("\n"));
 }
+
+/// The book is written to one set of rules (`plans/docs-redesign` §8), and
+/// these are the ones a reader would miss most:
+///
+/// - every chapter ends with `## Common mistakes`: two or more programs
+///   that draw the finding a reader is most likely to meet next
+///   (`wf expect=CODE`), each linked to its error page;
+/// - the chapters readers most often get wrong — state, components, stores
+///   and data — close on a quiz of two to four questions;
+/// - every chapter says what its reader learned (`learned:`);
+/// - the book and the essays say nothing is "simple", "easy" or "obvious".
+#[test]
+fn the_book_is_written_to_its_rules() {
+    let quizzed = [7, 10, 11, 15];
+    let banned = ["simply", "just", "easy", "easily", "obviously", "powerful", "seamless"];
+    let mut failures = Vec::new();
+    for (n, path, text) in crate::common::guide_chapters() {
+        let learn = path.starts_with("learn/");
+        if !learn && !path.starts_with("about/") {
+            continue;
+        }
+        // The prose, without its code or where its links go: a program may
+        // say `just`, and a link may name `easy-todos`.
+        let mut prose = String::new();
+        let mut fenced = false;
+        for line in text.lines() {
+            if line.starts_with("```") {
+                fenced = !fenced;
+            } else if !fenced {
+                let line = regex::Regex::new(r"\]\([^)]*\)").unwrap().replace_all(line, "]");
+                prose.push_str(&regex::Regex::new(r"`[^`]*`").unwrap().replace_all(&line, ""));
+                prose.push('\n');
+            }
+        }
+        let words = regex::Regex::new(r"(?i)\b[a-z]+\b").unwrap();
+        for w in words.find_iter(&prose) {
+            let w = w.as_str().to_lowercase();
+            if banned.contains(&w.as_str()) {
+                failures.push(format!("{path}: says `{w}`"));
+            }
+        }
+        if !learn {
+            continue;
+        }
+        if crate::common::front_matter(&text, "learned").is_none_or(|l| !l.starts_with('[')) {
+            failures.push(format!("{path}: no `learned:` list in its front matter"));
+        }
+        let body = text.split_once("\n---\n").map_or(text.as_str(), |(_, b)| b);
+        let sections: Vec<&str> = body.split("\n## ").skip(1).collect();
+        let last = sections
+            .iter()
+            .rev()
+            .find(|s| !s.starts_with("Next") && !s.starts_with("Quiz"));
+        match last {
+            Some(s) if s.starts_with("Common mistakes") => {
+                let programs = s.matches("```wf expect=").count();
+                let links = s.matches("errors/").count();
+                if programs < 2 {
+                    failures.push(format!("{path}: its mistakes show {programs} program(s), not two or more"));
+                }
+                if links < programs {
+                    failures.push(format!("{path}: a mistake does not link its error page"));
+                }
+            }
+            _ => failures.push(format!("{path}: does not end with `## Common mistakes`")),
+        }
+        let quizzes = body.matches("```quiz").count();
+        if quizzed.contains(&n) && !(2..=4).contains(&quizzes) {
+            failures.push(format!("{path}: {quizzes} quiz question(s), not two to four"));
+        }
+        if !quizzed.contains(&n) && quizzes > 0 {
+            failures.push(format!("{path}: a quiz in a chapter that has none"));
+        }
+    }
+    assert!(failures.is_empty(), "{}", failures.join("\n"));
+}

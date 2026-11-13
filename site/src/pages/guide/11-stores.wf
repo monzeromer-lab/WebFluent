@@ -1,8 +1,8 @@
 /// Chapter 11 of the guide, written from md-docs/learn/11-stores.md by
 /// scripts/docsite/guide.py; edit the guide, not this file.
-page Learn11Stores(path: "/learn/11-stores", title: "Stores", description: "Stores: declaration, scopes, use, actions, persist and migrations, connections, loading data, debugging, testing, and when to use one.", layout: DocsShell("Stores", kind: .tutorial, chapter: t("nav.group.language"), blurb: "A store is state shared by every page and component that uses it, built the first time something reads it.", source: "md-docs/learn/11-stores.md", sections: [Anchor(id: "a-first-store", label: "A first store"), Anchor(id: "store-members", label: "Store members"), Anchor(id: "store-scope", label: "Store scope"), Anchor(id: "actions", label: "Actions"), Anchor(id: "keeping-a-value-across-visits", label: "Keeping a value across visits"), Anchor(id: "a-connection-a-store-holds", label: "A connection a store holds"), Anchor(id: "loading-data-into-a-store", label: "Loading data into a store"), Anchor(id: "stores-in-the-pre-rendered-page", label: "Stores in the pre-rendered page"), Anchor(id: "looking-at-one-while-it-runs", label: "Looking at one while it runs"), Anchor(id: "testing-a-store", label: "Testing a store"), Anchor(id: "when-to-use-a-store", label: "When to use a store"), Anchor(id: "quick-reference", label: "Quick reference")], prevTo: "/learn/10-components", prevLabel: t("ch.10"), nextTo: "/learn/12-types", nextLabel: t("ch.12"))) {
+page Learn11Stores(path: "/learn/11-stores", title: "Stores", description: "Stores: declaration, scopes, use, actions, persist and migrations, connections, loading data, debugging, testing, and when to use one.", layout: DocsShell("Stores", kind: .tutorial, chapter: t("nav.group.language"), blurb: "A store is state shared by every page and component that uses it, built the first time something reads it.", source: "md-docs/learn/11-stores.md", sections: [Anchor(id: "a-first-store", label: "A first store"), Anchor(id: "store-members", label: "Store members"), Anchor(id: "store-scope", label: "Store scope"), Anchor(id: "actions", label: "Actions"), Anchor(id: "keeping-a-value-across-visits", label: "Keeping a value across visits"), Anchor(id: "a-connection-a-store-holds", label: "A connection a store holds"), Anchor(id: "loading-data-into-a-store", label: "Loading data into a store"), Anchor(id: "stores-in-the-pre-rendered-page", label: "Stores in the pre-rendered page"), Anchor(id: "looking-at-one-while-it-runs", label: "Looking at one while it runs"), Anchor(id: "testing-a-store", label: "Testing a store"), Anchor(id: "when-to-use-a-store", label: "When to use a store"), Anchor(id: "quick-reference", label: "Quick reference"), Anchor(id: "quiz", label: "Quiz"), Anchor(id: "common-mistakes", label: "Common mistakes")], prevTo: "/learn/10-components", prevLabel: t("ch.10"), nextTo: "/learn/12-types", nextLabel: t("ch.12"))) {
     Stack(gap: .lg) {
-        Markdown("A *store* holds state that more than one page or component shares: the cart, the signed-in user, the theme, a cache of what was fetched. It holds `state`, `derived` values and actions, and every page that reads it sees the same values.\n\nThe one thing to remember: **a store is built the first time something reads it.** Declaring a store does nothing. The first `Cart.items`, `Cart.count` or `Cart.add(…)` builds it, and every later read uses that same instance. As a result, the order you declare stores in does not matter — a `derived` value may read a store declared below it — and a store nothing reads costs nothing, in time or in bytes.\n\n**In this chapter**\n\n- Declaring a store and reading it from pages\n- How long a store lives: its scope\n- Actions, including async actions\n- Keeping a value across visits with `persist`, and changing its shape later\n- Connections and data a store owns\n- Inspecting and testing a store\n- When to use a store, and when a page's own state")
+        Markdown("This chapter covers *stores*. A store holds state that more than one page or component shares: the cart, the signed-in user, the theme, a cache of what was fetched. It holds `state`, `derived` values and actions, and every page that reads it sees the same values.\n\nThe one thing to remember: **a store is built the first time something reads it.** Declaring a store does nothing. The first `Cart.items`, `Cart.count` or `Cart.add(…)` builds it, and every later read uses that same instance. As a result, the order you declare stores in does not matter — a `derived` value may read a store declared below it — and a store nothing reads costs nothing, in time or in bytes.\n\n**In this chapter**\n\n- Declaring a store and reading it from pages\n- How long a store lives: its scope\n- Actions, including async actions\n- Keeping a value across visits with `persist`, and changing its shape later\n- Connections and data a store owns\n- Inspecting and testing a store\n- When to use a store, and when a page's own state")
 
         Heading("A first store", id: "a-first-store").h2
 
@@ -37,6 +37,8 @@ page CartPage(path: "/cart", title: "Cart", description: "What you are buying.")
 
         Markdown("Clicking **Add a pen** changes **0 items, $0.00** to **1 items, $2.50**, and the `/cart` page lists the pen.\n\n- `store Cart \{ … \}` declares the store and its members.\n- `use Cart` in a page says the page reads the store. The page then reads members as `Cart.items` and `Cart.count`, and calls actions as `Cart.add(…)`.\n- Everything that reads `Cart.count`, on any page, updates when it changes.\n\nThe checker knows every member and its type. `Cart.cont` is an error (`T06`, with the nearest member it does have), and `Cart.add(\"pen\")` is an error because `add` takes an `Item` (`T01`).")
 
+        Callout("**Coming from React?** There is no context provider to wrap the tree in, and no selector to write. Declare the store once and read `Cart.count` anywhere; only what reads `count` updates when it changes. See [Coming from React](/coming-from/react).", kind: .note)
+
         Heading("Store members", id: "store-members").h2
 
         Markdown("A store holds the same members a page does: `state`, `persist`, `derived` values and actions. This fuller `Cart` adds a coupon kept across visits and an action that raises the quantity of an item already in the cart:")
@@ -64,15 +66,19 @@ store Cart {
     action clear() { items = [] }
 }"#, title: "wf")
 
-        Markdown("Inside the store you read its members by their bare names: `items`, `count`. Outside it, a page or component reads them through the store's name: `Cart.items`, `Cart.count`.\n\nYou may declare a store in any `.wf` file the build reads. By convention it goes in `src/stores/`, and `wf generate store Cart` writes it there. A page reaches a store by name from anywhere. `use` says which stores a page reads, for the person reading the code and for the editor; it does not limit what the page can reach.")
+        Markdown("Inside the store you read its members by their bare names: `items`, `count`. Outside it, a page or component reads them through the store's name: `Cart.items`, `Cart.count`.")
+
+        Callout("**Coming from Vue or Svelte?** `use Cart` is not Pinia's `useCartStore()` and makes no copy; there is no `$cart` prefix either. Every reader gets the one instance, by the store's name. See [Coming from Vue](/coming-from/vue) and [Coming from Svelte](/coming-from/svelte).", kind: .note)
+
+        Markdown("You may declare a store in any `.wf` file the build reads. By convention it goes in `src/stores/`, and `wf generate store Cart` writes it there. A page reaches a store by name from anywhere. `use` says which stores a page reads, for the person reading the code and for the editor; it does not limit what the page can reach.")
 
         Heading("Store scope", id: "store-scope").h2
 
-        Markdown("A store's *scope* says how long it lives. You set it in the declaration:")
+        Markdown("A store's *scope* says how long it lives. You set it in the declaration; these three stores live for the page, the tab and the route:")
 
-        CodeBlock(#"store Cart(scope: .app) { … }        // the default: as long as the page is open
-store Session(scope: .session) { … } // this tab's
-store Filters(scope: .route) { … }   // this route's"#, title: "wf")
+        CodeBlock(#"store Cart(scope: .app) { state items: [String] = [] }        // the default: as long as the page is open
+store Session(scope: .session) { state step = 1 }             // this tab's
+store Filters(scope: .route) { state search = "" }            // this route's"#, title: "wf")
 
         Table(caption: "Store scope") {
             Table.Head {
@@ -351,14 +357,26 @@ page DeploysPage(path: "/deploys", title: "Deploys", description: "Every deploy.
 
         Heading("Testing a store", id: "testing-a-store").h2
 
-        Markdown("`wf test` renders a test with the project's stores at hand, and a test's `data` seeds a store by its name:")
+        Markdown("`wf test` renders a test with the project's stores at hand, and a test's `data` seeds a store by its name. This test seeds a cart with two of one item and reads what `CartSummary` shows:")
 
-        CodeBlock(#"test "the cart shows what is in it"(data: { Cart: { items: [{ id: "a", qty: 2 }] } }) {
+        CodeBlock(#"type Item { id: String, qty: Number = 1 }
+
+store Cart {
+    state items: [Item] = []
+    derived count = items.map(i => i.qty).sum()
+}
+
+component CartSummary() {
+    use Cart
+    Text("{Cart.count} items")
+}
+
+test "the cart shows what is in it"(data: { Cart: { items: [{ id: "a", qty: 2 }] } }) {
     CartSummary()
     expect "2 items"
 }"#, title: "wf")
 
-        Markdown("A test that clicks a button runs the store's actions in a real browser. See [Testing](/learn/16-testing).")
+        Markdown("In a project the store and the component live under `src/` and the test under `tests/`.\n\nA test that clicks a button runs the store's actions in a real browser. See [Testing](/learn/16-testing).")
 
         Heading("When to use a store", id: "when-to-use-a-store").h2
 
@@ -439,5 +457,64 @@ page DeploysPage(path: "/deploys", title: "Deploys", description: "Every deploy.
                 }
             }
         }
+
+        Heading("Quiz", id: "quiz").h2
+
+        Quiz("A program declares a `Cart` store, and nothing has read it yet. When is the store built?", id: "Stores#13", choices: [
+            QuizChoice(text: "When the app boots", right: false, why: "Only `store Cart(eager: true)` is built at boot."),
+            QuizChoice(text: "Each time a page says `use Cart`, as a fresh copy for that page", right: false, why: "Every reader shares one instance; `use` makes no copy."),
+            QuizChoice(text: "The first time something reads one of its members or calls an action", right: true, why: "A store nothing reads is never built and costs nothing.")
+        ])
+
+        Quiz("A page reads `Cart.count` but has no `use Cart` line. What happens?", id: "Stores#13", choices: [
+            QuizChoice(text: "It builds and works: `use` says which stores a page reads, and does not limit what it can reach", right: true, why: "A store is reached by its name from anywhere."),
+            QuizChoice(text: "The build stops with `X05`", right: false, why: "`X05` is a `use` that names a store nothing declares, such as `use Carts`."),
+            QuizChoice(text: "It builds, but `Cart.count` is always `0` on that page", right: false, why: "Every reader sees the same instance, with or without `use`.")
+        ])
+
+        Quiz("`store Filters(scope: .route) \{ persist search = \"\" \}`. The reader types a search, leaves the route and comes back. What is `search`?", id: "Stores#13", choices: [
+            QuizChoice(text: "`\"\"`, because a `.route` store is dropped when the route changes", right: false, why: "The store is dropped, but the next read builds it again from storage."),
+            QuizChoice(text: "What they typed: the value comes back from storage, which the build warns about (`P03`)", right: true, why: "Use `state` for what the route owns, and a wider scope for what outlives it."),
+            QuizChoice(text: "An error: a `.route` store cannot hold `persist`", right: false, why: "It builds; `P03` is a warning.")
+        ])
+
+        Heading("Common mistakes", id: "common-mistakes").h2
+
+        Markdown("**A member the store does not have.** A name guessed from what the store ought to hold, rather than read from what it declares:")
+
+        CodeBlock(#"store Cart {
+    state items: [String] = []
+    derived count = items.length
+}
+
+page P(path: "/", title: "T", description: "D") {
+    use Cart
+    Heading("Cart").h1
+    Text("{Cart.total} items")
+}"#, title: "wf · draws T06")
+
+        Markdown("Read a member the store declares, `Cart.count`, or declare the one you need. See [T06](/errors/T06).\n\n**`use` with the store's name misspelled.** A store's name is capitalised, and `use` must name it exactly:")
+
+        CodeBlock(#"store Cart { state items: [String] = [] }
+
+page P(path: "/", title: "T", description: "D") {
+    use cart
+    Heading("{Cart.items.length} in the cart").h1
+}"#, title: "wf · draws X05")
+
+        Markdown("Write `use Cart`. See [X05](/errors/X05).\n\n**Assigning a store's `derived` value.** A `derived` value is worked out from the state it reads, so nothing may set it:")
+
+        CodeBlock(#"store Cart {
+    state items: [String] = []
+    derived count = items.length
+}
+
+page P(path: "/", title: "T", description: "D") {
+    use Cart
+    Heading("{Cart.count} items").h1
+    Button("Empty") { on click { Cart.count = 0 } }
+}"#, title: "wf · draws X01")
+
+        Markdown("Change the state it reads, through an action: `action clear() \{ items = [] \}`, called as `Cart.clear()`. See [X01](/errors/X01).")
     }
 }

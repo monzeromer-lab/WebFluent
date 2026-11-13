@@ -5,12 +5,14 @@ route: "/learn/05-pages-and-routing"
 from: ["/docs/guide/pages-and-routing"]
 group: "language"
 blurb: "A page is a route and what it shows. Each page names its own path, the app shell frames every page, and a layout frames a section."
-description: "Page attributes, routes and typed parameters, query strings, layouts, guards, the app shell, per-page head tags and the 404 page."
+description: "Page attributes, routes and typed parameters, query strings, layouts, guards, pages in other languages, head tags and the 404 page."
+learned: ["Declare a `page` with its `path:`, `title:` and `description:`", "Frame every page with `app` and a `Router`, and a section with a `layout:`", "Read route parameters, `query` and `hash`, and move with `Link` and `navigate()`", "Publish a page in another language with `lang:` and `translates:`", "Guard a route, add head tags, and answer every other route with `path: \"*\"`"]
 ---
 # 5. Pages and routing
 
-A page is a route and what it shows. Each page names its own path, so there
-is no separate route table to keep in step with your pages.
+This chapter covers WebFluent's pages and routes: a page is a route and what
+it shows. Each page names its own path, so there is no separate route table
+to keep in step with your pages.
 
 In this chapter:
 
@@ -19,6 +21,7 @@ In this chapter:
 - links, `navigate()` and how the active link is marked
 - route parameters, query strings and fragments
 - layouts, guards and per-page head tags
+- a page in another language, with `lang:` and `translates:`
 - the catch-all page
 - what runs, and in what order, when a page opens
 
@@ -58,6 +61,12 @@ The page's header takes these attributes:
 A page without a `title:` builds with warning `S01`, and one without a
 `description:` with warning `S02`. The compiler cannot write those for you,
 and a page without them looks bare when someone shares or searches for it.
+
+> [!NOTE]
+> **Coming from React Router, Vue Router or SvelteKit?** There is no route
+> table and no `routes/` folder. Each `page` names its own `path:`, and the
+> compiler builds the router from every page. See
+> [Coming from React](../coming-from/react.md#things-that-work-differently).
 
 ## The app shell
 
@@ -302,6 +311,38 @@ where the reader goes.
 and the config, the compiler writes the standard tags itself: charset,
 viewport, description, canonical, Open Graph, Twitter card and JSON-LD.
 
+## A page in another language
+
+A page written in a language other than the site's says so with `lang:`, and
+names the page it translates with `translates:`. This site is in English,
+with its home page in Arabic at `/ar`:
+
+```wf
+page Home(path: "/", title: "Home", description: "What we make.") {
+    Heading("Welcome").h1
+}
+
+page HomeAr(path: "/ar", title: "الرئيسية", description: "ما نصنعه.", lang: "ar", translates: Home) {
+    Heading("أهلاً بك").h1
+}
+```
+
+What the two attributes do:
+
+- **`lang:`** writes the page as `<html lang="ar" dir="rtl">`, with its
+  `og:locale` and its JSON-LD's `inLanguage` to match. The router sets
+  `lang` and `dir` when it shows the page, and puts the site's back on a page
+  without one.
+- **`translates:`** joins the pages. Each lists the others as `hreflang`
+  alternates, each at its own address, with `x-default` for the one in the
+  site's language, so a search engine finds every language.
+- A `translates:` that names no page, or two translations of one page in one
+  language, is `R05`.
+
+This is different from `t()` and `setLocale`, which translate one address in
+the browser. [Publish a page in each language](../recipes/site-in-two-languages.md)
+compares the two.
+
 ## The catch-all page
 
 A page with `path: "*"` answers every route no other page claims. The router
@@ -359,6 +400,12 @@ A page goes through these stages, in order:
 There is no `onMount` to write. Set-up code runs at stage 2, an `effect` at
 stage 3, and `after(0) { … }` once the page is on screen.
 
+> [!NOTE]
+> **Coming from React?** A page's body is not a function called on every
+> render; it runs once. Set-up code does what `useEffect(…, [])` did, and
+> nothing re-renders after it. See
+> [Coming from React](../coming-from/react.md#things-that-work-differently).
+
 ## Quick reference
 
 | Syntax | Meaning |
@@ -373,10 +420,56 @@ stage 3, and `after(0) { … }` once the page is on screen.
 | `layout: Shell("Crumb")` | Frame the page with a component's default slot |
 | `guard: Auth.loggedIn, redirect: "/login"` | Render only while a condition holds |
 | `head { meta(…) link(…) script(…) }` | Tags of the page's own in `<head>` |
+| `lang: "ar", translates: Home` | A page in another language, joined to the page it translates |
 
 The [configuration reference](../reference/configuration.md) covers `build.base_path`,
 and [Static or single-page](../about/static-and-spa.md) covers how each build
 serves pages.
+
+## Common mistakes
+
+**A route names a parameter the page does not declare.** Each `:name` in
+the path is a parameter of the page, and the page must declare it:
+
+```wf expect=R02
+page Post(path: "/posts/:slug", title: "Post", description: "One post.") {
+    Heading("A post").h1
+}
+```
+
+Add `slug: String` to the page's header, beside `path:`, and read it as
+`slug` ([R02](../errors/R02.md)).
+
+**A link to a page that does not exist.** The compiler knows every route, so
+a `Link` or a `navigate()` to a path no page answers stops the build:
+
+```wf expect=R01
+page Home(path: "/", title: "Home", description: "The front page.") {
+    Heading("Home").h1
+    Link("About us", to: "/about")
+}
+```
+
+Declare the page, `page About(path: "/about", …)`, or fix the path
+([R01](../errors/R01.md)).
+
+**A layout with nowhere to put the page.** A `layout:` component must
+declare a default `slot` and place `children` where the page goes:
+
+```wf expect=E104
+component Shell(_ crumb: String) {
+    Stack {
+        Text(crumb)
+    }
+}
+
+page Home(path: "/", title: "Home", description: "The front page.", layout: Shell("Home")) {
+    Heading("Home").h1
+}
+```
+
+Add `slot` at the top of `Shell` and `children` inside its `Stack`
+([E104](../errors/E104.md)).
 
 ## Next
 

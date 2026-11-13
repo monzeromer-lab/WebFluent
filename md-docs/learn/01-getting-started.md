@@ -6,13 +6,15 @@ from: ["/docs/guide/getting-started"]
 group: "tour"
 blurb: "Install the compiler, make a project, run it, change it and see the change — then set up your editor, or WebFluent Studio, and see what a build writes."
 description: "Install wf, check the install, create a first project, run the dev server and make a change. Then set up the language server and read the build."
+learned: ["Install `wf` and check it with `wf --version`", "Create a project with `wf init` and run it with `wf serve`", "Change a page and read the error the dev server draws over it", "Write a two-page site: an `app` with a `Router`, and pages that name their own `path:`", "Say what `wf build` writes to `build/`"]
 ---
 # 1. Getting started
 
-In about ten minutes you install the compiler, create a project, run it in
-your browser, change one line and see the page follow. The rest of the
-chapter covers optional set-up: your editor, the other project templates, a
-site written from scratch, and what a build writes.
+This chapter installs `wf`, the WebFluent compiler, and runs a first
+project in your browser. In about ten minutes you create the project, change
+one line and see the page follow. The rest of the chapter covers optional
+set-up: your editor, the other project templates, a site written from
+scratch, and what a build writes.
 
 ## Before you start
 
@@ -83,7 +85,7 @@ wf --version
 **You see** the release you installed:
 
 ```text
-wf 5.11.0
+wf 6.0.0
 ```
 
 If the shell says it cannot find `wf`, open a new terminal. The installer
@@ -312,6 +314,12 @@ Save, and the dev server shows a navigation bar with **Home** and
   built-ins. The [components reference](../reference/components.md) lists
   all of them.
 
+> [!NOTE]
+> **Coming from React?** There is no route table and no `import`. Each
+> `page` names its own `path:`, and every file under `src/` is part of one
+> program, so `App.wf` places pages and components it never imports. See
+> [Coming from React](../coming-from/react.md).
+
 ## What a build produces
 
 `wf build` writes the finished site to `build/`. A static build with two
@@ -340,7 +348,7 @@ does. The build copies `public/` to the root of `build/` as it is.
 `app.js` carries only the parts of the runtime the program reaches. The
 runtime is a set of feature modules — `each` for a `for`, `router` for a
 second page, `net` for a `resource`, `icons` for an `Icon` — and the build
-works out which ones the code it just wrote calls, then keeps only the
+works out which ones the code it has written calls, then keeps only the
 functions of those that the calls reach, with their names shortened. A
 page of static text is an `app.js` of 1.9 kB gzipped. `wf build --stats`
 shows what a build weighs, and [Performance](../about/performance.md)
@@ -376,6 +384,60 @@ The config needs only a name:
 ```json
 { "name": "hello" }
 ```
+
+## Common mistakes
+
+A flag with a typo. A flag is checked against the element that takes it,
+so `.mutd` is an error, not a style that quietly does nothing:
+
+```wf expect=E103
+page Home(path: "/", title: "Hello", description: "A first site.") {
+    Heading("Hello").h1
+    Text("Welcome back.").mutd
+}
+```
+
+Use one of the flags the message lists, here `.muted`
+([E103](../errors/E103.md)).
+
+An `app` with no `Router`. The shell is drawn, but no page ever is:
+
+```wf expect=R03
+app {
+    Navbar {
+        Navbar.Brand { Text("Hello").heading }
+    }
+}
+
+page Home(path: "/", title: "Hello", description: "A first site.") {
+    Heading("Hello, world").h1
+}
+```
+
+Put `Router` in the `app` where the current page should appear
+([R03](../errors/R03.md)).
+
+A link to a page you have not written yet. The compiler checks every
+`to:` against the pages' paths:
+
+```wf expect=R01
+app {
+    Navbar {
+        Navbar.Links {
+            Link("Home", to: "/")
+            Link("About", to: "/about")
+        }
+    }
+    Router
+}
+
+page Home(path: "/", title: "Hello", description: "A first site.") {
+    Heading("Hello, world").h1
+}
+```
+
+Add the page, `page About(path: "/about", …)`, or fix the address
+([R01](../errors/R01.md)).
 
 ## Next
 

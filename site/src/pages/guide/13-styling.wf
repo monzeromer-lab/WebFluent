@@ -1,8 +1,27 @@
 /// Chapter 13 of the guide, written from md-docs/learn/13-styling.md by
 /// scripts/docsite/guide.py; edit the guide, not this file.
-page Learn13Styling(path: "/learn/13-styling", title: "Styling", description: "Themes and tokens, style blocks with live values, nested rules and media queries, transitions, classes and stylesheets, dark mode, responsive layout.", layout: DocsShell("Styling", kind: .tutorial, chapter: t("nav.group.build"), blurb: "Restyle the whole site with a theme, one element with a style block, and many elements with your own stylesheet — and make the layout responsive.", source: "md-docs/learn/13-styling.md", sections: [Anchor(id: "before-you-start", label: "Before you start"), Anchor(id: "change-the-whole-site-with-a-theme", label: "Change the whole site with a theme"), Anchor(id: "style-one-element", label: "Style one element"), Anchor(id: "animate-a-style-change", label: "Animate a style change"), Anchor(id: "classes-and-your-own-stylesheet", label: "Classes and your own stylesheet"), Anchor(id: "override-a-built-in-s-look", label: "Override a built-in's look"), Anchor(id: "style-a-component-s-variants", label: "Style a component's variants"), Anchor(id: "dark-mode", label: "Dark mode"), Anchor(id: "lay-out-a-page-without-css", label: "Lay out a page without CSS"), Anchor(id: "responsive-values", label: "Responsive values"), Anchor(id: "find-your-styles-in-the-build-output", label: "Find your styles in the build output"), Anchor(id: "troubleshooting", label: "Troubleshooting")], prevTo: "/learn/12-types", prevLabel: t("ch.12"), nextTo: "/learn/14-forms", nextLabel: t("ch.14"))) {
+page Learn13Styling(path: "/learn/13-styling", title: "Styling", description: "Themes and tokens, style blocks with live values, nested rules and media queries, transitions, classes and stylesheets, dark mode, responsive layout.", layout: DocsShell("Styling", kind: .tutorial, chapter: t("nav.group.build"), blurb: "Restyle the whole site with a theme, one element with a style block, and many elements with your own stylesheet — and make the layout responsive.", source: "md-docs/learn/13-styling.md", sections: [Anchor(id: "before-you-start", label: "Before you start"), Anchor(id: "change-the-whole-site-with-a-theme", label: "Change the whole site with a theme"), Anchor(id: "style-one-element", label: "Style one element"), Anchor(id: "animate-a-style-change", label: "Animate a style change"), Anchor(id: "classes-and-your-own-stylesheet", label: "Classes and your own stylesheet"), Anchor(id: "override-a-built-in-s-look", label: "Override a built-in's look"), Anchor(id: "style-a-component-s-variants", label: "Style a component's variants"), Anchor(id: "dark-mode", label: "Dark mode"), Anchor(id: "lay-out-a-page-without-css", label: "Lay out a page without CSS"), Anchor(id: "responsive-values", label: "Responsive values"), Anchor(id: "find-your-styles-in-the-build-output", label: "Find your styles in the build output"), Anchor(id: "troubleshooting", label: "Troubleshooting"), Anchor(id: "common-mistakes", label: "Common mistakes")], prevTo: "/learn/12-types", prevLabel: t("ch.12"), nextTo: "/learn/14-forms", nextLabel: t("ch.14"))) {
     Stack(gap: .lg) {
-        Markdown("This chapter shows you how to change the way your site looks, from the whole site down to one element. Every built-in element already ships styled, so you only write styles for what you want to change.\n\nYou will be able to:\n\n- change colours, fonts and spacing across the site with a `theme`;\n- style one element with a `style \{ \}` block, including live values, hover states and media queries;\n- share rules between elements with classes and your own `.css` files;\n- add dark mode;\n- make a layout change with the width of the screen.")
+        Markdown("This chapter covers styling in WebFluent: a theme for the whole site, a `style \{ \}` block for one element, and your own stylesheets for what sits between. Every built-in element already ships styled, so you write styles only for what you want to change.\n\nThis page sets the brand colour for the whole site, then gives one card a border of that colour and a deeper shadow on hover:")
+
+        CodeBlock(#"theme Brand {
+    color-primary: #0F766E
+    radius-md: 14px
+}
+
+page Home(path: "/", title: "Home", description: "A themed page.") {
+    Heading("Welcome").h1
+    Card {
+        style {
+            border-left: 4px solid $color-primary
+            &:hover { box-shadow: $shadow-lg }
+        }
+        Text("Every primary button on the site is teal now.")
+        Button("Start").primary
+    }
+}"#, title: "wf")
+
+        Markdown("The `theme` changes every element that reads `color-primary`; the `style \{ \}` block changes only the card it is written in.\n\nYou will be able to:\n\n- change colours, fonts and spacing across the site with a `theme`;\n- style one element with a `style \{ \}` block, including live values, hover states and media queries;\n- share rules between elements with classes and your own `.css` files;\n- add dark mode;\n- make a layout change with the width of the screen.")
 
         Heading("Before you start", id: "before-you-start").h2
 
@@ -108,6 +127,8 @@ page Learn13Styling(path: "/learn/13-styling", title: "Styling", description: "T
 }"##, title: "wf")
 
         Markdown("The card gets a deeper shadow on hover. **Widen** lets it fill the page, and **Make it blue** recolours its left border at once.")
+
+        Callout("**Coming from HTML and CSS?** There is no `style=\"…\"` attribute: `style:` as an argument is `E106`. The declarations go in the element's `style \{ \}` block, and the build turns the parts that never change into a stylesheet rule, so a strict content security policy still holds. See [Coming from HTML and CSS](/coming-from/html-css).", kind: .note)
 
         Heading("Write declarations", id: "write-declarations").h3
 
@@ -249,6 +270,8 @@ page Learn13Styling(path: "/learn/13-styling", title: "Styling", description: "T
     Container(class: ["panel", tone, if urgent { "is-loud" }]) { Text("Due today") }
     Button("Done") { on click { done = !done } }
 }"#, title: "wf")
+
+        Callout("**Coming from React?** `className` is a string you assemble, often with `clsx`. `class:` *adds* to the element's own classes, and takes the map `clsx` would build: `class: \{ \"is-done\": done \}`. For one element's look, reach for a flag or a `style \{ \}` block before a class. See [Coming from React](/coming-from/react).", kind: .note)
 
         Markdown("The rules for a class value:\n\n- A map's values must be conditions (`Bool`).\n- A bare condition is not a class: `class: active` is `T01`. Write `\{ \"is-active\": active \}`, which says what `active` turns on.\n- When the value changes, only the classes that `class:` itself named come off. A class a script added with `classList.add` stays.")
 
@@ -431,5 +454,39 @@ Grid(columns: { base: 1, md: 3 }) { … }   // or say what it does at each width
                 }
             }
         }
+
+        Heading("Common mistakes", id: "common-mistakes").h2
+
+        Markdown("**A comma between two declarations.** A `style \{ \}` block is CSS, not a map, so a comma after a value does not build:")
+
+        CodeBlock(#"page P(path: "/", title: "Card", description: "A styled card.") {
+    Heading("Card").h1
+    Card {
+        style { padding: $lg, border-radius: $radius-md }
+        Text("Hello")
+    }
+}"#, title: "wf · draws E002")
+
+        Markdown("Put each declaration on its own line, or separate them with `;` ([E002](/errors/E002)).\n\n**A number spliced as a length.** A splice puts in the value as it is, and a length with no unit is one the browser drops:")
+
+        CodeBlock(#"page P(path: "/", title: "Progress", description: "A bar that fills.") {
+    state pct = 40
+    Heading("Progress").h1
+    Stack {
+        style { width: {pct}; background: $primary; height: 8px }
+    }
+    Button("More") { on click { pct = pct + 10 } }
+}"#, title: "wf · draws V07")
+
+        Markdown("Write the unit after the splice: `width: \{pct\}%` ([V07](/errors/V07)).\n\n**A condition as a class.** `class:` wants class names, and a `Bool` says nothing about which class it turns on:")
+
+        CodeBlock(#"page P(path: "/", title: "Chores", description: "A class that follows state.") {
+    state done = false
+    Heading("Chores").h1
+    Text("Water the plants", class: done)
+    Button("Done") { on click { done = !done } }
+}"#, title: "wf · draws T01")
+
+        Markdown("Name the class and its condition in a map: `class: \{ \"is-done\": done \}` ([T01](/errors/T01)).")
     }
 }

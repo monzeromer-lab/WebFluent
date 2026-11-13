@@ -1,8 +1,8 @@
 /// Chapter 17 of the guide, written from md-docs/learn/17-pdf-and-slides.md by
 /// scripts/docsite/guide.py; edit the guide, not this file.
-page Learn17PdfAndSlides(path: "/learn/17-pdf-and-slides", title: "PDF and slides", description: "Make PDF documents and slide decks: the paged engine, CSS layout, page breaks, fonts, Arabic, headers, page numbers, contents, charts and QR codes.", layout: DocsShell("PDF and slides", kind: .tutorial, chapter: t("nav.group.build"), blurb: "Compile the same language to a paginated PDF document or a slide deck — invoices, reports and talks, laid out with CSS as on the web.", source: "md-docs/learn/17-pdf-and-slides.md", sections: [Anchor(id: "before-you-start", label: "Before you start"), Anchor(id: "choose-what-the-build-writes", label: "Choose what the build writes"), Anchor(id: "the-paged-engine", label: "The paged engine"), Anchor(id: "make-a-pdf-document", label: "Make a PDF document"), Anchor(id: "make-a-slide-deck", label: "Make a slide deck"), Anchor(id: "troubleshooting", label: "Troubleshooting")], prevTo: "/learn/16-testing", prevLabel: t("ch.16"))) {
+page Learn17PdfAndSlides(path: "/learn/17-pdf-and-slides", title: "PDF and slides", description: "Make PDF documents and slide decks: the paged engine, CSS layout, page breaks, fonts, Arabic, headers, page numbers, contents, charts and QR codes.", layout: DocsShell("PDF and slides", kind: .tutorial, chapter: t("nav.group.build"), blurb: "Compile the same language to a paginated PDF document or a slide deck — invoices, reports and talks, laid out with CSS as on the web.", source: "md-docs/learn/17-pdf-and-slides.md", sections: [Anchor(id: "before-you-start", label: "Before you start"), Anchor(id: "choose-what-the-build-writes", label: "Choose what the build writes"), Anchor(id: "the-paged-engine", label: "The paged engine"), Anchor(id: "make-a-pdf-document", label: "Make a PDF document"), Anchor(id: "make-a-slide-deck", label: "Make a slide deck"), Anchor(id: "troubleshooting", label: "Troubleshooting"), Anchor(id: "common-mistakes", label: "Common mistakes")], prevTo: "/learn/16-testing", prevLabel: t("ch.16"))) {
     Stack(gap: .lg) {
-        Markdown("This chapter shows you how to compile a WebFluent project to paper: a paginated PDF document, such as an invoice or a report, or a slide deck for a talk. You write the pages with the same elements and the same CSS as a website, and `wf build` lays them out on pages.\n\nIn this chapter:\n\n- choosing what the build writes;\n- how the paged engine lays out a page;\n- making a PDF document: paper, headers, page breaks, contents, charts, fonts and right-to-left text;\n- making a slide deck.")
+        Markdown("This chapter is about compiling a WebFluent project to paper: a paginated PDF document, such as an invoice or a report, or a slide deck for a talk. You write the pages with the same elements and the same CSS as a website, and `wf build` lays them out on pages.\n\nIn this chapter:\n\n- choosing what the build writes;\n- how the paged engine lays out a page;\n- making a PDF document: paper, headers, page breaks, contents, charts, fonts and right-to-left text;\n- making a slide deck.")
 
         Heading("Before you start", id: "before-you-start").h2
 
@@ -127,6 +127,8 @@ page Invoice(path: "/", title: "Invoice", description: "An invoice.") {
 }"#, title: "wf")
 
         Markdown("The result is a two-page PDF: the invoice on the first page, ending with `Total: $5,480.00`, and the terms on the second, under the header.")
+
+        Callout("**Coming from LaTeX or Typst?** There is no document class and there are no TeX boxes: a document is laid out by CSS. `\\newpage` is `PageBreak`, a `minipage` that must not split is `style \{ break-inside: avoid \}`, and `fancyhdr` is a `Header` and a `Footer`. See [Coming from LaTeX and Typst](/coming-from/latex).", kind: .note)
 
         Heading("Set the paper, headers and footers", id: "set-the-paper-headers-and-footers").h3
 
@@ -421,5 +423,47 @@ page Report(path: "/", title: "Sales", description: "The quarter.") {
                 }
             }
         }
+
+        Heading("Common mistakes", id: "common-mistakes").h2
+
+        Markdown("**A page number outside a header or footer.** `page` and `pages` exist only inside a `Header`, a `Footer` or a `Background`, which are drawn once per page:")
+
+        CodeBlock(#"page Report(path: "/", title: "Report", description: "The quarter.") {
+    Document(size: "A4", title: "Q1 report") {
+        Heading("Q1 report").h1
+        Text("Revenue grew 15% this quarter.")
+        Text("Page {page} of {pages}").muted.sm.center
+    }
+}"#, title: "wf · draws T13")
+
+        Markdown("Move the line into `Footer \{ Text(\"Page \{page\} of \{pages\}\") \}` ([T13](/errors/T13)).\n\n**A component named like a built-in.** `Footer` is already the document's footer, so a call of that name draws the built-in and never your component:")
+
+        CodeBlock(#"component Footer(_ note: String) {
+    Text(note).muted.sm.center
+}
+
+page Invoice(path: "/", title: "Invoice", description: "An invoice.") {
+    Document(size: "A4", title: "Invoice 2026-014") {
+        Heading("Invoice").h1
+        Text("Total: $5,480.00").bold
+        Footer("Acme Studio · invoice 2026-014")
+    }
+}"#, title: "wf · draws V11")
+
+        Markdown("Name it for what it is, such as `component InvoiceNote`, or use the built-in: `Footer \{ Text(\"Acme Studio · invoice 2026-014\") \}` ([V11](/errors/V11)).\n\n**A table with no header row.** Without `Table.Head`, a reader of the file has no column names, and a table that runs onto a second page has no header to draw again there:")
+
+        CodeBlock(#"page Invoice(path: "/", title: "Invoice", description: "An invoice.") {
+    Document(size: "A4", title: "Invoice 2026-014") {
+        Heading("Invoice").h1
+        Table {
+            Table.Body {
+                Table.Row { Table.Cell("Design")  Table.Cell("$1,080.00") }
+                Table.Row { Table.Cell("Build")  Table.Cell("$4,400.00") }
+            }
+        }
+    }
+}"#, title: "wf · draws A10")
+
+        Markdown("Add `Table.Head \{ Table.Row \{ Table.Cell(\"Item\")  Table.Cell(\"Amount\") \} \}` ([A10](/errors/A10)).")
     }
 }

@@ -1,8 +1,8 @@
 /// Chapter 7 of the guide, written from md-docs/learn/07-state-and-reactivity.md by
 /// scripts/docsite/guide.py; edit the guide, not this file.
-page Learn07StateAndReactivity(path: "/learn/07-state-and-reactivity", title: "State and reactivity", description: "state, derived, effect, actions and let, persist, timers, automatic clean-up, element handles and the browser's values.", layout: DocsShell("State and reactivity", kind: .tutorial, chapter: t("nav.group.language"), blurb: "A state is a signal, and only what reads it updates: no tree re-renders, no subscriptions to manage.", source: "md-docs/learn/07-state-and-reactivity.md", sections: [Anchor(id: "state", label: "state"), Anchor(id: "derived", label: "derived"), Anchor(id: "effect", label: "effect"), Anchor(id: "actions-and-locals", label: "Actions and locals"), Anchor(id: "persist", label: "persist"), Anchor(id: "timers", label: "Timers"), Anchor(id: "automatic-clean-up", label: "Automatic clean-up"), Anchor(id: "element-handles", label: "Element handles"), Anchor(id: "the-browser-as-values", label: "The browser as values"), Anchor(id: "common-mistakes", label: "Common mistakes"), Anchor(id: "where-values-come-from-in-order", label: "Where values come from, in order"), Anchor(id: "summary", label: "Summary")], prevTo: "/learn/06-elements", prevLabel: t("ch.06"), nextTo: "/learn/08-events", nextLabel: t("ch.08"))) {
+page Learn07StateAndReactivity(path: "/learn/07-state-and-reactivity", title: "State and reactivity", description: "state, derived, effect, actions and let, persist, timers, automatic clean-up, element handles and the browser's values.", layout: DocsShell("State and reactivity", kind: .tutorial, chapter: t("nav.group.language"), blurb: "A state is a signal, and only what reads it updates: no tree re-renders, no subscriptions to manage.", source: "md-docs/learn/07-state-and-reactivity.md", sections: [Anchor(id: "state", label: "state"), Anchor(id: "derived", label: "derived"), Anchor(id: "effect", label: "effect"), Anchor(id: "actions-and-locals", label: "Actions and locals"), Anchor(id: "persist", label: "persist"), Anchor(id: "timers", label: "Timers"), Anchor(id: "automatic-clean-up", label: "Automatic clean-up"), Anchor(id: "element-handles", label: "Element handles"), Anchor(id: "the-browser-as-values", label: "The browser as values"), Anchor(id: "where-values-come-from-in-order", label: "Where values come from, in order"), Anchor(id: "summary", label: "Summary"), Anchor(id: "quiz", label: "Quiz"), Anchor(id: "common-mistakes", label: "Common mistakes")], prevTo: "/learn/06-elements", prevLabel: t("ch.06"), nextTo: "/learn/08-events", nextLabel: t("ch.08"))) {
     Stack(gap: .lg) {
-        Markdown("A `state` is a value the page can change. Anything that reads it — a text, an attribute, a `derived` value, an `effect`, a style splice — updates when it changes, and nothing else does. This is *fine-grained reactivity*: there is no re-render of a component tree, and you never subscribe or unsubscribe by hand.\n\nIn this chapter:\n\n- `state`, `derived` and `effect` — the three kinds of reactive value\n- actions and `let` locals — the code that changes state\n- `persist`, timers and element handles\n- how the runtime cleans up after a page, a branch or a list item\n- the browser's own values: `viewport`, `query`, `now` and the rest\n- the mistakes people make, and where a name is looked up")
+        Markdown("This chapter covers state and reactivity in WebFluent. A `state` is a value the page can change. Anything that reads it — a text, an attribute, a `derived` value, an `effect`, a style splice — updates when it changes, and nothing else does. This is *fine-grained reactivity*: there is no re-render of a component tree, and you never subscribe or unsubscribe by hand.\n\nIn this chapter:\n\n- `state`, `derived` and `effect` — the three kinds of reactive value\n- actions and `let` locals — the code that changes state\n- `persist`, timers and element handles\n- how the runtime cleans up after a page, a branch or a list item\n- the browser's own values: `viewport`, `query`, `now` and the rest\n- where a name is looked up, and the mistakes people make")
 
         Heading("state", id: "state").h2
 
@@ -20,7 +20,11 @@ page Learn07StateAndReactivity(path: "/learn/07-state-and-reactivity", title: "S
     Button("+1") { on click { count = count + 1 } }
 }"#, title: "wf")
 
-        Markdown("Each click sets `count`, and only the `Text` that reads it changes.\n\nThe type of a state is read off its initial value, or written after a colon. [Types](/learn/12-types) has the type language. Assigning a value of another type is an error (`T01`).\n\nYou write state only in an imperative block — a handler, an action or an effect. You can:\n\n- assign it: `count = count + 1`\n- change a place inside it: `user.name = \"Ann\"`, `items[0] = \"Pen\"`\n- call a method that changes it: `items.push(\"Pen\")`, `items.sort()`\n\nA change inside a value gives the state a new copy with that place changed, so everything that reads it repaints, and a `persist` value is written.\n\nThe *static paint* — the HTML the build pre-renders for a page — seeds every state with its initial value, so a pre-rendered page shows what the first paint in the browser would.")
+        Markdown("Each click sets `count`, and only the `Text` that reads it changes.")
+
+        Callout("**Coming from React?** `useState` returns a value and a setter, and a change runs the whole component again. A `state` is assigned directly, `count = count + 1`, and the body never runs again: only what reads `count` updates. A value that should follow a prop or a state is a `derived`. See [Coming from React](/coming-from/react#things-that-work-differently).", kind: .note)
+
+        Markdown("The type of a state is read off its initial value, or written after a colon. [Types](/learn/12-types) has the type language. Assigning a value of another type is an error (`T01`).\n\nYou write state only in an imperative block — a handler, an action or an effect. You can:\n\n- assign it: `count = count + 1`\n- change a place inside it: `user.name = \"Ann\"`, `items[0] = \"Pen\"`\n- call a method that changes it: `items.push(\"Pen\")`, `items.sort()`\n\nA change inside a value gives the state a new copy with that place changed, so everything that reads it repaints, and a `persist` value is written.\n\nThe *static paint* — the HTML the build pre-renders for a page — seeds every state with its initial value, so a pre-rendered page shows what the first paint in the browser would.")
 
         Heading("derived", id: "derived").h2
 
@@ -95,7 +99,7 @@ page Learn07StateAndReactivity(path: "/learn/07-state-and-reactivity", title: "S
     }
 }"#, title: "wf")
 
-        Markdown("What an action's body can hold:\n\n- **Locals.** `let x = …` declares a local of the action or handler. `let \{ a, b \} = m` and `let [x, y] = l` destructure a map and a list.\n- **`await`.** Using it makes the action asynchronous, and `name.pending` is `true` while a call of it runs ([Forms](/learn/14-forms#show-that-a-request-is-running)).\n- **Loops.** `for item in list \{ \}`, `for item, i in list \{ \}` and `for n in 1..=10 \{ \}`.\n- **Errors.** `try \{ \} catch e \{ \}` guards a call that may fail.\n- **`return`.** `return` leaves the action; `return x` leaves with a value.\n\nYou call a page's action by name, `add()`, and a store's through the store, `Todos.add()`.")
+        Markdown("What an action's body can hold:\n\n- **Locals.** `let x = …` declares a local of the action or handler. `let \{ a, b \} = m` and `let [x, y] = l` destructure a map and a list.\n- **`await`.** Using it makes the action asynchronous, and `name.pending` is `true` while a call of it runs ([Forms](/learn/14-forms#show-that-a-request-is-running)).\n- **Loops.** `for item in list \{ \}`, `for item, i in list \{ \}` and `for n in 1..=10 \{ \}`.\n- **Errors.** `try \{ \} catch e \{ \}` guards a call that may fail.\n- **`return`.** `return` leaves the action; `return x` leaves with a value.\n\nA `let` is the action's own. After `let list = items`, `list.push(x)` changes `list` and leaves `items` as it was; assign it back with `items = list`, or write `items.push(x)`, which gives the state a new list.\n\nYou call a page's action by name, `add()`, and a store's through the store, `Todos.add()`.")
 
         Heading("persist", id: "persist").h2
 
@@ -147,7 +151,7 @@ page Learn07StateAndReactivity(path: "/learn/07-state-and-reactivity", title: "S
     on key("/") { box.focus() }
 }"#, title: "wf")
 
-        Markdown("The `ref:` declares the name; you do not declare it anywhere else. Anything the element has is there: `box.value`, `box.scrollIntoView()`.")
+        Markdown("The `ref:` declares the name; you do not declare it anywhere else. Anything the element has is there: `box.value`, `box.scrollIntoView()`.\n\nA handle is filled once the element exists, so set-up code at the top of the body cannot use it yet. Read it in a handler, an `effect` or `after(0) \{ \}`.")
 
         Heading("The browser as values", id: "the-browser-as-values").h2
 
@@ -216,11 +220,7 @@ page Learn07StateAndReactivity(path: "/learn/07-state-and-reactivity", title: "S
     if !network.online { Alert("You are offline.").warning }
 }"#, title: "wf")
 
-        Markdown("The rules:\n\n- The breakpoints are the `screen-sm` … `screen-xl` design tokens: 640, 768, 1024 and 1280px unless a theme moves them.\n- A `state` you declare with one of these names shadows it.\n- The static paint does not know them, so what depends on them is drawn once the page is live. For layout, prefer [responsive values](/learn/13-styling#responsive-values), which are right in the first paint.")
-
-        Heading("Common mistakes", id: "common-mistakes").h2
-
-        Markdown("- **Writing state in a `derived`.** A derived value computes; it never assigns, and an action it calls may not either (`X04`). Put the assignment in an action or an `effect`.\n- **An effect that writes what it reads.** `effect \{ n = n + 1 \}` reads `n`, so it would run again forever (`X02`). Compute the value with `derived`.\n- **Changing a local copy and expecting the state to change.** `items.push(x)` on a state gives it a new list, and its readers repaint. A `let` is the action's own: after `let list = items`, `list.push(x)` changes `list` and leaves `items` as it was. Assign it back with `items = list`.\n- **Reading an element handle during set-up.** A `ref:` is filled once the element exists. Read it in a handler, an `effect` or `after(0) \{ \}`.\n- **Expecting a component to run again.** A component's body runs once. A value that should follow a prop or a state is a `derived`, or an expression written where it is shown.\n- **Copying a browser value into a `state`.** `state clock = now(every: 1.seconds)` takes the time once, when the page opens, and keeps it — every \"… ago\" worked out from it stays where it started. `derived clock = now(every: 1.seconds)` ticks. The same holds for `viewport`, `query`, `hash`, `theme`, `network` and `update`; the compiler warns (`X06`) about a state nothing changes.")
+        Markdown("The rules:\n\n- The breakpoints are the `screen-sm` … `screen-xl` design tokens: 640, 768, 1024 and 1280px unless a theme moves them.\n- They are the language's names, so a `state`, prop or `const` of the same name is an error (`E118`).\n- Copy one into a `state` and you keep the value it had when the page opened: `state clock = now(every: 1.seconds)` never ticks (`X06`). Read it where it is shown, or in a `derived`.\n- The static paint does not know them, so what depends on them is drawn once the page is live. For layout, prefer [responsive values](/learn/13-styling#responsive-values), which are right in the first paint.")
 
         Heading("Where values come from, in order", id: "where-values-come-from-in-order").h2
 
@@ -286,5 +286,57 @@ page Learn07StateAndReactivity(path: "/learn/07-state-and-reactivity", title: "S
         }
 
         Markdown("[Grammar](/reference/grammar) and [Built-in functions](/reference/built-ins) are the reference for each.")
+
+        Heading("Quiz", id: "quiz").h2
+
+        Quiz("A page shows `Heading(\"Counter\")` and `Text(\"\{count\}\")`. A click runs `count = count + 1`. What runs again?", id: "State and reactivity#12", choices: [
+            QuizChoice(text: "The page's body, which draws the heading and the text again", right: false, why: "A body runs once, when the page opens; nothing re-renders after it."),
+            QuizChoice(text: "The `Text` that reads `count`, and nothing else", right: true, why: "Only what reads a state follows it; the heading reads no state."),
+            QuizChoice(text: "The page and every component inside it", right: false, why: "There is no component tree to re-render; a component's body runs once too.")
+        ])
+
+        Quiz("`items` is a state. Which `total` stays equal to the sum of `items` as items are added?", id: "State and reactivity#12", choices: [
+            QuizChoice(text: "`state total = items.sum()`", right: false, why: "A state takes its initial value once; adding an item leaves the total as it was."),
+            QuizChoice(text: "`derived total = items.sum()`", right: true, why: "A derived value is worked out again whenever a state it read changes."),
+            QuizChoice(text: "`derived total = 0`, with `total = items.sum()` in each action that adds an item", right: false, why: "A derived value is never assigned (X01).")
+        ])
+
+        Quiz("Which of these clocks ticks every second?", id: "State and reactivity#12", choices: [
+            QuizChoice(text: "`state clock = now(every: 1.seconds)`", right: false, why: "A state takes `now` once, when the page opens (X06)."),
+            QuizChoice(text: "`derived clock = now(every: 1.seconds)`", right: true, why: "A derived value follows `now` as it ticks."),
+            QuizChoice(text: "`derived clock = now`", right: false, why: "This one ticks, but once a minute: `now` alone keeps minutes, and `now(every: 1.seconds)` asks for seconds.")
+        ])
+
+        Heading("Common mistakes", id: "common-mistakes").h2
+
+        Markdown("**A state that copies `now` once.** A `state` takes its initial value when the page opens and keeps it, so a clock or an \"… ago\" worked out from it never moves:")
+
+        CodeBlock(#"page Feed(path: "/", title: "Feed", description: "When this was posted.") {
+    state posted = @2026-03-14T09:30:00Z
+    state clock = now(every: 1.seconds)
+    Heading("Feed").h1
+    Text("Posted {posted.until(clock).minutes()} minutes ago")
+}"#, title: "wf · draws X06")
+
+        Markdown("Declare it `derived clock = now(every: 1.seconds)`. The same holds for `viewport`, `query`, `hash`, `theme`, `network` and `update` ([X06](/errors/X06)).\n\n**An effect that writes what it reads.** Each run changes `visits`, which starts the next run, so the page never settles:")
+
+        CodeBlock(#"page Visits(path: "/", title: "Visits", description: "A count that runs away.") {
+    state visits = 0
+    effect { visits = visits + 1 }
+    Heading("Visits").h1
+    Text("{visits} visits")
+}"#, title: "wf · draws X02")
+
+        Markdown("Change the state in a handler or an action, or work the value out with `derived` ([X02](/errors/X02)).\n\n**Assigning a derived value.** A `derived` is worked out from what it reads, so nothing may set it:")
+
+        CodeBlock(#"page Cart(path: "/", title: "Cart", description: "A total you cannot set.") {
+    state items = [2.5, 6]
+    derived total = items.sum()
+    Heading("Cart").h1
+    Text("Total: {total}")
+    Button("Clear") { on click { total = 0 } }
+}"#, title: "wf · draws X01")
+
+        Markdown("Change what it reads instead, `items = []`, and `total` follows ([X01](/errors/X01)).")
     }
 }

@@ -14,10 +14,13 @@ component Quiz(_ question: String, id: String = "", choices: [QuizChoice] = []) 
         Stack(gap: .xs) {
             style { gap: 8px }
             for choice, i in choices by choice.text {
+                // Its text is the choice, drawn by `Markdown` (which A05 does
+                // not count) so its code shows as code.
+                // wf-allow(A05)
                 Button(aria-pressed: picked == i, class: "bp-choice", data-verdict: if checked && picked == i { if choice.right { "right" } else { "wrong" } } else { "none" }) {
                     style { width: 100%; color: $ink; font-family: inherit; text-align: start }
                     on click { picked = i  checked = false }
-                    Text(choice.text)
+                    Markdown(choice.text)
                 }
             }
         }
@@ -37,7 +40,7 @@ component Quiz(_ question: String, id: String = "", choices: [QuizChoice] = []) 
         }
         if checked {
             if let v = verdict {
-                Text(v.why, class: "bp-small")
+                Markdown(v.why, class: "bp-small")
             }
         }
     }

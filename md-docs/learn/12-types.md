@@ -6,10 +6,12 @@ from: ["/docs/guide/types"]
 group: "language"
 blurb: "A gradual, structural type checker that changes no output and names every mistake where you wrote it."
 description: "The type language, built-in types, records and enums, refinements, inference and narrowing, typed network data, and the checks the compiler runs."
+learned: ["Annotate state, props and parameters, and declare records with `type`", "Use the built-in types: `Date`, `Money`, `Duration`, `Url`, `Secret` and the rest", "Declare an `enum` whose cases carry payloads", "Narrow a value that may be `null` with `if let`, `?.` and `??`", "Type data from the network with an annotated `resource`"]
 ---
 # 12. Types
 
-WebFluent has a type checker that runs in `wf build`, `wf check` and the
+This chapter covers WebFluent's types and the checker that holds a program to
+them. The checker runs in `wf build`, `wf check` and the
 editor, before any output is written. It is *gradual*: a program that
 declares no types still checks, because whatever the checker cannot work
 out has the type `Any`, and `Any` agrees with everything. Every annotation
@@ -161,11 +163,16 @@ fills in when the page hydrates.
 ### A literal is held to its type
 
 A string written where one of these types is wanted is read as that type,
-and checked where you wrote it:
+and checked where you wrote it. The second `state` on this page does not
+build:
 
-```wf
-state site: Url = "https://example.com"     // fine
-state bad: Url = "example"                  // T01: A URL has a scheme
+```wf expect=T01
+page Links(path: "/", title: "Links", description: "A URL held to its type.") {
+    state site: Url = "https://example.com"     // fine
+    state bad: Url = "example"                  // T01: a URL has a scheme
+    Heading("Links").h1
+    Text("{site.host()} {bad}")
+}
 ```
 
 ### `now`
@@ -190,12 +197,16 @@ moment the page opened (`X06`; see
 ### A condition on a type
 
 Any type may say what its values must be. The compiler holds every value it
-can read to that condition:
+can read to that condition, as it does to the three states on this page:
 
 ```wf
-state nights: Number(1..=30) = 12
-state pass: String(minLength: 8) = "correcthorse"
-state start: Date(after: @2026-01-01) = @2026-03-14
+page Stay(path: "/", title: "Stay", description: "Values held to a condition.") {
+    state nights: Number(1..=30) = 12
+    state pass: String(minLength: 8) = "correcthorse"
+    state start: Date(after: @2026-01-01) = @2026-03-14
+    Heading("Stay").h1
+    Text("{nights} nights from {start}, {pass.length} characters")
+}
 ```
 
 The conditions are `min`, `max`, `minLength`, `maxLength`, `pattern`,
@@ -207,15 +218,18 @@ condition, so a refined type needs no `validate` rule for it (see
 
 ### `Secret` is not a string
 
-A `Secret` is a string the compiler will not let escape. Each of these
-lines is a `T12`:
+A `Secret` is a string the compiler will not let escape. This page lets one
+escape four ways, and each is a `T12`:
 
-```wf
-state token: Secret = ""
-Text(token)                     // shown
-Text("Bearer {token}")          // in text — which is how it ends up in a URL
-persist token: Secret = ""      // kept in the browser
-log(token)                      // in the console, and often in a log service
+```wf expect=T12
+page Login(path: "/", title: "Login", description: "Four ways a secret escapes.") {
+    state token: Secret = ""
+    persist saved: Secret = ""                       // kept in the browser
+    Heading("Signed in").h1
+    Text(token)                                      // shown
+    Text("Bearer {token}")                           // in text, which is how it ends up in a URL
+    Button("Debug") { on click { log(token) } }      // in the console, and often in a log service
+}
 ```
 
 Joining it with `+` or handing it to a browser global such as `console`, a
@@ -311,6 +325,13 @@ page Enums(path: "/") {
 - A `match` with no `else` must give every case an arm (`T15`).
 - An enum prop is written to a component's root element as `data-<prop>`
   (see [Enum props](10-components.md#enum-props)).
+
+> [!NOTE]
+> **Coming from TypeScript in React or Vue?** A union of strings such as
+> `"idle" | "running" | "failed"` becomes an `enum`, and a field that only
+> some states have becomes that case's payload: `.failed(reason: String)`. A
+> `match` then has to give every case an arm. See
+> [Coming from React](../coming-from/react.md).
 
 ## Shapes of map literals
 
@@ -434,6 +455,13 @@ A list narrows too: `xs.filter(x => x != null)` is a list of the items that
 are there, so a `[Todo?]` filtered that way is a `[Todo]` whose items need
 no `?.`.
 
+> [!NOTE]
+> **Coming from React?** `{user && <Profile user={user} />}` becomes
+> `if let u = user { Profile(u) }`, and inside the branch `u` is a `User`, not
+> a `User?`. `undefined` is not a separate value to check for: a value that
+> may be missing is `T?`, and missing is `null`. See
+> [Coming from React](../coming-from/react.md).
+
 > [!WARNING]
 > Splicing a value that may be `null` into text shows the word `null` on
 > the page. The checker warns (`T19`); say what to show instead with `??`,
@@ -535,6 +563,55 @@ diagnostic on the argument it belongs to. To set up the editor, see
 | `Number(1..=30)` · `String(minLength: 8)` | A type with a condition |
 | `if let x = v { … }` · `v ?? d` · `v?.f` | Narrow or read through `null` |
 | `resource r: [T] = fetch(…)` | Type data from the network |
+
+## Common mistakes
+
+**A field read off a value that may be `null`.** `email` is a `String?`, so
+`.length` would throw when it is missing:
+
+```wf expect=T04
+type User { name: String, email: String? }
+
+page P(path: "/", title: "T", description: "D") {
+    state user: User = User(name: "Ada", email: null)
+    Heading(user.name).h1
+    Text("{user.email.length} characters")
+}
+```
+
+Narrow it first, `if let mail = user.email { Text("{mail.length} characters") }`,
+or read through it with a fallback, `user.email?.length ?? 0`. See
+[T04](../errors/T04.md).
+
+**A misspelled field on a map literal.** A map literal has the fields it was
+written with, so a typo is caught where it is read:
+
+```wf expect=T05
+page P(path: "/", title: "T", description: "D") {
+    state form = { name: "", age: 0 }
+    Heading("Profile").h1
+    Input(bind: form.name, label: "Name")
+    Text("Hello, {form.nmae}")
+}
+```
+
+Use one of the fields the hint lists, `form.name`. See [T05](../errors/T05.md).
+
+**A value that may be `null` spliced into text.** The page would show the
+word `null` when there is no note:
+
+```wf expect=T19
+type Todo { id: String, title: String, note: String? }
+
+page P(path: "/", title: "T", description: "D") {
+    state todo: Todo = Todo(id: "1", title: "Ship")
+    Heading(todo.title).h1
+    Text("Note: {todo.note}")
+}
+```
+
+Say what to show instead, `Text("Note: {todo.note ?? "none"}")`, or draw the
+line only when there is a note with `if let`. See [T19](../errors/T19.md).
 
 ## Next
 

@@ -1,8 +1,8 @@
 /// Chapter 23 of the guide, written from md-docs/about/static-and-spa.md by
 /// scripts/docsite/guide.py; edit the guide, not this file.
-page AboutStaticOrSinglePage(path: "/about/static-or-single-page", title: "Static or single-page", description: "Static pages or a single-page app: build.ssg, hydration, what the pre-rendered HTML holds, paths for dynamic routes, 404s and hosting needs.", layout: DocsShell("Static or single-page", kind: .explanation, chapter: t("nav.group.about"), blurb: "The same source builds as pre-rendered pages or as one app shell. What each gives you, what the pre-rendered page holds, and how dynamic routes are rendered.", source: "md-docs/about/static-and-spa.md", sections: [Anchor(id: "two-shapes-of-build", label: "Two shapes of build"), Anchor(id: "when-to-choose-each", label: "When to choose each"), Anchor(id: "hydration", label: "Hydration"), Anchor(id: "what-the-static-paint-knows", label: "What the static paint knows"), Anchor(id: "switch-between-static-and-single-page", label: "Switch between static and single-page"), Anchor(id: "pre-render-a-dynamic-route-with-paths", label: "Pre-render a dynamic route with paths:"), Anchor(id: "add-a-404-page", label: "Add a 404 page"), Anchor(id: "serve-a-single-page-build", label: "Serve a single-page build"), Anchor(id: "serve-the-site-under-a-sub-path", label: "Serve the site under a sub-path"), Anchor(id: "quick-reference", label: "Quick reference")], prevTo: "/about/what-a-build-ships", prevLabel: t("ch.22"), nextTo: "/about/upgrading", nextLabel: t("ch.24"))) {
+page AboutStaticOrSinglePage(path: "/about/static-or-single-page", title: "Static or single-page", description: "Static pages or a single-page app: build.ssg, hydration, what the pre-rendered HTML holds, paths for dynamic routes, 404s and hosting needs.", layout: DocsShell("Static or single-page", kind: .explanation, chapter: t("nav.group.about"), blurb: "The same source builds as pre-rendered pages or as one app shell. What each gives you, what the pre-rendered page holds, and how dynamic routes are rendered.", source: "md-docs/about/static-and-spa.md", sections: [Anchor(id: "two-shapes-of-build", label: "Two shapes of build"), Anchor(id: "when-to-choose-each", label: "When to choose each"), Anchor(id: "hydration", label: "Hydration"), Anchor(id: "what-the-static-paint-knows", label: "What the static paint knows"), Anchor(id: "switch-between-static-and-single-page", label: "Switch between static and single-page"), Anchor(id: "pre-render-a-dynamic-route-with-paths", label: "Pre-render a dynamic route with paths:"), Anchor(id: "add-a-404-page", label: "Add a 404 page"), Anchor(id: "serve-a-single-page-build", label: "Serve a single-page build"), Anchor(id: "serve-the-site-under-a-sub-path", label: "Serve the site under a sub-path"), Anchor(id: "keep-addresses-a-host-serves-directly", label: "Keep addresses a host serves directly"), Anchor(id: "quick-reference", label: "Quick reference")], prevTo: "/about/what-a-build-ships", prevLabel: t("ch.22"), nextTo: "/about/upgrading", nextLabel: t("ch.24"))) {
     Stack(gap: .lg) {
-        Markdown("The same WebFluent source builds a site in one of two shapes: a static site, with a pre-rendered HTML file for every route, or a single-page app, with one shell that draws every page in the browser. One setting, `build.ssg`, picks the shape, and you can change it at any time. This chapter explains what each shape gives you and how a static page comes to life, then shows you how to pre-render dynamic routes, add a 404 page and host either shape.\n\nIn this chapter:\n\n- what the two shapes write, and when to choose each;\n- how hydration takes over a pre-rendered page;\n- what the build can and cannot know when it pre-renders;\n- how to switch shapes, pre-render dynamic routes, add a 404 page, serve a single-page build and serve the site under a sub-path.")
+        Markdown("This essay compares the two shapes a WebFluent build takes: a static site, with a pre-rendered HTML file for every route, and a single-page app, with one shell that draws every page in the browser.\n\nThe usual framing makes this a choice of framework: one for content sites, another for apps, and a migration when a site turns out to be both. WebFluent treats it as a setting. The same source builds either shape, one key in the config, `build.ssg`, picks it, and you can change your mind on any day without touching a page. What is worth deciding is not which tool to use but what the reader should get first: the text, or the app.\n\nThe sections below say what each shape writes, how a static page comes to life, what the build can know when it pre-renders, and what each shape asks of a host.")
 
         Heading("Two shapes of build", id: "two-shapes-of-build").h2
 
@@ -179,6 +179,14 @@ Vercel                       "rewrites": [{ "source": "/(.*)", "destination": "/
 
         Markdown("The build prefixes every link, every asset and the router's paths with it. Write your paths from the site's root as if there were no prefix: `Link(\"About\", to: \"/about\")` links to `/my-site/about`.")
 
+        Heading("Keep addresses a host serves directly", id: "keep-addresses-a-host-serves-directly").h2
+
+        Markdown("A static build writes `/contact` as `contact/index.html`, and a host such as GitHub Pages answers `/contact` with a `301` redirect to `/contact/`. `build.clean_urls` makes the canonical address one the host serves without the redirect:")
+
+        CodeBlock(#"{ "build": { "ssg": true, "clean_urls": "file" } }"#, title: "json")
+
+        Markdown("- `\"file\"` also writes `contact.html`, and addresses the page's assets from the root, under `base_path`.\n- `\"directory\"` names every route with a trailing slash, `/contact/`: the canonical link, `og:url`, the sitemap, the breadcrumbs, and every `Link(to:)` and `navigate()` to one of the pages.")
+
         Heading("Quick reference", id: "quick-reference").h2
 
         Table(caption: "Quick reference") {
@@ -216,6 +224,10 @@ Vercel                       "rewrites": [{ "source": "/(.*)", "destination": "/
                 Table.Row {
                     Table.Cell("A site under a sub-path")
                     Table.Cell { Markdown("`\"build\": \{ \"base_path\": \"/my-site\" \}`") }
+                }
+                Table.Row {
+                    Table.Cell("No redirect to a trailing slash")
+                    Table.Cell { Markdown("`\"build\": \{ \"clean_urls\": \"file\" \}` or `\"directory\"`") }
                 }
             }
         }

@@ -9,21 +9,21 @@ description: "Static pages or a single-page app: build.ssg, hydration, what the 
 ---
 # Static or single-page
 
-The same WebFluent source builds a site in one of two shapes: a static
-site, with a pre-rendered HTML file for every route, or a single-page app,
-with one shell that draws every page in the browser. One setting,
-`build.ssg`, picks the shape, and you can change it at any time. This
-chapter explains what each shape gives you and how a static page comes to
-life, then shows you how to pre-render dynamic routes, add a 404 page and
-host either shape.
+This essay compares the two shapes a WebFluent build takes: a static
+site, with a pre-rendered HTML file for every route, and a single-page
+app, with one shell that draws every page in the browser.
 
-In this chapter:
+The usual framing makes this a choice of framework: one for content
+sites, another for apps, and a migration when a site turns out to be
+both. WebFluent treats it as a setting. The same source builds either
+shape, one key in the config, `build.ssg`, picks it, and you can change
+your mind on any day without touching a page. What is worth deciding is
+not which tool to use but what the reader should get first: the text, or
+the app.
 
-- what the two shapes write, and when to choose each;
-- how hydration takes over a pre-rendered page;
-- what the build can and cannot know when it pre-renders;
-- how to switch shapes, pre-render dynamic routes, add a 404 page, serve a
-  single-page build and serve the site under a sub-path.
+The sections below say what each shape writes, how a static page comes to
+life, what the build can know when it pre-renders, and what each shape
+asks of a host.
 
 ## Two shapes of build
 
@@ -207,6 +207,23 @@ The build prefixes every link, every asset and the router's paths with it.
 Write your paths from the site's root as if there were no prefix:
 `Link("About", to: "/about")` links to `/my-site/about`.
 
+## Keep addresses a host serves directly
+
+A static build writes `/contact` as `contact/index.html`, and a host such
+as GitHub Pages answers `/contact` with a `301` redirect to `/contact/`.
+`build.clean_urls` makes the canonical address one the host serves without
+the redirect:
+
+```json
+{ "build": { "ssg": true, "clean_urls": "file" } }
+```
+
+- `"file"` also writes `contact.html`, and addresses the page's assets
+  from the root, under `base_path`.
+- `"directory"` names every route with a trailing slash, `/contact/`: the
+  canonical link, `og:url`, the sitemap, the breadcrumbs, and every
+  `Link(to:)` and `navigate()` to one of the pages.
+
 ## Quick reference
 
 | Goal | Setting or syntax |
@@ -218,9 +235,11 @@ Write your paths from the site's root as if there were no prefix:
 | A 404 page | `page NotFound(path: "*", …)`, written as `404.html` when static |
 | A single-page build on a host | Answer every path with `index.html` |
 | A site under a sub-path | `"build": { "base_path": "/my-site" }` |
+| No redirect to a trailing slash | `"build": { "clean_urls": "file" }` or `"directory"` |
 
 ## Next
 
-- [Content](../recipes/index.md): Markdown pages, and what the build writes for
-  search engines.
-- [Deploying](../recipes/index.md): put either shape on a host.
+- [Markdown pages](../recipes/markdown-pages.md) and
+  [search and link previews](../recipes/search-and-link-previews.md): what
+  the build writes for search engines.
+- [Deploy to GitHub Pages](../recipes/deploy-to-github-pages.md), or any host in the [recipes](../recipes/index.md): put either shape on a host.

@@ -1,8 +1,8 @@
 /// Chapter 4 of the guide, written from md-docs/learn/04-language-basics.md by
 /// scripts/docsite/guide.py; edit the guide, not this file.
-page Learn04LanguageBasics(path: "/learn/04-language-basics", title: "Language basics", description: "Declarations, naming, comments, render and imperative bodies, the braced and the indented layout, and how to write strings in WebFluent.", layout: DocsShell("Language basics", kind: .tutorial, chapter: t("nav.group.language"), blurb: "The shape of every .wf file: the thirteen kinds of declaration, naming, comments, the two kinds of body, the two layouts and how strings are written.", source: "md-docs/learn/04-language-basics.md", sections: [Anchor(id: "declarations", label: "Declarations"), Anchor(id: "naming", label: "Naming"), Anchor(id: "comments", label: "Comments"), Anchor(id: "bodies", label: "Bodies"), Anchor(id: "two-layouts-wf-and-wfx", label: "Two layouts: .wf and .wfx"), Anchor(id: "strings", label: "Strings"), Anchor(id: "quick-reference", label: "Quick reference")], prevTo: "/learn/03-tutorial-todos", prevLabel: t("ch.03"), nextTo: "/learn/05-pages-and-routing", nextLabel: t("ch.05"))) {
+page Learn04LanguageBasics(path: "/learn/04-language-basics", title: "Language basics", description: "Declarations, naming, comments, render and imperative bodies, the braced and the indented layout, and how to write strings in WebFluent.", layout: DocsShell("Language basics", kind: .tutorial, chapter: t("nav.group.language"), blurb: "The shape of every .wf file: the thirteen kinds of declaration, naming, comments, the two kinds of body, the two layouts and how strings are written.", source: "md-docs/learn/04-language-basics.md", sections: [Anchor(id: "declarations", label: "Declarations"), Anchor(id: "naming", label: "Naming"), Anchor(id: "comments", label: "Comments"), Anchor(id: "bodies", label: "Bodies"), Anchor(id: "two-layouts-wf-and-wfx", label: "Two layouts: .wf and .wfx"), Anchor(id: "strings", label: "Strings"), Anchor(id: "quick-reference", label: "Quick reference"), Anchor(id: "common-mistakes", label: "Common mistakes")], prevTo: "/learn/03-tutorial-todos", prevLabel: t("ch.03"), nextTo: "/learn/05-pages-and-routing", nextLabel: t("ch.05"))) {
     Stack(gap: .lg) {
-        Markdown("A WebFluent program is a set of declarations: pages, components, stores and the rest, each a keyword followed by a name and a body. Learn the thirteen kinds and the two kinds of body, and you can read any `.wf` file.\n\nIn this chapter:\n\n- the thirteen declarations, and the chapter that covers each\n- how names are written\n- comments, including the doc comments the editor shows\n- render blocks and imperative blocks, and what goes in each\n- the braced `.wf` layout and the indented `.wfx` layout\n- the three ways to write a string, and how a string splices in values")
+        Markdown("This chapter covers the shape of every `.wf` file. A WebFluent program is a set of declarations: pages, components, stores and the rest, each a keyword followed by a name and a body. Learn the thirteen kinds and the two kinds of body, and you can read any `.wf` file.\n\nIn this chapter:\n\n- the thirteen declarations, and the chapter that covers each\n- how names are written\n- comments, including the doc comments the editor shows\n- render blocks and imperative blocks, and what goes in each\n- the braced `.wf` layout and the indented `.wfx` layout\n- the three ways to write a string, and how a string splices in values")
 
         Heading("Declarations", id: "declarations").h2
 
@@ -29,78 +29,80 @@ test "chip shows its label" { Chip("Beta")  expect "Beta" }"#, title: "wf")
                 Table.Row {
                     Table.Cell("Declaration").header
                     Table.Cell("What it is").header
-                    Table.Cell("Chapter").header
+                    Table.Cell("Read more").header
                 }
             }
             Table.Body {
                 Table.Row {
                     Table.Cell { Markdown("`page`") }
                     Table.Cell("A route and what it shows")
-                    Table.Cell { Markdown("[6](/learn/05-pages-and-routing)") }
+                    Table.Cell { Markdown("[Pages and routing](/learn/05-pages-and-routing)") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`component`") }
                     Table.Cell("A reusable element with typed props, events, slots and parts")
-                    Table.Cell { Markdown("[11](/learn/10-components)") }
+                    Table.Cell { Markdown("[Components](/learn/10-components)") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`store`") }
                     Table.Cell("State shared across pages")
-                    Table.Cell { Markdown("[12](/learn/11-stores)") }
+                    Table.Cell { Markdown("[Stores](/learn/11-stores)") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`theme`") }
                     Table.Cell("Design tokens: colours, spacing, radii, fonts")
-                    Table.Cell { Markdown("[15](/learn/13-styling)") }
+                    Table.Cell { Markdown("[Styling](/learn/13-styling)") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`app`") }
                     Table.Cell { Markdown("The shell every page renders inside, with the `Router`") }
-                    Table.Cell { Markdown("[6](/learn/05-pages-and-routing#the-app-shell)") }
+                    Table.Cell { Markdown("[The app shell](/learn/05-pages-and-routing#the-app-shell)") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`type`, `enum`") }
                     Table.Cell("Records and enumerations the type checker enforces")
-                    Table.Cell { Markdown("[13](/learn/12-types)") }
+                    Table.Cell { Markdown("[Types](/learn/12-types)") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`api`") }
                     Table.Cell("An HTTP service: its address, its endpoints and what they return")
-                    Table.Cell { Markdown("[17](/learn/15-data#describe-a-service-with-api)") }
+                    Table.Cell { Markdown("[Describe a service](/learn/15-data#describe-a-service-with-api)") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`const`") }
                     Table.Cell("A value read everywhere")
-                    Table.Cell { Markdown("[14](/reference/expressions#constants)") }
+                    Table.Cell { Markdown("[Constants](/reference/expressions#constants)") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`data`") }
                     Table.Cell("A JSON file read at build time, as a constant")
-                    Table.Cell { Markdown("[17](/learn/15-data#read-a-file-at-build-time-with-data)") }
+                    Table.Cell { Markdown("[Read a file at build time](/learn/15-data#read-a-file-at-build-time-with-data)") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`image`") }
                     Table.Cell { Markdown("A picture the build resizes and hands to `Image`") }
-                    Table.Cell { Markdown("[28](/recipes)") }
+                    Table.Cell { Markdown("[Add a picture](/recipes/add-a-picture)") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`animation`") }
                     Table.Cell("Keyframes")
-                    Table.Cell { Markdown("[20](/recipes/keyframes)") }
+                    Table.Cell { Markdown("[Keyframes](/recipes/keyframes)") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`test`") }
                     Table.Cell("A render held to expectations and a snapshot")
-                    Table.Cell { Markdown("[24](/learn/16-testing)") }
+                    Table.Cell { Markdown("[Testing](/learn/16-testing)") }
                 }
             }
         }
 
-        Markdown("Two other kinds of file under `src/` join the program. A `.css` file is a stylesheet the build bundles. A `.js` file is a plain browser script, and its top-level functions are in scope by name in your `.wf` code ([JavaScript interop](/recipes)).\n\nInside a body you write statements: `state`, `derived`, `effect`, `action`, `persist`, `resource`, `validate`, `socket`, `if`, `for`, `match` and more. The [grammar](/reference/grammar) lists every keyword and where it may appear.")
+        Markdown("Two other kinds of file under `src/` join the program. A `.css` file is a stylesheet the build bundles. A `.js` file is a plain browser script, and its top-level functions are in scope by name in your `.wf` code ([Call your own JavaScript](/recipes/call-your-own-script)).\n\nInside a body you write statements: `state`, `derived`, `effect`, `action`, `persist`, `resource`, `validate`, `socket`, `if`, `for`, `match` and more. The [grammar](/reference/grammar) lists every keyword and where it may appear.")
 
         Heading("One program from many files", id: "one-program-from-many-files").h3
 
         Markdown("All the files under `src/` merge into one program. A component declared in `components/Chip.wf` is usable from every page without an import. The compiler reads `App.wf` (or `App.wfx`) first, then the other files in name order, so a build is the same on every machine.")
+
+        Callout("**Coming from React?** There is no `import` or `export` between `.wf` files. A component, a store or a type declared in any file under `src/` is in scope in every other one. See [Coming from React](/coming-from/react).", kind: .note)
 
         Heading("Naming", id: "naming").h2
 
@@ -263,5 +265,34 @@ component Avatar(_ initials: String) { Text(initials).bold }"#, title: "wf")
                 }
             }
         }
+
+        Heading("Common mistakes", id: "common-mistakes").h2
+
+        Markdown("An assignment loose in a page body. A render block holds elements; code that changes something belongs in a handler, an action or an effect:")
+
+        CodeBlock(#"page Counter(path: "/", title: "Counter", description: "A number that goes up.") {
+    state clicks = 0
+    Heading("Counter").h1
+    clicks = clicks + 1
+    Text("Clicked {clicks} times")
+}"#, title: "wf · draws E105")
+
+        Markdown("Move the line into `Button(\"Add one\") \{ on click \{ clicks = clicks + 1 \} \}` ([E105](/errors/E105)).\n\nA comma between two statements. Commas separate arguments, never statements:")
+
+        CodeBlock(#"page Score(path: "/", title: "Score", description: "Two teams, two numbers.") {
+    state home = 1, away = 2
+    Heading("Score").h1
+    Text("{home} – {away}")
+}"#, title: "wf · draws E002")
+
+        Markdown("Write each statement on its own line, or separate them with `;` or two spaces: `state home = 1  state away = 2` ([E002](/errors/E002)).\n\nA name the language already has. `query`, `env`, `format`, `now` and the other built-in names cannot be a program's own:")
+
+        CodeBlock(#"page Search(path: "/", title: "Search", description: "Find a book.") {
+    state query = ""
+    Heading("Search").h1
+    Input(bind: query, label: "Search")
+}"#, title: "wf · draws E118")
+
+        Markdown("Choose another name, such as `term` ([E118](/errors/E118)).")
     }
 }

@@ -1,8 +1,8 @@
 /// Chapter 14 of the guide, written from md-docs/learn/14-forms.md by
 /// scripts/docsite/guide.py; edit the guide, not this file.
-page Learn14Forms(path: "/learn/14-forms", title: "Forms and validation", description: "Bind every control to state, use the Form handle, write validate rules, upload files, send a form to an API, and show server errors and pending state.", layout: DocsShell("Forms and validation", kind: .tutorial, chapter: t("nav.group.build"), blurb: "Bind controls to state, validate what the reader types, upload files, and show what the server said.", source: "md-docs/learn/14-forms.md", sections: [Anchor(id: "before-you-start", label: "Before you start"), Anchor(id: "bind-a-control-to-state", label: "Bind a control to state"), Anchor(id: "add-a-label-a-hint-or-your-own-error", label: "Add a label, a hint or your own error"), Anchor(id: "group-controls-in-a-form", label: "Group controls in a form"), Anchor(id: "validate-a-field", label: "Validate a field"), Anchor(id: "upload-a-file", label: "Upload a file"), Anchor(id: "send-a-form-to-a-server", label: "Send a form to a server"), Anchor(id: "show-that-a-request-is-running", label: "Show that a request is running"), Anchor(id: "checklist-for-a-good-form", label: "Checklist for a good form"), Anchor(id: "troubleshooting", label: "Troubleshooting")], prevTo: "/learn/13-styling", prevLabel: t("ch.13"), nextTo: "/learn/15-data", nextLabel: t("ch.15"))) {
+page Learn14Forms(path: "/learn/14-forms", title: "Forms and validation", description: "Bind every control to state, use the Form handle, write validate rules, upload files, send a form to an API, and show server errors and pending state.", layout: DocsShell("Forms and validation", kind: .tutorial, chapter: t("nav.group.build"), blurb: "Bind controls to state, validate what the reader types, upload files, and show what the server said.", source: "md-docs/learn/14-forms.md", sections: [Anchor(id: "before-you-start", label: "Before you start"), Anchor(id: "bind-a-control-to-state", label: "Bind a control to state"), Anchor(id: "add-a-label-a-hint-or-your-own-error", label: "Add a label, a hint or your own error"), Anchor(id: "group-controls-in-a-form", label: "Group controls in a form"), Anchor(id: "validate-a-field", label: "Validate a field"), Anchor(id: "upload-a-file", label: "Upload a file"), Anchor(id: "send-a-form-to-a-server", label: "Send a form to a server"), Anchor(id: "show-that-a-request-is-running", label: "Show that a request is running"), Anchor(id: "checklist-for-a-good-form", label: "Checklist for a good form"), Anchor(id: "troubleshooting", label: "Troubleshooting"), Anchor(id: "common-mistakes", label: "Common mistakes")], prevTo: "/learn/13-styling", prevLabel: t("ch.13"), nextTo: "/learn/15-data", nextLabel: t("ch.15"))) {
     Stack(gap: .lg) {
-        Markdown("This chapter shows you how to build a form: controls that read and write state, rules that say what each value must be, and a submit that sends the form to a server and shows what came back.\n\nYou will be able to:\n\n- bind any control to a state, in both directions;\n- validate a field with a `validate` block, without writing the error messages' markup;\n- know whether the whole form is valid, and submit it;\n- upload a file and show its progress;\n- show the errors a server sends back, and a busy state while a request runs.\n\nWebFluent writes the accessible parts for you: a real `<label>` for every label, `aria-describedby` for hints and errors, `aria-invalid`, errors announced as they appear, and focus moved to the first problem.")
+        Markdown("This chapter is about forms in WebFluent: controls that read and write state, rules that say what each value must be, and a submit that sends the form to a server and shows what came back.\n\nYou will be able to:\n\n- bind any control to a state, in both directions;\n- validate a field with a `validate` block, without writing the error messages' markup;\n- know whether the whole form is valid, and submit it;\n- upload a file and show its progress;\n- show the errors a server sends back, and a busy state while a request runs.\n\nWebFluent writes the accessible parts for you: a real `<label>` for every label, `aria-describedby` for hints and errors, `aria-invalid`, errors announced as they appear, and focus moved to the first problem.")
 
         Heading("Before you start", id: "before-you-start").h2
 
@@ -36,6 +36,8 @@ page Learn14Forms(path: "/learn/14-forms", title: "Forms and validation", descri
     Text("{name} <{email}> wants {seats} {plan} seats")
     if let start = when { Text("Starting {start}") }
 }"#, title: "wf")
+
+        Callout("**Coming from React?** A controlled input needs `value=\{q\}` and an `onChange` that calls the setter. `bind: q` is both directions at once, and the control holds the state's type, so a `Slider` writes a `Number`, not the string `e.target.value` would give you. See [Coming from React](/coming-from/react).", kind: .note)
 
         Markdown("The last lines repeat what you type and pick. The `Select` and the two `Radio`s share `plan`, so choosing in one moves the others.\n\nFor several lines of text, use a `Textarea`. With `maxLength:` it shows how many characters are left, and tells a screen reader politely (without interrupting):")
 
@@ -142,6 +144,8 @@ page Todos(path: "/todos", title: "Todos", description: "Edit each todo in place
     }
     if sent { Alert("Thanks — we will be in touch.").success }
 }"#, title: "wf")
+
+        Callout("**Coming from React?** A submit handler there starts with `event.preventDefault()`. A `Form`'s `on submit` never reloads or leaves the page, so the handler holds only what the submit does. See [Coming from React](/coming-from/react).", kind: .note)
 
         Heading("The form handle", id: "the-form-handle").h3
 
@@ -513,5 +517,38 @@ page Notes(path: "/notes", title: "Notes", description: "Save a note.") {
                 }
             }
         }
+
+        Heading("Common mistakes", id: "common-mistakes").h2
+
+        Markdown("**A text field bound to a number.** An `Input` with no type flag holds a `String`, so it cannot write a `Number` state:")
+
+        CodeBlock(#"page P(path: "/", title: "Seats", description: "Pick a number of seats.") {
+    state seats = 1
+    Heading("Seats").h1
+    Input(bind: seats, label: "Seats")
+    Text("{seats} seats")
+}"#, title: "wf · draws F02")
+
+        Markdown("Add `.number`, which holds a `Number`, or use a `Slider` ([F02](/errors/F02)).\n\n**A `validate` block for a state no control binds.** The rules check the state, and nothing the reader types reaches it:")
+
+        CodeBlock(#"page P(path: "/", title: "Join", description: "Make an account.") {
+    state email = ""
+    validate email { required  email }
+    Heading("Join").h1
+    Input(label: "Email").email
+    Text("You typed {email}")
+}"#, title: "wf · draws F03")
+
+        Markdown("Bind the control to the state the rules guard: `Input(bind: email, label: \"Email\")` ([F03](/errors/F03)).\n\n**A `bind:` to a derived value.** A control writes back to what it binds, and a `derived` value is worked out, never assigned:")
+
+        CodeBlock(#"page P(path: "/", title: "Handle", description: "Pick a handle.") {
+    state first = ""
+    derived handle = first.toLowerCase()
+    Heading("Handle").h1
+    Input(bind: first, label: "First name")
+    Input(bind: handle, label: "Handle")
+}"#, title: "wf · draws F01")
+
+        Markdown("Bind a `state` instead, and show the derived value with `Text(handle)` ([F01](/errors/F01)).")
     }
 }

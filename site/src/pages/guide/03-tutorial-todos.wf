@@ -1,8 +1,8 @@
 /// Chapter 3 of the guide, written from md-docs/learn/03-tutorial-todos.md by
 /// scripts/docsite/guide.py; edit the guide, not this file.
-page Learn03TutorialTodos(path: "/learn/03-tutorial-todos", title: "Tutorial: Todos", description: "A beginner WebFluent tutorial: a todo app with a persisted store, a component, a keyed list, a filter in the address and tests, in 20 minutes.", layout: DocsShell("Tutorial: Todos", kind: .tutorial, chapter: t("nav.group.tour"), blurb: "Build a todo list kept in the reader's browser — types, a store that remembers, a component, a filter in the address and tests that click.", source: "md-docs/learn/03-tutorial-todos.md", sections: [Anchor(id: "before-you-start", label: "Before you start"), Anchor(id: "step-1-create-the-project", label: "Step 1: Create the project"), Anchor(id: "step-2-give-it-a-look-of-its-own", label: "Step 2: Give it a look of its own"), Anchor(id: "step-3-describe-a-todo", label: "Step 3: Describe a todo"), Anchor(id: "step-4-write-a-store-that-remembers", label: "Step 4: Write a store that remembers"), Anchor(id: "step-5-build-one-row", label: "Step 5: Build one row"), Anchor(id: "step-6-write-the-page", label: "Step 6: Write the page"), Anchor(id: "step-7-write-tests", label: "Step 7: Write tests"), Anchor(id: "step-8-build-it", label: "Step 8: Build it"), Anchor(id: "what-you-built", label: "What you built")], prevTo: "/learn/02-tutorial-shelf", prevLabel: t("ch.02"), nextTo: "/learn/04-language-basics", nextLabel: t("ch.04"))) {
+page Learn03TutorialTodos(path: "/learn/03-tutorial-todos", title: "Tutorial: Todos", description: "A beginner WebFluent tutorial: a todo app with a persisted store, a component, a keyed list, a filter in the address and tests, in 20 minutes.", layout: DocsShell("Tutorial: Todos", kind: .tutorial, chapter: t("nav.group.tour"), blurb: "Build a todo list kept in the reader's browser — types, a store that remembers, a component, a filter in the address and tests that click.", source: "md-docs/learn/03-tutorial-todos.md", sections: [Anchor(id: "before-you-start", label: "Before you start"), Anchor(id: "step-1-create-the-project", label: "Step 1: Create the project"), Anchor(id: "step-2-give-it-a-look-of-its-own", label: "Step 2: Give it a look of its own"), Anchor(id: "step-3-describe-a-todo", label: "Step 3: Describe a todo"), Anchor(id: "step-4-write-a-store-that-remembers", label: "Step 4: Write a store that remembers"), Anchor(id: "step-5-build-one-row", label: "Step 5: Build one row"), Anchor(id: "step-6-write-the-page", label: "Step 6: Write the page"), Anchor(id: "step-7-write-tests", label: "Step 7: Write tests"), Anchor(id: "step-8-build-it", label: "Step 8: Build it"), Anchor(id: "what-you-built", label: "What you built"), Anchor(id: "common-mistakes", label: "Common mistakes")], prevTo: "/learn/02-tutorial-shelf", prevLabel: t("ch.02"), nextTo: "/learn/04-language-basics", nextLabel: t("ch.04"))) {
     Stack(gap: .lg) {
-        Markdown("This is the first of three tutorials that each build a whole project, step by step. Each project is complete in the repository under `examples/tutorials/`, and none needs a server: what a project keeps, it keeps in the reader's browser.")
+        Markdown("This tutorial builds a todo list kept in the reader's browser, with a store, a component, a filter in the address and tests that click.\n\nIt is the first of three tutorials that each build a whole project, step by step. Each project is complete in the repository under `examples/tutorials/`, and none needs a server: what a project keeps, it keeps in the reader's browser.")
 
         Table(caption: "Tutorial: Todos") {
             Table.Head {
@@ -39,7 +39,7 @@ page Learn03TutorialTodos(path: "/learn/03-tutorial-todos", title: "Tutorial: To
 
         Heading("Before you start", id: "before-you-start").h2
 
-        Markdown("You need:\n\n- `wf` installed and on your `PATH` — `wf --version` prints `wf 5.11.0` or later ([Getting started](/learn/01-getting-started)).\n- Chrome or Chromium on the machine, for the tests that click and for `wf verify`. Set `WF_CHROME` to its path when it is not in a usual place.\n- Git, to fetch the finished projects.\n\nEvery code block whose first line names a file — `// src/stores/Todos.wf` — is that file, or a run of lines from it, exactly as the project has it. A test holds this chapter to the projects, so the code you read here is the code that builds.\n\nTo start from a finished project instead, clone the repository and serve one:")
+        Markdown("You need:\n\n- `wf` installed and on your `PATH` — `wf --version` prints `wf 6.0.0` or later ([Getting started](/learn/01-getting-started)).\n- Chrome or Chromium on the machine, for the tests that click and for `wf verify`. Set `WF_CHROME` to its path when it is not in a usual place.\n- Git, to fetch the finished projects.\n\nEvery code block whose first line names a file — `// src/stores/Todos.wf` — is that file, or a run of lines from it, exactly as the project has it. A test holds this chapter to the projects, so the code you read here is the code that builds.\n\nTo start from a finished project instead, clone the repository and serve one:")
 
         Terminal(lines: [
                 Line(command: "git clone https://github.com/monzeromer-lab/WebFluent"),
@@ -165,7 +165,11 @@ store Todos {
     }
 }"#, title: "wf")
 
-        Markdown("- `persist` is a `state` kept in the browser's storage. The list is still there after a reload, and a second tab follows the first, with no storage code written.\n- A `derived` value follows what it reads: `open` is always the todos not yet done.\n- An action is the one place state changes. `\{ ...todo, done: !todo.done \}` is the todo with one field changed.\n- `rename`, `remove` and `clearDone` change the list in the same way.\n\n**Check it:** `wf check` prints seven `U04` warnings, such as ``warning[U04]: `Todos.open` is declared but never read``. That is expected: nothing reads the store yet. The page in step 6 reads every member, and the warnings go.")
+        Markdown("- `persist` is a `state` kept in the browser's storage. The list is still there after a reload, and a second tab follows the first, with no storage code written.\n- A `derived` value follows what it reads: `open` is always the todos not yet done.\n- An action is the one place state changes. `\{ ...todo, done: !todo.done \}` is the todo with one field changed.\n- `rename`, `remove` and `clearDone` change the list in the same way.")
+
+        Callout("**Coming from Vue?** A `derived` value is a `computed` with no function to write and no `.value` to read: `Todos.open` is the list itself. See [Coming from Vue](/coming-from/vue).", kind: .note)
+
+        Markdown("**Check it:** `wf check` prints seven `U04` warnings, such as ``warning[U04]: `Todos.open` is declared but never read``. That is expected: nothing reads the store yet. The page in step 6 reads every member, and the warnings go.")
 
         Heading("Step 5: Build one row", id: "step-5-build-one-row").h2
 
@@ -274,7 +278,11 @@ page Home(path: "/", title: "Todos", description: "A small list of things to do,
     Text("Your list stays in this browser, and nowhere else.", class: "hint")
 }"#, title: "wf")
 
-        Markdown("- `for … by todo.id` is a keyed list. When a todo is renamed, or the filter hides it, only its row changes; the other rows keep their elements, and the row being edited keeps its cursor ([Control flow](/learn/09-control-flow)).\n- `animate:` and `exit:` fade a row in and out.\n- A class map, `\{ \"is-on\": filter == .all \}`, turns a class on while its condition holds.\n\nLast, the `app` declaration is the frame every page sits in. `Router` marks where the current page is drawn:")
+        Markdown("- `for … by todo.id` is a keyed list. When a todo is renamed, or the filter hides it, only its row changes; the other rows keep their elements, and the row being edited keeps its cursor ([Control flow](/learn/09-control-flow)).\n- `animate:` and `exit:` fade a row in and out.\n- A class map, `\{ \"is-on\": filter == .all \}`, turns a class on while its condition holds.")
+
+        Callout("**Coming from React?** The key goes on the loop, `by todo.id`, not as a `key` prop on the row. See [Coming from React](/coming-from/react).", kind: .note)
+
+        Markdown("Last, the `app` declaration is the frame every page sits in. `Router` marks where the current page is drawn:")
 
         CodeBlock(#"// src/App.wf
 // The frame every page sits in: a narrow column, centred.
@@ -335,5 +343,48 @@ test "adding a todo puts it in the list" {
         Heading("What you built", id: "what-you-built").h2
 
         Markdown("- A `type` and an `enum`, held to every use ([Types](/learn/12-types)).\n- A store whose list survives a reload with `persist`, and `derived` values that follow it ([Stores](/learn/11-stores)).\n- A component with state of its own, and accessible names on every control ([Components](/learn/10-components)).\n- A keyed list, and a filter kept in the address with `query` ([Control flow](/learn/09-control-flow)).\n- A theme with a dark variant, and the project's own stylesheet ([Styling](/learn/13-styling)).\n- Tests that look and tests that click ([Testing](/learn/16-testing)).")
+
+        Heading("Common mistakes", id: "common-mistakes").h2
+
+        Markdown("A `match` that misses a case. A `match` over an enum must name every case, so leaving out `.all` is an error:")
+
+        CodeBlock(#"enum Filter { all, open, done }
+
+page Home(path: "/", title: "Todos", description: "A small list of things to do.") {
+    state filter: Filter = .all
+    derived label = match filter {
+        .open { "Open" }
+        .done { "Done" }
+    }
+    Heading("Todos").h1
+    Text(label)
+}"#, title: "wf · draws T15")
+
+        Markdown("Add the missing arm, `.all \{ \"All\" \}`, or an `else` arm ([T15](/errors/T15)).\n\nA list with no `by`. Without a key, a row that holds a control is drawn again whenever the list changes, and a box the reader was using loses its place:")
+
+        CodeBlock(#"type Todo { id: String, title: String }
+
+page Home(path: "/", title: "Todos", description: "A small list of things to do.") {
+    state items: [Todo] = [Todo(id: "1", title: "Buy bread")]
+    Heading("Todos").h1
+    for todo in items {
+        Checkbox(label: todo.title)
+    }
+}"#, title: "wf · draws U09")
+
+        Markdown("Key the list by what identifies each item: `for todo in items by todo.id` ([U09](/errors/U09)).\n\nA control bound to a `derived` value. `bind:` writes back to what it names, and a derived value is worked out, never assigned:")
+
+        CodeBlock(#"store Todos {
+    state items: [String] = []
+    derived open = items.length
+}
+
+page Home(path: "/", title: "Todos", description: "A small list of things to do.") {
+    use Todos
+    Heading("Todos").h1
+    Input(bind: Todos.open, label: "Open")
+}"#, title: "wf · draws F01")
+
+        Markdown("Bind a `state`, as the page binds `draft`, and change the store through its actions ([F01](/errors/F01)).")
     }
 }

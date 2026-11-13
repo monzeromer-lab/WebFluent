@@ -6,10 +6,11 @@ from: ["/docs/guide/forms"]
 group: "build"
 blurb: "Bind controls to state, validate what the reader types, upload files, and show what the server said."
 description: "Bind every control to state, use the Form handle, write validate rules, upload files, send a form to an API, and show server errors and pending state."
+learned: ["Bind any control to a state, a store member or a list item with `bind:`", "Write `validate` rules and let the bound control show their messages", "Read the whole form through `Form(bind: form)`: `form.valid`, `form.errors`, `form.apply`", "Upload a file and follow its progress", "Send a form to an `api` and show what the server answered"]
 ---
 # 14. Forms and validation
 
-This chapter shows you how to build a form: controls that read and write
+This chapter is about forms in WebFluent: controls that read and write
 state, rules that say what each value must be, and a submit that sends the
 form to a server and shows what came back.
 
@@ -67,6 +68,13 @@ page Signup(path: "/signup", title: "Sign up", description: "Every control, boun
     if let start = when { Text("Starting {start}") }
 }
 ```
+
+> [!NOTE]
+> **Coming from React?** A controlled input needs `value={q}` and an
+> `onChange` that calls the setter. `bind: q` is both directions at once, and
+> the control holds the state's type, so a `Slider` writes a `Number`, not
+> the string `e.target.value` would give you. See
+> [Coming from React](../coming-from/react.md).
 
 The last lines repeat what you type and pick. The `Select` and the two
 `Radio`s share `plan`, so choosing in one moves the others.
@@ -198,6 +206,12 @@ page Contact(path: "/contact", title: "Contact", description: "Send us a message
     if sent { Alert("Thanks — we will be in touch.").success }
 }
 ```
+
+> [!NOTE]
+> **Coming from React?** A submit handler there starts with
+> `event.preventDefault()`. A `Form`'s `on submit` never reloads or leaves
+> the page, so the handler holds only what the submit does. See
+> [Coming from React](../coming-from/react.md).
 
 ### The form handle
 
@@ -557,6 +571,55 @@ Reading `.pending` on an action that awaits nothing is `T17`.
 | A button submits the form by accident | Only `type: .submit` submits. Check that the button is not the submit button. |
 | A server message never shows | `form.apply` matches each key to a field's `name:`. Give the control a `name:` equal to the key. |
 | A message shows before the reader has typed | The form uses `show: .live`. Use `.onBlur` or `.onSubmit`. |
+
+## Common mistakes
+
+**A text field bound to a number.** An `Input` with no type flag holds a
+`String`, so it cannot write a `Number` state:
+
+```wf expect=F02
+page P(path: "/", title: "Seats", description: "Pick a number of seats.") {
+    state seats = 1
+    Heading("Seats").h1
+    Input(bind: seats, label: "Seats")
+    Text("{seats} seats")
+}
+```
+
+Add `.number`, which holds a `Number`, or use a `Slider`
+([F02](../errors/F02.md)).
+
+**A `validate` block for a state no control binds.** The rules check the
+state, and nothing the reader types reaches it:
+
+```wf expect=F03
+page P(path: "/", title: "Join", description: "Make an account.") {
+    state email = ""
+    validate email { required  email }
+    Heading("Join").h1
+    Input(label: "Email").email
+    Text("You typed {email}")
+}
+```
+
+Bind the control to the state the rules guard: `Input(bind: email,
+label: "Email")` ([F03](../errors/F03.md)).
+
+**A `bind:` to a derived value.** A control writes back to what it binds,
+and a `derived` value is worked out, never assigned:
+
+```wf expect=F01
+page P(path: "/", title: "Handle", description: "Pick a handle.") {
+    state first = ""
+    derived handle = first.toLowerCase()
+    Heading("Handle").h1
+    Input(bind: first, label: "First name")
+    Input(bind: handle, label: "Handle")
+}
+```
+
+Bind a `state` instead, and show the derived value with `Text(handle)`
+([F01](../errors/F01.md)).
 
 ## Next
 

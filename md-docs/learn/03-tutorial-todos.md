@@ -6,10 +6,14 @@ from: ["/docs/tutorials/todos"]
 group: "tour"
 blurb: "Build a todo list kept in the reader's browser — types, a store that remembers, a component, a filter in the address and tests that click."
 description: "A beginner WebFluent tutorial: a todo app with a persisted store, a component, a keyed list, a filter in the address and tests, in 20 minutes."
+learned: ["Describe data with a `type` and an `enum`", "Keep a list across reloads in a store with `persist`, changed only by its actions", "Give each row of a list its own `state` in a component", "Key a list with `for … by`, and keep a filter in the address with `query`", "Test a page by typing and clicking, with `wf test`"]
 ---
 # 3. Tutorial: Todos
 
-This is the first of three tutorials that each build a whole project, step by step. Each project is complete in the repository under `examples/tutorials/`, and none needs a server: what a project keeps, it keeps in the reader's browser.
+This tutorial builds a todo list kept in the reader's browser, with a
+store, a component, a filter in the address and tests that click.
+
+It is the first of three tutorials that each build a whole project, step by step. Each project is complete in the repository under `examples/tutorials/`, and none needs a server: what a project keeps, it keeps in the reader's browser.
 
 | Tutorial | What you build | What it teaches | Time |
 |---|---|---|---|
@@ -30,7 +34,7 @@ ones. It is one page, one store and one component. The finished project is
 
 You need:
 
-- `wf` installed and on your `PATH` — `wf --version` prints `wf 5.11.0` or
+- `wf` installed and on your `PATH` — `wf --version` prints `wf 6.0.0` or
   later ([Getting started](01-getting-started.md)).
 - Chrome or Chromium on the machine, for the tests that click and for
   `wf verify`. Set `WF_CHROME` to its path when it is not in a usual place.
@@ -222,6 +226,11 @@ store Todos {
   is the todo with one field changed.
 - `rename`, `remove` and `clearDone` change the list in the same way.
 
+> [!NOTE]
+> **Coming from Vue?** A `derived` value is a `computed` with no function to
+> write and no `.value` to read: `Todos.open` is the list itself. See
+> [Coming from Vue](../coming-from/vue.md).
+
 **Check it:** `wf check` prints seven `U04` warnings, such as ``warning[U04]:
 `Todos.open` is declared but never read``. That is expected: nothing reads
 the store yet. The page in step 6 reads every member, and the warnings go.
@@ -368,6 +377,10 @@ below the first, after a blank line:
 - A class map, `{ "is-on": filter == .all }`, turns a class on while its
   condition holds.
 
+> [!NOTE]
+> **Coming from React?** The key goes on the loop, `by todo.id`, not as a
+> `key` prop on the row. See [Coming from React](../coming-from/react.md).
+
 Last, the `app` declaration is the frame every page sits in. `Router`
 marks where the current page is drawn:
 
@@ -473,6 +486,66 @@ missing file or a page that draws nothing.
 - A theme with a dark variant, and the project's own stylesheet
   ([Styling](13-styling.md)).
 - Tests that look and tests that click ([Testing](16-testing.md)).
+
+## Common mistakes
+
+A `match` that misses a case. A `match` over an enum must name every case,
+so leaving out `.all` is an error:
+
+```wf expect=T15
+enum Filter { all, open, done }
+
+page Home(path: "/", title: "Todos", description: "A small list of things to do.") {
+    state filter: Filter = .all
+    derived label = match filter {
+        .open { "Open" }
+        .done { "Done" }
+    }
+    Heading("Todos").h1
+    Text(label)
+}
+```
+
+Add the missing arm, `.all { "All" }`, or an `else` arm
+([T15](../errors/T15.md)).
+
+A list with no `by`. Without a key, a row that holds a control is drawn
+again whenever the list changes, and a box the reader was using loses its
+place:
+
+```wf expect=U09
+type Todo { id: String, title: String }
+
+page Home(path: "/", title: "Todos", description: "A small list of things to do.") {
+    state items: [Todo] = [Todo(id: "1", title: "Buy bread")]
+    Heading("Todos").h1
+    for todo in items {
+        Checkbox(label: todo.title)
+    }
+}
+```
+
+Key the list by what identifies each item: `for todo in items by todo.id`
+([U09](../errors/U09.md)).
+
+A control bound to a `derived` value. `bind:` writes back to what it
+names, and a derived value is worked out, never assigned:
+
+```wf expect=F01
+store Todos {
+    state items: [String] = []
+    derived open = items.length
+}
+
+page Home(path: "/", title: "Todos", description: "A small list of things to do.") {
+    use Todos
+    Heading("Todos").h1
+    Input(bind: Todos.open, label: "Open")
+}
+```
+
+Bind a `state`, as the page binds `draft`, and change the store through
+its actions ([F01](../errors/F01.md)).
 
 ## Next
 

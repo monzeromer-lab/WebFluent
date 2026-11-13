@@ -9,22 +9,22 @@ description: "What WebFluent enforces, and how to handle outside markup, session
 ---
 # Security
 
-This chapter shows you how to keep a WebFluent site safe: what the compiler
-already stops, what it cannot stop, and the decisions it leaves to you.
+This essay sets out WebFluent's security model: what the compiler
+guarantees about every page it writes, what no compiler can guarantee, and
+the decisions it leaves to you.
 
 A web page is a program you hand to a stranger's machine, and its strings
 come from everywhere: a form, a URL, a CMS, a database, another service.
-Most security bugs are one mistake — a string that arrives somewhere it
-becomes *code* instead of *content*. The compiler closes most of those
-doors for you. The rest are listed here, with what to do about each.
+Most security bugs are one mistake, a string that arrives somewhere it
+becomes *code* instead of *content*. Advice against that mistake has been
+written for twenty years, and the mistake is still the most common one,
+because advice has to be followed on every line and a deadline only has
+to win once.
 
-In this chapter:
-
-- what the compiler guarantees, and what it cannot;
-- how to show markup from outside, keep a session, keep secrets out of the
-  bundle and handle uploads;
-- how to ship a Content-Security-Policy and trust other origins' files;
-- how to audit a project, and a checklist for deploying.
+So WebFluent does not advise. It makes the safe spelling the only one the
+compiler accepts, and names the one door that is not safe so a review can
+find it. What follows is the list of those guarantees, the places they
+stop, and what to do on the other side of each.
 
 ## What the compiler guarantees
 
@@ -45,7 +45,9 @@ them on.
 - **An attribute holds its value.** A `class:` from data, a page title from
   a route parameter or front matter, a chart's or a QR code's colour: each
   is escaped for where it is written, and a colour must be a colour
-  (`#0F766E`, `red`, `rgb(…)`, `var(--x)`) or the default is drawn.
+  (`#0F766E`, `red`, `rgb(…)`, `var(--x)`) or the default is drawn. A
+  design token whose value holds `<`, `{`, `}` or `;` is left out of the
+  stylesheet, so a theme cannot close a rule and open another.
 - **No URL a browser would run.** `href:`, `src:`, `to:`, `poster:` and
   `navigate()` take a URL whose scheme is `http`, `https`, `mailto`, `tel`,
   `sms` or `ftp`, or a URL with no scheme at all. The compiler refuses a
@@ -83,11 +85,19 @@ them on.
   one that puts a backslash before its colon (`javascript\:`), which
   Markdown reads as the colon it escapes. For text somebody else wrote,
   such as a language server's documentation, `Markdown(text).inert` draws
-  no link or picture at all ([Content](../recipes/index.md)).
+  no link or picture at all ([Render Markdown](../recipes/render-markdown.md)).
 - **A `Secret` cannot escape.** It may not be shown, spliced into a string,
   logged or persisted. Each is a `T12`, reported at the line that does it.
 - **A non-public `env` name cannot be read from a page.** See
   [Keep secrets out of the bundle](#keep-secrets-out-of-the-bundle).
+- **A build stays in its project.** `data`, `image`, `api … from` and
+  `i18n.dir` name paths inside the project; an absolute path or a `..` is
+  an error. A link that points out of the project, at nothing, or back on
+  itself is left out of every walk with a warning. A `build.output` outside
+  the project, or a link inside it, is refused unless the command line says
+  `--allow-output-outside`, and the build removes only the `.gz` files it
+  wrote itself. A cloned project cannot make `wf build` read or delete
+  files elsewhere on your machine.
 
 ## What it cannot guarantee
 
@@ -236,13 +246,13 @@ With this config:
 `public_env` comes with the project, so it cannot reach into the shell of
 whoever builds it: a name it lists without the `PUBLIC_` prefix takes its
 value from the config or `.env`, and from the shell only when
-`WF_ALLOW_SHELL_ENV` names it ([Environments](../recipes/index.md)).
+`WF_ALLOW_SHELL_ENV` names it ([Environments and secrets](../recipes/environments-and-secrets.md)).
 
 The value of `STRIPE_SECRET` is still there for `wf render`, which runs on
 a server where a secret stays secret
-([Server rendering](../recipes/index.md)). A secret that has to reach a
+([Render a template](../recipes/render-a-template.md)). A secret that has to reach a
 third party belongs in a request your server makes, not in a page.
-[Environments](../recipes/index.md) covers where `env` values come from.
+[Environments and secrets](../recipes/environments-and-secrets.md) covers where `env` values come from.
 
 ## Check uploads on the server
 
@@ -404,7 +414,7 @@ is markup, so markup from outside the project goes through
 
 A library from another origin belongs in `meta.scripts`, with an integrity
 hash, so a change at that origin cannot reach your readers
-([JavaScript interop](../recipes/index.md)).
+([A library from a CDN](../recipes/library-from-a-cdn.md)).
 
 ## Audit the project
 
@@ -446,4 +456,4 @@ never fails a build.
 
 ## Next
 
-[Performance](performance.md): learn what a build already does to be fast, see what it weighs, set budgets that warn, time pages in a browser, and avoid what makes a site slow.
+[What a build ships](performance.md): what a build already does to be fast, and how to see what it weighs.

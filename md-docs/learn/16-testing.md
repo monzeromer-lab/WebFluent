@@ -6,12 +6,13 @@ from: ["/docs/guide/testing"]
 group: "build"
 blurb: "Tests written in WebFluent: render a component and read what it shows, or click through it in a real browser — then check every page in one."
 description: "How to write wf tests: render tests with snapshots, seeded stores, tests that click and type in headless Chrome, wf verify, and running them in CI."
+learned: ["Write a `test` that renders a component and holds it to `expect` and a snapshot", "Seed a test's values and stores with `data:`", "Click, type and press keys through a page with steps that run in headless Chrome", "Load every built page with `wf verify`, and run it all in CI"]
 ---
 # 16. Testing
 
-This chapter shows you how to test a WebFluent project: render a component
-and check what it shows, click and type through a page in a real browser,
-and load every page of the built site to catch errors before a reader does.
+This chapter is about testing a WebFluent project: render a component and
+check what it shows, click and type through a page in a real browser, and
+load every page of the built site to catch errors before a reader does.
 
 You write tests in WebFluent itself, as `test "name" { … }` declarations. A
 test renders something — a component, a fragment of a page, a whole page —
@@ -143,6 +144,13 @@ button's name is its text; a control's is its label, its placeholder or its
 `aria-label`. The accessibility checks hold a page to the same names
 ([Accessibility](../about/accessibility.md)), so a test that passes here is a
 page somebody can use.
+
+> [!NOTE]
+> **Coming from Testing Library?** There is no `getByTestId` and no
+> `waitFor`. A step finds an element only by the name a reader sees, so a
+> control with no label cannot be clicked or typed into, and `expect` waits
+> on its own, for up to a second and a half. See
+> [Coming from React](../coming-from/react.md).
 
 > [!IMPORTANT]
 > **A handler that throws fails the test**, even when every `expect` would
@@ -331,6 +339,56 @@ or set `WF_CHROME` to the path of one.
 
 **A snapshot test fails after a change you meant.** Run `wf test --update`
 and commit the new snapshots.
+
+## Common mistakes
+
+A step finds what it acts on by its accessible name, so the mistakes that
+break a test are the ones the accessibility lints already report.
+
+**A field with no label.** `type "…" into "…"` names a control by its label,
+placeholder or `aria-label`, and this one has none:
+
+```wf expect=A03
+page Tasks(path: "/", title: "Tasks", description: "What to do.") {
+    state draft = ""
+    Heading("Tasks").h1
+    Input(bind: draft)
+    Text("Next: {draft}")
+}
+```
+
+Give it `label: "New task"`, and the test types `into "New task"`
+([A03](../errors/A03.md)).
+
+**A button with no text.** `click "…"` finds a button by its text, and an
+empty one has nothing to find:
+
+```wf expect=A05
+page Tasks(path: "/", title: "Tasks", description: "What to do.") {
+    state count = 0
+    Heading("Tasks").h1
+    Text("{count} done")
+    Button { on click { count = count + 1 } }
+}
+```
+
+Write its text, `Button("Mark done")`, or give it an `aria-label:`
+([A05](../errors/A05.md)).
+
+**An icon button with no label.** An `IconButton` shows no text, so its
+`label:` is the only name a step can use:
+
+```wf expect=A02
+page Tasks(path: "/", title: "Tasks", description: "What to do.") {
+    state count = 0
+    Heading("Tasks").h1
+    Text("{count} done")
+    IconButton(icon: "plus") { on click { count = count + 1 } }
+}
+```
+
+Add `label: "Add one"`, and click it with `click "Add one"`
+([A02](../errors/A02.md)).
 
 ## Next
 

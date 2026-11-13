@@ -1,8 +1,8 @@
 /// Chapter 5 of the guide, written from md-docs/learn/05-pages-and-routing.md by
 /// scripts/docsite/guide.py; edit the guide, not this file.
-page Learn05PagesAndRouting(path: "/learn/05-pages-and-routing", title: "Pages and routing", description: "Page attributes, routes and typed parameters, query strings, layouts, guards, the app shell, per-page head tags and the 404 page.", layout: DocsShell("Pages and routing", kind: .tutorial, chapter: t("nav.group.language"), blurb: "A page is a route and what it shows. Each page names its own path, the app shell frames every page, and a layout frames a section.", source: "md-docs/learn/05-pages-and-routing.md", sections: [Anchor(id: "declaring-a-page", label: "Declaring a page"), Anchor(id: "the-app-shell", label: "The app shell"), Anchor(id: "links-and-navigation", label: "Links and navigation"), Anchor(id: "route-parameters", label: "Route parameters"), Anchor(id: "query-strings-and-fragments", label: "Query strings and fragments"), Anchor(id: "layouts", label: "Layouts"), Anchor(id: "guards", label: "Guards"), Anchor(id: "per-page-head-tags", label: "Per-page head tags"), Anchor(id: "the-catch-all-page", label: "The catch-all page"), Anchor(id: "set-up-code-what-runs-when-a-page-opens", label: "Set-up code: what runs when a page opens"), Anchor(id: "quick-reference", label: "Quick reference")], prevTo: "/learn/04-language-basics", prevLabel: t("ch.04"), nextTo: "/learn/06-elements", nextLabel: t("ch.06"))) {
+page Learn05PagesAndRouting(path: "/learn/05-pages-and-routing", title: "Pages and routing", description: "Page attributes, routes and typed parameters, query strings, layouts, guards, pages in other languages, head tags and the 404 page.", layout: DocsShell("Pages and routing", kind: .tutorial, chapter: t("nav.group.language"), blurb: "A page is a route and what it shows. Each page names its own path, the app shell frames every page, and a layout frames a section.", source: "md-docs/learn/05-pages-and-routing.md", sections: [Anchor(id: "declaring-a-page", label: "Declaring a page"), Anchor(id: "the-app-shell", label: "The app shell"), Anchor(id: "links-and-navigation", label: "Links and navigation"), Anchor(id: "route-parameters", label: "Route parameters"), Anchor(id: "query-strings-and-fragments", label: "Query strings and fragments"), Anchor(id: "layouts", label: "Layouts"), Anchor(id: "guards", label: "Guards"), Anchor(id: "per-page-head-tags", label: "Per-page head tags"), Anchor(id: "a-page-in-another-language", label: "A page in another language"), Anchor(id: "the-catch-all-page", label: "The catch-all page"), Anchor(id: "set-up-code-what-runs-when-a-page-opens", label: "Set-up code: what runs when a page opens"), Anchor(id: "quick-reference", label: "Quick reference"), Anchor(id: "common-mistakes", label: "Common mistakes")], prevTo: "/learn/04-language-basics", prevLabel: t("ch.04"), nextTo: "/learn/06-elements", nextLabel: t("ch.06"))) {
     Stack(gap: .lg) {
-        Markdown("A page is a route and what it shows. Each page names its own path, so there is no separate route table to keep in step with your pages.\n\nIn this chapter:\n\n- the attributes a page takes\n- the `app` shell that frames every page, and the `Router`\n- links, `navigate()` and how the active link is marked\n- route parameters, query strings and fragments\n- layouts, guards and per-page head tags\n- the catch-all page\n- what runs, and in what order, when a page opens")
+        Markdown("This chapter covers WebFluent's pages and routes: a page is a route and what it shows. Each page names its own path, so there is no separate route table to keep in step with your pages.\n\nIn this chapter:\n\n- the attributes a page takes\n- the `app` shell that frames every page, and the `Router`\n- links, `navigate()` and how the active link is marked\n- route parameters, query strings and fragments\n- layouts, guards and per-page head tags\n- a page in another language, with `lang:` and `translates:`\n- the catch-all page\n- what runs, and in what order, when a page opens")
 
         Heading("Declaring a page", id: "declaring-a-page").h2
 
@@ -100,6 +100,8 @@ page Learn05PagesAndRouting(path: "/learn/05-pages-and-routing", title: "Pages a
         }
 
         Markdown("A page without a `title:` builds with warning `S01`, and one without a `description:` with warning `S02`. The compiler cannot write those for you, and a page without them looks bare when someone shares or searches for it.")
+
+        Callout("**Coming from React Router, Vue Router or SvelteKit?** There is no route table and no `routes/` folder. Each `page` names its own `path:`, and the compiler builds the router from every page. See [Coming from React](/coming-from/react#things-that-work-differently).", kind: .note)
 
         Heading("The app shell", id: "the-app-shell").h2
 
@@ -264,6 +266,20 @@ page Login(path: "/login", title: "Sign in", description: "Sign in.") {
 
         Markdown("A tag's `src:` and `href:` go through the same scheme check as every address, at build time and on the live page, so a value never points one at `javascript:` or `data:`. A `script(src:)` is written out, never read from a value, and a `meta(http-equiv: \"refresh\")` may not take its address from one (`E107`): whoever controls the value would choose what the page runs or where the reader goes.\n\n`title:` and `description:` are page attributes, not head tags. From them and the config, the compiler writes the standard tags itself: charset, viewport, description, canonical, Open Graph, Twitter card and JSON-LD.")
 
+        Heading("A page in another language", id: "a-page-in-another-language").h2
+
+        Markdown("A page written in a language other than the site's says so with `lang:`, and names the page it translates with `translates:`. This site is in English, with its home page in Arabic at `/ar`:")
+
+        CodeBlock(#"page Home(path: "/", title: "Home", description: "What we make.") {
+    Heading("Welcome").h1
+}
+
+page HomeAr(path: "/ar", title: "الرئيسية", description: "ما نصنعه.", lang: "ar", translates: Home) {
+    Heading("أهلاً بك").h1
+}"#, title: "wf")
+
+        Markdown("What the two attributes do:\n\n- **`lang:`** writes the page as `<html lang=\"ar\" dir=\"rtl\">`, with its `og:locale` and its JSON-LD's `inLanguage` to match. The router sets `lang` and `dir` when it shows the page, and puts the site's back on a page without one.\n- **`translates:`** joins the pages. Each lists the others as `hreflang` alternates, each at its own address, with `x-default` for the one in the site's language, so a search engine finds every language.\n- A `translates:` that names no page, or two translations of one page in one language, is `R05`.\n\nThis is different from `t()` and `setLocale`, which translate one address in the browser. [Publish a page in each language](/recipes/site-in-two-languages) compares the two.")
+
         Heading("The catch-all page", id: "the-catch-all-page").h2
 
         Markdown("A page with `path: \"*\"` answers every route no other page claims. The router shows it in the browser, and a static host serves it as `404.html`:")
@@ -296,6 +312,8 @@ page Deploy(path: "/deploys/:id", title: "Deploy", description: "One deploy.", i
         Heading("The life of a page", id: "the-life-of-a-page").h3
 
         Markdown("A page goes through these stages, in order:\n\n1. The route matches. In a split build, the page's chunk loads, and its stylesheet with it.\n2. The body runs **once**: each `state` takes its initial value, set-up calls run, and the elements are created. Nothing re-renders after this; whatever reads a state updates on its own.\n3. Each `effect` runs, and runs again when what it reads changes. Timers start.\n4. The page is placed. In a single-page app, focus moves to its heading, the scroll goes to the top and the title is announced.\n5. When the route changes, everything the page created is disposed of: effects, timers, listeners, connections and `.route` stores. Their `cleanup \{ \}` blocks run.\n\nThere is no `onMount` to write. Set-up code runs at stage 2, an `effect` at stage 3, and `after(0) \{ … \}` once the page is on screen.")
+
+        Callout("**Coming from React?** A page's body is not a function called on every render; it runs once. Set-up code does what `useEffect(…, [])` did, and nothing re-renders after it. See [Coming from React](/coming-from/react#things-that-work-differently).", kind: .note)
 
         Heading("Quick reference", id: "quick-reference").h2
 
@@ -347,9 +365,42 @@ page Deploy(path: "/deploys/:id", title: "Deploy", description: "One deploy.", i
                     Table.Cell { Markdown("`head \{ meta(…) link(…) script(…) \}`") }
                     Table.Cell { Markdown("Tags of the page's own in `<head>`") }
                 }
+                Table.Row {
+                    Table.Cell { Markdown("`lang: \"ar\", translates: Home`") }
+                    Table.Cell("A page in another language, joined to the page it translates")
+                }
             }
         }
 
         Markdown("The [configuration reference](/reference/config) covers `build.base_path`, and [Static or single-page](/about/static-or-single-page) covers how each build serves pages.")
+
+        Heading("Common mistakes", id: "common-mistakes").h2
+
+        Markdown("**A route names a parameter the page does not declare.** Each `:name` in the path is a parameter of the page, and the page must declare it:")
+
+        CodeBlock(#"page Post(path: "/posts/:slug", title: "Post", description: "One post.") {
+    Heading("A post").h1
+}"#, title: "wf · draws R02")
+
+        Markdown("Add `slug: String` to the page's header, beside `path:`, and read it as `slug` ([R02](/errors/R02)).\n\n**A link to a page that does not exist.** The compiler knows every route, so a `Link` or a `navigate()` to a path no page answers stops the build:")
+
+        CodeBlock(#"page Home(path: "/", title: "Home", description: "The front page.") {
+    Heading("Home").h1
+    Link("About us", to: "/about")
+}"#, title: "wf · draws R01")
+
+        Markdown("Declare the page, `page About(path: \"/about\", …)`, or fix the path ([R01](/errors/R01)).\n\n**A layout with nowhere to put the page.** A `layout:` component must declare a default `slot` and place `children` where the page goes:")
+
+        CodeBlock(#"component Shell(_ crumb: String) {
+    Stack {
+        Text(crumb)
+    }
+}
+
+page Home(path: "/", title: "Home", description: "The front page.", layout: Shell("Home")) {
+    Heading("Home").h1
+}"#, title: "wf · draws E104")
+
+        Markdown("Add `slot` at the top of `Shell` and `children` inside its `Stack` ([E104](/errors/E104)).")
     }
 }

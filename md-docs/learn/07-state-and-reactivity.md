@@ -6,12 +6,14 @@ from: ["/docs/guide/state"]
 group: "language"
 blurb: "A state is a signal, and only what reads it updates: no tree re-renders, no subscriptions to manage."
 description: "state, derived, effect, actions and let, persist, timers, automatic clean-up, element handles and the browser's values."
+learned: ["Declare a `state` and change it from a handler or an action", "Work a value out with `derived` instead of keeping a second state in step", "Reach outside the page with an `effect` and its `cleanup`", "Keep a value across visits with `persist`, and run timers with `every` and `after`", "Read `viewport`, `query`, `now` and the browser's other values as live values"]
 ---
 # 7. State and reactivity
 
-A `state` is a value the page can change. Anything that reads it — a text, an
-attribute, a `derived` value, an `effect`, a style splice — updates when it
-changes, and nothing else does. This is *fine-grained reactivity*: there is no
+This chapter covers state and reactivity in WebFluent. A `state` is a value
+the page can change. Anything that reads it — a text, an attribute, a
+`derived` value, an `effect`, a style splice — updates when it changes, and
+nothing else does. This is *fine-grained reactivity*: there is no
 re-render of a component tree, and you never subscribe or unsubscribe by hand.
 
 In this chapter:
@@ -21,7 +23,7 @@ In this chapter:
 - `persist`, timers and element handles
 - how the runtime cleans up after a page, a branch or a list item
 - the browser's own values: `viewport`, `query`, `now` and the rest
-- the mistakes people make, and where a name is looked up
+- where a name is looked up, and the mistakes people make
 
 ## `state`
 
@@ -44,6 +46,13 @@ page Counter(path: "/", title: "Counter", description: "A state, read and writte
 ```
 
 Each click sets `count`, and only the `Text` that reads it changes.
+
+> [!NOTE]
+> **Coming from React?** `useState` returns a value and a setter, and a
+> change runs the whole component again. A `state` is assigned directly,
+> `count = count + 1`, and the body never runs again: only what reads
+> `count` updates. A value that should follow a prop or a state is a
+> `derived`. See [Coming from React](../coming-from/react.md#things-that-work-differently).
 
 The type of a state is read off its initial value, or written after a colon.
 [Types](12-types.md) has the type language. Assigning a value of another type
@@ -169,6 +178,10 @@ What an action's body can hold:
 - **Errors.** `try { } catch e { }` guards a call that may fail.
 - **`return`.** `return` leaves the action; `return x` leaves with a value.
 
+A `let` is the action's own. After `let list = items`, `list.push(x)` changes
+`list` and leaves `items` as it was; assign it back with `items = list`, or
+write `items.push(x)`, which gives the state a new list.
+
 You call a page's action by name, `add()`, and a store's through the store,
 `Todos.add()`.
 
@@ -256,6 +269,9 @@ page Search(path: "/", title: "Search", description: "A handle on an input.") {
 The `ref:` declares the name; you do not declare it anywhere else. Anything
 the element has is there: `box.value`, `box.scrollIntoView()`.
 
+A handle is filled once the element exists, so set-up code at the top of the
+body cannot use it yet. Read it in a handler, an `effect` or `after(0) { }`.
+
 ## The browser as values
 
 Some names are always in scope and kept current by the runtime, so a page
@@ -289,34 +305,15 @@ The rules:
 
 - The breakpoints are the `screen-sm` … `screen-xl` design tokens: 640, 768,
   1024 and 1280px unless a theme moves them.
-- A `state` you declare with one of these names shadows it.
+- They are the language's names, so a `state`, prop or `const` of the same
+  name is an error (`E118`).
+- Copy one into a `state` and you keep the value it had when the page
+  opened: `state clock = now(every: 1.seconds)` never ticks (`X06`). Read it
+  where it is shown, or in a `derived`.
 - The static paint does not know them, so what depends on them is drawn once
   the page is live. For layout, prefer
   [responsive values](13-styling.md#responsive-values), which are right in
   the first paint.
-
-## Common mistakes
-
-- **Writing state in a `derived`.** A derived value computes; it never
-  assigns, and an action it calls may not either (`X04`). Put the assignment
-  in an action or an `effect`.
-- **An effect that writes what it reads.** `effect { n = n + 1 }` reads `n`,
-  so it would run again forever (`X02`). Compute the value with `derived`.
-- **Changing a local copy and expecting the state to change.**
-  `items.push(x)` on a state gives it a new list, and its readers repaint. A
-  `let` is the action's own: after `let list = items`, `list.push(x)` changes
-  `list` and leaves `items` as it was. Assign it back with `items = list`.
-- **Reading an element handle during set-up.** A `ref:` is filled once the
-  element exists. Read it in a handler, an `effect` or `after(0) { }`.
-- **Expecting a component to run again.** A component's body runs once. A
-  value that should follow a prop or a state is a `derived`, or an expression
-  written where it is shown.
-- **Copying a browser value into a `state`.** `state clock = now(every:
-  1.seconds)` takes the time once, when the page opens, and keeps it — every
-  "… ago" worked out from it stays where it started. `derived clock =
-  now(every: 1.seconds)` ticks. The same holds for `viewport`, `query`,
-  `hash`, `theme`, `network` and `update`; the compiler warns (`X06`) about a
-  state nothing changes.
 
 ## Where values come from, in order
 
@@ -347,6 +344,79 @@ When a body reads a name, it is looked up in this order:
 
 [Grammar](../reference/grammar.md) and [Built-in functions](../reference/built-ins.md) are
 the reference for each.
+
+## Quiz
+
+```quiz
+A page shows `Heading("Counter")` and `Text("{count}")`. A click runs `count = count + 1`. What runs again?
+- The page's body, which draws the heading and the text again -- A body runs once, when the page opens; nothing re-renders after it.
++ The `Text` that reads `count`, and nothing else -- Only what reads a state follows it; the heading reads no state.
+- The page and every component inside it -- There is no component tree to re-render; a component's body runs once too.
+```
+
+```quiz
+`items` is a state. Which `total` stays equal to the sum of `items` as items are added?
+- `state total = items.sum()` -- A state takes its initial value once; adding an item leaves the total as it was.
++ `derived total = items.sum()` -- A derived value is worked out again whenever a state it read changes.
+- `derived total = 0`, with `total = items.sum()` in each action that adds an item -- A derived value is never assigned (X01).
+```
+
+```quiz
+Which of these clocks ticks every second?
+- `state clock = now(every: 1.seconds)` -- A state takes `now` once, when the page opens (X06).
++ `derived clock = now(every: 1.seconds)` -- A derived value follows `now` as it ticks.
+- `derived clock = now` -- This one ticks, but once a minute: `now` alone keeps minutes, and `now(every: 1.seconds)` asks for seconds.
+```
+
+## Common mistakes
+
+**A state that copies `now` once.** A `state` takes its initial value when the
+page opens and keeps it, so a clock or an "… ago" worked out from it never
+moves:
+
+```wf expect=X06
+page Feed(path: "/", title: "Feed", description: "When this was posted.") {
+    state posted = @2026-03-14T09:30:00Z
+    state clock = now(every: 1.seconds)
+    Heading("Feed").h1
+    Text("Posted {posted.until(clock).minutes()} minutes ago")
+}
+```
+
+Declare it `derived clock = now(every: 1.seconds)`. The same holds for
+`viewport`, `query`, `hash`, `theme`, `network` and `update`
+([X06](../errors/X06.md)).
+
+**An effect that writes what it reads.** Each run changes `visits`, which
+starts the next run, so the page never settles:
+
+```wf expect=X02
+page Visits(path: "/", title: "Visits", description: "A count that runs away.") {
+    state visits = 0
+    effect { visits = visits + 1 }
+    Heading("Visits").h1
+    Text("{visits} visits")
+}
+```
+
+Change the state in a handler or an action, or work the value out with
+`derived` ([X02](../errors/X02.md)).
+
+**Assigning a derived value.** A `derived` is worked out from what it reads,
+so nothing may set it:
+
+```wf expect=X01
+page Cart(path: "/", title: "Cart", description: "A total you cannot set.") {
+    state items = [2.5, 6]
+    derived total = items.sum()
+    Heading("Cart").h1
+    Text("Total: {total}")
+    Button("Clear") { on click { total = 0 } }
+}
+```
+
+Change what it reads instead, `items = []`, and `total` follows
+([X01](../errors/X01.md)).
 
 ## Next
 

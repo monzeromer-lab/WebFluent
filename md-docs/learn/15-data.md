@@ -6,12 +6,13 @@ from: ["/docs/guide/data"]
 group: "build"
 blurb: "Get data onto a page: describe a service once, show a request's states, fetch on demand, and read files at build time."
 description: "Describe an API once with retries, caching and typed errors; show a resource with match; fetch in an action; update optimistically; read data files."
+learned: ["Show a request's loading, error and ready states with `resource` and `match`", "Tell a refresh (`refreshing`, the data stays) from a first load (`loading`)", "Describe a service once with `api`, typed, retried, cached and cancelled", "Fetch on demand with `await fetch` in an action, and roll back an `optimistic` change", "Read a JSON file at build time with `data`, and render a page per item with `paths:`"]
 ---
 # 15. Fetching data
 
-This chapter shows you how to get data onto a page and send data back: from
-a request the page makes when it shows, from a request an action makes on
-demand, and from a file the build reads.
+This chapter is about getting data onto a WebFluent page and sending data
+back: from a request the page makes when it shows, from a request an action
+makes on demand, and from a file the build reads.
 
 You will be able to:
 
@@ -83,6 +84,13 @@ page Deploys(path: "/deploys", title: "Deploys", description: "Recent deploys.")
 }
 ```
 
+> [!NOTE]
+> **Coming from React?** There, a fetch is a `useEffect` that sets
+> `loading`, `error` and `data` states by hand, or a `useQuery`. A
+> `resource` is the request and its state together: no effect, no flags to
+> keep in step, and a `match` with one arm per state. See
+> [Coming from React](../coming-from/react.md).
+
 How it works:
 
 - `resource name = fetch(url)` starts the request when the page renders.
@@ -151,6 +159,12 @@ page Servers(path: "/servers", title: "Servers", description: "Every server, kep
     }
 }
 ```
+
+> [!NOTE]
+> **Coming from TanStack Query?** `isLoading` is `name.state == "loading"`,
+> true only while there is nothing to show; `isFetching` is `name.pending`;
+> and `name.refreshing` is a fetch while data is on screen. See
+> [Coming from React](../coming-from/react.md).
 
 What a refresh keeps:
 
@@ -715,6 +729,92 @@ source of data puts in that HTML:
 | `T05` on a field of the data | The declared type has no such field. Fix the name, or add the field to the `type`. |
 | `T06` or `T10` on an endpoint call | The service has no such endpoint, or the endpoint takes no such argument. |
 | A post's page is missing from a static build | Its value is not in `paths:`. |
+
+## Quiz
+
+```quiz
+A resource's `match` has a `loading` arm and a `ready` arm, and no other. What does the reader see when the request fails?
+- An error message the runtime draws for you -- The runtime draws only the arms you write; the build warns about the missing one with T21.
++ Nothing where the `match` is, and the build warns with T21 -- No arm matches `"error"`, so the place stays empty. Add `error(e) { … }` or an `else`.
+- The `loading` arm, until a retry succeeds -- A first load that fails is `"error"`, not `"loading"`.
+```
+
+```quiz
+A resource is making its very first request. Which is true?
++ `pending` is true and `refreshing` is false -- `pending` covers every request of it, the first load included; `refreshing` only a request made again while data is shown.
+- `refreshing` is true and `pending` is false -- It is the other way round: there is no data yet to refresh.
+- Both are true -- `refreshing` is true only while data is on screen, and on a first load there is none.
+```
+
+```quiz
+A resource with `on: .interval(30.seconds)` asks again while its list is on screen. What does its `match` show while that refresh runs?
+- The `loading` arm, then the new list -- Only a first load, or a request whose address changed, shows `loading`.
+- An empty list until the answer arrives -- The data stays while a refresh runs; `name.data` is never cleared by one.
++ The `ready` arm with the old list, then the answer drawn in place -- A refresh keeps `"ready"` and the data; rows whose key is still there keep their nodes.
+```
+
+```quiz
+The address is `fetch("/api/servers?env={stage}")`, and a button sets `stage` from `"test"` to `"prod"`. What shows next?
++ The `loading` arm, then the production servers -- The request now names something else, so it is a first load; the test servers would be the wrong data.
+- The test servers, with `refreshing` true, until the production servers arrive -- That is a refresh, which asks again for the same request; this one changed.
+- Nothing changes until the reader reloads the page -- An address that reads state is fetched again whenever that state changes.
+```
+
+## Common mistakes
+
+**A `match` with no `error` arm.** When the request fails, no arm draws, and
+the reader is not told:
+
+```wf expect=T21
+page P(path: "/", title: "Users", description: "Everyone.") {
+    resource users = fetch("/api/users")
+    Heading("Users").h1
+    match users {
+        loading { Spinner }
+        ready(list) { Text("{list.length} users") }
+    }
+}
+```
+
+Add `error(e) { Alert(e.message).danger }`, or an `else`
+([T21](../errors/T21.md)).
+
+**A field the declared type does not have.** Once a resource is typed, every
+field read from it is checked against the `type`:
+
+```wf expect=T05
+type User { id: String, name: String }
+
+page P(path: "/", title: "Users", description: "Everyone.") {
+    resource users: [User] = fetch("/api/users")
+    Heading("Users").h1
+    match users {
+        loading { Spinner }
+        error(e) { Alert(e.message).danger }
+        ready(list) { for u in list by u.id { Text(u.fullName) } }
+    }
+}
+```
+
+Use the field the type declares, `u.name`, or add `fullName` to the `type`
+if the server sends it ([T05](../errors/T05.md)).
+
+**Reading `.data` as if it had arrived.** Before the first answer,
+`name.data` is `null`:
+
+```wf expect=T04
+type User { id: String, name: String }
+
+page P(path: "/", title: "Users", description: "Everyone.") {
+    resource users: [User] = fetch("/api/users")
+    Heading("Users").h1
+    Text("{users.data.length} users")
+}
+```
+
+Read it through `?.` with a fallback, `{users.data?.length ?? 0}`, or show
+it inside the `ready` arm, where the binding is never null
+([T04](../errors/T04.md)).
 
 ## Next
 

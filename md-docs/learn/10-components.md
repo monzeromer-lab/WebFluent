@@ -6,10 +6,12 @@ from: ["/docs/guide/components"]
 group: "language"
 blurb: "A component is a reusable element you declare: typed props, events, slots, parts and a body, checked like a built-in."
 description: "Declare components: typed props, enum props, events, slots and scoped slots, parts, local state, stores, and how to design them."
+learned: ["Declare a component with typed props and defaults, and call it like a built-in", "Fire an `event` with `emit` and handle it on the call", "Take content with `children`, named slots and scoped slots", "Give a component parts and its own state", "Design an interface: a value down, an event up"]
 ---
 # 10. Components
 
-A *component* is a reusable element you declare yourself. It has typed
+This chapter shows how to declare a *component*: a reusable element of your
+own. It has typed
 props, the events it fires, the slots its caller fills, the parts it
 offers, and a body that draws it. The one thing to remember: the compiler
 checks a call to your component exactly as it checks a call to a built-in
@@ -89,6 +91,13 @@ The rules for props:
 - A `///` comment above the component or above a prop is its
   documentation. The editor shows it on hover, and `wf docs` prints it.
 
+> [!NOTE]
+> **Coming from React?** There is no `...rest` that forwards whatever the
+> caller passed. A prop the component does not declare is an error (`C02`);
+> `class:`, `aria-*`, `data-*` and a few others go to the root element (see
+> [What a call puts on the root element](#what-a-call-puts-on-the-root-element)).
+> See [Coming from React](../coming-from/react.md).
+
 A prop that reads the caller's state stays live inside the component: a
 `Chip(pressed: isOn)` repaints when `isOn` changes. You do not need to pass
 a callback or re-render anything yourself.
@@ -125,7 +134,7 @@ as `.huge`, is an error (`E103`) that lists the cases it does have.
 
 The compiler writes a component's enum props to its root element as
 `data-<prop>="<case>"` — here `data-tone="loud"` — so a stylesheet can
-select on them: `.note[data-tone="loud"] { font-weight: 700 }`. See
+select on them: `[data-tone="loud"] { font-weight: 700 }`. See
 [Styling](13-styling.md) for project stylesheets.
 
 ## Events
@@ -167,6 +176,12 @@ outside a component is `E114`. A DOM event handler written on a component
 call, such as `on click`, attaches to the component's root element (see
 [What a call puts on the root element](#what-a-call-puts-on-the-root-element)).
 For events in general, see [Events](08-events.md).
+
+> [!NOTE]
+> **Coming from React?** A callback prop such as `onToggle={…}` becomes a
+> declared `event toggle(id: String)`, fired with `emit toggle(id)` and handled
+> on the call as `on toggle(id) { … }`. The checker holds both ends to the
+> declaration. See [Coming from React](../coming-from/react.md).
 
 ### An event with several values
 
@@ -298,8 +313,8 @@ around it, is `C03`.
 ## Local state and actions
 
 A component may have its own `state`, `derived` values, `effect`s, actions,
-timers and handles. Each placed instance gets its own copy, so two
-`Stepper`s count separately:
+timers and handles. Each placed instance gets its own copy, so the two
+`Stepper`s on this page count separately:
 
 ```wf
 component Stepper(_ start: Number, step: Number = 1) {
@@ -313,6 +328,14 @@ component Stepper(_ start: Number, step: Number = 1) {
         Button("+").sm { on click { move(step) } }
         if even { Badge("even").info }
     }
+}
+
+page Counters(path: "/", title: "Counters", description: "Two steppers, two counts.") {
+    state last = 0
+    Heading("Counters").h1
+    Stepper(0) { on change(v) { last = v } }
+    Stepper(10, step: 5) { on change(v) { last = v } }
+    Text("Last value: {last}")
 }
 ```
 
@@ -417,6 +440,13 @@ page Booking(path: "/", title: "Booking", description: "How many seats.") {
 Clicking **+** sets `seats` to 2, and the component shows **Seats: 2**
 because its `value` prop reads `seats`.
 
+> [!NOTE]
+> **Coming from Vue or Svelte?** There is no `v-model` or `bind:` on your own
+> component. Take the value as a prop and fire a `change` event; the caller
+> assigns its state in the handler. `bind:` belongs to the built-in controls.
+> See [Coming from Vue](../coming-from/vue.md) and
+> [Coming from Svelte](../coming-from/svelte.md).
+
 ### Pick the right way in
 
 Choose the part of the interface by what the caller wants to do:
@@ -478,6 +508,90 @@ See [Static sites and SPAs](../about/static-and-spa.md).
 
 [Components reference](../reference/components.md) lists every built-in,
 and [Diagnostics](../errors/diagnostics.md) every code named here.
+
+## Quiz
+
+```quiz
+A page declares `state count = 3` and places `Panel("Totals") { Text("{count}") }`. `Panel` declares no `count`. What does the fill show?
++ 3, the page's `count` -- A fill is compiled in the caller's scope: it reads the caller's state, and the component only decides where it lands.
+- Nothing, because `Panel` has no `count` -- The component never reads the fill's names; they belong to the caller.
+- An error until `count` is passed to `Panel` as a prop -- A fill needs no prop to read the caller's state.
+```
+
+```quiz
+`component Note(_ text: String)` is called as `Note("Saved", tone: "success")`. What happens?
+- It builds, and `tone="success"` lands on the root element -- Only `class:`, `aria-*`, `data-*`, `id`, `role`, `title` and `hidden` go to the root without a prop.
+- It builds, and `tone` is ignored -- Nothing is ignored in silence: the compiler checks a call to your component as it checks a built-in's.
++ The build stops with `C02`: `Note` declares no prop `tone` -- Declare the prop, or correct its spelling.
+```
+
+```quiz
+A page places `Stepper(0)` twice, and `Stepper` declares `state n = start`. You press **+** on the first. What does the second show?
++ 0 -- Each placed instance has its own copy of the component's state.
+- 1 -- State shared by every instance belongs in a store, not in a component.
+- It depends on which instance was drawn first -- No instance reads another's state, whatever the order.
+```
+
+```quiz
+`for row in rows { Stepper(row.start) }` draws three steppers, and you press **+** on each. Then `rows` gains an item. What happens to the three?
+- They keep their counts, matched by position -- Without `by` there is nothing to match an item by; the list is rebuilt.
++ They start again from `row.start`, since a list with no key is rebuilt when it changes -- Key it, `for row in rows by row.id`, and each keeps its state; the build warns of this (U09).
+- The build refuses the loop until it has a key -- It builds; the missing key is a warning, U09.
+```
+
+## Common mistakes
+
+**A required prop left out.** A prop with no default must be passed on every
+call:
+
+```wf expect=C01
+component UserCard(_ name: String, role: String) {
+    Card { Text(name).bold  Text(role).muted }
+}
+
+page P(path: "/", title: "T", description: "D") {
+    Heading("Team").h1
+    UserCard("Ada")
+}
+```
+
+Pass it, `UserCard("Ada", role: "Engineer")`, or give it a default in the
+declaration, `role: String = ""`. See [C01](../errors/C01.md).
+
+**A prop the component does not declare.** Often a misspelling, or a prop
+written as though the component forwarded what it was given:
+
+```wf expect=C02
+component Note(_ text: String, muted: Bool = false) { Text(text) }
+
+page P(path: "/", title: "T", description: "D") {
+    Heading("Notes").h1
+    Note("Saved", tone: "success")
+}
+```
+
+Declare the prop, or correct its name. See [C02](../errors/C02.md).
+
+**A handler that names more values than its event sends.** An event sends
+what it declares, and nothing else:
+
+```wf expect=T22
+component Stepper(_ value: Number) {
+    event change(value: Number)
+    Button("+") { on click { emit change(value + 1) } }
+}
+
+page P(path: "/", title: "T", description: "D") {
+    state seats = 1
+    state last = 0
+    Heading("Seats: {seats}").h1
+    Stepper(seats) { on change(next, previous) { last = previous  seats = next } }
+    Text("Was {last}")
+}
+```
+
+Name only what the event sends, `on change(next)`, or declare a second
+parameter and `emit` it. See [T22](../errors/T22.md).
 
 ## Next
 

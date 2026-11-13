@@ -6,12 +6,39 @@ from: ["/docs/guide/styling"]
 group: "build"
 blurb: "Restyle the whole site with a theme, one element with a style block, and many elements with your own stylesheet — and make the layout responsive."
 description: "Themes and tokens, style blocks with live values, nested rules and media queries, transitions, classes and stylesheets, dark mode, responsive layout."
+learned: ["Restyle the whole site with a `theme` and its design tokens", "Style one element with a `style { }` block: tokens, live values, `&:hover` and `@media`", "Share rules through `class:` and your own `.css` files under `src/`", "Add dark mode with `theme.dark` and `setTheme`", "Make a layout follow the screen width with per-breakpoint values and `.stacks`"]
 ---
 # 13. Styling
 
-This chapter shows you how to change the way your site looks, from the whole
-site down to one element. Every built-in element already ships styled, so
-you only write styles for what you want to change.
+This chapter covers styling in WebFluent: a theme for the whole site, a
+`style { }` block for one element, and your own stylesheets for what sits
+between. Every built-in element already ships styled, so you write styles
+only for what you want to change.
+
+This page sets the brand colour for the whole site, then gives one card a
+border of that colour and a deeper shadow on hover:
+
+```wf
+theme Brand {
+    color-primary: #0F766E
+    radius-md: 14px
+}
+
+page Home(path: "/", title: "Home", description: "A themed page.") {
+    Heading("Welcome").h1
+    Card {
+        style {
+            border-left: 4px solid $color-primary
+            &:hover { box-shadow: $shadow-lg }
+        }
+        Text("Every primary button on the site is teal now.")
+        Button("Start").primary
+    }
+}
+```
+
+The `theme` changes every element that reads `color-primary`; the
+`style { }` block changes only the card it is written in.
 
 You will be able to:
 
@@ -140,6 +167,13 @@ page Styled(path: "/styled", title: "Styled card", description: "A card with its
 
 The card gets a deeper shadow on hover. **Widen** lets it fill the page, and
 **Make it blue** recolours its left border at once.
+
+> [!NOTE]
+> **Coming from HTML and CSS?** There is no `style="…"` attribute:
+> `style:` as an argument is `E106`. The declarations go in the element's
+> `style { }` block, and the build turns the parts that never change into a
+> stylesheet rule, so a strict content security policy still holds. See
+> [Coming from HTML and CSS](../coming-from/html-css.md).
 
 ### Write declarations
 
@@ -334,6 +368,13 @@ page Chores(path: "/chores", title: "Chores", description: "Classes that follow 
     Button("Done") { on click { done = !done } }
 }
 ```
+
+> [!NOTE]
+> **Coming from React?** `className` is a string you assemble, often with
+> `clsx`. `class:` *adds* to the element's own classes, and takes the map
+> `clsx` would build: `class: { "is-done": done }`. For one element's look,
+> reach for a flag or a `style { }` block before a class. See
+> [Coming from React](../coming-from/react.md).
 
 The rules for a class value:
 
@@ -563,6 +604,55 @@ The build writes your styles to two places:
 | Part of the page stays light in dark mode | That part uses a raw colour. Replace it with a token. |
 | `V04`: a `wf-*` class in `class:` | Give your element its own class instead of a built-in's. |
 | A `Row` or `Grid` does not reflow on a phone | Add `.stacks`, or give the prop a responsive value. |
+
+## Common mistakes
+
+**A comma between two declarations.** A `style { }` block is CSS, not a map,
+so a comma after a value does not build:
+
+```wf expect=E002
+page P(path: "/", title: "Card", description: "A styled card.") {
+    Heading("Card").h1
+    Card {
+        style { padding: $lg, border-radius: $radius-md }
+        Text("Hello")
+    }
+}
+```
+
+Put each declaration on its own line, or separate them with `;`
+([E002](../errors/E002.md)).
+
+**A number spliced as a length.** A splice puts in the value as it is, and a
+length with no unit is one the browser drops:
+
+```wf expect=V07
+page P(path: "/", title: "Progress", description: "A bar that fills.") {
+    state pct = 40
+    Heading("Progress").h1
+    Stack {
+        style { width: {pct}; background: $primary; height: 8px }
+    }
+    Button("More") { on click { pct = pct + 10 } }
+}
+```
+
+Write the unit after the splice: `width: {pct}%` ([V07](../errors/V07.md)).
+
+**A condition as a class.** `class:` wants class names, and a `Bool` says
+nothing about which class it turns on:
+
+```wf expect=T01
+page P(path: "/", title: "Chores", description: "A class that follows state.") {
+    state done = false
+    Heading("Chores").h1
+    Text("Water the plants", class: done)
+    Button("Done") { on click { done = !done } }
+}
+```
+
+Name the class and its condition in a map: `class: { "is-done": done }`
+([T01](../errors/T01.md)).
 
 ## Next
 

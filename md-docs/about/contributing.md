@@ -9,10 +9,17 @@ description: "Build and test the compiler, find your way around the repository a
 ---
 # Contributing
 
-This chapter is for working on WebFluent itself: the compiler, the
+This page is for working on WebFluent itself: the compiler, the
 runtime, the editor support or this guide. It tells you how to build and
 test the project, where each part lives, and what to update when you change
 one.
+
+The project holds itself to the rule it holds programs to: what can be
+checked is checked, by a test, on every push. The registry, the error
+pages, the components reference and every example in this guide are tied
+to the compiler, so a change that leaves one of them behind fails a test
+instead of drifting. Most of what follows is where those ties are, so you
+know which ones a change will pull.
 
 WebFluent is one Rust crate — the compiler and the `wf` binary — with a
 language server beside it, editor extensions, a small JavaScript runtime
@@ -57,7 +64,7 @@ npm ci
 npm test
 ```
 
-`npm test` runs twelve suites, starting with `offline.mjs` and `peer.mjs`;
+`npm test` runs sixteen suites, starting with `offline.mjs` and `peer.mjs`;
 each is also a script you can run alone, such as `node offline.mjs`. CI
 runs all of it on every push, and a few browser suites more.
 
@@ -154,10 +161,11 @@ not edit it by hand.
 
 1. Give the finding a code, a severity and a title in
    `src/diagnostics/codes.rs`.
-2. Add an entry for it to [Diagnostics](../errors/diagnostics.md), with a program
-   that draws the code. The test suite compiles every example and checks
-   that it draws its code, and a code with no entry in the guide fails a
-   test.
+2. Write its page, `md-docs/errors/<CODE>.md`: what the reader sees, why,
+   and the fix, with a program in a `wf expect=CODE` block that draws the
+   code. The test suite compiles every example and checks that it draws its
+   code, and a code with no page fails a test. The
+   [Diagnostics](../errors/diagnostics.md) index lists every page.
 
 ## Change this guide
 
@@ -168,8 +176,10 @@ kind of page (`learn/`, `recipes/`, `about/`, `reference/`, `errors/`,
 the components reference and the search index from it, and
 `cargo xtask site --check` says whether they are current. Each chapter
 starts with front matter naming its number, its kind, its route, its group
-in the sidebar, the line under its title and its search description. `spec/DOCS_STYLE.md` is the
-house style every chapter follows.
+in the sidebar, the line under its title and its search description.
+"How we write", §8 of `plans/docs-redesign/README.md`, holds the rules
+every page follows, and `tests/docs_parse.rs` checks the ones a test can
+read.
 
 The test suite holds the guide to the compiler:
 
@@ -183,8 +193,12 @@ The test suite holds the guide to the compiler:
   defaults are the compiler's;
 - the site's pages are what the generator writes from the guide.
 
-A code block that is deliberately incomplete says so with a `…`, and is
-only checked for spelling.
+Words after `wf` in a fence say how a block is checked: `expect=CODE`
+(it must draw that code), `fixed` (the corrected program after one),
+`page` and `live` (built, previewed, and editable by the reader),
+`files=a,b` (one file of a multi-file example), and `no-check` (not
+compiled, for a block the prose says is not a program). The full list is
+`Fence` in `tests/common/mod.rs`.
 
 ## Release a version
 
@@ -193,4 +207,4 @@ tag builds the binaries, the packages and the editor extensions.
 
 ## Next
 
-[Introduction](introduction.md).
+[Why WebFluent](introduction.md): why the language exists, and the choices it makes.

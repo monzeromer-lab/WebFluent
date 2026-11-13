@@ -6,11 +6,13 @@ from: ["/docs/guide/events"]
 group: "language"
 blurb: "Handlers on elements, keyboard shortcuts, the events components fire, the overlays a page opens, and drag and drop."
 description: "DOM event handlers, the event object, keyboard shortcuts, component events, modals, menus, popovers, gestures and window events."
+learned: ["Handle a DOM event with `on click { }`, and read the event with `on keydown(e) { }`", "Answer a key or a chord with `on key(\"mod+k\")`, on an element or for the whole app", "Fire your component's own events with `event` and `emit`", "Open modals, menus, popovers and tooltips from state, and know how they stack", "Drag, drop, long-press, swipe and listen to the window"]
 ---
 # 8. Events
 
-An event handler is the code that runs when something happens: a click, a key,
-a drop, a component saying it changed. You write it as `on <event> { … }`
+This chapter covers events in WebFluent. An event handler is the code that
+runs when something happens: a click, a key, a drop, a component saying it
+changed. You write it as `on <event> { … }`
 inside the block of the element it listens to, and its body can change state,
 call actions and navigate.
 
@@ -56,6 +58,13 @@ every one. On a call of your own component, the events it declares
 
 A handler's body is an imperative block, so it may assign state, call
 actions, `await` and `navigate`.
+
+> [!NOTE]
+> **Coming from React or Svelte?** A handler is not a prop: there is no
+> `onClick={…}` and no `on:click={…}`. Write `on click { … }` inside the
+> element's block. `onclick:` as an argument is an inline handler, and the
+> compiler refuses it (`E106`). See
+> [Coming from React](../coming-from/react.md#the-map).
 
 A handler on a component call — `UserCard("Sam") { on click { … } }` —
 attaches to the component's root element, so a styled button component is
@@ -587,6 +596,53 @@ needed ([State](07-state-and-reactivity.md#the-browser-as-values)).
 
 The [components reference](../reference/components.md) lists every event and
 prop of each built-in.
+
+## Common mistakes
+
+**Naming more values than a DOM event sends.** A DOM event sends one value,
+the event, so a second name has nothing to hold:
+
+```wf expect=T22
+page Spot(path: "/", title: "Spot", description: "Where the pointer clicked.") {
+    state at = ""
+    Heading("Spot").h1
+    Button("Click me") { on click(e, x) { at = "{x}" } }
+    Text(at)
+}
+```
+
+Name the event alone and read from it: `on click(e) { at = "{e.clientX}" }`
+([T22](../errors/T22.md)).
+
+**A misspelled event.** A handler for an event the element never fires never
+runs, so the compiler warns:
+
+```wf expect=V09
+page Clicks(path: "/", title: "Clicks", description: "A misspelled event.") {
+    state n = 0
+    Heading("Clicks").h1
+    Button("+1") { on clik { n = n + 1 } }
+    Text("{n}")
+}
+```
+
+Spell the event as the browser does, `on click`
+([V09](../errors/V09.md)).
+
+**A key combination no keyboard sends.** Modifiers have fixed names, and a
+word that is not one stops the build:
+
+```wf expect=E117
+page Search(path: "/", title: "Search", description: "A shortcut no keyboard sends.") {
+    state q = ""
+    Heading("Search").h1
+    Input(bind: q, ref: box, placeholder: "Search")
+    on key("command+k") { box.focus() }
+}
+```
+
+Write `cmd+k`, or `mod+k` for ⌘ on a Mac and Ctrl elsewhere
+([E117](../errors/E117.md)).
 
 ## Next
 

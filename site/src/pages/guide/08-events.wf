@@ -1,8 +1,8 @@
 /// Chapter 8 of the guide, written from md-docs/learn/08-events.md by
 /// scripts/docsite/guide.py; edit the guide, not this file.
-page Learn08Events(path: "/learn/08-events", title: "Events", description: "DOM event handlers, the event object, keyboard shortcuts, component events, modals, menus, popovers, gestures and window events.", layout: DocsShell("Events", kind: .tutorial, chapter: t("nav.group.language"), blurb: "Handlers on elements, keyboard shortcuts, the events components fire, the overlays a page opens, and drag and drop.", source: "md-docs/learn/08-events.md", sections: [Anchor(id: "handlers", label: "Handlers"), Anchor(id: "keys", label: "Keys"), Anchor(id: "emitting-events-from-components", label: "Emitting events from components"), Anchor(id: "overlays-modals-dialogs-toasts-and-menus", label: "Overlays: modals, dialogs, toasts and menus"), Anchor(id: "gestures-drag-long-press-swipe-and-the-splitter", label: "Gestures: drag, long-press, swipe and the splitter"), Anchor(id: "listening-outside-the-page-s-elements", label: "Listening outside the page's elements"), Anchor(id: "summary", label: "Summary")], prevTo: "/learn/07-state-and-reactivity", prevLabel: t("ch.07"), nextTo: "/learn/09-control-flow", nextLabel: t("ch.09"))) {
+page Learn08Events(path: "/learn/08-events", title: "Events", description: "DOM event handlers, the event object, keyboard shortcuts, component events, modals, menus, popovers, gestures and window events.", layout: DocsShell("Events", kind: .tutorial, chapter: t("nav.group.language"), blurb: "Handlers on elements, keyboard shortcuts, the events components fire, the overlays a page opens, and drag and drop.", source: "md-docs/learn/08-events.md", sections: [Anchor(id: "handlers", label: "Handlers"), Anchor(id: "keys", label: "Keys"), Anchor(id: "emitting-events-from-components", label: "Emitting events from components"), Anchor(id: "overlays-modals-dialogs-toasts-and-menus", label: "Overlays: modals, dialogs, toasts and menus"), Anchor(id: "gestures-drag-long-press-swipe-and-the-splitter", label: "Gestures: drag, long-press, swipe and the splitter"), Anchor(id: "listening-outside-the-page-s-elements", label: "Listening outside the page's elements"), Anchor(id: "summary", label: "Summary"), Anchor(id: "common-mistakes", label: "Common mistakes")], prevTo: "/learn/07-state-and-reactivity", prevLabel: t("ch.07"), nextTo: "/learn/09-control-flow", nextLabel: t("ch.09"))) {
     Stack(gap: .lg) {
-        Markdown("An event handler is the code that runs when something happens: a click, a key, a drop, a component saying it changed. You write it as `on <event> \{ … \}` inside the block of the element it listens to, and its body can change state, call actions and navigate.\n\nIn this chapter:\n\n- handlers and the event object\n- keys, and shortcuts for a whole app\n- the events your own components fire\n- overlays: modals, toasts, menus, popovers and tooltips, and how they stack\n- gestures: drag and drop, long-press, swipe and the splitter\n- listening to the window and the document")
+        Markdown("This chapter covers events in WebFluent. An event handler is the code that runs when something happens: a click, a key, a drop, a component saying it changed. You write it as `on <event> \{ … \}` inside the block of the element it listens to, and its body can change state, call actions and navigate.\n\nIn this chapter:\n\n- handlers and the event object\n- keys, and shortcuts for a whole app\n- the events your own components fire\n- overlays: modals, toasts, menus, popovers and tooltips, and how they stack\n- gestures: drag and drop, long-press, swipe and the splitter\n- listening to the window and the document")
 
         Heading("Handlers", id: "handlers").h2
 
@@ -22,7 +22,11 @@ page Learn08Events(path: "/learn/08-events", title: "Events", description: "DOM 
     Text("{n}")
 }"#, title: "wf")
 
-        Markdown("A handler may name any DOM event. The common ones are `click`, `input`, `change`, `submit`, `focus`, `blur`, `keydown`, `keyup`, `mouseenter` and `mouseleave`. The rest — `dblclick`, `contextmenu`, `pointerdown`, `pointermove`, `touchstart`, `wheel`, `scroll`, `paste`, `drop`, `dragover`, `animationend`, `ended` and the others — work the same way. The [components reference](/reference#on-every-element) lists every one. On a call of your own component, the events it declares ([Components](/learn/10-components#events)) join them.\n\nA handler's body is an imperative block, so it may assign state, call actions, `await` and `navigate`.\n\nA handler on a component call — `UserCard(\"Sam\") \{ on click \{ … \} \}` — attaches to the component's root element, so a styled button component is clickable wherever it is used.")
+        Markdown("A handler may name any DOM event. The common ones are `click`, `input`, `change`, `submit`, `focus`, `blur`, `keydown`, `keyup`, `mouseenter` and `mouseleave`. The rest — `dblclick`, `contextmenu`, `pointerdown`, `pointermove`, `touchstart`, `wheel`, `scroll`, `paste`, `drop`, `dragover`, `animationend`, `ended` and the others — work the same way. The [components reference](/reference#on-every-element) lists every one. On a call of your own component, the events it declares ([Components](/learn/10-components#events)) join them.\n\nA handler's body is an imperative block, so it may assign state, call actions, `await` and `navigate`.")
+
+        Callout("**Coming from React or Svelte?** A handler is not a prop: there is no `onClick=\{…\}` and no `on:click=\{…\}`. Write `on click \{ … \}` inside the element's block. `onclick:` as an argument is an inline handler, and the compiler refuses it (`E106`). See [Coming from React](/coming-from/react#the-map).", kind: .note)
+
+        Markdown("A handler on a component call — `UserCard(\"Sam\") \{ on click \{ … \} \}` — attaches to the component's root element, so a styled button component is clickable wherever it is used.")
 
         Heading("The event object", id: "the-event-object").h3
 
@@ -368,5 +372,36 @@ page Files(path: "/files", title: "Files", description: "Tree rows you can drag.
         }
 
         Markdown("The [components reference](/reference) lists every event and prop of each built-in.")
+
+        Heading("Common mistakes", id: "common-mistakes").h2
+
+        Markdown("**Naming more values than a DOM event sends.** A DOM event sends one value, the event, so a second name has nothing to hold:")
+
+        CodeBlock(#"page Spot(path: "/", title: "Spot", description: "Where the pointer clicked.") {
+    state at = ""
+    Heading("Spot").h1
+    Button("Click me") { on click(e, x) { at = "{x}" } }
+    Text(at)
+}"#, title: "wf · draws T22")
+
+        Markdown("Name the event alone and read from it: `on click(e) \{ at = \"\{e.clientX\}\" \}` ([T22](/errors/T22)).\n\n**A misspelled event.** A handler for an event the element never fires never runs, so the compiler warns:")
+
+        CodeBlock(#"page Clicks(path: "/", title: "Clicks", description: "A misspelled event.") {
+    state n = 0
+    Heading("Clicks").h1
+    Button("+1") { on clik { n = n + 1 } }
+    Text("{n}")
+}"#, title: "wf · draws V09")
+
+        Markdown("Spell the event as the browser does, `on click` ([V09](/errors/V09)).\n\n**A key combination no keyboard sends.** Modifiers have fixed names, and a word that is not one stops the build:")
+
+        CodeBlock(#"page Search(path: "/", title: "Search", description: "A shortcut no keyboard sends.") {
+    state q = ""
+    Heading("Search").h1
+    Input(bind: q, ref: box, placeholder: "Search")
+    on key("command+k") { box.focus() }
+}"#, title: "wf · draws E117")
+
+        Markdown("Write `cmd+k`, or `mod+k` for ⌘ on a Mac and Ctrl elsewhere ([E117](/errors/E117)).")
     }
 }

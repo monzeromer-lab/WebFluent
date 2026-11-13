@@ -6,12 +6,12 @@ from: ["/docs/guide/pdf-and-slides"]
 group: "build"
 blurb: "Compile the same language to a paginated PDF document or a slide deck — invoices, reports and talks, laid out with CSS as on the web."
 description: "Make PDF documents and slide decks: the paged engine, CSS layout, page breaks, fonts, Arabic, headers, page numbers, contents, charts and QR codes."
+learned: ["Set `build.output_type` to write a PDF document or a slide deck", "Lay out paper with `Document`, `Header`, `Footer`, `PageBreak` and `break-inside: avoid`", "Number pages with `page` and `pages`, and add a `TableOfContents`, charts and QR codes", "Use your own fonts, and lay out a right-to-left document", "Build a deck from `Presentation` and its slide kinds"]
 ---
 # 17. PDF and slides
 
-This chapter shows you how to compile a WebFluent project to paper: a
-paginated PDF document, such as an invoice or a report, or a slide deck for
-a talk. You write the pages with the same elements and the same CSS as a
+This chapter is about compiling a WebFluent project to paper: a paginated
+PDF document, such as an invoice or a report, or a slide deck for a talk. You write the pages with the same elements and the same CSS as a
 website, and `wf build` lays them out on pages.
 
 In this chapter:
@@ -165,6 +165,13 @@ page Invoice(path: "/", title: "Invoice", description: "An invoice.") {
 
 The result is a two-page PDF: the invoice on the first page, ending with
 `Total: $5,480.00`, and the terms on the second, under the header.
+
+> [!NOTE]
+> **Coming from LaTeX or Typst?** There is no document class and there are
+> no TeX boxes: a document is laid out by CSS. `\newpage` is `PageBreak`,
+> a `minipage` that must not split is `style { break-inside: avoid }`, and
+> `fancyhdr` is a `Header` and a `Footer`. See
+> [Coming from LaTeX and Typst](../coming-from/latex.md).
 
 ### Set the paper, headers and footers
 
@@ -417,6 +424,67 @@ These keys under `build.slides` set the deck's size and chrome:
 | A note says a slide was clipped | Shorten the slide, or split it in two |
 | A totals block or signature is split across two pages | Add `break-inside: avoid` to its `style { }` |
 | A Latin code in Arabic text shows its parts out of order | Give it a left-to-right run (see [Lay out a right-to-left document](#lay-out-a-right-to-left-document)) |
+
+## Common mistakes
+
+**A page number outside a header or footer.** `page` and `pages` exist only
+inside a `Header`, a `Footer` or a `Background`, which are drawn once per
+page:
+
+```wf expect=T13
+page Report(path: "/", title: "Report", description: "The quarter.") {
+    Document(size: "A4", title: "Q1 report") {
+        Heading("Q1 report").h1
+        Text("Revenue grew 15% this quarter.")
+        Text("Page {page} of {pages}").muted.sm.center
+    }
+}
+```
+
+Move the line into `Footer { Text("Page {page} of {pages}") }`
+([T13](../errors/T13.md)).
+
+**A component named like a built-in.** `Footer` is already the document's
+footer, so a call of that name draws the built-in and never your component:
+
+```wf expect=V11
+component Footer(_ note: String) {
+    Text(note).muted.sm.center
+}
+
+page Invoice(path: "/", title: "Invoice", description: "An invoice.") {
+    Document(size: "A4", title: "Invoice 2026-014") {
+        Heading("Invoice").h1
+        Text("Total: $5,480.00").bold
+        Footer("Acme Studio · invoice 2026-014")
+    }
+}
+```
+
+Name it for what it is, such as `component InvoiceNote`, or use the
+built-in: `Footer { Text("Acme Studio · invoice 2026-014") }`
+([V11](../errors/V11.md)).
+
+**A table with no header row.** Without `Table.Head`, a reader of the file
+has no column names, and a table that runs onto a second page has no header
+to draw again there:
+
+```wf expect=A10
+page Invoice(path: "/", title: "Invoice", description: "An invoice.") {
+    Document(size: "A4", title: "Invoice 2026-014") {
+        Heading("Invoice").h1
+        Table {
+            Table.Body {
+                Table.Row { Table.Cell("Design")  Table.Cell("$1,080.00") }
+                Table.Row { Table.Cell("Build")  Table.Cell("$4,400.00") }
+            }
+        }
+    }
+}
+```
+
+Add `Table.Head { Table.Row { Table.Cell("Item")  Table.Cell("Amount") } }`
+([A10](../errors/A10.md)).
 
 ## Next
 

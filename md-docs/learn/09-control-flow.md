@@ -6,11 +6,12 @@ from: ["/docs/guide/control-flow"]
 group: "language"
 blurb: "Five statements decide what a page shows: if, if let, for, show and match. Each adds and removes elements as its condition changes."
 description: "if, if let, for … by, VirtualList, show and match, in render blocks and in actions, and if and match as values."
+learned: ["Show a branch with `if`, and read a value that may be null with `if let`", "Draw a list with `for … by`, keyed so items keep their state", "Window a long list with `VirtualList`", "Hide without removing with `show`", "Draw one arm per case with `match`, payloads included"]
 ---
 # 9. Control flow
 
-Five statements decide what a page shows: `if`, `if let`, `for`, `show` and
-`match`. Each one follows the state it reads, adding and removing elements as
+This chapter covers the five statements that decide what a page shows: `if`,
+`if let`, `for`, `show` and `match`. Each one follows the state it reads, adding and removing elements as
 its condition changes, so you never update the page by hand. Each animates
 when you ask it to ([Motion](../recipes/index.md)).
 
@@ -56,6 +57,12 @@ How it behaves:
   `false` when it is null.
 - A list or a record as a condition is an error (`T07`), since it would always
   be true.
+
+> [!NOTE]
+> **Coming from React?** `{open && <Panel />}` and `cond ? a : b` inside JSX
+> become statements: `if open { Panel }` and `if cond { a } else { b }`. A
+> condition is a `Bool`, so test a list with `items.length > 0`. See
+> [Coming from React](../coming-from/react.md).
 
 ## `if let`
 
@@ -124,8 +131,15 @@ key:
 - A key may read the index as well as the item
   (`for t, i in rows by "{t.id}-{i}"`).
 
-Without a key, the list is rebuilt whenever it changes. Looping over something
-that is not a list is an error (`T08`).
+Without a key, the list is rebuilt whenever it changes, and the build warns
+(`U09`) when its items hold state, a control or a stateful component. Looping
+over something that is not a list is an error (`T08`).
+
+> [!NOTE]
+> **Coming from React or Vue?** The `key` prop and `:key` become `by`, written
+> once on the loop rather than on the element it draws: `for todo in todos by
+> todo.id { … }`. See [Coming from React](../coming-from/react.md) and
+> [Coming from Vue](../coming-from/vue.md).
 
 > [!WARNING]
 > Do not key by the index alone. A key of the index moves with the position,
@@ -207,7 +221,8 @@ How it draws:
 
 `show` keeps its elements in the page and toggles whether they are visible;
 `if` creates and destroys them. Use `show` for something expensive to rebuild,
-or whose state must survive being hidden:
+or whose state must survive being hidden. This panel keeps its card in the
+page while it is hidden:
 
 ```wf
 page Panel(path: "/", title: "Panel", description: "A panel hidden, not removed.") {
@@ -277,9 +292,9 @@ An `if` value with no `else` is `null` when its condition fails.
 
 ## In actions and handlers
 
-The same statements work in an imperative block, on values rather than
-elements, plus `try`/`catch`. This action fetches rows and keeps the first
-hundred:
+The same statements work in an imperative block — a handler or an action —
+on values rather than elements, plus `try`/`catch`. This action fetches rows
+and keeps the first hundred:
 
 ```wf
 page Sync(path: "/", title: "Sync", description: "Control flow inside an action.") {
@@ -318,6 +333,54 @@ page Sync(path: "/", title: "Sync", description: "Control flow inside an action.
 | `match s { .idle { … } else { … } }` | one arm by case, or by a resource's state | [`match`](#match) |
 | `if c { a } else { b }`, `match s { … }`, `a ?? b` | a value | [Expressions that choose](#expressions-that-choose) |
 | `try { … } catch e { … }` | in an action: a guard on what may fail | [In actions and handlers](#in-actions-and-handlers) |
+
+## Common mistakes
+
+**A list used as a condition.** In JavaScript an empty array is truthy too, so
+`if items` would always pass; WebFluent refuses it:
+
+```wf expect=T07
+page P(path: "/", title: "T", description: "D") {
+    state items: [String] = []
+    Heading("Items").h1
+    if items { Text("{items.length} items") } else { Text("Nothing yet.") }
+}
+```
+
+Say what you mean: `if items.length > 0`. See [T07](../errors/T07.md).
+
+**A loop with no key over items that hold state.** Each `Input` starts again
+whenever the list changes, so a field being typed in loses what was typed:
+
+```wf expect=U09
+page P(path: "/", title: "T", description: "D") {
+    state rows = [{ id: 1, name: "Milk" }, { id: 2, name: "Eggs" }]
+    Heading("Shopping").h1
+    for r in rows { Input(bind: r.name, label: "Item") }
+}
+```
+
+Key the loop by what identifies the item: `for r in rows by r.id`. See
+[U09](../errors/U09.md).
+
+**A `match` that misses a case.** Adding a case to an enum makes every
+`match` on it without an `else` incomplete:
+
+```wf expect=T15
+enum Status { idle, running, failed }
+
+page P(path: "/", title: "T", description: "D") {
+    state s: Status = .idle
+    Heading("Job").h1
+    match s {
+        .idle { Text("Waiting") }
+        .running { Spinner }
+    }
+}
+```
+
+Give the missing case an arm, `.failed { Alert("Failed").danger }`, or add an
+`else`. See [T15](../errors/T15.md).
 
 ## Next
 

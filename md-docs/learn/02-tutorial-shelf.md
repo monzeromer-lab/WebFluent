@@ -6,11 +6,12 @@ from: ["/docs/guide/tutorial"]
 group: "tour"
 blurb: "Build a small, complete site — data, components, a store, a form, a theme, a test — and put it on the web."
 description: "A step-by-step tutorial: build a reading-list site with WebFluent, test it, and deploy it to GitHub Pages."
+learned: ["Read a JSON file at build time as typed data, with `type` and `data`", "Keep what a reader chooses across visits in a `store` with `persist`", "Write a component and place it in a keyed `for … by`", "Render one page per item with a `:slug` route and `paths:`", "Validate a form, add a theme, test with clicks and deploy"]
 ---
 # 2. Tutorial: Shelf
 
-In this tutorial you build **Shelf**, a small site that lists books worth
-reading and lets a reader keep the ones they want. Each step adds one piece,
+This tutorial builds **Shelf**, a small site that lists books worth reading
+and lets a reader keep the ones they want. Each step adds one piece,
 and ends with what you should see.
 
 ## What you will build
@@ -71,7 +72,7 @@ and its tests under `tests/` (they test the starter's pages). Then replace
 the build check its own output against it. [Configuration](../reference/configuration.md)
 lists every key.
 
-**Check it:** run `wf check`. It prints `No .wf files found in src/` —
+**Check it:** run `wf check`. It prints `IO Error: No .wf files found in src/` —
 correct, because `src/` is empty until the next step.
 
 ## Step 2: Describe the books
@@ -145,6 +146,12 @@ store Shelf {
 `persist` is a `state` that is kept in the browser's storage and read back on
 the next visit; a change made in another tab arrives here too. `derived
 count` recomputes whenever `saved` changes. ([Stores](11-stores.md).)
+
+> [!NOTE]
+> **Coming from React?** Shared state is not a context provider wrapped
+> around the app, and saving it is not a `useEffect` that writes
+> `localStorage`. A `store` is read by name wherever it is used, and
+> `persist` does the saving. See [Coming from React](../coming-from/react.md).
 
 **Check it:** run `wf check`. It prints two `U04` warnings:
 `` `Shelf.count` is declared but never read `` and the same for
@@ -226,6 +233,11 @@ page Home(path: "/", title: "Shelf", description: "Books worth reading, and the 
 - `Grid(columns: { base: 1, md: 2 })` is one column on a phone and two from
   the `md` breakpoint. The pre-rendered HTML already has this layout, so no
   script is needed.
+
+> [!NOTE]
+> **Coming from React?** A controlled input needs no `value` and no
+> `onChange` that copies `e.target.value` back: `bind: q` does both. See
+> [Coming from React](../coming-from/react.md).
 
 Then add a page for each book, `src/pages/BookPage.wf`:
 
@@ -393,14 +405,21 @@ the form empty. The form does not send: **Which book?** appears under
 **Title**, and **Who wrote it?** under **Author**. Fill in both and send
 again. You see **Thank you — we will take a look.**, and the form is empty.
 
-A real site sends the suggestion somewhere. With a backend, you describe the
-service once and call it from the handler:
+A real site sends the suggestion somewhere. You do not need a backend for
+this tutorial, so this part is for later: describe the service once, in a
+file of its own,
 
 ```wf
+// … in src/api.wf, beside the pages
 api Suggestions(base: env.PUBLIC_API ?? "/api") {
     post suggest(body: Map)
 }
-…
+```
+
+and call it from the form's handler:
+
+```wf
+// … in src/pages/Suggest.wf; the rest of the page is as above
 on submit {
     await Suggestions.suggest(body: { title: title, author: author, why: why })
     sent = true
@@ -774,6 +793,65 @@ To go further:
 - Make the site work offline: [Offline](../recipes/index.md).
 - Translate it: [Internationalisation](../recipes/index.md).
 - Build a bigger project: [Tutorials](03-tutorial-todos.md).
+
+## Common mistakes
+
+Reading a value that may be missing. `books.find(…)` finds nothing when no
+book has the slug, so `book` is a `Book?`:
+
+```wf expect=T04
+type Book { slug: String, title: String }
+
+const books: [Book] = [Book(slug: "a-pattern-language", title: "A Pattern Language")]
+
+page BookPage(path: "/books/:slug", slug: String, title: "Book", description: "One book.") {
+    derived book = books.find(b => b.slug == slug)
+    Heading(book.title).h1
+}
+```
+
+Bind it with `if let b = book { Heading(b.title).h1 }`, as step 5 does, or
+read it as `book?.title ?? "Book"` ([T04](../errors/T04.md)).
+
+A field the type does not have. `type Book` names every field, so a typo
+is an error where it is written:
+
+```wf expect=T05
+type Book { slug: String, title: String }
+
+const books: [Book] = [Book(slug: "a-pattern-language", title: "A Pattern Language")]
+
+page Home(path: "/", title: "Shelf", description: "Books worth reading.") {
+    Heading("Books").h1
+    for book in books by book.slug {
+        Text(book.titel)
+    }
+}
+```
+
+Use the name the message suggests, `book.title` ([T05](../errors/T05.md)).
+
+A store member the store does not declare. `Shelf` has `saved`, `count`
+and `toggle`, and nothing else:
+
+```wf expect=T06
+store Shelf {
+    persist saved: [String] = []
+    action toggle(slug: String) {
+        saved = if saved.includes(slug) { saved.filter(s => s != slug) } else { [...saved, slug] }
+    }
+}
+
+page Home(path: "/", title: "Shelf", description: "Books worth reading.") {
+    use Shelf
+    Heading("Books").h1
+    Text("{Shelf.total} saved")
+    Button("Keep it") { on click { Shelf.toggle("a-pattern-language") } }
+}
+```
+
+Read a member the store declares, or declare the one you need:
+`derived count = saved.length` ([T06](../errors/T06.md)).
 
 ## Next
 

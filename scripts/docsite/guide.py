@@ -541,12 +541,11 @@ def part_index(part: str) -> str:
             if group is not None:
                 out += ["            }", "        }"]
             group = meta["group"]
-            out += [
-                "        Stack(gap: .md) {",
-                "            style { gap: 14px }",
-                f'            Heading(t("nav.group.{group}"), id: "{group}").h2 {{ style {{ margin: 0; font-size: 22px; font-weight: 650 }} }}',
-                "            Grid(columns: { base: 1, md: 2 }, gap: .md) {",
-            ]
+            out += ["        Stack(gap: .md) {", "            style { gap: 14px }"]
+            # A part in one group (the essays) needs no heading under its title.
+            if len({META[m]["group"] for m in nums}) > 1:
+                out.append(f'            Heading(t("nav.group.{group}"), id: "{group}").h2 {{ style {{ margin: 0; font-size: 22px; font-weight: 650 }} }}')
+            out.append("            Grid(columns: { base: 1, md: 2 }, gap: .md) {")
         label = f'{int(n)}. ' if learn else ""
         out += [
             f'                Link(to: "{href(meta["route"])}", class: "bp-card") {{',

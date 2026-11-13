@@ -12,11 +12,14 @@ page AboutIndex(path: "/about", title: "About WebFluent", description: "Why WebF
         }
         Stack(gap: .md) {
             style { gap: 14px }
-            Heading(t("nav.group.about"), id: "about").h2 { style { margin: 0; font-size: 22px; font-weight: 650 } }
             Grid(columns: { base: 1, md: 2 }, gap: .md) {
                 Link(to: "/about/why", class: "bp-card") {
-                    Text("Introduction") { style { font-weight: 650 } }
-                    Text("What WebFluent is, what it does for you, where it fits and where it does not, and how to find your way around this guide.", class: "bp-small")
+                    Text("Why WebFluent") { style { font-weight: 650 } }
+                    Text("Why the language exists, and the choices it makes: one meaning per word, a compiler that refuses what would break in the browser, and one source for the web and for paper.", class: "bp-small")
+                }
+                Link(to: "/about/how-reactivity-works", class: "bp-card") {
+                    Text("How reactivity works") { style { font-weight: 650 } }
+                    Text("What happens between a click and the one text node it changes: signals, derived values, effects, branches and keyed lists, with no virtual DOM in between.", class: "bp-small")
                 }
                 Link(to: "/about/accessibility", class: "bp-card") {
                     Text("Accessibility") { style { font-weight: 650 } }
@@ -27,7 +30,7 @@ page AboutIndex(path: "/about", title: "About WebFluent", description: "Why WebF
                     Text("What the compiler guarantees, what it cannot, and the decisions left to you: markup, secrets, storage, headers and a deployment checklist.", class: "bp-small")
                 }
                 Link(to: "/about/what-a-build-ships", class: "bp-card") {
-                    Text("Performance") { style { font-weight: 650 } }
+                    Text("What a build ships") { style { font-weight: 650 } }
                     Text("Learn what a build already does to be fast, see what it weighs, set budgets that warn, time pages in a browser, and avoid what makes a site slow.", class: "bp-small")
                 }
                 Link(to: "/about/static-or-single-page", class: "bp-card") {
