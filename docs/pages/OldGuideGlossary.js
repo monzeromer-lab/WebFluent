@@ -1,2 +1,2 @@
 function Page_OldGuideGlossary(params){const _root=document.createDocumentFragment();const _e1566=WF.el("h1",{className:"wf-heading"},"Glossary");_root.appendChild(_e1566);const _e1567=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/glossary"},"Glossary");WF.activeLink(_e1567,"/reference/glossary",false);_root.appendChild(_e1567);return _root;}
-WF.page("OldGuideGlossary",Page_OldGuideGlossary);
+WF.page("OldGuideGlossary",Page_OldGuideGlossary,{title:"Glossary"});

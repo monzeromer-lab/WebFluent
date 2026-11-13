@@ -93,11 +93,14 @@ fn each_page_is_written_in_its_own_language_with_its_translations_as_alternates(
 
     // The router puts the page's language on the document when it shows,
     // and the site's back on a page without one.
-    let js = read(&dir, "app.js");
+    // The page's language comes with its chunk, which the route's table
+    // then keeps.
+    let chunk = read(&dir, "pages/HomeEn.js");
     assert!(
-        js.contains(r#"lang: "en", dir: "ltr""#),
-        "the route says its language"
+        chunk.contains(r#"lang: "en", dir: "ltr""#),
+        "the page says its language: {chunk}"
     );
+    let js = read(&dir, "app.js");
     assert!(
         js.contains(r#"lang: "ar", dir: "rtl""#),
         "the router knows the site's"

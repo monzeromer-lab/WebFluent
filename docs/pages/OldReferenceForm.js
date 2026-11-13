@@ -1,2 +1,2 @@
 function Page_OldReferenceForm(params){const _root=document.createDocumentFragment();const _e1624=WF.el("h1",{className:"wf-heading"},"Form");_root.appendChild(_e1624);const _e1625=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/form"},"Form");WF.activeLink(_e1625,"/reference/form",false);_root.appendChild(_e1625);return _root;}
-WF.page("OldReferenceForm",Page_OldReferenceForm);
+WF.page("OldReferenceForm",Page_OldReferenceForm,{title:"Form"});

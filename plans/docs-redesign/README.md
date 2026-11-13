@@ -808,4 +808,4 @@ At the end of Phase 0 the site is in Blueprint, and nothing it says has changed 
 
 **Left for you:** submit `sitemap.xml` in Search Console, and listen to Learn, Reference, an error page and the Playground with a screen reader (Orca).
 
-**Follow-up:** `app.js` is 125 kB gzipped, and its route table is 102 kB of that before compression: every page's path and title, on every page. A static site could load the table only when the router needs it.
+**Follow-up, done (2026-11-14):** the route table was 102 kB of `app.js` before compression, carrying every page's title and layout. A split build now sends those with each page's chunk, which leaves 36 kB of paths and page names (6.1 kB gzipped); `app.js` went from 126 kB to 108 kB gzipped.

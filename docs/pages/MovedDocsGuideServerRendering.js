@@ -1,2 +1,2 @@
 function Page_MovedDocsGuideServerRendering(params){const _root=document.createDocumentFragment();const _e9989=WF.el("h1",{className:"wf-heading"},()=>WF.i18n.t("nav.recipes"));_root.appendChild(_e9989);const _e9990=WF.el("a",{className:"wf-link",href:WF._basePath+"/recipes#interop"},()=>WF.i18n.t("nav.recipes"));WF.activeLink(_e9990,"/recipes#interop",false);_root.appendChild(_e9990);return _root;}
-WF.page("MovedDocsGuideServerRendering",Page_MovedDocsGuideServerRendering);
+WF.page("MovedDocsGuideServerRendering",Page_MovedDocsGuideServerRendering,{title:"Moved"});

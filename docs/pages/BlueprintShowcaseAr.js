@@ -1,2 +1,2 @@
 function Page_BlueprintShowcaseAr(params){const _root=document.createDocumentFragment();const _e938=Component_PreviewShowcase({ar:true});_root.appendChild(_e938);return _root;}
-WF.page("BlueprintShowcaseAr",Page_BlueprintShowcaseAr);
+WF.page("BlueprintShowcaseAr",Page_BlueprintShowcaseAr,{title:"T8 المعرض",lang:"ar",dir:"rtl"});

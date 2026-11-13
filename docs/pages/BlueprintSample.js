@@ -1,2 +1,2 @@
 function Page_BlueprintSample(params){const _count=WF.signal(0);const _root=document.createDocumentFragment();const _e941=WF.el("div",{className:"wf-stack wf-gap--sm"});const _e942=WF.el("h1",{className:"wf-heading"},"Hello, WebFluent");_e942.classList.add("wf-s5f4f66aa");_e941.appendChild(_e942);const _e943=WF.el("p",{className:"wf-text"},()=>`Clicked ${_count()} times`);_e941.appendChild(_e943);const _e944=WF.el("button",{className:"wf-btn wf-btn--primary",type:"button"},"+1");_e944.addEventListener("click",(event)=>{_count.set((_count()+1));});_e941.appendChild(_e944);_e941.classList.add("wf-sf94cb602");_root.appendChild(_e941);return _root;}
-WF.page("BlueprintSample",Page_BlueprintSample);
+WF.page("BlueprintSample",Page_BlueprintSample,{title:"Sample"});

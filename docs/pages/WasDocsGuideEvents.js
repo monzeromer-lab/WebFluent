@@ -1,2 +1,2 @@
 function Page_WasDocsGuideEvents(params){const _root=document.createDocumentFragment();const _e9856=WF.el("h1",{className:"wf-heading"},"Moved");_root.appendChild(_e9856);const _e9857=WF.el("a",{className:"wf-link",href:WF._basePath+"/learn/08-events"},"Go on");WF.activeLink(_e9857,"/learn/08-events",false);_root.appendChild(_e9857);return _root;}
-WF.page("WasDocsGuideEvents",Page_WasDocsGuideEvents);
+WF.page("WasDocsGuideEvents",Page_WasDocsGuideEvents,{title:"Moved"});

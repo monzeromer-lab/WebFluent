@@ -1,2 +1,2 @@
 function Page_BlueprintEssay(params){const _root=document.createDocumentFragment();const _e925=Component_PreviewEssay({});_root.appendChild(_e925);return _root;}
-WF.page("BlueprintEssay",Page_BlueprintEssay);
+WF.page("BlueprintEssay",Page_BlueprintEssay,{title:"T2 Essay"});

@@ -1,2 +1,2 @@
 function Page_OldReferenceHeading(params){const _root=document.createDocumentFragment();const _e1632=WF.el("h1",{className:"wf-heading"},"Heading");_root.appendChild(_e1632);const _e1633=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/heading"},"Heading");WF.activeLink(_e1633,"/reference/heading",false);_root.appendChild(_e1633);return _root;}
-WF.page("OldReferenceHeading",Page_OldReferenceHeading);
+WF.page("OldReferenceHeading",Page_OldReferenceHeading,{title:"Heading"});

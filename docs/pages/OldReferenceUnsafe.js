@@ -1,2 +1,2 @@
 function Page_OldReferenceUnsafe(params){const _root=document.createDocumentFragment();const _e1722=WF.el("h1",{className:"wf-heading"},"Unsafe");_root.appendChild(_e1722);const _e1723=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/unsafe"},"Unsafe");WF.activeLink(_e1723,"/reference/unsafe",false);_root.appendChild(_e1723);return _root;}
-WF.page("OldReferenceUnsafe",Page_OldReferenceUnsafe);
+WF.page("OldReferenceUnsafe",Page_OldReferenceUnsafe,{title:"Unsafe"});

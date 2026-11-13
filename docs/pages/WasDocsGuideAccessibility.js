@@ -1,2 +1,2 @@
 function Page_WasDocsGuideAccessibility(params){const _root=document.createDocumentFragment();const _e9844=WF.el("h1",{className:"wf-heading"},"Moved");_root.appendChild(_e9844);const _e9845=WF.el("a",{className:"wf-link",href:WF._basePath+"/about/accessibility"},"Go on");WF.activeLink(_e9845,"/about/accessibility",false);_root.appendChild(_e9845);return _root;}
-WF.page("WasDocsGuideAccessibility",Page_WasDocsGuideAccessibility);
+WF.page("WasDocsGuideAccessibility",Page_WasDocsGuideAccessibility,{title:"Moved"});

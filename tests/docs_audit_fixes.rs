@@ -271,7 +271,8 @@ fn a_title_may_splice_an_expression_over_the_parameters() {
         page.contains(r#"content="IconButton — Reference""#),
         "the sharing card too: {page}"
     );
-    let js = std::fs::read_to_string(dir.join("build/app.js")).unwrap();
+    // The page's chunk brings its title to the router.
+    let js = std::fs::read_to_string(dir.join("build/pages/Entry.js")).unwrap();
     assert!(
         js.contains("title:(params)=>") && js.contains("params.slug"),
         "the router works the title out from the route: {js}"

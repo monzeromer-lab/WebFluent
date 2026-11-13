@@ -1,2 +1,2 @@
 function Page_OldTooling(params){const _root=document.createDocumentFragment();const _e1546=WF.el("h1",{className:"wf-heading"},()=>WF.i18n.t("ch.33"));_root.appendChild(_e1546);const _e1547=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/cli"},()=>WF.i18n.t("ch.33"));WF.activeLink(_e1547,"/reference/cli",false);_root.appendChild(_e1547);return _root;}
-WF.page("OldTooling",Page_OldTooling);
+WF.page("OldTooling",Page_OldTooling,{title:"Command line and editors"});

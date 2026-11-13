@@ -1,2 +1,2 @@
 function Page_OldReferenceVideo(params){const _root=document.createDocumentFragment();const _e1724=WF.el("h1",{className:"wf-heading"},"Video");_root.appendChild(_e1724);const _e1725=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/video"},"Video");WF.activeLink(_e1725,"/reference/video",false);_root.appendChild(_e1725);return _root;}
-WF.page("OldReferenceVideo",Page_OldReferenceVideo);
+WF.page("OldReferenceVideo",Page_OldReferenceVideo,{title:"Video"});

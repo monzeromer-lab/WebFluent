@@ -1,2 +1,2 @@
 function Page_WasDocsGuideStyling(params){const _root=document.createDocumentFragment();const _e9880=WF.el("h1",{className:"wf-heading"},"Moved");_root.appendChild(_e9880);const _e9881=WF.el("a",{className:"wf-link",href:WF._basePath+"/learn/13-styling"},"Go on");WF.activeLink(_e9881,"/learn/13-styling",false);_root.appendChild(_e9881);return _root;}
-WF.page("WasDocsGuideStyling",Page_WasDocsGuideStyling);
+WF.page("WasDocsGuideStyling",Page_WasDocsGuideStyling,{title:"Moved"});

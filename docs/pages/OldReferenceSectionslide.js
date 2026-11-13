@@ -1,2 +1,2 @@
 function Page_OldReferenceSectionslide(params){const _root=document.createDocumentFragment();const _e1680=WF.el("h1",{className:"wf-heading"},"SectionSlide");_root.appendChild(_e1680);const _e1681=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/sectionslide"},"SectionSlide");WF.activeLink(_e1681,"/reference/sectionslide",false);_root.appendChild(_e1681);return _root;}
-WF.page("OldReferenceSectionslide",Page_OldReferenceSectionslide);
+WF.page("OldReferenceSectionslide",Page_OldReferenceSectionslide,{title:"SectionSlide"});

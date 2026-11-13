@@ -1,2 +1,2 @@
 function Page_OldGuideRuntime(params){const _root=document.createDocumentFragment();const _e1562=WF.el("h1",{className:"wf-heading"},"Runtime API");_root.appendChild(_e1562);const _e1563=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/runtime"},"Runtime API");WF.activeLink(_e1563,"/reference/runtime",false);_root.appendChild(_e1563);return _root;}
-WF.page("OldGuideRuntime",Page_OldGuideRuntime);
+WF.page("OldGuideRuntime",Page_OldGuideRuntime,{title:"Runtime API"});

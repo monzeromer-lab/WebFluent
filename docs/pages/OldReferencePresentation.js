@@ -1,2 +1,2 @@
 function Page_OldReferencePresentation(params){const _root=document.createDocumentFragment();const _e1666=WF.el("h1",{className:"wf-heading"},"Presentation");_root.appendChild(_e1666);const _e1667=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/presentation"},"Presentation");WF.activeLink(_e1667,"/reference/presentation",false);_root.appendChild(_e1667);return _root;}
-WF.page("OldReferencePresentation",Page_OldReferencePresentation);
+WF.page("OldReferencePresentation",Page_OldReferencePresentation,{title:"Presentation"});

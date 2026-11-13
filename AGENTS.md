@@ -2449,6 +2449,10 @@ what a deployed site sends. Hosts that ignore `.gz` files lose nothing.
 bundle and the sheets. `build.split` (on by default) writes each page as its
 own chunk: a static build's page links `app.js` and its chunk side by side,
 and a single-page build fetches a chunk the first time its route is shown.
+The chunk also brings what drawing the page needs of its route — its title,
+its language and its layout — so `app.js` holds only each route's path and
+page name: a site of hundreds of pages does not send every page's title and
+layout with every page.
 A site of one page is not split: its code and its rules are in `app.js`
 and `styles.css`.
 A literal in a `style { }` block is compiled into a stylesheet rule under a

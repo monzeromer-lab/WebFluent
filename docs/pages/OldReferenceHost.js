@@ -1,2 +1,2 @@
 function Page_OldReferenceHost(params){const _root=document.createDocumentFragment();const _e1634=WF.el("h1",{className:"wf-heading"},"Host");_root.appendChild(_e1634);const _e1635=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/host"},"Host");WF.activeLink(_e1635,"/reference/host",false);_root.appendChild(_e1635);return _root;}
-WF.page("OldReferenceHost",Page_OldReferenceHost);
+WF.page("OldReferenceHost",Page_OldReferenceHost,{title:"Host"});

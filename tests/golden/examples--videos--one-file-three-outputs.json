@@ -1,17 +1,17 @@
 {
   "diagnostics": [],
   "files": {
-    "app.js": "ad2668c0204cc97397a2bce7c6772ca7d7482a51040d0aea59f6ddf06ad4c0d2",
-    "app.js.gz": "f4fc7b80d55eae018bfd92ec415a16357824d72bbef4a84666d52862a222232a",
+    "app.js": "ef435540f5d2cc774cb27a4aaf91930b0911f65e6d0662af1ab3215709cb4d22",
+    "app.js.gz": "4f304e782850291d527c1c374eff9a53066da464a1e2c5eba19e7a642b84ce93",
     "index.html": "22e43c7eecab0aa7f413bd4e56b35e8ac9995de635a03183b28f3d35d9c09e0c",
     "index.html.gz": "c6269ec643fc8e789bd99c3b6ab50d635dc4c10684b7801076fd9f32b083be04",
     "pages/Deck.css": "592a8584d9958c7c0eb82f5c1fefa2dd184beb2b8f3e7c33035d001a8d633ed5",
-    "pages/Deck.js": "0248aafc2c10ce41000686c3ccb97b81ab213f5b6765455c0c086b1ecb42cfa3",
+    "pages/Deck.js": "7a64161fa25c05c275b940eeee8f1f2247e0369dc3d210d4d4550cf13bdb40c1",
     "pages/Handout.css": "ed39a5f55d2738bfdc4e6635e14e3ad772ce3f9318d5f808e45d1af3f57d5ece",
-    "pages/Handout.js": "5432c14e14acbaf38de751f431f006e1b47caf7e8402d1c93777f5ca78153c56",
-    "pages/Handout.js.gz": "4ee59ddc9b8083d19fed734ab43e1d4ffe4d67df546e3ba2471803344fd6c37e",
+    "pages/Handout.js": "a6cf8c048b1b51f495a96a6660a52cf81ff6f77e27dc2443a8311d4f2711ddc4",
+    "pages/Handout.js.gz": "60308d9cef0d937fa218ce1de420c94e5f1ff901ab8d9adbf13e01220b9230d8",
     "pages/Site.css": "5164c9706fbbecd79a798e74b6264dedfb4a736b62ccb26dd2bcebccca6dd5a4",
-    "pages/Site.js": "8af9928974391a9c3616500e034607a2ab074f871741e6cb967e5f80d9b41fc0",
+    "pages/Site.js": "36e107b7ac1941187d3fb6c4eebc146bde0b2091a9e69d170404eeca2d5b4fc2",
     "robots.txt": "16ceb5ee3e0dc13aa9adf31a3ebbe45a1d965b8c2b9f72eaf84e5911e140ed95",
     "styles.css": "4939badbae29125f81a914796a18a772a93e0cc7c8515841316b028fa5afdab8",
     "styles.css.gz": "e58e283efdb4a68b97b8817b632715d0002309833c7c7cd92e73948c4ad252a2"

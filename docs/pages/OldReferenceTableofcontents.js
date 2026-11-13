@@ -1,2 +1,2 @@
 function Page_OldReferenceTableofcontents(params){const _root=document.createDocumentFragment();const _e1704=WF.el("h1",{className:"wf-heading"},"TableOfContents");_root.appendChild(_e1704);const _e1705=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/tableofcontents"},"TableOfContents");WF.activeLink(_e1705,"/reference/tableofcontents",false);_root.appendChild(_e1705);return _root;}
-WF.page("OldReferenceTableofcontents",Page_OldReferenceTableofcontents);
+WF.page("OldReferenceTableofcontents",Page_OldReferenceTableofcontents,{title:"TableOfContents"});

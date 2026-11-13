@@ -1,2 +1,2 @@
 function Page_MovedDocsGuideComingFrom(params){const _root=document.createDocumentFragment();const _e9965=WF.el("h1",{className:"wf-heading"},()=>WF.i18n.t("nav.recipes"));_root.appendChild(_e9965);const _e9966=WF.el("a",{className:"wf-link",href:WF._basePath+"/coming-from/react"},()=>WF.i18n.t("nav.recipes"));WF.activeLink(_e9966,"/coming-from/react",false);_root.appendChild(_e9966);return _root;}
-WF.page("MovedDocsGuideComingFrom",Page_MovedDocsGuideComingFrom);
+WF.page("MovedDocsGuideComingFrom",Page_MovedDocsGuideComingFrom,{title:"Moved"});

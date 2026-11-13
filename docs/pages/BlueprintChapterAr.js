@@ -1,2 +1,2 @@
 function Page_BlueprintChapterAr(params){const _root=document.createDocumentFragment();const _e924=Component_PreviewChapter({ar:true});_root.appendChild(_e924);return _root;}
-WF.page("BlueprintChapterAr",Page_BlueprintChapterAr);
+WF.page("BlueprintChapterAr",Page_BlueprintChapterAr,{title:"T2 فصل",lang:"ar",dir:"rtl"});

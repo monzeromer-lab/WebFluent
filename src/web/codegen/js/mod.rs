@@ -765,16 +765,19 @@ impl JsCodegen {
 
     /// One entry of the router's table: the path, the page's title (so the
     /// router can set `document.title`), and how to render it.
-    fn route_entry(&self, path: &str, page: &str) -> String {
+    /// What drawing a page needs of its route: its title, its language and
+    /// the layout that frames it, as the fields of a route entry, each
+    /// followed by `, `.
+    fn route_drawing(&self, page: &str) -> String {
         let title = match (self.page_title_fns.get(page), self.page_titles.get(page)) {
             (Some(f), _) => format!("title: (params) => {f}, "),
             (None, Some(t)) => format!("title: {}, ", js_str(t)),
             (None, None) => String::new(),
         };
         // A page in a language of its own: the router puts it on `<html>`.
-        let title = match self.page_langs.get(page) {
+        let lang = match self.page_langs.get(page) {
             Some(lang) => format!(
-                "{title}lang: {}, dir: \"{}\", ",
+                "lang: {}, dir: \"{}\", ",
                 serde_json::to_string(lang).unwrap_or_default(),
                 if crate::project::i18n::table::is_rtl(lang) {
                     "rtl"
@@ -782,7 +785,7 @@ impl JsCodegen {
                     "ltr"
                 }
             ),
-            None => title,
+            None => String::new(),
         };
         // The layout that frames the page, called with the page as its
         // default slot.
@@ -794,35 +797,55 @@ impl JsCodegen {
             ),
             None => String::new(),
         };
+        format!("{title}{lang}{layout}")
+    }
+
+    /// The line a page's chunk ends on: it registers the page, with what
+    /// drawing it needs of its route, which the route table then leaves out.
+    fn page_registration(&self, page: &str) -> String {
+        let drawing = self.route_drawing(page);
+        if drawing.is_empty() {
+            format!("WF.page(\"{page}\", Page_{page});")
+        } else {
+            format!(
+                "WF.page(\"{page}\", Page_{page}, {{ {} }});",
+                drawing.trim_end_matches(", ")
+            )
+        }
+    }
+
+    fn route_entry(&self, path: &str, page: &str) -> String {
         // `guard:` must hold for the route to render; `redirect:` is where
-        // the reader goes otherwise.
-        let layout = match self.page_guards.get(page) {
-            Some((guard, redirect)) => format!(
-                "{layout}guard: () => ({guard}), redirect: {}, ",
-                js_str(redirect)
-            ),
-            None => layout,
+        // the reader goes otherwise. It is checked before the page is
+        // fetched, so it stays in the table.
+        let guard = match self.page_guards.get(page) {
+            Some((guard, redirect)) => {
+                format!("guard: () => ({guard}), redirect: {}, ", js_str(redirect))
+            }
+            None => String::new(),
         };
         if self.split_pages {
+            // The page's chunk brings its title, language and layout
+            // (`page_registration`): a site of hundreds of pages would
+            // otherwise send every one of them with every page.
             let css = if self.page_sheets.contains(page) {
                 format!("css: \"{page}\", ")
             } else {
                 String::new()
             };
             format!(
-                "{{ path: {}, {}{}{}page: {} }},",
+                "{{ path: {}, {}{}page: {} }},",
                 js_str(path),
-                title,
                 css,
-                layout,
+                guard,
                 js_str(page)
             )
         } else {
             format!(
                 "{{ path: {}, {}{}render: (params) => Page_{}(params) }},",
                 js_str(path),
-                title,
-                layout,
+                self.route_drawing(page),
+                guard,
                 page
             )
         }
@@ -1080,7 +1103,8 @@ impl JsCodegen {
                     let indent = std::mem::replace(&mut self.indent, 0);
                     self.emit_page(p);
                     self.map_end();
-                    self.emit_line(&format!("WF.page(\"{}\", Page_{});", p.name, p.name));
+                    let registration = self.page_registration(&p.name);
+                    self.emit_line(&registration);
                     let chunk = std::mem::replace(&mut self.output, saved);
                     self.indent = indent;
                     self.chunks.push((p.name.clone(), chunk));

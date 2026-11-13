@@ -1,2 +1,2 @@
 function Page_BlueprintHome(params){const _root=document.createDocumentFragment();const _e921=Component_PreviewHome({});_root.appendChild(_e921);return _root;}
-WF.page("BlueprintHome",Page_BlueprintHome);
+WF.page("BlueprintHome",Page_BlueprintHome,{title:"T1 Home"});

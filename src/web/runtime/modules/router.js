@@ -266,7 +266,12 @@
       // so it never paints unstyled.
       const styled = (fn) => (match.route.css ? loadSheet(match.route.css, fn) : fn());
       if (match.route.render) styled(() => draw(match.route.render));
-      else loadPage(match.route.page, (renderFn) => styled(() => draw(renderFn)));
+      // The page's chunk brings what drawing it needs (its title, language
+      // and layout), which the table then keeps.
+      else loadPage(match.route.page, (renderFn, own) => {
+        if (own) Object.assign(match.route, own);
+        styled(() => draw(renderFn));
+      });
     }
 
     window.addEventListener("popstate", () => {

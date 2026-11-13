@@ -1,2 +1,2 @@
 function Page_OldReferenceTextarea(params){const _root=document.createDocumentFragment();const _e1712=WF.el("h1",{className:"wf-heading"},"Textarea");_root.appendChild(_e1712);const _e1713=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/textarea"},"Textarea");WF.activeLink(_e1713,"/reference/textarea",false);_root.appendChild(_e1713);return _root;}
-WF.page("OldReferenceTextarea",Page_OldReferenceTextarea);
+WF.page("OldReferenceTextarea",Page_OldReferenceTextarea,{title:"Textarea"});

@@ -155,8 +155,13 @@ against the shortened runtime.
 | `wf init -t static` | 16.2 kB | 14.8 kB |
 | `wf init -t spa` | 18.7 kB | 17.0 kB |
 
-**Not done:** the `--stats` runtime line still reports module sizes before
-function pruning.
+`wf build --stats` reports what the build keeps of each module, and the
+total after names are shortened.
+
+A split build's route table holds only each route's path and page name; the
+title, language and layout come with the page's chunk. On the docs site (559
+routes) the table went from 102 kB to 36 kB (24.5 kB to 6.1 kB gzipped), and
+`app.js` from 501 kB to 431 kB (126 kB to 108 kB with `gzip -9`).
 
 ## Is it the tests, or the tools?
 

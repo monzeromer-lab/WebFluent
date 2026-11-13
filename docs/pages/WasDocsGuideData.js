@@ -1,2 +1,2 @@
 function Page_WasDocsGuideData(params){const _root=document.createDocumentFragment();const _e9852=WF.el("h1",{className:"wf-heading"},"Moved");_root.appendChild(_e9852);const _e9853=WF.el("a",{className:"wf-link",href:WF._basePath+"/learn/15-data"},"Go on");WF.activeLink(_e9853,"/learn/15-data",false);_root.appendChild(_e9853);return _root;}
-WF.page("WasDocsGuideData",Page_WasDocsGuideData);
+WF.page("WasDocsGuideData",Page_WasDocsGuideData,{title:"Moved"});

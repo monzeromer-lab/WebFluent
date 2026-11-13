@@ -1,2 +1,2 @@
 function Page_OldGuideBrowserSupport(params){const _root=document.createDocumentFragment();const _e1564=WF.el("h1",{className:"wf-heading"},"Browser support");_root.appendChild(_e1564);const _e1565=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/browser-support"},"Browser support");WF.activeLink(_e1565,"/reference/browser-support",false);_root.appendChild(_e1565);return _root;}
-WF.page("OldGuideBrowserSupport",Page_OldGuideBrowserSupport);
+WF.page("OldGuideBrowserSupport",Page_OldGuideBrowserSupport,{title:"Browser support"});

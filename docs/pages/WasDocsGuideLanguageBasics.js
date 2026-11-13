@@ -1,2 +1,2 @@
 function Page_WasDocsGuideLanguageBasics(params){const _root=document.createDocumentFragment();const _e9864=WF.el("h1",{className:"wf-heading"},"Moved");_root.appendChild(_e9864);const _e9865=WF.el("a",{className:"wf-link",href:WF._basePath+"/learn/04-language-basics"},"Go on");WF.activeLink(_e9865,"/learn/04-language-basics",false);_root.appendChild(_e9865);return _root;}
-WF.page("WasDocsGuideLanguageBasics",Page_WasDocsGuideLanguageBasics);
+WF.page("WasDocsGuideLanguageBasics",Page_WasDocsGuideLanguageBasics,{title:"Moved"});

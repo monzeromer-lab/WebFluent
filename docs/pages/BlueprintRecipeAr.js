@@ -1,2 +1,2 @@
 function Page_BlueprintRecipeAr(params){const _root=document.createDocumentFragment();const _e928=Component_PreviewRecipe({ar:true});_root.appendChild(_e928);return _root;}
-WF.page("BlueprintRecipeAr",Page_BlueprintRecipeAr);
+WF.page("BlueprintRecipeAr",Page_BlueprintRecipeAr,{title:"T3 وصفة",lang:"ar",dir:"rtl"});

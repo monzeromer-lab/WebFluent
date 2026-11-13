@@ -1,2 +1,2 @@
 function Page_OldReferenceIcon(params){const _root=document.createDocumentFragment();const _e1636=WF.el("h1",{className:"wf-heading"},"Icon");_root.appendChild(_e1636);const _e1637=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/icon"},"Icon");WF.activeLink(_e1637,"/reference/icon",false);_root.appendChild(_e1637);return _root;}
-WF.page("OldReferenceIcon",Page_OldReferenceIcon);
+WF.page("OldReferenceIcon",Page_OldReferenceIcon,{title:"Icon"});

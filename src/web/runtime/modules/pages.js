@@ -5,19 +5,26 @@
   // components every page shares. A page's HTML links its own chunk beside
   // app.js, so a static build loads the two in parallel; a route change in a
   // single-page build fetches the chunk the first time the route shows.
+  //
+  // What only drawing the page needs — its title, language and layout —
+  // comes with the chunk too (`route`), so app.js carries no more of a
+  // route than its path and its page's name: a site of hundreds of pages
+  // does not send every page's title and layout with every page.
   const pages = {};
+  const pageRoutes = {};
   const waiting = {};
 
-  function page(name, renderFn) {
+  function page(name, renderFn, route) {
     pages[name] = renderFn;
+    if (route) pageRoutes[name] = route;
     const callbacks = waiting[name];
     delete waiting[name];
-    if (callbacks) for (const cb of callbacks) cb(renderFn);
+    if (callbacks) for (const cb of callbacks) cb(renderFn, route);
   }
 
   function loadPage(name, cb) {
     if (pages[name]) {
-      cb(pages[name]);
+      cb(pages[name], pageRoutes[name]);
       return;
     }
     (waiting[name] = waiting[name] || []).push(cb);

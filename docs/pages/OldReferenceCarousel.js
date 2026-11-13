@@ -1,2 +1,2 @@
 function Page_OldReferenceCarousel(params){const _root=document.createDocumentFragment();const _e1596=WF.el("h1",{className:"wf-heading"},"Carousel");_root.appendChild(_e1596);const _e1597=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/carousel"},"Carousel");WF.activeLink(_e1597,"/reference/carousel",false);_root.appendChild(_e1597);return _root;}
-WF.page("OldReferenceCarousel",Page_OldReferenceCarousel);
+WF.page("OldReferenceCarousel",Page_OldReferenceCarousel,{title:"Carousel"});

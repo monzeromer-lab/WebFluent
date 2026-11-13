@@ -1,2 +1,2 @@
 function Page_WasDocsGuideStaticAndSpa(params){const _root=document.createDocumentFragment();const _e9876=WF.el("h1",{className:"wf-heading"},"Moved");_root.appendChild(_e9876);const _e9877=WF.el("a",{className:"wf-link",href:WF._basePath+"/about/static-or-single-page"},"Go on");WF.activeLink(_e9877,"/about/static-or-single-page",false);_root.appendChild(_e9877);return _root;}
-WF.page("WasDocsGuideStaticAndSpa",Page_WasDocsGuideStaticAndSpa);
+WF.page("WasDocsGuideStaticAndSpa",Page_WasDocsGuideStaticAndSpa,{title:"Moved"});
