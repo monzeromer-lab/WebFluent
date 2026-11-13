@@ -4,7 +4,8 @@
 - `site/src/data/errors.json`: one entry per code, from `wf explain --json`
   and the code's page, `md-docs/errors/CODE.md`, split into what the error
   template draws — the program that draws the code, what the compiler
-  prints for it, why the rule exists, and the fix.
+  prints for it, the program put right (its ```` ```wf fixed ```` block),
+  why the rule exists, and the fix.
 - `site/src/pages/ErrorPages.wf`: a page per code, its text written into
   the page itself, so each page's words travel in its own chunk rather
   than in every page's `app.js` (a `data` file is inlined there); and
@@ -34,6 +35,9 @@ if not wf.exists():
 _spec = importlib.util.spec_from_file_location("guide", Path(__file__).resolve().parent / "guide.py")
 guide = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(guide)
+_spec = importlib.util.spec_from_file_location("fences", Path(__file__).resolve().parent / "fences.py")
+fences = importlib.util.module_from_spec(_spec)
+_spec.loader.exec_module(fences)
 
 OPEN = "<!-- codes: written by scripts/docsite/errors.py -->"
 CLOSE = "<!-- /codes -->"
@@ -76,14 +80,17 @@ def blocks(body: str):
 def split(code: str, body: str) -> dict:
     """A page's body as the template's parts."""
     body = re.sub(r"^# .*\n", "", body.lstrip("\n"), count=1)
-    broken, printed, rest = "", "", []
+    broken, printed, fixed, rest = "", "", "", []
     for info, text in blocks(body):
+        fence = fences.parse(info) if info != "prose" else None
         if info == "prose":
             rest.append(text)
-        elif info.startswith("wf") and "expect=" in info and not broken:
+        elif fence.expect and not broken:
             broken = text
         elif info == "text" and broken and not printed:
             printed = text
+        elif fence.fixed and broken and not fixed:
+            fixed = text
         else:
             rest.append(f"```{info}\n{text}\n```")
     prose = "\n\n".join(p.strip("\n") for p in rest if p.strip())
@@ -91,7 +98,7 @@ def split(code: str, body: str) -> dict:
     m = re.search(r"\*\*Fix:\*\*\s*", prose)
     if m:
         why, fix = prose[: m.start()].strip(), prose[m.end():].strip()
-    return {"broken": broken, "printed": printed, "why": why, "fix": fix}
+    return {"broken": broken, "printed": printed, "fixed": fixed, "why": why, "fix": fix}
 
 
 def related(code: str, text: str, titles: dict) -> list:
@@ -134,6 +141,7 @@ def main():
             "description": meta.get("description", e["summary"]),
             "printed": parts["printed"],
             "broken": parts["broken"],
+            "fixed": parts["fixed"],
             "why": link_paths(parts["why"]),
             "fix": link_paths(parts["fix"]),
             "related": related(e["code"], parts["why"] + " " + parts["fix"], titles),
@@ -205,6 +213,7 @@ def page_file(entries: list) -> str:
             f'RelatedLink(kind: {q(r["kind"])}, title: {q(r["title"])}, to: {q(r["to"])})' for r in e["related"]
         )
         title = f'{e["code"]} — {e["plain"]}'
+        example = bool(e["broken"] and e["fixed"])
         out.append(
             f'page Error{e["code"]}(path: "/errors/{e["code"]}", title: {q(title)}, '
             f'description: {q(e["description"])}) {{'
@@ -213,17 +222,23 @@ def page_file(entries: list) -> str:
             f'    ErrorShell("{e["code"]}", title: {q(e["plain"])}, severity: "{e["severity"]}", '
             f'family: {q(e["group"])}, summary: {q(e["summary"])}, printed: {guide.wf_raw(e["printed"])}, '
             f'lowerable: {"true" if e["lowerable"] else "false"}, why: {"true" if e["why"] else "false"}, '
-            f'example: false, families: ERROR_INDEX, related: [{related}], sections: [{sections}], '
+            f'example: {"true" if example else "false"}, families: ERROR_INDEX, related: [{related}], sections: [{sections}], '
             f'source: "md-docs/errors/{e["code"]}.md") {{'
         )
-        out.append("        fixed {")
-        out.append("            Stack(gap: .sm) {")
-        if e["broken"]:
-            out.append('                Text(t("error.broken"), class: "bp-label", data-tone: "error") { style { align-self: flex-start } }')
-            out.append(f'                CodeBlock({guide.wf_raw(e["broken"])}, title: "wf")')
-        out.append(f'                Markdown({q(e["fix"])})')
-        out.append("            }")
-        out.append("        }")
+        if example:
+            # The broken program beside the fixed one, what the fix is under them.
+            out.append(f'        broken {{ CodeBlock({guide.wf_raw(e["broken"])}, title: "wf") }}')
+            out.append(f'        fixed {{ CodeBlock({guide.wf_raw(e["fixed"])}, title: "wf") }}')
+            out.append(f'        note {{ Markdown({q(e["fix"])}) }}')
+        else:
+            out.append("        fixed {")
+            out.append("            Stack(gap: .sm) {")
+            if e["broken"]:
+                out.append('                Text(t("error.broken"), class: "bp-label", data-tone: "error") { style { align-self: flex-start } }')
+                out.append(f'                CodeBlock({guide.wf_raw(e["broken"])}, title: "wf")')
+            out.append(f'                Markdown({q(e["fix"])})')
+            out.append("            }")
+            out.append("        }")
         if e["why"]:
             out.append(f'        Markdown({q(e["why"])})')
         out.append("    }")

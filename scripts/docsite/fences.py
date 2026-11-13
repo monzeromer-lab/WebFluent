@@ -1,6 +1,6 @@
 """What a code fence in the guide says about its block.
 
-The words after the language — `page`, `live`, `no-check`, `expect=CODE`,
+The words after the language — `page`, `live`, `no-check`, `expect=CODE`, `fixed`,
 `break="from:to"`, `files=a,b` — mean what `Fence` in
 `tests/common/mod.rs` says; the two readers take the same words.
 """
@@ -15,6 +15,7 @@ class Fence:
     live: bool = False
     no_check: bool = False
     expect: str | None = None
+    fixed: bool = False
     swap: tuple[str, str] | None = None
     files: list[str] = field(default_factory=list)
 
@@ -35,6 +36,8 @@ def parse(info: str) -> Fence:
             fence.live = True
         elif not sep and w == "no-check":
             fence.no_check = True
+        elif not sep and w == "fixed":
+            fence.fixed = True
         elif key == "expect" and value:
             fence.expect = value
         elif key == "break" and ":" in value and not value.startswith(":"):

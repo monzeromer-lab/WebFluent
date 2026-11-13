@@ -312,6 +312,7 @@
   "outputs.label": "يعمل في",
   "outputs.missing": "غير متاح في هذا الناتج",
   "since": "منذ {version}",
+  "since.older": "قبل {version}",
   "aside.note": "ملاحظة",
   "aside.tip": "نصيحة",
   "aside.important": "مهم",

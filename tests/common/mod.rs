@@ -659,9 +659,10 @@ pub(crate) fn guide_chapters() -> Vec<(u32, String, String)> {
 /// The first word is the language; each word after it is one of
 /// `page` (a whole page: built, previewed and run), `live` (the reader may
 /// edit it), `no-check` (not compiled; the prose must say why),
-/// `expect=CODE` (it must draw that code), `break="from:to"` (what *Break it*
-/// swaps) and `files=a,b` (the files of a multi-file example this block
-/// belongs to). `scripts/docsite/fences.py` reads the same words.
+/// `expect=CODE` (it must draw that code), `fixed` (the corrected version of
+/// the `expect=` block before it: it must draw none of that code, and
+/// nothing else), `break="from:to"` (what *Break it* swaps) and `files=a,b`
+/// (the files of a multi-file example this block belongs to). `scripts/docsite/fences.py` reads the same words.
 #[derive(Debug, Default, Clone, PartialEq, Eq)]
 pub(crate) struct Fence {
     pub lang: String,
@@ -669,6 +670,7 @@ pub(crate) struct Fence {
     pub live: bool,
     pub no_check: bool,
     pub expect: Option<String>,
+    pub fixed: bool,
     pub swap: Option<(String, String)>,
     pub files: Vec<String>,
 }
@@ -714,6 +716,7 @@ pub(crate) fn fence(line: &str) -> Option<Result<Fence, String>> {
             None if w == "page" => out.page = true,
             None if w == "live" => out.live = true,
             None if w == "no-check" => out.no_check = true,
+            None if w == "fixed" => out.fixed = true,
             Some(("expect", code)) if !code.is_empty() => out.expect = Some(code.to_string()),
             Some(("break", swap)) => match swap.split_once(':') {
                 Some((from, to)) if !from.is_empty() => {

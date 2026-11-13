@@ -1,9 +1,9 @@
 /// T4, one reference item: its name, a one-line summary and its signature;
 /// the Stage with its controls; then props, events, slots and parts and
 /// composition examples (the page's body); the codes it can raise; the
-/// release it arrived in and the outputs it works in; and the hand notes,
-/// if any. The index of every item is in the sidebar.
-component ReferenceItemShell(_ name: String, summary: String = "", signature: String = "", since: String = "", outputs: [String] = [], missing: [String] = [], group: String = "", entries: [IndexEntry] = [], sections: [Anchor] = [], codes: [RelatedLink] = [], source: String = "md-docs", other: String = "", lang: String = "en") {
+/// release it arrived in (`older` for one already there before 5.0) and the
+/// outputs it works in; and the hand notes, if any. The index of every item is in the sidebar.
+component ReferenceItemShell(_ name: String, summary: String = "", signature: String = "", since: String = "", older: Bool = false, outputs: [String] = [], missing: [String] = [], group: String = "", entries: [IndexEntry] = [], sections: [Anchor] = [], codes: [RelatedLink] = [], source: String = "md-docs", other: String = "", lang: String = "en") {
     slot stage
     slot notes
     slot
@@ -38,7 +38,9 @@ component ReferenceItemShell(_ name: String, summary: String = "", signature: St
                     }
                 }
                 Row(class: "bp-labels") {
-                    if since != "" {
+                    if older {
+                        SinceBadge("5.0").older
+                    } else if since != "" {
                         SinceBadge(since)
                     }
                     OutputBadges(outputs: outputs, missing: missing)
