@@ -1782,8 +1782,8 @@ Markdown(text, inert: …)
 ```
 
 ```wf
-state docs = "Returns &lt;T&gt;, as [the guide](https://webfluent.monzeromer.dev/docs.md) says."
-Markdown("Some **bold** text and a [link](https://webfluent.monzeromer.dev/docs.md).")
+state docs = "Returns &lt;T&gt;, as [the guide](https://webfluent.monzeromer.dev/docs) says."
+Markdown("Some **bold** text and a [link](https://webfluent.monzeromer.dev/docs).")
 Markdown(docs).inert
 ```
 

@@ -48,7 +48,16 @@ component SearchPalette {
     on key("/") { if !Search.open { Search.reveal()  load() } }
 
     Modal(visible: Search.open, title: t("search.title"), class: "bp-palette") {
-        on close { Search.hide()  q = "" }
+        on close {
+            // A search that found nothing is counted (behind the reader's
+            // consent), once, when the palette closes: what readers look for
+            // and the docs do not have.
+            if term != "" && rows.length > 0 && hits.length == 0 {
+                track("search", { search_term: term, results: 0 })
+            }
+            Search.hide()
+            q = ""
+        }
 
         Stack {
             style { gap: 0 }

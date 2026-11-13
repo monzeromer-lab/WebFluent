@@ -1,69 +1,7 @@
-/// The documentation's front door. A reader arrives with one of four needs —
-/// to learn, to get a job done, to look something up, or to fix something —
-/// and this page sends each to the chapters written for it, after a quick
-/// start that has a site running in a few minutes.
-page DocsHome(path: "/docs", title: "Documentation", description: "Learn WebFluent, build with it, look up every element, command and setting, and fix what went wrong — start here.", layout: DocsShell("Documentation", blurb: "Everything you need to build websites, PDFs and slide decks with WebFluent — organised by what you are here to do.", sections: [Anchor(id: "quick-start", label: "Quick start"), Anchor(id: "find-your-way", label: "Find your way"), Anchor(id: "how-these-docs-work", label: "How these docs work")], nextTo: "/about/why", nextLabel: t("ch.18"))) {
-    Stack(gap: .lg) {
-        Heading("Quick start", id: "quick-start").h2
-
-        Markdown("Install the compiler, create a project and start the dev server. You need nothing else — no Node, no bundler.")
-
-        Terminal(lines: [
-            Line(command: INSTALL),
-            Line(command: "wf init hello -t static"),
-            Line(command: "cd hello"),
-            Line(command: "wf serve")
-        ])
-
-        Markdown("Open `http://localhost:3000`, edit `src/pages/Home.wf`, and save: the page reloads with your change. On Windows, install with PowerShell and type `webfluent` instead of `wf` — [Getting started](/learn/01-getting-started) explains why, and covers every other way to install.")
-
-        Heading("Find your way", id: "find-your-way").h2
-
-        Markdown("The documentation has four kinds of page. Pick the one that matches what you need right now.")
-
-        Grid(columns: { base: 1, md: 2 }, gap: .md) {
-            DocPath("Learn", overline: "Tutorials", body: "Lessons that take you from nothing to a working, deployed site. Follow the steps in order; each one ends with something you can see.", links: [
-                DocLink(label: "Getting started", to: "/learn/01-getting-started"),
-                DocLink(label: "Tutorial: a reading list, start to finish", to: "/learn/02-tutorial-shelf"),
-                DocLink(label: "Todos: a first app, 20 minutes", to: "/learn/03-tutorial-todos"),
-                DocLink(label: "Field Notes: a static site", to: "/recipes/build-a-notebook-site"),
-                DocLink(label: "Pocket: a full application", to: "/recipes/build-a-budget-app"),
-                DocLink(label: "Recipes for common jobs", to: "/docs/guide/recipes")
-            ])
-            DocPath("Understand", overline: "Concepts", body: "How the language works and why: pages, elements, state, components, stores and types. Read these in order once; come back when something surprises you.", links: [
-                DocLink(label: "Language basics", to: "/learn/04-language-basics"),
-                DocLink(label: "State and reactivity", to: "/learn/07-state-and-reactivity"),
-                DocLink(label: "Components", to: "/learn/10-components"),
-                DocLink(label: "Types", to: "/learn/12-types")
-            ])
-            DocPath("Build", overline: "Guides", body: "Practical chapters for the jobs a real project has: forms, data, styling, translation, testing and putting the site online.", links: [
-                DocLink(label: "Forms and validation", to: "/learn/14-forms"),
-                DocLink(label: "Data from an API", to: "/learn/15-data"),
-                DocLink(label: "Styling and themes", to: "/learn/13-styling"),
-                DocLink(label: "Testing", to: "/learn/16-testing"),
-                DocLink(label: "Translation and right-to-left", to: "/docs/guide/i18n"),
-                DocLink(label: "Deploying", to: "/docs/guide/deploying"),
-                DocLink(label: "PDF documents and slide decks", to: "/learn/17-pdf-and-slides")
-            ])
-            DocPath("Look up", overline: "Reference", body: "Complete, exact descriptions generated from or checked against the compiler. Scan them; you are not meant to read them start to end.", links: [
-                DocLink(label: "Components", to: "/reference"),
-                DocLink(label: "Command line", to: "/reference/cli"),
-                DocLink(label: "Configuration", to: "/reference/config"),
-                DocLink(label: "Built-in functions and values", to: "/reference/built-ins"),
-                DocLink(label: "Design tokens", to: "/reference/tokens"),
-                DocLink(label: "Grammar", to: "/reference/grammar")
-            ])
-        }
-
-        DocPath("Fix", overline: "Help", body: "Every error and warning has a code. Run `wf explain CODE` in a terminal, or look it up here.", links: [
-            DocLink(label: "Diagnostics: every error and warning", to: "/errors"),
-            DocLink(label: "Troubleshooting", to: "/errors/troubleshooting"),
-            DocLink(label: "Upgrading from an older version", to: "/about/upgrading"),
-            DocLink(label: "Glossary", to: "/reference/glossary")
-        ])
-
-        Heading("How these docs work", id: "how-these-docs-work").h2
-
-        Markdown("- **Every example is tested.** Each `wf` code block in the guide is parsed, type-checked and built by the compiler's test suite on every release, and each whole page is run against a browser DOM. If you copy an example, it compiles.\n- **The reference is generated.** The components, the configuration defaults, the design tokens and the diagnostics are read from the compiler itself, so they cannot fall behind it.\n- **This is version {VERSION}.** `wf --version` prints the version you have; [Upgrading](/about/upgrading) lists what changed in each release.\n- **Found a mistake?** Every chapter has an *Edit this page* link to its source in [the repository]({REPO}).")
-    }
+/// The documentation's old front door. What it did — send a reader to
+/// learn, to do, to look up or to fix — is the home page's "Find your way"
+/// now, so the address sends the reader there.
+page DocsHome(path: "/docs", title: "Documentation", description: "The WebFluent documentation: learn, recipes, reference and errors.", guard: false, redirect: "/", noindex: true) {
+    Heading(t("nav.learn")).h1
+    Link(t("nav.learn"), to: "/learn")
 }

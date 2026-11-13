@@ -67,8 +67,3 @@ type Example {
 /// the files sit in `public/showcase/`, this list says what each one is.
 data showcase: [Example] = "showcase.json"
 
-/// One link of a way into the guide on the docs landing page.
-type DocLink {
-    label: String,
-    to: String
-}

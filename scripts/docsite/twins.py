@@ -176,8 +176,6 @@ def main():
     twins.add("/showcase", "Showcase", "Sites, documents and decks made with WebFluent.",
               "Real outputs of WebFluent projects: websites, PDFs and slide decks, each from the "
               "`.wf` source in the repository's `examples/`.", "Start")
-    twins.add("/docs", "Documentation", "", "The documentation's parts: [Learn](/learn), "
-              "[Recipes](/recipes), [Reference](/reference), [Errors](/errors) and [About](/about).", "Start")
     twins.add("/changelog", "Changelog", "What each release of WebFluent changed.",
               re.sub(r"^# .*\n", "", (ROOT / "RELEASE_NOTES.md").read_text(), count=1), "Start")
     twins.add("/ar", "WebFluent", "The front page, in Arabic.",
