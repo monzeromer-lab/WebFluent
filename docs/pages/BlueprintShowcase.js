@@ -1,0 +1,2 @@
+function Page_BlueprintShowcase(params){const _root=document.createDocumentFragment();const _e932=Component_PreviewShowcase({});_root.appendChild(_e932);return _root;}
+WF.page("BlueprintShowcase",Page_BlueprintShowcase);

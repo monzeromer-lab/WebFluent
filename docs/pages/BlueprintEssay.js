@@ -1,0 +1,2 @@
+function Page_BlueprintEssay(params){const _root=document.createDocumentFragment();const _e920=Component_PreviewEssay({});_root.appendChild(_e920);return _root;}
+WF.page("BlueprintEssay",Page_BlueprintEssay);

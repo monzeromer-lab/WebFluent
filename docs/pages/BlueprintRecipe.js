@@ -1,0 +1,2 @@
+function Page_BlueprintRecipe(params){const _root=document.createDocumentFragment();const _e922=Component_PreviewRecipe({});_root.appendChild(_e922);return _root;}
+WF.page("BlueprintRecipe",Page_BlueprintRecipe);

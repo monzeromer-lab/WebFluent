@@ -1,0 +1,2 @@
+function Page_BlueprintReference(params){const _root=document.createDocumentFragment();const _e924=Component_PreviewReference({});_root.appendChild(_e924);return _root;}
+WF.page("BlueprintReference",Page_BlueprintReference);

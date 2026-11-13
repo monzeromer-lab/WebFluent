@@ -1,0 +1,2 @@
+function Page_BlueprintChapter(params){const _root=document.createDocumentFragment();const _e918=Component_PreviewChapter({});_root.appendChild(_e918);return _root;}
+WF.page("BlueprintChapter",Page_BlueprintChapter);

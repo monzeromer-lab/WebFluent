@@ -24,7 +24,7 @@
     <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/docs/guide/interop#webpage","url":"https://webfluent.monzeromer.dev/docs/guide/interop","name":"JavaScript interop","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"Your own .js under src/, libraries via meta.scripts, mount and cleanup on any element, Portal, wf:render, Element for custom elements, and publishing yours.","inLanguage":"en"},{"@type":"BreadcrumbList","@id":"https://webfluent.monzeromer.dev/docs/guide/interop#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://webfluent.monzeromer.dev/"},{"@type":"ListItem","position":2,"name":"Documentation","item":"https://webfluent.monzeromer.dev/docs"},{"@type":"ListItem","position":3,"name":"Guide","item":"https://webfluent.monzeromer.dev/docs/guide"},{"@type":"ListItem","position":4,"name":"JavaScript interop","item":"https://webfluent.monzeromer.dev/docs/guide/interop"}]}]}</script>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-    <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/fonts/instrument-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="/fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="/styles.css">
     <script src="/js/analytics.js" defer></script>
@@ -36,218 +36,319 @@
     <a class="wf-skip-link" href="#wf-content">Skip to content</a>
     <div id="app">
         <main id="wf-main">
-            <div class="wf-row wf-align--center wf-justify--between wf-sec36c17e site-header" role="banner">
-                <div class="wf-row wf-align--center wf-gap--lg wf-sbdfa5493">
-                    <a class="wf-link" href="/">
-                        <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
-                            <p class="wf-text wf-sb993cc9b">wf</p>
-                            <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">6.0</p>
-                        </div>
+            <a class="wf-link bp-skip" href="#bp-main">Skip to the content</a>
+            <div class="wf-row wf-align--center wf-s55053fdc bp-header" role="banner">
+                <div class="wf-row wf-align--center wf-gap--md wf-sfe495c12 bp-wrap">
+                    <a class="wf-link wf-sd56ba8fe" href="/" aria-label="WebFluent, home">
+                        <img class="wf-image wf-s4b9d0b60" src="/favicon.svg" alt="" decoding="async" loading="eager" fetchpriority="high">
+                        <p class="wf-text wf-s9919642b bp-hide-sm">WebFluent</p>
+                        <p class="wf-text bp-label bp-num">6.0</p>
                     </a>
-                    <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
-                        <a class="wf-link active" href="/docs/guide" aria-current="page">Guide</a>
-                        <a class="wf-link" href="/docs/reference">Components</a>
-                        <a class="wf-link" href="/docs/tutorials">Tutorials</a>
-                        <a class="wf-link" href="/showcase">See it</a>
+                    <div class="wf-row wf-s92924cc4 bp-tabs" role="navigation" aria-label="Main">
+                        <a class="wf-link bp-tab" href="/learn">Learn</a>
+                        <a class="wf-link bp-tab" href="/recipes">Recipes</a>
+                        <a class="wf-link bp-tab" href="/reference">Reference</a>
+                        <a class="wf-link bp-tab" href="/errors">Errors</a>
+                        <a class="wf-link bp-tab" href="/playground">Playground</a>
+                        <a class="wf-link bp-tab" href="/showcase">Showcase</a>
                     </div>
-                </div>
-                <div class="wf-row wf-align--center wf-gap--sm wf-se9ed06fe">
-                    <div class="wf-row wf-align--center wf-gap--sm wf-sfe922990 site-search">
-                        <i class="wf-icon" data-icon="search"></i>
-                        <input class="wf-input" placeholder="Search the guide" aria-label="Search the guide" type="search">
-                        <p class="wf-text wf-s8947c952">/</p>
+                    <div class="wf-row wf-align--center wf-gap--sm wf-sff642a95">
+                        <button class="wf-btn wf-s9b841342 bp-field" aria-label="Search the docs" aria-keyshortcuts="Meta+K Control+K" aria-haspopup="dialog" type="button">
+                            <i class="wf-icon" data-icon="search"></i>
+                            <p class="wf-text wf-sf55a2627 bp-hide-sm">Search the docs</p>
+                            <p class="wf-text bp-kbd bp-hide-sm">Ctrl+K</p>
+                        </button>
+                        <div class="wf-row wf-align--center wf-gap--sm wf-sf0e17348 bp-select bp-hide-sm">
+                            <select class="wf-select" aria-label="Building">
+                                <option value="website">Website</option>
+                                <option value="app">Web app</option>
+                                <option value="pdf">PDF</option>
+                                <option value="slides">Slides</option>
+                                <option value="elements">Custom elements</option>
+                                <option value="desktop">Desktop / phone</option>
+                            </select>
+                        </div>
+                        <button class="wf-icon-btn bp-icon-button" data-track="select_content" data-track-content-type="theme" type="button"></button>
+                        <div class="wf-row wf-align--center wf-gap--xs wf-s286d925a">
+                            <button class="wf-btn bp-button" title="This page is in English only; the switch changes the interface." data-track="select_content" data-track-content-type="language" type="button"></button>
+                        </div>
+                        <a class="wf-link bp-button bp-hide-sm" href="https://github.com/monzeromer-lab/WebFluent" data-tone="quiet">GitHub</a>
+                        <button class="wf-icon-btn wf-sde8ec4aa bp-icon-button" data-icon="menu" aria-label="Menu" title="Menu" aria-expanded="false" type="button"></button>
                     </div>
-                    <button class="wf-icon-btn site-icon-button" data-track="select_content" data-track-content-type="theme" type="button"></button>
-                    <a class="wf-link wf-s23389ead site-button site-button-outlined" href="https://github.com/monzeromer-lab/WebFluent">GitHub</a>
-                    <button class="wf-btn site-button site-button-outlined" data-track="select_content" data-track-content-type="language" type="button"></button>
-                    <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" data-icon="menu" aria-label="Menu" title="Menu" aria-expanded="false" type="button"></button>
                 </div>
             </div>
-            <div class="wf-row wf-align--stretch wf-s8fba8729">
-                <aside class="wf-sidebar wf-s2d03fcea" aria-label="Chapters">
-                    <a class="wf-sidebar__item" href="/docs">
-                        <p class="wf-text">Overview</p>
-                    </a>
-                    <p class="wf-text group-label">Get started</p>
-                    <a class="wf-sidebar__item" href="/docs/guide/introduction">
-                        <p class="wf-text">Introduction</p>
-                    </a>
-                    <a class="wf-sidebar__item" href="/docs/guide/getting-started">
-                        <p class="wf-text">Getting started</p>
-                    </a>
-                    <a class="wf-sidebar__item" href="/docs/guide/tutorial">
-                        <p class="wf-text">Tutorial: Shelf</p>
-                    </a>
-                    <a class="wf-sidebar__item" href="/docs/guide/coming-from">
-                        <p class="wf-text">Coming from React, Vue or Svelte</p>
-                    </a>
-                    <p class="wf-text group-label">Tutorials and recipes</p>
-                    <a class="wf-sidebar__item" href="/docs/tutorials/todos">
-                        <p class="wf-text">Tutorial: Todos</p>
-                    </a>
-                    <a class="wf-sidebar__item" href="/docs/tutorials/field-notes">
-                        <p class="wf-text">Tutorial: Field Notes</p>
-                    </a>
-                    <a class="wf-sidebar__item" href="/docs/tutorials/pocket">
-                        <p class="wf-text">Tutorial: Pocket</p>
-                    </a>
-                    <a class="wf-sidebar__item" href="/docs/guide/recipes">
-                        <p class="wf-text">Recipes</p>
-                    </a>
-                    <p class="wf-text group-label">Concepts</p>
-                    <a class="wf-sidebar__item" href="/docs/guide/language-basics">
-                        <p class="wf-text">Language basics</p>
-                    </a>
-                    <a class="wf-sidebar__item" href="/docs/guide/pages-and-routing">
-                        <p class="wf-text">Pages and routing</p>
-                    </a>
-                    <a class="wf-sidebar__item" href="/docs/guide/elements">
-                        <p class="wf-text">Elements</p>
-                    </a>
-                    <a class="wf-sidebar__item" href="/docs/guide/state">
-                        <p class="wf-text">State and reactivity</p>
-                    </a>
-                    <a class="wf-sidebar__item" href="/docs/guide/events">
-                        <p class="wf-text">Events</p>
-                    </a>
-                    <a class="wf-sidebar__item" href="/docs/guide/control-flow">
-                        <p class="wf-text">Control flow</p>
-                    </a>
-                    <a class="wf-sidebar__item" href="/docs/guide/components">
-                        <p class="wf-text">Components</p>
-                    </a>
-                    <a class="wf-sidebar__item" href="/docs/guide/stores">
-                        <p class="wf-text">Stores</p>
-                    </a>
-                    <a class="wf-sidebar__item" href="/docs/guide/types">
-                        <p class="wf-text">Types</p>
-                    </a>
-                    <a class="wf-sidebar__item" href="/docs/guide/expressions">
-                        <p class="wf-text">Expressions</p>
-                    </a>
-                    <p class="wf-text group-label">Guides: interface</p>
-                    <a class="wf-sidebar__item" href="/docs/guide/styling">
-                        <p class="wf-text">Styling</p>
-                    </a>
-                    <a class="wf-sidebar__item" href="/docs/guide/motion">
-                        <p class="wf-text">Motion</p>
-                    </a>
-                    <a class="wf-sidebar__item" href="/docs/guide/media">
-                        <p class="wf-text">Media</p>
-                    </a>
-                    <a class="wf-sidebar__item" href="/docs/guide/accessibility">
-                        <p class="wf-text">Accessibility</p>
-                    </a>
-                    <p class="wf-text group-label">Guides: data</p>
-                    <a class="wf-sidebar__item" href="/docs/guide/forms">
-                        <p class="wf-text">Forms and validation</p>
-                    </a>
-                    <a class="wf-sidebar__item" href="/docs/guide/data">
-                        <p class="wf-text">Fetching data</p>
-                    </a>
-                    <a class="wf-sidebar__item" href="/docs/guide/realtime">
-                        <p class="wf-text">Real-time</p>
-                    </a>
-                    <a class="wf-sidebar__item" href="/docs/guide/offline">
-                        <p class="wf-text">Offline</p>
-                    </a>
-                    <p class="wf-text group-label">Guides: content</p>
-                    <a class="wf-sidebar__item" href="/docs/guide/content">
-                        <p class="wf-text">Content</p>
-                    </a>
-                    <a class="wf-sidebar__item" href="/docs/guide/i18n">
-                        <p class="wf-text">Internationalisation</p>
-                    </a>
-                    <p class="wf-text group-label">Guides: quality</p>
-                    <a class="wf-sidebar__item" href="/docs/guide/testing">
-                        <p class="wf-text">Testing</p>
-                    </a>
-                    <a class="wf-sidebar__item" href="/docs/guide/security">
-                        <p class="wf-text">Security</p>
-                    </a>
-                    <a class="wf-sidebar__item" href="/docs/guide/performance">
-                        <p class="wf-text">Performance</p>
-                    </a>
-                    <p class="wf-text group-label">Guides: shipping</p>
-                    <a class="wf-sidebar__item" href="/docs/guide/project-structure">
-                        <p class="wf-text">Project structure</p>
-                    </a>
-                    <a class="wf-sidebar__item" href="/docs/guide/static-and-spa">
-                        <p class="wf-text">Static or single-page</p>
-                    </a>
-                    <a class="wf-sidebar__item" href="/docs/guide/deploying">
-                        <p class="wf-text">Deploying</p>
-                    </a>
-                    <a class="wf-sidebar__item" href="/docs/guide/environments">
-                        <p class="wf-text">Environments</p>
-                    </a>
-                    <a class="wf-sidebar__item" href="/docs/guide/desktop">
-                        <p class="wf-text">Desktop apps</p>
-                    </a>
-                    <p class="wf-text group-label">Other outputs</p>
-                    <a class="wf-sidebar__item" href="/docs/guide/pdf-and-slides">
-                        <p class="wf-text">PDF and slides</p>
-                    </a>
-                    <a class="wf-sidebar__item" href="/docs/guide/server-rendering">
-                        <p class="wf-text">Server rendering</p>
-                    </a>
-                    <a class="wf-sidebar__item active" href="/docs/guide/interop" aria-current="page">
-                        <p class="wf-text">JavaScript interop</p>
-                    </a>
-                    <p class="wf-text group-label">Reference</p>
-                    <a class="wf-sidebar__item" href="/docs/reference">
-                        <p class="wf-text">Components reference</p>
-                    </a>
-                    <a class="wf-sidebar__item" href="/docs/guide/cli">
-                        <p class="wf-text">Command line and editors</p>
-                    </a>
-                    <a class="wf-sidebar__item" href="/docs/guide/config">
-                        <p class="wf-text">Configuration</p>
-                    </a>
-                    <a class="wf-sidebar__item" href="/docs/guide/diagnostics">
-                        <p class="wf-text">Diagnostics</p>
-                    </a>
-                    <a class="wf-sidebar__item" href="/docs/guide/built-ins">
-                        <p class="wf-text">Built-ins</p>
-                    </a>
-                    <a class="wf-sidebar__item" href="/docs/guide/tokens">
-                        <p class="wf-text">Design tokens</p>
-                    </a>
-                    <a class="wf-sidebar__item" href="/docs/guide/runtime">
-                        <p class="wf-text">Runtime API</p>
-                    </a>
-                    <a class="wf-sidebar__item" href="/docs/guide/grammar">
-                        <p class="wf-text">Grammar</p>
-                    </a>
-                    <a class="wf-sidebar__item" href="/docs/guide/browser-support">
-                        <p class="wf-text">Browser support</p>
-                    </a>
-                    <a class="wf-sidebar__item" href="/docs/guide/glossary">
-                        <p class="wf-text">Glossary</p>
-                    </a>
-                    <p class="wf-text group-label">Help</p>
-                    <a class="wf-sidebar__item" href="/docs/guide/troubleshooting">
-                        <p class="wf-text">Troubleshooting</p>
-                    </a>
-                    <a class="wf-sidebar__item" href="/docs/guide/upgrading">
-                        <p class="wf-text">Upgrading</p>
-                    </a>
-                    <a class="wf-sidebar__item" href="/docs/guide/contributing">
-                        <p class="wf-text">Contributing</p>
-                    </a>
-                </aside>
-                <div class="wf-stack wf-gap--lg wf-scd76e6b7 docs-main" role="main">
-                    <div class="wf-row wf-align--center wf-gap--xs wf-s85f45838 crumbs" aria-label="Breadcrumb" role="navigation">
-                        <a class="wf-link" href="/docs">Guide</a>
-                        <p class="wf-text">/</p>
-                        <p class="wf-text wf-s8c71c534">Other outputs</p>
+            <dialog class="wf-modal bp-palette" aria-labelledby="wf-dlg-s1">
+                <div class="wf-modal__content">
+                    <div class="wf-modal__header"><h3 id="wf-dlg-s1">Search</h3></div>
+                    <div class="wf-modal__body">
+                        <div class="wf-stack wf-sa8e464d0">
+                            <div class="wf-row wf-align--center wf-gap--sm wf-s02e7a482 bp-field">
+                                <i class="wf-icon" data-icon="search"></i>
+                                <input class="wf-input" placeholder="Search the guide" aria-label="Search the guide" type="search" autofocus>
+                                <p class="wf-text bp-kbd">esc</p>
+                            </div>
+                            <div class="wf-row wf-s434e64fb bp-tabs" role="tablist" aria-label="Narrow the search">
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="true" type="button">All</button>
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">Learn</button>
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">Recipes</button>
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">Reference</button>
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">Errors</button>
+                            </div>
+                            <div class="wf-stack wf-s3f6dffee" role="listbox" aria-label="Search results">
+                                <p class="wf-text wf-s3205a3d6 bp-small">Type a word: a component, a code such as T05, or a task.</p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="wf-stack wf-gap--sm wf-s28a8547f">
-                        <h1 class="wf-heading wf-sa3503382">JavaScript interop</h1>
-                        <p class="wf-text wf-sfd35f593">Write plain JavaScript beside your pages and call it by name; load a library from a CDN; hand an element to a script; place custom elements; publish your components.</p>
+                </div>
+            </dialog>
+            <div class="wf-row wf-align--start wf-sa997482c bp-wrap">
+                <div class="wf-stack wf-gap--sm wf-s60d92c01 bp-sidebar" role="navigation" aria-label="The book">
+                    <div class="wf-stack wf-gap--xs wf-s733182cd">
+                        <div class="wf-row wf-justify--between wf-align--center wf-s42821ebd">
+                            <p class="wf-text wf-s0a7b959f">The book</p>
+                            <p class="wf-text bp-small bp-num">0 of 52</p>
+                        </div>
+                        <div class="wf-stack bp-meter">
+                            <progress class="wf-progress" value="0" max="52" aria-label="0 of 52"></progress>
+                        </div>
                     </div>
-                    <div class="wf-stack wf-gap--lg wf-sde0f64f9 docs-article" dir="ltr">
+                    <div class="wf-stack bp-navlist">
+                        <!--wf-if-->
+                        <a class="wf-link bp-navlink" href="/docs/guide/introduction">
+                            <p class="wf-text bp-step" aria-hidden="true">1</p>
+                            <p class="wf-text wf-s126131e6">Introduction</p>
+                            <p class="wf-text wf-sf65d7946 bp-label" data-tone="construction">tour</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/docs/guide/getting-started">
+                            <p class="wf-text bp-step" aria-hidden="true">2</p>
+                            <p class="wf-text wf-s126131e6">Getting started</p>
+                            <p class="wf-text wf-sf65d7946 bp-label" data-tone="construction">tour</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/docs/guide/tutorial">
+                            <p class="wf-text bp-step" aria-hidden="true">3</p>
+                            <p class="wf-text wf-s126131e6">Tutorial: Shelf</p>
+                            <p class="wf-text wf-sf65d7946 bp-label" data-tone="construction">tour</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/docs/guide/coming-from">
+                            <p class="wf-text bp-step" aria-hidden="true">4</p>
+                            <p class="wf-text wf-s126131e6">Coming from React, Vue or Svelte</p>
+                        </a>
+                        <p class="wf-text bp-navgroup">Tutorials and recipes</p>
+                        <a class="wf-link bp-navlink" href="/docs/tutorials/todos">
+                            <p class="wf-text bp-step" aria-hidden="true">5</p>
+                            <p class="wf-text wf-s126131e6">Tutorial: Todos</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/docs/tutorials/field-notes">
+                            <p class="wf-text bp-step" aria-hidden="true">6</p>
+                            <p class="wf-text wf-s126131e6">Tutorial: Field Notes</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/docs/tutorials/pocket">
+                            <p class="wf-text bp-step" aria-hidden="true">7</p>
+                            <p class="wf-text wf-s126131e6">Tutorial: Pocket</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/docs/guide/recipes">
+                            <p class="wf-text bp-step" aria-hidden="true">8</p>
+                            <p class="wf-text wf-s126131e6">Recipes</p>
+                        </a>
+                        <p class="wf-text bp-navgroup">Concepts</p>
+                        <a class="wf-link bp-navlink" href="/docs/guide/language-basics">
+                            <p class="wf-text bp-step" aria-hidden="true">9</p>
+                            <p class="wf-text wf-s126131e6">Language basics</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/docs/guide/pages-and-routing">
+                            <p class="wf-text bp-step" aria-hidden="true">10</p>
+                            <p class="wf-text wf-s126131e6">Pages and routing</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/docs/guide/elements">
+                            <p class="wf-text bp-step" aria-hidden="true">11</p>
+                            <p class="wf-text wf-s126131e6">Elements</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/docs/guide/state">
+                            <p class="wf-text bp-step" aria-hidden="true">12</p>
+                            <p class="wf-text wf-s126131e6">State and reactivity</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/docs/guide/events">
+                            <p class="wf-text bp-step" aria-hidden="true">13</p>
+                            <p class="wf-text wf-s126131e6">Events</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/docs/guide/control-flow">
+                            <p class="wf-text bp-step" aria-hidden="true">14</p>
+                            <p class="wf-text wf-s126131e6">Control flow</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/docs/guide/components">
+                            <p class="wf-text bp-step" aria-hidden="true">15</p>
+                            <p class="wf-text wf-s126131e6">Components</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/docs/guide/stores">
+                            <p class="wf-text bp-step" aria-hidden="true">16</p>
+                            <p class="wf-text wf-s126131e6">Stores</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/docs/guide/types">
+                            <p class="wf-text bp-step" aria-hidden="true">17</p>
+                            <p class="wf-text wf-s126131e6">Types</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/docs/guide/expressions">
+                            <p class="wf-text bp-step" aria-hidden="true">18</p>
+                            <p class="wf-text wf-s126131e6">Expressions</p>
+                        </a>
+                        <p class="wf-text bp-navgroup">Guides: interface</p>
+                        <a class="wf-link bp-navlink" href="/docs/guide/styling">
+                            <p class="wf-text bp-step" aria-hidden="true">19</p>
+                            <p class="wf-text wf-s126131e6">Styling</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/docs/guide/motion">
+                            <p class="wf-text bp-step" aria-hidden="true">20</p>
+                            <p class="wf-text wf-s126131e6">Motion</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/docs/guide/media">
+                            <p class="wf-text bp-step" aria-hidden="true">21</p>
+                            <p class="wf-text wf-s126131e6">Media</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/docs/guide/accessibility">
+                            <p class="wf-text bp-step" aria-hidden="true">22</p>
+                            <p class="wf-text wf-s126131e6">Accessibility</p>
+                        </a>
+                        <p class="wf-text bp-navgroup">Guides: data</p>
+                        <a class="wf-link bp-navlink" href="/docs/guide/forms">
+                            <p class="wf-text bp-step" aria-hidden="true">23</p>
+                            <p class="wf-text wf-s126131e6">Forms and validation</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/docs/guide/data">
+                            <p class="wf-text bp-step" aria-hidden="true">24</p>
+                            <p class="wf-text wf-s126131e6">Fetching data</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/docs/guide/realtime">
+                            <p class="wf-text bp-step" aria-hidden="true">25</p>
+                            <p class="wf-text wf-s126131e6">Real-time</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/docs/guide/offline">
+                            <p class="wf-text bp-step" aria-hidden="true">26</p>
+                            <p class="wf-text wf-s126131e6">Offline</p>
+                        </a>
+                        <p class="wf-text bp-navgroup">Guides: content</p>
+                        <a class="wf-link bp-navlink" href="/docs/guide/content">
+                            <p class="wf-text bp-step" aria-hidden="true">27</p>
+                            <p class="wf-text wf-s126131e6">Content</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/docs/guide/i18n">
+                            <p class="wf-text bp-step" aria-hidden="true">28</p>
+                            <p class="wf-text wf-s126131e6">Internationalisation</p>
+                        </a>
+                        <p class="wf-text bp-navgroup">Guides: quality</p>
+                        <a class="wf-link bp-navlink" href="/docs/guide/testing">
+                            <p class="wf-text bp-step" aria-hidden="true">29</p>
+                            <p class="wf-text wf-s126131e6">Testing</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/docs/guide/security">
+                            <p class="wf-text bp-step" aria-hidden="true">30</p>
+                            <p class="wf-text wf-s126131e6">Security</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/docs/guide/performance">
+                            <p class="wf-text bp-step" aria-hidden="true">31</p>
+                            <p class="wf-text wf-s126131e6">Performance</p>
+                        </a>
+                        <p class="wf-text bp-navgroup">Guides: shipping</p>
+                        <a class="wf-link bp-navlink" href="/docs/guide/project-structure">
+                            <p class="wf-text bp-step" aria-hidden="true">32</p>
+                            <p class="wf-text wf-s126131e6">Project structure</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/docs/guide/static-and-spa">
+                            <p class="wf-text bp-step" aria-hidden="true">33</p>
+                            <p class="wf-text wf-s126131e6">Static or single-page</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/docs/guide/deploying">
+                            <p class="wf-text bp-step" aria-hidden="true">34</p>
+                            <p class="wf-text wf-s126131e6">Deploying</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/docs/guide/environments">
+                            <p class="wf-text bp-step" aria-hidden="true">35</p>
+                            <p class="wf-text wf-s126131e6">Environments</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/docs/guide/desktop">
+                            <p class="wf-text bp-step" aria-hidden="true">36</p>
+                            <p class="wf-text wf-s126131e6">Desktop apps</p>
+                        </a>
+                        <p class="wf-text bp-navgroup">Other outputs</p>
+                        <a class="wf-link bp-navlink" href="/docs/guide/pdf-and-slides">
+                            <p class="wf-text bp-step" aria-hidden="true">37</p>
+                            <p class="wf-text wf-s126131e6">PDF and slides</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/docs/guide/server-rendering">
+                            <p class="wf-text bp-step" aria-hidden="true">38</p>
+                            <p class="wf-text wf-s126131e6">Server rendering</p>
+                        </a>
+                        <a class="wf-link bp-navlink active" href="/docs/guide/interop" aria-current="page">
+                            <p class="wf-text bp-step" aria-hidden="true">39</p>
+                            <p class="wf-text wf-s126131e6">JavaScript interop</p>
+                        </a>
+                        <p class="wf-text bp-navgroup">Reference</p>
+                        <a class="wf-link bp-navlink" href="/docs/reference">
+                            <p class="wf-text bp-step" aria-hidden="true">40</p>
+                            <p class="wf-text wf-s126131e6">Components reference</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/docs/guide/cli">
+                            <p class="wf-text bp-step" aria-hidden="true">41</p>
+                            <p class="wf-text wf-s126131e6">Command line and editors</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/docs/guide/config">
+                            <p class="wf-text bp-step" aria-hidden="true">42</p>
+                            <p class="wf-text wf-s126131e6">Configuration</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/docs/guide/diagnostics">
+                            <p class="wf-text bp-step" aria-hidden="true">43</p>
+                            <p class="wf-text wf-s126131e6">Diagnostics</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/docs/guide/built-ins">
+                            <p class="wf-text bp-step" aria-hidden="true">44</p>
+                            <p class="wf-text wf-s126131e6">Built-ins</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/docs/guide/tokens">
+                            <p class="wf-text bp-step" aria-hidden="true">45</p>
+                            <p class="wf-text wf-s126131e6">Design tokens</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/docs/guide/runtime">
+                            <p class="wf-text bp-step" aria-hidden="true">46</p>
+                            <p class="wf-text wf-s126131e6">Runtime API</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/docs/guide/grammar">
+                            <p class="wf-text bp-step" aria-hidden="true">47</p>
+                            <p class="wf-text wf-s126131e6">Grammar</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/docs/guide/browser-support">
+                            <p class="wf-text bp-step" aria-hidden="true">48</p>
+                            <p class="wf-text wf-s126131e6">Browser support</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/docs/guide/glossary">
+                            <p class="wf-text bp-step" aria-hidden="true">49</p>
+                            <p class="wf-text wf-s126131e6">Glossary</p>
+                        </a>
+                        <p class="wf-text bp-navgroup">Help</p>
+                        <a class="wf-link bp-navlink" href="/docs/guide/troubleshooting">
+                            <p class="wf-text bp-step" aria-hidden="true">50</p>
+                            <p class="wf-text wf-s126131e6">Troubleshooting</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/docs/guide/upgrading">
+                            <p class="wf-text bp-step" aria-hidden="true">51</p>
+                            <p class="wf-text wf-s126131e6">Upgrading</p>
+                        </a>
+                        <a class="wf-link bp-navlink" href="/docs/guide/contributing">
+                            <p class="wf-text bp-step" aria-hidden="true">52</p>
+                            <p class="wf-text wf-s126131e6">Contributing</p>
+                        </a>
+                    </div>
+                </div>
+                <div class="wf-stack wf-gap--lg wf-s54d43750 bp-main docs-main" role="main" id="bp-main" tabindex="-1">
+                    <div class="wf-row bp-labels">
+                        <p class="wf-text bp-label" data-tone="kind" data-kind="tutorial">Tutorial</p>
+                        <p class="wf-text bp-label">Other outputs</p>
+                        <div class="wf-row wf-gap--xs bp-labels" aria-label="Works in">
+                        </div>
+                    </div>
+                    <div class="wf-stack wf-gap--sm wf-s4e4189b1">
+                        <h1 class="wf-heading wf-s900776cd">JavaScript interop</h1>
+                        <p class="wf-text bp-lede">Write plain JavaScript beside your pages and call it by name; load a library from a CDN; hand an element to a script; place custom elements; publish your components.</p>
+                    </div>
+                    <div class="wf-stack wf-gap--lg wf-s399b38f0 bp-prose docs-article" dir="ltr">
                         <div class="wf-stack wf-gap--lg" id="wf-content" tabindex="-1">
                             <div class="wf-markdown">
 <p>This chapter shows you how to use JavaScript from a WebFluent project: your own scripts, libraries from a CDN, and custom elements. WebFluent has no package manager of its own and does not need one. A <code>.js</code> file is part of the project the same way a <code>.css</code> file is: put it under <code>src/</code>, and your pages can call its functions by name.</p>
@@ -365,14 +466,14 @@
 <p>To call a function of your own, put it in a <code>.js</code> file under <code>src/</code>. Write it the way you would write any file a <code>&lt;script src&gt;</code> loads.</p>
 <p>This script tilts an element toward the pointer, and returns a handle the page can update and destroy:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
-                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
-                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
-                                        <p class="wf-text wf-s6dc9a872">js</p>
+                            <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                                <div class="wf-row wf-s2c416341 bp-console__bar">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                        <p class="wf-text wf-s23a4ddd5 bp-mono">js</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="js" type="button">Copy</button>
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="js" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">// src/tilt.js
+                                <code class="wf-code wf-code--block bp-console__code">// src/tilt.js
 /**
  * Tilt an element toward the pointer.
  * @param {HTMLElement} node
@@ -394,14 +495,14 @@ function initTilt(node, max = 15) {
                             <div class="wf-markdown">
 <p>This page calls <code>initTilt</code> on a card, and changes how far it tilts as the reader moves a slider:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
-                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
-                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
-                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                            <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                                <div class="wf-row wf-s2c416341 bp-console__bar">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                        <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Gallery</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/gallery&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Gallery&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Cards that lean.&quot;</span>) {
+                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Gallery</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/gallery&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Gallery&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Cards that lean.&quot;</span>) {
     <span class="wf-tok-kw">state</span> max = <span class="wf-tok-num">15</span>
 
     <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Gallery&quot;</span>).h1
@@ -529,14 +630,14 @@ function initTilt(node, max = 15) {
 <p>When the way an element looks depends on something only a script can see (an intersection, a scroll position, a library's event), hand the script an action. An action is a plain function at run time. The script calls it, and the class stays in a <code>class:</code> the compiler can read.</p>
 <p>This script reports whether an element is on screen:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
-                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
-                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
-                                        <p class="wf-text wf-s6dc9a872">js</p>
+                            <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                                <div class="wf-row wf-s2c416341 bp-console__bar">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                        <p class="wf-text wf-s23a4ddd5 bp-mono">js</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="js" type="button">Copy</button>
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="js" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">// src/visible.js
+                                <code class="wf-code wf-code--block bp-console__code">// src/visible.js
 /**
  * Say whether `node` is on screen, each time that changes.
  * @param {HTMLElement} node
@@ -551,14 +652,14 @@ function watchVisible(node, onChange) {
                             <div class="wf-markdown">
 <p>This page sets <code>is-visible</code> on the card while it is on screen:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
-                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
-                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
-                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                            <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                                <div class="wf-row wf-s2c416341 bp-console__bar">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                        <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Story</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/story&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Story&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;It fades in.&quot;</span>) {
+                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Story</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/story&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Story&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;It fades in.&quot;</span>) {
     <span class="wf-tok-kw">state</span> visible = <span class="wf-tok-kw">false</span>
     <span class="wf-tok-kw">action</span> setVisible(<span class="wf-tok-prop">v</span>: <span class="wf-tok-name">Bool</span>) { visible = v }
 
@@ -578,14 +679,14 @@ function watchVisible(node, onChange) {
 <p>To use a library from another origin, list its URL in <code>meta.scripts</code>. The compiler never fetches anything, so it cannot read a file on another origin; your own scripts call the library instead.</p>
 <p>This config loads Chart.js and pins the file with its integrity hash:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
-                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
-                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
-                                        <p class="wf-text wf-s6dc9a872">json</p>
+                            <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                                <div class="wf-row wf-s2c416341 bp-console__bar">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                        <p class="wf-text wf-s23a4ddd5 bp-mono">json</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="json" type="button">Copy</button>
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="json" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">{ <span class="wf-tok-prop">&quot;meta&quot;</span>: {
+                                <code class="wf-code wf-code--block bp-console__code">{ <span class="wf-tok-prop">&quot;meta&quot;</span>: {
     <span class="wf-tok-prop">&quot;scripts&quot;</span>: [<span class="wf-tok-str">&quot;https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js&quot;</span>],
     <span class="wf-tok-prop">&quot;integrity&quot;</span>: {
       <span class="wf-tok-prop">&quot;https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js&quot;</span>: <span class="wf-tok-str">&quot;sha384-…&quot;</span>
@@ -595,14 +696,14 @@ function watchVisible(node, onChange) {
                             <div class="wf-markdown">
 <p>This script draws a chart with it:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
-                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
-                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
-                                        <p class="wf-text wf-s6dc9a872">js</p>
+                            <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                                <div class="wf-row wf-s2c416341 bp-console__bar">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                        <p class="wf-text wf-s23a4ddd5 bp-mono">js</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="js" type="button">Copy</button>
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="js" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">// src/charts.js
+                                <code class="wf-code wf-code--block bp-console__code">// src/charts.js
 /**
  * A bar chart of `values`, one bar a quarter.
  * @param {HTMLCanvasElement} canvas
@@ -618,14 +719,14 @@ function drawSales(canvas, values) {
                             <div class="wf-markdown">
 <p>This page hands the script a canvas, and destroys the chart when the page leaves:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
-                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
-                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
-                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                            <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                                <div class="wf-row wf-s2c416341 bp-console__bar">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                        <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Sales</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/sales&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Sales&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;How it is going.&quot;</span>) {
+                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Sales</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/sales&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Sales&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;How it is going.&quot;</span>) {
     <span class="wf-tok-kw">state</span> <span class="wf-tok-prop">values</span>: [<span class="wf-tok-name">Number</span>] = [<span class="wf-tok-num">12</span>, <span class="wf-tok-num">19</span>, <span class="wf-tok-num">7</span>, <span class="wf-tok-num">15</span>]
 
     <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Sales&quot;</span>).h1
@@ -662,14 +763,14 @@ function drawSales(canvas, values) {
 <p>Some libraries make a node and leave it empty for the page to fill: an editor's tooltip, a map's popup, a chart's legend. To fill it, use <code>Portal(into: node) { … }</code>. The library keeps the node's place, its keys and its focus; the page draws what is in it.</p>
 <p>This script starts a CodeMirror editor, loaded from <code>meta.scripts</code> as <code>CM</code>, with a hover tooltip whose words the page draws:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
-                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
-                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
-                                        <p class="wf-text wf-s6dc9a872">js</p>
+                            <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                                <div class="wf-row wf-s2c416341 bp-console__bar">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                        <p class="wf-text wf-s23a4ddd5 bp-mono">js</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="js" type="button">Copy</button>
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="js" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">// src/editor.js
+                                <code class="wf-code wf-code--block bp-console__code">// src/editor.js
 // CodeMirror places each tooltip and keeps its keys; the node it makes is
 // left empty, and the page draws what is in it.
 const tooltips = new Map();
@@ -708,14 +809,14 @@ function startEditor(node, opened, closed) {
                             <div class="wf-markdown">
 <p>This page keeps the open tooltip's id in state and draws the words into its node:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
-                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
-                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
-                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                            <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                                <div class="wf-row wf-s2c416341 bp-console__bar">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                        <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Edit</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/edit&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Edit&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;An editor whose tooltip the page draws.&quot;</span>) {
+                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Edit</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/edit&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Edit&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;An editor whose tooltip the page draws.&quot;</span>) {
     <span class="wf-tok-kw">state</span> <span class="wf-tok-prop">tip</span>: <span class="wf-tok-name">String</span>? = <span class="wf-tok-kw">null</span>
     <span class="wf-tok-kw">state</span> words = <span class="wf-tok-str">&quot;&quot;</span>
     <span class="wf-tok-kw">action</span> opened(<span class="wf-tok-prop">id</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">text</span>: <span class="wf-tok-name">String</span>) {
@@ -750,14 +851,14 @@ function startEditor(node, opened, closed) {
 </ul>
 <p>A list that the library keeps (an editor's completions, each row a node it made) is a keyed <code>for</code> of portals. A press on a row should leave the focus in the editor: <code>on mousedown(e) { e.preventDefault() }</code> does that, and <code>on click</code> still runs. This fragment draws one portal per row:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
-                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
-                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
-                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                            <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                                <div class="wf-row wf-s2c416341 bp-console__bar">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                        <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">for</span> row, i <span class="wf-tok-kw">in</span> <span class="wf-tok-name">Completions</span>.rows <span class="wf-tok-kw">by</span> i {
+                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-kw">for</span> row, i <span class="wf-tok-kw">in</span> <span class="wf-tok-name">Completions</span>.rows <span class="wf-tok-kw">by</span> i {
     <span class="wf-tok-name">Portal</span>(<span class="wf-tok-prop">into</span>: editorHost(row.id), <span class="wf-tok-kw">data</span>-<span class="wf-tok-prop">popup</span>: <span class="wf-tok-str">&quot;row&quot;</span>) {
         <span class="wf-tok-name">Text</span>(row.label) {
             <span class="wf-tok-kw">on</span> mousedown(e) { e.preventDefault() }
@@ -773,14 +874,14 @@ function startEditor(node, opened, closed) {
                             <div class="wf-markdown">
 <p>The page is drawn after your scripts run, drawn again over a pre-rendered page, and drawn anew on every route. A script that runs its own <code>querySelectorAll</code> therefore listens for the drawing to land, with the <code>wf:render</code> event on <code>document</code>:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
-                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
-                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
-                                        <p class="wf-text wf-s6dc9a872">js</p>
+                            <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                                <div class="wf-row wf-s2c416341 bp-console__bar">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                        <p class="wf-text wf-s23a4ddd5 bp-mono">js</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="js" type="button">Copy</button>
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="js" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">// src/tilt-all.js
+                                <code class="wf-code wf-code--block bp-console__code">// src/tilt-all.js
 document.addEventListener(&quot;wf:render&quot;, (e) =&gt; {
   // e.detail.route is the route just drawn, e.detail.params its parameters.
   for (const el of document.querySelectorAll(&quot;.tilt-me:not([data-tilted])&quot;)) {
@@ -796,14 +897,14 @@ document.addEventListener(&quot;wf:render&quot;, (e) =&gt; {
                             <div class="wf-markdown">
 <p>To place a custom element that a library defines, use <code>Element</code> with the element's tag. This page places Stripe's pricing table and notes when it is ready:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
-                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
-                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
-                                        <p class="wf-text wf-s6dc9a872">wf</p>
+                            <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                                <div class="wf-row wf-s2c416341 bp-console__bar">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                        <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Pricing</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/pricing&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Pricing&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Plans.&quot;</span>) {
+                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Pricing</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/pricing&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Pricing&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Plans.&quot;</span>) {
     <span class="wf-tok-kw">state</span> loaded = <span class="wf-tok-kw">false</span>
     <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Pricing&quot;</span>).h1
     <span class="wf-tok-name">Element</span>(<span class="wf-tok-str">&quot;stripe-pricing-table&quot;</span>, <span class="wf-tok-prop">publishableKey</span>: <span class="wf-tok-str">&quot;pk_live_…&quot;</span>, pricing-table-<span class="wf-tok-prop">id</span>: <span class="wf-tok-str">&quot;prctbl_1&quot;</span>) {
@@ -825,27 +926,27 @@ document.addEventListener(&quot;wf:render&quot;, (e) =&gt; {
                             <div class="wf-markdown">
 <p>To use your components from another framework or a plain page, build them as custom elements. Name the components in <code>build.elements</code>:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
-                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
-                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
-                                        <p class="wf-text wf-s6dc9a872">json</p>
+                            <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                                <div class="wf-row wf-s2c416341 bp-console__bar">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                        <p class="wf-text wf-s23a4ddd5 bp-mono">json</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="json" type="button">Copy</button>
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="json" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">{ <span class="wf-tok-prop">&quot;build&quot;</span>: { <span class="wf-tok-prop">&quot;output_type&quot;</span>: <span class="wf-tok-str">&quot;elements&quot;</span>, <span class="wf-tok-prop">&quot;elements&quot;</span>: [<span class="wf-tok-str">&quot;PriceTag&quot;</span>, <span class="wf-tok-str">&quot;Rating&quot;</span>] } }</code>
+                                <code class="wf-code wf-code--block bp-console__code">{ <span class="wf-tok-prop">&quot;build&quot;</span>: { <span class="wf-tok-prop">&quot;output_type&quot;</span>: <span class="wf-tok-str">&quot;elements&quot;</span>, <span class="wf-tok-prop">&quot;elements&quot;</span>: [<span class="wf-tok-str">&quot;PriceTag&quot;</span>, <span class="wf-tok-str">&quot;Rating&quot;</span>] } }</code>
                             </div>
                             <div class="wf-markdown">
 <p>Each name becomes a standard custom element. <code>PriceTag</code> is <code>&lt;price-tag&gt;</code>. A one-word component gets a prefix, so its tag has the hyphen a custom element needs: <code>Rating</code> is <code>&lt;wf-rating&gt;</code>. The build writes <code>elements.js</code>, <code>styles.css</code>, and a page that lists the tags it published.</p>
 <p>This HTML places a published component on any page:</p>
                             </div>
-                            <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
-                                <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
-                                    <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
-                                        <p class="wf-text wf-s6dc9a872">html</p>
+                            <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                                <div class="wf-row wf-s2c416341 bp-console__bar">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                        <p class="wf-text wf-s23a4ddd5 bp-mono">html</p>
                                     </div>
-                                    <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="html" type="button">Copy</button>
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="html" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block wf-sa8223565">&lt;script src=&quot;/elements.js&quot; defer&gt;&lt;/script&gt;
+                                <code class="wf-code wf-code--block bp-console__code">&lt;script src=&quot;/elements.js&quot; defer&gt;&lt;/script&gt;
 &lt;link rel=&quot;stylesheet&quot; href=&quot;/styles.css&quot;&gt;
 
 &lt;price-tag label=&quot;Pro&quot; amount=&quot;29&quot; sale&gt;&lt;/price-tag&gt;</code>
@@ -864,11 +965,8 @@ document.addEventListener(&quot;wf:render&quot;, (e) =&gt; {
                             <div class="wf-markdown">
 <p>The runtime is <code>window.WF</code>. A script under <code>src/</code>, the console, or a library's callback can call it: <code>WF.navigate(&quot;/about&quot;)</code>, <code>WF.toast(&quot;Saved&quot;, &quot;success&quot;)</code>, <code>WF.storeSnapshot(&quot;Cart&quot;)</code>. The <a href="/docs/guide/runtime">runtime reference</a> lists every function.</p>
                             </div>
-                            <div class="wf-stack wf-gap--xs wf-s39f8973e callout" role="note" aria-label="Warning" data-kind="warning">
-                                <div class="wf-row wf-align--center wf-gap--xs callout-label">
-                                    <i class="wf-icon" data-icon="warning"></i>
-                                    <p class="wf-text">Warning</p>
-                                </div>
+                            <div class="wf-stack wf-s37f4bada bp-aside" role="note" aria-label="Warning" data-urgent="true" data-kind="warning">
+                                <p class="wf-text bp-aside__label">Warning</p>
                                 <div class="wf-markdown">
 <p>A build keeps only the runtime modules its own code reaches. A script that calls a module nothing else uses needs <code>&quot;build&quot;: { &quot;runtime&quot;: &quot;full&quot; }</code>, or the call fails in the browser.</p>
                                 </div>
@@ -887,89 +985,72 @@ document.addEventListener(&quot;wf:render&quot;, (e) =&gt; {
                             </div>
                         </div>
                     </div>
-                    <div class="wf-row wf-gap--md wf-align--stretch wf-s4c86d178" aria-label="Chapters either side" role="navigation">
-                        <a class="wf-link wf-seeb37b6c" href="/docs/guide/server-rendering">
-                            <p class="wf-text wf-s3e0c6c38">Previous</p>
-                            <p class="wf-text wf-s2c78daf6">Server rendering</p>
+                    <div class="wf-row wf-gap--md wf-s94f7a6f9" role="navigation" aria-label="Pages either side">
+                        <a class="wf-link wf-s1266eee5 bp-card" href="/docs/guide/server-rendering">
+                            <p class="wf-text bp-small">Previous</p>
+                            <p class="wf-text wf-s70571e62">Server rendering</p>
                         </a>
-                        <a class="wf-link wf-sc144b15a" href="/docs/reference">
-                            <p class="wf-text wf-s3e0c6c38">Next</p>
-                            <p class="wf-text wf-s2c78daf6">Components reference</p>
+                        <a class="wf-link wf-sc16e0c24 bp-card" href="/docs/reference">
+                            <p class="wf-text bp-small">Next</p>
+                            <p class="wf-text wf-s70571e62">Components reference</p>
                         </a>
                     </div>
                 </div>
-                <div class="wf-stack wf-gap--lg wf-sac91c322" aria-label="On this page">
-                    <div class="wf-stack wf-gap--xs wf-se43b90d0">
-                        <p class="wf-text overline">On this page</p>
-                        <a class="wf-link wf-s3e136ca4" href="#before-you-start">Before you start</a>
-                        <a class="wf-link wf-s3e136ca4" href="#call-your-own-script">Call your own script</a>
-                        <a class="wf-link wf-s3e136ca4" href="#load-a-library-from-a-cdn">Load a library from a CDN</a>
-                        <a class="wf-link wf-s3e136ca4" href="#hand-an-element-to-a-script-with-mount-update-and-cleanup">Hand an element to a script with mount:, update: and cleanup:</a>
-                        <a class="wf-link wf-s3e136ca4" href="#draw-into-a-node-a-script-made-with-portal">Draw into a node a script made with Portal</a>
-                        <a class="wf-link wf-s3e136ca4" href="#listen-for-wf-render-in-a-script-that-finds-elements-itself">Listen for wf:render in a script that finds elements itself</a>
-                        <a class="wf-link wf-s3e136ca4" href="#place-a-custom-element-from-a-library">Place a custom element from a library</a>
-                        <a class="wf-link wf-s3e136ca4" href="#publish-your-components-as-custom-elements">Publish your components as custom elements</a>
-                        <a class="wf-link wf-s3e136ca4" href="#call-wf-from-a-script-of-your-own">Call WF from a script of your own</a>
-                        <a class="wf-link wf-s3e136ca4" href="#migrate-from-external">Migrate from external</a>
+                <div class="wf-stack wf-gap--lg wf-s2502f5f4 bp-rail" role="navigation" aria-label="On this page">
+                    <div class="wf-stack wf-gap--xs wf-se8e8f072">
+                        <p class="wf-text wf-sa736415c bp-section-label">On this page</p>
+                        <a class="wf-link wf-s23505038" href="#before-you-start">Before you start</a>
+                        <a class="wf-link wf-s23505038" href="#call-your-own-script">Call your own script</a>
+                        <a class="wf-link wf-s23505038" href="#load-a-library-from-a-cdn">Load a library from a CDN</a>
+                        <a class="wf-link wf-s23505038" href="#hand-an-element-to-a-script-with-mount-update-and-cleanup">Hand an element to a script with mount:, update: and cleanup:</a>
+                        <a class="wf-link wf-s23505038" href="#draw-into-a-node-a-script-made-with-portal">Draw into a node a script made with Portal</a>
+                        <a class="wf-link wf-s23505038" href="#listen-for-wf-render-in-a-script-that-finds-elements-itself">Listen for wf:render in a script that finds elements itself</a>
+                        <a class="wf-link wf-s23505038" href="#place-a-custom-element-from-a-library">Place a custom element from a library</a>
+                        <a class="wf-link wf-s23505038" href="#publish-your-components-as-custom-elements">Publish your components as custom elements</a>
+                        <a class="wf-link wf-s23505038" href="#call-wf-from-a-script-of-your-own">Call WF from a script of your own</a>
+                        <a class="wf-link wf-s23505038" href="#migrate-from-external">Migrate from external</a>
                     </div>
-                    <hr class="wf-divider wf-se3c90f45">
-                    <div class="wf-stack wf-gap--xs wf-s614f8b98">
-                        <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent/blob/master/md-docs/recipes/javascript-interop.md">
-                            <i class="wf-icon" data-icon="edit"></i>
-                            <p class="wf-text wf-s5c9c3c02">Edit this page</p>
-                        </a>
-                        <a class="wf-link" href="/docs/reference">
-                            <i class="wf-icon" data-icon="menu"></i>
-                            <p class="wf-text wf-s5c9c3c02">Components reference</p>
-                        </a>
-                    </div>
-                    <div class="wf-stack wf-gap--xs wf-sa5763942">
-                        <p class="wf-text wf-s2880cc3a">Checked by the test suite</p>
-                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is parsed, checked and type-checked on each release.</p>
-                    </div>
+                    <a class="wf-link wf-s48d899f5" href="https://github.com/monzeromer-lab/WebFluent/blob/master/md-docs/recipes/javascript-interop.md">
+                        <i class="wf-icon" data-icon="edit"></i>
+                        <p class="wf-text">Edit this page</p>
+                    </a>
                 </div>
             </div>
         </main>
-        <footer class="wf-footer wf-s2a0a6f19">
-            <div class="wf-stack wf-gap--lg wf-sc70179bd">
-                <div class="wf-row wf-justify--between wf-align--start wf-gap--xl wf-seacec3bd">
-                    <div class="wf-stack wf-gap--sm wf-s1f90318e">
-                        <div class="wf-row wf-align--center wf-gap--sm wf-s02873871">
-                            <p class="wf-text wf-s7c2fb5e9">wf</p>
-                            <p class="wf-text wf-s312df231">WebFluent</p>
-                        </div>
-                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 6.0, parsed, type-checked and compiled by the test suite.</p>
+        <footer class="wf-footer wf-s2213a098">
+            <div class="wf-stack wf-gap--lg wf-s84d7918c bp-wrap">
+                <div class="wf-grid wf-gap--lg wf-r67559659">
+                    <div class="wf-stack wf-gap--xs wf-s17061b4c">
+                        <p class="wf-text wf-scba75cc6 bp-section-label">Learn</p>
+                        <a class="wf-link" href="/learn/01-getting-started">The tour</a>
+                        <a class="wf-link" href="/learn">The book</a>
+                        <a class="wf-link" href="/about">About essays</a>
                     </div>
-                    <div class="wf-row wf-gap--xl wf-align--start wf-s45b84406 footer-columns">
-                        <div class="wf-stack wf-gap--xs wf-sf27948d8">
-                            <p class="wf-text overline">Guide</p>
-                            <a class="wf-link" href="/docs/guide/getting-started">Getting started</a>
-                            <a class="wf-link" href="/docs/guide/tutorial">Tutorial: Shelf</a>
-                            <a class="wf-link" href="/docs/guide/deploying">Deploying</a>
-                            <a class="wf-link" href="/docs/guide/troubleshooting">Troubleshooting</a>
-                        </div>
-                        <div class="wf-stack wf-gap--xs wf-sf27948d8">
-                            <p class="wf-text overline">Reference</p>
-                            <a class="wf-link" href="/docs/reference">Built-in components</a>
-                            <a class="wf-link" href="/docs/guide/cli">Command line and editors</a>
-                            <a class="wf-link" href="/docs/guide/config">Configuration</a>
-                            <a class="wf-link" href="/docs/guide/diagnostics">Diagnostics</a>
-                            <a class="wf-link" href="/docs/tutorials/todos">Tutorials</a>
-                        </div>
-                        <div class="wf-stack wf-gap--xs wf-sf27948d8">
-                            <p class="wf-text overline">Project</p>
-                            <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent">Source</a>
-                            <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent/releases">Releases</a>
-                            <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent/issues">Issues</a>
-                            <a class="wf-link" href="https://github.com/monzeromer-lab/webfluent-studio">WebFluent Studio</a>
-                        </div>
+                    <div class="wf-stack wf-gap--xs wf-s17061b4c">
+                        <p class="wf-text wf-scba75cc6 bp-section-label">Do</p>
+                        <a class="wf-link" href="/recipes">Recipes</a>
+                        <a class="wf-link" href="/coming-from/react">Coming from…</a>
+                        <a class="wf-link" href="/showcase">Showcase</a>
+                    </div>
+                    <div class="wf-stack wf-gap--xs wf-s17061b4c">
+                        <p class="wf-text wf-scba75cc6 bp-section-label">Look up</p>
+                        <a class="wf-link" href="/reference">Components</a>
+                        <a class="wf-link" href="/reference/cli">CLI and config</a>
+                        <a class="wf-link" href="/errors">Errors</a>
+                    </div>
+                    <div class="wf-stack wf-gap--xs wf-s17061b4c">
+                        <p class="wf-text wf-scba75cc6 bp-section-label">For agents</p>
+                        <a class="wf-link" href="/llms.txt">llms.txt</a>
+                        <a class="wf-link" href="/reference/cli/context">wf context</a>
+                        <a class="wf-link" href="/changelog">Changelog</a>
                     </div>
                 </div>
-                <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-s6ee62d46">
-                    <p class="wf-text">WebFluent 6.0 — MPL-2.0</p>
-                    <div class="wf-row wf-align--center wf-gap--md">
+                <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-sd146f653">
+                    <p class="wf-text bp-small">Every code block in the guide is real WebFluent 6.0, parsed, type-checked and compiled by the test suite.</p>
+                    <div class="wf-row wf-align--center wf-gap--md wf-sa3c9b727">
+                        <a class="wf-link wf-sf9ca1a0e" href="https://github.com/monzeromer-lab/WebFluent">Source</a>
                         <button class="wf-btn link-button" type="button">Cookie settings</button>
-                        <p class="wf-text">© 2026 Monzer Omer</p>
+                        <p class="wf-text bp-small">© 2026 Monzer Omer</p>
                     </div>
                 </div>
             </div>

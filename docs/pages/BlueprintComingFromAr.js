@@ -1,0 +1,2 @@
+function Page_BlueprintComingFromAr(params){const _root=document.createDocumentFragment();const _e929=Component_PreviewComingFrom({ar:true});_root.appendChild(_e929);return _root;}
+WF.page("BlueprintComingFromAr",Page_BlueprintComingFromAr);

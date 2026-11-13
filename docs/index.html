@@ -24,7 +24,7 @@
     <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://webfluent.monzeromer.dev/#website","url":"https://webfluent.monzeromer.dev/","name":"WebFluent","publisher":{"@id":"https://webfluent.monzeromer.dev/#organization"}},{"@type":"Organization","@id":"https://webfluent.monzeromer.dev/#organization","name":"WebFluent","url":"https://webfluent.monzeromer.dev/"},{"@type":"WebPage","@id":"https://webfluent.monzeromer.dev/#webpage","url":"https://webfluent.monzeromer.dev/","name":"WebFluent — websites, PDFs and slide decks from one language","isPartOf":{"@id":"https://webfluent.monzeromer.dev/#website"},"description":"A typed language and one binary that build a static site, a single-page app, a PDF or a slide deck. No Node, no bundler, no config.","inLanguage":"en"}]}</script>
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-    <link rel="preload" href="/fonts/inter-latin.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="/fonts/instrument-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="/fonts/jetbrains-mono-latin.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="stylesheet" href="./styles.css">
     <link rel="stylesheet" href="./pages/Home.css" data-wf-page-css="Home">
@@ -37,30 +37,71 @@
     <a class="wf-skip-link" href="#wf-main">Skip to content</a>
     <div id="app">
         <main id="wf-main">
-            <div class="wf-row wf-align--center wf-justify--between wf-sec36c17e site-header" role="banner">
-                <div class="wf-row wf-align--center wf-gap--lg wf-sbdfa5493">
-                    <a class="wf-link active" href="/" aria-current="page">
-                        <div class="wf-row wf-align--center wf-gap--sm wf-s6aaadcfe">
-                            <p class="wf-text wf-sb993cc9b">wf</p>
-                            <p class="wf-text wf-s1f2c4dd9">WebFluent</p>
-                            <p class="wf-text wf-s859a58d7">6.0</p>
-                        </div>
+            <a class="wf-link bp-skip" href="#bp-main">Skip to the content</a>
+            <div class="wf-row wf-align--center wf-s55053fdc bp-header" role="banner">
+                <div class="wf-row wf-align--center wf-gap--md wf-sfe495c12 bp-wrap">
+                    <a class="wf-link wf-sd56ba8fe active" href="/" aria-current="page" aria-label="WebFluent, home">
+                        <img class="wf-image wf-s4b9d0b60" src="/favicon.svg" alt="" decoding="async" loading="eager" fetchpriority="high">
+                        <p class="wf-text wf-s9919642b bp-hide-sm">WebFluent</p>
+                        <p class="wf-text bp-label bp-num">6.0</p>
                     </a>
-                    <div class="wf-row wf-align--center wf-gap--xs wf-s0e13d1d7 site-nav" role="navigation" aria-label="Site">
-                        <a class="wf-link" href="/docs/guide">Guide</a>
-                        <a class="wf-link" href="/docs/reference">Components</a>
-                        <a class="wf-link" href="/docs/tutorials">Tutorials</a>
-                        <a class="wf-link" href="/showcase">See it</a>
+                    <div class="wf-row wf-s92924cc4 bp-tabs" role="navigation" aria-label="Main">
+                        <a class="wf-link bp-tab" href="/learn">Learn</a>
+                        <a class="wf-link bp-tab" href="/recipes">Recipes</a>
+                        <a class="wf-link bp-tab" href="/reference">Reference</a>
+                        <a class="wf-link bp-tab" href="/errors">Errors</a>
+                        <a class="wf-link bp-tab" href="/playground">Playground</a>
+                        <a class="wf-link bp-tab" href="/showcase">Showcase</a>
+                    </div>
+                    <div class="wf-row wf-align--center wf-gap--sm wf-sff642a95">
+                        <button class="wf-btn wf-s9b841342 bp-field" aria-label="Search the docs" aria-keyshortcuts="Meta+K Control+K" aria-haspopup="dialog" type="button">
+                            <i class="wf-icon" data-icon="search"></i>
+                            <p class="wf-text wf-sf55a2627 bp-hide-sm">Search the docs</p>
+                            <p class="wf-text bp-kbd bp-hide-sm">Ctrl+K</p>
+                        </button>
+                        <div class="wf-row wf-align--center wf-gap--sm wf-sf0e17348 bp-select bp-hide-sm">
+                            <select class="wf-select" aria-label="Building">
+                                <option value="website">Website</option>
+                                <option value="app">Web app</option>
+                                <option value="pdf">PDF</option>
+                                <option value="slides">Slides</option>
+                                <option value="elements">Custom elements</option>
+                                <option value="desktop">Desktop / phone</option>
+                            </select>
+                        </div>
+                        <button class="wf-icon-btn bp-icon-button" data-track="select_content" data-track-content-type="theme" type="button"></button>
+                        <div class="wf-row wf-align--center wf-gap--xs wf-s286d925a">
+                            <button class="wf-btn bp-button" title="This page is in English only; the switch changes the interface." data-track="select_content" data-track-content-type="language" type="button"></button>
+                        </div>
+                        <a class="wf-link bp-button bp-hide-sm" href="https://github.com/monzeromer-lab/WebFluent" data-tone="quiet">GitHub</a>
+                        <button class="wf-icon-btn wf-sde8ec4aa bp-icon-button" data-icon="menu" aria-label="Menu" title="Menu" aria-expanded="false" type="button"></button>
                     </div>
                 </div>
-                <div class="wf-row wf-align--center wf-gap--sm wf-se9ed06fe">
-                    <button class="wf-icon-btn site-icon-button" data-track="select_content" data-track-content-type="theme" type="button"></button>
-                    <a class="wf-link wf-s23389ead site-button site-button-outlined" href="https://github.com/monzeromer-lab/WebFluent">GitHub</a>
-                    <a class="wf-link wf-sed841ce0 site-button site-button-primary" href="/docs/guide/getting-started" data-track="select_content" data-track-content-type="cta" data-track-item-id="read_guide">Read the guide</a>
-                    <button class="wf-btn site-button site-button-outlined" data-track="select_content" data-track-content-type="language" type="button"></button>
-                    <button class="wf-icon-btn wf-sde8ec4aa site-icon-button site-menu-button" data-icon="menu" aria-label="Menu" title="Menu" aria-expanded="false" type="button"></button>
-                </div>
             </div>
+            <dialog class="wf-modal bp-palette" aria-labelledby="wf-dlg-s1">
+                <div class="wf-modal__content">
+                    <div class="wf-modal__header"><h3 id="wf-dlg-s1">Search</h3></div>
+                    <div class="wf-modal__body">
+                        <div class="wf-stack wf-sa8e464d0">
+                            <div class="wf-row wf-align--center wf-gap--sm wf-s02e7a482 bp-field">
+                                <i class="wf-icon" data-icon="search"></i>
+                                <input class="wf-input" placeholder="Search the guide" aria-label="Search the guide" type="search" autofocus>
+                                <p class="wf-text bp-kbd">esc</p>
+                            </div>
+                            <div class="wf-row wf-s434e64fb bp-tabs" role="tablist" aria-label="Narrow the search">
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="true" type="button">All</button>
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">Learn</button>
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">Recipes</button>
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">Reference</button>
+                                <button class="wf-btn bp-tab" role="tab" aria-selected="false" type="button">Errors</button>
+                            </div>
+                            <div class="wf-stack wf-s3f6dffee" role="listbox" aria-label="Search results">
+                                <p class="wf-text wf-s3205a3d6 bp-small">Type a word: a component, a code such as T05, or a task.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </dialog>
             <div class="wf-row wf-gap--xl wf-align--start wf-sa2722300 landing-section" id="top">
                 <div class="wf-stack wf-gap--lg wf-sa290d76f">
                     <p class="wf-text overline accent">Websites · PDFs · slide decks</p>
@@ -117,14 +158,14 @@
                     <a class="wf-link wf-s66a10ea4" href="/docs/guide/getting-started">Getting started, step by step →</a>
                 </div>
                 <div class="wf-stack wf-gap--sm wf-sf576350e">
-                    <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
-                        <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
-                            <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
-                                <p class="wf-text wf-s6dc9a872">bash</p>
+                    <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                        <div class="wf-row wf-s2c416341 bp-console__bar">
+                            <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                <p class="wf-text wf-s23a4ddd5 bp-mono">bash</p>
                             </div>
-                            <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
+                            <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
                         </div>
-                        <code class="wf-code wf-code--block wf-sa8223565"><span class="wf-tok-prompt">$ </span>wf init hello -t static
+                        <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-prompt">$ </span>wf init hello -t static
 <span class="wf-tok-prompt">$ </span>cd hello
 <span class="wf-tok-prompt">$ </span>wf serve
 Starting dev server at http://localhost:3000/</code>
@@ -162,24 +203,24 @@ Starting dev server at http://localhost:3000/</code>
                     <a class="wf-link wf-s66a10ea4" href="/docs/guide/diagnostics">Every error and warning, explained →</a>
                 </div>
                 <div class="wf-stack wf-gap--sm wf-sf576350e">
-                    <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
-                        <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
-                            <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
-                                <p class="wf-text wf-s6dc9a872">wf</p>
-                                <p class="wf-text wf-s2d34472f">line 6 — a typo</p>
+                    <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                        <div class="wf-row wf-s2c416341 bp-console__bar">
+                            <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
+                                <p class="wf-text wf-s9998716a">line 6 — a typo</p>
                             </div>
-                            <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                            <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
                         </div>
-                        <code class="wf-code wf-code--block wf-sa8223565">    <span class="wf-tok-kw">for</span> book <span class="wf-tok-kw">in</span> books { <span class="wf-tok-name">Text</span>(book.titel) }</code>
+                        <code class="wf-code wf-code--block bp-console__code">    <span class="wf-tok-kw">for</span> book <span class="wf-tok-kw">in</span> books { <span class="wf-tok-name">Text</span>(book.titel) }</code>
                     </div>
-                    <div class="wf-stack wf-sba64d8a9 code-block" dir="ltr">
-                        <div class="wf-row wf-align--center wf-justify--between wf-sd5ce988d">
-                            <div class="wf-row wf-align--center wf-gap--sm wf-s4420dd8b">
-                                <p class="wf-text wf-s6dc9a872">wf check</p>
+                    <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                        <div class="wf-row wf-s2c416341 bp-console__bar">
+                            <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                <p class="wf-text wf-s23a4ddd5 bp-mono">wf check</p>
                             </div>
-                            <button class="wf-btn wf-s9b314fc6" aria-label="Copy" data-track="copy_code" data-track-item-id="wf check" type="button">Copy</button>
+                            <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf check" type="button">Copy</button>
                         </div>
-                        <code class="wf-code wf-code--block wf-sa8223565">error[T05]: `Book` has no field `titel`
+                        <code class="wf-code wf-code--block bp-console__code">error[T05]: `Book` has no field `titel`
  --&gt; src/App.wf:6:35
   |
 6 |     for book in books { Text(book.titel) }
@@ -224,7 +265,7 @@ error: the build stopped: 1 error</code>
                     <a class="wf-link wf-s66a10ea4" href="https://github.com/monzeromer-lab/webfluent-studio">WebFluent Studio on GitHub →</a>
                 </div>
                 <div class="wf-stack wf-gap--sm wf-se7dfeff6">
-<picture><source type="image/webp" srcset="/img/design.39ca9967.480.webp 480w, /img/design.39ca9967.960.webp 960w, /img/design.39ca9967.1440.webp 1440w" /><img class="wf-image wf-sbd758daa" src="/img/design.39ca9967.png" alt="WebFluent Studio in Design mode: the layers on the left, the page on the canvas with the site&#x27;s navigation selected, and the inspector on the right" width="1440" height="900" srcset="/img/design.39ca9967.480.webp 480w, /img/design.39ca9967.960.webp 960w, /img/design.39ca9967.1440.webp 1440w" decoding="async" loading="eager" fetchpriority="high" /></picture>                </div>
+<picture><source type="image/webp" srcset="/img/design.39ca9967.480.webp 480w, /img/design.39ca9967.960.webp 960w, /img/design.39ca9967.1440.webp 1440w" /><img class="wf-image wf-sbd758daa" src="/img/design.39ca9967.png" alt="WebFluent Studio in Design mode: the layers on the left, the page on the canvas with the site&#x27;s navigation selected, and the inspector on the right" width="1440" height="900" srcset="/img/design.39ca9967.480.webp 480w, /img/design.39ca9967.960.webp 960w, /img/design.39ca9967.1440.webp 1440w" decoding="async" loading="lazy" /></picture>                </div>
             </div>
             <div class="wf-stack wf-gap--lg wf-s439d65f2 landing-section" id="how">
                 <div class="wf-stack wf-gap--xs wf-s3df5f255">
@@ -446,46 +487,40 @@ error: the build stopped: 1 error</code>
                 </div>
             </div>
         </main>
-        <footer class="wf-footer wf-s2a0a6f19">
-            <div class="wf-stack wf-gap--lg wf-sc70179bd">
-                <div class="wf-row wf-justify--between wf-align--start wf-gap--xl wf-seacec3bd">
-                    <div class="wf-stack wf-gap--sm wf-s1f90318e">
-                        <div class="wf-row wf-align--center wf-gap--sm wf-s02873871">
-                            <p class="wf-text wf-s7c2fb5e9">wf</p>
-                            <p class="wf-text wf-s312df231">WebFluent</p>
-                        </div>
-                        <p class="wf-text wf-sb251d4ef">Every code block in the guide is real WebFluent 6.0, parsed, type-checked and compiled by the test suite.</p>
+        <footer class="wf-footer wf-s2213a098">
+            <div class="wf-stack wf-gap--lg wf-s84d7918c bp-wrap">
+                <div class="wf-grid wf-gap--lg wf-r67559659">
+                    <div class="wf-stack wf-gap--xs wf-s17061b4c">
+                        <p class="wf-text wf-scba75cc6 bp-section-label">Learn</p>
+                        <a class="wf-link" href="/learn/01-getting-started">The tour</a>
+                        <a class="wf-link" href="/learn">The book</a>
+                        <a class="wf-link" href="/about">About essays</a>
                     </div>
-                    <div class="wf-row wf-gap--xl wf-align--start wf-s45b84406 footer-columns">
-                        <div class="wf-stack wf-gap--xs wf-sf27948d8">
-                            <p class="wf-text overline">Guide</p>
-                            <a class="wf-link" href="/docs/guide/getting-started">Getting started</a>
-                            <a class="wf-link" href="/docs/guide/tutorial">Tutorial: Shelf</a>
-                            <a class="wf-link" href="/docs/guide/deploying">Deploying</a>
-                            <a class="wf-link" href="/docs/guide/troubleshooting">Troubleshooting</a>
-                        </div>
-                        <div class="wf-stack wf-gap--xs wf-sf27948d8">
-                            <p class="wf-text overline">Reference</p>
-                            <a class="wf-link" href="/docs/reference">Built-in components</a>
-                            <a class="wf-link" href="/docs/guide/cli">Command line and editors</a>
-                            <a class="wf-link" href="/docs/guide/config">Configuration</a>
-                            <a class="wf-link" href="/docs/guide/diagnostics">Diagnostics</a>
-                            <a class="wf-link" href="/docs/tutorials/todos">Tutorials</a>
-                        </div>
-                        <div class="wf-stack wf-gap--xs wf-sf27948d8">
-                            <p class="wf-text overline">Project</p>
-                            <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent">Source</a>
-                            <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent/releases">Releases</a>
-                            <a class="wf-link" href="https://github.com/monzeromer-lab/WebFluent/issues">Issues</a>
-                            <a class="wf-link" href="https://github.com/monzeromer-lab/webfluent-studio">WebFluent Studio</a>
-                        </div>
+                    <div class="wf-stack wf-gap--xs wf-s17061b4c">
+                        <p class="wf-text wf-scba75cc6 bp-section-label">Do</p>
+                        <a class="wf-link" href="/recipes">Recipes</a>
+                        <a class="wf-link" href="/coming-from/react">Coming from…</a>
+                        <a class="wf-link" href="/showcase">Showcase</a>
+                    </div>
+                    <div class="wf-stack wf-gap--xs wf-s17061b4c">
+                        <p class="wf-text wf-scba75cc6 bp-section-label">Look up</p>
+                        <a class="wf-link" href="/reference">Components</a>
+                        <a class="wf-link" href="/reference/cli">CLI and config</a>
+                        <a class="wf-link" href="/errors">Errors</a>
+                    </div>
+                    <div class="wf-stack wf-gap--xs wf-s17061b4c">
+                        <p class="wf-text wf-scba75cc6 bp-section-label">For agents</p>
+                        <a class="wf-link" href="/llms.txt">llms.txt</a>
+                        <a class="wf-link" href="/reference/cli/context">wf context</a>
+                        <a class="wf-link" href="/changelog">Changelog</a>
                     </div>
                 </div>
-                <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-s6ee62d46">
-                    <p class="wf-text">WebFluent 6.0 — MPL-2.0</p>
-                    <div class="wf-row wf-align--center wf-gap--md">
+                <div class="wf-row wf-justify--between wf-align--center wf-gap--md wf-sd146f653">
+                    <p class="wf-text bp-small">Every code block in the guide is real WebFluent 6.0, parsed, type-checked and compiled by the test suite.</p>
+                    <div class="wf-row wf-align--center wf-gap--md wf-sa3c9b727">
+                        <a class="wf-link wf-sf9ca1a0e" href="https://github.com/monzeromer-lab/WebFluent">Source</a>
                         <button class="wf-btn link-button" type="button">Cookie settings</button>
-                        <p class="wf-text">© 2026 Monzer Omer</p>
+                        <p class="wf-text bp-small">© 2026 Monzer Omer</p>
                     </div>
                 </div>
             </div>
