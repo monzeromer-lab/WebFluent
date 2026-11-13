@@ -1,6 +1,6 @@
 # WebFluent docs rewrite: the plan
 
-Status: **planned, ready to start.** Nothing in `site/` or `md-docs/` has changed yet.
+Status: **Phase 0 in progress.** The guide's sources are in the new tree (§14); the theme, the templates and the remaining designs are not started.
 Version 2, 2026-11-13. It replaces the first plan (2026-11-12). The design decisions in that plan stand, and are folded in here. The first plan was written before 6.0 and before the compiler ran in a browser, so the parts it left open are now settled with numbers.
 
 This file is the single source of truth for the rewrite. Every phase ends in a site that can ship.
@@ -649,3 +649,48 @@ Start Phase 0:
 3. Then W6 step 1: move every chapter into the new tree unchanged, behind redirects, with the compiler's embedded guide following.
 
 At the end of Phase 0 the site is in Blueprint, and nothing it says has changed yet.
+
+## 14. Progress
+
+### Phase 0
+
+**Done (2026-11-13, commits `5543637f`, `dc98a223`; grammar repo `4e1e7c0`, not pushed):**
+
+- `md-docs/` is arranged by kind:
+  - `learn/01–17` (numbered in reading order);
+  - `recipes/`, `about/`, `reference/`, `errors/` and `coming-from/`.
+- Each page opens with front matter: `chapter`, `kind`, `route`, `group`, `blurb`, `description`. Quoted values are JSON strings.
+- Every link between pages, and from `README.md`, `RELEASE_NOTES.md` and `spec/`, follows the move.
+- The compiler reads the new tree:
+  - `build.rs` embeds every page;
+  - `wf context` takes number and route from front matter;
+  - `wf explain` reads `errors/diagnostics.md`.
+- The three site scripts walk the tree.
+- **Tests:**
+  - shared helpers in `tests/common/mod.rs` (`guide_pages`, `guide_chapters`, `front_matter`);
+  - links resolve from the page's folder;
+  - each page lives in its kind's folder.
+- **The old-URL safety net (W2):** `tests/docs_urls.rs` holds the site to every URL in the 6.0 sitemap, and the diagnostics page to every `docs:` link 6.0 prints. Both lists are in `tests/fixtures/docs-urls/`.
+- A deliberately broken sample, a dead link and a lost URL were each checked to fail.
+
+**Decided while doing it:**
+
+- **Routes stay as they are in Phase 0.** A page's route changes in the phase that rewrites it (Phases 1–3), with a redirect left behind. Moving routes now would chain redirects twice for every chapter that is later split.
+- **Chapter numbers stay** (`chapter:`) for the sidebar, prev/next and the `ch.NN` translation keys, until Phase 3 replaces the book's navigation.
+- **Whole chapters moved, none split yet.** The splits happen in the phase that rewrites them:
+  - `errors/diagnostics.md` into one file per code (Phase 1);
+  - `recipes/common-tasks.md` and the multi-task recipe chapters (Phase 2);
+  - `coming-from/react-vue-svelte.md` into three pages (Phase 2).
+
+**Still to do in Phase 0:**
+
+- W4: theme, shell and templates (proposed as its own session).
+- The missing designs (proposed as their own session).
+- `cargo xtask site` and the `scripts/site/` package (§5.2).
+- The new fence strings (§5.5).
+- A front-matter schema check for the fields added later (`outputs`, `since`, `prereqs`, `related`).
+
+**Notes for whoever continues:**
+
+- The grammar submodule commit must be pushed before this repository's.
+- `site/` builds with `--allow-output-outside`.
