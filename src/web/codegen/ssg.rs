@@ -2816,6 +2816,46 @@ fn extra_classes(ui: &UIElement, ctx: &PaintState) -> Vec<String> {
     {
         known_classes(value, &ctx.scope, &mut classes);
     }
+    // A variant, a size or a flag given a value that reads state, at the
+    // value it starts with, as the live page draws it.
+    if let ComponentRef::BuiltIn(name) = &ui.component
+        && let Some(sig) = crate::registry::component(name)
+    {
+        let (_, base) = crate::project::builtin::builtin_to_html(name);
+        for arg in &ui.args {
+            let Arg::Named(key, value) = arg else {
+                continue;
+            };
+            let Some(prop) = sig.prop(key) else { continue };
+            let layout = matches!(key.as_str(), "gap" | "align" | "justify");
+            if prop.sink != crate::registry::Sink::Class && !layout {
+                continue;
+            }
+            let class = match (prop.ty, eval(value, &ctx.scope)) {
+                (crate::registry::PropType::Enum(cases), Some(Static::Str(case))) => {
+                    cases.iter().find(|c| c.name == case).map(|c| {
+                        if layout {
+                            format!("wf-{key}--{}", c.name)
+                        } else if c.legacy.is_empty() {
+                            String::new()
+                        } else {
+                            crate::project::builtin::modifier_to_class(base, c.legacy)
+                        }
+                    })
+                }
+                (crate::registry::PropType::Bool, Some(Static::Bool(true))) => match prop.legacy {
+                    crate::registry::Legacy::Modifier(word) => {
+                        Some(crate::project::builtin::modifier_to_class(base, word))
+                    }
+                    crate::registry::Legacy::Attr => None,
+                },
+                _ => None,
+            };
+            if let Some(class) = class.filter(|c| !c.is_empty() && !classes.contains(c)) {
+                classes.push(class);
+            }
+        }
+    }
     classes
 }
 

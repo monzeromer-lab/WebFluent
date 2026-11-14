@@ -32,6 +32,11 @@ from pathlib import Path
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
 
+# `WF_BIN=target/release/wf` is relative to where the run started, and a
+# generator may run wf from another folder (`reference.py` from `site/`).
+if os.environ.get("WF_BIN") and "/" in os.environ["WF_BIN"]:
+    os.environ["WF_BIN"] = str(Path(os.environ["WF_BIN"]).resolve())
+
 
 def run(script: str, env: dict) -> None:
     done = subprocess.run([sys.executable, str(HERE / script)], env={**os.environ, **env})

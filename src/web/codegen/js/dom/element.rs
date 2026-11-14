@@ -736,6 +736,9 @@ impl JsCodegen {
                 // (`responsive_classes`, below), not an attribute.
                 Arg::Named(key, val)
                     if key != "class" && crate::project::scoped_css::is_responsive(val) => {}
+                // A class prop that reads state (`tone: tone`) is a class
+                // that follows it, set in `emit_style_and_transition`.
+                Arg::Named(key, val) if self.state_class(name, class, key, val).is_some() => {}
                 Arg::Named(key, val) => {
                     match key.as_str() {
                         // The handle takes the element once drawn.
@@ -1486,6 +1489,27 @@ impl JsCodegen {
             }
         }
 
+        // A built-in's variant, size or flag given a value that reads state
+        // (`Button("Save", tone: tone, outlined: busy)`) is its class, and
+        // follows the state; it was written as an attribute nothing reads.
+        if let ComponentRef::BuiltIn(name) = &ui.component {
+            let (_, base) = builtin_to_html(name);
+            let followed: Vec<String> = ui
+                .args
+                .iter()
+                .filter_map(|a| match a {
+                    Arg::Named(k, v) => self.state_class(name, base, k, v),
+                    Arg::Positional(_) => None,
+                })
+                .collect();
+            if !followed.is_empty() {
+                self.emit_line(&format!(
+                    "WF.classes({var}, () => [{}]);",
+                    followed.join(", ")
+                ));
+            }
+        }
+
         // `class:` names rules in the author's own stylesheet. A literal is
         // added once, beside the engine's classes; a value that reads state
         // is followed, and the classes it named last time are taken off.
@@ -1655,4 +1679,51 @@ struct ArgPass<'a> {
     link_to: Option<String>,
     link_prefix: bool,
     inner_text: Option<String>,
+}
+
+impl JsCodegen {
+    /// The class a built-in's class prop names when its value reads state:
+    /// a lookup from each case to its class for an enum (`tone: tone`), a
+    /// condition for a `Bool` (`outlined: busy`). `None` for a literal, or
+    /// a prop that is not a class.
+    fn state_class(&self, name: &str, base: &str, key: &str, val: &Expr) -> Option<String> {
+        use crate::registry::{Legacy, PropType, Sink};
+        let prop = crate::registry::component(name)?.prop(key)?;
+        let layout = matches!(key, "gap" | "align" | "justify");
+        if prop.sink != Sink::Class && !layout {
+            return None;
+        }
+        let value = self.emit_expr(val);
+        if !self.is_reactive(&value) {
+            return None;
+        }
+        match prop.ty {
+            PropType::Enum(cases) => {
+                let pairs: Vec<String> = cases
+                    .iter()
+                    .filter_map(|c| {
+                        let class = if layout {
+                            format!("wf-{key}--{}", c.name)
+                        } else if c.legacy.is_empty() {
+                            return None;
+                        } else {
+                            modifier_to_class(base, c.legacy)
+                        };
+                        (!class.is_empty())
+                            .then(|| format!("{}: {}", js_str(c.name), js_str(&class)))
+                    })
+                    .collect();
+                Some(format!("({{ {} }})[{value}] ?? null", pairs.join(", ")))
+            }
+            PropType::Bool => {
+                let word = match prop.legacy {
+                    Legacy::Modifier(w) => w,
+                    Legacy::Attr => return None,
+                };
+                let class = modifier_to_class(base, word);
+                (!class.is_empty()).then(|| format!("({value}) ? {} : null", js_str(&class)))
+            }
+            _ => None,
+        }
+    }
 }

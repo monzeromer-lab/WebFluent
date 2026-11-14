@@ -2817,3 +2817,22 @@ fn a_program_that_draws_its_own_main_gets_a_plain_router_box() {
     );
     assert!(html.contains("<main id=\"wf-main\">"), "{html}");
 }
+
+#[test]
+fn a_variant_given_state_is_a_class_that_follows_it() {
+    // `tone: tone` was written as an attribute, `tone="primary"`, which no
+    // rule reads; the button stayed the default colour.
+    let body = "state tone = \"danger\"\n\
+         \x20   state gap = \"xl\"\n\
+         \x20   Heading(\"x\").h1\n\
+         \x20   Button(\"Save\", tone: tone)\n\
+         \x20   Stack(gap: gap) { Text(\"a\") }";
+    let js = spa_generated(&page(body));
+    assert!(js.contains("\"danger\": \"wf-btn--danger\""), "{js}");
+    assert!(js.contains("\"xl\": \"wf-gap--xl\""), "{js}");
+    assert!(!js.contains("tone: () =>"), "{js}");
+    // The static paint carries the class the state starts with.
+    let html = raw_output(Backend::Ssg, &page(body));
+    assert!(html.contains("wf-btn--danger"), "{html}");
+    assert!(html.contains("wf-gap--xl"), "{html}");
+}
