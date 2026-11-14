@@ -348,11 +348,8 @@
       const all = _menuItems(list).filter(_usable);
       const current = all.indexOf(document.activeElement);
       let consumed = true;
-      if (e.key === "ArrowDown") _focusItem(list, current + 1);
-      else if (e.key === "ArrowUp") _focusItem(list, current - 1);
-      else if (e.key === "Home") _focusItem(list, 0);
-      else if (e.key === "End") _focusItem(list, -1);
-      else if (e.key === (_isRtl(list) ? "ArrowRight" : "ArrowLeft") && back) back();
+      // The arrows, Home, End and the first letters are `roving`'s, below.
+      if (e.key === (_isRtl(list) ? "ArrowRight" : "ArrowLeft") && back) back();
       else if ((e.key === "Enter" || e.key === " ") && current >= 0) all[current].click();
       else if (e.key === "Tab") { close("tab"); consumed = false; }
       else consumed = false;
@@ -363,6 +360,10 @@
         if (e.stopPropagation) e.stopPropagation();
       }
     });
+    // Up and down, the ends, and a letter to jump to the item it starts;
+    // every item stays out of the Tab order, as the menu takes the focus
+    // itself when it opens.
+    roving(list, { items: () => _menuItems(list), axis: "y", typeahead: true, stops: false });
     // A disabled item hears nothing: this runs before the item's own
     // handler, on the way down.
     list.addEventListener("click", (e) => {

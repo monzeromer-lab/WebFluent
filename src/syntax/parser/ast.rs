@@ -353,6 +353,8 @@ pub enum Step {
         negated: bool,
         span: Span,
     },
+    /// `expect focus "Two"` — what has the focus is called that.
+    ExpectFocus { name: Expr, span: Span },
     /// `click "Save"` — whatever carries that name.
     Click { target: Expr, span: Span },
     /// `type "Ada" into "Name"` — into the control that label names.
@@ -369,6 +371,7 @@ impl Step {
     pub fn span(&self) -> Span {
         match self {
             Step::Expect { span, .. }
+            | Step::ExpectFocus { span, .. }
             | Step::Click { span, .. }
             | Step::Type { span, .. }
             | Step::Press { span, .. } => *span,

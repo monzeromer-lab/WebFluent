@@ -81,7 +81,7 @@ component Example(_ code: String, file: String = "Home.wf", preview: String = ""
             style { gap: 0; min-width: 0 }
             Row(class: "bp-console__bar") {
                 style { flex-wrap: nowrap }
-                Row(role: "tablist", aria-label: t("example.views"), class: "bp-tabs") {
+                Row(role: "tablist", roving: .x, aria-label: t("example.views"), class: "bp-tabs") {
                     Button(file, role: "tab", aria-selected: tab == "code", class: "bp-tab") { on click { tab = "code" } }
                     if html != "" && !editing {
                         Button(t("example.html"), role: "tab", aria-selected: tab == "html", class: "bp-tab") { on click { tab = "html" } }

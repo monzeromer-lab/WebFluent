@@ -16,7 +16,7 @@ component CodeTabs(files: [CodeFile] = []) {
         style { gap: 0; min-width: 0 }
         Row(class: "bp-console__bar") {
             style { flex-wrap: nowrap }
-            Row(role: "tablist", aria-label: t("example.files"), class: "bp-tabs") {
+            Row(role: "tablist", roving: .x, aria-label: t("example.files"), class: "bp-tabs") {
                 for f, i in files by f.name {
                     Button(f.name, role: "tab", aria-selected: i == current, class: "bp-tab") { on click { current = i } }
                 }

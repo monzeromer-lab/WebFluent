@@ -265,7 +265,7 @@ Every page below is Markdown. The language's whole reference in one file is [AGE
 - [Table.Row](https://webfluent.monzeromer.dev/reference/table-row.md): A row of cells.
 - [TableOfContents](https://webfluent.monzeromer.dev/reference/tableofcontents.md): The document's headings with the page each lands on, each a link to it.
 - [TabPage](https://webfluent.monzeromer.dev/reference/tabpage.md): One tab inside Tabs (the original spelling of Tabs.Page).
-- [Tabs](https://webfluent.monzeromer.dev/reference/tabs.md): Tab strip switching between its pages.
+- [Tabs](https://webfluent.monzeromer.dev/reference/tabs.md): Tab strip switching between its pages: the arrow keys move between the tabs (the other way round in a right-to-left page), Home and End go to the ends.
 - [Tabs.Page](https://webfluent.monzeromer.dev/reference/tabs-page.md): One tab and its panel.
 - [Tag](https://webfluent.monzeromer.dev/reference/tag.md): Compact chip.
 - [Tbody](https://webfluent.monzeromer.dev/reference/tbody.md): Table body section (the original spelling of Table.Body).

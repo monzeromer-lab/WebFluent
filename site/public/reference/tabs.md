@@ -1,14 +1,32 @@
 # Tabs
 
-> Tab strip switching between its pages.
+> Tab strip switching between its pages: the arrow keys move between the tabs (the other way round in a right-to-left page), Home and End go to the ends.
 
 The page: https://webfluent.monzeromer.dev/reference/tabs
 
-Tab strip switching between its pages.
+Tab strip switching between its pages: the arrow keys move between the tabs (the other way round in a right-to-left page), Home and End go to the ends.
 
 ```wf
-Tabs { … }
+Tabs(bind: State, value: Any, orientation: Enum, …) { … }
 ```
+
+## Props
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `bind:` | `State` | The open tab, read and written: a page's `value:`, or its place from 0 when the pages give none |
+| `value:` | `Any` | The open tab, read only: `on change(v)` hears the one the reader picks |
+| `orientation:` | `.horizontal .vertical` | Which way the tabs run |
+| `activation:` | `.automatic .manual` | Whether moving the focus opens a tab |
+| `label:` | `String` | The tab strip's accessible name |
+
+## Flags
+
+`.horizontal` `.vertical` `.automatic` `.manual`
+
+## Events
+
+- `change`
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 

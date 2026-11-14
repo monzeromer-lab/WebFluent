@@ -12,16 +12,11 @@ read it from the address's `#fragment`:
 page Account(path: "/account", title: "Account", description: "Your profile and billing.") {
     derived tab = if hash != "" { hash } else { "profile" }
     Heading("Account").h1
-    Row(gap: .sm, role: "tablist", aria-label: "Account") {
-        Button("Profile", role: "tab", aria-selected: tab == "profile", outlined: tab != "profile") {
-            on click { navigate("/account#profile") }
-        }
-        Button("Billing", role: "tab", aria-selected: tab == "billing", outlined: tab != "billing") {
-            on click { navigate("/account#billing") }
-        }
+    Tabs(value: tab, label: "Account") {
+        on change(v) { navigate("/account#{v}") }
+        Tabs.Page("Profile", value: "profile") { Text("Profile settings") }
+        Tabs.Page("Billing", value: "billing") { Text("Billing settings") }
     }
-    if tab == "profile" { Text("Profile settings", role: "tabpanel") }
-    if tab == "billing" { Text("Billing settings", role: "tabpanel") }
 }
 ```
 
@@ -34,13 +29,18 @@ the address becomes `/account#profile`.
   the address's fragment without the `#`, kept current by the runtime.
 - `tab` is a [`derived`](https://webfluent.monzeromer.dev/learn/07-state-and-reactivity.md#derived) value:
   the fragment when there is one, `"profile"` when there is none.
-- Each tab is a `Button` that navigates to the same page with another
-  fragment. `hash` changes, `tab` follows, and the matching `if` draws its
-  panel. Each click is a step in the history, so the back button steps
-  through the tabs the reader opened.
-- `role: "tablist"`, `role: "tab"` and `aria-selected:` tell a screen reader
-  these are tabs and which one is open; `outlined:` shows the same thing to
-  the eye. Both follow `tab`.
+- `Tabs(value: tab)` opens the page whose `value:` is `tab`. It only reads
+  it: picking a tab fires `on change(v)` with that page's value, which
+  navigates to the same page with another fragment. `hash` changes, `tab`
+  follows, and the tab opens. Each pick is a step in the history, so the
+  back button steps through the tabs the reader opened.
+- The tabs are a tab list to a screen reader, each linked to its panel.
+  Only the open tab is in the Tab order; the arrow keys move between tabs
+  (the other way round in a right-to-left page), and Home and End go to
+  the ends.
+
+For a tab that need not survive a reload, `Tabs(bind: tab)` reads and
+writes a `state` instead.
 
 Why not a `Link` per tab? The router marks a link current by its path, not
 its fragment: on `/account#billing`, both `/account#profile` and

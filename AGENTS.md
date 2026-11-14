@@ -155,7 +155,8 @@ or `aria-label`), and a handler that throws fails the test.
 | Step | What it does |
 |---|---|
 | `expect "text"` · `expect not "text"` | What the page must, or must not, show |
-| `click "Save"` | Clicks whatever carries that name |
+| `expect focus "Beta"` | What has the focus is called that (its `aria-label`, label, placeholder or text) |
+| `click "Save"` | Clicks whatever carries that name, and puts the focus on it as a real click does |
 | `type "Ada" into "Name"` | Types into the control that label names |
 | `press "Enter"` · `press "Escape" in "Search"` · `press "mod+k"` | A key, on the focused element or a named one, with the modifiers a combination names (`mod` is ⌘ on a Mac, Ctrl elsewhere); `Escape` closes an open `Modal` or `Dialog` |
 
@@ -866,7 +867,10 @@ one element for them: `C07`.
 `on key("ctrl+k") { … }` answers to one key: modifiers `mod` (⌘ on a Mac,
 Ctrl elsewhere — the one to use for an app's shortcuts), `ctrl`, `shift`,
 `alt`, `meta`/`cmd`, then the key as the browser names it (`k`, `Enter`,
-`Escape`/`esc`, `ArrowDown`/`down`, `space`, `F2`). A chord is its steps
+`Escape`/`esc`, `ArrowDown`/`down`, `space`, `F2`; `inline-start` and
+`inline-end` are the arrow toward where a line starts or ends, ArrowLeft
+and ArrowRight in a left-to-right box and the other way round in a
+right-to-left one). A chord is its steps
 with a space between: `on key("mod+k mod+s")`, the second within 1.5 s; the
 second step alone then does not fire its own shortcut. On an element it
 listens there; at the top of a page, a component or `app` it listens on the
@@ -883,6 +887,21 @@ data — and `keyLabel("mod+shift+p")` how this system writes it (`⇧⌘P`,
 `Ctrl+Shift+P`); a `Menu.Item`'s or `Tooltip`'s `shortcut:` is written
 that way. `trapFocus: open` on any element keeps Tab inside it while
 `open` holds, moving focus in and back out.
+
+`roving: .x` (or `.y`, `.both`) on any element makes it one stop for Tab,
+the way a tab strip or a toolbar is: Tab enters at the chosen item (the one
+marked `aria-selected`, `aria-checked` or `aria-pressed`, else the first)
+and leaves the group; inside it the arrow keys move between its items —
+the other way round across a right-to-left box — Home and End go to the
+ends, a letter goes to the next item whose name starts with it, a disabled
+item is passed over, and a key held with Alt, Ctrl or ⌘ is left to the
+browser. Its items are its children, or the first focusable thing in each:
+
+```wf
+Row(roving: .x, role: "toolbar", aria-label: "Format") {
+    Button("Bold")  Button("Italic")  Button("Underline")
+}
+```
 
 `Form(bind: form)` hands a handle on the form: `form.valid`, `form.errors`
 by field name, `form.touched`, `form.pending` (an async rule is still
@@ -1766,7 +1785,7 @@ file would change; a `.wfx` file is normalised through its braced spelling.
 | `Navbar` | `Navbar { Navbar.Brand { ... } Navbar.Links { ... } Navbar.Actions { ... } }` |
 | `Sidebar` | `Sidebar { Sidebar.Header { ... } Sidebar.Item(to: "/", icon: "home") { ... } Sidebar.Divider }` |
 | `Link` | `Link(to: "/path") { Text("Label") }` — the link whose `to` matches the current route carries `.active` and `aria-current="page"`; `active: .prefix` also matches routes beneath it; a `to` with a query (`"/?show=open"`) matches only when the address has those values too, and a plain link to the same path then gives way to it |
-| `Tabs` | `Tabs { Tabs.Page("Tab 1") { ... } Tabs.Page("Tab 2") { ... } }` |
+| `Tabs` | `Tabs(bind: tab, label: "Account") { Tabs.Page("Profile", value: "profile") { ... } Tabs.Page("Billing", value: "billing", disabled: !isOwner) { ... } }` — `bind:` reads and writes the open page's `value:` (its place from 0 without one); `value:` only reads it, and `on change(v)` hears the one picked; `.vertical`; `.manual` opens a tab on Enter or Space rather than as the focus reaches it. Only the open tab is in the Tab order; the arrow keys move (the other way round in a right-to-left page), Home and End go to the ends, a disabled tab is passed over |
 | `Breadcrumb` | `Breadcrumb { Breadcrumb.Item(to: "/") { Text("Home") } Breadcrumb.Item { Text("Current") } }` |
 | `Menu` | `Menu(trigger: "Options") { Menu.Item(shortcut: "F2") { ... } Menu.Divider Menu.Sub(label: "Move to") { ... } }`, or opened by state: `Menu(visible: asked, at: point)` (a context menu, `point = { x: e.clientX, y: e.clientY }`) or `anchor: someRef`; `placement:`, `on close(reason)`. Items take `shortcut:`, `checked:`, `disabled:`. Drawn in the top layer |
 

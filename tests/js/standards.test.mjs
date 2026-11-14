@@ -22,34 +22,40 @@ function load({ rtl = false } = {}) {
 const key = (k, mods = {}) => ({ type: "keydown", key: k, preventDefault() { this.prevented = true; }, ...mods });
 
 function tabStrip(WF) {
-  const nav = WF.el("div", { role: "tablist" }, [WF.el("button", {}, ["One"]), WF.el("button", {}, ["Two"]), WF.el("button", {}, ["Three"])]);
+  const tabs = ["One", "Two", "Three"].map((t) => WF.el("button", { role: "tab" }, [t]));
+  const nav = WF.el("div", { role: "tablist" }, tabs);
   const active = WF.signal(0);
   WF.tabs(nav, active);
-  return { nav, active };
+  // A key goes to the tab that has the focus, as it does in a browser.
+  const press = (k, mods) => {
+    const e = key(k, mods);
+    tabs[active()].focus();
+    tabs[active()].dispatchEvent(e);
+    nav.dispatchEvent(e);
+    return e;
+  };
+  return { nav, active, tabs, press };
 }
 
 test("tabs leave a key held with a modifier to the browser", () => {
   const { WF } = load();
-  const { nav, active } = tabStrip(WF);
-  const back = key("ArrowLeft", { altKey: true });
-  nav.dispatchEvent(back);
+  const { active, press } = tabStrip(WF);
+  const back = press("ArrowLeft", { altKey: true });
   assert.equal(active(), 0, "Alt+ArrowLeft is the browser's back, not a move");
   assert.ok(!back.prevented, "and is not taken from it");
-  nav.dispatchEvent(key("ArrowRight", { ctrlKey: true }));
+  press("ArrowRight", { ctrlKey: true });
   assert.equal(active(), 0);
-  nav.dispatchEvent(key("ArrowRight"));
+  press("ArrowRight");
   assert.equal(active(), 1, "a bare arrow still moves");
 });
 
 test("across a right-to-left page the next tab is to the left", () => {
   const { WF } = load({ rtl: true });
-  const { nav, active } = tabStrip(WF);
-  nav.dispatchEvent(key("ArrowLeft"));
+  const { active, press } = tabStrip(WF);
+  press("ArrowLeft");
   assert.equal(active(), 1, "ArrowLeft goes forward");
-  nav.dispatchEvent(key("ArrowRight"));
+  press("ArrowRight");
   assert.equal(active(), 0, "ArrowRight goes back");
-  nav.dispatchEvent(key("ArrowDown"));
-  assert.equal(active(), 1, "up and down do not turn");
 });
 
 function carousel(WF, document) {

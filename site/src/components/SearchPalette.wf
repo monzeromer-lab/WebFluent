@@ -72,7 +72,7 @@ component SearchPalette {
                 Text("esc", class: "bp-kbd")
             }
 
-            Row(role: "tablist", aria-label: t("search.kinds"), class: "bp-tabs") {
+            Row(role: "tablist", roving: .x, aria-label: t("search.kinds"), class: "bp-tabs") {
                 style { padding: 0 12px; border-bottom: 1px solid $line }
                 Button(t("search.all"), role: "tab", aria-selected: kind == "all", class: "bp-tab") { on click { kind = "all" } }
                 Button(t("nav.learn"), role: "tab", aria-selected: kind == "learn", class: "bp-tab") { on click { kind = "learn" } }

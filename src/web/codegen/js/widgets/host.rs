@@ -29,7 +29,15 @@ impl JsCodegen {
             // What the generic paths below write themselves.
             if matches!(
                 key.as_str(),
-                "class" | "ref" | "mount" | "update" | "cleanup" | "trapFocus" | "shared" | "count"
+                "class"
+                    | "ref"
+                    | "mount"
+                    | "update"
+                    | "cleanup"
+                    | "trapFocus"
+                    | "roving"
+                    | "shared"
+                    | "count"
             ) || DRAG_PROPS.contains(&key.as_str())
                 || key.starts_with("data-wf-")
             {
@@ -195,6 +203,17 @@ impl JsCodegen {
         }) {
             let read = self.emit_expr(cond);
             self.emit_line(&format!("WF.trapFocus({var}, () => {read});"));
+        }
+        // `roving: .x`: one Tab stop for the group, the arrow keys inside it.
+        if let Some(axis) = ui.args.iter().find_map(|a| match a {
+            Arg::Named(k, Expr::EnumCase(c) | Expr::StringLiteral(c)) if k == "roving" => {
+                Some(c.clone())
+            }
+            _ => None,
+        }) {
+            self.emit_line(&format!(
+                "WF.roving({var}, {{ axis: \"{axis}\", typeahead: true }});"
+            ));
         }
         // `mount:`, `update:`, `cleanup:` on any element: the lifetime `Host`
         // gives a bare node, given to every element there is.

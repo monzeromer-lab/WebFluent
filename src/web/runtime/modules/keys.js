@@ -41,6 +41,14 @@
     // layout gave no ASCII there: the Arabic layout's comma key sends `و`,
     // so Ctrl+, is still `mod+,`; AZERTY's sends `;`, and is read by it.
     const pressed = (e.key || "").toLowerCase();
+    // `inline-start` and `inline-end`: the arrow toward where a line of the
+    // box listening starts or ends — ArrowLeft and ArrowRight across a
+    // left-to-right box, the other way round across a right-to-left one.
+    if (step.key === "inline-start" || step.key === "inline-end") {
+      const at = e.currentTarget && e.currentTarget.nodeType === 1 ? e.currentTarget : e.target;
+      const towardRight = (step.key === "inline-end") !== _isRtl(at);
+      step = { ...step, key: towardRight ? "arrowright" : "arrowleft" };
+    }
     if (pressed !== step.key) {
       const code = /^[a-z]$/.test(step.key) ? `key${step.key}` : /^[0-9]$/.test(step.key) ? `digit${step.key}` : PUNCT_CODES[step.key] || null;
       // With Shift, a punctuation key sends its other character — `/` is

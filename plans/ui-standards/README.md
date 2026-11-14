@@ -486,6 +486,21 @@ build output of every project is unchanged but for the new tokens.
 **Done when** no built-in carries its own arrow-key code, and the site has no
 hand-written `role: "tab"`.
 
+**Status: done, 2026-11-14.** `WF.roving` (`modules/focus.js`) is the one
+key manager; `WF.tabs`, menus and the carousel's dots are built on it, and
+their own arrow-key code is gone. The Splitter keeps its own keys, which
+size it rather than move between items, and follows the page's direction
+since stage 0. Two things differ from the plan:
+
+- The direction-following keys are `inline-start` and `inline-end`, not
+  `start` and `end`: `on key("end")` already names the End key.
+- The site's hand-made tab strips (`CodeTabs`, `OutputTabs`, `Example`, the
+  search's kinds) keep their own markup and gain `roving: .x`. They share
+  one panel between tabs, show tabs conditionally, or hold other controls
+  in their bar, which built-in `Tabs` does not; the recipe for a tab in the
+  address now uses `Tabs(value:)` and `on change`. A segmented control for
+  the search's kinds is stage 6's `ToggleGroup`.
+
 ### Stage 3: overlays
 
 - **One overlay path** for Modal, Dialog, Popover and the new Sheet:

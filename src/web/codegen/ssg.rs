@@ -332,6 +332,7 @@ pub fn render_page_html_studio(
             row_limit: None,
             fields: 0,
             dialogs: 0,
+            tab_strips: 0,
             default_messages,
             indent: 2,
             link_base,
@@ -583,6 +584,8 @@ pub(crate) struct PaintState {
     pub(crate) fields: usize,
     /// Modals and dialogs painted so far, for their headings' ids.
     pub(crate) dialogs: usize,
+    /// Tab strips painted so far, for their tabs' and panels' ids.
+    pub(crate) tab_strips: usize,
     pub(crate) default_messages: HashMap<String, String>,
     pub(crate) indent: usize,
     /// Config `base_path` for links (e.g., `"/WebFluent"`).
@@ -1391,6 +1394,7 @@ pub(crate) fn render_builtin<C: Paint>(name: &str, ui: &UIElement, ctx: &mut C) 
                         | "update"
                         | "cleanup"
                         | "trapFocus"
+                        | "roving"
                         | "shared"
                         | "count"
                 ) || crate::web::codegen::js::DRAG_PROPS.contains(&key.as_str())
@@ -1513,6 +1517,117 @@ pub(crate) fn render_builtin<C: Paint>(name: &str, ui: &UIElement, ctx: &mut C) 
         // its children are its body, as the live page draws them. Painted as
         // the generic element, its title was the `title` attribute — the
         // tooltip a pointer shows — and there was no heading.
+        // A tab strip: its tabs and its panels as the live page draws them,
+        // the open one shown — the one `bind:` or `value:` holds, where the
+        // build can work it out — and the rest hidden.
+        "Tabs" => {
+            let given = |key: &str| {
+                ui.args.iter().find_map(|a| match a {
+                    Arg::Named(k, v) if k == key => Some(v.clone()),
+                    _ => None,
+                })
+            };
+            let case = |key: &str, word: &str| {
+                ui.modifiers.iter().any(|m| m == word)
+                    || matches!(given(key), Some(Expr::EnumCase(c) | Expr::StringLiteral(c)) if c == word)
+            };
+            let pages: Vec<&UIElement> = ui
+                .children
+                .iter()
+                .filter_map(|s| match &s.kind {
+                    StatementKind::UIElement(p)
+                        if matches!(&p.component, ComponentRef::BuiltIn(n) if n == "TabPage") =>
+                    {
+                        Some(p)
+                    }
+                    _ => None,
+                })
+                .collect();
+            let value_of = |page: &UIElement, i: usize| {
+                page.args
+                    .iter()
+                    .find_map(|a| match a {
+                        Arg::Named(k, v) if k == "value" => eval(v, &ctx.scope),
+                        _ => None,
+                    })
+                    .unwrap_or(Static::Num(i as f64))
+            };
+            let open = given("bind")
+                .or_else(|| given("value"))
+                .and_then(|e| eval(&e, &ctx.scope))
+                .and_then(|want| (0..pages.len()).find(|i| value_of(pages[*i], *i) == want))
+                .unwrap_or(0);
+            ctx.tab_strips += 1;
+            let group = format!("s{}", ctx.tab_strips);
+            let own = own_attrs(
+                name,
+                ui,
+                ctx,
+                &["bind", "value", "orientation", "activation", "label"],
+            );
+            let label = given("label")
+                .and_then(|l| resolve_text_scoped(&l, &ctx.default_messages, &ctx.scope))
+                .map_or(String::new(), |l| {
+                    format!(" aria-label=\"{}\"", html_escape(&l))
+                });
+            let orientation = if case("orientation", "vertical") {
+                " aria-orientation=\"vertical\""
+            } else {
+                ""
+            };
+            let indent = ctx.indent_str();
+            let mut out = format!("{indent}<div class=\"{class_str}\"{own}{wf}{inline_style}>\n");
+            out.push_str(&format!(
+                "{indent}  <div class=\"wf-tabs__nav\" role=\"tablist\"{orientation}{label}>\n"
+            ));
+            for (i, page) in pages.iter().enumerate() {
+                let words = page
+                    .args
+                    .iter()
+                    .find_map(|a| match a {
+                        Arg::Positional(e) => {
+                            resolve_text_scoped(e, &ctx.default_messages, &ctx.scope)
+                        }
+                        Arg::Named(..) => None,
+                    })
+                    .unwrap_or_else(|| format!("Tab {i}"));
+                let disabled = page
+                    .args
+                    .iter()
+                    .find_map(|a| match a {
+                        Arg::Named(k, v) if k == "disabled" => eval(v, &ctx.scope),
+                        _ => None,
+                    })
+                    .is_some_and(|v| v == Static::Bool(true));
+                let (class, selected, stop) = if i == open {
+                    ("wf-tabs__tab active", "true", "0")
+                } else {
+                    ("wf-tabs__tab", "false", "-1")
+                };
+                out.push_str(&format!(
+                    "{indent}    <button class=\"{class}\" role=\"tab\" type=\"button\" id=\"wf-tab-{group}-{i}\" aria-controls=\"wf-tabpanel-{group}-{i}\" aria-selected=\"{selected}\" tabindex=\"{stop}\"{}>{}</button>\n",
+                    if disabled { " disabled" } else { "" },
+                    html_escape(&words)
+                ));
+            }
+            out.push_str(&format!("{indent}  </div>\n"));
+            ctx.indent += 2;
+            for (i, page) in pages.iter().enumerate() {
+                let (class, hidden) = if i == open {
+                    ("wf-tab-page active", "")
+                } else {
+                    ("wf-tab-page", " hidden")
+                };
+                let wf = ctx.wf_node_attr_inline(page);
+                let body = ctx.statements(&page.children);
+                out.push_str(&format!(
+                    "{indent}  <div class=\"{class}\" role=\"tabpanel\" id=\"wf-tabpanel-{group}-{i}\" aria-labelledby=\"wf-tab-{group}-{i}\" tabindex=\"0\"{hidden}{wf}>\n{body}{indent}  </div>\n"
+                ));
+            }
+            ctx.indent -= 2;
+            out.push_str(&format!("{indent}</div>\n"));
+            return out;
+        }
         "Modal" | "Dialog" => {
             let title = ui.args.iter().find_map(|a| match a {
                 Arg::Named(k, v) if k == "title" => Some(

@@ -70,6 +70,11 @@ fn key_step_problem(spelling: &str) -> Option<String> {
         "arrowdown",
         "arrowleft",
         "arrowright",
+        // The arrow toward where a line starts or ends: ArrowLeft and
+        // ArrowRight in a left-to-right box, the other way round in a
+        // right-to-left one.
+        "inline-start",
+        "inline-end",
         "up",
         "down",
         "left",
@@ -337,6 +342,11 @@ impl ParserV2 {
 
     fn is_word(&self, word: &str) -> bool {
         matches!(self.kind(), TokenType::Identifier(w) if w == word)
+    }
+
+    /// Whether the token `ahead` of the cursor is the identifier `word`.
+    fn is_word_at(&self, ahead: usize, word: &str) -> bool {
+        matches!(self.kind_at(ahead), TokenType::Identifier(w) if w == word)
     }
 
     fn eat_word(&mut self, word: &str) -> bool {
@@ -1247,6 +1257,10 @@ impl ParserV2 {
                     negated: el.modifiers.iter().any(|m| m == "not"),
                     span,
                 }),
+                "__ExpectFocus" => steps.push(Step::ExpectFocus {
+                    name: positional(0).unwrap_or(Expr::StringLiteral(String::new())),
+                    span,
+                }),
                 "__Click" => steps.push(Step::Click {
                     target: positional(0).unwrap_or(Expr::StringLiteral(String::new())),
                     span,
@@ -1264,7 +1278,10 @@ impl ParserV2 {
                 _ => body.push(stmt),
             }
         }
-        if !steps.iter().any(|s| matches!(s, Step::Expect { .. })) {
+        if !steps
+            .iter()
+            .any(|s| matches!(s, Step::Expect { .. } | Step::ExpectFocus { .. }))
+        {
             return Err(self.error_with_hint(
                 format!("test \"{name}\" expects nothing"),
                 "End it with what the page must show: `expect \"text\"`, or `expect not \"text\"`",
@@ -1658,6 +1675,15 @@ impl ParserV2 {
                 Ok(StatementKind::UIElement(holder))
             }
             // `expect "text"` / `expect not "text"` in a test.
+            // `expect focus "Two"`: what has the focus.
+            "expect" if body == Body::Test && self.is_word_at(1, "focus") && self.is_string_at(2) => {
+                self.advance();
+                self.advance();
+                let name = self.parse_expression()?;
+                let mut el = self.blank_element(ComponentRef::BuiltIn("__ExpectFocus".to_string()));
+                el.args.push(Arg::Positional(name));
+                Ok(StatementKind::UIElement(el))
+            }
             "expect" if body == Body::Test => {
                 self.advance();
                 let negated = self.eat_word("not");

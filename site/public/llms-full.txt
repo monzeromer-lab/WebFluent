@@ -2969,6 +2969,26 @@ A part belongs inside its owner. `Card.Body` outside a `Card` is error
 `C03`. Your own components may declare parts too
 ([Components](/learn/10-components)).
 
+A `Tabs` keeps the open tab in a state of yours with `bind:`, holding the
+open page's `value:`. Only the open tab is in the Tab order; the arrow keys
+move between tabs, the other way round in a right-to-left page:
+
+```wf
+page Account(path: "/account", title: "Account", description: "Your profile and billing.") {
+    state tab = "profile"
+    Heading("Account").h1
+    Tabs(bind: tab, label: "Account") {
+        Tabs.Page("Profile", value: "profile") { Text("Your name and photo.") }
+        Tabs.Page("Billing", value: "billing") { Text("Your plan and invoices.") }
+    }
+    Text("Open: {tab}")
+}
+```
+
+Any element of your own can move the same way: `roving: .x` makes a row
+one stop for Tab, with the arrow keys inside it
+([Events](/learn/08-events#moving-through-a-group-with-the-arrow-keys)).
+
 ## Text and headings
 
 The typography elements cover inline text, headings, paragraphs, code,
@@ -3769,6 +3789,39 @@ The helpers and rules it relies on:
   long as its owner shows.
 - **A letter is also the key in its place.** On a Mac `⌥⌘P` sends `π`, and
   `mod+alt+p` still matches it.
+
+### Moving through a group with the arrow keys
+
+A tab strip, a toolbar or a row of choices is one stop for Tab: Tab enters
+it and leaves it, and the arrow keys move inside it. `Tabs` and `Menu` work
+that way already. `roving:` gives any element of yours the same:
+
+```wf
+page Editor(path: "/", title: "Editor", description: "Format the text.") {
+    state bold = false
+    state italic = false
+    Heading("Editor").h1
+    Row(roving: .x, role: "toolbar", aria-label: "Format") {
+        Button("Bold", aria-pressed: bold) { on click { bold = !bold } }
+        Button("Italic", aria-pressed: italic) { on click { italic = !italic } }
+    }
+}
+```
+
+- `roving: .x` moves with ArrowLeft and ArrowRight, `.y` with ArrowUp and
+  ArrowDown, `.both` with either.
+- Across a right-to-left page the next item is to the left, so ArrowLeft
+  moves forward there.
+- Home and End go to the ends, and a letter goes to the next item whose
+  name starts with it.
+- Tab enters at the chosen item, the one marked `aria-selected`,
+  `aria-checked` or `aria-pressed`, or the first. A disabled item is passed
+  over, and a key held with Alt, Ctrl or ⌘ is left to the browser.
+
+For a key of your own that follows the direction of the text, write
+`on key("inline-start")` or `on key("inline-end")`: ArrowLeft and
+ArrowRight in a left-to-right box, the other way round in a right-to-left
+one.
 
 ## Emitting events from components
 
@@ -8556,7 +8609,8 @@ what a click did is visible only in the `expect` that follows it.
 | Step | What it does |
 |---|---|
 | `expect "text"` · `expect not "text"` | What the page must, or must not, show |
-| `click "Save"` | Clicks whatever carries that name: a button or a link, a control, a tab, a menu's item, an option, a row of a tree |
+| `expect focus "Beta"` | What has the focus is called that: its `aria-label`, its label, its placeholder or its text |
+| `click "Save"` | Clicks whatever carries that name: a button or a link, a control, a tab, a menu's item, an option, a row of a tree. The focus goes to it, as a real click puts it there |
 | `type "Ada" into "Name"` | Types into the control that label names |
 | `press "Enter"` · `press "Escape" in "Search"` · `press "mod+k"` | A key, on the focused element or a named one, with the modifiers a combination names (`mod` is ⌘ on a Mac, Ctrl elsewhere); `Escape` closes an open `Modal` or `Dialog` as a real one would |
 
@@ -9506,16 +9560,11 @@ read it from the address's `#fragment`:
 page Account(path: "/account", title: "Account", description: "Your profile and billing.") {
     derived tab = if hash != "" { hash } else { "profile" }
     Heading("Account").h1
-    Row(gap: .sm, role: "tablist", aria-label: "Account") {
-        Button("Profile", role: "tab", aria-selected: tab == "profile", outlined: tab != "profile") {
-            on click { navigate("/account#profile") }
-        }
-        Button("Billing", role: "tab", aria-selected: tab == "billing", outlined: tab != "billing") {
-            on click { navigate("/account#billing") }
-        }
+    Tabs(value: tab, label: "Account") {
+        on change(v) { navigate("/account#{v}") }
+        Tabs.Page("Profile", value: "profile") { Text("Profile settings") }
+        Tabs.Page("Billing", value: "billing") { Text("Billing settings") }
     }
-    if tab == "profile" { Text("Profile settings", role: "tabpanel") }
-    if tab == "billing" { Text("Billing settings", role: "tabpanel") }
 }
 ```
 
@@ -9528,13 +9577,18 @@ the address becomes `/account#profile`.
   the address's fragment without the `#`, kept current by the runtime.
 - `tab` is a [`derived`](/learn/07-state-and-reactivity#derived) value:
   the fragment when there is one, `"profile"` when there is none.
-- Each tab is a `Button` that navigates to the same page with another
-  fragment. `hash` changes, `tab` follows, and the matching `if` draws its
-  panel. Each click is a step in the history, so the back button steps
-  through the tabs the reader opened.
-- `role: "tablist"`, `role: "tab"` and `aria-selected:` tell a screen reader
-  these are tabs and which one is open; `outlined:` shows the same thing to
-  the eye. Both follow `tab`.
+- `Tabs(value: tab)` opens the page whose `value:` is `tab`. It only reads
+  it: picking a tab fires `on change(v)` with that page's value, which
+  navigates to the same page with another fragment. `hash` changes, `tab`
+  follows, and the tab opens. Each pick is a step in the history, so the
+  back button steps through the tabs the reader opened.
+- The tabs are a tab list to a screen reader, each linked to its panel.
+  Only the open tab is in the Tab order; the arrow keys move between tabs
+  (the other way round in a right-to-left page), and Home and End go to
+  the ends.
+
+For a tab that need not survive a reload, `Tabs(bind: tab)` reads and
+writes a `state` instead.
 
 Why not a `Link` per tab? The router marks a link current by its path, not
 its fragment: on `/account#billing`, both `/account#profile` and

@@ -12,35 +12,122 @@ impl JsCodegen {
             extra,
             self.wf_node_inline(ui)
         ));
+        let named = |key: &str| {
+            ui.args.iter().find_map(|a| match a {
+                Arg::Named(k, v) if k == key => Some(v.clone()),
+                _ => None,
+            })
+        };
+        // An enum prop, as a flag (`.vertical`) or by name.
+        let case = |key: &str, word: &str| {
+            ui.modifiers.iter().any(|m| m == word)
+                || matches!(named(key), Some(Expr::EnumCase(c) | Expr::StringLiteral(c)) if c == word)
+        };
+        let vertical = case("orientation", "vertical");
+        let manual = case("activation", "manual");
         // `role="tablist"` and the tab/panel wiring below are what tell a screen
         // reader these buttons are tabs at all. Without them the widget is a row
         // of unrelated buttons next to unrelated divs.
         let nav_var = self.fresh_var();
+        let label = named("label").map_or(String::new(), |l| {
+            let l = self.emit_expr(&l);
+            if self.is_reactive(&l) {
+                format!(", \"aria-label\": () => {l}")
+            } else {
+                format!(", \"aria-label\": {l}")
+            }
+        });
+        let orientation = if vertical {
+            ", \"aria-orientation\": \"vertical\""
+        } else {
+            ""
+        };
         self.emit_line(&format!(
-            "const {nav_var} = WF.el(\"div\", {{ className: \"wf-tabs__nav\", role: \"tablist\" }});"
+            "const {nav_var} = WF.el(\"div\", {{ className: \"wf-tabs__nav\", role: \"tablist\"{orientation}{label} }});"
         ));
         let group = var.trim_start_matches("_e").to_string();
 
         // Collect tab pages
-        let tab_pages: Vec<(&UIElement, usize)> = ui
+        let tab_pages: Vec<&UIElement> = ui
             .children
             .iter()
-            .enumerate()
-            .filter_map(|(i, s)| {
-                if let StatementKind::UIElement(ui_child) = &s.kind
-                    && matches!(&ui_child.component, ComponentRef::BuiltIn(n) if n == "TabPage")
+            .filter_map(|s| match &s.kind {
+                StatementKind::UIElement(ui_child)
+                    if matches!(&ui_child.component, ComponentRef::BuiltIn(n) if n == "TabPage") =>
                 {
-                    return Some((ui_child, i));
+                    Some(ui_child)
                 }
-                None
+                _ => None,
             })
             .collect();
 
-        let active_var = self.fresh_var();
-        self.emit_line(&format!("const {active_var} = WF.signal(0);"));
+        // What each tab stands for: its `value:`, or its place.
+        let page_arg = |page: &UIElement, key: &str| {
+            page.args.iter().find_map(|a| match a {
+                Arg::Named(k, v) if k == key => Some(v.clone()),
+                _ => None,
+            })
+        };
+        let values: Vec<String> = tab_pages
+            .iter()
+            .enumerate()
+            .map(|(i, page)| {
+                page_arg(page, "value").map_or_else(|| i.to_string(), |v| self.emit_expr(&v))
+            })
+            .collect();
+        let vals_var = self.fresh_var();
+        self.emit_line(&format!("const {vals_var} = [{}];", values.join(", ")));
+
+        // `on change(v)`: the tab the reader picked, by its value.
+        let change = ui
+            .events
+            .iter()
+            .find(|h| h.event == "change")
+            .map(|handler| {
+                let body = self.emit_event_body(handler);
+                format!("({} => {{ {body} }})", self.handler_head(handler, "value"))
+            });
+        let tell = |at: &str| {
+            change
+                .as_ref()
+                .map_or(String::new(), |c| format!(" {c}({vals_var}[{at}]);"))
+        };
+
+        // The open tab, as an index: what `bind:` or `value:` holds, found
+        // among the values, or the page's own.
+        let at_var = self.fresh_var();
+        let select_var = self.fresh_var();
+        if let Some(target) = self.bind_arg(ui) {
+            self.emit_line(&format!(
+                "const {at_var} = () => {{ const i = {vals_var}.indexOf({}); return i < 0 ? 0 : i; }};",
+                target.read
+            ));
+            let write = Self::with_commit(
+                &target,
+                &target.write.replace("$V", &format!("{vals_var}[i]")),
+            );
+            self.emit_line(&format!(
+                "const {select_var} = (i) => {{ {write};{} }};",
+                tell("i")
+            ));
+        } else if let Some(value) = named("value") {
+            let value = self.emit_expr(&value);
+            self.emit_line(&format!(
+                "const {at_var} = () => {{ const i = {vals_var}.indexOf({value}); return i < 0 ? 0 : i; }};"
+            ));
+            self.emit_line(&format!("const {select_var} = (i) => {{{} }};", tell("i")));
+        } else {
+            let open = self.fresh_var();
+            self.emit_line(&format!("const {open} = WF.signal(0);"));
+            self.emit_line(&format!("const {at_var} = () => {open}();"));
+            self.emit_line(&format!(
+                "const {select_var} = (i) => {{ {open}.set(i);{} }};",
+                tell("i")
+            ));
+        }
 
         // Create tab buttons
-        for (i, (tab, _)) in tab_pages.iter().enumerate() {
+        for (i, tab) in tab_pages.iter().enumerate() {
             let label = tab.args.first().map_or_else(
                 || format!("\"Tab {i}\""),
                 |a| {
@@ -52,12 +139,19 @@ impl JsCodegen {
                 },
             );
             let label = self.live(&label);
-
-            // Roving tabindex: only the selected tab is in the tab order, and
-            // the arrow keys move between them (see `WF.tabs`).
+            let disabled = page_arg(tab, "disabled").map_or(String::new(), |d| {
+                let d = self.emit_expr(&d);
+                if self.is_reactive(&d) {
+                    format!(", disabled: () => !!({d})")
+                } else {
+                    format!(", disabled: !!({d})")
+                }
+            });
+            // The Tab stop and the arrow keys are `WF.tabs`' (`roving`).
             let btn_var = self.fresh_var();
             self.emit_line(&format!(
-                "const {btn_var} = WF.el(\"button\", {{ className: () => {active_var}() === {i} ? \"wf-tabs__tab active\" : \"wf-tabs__tab\",                  role: \"tab\", type: \"button\", id: \"wf-tab-{group}-{i}\",                  \"aria-controls\": \"wf-tabpanel-{group}-{i}\",                  \"aria-selected\": () => {active_var}() === {i} ? \"true\" : \"false\",                  tabindex: () => {active_var}() === {i} ? 0 : -1,                  \"on:click\": () => {active_var}.set({i}) }}, {label});"
+                "const {btn_var} = WF.el(\"button\", {{ className: () => {at_var}() === {i} ? \"wf-tabs__tab active\" : \"wf-tabs__tab\", role: \"tab\", type: \"button\", id: \"wf-tab-{group}-{i}\", \"aria-controls\": \"wf-tabpanel-{group}-{i}\", \"aria-selected\": () => {at_var}() === {i} ? \"true\" : \"false\", tabindex: {}{disabled}, \"on:click\": () => {select_var}({i}) }}, {label});",
+                if i == 0 { "0" } else { "-1" }
             ));
             self.emit_line(&format!("{nav_var}.appendChild({btn_var});"));
         }
@@ -65,26 +159,36 @@ impl JsCodegen {
         self.emit_line(&format!("{var}.appendChild({nav_var});"));
 
         // Create tab content
-        for (i, (tab, _)) in tab_pages.iter().enumerate() {
+        for (i, tab) in tab_pages.iter().enumerate() {
             let page_var = self.fresh_var();
             self.emit_line(&format!(
-                "const {} = WF.el(\"div\", {{ className: \"wf-tab-page\", role: \"tabpanel\",                  id: \"wf-tabpanel-{}-{}\", \"aria-labelledby\": \"wf-tab-{}-{}\", tabindex: 0{} }});",
-                page_var, group, i, group, i, self.wf_node_inline(tab)
+                "const {} = WF.el(\"div\", {{ className: () => {at}() === {i} ? \"wf-tab-page active\" : \"wf-tab-page\", role: \"tabpanel\", id: \"wf-tabpanel-{}-{}\", \"aria-labelledby\": \"wf-tab-{}-{}\", tabindex: 0, hidden: () => {at}() !== {i}{} }});",
+                page_var, group, i, group, i, self.wf_node_inline(tab), at = at_var
             ));
             for child in &tab.children {
                 self.emit_statement_dom(child, &page_var);
             }
-            self.emit_line(&format!(
-                "WF.effect(() => {{ {page_var}.style.display = {active_var}() === {i} ? 'block' : 'none'; }});"
-            ));
             self.emit_line(&format!("{var}.appendChild({page_var});"));
         }
 
-        // Arrow keys, Home and End move between tabs, which is what the WAI-ARIA
-        // pattern requires and what a keyboard user will try.
-        self.emit_line(&format!("WF.tabs({nav_var}, {active_var});"));
+        let mut opts = Vec::new();
+        if vertical {
+            opts.push("vertical: true");
+        }
+        if manual {
+            opts.push("manual: true");
+        }
+        self.emit_line(&format!(
+            "WF.tabs({nav_var}, {at_var}, {select_var}, {{ {} }});",
+            opts.join(", ")
+        ));
 
-        self.emit_root_handlers(var, ui, false);
+        // The DOM events written on it; `change` is the tab picked, above.
+        for handler in ui.events.iter().filter(|h| h.event != "change") {
+            let body = self.emit_event_body(handler);
+            let line = self.element_listener(var, handler, &body);
+            self.emit_line(&line);
+        }
         self.emit_line(&format!("{parent}.appendChild({var});"));
     }
 

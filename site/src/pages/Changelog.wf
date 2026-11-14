@@ -94,6 +94,25 @@ screen every button, icon button, tab, menu item, sidebar item, check
 box, radio, switch and carousel control is at least 44px; with a mouse
 nothing changes size."#)
                 ]),
+                NotesSection(title: #"The arrow keys, everywhere a group needs them"#, id: "6.2.0-the-arrow-keys-everywhere-a-group-needs-them", items: [
+                    Change(text: #"`roving: .x` (`.y`, `.both`) on any element makes it one stop for Tab,
+with the arrow keys, Home, End and the first letters of a name inside
+it — a toolbar, a row of choices — the other way round across a
+right-to-left box. Tabs, menus and a carousel's dots are built on the
+same code."#),
+                    Change(text: #"`Tabs(bind: tab)` keeps the open tab in a state, holding the open page's
+`value:`; `Tabs(value: v)` reads it and `on change(v)` hears the one
+picked, so a tab can live in the address. A page can be `disabled:`, a
+strip `.vertical`, and `.manual` opens a tab on Enter or Space rather
+than as the focus reaches it."#),
+                    Change(text: #"A tab strip is painted before any script runs: its tabs, the open one
+selected, and the other panels hidden."#),
+                    Change(text: #"Menus jump to an item by the first letters of its name."#),
+                    Change(text: #"`on key("inline-start")` and `on key("inline-end")` are the arrow toward
+where a line starts or ends, swapped in a right-to-left box."#),
+                    Change(text: #"`wf test` has `expect focus "Beta"`, and a `click` step puts the focus
+where a real click would, so the keys a test presses next go there."#)
+                ]),
                 NotesSection(title: #"Fixes"#, id: "6.2.0-fixes", items: [
                     Change(text: #"`wf check` knows an `image`'s fields: `hero.width`, `.height`, `.color`
 and the rest were a `T05` there, though `wf build` read them."#),
@@ -155,7 +174,7 @@ again before the exit ended."#),
                     Change(text: #"A `Splitter`'s handle reaches 24px, WCAG 2.2's least target, around its
 4px line."#)
                 ])
-            ], count: 21), latest: true)
+            ], count: 27), latest: true)
 
             ReleaseEntry(ReleaseNotes(version: "6.1.0", id: "6.1.0", date: "2026-11-14", when: "14 November 2026", summary: #"A site sends much less: the runtime ships only the functions a program
 reaches, with short names, and only the styles and animations it draws
@@ -3614,6 +3633,6 @@ flattened diagnostics, and the reason a theme failed to resolve."#),
             ], count: 15))
         }
 
-        OnThisPage(sections: [Anchor(id: "6.2.0-a-project-s-own-component-wins", label: #"A project's own component wins"#), Anchor(id: "6.2.0-stacking-and-target-sizes-are-tokens", label: #"Stacking and target sizes are tokens"#), Anchor(id: "6.2.0-fixes", label: #"Fixes"#), Anchor(id: "6.2.0-reached-by-every-reader", label: #"Reached by every reader"#), Anchor(id: "6.2.0-right-to-left", label: #"Right to left"#), Anchor(id: "6.2.0-smaller-fixes", label: #"Smaller fixes"#)], source: "RELEASE_NOTES.md")
+        OnThisPage(sections: [Anchor(id: "6.2.0-a-project-s-own-component-wins", label: #"A project's own component wins"#), Anchor(id: "6.2.0-stacking-and-target-sizes-are-tokens", label: #"Stacking and target sizes are tokens"#), Anchor(id: "6.2.0-the-arrow-keys-everywhere-a-group-needs-them", label: #"The arrow keys, everywhere a group needs them"#), Anchor(id: "6.2.0-fixes", label: #"Fixes"#), Anchor(id: "6.2.0-reached-by-every-reader", label: #"Reached by every reader"#), Anchor(id: "6.2.0-right-to-left", label: #"Right to left"#), Anchor(id: "6.2.0-smaller-fixes", label: #"Smaller fixes"#)], source: "RELEASE_NOTES.md")
     }
 }

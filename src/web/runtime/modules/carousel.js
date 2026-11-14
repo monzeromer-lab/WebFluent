@@ -133,6 +133,10 @@
       );
     });
     nav.appendChild(dots);
+    // The dots are one stop for Tab, at the slide on show; the arrow keys
+    // move between them (the other way round across a right-to-left page)
+    // and show each slide as they reach it.
+    roving(dots, { active: () => index(), onMove: (i) => show(i) });
     nav.appendChild(
       el("button", {
         className: "wf-carousel__control wf-carousel__next",

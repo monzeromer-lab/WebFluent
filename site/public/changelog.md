@@ -29,6 +29,26 @@ component takes the built-in's place, which cannot then be placed there.
   box, radio, switch and carousel control is at least 44px; with a mouse
   nothing changes size.
 
+## The arrow keys, everywhere a group needs them
+
+- `roving: .x` (`.y`, `.both`) on any element makes it one stop for Tab,
+  with the arrow keys, Home, End and the first letters of a name inside
+  it — a toolbar, a row of choices — the other way round across a
+  right-to-left box. Tabs, menus and a carousel's dots are built on the
+  same code.
+- `Tabs(bind: tab)` keeps the open tab in a state, holding the open page's
+  `value:`; `Tabs(value: v)` reads it and `on change(v)` hears the one
+  picked, so a tab can live in the address. A page can be `disabled:`, a
+  strip `.vertical`, and `.manual` opens a tab on Enter or Space rather
+  than as the focus reaches it.
+- A tab strip is painted before any script runs: its tabs, the open one
+  selected, and the other panels hidden.
+- Menus jump to an item by the first letters of its name.
+- `on key("inline-start")` and `on key("inline-end")` are the arrow toward
+  where a line starts or ends, swapped in a right-to-left box.
+- `wf test` has `expect focus "Beta"`, and a `click` step puts the focus
+  where a real click would, so the keys a test presses next go there.
+
 ## Fixes
 
 - `wf check` knows an `image`'s fields: `hero.width`, `.height`, `.color`

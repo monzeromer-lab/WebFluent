@@ -83,6 +83,9 @@ pub const MODULES: &[Module] = &[
     // starts when the runtime loads, so a chord hears its first step.
     module!("keys", exports: [same("onKey"), same("keyIs"), same("keyLabel"), same("keyAria")],
         deps: [], triggers: []),
+    // A group the arrow keys move through: tabs, menus, a carousel's
+    // dots, and any element given `roving:`.
+    module!("focus", exports: [same("roving")], deps: [], triggers: []),
     module!("nodes", exports: [], deps: [], triggers: []),
     // Reached by a call (`WF.counted`, `WF.animate` …) or by what the code
     // generator writes when something animates: an animation's config
@@ -150,7 +153,7 @@ pub const MODULES: &[Module] = &[
     module!("toast", exports: [same("toast")], deps: ["announce"], triggers: []),
     module!("overlay", exports: [
         same("dialog"), same("popup"), same("tabs"),
-    ], deps: [], triggers: []),
+    ], deps: ["focus"], triggers: []),
     module!("worker", exports: [same("worker")], deps: [], triggers: []),
     module!("windowed", exports: [same("windowed")], deps: ["nodes"], triggers: []),
     module!("gesture", exports: [
@@ -159,10 +162,10 @@ pub const MODULES: &[Module] = &[
     module!("layer", exports: [
         same("layer"), same("placeAt"), same("menu"), same("submenu"), same("tooltip"),
         same("trapFocus"), same("uid"),
-    ], deps: ["keys"], triggers: []),
+    ], deps: ["keys", "focus"], triggers: []),
     module!("announce", exports: [same("announce")], deps: [], triggers: []),
     module!("field", exports: [same("field"), same("choiceError")], deps: [], triggers: []),
-    module!("carousel", exports: [same("carousel")], deps: ["field"], triggers: []),
+    module!("carousel", exports: [same("carousel")], deps: ["field", "focus"], triggers: []),
     module!("drawer", exports: [same("drawer")], deps: [], triggers: []),
     module!("head", exports: [same("head")], deps: [], triggers: []),
     module!("hydrate", exports: [same("hydrate"), same("hydrating")], deps: [], triggers: []),

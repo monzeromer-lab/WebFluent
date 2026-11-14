@@ -66,6 +66,8 @@ mod fix_cli;
 mod fixes;
 #[path = "fmt_corpus.rs"]
 mod fmt_corpus;
+#[path = "focus.rs"]
+mod focus;
 #[path = "frontend_fixes.rs"]
 mod frontend_fixes;
 #[path = "fs_security.rs"]

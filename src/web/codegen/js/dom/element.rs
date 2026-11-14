@@ -542,7 +542,7 @@ impl JsCodegen {
         let (lifetime, passed): (Vec<Arg>, Vec<Arg>) =
                     ui.args.iter().cloned().partition(|a| {
                         matches!(a, Arg::Named(k, _)
-                        if (matches!(k.as_str(), "mount" | "update" | "cleanup" | "trapFocus") || DRAG_PROPS.contains(&k.as_str())) && !own.contains(k))
+                        if (matches!(k.as_str(), "mount" | "update" | "cleanup" | "trapFocus" | "roving") || DRAG_PROPS.contains(&k.as_str())) && !own.contains(k))
                     });
         // An attribute the component does not take as a prop —
         // `aria-label`, `data-*`, `id`, `hidden`, `title` — is its
@@ -816,7 +816,7 @@ impl JsCodegen {
                         "shared" | "on" | "count" => {}
                         // `mount:`, `update:`, `cleanup:`: a lifetime,
                         // emitted below, on any element.
-                        "mount" | "update" | "cleanup" | "trapFocus" => {}
+                        "mount" | "update" | "cleanup" | "trapFocus" | "roving" => {}
                         k if DRAG_PROPS.contains(&k) => {}
                         "tag" if name == "Host" => {}
                         // `.inert` goes with the text, below: it is

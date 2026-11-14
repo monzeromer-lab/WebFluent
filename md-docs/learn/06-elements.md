@@ -240,6 +240,26 @@ A part belongs inside its owner. `Card.Body` outside a `Card` is error
 `C03`. Your own components may declare parts too
 ([Components](10-components.md)).
 
+A `Tabs` keeps the open tab in a state of yours with `bind:`, holding the
+open page's `value:`. Only the open tab is in the Tab order; the arrow keys
+move between tabs, the other way round in a right-to-left page:
+
+```wf
+page Account(path: "/account", title: "Account", description: "Your profile and billing.") {
+    state tab = "profile"
+    Heading("Account").h1
+    Tabs(bind: tab, label: "Account") {
+        Tabs.Page("Profile", value: "profile") { Text("Your name and photo.") }
+        Tabs.Page("Billing", value: "billing") { Text("Your plan and invoices.") }
+    }
+    Text("Open: {tab}")
+}
+```
+
+Any element of your own can move the same way: `roving: .x` makes a row
+one stop for Tab, with the arrow keys inside it
+([Events](08-events.md#moving-through-a-group-with-the-arrow-keys)).
+
 ## Text and headings
 
 The typography elements cover inline text, headings, paragraphs, code,

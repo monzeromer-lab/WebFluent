@@ -47,7 +47,7 @@ const page = await browser.newPage();
 const problems = [];
 page.on("pageerror", (e) => problems.push(e.message));
 const open = async (width) => {
-  await page.setViewport({ width, height: 800 });
+  await page.setViewport({ width, height: 1600 });
   await page.goto(`http://localhost:${port}/`, { waitUntil: "networkidle0" });
 };
 
@@ -162,8 +162,61 @@ try {
   const back = await page.evaluate(() => document.activeElement && document.activeElement.textContent.trim());
   check("ArrowRight goes back to the item", back.startsWith("نقل إلى"), back);
 
+  console.log("\nTabs bound to a state");
+  await page.setJavaScriptEnabled(false);
+  await page.goto(`http://localhost:${port}/`, { waitUntil: "networkidle0" });
+  const painted = await page.evaluate(() => {
+    const tabs = [...document.querySelectorAll("#nums [role=tab]")];
+    const panels = [...document.querySelectorAll("#nums [role=tabpanel]")];
+    return {
+      selected: tabs.map((t) => t.getAttribute("aria-selected")),
+      shown: panels.map((p) => p.getClientRects().length > 0),
+    };
+  });
+  check("painted before any script, the bound tab is open and the rest hidden",
+    JSON.stringify(painted) === JSON.stringify({ selected: ["false", "true", "false", "false"], shown: [false, true, false, false] }),
+    JSON.stringify(painted));
+  await page.setJavaScriptEnabled(true);
+  await open(1000);
+  await page.focus("#nums [role=tab][aria-selected=true]");
+  await page.keyboard.press("ArrowRight");
+  await pause(50);
+  const moved = await page.evaluate(() => ({
+    focused: document.activeElement.textContent.trim(),
+    said: document.getElementById("tabsaid").textContent.trim(),
+    shown: [...document.querySelectorAll("#nums [role=tabpanel]")].map((p) => p.getClientRects().length > 0),
+    stops: [...document.querySelectorAll("#nums [role=tab]")].map((t) => t.tabIndex),
+  }));
+  check("ArrowRight passes the disabled tab, opens the next and writes the state",
+    moved.focused === "Four" && moved.said === "tab four" && JSON.stringify(moved.shown) === "[false,false,false,true]",
+    JSON.stringify(moved));
+  check("…and only the open tab is in the Tab order", JSON.stringify(moved.stops) === "[-1,-1,-1,0]", JSON.stringify(moved.stops));
+  await page.keyboard.press("Home");
+  await pause(50);
+  check("Home goes to the first tab", (await text(page, "tabsaid")) === "tab one", await text(page, "tabsaid"));
+
+  console.log("\nA toolbar given roving:");
+  await page.focus("#tools button");
+  await page.keyboard.press("ArrowRight");
+  const onItalic = await page.evaluate(() => document.activeElement.textContent.trim());
+  await page.keyboard.press("Tab");
+  await page.keyboard.down("Shift");
+  await page.keyboard.press("Tab");
+  await page.keyboard.up("Shift");
+  const returned = await page.evaluate(() => document.activeElement.textContent.trim());
+  check("the arrow keys move inside it, and Tab leaves and comes back to where it was",
+    onItalic === "Italic" && returned === "Italic", `${onItalic} ${returned}`);
+
   check("no errors on the page", problems.length === 0, problems.join("; "));
 } finally {
+  // The fixture's own tests, through `wf test`: a key with its modifier,
+  // and where the focus goes.
+  try {
+    const out = execFileSync(WF, ["test", dir], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
+    check("wf test: press holds its modifiers, and expect focus finds the focus", true, out);
+  } catch (e) {
+    check("wf test: press holds its modifiers, and expect focus finds the focus", false, `${e.stdout || ""}${e.stderr || ""}`);
+  }
   await browser.close();
   await site.stop();
   fs.rmSync(dir, { recursive: true, force: true });

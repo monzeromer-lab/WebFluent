@@ -7,7 +7,7 @@ The page: https://webfluent.monzeromer.dev/reference/tabs-page
 One tab and its panel.
 
 ```wf
-Tabs.Page(_ label: String) { … }
+Tabs.Page(_ label: String, value: Any, disabled: Bool) { … }
 ```
 
 ## Props
@@ -15,6 +15,12 @@ Tabs.Page(_ label: String) { … }
 | Prop | Type | Meaning |
 |---|---|---|
 | `label` | `String  (positional)` | The tab's label |
+| `value:` | `Any` | What the Tabs' `bind:` holds while this tab is open |
+| `disabled:` | `Bool` | Shown, but not opened: the arrow keys pass over it |
+
+## Flags
+
+`.disabled`
 
 Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 

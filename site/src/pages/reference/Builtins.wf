@@ -241,7 +241,7 @@ page ReferenceIndexPage(path: "/reference", title: "Reference", description: "Ev
             }
             Link(to: "/reference/tabs", class: "bp-card") {
                 Text("Tabs", class: "bp-mono") { style { font-size: 14px; color: $link } }
-                Text("Tab strip switching between its pages.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+                Text("Tab strip switching between its pages: the arrow keys move between the tabs (the other way round in a right-to-left page), Home and End go to the ends.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
             }
             Link(to: "/reference/tabs-page", class: "bp-card") {
                 Text("Tabs.Page", class: "bp-mono") { style { font-size: 14px; color: $link } }
@@ -632,7 +632,7 @@ page ReferenceIndexPage(path: "/reference", title: "Reference", description: "Ev
         }
         Heading(t("ref.universal.title"), id: "on-every-element").h2
         Markdown(t("ref.universal.body"), class: "bp-prose")
-        PropsTable(rows: [{ name: "animate:", type: ".fadeIn .fadeOut .slideUp .slideDown .slideLeft .slideRight .scaleIn .scaleOut .bounce .shake .pulse .spin .expand .collapse", meaning: "Animation played when the element appears" }, { name: "exit:", type: ".fadeIn .fadeOut .slideUp .slideDown .slideLeft .slideRight .scaleIn .scaleOut .bounce .shake .pulse .spin .expand .collapse", meaning: "Animation played when the element leaves" }, { name: "speed:", type: ".fast .normal .slow", meaning: "How fast its animation runs" }, { name: "duration:", type: "String", meaning: "Animation length, e.g. `300ms`" }, { name: "delay:", type: "String", meaning: "Wait before the animation starts" }, { name: "easing:", type: ".standard .spring .ease .easeIn .easeOut .easeInOut .linear .bouncy .smooth", meaning: "How the animation is paced — a named easing, or any CSS timing function" }, { name: "stagger:", type: "String", meaning: "Delay added per item of a list, e.g. `50ms`" }, { name: "on:", type: ".mount .enterView", meaning: "When its animation plays" }, { name: "count:", type: "String", meaning: "How long the number it shows takes to count to a new value, e.g. `600ms`" }, { name: "shared:", type: "String", meaning: "A name this element keeps across a route change, so the browser carries it from one page to the next" }, { name: "class:", type: "String", meaning: "Classes added beside the engine's, from the project's own stylesheets" }, { name: "ref:", type: "State", meaning: "A handle on the element, usable as the element: `ref: nameInput`, then `nameInput.focus()`" }, { name: "drag:", type: "Any", meaning: "What it carries when it is picked up — by a mouse moved a few pixels, or a finger held still — and dropped on something with `on receive(d)`" }, { name: "dragGroup:", type: "String", meaning: "Which drops it belongs to: a drag goes only to targets of its own group, so tabs and tree rows stay apart" }, { name: "dropValue:", type: "Any", meaning: "What this target is, as a drag sees it: `d.over` in the drag's `on dragmove(d)` and in `on receive(d)`" }, { name: "dropAxis:", type: ".y .x", meaning: "Which way its list runs, for where a drop lands" }, { name: "dropInside:", type: "Bool", meaning: "A drop on its middle lands inside it — a folder, a container — as well as before or after" }, { name: "trapFocus:", type: "Bool", meaning: "While true, focus moves into it and Tab and Shift+Tab stay inside; when it turns false or the element leaves, focus goes back where it was" }, { name: "mount:", type: "Any", meaning: "Run with the element each time it is made — `mount: (n) => initTilt(n)` — and what it returns is the handle `update:` and `cleanup:` get" }, { name: "update:", type: "Any", meaning: "Run with the handle again whenever the state it reads changes: `update: (h) => h.setMax(max)`" }, { name: "cleanup:", type: "Any", meaning: "Run with the handle when the element leaves — a route change, an `if` branch, a list item: `cleanup: (h) => h.destroy()`" }], caption: t("ref.universal.title"))
+        PropsTable(rows: [{ name: "animate:", type: ".fadeIn .fadeOut .slideUp .slideDown .slideLeft .slideRight .scaleIn .scaleOut .bounce .shake .pulse .spin .expand .collapse", meaning: "Animation played when the element appears" }, { name: "exit:", type: ".fadeIn .fadeOut .slideUp .slideDown .slideLeft .slideRight .scaleIn .scaleOut .bounce .shake .pulse .spin .expand .collapse", meaning: "Animation played when the element leaves" }, { name: "speed:", type: ".fast .normal .slow", meaning: "How fast its animation runs" }, { name: "duration:", type: "String", meaning: "Animation length, e.g. `300ms`" }, { name: "delay:", type: "String", meaning: "Wait before the animation starts" }, { name: "easing:", type: ".standard .spring .ease .easeIn .easeOut .easeInOut .linear .bouncy .smooth", meaning: "How the animation is paced — a named easing, or any CSS timing function" }, { name: "stagger:", type: "String", meaning: "Delay added per item of a list, e.g. `50ms`" }, { name: "on:", type: ".mount .enterView", meaning: "When its animation plays" }, { name: "count:", type: "String", meaning: "How long the number it shows takes to count to a new value, e.g. `600ms`" }, { name: "shared:", type: "String", meaning: "A name this element keeps across a route change, so the browser carries it from one page to the next" }, { name: "class:", type: "String", meaning: "Classes added beside the engine's, from the project's own stylesheets" }, { name: "ref:", type: "State", meaning: "A handle on the element, usable as the element: `ref: nameInput`, then `nameInput.focus()`" }, { name: "drag:", type: "Any", meaning: "What it carries when it is picked up — by a mouse moved a few pixels, or a finger held still — and dropped on something with `on receive(d)`" }, { name: "dragGroup:", type: "String", meaning: "Which drops it belongs to: a drag goes only to targets of its own group, so tabs and tree rows stay apart" }, { name: "dropValue:", type: "Any", meaning: "What this target is, as a drag sees it: `d.over` in the drag's `on dragmove(d)` and in `on receive(d)`" }, { name: "dropAxis:", type: ".y .x", meaning: "Which way its list runs, for where a drop lands" }, { name: "dropInside:", type: "Bool", meaning: "A drop on its middle lands inside it — a folder, a container — as well as before or after" }, { name: "roving:", type: ".x .y .both", meaning: "One Tab stop for the group, and the arrow keys, Home, End and the first letters of a name to move inside it: a toolbar, a row of choices, a list" }, { name: "trapFocus:", type: "Bool", meaning: "While true, focus moves into it and Tab and Shift+Tab stay inside; when it turns false or the element leaves, focus goes back where it was" }, { name: "mount:", type: "Any", meaning: "Run with the element each time it is made — `mount: (n) => initTilt(n)` — and what it returns is the handle `update:` and `cleanup:` get" }, { name: "update:", type: "Any", meaning: "Run with the handle again whenever the state it reads changes: `update: (h) => h.setMax(max)`" }, { name: "cleanup:", type: "Any", meaning: "Run with the handle when the element leaves — a route change, an `if` branch, a list item: `cleanup: (h) => h.destroy()`" }], caption: t("ref.universal.title"))
         EventsTable(rows: [PropRow(name: "click", kind: "", detail: "The element was clicked or activated"), PropRow(name: "input", kind: "", detail: "The value changed, on every keystroke"), PropRow(name: "change", kind: "", detail: "The value was committed"), PropRow(name: "submit", kind: "", detail: "The form was submitted"), PropRow(name: "focus", kind: "", detail: "The element received focus"), PropRow(name: "blur", kind: "", detail: "The element lost focus"), PropRow(name: "keydown", kind: "", detail: "A key went down; `e.key` names it"), PropRow(name: "longpress", kind: "", detail: "Held still for half a second; `p.x`, `p.y` say where. The click it ends with is not a click"), PropRow(name: "swipe", kind: "", detail: "A finger or a pen swept across it; `s.direction` is \"left\", \"right\", \"up\" or \"down\""), PropRow(name: "receive", kind: "", detail: "Something with `drag:` was dropped on it; `d.value` is what, `d.position` \"before\", \"after\" or \"inside\""), PropRow(name: "dragmove", kind: "", detail: "On what is dragged, while it moves: `d.over` is the target's `dropValue` or null, `d.position` where it would land"), PropRow(name: "key", kind: "", detail: "One key, named: `on key(\"ctrl+k\") \{ \}`"), PropRow(name: "keyup", kind: "", detail: "A key came up"), PropRow(name: "keypress", kind: "", detail: "A character key was pressed"), PropRow(name: "mouseenter", kind: "", detail: "The pointer entered the element"), PropRow(name: "mouseleave", kind: "", detail: "The pointer left the element"), PropRow(name: "dblclick", kind: "", detail: "The element was double-clicked"), PropRow(name: "auxclick", kind: "", detail: "A button other than the main one was clicked; `e.button` is which — 1 is the middle, which closes a tab"), PropRow(name: "focusin", kind: "", detail: "Focus moved onto the element or something inside it"), PropRow(name: "focusout", kind: "", detail: "Focus left the element or something inside it"), PropRow(name: "contextmenu", kind: "", detail: "The context menu was asked for; `e.preventDefault()` keeps the browser's"), PropRow(name: "mousedown", kind: "", detail: "A mouse button went down over the element"), PropRow(name: "mouseup", kind: "", detail: "A mouse button came up over the element"), PropRow(name: "mousemove", kind: "", detail: "The mouse moved over the element"), PropRow(name: "mouseover", kind: "", detail: "The pointer moved onto the element or one of its children"), PropRow(name: "mouseout", kind: "", detail: "The pointer moved off the element or one of its children"), PropRow(name: "pointerdown", kind: "", detail: "A pointer — mouse, pen or touch — went down"), PropRow(name: "pointerup", kind: "", detail: "A pointer came up"), PropRow(name: "pointermove", kind: "", detail: "A pointer moved"), PropRow(name: "pointerenter", kind: "", detail: "A pointer entered the element"), PropRow(name: "pointerleave", kind: "", detail: "A pointer left the element"), PropRow(name: "pointercancel", kind: "", detail: "The browser took the pointer back, for a scroll or a gesture"), PropRow(name: "touchstart", kind: "", detail: "A finger touched the element"), PropRow(name: "touchend", kind: "", detail: "A finger left the element"), PropRow(name: "touchmove", kind: "", detail: "A finger moved across the element"), PropRow(name: "wheel", kind: "", detail: "The wheel or trackpad scrolled over the element"), PropRow(name: "scroll", kind: "", detail: "The element's content scrolled"), PropRow(name: "focusin", kind: "", detail: "The element or something inside it received focus"), PropRow(name: "focusout", kind: "", detail: "The element or something inside it lost focus"), PropRow(name: "reset", kind: "", detail: "The form was reset"), PropRow(name: "invalid", kind: "", detail: "A control failed the browser's own validation"), PropRow(name: "select", kind: "", detail: "Text in a field was selected"), PropRow(name: "copy", kind: "", detail: "Something was copied from the element"), PropRow(name: "cut", kind: "", detail: "Something was cut from the element"), PropRow(name: "paste", kind: "", detail: "Something was pasted into the element; `e.clipboardData` holds it"), PropRow(name: "dragstart", kind: "", detail: "The element started being dragged"), PropRow(name: "drag", kind: "", detail: "The element is being dragged"), PropRow(name: "dragend", kind: "", detail: "A drag of the element ended"), PropRow(name: "dragenter", kind: "", detail: "Something dragged entered the element"), PropRow(name: "dragover", kind: "", detail: "Something dragged is over the element; `e.preventDefault()` allows a drop"), PropRow(name: "dragleave", kind: "", detail: "Something dragged left the element"), PropRow(name: "drop", kind: "", detail: "Something was dropped on the element; `e.dataTransfer` holds it"), PropRow(name: "load", kind: "", detail: "An image, video or frame finished loading"), PropRow(name: "error", kind: "", detail: "An image, video or script failed to load"), PropRow(name: "play", kind: "", detail: "A video or audio started playing"), PropRow(name: "pause", kind: "", detail: "A video or audio paused"), PropRow(name: "ended", kind: "", detail: "A video or audio reached its end"), PropRow(name: "timeupdate", kind: "", detail: "A playing video or audio moved on"), PropRow(name: "animationend", kind: "", detail: "A CSS animation on the element ended"), PropRow(name: "transitionend", kind: "", detail: "A CSS transition on the element ended"), PropRow(name: "toggle", kind: "", detail: "A details element opened or closed")], caption: t("ref.events"))
         Heading(t("ref.icons")).h3 { style { margin: 8px 0 0; font-size: 18px; font-weight: 600 } }
         Text(t("ref.icons.body"), class: "bp-small")
@@ -738,7 +738,7 @@ page BuiltinContainer(path: "/reference/container", title: "Container — Refere
         }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "fluid:", type: "Bool", meaning: "Full width, no maximum" }], caption: "Props of Container")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Row(gap: .sm) {
@@ -776,7 +776,7 @@ page BuiltinRow(path: "/reference/row", title: "Row — Reference", description:
         }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "gap:", type: ".xs .sm .md .lg .xl", meaning: "Space between children" }, { name: "align:", type: ".start .center .end .stretch .baseline", meaning: "Cross-axis alignment" }, { name: "justify:", type: ".start .center .end .between .around .evenly", meaning: "Main-axis distribution" }, { name: "direction:", type: ".row .column", meaning: "Which way its children run; takes a value per breakpoint" }, { name: "stacks:", type: "Bool", meaning: "Reflow on a narrow screen: a Row becomes a column, a Grid one column" }], caption: "Props of Row")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Row(gap: .sm) {
@@ -822,7 +822,7 @@ page BuiltinColumn(path: "/reference/column", title: "Column — Reference", des
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "span:", type: "Number", meaning: "How many of the 12 grid columns to span" }, { name: "stacks:", type: "Bool", meaning: "Reflow on a narrow screen: a Row becomes a column, a Grid one column" }], caption: "Props of Column")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Row(gap: .sm) {
@@ -861,7 +861,7 @@ page BuiltinGrid(path: "/reference/grid", title: "Grid — Reference", descripti
         }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "columns:", type: "Number", meaning: "Number of equal columns" }, { name: "gap:", type: ".xs .sm .md .lg .xl", meaning: "Space between children" }, { name: "align:", type: ".start .center .end .stretch .baseline", meaning: "Cross-axis alignment" }, { name: "justify:", type: ".start .center .end .between .around .evenly", meaning: "Main-axis distribution" }, { name: "stacks:", type: "Bool", meaning: "Reflow on a narrow screen: a Row becomes a column, a Grid one column" }], caption: "Props of Grid")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Row(gap: .sm) {
@@ -909,7 +909,7 @@ page BuiltinStack(path: "/reference/stack", title: "Stack — Reference", descri
         }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "gap:", type: ".xs .sm .md .lg .xl", meaning: "Space between children" }, { name: "align:", type: ".start .center .end .stretch .baseline", meaning: "Cross-axis alignment" }, { name: "justify:", type: ".start .center .end .between .around .evenly", meaning: "Main-axis distribution" }], caption: "Props of Stack")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Row(gap: .sm) {
@@ -951,7 +951,7 @@ page BuiltinSpacer(path: "/reference/spacer", title: "Spacer — Reference", des
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "size:", type: ".xs .sm .md .lg .xl", meaning: "How much space" }], caption: "Props of Spacer")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Row(gap: .sm) {
@@ -987,7 +987,7 @@ page BuiltinVirtuallist(path: "/reference/virtuallist", title: "VirtualList — 
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "rowHeight:", type: "Number", meaning: "Every row's height, in px: the fast path. Unset, each row is measured" }, { name: "estimate:", type: "Number", meaning: "The height a row not yet drawn stands for, in px. Unset, 32" }, { name: "reveal:", type: "Any", meaning: "A row's key: when it changes, that row is scrolled into view — the selection, the current match" }, { name: "label:", type: "String", meaning: "What the list is, for a screen reader" }], caption: "Props of VirtualList")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Text(t("ref.noflags"), class: "bp-small")
@@ -1021,7 +1021,7 @@ page BuiltinSplitter(path: "/reference/splitter", title: "Splitter — Reference
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "bind:", type: "State", meaning: "State variable the control reads and writes (two-way)" }, { name: "min:", type: "Number", meaning: "The smallest size, in px" }, { name: "max:", type: "Number", meaning: "The largest size, in px" }, { name: "reset:", type: "Number", meaning: "The size a double-click or Enter goes back to, taken as written: `0` can mean the region's default share" }, { name: "label:", type: "String", meaning: "What it resizes, for a screen reader" }, { name: "horizontal:", type: "Bool", meaning: "Between two regions one above the other: it moves up and down" }, { name: "reverse:", type: "Bool", meaning: "On the start side of what it sizes — a pane on the right, a panel below — so a drag toward the start grows it" }], caption: "Props of Splitter")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Row(gap: .sm) {
@@ -1057,7 +1057,7 @@ page BuiltinDivider(path: "/reference/divider", title: "Divider — Reference", 
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         Text(t("ref.noprops"), class: "bp-small")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Text(t("ref.noflags"), class: "bp-small")
@@ -1086,7 +1086,7 @@ page BuiltinHost(path: "/reference/host", title: "Host — Reference", descripti
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "tag:", type: "String", meaning: "The element to make: `div` (the default), `span`, `canvas`, `svg`, `section`, `figure`, `pre`, `p`, `ul` or `table`" }], caption: "Props of Host")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Text(t("ref.noflags"), class: "bp-small")
@@ -1113,7 +1113,7 @@ page BuiltinPortal(path: "/reference/portal", title: "Portal — Reference", des
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "into:", type: "Any  (required)", meaning: "Where it draws: an element, a `ref:` handle, or `null` to keep it aside; read again whenever what it reads changes" }], caption: "Props of Portal")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Text(t("ref.noflags"), class: "bp-small")
@@ -1141,7 +1141,7 @@ page BuiltinElement(path: "/reference/element", title: "Element — Reference", 
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "tag", type: "String  (positional)", meaning: "The custom element's tag: lower case, with a hyphen, as every custom element's is" }], caption: "Props of Element")
-        Markdown(t("ref.attrs", { families: "any", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "any", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Text(t("ref.noflags"), class: "bp-small")
@@ -1168,7 +1168,7 @@ page BuiltinNavbar(path: "/reference/navbar", title: "Navbar — Reference", des
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         Text(t("ref.noprops"), class: "bp-small")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Text(t("ref.noflags"), class: "bp-small")
@@ -1206,7 +1206,7 @@ page BuiltinNavbarBrand(path: "/reference/navbar-brand", title: "Navbar.Brand �
         Markdown(t("ref.partof", { owner: "Navbar", to: "/reference/navbar" }), class: "bp-prose")
         Heading(t("ref.tab.props"), id: "props").h2
         Text(t("ref.noprops"), class: "bp-small")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Text(t("ref.noflags"), class: "bp-small")
@@ -1237,7 +1237,7 @@ page BuiltinNavbarLinks(path: "/reference/navbar-links", title: "Navbar.Links �
         Markdown(t("ref.partof", { owner: "Navbar", to: "/reference/navbar" }), class: "bp-prose")
         Heading(t("ref.tab.props"), id: "props").h2
         Text(t("ref.noprops"), class: "bp-small")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Text(t("ref.noflags"), class: "bp-small")
@@ -1268,7 +1268,7 @@ page BuiltinNavbarActions(path: "/reference/navbar-actions", title: "Navbar.Acti
         Markdown(t("ref.partof", { owner: "Navbar", to: "/reference/navbar" }), class: "bp-prose")
         Heading(t("ref.tab.props"), id: "props").h2
         Text(t("ref.noprops"), class: "bp-small")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Text(t("ref.noflags"), class: "bp-small")
@@ -1298,7 +1298,7 @@ page BuiltinSidebar(path: "/reference/sidebar", title: "Sidebar — Reference", 
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         Text(t("ref.noprops"), class: "bp-small")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Text(t("ref.noflags"), class: "bp-small")
@@ -1337,7 +1337,7 @@ page BuiltinSidebarHeader(path: "/reference/sidebar-header", title: "Sidebar.Hea
         Markdown(t("ref.partof", { owner: "Sidebar", to: "/reference/sidebar" }), class: "bp-prose")
         Heading(t("ref.tab.props"), id: "props").h2
         Text(t("ref.noprops"), class: "bp-small")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Text(t("ref.noflags"), class: "bp-small")
@@ -1370,7 +1370,7 @@ page BuiltinSidebarItem(path: "/reference/sidebar-item", title: "Sidebar.Item �
         Markdown(t("ref.partof", { owner: "Sidebar", to: "/reference/sidebar" }), class: "bp-prose")
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "to:", type: "Path", meaning: "Route to navigate to; the link whose `to` matches the current route carries `.active` and `aria-current=\"page\"`" }, { name: "icon:", type: "String", meaning: "Icon shown before the label" }, { name: "active:", type: ".prefix", meaning: "How the link decides it is the current one" }], caption: "Props of Sidebar.Item")
-        Markdown(t("ref.attrs", { families: "global, aria, data, anchor", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data, anchor", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Row(gap: .sm) {
@@ -1407,7 +1407,7 @@ page BuiltinSidebarDivider(path: "/reference/sidebar-divider", title: "Sidebar.D
         Markdown(t("ref.partof", { owner: "Sidebar", to: "/reference/sidebar" }), class: "bp-prose")
         Heading(t("ref.tab.props"), id: "props").h2
         Text(t("ref.noprops"), class: "bp-small")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Text(t("ref.noflags"), class: "bp-small")
@@ -1439,7 +1439,7 @@ page BuiltinLink(path: "/reference/link", title: "Link — Reference", descripti
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "label", type: "String  (positional)", meaning: "The link text" }, { name: "to:", type: "Path", meaning: "Route to navigate to; the link whose `to` matches the current route carries `.active` and `aria-current=\"page\"`" }, { name: "active:", type: ".prefix", meaning: "How the link decides it is the current one" }], caption: "Props of Link")
-        Markdown(t("ref.attrs", { families: "global, aria, data, anchor", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data, anchor", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Row(gap: .sm) {
@@ -1460,24 +1460,33 @@ Link(to: "https://example.com", target: "_blank") { Text("Example") }"#, title: 
     }
 }
 
-page BuiltinTabs(path: "/reference/tabs", title: "Tabs — Reference", description: "Tabs: Tab strip switching between its pages.") {
-    ReferenceItemShell("Tabs", summary: "Tab strip switching between its pages.", signature: "Tabs \{ … \}", older: true, outputs: [], group: "Navigation", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "E109", title: "An element this output cannot draw", to: "/errors/E109"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
+page BuiltinTabs(path: "/reference/tabs", title: "Tabs — Reference", description: "Tabs: Tab strip switching between its pages: the arrow keys move between the tabs (the other way round in a right-to-left page), Home and End go to the…") {
+    ReferenceItemShell("Tabs", summary: "Tab strip switching between its pages: the arrow keys move between the tabs (the other way round in a right-to-left page), Home and End go to the ends.", signature: "Tabs(bind: State, value: Any, orientation: Enum, …) \{ … \}", older: true, outputs: [], group: "Navigation", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "E109", title: "An element this output cannot draw", to: "/errors/E109"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
         stage {
             Stage(label: "Tabs") {
                 controls {
-                    Text(t("stage.nocontrols"), class: "bp-small")
+                    StageControl({ name: "orientation", kind: "enum", options: ["horizontal", "vertical"], value: "horizontal", sink: "special" })
+                    StageControl({ name: "activation", kind: "enum", options: ["automatic", "manual"], value: "automatic", sink: "special" })
+                    StageControl({ name: "label", kind: "string", options: [], value: "" })
                 }
                 Tabs { Tabs.Page("Profile") { Text("Your details") }  Tabs.Page("Billing") { Text("Your plan") } }
             }
         }
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
-        Text(t("ref.noprops"), class: "bp-small")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        PropsTable(rows: [{ name: "bind:", type: "State", meaning: "The open tab, read and written: a page's `value:`, or its place from 0 when the pages give none" }, { name: "value:", type: "Any", meaning: "The open tab, read only: `on change(v)` hears the one the reader picks" }, { name: "orientation:", type: ".horizontal .vertical", meaning: "Which way the tabs run" }, { name: "activation:", type: ".automatic .manual", meaning: "Whether moving the focus opens a tab" }, { name: "label:", type: "String", meaning: "The tab strip's accessible name" }], caption: "Props of Tabs")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
-        Text(t("ref.noflags"), class: "bp-small")
+        Row(gap: .sm) {
+            style { gap: 8px; flex-wrap: wrap }
+            Text(".horizontal", class: "bp-label bp-mono")
+            Text(".vertical", class: "bp-label bp-mono")
+            Text(".automatic", class: "bp-label bp-mono")
+            Text(".manual", class: "bp-label bp-mono")
+        }
         Heading(t("ref.tab.events"), id: "events").h2
+        EventsTable(rows: [PropRow(name: "change", kind: "", detail: "")], caption: "Events of Tabs")
         Markdown(t("ref.universal.link"), class: "bp-prose")
         Heading(t("ref.slotsparts"), id: "slots").h2
         SlotsAndParts(slots: [PropRow(name: "children", kind: "", detail: "")], parts: [PropRow(name: "Tabs.Page", kind: "tabs-page", detail: "One tab and its panel.")])
@@ -1495,11 +1504,12 @@ page BuiltinTabs(path: "/reference/tabs", title: "Tabs — Reference", descripti
 }
 
 page BuiltinTabsPage(path: "/reference/tabs-page", title: "Tabs.Page — Reference", description: "Tabs.Page: One tab and its panel.") {
-    ReferenceItemShell("Tabs.Page", summary: "One tab and its panel.", signature: "Tabs.Page(_ label: String) \{ … \}", older: true, outputs: [], group: "Navigation", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C03", title: "A part outside the component it belongs to", to: "/errors/C03"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04")], source: "src/registry/builtins.rs") {
+    ReferenceItemShell("Tabs.Page", summary: "One tab and its panel.", signature: "Tabs.Page(_ label: String, value: Any, disabled: Bool) \{ … \}", older: true, outputs: [], group: "Navigation", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C03", title: "A part outside the component it belongs to", to: "/errors/C03"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04")], source: "src/registry/builtins.rs") {
         stage {
             Stage(label: "Tabs.Page") {
                 controls {
                     StageControl({ name: "label", kind: "string", options: [], value: "" })
+                    StageControl({ name: "disabled", kind: "bool", options: [], value: "", sink: "special" })
                 }
                 Tabs { Tabs.Page("Profile") { Text("Your details") }  Tabs.Page("Billing") { Text("Your plan") } }
             }
@@ -1507,11 +1517,14 @@ page BuiltinTabsPage(path: "/reference/tabs-page", title: "Tabs.Page — Referen
         notes { Text(t("stage.static"), class: "bp-small") }
         Markdown(t("ref.partof", { owner: "Tabs", to: "/reference/tabs" }), class: "bp-prose")
         Heading(t("ref.tab.props"), id: "props").h2
-        PropsTable(rows: [{ name: "label", type: "String  (positional)", meaning: "The tab's label" }], caption: "Props of Tabs.Page")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        PropsTable(rows: [{ name: "label", type: "String  (positional)", meaning: "The tab's label" }, { name: "value:", type: "Any", meaning: "What the Tabs' `bind:` holds while this tab is open" }, { name: "disabled:", type: "Bool", meaning: "Shown, but not opened: the arrow keys pass over it" }], caption: "Props of Tabs.Page")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
-        Text(t("ref.noflags"), class: "bp-small")
+        Row(gap: .sm) {
+            style { gap: 8px; flex-wrap: wrap }
+            Text(".disabled", class: "bp-label bp-mono")
+        }
         Heading(t("ref.tab.events"), id: "events").h2
         Markdown(t("ref.universal.link"), class: "bp-prose")
         Heading(t("ref.slotsparts"), id: "slots").h2
@@ -1538,7 +1551,7 @@ page BuiltinBreadcrumb(path: "/reference/breadcrumb", title: "Breadcrumb — Ref
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         Text(t("ref.noprops"), class: "bp-small")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Text(t("ref.noflags"), class: "bp-small")
@@ -1574,7 +1587,7 @@ page BuiltinBreadcrumbItem(path: "/reference/breadcrumb-item", title: "Breadcrum
         Markdown(t("ref.partof", { owner: "Breadcrumb", to: "/reference/breadcrumb" }), class: "bp-prose")
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "to:", type: "Path", meaning: "Route to navigate to; the link whose `to` matches the current route carries `.active` and `aria-current=\"page\"`" }], caption: "Props of Breadcrumb.Item")
-        Markdown(t("ref.attrs", { families: "global, aria, data, anchor", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data, anchor", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Text(t("ref.noflags"), class: "bp-small")
@@ -1608,7 +1621,7 @@ page BuiltinMenu(path: "/reference/menu", title: "Menu — Reference", descripti
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "trigger:", type: "String", meaning: "Label of the button that opens the menu" }, { name: "label:", type: "String", meaning: "Same as `trigger`" }, { name: "visible:", type: "State", meaning: "State flag that opens and closes it" }, { name: "anchor:", type: "Any", meaning: "What it is placed against: an element's `ref:`, or a point `\{ x: e.clientX, y: e.clientY \}`" }, { name: "at:", type: "Any", meaning: "A point to place it at, `\{ x: e.clientX, y: e.clientY \}`: where the pointer asked for a context menu" }, { name: "placement:", type: ".bottom .bottomStart .bottomEnd .top .topStart .topEnd .left .leftStart .leftEnd .right .rightStart .rightEnd", meaning: "Where it goes against its anchor; it flips to the other side when there is no room. Unset, `.bottomStart`" }, { name: "offset:", type: "Number", meaning: "How far from the anchor, in px" }], caption: "Props of Menu")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Row(gap: .sm) {
@@ -1668,7 +1681,7 @@ page BuiltinMenuItem(path: "/reference/menu-item", title: "Menu.Item — Referen
         Markdown(t("ref.partof", { owner: "Menu", to: "/reference/menu" }), class: "bp-prose")
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "shortcut:", type: "String", meaning: "The keys that do the same, `mod+b`, shown at its end as this system writes them (`⌘B`, `Ctrl+B`)" }, { name: "checked:", type: "Bool", meaning: "A check mark: the item turns something on and off" }, { name: "disabled:", type: "Bool", meaning: "Shown, skipped by the arrow keys, and cannot be chosen" }, { name: "danger:", type: "Bool", meaning: "What it does cannot be taken back — Delete, Discard: drawn in the danger colour" }], caption: "Props of Menu.Item")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Row(gap: .sm) {
@@ -1710,7 +1723,7 @@ page BuiltinMenuSub(path: "/reference/menu-sub", title: "Menu.Sub — Reference"
         Markdown(t("ref.partof", { owner: "Menu", to: "/reference/menu" }), class: "bp-prose")
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "label:", type: "String", meaning: "What the entry says" }], caption: "Props of Menu.Sub")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Text(t("ref.noflags"), class: "bp-small")
@@ -1745,7 +1758,7 @@ page BuiltinMenuDivider(path: "/reference/menu-divider", title: "Menu.Divider �
         Markdown(t("ref.partof", { owner: "Menu", to: "/reference/menu" }), class: "bp-prose")
         Heading(t("ref.tab.props"), id: "props").h2
         Text(t("ref.noprops"), class: "bp-small")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Text(t("ref.noflags"), class: "bp-small")
@@ -1780,7 +1793,7 @@ page BuiltinRouter(path: "/reference/router", title: "Router — Reference", des
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "transition:", type: ".none .fade .slide", meaning: "How a route change moves between pages" }, { name: "duration:", type: "String", meaning: "How long each half of the transition plays, e.g. `200ms`" }], caption: "Props of Router")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Row(gap: .sm) {
@@ -1815,7 +1828,7 @@ page BuiltinCard(path: "/reference/card", title: "Card — Reference", descripti
         }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "surface:", type: ".flat .elevated .outlined", meaning: "Surface treatment" }], caption: "Props of Card")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Row(gap: .sm) {
@@ -1858,7 +1871,7 @@ page BuiltinCardHeader(path: "/reference/card-header", title: "Card.Header — R
         Markdown(t("ref.partof", { owner: "Card", to: "/reference/card" }), class: "bp-prose")
         Heading(t("ref.tab.props"), id: "props").h2
         Text(t("ref.noprops"), class: "bp-small")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Text(t("ref.noflags"), class: "bp-small")
@@ -1889,7 +1902,7 @@ page BuiltinCardBody(path: "/reference/card-body", title: "Card.Body — Referen
         Markdown(t("ref.partof", { owner: "Card", to: "/reference/card" }), class: "bp-prose")
         Heading(t("ref.tab.props"), id: "props").h2
         Text(t("ref.noprops"), class: "bp-small")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Text(t("ref.noflags"), class: "bp-small")
@@ -1920,7 +1933,7 @@ page BuiltinCardFooter(path: "/reference/card-footer", title: "Card.Footer — R
         Markdown(t("ref.partof", { owner: "Card", to: "/reference/card" }), class: "bp-prose")
         Heading(t("ref.tab.props"), id: "props").h2
         Text(t("ref.noprops"), class: "bp-small")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Text(t("ref.noflags"), class: "bp-small")
@@ -1950,7 +1963,7 @@ page BuiltinTable(path: "/reference/table", title: "Table — Reference", descri
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "caption:", type: "String", meaning: "Accessible name of the table (rendered visually hidden)" }], caption: "Props of Table")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Text(t("ref.noflags"), class: "bp-small")
@@ -1988,7 +2001,7 @@ page BuiltinTableHead(path: "/reference/table-head", title: "Table.Head — Refe
         Markdown(t("ref.partof", { owner: "Table", to: "/reference/table" }), class: "bp-prose")
         Heading(t("ref.tab.props"), id: "props").h2
         Text(t("ref.noprops"), class: "bp-small")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Text(t("ref.noflags"), class: "bp-small")
@@ -2018,7 +2031,7 @@ page BuiltinTableBody(path: "/reference/table-body", title: "Table.Body — Refe
         Markdown(t("ref.partof", { owner: "Table", to: "/reference/table" }), class: "bp-prose")
         Heading(t("ref.tab.props"), id: "props").h2
         Text(t("ref.noprops"), class: "bp-small")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Text(t("ref.noflags"), class: "bp-small")
@@ -2048,7 +2061,7 @@ page BuiltinTableRow(path: "/reference/table-row", title: "Table.Row — Referen
         Markdown(t("ref.partof", { owner: "Table", to: "/reference/table" }), class: "bp-prose")
         Heading(t("ref.tab.props"), id: "props").h2
         Text(t("ref.noprops"), class: "bp-small")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Text(t("ref.noflags"), class: "bp-small")
@@ -2078,7 +2091,7 @@ page BuiltinTableCell(path: "/reference/table-cell", title: "Table.Cell — Refe
         Markdown(t("ref.partof", { owner: "Table", to: "/reference/table" }), class: "bp-prose")
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "content", type: "Any  (positional)", meaning: "The cell's content" }, { name: "header:", type: "Bool", meaning: "Render as a `<th>`" }], caption: "Props of Table.Cell")
-        Markdown(t("ref.attrs", { families: "global, aria, data, table", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data, table", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Row(gap: .sm) {
@@ -2110,7 +2123,7 @@ page BuiltinList(path: "/reference/list", title: "List — Reference", descripti
         }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "ordered:", type: "Bool", meaning: "Numbered (`<ol>`)" }], caption: "Props of List")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Row(gap: .sm) {
@@ -2149,7 +2162,7 @@ page BuiltinListItem(path: "/reference/list-item", title: "List.Item — Referen
         Markdown(t("ref.partof", { owner: "List", to: "/reference/list" }), class: "bp-prose")
         Heading(t("ref.tab.props"), id: "props").h2
         Text(t("ref.noprops"), class: "bp-small")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Text(t("ref.noflags"), class: "bp-small")
@@ -2182,7 +2195,7 @@ page BuiltinBadge(path: "/reference/badge", title: "Badge — Reference", descri
         }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "label", type: "String  (positional)", meaning: "The badge text" }, { name: "tone:", type: ".primary .secondary .success .danger .warning .info", meaning: "Colour" }, { name: "pill:", type: "Bool", meaning: "Fully rounded ends" }], caption: "Props of Badge")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Row(gap: .sm) {
@@ -2219,7 +2232,7 @@ page BuiltinTag(path: "/reference/tag", title: "Tag — Reference", description:
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "label", type: "String  (positional)", meaning: "The tag text" }], caption: "Props of Tag")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Text(t("ref.noflags"), class: "bp-small")
@@ -2251,7 +2264,7 @@ page BuiltinAvatar(path: "/reference/avatar", title: "Avatar — Reference", des
         }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "src:", type: "String", meaning: "Image URL" }, { name: "alt:", type: "String", meaning: "Text alternative for the image" }, { name: "initials:", type: "String", meaning: "Letters shown when there is no image" }, { name: "size:", type: ".sm .md .lg", meaning: "Its size" }, { name: "tone:", type: ".primary", meaning: "Colour of the initials" }], caption: "Props of Avatar")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Row(gap: .sm) {
@@ -2287,7 +2300,7 @@ page BuiltinTooltip(path: "/reference/tooltip", title: "Tooltip — Reference", 
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "text", type: "String  (positional)", meaning: "The tooltip text" }, { name: "shortcut:", type: "String", meaning: "The keys that do the same, `mod+s`, shown as a chip as this system writes them" }, { name: "placement:", type: ".bottom .bottomStart .bottomEnd .top .topStart .topEnd .left .leftStart .leftEnd .right .rightStart .rightEnd", meaning: "Where it goes against its anchor; it flips to the other side when there is no room. Unset, `.bottomStart`" }, { name: "delay:", type: "Number", meaning: "How long a hover waits before it shows, in ms. Unset, 500" }], caption: "Props of Tooltip")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Row(gap: .sm) {
@@ -2334,7 +2347,7 @@ page BuiltinChart(path: "/reference/chart", title: "Chart — Reference", descri
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "kind:", type: ".bar .line .area .pie .donut", meaning: "What it draws" }, { name: "data:", type: "Any", meaning: "The rows: a list of records, or of numbers" }, { name: "x:", type: "String", meaning: "The key of each row's label" }, { name: "y:", type: "Any", meaning: "The key of each row's value, or a list of keys for several series" }, { name: "colors:", type: "Any", meaning: "The series' colours, in order" }, { name: "width:", type: "Number", meaning: "Its width in user units (it scales to its box)" }, { name: "height:", type: "Number", meaning: "Its height in user units" }, { name: "ink:", type: "String", meaning: "The colour of its labels" }, { name: "grid:", type: "String", meaning: "The colour of its grid lines" }, { name: "legend:", type: "Bool", meaning: "Name the series" }, { name: "stacked:", type: "Bool", meaning: "Stack a bar chart's series" }, { name: "labels:", type: "Bool", meaning: "Write each bar's or slice's value on it" }, { name: "unit:", type: "String", meaning: "A unit after each value on the axis: `ms`, `%`" }], caption: "Props of Chart")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Row(gap: .sm) {
@@ -2373,7 +2386,7 @@ page BuiltinQrcode(path: "/reference/qrcode", title: "QrCode — Reference", des
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "value", type: "String  (positional)", meaning: "What it encodes" }, { name: "color:", type: "String", meaning: "The colour of the dark modules" }, { name: "background:", type: "String", meaning: "The colour behind them" }], caption: "Props of QrCode")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Text(t("ref.noflags"), class: "bp-small")
@@ -2406,7 +2419,7 @@ page BuiltinInput(path: "/reference/input", title: "Input — Reference", descri
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "bind:", type: "State", meaning: "State variable the control reads and writes (two-way)" }, { name: "label:", type: "String", meaning: "Visible label; also the control's accessible name" }, { name: "hint:", type: "String", meaning: "Help text under the control, linked to it by `aria-describedby`" }, { name: "error:", type: "String", meaning: "Error text (a string; empty when there is none): announced as it appears and sets `aria-invalid`" }, { name: "type:", type: ".text .email .password .number .search .tel .url .date .time .datetime .color", meaning: "What the field holds" }, { name: "placeholder:", type: "String", meaning: "Hint shown while the field is empty" }, { name: "value:", type: "Any", meaning: "The control's value, when its state is not bound" }, { name: "min:", type: "Any", meaning: "Lowest value" }, { name: "max:", type: "Any", meaning: "Highest value" }, { name: "step:", type: "Number", meaning: "Granularity" }, { name: "required:", type: "Bool", meaning: "Whether the form refuses to submit without it" }, { name: "disabled:", type: "Bool", meaning: "Whether the control is inert" }, { name: "size:", type: ".sm .md .lg", meaning: "Its size" }, { name: "width:", type: ".full", meaning: "Width" }, { name: "rounded:", type: "Bool", meaning: "Rounded corners" }], caption: "Props of Input")
-        Markdown(t("ref.attrs", { families: "global, aria, data, input", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data, input", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Row(gap: .sm) {
@@ -2461,7 +2474,7 @@ page BuiltinSelect(path: "/reference/select", title: "Select — Reference", des
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "bind:", type: "State", meaning: "State variable the control reads and writes (two-way)" }, { name: "value:", type: "Any", meaning: "The control's value, when its state is not bound" }, { name: "label:", type: "String", meaning: "Visible label; also the control's accessible name" }, { name: "hint:", type: "String", meaning: "Help text under the control, linked to it by `aria-describedby`" }, { name: "error:", type: "String", meaning: "Error text (a string; empty when there is none): announced as it appears and sets `aria-invalid`" }, { name: "disabled:", type: "Bool", meaning: "Whether the control is inert" }, { name: "multiple:", type: "Bool", meaning: "Allow several choices" }], caption: "Props of Select")
-        Markdown(t("ref.attrs", { families: "global, aria, data, input", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data, input", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Row(gap: .sm) {
@@ -2504,7 +2517,7 @@ page BuiltinSelectOption(path: "/reference/select-option", title: "Select.Option
         Markdown(t("ref.partof", { owner: "Select", to: "/reference/select" }), class: "bp-prose")
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "label", type: "String  (positional)", meaning: "The visible label" }, { name: "value:", type: "Any", meaning: "The value `bind` takes when this one is chosen; the label when absent" }], caption: "Props of Select.Option")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Text(t("ref.noflags"), class: "bp-small")
@@ -2537,7 +2550,7 @@ page BuiltinCheckbox(path: "/reference/checkbox", title: "Checkbox — Reference
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "bind:", type: "State", meaning: "State variable the control reads and writes (two-way)" }, { name: "checked:", type: "Bool", meaning: "Whether it is checked, when its state is not bound" }, { name: "label:", type: "String", meaning: "Visible label; also the control's accessible name" }, { name: "disabled:", type: "Bool", meaning: "Whether the control is inert" }], caption: "Props of Checkbox")
-        Markdown(t("ref.attrs", { families: "global, aria, data, input", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data, input", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Row(gap: .sm) {
@@ -2574,7 +2587,7 @@ page BuiltinRadio(path: "/reference/radio", title: "Radio — Reference", descri
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "bind:", type: "State", meaning: "State variable the control reads and writes (two-way)" }, { name: "value:", type: "Any", meaning: "The value `bind` takes when this one is chosen" }, { name: "checked:", type: "Bool", meaning: "Whether it is checked, when its state is not bound" }, { name: "label:", type: "String", meaning: "Visible label; also the control's accessible name" }, { name: "disabled:", type: "Bool", meaning: "Whether the control is inert" }], caption: "Props of Radio")
-        Markdown(t("ref.attrs", { families: "global, aria, data, input", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data, input", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Row(gap: .sm) {
@@ -2612,7 +2625,7 @@ page BuiltinSwitch(path: "/reference/switch", title: "Switch — Reference", des
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "bind:", type: "State", meaning: "State variable the control reads and writes (two-way)" }, { name: "checked:", type: "Bool", meaning: "Whether it is checked, when its state is not bound" }, { name: "label:", type: "String", meaning: "Visible label; also the control's accessible name" }, { name: "disabled:", type: "Bool", meaning: "Whether the control is inert" }], caption: "Props of Switch")
-        Markdown(t("ref.attrs", { families: "global, aria, data, input", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data, input", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Row(gap: .sm) {
@@ -2648,7 +2661,7 @@ page BuiltinSlider(path: "/reference/slider", title: "Slider — Reference", des
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "bind:", type: "State", meaning: "State variable the control reads and writes (two-way)" }, { name: "min:", type: "Number", meaning: "Lowest value" }, { name: "max:", type: "Number", meaning: "Highest value" }, { name: "step:", type: "Number", meaning: "Granularity" }, { name: "label:", type: "String", meaning: "Visible label; also the control's accessible name" }, { name: "disabled:", type: "Bool", meaning: "Whether the control is inert" }], caption: "Props of Slider")
-        Markdown(t("ref.attrs", { families: "global, aria, data, input", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data, input", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Row(gap: .sm) {
@@ -2684,7 +2697,7 @@ page BuiltinDatepicker(path: "/reference/datepicker", title: "DatePicker — Ref
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "bind:", type: "State", meaning: "State variable the control reads and writes (two-way)" }, { name: "label:", type: "String", meaning: "Visible label; also the control's accessible name" }, { name: "min:", type: "String", meaning: "Earliest date, `YYYY-MM-DD`" }, { name: "max:", type: "String", meaning: "Latest date, `YYYY-MM-DD`" }, { name: "disabled:", type: "Bool", meaning: "Whether the control is inert" }], caption: "Props of DatePicker")
-        Markdown(t("ref.attrs", { families: "global, aria, data, input", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data, input", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Row(gap: .sm) {
@@ -2720,7 +2733,7 @@ page BuiltinFileupload(path: "/reference/fileupload", title: "FileUpload — Ref
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "accept:", type: "String", meaning: "Accepted types, e.g. `image/*` or `.pdf,.doc`" }, { name: "label:", type: "String", meaning: "Visible label; also the control's accessible name" }, { name: "multiple:", type: "Bool", meaning: "Accept several files" }, { name: "disabled:", type: "Bool", meaning: "Whether the control is inert" }], caption: "Props of FileUpload")
-        Markdown(t("ref.attrs", { families: "global, aria, data, input", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data, input", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Row(gap: .sm) {
@@ -2753,7 +2766,7 @@ page BuiltinForm(path: "/reference/form", title: "Form — Reference", descripti
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "bind:", type: "State", meaning: "A handle on the form: `form.valid`, `form.errors`, `form.values` by field name, `form.reset()`, `form.apply(serverErrors)`" }, { name: "show:", type: ".onBlur .onSubmit .live", meaning: "When a `validate` block's message is shown" }], caption: "Props of Form")
-        Markdown(t("ref.attrs", { families: "global, aria, data, form", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data, form", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Row(gap: .sm) {
@@ -2798,7 +2811,7 @@ page BuiltinTextarea(path: "/reference/textarea", title: "Textarea — Reference
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "bind:", type: "State", meaning: "State variable the control reads and writes (two-way)" }, { name: "label:", type: "String", meaning: "Visible label; also the control's accessible name" }, { name: "hint:", type: "String", meaning: "Help text under the control, linked to it by `aria-describedby`" }, { name: "error:", type: "String", meaning: "Error text (a string; empty when there is none): announced as it appears and sets `aria-invalid`" }, { name: "placeholder:", type: "String", meaning: "Hint shown while the field is empty" }, { name: "rows:", type: "Number", meaning: "How many lines it shows" }, { name: "maxLength:", type: "Number", meaning: "The most characters it takes" }, { name: "required:", type: "Bool", meaning: "Whether the form refuses to submit without it" }, { name: "disabled:", type: "Bool", meaning: "Whether the control is inert" }], caption: "Props of Textarea")
-        Markdown(t("ref.attrs", { families: "global, aria, data, input", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data, input", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Row(gap: .sm) {
@@ -2833,7 +2846,7 @@ page BuiltinAlert(path: "/reference/alert", title: "Alert — Reference", descri
         }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "message", type: "String  (positional)", meaning: "The message" }, { name: "tone:", type: ".success .danger .warning .info", meaning: "Kind of notice" }], caption: "Props of Alert")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Row(gap: .sm) {
@@ -2868,7 +2881,7 @@ page BuiltinToast(path: "/reference/toast", title: "Toast — Reference", descri
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "message", type: "String  (positional)", meaning: "The message" }, { name: "tone:", type: ".success .danger .warning .info", meaning: "Kind of notice" }], caption: "Props of Toast")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Row(gap: .sm) {
@@ -2903,7 +2916,7 @@ page BuiltinModal(path: "/reference/modal", title: "Modal — Reference", descri
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "visible:", type: "State", meaning: "State flag that opens and closes it" }, { name: "title:", type: "String", meaning: "Heading shown at the top" }, { name: "closable:", type: "Bool", meaning: "A close button in the heading row, which closes it as Escape does" }], caption: "Props of Modal")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Row(gap: .sm) {
@@ -2946,7 +2959,7 @@ page BuiltinModalTitle(path: "/reference/modal-title", title: "Modal.Title — R
         Markdown(t("ref.partof", { owner: "Modal", to: "/reference/modal" }), class: "bp-prose")
         Heading(t("ref.tab.props"), id: "props").h2
         Text(t("ref.noprops"), class: "bp-small")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Text(t("ref.noflags"), class: "bp-small")
@@ -2979,7 +2992,7 @@ page BuiltinModalFooter(path: "/reference/modal-footer", title: "Modal.Footer �
         Markdown(t("ref.partof", { owner: "Modal", to: "/reference/modal" }), class: "bp-prose")
         Heading(t("ref.tab.props"), id: "props").h2
         Text(t("ref.noprops"), class: "bp-small")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Text(t("ref.noflags"), class: "bp-small")
@@ -3013,7 +3026,7 @@ page BuiltinPopover(path: "/reference/popover", title: "Popover — Reference", 
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "visible:", type: "State", meaning: "State flag that opens and closes it" }, { name: "anchor:", type: "Any", meaning: "What it is placed against: an element's `ref:`, or a point `\{ x: e.clientX, y: e.clientY \}`" }, { name: "at:", type: "Any", meaning: "A point to place it at, `\{ x: e.clientX, y: e.clientY \}`: where the pointer asked for a context menu" }, { name: "placement:", type: ".bottom .bottomStart .bottomEnd .top .topStart .topEnd .left .leftStart .leftEnd .right .rightStart .rightEnd", meaning: "Where it goes against its anchor; it flips to the other side when there is no room. Unset, `.bottomStart`" }, { name: "offset:", type: "Number", meaning: "How far from the anchor, in px" }, { name: "label:", type: "String", meaning: "What it is, for a screen reader: its accessible name" }, { name: "arrow:", type: "Bool", meaning: "A point toward the anchor" }], caption: "Props of Popover")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Row(gap: .sm) {
@@ -3062,7 +3075,7 @@ page BuiltinDialog(path: "/reference/dialog", title: "Dialog — Reference", des
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "visible:", type: "State", meaning: "State flag that opens and closes it" }, { name: "title:", type: "String", meaning: "Heading shown at the top" }, { name: "closable:", type: "Bool", meaning: "A close button in the heading row, which closes it as Escape does" }], caption: "Props of Dialog")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Row(gap: .sm) {
@@ -3102,7 +3115,7 @@ page BuiltinDialogTitle(path: "/reference/dialog-title", title: "Dialog.Title �
         Markdown(t("ref.partof", { owner: "Dialog", to: "/reference/dialog" }), class: "bp-prose")
         Heading(t("ref.tab.props"), id: "props").h2
         Text(t("ref.noprops"), class: "bp-small")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Text(t("ref.noflags"), class: "bp-small")
@@ -3132,7 +3145,7 @@ page BuiltinSpinner(path: "/reference/spinner", title: "Spinner — Reference", 
         }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "size:", type: ".sm .md .lg", meaning: "Its size" }], caption: "Props of Spinner")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Row(gap: .sm) {
@@ -3165,7 +3178,7 @@ page BuiltinProgress(path: "/reference/progress", title: "Progress — Reference
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "value:", type: "Number", meaning: "Current value" }, { name: "max:", type: "Number", meaning: "Value at 100%" }], caption: "Props of Progress")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Text(t("ref.noflags"), class: "bp-small")
@@ -3195,7 +3208,7 @@ page BuiltinSkeleton(path: "/reference/skeleton", title: "Skeleton — Reference
         }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "height:", type: "String", meaning: "CSS height" }, { name: "width:", type: "String", meaning: "CSS width" }, { name: "size:", type: "String", meaning: "Diameter of a `circle`" }, { name: "circle:", type: "Bool", meaning: "A round placeholder" }], caption: "Props of Skeleton")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Row(gap: .sm) {
@@ -3235,7 +3248,7 @@ page BuiltinButton(path: "/reference/button", title: "Button — Reference", des
         }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "label", type: "String  (positional)", meaning: "The label" }, { name: "tone:", type: ".primary .secondary .success .danger .warning .info", meaning: "Colour" }, { name: "size:", type: ".sm .md .lg", meaning: "Its size" }, { name: "shape:", type: ".rounded .pill", meaning: "Corner shape" }, { name: "width:", type: ".full", meaning: "Width" }, { name: "outlined:", type: "Bool", meaning: "A border and no fill" }, { name: "type:", type: ".button .submit .reset", meaning: "Its role inside a form" }, { name: "to:", type: "Path", meaning: "The route to go to when it is pressed" }, { name: "disabled:", type: "Bool", meaning: "Whether the control is inert" }], caption: "Props of Button")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Row(gap: .sm) {
@@ -3291,7 +3304,7 @@ page BuiltinIconbutton(path: "/reference/iconbutton", title: "IconButton — Ref
         }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "icon:", type: "String", meaning: "One of the built-in icon names" }, { name: "label:", type: "String", meaning: "Accessible name (`aria-label` and `title`)" }, { name: "size:", type: ".sm .md .lg", meaning: "Its size" }, { name: "tone:", type: ".primary .danger", meaning: "Colour" }, { name: "type:", type: ".button .submit .reset", meaning: "Its role inside a form" }, { name: "disabled:", type: "Bool", meaning: "Whether the control is inert" }], caption: "Props of IconButton")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Row(gap: .sm) {
@@ -3332,7 +3345,7 @@ page BuiltinButtongroup(path: "/reference/buttongroup", title: "ButtonGroup — 
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         Text(t("ref.noprops"), class: "bp-small")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Text(t("ref.noflags"), class: "bp-small")
@@ -3363,7 +3376,7 @@ page BuiltinDropdown(path: "/reference/dropdown", title: "Dropdown — Reference
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "label", type: "String  (positional)", meaning: "Label of the button that opens it" }], caption: "Props of Dropdown")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Text(t("ref.noflags"), class: "bp-small")
@@ -3400,7 +3413,7 @@ page BuiltinDropdownItem(path: "/reference/dropdown-item", title: "Dropdown.Item
         Markdown(t("ref.partof", { owner: "Dropdown", to: "/reference/dropdown" }), class: "bp-prose")
         Heading(t("ref.tab.props"), id: "props").h2
         Text(t("ref.noprops"), class: "bp-small")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Text(t("ref.noflags"), class: "bp-small")
@@ -3433,7 +3446,7 @@ page BuiltinDropdownDivider(path: "/reference/dropdown-divider", title: "Dropdow
         Markdown(t("ref.partof", { owner: "Dropdown", to: "/reference/dropdown" }), class: "bp-prose")
         Heading(t("ref.tab.props"), id: "props").h2
         Text(t("ref.noprops"), class: "bp-small")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Text(t("ref.noflags"), class: "bp-small")
@@ -3468,7 +3481,7 @@ page BuiltinImage(path: "/reference/image", title: "Image — Reference", descri
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "source", type: "Any  (positional)", meaning: "An `image` the program declares, or a URL" }, { name: "src:", type: "String", meaning: "Image URL" }, { name: "sizes:", type: "String", meaning: "How wide it will be shown, so the browser picks a width: `(max-width: 768px) 100vw, 1200px`" }, { name: "placeholder:", type: ".blur .color .none", meaning: "What fills the box while the image loads" }, { name: "alt:", type: "String", meaning: "Text alternative; empty for a purely decorative image" }, { name: "width:", type: "Number", meaning: "Intrinsic width" }, { name: "height:", type: "Number", meaning: "Intrinsic height" }, { name: "loading:", type: ".lazy .eager", meaning: "Unset, the first image on a page is eager at high priority and the rest lazy" }, { name: "shape:", type: ".rounded .circle", meaning: "Shape" }], caption: "Props of Image")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Row(gap: .sm) {
@@ -3512,7 +3525,7 @@ page BuiltinVideo(path: "/reference/video", title: "Video — Reference", descri
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "src:", type: "String", meaning: "Video URL" }, { name: "controls:", type: "Bool", meaning: "Show the browser's playback controls" }, { name: "autoplay:", type: "Bool", meaning: "Start playing when shown" }, { name: "poster:", type: "String", meaning: "The frame shown before it plays" }, { name: "muted:", type: "Bool", meaning: "Start with the sound off" }, { name: "loop:", type: "Bool", meaning: "Start again when it ends" }, { name: "playsinline:", type: "Bool", meaning: "Play where it sits, rather than full screen" }, { name: "captions:", type: "String", meaning: "A WebVTT file of captions, which becomes a `<track>`" }, { name: "width:", type: "Number", meaning: "Intrinsic width" }, { name: "height:", type: "Number", meaning: "Intrinsic height" }], caption: "Props of Video")
-        Markdown(t("ref.attrs", { families: "global, aria, data, media", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data, media", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Row(gap: .sm) {
@@ -3552,7 +3565,7 @@ page BuiltinAudio(path: "/reference/audio", title: "Audio — Reference", descri
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "src:", type: "String", meaning: "Audio URL" }, { name: "controls:", type: "Bool", meaning: "Show the browser's playback controls" }, { name: "autoplay:", type: "Bool", meaning: "Start playing when shown" }, { name: "loop:", type: "Bool", meaning: "Start again when it ends" }, { name: "transcript:", type: "String", meaning: "A link to what was said, shown beneath the player" }], caption: "Props of Audio")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Row(gap: .sm) {
@@ -3591,7 +3604,7 @@ page BuiltinFrame(path: "/reference/frame", title: "Frame — Reference", descri
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "src:", type: "String", meaning: "The address of the page it shows" }, { name: "srcdoc:", type: "String", meaning: "The HTML it draws in place of an address, sandboxed as `sandbox:` says; a value that reads state draws the new HTML as it changes" }, { name: "title:", type: "String", meaning: "What it shows, in a few words: its accessible name" }, { name: "sandbox:", type: "String", meaning: "What the framed page may do: `\"allow-scripts allow-forms\"`; empty, it may do nothing" }, { name: "allow:", type: "String", meaning: "The features it may use: `\"fullscreen; clipboard-write\"`" }, { name: "loading:", type: ".lazy .eager", meaning: "Unset, at once" }], caption: "Props of Frame")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Row(gap: .sm) {
@@ -3634,7 +3647,7 @@ page BuiltinIcon(path: "/reference/icon", title: "Icon — Reference", descripti
         }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "name", type: "String  (positional)", meaning: "The icon name" }, { name: "size:", type: ".sm .md .lg", meaning: "Its size" }, { name: "tone:", type: ".primary .secondary .success .danger .warning .info", meaning: "Colour" }, { name: "muted:", type: "Bool", meaning: "Dimmed, for secondary text" }], caption: "Props of Icon")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Row(gap: .sm) {
@@ -3675,7 +3688,7 @@ page BuiltinCarousel(path: "/reference/carousel", title: "Carousel — Reference
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "label:", type: "String", meaning: "Accessible name of the region" }, { name: "autoplay:", type: "Bool", meaning: "Advance automatically" }, { name: "interval:", type: "Number", meaning: "Milliseconds between slides" }], caption: "Props of Carousel")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Row(gap: .sm) {
@@ -3713,7 +3726,7 @@ page BuiltinCarouselSlide(path: "/reference/carousel-slide", title: "Carousel.Sl
         Markdown(t("ref.partof", { owner: "Carousel", to: "/reference/carousel" }), class: "bp-prose")
         Heading(t("ref.tab.props"), id: "props").h2
         Text(t("ref.noprops"), class: "bp-small")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Text(t("ref.noflags"), class: "bp-small")
@@ -3752,7 +3765,7 @@ page BuiltinText(path: "/reference/text", title: "Text — Reference", descripti
         }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "content", type: "Any  (positional)", meaning: "The text" }, { name: "tone:", type: ".primary .secondary .success .danger .warning .info", meaning: "Colour" }, { name: "size:", type: ".sm .md .lg", meaning: "Its size" }, { name: "align:", type: ".left .center .right", meaning: "Text alignment" }, { name: "transform:", type: ".uppercase .lowercase", meaning: "Letter case" }, { name: "kind:", type: ".heading .subtitle", meaning: "Typographic role" }, { name: "bold:", type: "Bool", meaning: "Bold" }, { name: "italic:", type: "Bool", meaning: "Italic" }, { name: "underline:", type: "Bool", meaning: "Underlined" }, { name: "muted:", type: "Bool", meaning: "Dimmed, for secondary text" }], caption: "Props of Text")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Row(gap: .sm) {
@@ -3806,7 +3819,7 @@ page BuiltinHeading(path: "/reference/heading", title: "Heading — Reference", 
         }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "content", type: "Any  (positional)", meaning: "The heading text" }, { name: "level:", type: ".h1 .h2 .h3 .h4 .h5 .h6", meaning: "Heading level: the tag, and its place in the outline" }, { name: "align:", type: ".left .center .right", meaning: "Text alignment" }, { name: "muted:", type: "Bool", meaning: "Dimmed, for secondary text" }], caption: "Props of Heading")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Row(gap: .sm) {
@@ -3847,7 +3860,7 @@ page BuiltinCode(path: "/reference/code", title: "Code — Reference", descripti
         }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "content", type: "Any  (positional)", meaning: "The code" }, { name: "block:", type: "Bool", meaning: "A multi-line block" }, { name: "language:", type: "String", meaning: "Colours the code as this language: `wf`, `json`, `bash` or `css`" }], caption: "Props of Code")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Row(gap: .sm) {
@@ -3880,7 +3893,7 @@ page BuiltinMarkdown(path: "/reference/markdown", title: "Markdown — Reference
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "text", type: "String  (positional)", meaning: "The Markdown text" }, { name: "inert:", type: "Bool", meaning: "Text somebody else wrote, such as a language server's documentation: its entities are decoded, a link is drawn as its words and a picture is left out" }], caption: "Props of Markdown")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Row(gap: .sm) {
@@ -3912,7 +3925,7 @@ page BuiltinUnsafe(path: "/reference/unsafe", title: "Unsafe — Reference", des
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         Text(t("ref.noprops"), class: "bp-small")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Text(t("ref.noflags"), class: "bp-small")
@@ -3944,7 +3957,7 @@ page BuiltinUnsafeHtml(path: "/reference/unsafe-html", title: "Unsafe.Html — R
         Markdown(t("ref.partof", { owner: "Unsafe", to: "/reference/unsafe" }), class: "bp-prose")
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "markup", type: "String  (positional)", meaning: "The HTML to insert" }], caption: "Props of Unsafe.Html")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Text(t("ref.noflags"), class: "bp-small")
@@ -3972,7 +3985,7 @@ page BuiltinBlockquote(path: "/reference/blockquote", title: "Blockquote — Ref
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "content", type: "Any  (positional)", meaning: "The quoted text" }], caption: "Props of Blockquote")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Text(t("ref.noflags"), class: "bp-small")
@@ -3999,7 +4012,7 @@ page BuiltinTableofcontents(path: "/reference/tableofcontents", title: "TableOfC
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "levels:", type: "Number", meaning: "How deep it lists: 1 is the `h1`s only (default 3)" }, { name: "title:", type: "String", meaning: "A heading above the list" }], caption: "Props of TableOfContents")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Text(t("ref.noflags"), class: "bp-small")
@@ -4031,7 +4044,7 @@ page BuiltinDocument(path: "/reference/document", title: "Document — Reference
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "page_size:", type: ".A4 .A3 .A5 .Letter .Legal", meaning: "Paper size (also `size:`)" }, { name: "size:", type: "String", meaning: "Paper size: `A4`, `Letter`, `Tabloid`, or two lengths, `210mm 297mm`" }, { name: "landscape:", type: "Bool", meaning: "Turn the paper on its side" }, { name: "margin:", type: "Any", meaning: "The page margins: one length, or top right bottom left (`72`, `20mm 25mm`)" }, { name: "title:", type: "String", meaning: "The file's title, shown by a reader in place of its name" }, { name: "author:", type: "String", meaning: "The file's author; several separated by commas" }, { name: "subject:", type: "String", meaning: "What the document is about" }, { name: "keywords:", type: "String", meaning: "Comma-separated keywords" }, { name: "lang:", type: "String", meaning: "The document's language, for screen readers and hyphenation" }], caption: "Props of Document")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Row(gap: .sm) {
@@ -4068,7 +4081,7 @@ page BuiltinSection(path: "/reference/section", title: "Section — Reference", 
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         Text(t("ref.noprops"), class: "bp-small")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Text(t("ref.noflags"), class: "bp-small")
@@ -4103,7 +4116,7 @@ page BuiltinParagraph(path: "/reference/paragraph", title: "Paragraph — Refere
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "content", type: "Any  (positional)", meaning: "The text" }, { name: "tone:", type: ".primary .secondary .success .danger .warning .info", meaning: "Colour" }, { name: "size:", type: ".sm .md .lg", meaning: "Its size" }, { name: "align:", type: ".left .center .right", meaning: "Text alignment" }, { name: "transform:", type: ".uppercase .lowercase", meaning: "Letter case" }, { name: "kind:", type: ".heading .subtitle", meaning: "Typographic role" }, { name: "bold:", type: "Bool", meaning: "Bold" }, { name: "italic:", type: "Bool", meaning: "Italic" }, { name: "underline:", type: "Bool", meaning: "Underlined" }, { name: "muted:", type: "Bool", meaning: "Dimmed, for secondary text" }], caption: "Props of Paragraph")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Row(gap: .sm) {
@@ -4152,7 +4165,7 @@ page BuiltinHeader(path: "/reference/header", title: "Header — Reference", des
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "on:", type: ".all .first .rest .odd .even", meaning: "Which pages it is drawn on" }], caption: "Props of Header")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Row(gap: .sm) {
@@ -4186,7 +4199,7 @@ page BuiltinFooter(path: "/reference/footer", title: "Footer — Reference", des
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "on:", type: ".all .first .rest .odd .even", meaning: "Which pages it is drawn on" }], caption: "Props of Footer")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Row(gap: .sm) {
@@ -4220,7 +4233,7 @@ page BuiltinBackground(path: "/reference/background", title: "Background — Ref
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "on:", type: ".all .first .rest .odd .even", meaning: "Which pages it is drawn on" }], caption: "Props of Background")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Row(gap: .sm) {
@@ -4255,7 +4268,7 @@ page BuiltinWatermark(path: "/reference/watermark", title: "Watermark — Refere
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "text", type: "String  (positional)", meaning: "The text" }, { name: "on:", type: ".all .first .rest .odd .even", meaning: "Which pages it is drawn on" }], caption: "Props of Watermark")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Row(gap: .sm) {
@@ -4289,7 +4302,7 @@ page BuiltinPagebreak(path: "/reference/pagebreak", title: "PageBreak — Refere
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         Text(t("ref.noprops"), class: "bp-small")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Text(t("ref.noflags"), class: "bp-small")
@@ -4318,7 +4331,7 @@ page BuiltinPresentation(path: "/reference/presentation", title: "Presentation �
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         Text(t("ref.noprops"), class: "bp-small")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Text(t("ref.noflags"), class: "bp-small")
@@ -4348,7 +4361,7 @@ page BuiltinSlide(path: "/reference/slide", title: "Slide — Reference", descri
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         Text(t("ref.noprops"), class: "bp-small")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Text(t("ref.noflags"), class: "bp-small")
@@ -4381,7 +4394,7 @@ page BuiltinTitleslide(path: "/reference/titleslide", title: "TitleSlide — Ref
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "title", type: "String  (positional)", meaning: "The title" }, { name: "subtitle:", type: "String", meaning: "The subtitle" }], caption: "Props of TitleSlide")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Text(t("ref.noflags"), class: "bp-small")
@@ -4409,7 +4422,7 @@ page BuiltinSectionslide(path: "/reference/sectionslide", title: "SectionSlide �
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "label", type: "String  (positional)", meaning: "The label" }, { name: "tone:", type: ".primary .success .danger .warning .info", meaning: "Colour of the band" }], caption: "Props of SectionSlide")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Row(gap: .sm) {
@@ -4443,7 +4456,7 @@ page BuiltinTwocolumn(path: "/reference/twocolumn", title: "TwoColumn — Refere
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         Text(t("ref.noprops"), class: "bp-small")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Text(t("ref.noflags"), class: "bp-small")
@@ -4476,7 +4489,7 @@ page BuiltinImageslide(path: "/reference/imageslide", title: "ImageSlide — Ref
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "src:", type: "String", meaning: "Image path (required)" }, { name: "caption:", type: "String", meaning: "Caption under the image" }], caption: "Props of ImageSlide")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Text(t("ref.noflags"), class: "bp-small")
@@ -4504,7 +4517,7 @@ page BuiltinTabpage(path: "/reference/tabpage", title: "TabPage — Reference", 
         Markdown(t("ref.legacy", { modern: "Tabs.Page", to: "/reference/tabs-page" }), class: "bp-prose")
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "label", type: "String  (positional)", meaning: "The tab's label" }], caption: "Props of TabPage")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Text(t("ref.noflags"), class: "bp-small")
@@ -4532,7 +4545,7 @@ page BuiltinThead(path: "/reference/thead", title: "Thead — Reference", descri
         Markdown(t("ref.legacy", { modern: "Table.Head", to: "/reference/table-head" }), class: "bp-prose")
         Heading(t("ref.tab.props"), id: "props").h2
         Text(t("ref.noprops"), class: "bp-small")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Text(t("ref.noflags"), class: "bp-small")
@@ -4559,7 +4572,7 @@ page BuiltinTbody(path: "/reference/tbody", title: "Tbody — Reference", descri
         Markdown(t("ref.legacy", { modern: "Table.Body", to: "/reference/table-body" }), class: "bp-prose")
         Heading(t("ref.tab.props"), id: "props").h2
         Text(t("ref.noprops"), class: "bp-small")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Text(t("ref.noflags"), class: "bp-small")
@@ -4586,7 +4599,7 @@ page BuiltinTrow(path: "/reference/trow", title: "Trow — Reference", descripti
         Markdown(t("ref.legacy", { modern: "Table.Row", to: "/reference/table-row" }), class: "bp-prose")
         Heading(t("ref.tab.props"), id: "props").h2
         Text(t("ref.noprops"), class: "bp-small")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Text(t("ref.noflags"), class: "bp-small")
@@ -4613,7 +4626,7 @@ page BuiltinTcell(path: "/reference/tcell", title: "Tcell — Reference", descri
         Markdown(t("ref.legacy", { modern: "Table.Cell", to: "/reference/table-cell" }), class: "bp-prose")
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "content", type: "Any  (positional)", meaning: "The cell's content" }, { name: "header:", type: "Bool", meaning: "Render as a `<th>`" }], caption: "Props of Tcell")
-        Markdown(t("ref.attrs", { families: "global, aria, data, table", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data, table", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Row(gap: .sm) {
@@ -4643,7 +4656,7 @@ page BuiltinOption(path: "/reference/option", title: "Option — Reference", des
         Markdown(t("ref.legacy", { modern: "Select.Option", to: "/reference/select-option" }), class: "bp-prose")
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "label", type: "String  (positional)", meaning: "The visible label" }, { name: "value:", type: "Any", meaning: "The value sent with the form" }], caption: "Props of Option")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Text(t("ref.noflags"), class: "bp-small")
@@ -4670,7 +4683,7 @@ page BuiltinRoute(path: "/reference/route", title: "Route — Reference", descri
         Markdown(t("ref.legacy", { modern: "page", to: "/learn/05-pages-and-routing" }), class: "bp-prose")
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "path:", type: "Path", meaning: "URL pattern" }, { name: "page:", type: "Declaration", meaning: "The page to render" }], caption: "Props of Route")
-        Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Text(t("ref.noflags"), class: "bp-small")

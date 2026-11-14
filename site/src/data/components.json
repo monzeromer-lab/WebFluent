@@ -1820,19 +1820,84 @@
    "family": "Navigation",
    "owner": "",
    "ownerSlug": "",
-   "summary": "Tab strip switching between its pages.",
-   "plain": "Tab strip switching between its pages.",
-   "signature": "Tabs { … }",
+   "summary": "Tab strip switching between its pages: the arrow keys move between the tabs (the other way round in a right-to-left page), Home and End go to the ends.",
+   "plain": "Tab strip switching between its pages: the arrow keys move between the tabs (the other way round in a right-to-left page), Home and End go to the ends.",
+   "signature": "Tabs(bind: State, value: Any, orientation: Enum, …) { … }",
    "block": true,
    "legacy": false,
    "modern": [
     "",
     ""
    ],
-   "props": [],
-   "controls": [],
-   "flags": [],
-   "events": [],
+   "props": [
+    {
+     "name": "bind:",
+     "type": "State",
+     "meaning": "The open tab, read and written: a page's `value:`, or its place from 0 when the pages give none"
+    },
+    {
+     "name": "value:",
+     "type": "Any",
+     "meaning": "The open tab, read only: `on change(v)` hears the one the reader picks"
+    },
+    {
+     "name": "orientation:",
+     "type": ".horizontal .vertical",
+     "meaning": "Which way the tabs run"
+    },
+    {
+     "name": "activation:",
+     "type": ".automatic .manual",
+     "meaning": "Whether moving the focus opens a tab"
+    },
+    {
+     "name": "label:",
+     "type": "String",
+     "meaning": "The tab strip's accessible name"
+    }
+   ],
+   "controls": [
+    {
+     "name": "orientation",
+     "kind": "enum",
+     "options": [
+      "horizontal",
+      "vertical"
+     ],
+     "value": "horizontal",
+     "sink": "special"
+    },
+    {
+     "name": "activation",
+     "kind": "enum",
+     "options": [
+      "automatic",
+      "manual"
+     ],
+     "value": "automatic",
+     "sink": "special"
+    },
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [
+    ".horizontal",
+    ".vertical",
+    ".automatic",
+    ".manual"
+   ],
+   "events": [
+    {
+     "name": "change",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
    "domEvents": [],
    "slots": [
     {
@@ -1891,7 +1956,7 @@
    "ownerSlug": "tabs",
    "summary": "One tab and its panel.",
    "plain": "One tab and its panel.",
-   "signature": "Tabs.Page(_ label: String) { … }",
+   "signature": "Tabs.Page(_ label: String, value: Any, disabled: Bool) { … }",
    "block": true,
    "legacy": false,
    "modern": [
@@ -1903,6 +1968,16 @@
      "name": "label",
      "type": "String  (positional)",
      "meaning": "The tab's label"
+    },
+    {
+     "name": "value:",
+     "type": "Any",
+     "meaning": "What the Tabs' `bind:` holds while this tab is open"
+    },
+    {
+     "name": "disabled:",
+     "type": "Bool",
+     "meaning": "Shown, but not opened: the arrow keys pass over it"
     }
    ],
    "controls": [
@@ -1911,9 +1986,18 @@
      "kind": "string",
      "options": [],
      "value": ""
+    },
+    {
+     "name": "disabled",
+     "kind": "bool",
+     "options": [],
+     "value": "",
+     "sink": "special"
     }
    ],
-   "flags": [],
+   "flags": [
+    ".disabled"
+   ],
    "events": [],
    "domEvents": [],
    "slots": [
@@ -10430,6 +10514,7 @@
    "dropValue",
    "dropAxis",
    "dropInside",
+   "roving",
    "trapFocus",
    "mount",
    "update",
@@ -10520,6 +10605,11 @@
     "name": "dropInside:",
     "type": "Bool",
     "meaning": "A drop on its middle lands inside it — a folder, a container — as well as before or after"
+   },
+   {
+    "name": "roving:",
+    "type": ".x .y .both",
+    "meaning": "One Tab stop for the group, and the arrow keys, Home, End and the first letters of a name to move inside it: a toolbar, a row of choices, a list"
    },
    {
     "name": "trapFocus:",

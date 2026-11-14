@@ -975,6 +975,27 @@ fn step_one(page: &mut dyn Page, step: &Step) -> Result<std::result::Result<(), 
                 }));
             }
         }
+        Step::ExpectFocus { name, .. } => {
+            let want = squeeze(&text(name));
+            // What a reader hears the focused element called: its
+            // `aria-label`, its label, its placeholder, or its text.
+            let read = "(() => { const el = document.activeElement; if (!el || el === document.body) return ''; \
+                const label = el.labels && el.labels[0] ? el.labels[0].innerText : ''; \
+                return (el.getAttribute('aria-label') || label || el.getAttribute('placeholder') || el.innerText || el.value || '').trim(); })()";
+            let until = std::time::Instant::now() + std::time::Duration::from_millis(1500);
+            let mut now = squeeze(page.eval(read)?.as_str().unwrap_or_default());
+            while now != want && !now.contains(&want) && std::time::Instant::now() < until {
+                page.settle(50)?;
+                now = squeeze(page.eval(read)?.as_str().unwrap_or_default());
+            }
+            if now != want && !now.contains(&want) {
+                return Ok(Err(if now.is_empty() {
+                    format!("expected the focus on {want:?}, and nothing has it")
+                } else {
+                    format!("expected the focus on {want:?}, and it is on {now:?}")
+                }));
+            }
+        }
         Step::Click { target, .. } => {
             let name = text(target);
             let done = page.eval(&step_script("click", &name, ""))?;
@@ -1277,6 +1298,9 @@ const ACT: &str = r#"
     // of a tree.
     const el = find(name, "button, a, [role=button], [role=link], [role=tab], [role=menuitem], [role=menuitemcheckbox], [role=menuitemradio], [role=option], [role=treeitem], [role=switch], [role=checkbox], [role=radio], input, select, summary, label, [onclick]");
     if (!el) return "none";
+    // A real press puts the focus on what it presses, when that can take
+    // it — so a key pressed next goes there, as it would for a reader.
+    if (el.focus && el.matches && el.matches("button, a[href], input, select, textarea, summary, [tabindex]")) el.focus({ preventScroll: true });
     el.click();
     return "ok";
   }

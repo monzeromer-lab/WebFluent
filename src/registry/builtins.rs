@@ -508,6 +508,19 @@ pub const UNIVERSAL_PROPS: &[PropSig] = &[
         PropType::Bool,
         "A drop on its middle lands inside it — a folder, a container — as well as before or after",
     ),
+    PropSig {
+        name: "roving",
+        ty: PropType::Enum(&[
+            case("x", "", "A row: ArrowLeft and ArrowRight move, the other way round in a right-to-left box"),
+            case("y", "", "A column: ArrowUp and ArrowDown move"),
+            case("both", "", "Both: a wrapping row of choices"),
+        ]),
+        summary: "One Tab stop for the group, and the arrow keys, Home, End and the first letters of a name to move inside it: a toolbar, a row of choices, a list",
+        sink: Sink::Special,
+        legacy: Legacy::Attr,
+        shorthand: false,
+        required: false,
+    },
     special(
         "trapFocus",
         PropType::Bool,
@@ -988,16 +1001,55 @@ pub const COMPONENTS: &[ComponentSig] = &[
     .html("a", "wf-link")
     .css(&["Link"])
     .on_paper(),
-    comp(
-        "Tabs",
-        "Navigation",
-        "Tab strip switching between its pages.",
-        None,
-        &[],
-        &["Page"],
-        G,
-        Children::Elements,
-    )
+    ComponentSig {
+        events: &["change"],
+        ..comp(
+            "Tabs",
+            "Navigation",
+            "Tab strip switching between its pages: the arrow keys move between the tabs (the other way round in a right-to-left page), Home and End go to the ends.",
+            None,
+            &[
+                special(
+                    "bind",
+                    PropType::State,
+                    "The open tab, read and written: a page's `value:`, or its place from 0 when the pages give none",
+                ),
+                special(
+                    "value",
+                    PropType::Any,
+                    "The open tab, read only: `on change(v)` hears the one the reader picks",
+                ),
+                PropSig {
+                    name: "orientation",
+                    ty: PropType::Enum(&[
+                        case("horizontal", "", "Tabs in a row; ArrowLeft and ArrowRight move (the default)"),
+                        case("vertical", "", "Tabs in a column; ArrowUp and ArrowDown move"),
+                    ]),
+                    summary: "Which way the tabs run",
+                    sink: Sink::Special,
+                    legacy: Legacy::Attr,
+                    shorthand: true,
+                    required: false,
+                },
+                PropSig {
+                    name: "activation",
+                    ty: PropType::Enum(&[
+                        case("automatic", "", "A tab opens as the focus reaches it (the default)"),
+                        case("manual", "", "The focus moves alone; Enter or Space opens the tab, for panels slow to draw"),
+                    ]),
+                    summary: "Whether moving the focus opens a tab",
+                    sink: Sink::Special,
+                    legacy: Legacy::Attr,
+                    shorthand: true,
+                    required: false,
+                },
+                special("label", PropType::Str, "The tab strip's accessible name"),
+            ],
+            &["Page"],
+            G,
+            Children::Elements,
+        )
+    }
     .html("div", "wf-tabs")
     .css(&["Tabs"])
     .not_on_paper("navigation components are web-only"),
@@ -1007,7 +1059,18 @@ pub const COMPONENTS: &[ComponentSig] = &[
         Ir::BuiltIn("TabPage"),
         "One tab and its panel.",
         Some(special("label", PropType::Str, "The tab's label")),
-        &[],
+        &[
+            special(
+                "value",
+                PropType::Any,
+                "What the Tabs' `bind:` holds while this tab is open",
+            ),
+            special(
+                "disabled",
+                PropType::Bool,
+                "Shown, but not opened: the arrow keys pass over it",
+            ),
+        ],
         G,
         Children::Elements,
     )

@@ -1709,6 +1709,7 @@ pub fn declaration(d: &Declaration, program: &Program) -> String {
                             expr(text)
                         )
                     }
+                    Step::ExpectFocus { name, .. } => format!("expect focus {}", expr(name)),
                     Step::Click { target, .. } => format!("click {}", expr(target)),
                     Step::Type { text, into, .. } => {
                         format!("type {} into {}", expr(text), expr(into))

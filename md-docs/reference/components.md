@@ -436,10 +436,10 @@ Attribute families: `global`, `aria`, `data`, `anchor`.
 
 ### Tabs
 
-Tab strip switching between its pages.
+Tab strip switching between its pages: the arrow keys move between the tabs (the other way round in a right-to-left page), Home and End go to the ends.
 
 ```
-Tabs { … }
+Tabs(bind: …, value: …, orientation: …) { … }
 ```
 
 ```wf
@@ -451,10 +451,25 @@ Tabs {
 
 Renders with the class `wf-tabs`.
 
+| Prop | Type | Meaning |
+|---|---|---|
+| `bind:` | `State` | The open tab, read and written: a page's `value:`, or its place from 0 when the pages give none |
+| `value:` | `Any` | The open tab, read only: `on change(v)` hears the one the reader picks |
+| `orientation:` | `.horizontal` `.vertical` | Which way the tabs run |
+| `activation:` | `.automatic` `.manual` | Whether moving the focus opens a tab |
+| `label:` | `String` | The tab strip's accessible name |
+
+**Flags:** `.horizontal` `.vertical` `.automatic` `.manual`
+
+**Events of its own:** `on change`
+
 **Parts:**
 
-- `Tabs.Page(label) { … }` — One tab and its panel.
+- `Tabs.Page(label, value: …, disabled: …) { … }` — One tab and its panel.
   - `label:` `String` — The tab's label
+  - `value:` `Any` — What the Tabs' `bind:` holds while this tab is open
+  - `disabled:` `Bool` — Shown, but not opened: the arrow keys pass over it
+  - flags: `.disabled`
 
 Takes a block of children.
 
@@ -2198,6 +2213,7 @@ Attribute families: `global`, `aria`, `data`.
 | `dropValue:` | `Any` | What this target is, as a drag sees it: `d.over` in the drag's `on dragmove(d)` and in `on receive(d)` |
 | `dropAxis:` | `.y` `.x` | Which way its list runs, for where a drop lands |
 | `dropInside:` | `Bool` | A drop on its middle lands inside it — a folder, a container — as well as before or after |
+| `roving:` | `.x` `.y` `.both` | One Tab stop for the group, and the arrow keys, Home, End and the first letters of a name to move inside it: a toolbar, a row of choices, a list |
 | `trapFocus:` | `Bool` | While true, focus moves into it and Tab and Shift+Tab stay inside; when it turns false or the element leaves, focus goes back where it was |
 | `mount:` | `Any` | Run with the element each time it is made — `mount: (n) => initTilt(n)` — and what it returns is the handle `update:` and `cleanup:` get |
 | `update:` | `Any` | Run with the handle again whenever the state it reads changes: `update: (h) => h.setMax(max)` |

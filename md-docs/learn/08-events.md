@@ -209,6 +209,39 @@ The helpers and rules it relies on:
 - **A letter is also the key in its place.** On a Mac `⌥⌘P` sends `π`, and
   `mod+alt+p` still matches it.
 
+### Moving through a group with the arrow keys
+
+A tab strip, a toolbar or a row of choices is one stop for Tab: Tab enters
+it and leaves it, and the arrow keys move inside it. `Tabs` and `Menu` work
+that way already. `roving:` gives any element of yours the same:
+
+```wf
+page Editor(path: "/", title: "Editor", description: "Format the text.") {
+    state bold = false
+    state italic = false
+    Heading("Editor").h1
+    Row(roving: .x, role: "toolbar", aria-label: "Format") {
+        Button("Bold", aria-pressed: bold) { on click { bold = !bold } }
+        Button("Italic", aria-pressed: italic) { on click { italic = !italic } }
+    }
+}
+```
+
+- `roving: .x` moves with ArrowLeft and ArrowRight, `.y` with ArrowUp and
+  ArrowDown, `.both` with either.
+- Across a right-to-left page the next item is to the left, so ArrowLeft
+  moves forward there.
+- Home and End go to the ends, and a letter goes to the next item whose
+  name starts with it.
+- Tab enters at the chosen item, the one marked `aria-selected`,
+  `aria-checked` or `aria-pressed`, or the first. A disabled item is passed
+  over, and a key held with Alt, Ctrl or ⌘ is left to the browser.
+
+For a key of your own that follows the direction of the text, write
+`on key("inline-start")` or `on key("inline-end")`: ArrowLeft and
+ArrowRight in a left-to-right box, the other way round in a right-to-left
+one.
+
 ## Emitting events from components
 
 A component declares the events it fires with `event`, and fires them with

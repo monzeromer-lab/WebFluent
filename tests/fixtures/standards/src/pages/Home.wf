@@ -10,6 +10,7 @@ page Home(path: "/", title: "Standards", description: "The built-ins, held to th
     state saved = false
     state visible = true
     state said = ""
+    state tab = "two"
 
     action save(ms: Number) {
         await wait(ms)
@@ -39,6 +40,19 @@ page Home(path: "/", title: "Standards", description: "The built-ins, held to th
         Button("Fast", id: "fast") { on click { save(100) } }
         Text(if save.pending { "busy" } else { "idle" }, id: "busy")
         Text(said, id: "said")
+
+        Tabs(bind: tab, label: "Numbers", id: "nums") {
+            Tabs.Page("One", value: "one") { Text("first panel") }
+            Tabs.Page("Two", value: "two") { Text("second panel") }
+            Tabs.Page("Three", value: "three", disabled: true) { Text("third panel") }
+            Tabs.Page("Four", value: "four") { Text("fourth panel") }
+        }
+        Text("tab {tab}", id: "tabsaid")
+        Row(roving: .x, role: "toolbar", aria-label: "Format", id: "tools") {
+            Button("Bold")
+            Button("Italic")
+            Button("Underline")
+        }
 
         Stack(dir: "rtl", id: "rtl") {
             Menu(trigger: "تعديل", id: "edit-menu") {

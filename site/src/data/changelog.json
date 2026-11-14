@@ -32,6 +32,44 @@
     "after": ""
    },
    {
+    "title": "The arrow keys, everywhere a group needs them",
+    "id": "6.2.0-the-arrow-keys-everywhere-a-group-needs-them",
+    "intro": "",
+    "items": [
+     {
+      "text": "`roving: .x` (`.y`, `.both`) on any element makes it one stop for Tab,\nwith the arrow keys, Home, End and the first letters of a name inside\nit — a toolbar, a row of choices — the other way round across a\nright-to-left box. Tabs, menus and a carousel's dots are built on the\nsame code.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`Tabs(bind: tab)` keeps the open tab in a state, holding the open page's\n`value:`; `Tabs(value: v)` reads it and `on change(v)` hears the one\npicked, so a tab can live in the address. A page can be `disabled:`, a\nstrip `.vertical`, and `.manual` opens a tab on Enter or Space rather\nthan as the focus reaches it.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "A tab strip is painted before any script runs: its tabs, the open one\nselected, and the other panels hidden.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "Menus jump to an item by the first letters of its name.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`on key(\"inline-start\")` and `on key(\"inline-end\")` are the arrow toward\nwhere a line starts or ends, swapped in a right-to-left box.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`wf test` has `expect focus \"Beta\"`, and a `click` step puts the focus\nwhere a real click would, so the keys a test presses next go there.",
+      "points": [],
+      "after": ""
+     }
+    ],
+    "after": ""
+   },
+   {
     "title": "Fixes",
     "id": "6.2.0-fixes",
     "intro": "",
@@ -159,7 +197,7 @@
     "after": ""
    }
   ],
-  "count": 21
+  "count": 27
  },
  {
   "version": "6.1.0",

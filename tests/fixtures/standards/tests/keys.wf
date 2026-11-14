@@ -1,0 +1,20 @@
+test "tabs follow the arrow keys, and the focus with them" {
+    state tab = "a"
+    Tabs(bind: tab, label: "Letters") {
+        Tabs.Page("Alpha", value: "a") { Text("alpha panel") }
+        Tabs.Page("Beta", value: "b") { Text("beta panel") }
+    }
+    click "Alpha"
+    press "ArrowRight"
+    expect focus "Beta"
+    expect "beta panel"
+}
+
+test "a shortcut is pressed with its modifier" {
+    state saved = "not saved"
+    Text(saved)
+    on key("mod+s", e) { e.preventDefault()  saved = "saved" }
+    press "mod+s"
+    expect "saved"
+    expect not "not saved"
+}

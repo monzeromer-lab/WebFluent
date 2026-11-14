@@ -117,33 +117,28 @@
     });
   }
 
-  /// Arrow-key navigation for a `role="tabs"`.
-  ///
-  /// The WAI-ARIA pattern puts only the selected tab in the tab order and moves
-  /// between tabs with the arrow keys, so Tab leaves the widget rather than
-  /// walking through every tab in it.
-  function tabs(nav, activeSignal) {
-    live(nav);
-    nav.addEventListener("keydown", (e) => {
-      // A key held with a modifier is the browser's or the page's —
-      // Alt+ArrowLeft goes back — not a move between tabs.
-      if (e.altKey || e.ctrlKey || e.metaKey) return;
-      const tabs = nav.querySelectorAll("button");
-      if (!tabs.length) return;
-      const current = activeSignal();
-      // Across a right-to-left page the next tab is to the left.
-      const rtl = _isRtl(nav);
-      const forward = rtl ? "ArrowLeft" : "ArrowRight";
-      const back = rtl ? "ArrowRight" : "ArrowLeft";
-      let next = null;
-      if (e.key === forward || e.key === "ArrowDown") next = (current + 1) % tabs.length;
-      else if (e.key === back || e.key === "ArrowUp") next = (current - 1 + tabs.length) % tabs.length;
-      else if (e.key === "Home") next = 0;
-      else if (e.key === "End") next = tabs.length - 1;
-      if (next === null) return;
-      if (e.preventDefault) e.preventDefault();
-      activeSignal.set(next);
-      if (tabs[next] && tabs[next].focus) tabs[next].focus();
+  /// A tab strip's keys: the WAI-ARIA pattern, through `roving` — only the
+  /// selected tab is in the tab order, the arrow keys move between tabs
+  /// (the other way round across a right-to-left page), Home and End go
+  /// to the ends, and a disabled tab is passed over. `read` is the selected
+  /// tab's index and `write` selects one; with `manual`, moving the focus
+  /// does not select (Enter or Space does, as the tab's click).
+  function tabs(nav, read, write, options) {
+    if (write === undefined && read && typeof read.set === "function") {
+      const signal = read;
+      read = () => signal();
+      write = (i) => signal.set(i);
+    }
+    const opts = options || {};
+    const all = () => Array.from(nav.querySelectorAll('[role="tab"]'));
+    return roving(nav, {
+      items: all,
+      axis: opts.vertical ? "y" : "x",
+      active: read,
+      onMove: (i) => {
+        if (!opts.manual && write) write(i);
+      },
     });
   }
+
 
