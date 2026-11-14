@@ -2,12 +2,12 @@
 /// scripts/docsite/guide.py; edit the guide, not this file.
 page Learn03TutorialTodos(path: "/learn/03-tutorial-todos", title: "Tutorial: Todos", description: "A beginner WebFluent tutorial: a todo app with a persisted store, a component, a keyed list, a filter in the address and tests, in 20 minutes.", layout: DocsShell("Tutorial: Todos", kind: .tutorial, chapter: t("nav.group.tour"), blurb: "Build a todo list kept in the reader's browser — types, a store that remembers, a component, a filter in the address and tests that click.", source: "md-docs/learn/03-tutorial-todos.md", sections: [Anchor(id: "before-you-start", label: "Before you start"), Anchor(id: "step-1-create-the-project", label: "Step 1: Create the project"), Anchor(id: "step-2-give-it-a-look-of-its-own", label: "Step 2: Give it a look of its own"), Anchor(id: "step-3-describe-a-todo", label: "Step 3: Describe a todo"), Anchor(id: "step-4-write-a-store-that-remembers", label: "Step 4: Write a store that remembers"), Anchor(id: "step-5-build-one-row", label: "Step 5: Build one row"), Anchor(id: "step-6-write-the-page", label: "Step 6: Write the page"), Anchor(id: "step-7-write-tests", label: "Step 7: Write tests"), Anchor(id: "step-8-build-it", label: "Step 8: Build it"), Anchor(id: "what-you-built", label: "What you built"), Anchor(id: "common-mistakes", label: "Common mistakes")], learned: ["Describe data with a `type` and an `enum`", "Keep a list across reloads in a store with `persist`, changed only by its actions", "Give each row of a list its own `state` in a component", "Key a list with `for … by`, and keep a filter in the address with `query`", "Test a page by typing and clicking, with `wf test`"], other: "/ar/learn/03-tutorial-todos", prevTo: "/learn/02-tutorial-shelf", prevLabel: t("ch.02"), nextTo: "/learn/04-language-basics", nextLabel: t("ch.04"))) {
     Stack(gap: .lg) {
-        Markdown("This tutorial builds a todo list kept in the reader's browser, with a store, a component, a filter in the address and tests that click.\n\nIt is the first of three tutorials that each build a whole project, step by step. Each project is complete in the repository under `examples/tutorials/`, and none needs a server: what a project keeps, it keeps in the reader's browser.")
+        Markdown("This tutorial builds a todo list kept in the reader's browser, with a store, a component, a filter in the address and tests that click.\n\nIt is the second of the book's tutorials, after Shelf. Two longer projects in the recipes build on both. Todos and the two longer projects are complete in the repository under `examples/tutorials/`, and none needs a server: what a project keeps, it keeps in the reader's browser.")
 
         Table(caption: "Tutorial: Todos") {
             Table.Head {
                 Table.Row {
-                    Table.Cell("Tutorial").header
+                    Table.Cell("Project").header
                     Table.Cell("What you build").header
                     Table.Cell("What it teaches").header
                     Table.Cell("Time").header
@@ -15,19 +15,25 @@ page Learn03TutorialTodos(path: "/learn/03-tutorial-todos", title: "Tutorial: To
             }
             Table.Body {
                 Table.Row {
-                    Table.Cell { Markdown("[Todos](/learn/03-tutorial-todos)") }
+                    Table.Cell { Markdown("[Shelf](/learn/02-tutorial-shelf) (chapter 2)") }
+                    Table.Cell("A reading-list site: a page per book, a saved shelf, a form")
+                    Table.Cell { Markdown("Typed `data`, a component, `:slug` pages, a store with `persist`, a form, a theme, a test, a deploy") }
+                    Table.Cell("Half an hour")
+                }
+                Table.Row {
+                    Table.Cell { Markdown("[Todos](/learn/03-tutorial-todos) (this chapter)") }
                     Table.Cell("A list of things to do: add, tick, rename, filter")
                     Table.Cell { Markdown("Types, a store with `persist`, a component, a keyed list, a filter in the address, tests that click") }
                     Table.Cell("20 minutes")
                 }
                 Table.Row {
-                    Table.Cell { Markdown("[Field Notes](/recipes/build-a-notebook-site)") }
+                    Table.Cell { Markdown("[Field Notes](/recipes/build-a-notebook-site) (a longer project)") }
                     Table.Cell("A notebook site, statically built, a page per note")
                     Table.Cell { Markdown("`data` files, a layout, `:slug` pages with `paths:`, Markdown pages, search and tags, what a pre-rendered page can know") }
                     Table.Cell("An hour")
                 }
                 Table.Row {
-                    Table.Cell { Markdown("[Pocket](/recipes/build-a-budget-app)") }
+                    Table.Cell { Markdown("[Pocket](/recipes/build-a-budget-app) (a longer project)") }
                     Table.Cell("A budget tracker with a dashboard, forms and two languages")
                     Table.Cell { Markdown("`Money` and `Date`, derived totals, a `persist` migration, `validate`, a dialog and shortcuts, i18n and right-to-left text, a script of your own, offline") }
                     Table.Cell("A couple of hours")
@@ -345,7 +351,7 @@ test "adding a todo puts it in the list" {
                 Line(command: "wf build")
             ])
 
-        Markdown("`wf check` reports every finding and writes nothing. `wf build` writes `build/`, which any static host serves — [Deploying](/recipes) covers GitHub Pages, Netlify and the rest. To load the built page in a real browser before you deploy, run `wf verify`: it fails on an error, a missing file or a page that draws nothing.\n\n**Check it:** `wf build` ends with `Build complete.`, and `build/` holds `index.html`, `app.js` and `styles.css`.")
+        Markdown("`wf check` reports every finding and writes nothing. `wf build` writes `build/`, which any static host serves: see the recipes for [GitHub Pages](/recipes/deploy-to-github-pages), [Netlify](/recipes/deploy-to-netlify), [Vercel](/recipes/deploy-to-vercel) and [Cloudflare Pages](/recipes/deploy-to-cloudflare-pages). To load the built page in a real browser before you deploy, run `wf verify`: it fails on an error, a missing file or a page that draws nothing.\n\n**Check it:** `wf build` ends with `Build complete.`, and `build/` holds `index.html`, `app.js` and `styles.css`.")
 
         Heading("What you built", id: "what-you-built").h2
 
@@ -392,6 +398,6 @@ page Home(path: "/", title: "Todos", description: "A small list of things to do.
     Input(bind: Todos.open, label: "Open")
 }"#, title: "wf · draws F01")
 
-        Markdown("Bind a `state`, as the page binds `draft`, and change the store through its actions ([F01](/errors/F01)).")
+        Markdown("Bind a `state`, as the page binds `draft`, and change the store through its actions ([F01](/errors/F01)).\n\nGoing further: [Field Notes](/recipes/build-a-notebook-site) builds a statically generated site on what this one taught.")
     }
 }

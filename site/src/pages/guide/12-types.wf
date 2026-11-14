@@ -619,6 +619,6 @@ page P(path: "/", title: "T", description: "D") {
     Text("Note: {todo.note}")
 }"#, title: "wf · draws T19")
 
-        Markdown("Say what to show instead, `Text(\"Note: \{todo.note ?? \"none\"\}\")`, or draw the line only when there is a note with `if let`. See [T19](/errors/T19).")
+        Markdown("Say what to show instead, `Text(\"Note: \{todo.note ?? \"none\"\}\")`, or draw the line only when there is a note with `if let`. See [T19](/errors/T19).\n\nGoing further: [Expressions](/reference/expressions) lists every operator and helper a typed value can be used with.")
     }
 }

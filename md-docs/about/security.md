@@ -277,8 +277,9 @@ true }`. A project `wf init` creates has it on. The build then writes:
   after `<meta charset>`: a meta policy governs only what the browser
   parses after it, so it stands before the title, the sharing tags and a
   page's own `head { }` tags, which a page's data reaches;
-- a `_headers` file for hosts that read one (Netlify, Cloudflare Pages,
-  Vercel; other hosts ignore it).
+- a `_headers` file for hosts that read one (Netlify, Cloudflare Pages;
+  other hosts ignore it — on Vercel copy the headers into `vercel.json`,
+  see [Deploy to Vercel](../recipes/deploy-to-vercel.md)).
 
 `frame-ancestors` is only in `_headers`, because a browser ignores it in a
 meta tag. A policy that carried it there would say one thing and do

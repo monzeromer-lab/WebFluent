@@ -1,7 +1,7 @@
 ---
 kind: "recipe"
 route: "/recipes/keyframes"
-group: "look"
+group: "motion"
 description: "Declare keyframes of your own with animation Name { } and play them with animate: .Name or exit: .Name, wherever a built-in animation goes."
 outputs: ["website", "app"]
 from: ["/docs/guide/motion#declare-your-own-keyframes"]
@@ -12,6 +12,9 @@ When none of the built-in animations moves the way you want, declare
 keyframes with `animation Name { }` and use the name where a built-in
 animation goes. Here the card drops into place and the badge pulses while
 it is shown:
+
+**Needs:** nothing besides the page. It claims `/`: paste it into a new
+project, or replace the starter's `src/pages/Home.wf` with it.
 
 ```wf
 animation Pulse {

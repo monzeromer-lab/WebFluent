@@ -1,7 +1,7 @@
 ---
 kind: "recipe"
 route: "/recipes/tauri-app"
-group: "ship"
+group: "desktop"
 description: "Make a WebFluent project a Tauri app for the desktop or a phone: set it up, run it while you work, call Rust from a page, hear its events, package it."
 outputs: ["desktop"]
 from: ["/docs/guide/desktop#before-you-start", "/docs/guide/desktop#prepare-the-build-for-a-desktop", "/docs/guide/desktop#make-a-tauri-app", "/docs/guide/desktop#troubleshooting"]

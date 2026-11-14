@@ -9,6 +9,10 @@ places when it is reordered, and fade an item out as it is removed. The
 list is a keyed `for … by`, and each item's element carries `animate:`,
 `exit:` and `stagger:`:
 
+**Needs:** nothing besides the page. It claims `/` and the name `Tasks`,
+as two of the starter's pages do: paste it into a new project, or replace
+`src/pages/Home.wf` and remove `src/pages/Tasks.wf`.
+
 ```wf
 type Item { id: Number, text: String }
 

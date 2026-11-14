@@ -1,7 +1,7 @@
 ---
 kind: "recipe"
 route: "/recipes/tween-on-change"
-group: "look"
+group: "motion"
 description: "Animate a style property that changes with state, such as a panel's height, with a transition { } block that names the property and its timing."
 outputs: ["website", "app"]
 from: ["/docs/guide/motion#tween-a-property-when-state-changes"]
@@ -12,6 +12,9 @@ Animate a style property as state changes it — a panel growing taller, a
 colour shifting — rather than an element arriving. Add a `transition { }`
 block that names the property and how long it takes. Press **Toggle** and
 the card grows to show the rest of its text:
+
+**Needs:** nothing besides the page. It claims `/`: paste it into a new
+project, or replace the starter's `src/pages/Home.wf` with it.
 
 ```wf
 page Tween(path: "/", title: "Tween", description: "A panel that grows.") {

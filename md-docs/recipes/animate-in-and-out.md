@@ -1,7 +1,7 @@
 ---
 kind: "recipe"
 route: "/recipes/animate-in-and-out"
-group: "look"
+group: "motion"
 description: "Play an animation when an element appears or leaves: a flag or animate: on the way in, exit: on the way out, with speed, delay and easing."
 outputs: ["website", "app"]
 from: ["/docs/guide/motion#before-you-start", "/docs/guide/motion#animate-an-element-in", "/docs/guide/motion#animate-an-element-out", "/docs/guide/motion#animate-show-and-match-branches", "/docs/guide/motion#troubleshooting"]
@@ -15,6 +15,9 @@ and `match` that draw and remove elements, so read
 `for … by` keeps an item's nodes, are new to you. This page opens four cards
 that each enter a different way, and an alert that fades out when you
 dismiss it:
+
+**Needs:** nothing besides the page. It claims `/`: paste it into a new
+project, or replace the starter's `src/pages/Home.wf` with it.
 
 ```wf
 page Notices(path: "/", title: "Notices", description: "Cards and an alert that animate in and out.") {

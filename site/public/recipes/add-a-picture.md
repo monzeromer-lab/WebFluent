@@ -13,6 +13,11 @@ This page declares a hero picture with `image` and shows it with a blurred
 placeholder, prints its real size and colour, and shows a second picture
 and a decorative one straight from `public/`:
 
+**Needs:** `hero.jpg`, `office.jpg` and `deco.png` in `public/` (any
+pictures will do); without them the build stops at `image hero`. It claims
+`/`: paste it into a new project, or replace the starter's
+`src/pages/Home.wf` with it.
+
 ```wf
 image hero = "hero.jpg"
 

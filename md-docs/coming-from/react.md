@@ -31,7 +31,7 @@ updates. There are no hooks, no dependency arrays and no setters.
 | A route | `<Route path="/users/:id" element={<User />} />` | `page User(path: "/users/:id", id: String) { … }` |
 | Showing something conditionally | `{open && <Panel />}` | `if open { Panel }` |
 | A list | `{items.map((i) => <li key={i.id}>{i.name}</li>)}` | `for i in items by i.id { Text(i.name) }` |
-| Fetching | `useQuery({ queryKey: ["users"], queryFn })` | `resource users = fetch("/api/users")`, read with `match users { … }` |
+| Fetching | TanStack Query's `useQuery({ queryKey: ["users"], queryFn })`, or `useEffect` + `fetch` | `resource users = fetch("/api/users")`, read with `match users { … }` |
 | Styling | `className`, CSS modules, Tailwind | flags (`Button("Save").primary`), `style { }` on the element, design tokens |
 | A test | Testing Library: `render`, `fireEvent.click`, `getByText` | `test "…" { click "Save"  expect "Saved" }` |
 

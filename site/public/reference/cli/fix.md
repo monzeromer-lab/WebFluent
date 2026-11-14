@@ -19,3 +19,7 @@ wf fix [options]
 | `--dry-run` | Write nothing; say what would change |
 
 **Writes:** the project's source files
+
+**Preview:** `--dry-run` says what it would do without doing it.
+
+The [full entry for wf fix](https://webfluent.monzeromer.dev/reference/cli.md#wf-fix) has its examples and the details this page leaves out.

@@ -17,14 +17,14 @@ page MovedDocsGuideDeploying(path: "/docs/guide/deploying", title: "Moved", desc
     Link(t("nav.recipes"), to: "/recipes#ship")
 }
 
-page MovedDocsGuideDesktop(path: "/docs/guide/desktop", title: "Moved", description: "This chapter became recipes.", guard: false, redirect: "/recipes#ship", noindex: true) {
+page MovedDocsGuideDesktop(path: "/docs/guide/desktop", title: "Moved", description: "This chapter became recipes.", guard: false, redirect: "/recipes#desktop", noindex: true) {
     Heading(t("nav.recipes")).h1
-    Link(t("nav.recipes"), to: "/recipes#ship")
+    Link(t("nav.recipes"), to: "/recipes#desktop")
 }
 
-page MovedDocsGuideEnvironments(path: "/docs/guide/environments", title: "Moved", description: "This chapter became recipes.", guard: false, redirect: "/recipes#reach", noindex: true) {
+page MovedDocsGuideEnvironments(path: "/docs/guide/environments", title: "Moved", description: "This chapter became recipes.", guard: false, redirect: "/recipes#ship", noindex: true) {
     Heading(t("nav.recipes")).h1
-    Link(t("nav.recipes"), to: "/recipes#reach")
+    Link(t("nav.recipes"), to: "/recipes#ship")
 }
 
 page MovedDocsGuideI18n(path: "/docs/guide/i18n", title: "Moved", description: "This chapter became recipes.", guard: false, redirect: "/recipes#reach", noindex: true) {
@@ -37,14 +37,14 @@ page MovedDocsGuideInterop(path: "/docs/guide/interop", title: "Moved", descript
     Link(t("nav.recipes"), to: "/recipes#interop")
 }
 
-page MovedDocsGuideMedia(path: "/docs/guide/media", title: "Moved", description: "This chapter became recipes.", guard: false, redirect: "/recipes#look", noindex: true) {
+page MovedDocsGuideMedia(path: "/docs/guide/media", title: "Moved", description: "This chapter became recipes.", guard: false, redirect: "/recipes#media", noindex: true) {
     Heading(t("nav.recipes")).h1
-    Link(t("nav.recipes"), to: "/recipes#look")
+    Link(t("nav.recipes"), to: "/recipes#media")
 }
 
-page MovedDocsGuideMotion(path: "/docs/guide/motion", title: "Moved", description: "This chapter became recipes.", guard: false, redirect: "/recipes#look", noindex: true) {
+page MovedDocsGuideMotion(path: "/docs/guide/motion", title: "Moved", description: "This chapter became recipes.", guard: false, redirect: "/recipes#motion", noindex: true) {
     Heading(t("nav.recipes")).h1
-    Link(t("nav.recipes"), to: "/recipes#look")
+    Link(t("nav.recipes"), to: "/recipes#motion")
 }
 
 page MovedDocsGuideOffline(path: "/docs/guide/offline", title: "Moved", description: "This chapter became recipes.", guard: false, redirect: "/recipes#reach", noindex: true) {
@@ -62,9 +62,9 @@ page MovedDocsGuideRecipes(path: "/docs/guide/recipes", title: "Moved", descript
     Link(t("nav.recipes"), to: "/recipes#interaction")
 }
 
-page MovedDocsGuideServerRendering(path: "/docs/guide/server-rendering", title: "Moved", description: "This chapter became recipes.", guard: false, redirect: "/recipes#interop", noindex: true) {
+page MovedDocsGuideServerRendering(path: "/docs/guide/server-rendering", title: "Moved", description: "This chapter became recipes.", guard: false, redirect: "/recipes#server", noindex: true) {
     Heading(t("nav.recipes")).h1
-    Link(t("nav.recipes"), to: "/recipes#interop")
+    Link(t("nav.recipes"), to: "/recipes#server")
 }
 
 page MovedDocsTutorialsFieldNotes(path: "/docs/tutorials/field-notes", title: "Moved", description: "This chapter became recipes.", guard: false, redirect: "/recipes/build-a-notebook-site", noindex: true) {

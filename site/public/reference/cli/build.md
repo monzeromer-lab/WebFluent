@@ -1,10 +1,10 @@
 # wf build
 
-> Build the project (compile .wf files to HTML + CSS + JS)
+> Build the project: a site or app (HTML, CSS, JS), a PDF, a slide deck or custom elements
 
 The page: https://webfluent.monzeromer.dev/reference/cli/build
 
-Build the project (compile .wf files to HTML + CSS + JS)
+Build the project: a site or app (HTML, CSS, JS), a PDF, a slide deck or custom elements
 
 ```bash
 wf build [options]
@@ -23,3 +23,5 @@ wf build [options]
 | `--allow-output-outside` | Let `build.output` name a directory outside the project; without it a build writes only inside the project |
 
 **Writes:** the site, in the output folder
+
+The [full entry for wf build](https://webfluent.monzeromer.dev/reference/cli.md#wf-build) has its examples and the details this page leaves out.

@@ -16,3 +16,5 @@ wf motion [options]
 |---|---|
 | `--dir, -d DIR` | Project directory (default: current directory) |
 | `--json` | Print JSON, for tools |
+
+The [full entry for wf motion](https://webfluent.monzeromer.dev/reference/cli.md#wf-motion) has its examples and the details this page leaves out.

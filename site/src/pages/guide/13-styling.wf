@@ -218,7 +218,7 @@ page Home(path: "/", title: "Home", description: "A themed page.") {
     Button("Toggle") { on click { active = !active } }
 }"#, title: "wf")
 
-        Markdown("A duration may be a token — `$fast`, `$normal` or `$slow` — or a raw value such as `200ms ease-out`. A reader who asked their system for less motion gets no transition. Enter and exit animations, and other motion, are in [Motion](/recipes).")
+        Markdown("A duration may be a token — `$fast`, `$normal` or `$slow` — or a raw value such as `200ms ease-out`. A reader who asked their system for less motion gets no transition. Enter and exit animations, and other motion, are in [Animate an element in and out](/recipes/animate-in-and-out).")
 
         Heading("Classes and your own stylesheet", id: "classes-and-your-own-stylesheet").h2
 
@@ -487,6 +487,6 @@ Grid(columns: { base: 1, md: 3 }) { … }   // or say what it does at each width
     Button("Done") { on click { done = !done } }
 }"#, title: "wf · draws T01")
 
-        Markdown("Name the class and its condition in a map: `class: \{ \"is-done\": done \}` ([T01](/errors/T01)).")
+        Markdown("Name the class and its condition in a map: `class: \{ \"is-done\": done \}` ([T01](/errors/T01)).\n\nGoing further: [Animate an element in and out](/recipes/animate-in-and-out) declares how an element enters and leaves; the runtime plays it, or skips it for readers who asked for less.")
     }
 }

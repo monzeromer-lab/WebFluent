@@ -81,6 +81,36 @@ All 19 high items are fixed:
 
 Still open from these: publishing `bindings/node` to npm, which is yours to do.
 
+### Medium items fixed (2026-11-14)
+
+- **Site:**
+  - icons are drawn in the pre-built HTML (4);
+  - a program that draws its own `main` gets a plain router box, so pages have one main landmark and a top-level banner (5);
+  - code blocks, Markdown fences, signatures and printed messages take keyboard focus (6);
+  - the rail buttons are 28px (7);
+  - the Changelog's section links land on today's headings (8);
+  - the React sheet's sections have the ids their headings would, and old links reach them (9);
+  - Markdown fences are consoles in both themes (10);
+  - a plain link is in the link ink (11);
+  - picking a Playground example builds it (12);
+  - a phone gets a file menu (13);
+  - files can be added and removed (14).
+- **Learn:** items 5–14, plus "Open in the Playground" on every whole-program code block (15), and `T10` for positional arguments to an endpoint (11).
+- **Reference:** items 6–14 and the Coming-from sheets' fixes; the `wf build` summary names every output.
+- **Errors, essays and Arabic:** items 4–15. The exceptions are E108's and D01's examples, which the test harness cannot run without a project, so they stay exempt.
+- **Recipes:** items 5–19 and 35:
+  - pasted examples carry what they need, and a **Needs:** line says the rest;
+  - the active tab, the clipboard toast, the frame's policy, CodeMirror's bundle, per-post titles, nginx, Apache, pinned installs and the unload beacon are fixed;
+  - the index has 13 groups, in order;
+  - five new recipes: reorder by dragging, keyboard shortcuts, a 404 page, a PDF report and testing a page.
+
+  Found along the way and not fixed:
+  - `T05` on an `image`'s `.width` in `wf check`;
+  - `wf test`'s `press` sends no modifier;
+  - a `/docs/*` route makes a folder named `*`;
+  - a page's `image:` does not splice;
+  - the router overrides an explicit `aria-current`.
+
 ## Then: site-wide fixes, each done once
 
 - **Icons in the pre-rendered HTML.** The header's icon buttons are empty until the script runs. This is a compiler change. [site 4]

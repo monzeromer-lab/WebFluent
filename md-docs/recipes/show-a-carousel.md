@@ -1,7 +1,7 @@
 ---
 kind: "recipe"
 route: "/recipes/show-a-carousel"
-group: "look"
+group: "media"
 description: "Show slides one at a time with Carousel and Carousel.Slide: previous and next buttons, a dot per slide, and autoplay that pauses."
 from: ["/docs/guide/media#show-a-carousel"]
 outputs: ["website", "app"]
@@ -13,6 +13,10 @@ and, if you want, advancing on their own. Wrap each slide in a
 `Carousel.Slide` inside a `Carousel`.
 
 This page shows three photographs that advance every five seconds:
+
+**Needs:** `one.jpg`, `two.jpg` and `three.jpg` in `public/`. It claims
+`/`: paste it into a new project, or replace the starter's
+`src/pages/Home.wf` with it.
 
 ```wf
 page Gallery(path: "/", title: "Gallery", description: "Three pictures.") {

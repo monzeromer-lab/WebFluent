@@ -12,6 +12,9 @@ outputs: ["website", "app", "pdf", "slides", "elements", "desktop"]
 language. This page mixes inline code into a sentence and shows two
 coloured blocks:
 
+**Needs:** nothing besides the page. It claims `/`: paste it into a new
+project, or replace the starter's `src/pages/Home.wf` with it.
+
 ```wf
 page Snippets(path: "/", title: "Snippets", description: "Code on the page.") {
     Heading("Snippets").h1

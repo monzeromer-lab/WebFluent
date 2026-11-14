@@ -1,7 +1,7 @@
 // A recipe, written from md-docs/recipes/deploy-to-github-pages.md by scripts/docsite/recipes.py;
 // edit the recipe, not this file.
 page RecipeDeployToGithubPages(path: "/recipes/deploy-to-github-pages", title: "Deploy to GitHub Pages — Recipes", description: "Deploy a WebFluent site to GitHub Pages with a GitHub Actions workflow, under the repository's sub-path and with no trailing-slash redirects.") {
-    RecipeShell("Deploy to GitHub Pages", summary: "This recipe publishes a WebFluent site to GitHub Pages from a GitHub Actions workflow, which builds the site on every push to `main`. GitHub serves a project site under `https://<you>.github.io/<repo>/`, so the build must know that sub-path.  You need the project in a GitHub repository; the workflow installs `wf` as [Install wf on a build machine](/recipes/install-wf-in-ci) shows.  Set the sub-path, the site's address, `clean_urls` and `ssg` in `webfluent.app.json`:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "check-it", label: "Check it")], related: [RelatedLink(kind: "Recipe", title: "Build a Docker image", to: "/recipes/docker-image"), RelatedLink(kind: "Recipe", title: "Check a deploy", to: "/recipes/check-a-deploy"), RelatedLink(kind: "Recipe", title: "Deploy to Cloudflare Pages", to: "/recipes/deploy-to-cloudflare-pages")], source: "md-docs/recipes/deploy-to-github-pages.md", how: true, hasVariations: false) {
+    RecipeShell("Deploy to GitHub Pages", summary: "This recipe publishes a WebFluent site to GitHub Pages from a GitHub Actions workflow, which builds the site on every push to `main`. GitHub serves a project site under `https://<you>.github.io/<repo>/`, so the build must know that sub-path.  You need the project in a GitHub repository; the workflow installs `wf` as [Install wf on a build machine](/recipes/install-wf-in-ci) shows.  Set the sub-path, the site's address, `clean_urls` and `ssg` in `webfluent.app.json`:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "check-it", label: "Check it")], related: [RelatedLink(kind: "Recipe", title: "Install wf on a build machine", to: "/recipes/install-wf-in-ci"), RelatedLink(kind: "Recipe", title: "Use environment values, and keep secrets out", to: "/recipes/environments-and-secrets"), RelatedLink(kind: "Recipe", title: "Deploy to Netlify", to: "/recipes/deploy-to-netlify")], source: "md-docs/recipes/deploy-to-github-pages.md", how: true, hasVariations: false) {
         code {
             CodeBlock(#"{
     "build": { "ssg": true, "base_path": "/<repo>", "clean_urls": "file" },
@@ -24,7 +24,7 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-      - run: curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v6.0.0 bash
+      - run: curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v6.0.0 bash
       - run: ~/.webfluent/bin/wf build
       # Only for a single-page build ("ssg": false): GitHub serves
       # 404.html for an address it has no file for, so the app loads there

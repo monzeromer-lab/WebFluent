@@ -1,7 +1,7 @@
 ---
 kind: "recipe"
 route: "/recipes/animation-sequence"
-group: "look"
+group: "motion"
 description: "Start a group of animations one after another on a clock: wrap the elements in sequence { } and each in a step, with after: from the step before."
 outputs: ["website", "app"]
 from: ["/docs/guide/motion#run-a-sequence-of-animations"]
@@ -11,6 +11,9 @@ from: ["/docs/guide/motion#run-a-sequence-of-animations"]
 Bring a page's opening elements in one after another — a heading, then a
 line of text, then a button — by wrapping them in `sequence` and putting
 each in a `step`:
+
+**Needs:** nothing besides the page. It claims `/`: paste it into a new
+project, or replace the starter's `src/pages/Home.wf` with it.
 
 ```wf
 page Landing(path: "/", title: "Welcome", description: "A page that introduces itself.") {

@@ -1,7 +1,7 @@
 ---
 kind: "recipe"
 route: "/recipes/motion-defaults"
-group: "look"
+group: "motion"
 description: "Set the duration and easing every animation uses by default, and make sure a reader who asked for reduced motion gets none."
 outputs: ["website", "app"]
 from: ["/docs/guide/motion#set-the-default-duration-and-easing", "/docs/guide/motion#respect-reduced-motion"]
@@ -12,6 +12,9 @@ Change how long animations take and how they are paced across a whole
 project, in one place, and keep motion away from readers who asked for
 less. On this page every animation takes the project's defaults, and the
 one transition written by hand is held back from those readers:
+
+**Needs:** nothing besides the page. It claims `/`: paste it into a new
+project, or replace the starter's `src/pages/Home.wf` with it.
 
 ```wf
 page Welcome(path: "/", title: "Welcome", description: "Motion that follows the project's defaults.") {

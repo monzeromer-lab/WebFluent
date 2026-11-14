@@ -24,7 +24,9 @@ Splitter(bind: State, min: Number, max: Number, …)
 
 ## Flags
 
-`.horizontal` `.reverse` `.dropInside` `.trapFocus`
+`.horizontal` `.reverse`
+
+Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 
 ## Example
 

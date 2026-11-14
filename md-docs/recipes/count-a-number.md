@@ -1,7 +1,7 @@
 ---
 kind: "recipe"
 route: "/recipes/count-a-number"
-group: "look"
+group: "motion"
 description: "Make a number count to its new value instead of jumping: give its element count: with a length of time, and each step keeps its format."
 outputs: ["website", "app"]
 from: ["/docs/guide/motion#count-a-number-to-its-new-value"]
@@ -11,6 +11,9 @@ from: ["/docs/guide/motion#count-a-number-to-its-new-value"]
 Make a figure arrive rather than jump — a total, a score, a balance — by
 giving its element `count:` with a length of time. Press **Load** and the
 revenue counts from `$0.00` to `$1,200.00`:
+
+**Needs:** nothing besides the page. It claims `/`: paste it into a new
+project, or replace the starter's `src/pages/Home.wf` with it.
 
 ```wf
 page Revenue(path: "/", title: "Revenue", description: "A figure that counts up.") {

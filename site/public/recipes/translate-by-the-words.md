@@ -9,6 +9,10 @@ without inventing keys or wrapping every string in `t()`: each string a
 reader sees is looked up in the reader's table by its own words. Turn it on
 with `"literals": true` in the `i18n` config:
 
+**Needs:** the `i18n` setting below, and the translation files [How it
+works](#how-it-works) shows. It claims `/`: paste it into a new project,
+or replace the starter's `src/pages/Home.wf` with it.
+
 ```json
 { "i18n": { "default_locale": "en", "locales": ["en", "ar"], "literals": true } }
 ```

@@ -1,7 +1,7 @@
 ---
 kind: "recipe"
 route: "/recipes/expand-to-content"
-group: "look"
+group: "motion"
 description: "Open a box to the height of its content, which CSS cannot animate to: .expand measures height: auto, animates to it, then lets the box grow."
 outputs: ["website", "app"]
 from: ["/docs/guide/motion#open-a-box-to-the-height-of-its-content"]
@@ -11,6 +11,9 @@ from: ["/docs/guide/motion#open-a-box-to-the-height-of-its-content"]
 CSS cannot animate to `height: auto`, so a box of details that should slide
 open to whatever height its text needs takes `.expand`. Press **Details**
 and the box opens; press it again and it closes:
+
+**Needs:** nothing besides the page. It claims `/`: paste it into a new
+project, or replace the starter's `src/pages/Home.wf` with it.
 
 ```wf
 page Details(path: "/", title: "Details", description: "A box that opens smoothly.") {

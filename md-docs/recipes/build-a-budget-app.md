@@ -20,14 +20,22 @@ no account. The finished project is
 
 You need `wf`, Chrome and a copy of the repository
 (see [Before you start](../learn/03-tutorial-todos.md#before-you-start) in the Todos tutorial). This tutorial assumes
-the Todos tutorial, and each step links the chapter that goes deeper. Like
-Field Notes, it shows the part of each file that teaches something new, so
-work in the finished project:
+the Todos tutorial, and each step links the chapter that goes deeper.
+
+**This tutorial is read along, not typed along.** Like [Field Notes](build-a-notebook-site.md), each
+step shows the part of a file that teaches something new, not every line
+of it, so the snippets alone do not make a working project. Open the
+finished project, run it, and read each file as its step comes up:
 
 ```bash
 cd WebFluent/examples/tutorials/hard-pocket
 wf serve
 ```
+
+To build it yourself instead, start a project with
+`wf init pocket -t spa --locales en,ar`, then copy each file from
+`examples/tutorials/hard-pocket` into it as its step names it, and run
+`wf check` after each step.
 
 ## Step 1: Configure the project
 
@@ -64,9 +72,9 @@ The project's `webfluent.app.json`:
 It adds three things to the Todos config:
 
 - `i18n` names the languages and the folder their messages live in
-  ([Internationalization](index.md)).
+  ([Translate a site](translate-a-site.md)).
 - `offline` makes `wf build` write a service worker that stores the four
-  pages, so a second visit opens with no network ([Offline](index.md)).
+  pages, so a second visit opens with no network ([Make a site work offline](work-offline.md)).
 - `theme` names two themes, light and dark, and the build ships both.
 
 **Check it:** `wf build` prints a line that starts `Offline: sw.js`, then
@@ -425,7 +433,7 @@ or `ar.json`. A message with plural forms is several keys:
 
 - `t("entries", { count: n })` picks the form the language's rules call
   for. English needs two forms and a zero; Arabic has six
-  ([Internationalization](index.md)).
+  ([Translate a site](translate-a-site.md)).
 - Switching to Arabic sets `dir="rtl"` on the page, and the sidebar, the
   rows and the grids mirror themselves.
 - `format(m)` and dates follow the language too.
@@ -454,7 +462,7 @@ The Settings page writes the ledger out as a CSV file:
 `saveTextFile` is not WebFluent. It is a function in `src/files.js`, a
 plain browser script that the build links on every page. Its JSDoc types
 the call, so `saveTextFile(1)` is an error where it is written
-([JavaScript interop](index.md)).
+([Call your own JavaScript](call-your-own-script.md)).
 
 Importing reads a file from a `FileUpload` with `await f.text()`, parses
 each line and merges what is new. Then it tells every other open tab:
@@ -467,7 +475,7 @@ each line and merges what is new. Then it tells every other open tab:
 
 `news` is `channel news = broadcast("pocket")`, a channel every tab of the
 site hears. The app shell listens on it and shows a notice
-([Realtime](index.md)). The ledger itself needs no channel: `persist`
+([Talk to the site's other tabs](talk-between-tabs.md)). The ledger itself needs no channel: `persist`
 already keeps every tab in step.
 
 **Check it:** on **Settings**, export the ledger, and the browser saves
@@ -508,7 +516,7 @@ wf verify
 **Check it:** `wf test` reports `8 passed`, and `wf verify` ends with `0
 problem(s)`. `build/` is a single-page app with a service worker, `sw.js`,
 beside it. Put it on a host that answers every path with `index.html`
-([Deploying](index.md)), and the second visit works with no network.
+([Install wf on a build machine](install-wf-in-ci.md)), and the second visit works with no network.
 
 ## What you built
 
@@ -521,8 +529,8 @@ beside it. Put it on a host that answers every path with `index.html`
 - A form that validates itself, a dialog and keyboard shortcuts
   ([Forms](../learn/14-forms.md), [Events](../learn/08-events.md)).
 - Two languages, plural forms and right-to-left layout
-  ([Internationalization](index.md)).
+  ([Translate a site](translate-a-site.md)).
 - A script of your own, and a channel between tabs
-  ([JavaScript interop](index.md),
-  [Realtime](index.md)).
-- A site that works offline ([Offline](index.md)).
+  ([Call your own JavaScript](call-your-own-script.md),
+  [Talk to the site's other tabs](talk-between-tabs.md)).
+- A site that works offline ([Make a site work offline](work-offline.md)).

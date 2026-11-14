@@ -15,6 +15,11 @@ turned on ([Make a site work offline](work-offline.md)).
 This home page offers a reload when a new version is ready, and shows how
 many changes are waiting to be sent:
 
+**Needs:** `offline` in `webfluent.app.json` ([Make a site work
+offline](work-offline.md)) and a host that serves the site over HTTPS. It
+claims `/`: paste it into a new project, or replace the starter's
+`src/pages/Home.wf` with it.
+
 ```wf
 page Home(path: "/", title: "Home", description: "The front page.") {
     if update.available {

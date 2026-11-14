@@ -18,6 +18,12 @@ whose heading, count and button are translated. It reads the translation
 files that [Set up the translation files](#set-up-the-translation-files)
 shows:
 
+**Needs:** the `i18n` setting and the translation files that [Set up the
+translation files](#set-up-the-translation-files) shows. The code is a
+whole project's `app` and home page, and declares `type User`, as the
+starter does: paste it into a new project, replacing `src/App.wf` and
+`src/pages/Home.wf`.
+
 ```wf
 type User { name: String }
 

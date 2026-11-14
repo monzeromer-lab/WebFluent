@@ -104,6 +104,11 @@ def component(c) -> str:
         out += ["## Flags", "", " ".join(f"`{f}`" for f in c["flags"]), ""]
     if c["events"]:
         out += ["## Events", ""] + [f"- `{e['name']}`{': ' + e['detail'] if e.get('detail') else ''}" for e in c["events"]] + [""]
+    if c.get("domEvents"):
+        out += ["## DOM events it answers", "", "Any other DOM event works too, in an `on … { }` handler.", ""]
+        out += [f"- `on {e['name']}`{': ' + e['detail'] if e.get('detail') else ''}" for e in c["domEvents"]] + [""]
+    out += ["Every element also takes the props, events and attribute families listed "
+            "[on every element](/reference#on-every-element).", ""]
     if c["slots"]:
         out += ["## Slots", ""] + [f"- `{s['name']}`{': ' + s['detail'] if s.get('detail') else ''}" for s in c["slots"]] + [""]
     if c["parts"]:
@@ -112,7 +117,9 @@ def component(c) -> str:
         out += ["## Example", "", "```wf", c["example"], "```", ""]
     if c["codes"]:
         out += ["## What it can raise", ""] + [f"- [{k['kind']}]({k['to']}): {k['title']}" for k in c["codes"]] + [""]
-    if c.get("since"):
+    if c.get("since") == reference.OLDER:
+        out += [f"Before WebFluent {reference.OLDER}.", ""]
+    elif c.get("since"):
         out += [f"Since WebFluent {c['since']}.", ""]
     return "\n".join(out)
 
@@ -132,6 +139,10 @@ def command(c) -> str:
             out.append("")
     if c.get("writes"):
         out += [f"**Writes:** {c['writes']}", ""]
+    if c.get("preview"):
+        out += [f"**Preview:** `{c['preview']}` says what it would do without doing it.", ""]
+    out += [f"The [full entry for wf {c['name']}](/reference/cli#wf-{c['name']}) has its examples and the "
+            "details this page leaves out.", ""]
     return "\n".join(out)
 
 

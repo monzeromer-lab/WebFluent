@@ -12,7 +12,7 @@ component Diagnostic(_ printed: String, code: String = "", title: String = "", s
                 }
             }
         }
-        Text(printed, class: "bp-mono") {
+        Text(printed, class: "bp-mono", tabindex: "0") {
             style { margin: 0; padding: 12px 14px; overflow-x: auto; white-space: pre; font-size: 13px; line-height: 1.65; color: $term-ink }
         }
     }

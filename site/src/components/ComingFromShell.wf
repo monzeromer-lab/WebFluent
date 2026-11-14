@@ -36,7 +36,7 @@ component ComingFromShell(_ title: String, summary: String = "", from: String = 
                 }
             }
 
-            Stack(role: "table", aria-label: t("coming.table", { from: from })) {
+            Stack(role: "table", id: "the-map", aria-label: t("coming.table", { from: from })) { // wf-allow(A16): one shell per page
                 style { gap: 0; min-width: 0 }
                 Grid(columns: { base: 1, md: 3 }, gap: .sm, role: "row", class: "bp-hide-sm") {
                     style { gap: 16px; padding-bottom: 8px; border-bottom: 1px solid $line; @md { grid-template-columns: 180px minmax(0, 1fr) minmax(0, 1fr) } & p { margin: 0 } }
@@ -49,13 +49,13 @@ component ComingFromShell(_ title: String, summary: String = "", from: String = 
 
             Stack(gap: .md, class: "bp-prose") {
                 style { gap: 16px }
-                Heading(t("coming.differences"), id: "differences").h2 // wf-allow(A16): one shell per page
+                Heading(t("coming.differences"), id: "things-that-work-differently").h2 // wf-allow(A16): one shell per page
                 differences
             }
 
             Stack(gap: .md, class: "bp-prose") {
                 style { gap: 16px; max-width: none }
-                Heading(t("coming.port"), id: "port").h2 // wf-allow(A16): one shell per page
+                Heading(t("coming.port"), id: "a-component-ported").h2 // wf-allow(A16): one shell per page
                 port
             }
         }

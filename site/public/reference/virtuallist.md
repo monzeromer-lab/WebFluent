@@ -19,9 +19,7 @@ VirtualList(rowHeight: Number, estimate: Number, reveal: Any, …) { … }
 | `reveal:` | `Any` | A row's key: when it changes, that row is scrolled into view — the selection, the current match |
 | `label:` | `String` | What the list is, for a screen reader |
 
-## Flags
-
-`.dropInside` `.trapFocus`
+Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 
 ## Slots
 

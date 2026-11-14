@@ -7,6 +7,8 @@ The page: https://webfluent.monzeromer.dev/recipes/load-more
 A **Load more** button keeps what the reader has already seen and adds the
 next page below it. To build one, call an endpoint with `paginate: .page`:
 
+**Needs:** a server that answers `/api/items?page=…` with a list of items.
+
 ```wf
 type Item { id: String, name: String }
 

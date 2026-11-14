@@ -13,6 +13,15 @@ component CodeBlock(_ code: String, title: String = "wf", note: String = "") {
     }
     action reset() { copied = false }
 
+    // A whole program, with a page in it, opens in the Playground as it is.
+    derived runnable = language == "wf" && /^page /m.test(code)
+    action play() {
+        let files = {}
+        files["src/pages/Home.wf"] = code
+        files["webfluent.app.json"] = "\{ \"name\": \"Example\" \}\n"
+        wfOpenInPlayground(files)
+    }
+
     Stack(class: "bp-console code-block bp-ltr", dir: "ltr") {
         style { gap: 0; min-width: 0 }
         Row(class: "bp-console__bar") {
@@ -24,11 +33,21 @@ component CodeBlock(_ code: String, title: String = "wf", note: String = "") {
                     Text(note) { style { font-size: 12px; color: $term-dim; white-space: nowrap; overflow: hidden; text-overflow: ellipsis } }
                 }
             }
-            Button(if copied { t("code.copied") } else { t("code.copy") }, aria-label: t("code.copy"), class: "bp-button", data-track: "copy_code", data-track-item-id: title) {
-                style { margin-bottom: 0 }
-                on click { copy() }
+            Row(align: .center, gap: .xs) {
+                style { flex-wrap: nowrap; gap: 6px }
+                if runnable {
+                    Button(t("code.play"), class: "bp-button bp-hide-sm", data-track: "open_playground", data-track-item-id: title) {
+                        style { margin-bottom: 0 }
+                        on click { play() }
+                    }
+                }
+                Button(if copied { t("code.copied") } else { t("code.copy") }, aria-label: t("code.copy"), class: "bp-button", data-track: "copy_code", data-track-item-id: title) {
+                    style { margin-bottom: 0 }
+                    on click { copy() }
+                }
             }
         }
-        Code(code, language: language, class: "bp-console__code").block
+        // It scrolls sideways when a line is long, so the keyboard can reach it.
+        Code(code, language: language, class: "bp-console__code", tabindex: "0").block
     }
 }

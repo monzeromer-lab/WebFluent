@@ -68,7 +68,7 @@ A card that shows a person, in HTML and CSS and in WebFluent.
 <div class="card">
   <img class="avatar" src="/ada.jpg" alt="Ada Lovelace">
   <div>
-    <h3>Ada Lovelace</h3>
+    <h2>Ada Lovelace</h2>
     <p class="muted">Analyst</p>
   </div>
 </div>
@@ -92,7 +92,7 @@ component Person(_ name: String, role: String, photo: String) {
         Row(gap: .sm, align: .center) {
             Avatar(src: photo, alt: name)
             Stack {
-                Heading(name).h3
+                Heading(name).h2
                 Text(role).muted
             }
         }

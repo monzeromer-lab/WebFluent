@@ -18,7 +18,9 @@ Background(on: Enum) { … }
 
 ## Flags
 
-`.all` `.first` `.rest` `.odd` `.even` `.dropInside` `.trapFocus`
+`.all` `.first` `.rest` `.odd` `.even`
+
+Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 
 ## Slots
 

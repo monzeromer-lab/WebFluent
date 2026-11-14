@@ -3,7 +3,7 @@
 /// names it.
 component OutputBadges(outputs: [String] = [], missing: [String] = []) {
     use Building
-    Row(gap: .xs, class: "bp-labels", aria-label: t("outputs.label")) {
+    Row(gap: .xs, class: "bp-labels", role: "group", aria-label: t("outputs.label")) {
         for o in outputs by o {
             Text(t("building.{o}"), class: "bp-label", data-tone: if o == Building.output { "construction" } else { "plain" })
         }

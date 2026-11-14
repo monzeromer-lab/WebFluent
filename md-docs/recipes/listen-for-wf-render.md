@@ -15,6 +15,8 @@ script listens for the `wf:render` event on `document`. This page shows
 Markdown with links to other sites, and a script opens each of them in a
 new tab:
 
+**Needs:** the script `src/new-tab.js`, shown below.
+
 ```wf
 const NOTES = """
     Read the [WebFluent guide](https://webfluent.monzeromer.dev/docs), or

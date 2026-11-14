@@ -14,6 +14,9 @@ rest is its body. It suits docs, notes and articles, where most of the page
 is prose. A docs site is a folder of `.md` files, one layout component, and
 an `app`:
 
+**Needs:** the two `.md` pages shown under [How it works](#how-it-works),
+in `src/guide/`.
+
 ```wf
 component DocsShell {
     slot
@@ -57,6 +60,25 @@ cargo install webfluent
 
 Then `wf init my-site`.
 ````
+
+The sidebar's second link is `src/guide/pages.md`, the page at
+`/guide/pages`:
+
+````md
+---
+path: /guide/pages
+title: Pages
+description: One file per page, and the route it answers.
+layout: DocsShell
+---
+
+# Pages
+
+Each `.md` file under `src/` is a page. Its front matter names the route.
+````
+
+With the two files and `DocsShell` in place, `wf serve` shows both pages,
+each framed by the sidebar.
 
 The front matter keys are the page's attributes:
 

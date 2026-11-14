@@ -13,6 +13,8 @@ progress, a log — over server-sent events. Use it when the server talks and
 the page only listens; for two-way messages, [open a socket](open-a-socket.md).
 This page shows the latest price as it arrives:
 
+**Needs:** a server that sends events named `price` from `/events`.
+
 ```wf
 page Prices(path: "/prices", title: "Prices", description: "Live prices.") {
     state price = 0

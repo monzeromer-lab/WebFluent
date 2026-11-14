@@ -297,7 +297,8 @@ How the rules behave:
   `t("key")`, which is read in the reader's language. Without one, the rule
   uses its own message. A project with translations replaces those by
   naming the keys `form.required`, `form.email`, `form.minLength` and so on
-  ([Translations](https://webfluent.monzeromer.dev/recipes.md)).
+  ([Translate a site](https://webfluent.monzeromer.dev/recipes/translate-a-site.md),
+  [Show validation messages](https://webfluent.monzeromer.dev/recipes/validation-messages.md)).
 - **Arguments that read state.** An argument such as `max(Ledger.today)` is
   read again each time the rule is checked.
 - **Types.** A rule is checked against the type of what it guards:
@@ -401,9 +402,14 @@ When the server rejects a value — an address already taken, a code that
 expired — pass its messages, by field name, to `form.apply`:
 
 ```wf
-action signUp() {
+api Backend(base: "/api") {
+    post signUp(body: Map) -> Map
+        errors { 422 -> Map }
+}
+
+action join() {
     try {
-        await Backend.signUp(email, password)
+        await Backend.signUp(body: { email: email, password: password })
     } catch e {
         form.apply(e.body.errors)     // { email: "That address is taken" }
     }
@@ -413,6 +419,7 @@ action signUp() {
 Each message is shown on the field whose `name:` it matches, and moves focus
 to the first one. A message stays until the reader changes that field's
 value. A field may also be given a list of messages; the first is shown.
+[Send a form to a server](#send-a-form-to-a-server) shows the whole page.
 
 ## Upload a file
 

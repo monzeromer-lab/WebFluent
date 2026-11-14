@@ -174,7 +174,7 @@ reads it ([Stores](../learn/11-stores.md)).
 
 **Template engine.** WebFluent used from a server, through `wf render`, Rust
 or Node, to render a `.wf` template with JSON data to HTML or PDF
-([Server rendering](../recipes/index.md)).
+([Render a template](../recipes/render-a-template.md)).
 
 **Theme.** A `theme` declaration: the design tokens it changes from the
 baseline ([Styling](../learn/13-styling.md)).

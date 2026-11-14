@@ -36,10 +36,10 @@ You should know `state` and `action`
 This chapter does not cover:
 
 - a connection the page holds open — a socket, a stream, a channel or a
-  peer — which is [Real-time](../recipes/index.md);
-- working without a network, which is [Offline](../recipes/index.md);
+  peer — which is [Open a socket](../recipes/open-a-socket.md);
+- working without a network, which is [Make a site work offline](../recipes/work-offline.md);
 - values fixed for each build, which are
-  [Environments](../recipes/index.md).
+  [Environments and secrets](../recipes/environments-and-secrets.md).
 
 ## Choose how to get data
 
@@ -816,6 +816,9 @@ Read it through `?.` with a fallback, `{users.data?.length ?? 0}`, or show
 it inside the `ready` arm, where the binding is never null
 ([T04](../errors/T04.md)).
 
+Going further: [Open a socket](../recipes/open-a-socket.md) keeps a
+connection open for data the server pushes.
+
 ## Next
 
-[Real-time](../recipes/index.md).
+[Testing](16-testing.md).

@@ -580,7 +580,7 @@
       "after": ""
      },
      {
-      "text": "**WebP is lossy at `build.media.quality`** ([chapter 42](/reference/config#buildmedia)),\nthrough libwebp, keeping alpha: a 23 kB PNG that came out as 189 kB of\nWebP is now 5 kB. A file that would be no smaller than its original is\nnot written, and `wf assets --plan` says which widths were dropped.",
+      "text": "**WebP is lossy at `build.media.quality`** ([chapter 42](/reference/config#build-media)),\nthrough libwebp, keeping alpha: a 23 kB PNG that came out as 189 kB of\nWebP is now 5 kB. A file that would be no smaller than its original is\nnot written, and `wf assets --plan` says which widths were dropped.",
       "points": [],
       "after": ""
      },
@@ -834,7 +834,7 @@
     "intro": "",
     "items": [
      {
-      "text": "**A test finds a control by the name a reader hears** ([chapter 24](/learn/16-testing#a-test-that-acts)).\nWhat is `aria-hidden` (a menu item's shortcut, a glyph) is left out of\na name, so `click \"Paste\"` finds an item that shows Ctrl+V. A submenu's\nentry is named by its label, not by its items: `WF.submenu` points the\nentry's `aria-labelledby` at its label, for a screen reader and for\n`click \"File\"`.",
+      "text": "**A test finds a control by the name a reader hears** ([chapter 24](/learn/16-testing#write-a-test-that-acts)).\nWhat is `aria-hidden` (a menu item's shortcut, a glyph) is left out of\na name, so `click \"Paste\"` finds an item that shows Ctrl+V. A submenu's\nentry is named by its label, not by its items: `WF.submenu` points the\nentry's `aria-labelledby` at its label, for a screen reader and for\n`click \"File\"`.",
       "points": [],
       "after": ""
      },
@@ -904,7 +904,7 @@
       "after": ""
      },
      {
-      "text": "**A test can place a whole page** ([chapter 24](/learn/16-testing#testing-a-whole-page))\nby its name, as it places a component (`Tasks`, then `click \"Add\"`),\nwith its state, stores and handlers running. This works for a page with\nno route parameter whose name no component also has. In a test that\nacts, `press \"Enter\"` in a form's text field submits the form, and\n`click \"Name\"` also finds, by its name, an element whose role is a link,\na tab, a menu item (a `Menu.Item`), an option, a tree item, a switch, a\ncheckbox or a radio ([chapter 24](/learn/16-testing#a-test-that-acts)).",
+      "text": "**A test can place a whole page** ([chapter 24](/learn/16-testing#test-a-whole-page))\nby its name, as it places a component (`Tasks`, then `click \"Add\"`),\nwith its state, stores and handlers running. This works for a page with\nno route parameter whose name no component also has. In a test that\nacts, `press \"Enter\"` in a form's text field submits the form, and\n`click \"Name\"` also finds, by its name, an element whose role is a link,\na tab, a menu item (a `Menu.Item`), an option, a tree item, a switch, a\ncheckbox or a radio ([chapter 24](/learn/16-testing#write-a-test-that-acts)).",
       "points": [],
       "after": ""
      },
@@ -944,7 +944,7 @@
       "after": ""
      },
      {
-      "text": "**`Markdown(text).inert`** ([chapter 37](/reference#markdown)),\nfor text somebody else wrote, such as a language server's documentation:\nentities are decoded and shown as text, a link is its words and a\npicture is left out.",
+      "text": "**`Markdown(text).inert`** ([chapter 37](/reference/markdown)),\nfor text somebody else wrote, such as a language server's documentation:\nentities are decoded and shown as text, a link is its words and a\npicture is left out.",
       "points": [],
       "after": ""
      }
@@ -992,7 +992,7 @@
       "after": ""
      },
      {
-      "text": "**The registry** ([chapter 38](/reference/cli#wf-docs-wf-registry-wf-types)):\n`wf registry --json` lists the new icons, `auxclick`, `focusin` and\n`focusout` among every element's events, and `danger` on `Menu.Item`.",
+      "text": "**The registry** ([chapter 38](/reference/cli#wf-docs)):\n`wf registry --json` lists the new icons, `auxclick`, `focusin` and\n`focusout` among every element's events, and `danger` on `Menu.Item`.",
       "points": [],
       "after": ""
      },
@@ -1030,12 +1030,12 @@
       "after": ""
      },
      {
-      "text": "**Forms ask their rules** ([chapter 16](/learn/14-forms#when-a-message-shows)).\nA `Form` with no `bind:` in a page or component with `validate` rules\nran `on submit` anyway; it now stops on a failing rule and shows the\nmessages. Each page and each copy of a component has its own form\nhandles: a page's carried into the next page compiled, and every copy of\na component shared one form. A validated `Checkbox` or `Switch` shows\nits message beneath it, announced and tied to the control\n(`aria-describedby`, `aria-invalid`). A field's character count follows\na value the program sets, such as a reset.",
+      "text": "**Forms ask their rules** ([chapter 16](/learn/14-forms#choose-when-a-message-shows)).\nA `Form` with no `bind:` in a page or component with `validate` rules\nran `on submit` anyway; it now stops on a failing rule and shows the\nmessages. Each page and each copy of a component has its own form\nhandles: a page's carried into the next page compiled, and every copy of\na component shared one form. A validated `Checkbox` or `Switch` shows\nits message beneath it, announced and tied to the control\n(`aria-describedby`, `aria-invalid`). A field's character count follows\na value the program sets, such as a reset.",
       "points": [],
       "after": ""
      },
      {
-      "text": "**Controls given a value work** ([chapter 16](/learn/14-forms#controls-and-bind)).\n`Switch(checked: value)` without `bind:` drew no input; it now follows\nthe value, and its `on change` hears the click. A `Switch`'s `on change`\nwas never attached. A bound `Checkbox` or `Radio` with its own\n`on change` lost the binding's write; the binding now writes first and\nthe handler runs after it.",
+      "text": "**Controls given a value work** ([chapter 16](/learn/14-forms#bind-a-control-to-state)).\n`Switch(checked: value)` without `bind:` drew no input; it now follows\nthe value, and its `on change` hears the click. A `Switch`'s `on change`\nwas never attached. A bound `Checkbox` or `Radio` with its own\n`on change` lost the binding's write; the binding now writes first and\nthe handler runs after it.",
       "points": [],
       "after": ""
      },
@@ -1045,7 +1045,7 @@
       "after": ""
      },
      {
-      "text": "**Stores** ([chapter 12](/learn/11-stores#how-long-it-lives)). A\nstore outlives the page that reads it first: its derived values and\neffects belonged to that page's scope and stopped when the reader moved\non. A `derived` that reads one written below it in the same store\nfollows it, where it kept its first value. The built script declares\neach store after the stores it `use`s, so a read made while the script\nstarts never meets a store not declared yet.",
+      "text": "**Stores** ([chapter 12](/learn/11-stores)). A\nstore outlives the page that reads it first: its derived values and\neffects belonged to that page's scope and stopped when the reader moved\non. A `derived` that reads one written below it in the same store\nfollows it, where it kept its first value. The built script declares\neach store after the stores it `use`s, so a read made while the script\nstarts never meets a store not declared yet.",
       "points": [],
       "after": ""
      },
@@ -1055,17 +1055,17 @@
       "after": ""
      },
      {
-      "text": "**A test that looks reads the page as a reader does**\n([chapter 24](/learn/16-testing#a-test-that-looks)). The template\nengine draws a `Menu` or `Dropdown` as its button and hidden list,\n`keyLabel(\"mod+shift+p\")` as the build writes it (`Ctrl+Shift+P`), and\na `t()` with a count in the default locale's CLDR form. `expect` decodes\nevery numeric entity and the common named ones, so `expect \"It isn't\"`\nmatches. In a test that acts, `expect` treats any run of white space as\none space, as a test that looks already did.",
+      "text": "**A test that looks reads the page as a reader does**\n([chapter 24](/learn/16-testing#write-a-test-that-looks)). The template\nengine draws a `Menu` or `Dropdown` as its button and hidden list,\n`keyLabel(\"mod+shift+p\")` as the build writes it (`Ctrl+Shift+P`), and\na `t()` with a count in the default locale's CLDR form. `expect` decodes\nevery numeric entity and the common named ones, so `expect \"It isn't\"`\nmatches. In a test that acts, `expect` treats any run of white space as\none space, as a test that looks already did.",
       "points": [],
       "after": ""
      },
      {
-      "text": "**Column spans leave room for the gap** ([chapter 37](/reference#column)).\n`span: 8` and `span: 4` in a `Row` with a gap came to 100% plus the gap,\nand the second always wrapped; each span now gives up its share of the\ngap, a gap or a span given per breakpoint too. A PDF lays a\n`Column` out at its `span:`, where every column came out equal, and the\nPDF engine's `calc()` is a real parser: no spaces needed, nested\nparentheses, unary minus, functions inside, and a sum of a percentage\nand points resolved against the box it lands in\n([chapter 34](/learn/17-pdf-and-slides#the-engine)).",
+      "text": "**Column spans leave room for the gap** ([chapter 37](/reference/column)).\n`span: 8` and `span: 4` in a `Row` with a gap came to 100% plus the gap,\nand the second always wrapped; each span now gives up its share of the\ngap, a gap or a span given per breakpoint too. A PDF lays a\n`Column` out at its `span:`, where every column came out equal, and the\nPDF engine's `calc()` is a real parser: no spaces needed, nested\nparentheses, unary minus, functions inside, and a sum of a percentage\nand points resolved against the box it lands in\n([chapter 34](/learn/17-pdf-and-slides#the-paged-engine)).",
       "points": [],
       "after": ""
      },
      {
-      "text": "**The `Navbar` follows the theme** ([chapter 37](/reference#navbar)).\nIts background was a fixed translucent white; it is now the theme's\nsurface, and its text the theme's text colour.",
+      "text": "**The `Navbar` follows the theme** ([chapter 37](/reference/navbar)).\nIts background was a fixed translucent white; it is now the theme's\nsurface, and its text the theme's text colour.",
       "points": [],
       "after": ""
      },
@@ -1075,7 +1075,7 @@
       "after": ""
      },
      {
-      "text": "**A site may frame its own pages** ([chapter 23](/about/security#content-security-policy)).\nA `Frame` whose `src:` is site-relative (`\"/preview/\"`, `\"/embed/{id}\"`)\nwas refused by the site's own headers. A project that places one is\nserved `X-Frame-Options: SAMEORIGIN` by `wf serve`, and its `_headers`\nsays the same with `frame-ancestors 'self'`; every other project keeps\n`DENY` and `'none'`.",
+      "text": "**A site may frame its own pages** ([chapter 23](/about/security#ship-a-content-security-policy)).\nA `Frame` whose `src:` is site-relative (`\"/preview/\"`, `\"/embed/{id}\"`)\nwas refused by the site's own headers. A project that places one is\nserved `X-Frame-Options: SAMEORIGIN` by `wf serve`, and its `_headers`\nsays the same with `frame-ancestors 'self'`; every other project keeps\n`DENY` and `'none'`.",
       "points": [],
       "after": ""
      },
@@ -1130,7 +1130,7 @@
       "after": ""
      },
      {
-      "text": "**A long list drawn before its box is laid out**\n([chapter 37](/reference#virtuallist)) paints the\nright rows in its first frame, the row `reveal:` names among them, where\nit drew about forty and trimmed them a frame later.",
+      "text": "**A long list drawn before its box is laid out**\n([chapter 37](/reference/virtuallist)) paints the\nright rows in its first frame, the row `reveal:` names among them, where\nit drew about forty and trimmed them a frame later.",
       "points": [],
       "after": ""
      },
@@ -1140,12 +1140,12 @@
       "after": ""
      },
      {
-      "text": "**A test reads a page as a reader does**\n([chapter 24](/learn/16-testing#a-test-that-looks)). `expect` reads\na plain render as a browser lays it out: elements that touch read as\ntouching, where the render's line breaks put a space between them. A\ntest run in a browser loads the project's own stylesheets and serves\n`public/` beside the page, as the built page does.",
+      "text": "**A test reads a page as a reader does**\n([chapter 24](/learn/16-testing#write-a-test-that-looks)). `expect` reads\na plain render as a browser lays it out: elements that touch read as\ntouching, where the render's line breaks put a space between them. A\ntest run in a browser loads the project's own stylesheets and serves\n`public/` beside the page, as the built page does.",
       "points": [],
       "after": ""
      },
      {
-      "text": "**A record with all its fields defaulted is `Offers()`**\n([chapter 12](/learn/11-stores#declaring-a-store)), wherever an\nexpression goes, a prop's default among them; a left-out field of a\ndefault record is filled in, in the pre-render too.",
+      "text": "**A record with all its fields defaulted is `Offers()`**\n([chapter 12](/learn/11-stores#a-first-store)), wherever an\nexpression goes, a prop's default among them; a left-out field of a\ndefault record is filled in, in the pre-render too.",
       "points": [],
       "after": ""
      },

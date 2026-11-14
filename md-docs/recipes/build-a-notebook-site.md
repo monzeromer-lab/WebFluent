@@ -19,21 +19,29 @@ notes they save for later, stays in their browser. The finished project is
 ## Before you start
 
 You need `wf`, Chrome and a copy of the repository
-(see [Before you start](../learn/03-tutorial-todos.md#before-you-start) in the Todos tutorial). This tutorial shows
-the part of each file that teaches something new, so work in the finished
-project and read each file as its step comes up:
+(see [Before you start](../learn/03-tutorial-todos.md#before-you-start) in the Todos tutorial).
+
+**This tutorial is read along, not typed along.** Each step shows the part
+of a file that teaches something new, not every line of it, so the
+snippets alone do not make a working project. Open the finished project,
+run it, and read each file as its step comes up:
 
 ```bash
 cd WebFluent/examples/tutorials/medium-field-notes
 wf serve
 ```
 
+To build it yourself instead, run the `wf init` in Step 1, then copy each
+file from `examples/tutorials/medium-field-notes` into your project as its
+step names it, and run `wf check` after each step.
+
 The Todos tutorial explains state, stores and components; this one
 assumes them.
 
 ## Step 1: Create a static project and its look
 
-A new project of this kind starts from the `static` template:
+The project started from the `static` template (if you are building it
+yourself, this is where you start):
 
 ```bash
 wf init field-notes -t static
@@ -71,7 +79,7 @@ The project's `webfluent.app.json`:
   ([Static sites and SPAs](../about/static-and-spa.md)).
 - `site_url` lets the build write what search engines and link previews
   read: a canonical address, Open Graph tags, JSON-LD, `sitemap.xml` and
-  `robots.txt` ([Content](index.md)).
+  `robots.txt` ([Describe pages to search engines and link previews](search-and-link-previews.md)).
 
 The dark theme names only the tokens that change:
 
@@ -314,7 +322,7 @@ page NotePage(path: "/notes/:slug", slug: String,
 - `:slug` in the path is a typed parameter of the page.
 - `paths:` names the values a static build renders the page for: one
   `notes/<slug>/index.html` per note, each listed in the sitemap
-  ([Content](index.md)).
+  ([Describe pages to search engines and link previews](search-and-link-previews.md)).
 - `title:` and `description:` may be worked out from the parameters, so
   each note's search result shows its own title and summary.
 
@@ -451,12 +459,12 @@ pre-rendered static pages`, and `wf verify` ends with `0 problem(s)`.
 ## What you built
 
 - A static build, with canonical addresses, a sitemap and link previews
-  ([Content](index.md)).
+  ([Describe pages to search engines and link previews](search-and-link-previews.md)).
 - Typed data read from a JSON file at build time ([Fetching data](../learn/15-data.md)).
 - A shell, and a layout every page names
   ([Pages and routing](../learn/05-pages-and-routing.md)).
 - A page per note from one `:slug` page and `paths:`, and a page written in
-  Markdown ([Content](index.md)).
+  Markdown ([Write a page as a Markdown file](markdown-pages.md)).
 - A search and a filter that work in pre-rendered HTML
   ([Static sites and SPAs](../about/static-and-spa.md)).
 - A reader's saved list, with a pressed state assistive technology reads

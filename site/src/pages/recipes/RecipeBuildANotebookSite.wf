@@ -4,18 +4,18 @@ page RecipeBuildANotebookSite(path: "/recipes/build-a-notebook-site", title: "Bu
     RecipeShell("Build a statically generated notebook", summary: "**What you will build.** A notebook kept in public — notes from a garden, a kitchen and a few trips — built as a static site. The notes are a JSON file the build reads. Every page, including one page per note, is written out as HTML that a search engine can read. The one thing a reader changes, the notes they save for later, stays in their browser. The finished project is [`examples/tutorials/medium-field-notes`](https://github.com/monzeromer-lab/WebFluent/tree/master/examples/tutorials/medium-field-notes).  **Time:** about an hour.", outputs: [], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "before-you-start", label: "Before you start"), Anchor(id: "step-1-create-a-static-project-and-its-look", label: "Step 1: Create a static project and its look"), Anchor(id: "step-2-type-the-data", label: "Step 2: Type the data"), Anchor(id: "step-3-write-the-shell-and-a-layout", label: "Step 3: Write the shell and a layout"), Anchor(id: "step-4-build-a-card", label: "Step 4: Build a card"), Anchor(id: "step-5-search-and-filter-the-front-page", label: "Step 5: Search and filter the front page"), Anchor(id: "step-6-give-each-note-a-page", label: "Step 6: Give each note a page"), Anchor(id: "step-7-list-the-tags-and-write-a-page-in-markdown", label: "Step 7: List the tags, and write a page in Markdown"), Anchor(id: "step-8-keep-the-reader-s-saved-notes", label: "Step 8: Keep the reader's saved notes"), Anchor(id: "step-9-test-it-and-run-the-checks-a-static-site-needs", label: "Step 9: Test it, and run the checks a static site needs"), Anchor(id: "what-you-built", label: "What you built")], related: [RelatedLink(kind: "Recipe", title: "Build a budget app that works offline", to: "/recipes/build-a-budget-app")], source: "md-docs/recipes/build-a-notebook-site.md", how: false, hasVariations: false) {
         Heading("Before you start", id: "before-you-start").h2
 
-        Markdown("You need `wf`, Chrome and a copy of the repository (see [Before you start](/learn/03-tutorial-todos#before-you-start) in the Todos tutorial). This tutorial shows the part of each file that teaches something new, so work in the finished project and read each file as its step comes up:")
+        Markdown("You need `wf`, Chrome and a copy of the repository (see [Before you start](/learn/03-tutorial-todos#before-you-start) in the Todos tutorial).\n\n**This tutorial is read along, not typed along.** Each step shows the part of a file that teaches something new, not every line of it, so the snippets alone do not make a working project. Open the finished project, run it, and read each file as its step comes up:")
 
         Terminal(lines: [
                 Line(command: "cd WebFluent/examples/tutorials/medium-field-notes"),
                 Line(command: "wf serve")
             ])
 
-        Markdown("The Todos tutorial explains state, stores and components; this one assumes them.")
+        Markdown("To build it yourself instead, run the `wf init` in Step 1, then copy each file from `examples/tutorials/medium-field-notes` into your project as its step names it, and run `wf check` after each step.\n\nThe Todos tutorial explains state, stores and components; this one assumes them.")
 
         Heading("Step 1: Create a static project and its look", id: "step-1-create-a-static-project-and-its-look").h2
 
-        Markdown("A new project of this kind starts from the `static` template:")
+        Markdown("The project started from the `static` template (if you are building it yourself, this is where you start):")
 
         Terminal(lines: [
                 Line(command: "wf init field-notes -t static"),
@@ -46,7 +46,7 @@ page RecipeBuildANotebookSite(path: "/recipes/build-a-notebook-site", title: "Bu
   }
 }"#, title: "json")
 
-        Markdown("- `\"ssg\": true` pre-renders every page to its own `index.html`. When the page loads, the script takes it over in place — *hydration* ([Static sites and SPAs](/about/static-or-single-page)).\n- `site_url` lets the build write what search engines and link previews read: a canonical address, Open Graph tags, JSON-LD, `sitemap.xml` and `robots.txt` ([Content](/recipes)).\n\nThe dark theme names only the tokens that change:")
+        Markdown("- `\"ssg\": true` pre-renders every page to its own `index.html`. When the page loads, the script takes it over in place — *hydration* ([Static sites and SPAs](/about/static-or-single-page)).\n- `site_url` lets the build write what search engines and link previews read: a canonical address, Open Graph tags, JSON-LD, `sitemap.xml` and `robots.txt` ([Describe pages to search engines and link previews](/recipes/search-and-link-previews)).\n\nThe dark theme names only the tokens that change:")
 
         CodeBlock(#"// src/theme.wf
 /// The dark theme: only the tokens that change.
@@ -197,7 +197,7 @@ page NotePage(path: "/notes/:slug", slug: String,
 
     derived note = notes.find(n => n.slug == slug)"#, title: "wf")
 
-        Markdown("- `:slug` in the path is a typed parameter of the page.\n- `paths:` names the values a static build renders the page for: one `notes/<slug>/index.html` per note, each listed in the sitemap ([Content](/recipes)).\n- `title:` and `description:` may be worked out from the parameters, so each note's search result shows its own title and summary.\n\nThe body of the page is the note's Markdown:")
+        Markdown("- `:slug` in the path is a typed parameter of the page.\n- `paths:` names the values a static build renders the page for: one `notes/<slug>/index.html` per note, each listed in the sitemap ([Describe pages to search engines and link previews](/recipes/search-and-link-previews)).\n- `title:` and `description:` may be worked out from the parameters, so each note's search result shows its own title and summary.\n\nThe body of the page is the note's Markdown:")
 
         CodeBlock(#"// src/pages/NotePage.wf
             Markdown(n.body)"#, title: "wf")
@@ -281,7 +281,7 @@ test "a search that matches nothing says so, and clears" {
 
         Heading("What you built", id: "what-you-built").h2
 
-        Markdown("- A static build, with canonical addresses, a sitemap and link previews ([Content](/recipes)).\n- Typed data read from a JSON file at build time ([Fetching data](/learn/15-data)).\n- A shell, and a layout every page names ([Pages and routing](/learn/05-pages-and-routing)).\n- A page per note from one `:slug` page and `paths:`, and a page written in Markdown ([Content](/recipes)).\n- A search and a filter that work in pre-rendered HTML ([Static sites and SPAs](/about/static-or-single-page)).\n- A reader's saved list, with a pressed state assistive technology reads ([Accessibility](/about/accessibility)).")
+        Markdown("- A static build, with canonical addresses, a sitemap and link previews ([Describe pages to search engines and link previews](/recipes/search-and-link-previews)).\n- Typed data read from a JSON file at build time ([Fetching data](/learn/15-data)).\n- A shell, and a layout every page names ([Pages and routing](/learn/05-pages-and-routing)).\n- A page per note from one `:slug` page and `paths:`, and a page written in Markdown ([Write a page as a Markdown file](/recipes/markdown-pages)).\n- A search and a filter that work in pre-rendered HTML ([Static sites and SPAs](/about/static-or-single-page)).\n- A reader's saved list, with a pressed state assistive technology reads ([Accessibility](/about/accessibility)).")
 
     }
 }

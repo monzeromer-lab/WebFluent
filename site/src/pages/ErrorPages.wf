@@ -147,7 +147,10 @@ page ErrorE001(path: "/errors/E001", title: "E001 — Text the compiler cannot r
         fixed { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     Heading("Hello").h1
 }"#, title: "wf") }
-        note { Markdown("Close the string, comment or splice the message names. A\ncharacter that begins nothing (`|` alone, a stray `@`) is usually a typo\nfor the one beside it on the keyboard.") }
+        note {
+            Markdown("Close the string, comment or splice the message names. A\ncharacter that begins nothing (`|` alone, a stray `@`) is usually a typo\nfor the one beside it on the keyboard.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -166,18 +169,21 @@ page ErrorE002(path: "/errors/E002", title: "E002 — A syntax error", descripti
     Heading("Hello").h1
     Text("a") Text("b")
 }"#, title: "wf") }
-        note { Markdown("The message names what was expected and what was found, at the\nplace the parser stopped. One file can report several: after an error the\nparser picks up again at the next declaration.") }
+        note {
+            Markdown("The message names what was expected and what was found, at the\nplace the parser stopped. One file can report several: after an error the\nparser picks up again at the next declaration.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
 page ErrorE003(path: "/errors/E003", title: "E003 — Indentation that lines up with no block", description: "In a `.wfx` file a line opens a block by being followed by a deeper one, and closes blocks by coming back out. A line that comes back to an…") {
-    ErrorShell("E003", title: "Indentation that lines up with no block", severity: "error", family: "Syntax and structure", summary: "In a `.wfx` file a line opens a block by being followed by a deeper one, and closes blocks by coming back out. A line that comes back to an indentation no enclosing block has is ambiguous.", printed: #""#, lowerable: false, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "why", label: t("error.why")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/E003.md") {
+    ErrorShell("E003", title: "Indentation that lines up with no block", severity: "error", family: "Syntax and structure", summary: "In a `.wfx` file a line opens a block by being followed by a deeper one, and closes blocks by coming back out. A line that comes back to an indentation no enclosing block has is ambiguous.", printed: #""#, lowerable: false, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/E003.md") {
         fixed {
             Stack(gap: .sm) {
                 Markdown("Line the line up with the block it belongs to.")
             }
         }
-        Markdown("In a `.wfx` file, a line that comes back out to an indentation no enclosing\nblock has:\n\n```text\npage Home(path: \"/\")\n    Row\n        Text(\"a\")\n      Text(\"b\")\n```")
+        Markdown("In a `.wfx` file, a line that comes back out to an indentation no enclosing\nblock has. Saved as `src/App.wfx`, this draws `E003` (the example is not\ncompiled here, where every example is read as a `.wf` file):\n\n```wfx no-check\npage Home(path: \"/\")\n    Row\n        Text(\"a\")\n      Text(\"b\")\n```")
     }
 }
 
@@ -195,12 +201,15 @@ page ErrorE004(path: "/errors/E004", title: "E004 — A file in the WebFluent 2 
         fixed { CodeBlock(#"page Home(path: "/", title: "T", description: "D") {
     Heading("Hi").h1
 }"#, title: "wf") }
-        note { Markdown("Run `wf migrate` once; it rewrites the project in place.") }
+        note {
+            Markdown("Run `wf migrate` once; it rewrites the project in place.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
 page ErrorE005(path: "/errors/E005", title: "E005 — A file the formatter will not change", description: "`wf fmt` holds its result to the file's tokens; when formatting would change what a file says, it leaves the file alone and says so.") {
-    ErrorShell("E005", title: "A file the formatter will not change", severity: "error", family: "Syntax and structure", summary: "`wf fmt` holds its result to the file's tokens; when formatting would change what a file says, it leaves the file alone and says so.", printed: #""#, lowerable: false, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "why", label: t("error.why")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/E005.md") {
+    ErrorShell("E005", title: "A file the formatter will not change", severity: "error", family: "Syntax and structure", summary: "`wf fmt` holds its result to the file's tokens; when formatting would change what a file says, it leaves the file alone and says so.", printed: #""#, lowerable: false, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/E005.md") {
         fixed {
             Stack(gap: .sm) {
                 Markdown("format the lines it\nnames by hand; please report the file, since it is a bug in `wf fmt`.")
@@ -226,7 +235,10 @@ page ErrorE101(path: "/errors/E101", title: "E101 — A component nothing declar
     Heading("Save").h1
     Button("Save")
 }"#, title: "wf") }
-        note { Markdown("Check the spelling, or declare it with `component Buton \{ … \}`.") }
+        note {
+            Markdown("Check the spelling, or declare it with `component Buton \{ … \}`.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -249,7 +261,10 @@ page ErrorE102(path: "/errors/E102", title: "E102 — A name declared twice", de
     derived doubled = count * 2
     Heading("Count {count}, doubled {doubled}").h1
 }"#, title: "wf") }
-        note { Markdown("Rename one of the two. The finding points at the second and names\nwhere the first is.") }
+        note {
+            Markdown("Rename one of the two. The finding points at the second and names\nwhere the first is.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -269,7 +284,10 @@ page ErrorE103(path: "/errors/E103", title: "E103 — A flag, case, part, event 
     Heading("Save").h1
     Button("Save").lg
 }"#, title: "wf") }
-        note { Markdown("Use one the message lists — it names every flag, case, event or\nslot the component takes.") }
+        note {
+            Markdown("Use one the message lists — it names every flag, case, event or\nslot the component takes.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -293,7 +311,10 @@ page P(path: "/", title: "T", description: "D", layout: Shell) {
 page P(path: "/", title: "T", description: "D", layout: Shell) {
     Heading("Home").h1
 }"#, title: "wf") }
-        note { Markdown("Add `slot` to the component and place `children` where the page\nbelongs.") }
+        note {
+            Markdown("Add `slot` to the component and place `children` where the page\nbelongs.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -315,7 +336,10 @@ page ErrorE105(path: "/errors/E105", title: "E105 — A statement a render block
     Heading("Count {n}").h1
     Button("+1") { on click { n = n + 1 } }
 }"#, title: "wf") }
-        note { Markdown("Put it in `on click \{ \}`, an `action` or an `effect`.") }
+        note {
+            Markdown("Put it in `on click \{ \}`, an `action` or an `effect`.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -337,7 +361,10 @@ page ErrorE106(path: "/errors/E106", title: "E106 — Script or a whole style in
     Heading("Saved {saves} times").h1
     Button("Save") { on click { save() } }
 }"#, title: "wf") }
-        note { Markdown("`Button(\"Save\") \{ on click \{ save() \} \}`.\n\n`style:` is refused the same way: it would write a value as the\nelement's whole `style=` attribute, which a value from data can turn\ninto a box over the whole page or a request to anywhere. A style is a\n`style \{ \}` block, one property at a time, where a value that reads\nstate sets that one property and nothing else.\n\n```wf expect=E106\npage P(path: \"/\", title: \"T\", description: \"D\") \{\n    state look = \"color: red\"\n    Heading(\"Note\").h1\n    Text(\"Hi\", style: look)\n\}\n```\n\n```text\nerror[E106]: `style:` on Text would write a value as the element's whole inline style\n --> src/App.wf:4:16\n  |\n4 |     Text(\"Hi\", style: look)\n  |                ^^^^^\n  = help: Write a style block instead: `Text(…) \{ style \{ color: \{tone\} \} \}`, one property at a time\n  = docs: https://webfluent.monzeromer.dev/errors/E106\n```\n\n**Fix:** `Text(\"Hi\") \{ style \{ color: \{tone\} \} \}`.") }
+        note {
+            Markdown("`Button(\"Save\") \{ on click \{ save() \} \}`.\n\n`style:` is refused the same way: it would write a value as the\nelement's whole `style=` attribute, which a value from data can turn\ninto a box over the whole page or a request to anywhere. A style is a\n`style \{ \}` block, one property at a time, where a value that reads\nstate sets that one property and nothing else.\n\n```wf expect=E106\npage P(path: \"/\", title: \"T\", description: \"D\") \{\n    state look = \"color: red\"\n    Heading(\"Note\").h1\n    Text(\"Hi\", style: look)\n\}\n```\n\n```text\nerror[E106]: `style:` on Text would write a value as the element's whole inline style\n --> src/App.wf:4:16\n  |\n4 |     Text(\"Hi\", style: look)\n  |                ^^^^^\n  = help: Write a style block instead: `Text(…) \{ style \{ color: \{tone\} \} \}`, one property at a time\n  = docs: https://webfluent.monzeromer.dev/errors/E106\n```\n\n**Fix:** `Text(\"Hi\") \{ style \{ color: \{tone\} \} \}`.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -357,34 +384,37 @@ page ErrorE107(path: "/errors/E107", title: "E107 — A URL a browser would run"
     Heading("Go").h1
     Link("Go", to: "https://example.com/")
 }"#, title: "wf") }
-        note { Markdown("A relative URL, or `http`, `https`, `mailto`, `tel`, `sms`,\n`ftp`.\n\nA page's `head \{ \}` is held to the same rule, and more: a\n`script(src:)` must be written out, since whoever controls a value it\nreads would choose the script the page runs; a `meta(http-equiv:\n\"refresh\")` whose address comes from a value is an open redirect, and\nan `http-equiv` a value chooses could become one.\n\n```wf expect=E107\npage P(path: \"/\", title: \"T\", description: \"D\") \{\n    head \{ script(src: query.lib) \}\n    Heading(\"Home\").h1\n\}\n```\n\n```text\nerror[E107]: `head \{ script(src: …) \}` loads a script a value chooses: whoever controls the value runs code as this site\n --> src/App.wf:2:12\n  |\n2 |     head \{ script(src: query.lib) \}\n  |            ^^^^^^\n  = help: Write the address out — `script(src: \"/analytics.js\")` — and keep what varies in the script's own data\n  = docs: https://webfluent.monzeromer.dev/errors/E107\n```\n\n**Fix:** `head \{ script(src: \"/analytics.js\") \}`; send a reader on with\n`navigate(…)`, which keeps to the site's routes.") }
+        note {
+            Markdown("A relative URL, or `http`, `https`, `mailto`, `tel`, `sms`,\n`ftp`.\n\nA page's `head \{ \}` is held to the same rule, and more: a\n`script(src:)` must be written out, since whoever controls a value it\nreads would choose the script the page runs; a `meta(http-equiv:\n\"refresh\")` whose address comes from a value is an open redirect, and\nan `http-equiv` a value chooses could become one.\n\n```wf expect=E107\npage P(path: \"/\", title: \"T\", description: \"D\") \{\n    head \{ script(src: query.lib) \}\n    Heading(\"Home\").h1\n\}\n```\n\n```text\nerror[E107]: `head \{ script(src: …) \}` loads a script a value chooses: whoever controls the value runs code as this site\n --> src/App.wf:2:12\n  |\n2 |     head \{ script(src: query.lib) \}\n  |            ^^^^^^\n  = help: Write the address out — `script(src: \"/analytics.js\")` — and keep what varies in the script's own data\n  = docs: https://webfluent.monzeromer.dev/errors/E107\n```\n\n**Fix:** `head \{ script(src: \"/analytics.js\") \}`; send a reader on with\n`navigate(…)`, which keeps to the site's routes.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
 page ErrorE108(path: "/errors/E108", title: "E108 — An env name that is not public", description: "Whatever a page reads from `env` is in the bundle, where anyone can read it. A name a page reads must begin `PUBLIC_` or be listed in `public_env`.") {
-    ErrorShell("E108", title: "An env name that is not public", severity: "error", family: "Syntax and structure", summary: "Whatever a page reads from `env` is in the bundle, where anyone can read it. A name a page reads must begin `PUBLIC_` or be listed in `public_env`.", printed: #""#, lowerable: false, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "why", label: t("error.why")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/E108.md") {
+    ErrorShell("E108", title: "An env name that is not public", severity: "error", family: "Syntax and structure", summary: "Whatever a page reads from `env` is in the bundle, where anyone can read it. A name a page reads must begin `PUBLIC_` or be listed in `public_env`.", printed: #""#, lowerable: false, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/E108.md") {
         fixed {
             Stack(gap: .sm) {
-                Markdown("rename it `PUBLIC_…` or list it\nin `public_env` — only if anyone may read it ([Environments and\nsecrets](/recipes/environments-and-secrets)).")
+                Markdown("rename it `PUBLIC_…` (`env.PUBLIC_APP_NAME`) or list it in\n`public_env` — only if anyone may read it. A value the page must not read\nbelongs behind a request ([Environments and\nsecrets](/recipes/environments-and-secrets)).")
             }
         }
-        Markdown("`env.STRIPE_SECRET` read in a page: `env.STRIPE_SECRET is not public, and a\npage reads what is in the bundle`.")
+        Markdown("A page that reads `env.STRIPE_SECRET` draws ``env.STRIPE_SECRET is not\npublic, and a page reads what is in the bundle`` (the example is not\ncompiled here: what it draws depends on the config's `public_env`):\n\n```wf no-check\npage P(path: \"/\", title: \"T\", description: \"D\") \{\n    Heading(env.STRIPE_SECRET).h1\n\}\n```")
     }
 }
 
 page ErrorE109(path: "/errors/E109", title: "E109 — An element this output cannot draw", description: "A PDF or a slide deck has no buttons, inputs, handlers or routes; an interactive element in one would be drawn as nothing.") {
-    ErrorShell("E109", title: "An element this output cannot draw", severity: "error", family: "Syntax and structure", summary: "A PDF or a slide deck has no buttons, inputs, handlers or routes; an interactive element in one would be drawn as nothing.", printed: #""#, lowerable: false, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "why", label: t("error.why")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/E109.md") {
+    ErrorShell("E109", title: "An element this output cannot draw", severity: "error", family: "Syntax and structure", summary: "A PDF or a slide deck has no buttons, inputs, handlers or routes; an interactive element in one would be drawn as nothing.", printed: #""#, lowerable: false, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/E109.md") {
         fixed {
             Stack(gap: .sm) {
                 Markdown("draw it as text, or build the\npage as a site.")
             }
         }
-        Markdown("A `Button`, an `Input`, a handler or a `Router` in a project whose\n`output_type` is `pdf` or `slides`. Paper has no controls (`Button`,\n`Input`, `Select`, `Checkbox`, `Radio`, `Switch`, `Slider`, `DatePicker`,\n`FileUpload`, `Textarea`, `Form`, `IconButton`, `ButtonGroup`, `Dropdown`), no navigation\n(`Router`, `Navbar`, `Sidebar`, `Tabs`, `Menu`), no overlays (`Modal`,\n`Dialog`, `Popover`, `Toast`, `Tooltip`), no media that plays (`Video`,\n`Audio`, `Carousel`), no other page inside it (`Frame`) and nothing a\nscript draws (`Host`, `Element`, `Portal`).")
+        Markdown("A `Button`, an `Input`, a handler or a `Router` in a project whose\n`output_type` is `pdf` or `slides`. With `\"build\": \{ \"output_type\": \"pdf\" \}`\nin `webfluent.app.json` (the example is not compiled here: what it draws\ndepends on the config):\n\n```wf no-check\npage Report(path: \"/\", title: \"Report\", description: \"The quarter.\") \{\n    Document(title: \"Q1 report\") \{\n        Heading(\"Q1 report\").h1\n        Button(\"Print\")\n    \}\n\}\n```\n\nPaper has no controls (`Button`,\n`Input`, `Select`, `Checkbox`, `Radio`, `Switch`, `Slider`, `DatePicker`,\n`FileUpload`, `Textarea`, `Form`, `IconButton`, `ButtonGroup`, `Dropdown`), no navigation\n(`Router`, `Navbar`, `Sidebar`, `Tabs`, `Menu`), no overlays (`Modal`,\n`Dialog`, `Popover`, `Toast`, `Tooltip`), no media that plays (`Video`,\n`Audio`, `Carousel`), no other page inside it (`Frame`) and nothing a\nscript draws (`Host`, `Element`, `Portal`).")
     }
 }
 
 page ErrorE110(path: "/errors/E110", title: "E110 — A project script that cannot be a plain script", description: "A `.js` file under `src/` is linked as a plain browser script: one with `import` or `export`, one a file in `public/` would replace, or one whose…") {
-    ErrorShell("E110", title: "A project script that cannot be a plain script", severity: "error", family: "Syntax and structure", summary: "A `.js` file under `src/` is linked as a plain browser script: one with `import` or `export`, one a file in `public/` would replace, or one whose names clash with the program's, cannot be.", printed: #""#, lowerable: false, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "why", label: t("error.why")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/E110.md") {
+    ErrorShell("E110", title: "A project script that cannot be a plain script", severity: "error", family: "Syntax and structure", summary: "A `.js` file under `src/` is linked as a plain browser script: one with `import` or `export`, one a file in `public/` would replace, or one whose names clash with the program's, cannot be.", printed: #""#, lowerable: false, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/E110.md") {
         fixed {
             Stack(gap: .sm) {
                 Markdown("take off the\n`import`/`export` (a top-level `function` is global as it is), keep one of\nthe two files, or rename the clashing name.")
@@ -395,7 +425,7 @@ page ErrorE110(path: "/errors/E110", title: "E110 — A project script that cann
 }
 
 page ErrorE111(path: "/errors/E111", title: "E111 — A setting that cannot work", description: "A value in `webfluent.app.json` that names something that does not exist or asks for something the build cannot do.") {
-    ErrorShell("E111", title: "A setting that cannot work", severity: "error", family: "Syntax and structure", summary: "A value in `webfluent.app.json` that names something that does not exist or asks for something the build cannot do.", printed: #""#, lowerable: false, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "why", label: t("error.why")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/E111.md") {
+    ErrorShell("E111", title: "A setting that cannot work", severity: "error", family: "Syntax and structure", summary: "A value in `webfluent.app.json` that names something that does not exist or asks for something the build cannot do.", printed: #""#, lowerable: false, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/E111.md") {
         fixed {
             Stack(gap: .sm) {
                 Markdown("what the message says; it names the setting.")
@@ -406,7 +436,7 @@ page ErrorE111(path: "/errors/E111", title: "E111 — A setting that cannot work
 }
 
 page ErrorE112(path: "/errors/E112", title: "E112 — A setting nothing reads", description: "A key in `webfluent.app.json` that is not a setting. Usually a misspelling, so the setting it meant keeps its default.") {
-    ErrorShell("E112", title: "A setting nothing reads", severity: "warning", family: "Syntax and structure", summary: "A key in `webfluent.app.json` that is not a setting. Usually a misspelling, so the setting it meant keeps its default.", printed: #""#, lowerable: true, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "why", label: t("error.why")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/E112.md") {
+    ErrorShell("E112", title: "A setting nothing reads", severity: "warning", family: "Syntax and structure", summary: "A key in `webfluent.app.json` that is not a setting. Usually a misspelling, so the setting it meant keeps its default.", printed: #""#, lowerable: true, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/E112.md") {
         fixed {
             Stack(gap: .sm) {
                 Markdown("correct the key.")
@@ -434,7 +464,10 @@ page P(path: "/", title: "T", description: "D") {
     Heading("Shop").h1
     Product("Laptop", price: 999)
 }"#, title: "wf") }
-        note { Markdown("Name the others: `Card(\"Laptop\", price: 999)`.") }
+        note {
+            Markdown("Name the others: `Card(\"Laptop\", price: 999)`.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -455,12 +488,15 @@ page ErrorE114(path: "/errors/E114", title: "E114 — emit outside a component",
     Heading("Saved {saves} times").h1
     Button("Save") { on click { save() } }
 }"#, title: "wf") }
-        note { Markdown("Fire the event from the component that declares it; a page calls\nan action instead.") }
+        note {
+            Markdown("Fire the event from the component that declares it; a page calls\nan action instead.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
 page ErrorE115(path: "/errors/E115", title: "E115 — A project script the compiler could not read", description: "The file is still linked and may run fine in a browser, but the compiler could not read what it declares, so its names are not in scope for the program.") {
-    ErrorShell("E115", title: "A project script the compiler could not read", severity: "warning", family: "Syntax and structure", summary: "The file is still linked and may run fine in a browser, but the compiler could not read what it declares, so its names are not in scope for the program.", printed: #""#, lowerable: true, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "why", label: t("error.why")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/E115.md") {
+    ErrorShell("E115", title: "A project script the compiler could not read", severity: "warning", family: "Syntax and structure", summary: "The file is still linked and may run fine in a browser, but the compiler could not read what it declares, so its names are not in scope for the program.", printed: #""#, lowerable: true, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/E115.md") {
         fixed {
             Stack(gap: .sm) {
                 Markdown("what the message says, at the\nline it names.")
@@ -486,7 +522,10 @@ page ErrorE116(path: "/errors/E116", title: "E116 — A tag that cannot be a cus
     Heading("Pricing").h1
     Element("pricing-table")
 }"#, title: "wf") }
-        note { Markdown("A custom element's tag is lower case with a hyphen:\n`Element(\"pricing-table\")`.") }
+        note {
+            Markdown("A custom element's tag is lower case with a hyphen:\n`Element(\"pricing-table\")`.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -506,7 +545,10 @@ page ErrorE117(path: "/errors/E117", title: "E117 — A key combination no keybo
     on key("ctrl+shift+k") { log("search") }
     Heading("Search").h1
 }"#, title: "wf") }
-        note { Markdown("Modifiers `ctrl`, `shift`, `alt`, `meta` (or `cmd`), then one key:\na letter, a digit, or a name — `Enter`, `Escape`, `ArrowDown`, `Tab`, `F2`.") }
+        note {
+            Markdown("Modifiers `ctrl`, `shift`, `alt`, `meta` (or `cmd`), then one key:\na letter, a digit, or a name — `Enter`, `Escape`, `ArrowDown`, `Tab`, `F2`.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -517,7 +559,7 @@ page ErrorE118(path: "/errors/E118", title: "E118 — A name the language alread
 2 |     state env = "staging"
   |     ^^^^^^^^^^^^^^^^^^^^^
   = help: Name it something of your own — `target` or `stage`: inside its scope every `env` would mean this, and the language's would have no name
-  = docs: https://webfluent.monzeromer.dev/errors/E118"#, lowerable: false, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "why", label: t("error.why")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/E118.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/E118"#, lowerable: false, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/E118.md") {
         broken { CodeBlock(#"page Deploy(path: "/", title: "Deploy", description: "Pick a target.") {
     state env = "staging"
     Heading("Deploy to {env}").h1
@@ -526,13 +568,16 @@ page ErrorE118(path: "/errors/E118", title: "E118 — A name the language alread
     state target = "staging"
     Heading("Deploy to {target}").h1
 }"#, title: "wf") }
-        note { Markdown("Name it something of your own — `state target = \"staging\"` — and\nits reads with it. The message suggests one where there is a usual choice:\n`target` or `stage` for `env`, `search` for `query`, `scheme` for `theme`,\n`item` or a word for what it holds for `t`.") }
+        note {
+            Markdown("Name it something of your own — `state target = \"staging\"` — and\nits reads with it. The message suggests one where there is a usual choice:\n`target` or `stage` for `env`, `search` for `query`, `scheme` for `theme`,\n`item` or a word for what it holds for `t`.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
         Markdown("A name the language gives a meaning is not a program's to declare — not as\na `state`, `derived`, `persist` or `let`, a prop, a route or action\nparameter, a loop item, a lambda's parameter, a binding of `if let`, `match`\nor a slot, nor a top-level `const`, `data`, `image`, store or `api`.\nDeclared, it would hide what the language means by it for as far as its\nscope reaches: a `state env` hid the build's settings in its page, and a\nloop's `t` hid the translation function inside the loop. The names are:\n\n- `env`, the build's settings; `params`, the route's; `locale` and `dir`,\n  the reader's language;\n- the values the browser keeps current: `now`, `viewport`, `query`, `hash`,\n  `theme`, `network`, `update`;\n- the language's functions: `t`, `format`, `ago`, `log`, `navigate`,\n  `fetch`, `uuid`, `sanitize`, `setLocale`, `setTheme`, `optimistic`,\n  `beacon`, `animate`, `replayAnimation`, `every`, `after`, `ws`, `sse`,\n  `broadcast`, `rtc`;\n- the words a statement is written with: `state`, `persist`, `derived`,\n  `effect`, `action`, `use`, `resource`, `validate`, `socket`, `stream`,\n  `channel`, `peer`, `head`, `slot`, `part`, `if`, `else`, `for`, `in`, `by`,\n  `show`, `match`, `children`, `emit`, `sequence`, `on`, `style`,\n  `transition`, `let`, `return`, `await`, `try`, `catch`;\n- at the top level, `WF`, the runtime the compiled pages call;\n- in a store, the names every JavaScript object has — `valueOf`,\n  `toString`, `constructor`, `hasOwnProperty`, `isPrototypeOf`,\n  `propertyIsEnumerable`, `toLocaleString`, `__proto__` and its\n  `__define…`/`__lookup…` kin: a store is an object whose members are its\n  own, and a `valueOf` member replaced the one JavaScript calls itself, so\n  the page threw as soon as it was drawn;\n- and, as a prop, `__proto__`, which in the object a call passes sets its\n  prototype instead (a prop named `toString` or `valueOf` is fine).\n\nThe names a handler brings with it — `event`, `e`, `value`, `key` — and the\nbrowser's globals (`window`, `history`, …) are a program's to use, and so is\nany name as a field, a map key or an enum case: `type Box \{ env: String \}`\nand `.env` are fine.")
     }
 }
 
 page ErrorE901(path: "/errors/E901", title: "E901 — The compiler wrote JavaScript a browser would refuse", description: "The build reads back every script it writes, and this one would not run. It is a bug in WebFluent, not in the program; please report it with the…") {
-    ErrorShell("E901", title: "The compiler wrote JavaScript a browser would refuse", severity: "error", family: "Syntax and structure", summary: "The build reads back every script it writes, and this one would not run. It is a bug in WebFluent, not in the program; please report it with the source that produced it.", printed: #""#, lowerable: false, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "why", label: t("error.why")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/E901.md") {
+    ErrorShell("E901", title: "The compiler wrote JavaScript a browser would refuse", severity: "error", family: "Syntax and structure", summary: "The build reads back every script it writes, and this one would not run. It is a bug in WebFluent, not in the program; please report it with the source that produced it.", printed: #""#, lowerable: false, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/E901.md") {
         fixed {
             Stack(gap: .sm) {
                 Markdown("please report it, with\nthe source that produced it.")
@@ -543,7 +588,7 @@ page ErrorE901(path: "/errors/E901", title: "E901 — The compiler wrote JavaScr
 }
 
 page ErrorE902(path: "/errors/E902", title: "E902 — Output its own security policy refuses", description: "The build holds every page to the content security policy it ships beside it — as it wrote the page, and as the page's own `head \{ \}` tags would add…") {
-    ErrorShell("E902", title: "Output its own security policy refuses", severity: "error", family: "Syntax and structure", summary: "The build holds every page to the content security policy it ships beside it — as it wrote the page, and as the page's own `head \{ \}` tags would add to it; something there would be blocked.", printed: #""#, lowerable: false, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "why", label: t("error.why")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/E902.md") {
+    ErrorShell("E902", title: "Output its own security policy refuses", severity: "error", family: "Syntax and structure", summary: "The build holds every page to the content security policy it ships beside it — as it wrote the page, and as the page's own `head \{ \}` tags would add to it; something there would be blocked.", printed: #""#, lowerable: false, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/E902.md") {
         fixed {
             Stack(gap: .sm) {
                 Markdown("what the\nmessage says; a library's origin goes in `meta.scripts`, a stylesheet's in\n`meta.stylesheets`.")
@@ -554,7 +599,7 @@ page ErrorE902(path: "/errors/E902", title: "E902 — Output its own security po
 }
 
 page ErrorE119(path: "/errors/E119", title: "E119 — A hidden direction control in the source", description: "An embedding, override or isolate control (U+202A–U+202E, U+2066–U+2069) is invisible and reorders what follows it, so the code a reader sees is not…") {
-    ErrorShell("E119", title: "A hidden direction control in the source", severity: "warning", family: "Syntax and structure", summary: "An embedding, override or isolate control (U+202A–U+202E, U+2066–U+2069) is invisible and reorders what follows it, so the code a reader sees is not the code that runs (Trojan Source).", printed: #""#, lowerable: true, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "why", label: t("error.why")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/E119.md") {
+    ErrorShell("E119", title: "A hidden direction control in the source", severity: "warning", family: "Syntax and structure", summary: "An embedding, override or isolate control (U+202A–U+202E, U+2066–U+2069) is invisible and reorders what follows it, so the code a reader sees is not the code that runs (Trojan Source).", printed: #""#, lowerable: true, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/E119.md") {
         fixed {
             Stack(gap: .sm) {
                 Markdown("remove it. Arabic beside Latin needs no control: each run\ntakes the direction of its own letters.\n\nNames may be written in Arabic, or any script: a name starts with a letter\nand goes on with letters, digits, `_` and the marks of its letters, as\nUAX #31 says (`state عددٌ = 3`), and is one name however its letters were\ntyped — أ precomposed or ا with a combining hamza (NFC).")
@@ -565,7 +610,7 @@ page ErrorE119(path: "/errors/E119", title: "E119 — A hidden direction control
 }
 
 page ErrorE120(path: "/errors/E120", title: "E120 — Something nests too deeply", description: "Brackets, blocks, components that place each other, or the links of one chain (`a.b.c`, `1 + 2 + 3`) nest more than 100 levels deep, which no pass of…") {
-    ErrorShell("E120", title: "Something nests too deeply", severity: "error", family: "Syntax and structure", summary: "Brackets, blocks, components that place each other, or the links of one chain (`a.b.c`, `1 + 2 + 3`) nest more than 100 levels deep, which no pass of the compiler follows.", printed: #""#, lowerable: false, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "why", label: t("error.why")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/E120.md") {
+    ErrorShell("E120", title: "Something nests too deeply", severity: "error", family: "Syntax and structure", summary: "Brackets, blocks, components that place each other, or the links of one chain (`a.b.c`, `1 + 2 + 3`) nest more than 100 levels deep, which no pass of the compiler follows.", printed: #""#, lowerable: false, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/E120.md") {
         fixed {
             Stack(gap: .sm) {
                 Markdown("name a part of it — a `let` in an action, a `derived` value, a\ncomponent — and use the name. A component that places itself stops when\nits data does; one whose data does not end is this error too.")
@@ -576,7 +621,7 @@ page ErrorE120(path: "/errors/E120", title: "E120 — Something nests too deeply
 }
 
 page ErrorE121(path: "/errors/E121", title: "E121 — A render that would do too much", description: "A template's render would draw more elements and loop items, work out more, or write more markup than one render may: nested loops over vast ranges…") {
-    ErrorShell("E121", title: "A render that would do too much", severity: "error", family: "Syntax and structure", summary: "A template's render would draw more elements and loop items, work out more, or write more markup than one render may: nested loops over vast ranges or data, or an expression that makes more than one evaluation may.", printed: #""#, lowerable: false, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "why", label: t("error.why")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/E121.md") {
+    ErrorShell("E121", title: "A render that would do too much", severity: "error", family: "Syntax and structure", summary: "A template's render would draw more elements and loop items, work out more, or write more markup than one render may: nested loops over vast ranges or data, or an expression that makes more than one evaluation may.", printed: #""#, lowerable: false, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/E121.md") {
         fixed {
             Stack(gap: .sm) {
                 Markdown("draw less — page the data before it reaches the\ntemplate, or work the value out on the server and hand it over.")
@@ -604,7 +649,10 @@ page ErrorT01(path: "/errors/T01", title: "T01 — A value of the wrong type", d
     Heading("Count {count}").h1
     Button("Reset") { on click { count = 0 } }
 }"#, title: "wf") }
-        note { Markdown("Give the state a value of its type, or convert: `Number(text)`, `\"\{n\}\"`. If the state really holds either, declare it `Any`.\n\nA number a built-in cannot be given is one too: a `Carousel(interval:)`\noutside 1 to 2147483647 milliseconds (`-5000` used to become a 0 ms\nautoplay), a `Column(span:)` that is not a whole number from 1 to 12.\n\n```wf expect=T01\npage P(path: \"/\", title: \"T\", description: \"D\") \{\n    Heading(\"Grid\").h1\n    Row \{ Column(span: 13) \{ Text(\"Wide\") \} \}\n\}\n```\n\n```text\nerror[T01]: `span` of Column is 13, but a whole number of the 12 columns, from 1 to 12, is wanted\n --> src/App.wf:3:11\n  |\n3 |     Row \{ Column(span: 13) \{ Text(\"Wide\") \} \}\n  |           ^^^^^^\n  = help: `span: 6` is half the row\n  = docs: https://webfluent.monzeromer.dev/errors/T01\n```") }
+        note {
+            Markdown("Give the state a value of its type, or convert: `Number(text)`, `\"\{n\}\"`. If the state really holds either, declare it `Any`.\n\nA number a built-in cannot be given is one too: a `Carousel(interval:)`\noutside 1 to 2147483647 milliseconds (`-5000` used to become a 0 ms\nautoplay), a `Column(span:)` that is not a whole number from 1 to 12.\n\n```wf expect=T01\npage P(path: \"/\", title: \"T\", description: \"D\") \{\n    Heading(\"Grid\").h1\n    Row \{ Column(span: 13) \{ Text(\"Wide\") \} \}\n\}\n```\n\n```text\nerror[T01]: `span` of Column is 13, but a whole number of the 12 columns, from 1 to 12, is wanted\n --> src/App.wf:3:11\n  |\n3 |     Row \{ Column(span: 13) \{ Text(\"Wide\") \} \}\n  |           ^^^^^^\n  = help: `span: 6` is half the row\n  = docs: https://webfluent.monzeromer.dev/errors/T01\n```")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -626,7 +674,10 @@ page P(path: "/", title: "T", description: "D") {
     state tone: Tone = .calm
     Heading("Tone: {tone}").h1
 }"#, title: "wf") }
-        note { Markdown("Use one of the cases the message lists, or add the case to the `enum`.") }
+        note {
+            Markdown("Use one of the cases the message lists, or add the case to the `enum`.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -638,19 +689,22 @@ page ErrorT04(path: "/errors/T04", title: "T04 — A value that may be null, rea
   |          ^^^^^^^^^^
   = help: Unwrap it first: `if let x = value { … }`, `value ?? fallback`, `value?.{method}()`, or a check for `!= null`
   = docs: https://webfluent.monzeromer.dev/errors/T04"#, lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/T04.md") {
-        broken { CodeBlock(#"type User { name: String, email: String? }
+        broken { CodeBlock(#"type Member { name: String, email: String? }
 page P(path: "/", title: "T", description: "D") {
-    state user = User(name: "Ada", email: null)
+    state user = Member(name: "Ada", email: null)
     Heading("Profile").h1
     Text(user.email.toUpperCase())
 }"#, title: "wf") }
-        fixed { CodeBlock(#"type User { name: String, email: String? }
+        fixed { CodeBlock(#"type Member { name: String, email: String? }
 page P(path: "/", title: "T", description: "D") {
-    state user = User(name: "Ada", email: null)
+    state user = Member(name: "Ada", email: null)
     Heading("Profile").h1
     Text(user.email?.toUpperCase() ?? "")
 }"#, title: "wf") }
-        note { Markdown("Unwrap it: `if let e = user.email \{ e.toUpperCase() \}`, `user.email?.toUpperCase()`, or `(user.email ?? \"\").toUpperCase()`.") }
+        note {
+            Markdown("Unwrap it: `if let e = user.email \{ e.toUpperCase() \}`, `user.email?.toUpperCase()`, or `(user.email ?? \"\").toUpperCase()`.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -672,7 +726,10 @@ page P(path: "/", title: "T", description: "D") {
     state user = User(name: "Ada")
     Heading(user.name).h1
 }"#, title: "wf") }
-        note { Markdown("Correct the spelling to one of the fields listed, or add the field to the `type`.") }
+        note {
+            Markdown("Correct the spelling to one of the fields listed, or add the field to the `type`.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -697,7 +754,10 @@ page P(path: "/", title: "T", description: "D") {
     use Cart
     Heading("{Cart.count} items").h1
 }"#, title: "wf") }
-        note { Markdown("Use a member the store declares, or declare it: `derived count = items.length`. For a service, the endpoint must be declared in its `api`.") }
+        note {
+            Markdown("Use a member the store declares, or declare it: `derived count = items.length`. For a service, the endpoint must be declared in its `api`.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -719,7 +779,10 @@ page ErrorT07(path: "/errors/T07", title: "T07 — A condition that is always tr
     Heading("List").h1
     if items.length > 0 { Text("There are items") }
 }"#, title: "wf") }
-        note { Markdown("Ask the question you mean: `items.length > 0`, `user != null`.") }
+        note {
+            Markdown("Ask the question you mean: `items.length > 0`, `user != null`.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -741,7 +804,10 @@ page ErrorT08(path: "/errors/T08", title: "T08 — A loop over something that is
     Heading("Loop").h1
     for n in 1..=total { Text("{n}") }
 }"#, title: "wf") }
-        note { Markdown("Loop over a list — `for n in 1..=total` for a range of numbers.") }
+        note {
+            Markdown("Loop over a list — `for n in 1..=total` for a range of numbers.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -766,7 +832,10 @@ page P(path: "/", title: "T", description: "D") {
     Heading("Count {n}").h1
     Stepper(n) { on change(v) { n = v } }
 }"#, title: "wf") }
-        note { Markdown("Pass what the `event` declares, in order, or change the declaration.") }
+        note {
+            Markdown("Pass what the `event` declares, in order, or change the declaration.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -789,7 +858,10 @@ page ErrorT10(path: "/errors/T10", title: "T10 — A call with the wrong argumen
     Heading("Count").h1
     Button("+") { on click { add(1) } }
 }"#, title: "wf") }
-        note { Markdown("Pass the arguments the action, endpoint or function takes.") }
+        note {
+            Markdown("Pass the arguments the action, endpoint or function takes.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -814,7 +886,10 @@ page ErrorT11(path: "/errors/T11", title: "T11 — A match on something that can
     Heading("Match").h1
     if n == 1 { Text("One") } else { Text("?") }
 }"#, title: "wf") }
-        note { Markdown("Use `if` for a condition; `match` takes a resource, a connection or an enum.") }
+        note {
+            Markdown("Use `if` for a condition; `match` takes a resource, a connection or an enum.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -836,7 +911,10 @@ page ErrorT12(path: "/errors/T12", title: "T12 — A secret where it would escap
     Heading("Token").h1
     Button("Sign in") { on click { fetch("/api/session", method: "POST", body: { token: token }) } }
 }"#, title: "wf") }
-        note { Markdown("Do not show, splice, log or persist a `Secret`. Send it in a request — or keep it on the server.") }
+        note {
+            Markdown("Do not show, splice, log or persist a `Secret`. Send it in a request — or keep it on the server.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -858,7 +936,10 @@ page ErrorT13(path: "/errors/T13", title: "T13 — A name nothing declares", des
     Heading("Counter").h1
     Button("+") { on click { count = count + 1 } }
 }"#, title: "wf") }
-        note { Markdown("Correct the spelling, or declare the name. The browser's own\nglobals (`window`, `navigator`, `Math` …) and the language's values\n(`viewport`, `query`, `now` …) need no declaration; a call to a function\nnothing declares — `uid()` for `uuid()` — is reported the same way. A\ntemplate rendered with data (`wf render`) reads its data's keys by name, so\nit is not held to this.") }
+        note {
+            Markdown("Correct the spelling, or declare the name. The browser's own\nglobals (`window`, `navigator`, `Math` …) and the language's values\n(`viewport`, `query`, `now` …) need no declaration; a call to a function\nnothing declares — `uid()` for `uuid()` — is reported the same way. A\ntemplate rendered with data (`wf render`) reads its data's keys by name, so\nit is not held to this.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -880,7 +961,10 @@ page ErrorT16(path: "/errors/T16", title: "T16 — A method a number, a string o
     Heading("People").h1
     Text(names.join(", "))
 }"#, title: "wf") }
-        note { Markdown("The method the message suggests — here `join`.") }
+        note {
+            Markdown("The method the message suggests — here `join`.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -902,7 +986,10 @@ page ErrorT14(path: "/errors/T14", title: "T14 — A comparison that is always t
     Heading("Count").h1
     if count == 0 { Text("Nothing yet") }
 }"#, title: "wf") }
-        note { Markdown("Compare values of one type: `count == 0`, or convert one side\n(`Number(text) == n`). Against an enum, use a case it has.") }
+        note {
+            Markdown("Compare values of one type: `count == 0`, or convert one side\n(`Number(text) == n`). Against an enum, use a case it has.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -926,7 +1013,10 @@ page ErrorT17(path: "/errors/T17", title: "T17 — An async result used before i
     Heading("Save").h1
     Button("Save", disabled: saved) { on click { save() } }
 }"#, title: "wf") }
-        note { Markdown("`.pending` is for an action that awaits — drop it here. An async\naction's result is read with `await` inside an action or a handler; a value\nthat arrives over the network is a `resource`, which `derived` values and\nelements can read.") }
+        note {
+            Markdown("`.pending` is for an action that awaits — drop it here. An async\naction's result is read with `await` inside an action or a handler; a value\nthat arrives over the network is a `resource`, which `derived` values and\nelements can read.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -937,20 +1027,23 @@ page ErrorT19(path: "/errors/T19", title: "T19 — A value that may be null, sho
 5 |     Text("Also known as {user.nickname}")
   |                          ^^^^^^^^^^^^^
   = help: Say what to show instead: `{user.nickname ?? ""}`
-  = docs: https://webfluent.monzeromer.dev/errors/T19"#, lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "why", label: t("error.why")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/T19.md") {
-        broken { CodeBlock(#"type User { name: String, nickname: String? }
+  = docs: https://webfluent.monzeromer.dev/errors/T19"#, lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/T19.md") {
+        broken { CodeBlock(#"type Member { name: String, nickname: String? }
 page P(path: "/", title: "T", description: "D") {
-    state user = User(name: "Ada", nickname: null)
+    state user = Member(name: "Ada", nickname: null)
     Heading("Hello").h1
     Text("Also known as {user.nickname}")
 }"#, title: "wf") }
-        fixed { CodeBlock(#"type User { name: String, nickname: String? }
+        fixed { CodeBlock(#"type Member { name: String, nickname: String? }
 page P(path: "/", title: "T", description: "D") {
-    state user = User(name: "Ada", nickname: null)
+    state user = Member(name: "Ada", nickname: null)
     Heading("Hello").h1
     Text("Also known as {user.nickname ?? "nothing yet"}")
 }"#, title: "wf") }
-        note { Markdown("Say what to show instead: `\{user.nickname ?? \"nothing yet\"\}`, or\nshow the line only when there is one: `if let n = user.nickname \{ … \}`.") }
+        note {
+            Markdown("Say what to show instead: `\{user.nickname ?? \"nothing yet\"\}`, or\nshow the line only when there is one: `if let n = user.nickname \{ … \}`.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
         Markdown("Warning.")
     }
 }
@@ -962,7 +1055,7 @@ page ErrorT20(path: "/errors/T20", title: "T20 — A list or a record shown as t
 4 |     Text("Tagged {tags}")
   |                   ^^^^
   = help: Show a field of it, or `.join(", ")` a list of text
-  = docs: https://webfluent.monzeromer.dev/errors/T20"#, lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "why", label: t("error.why")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/T20.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/T20"#, lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/T20.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     state tags = ["a", "b"]
     Heading("Tags").h1
@@ -973,7 +1066,10 @@ page ErrorT20(path: "/errors/T20", title: "T20 — A list or a record shown as t
     Heading("Tags").h1
     Text("Tagged {tags.join(", ")}")
 }"#, title: "wf") }
-        note { Markdown("`\{tags.join(\", \")\}` for a list of text; a field of a record.") }
+        note {
+            Markdown("`\{tags.join(\", \")\}` for a list of text; a field of a record.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
         Markdown("Warning.")
     }
 }
@@ -994,7 +1090,10 @@ page ErrorT18(path: "/errors/T18", title: "T18 — Arithmetic on something that 
     state price = 12
     Heading("Total {price * 2}").h1
 }"#, title: "wf") }
-        note { Markdown("Hold numbers as numbers (`state price = 12`), or convert:\n`Number(price) * 2`.") }
+        note {
+            Markdown("Hold numbers as numbers (`state price = 12`), or convert:\n`Number(price) * 2`.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -1025,7 +1124,10 @@ page P(path: "/", title: "T", description: "D") {
         .live { Text("Live") }
     }
 }"#, title: "wf") }
-        note { Markdown("Give every case its arm, or add `else \{ … \}` for the rest. A\n`match` expression that covers every case needs no `else`:\n`derived label = match status \{ .draft \{ \"Draft\" \} .review \{ \"In review\" \} .live \{ \"Live\" \} \}`.") }
+        note {
+            Markdown("Give every case its arm, or add `else \{ … \}` for the rest. A\n`match` expression that covers every case needs no `else`:\n`derived label = match status \{ .draft \{ \"Draft\" \} .review \{ \"In review\" \} .live \{ \"Live\" \} \}`.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -1036,7 +1138,7 @@ page ErrorT22(path: "/errors/T22", title: "T22 — A handler that names more val
 9 |     Entry("notes.wf") { on menu(key, x, y, z) { at = "{key} at {x}, {y}" } }
   |                                            ^
   = help: Name at most 3, in order: `on menu(key, x, y)`
-  = docs: https://webfluent.monzeromer.dev/errors/T22"#, lowerable: false, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "why", label: t("error.why")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/T22.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/T22"#, lowerable: false, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/T22.md") {
         broken { CodeBlock(#"component Entry(_ key: String) {
     event menu(key: String, x: Number, y: Number)
     Button(key) { on contextmenu(e) { e.preventDefault()  emit menu(key, e.clientX, e.clientY) } }
@@ -1059,7 +1161,10 @@ page P(path: "/", title: "T", description: "D") {
     Entry("notes.wf") { on menu(key, x, y) { at = "{key} at {x}, {y}" } }
     Text(at)
 }"#, title: "wf") }
-        note { Markdown("Drop the extra names. For a DOM event, name the event alone and\nread what it carries from it: `on click(e) \{ … e.clientX … \}`.") }
+        note {
+            Markdown("Drop the extra names. For a DOM event, name the event alone and\nread what it carries from it: `on click(e) \{ … e.clientX … \}`.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
         Markdown("Error.\n\nA handler names the values its event sends, in the order the event\ndeclares them; it may name fewer, never more. A DOM event — `click`,\n`input`, `keydown` — sends one value, the event itself, so `on click(e, x)`\nis this error too.")
     }
 }
@@ -1071,7 +1176,7 @@ page ErrorT21(path: "/errors/T21", title: "T21 — A resource match with no erro
 4 |     match users {
   |     ^^^^^
   = help: Add `error(e) { Alert(e.message).danger }`, or `else { … }`
-  = docs: https://webfluent.monzeromer.dev/errors/T21"#, lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "why", label: t("error.why")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/T21.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/T21"#, lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/T21.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     resource users = fetch("/api/users")
     Heading("Users").h1
@@ -1089,7 +1194,10 @@ page ErrorT21(path: "/errors/T21", title: "T21 — A resource match with no erro
         ready(list) { Text("{list.length} users") }
     }
 }"#, title: "wf") }
-        note { Markdown("`error(e) \{ Alert(e.message).danger \}`, or an `else`.") }
+        note {
+            Markdown("`error(e) \{ Alert(e.message).danger \}`, or an `else`.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
         Markdown("Warning.")
     }
 }
@@ -1112,7 +1220,10 @@ page P(path: "/", title: "T", description: "D") {
     state todo = Todo(id: "1", title: "Write the docs")
     Heading(todo.title).h1
 }"#, title: "wf") }
-        note { Markdown("Give it, or declare a default in the type (`id: String = \"\"`) or\non the prop.\n\nA built-in that cannot be placed without a prop is held to it the same way:\na `Portal` with no `into:` would draw nowhere, and the fix passes\n`into: null` for you to name the node.") }
+        note {
+            Markdown("Give it, or declare a default in the type (`id: String = \"\"`) or\non the prop.\n\nA built-in that cannot be placed without a prop is held to it the same way:\na `Portal` with no `into:` would draw nowhere, and the fix passes\n`into: null` for you to name the node.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -1134,7 +1245,10 @@ page P(path: "/", title: "T", description: "D") {
     Heading("Badges").h1
     Badge2("New", colour: "red")
 }"#, title: "wf") }
-        note { Markdown("Correct the spelling, or declare the prop on the component.") }
+        note {
+            Markdown("Correct the spelling, or declare the prop on the component.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -1155,7 +1269,10 @@ page ErrorC03(path: "/errors/C03", title: "C03 — A part outside the component 
     Heading("Plans").h1
     Select(bind: plan, label: "Plan") { Select.Option("Pro", value: "pro") }
 }"#, title: "wf") }
-        note { Markdown("Place the part inside its owner: `Select(bind: plan) \{\nSelect.Option(…) \}`.") }
+        note {
+            Markdown("Place the part inside its owner: `Select(bind: plan) \{\nSelect.Option(…) \}`.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -1166,7 +1283,7 @@ page ErrorC04(path: "/errors/C04", title: "C04 — An attribute a built-in does 
 3 |     Button("Save", colour: "red")
   |                    ^^^^^^
   = help: A typo here does nothing on screen; check the component's props
-  = docs: https://webfluent.monzeromer.dev/errors/C04"#, lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "why", label: t("error.why")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/C04.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/C04"#, lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/C04.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     Heading("Save").h1
     Button("Save", colour: "red")
@@ -1175,7 +1292,10 @@ page ErrorC04(path: "/errors/C04", title: "C04 — An attribute a built-in does 
     Heading("Save").h1
     Button("Save").danger
 }"#, title: "wf") }
-        note { Markdown("Check the prop's spelling — `wf registry` lists what the built-in\ntakes. `aria-*`, `data-*` and the global attributes (`id`, `role`,\n`title`, …) are expected and draw nothing.") }
+        note {
+            Markdown("Check the prop's spelling — `wf registry` lists what the built-in\ntakes. `aria-*`, `data-*` and the global attributes (`id`, `role`,\n`title`, …) are expected and draw nothing.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
         Markdown("Warning.")
     }
 }
@@ -1187,7 +1307,7 @@ page ErrorC05(path: "/errors/C05", title: "C05 — A positional argument a built
 3 |     Divider("thin")
   |             ^
   = help: Name it: the registry lists the props it takes
-  = docs: https://webfluent.monzeromer.dev/errors/C05"#, lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "why", label: t("error.why")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/C05.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/C05"#, lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/C05.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     Heading("Rule").h1
     Divider("thin")
@@ -1196,7 +1316,10 @@ page ErrorC05(path: "/errors/C05", title: "C05 — A positional argument a built
     Heading("Rule").h1
     Divider()
 }"#, title: "wf") }
-        note { Markdown("Name it, with one of the props the built-in takes.") }
+        note {
+            Markdown("Name it, with one of the props the built-in takes.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
         Markdown("Warning.")
     }
 }
@@ -1208,7 +1331,7 @@ page ErrorC06(path: "/errors/C06", title: "C06 — A positional argument bound b
 4 |     Tag2("new")
   |          ^
   = help: Mark the prop: `component Tag2(_ label: …)`
-  = docs: https://webfluent.monzeromer.dev/errors/C06"#, lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "why", label: t("error.why")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/C06.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/C06"#, lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/C06.md") {
         broken { CodeBlock(#"component Tag2(label: String) { Text(label) }
 page P(path: "/", title: "T", description: "D") {
     Heading("Tags").h1
@@ -1219,7 +1342,10 @@ page P(path: "/", title: "T", description: "D") {
     Heading("Tags").h1
     Tag2("new")
 }"#, title: "wf") }
-        note { Markdown("Mark the prop the call means: `component Tag2(_ label: String)`.") }
+        note {
+            Markdown("Mark the prop the call means: `component Tag2(_ label: String)`.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
         Markdown("Warning.")
     }
 }
@@ -1231,7 +1357,7 @@ page ErrorC07(path: "/errors/C07", title: "C07 — A drag or a gesture on a comp
 6 |     Rows2("a", drag: "a")
   |                ^^^^
   = help: Wrap what `Rows2` draws in one element (a `Stack`, a `Row`), or write `drag:` inside it
-  = docs: https://webfluent.monzeromer.dev/errors/C07"#, lowerable: false, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "why", label: t("error.why")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/C07.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/C07"#, lowerable: false, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/C07.md") {
         broken { CodeBlock(#"component Rows2(_ name: String) {
     for x in [1, 2] { Text(name) }
 }
@@ -1246,7 +1372,10 @@ page P(path: "/", title: "T", description: "D") {
     Heading("Files").h1
     Rows2("a", drag: "a")
 }"#, title: "wf") }
-        note { Markdown("Wrap what the component draws in one element — a `Stack`, a `Row`\n— or write the drag inside it, on the element it is for.") }
+        note {
+            Markdown("Wrap what the component draws in one element — a `Stack`, a `Row`\n— or write the drag inside it, on the element it is for.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
         Markdown("`drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:` and the\nhandlers of the gestures — `on receive(d)`, `on dragmove(d)`, `on\nlongpress`, `on swipe` — written on your component's call belong to the one\nelement it draws. A body that is an `if`, a `for`, a `show`, a `match` or\nseveral elements has no one element to give them.")
     }
 }
@@ -1273,7 +1402,10 @@ page About(path: "/about", title: "About", description: "D") {
 page About(path: "/about", title: "About", description: "D") {
     Heading("About").h1
 }"#, title: "wf") }
-        note { Markdown("Link to a route a page has; the message names the nearest. A\nspliced link is checked by its shape — `\"/team/\{t.slug\}\"` must match a route\nlike `/team/:slug` — a link with no leading `/` is refused (where it leads\nwould depend on the page it is on), and a link to a file (`/report.pdf`) or\nanother site is left alone.") }
+        note {
+            Markdown("Link to a route a page has; the message names the nearest. A\nspliced link is checked by its shape — `\"/team/\{t.slug\}\"` must match a route\nlike `/team/:slug` — a link with no leading `/` is refused (where it leads\nwould depend on the page it is on), and a link to a file (`/report.pdf`) or\nanother site is left alone.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -1291,7 +1423,10 @@ page ErrorR02(path: "/errors/R02", title: "R02 — A route parameter and a page 
         fixed { CodeBlock(#"page Profile(path: "/u/:id", title: "T", description: "D", id: String) {
     Heading("Profile {id}").h1
 }"#, title: "wf") }
-        note { Markdown("Declare the parameter the route names — `page Profile(path:\n\"/u/:id\", id: String)` — and read it by name; a declared parameter the route\nhas no `:name` for is never filled.") }
+        note {
+            Markdown("Declare the parameter the route names — `page Profile(path:\n\"/u/:id\", id: String)` — and read it by name; a declared parameter the route\nhas no `:name` for is never filled.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -1316,7 +1451,10 @@ page Home(path: "/", title: "T", description: "D") {
 page Home(path: "/", title: "T", description: "D") {
     Heading("Home").h1
 }"#, title: "wf") }
-        note { Markdown("Place `Router` where the page belongs: `app \{ Navbar \{ … \}\nRouter \}`. (A program with no `app` at all routes its pages by itself.)") }
+        note {
+            Markdown("Place `Router` where the page belongs: `app \{ Navbar \{ … \}\nRouter \}`. (A program with no `app` at all routes its pages by itself.)")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -1327,7 +1465,7 @@ page ErrorR04(path: "/errors/R04", title: "R04 — A relative URL on a nested ro
 3 |     Image(src: "images/cover.png", alt: "")
   |     ^^^^^
   = help: Write it from the site's root: `"/images/cover.png"`
-  = docs: https://webfluent.monzeromer.dev/errors/R04"#, lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "why", label: t("error.why")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/R04.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/R04"#, lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/R04.md") {
         broken { CodeBlock(#"page Post(path: "/blog/first", title: "T", description: "D") {
     Heading("First post").h1
     Image(src: "images/cover.png", alt: "")
@@ -1336,7 +1474,10 @@ page ErrorR04(path: "/errors/R04", title: "R04 — A relative URL on a nested ro
     Heading("First post").h1
     Image(src: "/images/cover.png", alt: "")
 }"#, title: "wf") }
-        note { Markdown("Write it from the site's root: `\"/images/cover.png\"`.") }
+        note {
+            Markdown("Write it from the site's root: `\"/images/cover.png\"`.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
         Markdown("Warning.")
     }
 }
@@ -1348,7 +1489,7 @@ page ErrorR05(path: "/errors/R05", title: "R05 — A translation of no page, or 
 5 | page HomeEn(path: "/en", title: "Home", description: "D", lang: "en", translates: Hom) {
   | ^^^^
   = help: Did you mean `Home`?
-  = docs: https://webfluent.monzeromer.dev/errors/R05"#, lowerable: false, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "why", label: t("error.why")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/R05.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/R05"#, lowerable: false, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/R05.md") {
         broken { CodeBlock(#"page Home(path: "/", title: "Home", description: "D") {
     Heading("Home").h1
 }
@@ -1363,7 +1504,10 @@ page HomeEn(path: "/en", title: "Home", description: "D", lang: "en", translates
 page HomeEn(path: "/en", title: "Home", description: "D", lang: "en", translates: Home) {
     Heading("Home").h1
 }"#, title: "wf") }
-        note { Markdown("name a page the program declares, and give each translation the `lang:` it\nis written in.") }
+        note {
+            Markdown("name a page the program declares, and give each translation the `lang:` it\nis written in.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
         Markdown("Error.\n\n`translates:` names the page this one is a translation of, and the pages\nit joins list each other as `hreflang` alternates, each in its own `lang:`.\nTwo pages of one group in the same language — or both with no `lang:`, so\nboth in the site's — would be two alternates for one language.")
     }
 }
@@ -1386,7 +1530,10 @@ page P(path: "/", title: "T", description: "D") {
     Heading("Limit {limit}").h1
     Button("More") { on click { limit = 4 } }
 }"#, title: "wf") }
-        note { Markdown("Hold what changes in a `state`. A `derived` value changes when\nwhat it reads does; a prop is its caller's (`emit` an event so the caller\nchanges it); a route parameter is the address's (`navigate`); a loop\nvariable is one pass's copy (change the item through its list).") }
+        note {
+            Markdown("Hold what changes in a `state`. A `derived` value changes when\nwhat it reads does; a prop is its caller's (`emit` an event so the caller\nchanges it); a route parameter is the address's (`navigate`); a loop\nvariable is one pass's copy (change the item through its list).")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -1408,7 +1555,10 @@ page ErrorX02(path: "/errors/X02", title: "X02 — An effect that feeds itself",
     Heading("Visits {visits}").h1
     Button("Visit") { on click { visits = visits + 1 } }
 }"#, title: "wf") }
-        note { Markdown("Work a value out with `derived`; change state from the action or\nhandler that changes what it depends on.") }
+        note {
+            Markdown("Work a value out with `derived`; change state from the action or\nhandler that changes what it depends on.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -1439,7 +1589,10 @@ page ErrorX04(path: "/errors/X04", title: "X04 — A derived value that changes 
     Heading("Ticket {ticket}").h1
     Button("Next") { on click { next() } }
 }"#, title: "wf") }
-        note { Markdown("Call the action from a handler; derive from the state it sets.") }
+        note {
+            Markdown("Call the action from a handler; derive from the state it sets.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -1461,7 +1614,10 @@ page P(path: "/", title: "T", description: "D") {
     use Cart
     Heading("Cart: {Cart.items.length}").h1
 }"#, title: "wf") }
-        note { Markdown("Name a store that exists — here `Cart`.") }
+        note {
+            Markdown("Name a store that exists — here `Cart`.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -1485,7 +1641,10 @@ page ErrorX06(path: "/errors/X06", title: "X06 — A state that copies a live va
     derived age = posted.until(clock)
     Heading("Posted {age.minutes()} minutes ago").h1
 }"#, title: "wf") }
-        note { Markdown("Declare it `derived` — the quick fix does. `derived clock =\nnow(every: 1.seconds)` is worked out again on every tick, and so is\neverything that reads it. `now`, `viewport`, `query`, `hash`, `theme`,\n`network` and `update` all keep themselves current; a `state` only takes\nthe value it starts with. A state the program assigns, binds or\nchanges in place is a starting value on purpose — `state tab = query.tab\n?? \"all\"` that a click then changes — and draws nothing. Neither does a\nlive value read inside a lambda, which reads it each time it is called.") }
+        note {
+            Markdown("Declare it `derived` — the quick fix does. `derived clock =\nnow(every: 1.seconds)` is worked out again on every tick, and so is\neverything that reads it. `now`, `viewport`, `query`, `hash`, `theme`,\n`network` and `update` all keep themselves current; a `state` only takes\nthe value it starts with. A state the program assigns, binds or\nchanges in place is a starting value on purpose — `state tab = query.tab\n?? \"all\"` that a click then changes — and draws nothing. Neither does a\nlive value read inside a lambda, which reads it each time it is called.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -1509,7 +1668,10 @@ page ErrorF01(path: "/errors/F01", title: "F01 — A bind: to something that can
     Heading(name).h1
     Input(bind: first, label: "Name")
 }"#, title: "wf") }
-        note { Markdown("Bind the state the reader edits (`bind: first`); show a value\nthat is worked out with `value:`.") }
+        note {
+            Markdown("Bind the state the reader edits (`bind: first`); show a value\nthat is worked out with `value:`.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -1531,7 +1693,10 @@ page ErrorF02(path: "/errors/F02", title: "F02 — A bind: to a state the contro
     Heading("Order").h1
     Input(bind: qty, label: "Quantity").number
 }"#, title: "wf") }
-        note { Markdown("A number field is `Input(…).number`; a text field holds a\n`String`.") }
+        note {
+            Markdown("A number field is `Input(…).number`; a text field holds a\n`String`.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -1558,7 +1723,10 @@ page ErrorF03(path: "/errors/F03", title: "F03 — A validate block no control c
         Button("Join", type: .submit)
     }
 }"#, title: "wf") }
-        note { Markdown("Bind the state to the control the reader fills in:\n`Input(bind: email, label: \"Email\").email`.") }
+        note {
+            Markdown("Bind the state to the control the reader fills in:\n`Input(bind: email, label: \"Email\").email`.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -1569,7 +1737,7 @@ page ErrorF04(path: "/errors/F04", title: "F04 — A checkbox that shows a state
 4 |     Checkbox(checked: agree, label: "I agree")
   |     ^^^^^^^^
   = help: Write `bind:` to keep the box and the state together, or handle `on change`
-  = docs: https://webfluent.monzeromer.dev/errors/F04"#, lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "why", label: t("error.why")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/F04.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/F04"#, lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/F04.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     state agree = false
     Heading("Terms").h1
@@ -1580,7 +1748,10 @@ page ErrorF04(path: "/errors/F04", title: "F04 — A checkbox that shows a state
     Heading("Terms").h1
     Checkbox(bind: agree, label: "I agree")
 }"#, title: "wf") }
-        note { Markdown("`Checkbox(bind: agree, label: \"I agree\")`.") }
+        note {
+            Markdown("`Checkbox(bind: agree, label: \"I agree\")`.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
         Markdown("Warning.")
     }
 }
@@ -1592,7 +1763,7 @@ page ErrorF05(path: "/errors/F05", title: "F05 — A select whose value is none 
 4 |     Select(bind: plan, label: "Plan") {
   |     ^^^^^^
   = help: Start it as one of them (`free`, `pro`), so what is shown is what is held
-  = docs: https://webfluent.monzeromer.dev/errors/F05"#, lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "why", label: t("error.why")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/F05.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/F05"#, lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/F05.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     state plan = "basic"
     Heading("Plan").h1
@@ -1609,19 +1780,22 @@ page ErrorF05(path: "/errors/F05", title: "F05 — A select whose value is none 
         Select.Option("Pro", value: "pro")
     }
 }"#, title: "wf") }
-        note { Markdown("Start the state as one of the options' values.") }
+        note {
+            Markdown("Start the state as one of the options' values.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
         Markdown("Warning.")
     }
 }
 
 page ErrorD01(path: "/errors/D01", title: "D01 — A file the project does not have", description: "A site-relative `src:`, `poster:`, `captions:` or `transcript:` names a file that is not in `public/`; the page asks for it and gets nothing.") {
-    ErrorShell("D01", title: "A file the project does not have", severity: "warning", family: "Data and assets", summary: "A site-relative `src:`, `poster:`, `captions:` or `transcript:` names a file that is not in `public/`; the page asks for it and gets nothing.", printed: #""#, lowerable: true, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "why", label: t("error.why")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/D01.md") {
+    ErrorShell("D01", title: "A file the project does not have", severity: "warning", family: "Data and assets", summary: "A site-relative `src:`, `poster:`, `captions:` or `transcript:` names a file that is not in `public/`; the page asks for it and gets nothing.", printed: #""#, lowerable: true, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/D01.md") {
         fixed {
             Stack(gap: .sm) {
-                Markdown("put the file in `public/`, or correct the path.")
+                Markdown("put the file in `public/`, or correct\nthe path.")
             }
         }
-        Markdown("Warning. `Image(src: \"/img/hero.png\")` when `public/img/hero.png` does not\nexist (also a `Video`'s `poster:` and `captions:`, an `Audio`'s\n`transcript:`, and a worker's `spawn(\"/workers/css.js\")`): the page asks for it and gets a 404.")
+        Markdown("Warning. In a project whose `public/` has no `img/hero.png` (the example\nis not compiled here: what it draws depends on the project's files):\n\n```wf no-check\npage P(path: \"/\", title: \"T\", description: \"D\") \{\n    Heading(\"Team\").h1\n    Image(src: \"/img/hero.png\", alt: \"The team at the launch\")\n\}\n```\n\nThe same goes for a `Video`'s `poster:` and `captions:`, an `Audio`'s\n`transcript:`, and a worker's `spawn(\"/workers/css.js\")`: the page asks\nfor the file and gets a 404.")
     }
 }
 
@@ -1641,7 +1815,10 @@ page ErrorD02(path: "/errors/D02", title: "D02 — A persisted value storage can
     persist step = 1
     Heading("Pick {step}").h1
 }"#, title: "wf") }
-        note { Markdown("Keep what it is made from — a name, an id, the data — and build\nthe rest when it is read.") }
+        note {
+            Markdown("Keep what it is made from — a name, an id, the data — and build\nthe rest when it is read.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -1652,7 +1829,7 @@ page ErrorD03(path: "/errors/D03", title: "D03 — A persisted value every insta
 2 |     persist open = false
   |     ^^^^^^^
   = help: Give each its own: `persist open = false { key: id }`, with `id` a prop that tells them apart
-  = docs: https://webfluent.monzeromer.dev/errors/D03"#, lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "why", label: t("error.why")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/D03.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/D03"#, lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/D03.md") {
         broken { CodeBlock(#"component Panel(_ title: String) {
     persist open = false
     Card { Text(title) }
@@ -1671,13 +1848,16 @@ page P(path: "/", title: "T", description: "D") {
     Panel("One")
     Panel("Two")
 }"#, title: "wf") }
-        note { Markdown("Give each instance its own key: `persist open = false \{ key: title\n\}`, with a prop that tells them apart.") }
+        note {
+            Markdown("Give each instance its own key: `persist open = false \{ key: title\n\}`, with a prop that tells them apart.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
         Markdown("Warning.")
     }
 }
 
 page ErrorD04(path: "/errors/D04", title: "D04 — A persisted shape changed with no new version", description: "What a returning reader's browser holds is the old shape; the page reads it as the new one. Raising `version:`, with a `migrate` step, brings it forward.") {
-    ErrorShell("D04", title: "A persisted shape changed with no new version", severity: "warning", family: "Data and assets", summary: "What a returning reader's browser holds is the old shape; the page reads it as the new one. Raising `version:`, with a `migrate` step, brings it forward.", printed: #""#, lowerable: true, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "why", label: t("error.why")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/D04.md") {
+    ErrorShell("D04", title: "A persisted shape changed with no new version", severity: "warning", family: "Data and assets", summary: "What a returning reader's browser holds is the old shape; the page reads it as the new one. Raising `version:`, with a `migrate` step, brings it forward.", printed: #""#, lowerable: true, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/D04.md") {
         fixed {
             Stack(gap: .sm) {
                 Markdown("raise `version:` and add `migrate 1 -> 2 \{ … \}` to bring the\nold value forward.")
@@ -1688,7 +1868,7 @@ page ErrorD04(path: "/errors/D04", title: "D04 — A persisted shape changed wit
 }
 
 page ErrorD05(path: "/errors/D05", title: "D05 — An asset from another origin with no integrity hash", description: "A stylesheet, font or script loaded from another origin is code that origin can change after you read it. A `meta.integrity` hash is how the browser…") {
-    ErrorShell("D05", title: "An asset from another origin with no integrity hash", severity: "warning", family: "Data and assets", summary: "A stylesheet, font or script loaded from another origin is code that origin can change after you read it. A `meta.integrity` hash is how the browser checks it has not.", printed: #""#, lowerable: true, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "why", label: t("error.why")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/D05.md") {
+    ErrorShell("D05", title: "An asset from another origin with no integrity hash", severity: "warning", family: "Data and assets", summary: "A stylesheet, font or script loaded from another origin is code that origin can change after you read it. A `meta.integrity` hash is how the browser checks it has not.", printed: #""#, lowerable: true, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/D05.md") {
         fixed {
             Stack(gap: .sm) {
                 Markdown("add its `sha384-…` hash to `meta.integrity` (the CDN usually\npublishes it). Google Fonts is exempt: its stylesheet differs per browser.")
@@ -1699,7 +1879,7 @@ page ErrorD05(path: "/errors/D05", title: "D05 — An asset from another origin 
 }
 
 page ErrorI01(path: "/errors/I01", title: "I01 — A message no translation has", description: "`t(\"key\")` names a key no locale's file holds, so the page shows the key itself.") {
-    ErrorShell("I01", title: "A message no translation has", severity: "error", family: "Translations", summary: "`t(\"key\")` names a key no locale's file holds, so the page shows the key itself.", printed: #""#, lowerable: true, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "why", label: t("error.why")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/I01.md") {
+    ErrorShell("I01", title: "A message no translation has", severity: "error", family: "Translations", summary: "`t(\"key\")` names a key no locale's file holds, so the page shows the key itself.", printed: #""#, lowerable: true, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/I01.md") {
         fixed {
             Stack(gap: .sm) {
                 Markdown("the key the message suggests, or add it to the files.")
@@ -1710,7 +1890,7 @@ page ErrorI01(path: "/errors/I01", title: "I01 — A message no translation has"
 }
 
 page ErrorI02(path: "/errors/I02", title: "I02 — A message and its call that disagree", description: "The call passes a value the message does not use, or the message shows a placeholder the call does not pass, which then shows as written.") {
-    ErrorShell("I02", title: "A message and its call that disagree", severity: "error", family: "Translations", summary: "The call passes a value the message does not use, or the message shows a placeholder the call does not pass, which then shows as written.", printed: #""#, lowerable: true, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "why", label: t("error.why")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/I02.md") {
+    ErrorShell("I02", title: "A message and its call that disagree", severity: "error", family: "Translations", summary: "The call passes a value the message does not use, or the message shows a placeholder the call does not pass, which then shows as written.", printed: #""#, lowerable: true, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/I02.md") {
         fixed {
             Stack(gap: .sm) {
                 Markdown("pass what the\nmessage shows, by the name it shows it.")
@@ -1721,7 +1901,7 @@ page ErrorI02(path: "/errors/I02", title: "I02 — A message and its call that d
 }
 
 page ErrorI03(path: "/errors/I03", title: "I03 — A message one locale has and another does not", description: "A reader in the locale that lacks it sees the key instead of the words.") {
-    ErrorShell("I03", title: "A message one locale has and another does not", severity: "warning", family: "Translations", summary: "A reader in the locale that lacks it sees the key instead of the words.", printed: #""#, lowerable: true, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "why", label: t("error.why")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/I03.md") {
+    ErrorShell("I03", title: "A message one locale has and another does not", severity: "warning", family: "Translations", summary: "A reader in the locale that lacks it sees the key instead of the words.", printed: #""#, lowerable: true, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/I03.md") {
         fixed {
             Stack(gap: .sm) {
                 Markdown("translate it, or remove it from the others.")
@@ -1732,7 +1912,7 @@ page ErrorI03(path: "/errors/I03", title: "I03 — A message one locale has and 
 }
 
 page ErrorI04(path: "/errors/I04", title: "I04 — A locale the project does not have", description: "`setLocale(\"xx\")` names a locale `i18n.locales` does not list.") {
-    ErrorShell("I04", title: "A locale the project does not have", severity: "error", family: "Translations", summary: "`setLocale(\"xx\")` names a locale `i18n.locales` does not list.", printed: #""#, lowerable: true, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "why", label: t("error.why")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/I04.md") {
+    ErrorShell("I04", title: "A locale the project does not have", severity: "error", family: "Translations", summary: "`setLocale(\"xx\")` names a locale `i18n.locales` does not list.", printed: #""#, lowerable: true, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/I04.md") {
         fixed {
             Stack(gap: .sm) {
                 Markdown("add the\nlocale and its file, or name one that exists.")
@@ -1743,7 +1923,7 @@ page ErrorI04(path: "/errors/I04", title: "I04 — A locale the project does not
 }
 
 page ErrorI05(path: "/errors/I05", title: "I05 — Words a reader sees that are not translated", description: "Under `i18n.literals`, text that splices more than a name, or a value shown by a name that does not say it is words, is never looked up: every reader…") {
-    ErrorShell("I05", title: "Words a reader sees that are not translated", severity: "warning", family: "Translations", summary: "Under `i18n.literals`, text that splices more than a name, or a value shown by a name that does not say it is words, is never looked up: every reader sees it as written.", printed: #""#, lowerable: true, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "why", label: t("error.why")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/I05.md") {
+    ErrorShell("I05", title: "Words a reader sees that are not translated", severity: "warning", family: "Translations", summary: "Under `i18n.literals`, text that splices more than a name, or a value shown by a name that does not say it is words, is never looked up: every reader sees it as written.", printed: #""#, lowerable: true, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/I05.md") {
         fixed {
             Stack(gap: .sm) {
                 Markdown("splice names, `derived filesText = \"\{n\} files\"`\nthen `Text(\"\{filesText\} found\")`, and name what is words as words.")
@@ -1769,7 +1949,10 @@ page ErrorA01(path: "/errors/A01", title: "A01 — An image with no alt text", d
     Heading("Photo").h1
     Image(src: "/team.jpg", alt: "The team at the launch")
 }"#, title: "wf") }
-        note { Markdown("`Image(src: \"/team.jpg\", alt: \"The team at the launch\")`. A purely decorative image takes `alt: \"\"`.") }
+        note {
+            Markdown("`Image(src: \"/team.jpg\", alt: \"The team at the launch\")`. A purely decorative image takes `alt: \"\"`.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -1789,7 +1972,10 @@ page ErrorA02(path: "/errors/A02", title: "A02 — An icon button with no name",
     Heading("Close").h1
     IconButton(icon: "close", label: "Close")
 }"#, title: "wf") }
-        note { Markdown("`IconButton(icon: \"close\", label: \"Close\")` — the label is read aloud, never shown.") }
+        note {
+            Markdown("`IconButton(icon: \"close\", label: \"Close\")` — the label is read aloud, never shown.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -1811,7 +1997,10 @@ page ErrorA03(path: "/errors/A03", title: "A03 — An input with no label", desc
     Heading("Name").h1
     Input(bind: name, label: "Name").text
 }"#, title: "wf") }
-        note { Markdown("`Input(bind: name, label: \"Name\")`. A placeholder alone disappears as the reader types.") }
+        note {
+            Markdown("`Input(bind: name, label: \"Name\")`. A placeholder alone disappears as the reader types.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -1833,7 +2022,10 @@ page ErrorA04(path: "/errors/A04", title: "A04 — A control with no label", des
     Heading("Terms").h1
     Checkbox(bind: agree, label: "I agree to the terms")
 }"#, title: "wf") }
-        note { Markdown("`Checkbox(bind: agree, label: \"I agree to the terms\")`.") }
+        note {
+            Markdown("`Checkbox(bind: agree, label: \"I agree to the terms\")`.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -1853,7 +2045,10 @@ page ErrorA05(path: "/errors/A05", title: "A05 — A button with no text", descr
     Heading("Actions").h1
     Button { Icon("check")  Text("Save") }
 }"#, title: "wf") }
-        note { Markdown("Give it text — `Button(\"Save\")`, or a `Text` in its block beside\nthe icon, `Button \{ Icon(\"check\")  Text(\"Save\") \}` — or an `aria-label:`\nwhen it shows only an icon. A `Text` anywhere in the block names it — in a\nbranch, in a component the block places, or reading state; a `Tooltip`'s\nwords, which show only on hover, do not.") }
+        note {
+            Markdown("Give it text — `Button(\"Save\")`, or a `Text` in its block beside\nthe icon, `Button \{ Icon(\"check\")  Text(\"Save\") \}` — or an `aria-label:`\nwhen it shows only an icon. A `Text` anywhere in the block names it — in a\nbranch, in a component the block places, or reading state; a `Tooltip`'s\nwords, which show only on hover, do not.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -1876,7 +2071,10 @@ page ErrorA06(path: "/errors/A06", title: "A06 — A link with no text", descrip
 page About(path: "/about", title: "About", description: "D") {
     Heading("About").h1
 }"#, title: "wf") }
-        note { Markdown("Give it text that names where it goes — not \"click here\".") }
+        note {
+            Markdown("Give it text that names where it goes — not \"click here\".")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -1896,7 +2094,10 @@ page ErrorA07(path: "/errors/A07", title: "A07 — An empty heading", descriptio
     Heading("Title").h1
     Heading("Details").h2
 }"#, title: "wf") }
-        note { Markdown("Give the heading text, or remove it; style text with `style \{ \}` rather than an empty heading.") }
+        note {
+            Markdown("Give the heading text, or remove it; style text with `style \{ \}` rather than an empty heading.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -1918,7 +2119,10 @@ page ErrorA08(path: "/errors/A08", title: "A08 — A dialog with no title", desc
     Heading("Modal").h1
     Modal(visible: open, title: "Hello") { Text("Hello") }
 }"#, title: "wf") }
-        note { Markdown("`Modal(visible: open, title: \"Delete this?\")` — the title is its accessible name.") }
+        note {
+            Markdown("`Modal(visible: open, title: \"Delete this?\")` — the title is its accessible name.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -1938,7 +2142,10 @@ page ErrorA09(path: "/errors/A09", title: "A09 — Media nobody can follow witho
     Heading("Demo").h1
     Video(src: "/demo.mp4", captions: "/demo.en.vtt").controls
 }"#, title: "wf") }
-        note { Markdown("`Video(src: …, captions: \"/demo.en.vtt\").controls`; an `Audio` takes `transcript:`.") }
+        note {
+            Markdown("`Video(src: …, captions: \"/demo.en.vtt\").controls`; an `Audio` takes `transcript:`.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -1961,7 +2168,10 @@ page ErrorA10(path: "/errors/A10", title: "A10 — A table with no header row", 
         Table.Body { Table.Row { Table.Cell("Pen")  Table.Cell("2") } }
     }
 }"#, title: "wf") }
-        note { Markdown("Put the first row in `Table.Head`, so its cells are `<th scope=\"col\">`.") }
+        note {
+            Markdown("Put the first row in `Table.Head`, so its cells are `<th scope=\"col\">`.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -1981,7 +2191,10 @@ page ErrorA11(path: "/errors/A11", title: "A11 — A skipped heading level", des
     Heading("Title").h1
     Heading("Deep").h2
 }"#, title: "wf") }
-        note { Markdown("Use the next level down (`h2` after `h1`). Size text with `style \{ font-size \}`, not with the heading level.") }
+        note {
+            Markdown("Use the next level down (`h2` after `h1`). Size text with `style \{ font-size \}`, not with the heading level.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -1999,7 +2212,10 @@ page ErrorA12(path: "/errors/A12", title: "A12 — A page without exactly one h1
         fixed { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     Heading("Section").h1
 }"#, title: "wf") }
-        note { Markdown("One `Heading(…).h1` per page, naming what the page is. A layout's `h1` counts for the page it frames.") }
+        note {
+            Markdown("One `Heading(…).h1` per page, naming what the page is. A layout's `h1` counts for the page it frames.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -2010,7 +2226,7 @@ page ErrorA13(path: "/errors/A13", title: "A13 — Colours without enough contra
 2 |     color-text: #BBBBBB
   | ^
   = help: Darken --color-text or lighten --color-surface until they clear 4.5:1
-  = docs: https://webfluent.monzeromer.dev/errors/A13"#, lowerable: true, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/A13.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/A13"#, lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/A13.md") {
         broken { CodeBlock(#"theme Faint {
     color-text: #BBBBBB
     color-background: #FFFFFF
@@ -2025,7 +2241,11 @@ page P(path: "/", title: "T", description: "D") {
 page P(path: "/", title: "T", description: "D") {
     Heading("Contrast").h1
 }"#, title: "wf") }
-        note { Markdown("Darken the text or lighten the background until the ratio clears 4.5:1 (3:1 for large text).") }
+        note {
+            Markdown("Darken the text or lighten the background until the ratio clears 4.5:1 (3:1 for large text).")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
+        Markdown("The theme must be the one the build uses: the only one declared, or the\none `theme.name` names in the config. A project `wf init` made names\n`Day`, so to try this example remove `theme` from its config.")
     }
 }
 
@@ -2051,7 +2271,10 @@ page ErrorA14(path: "/errors/A14", title: "A14 — A role whose children are the
         Button("Two", role: "tab")
     }
 }"#, title: "wf") }
-        note { Markdown("Give each child the role the parent requires (`role: \"tab\"`), or use the built-in that owns the structure — `Tabs`.") }
+        note {
+            Markdown("Give each child the role the parent requires (`role: \"tab\"`), or use the built-in that owns the structure — `Tabs`.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -2071,7 +2294,10 @@ page ErrorA15(path: "/errors/A15", title: "A15 — An aria-label that does not c
     Heading("Save").h1
     Button("Save", aria-label: "Save the form")
 }"#, title: "wf") }
-        note { Markdown("Start the `aria-label` with the visible words: `aria-label: \"Save the draft\"`.") }
+        note {
+            Markdown("Start the `aria-label` with the visible words: `aria-label: \"Save the draft\"`.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -2082,7 +2308,7 @@ page ErrorA16(path: "/errors/A16", title: "A16 — One id on several elements", 
 4 |     for r in rows by r { Text(r, id: "row") }
   |                          ^^^^
   = help: Make it unique — `id: "row-{item.id}"` — or drop it; a label's `for` and `aria-*` find one element by id
-  = docs: https://webfluent.monzeromer.dev/errors/A16"#, lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "why", label: t("error.why")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/A16.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/A16"#, lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/A16.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     state rows = ["a", "b"]
     Heading("Rows").h1
@@ -2093,7 +2319,10 @@ page ErrorA16(path: "/errors/A16", title: "A16 — One id on several elements", 
     Heading("Rows").h1
     for r in rows by r { Text(r, id: "row-{r}") }
 }"#, title: "wf") }
-        note { Markdown("Make it unique — `id: \"row-\{r\}\"` — or drop it.") }
+        note {
+            Markdown("Make it unique — `id: \"row-\{r\}\"` — or drop it.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
         Markdown("Warning.")
     }
 }
@@ -2105,7 +2334,7 @@ page ErrorA17(path: "/errors/A17", title: "A17 — A frame with no title", descr
 3 |     Frame(src: "https://example.com/")
   |     ^^^^^
   = help: Say what it shows: Frame(src: "/preview/", title: "Preview")
-  = docs: https://webfluent.monzeromer.dev/errors/A17"#, lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "why", label: t("error.why")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/A17.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/A17"#, lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/A17.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     Heading("Preview").h1
     Frame(src: "https://example.com/")
@@ -2114,7 +2343,10 @@ page ErrorA17(path: "/errors/A17", title: "A17 — A frame with no title", descr
     Heading("Preview").h1
     Frame(src: "https://example.com/", title: "Example")
 }"#, title: "wf") }
-        note { Markdown("`Frame(src: \"https://example.com/\", title: \"Example\")` — the title is how a screen reader announces it.") }
+        note {
+            Markdown("`Frame(src: \"https://example.com/\", title: \"Example\")` — the title is how a screen reader announces it.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
         Markdown("Warning.")
     }
 }
@@ -2133,7 +2365,10 @@ page ErrorS01(path: "/errors/S01", title: "S01 — A page with no title", descri
         fixed { CodeBlock(#"page P(path: "/", title: "Home", description: "D") {
     Heading("No title").h1
 }"#, title: "wf") }
-        note { Markdown("`page P(path: \"/\", title: \"What this page is\")`.") }
+        note {
+            Markdown("`page P(path: \"/\", title: \"What this page is\")`.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -2151,7 +2386,10 @@ page ErrorS02(path: "/errors/S02", title: "S02 — A page with no description", 
         fixed { CodeBlock(#"page P(path: "/", title: "T", description: "What a reader gets from this page.") {
     Heading("No description").h1
 }"#, title: "wf") }
-        note { Markdown("Add a `description:` of about 150 characters: what a reader gets from the page.") }
+        note {
+            Markdown("Add a `description:` of about 150 characters: what a reader gets from the page.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -2169,7 +2407,10 @@ page ErrorS03(path: "/errors/S03", title: "S03 — A description too long for a 
         fixed { CodeBlock(#"page P(path: "/", title: "T", description: "A description that says what the page holds, in a sentence a search result shows whole.") {
     Heading("Long").h1
 }"#, title: "wf") }
-        note { Markdown("Shorten it to about 160 characters.") }
+        note {
+            Markdown("Shorten it to about 160 characters.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -2185,7 +2426,10 @@ page ErrorS04(path: "/errors/S04", title: "S04 — Two pages on one route", desc
 page B(path: "/about", title: "B", description: "D") { Heading("B").h1 }"#, title: "wf") }
         fixed { CodeBlock(#"page A(path: "/about", title: "A", description: "D") { Heading("A").h1 }
 page B(path: "/team", title: "B", description: "D") { Heading("B").h1 }"#, title: "wf") }
-        note { Markdown("Give each page its own `path:`. Only one of them would ever render.") }
+        note {
+            Markdown("Give each page its own `path:`. Only one of them would ever render.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -2212,7 +2456,10 @@ page P(path: "/", title: "T", description: "D") {
     use Cart
     Heading("{Cart.items.length} items").h1
 }"#, title: "wf") }
-        note { Markdown("Add a step for each older version: `migrate 1 -> 2 \{ old.map(…) \}`.") }
+        note {
+            Markdown("Add a step for each older version: `migrate 1 -> 2 \{ old.map(…) \}`.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -2240,7 +2487,10 @@ page P(path: "/", title: "T", description: "D") {
     use Cart
     Heading("{Cart.items.length} items").h1
 }"#, title: "wf") }
-        note { Markdown("Raise `version:` to the step's target, or drop the step.") }
+        note {
+            Markdown("Raise `version:` to the step's target, or drop the step.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -2263,7 +2513,10 @@ page P(path: "/", title: "T", description: "D") {
     Heading("Search").h1
     Input(bind: Filters.search, label: "Search")
 }"#, title: "wf") }
-        note { Markdown("Keep route-scoped data in `state`, or move the value to a store with a wider scope.") }
+        note {
+            Markdown("Keep route-scoped data in `state`, or move the value to a store with a wider scope.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -2282,7 +2535,10 @@ page ErrorU01(path: "/errors/U01", title: "U01 — A state nothing reads", descr
         fixed { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     Heading("Unused").h1
 }"#, title: "wf") }
-        note { Markdown("Remove it, read it, or name it `_unused` to keep it on purpose.") }
+        note {
+            Markdown("Remove it, read it, or name it `_unused` to keep it on purpose.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -2304,7 +2560,10 @@ page ErrorU02(path: "/errors/U02", title: "U02 — A derived value nothing reads
     derived doubled = n * 2
     Heading("{n} doubled is {doubled}").h1
 }"#, title: "wf") }
-        note { Markdown("Remove it or read it; a leading `_` keeps it.") }
+        note {
+            Markdown("Remove it or read it; a leading `_` keeps it.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -2325,7 +2584,10 @@ page P(path: "/", title: "T", description: "D") {
     Heading("Home").h1
     Orphan
 }"#, title: "wf") }
-        note { Markdown("Place it, name it as a `layout:`, publish it in `build.elements`, or remove it.") }
+        note {
+            Markdown("Place it, name it as a `layout:`, publish it in `build.elements`, or remove it.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -2352,7 +2614,10 @@ page P(path: "/", title: "T", description: "D") {
     use Cart
     Heading("{Cart.items.length}").h1
 }"#, title: "wf") }
-        note { Markdown("Remove the member, or name it with a leading `_`.") }
+        note {
+            Markdown("Remove the member, or name it with a leading `_`.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -2375,7 +2640,10 @@ page ErrorU05(path: "/errors/U05", title: "U05 — An action nothing calls", des
     Heading("{n}").h1
     Button("Reset") { on click { reset() } }
 }"#, title: "wf") }
-        note { Markdown("Call it, remove it, or name it `_reset`.") }
+        note {
+            Markdown("Call it, remove it, or name it `_reset`.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -2407,7 +2675,10 @@ page ErrorU06(path: "/errors/U06", title: "U06 — Code after return", descripti
     Heading("Count {n}").h1
     Button("Reset") { on click { reset() } }
 }"#, title: "wf") }
-        note { Markdown("Remove it, or move it above the `return`.") }
+        note {
+            Markdown("Remove it, or move it above the `return`.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -2418,7 +2689,7 @@ page ErrorU07(path: "/errors/U07", title: "U07 — An allow that allows nothing"
 2 |     // wf-allow(U01)
   |     ^^^^^^^^^^^^^^^^
   = help: Remove it — what it was written for is gone
-  = docs: https://webfluent.monzeromer.dev/errors/U07"#, lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [RelatedLink(kind: "U01", title: "A state nothing reads", to: "/errors/U01")], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "why", label: t("error.why")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/U07.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/U07"#, lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [RelatedLink(kind: "U01", title: "A state nothing reads", to: "/errors/U01")], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/U07.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     // wf-allow(U01)
     state shown = 0
@@ -2428,7 +2699,10 @@ page ErrorU07(path: "/errors/U07", title: "U07 — An allow that allows nothing"
     state shown = 0
     Heading("Count {shown}").h1
 }"#, title: "wf") }
-        note { Markdown("Remove the allow — what it was written for is gone.") }
+        note {
+            Markdown("Remove the allow — what it was written for is gone.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
         Markdown("A `// wf-allow(CODE)` comment accepts one finding on purpose: on a line of\nits own it covers the next line of code, and at the end of a line it covers\nthat line. It names codes (`U01`) or families (`U`), comma-separated, and\nonly what `lints` could lower — a warning, or an error that ships no broken\npage. An allow that covers nothing it names is reported, so allows cannot\noutlive what they were written for.")
     }
 }
@@ -2450,7 +2724,10 @@ page ErrorU08(path: "/errors/U08", title: "U08 — A condition that is always th
     Heading("Beta").h1
     if beta { Text("Coming soon") }
 }"#, title: "wf") }
-        note { Markdown("Use the value that decides, or remove the branch that cannot run.") }
+        note {
+            Markdown("Use the value that decides, or remove the branch that cannot run.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -2461,7 +2738,7 @@ page ErrorU09(path: "/errors/U09", title: "U09 — An unkeyed loop whose items h
 4 |     for r in rows { Input(bind: r.name, label: "Name") }
   |     ^^^
   = help: Key it: `for r in … by r.id`
-  = docs: https://webfluent.monzeromer.dev/errors/U09"#, lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "why", label: t("error.why")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/U09.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/U09"#, lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/U09.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     state rows = [{ id: 1, name: "a" }]
     Heading("Rows").h1
@@ -2472,7 +2749,10 @@ page ErrorU09(path: "/errors/U09", title: "U09 — An unkeyed loop whose items h
     Heading("Rows").h1
     for r in rows by r.id { Input(bind: r.name, label: "Name") }
 }"#, title: "wf") }
-        note { Markdown("Key it: `for r in rows by r.id`.") }
+        note {
+            Markdown("Key it: `for r in rows by r.id`.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
         Markdown("Warning.")
     }
 }
@@ -2504,7 +2784,10 @@ page P(path: "/", title: "T", description: "D") {
         .loud { Text("Loud") }
     }
 }"#, title: "wf") }
-        note { Markdown("Remove the `else`.") }
+        note {
+            Markdown("Remove the `else`.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -2524,12 +2807,15 @@ page ErrorV01(path: "/errors/V01", title: "V01 — A bare word that means nothin
     Heading("Save").h1
     Button("Save").primary
 }"#, title: "wf") }
-        note { Markdown("Write the flag with its dot — `Button(\"Save\").primary` — or declare the name. The word is also a name nothing declares, so the build stops on it as `T13`; the editor shows both.\n\nA name a branch binds is declared through the whole of its block, however\ndeep the element that reads it: `if let why = e.reason \{ Row \{ Pill(why) \} \}`,\nand a case's payload, `.failed(why) \{ … \}`, draw nothing.") }
+        note {
+            Markdown("Write the flag with its dot — `Button(\"Save\").primary` — or declare the name. The word is also a name nothing declares, so the build stops on it as `T13`; the editor shows both.\n\nA name a branch binds is declared through the whole of its block, however\ndeep the element that reads it: `if let why = e.reason \{ Row \{ Pill(why) \} \}`,\nand a case's payload, `.failed(why) \{ … \}`, draw nothing.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
 page ErrorV02(path: "/errors/V02", title: "V02 — A flag no stylesheet styles", description: "A flag whose class no stylesheet — the engine's or one of the project's — defines.") {
-    ErrorShell("V02", title: "A flag no stylesheet styles", severity: "warning", family: "Vocabulary", summary: "A flag whose class no stylesheet — the engine's or one of the project's — defines.", printed: #""#, lowerable: true, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "why", label: t("error.why")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/V02.md") {
+    ErrorShell("V02", title: "A flag no stylesheet styles", severity: "warning", family: "Vocabulary", summary: "A flag whose class no stylesheet — the engine's or one of the project's — defines.", printed: #""#, lowerable: true, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/V02.md") {
         fixed {
             Stack(gap: .sm) {
                 Markdown("define the class in a `.css`\nfile under `src/`, or drop the flag.")
@@ -2557,7 +2843,10 @@ page ErrorV03(path: "/errors/V03", title: "V03 — Markup put in as markup", des
     Heading("Markup").h1
     Markdown(body)
 }"#, title: "wf") }
-        note { Markdown("Most text wants no markup of its own: write it as Markdown,\nwhich `Markdown(body)` draws with any HTML in it shown as text. Markup that\nmust stay markup and comes from outside the project goes through\n`sanitize(…)` first — `Unsafe.Html(sanitize(body))` — which is the reviewed\ncase, and the warning still names it.\n\nA `Frame(srcdoc:)` drawing HTML from a value is named too: that HTML is\na document of its own, scripts and all. Unless the call says what the\nframe may do, it may do nothing — the build gives it `sandbox=\"\"` —\nand the warning says so. Writing `sandbox:` out is the reviewed case;\n`allow-scripts` with `allow-same-origin` undoes the sandbox, and is\nnamed again.\n\n```wf expect=V03\npage P(path: \"/\", title: \"T\", description: \"D\") \{\n    state html = \"<p>Hi</p>\"\n    Heading(\"Preview\").h1\n    Frame(srcdoc: html, title: \"Preview\")\n\}\n```\n\n```text\nwarning[V03]: `Frame(srcdoc:)` draws HTML from a value as a document; it is sandboxed (`sandbox=\"\"`), so nothing in it runs\n --> src/App.wf:4:5\n  |\n4 |     Frame(srcdoc: html, title: \"Preview\")\n  |     ^^^^^\n  = help: Say what it may do with `sandbox:` — `sandbox: \"\"` keeps it as it is now; `allow-scripts` and `allow-same-origin` together undo the sandbox\n  = docs: https://webfluent.monzeromer.dev/errors/V03\n```\n\n**Fix:** `Frame(srcdoc: html, title: \"Preview\", sandbox: \"\")`.") }
+        note {
+            Markdown("Most text wants no markup of its own: write it as Markdown,\nwhich `Markdown(body)` draws with any HTML in it shown as text. Markup that\nmust stay markup and comes from outside the project goes through\n`sanitize(…)` first — `Unsafe.Html(sanitize(body))` — which is the reviewed\ncase, and the warning still names it.\n\nA `Frame(srcdoc:)` drawing HTML from a value is named too: that HTML is\na document of its own, scripts and all. Unless the call says what the\nframe may do, it may do nothing — the build gives it `sandbox=\"\"` —\nand the warning says so. Writing `sandbox:` out is the reviewed case;\n`allow-scripts` with `allow-same-origin` undoes the sandbox, and is\nnamed again.\n\n```wf expect=V03\npage P(path: \"/\", title: \"T\", description: \"D\") \{\n    state html = \"<p>Hi</p>\"\n    Heading(\"Preview\").h1\n    Frame(srcdoc: html, title: \"Preview\")\n\}\n```\n\n```text\nwarning[V03]: `Frame(srcdoc:)` draws HTML from a value as a document; it is sandboxed (`sandbox=\"\"`), so nothing in it runs\n --> src/App.wf:4:5\n  |\n4 |     Frame(srcdoc: html, title: \"Preview\")\n  |     ^^^^^\n  = help: Say what it may do with `sandbox:` — `sandbox: \"\"` keeps it as it is now; `allow-scripts` and `allow-same-origin` together undo the sandbox\n  = docs: https://webfluent.monzeromer.dev/errors/V03\n```\n\n**Fix:** `Frame(srcdoc: html, title: \"Preview\", sandbox: \"\")`.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -2577,7 +2866,10 @@ page ErrorV04(path: "/errors/V04", title: "V04 — A class that is the engine's"
     Heading("Classes").h1
     Card(class: "note") { Text("x") }
 }"#, title: "wf") }
-        note { Markdown("Name a class of your own and style it in a `.css` file under `src/`, or use the flag that sets the look you wanted (`.primary`, `.elevated`).") }
+        note {
+            Markdown("Name a class of your own and style it in a `.css` file under `src/`, or use the flag that sets the look you wanted (`.primary`, `.elevated`).")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -2588,7 +2880,7 @@ page ErrorV05(path: "/errors/V05", title: "V05 — A CSS property no browser kno
 3 |         style { colr: red }
   |                 ^^^^
   = help: Did you mean `color`?
-  = docs: https://webfluent.monzeromer.dev/errors/V05"#, lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "why", label: t("error.why")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/V05.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/V05"#, lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/V05.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     Heading("Hello") {
         style { colr: red }
@@ -2599,7 +2891,10 @@ page ErrorV05(path: "/errors/V05", title: "V05 — A CSS property no browser kno
         style { color: red }
     }
 }"#, title: "wf") }
-        note { Markdown("The property the message suggests — here `color`. A custom\nproperty is written `--name`.") }
+        note {
+            Markdown("The property the message suggests — here `color`. A custom\nproperty is written `--name`.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
         Markdown("Warning.")
     }
 }
@@ -2622,7 +2917,10 @@ page ErrorV06(path: "/errors/V06", title: "V06 — A design token the theme does
         style { color: $color-primary }
     }
 }"#, title: "wf") }
-        note { Markdown("A token the theme has — a short name resolves through the\nproperty (`padding: $lg`, `border: 1px solid $border`) — or declare it in\nyour `theme \{ … \}`.") }
+        note {
+            Markdown("A token the theme has — a short name resolves through the\nproperty (`padding: $lg`, `border: 1px solid $border`) — or declare it in\nyour `theme \{ … \}`.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -2633,7 +2931,7 @@ page ErrorV07(path: "/errors/V07", title: "V07 — A number where CSS wants a le
 4 |     Card { style { width: {pct} } }
   |                    ^^^^^^^^^^^^
   = help: Give it one: `width: {pct}px` (or `%`, `rem`)
-  = docs: https://webfluent.monzeromer.dev/errors/V07"#, lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "why", label: t("error.why")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/V07.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/V07"#, lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/V07.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     state pct = 40
     Heading("Progress").h1
@@ -2644,7 +2942,10 @@ page ErrorV07(path: "/errors/V07", title: "V07 — A number where CSS wants a le
     Heading("Progress").h1
     Card { style { width: {pct}% } }
 }"#, title: "wf") }
-        note { Markdown("Give it a unit: `width: \{pct\}%`.") }
+        note {
+            Markdown("Give it a unit: `width: \{pct\}%`.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
         Markdown("Warning.")
     }
 }
@@ -2665,7 +2966,10 @@ page ErrorV08(path: "/errors/V08", title: "V08 — An icon the runtime does not 
     Heading("Launch").h1
     Icon("upload")
 }"#, title: "wf") }
-        note { Markdown("Use one of the built-in icons the message lists.") }
+        note {
+            Markdown("Use one of the built-in icons the message lists.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -2685,7 +2989,10 @@ page ErrorV09(path: "/errors/V09", title: "V09 — An event the element does not
     Heading("Save").h1
     Button("Save") { on click { log("saved") } }
 }"#, title: "wf") }
-        note { Markdown("Name a DOM event (`click`, `input`, `change`, `submit`, `keydown`,\n…) or one the component declares.") }
+        note {
+            Markdown("Name a DOM event (`click`, `input`, `change`, `submit`, `keydown`,\n…) or one the component declares.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
     }
 }
 
@@ -2696,7 +3003,7 @@ page ErrorV12(path: "/errors/V12", title: "V12 — A long list that is not windo
 4 |     VirtualList(rowHeight: 32) {
   |     ^^^^^^^^^^^
   = help: Make its body one `for` with a `by`: `VirtualList(rowHeight: 32) { for row in rows by row.id { … } }`
-  = docs: https://webfluent.monzeromer.dev/errors/V12"#, lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "why", label: t("error.why")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/V12.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/V12"#, lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/V12.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     state rows = ["a", "b"]
     Heading("Files").h1
@@ -2711,7 +3018,10 @@ page ErrorV12(path: "/errors/V12", title: "V12 — A long list that is not windo
         for r in rows by r { Text(r) }
     }
 }"#, title: "wf") }
-        note { Markdown("Give the `for` a `by`, and move anything else — a heading, a\ncount — outside the `VirtualList`.") }
+        note {
+            Markdown("Give the `for` a `by`, and move anything else — a heading, a\ncount — outside the `VirtualList`.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
         Markdown("A `VirtualList` draws only the rows in view of the one keyed `for` that is\nthe whole of its body. With anything else beside the `for`, or a `for` with\nno `by` — which has no way to keep a row's nodes as it scrolls — it draws\nevery row, as a plain scrolling box does, and the length of the list is\nwhat the page pays for.")
     }
 }
@@ -2723,7 +3033,7 @@ page ErrorV10(path: "/errors/V10", title: "V10 — A Host tag it does not make",
 3 |     Host(tag: "video", mount: (n) => n)
   |          ^^^
   = help: It makes `div`, `span`, `canvas`, `svg`, `section`, `figure`, `pre`, `p`, `ul`, `table`
-  = docs: https://webfluent.monzeromer.dev/errors/V10"#, lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "why", label: t("error.why")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/V10.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/V10"#, lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/V10.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     Heading("Chart").h1
     Host(tag: "video", mount: (n) => n)
@@ -2732,7 +3042,10 @@ page ErrorV10(path: "/errors/V10", title: "V10 — A Host tag it does not make",
     Heading("Chart").h1
     Host(tag: "canvas", mount: (n) => n)
 }"#, title: "wf") }
-        note { Markdown("Make it one of the tags `Host` makes, or use the element the\nbuilt-ins offer for it (`Video`, `Audio`, `Image`).") }
+        note {
+            Markdown("Make it one of the tags `Host` makes, or use the element the\nbuilt-ins offer for it (`Video`, `Audio`, `Image`).")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
         Markdown("A `Host` is made of one of a few elements: `div`, `span`, `canvas`, `svg`,\n`section`, `figure`, `pre`, `p`, `ul` or `table` — the tag is written into\nthe document, so it is an allow-list rather than whatever the string says.\nAny other tag is a `div`.")
     }
 }
@@ -2744,7 +3057,7 @@ page ErrorV11(path: "/errors/V11", title: "V11 — A component named like a buil
 1 | component Chart(_ title: String) {
   | ^^^^^^^^^
   = help: Rename it — `MyChart`, `ReportChart` — and its call sites
-  = docs: https://webfluent.monzeromer.dev/errors/V11"#, lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "why", label: t("error.why")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/V11.md") {
+  = docs: https://webfluent.monzeromer.dev/errors/V11"#, lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/V11.md") {
         broken { CodeBlock(#"component Chart(_ title: String) {
     Text(title)
 }
@@ -2761,7 +3074,10 @@ page P(path: "/", title: "T", description: "D") {
     Heading("Sales").h1
     SalesChart("Sales by month")
 }"#, title: "wf") }
-        note { Markdown("Rename the component and its call sites.") }
+        note {
+            Markdown("Rename the component and its call sites.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
         Markdown("A call of a built-in's name draws the built-in, so a component declared\nwith that name is never drawn: its body, its props, its slots go unused, and\nwhat the page shows is the built-in instead. It happens to a component\nwritten before WebFluent gained an element of the same name — a `Footer`\nfrom WebFluent 2, a `Chart` from before 5.2.")
     }
 }

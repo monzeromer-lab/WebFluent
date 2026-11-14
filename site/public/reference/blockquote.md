@@ -16,9 +16,7 @@ Blockquote(_ content: Any) { … }
 |---|---|---|
 | `content` | `Any  (positional)` | The quoted text |
 
-## Flags
-
-`.dropInside` `.trapFocus`
+Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 
 ## Slots
 
@@ -35,4 +33,4 @@ Blockquote { Text("Make it work, make it right, make it fast.") }
 - [E103](https://webfluent.monzeromer.dev/errors/E103.md): A flag, case, part, event or slot the component does not have
 - [C04](https://webfluent.monzeromer.dev/errors/C04.md): An attribute a built-in does not declare
 
-Since WebFluent 5.0.
+Before WebFluent 5.0.

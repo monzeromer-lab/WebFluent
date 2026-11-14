@@ -3,83 +3,88 @@
 
 /// Every recipe, by group: the sidebar of each recipe's page.
 const RECIPE_INDEX: [IndexEntry] = [
+    IndexEntry(label: "Keep the active tab in the address", to: "/recipes/active-tab-in-the-address", group: "Interaction"),
+    IndexEntry(label: "Keep filters in the address", to: "/recipes/filters-in-the-address", group: "Interaction"),
     IndexEntry(label: "Build a confirm dialog", to: "/recipes/confirm-dialog", group: "Interaction"),
     IndexEntry(label: "Copy to the clipboard", to: "/recipes/copy-to-the-clipboard", group: "Interaction"),
-    IndexEntry(label: "Count down", to: "/recipes/count-down", group: "Interaction"),
     IndexEntry(label: "Debounce a search", to: "/recipes/debounce-a-search", group: "Interaction"),
-    IndexEntry(label: "Keep filters in the address", to: "/recipes/filters-in-the-address", group: "Interaction"),
-    IndexEntry(label: "Keep the active tab in the address", to: "/recipes/active-tab-in-the-address", group: "Interaction"),
+    IndexEntry(label: "Count down", to: "/recipes/count-down", group: "Interaction"),
     IndexEntry(label: "Make navigation responsive", to: "/recipes/responsive-navigation", group: "Interaction"),
     IndexEntry(label: "Pass a store's value to a component", to: "/recipes/store-value-as-a-prop", group: "Interaction"),
-    IndexEntry(label: "Load more as the reader asks", to: "/recipes/load-more", group: "Data"),
-    IndexEntry(label: "Page through results", to: "/recipes/page-through-results", group: "Data"),
-    IndexEntry(label: "Show validation messages on a form", to: "/recipes/validation-messages", group: "Data"),
-    IndexEntry(label: "Sign in with a session cookie", to: "/recipes/sign-in-with-a-session-cookie", group: "Data"),
-    IndexEntry(label: "Update at once, and roll back on failure", to: "/recipes/optimistic-updates", group: "Data"),
-    IndexEntry(label: "Connect two readers' pages", to: "/recipes/connect-two-readers", group: "Real time"),
-    IndexEntry(label: "Listen to server-sent events", to: "/recipes/server-sent-events", group: "Real time"),
+    IndexEntry(label: "Reorder a list by dragging", to: "/recipes/reorder-by-dragging", group: "Interaction"),
+    IndexEntry(label: "Add keyboard shortcuts and a command palette", to: "/recipes/keyboard-shortcuts", group: "Interaction"),
+    IndexEntry(label: "Show validation messages on a form", to: "/recipes/validation-messages", group: "Forms and data"),
+    IndexEntry(label: "Sign in with a session cookie", to: "/recipes/sign-in-with-a-session-cookie", group: "Forms and data"),
+    IndexEntry(label: "Page through results", to: "/recipes/page-through-results", group: "Forms and data"),
+    IndexEntry(label: "Load more as the reader asks", to: "/recipes/load-more", group: "Forms and data"),
+    IndexEntry(label: "Update at once, and roll back on failure", to: "/recipes/optimistic-updates", group: "Forms and data"),
+    IndexEntry(label: "Show what the network is doing", to: "/recipes/show-the-network", group: "Forms and data"),
+    IndexEntry(label: "Send a message as the page unloads", to: "/recipes/send-on-unload", group: "Forms and data"),
     IndexEntry(label: "Open a socket", to: "/recipes/open-a-socket", group: "Real time"),
-    IndexEntry(label: "Run a script in a worker", to: "/recipes/run-a-worker", group: "Real time"),
-    IndexEntry(label: "Send a message as the page unloads", to: "/recipes/send-on-unload", group: "Real time"),
-    IndexEntry(label: "Show what the network is doing", to: "/recipes/show-the-network", group: "Real time"),
+    IndexEntry(label: "Listen to server-sent events", to: "/recipes/server-sent-events", group: "Real time"),
     IndexEntry(label: "Talk to the site's other tabs", to: "/recipes/talk-between-tabs", group: "Real time"),
-    IndexEntry(label: "Describe pages to search engines and link previews", to: "/recipes/search-and-link-previews", group: "Content"),
+    IndexEntry(label: "Connect two readers' pages", to: "/recipes/connect-two-readers", group: "Real time"),
+    IndexEntry(label: "Run a script in a worker", to: "/recipes/run-a-worker", group: "Real time"),
+    IndexEntry(label: "Write a page as a Markdown file", to: "/recipes/markdown-pages", group: "Content"),
     IndexEntry(label: "Render Markdown", to: "/recipes/render-markdown", group: "Content"),
     IndexEntry(label: "Show code on a page", to: "/recipes/show-code", group: "Content"),
-    IndexEntry(label: "Write a page as a Markdown file", to: "/recipes/markdown-pages", group: "Content"),
-    IndexEntry(label: "Add a dark-mode switch", to: "/recipes/dark-mode-switch", group: "Look and motion"),
-    IndexEntry(label: "Add a picture, sized for every screen", to: "/recipes/add-a-picture", group: "Look and motion"),
-    IndexEntry(label: "Add video and audio", to: "/recipes/video-and-audio", group: "Look and motion"),
-    IndexEntry(label: "Animate a list", to: "/recipes/animate-a-list", group: "Look and motion"),
-    IndexEntry(label: "Animate an element in and out", to: "/recipes/animate-in-and-out", group: "Look and motion"),
-    IndexEntry(label: "Animate route changes", to: "/recipes/route-transitions", group: "Look and motion"),
-    IndexEntry(label: "Carry an element across a route change", to: "/recipes/shared-element", group: "Look and motion"),
-    IndexEntry(label: "Count a number to its new value", to: "/recipes/count-a-number", group: "Look and motion"),
-    IndexEntry(label: "Declare your own keyframes", to: "/recipes/keyframes", group: "Look and motion"),
-    IndexEntry(label: "Drive an animation yourself", to: "/recipes/drive-an-animation", group: "Look and motion"),
-    IndexEntry(label: "Open a box to the height of its content", to: "/recipes/expand-to-content", group: "Look and motion"),
-    IndexEntry(label: "Run a sequence of animations", to: "/recipes/animation-sequence", group: "Look and motion"),
-    IndexEntry(label: "Set motion defaults, and respect reduced motion", to: "/recipes/motion-defaults", group: "Look and motion"),
-    IndexEntry(label: "Show a carousel", to: "/recipes/show-a-carousel", group: "Look and motion"),
-    IndexEntry(label: "Show an icon", to: "/recipes/show-an-icon", group: "Look and motion"),
-    IndexEntry(label: "Show another page in a frame", to: "/recipes/show-a-page-in-a-frame", group: "Look and motion"),
-    IndexEntry(label: "Tween a property when state changes", to: "/recipes/tween-on-change", group: "Look and motion"),
-    IndexEntry(label: "Keep writes made offline", to: "/recipes/keep-writes-made-offline", group: "Reach"),
-    IndexEntry(label: "Make a site work offline", to: "/recipes/work-offline", group: "Reach"),
-    IndexEntry(label: "Offer a new version", to: "/recipes/offer-a-new-version", group: "Reach"),
-    IndexEntry(label: "Publish a page in each language", to: "/recipes/site-in-two-languages", group: "Reach"),
+    IndexEntry(label: "Describe pages to search engines and link previews", to: "/recipes/search-and-link-previews", group: "Content"),
+    IndexEntry(label: "Show your own page for an unknown address", to: "/recipes/not-found-page", group: "Content"),
+    IndexEntry(label: "Make a PDF report", to: "/recipes/pdf-report", group: "Content"),
+    IndexEntry(label: "Add a picture, sized for every screen", to: "/recipes/add-a-picture", group: "Media and themes"),
+    IndexEntry(label: "Add video and audio", to: "/recipes/video-and-audio", group: "Media and themes"),
+    IndexEntry(label: "Show an icon", to: "/recipes/show-an-icon", group: "Media and themes"),
+    IndexEntry(label: "Show a carousel", to: "/recipes/show-a-carousel", group: "Media and themes"),
+    IndexEntry(label: "Show another page in a frame", to: "/recipes/show-a-page-in-a-frame", group: "Media and themes"),
+    IndexEntry(label: "Add a dark-mode switch", to: "/recipes/dark-mode-switch", group: "Media and themes"),
+    IndexEntry(label: "Animate an element in and out", to: "/recipes/animate-in-and-out", group: "Motion"),
+    IndexEntry(label: "Animate a list", to: "/recipes/animate-a-list", group: "Motion"),
+    IndexEntry(label: "Run a sequence of animations", to: "/recipes/animation-sequence", group: "Motion"),
+    IndexEntry(label: "Animate route changes", to: "/recipes/route-transitions", group: "Motion"),
+    IndexEntry(label: "Carry an element across a route change", to: "/recipes/shared-element", group: "Motion"),
+    IndexEntry(label: "Open a box to the height of its content", to: "/recipes/expand-to-content", group: "Motion"),
+    IndexEntry(label: "Count a number to its new value", to: "/recipes/count-a-number", group: "Motion"),
+    IndexEntry(label: "Tween a property when state changes", to: "/recipes/tween-on-change", group: "Motion"),
+    IndexEntry(label: "Declare your own keyframes", to: "/recipes/keyframes", group: "Motion"),
+    IndexEntry(label: "Drive an animation yourself", to: "/recipes/drive-an-animation", group: "Motion"),
+    IndexEntry(label: "Set motion defaults, and respect reduced motion", to: "/recipes/motion-defaults", group: "Motion"),
     IndexEntry(label: "Translate a site", to: "/recipes/translate-a-site", group: "Reach"),
     IndexEntry(label: "Translate by the words as written", to: "/recipes/translate-by-the-words", group: "Reach"),
-    IndexEntry(label: "Use environment values, and keep secrets out", to: "/recipes/environments-and-secrets", group: "Reach"),
-    IndexEntry(label: "Build a Docker image", to: "/recipes/docker-image", group: "Ship"),
-    IndexEntry(label: "Check a deploy", to: "/recipes/check-a-deploy", group: "Ship"),
-    IndexEntry(label: "Deploy to Cloudflare Pages", to: "/recipes/deploy-to-cloudflare-pages", group: "Ship"),
+    IndexEntry(label: "Publish a page in each language", to: "/recipes/site-in-two-languages", group: "Reach"),
+    IndexEntry(label: "Make a site work offline", to: "/recipes/work-offline", group: "Reach"),
+    IndexEntry(label: "Keep writes made offline", to: "/recipes/keep-writes-made-offline", group: "Reach"),
+    IndexEntry(label: "Offer a new version", to: "/recipes/offer-a-new-version", group: "Reach"),
+    IndexEntry(label: "Test a page", to: "/recipes/test-a-page", group: "Testing"),
+    IndexEntry(label: "Install wf on a build machine", to: "/recipes/install-wf-in-ci", group: "Ship"),
+    IndexEntry(label: "Use environment values, and keep secrets out", to: "/recipes/environments-and-secrets", group: "Ship"),
     IndexEntry(label: "Deploy to GitHub Pages", to: "/recipes/deploy-to-github-pages", group: "Ship"),
     IndexEntry(label: "Deploy to Netlify", to: "/recipes/deploy-to-netlify", group: "Ship"),
     IndexEntry(label: "Deploy to Vercel", to: "/recipes/deploy-to-vercel", group: "Ship"),
-    IndexEntry(label: "Install wf on a build machine", to: "/recipes/install-wf-in-ci", group: "Ship"),
-    IndexEntry(label: "Make a desktop app with Electron", to: "/recipes/electron-app", group: "Ship"),
-    IndexEntry(label: "Make a desktop or phone app with Tauri", to: "/recipes/tauri-app", group: "Ship"),
+    IndexEntry(label: "Deploy to Cloudflare Pages", to: "/recipes/deploy-to-cloudflare-pages", group: "Ship"),
+    IndexEntry(label: "Build a Docker image", to: "/recipes/docker-image", group: "Ship"),
+    IndexEntry(label: "Serve a site with nginx", to: "/recipes/serve-with-nginx", group: "Ship"),
     IndexEntry(label: "Serve a site with Apache", to: "/recipes/serve-with-apache", group: "Ship"),
     IndexEntry(label: "Serve a site with Caddy", to: "/recipes/serve-with-caddy", group: "Ship"),
-    IndexEntry(label: "Serve a site with nginx", to: "/recipes/serve-with-nginx", group: "Ship"),
     IndexEntry(label: "Serve an API on the same origin", to: "/recipes/api-on-the-same-origin", group: "Ship"),
     IndexEntry(label: "Set cache and security headers", to: "/recipes/cache-and-security-headers", group: "Ship"),
-    IndexEntry(label: "Call WF from a script", to: "/recipes/call-wf-from-a-script", group: "Interop"),
+    IndexEntry(label: "Check a deploy", to: "/recipes/check-a-deploy", group: "Ship"),
+    IndexEntry(label: "Make a desktop or phone app with Tauri", to: "/recipes/tauri-app", group: "Desktop and phone apps"),
+    IndexEntry(label: "Make a desktop app with Electron", to: "/recipes/electron-app", group: "Desktop and phone apps"),
     IndexEntry(label: "Call your own JavaScript", to: "/recipes/call-your-own-script", group: "Interop"),
-    IndexEntry(label: "Draw a chart from a library", to: "/recipes/chart-from-a-library", group: "Interop"),
-    IndexEntry(label: "Draw into a node a script made", to: "/recipes/portal", group: "Interop"),
+    IndexEntry(label: "Call WF from a script", to: "/recipes/call-wf-from-a-script", group: "Interop"),
     IndexEntry(label: "Hand an element to a script", to: "/recipes/hand-an-element-to-a-script", group: "Interop"),
+    IndexEntry(label: "Run a script after each page draws", to: "/recipes/listen-for-wf-render", group: "Interop"),
+    IndexEntry(label: "Draw into a node a script made", to: "/recipes/portal", group: "Interop"),
     IndexEntry(label: "Load a library from a CDN", to: "/recipes/library-from-a-cdn", group: "Interop"),
-    IndexEntry(label: "Migrate from external", to: "/recipes/migrate-from-external", group: "Interop"),
+    IndexEntry(label: "Draw a chart from a library", to: "/recipes/chart-from-a-library", group: "Interop"),
     IndexEntry(label: "Place a custom element from a library", to: "/recipes/place-a-custom-element", group: "Interop"),
     IndexEntry(label: "Publish components as custom elements", to: "/recipes/publish-custom-elements", group: "Interop"),
-    IndexEntry(label: "Render a template with data", to: "/recipes/render-a-template", group: "Interop"),
-    IndexEntry(label: "Render templates from Node", to: "/recipes/render-from-node", group: "Interop"),
-    IndexEntry(label: "Render templates from Rust", to: "/recipes/render-from-rust", group: "Interop"),
-    IndexEntry(label: "Run a script after each page draws", to: "/recipes/listen-for-wf-render", group: "Interop"),
-    IndexEntry(label: "Build a budget app that works offline", to: "/recipes/build-a-budget-app", group: "Projects"),
-    IndexEntry(label: "Build a statically generated notebook", to: "/recipes/build-a-notebook-site", group: "Projects")
+    IndexEntry(label: "Migrate from external", to: "/recipes/migrate-from-external", group: "Interop"),
+    IndexEntry(label: "Render a template with data", to: "/recipes/render-a-template", group: "Server rendering"),
+    IndexEntry(label: "Render templates from Node", to: "/recipes/render-from-node", group: "Server rendering"),
+    IndexEntry(label: "Render templates from Rust", to: "/recipes/render-from-rust", group: "Server rendering"),
+    IndexEntry(label: "Build a statically generated notebook", to: "/recipes/build-a-notebook-site", group: "Projects"),
+    IndexEntry(label: "Build a budget app that works offline", to: "/recipes/build-a-budget-app", group: "Projects")
 ]
 
 page Recipes(path: "/recipes", title: "Recipes — WebFluent", description: "Complete, runnable answers to “how do I…”: each recipe is one task, its whole code, and how it works.") {
@@ -92,14 +97,14 @@ page Recipes(path: "/recipes", title: "Recipes — WebFluent", description: "Com
             style { gap: 14px; max-width: 760px }
             Row(class: "bp-labels") { KindLabel(.howto) }
             Heading(t("nav.recipes")).h1 { style { margin: 0; font-size: clamp(30px, 5vw, 44px); line-height: 1.08; font-weight: 650; letter-spacing: -0.025em } }
-            Markdown("Each recipe is one task: the complete code first, then how it works. Copy the code into a page and it runs; every example here is compiled by the test suite.", class: "bp-lede")
+            Markdown("Each recipe is one task: the complete code first, then how it works. Every `wf` example on these pages parses and type-checks in the test suite; a recipe that needs more than its page — a setting in `webfluent.app.json`, a picture, a data file, a script, another recipe — says so in a **Needs:** line above the code. To try one, paste the page into a new file under `src/pages/` of a project. Most claim the address `/` or a name the `wf init` starter already has (`Home`, `Tasks`, `Settings`, `User`), so start a new project for it (`wf init try-it`), or replace the starter's file of that name (`src/pages/Home.wf` for `/`).", class: "bp-lede")
         }
         Input(bind: text, placeholder: t("recipes.filter"), aria-label: t("recipes.filter")).search { style { max-width: 420px } }
         if shown.some(e => e.group == "Interaction") {
             Stack(gap: .md) {
                 style { gap: 14px }
                 Heading("Interaction", id: "interaction").h2 { style { margin: 0; font-size: 22px; font-weight: 650 } }
-                Text("Lists, dialogs, filters and the address bar: what a page does when the reader acts.", class: "bp-small")
+                Text("Lists, dialogs, filters, the address bar and the keyboard: what a page does when the reader acts.", class: "bp-small")
                 Grid(columns: { base: 1, sm: 2, lg: 3 }, gap: .md) {
                     for e in shown.filter(e => e.group == "Interaction") by e.to {
                         RecipeCard(e.label, to: e.to)
@@ -107,13 +112,13 @@ page Recipes(path: "/recipes", title: "Recipes — WebFluent", description: "Com
                 }
             }
         }
-        if shown.some(e => e.group == "Data") {
+        if shown.some(e => e.group == "Forms and data") {
             Stack(gap: .md) {
                 style { gap: 14px }
-                Heading("Data", id: "data").h2 { style { margin: 0; font-size: 22px; font-weight: 650 } }
-                Text("Asking a server, showing what it answers, and writing back.", class: "bp-small")
+                Heading("Forms and data", id: "data").h2 { style { margin: 0; font-size: 22px; font-weight: 650 } }
+                Text("Forms, asking a server, showing what it answers, and writing back.", class: "bp-small")
                 Grid(columns: { base: 1, sm: 2, lg: 3 }, gap: .md) {
-                    for e in shown.filter(e => e.group == "Data") by e.to {
+                    for e in shown.filter(e => e.group == "Forms and data") by e.to {
                         RecipeCard(e.label, to: e.to)
                     }
                 }
@@ -135,7 +140,7 @@ page Recipes(path: "/recipes", title: "Recipes — WebFluent", description: "Com
             Stack(gap: .md) {
                 style { gap: 14px }
                 Heading("Content", id: "content").h2 { style { margin: 0; font-size: 22px; font-weight: 650 } }
-                Text("Markdown, pages written as Markdown, code on the page, and what search engines and link previews read.", class: "bp-small")
+                Text("Markdown, pages written as Markdown, code on the page, a page for unknown addresses, a PDF, and what search engines and link previews read.", class: "bp-small")
                 Grid(columns: { base: 1, sm: 2, lg: 3 }, gap: .md) {
                     for e in shown.filter(e => e.group == "Content") by e.to {
                         RecipeCard(e.label, to: e.to)
@@ -143,13 +148,25 @@ page Recipes(path: "/recipes", title: "Recipes — WebFluent", description: "Com
                 }
             }
         }
-        if shown.some(e => e.group == "Look and motion") {
+        if shown.some(e => e.group == "Media and themes") {
             Stack(gap: .md) {
                 style { gap: 14px }
-                Heading("Look and motion", id: "look").h2 { style { margin: 0; font-size: 22px; font-weight: 650 } }
-                Text("Pictures, video, icons, themes and animation.", class: "bp-small")
+                Heading("Media and themes", id: "media").h2 { style { margin: 0; font-size: 22px; font-weight: 650 } }
+                Text("Pictures, video, icons, a carousel, other pages in a frame, and a dark theme.", class: "bp-small")
                 Grid(columns: { base: 1, sm: 2, lg: 3 }, gap: .md) {
-                    for e in shown.filter(e => e.group == "Look and motion") by e.to {
+                    for e in shown.filter(e => e.group == "Media and themes") by e.to {
+                        RecipeCard(e.label, to: e.to)
+                    }
+                }
+            }
+        }
+        if shown.some(e => e.group == "Motion") {
+            Stack(gap: .md) {
+                style { gap: 14px }
+                Heading("Motion", id: "motion").h2 { style { margin: 0; font-size: 22px; font-weight: 650 } }
+                Text("Animation, from one element appearing to a page carried into the next. Read them in order: each builds on the one before.", class: "bp-small")
+                Grid(columns: { base: 1, sm: 2, lg: 3 }, gap: .md) {
+                    for e in shown.filter(e => e.group == "Motion") by e.to {
                         RecipeCard(e.label, to: e.to)
                     }
                 }
@@ -159,9 +176,21 @@ page Recipes(path: "/recipes", title: "Recipes — WebFluent", description: "Com
             Stack(gap: .md) {
                 style { gap: 14px }
                 Heading("Reach", id: "reach").h2 { style { margin: 0; font-size: 22px; font-weight: 650 } }
-                Text("More readers: other languages, no network, and settings per environment.", class: "bp-small")
+                Text("More readers: other languages, and no network.", class: "bp-small")
                 Grid(columns: { base: 1, sm: 2, lg: 3 }, gap: .md) {
                     for e in shown.filter(e => e.group == "Reach") by e.to {
+                        RecipeCard(e.label, to: e.to)
+                    }
+                }
+            }
+        }
+        if shown.some(e => e.group == "Testing") {
+            Stack(gap: .md) {
+                style { gap: 14px }
+                Heading("Testing", id: "testing").h2 { style { margin: 0; font-size: 22px; font-weight: 650 } }
+                Text("Checking that a page does what it should before a reader finds out it does not.", class: "bp-small")
+                Grid(columns: { base: 1, sm: 2, lg: 3 }, gap: .md) {
+                    for e in shown.filter(e => e.group == "Testing") by e.to {
                         RecipeCard(e.label, to: e.to)
                     }
                 }
@@ -171,9 +200,21 @@ page Recipes(path: "/recipes", title: "Recipes — WebFluent", description: "Com
             Stack(gap: .md) {
                 style { gap: 14px }
                 Heading("Ship", id: "ship").h2 { style { margin: 0; font-size: 22px; font-weight: 650 } }
-                Text("Putting a site on a host, and an app on a desktop or a phone.", class: "bp-small")
+                Text("Putting a site on a host, in the order you need them: install `wf` where the site is built, set what changes per environment, deploy to a host or serve from your own server, then check the deploy.", class: "bp-small")
                 Grid(columns: { base: 1, sm: 2, lg: 3 }, gap: .md) {
                     for e in shown.filter(e => e.group == "Ship") by e.to {
+                        RecipeCard(e.label, to: e.to)
+                    }
+                }
+            }
+        }
+        if shown.some(e => e.group == "Desktop and phone apps") {
+            Stack(gap: .md) {
+                style { gap: 14px }
+                Heading("Desktop and phone apps", id: "desktop").h2 { style { margin: 0; font-size: 22px; font-weight: 650 } }
+                Text("The same project in a window of its own, with Tauri or Electron.", class: "bp-small")
+                Grid(columns: { base: 1, sm: 2, lg: 3 }, gap: .md) {
+                    for e in shown.filter(e => e.group == "Desktop and phone apps") by e.to {
                         RecipeCard(e.label, to: e.to)
                     }
                 }
@@ -183,9 +224,21 @@ page Recipes(path: "/recipes", title: "Recipes — WebFluent", description: "Com
             Stack(gap: .md) {
                 style { gap: 14px }
                 Heading("Interop", id: "interop").h2 { style { margin: 0; font-size: 22px; font-weight: 650 } }
-                Text("Your own JavaScript, libraries, custom elements, and rendering on a server.", class: "bp-small")
+                Text("Your own JavaScript, libraries, and custom elements, both ways.", class: "bp-small")
                 Grid(columns: { base: 1, sm: 2, lg: 3 }, gap: .md) {
                     for e in shown.filter(e => e.group == "Interop") by e.to {
+                        RecipeCard(e.label, to: e.to)
+                    }
+                }
+            }
+        }
+        if shown.some(e => e.group == "Server rendering") {
+            Stack(gap: .md) {
+                style { gap: 14px }
+                Heading("Server rendering", id: "server").h2 { style { margin: 0; font-size: 22px; font-weight: 650 } }
+                Text("WebFluent as a template engine: HTML and PDF from data, from the command line, Node or Rust.", class: "bp-small")
+                Grid(columns: { base: 1, sm: 2, lg: 3 }, gap: .md) {
+                    for e in shown.filter(e => e.group == "Server rendering") by e.to {
                         RecipeCard(e.label, to: e.to)
                     }
                 }
@@ -195,7 +248,7 @@ page Recipes(path: "/recipes", title: "Recipes — WebFluent", description: "Com
             Stack(gap: .md) {
                 style { gap: 14px }
                 Heading("Projects", id: "projects").h2 { style { margin: 0; font-size: 22px; font-weight: 650 } }
-                Text("Two complete projects, built step by step.", class: "bp-small")
+                Text("Two complete projects, explained step by step. They are read along in the finished code under `examples/tutorials/`, not typed along; each says how to build it yourself if you want to.", class: "bp-small")
                 Grid(columns: { base: 1, sm: 2, lg: 3 }, gap: .md) {
                     for e in shown.filter(e => e.group == "Projects") by e.to {
                         RecipeCard(e.label, to: e.to)

@@ -8,6 +8,9 @@ Make a figure arrive rather than jump — a total, a score, a balance — by
 giving its element `count:` with a length of time. Press **Load** and the
 revenue counts from `$0.00` to `$1,200.00`:
 
+**Needs:** nothing besides the page. It claims `/`: paste it into a new
+project, or replace the starter's `src/pages/Home.wf` with it.
+
 ```wf
 page Revenue(path: "/", title: "Revenue", description: "A figure that counts up.") {
     state revenue = 0

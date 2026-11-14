@@ -1,8 +1,9 @@
 // A recipe, written from md-docs/recipes/load-more.md by scripts/docsite/recipes.py;
 // edit the recipe, not this file.
 page RecipeLoadMore(path: "/recipes/load-more", title: "Load more as the reader asks — Recipes", description: "Add the next page of results below the ones shown when the reader asks: an api endpoint called with paginate: .page and a Load more button.") {
-    RecipeShell("Load more as the reader asks", summary: "A **Load more** button keeps what the reader has already seen and adds the next page below it. To build one, call an endpoint with `paginate: .page`:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Page through results", to: "/recipes/page-through-results"), RelatedLink(kind: "Recipe", title: "Show validation messages on a form", to: "/recipes/validation-messages"), RelatedLink(kind: "Recipe", title: "Sign in with a session cookie", to: "/recipes/sign-in-with-a-session-cookie")], source: "md-docs/recipes/load-more.md", how: true, hasVariations: false) {
+    RecipeShell("Load more as the reader asks", summary: "A **Load more** button keeps what the reader has already seen and adds the next page below it. To build one, call an endpoint with `paginate: .page`:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Show validation messages on a form", to: "/recipes/validation-messages"), RelatedLink(kind: "Recipe", title: "Sign in with a session cookie", to: "/recipes/sign-in-with-a-session-cookie"), RelatedLink(kind: "Recipe", title: "Page through results", to: "/recipes/page-through-results")], source: "md-docs/recipes/load-more.md", how: true, hasVariations: false) {
         code {
+            Markdown("**Needs:** a server that answers `/api/items?page=…` with a list of items.")
             CodeBlock(#"type Item { id: String, name: String }
 
 api Catalog(base: "/api") {

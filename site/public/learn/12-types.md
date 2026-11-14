@@ -607,6 +607,9 @@ page P(path: "/", title: "T", description: "D") {
 Say what to show instead, `Text("Note: {todo.note ?? "none"}")`, or draw the
 line only when there is a note with `if let`. See [T19](https://webfluent.monzeromer.dev/errors/T19.md).
 
+Going further: [Expressions](https://webfluent.monzeromer.dev/reference/expressions.md) lists every
+operator and helper a typed value can be used with.
+
 ## Next
 
-[Expressions](https://webfluent.monzeromer.dev/reference/expressions.md).
+[Styling](https://webfluent.monzeromer.dev/learn/13-styling.md).

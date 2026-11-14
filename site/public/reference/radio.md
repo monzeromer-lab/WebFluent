@@ -22,7 +22,15 @@ Radio(bind: State, value: Any, checked: Bool, …)
 
 ## Flags
 
-`.checked` `.disabled` `.dropInside` `.trapFocus`
+`.checked` `.disabled`
+
+## DOM events it answers
+
+Any other DOM event works too, in an `on … { }` handler.
+
+- `on change`: The value was committed
+
+Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 
 ## Example
 
@@ -40,4 +48,4 @@ Radio(bind: size, value: "m", label: "Medium")
 - [C05](https://webfluent.monzeromer.dev/errors/C05.md): A positional argument a built-in does not take
 - [A04](https://webfluent.monzeromer.dev/errors/A04.md): A control with no label
 
-Since WebFluent 5.0.
+Before WebFluent 5.0.

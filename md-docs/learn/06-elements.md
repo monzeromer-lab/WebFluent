@@ -116,18 +116,18 @@ these rules:
 Every element also takes the *universal props*. The reference does not
 repeat them on each element:
 
-| Prop | What it does | Chapter |
+| Prop | What it does | Read more |
 |---|---|---|
-| `class:` | Adds classes from your own stylesheets. It adds; it never replaces | [15](13-styling.md#classes-and-your-own-stylesheet) |
-| `ref:` | Names a handle on the element: `box.focus()` | [8](07-state-and-reactivity.md#element-handles) |
-| `mount:`, `update:`, `cleanup:` | Hands the element to a script each time it is made, again when what `update` reads changes, and takes it back when it leaves | [32](../recipes/hand-an-element-to-a-script.md) |
-| `animate:` or a flag (`.fadeIn`) | The animation it enters with | [20](../recipes/index.md) |
-| `exit:` | The animation it leaves with | [20](../recipes/animate-in-and-out.md#animate-an-element-out) |
-| `delay:`, `duration:`, `speed:` (`.fast`, `.slow`), `easing:` | How the animation is timed | [20](../recipes/index.md) |
-| `stagger:` | Inside a `for`, each item's delay grows by this much | [20](../recipes/animate-a-list.md) |
-| `on:` | When the animation plays: `.mount` (the default) or `.enterView` | [20](../recipes/index.md) |
-| `shared:` | A name the element keeps across a route change | [20](../recipes/shared-element.md) |
-| `count:` | A number in its text counts up or down to its new value | [20](../recipes/count-a-number.md) |
+| `class:` | Adds classes from your own stylesheets. It adds; it never replaces | [Styling](13-styling.md#classes-and-your-own-stylesheet) |
+| `ref:` | Names a handle on the element: `box.focus()` | [State and reactivity](07-state-and-reactivity.md#element-handles) |
+| `mount:`, `update:`, `cleanup:` | Hands the element to a script each time it is made, again when what `update` reads changes, and takes it back when it leaves | [Hand an element to a script](../recipes/hand-an-element-to-a-script.md) |
+| `animate:` or a flag (`.fadeIn`) | The animation it enters with | [Animate in and out](../recipes/animate-in-and-out.md#animate-an-element-in) |
+| `exit:` | The animation it leaves with | [Animate in and out](../recipes/animate-in-and-out.md#animate-an-element-out) |
+| `delay:`, `duration:`, `speed:` (`.fast`, `.slow`), `easing:` | How the animation is timed | [Animate in and out](../recipes/animate-in-and-out.md), [Motion defaults](../recipes/motion-defaults.md) |
+| `stagger:` | Inside a `for`, each item's delay grows by this much | [Animate a list](../recipes/animate-a-list.md) |
+| `on:` | When the animation plays: `.mount` (the default) or `.enterView` | [Animate in and out](../recipes/animate-in-and-out.md#play-an-animation-when-it-is-scrolled-to) |
+| `shared:` | A name the element keeps across a route change | [Shared element](../recipes/shared-element.md) |
+| `count:` | A number in its text counts up or down to its new value | [Count a number](../recipes/count-a-number.md) |
 
 The [components reference](../reference/components.md) lists every element's
 own props.
@@ -284,7 +284,9 @@ page Dashboard(path: "/", title: "Dashboard", description: "Every layout element
 
 `Header`, `Section` and `Footer` render real landmarks: `<header>`,
 `<section>` and `<footer>`. Use them for the page's regions, so a screen
-reader and a search engine can follow the page's outline.
+reader and a search engine can follow the page's outline. Inside a
+`Document`, `Header` and `Footer` mean something else: they are drawn in
+the margin of every printed page ([PDF and slides](17-pdf-and-slides.md#set-the-paper-headers-and-footers)).
 
 ## The families of built-ins
 
@@ -298,9 +300,9 @@ The built-ins fall into these families:
 | Forms | `Form`, `Input`, `Textarea`, `Select`, `Checkbox`, `Radio`, `Switch`, `Slider`, `DatePicker`, `FileUpload` ([Forms](14-forms.md)) |
 | Feedback | `Alert`, `Toast`, `Modal`, `Dialog`, `Popover`, `Spinner`, `Progress`, `Skeleton` ([Events](08-events.md#overlays-modals-dialogs-toasts-and-menus)) |
 | Actions | `Button`, `IconButton`, `ButtonGroup`, `Dropdown` |
-| Media | `Image`, `Video`, `Audio`, `Frame`, `Icon`, `Carousel` ([Media](../recipes/index.md)) |
+| Media | `Image`, `Video`, `Audio`, `Frame`, `Icon`, `Carousel` ([Add a picture](../recipes/add-a-picture.md), [Video and audio](../recipes/video-and-audio.md)) |
 | Typography | `Text`, `Heading`, `Paragraph`, `Code`, `Blockquote`, `Markdown`, `Unsafe.Html` |
-| Somebody else's code | `Host`, `Element`, `Portal` ([JavaScript interop](../recipes/index.md)) |
+| Somebody else's code | `Host`, `Element`, `Portal` ([Call your own JavaScript](../recipes/call-your-own-script.md), [Hand an element to a script](../recipes/hand-an-element-to-a-script.md)) |
 | Documents and decks | `Document`, `PageBreak`, `TableOfContents`, `Background`, `Watermark`, `Chart`, `QrCode`, `Presentation`, `Slide`, `TitleSlide`, `SectionSlide`, `TwoColumn`, `ImageSlide` ([PDF and slides](17-pdf-and-slides.md)) |
 | Routing | `Router` ([Pages](05-pages-and-routing.md#the-app-shell)) |
 

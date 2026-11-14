@@ -13,6 +13,9 @@ object. This page hands a canvas to the library, shows new figures when the
 reader switches years, and destroys the chart when the page leaves. You
 need a WebFluent project, and the scripts below saved under its `src/`.
 
+**Needs:** the script `src/sales-chart.js` and the `meta.scripts` setting,
+both shown below.
+
 ```wf
 page Sales(path: "/sales", title: "Sales", description: "Sales by quarter, as a bar chart.") {
     state lastYear = false

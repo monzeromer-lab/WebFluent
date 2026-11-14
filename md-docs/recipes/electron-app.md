@@ -1,7 +1,7 @@
 ---
 kind: "recipe"
 route: "/recipes/electron-app"
-group: "ship"
+group: "desktop"
 description: "Make a WebFluent project an Electron desktop app: serve the build from its own origin, call Node from a page through a preload script, and package it."
 outputs: ["desktop"]
 from: ["/docs/guide/desktop#prepare-the-build-for-a-desktop", "/docs/guide/desktop#make-an-electron-app"]

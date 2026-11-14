@@ -249,6 +249,6 @@ jobs:
     IconButton(icon: "plus") { on click { count = count + 1 } }
 }"#, title: "wf · draws A02")
 
-        Markdown("Add `label: \"Add one\"`, and click it with `click \"Add one\"` ([A02](/errors/A02)).")
+        Markdown("Add `label: \"Add one\"`, and click it with `click \"Add one\"` ([A02](/errors/A02)).\n\nGoing further: [Security](/about/security) covers what the compiler guarantees, what it cannot, and the decisions left to you: markup, secrets, storage, headers and a deployment checklist.")
     }
 }

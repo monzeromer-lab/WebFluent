@@ -1,7 +1,7 @@
 // A cheat sheet, written from md-docs/coming-from/html-css.md by
 // scripts/docsite/comingfrom.py; edit the sheet, not this file.
 page ComingFromHtmlCss(path: "/coming-from/html-css", title: "WebFluent for HTML and CSS authors", description: "Plain HTML and CSS in WebFluent: elements, links, images, forms, classes, flexbox and grid, stylesheets, media queries and scripts, side by side.") {
-    ComingFromShell("WebFluent for HTML and CSS authors", summary: "If you write HTML and CSS by hand, WebFluent keeps what you know and takes away the repetition: elements come designed and accessible, a page's head is written for you, and a layout is a `Row` or a `Grid` instead of a class and a rule. Your CSS still works — any `.css` file under `src/` is part of the build.", from: "HTML & CSS", sheets: [Place(key: "coming.react", to: "/coming-from/react"), Place(key: "coming.vue", to: "/coming-from/vue"), Place(key: "coming.svelte", to: "/coming-from/svelte"), Place(key: "coming.html-css", to: "/coming-from/html-css"), Place(key: "coming.latex", to: "/coming-from/latex")], sections: [Anchor(id: "differences", label: t("coming.differences")), Anchor(id: "port", label: t("coming.port"))], source: "md-docs/coming-from/html-css.md") {
+    ComingFromShell("WebFluent for HTML and CSS authors", summary: "If you write HTML and CSS by hand, WebFluent keeps what you know and takes away the repetition: elements come designed and accessible, a page's head is written for you, and a layout is a `Row` or a `Grid` instead of a class and a rule. Your CSS still works — any `.css` file under `src/` is part of the build.", from: "HTML & CSS", sheets: [Place(key: "coming.react", to: "/coming-from/react"), Place(key: "coming.vue", to: "/coming-from/vue"), Place(key: "coming.svelte", to: "/coming-from/svelte"), Place(key: "coming.html-css", to: "/coming-from/html-css"), Place(key: "coming.latex", to: "/coming-from/latex")], sections: [Anchor(id: "the-map", label: t("coming.map")), Anchor(id: "things-that-work-differently", label: t("coming.differences")), Anchor(id: "a-component-ported", label: t("coming.port"))], source: "md-docs/coming-from/html-css.md") {
         differences {
             Markdown("**Elements are checked.** An `Image` with no `alt:` is a warning (`A01`), a `Link` to a page that does not exist is an error (`R01`), and a flag the element does not have (`Button(\"Save\").primray`) stops the build. What you would have caught with a validator and an accessibility audit, the compiler catches on every build.\n\n**Text is text.** Every string goes in as text, so a `<` in it is shown, not parsed. Markup you did not write goes through `Unsafe.Html(sanitize(…))`, which the build reports each time; inline `onclick` handlers do not compile — a handler is `on click \{ … \}` in the element's block.\n\n**The head is written for you.** Each page's title, description, canonical link, Open Graph and Twitter tags, structured data, a sitemap and `robots.txt` come from the page and the config ([Describe pages to search engines and link previews](/recipes/search-and-link-previews)).\n\n**Your CSS is welcome, scoped by you.** A `.css` file under `src/` is bundled after the built-ins' rules, so yours win; `class:` on any element adds your classes. A `style \{ \}` block is for the one element it is on.\n\n**A site, not a pile of files.** Pages share a header and footer through `app` (or a `layout:`), a value shared by pages is a `store`, and repeated markup is a `component` with typed props.")
 
@@ -12,7 +12,7 @@ page ComingFromHtmlCss(path: "/coming-from/html-css", title: "WebFluent for HTML
             CodeBlock(#"<div class="card">
   <img class="avatar" src="/ada.jpg" alt="Ada Lovelace">
   <div>
-    <h3>Ada Lovelace</h3>
+    <h2>Ada Lovelace</h2>
     <p class="muted">Analyst</p>
   </div>
 </div>
@@ -34,7 +34,7 @@ component Person(_ name: String, role: String, photo: String) {
         Row(gap: .sm, align: .center) {
             Avatar(src: photo, alt: name)
             Stack {
-                Heading(name).h3
+                Heading(name).h2
                 Text(role).muted
             }
         }

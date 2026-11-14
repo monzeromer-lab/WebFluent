@@ -9,6 +9,9 @@ keyframes with `animation Name { }` and use the name where a built-in
 animation goes. Here the card drops into place and the badge pulses while
 it is shown:
 
+**Needs:** nothing besides the page. It claims `/`: paste it into a new
+project, or replace the starter's `src/pages/Home.wf` with it.
+
 ```wf
 animation Pulse {
     from { opacity: 1 }

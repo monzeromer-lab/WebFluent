@@ -61,6 +61,22 @@ REWORKED = {"Menu", "Menu.Item", "Document", "Header", "Footer", "PageBreak", "P
 NOT_ADDED = ("Fix", "Upgrad", "Migrat", "Breaking", "For tools", "Tooling", "Editors", "The editor",
              "Security", "Behaviour", "Change")
 CODES = ROOT / "scripts" / "docsite" / "builtin_codes.json"
+# The DOM events a built-in is drawn to answer, beside the events of its own:
+# the registry lists only those (a `Button`'s are none), and every element
+# takes every DOM event. Each is described by the registry's universal entry.
+DOM_EVENTS = {
+    "Button": ["click"], "IconButton": ["click"], "Link": ["click"],
+    "Dropdown.Item": ["click"], "Menu.Item": ["click"], "Sidebar.Item": ["click"],
+    "Breadcrumb.Item": ["click"],
+    "Input": ["input", "change", "keydown", "focus", "blur"],
+    "Textarea": ["input", "change", "keydown", "focus", "blur"],
+    "Select": ["change", "focus", "blur"],
+    "Checkbox": ["change"], "Radio": ["change"], "Switch": ["change"],
+    "Slider": ["input", "change"], "DatePicker": ["change"], "FileUpload": ["change"],
+    "Form": ["submit", "reset"],
+    "Image": ["load", "error"],
+    "Video": ["play", "pause", "ended", "timeupdate"], "Audio": ["play", "pause", "ended", "timeupdate"],
+}
 
 
 def ask(*args) -> dict:
@@ -74,6 +90,19 @@ def slug_of(c: dict) -> str:
 def legacy(c: dict) -> bool:
     s = c["summary"]
     return "original spelling" in s or "original grammar" in s
+
+
+def universal_names(reg: dict) -> set:
+    """The props every element takes: a flag of one (`.trapFocus`,
+    `.fadeIn`) is listed once, on every element, not on each built-in."""
+    return {p["name"] for p in reg["universal"]["props"]}
+
+
+def own_flags(c: dict, universal: set) -> list:
+    """A built-in's flags, without those of the universal props, unless it
+    declares a prop of that name itself."""
+    mine = {p["name"] for p in c["props"]}
+    return [f for f in c["flags"] if f["prop"] in mine or f["prop"] not in universal]
 
 
 def prop_row(p: dict, positional: bool = False) -> dict:
@@ -176,6 +205,8 @@ def components(reg: dict) -> dict:
     table = json.loads(CODES.read_text())
     titles = {e["code"]: e["title"].replace("`", "") for e in json.loads(
         subprocess.check_output([str(wf), "explain", "--json"], cwd=ROOT / "site"))}
+    universal = universal_names(reg)
+    dom = {e["name"]: e["summary"] for e in reg["universal"]["events"]}
     since = {c["qualified"]: since_of(c["qualified"], notes) for c in comps}
     # A part is never older than its owner.
     for c in comps:
@@ -203,8 +234,10 @@ def components(reg: dict) -> dict:
             "legacy": legacy(c),
             "props": props,
             "controls": controls,
-            "flags": [f".{f['name']}" for f in c["flags"] if f["prop"] not in ("animate", "speed")],
+            "flags": [f".{f['name']}" for f in own_flags(c, universal)],
             "events": [{"name": e, "kind": "", "detail": "", "fallback": ""} for e in c["events"]],
+            "domEvents": [{"name": e, "kind": "DOM", "detail": dom.get(e, ""), "fallback": ""}
+                          for e in DOM_EVENTS.get(c["qualified"], []) if e not in c["events"]],
             "slots": [{"name": s, "kind": "", "detail": "", "fallback": ""} for s in c["slots"]],
             "parts": [{"name": p["qualified"], "kind": slug_of(p), "detail": p["summary"].replace("`", ""), "fallback": ""}
                       for p in parts],
@@ -226,6 +259,7 @@ def components(reg: dict) -> dict:
     items.sort(key=lambda i: (order[i["family"]], rank[i["owner"] or i["name"]], i["owner"] != "", rank[i["name"]]))
     families = [f for f in FAMILIES + [LEGACY] if any(i["family"] == f for i in items)]
     universal = {
+        "names": [p["name"] for p in reg["universal"]["props"]],
         "props": [prop_row(p) for p in reg["universal"]["props"]],
         "events": [{"name": e["name"], "kind": "", "detail": e["summary"], "fallback": ""} for e in reg["universal"]["events"]],
     }
@@ -457,10 +491,12 @@ REFERENCE_PAGES = [
     ("Project structure", "/reference/project", "Tools"),
     ("Browser support", "/reference/browser-support", "Tools"),
     ("Glossary", "/reference/glossary", "Tools"),
+    ("Library", "/reference/library", "Tools"),
+    ("Editors", "/reference/editors", "Tools"),
 ]
 
 
-def builtin_page(c: dict, by_slug: dict) -> list:
+def builtin_page(c: dict, by_slug: dict, universal: list) -> list:
     out = [f'page Builtin{pascal(c["slug"])}(path: "/reference/{c["slug"]}", title: {q(c["name"] + " — Reference")}, '
            f'description: {q(describe(c["name"] + ": " + c["plain"]))}) {{']
     preview = PREVIEWS.get(c["name"]) or PREVIEWS.get(c["owner"])
@@ -499,7 +535,8 @@ def builtin_page(c: dict, by_slug: dict) -> list:
         out.append(f'        PropsTable(rows: {rows(c["props"])}, caption: {q("Props of " + c["name"])})')
     else:
         out.append('        Text(t("ref.noprops"), class: "bp-small")')
-    out.append(f'        Markdown(t("ref.attrs", {{ families: {q(", ".join(c["attributes"]))} }}), class: "bp-prose")')
+    out.append(f'        Markdown(t("ref.attrs", {{ families: {q(", ".join(c["attributes"]))}, n: {len(universal)}, '
+               f'props: {q(", ".join("`" + n + ":`" for n in universal))} }}), class: "bp-prose")')
     out.append('        Heading(t("ref.tab.flags"), id: "flags").h2')
     out.append('        Markdown(t("ref.flags.body"), class: "bp-prose")')
     if c["flags"]:
@@ -513,6 +550,9 @@ def builtin_page(c: dict, by_slug: dict) -> list:
     out.append('        Heading(t("ref.tab.events"), id: "events").h2')
     if c["events"]:
         out.append(f'        EventsTable(rows: {prop_rows(c["events"])}, caption: {q("Events of " + c["name"])})')
+    if c["domEvents"]:
+        out.append('        Markdown(t("ref.domevents"), class: "bp-prose")')
+        out.append(f'        EventsTable(rows: {prop_rows(c["domEvents"])}, caption: {q("DOM events " + c["name"] + " answers")})')
     out.append('        Markdown(t("ref.universal.link"), class: "bp-prose")')
     out.append('        Heading(t("ref.slotsparts"), id: "slots").h2')
     out.append(f'        SlotsAndParts(slots: {prop_rows(c["slots"])}, parts: {prop_rows(c["parts"])})')
@@ -580,7 +620,7 @@ def builtins_file(comps: dict) -> str:
     index += ["        }", "    }", "}"]
     out.append("\n".join(index) + "\n")
     for c in items:
-        out.append("\n".join(builtin_page(c, by_slug)) + "\n")
+        out.append("\n".join(builtin_page(c, by_slug, comps["universal"]["names"])) + "\n")
     return "\n".join(out)
 
 
@@ -639,6 +679,7 @@ def cli_file(cmds: dict) -> str:
                 p.append(f'        PropsTable(rows: {rows(c["options"])}, caption: {q("Options of wf " + c["name"])}, nameLabel: t("cli.option"))')
             else:
                 p.append('        Text(t("cli.noopts"), class: "bp-small")')
+        p.append(f'        Markdown(t("cli.full", {{ name: {q(c["name"])} }}), class: "bp-prose")')
         p += ['        Link(t("cli.all"), to: "/reference/cli")', "    }", "}"]
         out.append("\n".join(p) + "\n")
     return "\n".join(out)

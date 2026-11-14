@@ -21,7 +21,15 @@ FileUpload(accept: String, label: String, multiple: Bool, …) { … }
 
 ## Flags
 
-`.multiple` `.disabled` `.dropInside` `.trapFocus`
+`.multiple` `.disabled`
+
+## DOM events it answers
+
+Any other DOM event works too, in an `on … { }` handler.
+
+- `on change`: The value was committed
+
+Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 
 ## Slots
 
@@ -40,4 +48,4 @@ FileUpload(accept: "image/*", label: "Choose a picture") { on change(e) { log(e.
 - [C04](https://webfluent.monzeromer.dev/errors/C04.md): An attribute a built-in does not declare
 - [C05](https://webfluent.monzeromer.dev/errors/C05.md): A positional argument a built-in does not take
 
-Since WebFluent 5.0.
+Before WebFluent 5.0.

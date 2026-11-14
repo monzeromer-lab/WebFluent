@@ -249,6 +249,16 @@ a.bp-card:hover { border-color: var(--border-strong); text-decoration: none; }
 [dir="rtl"] .bp-file[aria-current="true"] { box-shadow: inset -2px 0 0 var(--construction); }
 .bp-phone { width: 300px; max-width: 100%; height: 520px; margin: 0 auto; border: 1px solid var(--line); border-radius: 18px; overflow: hidden; }
 
+/* A link that sets no colour of its own is in the link ink, which reads on
+   both themes; the engine's default, the primary colour, is a button's fill
+   and too dark for text on the dark ground (3.4:1). */
+.wf-link { color: var(--link); }
+
+/* A fence in Markdown (the Changelog, an aside) is a console like every
+   other code block, in both themes: its highlighting is drawn for the
+   console's ground, and on the light page it was unreadable (1.6:1). */
+.wf-markdown pre { background: var(--console); color: var(--syntax-punct); border: 1px solid var(--console-line); border-radius: var(--radius-sm); }
+
 /* Code reads left to right in every locale. */
 .bp-ltr { direction: ltr; unicode-bidi: isolate; text-align: left; }
 /* Code inside a sentence too: in Arabic prose, a run that starts or ends

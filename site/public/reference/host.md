@@ -16,9 +16,7 @@ Host(tag: String)
 |---|---|---|
 | `tag:` | `String` | The element to make: `div` (the default), `span`, `canvas`, `svg`, `section`, `figure`, `pre`, `p`, `ul` or `table` |
 
-## Flags
-
-`.dropInside` `.trapFocus`
+Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 
 ## Example
 
@@ -34,4 +32,4 @@ Host(tag: "canvas", mount: (node) => node.getContext("2d"), cleanup: (ctx) => lo
 - [C05](https://webfluent.monzeromer.dev/errors/C05.md): A positional argument a built-in does not take
 - [V10](https://webfluent.monzeromer.dev/errors/V10.md): A Host tag it does not make
 
-Since WebFluent 5.0.
+Before WebFluent 5.0.

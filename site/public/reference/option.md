@@ -17,13 +17,11 @@ Option(_ label: String, value: Any)
 | `label` | `String  (positional)` | The visible label |
 | `value:` | `Any` | The value sent with the form |
 
-## Flags
-
-`.dropInside` `.trapFocus`
+Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 
 ## What it can raise
 
 - [E103](https://webfluent.monzeromer.dev/errors/E103.md): A flag, case, part, event or slot the component does not have
 - [C04](https://webfluent.monzeromer.dev/errors/C04.md): An attribute a built-in does not declare
 
-Since WebFluent 5.0.
+Before WebFluent 5.0.

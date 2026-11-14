@@ -15,3 +15,5 @@ wf registry [options]
 | Option | Meaning |
 |---|---|
 | `--json` | Print JSON, for tools |
+
+The [full entry for wf registry](https://webfluent.monzeromer.dev/reference/cli.md#wf-registry) has its examples and the details this page leaves out.

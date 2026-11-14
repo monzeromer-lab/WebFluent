@@ -90,7 +90,8 @@
   "ref.tab.parts": "الأجزاء",
   "ref.noprops": "لا خصائص خاصة بهذا العنصر.",
   "ref.noflags": "لا أعلام خاصة به.",
-  "ref.attrs": "عائلات السمات: `{families}`. إضافةً إلى الخصائص العامة على كل عنصر: `animate:` و`exit:` و`speed:` و`class:` و`ref:`.",
+  "ref.attrs": "عائلات السمات: `{families}`. إضافةً إلى الخصائص العامة الـ{n} التي يأخذها كل عنصر: {props}.",
+  "ref.domevents": "أحداث DOM التي صُمّم ليستجيب لها. وأي حدث DOM آخر يعمل كذلك في معالج `on … { }`.",
   "ref.flags.body": "يُكتب العلم بعد القوسين بنقطة: خاصية `Bool`، أو حالة من حالات خاصية تعداد للعنصر.",
   "ref.events.body": "يقبل كل عنصر هذه في معالج `on … { }`؛ أحداث العنصر نفسه أولًا.",
   "ref.own.event": "حدث يطلقه هذا العنصر",
@@ -373,6 +374,7 @@
   "cli.noopts": "لا يأخذ خيارات.",
   "cli.writes": "**يكتب:** {what}.",
   "cli.preview": "**معاينة:** `{flag}` يقول ما سيفعله دون أن يفعله.",
+  "cli.full": "في [المدخل الكامل لـ wf {name}](/reference/cli#wf-{name}) أمثلته والتفاصيل التي لا تذكرها هذه الصفحة.",
   "cli.all": "كل الأوامر",
   "config.title": "الإعدادات",
   "config.lede": "كل مفتاح من مفاتيح webfluent.app.json الـ{count}، بنوعه وقيمته الافتراضية، مقروءًا من wf config schema --json.",
@@ -494,5 +496,12 @@
   "docs.copy": "انسخ الصفحة بصيغة Markdown",
   "docs.copied": "نُسخت",
   "docs.markdown": "افتحها بصيغة Markdown",
-  "docs.contents": "المحتويات"
+  "docs.contents": "المحتويات",
+  "coming.map": "الخريطة",
+  "playground.file.new": "مسار ملف جديد",
+  "playground.file.add": "أضف الملف",
+  "playground.file.bad": "سمِّ ملفًا داخل src/ ينتهي بـ ‎.wf أو ‎.wfx أو ‎.json أو ‎.css أو ‎.js",
+  "playground.file.taken": "يوجد ملف في هذا المسار",
+  "playground.file.remove": "احذف {file}",
+  "code.play": "افتح في الملعب"
 }

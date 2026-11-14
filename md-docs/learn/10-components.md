@@ -220,7 +220,6 @@ slots that the caller fills with `name { … }`:
 
 ```wf
 component Panel(_ title: String) {
-    slot
     slot trailing
     Card {
         Row(justify: .between, align: .center) {
@@ -240,16 +239,20 @@ page Keys(path: "/") {
 }
 ```
 
-- `slot` declares the default slot, which the body places as `children`.
+- `children` places the call's block. It needs no declaration: a component
+  that writes `children` takes a block.
 - `slot trailing` declares a named slot, which the body places by its name.
-- Anything in the call's block that is not a named fill goes to the default
-  slot. Here that is the `Text` and the `Button`.
+- Anything in the call's block that is not a named fill goes to
+  `children`. Here that is the `Text` and the `Button`.
+- A bare `slot` line declares the default slot by name. You need it only on
+  a component a page names as its `layout:`, where it is required
+  (`E104`); see [Layouts](05-pages-and-routing.md#layouts).
 
 A fill is compiled in the caller's scope: it reads the caller's state and
 loop variables, and its handlers are the caller's. The component only
 decides where the fill lands. A page's `layout:` is a component with a
 default slot, called with the page as its block (see
-[Pages and routing](05-pages-and-routing.md)).
+[Pages and routing](05-pages-and-routing.md#layouts)).
 
 ### Scoped slots
 
@@ -386,7 +389,7 @@ prop:
   `data-open: true` is `data-open="true"`, and `false` writes no attribute,
   except for an ARIA state, which keeps `"false"`.
 - `mount:`, `update:` and `cleanup:` (see
-  [JavaScript interop](../recipes/index.md)).
+  [Hand an element to a script](../recipes/hand-an-element-to-a-script.md)).
 - `drag:`, the `drop…:` props, `on receive`, `on dragmove`, `on longpress`
   and `on swipe`. These need one root element: on a component whose body is
   an `if`, a `for` or several elements they are `C07`.
@@ -479,8 +482,10 @@ To use a JavaScript library — a chart, a map, an editor — call it from a
 `.js` file under `src/` and hand it an element with `mount:` and
 `cleanup:`. To place somebody else's custom element, use
 `Element("tag-name", …)`. You can also publish your components as custom
-elements for another framework to place. All three are in
-[JavaScript interop](../recipes/index.md).
+elements for another framework to place. See [Call your own JavaScript](../recipes/call-your-own-script.md),
+[Hand an element to a script](../recipes/hand-an-element-to-a-script.md),
+[Place a custom element](../recipes/place-a-custom-element.md) and
+[Publish components as custom elements](../recipes/publish-custom-elements.md).
 
 ## Components in the pre-rendered page
 

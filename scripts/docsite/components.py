@@ -26,6 +26,16 @@ if not wf.exists():
     wf = "wf"
 data = json.loads(subprocess.check_output([str(wf), "registry", "--json"]))
 components = data["components"]
+SITE = json.loads((ROOT / "site" / "webfluent.app.json").read_text())["meta"]["site_url"].rstrip("/")
+# The props every element takes. A flag of one (`.fadeIn`, `.trapFocus`) is
+# listed once, under "On every element", not on each component.
+UNIVERSAL = {p["name"] for p in data["universal"]["props"]}
+
+
+def own_flags(c):
+    mine = {p["name"] for p in c["props"]}
+    return [f"`.{f['name']}`" for f in c["flags"] if f["prop"] in mine or f["prop"] not in UNIVERSAL]
+
 
 def legacy(c):
     s = c["summary"]
@@ -58,7 +68,11 @@ for c in components:
 out.append("## Contents\n")
 for g in groups:
     names = [c["name"] for c in components if c["owner"] is None and not legacy(c) and c["group"] == g]
-    out.append(f"- **{g}**: " + ", ".join(f"[`{n}`](#{n.lower()})" for n in names))
+    # Each entry is the built-in's own page, by its whole address: this file
+    # is published as the Markdown twin of `/reference`, whose HTML has no
+    # section per built-in, and a guide page links another site page only
+    # by its URL.
+    out.append(f"- **{g}**: " + ", ".join(f"[`{n}`]({SITE}/reference/{n.lower()})" for n in names))
 out.append("")
 
 for g in groups:
@@ -95,8 +109,8 @@ for g in groups:
             out.append("| Prop | Type | Meaning |\n|---|---|---|")
             out.extend(rows)
             out.append("")
-        # The motion flags every element takes are listed once, at the end.
-        flags = [f"`.{f['name']}`" for f in c["flags"] if f["prop"] not in ("animate", "speed")]
+        # The flags every element takes are listed once, at the end.
+        flags = own_flags(c)
         if flags:
             out.append("**Flags:** " + " ".join(flags) + "\n")
         if c["events"]:
@@ -116,7 +130,7 @@ for g in groups:
                 for q in ([ppos] if ppos else []) + p["props"]:
                     ty = " ".join(f"`.{cs['name']}`" for cs in q["cases"]) if q.get("cases") else f"`{q['type']}`"
                     out.append(f"  - `{q['name']}:` {ty} — {esc(q['summary'])}")
-                pflags = [f"`.{f['name']}`" for f in p["flags"] if f["prop"] not in ("animate", "speed")]
+                pflags = own_flags(p)
                 if pflags:
                     out.append("  - flags: " + " ".join(pflags))
             out.append("")
@@ -130,7 +144,8 @@ out.append("## On every element\n")
 out.append("| Prop | Type | Meaning |\n|---|---|---|")
 for p in data["universal"]["props"]:
     out.append(prop_line(p))
-out.append("\nThe cases of `animate:` and `speed:` are also flags on every element: `.fadeIn` … `.spin`, `.fast` `.normal` `.slow`.\n")
+out.append("\nThe cases of `animate:` and `speed:` are also flags on every element: `.fadeIn` … `.spin`, `.fast` `.normal` `.slow`; "
+           "so are the `Bool` props above, `.dropInside` and `.trapFocus`.\n")
 out.append("\nEvents every element accepts in an `on … { }` handler:\n")
 for e in data["universal"]["events"]:
     out.append(f"- `on {e['name']}` — {esc(e['summary'])}")

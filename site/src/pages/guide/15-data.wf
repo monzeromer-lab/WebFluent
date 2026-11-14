@@ -6,7 +6,7 @@ page Learn15Data(path: "/learn/15-data", title: "Fetching data", description: "D
 
         Heading("Before you start", id: "before-you-start").h2
 
-        Markdown("You should know `state` and `action` ([State and reactivity](/learn/07-state-and-reactivity)), `match` ([Control flow](/learn/09-control-flow)) and how to declare a `type` ([Types](/learn/12-types)).\n\nThis chapter does not cover:\n\n- a connection the page holds open — a socket, a stream, a channel or a peer — which is [Real-time](/recipes);\n- working without a network, which is [Offline](/recipes);\n- values fixed for each build, which are [Environments](/recipes).")
+        Markdown("You should know `state` and `action` ([State and reactivity](/learn/07-state-and-reactivity)), `match` ([Control flow](/learn/09-control-flow)) and how to declare a `type` ([Types](/learn/12-types)).\n\nThis chapter does not cover:\n\n- a connection the page holds open — a socket, a stream, a channel or a peer — which is [Open a socket](/recipes/open-a-socket);\n- working without a network, which is [Make a site work offline](/recipes/work-offline);\n- values fixed for each build, which are [Environments and secrets](/recipes/environments-and-secrets).")
 
         Heading("Choose how to get data", id: "choose-how-to-get-data").h2
 
@@ -778,6 +778,6 @@ page P(path: "/", title: "Users", description: "Everyone.") {
     Text("{users.data.length} users")
 }"#, title: "wf · draws T04")
 
-        Markdown("Read it through `?.` with a fallback, `\{users.data?.length ?? 0\}`, or show it inside the `ready` arm, where the binding is never null ([T04](/errors/T04)).")
+        Markdown("Read it through `?.` with a fallback, `\{users.data?.length ?? 0\}`, or show it inside the `ready` arm, where the binding is never null ([T04](/errors/T04)).\n\nGoing further: [Open a socket](/recipes/open-a-socket) keeps a connection open for data the server pushes.")
     }
 }

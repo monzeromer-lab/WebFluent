@@ -13,6 +13,10 @@ as custom elements. These two components, a price tag and a star rating,
 are what this project publishes; the page places them so you can see them
 in the project itself:
 
+**Needs:** `build.elements` in `webfluent.app.json`, shown below. It
+claims `/`: paste it into a new project, or replace the starter's
+`src/pages/Home.wf` with it.
+
 ```wf
 component PriceTag(label: String, amount: Number, sale: Bool = false) {
     Row(gap: .sm, align: .center) {

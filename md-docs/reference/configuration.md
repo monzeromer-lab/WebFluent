@@ -167,12 +167,12 @@ How the project is compiled, and what the build writes.
 | `output_type` | `spa`, `static`, `pdf`, `slides`, `elements` | `"spa"` | What the project builds: `spa` is a website; `static` is a website whose every page is pre-rendered, as `ssg: true` builds it; `pdf` a document; `slides` a deck; `elements` custom elements ([PDF and slides](../learn/17-pdf-and-slides.md), [custom elements](../recipes/publish-custom-elements.md)). |
 | `ssg` | boolean | `false` | Pre-renders every page to its own HTML file, so it is read before any script runs ([Static sites and SPAs](../about/static-and-spa.md)). |
 | `base_path` | string | `""` | The sub-path the site is served under, such as `"/docs"`. Every link and asset is prefixed with it. |
-| `clean_urls` | `file`, `directory` | unset | How a route's address avoids a redirect on a host that adds a trailing slash. `"file"` also writes `contact.html` beside `contact/index.html`; `"directory"` names every route `/contact/` in canonical links, the sitemap and links to pages ([Content](../recipes/index.md)). |
+| `clean_urls` | `file`, `directory` | unset | How a route's address avoids a redirect on a host that adds a trailing slash. `"file"` also writes `contact.html` beside `contact/index.html`; `"directory"` names every route `/contact/` in canonical links, the sitemap and links to pages ([Deploy to GitHub Pages](../recipes/deploy-to-github-pages.md)). |
 | `split` | boolean | `true` | Writes one script and stylesheet chunk per page, loaded when its route shows. Off, every page ships in `app.js`. |
 | `minify` | boolean | `true` | Strips comments and whitespace from the scripts and stylesheets. Off, the output is readable and larger. |
 | `sourcemap` | boolean | `false` | Writes a source map (version 3) beside the bundle and each page's chunk — `app.js.map`, `pages/Home.js.map` — so a stack trace from the running site reads back to the `.wf` line each statement came from. The scripts are otherwise unchanged. |
 | `compress` | boolean | `true` | Writes a gzipped `.gz` copy beside every text output over a kilobyte, for hosts that serve one. |
-| `runtime` | `auto`, `full` | `"auto"` | `auto` ships only the runtime modules the program reaches; `full` ships every one, for a hand-written script that calls `WF` in ways the build cannot see ([JavaScript interop](../recipes/index.md)). |
+| `runtime` | `auto`, `full` | `"auto"` | `auto` ships only the runtime modules the program reaches; `full` ships every one, for a hand-written script that calls `WF` in ways the build cannot see ([Call WF from a script](../recipes/call-wf-from-a-script.md)). |
 | `csp` | boolean | `false` (`true` in a project `wf init` makes) | Emits a Content-Security-Policy and a `_headers` file, and checks the output against the policy ([Security](../about/security.md#ship-a-content-security-policy)). |
 | `budget` | map of file to size | `{}` | A gzipped size each named output should stay under: `{ "app.js": "40 kB" }`. A build over it warns and goes on. |
 | `elements` | list of component names | `[]` | With `output_type: "elements"`, the components to publish as custom elements. |
@@ -182,7 +182,7 @@ How the project is compiled, and what the build writes.
 ### `build.media`
 
 The image pipeline: how the build resizes and re-encodes the pictures a
-program names ([Media](../recipes/index.md)).
+program names ([Add a picture](../recipes/add-a-picture.md)).
 
 | Key | Type | Default | Meaning |
 |---|---|---|---|
@@ -235,7 +235,7 @@ The development server, `wf serve` ([Command line](cli.md#wf-serve)).
 ## `motion`
 
 What an animation does when the element says nothing
-([Motion](../recipes/index.md)).
+([Motion defaults](../recipes/motion-defaults.md)).
 
 | Key | Type | Default | Meaning |
 |---|---|---|---|
@@ -254,7 +254,7 @@ and the other origins the content security policy allows.
 | `lang` | language tag | `"en"` | The document's language: `en`, `ar`, `pt-BR`. A page written in another language says so with its own `lang:`. |
 | `site_url` | string | `""` | The site's absolute address, such as `https://example.com`. Without it, canonical links, the sitemap's URLs and absolute sharing URLs are left out rather than guessed. |
 | `site_name` | string | `""` | The name a link preview shows, and the site's owner in the structured data. |
-| `owner` | `organization`, `person` | `"organization"` | Whether the site belongs to an organisation or a person: the JSON-LD node the site is published by ([Content](../recipes/index.md)). |
+| `owner` | `organization`, `person` | `"organization"` | Whether the site belongs to an organisation or a person: the JSON-LD node the site is published by ([Search and link previews](../recipes/search-and-link-previews.md)). |
 | `same_as` | list of URLs | `[]` | The owner's profiles elsewhere, as its `sameAs`. |
 | `job_title` | string | `""` | A person's `jobTitle`. |
 | `owner_details` | map | `{}` | More about the owner, as schema.org properties merged into its node as written: `alternateName`, `email`, `worksFor`, `alumniOf`, `knowsAbout`, `logo`… The node's `@type`, `@id`, `name`, `url`, `jobTitle` and `sameAs` come from the settings above; naming one here is `E111`. |
@@ -264,7 +264,7 @@ and the other origins the content security policy allows.
 | `touch_icon` | file | `""` | The icon a phone puts on its home screen: a 180×180 PNG in `public/`. iOS reads this, not an SVG `favicon`. |
 | `sitemap` | boolean | `true` | Writes `sitemap.xml` and `robots.txt`. |
 | `fonts` | list of URLs | `[]` | Web-font stylesheets to link, each with a `preconnect`. Their origins join the policy. |
-| `preload` | list of paths | `[]` | Files on this site to fetch with the page, ahead of the stylesheets: a font a project `.css` file's `@font-face` names, the first screen's picture. `as` comes from the extension (a font is also `crossorigin`). A file on another origin is `E111` ([Content](../recipes/index.md)). |
+| `preload` | list of paths | `[]` | Files on this site to fetch with the page, ahead of the stylesheets: a font a project `.css` file's `@font-face` names, the first screen's picture. `as` comes from the extension (a font is also `crossorigin`). A file on another origin is `E111` ([Search and link previews](../recipes/search-and-link-previews.md)). |
 | `stylesheets` | list of paths or URLs | `[]` | Extra stylesheets to link ahead of `styles.css`: a file in `public/` or a URL. |
 | `scripts` | list of scripts | `[]` | Libraries to load before the project's own scripts (below). Their origins join the policy ([JavaScript interop](../recipes/library-from-a-cdn.md)). |
 | `integrity` | map of URL to hash | `{}` | Subresource-integrity hashes of external assets, by URL. |
@@ -315,7 +315,7 @@ The project's translations. Absent, the project has one language.
 | `dir` | string | `"src/translations"` | The folder the translation files are in. |
 | `literals` | boolean | `false` | Translates by the words themselves: each string a reader sees is its own key. |
 
-See also: [Internationalisation](../recipes/index.md).
+See also: [Translate a site](../recipes/translate-a-site.md).
 
 ## `env` and `public_env`
 
@@ -327,7 +327,7 @@ browser.
 | `env` | map | `{}` | Values read as `env.NAME`, fixed at build time. A `.env` file and the shell's variables add to them. |
 | `public_env` | list of names | `[]` | The `env` names a page may read — and so ships to the browser — beyond those beginning `PUBLIC_`. |
 
-See also: [Environments](../recipes/index.md).
+See also: [Environments and secrets](../recipes/environments-and-secrets.md).
 
 ## `offline`
 
@@ -345,7 +345,7 @@ in **4.1**. Absent, no service worker is written.
 | `cache` | map of glob to strategy | `{}` | How paths the build did not write are fetched: `network-first`, `cache-first`, `stale-while-revalidate` or `network-only`. |
 | `sync` | boolean | `false` | Keeps writes made offline and sends them when the connection returns. |
 
-See also: [Offline](../recipes/index.md).
+See also: [Work offline](../recipes/work-offline.md).
 
 ## `lints`
 

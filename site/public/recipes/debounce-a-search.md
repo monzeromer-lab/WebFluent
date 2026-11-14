@@ -8,6 +8,10 @@ A search box that asks the server on every key sends a request per letter.
 To wait until the reader stops typing, keep what they typed apart from
 what you search for, and copy one to the other only after a pause:
 
+**Needs:** a server that answers `/api/search?q=…` with a list of results.
+It claims `/`: paste it into a new project, or replace the starter's
+`src/pages/Home.wf` with it.
+
 ```wf
 page Search(path: "/", title: "Search", description: "Search as you type, without a request per key.") {
     state typed = ""

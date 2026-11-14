@@ -26,7 +26,15 @@ Button(_ label: String, tone: Enum, size: Enum, shape: Enum, …) { … }
 
 ## Flags
 
-`.primary` `.secondary` `.success` `.danger` `.warning` `.info` `.sm` `.md` `.lg` `.rounded` `.pill` `.full` `.outlined` `.button` `.submit` `.reset` `.disabled` `.dropInside` `.trapFocus`
+`.primary` `.secondary` `.success` `.danger` `.warning` `.info` `.sm` `.md` `.lg` `.rounded` `.pill` `.full` `.outlined` `.button` `.submit` `.reset` `.disabled`
+
+## DOM events it answers
+
+Any other DOM event works too, in an `on … { }` handler.
+
+- `on click`: The element was clicked or activated
+
+Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 
 ## Slots
 
@@ -47,4 +55,4 @@ Button("Send", type: .submit).primary.full
 - [C04](https://webfluent.monzeromer.dev/errors/C04.md): An attribute a built-in does not declare
 - [A05](https://webfluent.monzeromer.dev/errors/A05.md): A button with no text
 
-Since WebFluent 5.0.
+Before WebFluent 5.0.

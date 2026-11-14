@@ -23,7 +23,16 @@ Slider(bind: State, min: Number, max: Number, …)
 
 ## Flags
 
-`.disabled` `.dropInside` `.trapFocus`
+`.disabled`
+
+## DOM events it answers
+
+Any other DOM event works too, in an `on … { }` handler.
+
+- `on input`: The value changed, on every keystroke
+- `on change`: The value was committed
+
+Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 
 ## Example
 
@@ -40,4 +49,4 @@ Slider(bind: volume, min: 0, max: 100, step: 5, label: "Volume")
 - [C05](https://webfluent.monzeromer.dev/errors/C05.md): A positional argument a built-in does not take
 - [A04](https://webfluent.monzeromer.dev/errors/A04.md): A control with no label
 
-Since WebFluent 5.0.
+Before WebFluent 5.0.

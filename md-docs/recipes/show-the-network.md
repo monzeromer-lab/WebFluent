@@ -1,7 +1,7 @@
 ---
 kind: "recipe"
 route: "/recipes/show-the-network"
-group: "realtime"
+group: "data"
 description: "Change what a page does on a slow connection or none at all by reading `network`: online, connection speed, data saver and queued writes."
 from: ["/docs/guide/realtime#show-what-the-network-is-doing"]
 outputs: ["website", "app", "desktop"]

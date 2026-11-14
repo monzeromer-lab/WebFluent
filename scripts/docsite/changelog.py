@@ -55,6 +55,33 @@ def routes() -> dict:
 ROUTES = {}
 
 
+def place(path: str, route: str, anchor: str) -> str:
+    """Where a link to a section of a guide page lands today. A release's
+    notes name the section as it was then: a heading since renamed or moved
+    is found by the words it shares with the old anchor, and a built-in of
+    the components reference is its own page now. With nothing close, the
+    page's top."""
+    if not anchor:
+        return route
+    if path.endswith("reference/components.md") and (ROOT / "site" / "public" / "reference" / f"{anchor}.md").exists():
+        return f"/reference/{anchor}"
+    file = ROOT / path
+    if not file.exists():
+        return f"{route}#{anchor}"
+    heads = [guide.slug(m) for m in re.findall(r"^#{2,4}\s+(.+?)\s*$", file.read_text(), flags=re.M)]
+    if anchor in heads:
+        return f"{route}#{anchor}"
+    # `#buildmedia` was the anchor of `build.media` once.
+    flat = {h.replace("-", ""): h for h in heads}
+    if anchor.replace("-", "") in flat:
+        return f"{route}#{flat[anchor.replace('-', '')]}"
+    words = {w for w in anchor.split("-") if len(w) > 3}
+    best = max(heads, key=lambda h: len(words & set(h.split("-"))), default="")
+    if best and words & set(best.split("-")):
+        return f"{route}#{best}"
+    return route
+
+
 def links(text: str) -> str:
     """Links as the changelog page can follow them: a guide page at its
     route on the site, any other file of the repository on GitHub."""
@@ -64,10 +91,10 @@ def links(text: str) -> str:
         if re.match(r"^[a-z]+:", target) or target.startswith(("/", "#")):
             return m.group(0)
         path, _, anchor = target.partition("#")
-        anchor = f"#{anchor}" if anchor else ""
         path = path.removeprefix("./")
         if path in ROUTES:
-            return f"[{label}]({ROUTES[path]}{anchor})"
+            return f"[{label}]({place(path, ROUTES[path], anchor)})"
+        anchor = f"#{anchor}" if anchor else ""
         return f"[{label}]({REPO}/blob/master/{path}{anchor})"
 
     return re.sub(r"\[([^\]]+)\]\(([^)\s]+)\)", repl, text)

@@ -1,8 +1,9 @@
 // A recipe, written from md-docs/recipes/markdown-pages.md by scripts/docsite/recipes.py;
 // edit the recipe, not this file.
 page RecipeMarkdownPages(path: "/recipes/markdown-pages", title: "Write a page as a Markdown file — Recipes", description: "Write a page as a Markdown file under `src/`: front matter names its route, title and layout, and the rest is the body, framed by a component.") {
-    RecipeShell("Write a page as a Markdown file", summary: "A `.md` file under `src/` is a page: the lines between the two `---` at its top — its *front matter* — name the page's route, title and layout, and the rest is its body. It suits docs, notes and articles, where most of the page is prose. A docs site is a folder of `.md` files, one layout component, and an `app`:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Describe pages to search engines and link previews", to: "/recipes/search-and-link-previews"), RelatedLink(kind: "Recipe", title: "Render Markdown", to: "/recipes/render-markdown"), RelatedLink(kind: "Recipe", title: "Show code on a page", to: "/recipes/show-code")], source: "md-docs/recipes/markdown-pages.md", how: true, hasVariations: false) {
+    RecipeShell("Write a page as a Markdown file", summary: "A `.md` file under `src/` is a page: the lines between the two `---` at its top — its *front matter* — name the page's route, title and layout, and the rest is its body. It suits docs, notes and articles, where most of the page is prose. A docs site is a folder of `.md` files, one layout component, and an `app`:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Render Markdown", to: "/recipes/render-markdown"), RelatedLink(kind: "Recipe", title: "Show code on a page", to: "/recipes/show-code"), RelatedLink(kind: "Recipe", title: "Describe pages to search engines and link previews", to: "/recipes/search-and-link-previews")], source: "md-docs/recipes/markdown-pages.md", how: true, hasVariations: false) {
         code {
+            Markdown("**Needs:** the two `.md` pages shown under [How it works](#how-it-works), in `src/guide/`.")
             CodeBlock(#"component DocsShell {
     slot
     Row(gap: .lg) {
@@ -40,7 +41,20 @@ cargo install webfluent
 
 Then `wf init my-site`."#, title: "markdown")
 
-        Markdown("The front matter keys are the page's attributes:")
+        Markdown("The sidebar's second link is `src/guide/pages.md`, the page at `/guide/pages`:")
+
+        CodeBlock(#"---
+path: /guide/pages
+title: Pages
+description: One file per page, and the route it answers.
+layout: DocsShell
+---
+
+# Pages
+
+Each `.md` file under `src/` is a page. Its front matter names the route."#, title: "markdown")
+
+        Markdown("With the two files and `DocsShell` in place, `wf serve` shows both pages, each framed by the sidebar.\n\nThe front matter keys are the page's attributes:")
 
         Table(caption: "Write a page as a Markdown file") {
             Table.Head {

@@ -273,7 +273,7 @@ on submit {
     form.reset()
 }"#, title: "wf")
 
-        Markdown("([Data and APIs](/learn/15-data), [Environments](/recipes).)")
+        Markdown("([Data and APIs](/learn/15-data), [Environments and secrets](/recipes/environments-and-secrets).)")
 
         Heading("Step 8: Give the site a theme", id: "step-8-give-the-site-a-theme").h2
 
@@ -387,7 +387,7 @@ jobs:
       - id: deployment
         uses: actions/deploy-pages@v4"#, title: "yaml")
 
-        Markdown("Push the project to your `shelf` repository. In the repository's **Settings → Pages**, choose **GitHub Actions** as the source.\n\n**Check it:** the **Actions** tab shows the **Deploy** workflow passing, and `https://<you>.github.io/shelf/` shows **Books worth reading**. [Deploying](/recipes) covers Netlify, Vercel, Cloudflare Pages, nginx and other hosts.")
+        Markdown("Push the project to your `shelf` repository. In the repository's **Settings → Pages**, choose **GitHub Actions** as the source.\n\n**Check it:** the **Actions** tab shows the **Deploy** workflow passing, and `https://<you>.github.io/shelf/` shows **Books worth reading**. The recipes cover [Netlify](/recipes/deploy-to-netlify), [Vercel](/recipes/deploy-to-vercel), [Cloudflare Pages](/recipes/deploy-to-cloudflare-pages), [nginx](/recipes/serve-with-nginx) and other hosts.")
 
         Heading("The whole program", id: "the-whole-program").h2
 
@@ -619,12 +619,12 @@ test "a card shows who wrote the book, and when" {
                 Table.Row {
                     Table.Cell { Markdown("`wf build`, `wf verify` and a workflow") }
                     Table.Cell("Building, checking and deploying")
-                    Table.Cell { Markdown("[Deploying](/recipes)") }
+                    Table.Cell { Markdown("[Deploy to GitHub Pages](/recipes/deploy-to-github-pages)") }
                 }
             }
         }
 
-        Markdown("To go further:\n\n- Read the language properly, starting at [Language basics](/learn/04-language-basics).\n- Talk to a real server: [Data and APIs](/learn/15-data).\n- Make the site work offline: [Offline](/recipes).\n- Translate it: [Internationalisation](/recipes).\n- Build a bigger project: [Tutorials](/learn/03-tutorial-todos).")
+        Markdown("To go further:\n\n- Read the language properly, starting at [Language basics](/learn/04-language-basics).\n- Talk to a real server: [Data and APIs](/learn/15-data).\n- Make the site work offline: [Make a site work offline](/recipes/work-offline).\n- Translate it: [Translate a site](/recipes/translate-a-site).\n- Build a bigger project: [Tutorials](/learn/03-tutorial-todos).")
 
         Heading("Common mistakes", id: "common-mistakes").h2
 
@@ -668,6 +668,6 @@ page Home(path: "/", title: "Shelf", description: "Books worth reading.") {
     Button("Keep it") { on click { Shelf.toggle("a-pattern-language") } }
 }"#, title: "wf · draws T06")
 
-        Markdown("Read a member the store declares, or declare the one you need: `derived count = saved.length` ([T06](/errors/T06)).")
+        Markdown("Read a member the store declares, or declare the one you need: `derived count = saved.length` ([T06](/errors/T06)).\n\nGoing further: if you know React, Vue or Svelte, [Coming from React, Vue or Svelte](/coming-from/react) maps what you know onto WebFluent.")
     }
 }

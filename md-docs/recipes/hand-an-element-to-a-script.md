@@ -15,6 +15,8 @@ any element or component call. This page hands a paragraph to a script
 that types a greeting into it, retypes it when the name changes, and stops
 its timer when the paragraph leaves:
 
+**Needs:** the script `src/typewriter.js`, shown below.
+
 ```wf
 page Welcome(path: "/welcome", title: "Welcome", description: "A greeting a script types out, letter by letter.") {
     state name = "reader"

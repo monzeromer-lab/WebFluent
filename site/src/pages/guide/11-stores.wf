@@ -252,7 +252,7 @@ window.wfStorage = {
   },
 };"#, title: "js")
 
-        Markdown("See [Desktop apps](/recipes) for the rest of a desktop project.")
+        Markdown("See [Make a desktop or phone app with Tauri](/recipes/tauri-app) for the rest of a desktop project.")
 
         Heading("Secrets are never persisted", id: "secrets-are-never-persisted").h3
 
@@ -260,7 +260,7 @@ window.wfStorage = {
 
         Heading("A connection a store holds", id: "a-connection-a-store-holds").h2
 
-        Markdown("A store may hold a connection — a `socket`, a `stream`, a `channel`, a `peer` or a `worker` (see [Real-time](/recipes)) — for every page at once. The connection opens when the store is first read and closes with the store; a `.route` store's connection closes when its route leaves. The store's actions and handlers name the connection as it is declared, and a page reads it through the store:")
+        Markdown("A store may hold a connection — a `socket`, a `stream`, a `channel`, a `peer` or a `worker` (see [Open a socket](/recipes/open-a-socket)) — for every page at once. The connection opens when the store is first read and closes with the store; a `.route` store's connection closes when its route leaves. The store's actions and handlers name the connection as it is declared, and a page reads it through the store:")
 
         CodeBlock(#"store Live {
     state last = ""

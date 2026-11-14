@@ -181,7 +181,7 @@ Change it back, save, and the page returns.
 
 You have a working project. Stop the server with Ctrl+C when you are done.
 Run `wf build` to write the finished site to `build/`, ready for any static
-host ([Deploying](/recipes)).
+host ([Deploy to GitHub Pages](/recipes/deploy-to-github-pages)).
 
 The rest of this chapter is optional set-up. To keep learning, go to the
 [tutorial](/learn/02-tutorial-shelf).
@@ -899,7 +899,7 @@ on submit {
 }
 ```
 
-([Data and APIs](/learn/15-data), [Environments](/recipes).)
+([Data and APIs](/learn/15-data), [Environments and secrets](/recipes/environments-and-secrets).)
 
 ## Step 8: Give the site a theme
 
@@ -1066,8 +1066,10 @@ Push the project to your `shelf` repository. In the repository's
 
 **Check it:** the **Actions** tab shows the **Deploy** workflow passing, and
 `https://<you>.github.io/shelf/` shows **Books worth reading**.
-[Deploying](/recipes) covers Netlify, Vercel, Cloudflare Pages,
-nginx and other hosts.
+The recipes cover [Netlify](/recipes/deploy-to-netlify),
+[Vercel](/recipes/deploy-to-vercel),
+[Cloudflare Pages](/recipes/deploy-to-cloudflare-pages),
+[nginx](/recipes/serve-with-nginx) and other hosts.
 
 ## The whole program
 
@@ -1256,14 +1258,14 @@ Shelf is a whole site, and each part of it uses one idea of the language:
 | `validate` and `Form(bind: form)` | Validated forms | [Forms](/learn/14-forms) |
 | `theme Paper` and `theme Ink` | Design tokens and dark mode | [Styling](/learn/13-styling) |
 | `test "…" { … click … expect … }` | Tests that render and click | [Testing](/learn/16-testing) |
-| `wf build`, `wf verify` and a workflow | Building, checking and deploying | [Deploying](/recipes) |
+| `wf build`, `wf verify` and a workflow | Building, checking and deploying | [Deploy to GitHub Pages](/recipes/deploy-to-github-pages) |
 
 To go further:
 
 - Read the language properly, starting at [Language basics](/learn/04-language-basics).
 - Talk to a real server: [Data and APIs](/learn/15-data).
-- Make the site work offline: [Offline](/recipes).
-- Translate it: [Internationalisation](/recipes).
+- Make the site work offline: [Make a site work offline](/recipes/work-offline).
+- Translate it: [Translate a site](/recipes/translate-a-site).
 - Build a bigger project: [Tutorials](/learn/03-tutorial-todos).
 
 ## Common mistakes
@@ -1325,9 +1327,12 @@ page Home(path: "/", title: "Shelf", description: "Books worth reading.") {
 Read a member the store declares, or declare the one you need:
 `derived count = saved.length` ([T06](/errors/T06)).
 
+Going further: if you know React, Vue or Svelte, [Coming from React, Vue or
+Svelte](/coming-from/react) maps what you know onto WebFluent.
+
 ## Next
 
-[Coming from React, Vue or Svelte](/coming-from/react).
+[Tutorial: Todos](/learn/03-tutorial-todos): a single-page app, with a store and tests.
 
 
 
@@ -1340,13 +1345,17 @@ https://webfluent.monzeromer.dev/learn/03-tutorial-todos
 This tutorial builds a todo list kept in the reader's browser, with a
 store, a component, a filter in the address and tests that click.
 
-It is the first of three tutorials that each build a whole project, step by step. Each project is complete in the repository under `examples/tutorials/`, and none needs a server: what a project keeps, it keeps in the reader's browser.
+It is the second of the book's tutorials, after Shelf. Two longer projects
+in the recipes build on both. Todos and the two longer projects are
+complete in the repository under `examples/tutorials/`, and none needs a
+server: what a project keeps, it keeps in the reader's browser.
 
-| Tutorial | What you build | What it teaches | Time |
+| Project | What you build | What it teaches | Time |
 |---|---|---|---|
-| [Todos](/learn/03-tutorial-todos) | A list of things to do: add, tick, rename, filter | Types, a store with `persist`, a component, a keyed list, a filter in the address, tests that click | 20 minutes |
-| [Field Notes](/recipes/build-a-notebook-site) | A notebook site, statically built, a page per note | `data` files, a layout, `:slug` pages with `paths:`, Markdown pages, search and tags, what a pre-rendered page can know | An hour |
-| [Pocket](/recipes/build-a-budget-app) | A budget tracker with a dashboard, forms and two languages | `Money` and `Date`, derived totals, a `persist` migration, `validate`, a dialog and shortcuts, i18n and right-to-left text, a script of your own, offline | A couple of hours |
+| [Shelf](/learn/02-tutorial-shelf) (chapter 2) | A reading-list site: a page per book, a saved shelf, a form | Typed `data`, a component, `:slug` pages, a store with `persist`, a form, a theme, a test, a deploy | Half an hour |
+| [Todos](/learn/03-tutorial-todos) (this chapter) | A list of things to do: add, tick, rename, filter | Types, a store with `persist`, a component, a keyed list, a filter in the address, tests that click | 20 minutes |
+| [Field Notes](/recipes/build-a-notebook-site) (a longer project) | A notebook site, statically built, a page per note | `data` files, a layout, `:slug` pages with `paths:`, Markdown pages, search and tags, what a pre-rendered page can know | An hour |
+| [Pocket](/recipes/build-a-budget-app) (a longer project) | A budget tracker with a dashboard, forms and two languages | `Money` and `Date`, derived totals, a `persist` migration, `validate`, a dialog and shortcuts, i18n and right-to-left text, a script of your own, offline | A couple of hours |
 
 If you have not written WebFluent before, start with [the Shelf tutorial](/learn/02-tutorial-shelf): it is a gentler first half hour.
 
@@ -1800,8 +1809,11 @@ wf build
 ```
 
 `wf check` reports every finding and writes nothing. `wf build` writes
-`build/`, which any static host serves — [Deploying](/recipes)
-covers GitHub Pages, Netlify and the rest. To load the built page in a
+`build/`, which any static host serves: see the recipes for
+[GitHub Pages](/recipes/deploy-to-github-pages),
+[Netlify](/recipes/deploy-to-netlify),
+[Vercel](/recipes/deploy-to-vercel) and
+[Cloudflare Pages](/recipes/deploy-to-cloudflare-pages). To load the built page in a
 real browser before you deploy, run `wf verify`: it fails on an error, a
 missing file or a page that draws nothing.
 
@@ -1881,9 +1893,12 @@ page Home(path: "/", title: "Todos", description: "A small list of things to do.
 Bind a `state`, as the page binds `draft`, and change the store through
 its actions ([F01](/errors/F01)).
 
+Going further: [Field Notes](/recipes/build-a-notebook-site) builds a
+statically generated site on what this one taught.
+
 ## Next
 
-[Tutorial: Field Notes](/recipes/build-a-notebook-site) builds a statically generated site on what this one taught.
+[Language basics](/learn/04-language-basics).
 
 
 
@@ -2474,8 +2489,10 @@ A layout follows these rules:
 
 - The compiler checks the layout's arguments like any component call
   (`DocsShell("Guide")`).
-- The layout component must declare a default `slot`. Without one, the page
-  has nowhere to go, and the build stops with error `E104`.
+- The layout component must declare a default `slot`, and place `children`
+  where the page goes. Without the `slot` line the build stops with error
+  `E104`. A component that is only ever called, not named as a layout,
+  needs `children` alone ([Slots](/learn/10-components#slots)).
 - The page's skip link jumps past the layout's chrome to the page's first
   element. That element gets `id="wf-content"` when it has no id of its own.
 
@@ -2821,18 +2838,18 @@ these rules:
 Every element also takes the *universal props*. The reference does not
 repeat them on each element:
 
-| Prop | What it does | Chapter |
+| Prop | What it does | Read more |
 |---|---|---|
-| `class:` | Adds classes from your own stylesheets. It adds; it never replaces | [15](/learn/13-styling#classes-and-your-own-stylesheet) |
-| `ref:` | Names a handle on the element: `box.focus()` | [8](/learn/07-state-and-reactivity#element-handles) |
-| `mount:`, `update:`, `cleanup:` | Hands the element to a script each time it is made, again when what `update` reads changes, and takes it back when it leaves | [32](/recipes/hand-an-element-to-a-script) |
-| `animate:` or a flag (`.fadeIn`) | The animation it enters with | [20](/recipes) |
-| `exit:` | The animation it leaves with | [20](/recipes/animate-in-and-out#animate-an-element-out) |
-| `delay:`, `duration:`, `speed:` (`.fast`, `.slow`), `easing:` | How the animation is timed | [20](/recipes) |
-| `stagger:` | Inside a `for`, each item's delay grows by this much | [20](/recipes/animate-a-list) |
-| `on:` | When the animation plays: `.mount` (the default) or `.enterView` | [20](/recipes) |
-| `shared:` | A name the element keeps across a route change | [20](/recipes/shared-element) |
-| `count:` | A number in its text counts up or down to its new value | [20](/recipes/count-a-number) |
+| `class:` | Adds classes from your own stylesheets. It adds; it never replaces | [Styling](/learn/13-styling#classes-and-your-own-stylesheet) |
+| `ref:` | Names a handle on the element: `box.focus()` | [State and reactivity](/learn/07-state-and-reactivity#element-handles) |
+| `mount:`, `update:`, `cleanup:` | Hands the element to a script each time it is made, again when what `update` reads changes, and takes it back when it leaves | [Hand an element to a script](/recipes/hand-an-element-to-a-script) |
+| `animate:` or a flag (`.fadeIn`) | The animation it enters with | [Animate in and out](/recipes/animate-in-and-out#animate-an-element-in) |
+| `exit:` | The animation it leaves with | [Animate in and out](/recipes/animate-in-and-out#animate-an-element-out) |
+| `delay:`, `duration:`, `speed:` (`.fast`, `.slow`), `easing:` | How the animation is timed | [Animate in and out](/recipes/animate-in-and-out), [Motion defaults](/recipes/motion-defaults) |
+| `stagger:` | Inside a `for`, each item's delay grows by this much | [Animate a list](/recipes/animate-a-list) |
+| `on:` | When the animation plays: `.mount` (the default) or `.enterView` | [Animate in and out](/recipes/animate-in-and-out#play-an-animation-when-it-is-scrolled-to) |
+| `shared:` | A name the element keeps across a route change | [Shared element](/recipes/shared-element) |
+| `count:` | A number in its text counts up or down to its new value | [Count a number](/recipes/count-a-number) |
 
 The [components reference](/reference) lists every element's
 own props.
@@ -2989,7 +3006,9 @@ page Dashboard(path: "/", title: "Dashboard", description: "Every layout element
 
 `Header`, `Section` and `Footer` render real landmarks: `<header>`,
 `<section>` and `<footer>`. Use them for the page's regions, so a screen
-reader and a search engine can follow the page's outline.
+reader and a search engine can follow the page's outline. Inside a
+`Document`, `Header` and `Footer` mean something else: they are drawn in
+the margin of every printed page ([PDF and slides](/learn/17-pdf-and-slides#set-the-paper-headers-and-footers)).
 
 ## The families of built-ins
 
@@ -3003,9 +3022,9 @@ The built-ins fall into these families:
 | Forms | `Form`, `Input`, `Textarea`, `Select`, `Checkbox`, `Radio`, `Switch`, `Slider`, `DatePicker`, `FileUpload` ([Forms](/learn/14-forms)) |
 | Feedback | `Alert`, `Toast`, `Modal`, `Dialog`, `Popover`, `Spinner`, `Progress`, `Skeleton` ([Events](/learn/08-events#overlays-modals-dialogs-toasts-and-menus)) |
 | Actions | `Button`, `IconButton`, `ButtonGroup`, `Dropdown` |
-| Media | `Image`, `Video`, `Audio`, `Frame`, `Icon`, `Carousel` ([Media](/recipes)) |
+| Media | `Image`, `Video`, `Audio`, `Frame`, `Icon`, `Carousel` ([Add a picture](/recipes/add-a-picture), [Video and audio](/recipes/video-and-audio)) |
 | Typography | `Text`, `Heading`, `Paragraph`, `Code`, `Blockquote`, `Markdown`, `Unsafe.Html` |
-| Somebody else's code | `Host`, `Element`, `Portal` ([JavaScript interop](/recipes)) |
+| Somebody else's code | `Host`, `Element`, `Portal` ([Call your own JavaScript](/recipes/call-your-own-script), [Hand an element to a script](/recipes/hand-an-element-to-a-script)) |
 | Documents and decks | `Document`, `PageBreak`, `TableOfContents`, `Background`, `Watermark`, `Chart`, `QrCode`, `Presentation`, `Slide`, `TitleSlide`, `SectionSlide`, `TwoColumn`, `ImageSlide` ([PDF and slides](/learn/17-pdf-and-slides)) |
 | Routing | `Router` ([Pages](/learn/05-pages-and-routing#the-app-shell)) |
 
@@ -3387,8 +3406,8 @@ reads the browser the way it reads its own state:
 | `theme` | `"light"`, `"dark"` or `"system"` — the reader's choice ([Styling](/learn/13-styling#dark-mode)) | `setTheme(…)` is called |
 | `now` | a `DateTime`, every minute; `now(every: 1.seconds)` for a finer clock ([Types](/learn/12-types#now)) | the clock ticks |
 | `network` | `.online`, `.effectiveType`, `.saveData`, `.downlink`, `.queued` ([Real-time](/recipes/show-the-network)) | the connection changes |
-| `update` | `.available` and `.apply()` — a new version of an offline site ([Offline](/recipes)) | a new build is installed |
-| `locale`, `dir` | the current locale and `"ltr"`/`"rtl"`, with i18n configured ([i18n](/recipes)) | `setLocale(…)` is called |
+| `update` | `.available` and `.apply()` — a new version of an offline site ([Offer a new version](/recipes/offer-a-new-version)) | a new build is installed |
+| `locale`, `dir` | the current locale and `"ltr"`/`"rtl"`, with i18n configured ([Translate a site](/recipes/translate-a-site)) | `setLocale(…)` is called |
 
 This page reads four of them:
 
@@ -3419,16 +3438,24 @@ The rules:
 
 ## Where values come from, in order
 
-When a body reads a name, it is looked up in this order:
+When a body reads a name, the nearest declaration wins. The compiler looks
+in this order, innermost first:
 
-1. Route parameters and props (`slug`, `_ label`).
-2. `state`, `persist`, `derived`, `resource` and actions of the body.
-3. A `use`d store's members, through the store's name (`Cart.total`).
-4. Loop variables and arm bindings, inside their block.
-5. Constants, `data` and `image` declarations, `env.X`, and the browser's
+1. A `let` local, a lambda's parameter or a caught error, inside its block.
+2. Loop variables and arm bindings (`if let`, a `match` arm), inside their
+   block.
+3. Route parameters and props (`slug`, `_ label`).
+4. `state`, `persist`, `derived`, `resource` and actions of the body. A
+   body member may not share a name with a parameter or a prop (`E102`).
+5. A `use`d store's members, always through the store's name
+   (`Cart.total`).
+6. Constants, `data` and `image` declarations, `env.X`, and the browser's
    values above.
-6. Browser globals: `window`, `document`, `localStorage`, `JSON`, `Math`,
+7. Browser globals: `window`, `document`, `localStorage`, `JSON`, `Math`,
    `Date`, `fetch`, `setTimeout`, `console`, `navigator`, `location`.
+
+So with `state name = "outer"`, `for name in items by name { Text(name) }`
+shows each item, and a `const name` is hidden by both.
 
 ## Summary
 
@@ -3640,16 +3667,17 @@ page Keys(path: "/", title: "Keys", description: "Keys on a field and on the pag
         on key("Escape") { q = "" }            // on the element: while it has focus
         on key("Enter", e) { log(e.target.value) }
     }
-    on key("ctrl+k") { box.focus() }           // on the page: anywhere on the page
-    on key("cmd+k") { box.focus() }
+    on key("mod+k") { box.focus() }            // on the page: anywhere on the page
     on key("?") { open = !open }
-    if open { Alert("Shortcuts: ctrl+k to search, ? for this.").info }
+    if open { Alert("Shortcuts: {keyLabel("mod+k")} to search, ? for this.").info }
 }
 ```
 
 How a combination is spelled:
 
-- Modifiers are `ctrl`, `shift`, `alt` and `meta` (or `cmd`), joined with `+`.
+- Modifiers are `mod`, `ctrl`, `shift`, `alt` and `meta` (or `cmd`), joined
+  with `+`. `mod` is ⌘ on a Mac and Ctrl everywhere else, so one shortcut
+  works on both; write `ctrl` or `cmd` only when you mean exactly that key.
 - Then comes the key as the browser names it: `k`, `Enter`, `Escape` (or
   `esc`), `Tab`, `ArrowDown` (or `down`), `space`, `F2`.
 - `on key("Enter", e)` names the event too.
@@ -3795,12 +3823,8 @@ page Overlays(path: "/", title: "Overlays", description: "What a page opens.") {
     disagrees with what is on screen. Focus returns to what opened it.
   - `on close` runs when it closes, however it was closed.
   - `title:` is its heading, which names it (`A08` without one).
-    `Modal.Footer` is the row of actions.
-  - `Modal.Title { … }` is what the heading draws when words alone will not
-    do — `Modal.Title { Markdown("Rename `{name}`") }` — while `title:` stays
-    its name.
-  - `.closable` puts a close button in the heading row, which closes it as
-    Escape does.
+    `Modal.Footer` is the row of actions, and `.closable` adds a close
+    button. [`Modal`](/reference#modal) lists the rest.
 - **`Toast`** shows the moment it is rendered and leaves after three seconds.
   It is announced politely to screen readers. Put it under a condition that
   turns true.
@@ -3813,65 +3837,21 @@ page Overlays(path: "/", title: "Overlays", description: "What a page opens.") {
 ### Layers: popovers, menus and tooltips above everything
 
 A `Popover`, a `Menu`'s list and a `Tooltip` are drawn in the browser's *top
-layer*, above everything else on the page. A box with `overflow: hidden`, or
-one with a stacking context of its own, cannot clip or cover them.
+layer*, above everything else on the page, so a box with `overflow: hidden`
+cannot clip them. Each is placed against its *anchor*, the element it
+belongs to, and flips or slides to stay on screen.
 
-Each layer is placed against its *anchor*, the element it belongs to:
-
-- It flips to the other side when there is no room, and slides along its side
-  to stay on screen.
-- It follows the anchor while the page scrolls. When the anchor scrolls out of
-  view the layer goes with it, still open, and comes back with it.
-
-The open layers form one stack, newest on top. A press outside closes every
-layer it is outside of.
-
-Escape closes the newest layer that can be dismissed — a popover, a menu, an
-open `Modal` or `Dialog` — and stops there: nothing behind it hears that key.
-For example:
-
-- A modal opened from a popover is above it. The first Escape closes the
-  modal, which its `on close` hears, and the next closes the popover.
-- A modal covers what is beneath it, so a press in it, or on its backdrop,
-  leaves the popover under it open.
-- A tooltip keeps Escape only while focus is on its control: it hides, and the
-  key goes no further. Otherwise the same Escape hides it on its way past and
-  goes on, to the layer below or to the element with focus. So a tooltip under
-  a pointer resting on a toolbar button does not take the Escape that closes
-  an editor's completion list.
-
-This editor has a popover at a button, a menu bar with every kind of item, a
-tooltip and a context menu at the pointer:
+This page opens a popover at a button and a context menu at the pointer:
 
 ```wf
 page Editor(path: "/", title: "Editor", description: "Layers at a control and at the pointer.") {
     state branches = false
-    state wrap = false
     state asked = false
     state point = { x: 0, y: 0 }
     state said = ""
     Heading("Editor").h1
-    Row {
-        Button("main", ref: branch) { on click { branches = !branches } }
-        Menu(trigger: "View") {
-            Menu.Item(shortcut: "Ctrl+B") {
-                on click { said = "sidebar" }
-                Text("Toggle sidebar")
-            }
-            Menu.Item(checked: wrap) {
-                on click { wrap = !wrap }
-                Text("Word wrap")
-            }
-            Menu.Item(disabled: true) { Text("Zen mode") }
-            Menu.Divider
-            Menu.Sub(label: "Appearance") {
-                Menu.Item { Text("Light") }
-                Menu.Item { Text("Dark") }
-            }
-        }
-        Tooltip("Save", shortcut: "Ctrl+S", delay: 400) { Button("Save") }
-    }
-    Popover(visible: branches, anchor: branch, placement: .bottomStart, label: "Branches").arrow {
+    Button("main", ref: branch) { on click { branches = !branches } }
+    Popover(visible: branches, anchor: branch, label: "Branches") {
         on close(reason) { said = "closed by {reason}" }
         Text("main")
         Text("feature/layers")
@@ -3885,8 +3865,7 @@ page Editor(path: "/", title: "Editor", description: "Layers at a control and at
         Text("Right-click for the context menu")
     }
     Menu(visible: asked, at: point) {
-        Menu.Item(shortcut: "F12") { Text("Go to definition") }
-        Menu.Item { Text("Rename") }
+        Menu.Item(shortcut: "F2") { Text("Rename") }
         Menu.Divider
         Menu.Item.danger { Text("Delete") }
     }
@@ -3894,55 +3873,28 @@ page Editor(path: "/", title: "Editor", description: "Layers at a control and at
 }
 ```
 
-What each part does:
+- **`Popover`** is open while its `visible:` state is true, placed against
+  `anchor:`, an element's `ref:`. Escape or a press outside closes it, sets
+  `visible:` back to `false`, and `on close(reason)` hears `"escape"` or
+  `"outside"`.
+- **`Menu`** without `trigger:` is a list that state opens, at an `anchor:`
+  or `at:` a point. Choosing an item closes it.
+- The open layers form one stack, newest on top. Escape closes the newest
+  layer that can be dismissed — a popover, a menu, an open `Modal` or
+  `Dialog` — and nothing behind it hears that key. A modal opened from a
+  popover takes the first Escape; the popover takes the next.
+- A tooltip keeps Escape only while focus is on its control. Otherwise the
+  key goes on to the layer below, or to the element with focus.
+- A layer takes the attributes and handlers any element takes — `role:`,
+  `aria-*`, `ref:` — on the element it draws. A `Popover` is a `dialog`
+  unless its `role:` says otherwise.
 
-- **`Popover`** is open while its `visible:` state is true. It is placed
-  against `anchor:` — an element's `ref:` — on `placement:` (`.bottom`,
-  `.bottomStart`, `.bottomEnd`, `.top…`, `.left…`, `.right…`; unset,
-  `.bottomStart`), `offset:` pixels away. When Escape or a press outside
-  closes it, `visible:` is set back to `false` and `on close(reason)` hears
-  why: `"escape"` or `"outside"`. `.arrow` draws a point toward the anchor;
-  `label:` is its accessible name.
-- **`Menu`** with `trigger:` is a button and its list. Without one it is a
-  list that state opens — open from the first paint if its state starts
-  `true` — at an `anchor:`, or `at:` a point `{ x, y }`, where the pointer
-  asked for a context menu. `label:` names the list for a screen reader; it
-  is never a button's text. Choosing an item closes the menu, and `on close`
-  hears `"choose"`.
-- **`Menu.Item`** takes:
-  - `shortcut:` — the keys that do the same, drawn at its end and given to
-    assistive technology as `aria-keyshortcuts`;
-  - `checked:` — makes it a check item that follows its state;
-  - `disabled:` — keeps it in sight but out of reach: the arrow keys skip it
-    and a press does nothing;
-  - `.danger` — for what cannot be taken back (Delete, Discard), drawn in the
-    danger colour.
-- **`Menu.Sub(label:)`** is an entry with a menu of its own, opened beside it
-  by a hover, ArrowRight or Enter. ArrowLeft and Escape go back to the entry.
-  Choosing in it closes the whole menu, and it closes with its menu.
-- **`Tooltip`** waits `delay:` milliseconds of hover (unset, 500) and shows at
-  once for keyboard focus. It never takes focus, and goes on leaving, on a
-  press and on Escape. Once Escape has hidden it, it stays hidden until the
-  pointer comes back to it or keyboard focus reaches its control.
-  `shortcut:` adds a chip with the keys and gives the control it names its
-  `aria-keyshortcuts`, in ARIA's spelling (`Control+S`). `placement:` is where
-  it goes (unset, `.top`).
-
-A layer takes what any element takes ([Elements](/learn/06-elements)), on the
-element it draws: `id:`, `role:`, `tabindex:`, `title:`, `aria-*`, `data-*`,
-`ref:`, and its `on` handlers. Where they land:
-
-- A `Popover` is a `dialog` unless its `role:` says what else it is — a
-  `listbox` of choices, for example.
-- A `Menu` with a `trigger:` takes them on the box around its button and
-  list. One that state opens takes them on its list, whose `role:` then
-  replaces `menu`.
-- A `Tooltip` takes them on the box around its control.
-- A `Modal` or a `Dialog` takes them on its `<dialog>`, whose `title:` is its
-  heading rather than an attribute.
-
-A `Popover`'s or a `Menu`'s `on close` is the layer's own, and hears why it
-closed.
+Every option of these — `placement:`, `offset:`, `.arrow`, a menu's
+`checked:`, `disabled:` and `Menu.Sub`, a tooltip's `delay:` and
+`shortcut:` — is listed under [`Popover`](/reference#popover),
+[`Menu`](/reference#menu) and
+[`Tooltip`](/reference#tooltip). To ask before a destructive
+action, see [Build a confirm dialog](/recipes/confirm-dialog).
 
 ## Gestures: drag, long-press, swipe and the splitter
 
@@ -3950,44 +3902,25 @@ The runtime turns what the pointer does over time into one event that says
 what it means. A mouse, a pen and a finger run the same code. A finger picks a
 drag up with a long press, so a plain swipe still scrolls the page.
 
-This file browser reorders tabs, moves tree rows into a folder, and sizes its
-sidebar with a splitter:
+This list reorders its items by drag and drop:
 
 ```wf
-page Files(path: "/", title: "Files", description: "Reorder, move and resize.") {
-    state side = 240
-    state tabs = ["App.wf", "Home.wf"]
-    state rows = ["src", "public", "README.md"]
-    state landing = ""
+page Tabs(path: "/", title: "Tabs", description: "Drag to reorder.") {
+    state tabs = ["App.wf", "Home.wf", "Shell.wf"]
 
-    action moveTab(what: String, near: String, position: String) {
+    action move(what: String, near: String, position: String) {
         let rest = tabs.filter((x) => x != what)
         let at = rest.indexOf(near)
         let i = if position == "after" { at + 1 } else { at }
         tabs = [...rest.slice(0, i), what, ...rest.slice(i)]
     }
 
-    Heading("Files").h1
+    Heading("Tabs").h1
     Row {
-        Stack {
-            style { width: {side}px }
-            for r in rows {
-                Card(drag: r, dragGroup: "tree", dropValue: r, dropInside: r == "src") {
-                    on receive(d) { log("{d.value} goes {d.position} {r}") }
-                    on dragmove(d) { landing = if d.over == null { "" } else { "Goes {d.position} {d.over}" } }
-                    on longpress(p) { log("menu for {r}") }
-                    Text(r)
-                }
-            }
-            Text(landing)
-        }
-        Splitter(bind: side, min: 160, max: 480, reset: 240, label: "Sidebar width")
-        Row {
-            for tab in tabs {
-                Card(drag: tab, dragGroup: "tabs", dropValue: tab, dropAxis: .x) {
-                    on receive(d) { moveTab(d.value, tab, d.position) }
-                    Text(tab)
-                }
+        for tab in tabs by tab {
+            Card(drag: tab, dragGroup: "tabs", dropAxis: .x) {
+                on receive(d) { move(d.value, tab, d.position) }
+                Text(tab)
             }
         }
     }
@@ -3995,65 +3928,29 @@ page Files(path: "/", title: "Files", description: "Reorder, move and resize.") 
 ```
 
 - **`drag: value`** picks an element up: a mouse moved a few pixels, or a
-  finger held still for half a second. A ghost follows the pointer, a box the
-  pointer passes near the edge of scrolls, and Escape puts the element back.
-  The click a drag ends with is not a click.
-- **`on receive(d)`** takes a drop. `d.value` is what was dropped, and
-  `d.position` is where:
-  - `"before"` or `"after"` along `dropAxis:` — `.y`, down the page, is the
-    default; `.x`, across it, is for a tab strip;
-  - `"inside"`, on the middle of a target with `dropInside: true` (a folder, a
-    container).
-  - The target shows a line where the drop would go, or an outline for
-    inside.
-- **`on dragmove(d)`** on the dragged element hears, as it moves, what it is
-  over — the target's `dropValue:` as `d.over`, null over nothing — and where
-  it would land. That is enough to say "Goes after Badge, inside Row".
+  finger held still. Escape puts it back, and the click a drag ends with is
+  not a click.
+- **`on receive(d)`** takes a drop: `d.value` is what was dropped, and
+  `d.position` is `"before"` or `"after"` along `dropAxis:` (`.y`, down the
+  page, unless you say `.x`), or `"inside"` on a target with
+  `dropInside: true`.
 - **`dragGroup:`** on a drag and its targets keeps groups apart, such as tabs
   and tree rows.
-- **`on longpress(p)`** is half a second held still (`p.x`, `p.y`); the click
-  it ends with is not a click. **`on swipe(s)`** is a finger or a pen swept
-  across: `s.direction` is `"left"`, `"right"`, `"up"` or `"down"`.
-- **`Splitter(bind:, min:, max:, reset:)`** sizes the region beside it:
-  - It follows the pointer between its bounds; a double-click or Enter resets
-    it; the arrow keys move it 16 px (64 with Shift).
-  - `.horizontal` sits between regions one above the other; `.reverse` sits on
-    the start side of what it sizes — a pane on the right, a panel at the
-    bottom.
-  - A drag or a key starts from the region's size as it is drawn. So the bound
-    value may mean "the default share" — `0`, with the region's width a
-    percentage until it is dragged — and `reset: 0` goes back to it: a reset
-    is taken as written, not held to `min:`.
-  - It is a `separator` in the tab order unless its `role:` or `tabindex:`
-    says otherwise.
+- **`on longpress(p)`** is half a second held still; **`on swipe(s)`** is a
+  finger or a pen swept across, with `s.direction`.
+- **`Splitter(bind: side, min: 160, max: 480, reset: 240, label: "Sidebar
+  width")`** sizes the region beside it, by drag or by the arrow keys. A drag
+  or a key starts from the region's size as it is drawn.
 
-On a call of your own component, all of these — the drag, the drop, the
-gestures — apply to the one element it draws, as a DOM event's handler or an
-`aria-label` written on the call does:
+[On every element](/reference#on-every-element) lists the
+drag props and the gesture events in full, `dropValue:` and
+`on dragmove(d)` among them; [`Splitter`](/reference#splitter)
+lists its props.
 
-```wf
-component TreeRow(_ name: String) {
-    Row { Icon("file")  Text(name) }
-}
-
-page Files(path: "/files", title: "Files", description: "Tree rows you can drag.") {
-    state rows = ["src", "README.md"]
-    Heading("Files").h1
-    Stack {
-        for r in rows {
-            TreeRow(r, drag: r, dragGroup: "tree", dropValue: r, dropInside: r == "src") {
-                on receive(d) { log("{d.value} goes {d.position} {r}") }
-                on contextmenu(e) { log("menu for {r}") }
-            }
-        }
-    }
-}
-```
-
-A component that declares a prop or an event of that name takes it itself. A
-component whose body is an `if`, a `for` or several elements has no one
-element for them, and the build says so (`C07`): wrap what it draws in a
-`Stack` or a `Row`.
+On a call of your own component, the drag, the drop and the gestures apply
+to the one element it draws. A component whose body is an `if`, a `for` or
+several elements has no one element for them, and the build says so
+(`C07`): wrap what it draws in a `Stack` or a `Row`.
 
 > [!IMPORTANT]
 > A drag has no keyboard of its own. Give what it does a menu item or a
@@ -4181,7 +4078,7 @@ https://webfluent.monzeromer.dev/learn/09-control-flow
 This chapter covers the five statements that decide what a page shows: `if`,
 `if let`, `for`, `show` and `match`. Each one follows the state it reads, adding and removing elements as
 its condition changes, so you never update the page by hand. Each animates
-when you ask it to ([Motion](/recipes)).
+when you ask it to ([Animate an element in and out](/recipes/animate-in-and-out)).
 
 In this chapter:
 
@@ -4345,40 +4242,26 @@ page Search(path: "/", title: "Search", description: "Results, a window at a tim
 }
 ```
 
-Its props:
-
-- **`rowHeight:`** says every row is that tall. It is the fast path.
-- Without `rowHeight:`, each row is measured once drawn, and **`estimate:`**
-  stands for the rows not yet drawn. When a row above what is in view turns
-  out taller or shorter, the scroll moves by as much, so what the reader is
-  looking at stays put.
+- **`rowHeight:`** says every row is that tall, which is the fast path.
+  Without it, each row is measured once drawn, and **`estimate:`** stands for
+  the rows not yet drawn.
 - **`reveal:`** reads a row's key. When it changes, that row is scrolled into
-  view — the selected file as the arrow keys move, the current match.
+  view — the selected file, the current match.
 - **`label:`** is the box's accessible name.
 
-How it draws:
+A few rules keep it right:
 
-- A row keeps its nodes while it stays in the window, and is updated in place
-  when its item changes, as a keyed `for`'s rows are. A row scrolled out of
-  the window is let go.
 - Give rows no vertical margins: a row's height is its box's.
 - A tree is a list of the rows that are showing. Flatten it in a `derived`
   (each open folder followed by its children) and window that.
-- A list drawn before its box is laid out — inside an `if` that has turned
-  true, in a panel not shown yet — draws only the few rows it keeps past the
-  window until the box has a height. The first height it has is laid out before that frame is painted,
-  so the first frame shows the rows in view, not a guess at them trimmed a
-  frame later. A row `reveal:` asks for in the meantime is scrolled to then,
-  so that frame shows it. A list hidden and shown again is laid out the same
-  way.
-- The box takes what any element takes ([Elements](/learn/06-elements)): a
-  `role: "listbox"`, a `tabindex:`, an `aria-activedescendant:` that follows
-  the current row, `data-*`, and its `on` handlers — an `on keydown` that
-  moves through a list of references, for example.
-- The pre-rendered page paints the first 60 rows. The runtime draws the window
-  when it takes over.
 - With anything else in its body, or a `for` with no `by`, it draws every row
   (`V12`).
+- The pre-rendered page paints the first 60 rows, and a list drawn before its
+  box has a height waits for one, so its first frame shows the rows in view.
+
+[`VirtualList`](/reference#virtuallist) lists its props, and
+the box takes the attributes and handlers any element takes — a
+`role: "listbox"`, an `on keydown`.
 
 > [!IMPORTANT]
 > The box needs a height that does not come from its rows — `style { height:
@@ -4772,7 +4655,6 @@ slots that the caller fills with `name { … }`:
 
 ```wf
 component Panel(_ title: String) {
-    slot
     slot trailing
     Card {
         Row(justify: .between, align: .center) {
@@ -4792,16 +4674,20 @@ page Keys(path: "/") {
 }
 ```
 
-- `slot` declares the default slot, which the body places as `children`.
+- `children` places the call's block. It needs no declaration: a component
+  that writes `children` takes a block.
 - `slot trailing` declares a named slot, which the body places by its name.
-- Anything in the call's block that is not a named fill goes to the default
-  slot. Here that is the `Text` and the `Button`.
+- Anything in the call's block that is not a named fill goes to
+  `children`. Here that is the `Text` and the `Button`.
+- A bare `slot` line declares the default slot by name. You need it only on
+  a component a page names as its `layout:`, where it is required
+  (`E104`); see [Layouts](/learn/05-pages-and-routing#layouts).
 
 A fill is compiled in the caller's scope: it reads the caller's state and
 loop variables, and its handlers are the caller's. The component only
 decides where the fill lands. A page's `layout:` is a component with a
 default slot, called with the page as its block (see
-[Pages and routing](/learn/05-pages-and-routing)).
+[Pages and routing](/learn/05-pages-and-routing#layouts)).
 
 ### Scoped slots
 
@@ -4938,7 +4824,7 @@ prop:
   `data-open: true` is `data-open="true"`, and `false` writes no attribute,
   except for an ARIA state, which keeps `"false"`.
 - `mount:`, `update:` and `cleanup:` (see
-  [JavaScript interop](/recipes)).
+  [Hand an element to a script](/recipes/hand-an-element-to-a-script)).
 - `drag:`, the `drop…:` props, `on receive`, `on dragmove`, `on longpress`
   and `on swipe`. These need one root element: on a component whose body is
   an `if`, a `for` or several elements they are `C07`.
@@ -5031,8 +4917,10 @@ To use a JavaScript library — a chart, a map, an editor — call it from a
 `.js` file under `src/` and hand it an element with `mount:` and
 `cleanup:`. To place somebody else's custom element, use
 `Element("tag-name", …)`. You can also publish your components as custom
-elements for another framework to place. All three are in
-[JavaScript interop](/recipes).
+elements for another framework to place. See [Call your own JavaScript](/recipes/call-your-own-script),
+[Hand an element to a script](/recipes/hand-an-element-to-a-script),
+[Place a custom element](/recipes/place-a-custom-element) and
+[Publish components as custom elements](/recipes/publish-custom-elements).
 
 ## Components in the pre-rendered page
 
@@ -5504,7 +5392,7 @@ window.wfStorage = {
 };
 ```
 
-See [Desktop apps](/recipes) for the rest of a desktop project.
+See [Make a desktop or phone app with Tauri](/recipes/tauri-app) for the rest of a desktop project.
 
 ### Secrets are never persisted
 
@@ -5516,7 +5404,7 @@ instead (see [Security](/about/security)).
 ## A connection a store holds
 
 A store may hold a connection — a `socket`, a `stream`, a `channel`, a
-`peer` or a `worker` (see [Real-time](/recipes)) — for every page at
+`peer` or a `worker` (see [Open a socket](/recipes/open-a-socket)) — for every page at
 once. The connection opens when the store is first read and closes with the
 store; a `.route` store's connection closes when its route leaves. The
 store's actions and handlers name the connection as it is declared, and a
@@ -6377,9 +6265,12 @@ page P(path: "/", title: "T", description: "D") {
 Say what to show instead, `Text("Note: {todo.note ?? "none"}")`, or draw the
 line only when there is a note with `if let`. See [T19](/errors/T19).
 
+Going further: [Expressions](/reference/expressions) lists every
+operator and helper a typed value can be used with.
+
 ## Next
 
-[Expressions](/reference/expressions).
+[Styling](/learn/13-styling).
 
 
 
@@ -6665,7 +6556,7 @@ page Fade(path: "/fade", title: "Fade", description: "A card that fades in and o
 A duration may be a token — `$fast`, `$normal` or `$slow` — or a raw value
 such as `200ms ease-out`. A reader who asked their system for less motion
 gets no transition. Enter and exit animations, and other motion, are in
-[Motion](/recipes).
+[Animate an element in and out](/recipes/animate-in-and-out).
 
 ## Classes and your own stylesheet
 
@@ -7033,9 +6924,13 @@ page P(path: "/", title: "Chores", description: "A class that follows state.") {
 Name the class and its condition in a map: `class: { "is-done": done }`
 ([T01](/errors/T01)).
 
+Going further: [Animate an element in and out](/recipes/animate-in-and-out)
+declares how an element enters and leaves; the runtime plays it, or skips
+it for readers who asked for less.
+
 ## Next
 
-[Motion](/recipes): declare how an element enters and leaves, how a list staggers and how pages change — the runtime plays it, or skips it for readers who asked for less.
+[Forms and validation](/learn/14-forms).
 
 
 
@@ -7338,7 +7233,8 @@ How the rules behave:
   `t("key")`, which is read in the reader's language. Without one, the rule
   uses its own message. A project with translations replaces those by
   naming the keys `form.required`, `form.email`, `form.minLength` and so on
-  ([Translations](/recipes)).
+  ([Translate a site](/recipes/translate-a-site),
+  [Show validation messages](/recipes/validation-messages)).
 - **Arguments that read state.** An argument such as `max(Ledger.today)` is
   read again each time the rule is checked.
 - **Types.** A rule is checked against the type of what it guards:
@@ -7442,9 +7338,14 @@ When the server rejects a value — an address already taken, a code that
 expired — pass its messages, by field name, to `form.apply`:
 
 ```wf
-action signUp() {
+api Backend(base: "/api") {
+    post signUp(body: Map) -> Map
+        errors { 422 -> Map }
+}
+
+action join() {
     try {
-        await Backend.signUp(email, password)
+        await Backend.signUp(body: { email: email, password: password })
     } catch e {
         form.apply(e.body.errors)     // { email: "That address is taken" }
     }
@@ -7454,6 +7355,7 @@ action signUp() {
 Each message is shown on the field whose `name:` it matches, and moves focus
 to the first one. A message stays until the reader changes that field's
 value. A field may also be given a list of messages; the first is shown.
+[Send a form to a server](#send-a-form-to-a-server) shows the whole page.
 
 ## Upload a file
 
@@ -7694,10 +7596,10 @@ You should know `state` and `action`
 This chapter does not cover:
 
 - a connection the page holds open — a socket, a stream, a channel or a
-  peer — which is [Real-time](/recipes);
-- working without a network, which is [Offline](/recipes);
+  peer — which is [Open a socket](/recipes/open-a-socket);
+- working without a network, which is [Make a site work offline](/recipes/work-offline);
 - values fixed for each build, which are
-  [Environments](/recipes).
+  [Environments and secrets](/recipes/environments-and-secrets).
 
 ## Choose how to get data
 
@@ -8474,9 +8376,12 @@ Read it through `?.` with a fallback, `{users.data?.length ?? 0}`, or show
 it inside the `ready` arm, where the binding is never null
 ([T04](/errors/T04)).
 
+Going further: [Open a socket](/recipes/open-a-socket) keeps a
+connection open for data the server pushes.
+
 ## Next
 
-[Real-time](/recipes).
+[Testing](/learn/16-testing).
 
 
 
@@ -8866,9 +8771,13 @@ page Tasks(path: "/", title: "Tasks", description: "What to do.") {
 Add `label: "Add one"`, and click it with `click "Add one"`
 ([A02](/errors/A02)).
 
+Going further: [Security](/about/security) covers what the compiler
+guarantees, what it cannot, and the decisions left to you: markup,
+secrets, storage, headers and a deployment checklist.
+
 ## Next
 
-[Security](/about/security): what the compiler guarantees, what it cannot, and the decisions left to you: markup, secrets, storage, headers and a deployment checklist.
+[PDF and slides](/learn/17-pdf-and-slides).
 
 
 
@@ -8911,7 +8820,7 @@ Build complete.
 ```
 
 To produce one PDF per invoice from data, use the same templates with
-[server rendering](/recipes) instead.
+[server rendering](/recipes/render-a-template) instead.
 
 ## Choose what the build writes
 
@@ -9052,6 +8961,10 @@ These elements shape every page of a document:
 | `Background` | Drawn behind each page's content, the size of the whole page, margins and all: a cover's full-bleed gradient, a coloured band, a sidebar strip that runs down every page. It takes `on:` too |
 | `Watermark("DRAFT")` | Large, faint, rotated text behind each page. Its look is the rule `.wf-watermark`, which a stylesheet may change |
 | `PageBreak` | Starts a new page; so do `break-before: page` and `break-after: page` in a style |
+
+`Header` and `Footer` are the same built-ins that draw the `<header>` and
+`<footer>` landmarks on a web page ([Elements](/learn/06-elements#layout-elements)).
+Inside a `Document` they become the margins of every page.
 
 Inside a `Header`, `Footer` or `Background`, `page` and `pages` are the
 page's number and the page count: `Text("Page {page} of {pages}")`.
@@ -9312,8 +9225,8 @@ page Report(path: "/", title: "Report", description: "The quarter.") {
 Move the line into `Footer { Text("Page {page} of {pages}") }`
 ([T13](/errors/T13)).
 
-**A component named like a built-in.** `Footer` is already the document's
-footer, so a call of that name draws the built-in and never your component:
+**A component named like a built-in.** `Footer` is already a built-in
+(the document's footer here, the `<footer>` landmark on the web), so a call of that name draws the built-in and never your component:
 
 ```wf expect=V11
 component Footer(_ note: String) {
@@ -9356,7 +9269,7 @@ Add `Table.Head { Table.Row { Table.Cell("Item")  Table.Cell("Amount") } }`
 
 ## Next
 
-- [Server rendering](/recipes) — render the same templates
+- [Render a template with data](/recipes/render-a-template) — render the same templates
   with data, one PDF per record.
 - [Styling](/learn/13-styling) — the CSS a document and a deck are laid out
   with.
@@ -9369,48 +9282,162 @@ Add `Table.Head { Table.Row { Table.Cell("Item")  Table.Cell("Amount") } }`
 
 https://webfluent.monzeromer.dev/recipes
 
-Each recipe is one task: the complete code first, then how it works. Copy
-the code into a page and it runs; every example here is compiled by the
-test suite.
+Each recipe is one task: the complete code first, then how it works. Every
+`wf` example on these pages parses and type-checks in the test suite; a
+recipe that needs more than its page — a setting in `webfluent.app.json`,
+a picture, a data file, a script, another recipe — says so in a
+**Needs:** line above the code. To try one, paste the page into a new file
+under `src/pages/` of a project. Most claim the address `/` or a name the
+`wf init` starter already has (`Home`, `Tasks`, `Settings`, `User`), so
+start a new project for it (`wf init try-it`), or replace the starter's
+file of that name (`src/pages/Home.wf` for `/`).
 
 ## Interaction
 
-Lists, dialogs, filters and the address bar: what a page does when the
-reader acts.
+Lists, dialogs, filters, the address bar and the keyboard: what a page does when the reader acts.
 
-## Data
+- [Keep the active tab in the address](/recipes/active-tab-in-the-address)
+- [Keep filters in the address](/recipes/filters-in-the-address)
+- [Build a confirm dialog](/recipes/confirm-dialog)
+- [Copy to the clipboard](/recipes/copy-to-the-clipboard)
+- [Debounce a search](/recipes/debounce-a-search)
+- [Count down](/recipes/count-down)
+- [Make navigation responsive](/recipes/responsive-navigation)
+- [Pass a store's value to a component](/recipes/store-value-as-a-prop)
+- [Reorder a list by dragging](/recipes/reorder-by-dragging)
+- [Add keyboard shortcuts and a command palette](/recipes/keyboard-shortcuts)
 
-Asking a server, showing what it answers, and writing back.
+## Forms and data
+
+Forms, asking a server, showing what it answers, and writing back.
+
+- [Show validation messages on a form](/recipes/validation-messages)
+- [Sign in with a session cookie](/recipes/sign-in-with-a-session-cookie)
+- [Page through results](/recipes/page-through-results)
+- [Load more as the reader asks](/recipes/load-more)
+- [Update at once, and roll back on failure](/recipes/optimistic-updates)
+- [Show what the network is doing](/recipes/show-the-network)
+- [Send a message as the page unloads](/recipes/send-on-unload)
 
 ## Real time
 
 Sockets, streams, other tabs, other readers and workers.
 
+- [Open a socket](/recipes/open-a-socket)
+- [Listen to server-sent events](/recipes/server-sent-events)
+- [Talk to the site's other tabs](/recipes/talk-between-tabs)
+- [Connect two readers' pages](/recipes/connect-two-readers)
+- [Run a script in a worker](/recipes/run-a-worker)
+
 ## Content
 
-Markdown, pages written as Markdown, code on the page, and what search
-engines and link previews read.
+Markdown, pages written as Markdown, code on the page, a page for unknown addresses, a PDF, and what search engines and link previews read.
 
-## Look and motion
+- [Write a page as a Markdown file](/recipes/markdown-pages)
+- [Render Markdown](/recipes/render-markdown)
+- [Show code on a page](/recipes/show-code)
+- [Describe pages to search engines and link previews](/recipes/search-and-link-previews)
+- [Show your own page for an unknown address](/recipes/not-found-page)
+- [Make a PDF report](/recipes/pdf-report)
 
-Pictures, video, icons, themes and animation.
+## Media and themes
+
+Pictures, video, icons, a carousel, other pages in a frame, and a dark theme.
+
+- [Add a picture, sized for every screen](/recipes/add-a-picture)
+- [Add video and audio](/recipes/video-and-audio)
+- [Show an icon](/recipes/show-an-icon)
+- [Show a carousel](/recipes/show-a-carousel)
+- [Show another page in a frame](/recipes/show-a-page-in-a-frame)
+- [Add a dark-mode switch](/recipes/dark-mode-switch)
+
+## Motion
+
+Animation, from one element appearing to a page carried into the next. Read them in order: each builds on the one before.
+
+- [Animate an element in and out](/recipes/animate-in-and-out)
+- [Animate a list](/recipes/animate-a-list)
+- [Run a sequence of animations](/recipes/animation-sequence)
+- [Animate route changes](/recipes/route-transitions)
+- [Carry an element across a route change](/recipes/shared-element)
+- [Open a box to the height of its content](/recipes/expand-to-content)
+- [Count a number to its new value](/recipes/count-a-number)
+- [Tween a property when state changes](/recipes/tween-on-change)
+- [Declare your own keyframes](/recipes/keyframes)
+- [Drive an animation yourself](/recipes/drive-an-animation)
+- [Set motion defaults, and respect reduced motion](/recipes/motion-defaults)
 
 ## Reach
 
-More readers: other languages, no network, and settings per environment.
+More readers: other languages, and no network.
+
+- [Translate a site](/recipes/translate-a-site)
+- [Translate by the words as written](/recipes/translate-by-the-words)
+- [Publish a page in each language](/recipes/site-in-two-languages)
+- [Make a site work offline](/recipes/work-offline)
+- [Keep writes made offline](/recipes/keep-writes-made-offline)
+- [Offer a new version](/recipes/offer-a-new-version)
+
+## Testing
+
+Checking that a page does what it should before a reader finds out it does not.
+
+- [Test a page](/recipes/test-a-page)
 
 ## Ship
 
-Putting a site on a host, and an app on a desktop or a phone.
+Putting a site on a host, in the order you need them: install `wf` where the site is built, set what changes per environment, deploy to a host or serve from your own server, then check the deploy.
+
+- [Install wf on a build machine](/recipes/install-wf-in-ci)
+- [Use environment values, and keep secrets out](/recipes/environments-and-secrets)
+- [Deploy to GitHub Pages](/recipes/deploy-to-github-pages)
+- [Deploy to Netlify](/recipes/deploy-to-netlify)
+- [Deploy to Vercel](/recipes/deploy-to-vercel)
+- [Deploy to Cloudflare Pages](/recipes/deploy-to-cloudflare-pages)
+- [Build a Docker image](/recipes/docker-image)
+- [Serve a site with nginx](/recipes/serve-with-nginx)
+- [Serve a site with Apache](/recipes/serve-with-apache)
+- [Serve a site with Caddy](/recipes/serve-with-caddy)
+- [Serve an API on the same origin](/recipes/api-on-the-same-origin)
+- [Set cache and security headers](/recipes/cache-and-security-headers)
+- [Check a deploy](/recipes/check-a-deploy)
+
+## Desktop and phone apps
+
+The same project in a window of its own, with Tauri or Electron.
+
+- [Make a desktop or phone app with Tauri](/recipes/tauri-app)
+- [Make a desktop app with Electron](/recipes/electron-app)
 
 ## Interop
 
-Your own JavaScript, libraries, custom elements, and rendering on a
-server.
+Your own JavaScript, libraries, and custom elements, both ways.
+
+- [Call your own JavaScript](/recipes/call-your-own-script)
+- [Call WF from a script](/recipes/call-wf-from-a-script)
+- [Hand an element to a script](/recipes/hand-an-element-to-a-script)
+- [Run a script after each page draws](/recipes/listen-for-wf-render)
+- [Draw into a node a script made](/recipes/portal)
+- [Load a library from a CDN](/recipes/library-from-a-cdn)
+- [Draw a chart from a library](/recipes/chart-from-a-library)
+- [Place a custom element from a library](/recipes/place-a-custom-element)
+- [Publish components as custom elements](/recipes/publish-custom-elements)
+- [Migrate from external](/recipes/migrate-from-external)
+
+## Server rendering
+
+WebFluent as a template engine: HTML and PDF from data, from the command line, Node or Rust.
+
+- [Render a template with data](/recipes/render-a-template)
+- [Render templates from Node](/recipes/render-from-node)
+- [Render templates from Rust](/recipes/render-from-rust)
 
 ## Projects
 
-Two complete projects, built step by step.
+Two complete projects, explained step by step. They are read along in the finished code under `examples/tutorials/`, not typed along; each says how to build it yourself if you want to.
+
+- [Build a statically generated notebook](/recipes/build-a-notebook-site)
+- [Build a budget app that works offline](/recipes/build-a-budget-app)
 
 
 
@@ -9428,14 +9455,21 @@ read it from the address's `#fragment`:
 page Account(path: "/account", title: "Account", description: "Your profile and billing.") {
     derived tab = if hash != "" { hash } else { "profile" }
     Heading("Account").h1
-    Row(gap: .sm) {
-        Link("Profile", to: "/account#profile")
-        Link("Billing", to: "/account#billing")
+    Row(gap: .sm, role: "tablist", aria-label: "Account") {
+        Button("Profile", role: "tab", aria-selected: tab == "profile", outlined: tab != "profile") {
+            on click { navigate("/account#profile") }
+        }
+        Button("Billing", role: "tab", aria-selected: tab == "billing", outlined: tab != "billing") {
+            on click { navigate("/account#billing") }
+        }
     }
-    if tab == "profile" { Text("Profile settings") }
-    if tab == "billing" { Text("Billing settings") }
+    if tab == "profile" { Text("Profile settings", role: "tabpanel") }
+    if tab == "billing" { Text("Billing settings", role: "tabpanel") }
 }
 ```
+
+Open `/account#billing` and the Billing tab is selected; click Profile and
+the address becomes `/account#profile`.
 
 ## How it works
 
@@ -9443,9 +9477,19 @@ page Account(path: "/account", title: "Account", description: "Your profile and 
   the address's fragment without the `#`, kept current by the runtime.
 - `tab` is a [`derived`](/learn/07-state-and-reactivity#derived) value:
   the fragment when there is one, `"profile"` when there is none.
-- Each tab is a `Link` to the same page with another fragment. Following it
-  changes `hash`, `tab` follows, and the matching `if` draws its panel. The
-  back button steps through the tabs the reader opened.
+- Each tab is a `Button` that navigates to the same page with another
+  fragment. `hash` changes, `tab` follows, and the matching `if` draws its
+  panel. Each click is a step in the history, so the back button steps
+  through the tabs the reader opened.
+- `role: "tablist"`, `role: "tab"` and `aria-selected:` tell a screen reader
+  these are tabs and which one is open; `outlined:` shows the same thing to
+  the eye. Both follow `tab`.
+
+Why not a `Link` per tab? The router marks a link current by its path, not
+its fragment: on `/account#billing`, both `/account#profile` and
+`/account#billing` are links to the current page, so both get the `active`
+class and `aria-current="page"`, and neither the look nor a screen reader
+says which tab is open.
 
 To keep several settings in the address, such as a sort and a filter, use
 the query string instead: see
@@ -9467,6 +9511,11 @@ hero picture or a decorative image.
 This page declares a hero picture with `image` and shows it with a blurred
 placeholder, prints its real size and colour, and shows a second picture
 and a decorative one straight from `public/`:
+
+**Needs:** `hero.jpg`, `office.jpg` and `deco.png` in `public/` (any
+pictures will do); without them the build stops at `image hero`. It claims
+`/`: paste it into a new project, or replace the starter's
+`src/pages/Home.wf` with it.
 
 ```wf
 image hero = "hero.jpg"
@@ -9605,6 +9654,10 @@ places when it is reordered, and fade an item out as it is removed. The
 list is a keyed `for … by`, and each item's element carries `animate:`,
 `exit:` and `stagger:`:
 
+**Needs:** nothing besides the page. It claims `/` and the name `Tasks`,
+as two of the starter's pages do: paste it into a new project, or replace
+`src/pages/Home.wf` and remove `src/pages/Tasks.wf`.
+
 ```wf
 type Item { id: Number, text: String }
 
@@ -9667,6 +9720,9 @@ and `match` that draw and remove elements, so read
 `for … by` keeps an item's nodes, are new to you. This page opens four cards
 that each enter a different way, and an alert that fades out when you
 dismiss it:
+
+**Needs:** nothing besides the page. It claims `/`: paste it into a new
+project, or replace the starter's `src/pages/Home.wf` with it.
 
 ```wf
 page Notices(path: "/", title: "Notices", description: "Cards and an alert that animate in and out.") {
@@ -9809,6 +9865,9 @@ Bring a page's opening elements in one after another — a heading, then a
 line of text, then a button — by wrapping them in `sequence` and putting
 each in a `step`:
 
+**Needs:** nothing besides the page. It claims `/`: paste it into a new
+project, or replace the starter's `src/pages/Home.wf` with it.
+
 ```wf
 page Landing(path: "/", title: "Welcome", description: "A page that introduces itself.") {
     sequence {
@@ -9890,14 +9949,22 @@ no account. The finished project is
 
 You need `wf`, Chrome and a copy of the repository
 (see [Before you start](/learn/03-tutorial-todos#before-you-start) in the Todos tutorial). This tutorial assumes
-the Todos tutorial, and each step links the chapter that goes deeper. Like
-Field Notes, it shows the part of each file that teaches something new, so
-work in the finished project:
+the Todos tutorial, and each step links the chapter that goes deeper.
+
+**This tutorial is read along, not typed along.** Like [Field Notes](/recipes/build-a-notebook-site), each
+step shows the part of a file that teaches something new, not every line
+of it, so the snippets alone do not make a working project. Open the
+finished project, run it, and read each file as its step comes up:
 
 ```bash
 cd WebFluent/examples/tutorials/hard-pocket
 wf serve
 ```
+
+To build it yourself instead, start a project with
+`wf init pocket -t spa --locales en,ar`, then copy each file from
+`examples/tutorials/hard-pocket` into it as its step names it, and run
+`wf check` after each step.
 
 ## Step 1: Configure the project
 
@@ -9934,9 +10001,9 @@ The project's `webfluent.app.json`:
 It adds three things to the Todos config:
 
 - `i18n` names the languages and the folder their messages live in
-  ([Internationalization](/recipes)).
+  ([Translate a site](/recipes/translate-a-site)).
 - `offline` makes `wf build` write a service worker that stores the four
-  pages, so a second visit opens with no network ([Offline](/recipes)).
+  pages, so a second visit opens with no network ([Make a site work offline](/recipes/work-offline)).
 - `theme` names two themes, light and dark, and the build ships both.
 
 **Check it:** `wf build` prints a line that starts `Offline: sw.js`, then
@@ -10295,7 +10362,7 @@ or `ar.json`. A message with plural forms is several keys:
 
 - `t("entries", { count: n })` picks the form the language's rules call
   for. English needs two forms and a zero; Arabic has six
-  ([Internationalization](/recipes)).
+  ([Translate a site](/recipes/translate-a-site)).
 - Switching to Arabic sets `dir="rtl"` on the page, and the sidebar, the
   rows and the grids mirror themselves.
 - `format(m)` and dates follow the language too.
@@ -10324,7 +10391,7 @@ The Settings page writes the ledger out as a CSV file:
 `saveTextFile` is not WebFluent. It is a function in `src/files.js`, a
 plain browser script that the build links on every page. Its JSDoc types
 the call, so `saveTextFile(1)` is an error where it is written
-([JavaScript interop](/recipes)).
+([Call your own JavaScript](/recipes/call-your-own-script)).
 
 Importing reads a file from a `FileUpload` with `await f.text()`, parses
 each line and merges what is new. Then it tells every other open tab:
@@ -10337,7 +10404,7 @@ each line and merges what is new. Then it tells every other open tab:
 
 `news` is `channel news = broadcast("pocket")`, a channel every tab of the
 site hears. The app shell listens on it and shows a notice
-([Realtime](/recipes)). The ledger itself needs no channel: `persist`
+([Talk to the site's other tabs](/recipes/talk-between-tabs)). The ledger itself needs no channel: `persist`
 already keeps every tab in step.
 
 **Check it:** on **Settings**, export the ledger, and the browser saves
@@ -10378,7 +10445,7 @@ wf verify
 **Check it:** `wf test` reports `8 passed`, and `wf verify` ends with `0
 problem(s)`. `build/` is a single-page app with a service worker, `sw.js`,
 beside it. Put it on a host that answers every path with `index.html`
-([Deploying](/recipes)), and the second visit works with no network.
+([Install wf on a build machine](/recipes/install-wf-in-ci)), and the second visit works with no network.
 
 ## What you built
 
@@ -10391,11 +10458,11 @@ beside it. Put it on a host that answers every path with `index.html`
 - A form that validates itself, a dialog and keyboard shortcuts
   ([Forms](/learn/14-forms), [Events](/learn/08-events)).
 - Two languages, plural forms and right-to-left layout
-  ([Internationalization](/recipes)).
+  ([Translate a site](/recipes/translate-a-site)).
 - A script of your own, and a channel between tabs
-  ([JavaScript interop](/recipes),
-  [Realtime](/recipes)).
-- A site that works offline ([Offline](/recipes)).
+  ([Call your own JavaScript](/recipes/call-your-own-script),
+  [Talk to the site's other tabs](/recipes/talk-between-tabs)).
+- A site that works offline ([Make a site work offline](/recipes/work-offline)).
 
 
 
@@ -10417,21 +10484,29 @@ notes they save for later, stays in their browser. The finished project is
 ## Before you start
 
 You need `wf`, Chrome and a copy of the repository
-(see [Before you start](/learn/03-tutorial-todos#before-you-start) in the Todos tutorial). This tutorial shows
-the part of each file that teaches something new, so work in the finished
-project and read each file as its step comes up:
+(see [Before you start](/learn/03-tutorial-todos#before-you-start) in the Todos tutorial).
+
+**This tutorial is read along, not typed along.** Each step shows the part
+of a file that teaches something new, not every line of it, so the
+snippets alone do not make a working project. Open the finished project,
+run it, and read each file as its step comes up:
 
 ```bash
 cd WebFluent/examples/tutorials/medium-field-notes
 wf serve
 ```
 
+To build it yourself instead, run the `wf init` in Step 1, then copy each
+file from `examples/tutorials/medium-field-notes` into your project as its
+step names it, and run `wf check` after each step.
+
 The Todos tutorial explains state, stores and components; this one
 assumes them.
 
 ## Step 1: Create a static project and its look
 
-A new project of this kind starts from the `static` template:
+The project started from the `static` template (if you are building it
+yourself, this is where you start):
 
 ```bash
 wf init field-notes -t static
@@ -10469,7 +10544,7 @@ The project's `webfluent.app.json`:
   ([Static sites and SPAs](/about/static-or-single-page)).
 - `site_url` lets the build write what search engines and link previews
   read: a canonical address, Open Graph tags, JSON-LD, `sitemap.xml` and
-  `robots.txt` ([Content](/recipes)).
+  `robots.txt` ([Describe pages to search engines and link previews](/recipes/search-and-link-previews)).
 
 The dark theme names only the tokens that change:
 
@@ -10712,7 +10787,7 @@ page NotePage(path: "/notes/:slug", slug: String,
 - `:slug` in the path is a typed parameter of the page.
 - `paths:` names the values a static build renders the page for: one
   `notes/<slug>/index.html` per note, each listed in the sitemap
-  ([Content](/recipes)).
+  ([Describe pages to search engines and link previews](/recipes/search-and-link-previews)).
 - `title:` and `description:` may be worked out from the parameters, so
   each note's search result shows its own title and summary.
 
@@ -10849,12 +10924,12 @@ pre-rendered static pages`, and `wf verify` ends with `0 problem(s)`.
 ## What you built
 
 - A static build, with canonical addresses, a sitemap and link previews
-  ([Content](/recipes)).
+  ([Describe pages to search engines and link previews](/recipes/search-and-link-previews)).
 - Typed data read from a JSON file at build time ([Fetching data](/learn/15-data)).
 - A shell, and a layout every page names
   ([Pages and routing](/learn/05-pages-and-routing)).
 - A page per note from one `:slug` page and `paths:`, and a page written in
-  Markdown ([Content](/recipes)).
+  Markdown ([Write a page as a Markdown file](/recipes/markdown-pages)).
 - A search and a filter that work in pre-rendered HTML
   ([Static sites and SPAs](/about/static-or-single-page)).
 - A reader's saved list, with a pressed state assistive technology reads
@@ -10938,6 +11013,8 @@ The runtime is `window.WF`. A script under `src/`, the console, or a
 library's callback can call it. This page has a button that copies the
 page's address, and the script it calls says so with the runtime's toast:
 
+**Needs:** the script `src/share.js`, shown below.
+
 ```wf
 page Article(path: "/article", title: "Slow roasting", description: "Why we take eleven minutes over it.") {
     Heading("Slow roasting").h1
@@ -11008,6 +11085,8 @@ measurement, glue around a library. Put the function in a `.js` file under
 `src/`, and your pages call it by name. You need a WebFluent project
 ([Getting started](/learn/01-getting-started)); the script is a plain
 browser script, with no `import`, no `export` and no build step.
+
+**Needs:** the script `src/tilt.js`, shown below.
 
 ```wf
 page Gallery(path: "/gallery", title: "Gallery", description: "Cards that lean.") {
@@ -11168,6 +11247,9 @@ object. This page hands a canvas to the library, shows new figures when the
 reader switches years, and destroys the chart when the page leaves. You
 need a WebFluent project, and the scripts below saved under its `src/`.
 
+**Needs:** the script `src/sales-chart.js` and the `meta.scripts` setting,
+both shown below.
+
 ```wf
 page Sales(path: "/sales", title: "Sales", description: "Sales by quarter, as a bar chart.") {
     state lastYear = false
@@ -11323,6 +11405,9 @@ Before a reader deletes something, ask them. This component wraps a
 `Dialog` with **Cancel** and **Confirm** buttons and tells the page which
 one was pressed, so every destructive action on the site asks the same way:
 
+**Needs:** nothing besides the page. It claims `/`: paste it into a new
+project, or replace the starter's `src/pages/Home.wf` with it.
+
 ```wf
 component Confirm(_ title: String, visible: Bool, danger: Bool = false) {
     event confirm()
@@ -11378,6 +11463,8 @@ A `peer` opens a WebRTC data channel straight from one reader's page to
 another's, so messages travel between them with no server relaying them.
 This page signals over a `broadcast` channel, so it connects two tabs of one
 browser: open `/room?host=1` in one tab and `/room` in another.
+
+**Needs:** nothing besides the page; open it in two tabs of one browser.
 
 ```wf
 page Room(path: "/room", title: "Room", description: "Two readers, one line.") {
@@ -11467,13 +11554,21 @@ call the browser's clipboard from an action and say when it worked:
 ```wf
 page Share(path: "/share", title: "Share", description: "Copy the link.") {
     state copied = false
+    state failed = false
     action copy(text: String) {
-        await navigator.clipboard.writeText(text)
-        copied = true
+        copied = false
+        failed = false
+        try {
+            await navigator.clipboard.writeText(text)
+            copied = true
+        } catch e {
+            failed = true
+        }
     }
     Heading("Share").h1
     Button("Copy the link") { on click { copy(location.href) } }
     if copied { Toast("Copied").success }
+    if failed { Toast("Could not copy. Select the address and copy it by hand.").danger }
 }
 ```
 
@@ -11485,8 +11580,15 @@ page Share(path: "/share", title: "Share", description: "Copy the link.") {
   [action](/learn/07-state-and-reactivity#actions-and-locals) awaits
   it. `await` makes the action async, and `copied` is set only once the
   text is on the clipboard.
+- The browser may refuse: the page is not focused, it is not served over
+  HTTPS, or the reader denied the permission. The promise then rejects, the
+  `catch` sets `failed`, and the reader is told to copy by hand instead of
+  seeing nothing.
 - The button's click handler calls `copy` with the page's own address.
-- When `copied` turns true, the `Toast` appears to confirm it.
+- A `Toast` shows once, when its branch is drawn. The action sets `copied`
+  and `failed` back to `false` before it starts, so the branch is drawn again
+  on every click and a second copy shows a second toast. Without that,
+  `copied` would stay `true` and the second click would show nothing.
 
 
 
@@ -11499,6 +11601,9 @@ https://webfluent.monzeromer.dev/recipes/count-a-number
 Make a figure arrive rather than jump — a total, a score, a balance — by
 giving its element `count:` with a length of time. Press **Load** and the
 revenue counts from `$0.00` to `$1,200.00`:
+
+**Needs:** nothing besides the page. It claims `/`: paste it into a new
+project, or replace the starter's `src/pages/Home.wf` with it.
 
 ```wf
 page Revenue(path: "/", title: "Revenue", description: "A figure that counts up.") {
@@ -11531,6 +11636,9 @@ https://webfluent.monzeromer.dev/recipes/count-down
 
 A countdown is a number that drops once a second until it reaches zero. To
 build one, change a state in an `every` timer:
+
+**Needs:** nothing besides the page. It claims `/`: paste it into a new
+project, or replace the starter's `src/pages/Home.wf` with it.
 
 ```wf
 page Countdown(path: "/", title: "Countdown", description: "Ten seconds, counted down.") {
@@ -11565,6 +11673,11 @@ https://webfluent.monzeromer.dev/recipes/dark-mode-switch
 Let the reader pick a light look, a dark one, or whatever their system
 prefers, and keep that choice across visits. The switch needs a dark theme
 named in `webfluent.app.json`:
+
+**Needs:** the `theme` setting below in `webfluent.app.json`. The starter
+already declares `theme Night` in `src/theme.wf` and a `ThemeToggle`
+component that does this; replace `src/theme.wf` with this code's themes,
+and its `Settings` page replaces the starter's `src/pages/Settings.wf`.
 
 ```json
 { "theme": { "name": "Light", "dark": "Night" } }
@@ -11620,6 +11733,10 @@ https://webfluent.monzeromer.dev/recipes/debounce-a-search
 A search box that asks the server on every key sends a request per letter.
 To wait until the reader stops typing, keep what they typed apart from
 what you search for, and copy one to the other only after a pause:
+
+**Needs:** a server that answers `/api/search?q=…` with a list of results.
+It claims `/`: paste it into a new project, or replace the starter's
+`src/pages/Home.wf` with it.
 
 ```wf
 page Search(path: "/", title: "Search", description: "Search as you type, without a request per key.") {
@@ -11677,7 +11794,7 @@ repository; the build command installs `wf` as
 In the Pages project's build settings, set the build command:
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | bash && ~/.webfluent/bin/wf build
+curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v6.0.0 bash && ~/.webfluent/bin/wf build
 ```
 
 and set the build output directory to `build`.
@@ -11756,7 +11873,7 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-      - run: curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v6.0.0 bash
+      - run: curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v6.0.0 bash
       - run: ~/.webfluent/bin/wf build
       # Only for a single-page build ("ssg": false): GitHub serves
       # 404.html for an address it has no file for, so the app loads there
@@ -11819,7 +11936,7 @@ Add `netlify.toml` at the project's root:
 
 ```toml
 [build]
-  command = "curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | bash && ~/.webfluent/bin/wf build"
+  command = "curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v6.0.0 bash && ~/.webfluent/bin/wf build"
   publish = "build"
 ```
 
@@ -11870,7 +11987,7 @@ build:
 
 ```json
 {
-  "buildCommand": "curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | bash && ~/.webfluent/bin/wf build",
+  "buildCommand": "curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v6.0.0 bash && ~/.webfluent/bin/wf build",
   "outputDirectory": "build",
   "headers": [
     {
@@ -11928,7 +12045,7 @@ Add a `Dockerfile` at the project's root:
 ```dockerfile
 FROM debian:stable-slim AS build
 RUN apt-get update && apt-get install -y curl ca-certificates
-RUN curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | bash
+RUN curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v6.0.0 bash
 WORKDIR /site
 COPY . .
 RUN /root/.webfluent/bin/wf build
@@ -11948,7 +12065,8 @@ docker run -p 8080:80 site
 
 1. The first stage, `build`, installs `curl`, installs `wf` into
    `/root/.webfluent/bin/`, copies the project in and builds it to
-   `/site/build`.
+   `/site/build`. `WF_VERSION` pins the release, so the image builds the
+   same way until you change it.
 2. The second stage starts from `nginx:alpine` and copies only the built
    site into nginx's document root. `wf` and the project's sources stay
    behind in the first stage.
@@ -11988,6 +12106,9 @@ Play an animation when something happens, not only when an element
 arrives: a card that pulses as the pointer reaches it. Call
 `animate(element, name, duration)` from a handler, with a `ref:` handle on
 the element:
+
+**Needs:** nothing besides the page. It claims `/`: paste it into a new
+project, or replace the starter's `src/pages/Home.wf` with it.
 
 ```wf
 page Hover(path: "/", title: "Hover", description: "A card that pulses on hover.") {
@@ -12327,6 +12448,10 @@ a private value such as an API key out of what readers download.
 This page reads the API's address and a feature switch, and falls back to
 defaults when nothing sets them:
 
+**Needs:** an API that answers `/api/rows`, and the values set as [Set a
+value](#set-a-value) shows. It claims `/`: paste it into a new project, or
+replace the starter's `src/pages/Home.wf` with it.
+
 ```wf
 const API = env.PUBLIC_API ?? "/api"
 const FEATURES = { billing: env.PUBLIC_BILLING == "on" }
@@ -12340,6 +12465,10 @@ page Rows(path: "/", title: "Rows", description: "Rows from the API.") {
         error(e) { Text(e.message).danger }
         ready(r) { Text("{r.length} rows") }
     }
+}
+
+page Billing(path: "/billing", title: "Billing", description: "Plans and invoices.") {
+    Heading("Billing").h1
 }
 ```
 
@@ -12505,6 +12634,9 @@ CSS cannot animate to `height: auto`, so a box of details that should slide
 open to whatever height its text needs takes `.expand`. Press **Details**
 and the box opens; press it again and it closes:
 
+**Needs:** nothing besides the page. It claims `/`: paste it into a new
+project, or replace the starter's `src/pages/Home.wf` with it.
+
 ```wf
 page Details(path: "/", title: "Details", description: "A box that opens smoothly.") {
     state open = false
@@ -12581,6 +12713,8 @@ a chance to stop when it goes. The three lifetime props give it each, on
 any element or component call. This page hands a paragraph to a script
 that types a greeting into it, retypes it when the name changes, and stops
 its timer when the paragraph leaves:
+
+**Needs:** the script `src/typewriter.js`, shown below.
 
 ```wf
 page Welcome(path: "/welcome", title: "Welcome", description: "A greeting a script types out, letter by letter.") {
@@ -12672,7 +12806,7 @@ You need a project that builds with `wf build` on your own machine, and a
 build machine with `curl` and `bash`.
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v6.0.0 bash
+curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v6.0.0 bash
 ~/.webfluent/bin/wf build
 ```
 
@@ -12681,6 +12815,9 @@ curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/inst
 1. The install script downloads `wf` into `~/.webfluent/bin/`. `WF_VERSION`
    pins the release it installs, so a new release cannot change a deploy
    without you knowing.
+   `-f` makes `curl` fail on an error from the server instead of piping
+   the error page to `bash`; `--proto '=https' --tlsv1.2` refuses to fetch
+   the script over anything but HTTPS.
 2. `~/.webfluent/bin/wf build` builds the project in the current folder
    and writes the whole site to `build/`. The full path works even where
    the install has not put `wf` on the `PATH` yet.
@@ -12695,8 +12832,14 @@ no file for.
 Without `WF_VERSION`, the script installs the latest release:
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | bash
+curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | bash
 ```
+
+To find the latest release, the script asks GitHub's API, which limits how
+often one address may ask. A shared CI runner often hits that limit, and
+the install stops with "could not determine the latest version". A pinned
+`WF_VERSION` never asks, which is one more reason every hosting recipe
+pins it.
 
 You can also build on your own machine and upload `build/`. It is only
 files.
@@ -12735,6 +12878,10 @@ Keep the reader's changes when the network drops, and send them when it
 comes back. This needs offline support turned on
 ([Make a site work offline](/recipes/work-offline)), with `"sync": true` in its
 config:
+
+**Needs:** `offline` with `"sync": true` in `webfluent.app.json`, below,
+and a site served over HTTPS ([Make a site work
+offline](/recipes/work-offline)).
 
 ```json
 { "offline": { "precache": ["/"], "sync": true } }
@@ -12802,6 +12949,115 @@ To forget every kept write — when the reader logs out, for example — call
 
 ---
 
+# Add keyboard shortcuts and a command palette
+
+https://webfluent.monzeromer.dev/recipes/keyboard-shortcuts
+
+An app a reader uses every day earns shortcuts: a key to save, and one
+key that opens a list of every command, which they filter by typing and
+run with Enter. This page answers Ctrl+S (⌘S on a Mac) and opens its
+palette on Ctrl+K (⌘K):
+
+**Needs:** nothing besides the page. Paste it into a file under
+`src/pages/` and open `/notes`.
+
+```wf
+type Command { id: String, label: String, keys: String }
+
+const COMMANDS: [Command] = [
+    Command(id: "new", label: "New note", keys: "mod+n"),
+    Command(id: "save", label: "Save", keys: "mod+s"),
+    Command(id: "dark", label: "Switch to dark", keys: ""),
+    Command(id: "light", label: "Switch to light", keys: ""),
+]
+
+page Notes(path: "/notes", title: "Notes", description: "Notes, with a command palette on Ctrl+K.") {
+    state open = false
+    state search = ""
+    state said = "Press Ctrl+K (⌘K on a Mac) for commands."
+    derived shown = COMMANDS.filter(c => c.label.toLowerCase().includes(search.toLowerCase()))
+
+    action run(id: String) {
+        open = false
+        search = ""
+        if id == "dark" { setTheme("dark") }
+        if id == "light" { setTheme("light") }
+        said = "Ran “{COMMANDS.find(c => c.id == id)?.label ?? id}”."
+    }
+
+    on key("mod+k", e) {
+        e.preventDefault()
+        open = true
+    }
+    on key("mod+s", e) {
+        e.preventDefault()
+        run("save")
+    }
+
+    Heading("Notes").h1
+    Text(said)
+    Button("Commands") { on click { open = true } }
+
+    Modal(visible: open, title: "Commands") {
+        on close { open = false }
+        Input(bind: search, label: "Find a command", autofocus: true).search {
+            on keydown(e) {
+                if e.key == "Enter" && shown.length > 0 { run(shown[0].id) }
+            }
+        }
+        Stack(gap: .xs) {
+            for c in shown by c.id {
+                Button(c.label).full {
+                    on click { run(c.id) }
+                    if c.keys != "" { Text(keyLabel(c.keys)).muted.sm }
+                }
+            }
+            if shown.length == 0 { Text("No command matches.").muted }
+        }
+    }
+}
+```
+
+Press Ctrl+K, type `sav` and press Enter: the palette closes and the page
+says "Ran “Save”." The two theme commands call `setTheme`, which shows a
+change once the project names a dark theme
+([Add a dark-mode switch](/recipes/dark-mode-switch)).
+
+## How it works
+
+- `on key("mod+k", e) { … }` at the top of the page listens on the whole
+  document for as long as the page shows, and stops when the reader leaves
+  it. `mod` is ⌘ on a Mac and Ctrl elsewhere, which is what an app's
+  shortcuts use. `e` is the key event: `e.preventDefault()` keeps the
+  browser's own Ctrl+K (its search bar) and Ctrl+S (save the page) from
+  running too.
+- The palette is a `Modal`. It traps focus while open, Escape closes it,
+  and `on close` sets `open` back to `false` however it closed.
+- `shown` filters the commands by what is typed. Enter in the field runs
+  the first one left; a click runs any of them.
+- `keyLabel(c.keys)` writes a shortcut the way the reader's system does:
+  `⌘S` on a Mac, `Ctrl+S` elsewhere.
+- Every command goes through `run`, so a shortcut and the palette do the
+  same thing, and the commands stay one list of data.
+
+## Variations
+
+- **A shortcut on one element**: written inside an element's block,
+  `on key("Enter") { … }` listens on that element only.
+- **A chord**: `on key("mod+k mod+s") { … }` is Ctrl+K then Ctrl+S, the
+  second within 1.5 seconds.
+- **A shortcut for the whole app**: `on key(…)` at the top of `app`
+  listens on every page.
+- **Check a combination held as data**: `keyIs(e, c.keys)` in an
+  `on keydown(e)` handler says whether the event is that combination, so
+  one handler can serve every command in the list.
+- **Show the shortcut beside a control**: `Tooltip("Save", shortcut: "mod+s")`
+  and `Menu.Item(shortcut: "mod+s")` write it with `keyLabel` for you.
+
+
+
+---
+
 # Declare your own keyframes
 
 https://webfluent.monzeromer.dev/recipes/keyframes
@@ -12810,6 +13066,9 @@ When none of the built-in animations moves the way you want, declare
 keyframes with `animation Name { }` and use the name where a built-in
 animation goes. Here the card drops into place and the badge pulses while
 it is shown:
+
+**Needs:** nothing besides the page. It claims `/`: paste it into a new
+project, or replace the starter's `src/pages/Home.wf` with it.
 
 ```wf
 animation Pulse {
@@ -12886,6 +13145,9 @@ To use a library from another origin, list its URL in `meta.scripts`. The
 compiler never fetches anything, so it cannot read a file on another
 origin; a script of your own calls the library instead. This page draws a
 Chart.js chart that way, and destroys it when the page leaves:
+
+**Needs:** the script `src/charts.js` and the `meta.scripts` setting, both
+shown below.
 
 ```wf
 page Sales(path: "/sales", title: "Sales", description: "How it is going.") {
@@ -13004,6 +13266,8 @@ script listens for the `wf:render` event on `document`. This page shows
 Markdown with links to other sites, and a script opens each of them in a
 new tab:
 
+**Needs:** the script `src/new-tab.js`, shown below.
+
 ```wf
 const NOTES = """
     Read the [WebFluent guide](https://webfluent.monzeromer.dev/docs), or
@@ -13064,6 +13328,8 @@ https://webfluent.monzeromer.dev/recipes/load-more
 A **Load more** button keeps what the reader has already seen and adds the
 next page below it. To build one, call an endpoint with `paginate: .page`:
 
+**Needs:** a server that answers `/api/items?page=…` with a list of items.
+
 ```wf
 type Item { id: String, name: String }
 
@@ -13111,6 +13377,9 @@ rest is its body. It suits docs, notes and articles, where most of the page
 is prose. A docs site is a folder of `.md` files, one layout component, and
 an `app`:
 
+**Needs:** the two `.md` pages shown under [How it works](#how-it-works),
+in `src/guide/`.
+
 ```wf
 component DocsShell {
     slot
@@ -13154,6 +13423,25 @@ cargo install webfluent
 
 Then `wf init my-site`.
 ````
+
+The sidebar's second link is `src/guide/pages.md`, the page at
+`/guide/pages`:
+
+````md
+---
+path: /guide/pages
+title: Pages
+description: One file per page, and the route it answers.
+layout: DocsShell
+---
+
+# Pages
+
+Each `.md` file under `src/` is a page. Its front matter names the route.
+````
+
+With the two files and `DocsShell` in place, `wf serve` shows both pages,
+each framed by the sidebar.
 
 The front matter keys are the page's attributes:
 
@@ -13300,6 +13588,9 @@ project, in one place, and keep motion away from readers who asked for
 less. On this page every animation takes the project's defaults, and the
 one transition written by hand is held back from those readers:
 
+**Needs:** nothing besides the page. It claims `/`: paste it into a new
+project, or replace the starter's `src/pages/Home.wf` with it.
+
 ```wf
 page Welcome(path: "/", title: "Welcome", description: "Motion that follows the project's defaults.") {
     state open = false
@@ -13367,6 +13658,75 @@ preview sets it when you ask it for reduced motion.
 
 ---
 
+# Show your own page for an unknown address
+
+https://webfluent.monzeromer.dev/recipes/not-found-page
+
+A mistyped link or a page that moved should land on a page that says so
+and offers a way on, not on a blank screen or the host's own error. A page
+whose `path` is `*` answers every address no other page does:
+
+**Needs:** nothing besides the page. A static build (`"ssg": true`) also
+writes it to `build/404.html`, which the host must serve for an unknown
+path: the host recipes below show how.
+
+```wf
+page NotFound(path: "*", title: "Page not found", description: "There is no page at this address.", noindex: true) {
+    Heading("We couldn't find that page").h1
+    Text("The address may be mistyped, or the page may have moved.")
+    Link("Go to the front page", to: "/")
+}
+
+page Front(path: "/", title: "Front", description: "The front page.") {
+    Heading("Front").h1
+    Link("A link to nowhere", to: "/no-such-page")
+}
+```
+
+`Front` is there so the example has somewhere to go back to; in your
+project, keep your own `/` page and add only `NotFound` (in
+`src/pages/NotFound.wf`). Open `/no-such-page` and the router draws
+`NotFound`.
+
+## How it works
+
+- `path: "*"` matches any address. The router tries the other pages first
+  — static paths, then paths with a `:param` — and `*` last, so it never
+  hides a real page, wherever it is declared.
+- `noindex: true` keeps the page out of search results and out of the
+  sitemap.
+- In a **single-page build** (the default), the router draws `NotFound`
+  for any unknown address once the app has loaded. The host has to send
+  `index.html` for an address it has no file for, so the app loads at all:
+  that is the single-page fallback in
+  [Serve a site with nginx](/recipes/serve-with-nginx),
+  [Apache](/recipes/serve-with-apache) and [Caddy](/recipes/serve-with-caddy).
+- In a **static build** (`"build": { "ssg": true }`), the build also writes
+  the page as `build/404.html`, with its title and text already in the
+  HTML. GitHub Pages, Netlify and Cloudflare Pages serve `404.html` for a
+  path they have no file for, with the status 404; nginx and Apache do once
+  their config names it (`error_page 404 /404.html;`,
+  `ErrorDocument 404 /404.html`).
+- `wf serve` draws the page for an unknown address too, so you can see it
+  while you work.
+
+Check the site's own links before you add the `*` page. `wf check`
+reports a `Link(to:)` or `navigate()` whose path no page's route matches as
+`R01`, but once a page answers `*`, every path matches it, and that check
+has nothing left to report.
+
+## Variations
+
+- **Say which address was asked for**: a static `404.html` is served at
+  every unknown address, so read the address in the browser, from a
+  project script (`function currentPath() { return location.pathname; }`
+  in `src/path.js`), and show it with `Text("No page at {currentPath()}.")`.
+  The text is filled in when the page's script runs.
+
+
+
+---
+
 # Offer a new version
 
 https://webfluent.monzeromer.dev/recipes/offer-a-new-version
@@ -13377,6 +13737,11 @@ turned on ([Make a site work offline](/recipes/work-offline)).
 
 This home page offers a reload when a new version is ready, and shows how
 many changes are waiting to be sent:
+
+**Needs:** `offline` in `webfluent.app.json` ([Make a site work
+offline](/recipes/work-offline)) and a host that serves the site over HTTPS. It
+claims `/`: paste it into a new project, or replace the starter's
+`src/pages/Home.wf` with it.
 
 ```wf
 page Home(path: "/", title: "Home", description: "The front page.") {
@@ -13416,6 +13781,8 @@ A `socket` holds a two-way connection to a server: chat, live editing,
 notifications. You declare it with `ws(…)` and read it with `match`, the
 way you read a `resource`. This chat page shows a spinner while the socket
 connects, the messages once it is open, and why it stopped when it closes:
+
+**Needs:** a WebSocket server; change `wss://example.com/chat` to yours.
 
 ```wf
 page Chat(path: "/chat", title: "Chat", description: "Talk to the team.") {
@@ -13588,6 +13955,10 @@ A like that waits for the server feels slow. To show the change at once,
 update the state before the request, keep the old value, and put it back if
 the request fails:
 
+**Needs:** a server that answers `POST /api/like/<id>`. It claims `/`:
+paste it into a new project, or replace the starter's `src/pages/Home.wf`
+with it.
+
 ```wf
 type Item { id: String, liked: Bool }
 
@@ -13595,6 +13966,7 @@ page Likes(path: "/", title: "Likes", description: "A like that shows at once.")
     state items: [Item] = [Item(id: "a", liked: false)]
     state error = ""
     action like(id: String) {
+        error = ""
         let before = items
         items = items.map(i => if i.id == id { Item(id: i.id, liked: !i.liked) } else { i })
         try {
@@ -13622,6 +13994,9 @@ page Likes(path: "/", title: "Likes", description: "A like that shows at once.")
 - The request is [awaited](/learn/15-data#fetch-on-demand-with-await-fetch)
   inside `try`. If it fails, the `catch` puts `before` back and sets
   `error`, and the `Toast` tells the reader.
+- The action clears `error` first. A `Toast` shows once, when its branch is
+  drawn, so without the reset a second failure would leave `error` as it
+  was and show nothing.
 
 ## Variations
 
@@ -13648,6 +14023,10 @@ https://webfluent.monzeromer.dev/recipes/page-through-results
 A list of thousands of rows is too long to ask for at once. To show it a
 page at a time with **Previous** and **Next** buttons, keep the page number
 in state and splice it into the address:
+
+**Needs:** a server that answers `/api/rows?page=…&per=…` with a list of
+rows. It claims `/`: paste it into a new project, or replace the starter's
+`src/pages/Home.wf` with it.
 
 ```wf
 page Rows(path: "/", title: "Rows", description: "Every row, twenty at a time.") {
@@ -13690,6 +14069,111 @@ see [Load more as the reader asks](/recipes/load-more).
 
 ---
 
+# Make a PDF report
+
+https://webfluent.monzeromer.dev/recipes/pdf-report
+
+A project can build to a PDF instead of a site: the same pages, laid out on
+paper by the compiler, with no browser involved. This report shows a
+quarter's sales as a chart, a table and a total, with a page number in
+every footer:
+
+**Needs:** `"output_type": "pdf"` in `webfluent.app.json`, as below.
+`wf init q1 -t pdf` makes a project with it; replace its
+`src/pages/Report.wf` with the page.
+
+```json
+{
+  "name": "Q1 report",
+  "build": {
+    "output_type": "pdf",
+    "pdf": { "page_size": "A4", "output_filename": "q1-report.pdf" }
+  }
+}
+```
+
+```wf
+const MONTHS = [
+    { month: "Jan", web: 41, store: 22 },
+    { month: "Feb", web: 48, store: 25 },
+    { month: "Mar", web: 55, store: 24 },
+]
+
+page Report(path: "/", title: "Q1 report", description: "Sales for the first quarter.") {
+    Document(size: "A4", title: "Q1 report", author: "Acme Inc.") {
+        Header(on: .rest) { Text("Acme Inc. · Q1 report").muted.sm.right }
+        Footer { Text("Page {page} of {pages}").muted.sm.center }
+
+        Heading("Q1 report").h1
+        Text("Web sales grew every month; the shop held steady.")
+
+        Heading("Sales by month").h2
+        Chart(kind: .bar, data: MONTHS, x: "month", y: ["web", "store"], unit: "k", legend: true)
+
+        Table(caption: "Sales by month, in thousands") {
+            Table.Head {
+                Table.Row { Table.Cell("Month")  Table.Cell("Web")  Table.Cell("Shop") }
+            }
+            Table.Body {
+                for m in MONTHS {
+                    Table.Row { Table.Cell(m.month)  Table.Cell("{m.web}k")  Table.Cell("{m.store}k") }
+                }
+            }
+        }
+
+        Card {
+            style { break-inside: avoid }
+            Text("Total: {MONTHS.map(m => m.web + m.store).sum()}k").bold
+        }
+    }
+}
+```
+
+`wf build` writes `build/q1-report.pdf`: a page with the heading, the bar
+chart, the table and the total, and "Page 1 of 1" at the foot.
+
+## How it works
+
+- `"output_type": "pdf"` makes `wf build` write one PDF instead of a site.
+  Every page of the project is laid out in turn; a report is usually one.
+- `Document` is the root of the paper: its size, and the file's title and
+  author, which a PDF reader shows in the document's properties.
+- `Footer` is drawn in the bottom margin of every page, and inside it
+  `page` and `pages` are the page's number and the count. `Header(on: .rest)`
+  is drawn on every page but the first, which already has the title.
+- `Chart` draws the list of records as vector graphics: `x:` names the
+  field along the bottom, `y:` the fields drawn as bars, one colour each.
+- A `Table` that runs past the foot of a page breaks between rows, and its
+  header row is drawn again at the top of the next page.
+- `break-inside: avoid` keeps the total's `Card` on one page.
+- The data is a `const` here. A JSON file read at build time
+  (`data months = "months.json"`) works the same way, so the report can be
+  built again whenever the numbers change.
+
+The look comes from the same CSS a web page gets: a theme, a `style { }`
+block and the project's `.css` files style the PDF too.
+
+## Variations
+
+- **A cover page**: put the title in a `Background(on: .first) { … }` with a
+  gradient, then `PageBreak` before the content.
+- **A table of contents**: `TableOfContents(levels: 2)` lists the headings
+  with the page each lands on, each a link.
+- **A draft mark**: `Watermark("DRAFT")` draws large, faint text behind
+  every page.
+- **One PDF per customer**: render a template with each customer's data
+  instead of building the project
+  ([Render a template with data](/recipes/render-a-template)).
+- **A slide deck**: `"output_type": "slides"` and a `Presentation { Slide { … } }`
+  page make one PDF page per slide.
+
+See [PDF and slides](/learn/17-pdf-and-slides) for everything a
+document can hold.
+
+
+
+---
+
 # Place a custom element from a library
 
 https://webfluent.monzeromer.dev/recipes/place-a-custom-element
@@ -13697,6 +14181,9 @@ https://webfluent.monzeromer.dev/recipes/place-a-custom-element
 To place a custom element that a library defines, use `Element` with the
 element's tag. This page places Stripe's pricing table, and shows a
 spinner until the table says it is ready:
+
+**Needs:** the `meta.scripts` setting below, which loads the element's
+library.
 
 ```wf
 // Your publishable key, from the Stripe dashboard.
@@ -13759,6 +14246,9 @@ and its focus; the page draws what is in it. This page starts a CodeMirror
 editor whose hover tooltip shows the line under the pointer, drawn by the
 page:
 
+**Needs:** `src/editor.js`, a CodeMirror bundle in `public/vendor/`, and
+two settings in `webfluent.app.json`, each shown below.
+
 ```wf
 page Edit(path: "/edit", title: "Edit", description: "An editor whose tooltip the page draws.") {
     state tip: String? = null
@@ -13781,10 +14271,8 @@ page Edit(path: "/edit", title: "Edit", description: "An editor whose tooltip th
 }
 ```
 
-This script starts the editor. It expects CodeMirror loaded from
-`meta.scripts` as a module with `"as": "CM"`, which puts `EditorView`,
-`basicSetup` and `hoverTooltip` on `window.CM`
-([Load a library from a CDN](/recipes/library-from-a-cdn#variations)):
+This script starts the editor. It calls CodeMirror as `CM`, which the
+next step provides:
 
 ```js
 // src/editor.js
@@ -13823,6 +14311,36 @@ function startEditor(node, opened, closed) {
   return new CM.EditorView({ parent: node, extensions: [CM.basicSetup, hover] });
 }
 ```
+
+CodeMirror comes in several npm packages that must share one copy of
+`@codemirror/state`, and no CDN file exports `EditorView`, `basicSetup`
+and `hoverTooltip` together. Bundle the three into one module of your
+site's own, once, with esbuild (it needs Node):
+
+```bash
+npm install --save-dev esbuild codemirror @codemirror/view
+mkdir -p vendor public/vendor
+printf '%s\n' \
+  'export { EditorView, hoverTooltip } from "@codemirror/view";' \
+  'export { basicSetup } from "codemirror";' > vendor/codemirror.js
+npx esbuild vendor/codemirror.js --bundle --format=esm --minify --outfile=public/vendor/codemirror.js
+```
+
+Then load the bundle as a module named `CM`. CodeMirror writes its styles
+from script, which the page's Content-Security-Policy allows only with
+`style_elements`:
+
+```json
+{
+  "meta": {
+    "scripts": [{ "src": "/vendor/codemirror.js", "module": true, "as": "CM" }],
+    "style_elements": true
+  }
+}
+```
+
+The bundle is served from your own site, so it needs no integrity hash;
+run the `esbuild` line again when you update CodeMirror.
 
 ## How it works
 
@@ -13913,6 +14431,10 @@ To use your components from another framework or a plain page, build them
 as custom elements. These two components, a price tag and a star rating,
 are what this project publishes; the page places them so you can see them
 in the project itself:
+
+**Needs:** `build.elements` in `webfluent.app.json`, shown below. It
+claims `/`: paste it into a new project, or replace the starter's
+`src/pages/Home.wf` with it.
 
 ```wf
 component PriceTag(label: String, amount: Number, sale: Bool = false) {
@@ -14466,6 +14988,9 @@ same at build time and in the browser, so a hydrated page repaints exactly
 what was painted. This page shows release notes held in a state, and one
 line of inline Markdown:
 
+**Needs:** nothing besides the page. It claims `/`: paste it into a new
+project, or replace the starter's `src/pages/Home.wf` with it.
+
 ```wf
 page Notes(path: "/", title: "Release notes", description: "What changed in this release.") {
     state body = "# Release notes\n\nVersion **3.3** adds:\n\n- Markdown pages\n- `wf docs`\n\n> Ship it."
@@ -14609,6 +15134,127 @@ shows them.
 
 ---
 
+# Reorder a list by dragging
+
+https://webfluent.monzeromer.dev/recipes/reorder-by-dragging
+
+To let the reader put a list in their own order, make each row something
+they can pick up with `drag:`, and something another row can be dropped on
+with `on receive`. This page lists today's jobs; drag a row above or below
+another to move it, or use its arrow buttons:
+
+**Needs:** nothing besides the page. Paste it into a file under
+`src/pages/` and open `/order`.
+
+```wf
+type Job { id: String, title: String }
+
+page Order(path: "/order", title: "Today's order", description: "Drag the jobs into the order you will do them.") {
+    state jobs: [Job] = [
+        Job(id: "brief", title: "Write the brief"),
+        Job(id: "call", title: "Call the printer"),
+        Job(id: "proofs", title: "Check the proofs"),
+    ]
+
+    action move(id: String, target: String, position: String) {
+        let moving = jobs.find(j => j.id == id)
+        if moving == null { return }
+        let rest = jobs.filter(j => j.id != id)
+        let at = rest.findIndex(j => j.id == target)
+        let index = if position == "after" { at + 1 } else { at }
+        jobs = [...rest.slice(0, index), moving, ...rest.slice(index)]
+    }
+
+    action step(id: String, offset: Number) {
+        let from = jobs.findIndex(j => j.id == id)
+        let to = from + offset
+        if to < 0 || to >= jobs.length { return }
+        move(id, jobs[to].id, if offset > 0 { "after" } else { "before" })
+    }
+
+    Heading("Today's order").h1
+    Stack(gap: .sm, role: "list") {
+        for job, i in jobs by job.id {
+            Card(drag: job.id, dropValue: job.id, role: "listitem") {
+                on receive(d) { move(d.value, job.id, d.position) }
+                Row(gap: .sm, align: .center) {
+                    Icon("grid")
+                    Text("{i + 1}. {job.title}")
+                    Spacer
+                    IconButton(icon: "chevron-up", label: "Move {job.title} up", disabled: i == 0).sm {
+                        on click { step(job.id, -1) }
+                    }
+                    IconButton(icon: "chevron-down", label: "Move {job.title} down", disabled: i == jobs.length - 1).sm {
+                        on click { step(job.id, 1) }
+                    }
+                }
+            }
+        }
+    }
+}
+```
+
+## How it works
+
+- `drag: job.id` makes each `Card` something the reader can pick up: with a
+  mouse, by moving it a few pixels; with a finger or a pen, by holding it
+  still for a moment. While it moves, the runtime draws a ghost of the row
+  and a line where it would land, and Escape puts it back.
+- `on receive(d)` on the same `Card` makes every row a place to drop one.
+  `d.value` is the dropped row's `drag:` value (the job's `id`), and
+  `d.position` is `"before"` or `"after"`: which half of this row the
+  pointer was over.
+- `move` takes the job out of the list and puts it back next to the row it
+  was dropped on. It builds a new list rather than changing the old one in
+  place, so everything that reads `jobs` draws again. The `for … by job.id`
+  keeps each row's nodes and moves them, so nothing is redrawn from
+  scratch.
+- Dragging needs a pointer. The arrow buttons do the same move from the
+  keyboard, and their labels name the job (`Move Write the brief up`), so a
+  screen reader says which row each one moves. The first row's up button
+  and the last row's down button are disabled.
+- `role: "list"` and `role: "listitem"` tell a screen reader the cards are
+  a list, and how many items it has.
+
+The new order lasts as long as the page is open. To keep it across visits,
+make the list a `persist` instead of a `state`:
+`persist jobs: [Job] = [ … ]`.
+
+## Variations
+
+- **Drop onto a row, not between rows**: add `dropInside: true` to the
+  `Card`. A drop over the row's middle then has `d.position == "inside"`,
+  which is how a file tree moves a file into a folder.
+- **A strip across the page**, such as tabs: give each item
+  `dropAxis: .x`, so `before` and `after` are its left and right halves.
+- **Two lists that must not mix**: give the rows of each its own
+  `dragGroup: "todo"` and `dragGroup: "done"`. A row is dropped only on a
+  row of its group.
+- **Show where it will land as it moves**: `dropValue: job.id`, already on
+  each row, names it. Add `on dragmove(d)` to the `Card`: the dragged row
+  hears `d.over`, the `dropValue` of the row under the pointer (`null` over
+  nothing), and can show it.
+
+To check the arrow buttons, write a test that clicks one
+([Test a page](/recipes/test-a-page)):
+
+```wf no-check
+test "a job moves down" {
+    Order
+    expect "1. Write the brief"
+    click "Move Write the brief down"
+    expect "1. Call the printer"
+    expect "2. Write the brief"
+}
+```
+
+That test needs the page above in the same project, so it is not compiled
+on its own here.
+
+
+
+---
+
 # Make navigation responsive
 
 https://webfluent.monzeromer.dev/recipes/responsive-navigation
@@ -14616,6 +15262,9 @@ https://webfluent.monzeromer.dev/recipes/responsive-navigation
 A row of links fits a laptop but not a phone. To show the links on a wide
 screen and a menu button that opens them on a narrow one, branch on
 `viewport`:
+
+**Needs:** nothing besides the page. It claims `/`: paste it into a new
+project, or replace the starter's `src/pages/Home.wf` with it.
 
 ```wf
 page Nav(path: "/", title: "Home", description: "Navigation that fits the screen.") {
@@ -14628,9 +15277,11 @@ page Nav(path: "/", title: "Home", description: "Navigation that fits the screen
             Link("Pricing", to: "/pricing")
         }
     } else {
-        IconButton(icon: "menu", label: "Open navigation") { on click { open = !open } }
+        IconButton(icon: "menu", label: "Open navigation", aria-expanded: open, aria-controls: "nav-menu") {
+            on click { open = !open }
+        }
         show open {
-            Stack(gap: .sm, animate: .slideDown) {
+            Stack(gap: .sm, animate: .slideDown, id: "nav-menu") {
                 Link("Home", to: "/")
                 Link("Docs", to: "/docs")
                 Link("Pricing", to: "/pricing")
@@ -14638,6 +15289,9 @@ page Nav(path: "/", title: "Home", description: "Navigation that fits the screen
         }
     }
 }
+
+page Docs(path: "/docs", title: "Docs", description: "How it works.") { Heading("Docs").h1 }
+page Pricing(path: "/pricing", title: "Pricing", description: "What it costs.") { Heading("Pricing").h1 }
 ```
 
 ## How it works
@@ -14647,7 +15301,9 @@ page Nav(path: "/", title: "Home", description: "Navigation that fits the screen
   runtime updates it when a breakpoint is crossed, so the `if` swaps the
   row for the button as the window narrows.
 - On a narrow screen, the `IconButton` toggles `open`. Its `label:` is the
-  button's accessible name, since the icon has no text.
+  button's accessible name, since the icon has no text, and
+  `aria-expanded: open` tells a screen reader whether the menu it controls
+  (`aria-controls`, the `Stack`'s `id`) is open.
 - `show open` keeps the links in the page and hides them while `open` is
   false. `animate: .slideDown` plays as they appear.
 
@@ -14656,6 +15312,10 @@ The pre-rendered page does not know the window's width, so what depends on
 becomes a column — prefer
 [responsive values](/learn/13-styling#responsive-values), which are
 right in the first paint.
+
+`Docs` and `Pricing` are there so every link lands on a page; in a site of
+your own the links name the pages you have, and the navigation usually
+lives in `app`, around the `Router`, so every page shows it.
 
 
 
@@ -14667,6 +15327,10 @@ https://webfluent.monzeromer.dev/recipes/route-transitions
 
 Fade or slide from one page to the next, on every route change, by giving
 the `Router` a `transition:` and a `duration:` in `app`:
+
+**Needs:** nothing besides the code, which is a whole project's `app` and
+pages: paste it into a new project, replacing `src/App.wf` and
+`src/pages/Home.wf`.
 
 ```wf
 app {
@@ -14729,6 +15393,10 @@ slow work — a language service, a parser, anything that would make typing
 stutter — never holds up the page. It is held like a socket: owned by what
 opened it, and stopped when that leaves. Here a store holds one for the
 whole app, and a page shows what it reports:
+
+**Needs:** the worker's script at `public/workers/css.js`, which [How it
+works](#how-it-works) shows. It claims `/`: paste it into a new project,
+or replace the starter's `src/pages/Home.wf` with it.
 
 ```wf
 store Lang {
@@ -14822,8 +15490,15 @@ result or a shared link shows is set where the page is declared. This blog
 has a home page with its own sharing image, a page per post that adds tags
 of its own, and a thanks page kept out of search:
 
+**Needs:** `src/posts.json` and the pictures it names in `public/`, and
+`meta.site_url` in `webfluent.app.json`, each shown below. It claims `/`
+and the name `Home`: paste it into a new project, or replace the starter's
+`src/pages/Home.wf` with it.
+
 ```wf
 type Post { slug: String, title: String, summary: String, cover: String, date: String, body: String }
+
+const SITE = "https://acme.example"
 
 data posts: [Post] = "posts.json"
 
@@ -14834,11 +15509,12 @@ page Home(path: "/", title: "Acme", description: "Tools for small teams.", image
     }
 }
 
-page PostPage(path: "/posts/:slug", slug: String, title: "Post", description: "A post from the blog.", type: "article", paths: posts.map(p => p.slug)) {
+page PostPage(path: "/posts/:slug", slug: String, type: "article", paths: posts.map(p => p.slug),
+              title: "{posts.find(p => p.slug == slug)?.title ?? slug} — Acme",
+              description: "{posts.find(p => p.slug == slug)?.summary ?? "A post from the blog."}") {
     derived post = posts.find(p => p.slug == slug)
     head {
-        meta(property: "og:title", content: post?.title ?? "Post")
-        meta(property: "og:image", content: post?.cover ?? "/og-default.png")
+        meta(property: "og:image", content: "{SITE}{post?.cover ?? "/og-default.png"}")
         meta(property: "article:published_time", content: post?.date ?? "")
     }
     if let p = post {
@@ -14853,6 +15529,28 @@ page Thanks(path: "/thanks", title: "Thanks", description: "Your message reached
     Heading("Thanks").h1
 }
 ```
+
+The posts are a JSON file the build reads, `src/posts.json`; a list of one
+is enough to try it:
+
+```json
+[
+  {
+    "slug": "hello",
+    "title": "Hello, world",
+    "summary": "Why we started Acme, and what we make.",
+    "cover": "/covers/hello.png",
+    "date": "2026-03-05",
+    "body": "We make *tools* for small teams."
+  }
+]
+```
+
+Put the pictures it names in `public/` (`public/og-default.png`,
+`public/covers/hello.png`), and set `meta.site_url` as the config below
+does. Built, `posts/hello/index.html` is titled "Hello, world — Acme",
+its description is the post's summary, and its `og:image` is
+`https://acme.example/covers/hello.png`.
 
 ## How it works
 
@@ -14922,14 +15620,19 @@ What the build writes into each page's head:
 
 To add tags of a page's own — an article's cover, its publication date —
 write them in `head { }` ([Pages and routing](/learn/05-pages-and-routing#per-page-head-tags)).
-`PostPage` above sets its own Open Graph tags from the post.
+`PostPage` above sets its own Open Graph image from the post. A link
+preview fetches the image from another site, so its address must be
+absolute: `{SITE}` puts the site's origin in front of the post's
+site-relative cover. A tag written in `head { }` takes the place of the
+one the build would write, so the page carries one `og:image`.
 
 The `title:` and `description:` of a `:param` page may name its
 parameters — `title: "{slug} — Blog"` — and each pre-rendered file, and the
 live page's tab, has that route's value. The title may also splice an
-expression over the parameters and the program's constants and data:
-`title: "{posts.find(p => p.slug == slug)?.title ?? slug} — Blog"`. The
-build works it out for each file, and the router again on each visit.
+expression over the parameters and the program's constants and data, as
+`PostPage`'s does, and so may the description. The build works it out for
+each file, and the router again on each visit. `image:` is written as it
+stands, so a picture that depends on the parameter goes in `head { }`.
 Anything else the head should say about the entry goes in `head { }`, as
 above; the runtime keeps those tags current as the parameter changes.
 
@@ -15073,12 +15776,21 @@ https://webfluent.monzeromer.dev/recipes/send-on-unload
 `beacon(url, data)` records that something happened even when the reader
 is leaving — an analytics event, a "reader left" signal. A `fetch` started
 as the page unloads is cancelled; a beacon is delivered. This checkout page
-sends one when the reader pays:
+sends one when the reader leaves it, whether they close the tab, go to
+another site or switch away:
 
 ```wf
 page Checkout(path: "/checkout", title: "Checkout", description: "Pay for the order.") {
+    state paid = false
+
+    on visibilitychange {
+        if document.visibilityState == "hidden" {
+            beacon("/analytics", { event: "left-checkout", paid: paid })
+        }
+    }
+
     Heading("Checkout").h1
-    Button("Pay").primary { on click { beacon("/analytics", { event: "checkout", value: 42 }) } }
+    Button("Pay").primary { on click { paid = true } }
 }
 ```
 
@@ -15087,6 +15799,29 @@ page Checkout(path: "/checkout", title: "Checkout", description: "Pay for the or
 `beacon` posts a small body with `navigator.sendBeacon`, which the browser
 delivers even as the page unloads, where a `fetch` would be cancelled. It
 returns nothing to wait for: the page goes on, and so may the reader.
+
+`on visibilitychange`, written at the top of the page, listens on the
+document for as long as the page shows. The page turns `hidden` whenever
+the reader leaves it: closing the tab, following a link to another site,
+switching tabs or apps, or locking the phone. That is the last moment a
+page can count on, and the one browsers recommend for this; `unload` and
+`beforeunload` often never fire on a phone. Because a hidden page may come
+back, the beacon can be sent more than once for one visit: count visits on
+the server, or keep a `state sent = false` and send only the first time.
+Going to another page of the same site does not hide the document, so it
+sends nothing; the listener stops with the page.
+
+### Send on a click instead
+
+To record a step the reader takes, send the beacon from the handler. The
+request still arrives if the click also takes the reader away:
+
+```wf
+page Pay(path: "/pay", title: "Pay", description: "Pay for the order.") {
+    Heading("Pay").h1
+    Button("Pay").primary { on click { beacon("/analytics", { event: "checkout", value: 42 }) } }
+}
+```
 
 
 
@@ -15114,6 +15849,7 @@ RewriteEngine On
 ErrorDocument 404 /404.html
 Header always set X-Content-Type-Options "nosniff"
 Header always set X-Frame-Options "DENY"
+Header always set Referrer-Policy "strict-origin-when-cross-origin"
 ```
 
 Then upload `build/` to the site's document root.
@@ -15133,14 +15869,40 @@ Then upload `build/` to the site's document root.
 
 Compress the text files one of two ways:
 
-- Turn on `mod_deflate`, which compresses on the way out.
-- Serve the `.gz` files the build wrote: write `Options MultiViews` in
-  place of `Options -MultiViews`, and add `AddEncoding gzip .gz`.
+- Turn on `mod_deflate`, which compresses on the way out. This is the
+  simplest, and covers every text file.
+- Serve the `.gz` files the build wrote, so Apache compresses nothing
+  itself. `Options MultiViews` does not do it: content negotiation only
+  runs when the file asked for does not exist, and `app.js` does. Add these
+  lines after `RewriteEngine On`, before the single-page lines, as Apache's
+  own `mod_deflate` documentation does it:
+
+  ```apache
+  # The build's app.js.gz for app.js, when the browser accepts gzip
+  RewriteCond "%{HTTP:Accept-Encoding}" "gzip"
+  RewriteCond "%{REQUEST_FILENAME}.gz" -s
+  RewriteRule "^(.*)\.(css|js)$" "$1.$2.gz" [QSA]
+
+  # Sent with the right type, and not compressed a second time
+  RewriteRule "\.css\.gz$" "-" [T=text/css,E=no-gzip:1]
+  RewriteRule "\.js\.gz$" "-" [T=text/javascript,E=no-gzip:1]
+
+  <FilesMatch "\.(css|js)\.gz$">
+      Header append Content-Encoding gzip
+      Header append Vary Accept-Encoding
+  </FilesMatch>
+  ```
+
+  This covers the scripts and stylesheets, the largest files. Pages are
+  asked for by their folder (`/contact/`), which the rule cannot see as a
+  file, so leave `mod_deflate` on for HTML.
 
 ## Check it
 
-`curl -I` a page and check for `X-Content-Type-Options` and
-`X-Frame-Options`. Open a path that does not exist and check that you get
+`curl -I` a page and check for `X-Content-Type-Options`,
+`X-Frame-Options` and `Referrer-Policy`. With the `.gz` rules,
+`curl -sI -H "Accept-Encoding: gzip" https://example.com/app.js` answers
+`Content-Encoding: gzip` and `Content-Type: text/javascript`. Open a path that does not exist and check that you get
 the site's `404.html`. Then go through [Check a deploy](/recipes/check-a-deploy).
 
 
@@ -15211,16 +15973,30 @@ You need a server running nginx with a TLS certificate for the site, and a
 `build/` folder from `wf build`
 ([Install wf on a build machine](/recipes/install-wf-in-ci)).
 
-Add this `server` block, and pick the `try_files` line for your kind of
-build:
+Put the security headers in a file of their own, so every block that
+needs them can include them:
+
+```nginx
+# /etc/nginx/snippets/site-headers.conf
+add_header X-Content-Type-Options nosniff always;
+add_header Referrer-Policy strict-origin-when-cross-origin always;
+add_header X-Frame-Options DENY always;
+# add_header Content-Security-Policy "…as in build/_headers…" always;
+```
+
+Then add this `server` block, and pick the `try_files` line for your kind
+of build:
 
 ```nginx
 server {
     listen 443 ssl http2;
     server_name example.com;
+    ssl_certificate     /etc/letsencrypt/live/example.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/example.com/privkey.pem;
     root /var/www/site;
 
     gzip_static on;                          # serve the .gz files the build wrote
+    include snippets/site-headers.conf;
 
     location / {
         try_files $uri $uri/ $uri.html =404; # a static build
@@ -15228,13 +16004,16 @@ server {
     }
     error_page 404 /404.html;
 
-    location = /sw.js { add_header Cache-Control "no-cache"; }
-    location ~* \.(webp|avif|jpg|jpeg|png)$ { add_header Cache-Control "public, max-age=31536000, immutable"; }
+    location = /sw.js {
+        include snippets/site-headers.conf;
+        add_header Cache-Control "no-cache";
+    }
 
-    add_header X-Content-Type-Options nosniff always;
-    add_header Referrer-Policy strict-origin-when-cross-origin always;
-    add_header X-Frame-Options DENY always;
-    # add_header Content-Security-Policy "…as in build/_headers…" always;
+    # Pictures the build resized and renamed: hero.4a6178a1.960.webp, hero.4a6178a1.jpg
+    location ~* "\.[0-9a-f]{8}(\.[0-9]+)?\.(webp|avif|jpe?g|png|gif)$" {
+        include snippets/site-headers.conf;
+        add_header Cache-Control "public, max-age=31536000, immutable";
+    }
 }
 ```
 
@@ -15255,12 +16034,22 @@ rsync -a --delete build/ server:/var/www/site/
    build, every path falls back to `index.html`, where the router draws the
    page.
 4. `error_page 404 /404.html` serves the page whose `path` is `*`.
-5. `sw.js` is never cached without asking, and resized images, whose names
-   change when the file does, are cached for a year
-   ([Set cache headers](/recipes/cache-and-security-headers#set-cache-headers)).
+5. `sw.js` is never cached without asking. The pictures the build resized
+   and renamed (`img/hero.<hash>.<width>.webp`, and the original as
+   `img/hero.<hash>.jpg`) are cached for a year, since a changed picture
+   gets a new name. A file of `public/` keeps the name you gave it, so it is
+   left to the browser's usual checks: a new `/logo.png` reaches readers at
+   once ([Set cache headers](/recipes/cache-and-security-headers#set-cache-headers)).
 6. The `add_header` lines are the security headers the build writes to
    `build/_headers`. Copy the `Content-Security-Policy` line from that file
    into the commented line to send the policy as a header too.
+7. nginx drops the server's `add_header` lines in any `location` that has
+   an `add_header` of its own. That is why the two locations that set
+   `Cache-Control` include the headers file again: without it, `sw.js` and
+   the pictures would be sent with no security headers.
+8. `ssl_certificate` and `ssl_certificate_key` name the certificate the
+   `listen 443 ssl` line needs; the paths above are where Certbot puts
+   them.
 
 `rsync -a --delete` makes the server's folder match `build/`, removing
 files an older build left behind.
@@ -15289,6 +16078,8 @@ A `stream` receives a one-way flow of events from a server — prices,
 progress, a log — over server-sent events. Use it when the server talks and
 the page only listens; for two-way messages, [open a socket](/recipes/open-a-socket).
 This page shows the latest price as it arrives:
+
+**Needs:** a server that sends events named `price` from `/events`.
 
 ```wf
 page Prices(path: "/prices", title: "Prices", description: "Live prices.") {
@@ -15335,6 +16126,9 @@ Have the browser carry one element from one page to the next — a cover
 picture in a list of posts that grows into the article's header — instead
 of fading it out and back in. Give it the same `shared:` name on both
 pages:
+
+**Needs:** nothing besides the page. It claims `/`: paste it into a new
+project, or replace the starter's `src/pages/Home.wf` with it.
 
 ```wf
 type Post { id: String, slug: String, title: String, cover: String }
@@ -15388,6 +16182,10 @@ and, if you want, advancing on their own. Wrap each slide in a
 
 This page shows three photographs that advance every five seconds:
 
+**Needs:** `one.jpg`, `two.jpg` and `three.jpg` in `public/`. It claims
+`/`: paste it into a new project, or replace the starter's
+`src/pages/Home.wf` with it.
+
 ```wf
 page Gallery(path: "/", title: "Gallery", description: "Three pictures.") {
     Heading("Gallery").h1
@@ -15424,7 +16222,16 @@ Show another page inside yours (a video player, a map, a preview your app
 builds) with `Frame`, and hear what that page posts back.
 
 This page embeds a video player and a preview of the site's own, and shows
-what the preview sends back:
+what the preview sends back. The player is on another origin, so the
+config names it in `meta.frame`; without it, the page's
+Content-Security-Policy blocks the frame and it stays blank:
+
+**Needs:** the `meta.frame` setting below in `webfluent.app.json`, and a
+page at `/preview/` for the second frame to show.
+
+```json
+{ "meta": { "frame": ["https://www.youtube-nocookie.com"] } }
+```
 
 ```wf
 page Talk(path: "/", title: "The talk", description: "The launch talk, and what the preview says.") {
@@ -15452,6 +16259,9 @@ page Talk(path: "/", title: "The talk", description: "The launch talk, and what 
 
 A frame from another origin must be named in `meta.frame`, or the page's
 Content-Security-Policy refuses it ([Security](/about/security)).
+The build and `wf check` do not warn about a missing one: the frame is
+simply blank in the browser. `meta.frame` takes origins only
+(`https://www.youtube-nocookie.com`), not paths.
 
 ### Frame your own pages
 
@@ -15512,6 +16322,9 @@ an icon-only button or in a sidebar.
 
 This page shows icons on their own, on an icon-only button, and in a
 sidebar:
+
+**Needs:** nothing besides the page. It claims `/`: paste it into a new
+project, or replace the starter's `src/pages/Home.wf` with it.
 
 ```wf
 page Inbox(path: "/", title: "Inbox", description: "Messages, with icons.") {
@@ -15586,6 +16399,9 @@ https://webfluent.monzeromer.dev/recipes/show-code
 language. This page mixes inline code into a sentence and shows two
 coloured blocks:
 
+**Needs:** nothing besides the page. It claims `/`: paste it into a new
+project, or replace the starter's `src/pages/Home.wf` with it.
+
 ```wf
 page Snippets(path: "/", title: "Snippets", description: "Code on the page.") {
     Heading("Snippets").h1
@@ -15652,6 +16468,11 @@ A token kept in the page can be read by any script that reaches it. To sign
 a reader in without holding a token at all, let the server set a session
 cookie, describe the service with `credentials: .sameOrigin`, and keep the
 signed-in user in a store:
+
+**Needs:** a server that answers the `/api` endpoints the `api` block
+names and sets the session cookie. The code declares `type User` and an
+`app`, as the starter does: paste it into a new project, replacing
+`src/App.wf` and the starter's `src/stores/auth.wf`.
 
 ```wf
 type User { id: String, name: String }
@@ -15776,6 +16597,10 @@ The site's language, its address and a static build go in
 in English, and without `meta.site_url` there is no absolute address for
 the alternates:
 
+**Needs:** the settings below in `webfluent.app.json`. It claims `/` and
+the name `Home`: paste it into a new project, or replace the starter's
+`src/pages/Home.wf` with it.
+
 ```json
 {
     "build": { "ssg": true },
@@ -15828,6 +16653,9 @@ A component that needs only one value from a store can take it as a prop
 instead of using the store. That keeps the component reusable outside that
 store: a test or another page can hand it any number:
 
+**Needs:** nothing besides the code. It claims `/`: paste it into a new
+project, or replace the starter's `src/pages/Home.wf` with it.
+
 ```wf
 store Cart { state count = 0 }
 
@@ -15863,6 +16691,10 @@ A `channel` keeps tabs of the same site in step — a cart, a sign-in, a
 setting. Every tab that opens a channel of the same name hears what the
 others post, with no server involved. This shop keeps its cart count the
 same in every tab:
+
+**Needs:** nothing besides the page; open it in two tabs. It claims `/`:
+paste it into a new project, or replace the starter's `src/pages/Home.wf`
+with it.
 
 ```wf
 store Cart {
@@ -16294,6 +17126,124 @@ cargo tauri android dev
 
 ---
 
+# Test a page
+
+https://webfluent.monzeromer.dev/recipes/test-a-page
+
+A test renders a component or a whole page, acts on it the way a reader
+does — typing, clicking, pressing keys — and checks the text the page
+shows. This shopping list has a component that counts, a page that adds
+items, and three tests:
+
+**Needs:** a `tests/` folder beside `src/`, and a Chrome or Chromium on
+the machine for the tests that click (or `WF_CHROME` naming one). The block
+holds three files; the comment above each says where it goes.
+
+```wf
+// src/components/Count.wf
+component Count(_ n: Number) {
+    Text(if n == 1 { "1 thing to buy" } else { "{n} things to buy" })
+}
+
+// src/pages/Shopping.wf
+page Shopping(path: "/shopping", title: "Shopping", description: "What to buy.") {
+    state items: [String] = ["Milk"]
+    state draft = ""
+
+    Heading("Shopping").h1
+    Count(items.length)
+    Form {
+        on submit(e) {
+            e.preventDefault()
+            if draft != "" { items = items.concat([draft]) }
+            draft = ""
+        }
+        Input(bind: draft, label: "Item")
+        Button("Add", type: .submit).primary
+    }
+    for item in items by item { Text(item) }
+}
+
+// tests/shopping.wf
+test "one thing reads in the singular" {
+    Count(1)
+    expect "1 thing to buy"
+    expect not "things"
+}
+
+test "adding an item lists it and counts it" {
+    Shopping
+    expect "1 thing to buy"
+    type "Bread" into "Item"
+    click "Add"
+    expect "Bread"
+    expect "2 things to buy"
+}
+
+test "an empty item is not added" {
+    Shopping
+    click "Add"
+    expect "1 thing to buy"
+}
+```
+
+Run them:
+
+```bash
+wf test
+```
+
+```text
+  new   tests/shopping.wf — one thing reads in the singular (snapshot written)
+  ok    tests/shopping.wf — adding an item lists it and counts it (in a browser)
+  ok    tests/shopping.wf — an empty item is not added (in a browser)
+3 passed, 0 failed, 1 snapshot(s) written
+```
+
+## How it works
+
+- `wf test` runs every `test "…" { }` under `tests/`. A build ignores
+  them, so they never reach the site.
+- A test's body is drawn like a page's: `Count(1)` places the component,
+  and `Shopping`, a page with no route parameter, is placed by its name.
+  The project's components, stores, types and constants are all in reach.
+- `expect "…"` checks the text a reader would see, with white space
+  collapsed the way a browser lays it out, never the markup.
+  `expect not "…"` checks that it is absent.
+- A test with a step that acts — `click`, `type … into`, `press` — is
+  built into a real page and run in headless Chrome, so the handler runs,
+  the state changes and the page draws again. `type "Bread" into "Item"`
+  finds the field by its label, and `click "Add"` the button by its text:
+  by what a reader sees, so a test also catches a control that lost its
+  name.
+- A test that only looks needs no browser. It is rendered and compared
+  with a snapshot, `tests/__snapshots__/shopping/<test name>.html`, written
+  the first time it runs. When a change is meant, `wf test --update`
+  writes the snapshots again; commit them with the code.
+- A handler that throws fails the test, so a broken click is caught even
+  when the text happens to match.
+
+## Variations
+
+- **Seed the state**: `test "…"(data: { items: ["a", "b"] }) { … }` starts
+  the body's state, or a store by its name, with that data.
+- **Close a dialog**: `press "Escape"` closes the open `Modal` or `Dialog`;
+  `press "Enter" in "Search"` presses a key in one named field.
+- **One file**: `wf test tests/shopping.wf` runs only that file's tests.
+- **Every page in a browser**: `wf verify` loads each route of the built
+  site and fails on a script error, a failed request or a page that drew
+  nothing ([Testing](/learn/16-testing#check-every-page-with-wf-verify)).
+- **In CI**: run `wf check`, `wf test` and `wf build` in that order
+  ([Install wf on a build machine](/recipes/install-wf-in-ci)).
+
+A key step names one key, as the browser names it (`"Enter"`, `"Escape"`,
+`"a"`); it does not hold a modifier, so a shortcut such as Ctrl+K is
+checked by calling what it runs.
+
+
+
+---
+
 # Translate a site
 
 https://webfluent.monzeromer.dev/recipes/translate-a-site
@@ -16307,6 +17257,12 @@ This program has a language picker in its navigation bar and a home page
 whose heading, count and button are translated. It reads the translation
 files that [Set up the translation files](#set-up-the-translation-files)
 shows:
+
+**Needs:** the `i18n` setting and the translation files that [Set up the
+translation files](#set-up-the-translation-files) shows. The code is a
+whole project's `app` and home page, and declares `type User`, as the
+starter does: paste it into a new project, replacing `src/App.wf` and
+`src/pages/Home.wf`.
 
 ```wf
 type User { name: String }
@@ -16615,6 +17571,10 @@ without inventing keys or wrapping every string in `t()`: each string a
 reader sees is looked up in the reader's table by its own words. Turn it on
 with `"literals": true` in the `i18n` config:
 
+**Needs:** the `i18n` setting below, and the translation files [How it
+works](#how-it-works) shows. It claims `/`: paste it into a new project,
+or replace the starter's `src/pages/Home.wf` with it.
+
 ```json
 { "i18n": { "default_locale": "en", "locales": ["en", "ar"], "literals": true } }
 ```
@@ -16697,6 +17657,9 @@ colour shifting — rather than an element arriving. Add a `transition { }`
 block that names the property and how long it takes. Press **Toggle** and
 the card grows to show the rest of its text:
 
+**Needs:** nothing besides the page. It claims `/`: paste it into a new
+project, or replace the starter's `src/pages/Home.wf` with it.
+
 ```wf
 page Tween(path: "/", title: "Tween", description: "A panel that grows.") {
     state open = false
@@ -16735,6 +17698,9 @@ https://webfluent.monzeromer.dev/recipes/validation-messages
 A form should say what is wrong beside the field that is wrong, before the
 reader submits it. To check a form as the reader fills it in, put a
 `validate` block beside each state:
+
+**Needs:** nothing besides the page. It claims `/`: paste it into a new
+project, or replace the starter's `src/pages/Home.wf` with it.
 
 ```wf
 page Signup(path: "/", title: "Sign up", description: "Make an account.") {
@@ -16789,6 +17755,10 @@ the recording.
 This page plays a demo with captions and a talk with its transcript, both
 from `public/`:
 
+**Needs:** `demo.mp4`, `demo.en.vtt`, `demo.jpg`, `talk.mp3` and
+`talk.txt` in `public/`. It claims `/`: paste it into a new project, or
+replace the starter's `src/pages/Home.wf` with it.
+
 ```wf
 page Media(path: "/", title: "Media", description: "The demo and the launch talk.") {
     Heading("Media").h1
@@ -16840,6 +17810,9 @@ Before you start:
   hash of every file the build wrote, so deploying half a build confuses it.
 
 Add `offline` to `webfluent.app.json`:
+
+**Needs:** the `offline` setting below, a site served over HTTPS (or from
+`localhost`), and a page at `/` for the fallback page to link to.
 
 ```json
 { "offline": {
@@ -17008,7 +17981,7 @@ A card that shows a person, in HTML and CSS and in WebFluent.
 <div class="card">
   <img class="avatar" src="/ada.jpg" alt="Ada Lovelace">
   <div>
-    <h3>Ada Lovelace</h3>
+    <h2>Ada Lovelace</h2>
     <p class="muted">Analyst</p>
   </div>
 </div>
@@ -17032,7 +18005,7 @@ component Person(_ name: String, role: String, photo: String) {
         Row(gap: .sm, align: .center) {
             Avatar(src: photo, alt: name)
             Stack {
-                Heading(name).h3
+                Heading(name).h2
                 Text(role).muted
             }
         }
@@ -17065,8 +18038,8 @@ stacks and grids, styled with CSS.
 |---|---|---|
 | The paper | `\documentclass[a4paper]{article}` / `#set page(paper: "a4")` | `Document(size: "A4", margin: "20mm") { … }` |
 | Title and author | `\title{…}\author{…}` / `#set document(title: …)` | `Document(title: "Q1 report", author: "Acme")` |
-| A section | `\section{Results}` / `= Results` | `Heading("Results").h1` |
-| A subsection | `\subsection{Method}` / `== Method` | `Heading("Method").h2` |
+| A section | `\section{Results}` / `= Results` | `Heading("Results").h2` (the title is the `h1`) |
+| A subsection | `\subsection{Method}` / `== Method` | `Heading("Method").h3` |
 | A paragraph | a blank line between paragraphs | `Text("…")`, or `Markdown("…")` for several |
 | Bold and italic | `\textbf{x}`, `\emph{x}` / `*x*`, `_x_` | `Text("x").bold`, `Text("x").italic`, or `**x**` in `Markdown` |
 | A list | `itemize` / `- item` | `List { List.Item { Text("…") } }` |
@@ -17185,7 +18158,7 @@ updates. There are no hooks, no dependency arrays and no setters.
 | A route | `<Route path="/users/:id" element={<User />} />` | `page User(path: "/users/:id", id: String) { … }` |
 | Showing something conditionally | `{open && <Panel />}` | `if open { Panel }` |
 | A list | `{items.map((i) => <li key={i.id}>{i.name}</li>)}` | `for i in items by i.id { Text(i.name) }` |
-| Fetching | `useQuery({ queryKey: ["users"], queryFn })` | `resource users = fetch("/api/users")`, read with `match users { … }` |
+| Fetching | TanStack Query's `useQuery({ queryKey: ["users"], queryFn })`, or `useEffect` + `fetch` | `resource users = fetch("/api/users")`, read with `match users { … }` |
 | Styling | `className`, CSS modules, Tailwind | flags (`Button("Save").primary`), `style { }` on the element, design tokens |
 | A test | Testing Library: `render`, `fireEvent.click`, `getByText` | `test "…" { click "Save"  expect "Saved" }` |
 
@@ -17307,11 +18280,13 @@ is checked at build time, and the components come designed.
 | `{#await}` | `{#await promise}…{:then data}…{:catch e}…{/await}` | `match users { loading { … } ready(list) { … } error(e) { … } }` |
 | A class that follows state | `class:done={todo.done}` | `class: { "done": todo.done }` |
 | Transitions | `transition:fade` | `.fadeIn`, `exit: .fadeOut` |
+| A test | Vitest with Testing Library: `render`, `fireEvent.click`, `getByText` | `test "…" { click "Save"  expect "Saved" }` |
 
 ## Things that work differently
 
-**The markup is typed.** Svelte checks your script with TypeScript; WebFluent
-checks the markup too. `Button("Save").primray` does not build, and neither
+**The elements are typed too.** `svelte-check` types your props and the
+expressions in your markup; WebFluent also knows every built-in's flags,
+events and slots. `Button("Save").primray` does not build, and neither
 does a handler for an event the component does not fire (`E103`).
 
 **Elements come designed.** `Button`, `Card`, `Table`, `Modal` and the rest
@@ -17416,6 +18391,8 @@ checked at build time.
 | `v-for` | `<li v-for="i in items" :key="i.id">{{ i.name }}</li>` | `for i in items by i.id { Text(i.name) }` |
 | Class bindings | `:class="{ done: todo.done }"` | `class: { "done": todo.done }` |
 | Transitions | `<Transition name="fade">` | `.fadeIn`, `exit: .fadeOut` |
+| Fetching | `<Suspense>` with an async `setup`, or VueUse's `useFetch("/api/users")` | `resource users = fetch("/api/users")`, read with `match users { … }` |
+| A test | Vitest with Vue Test Utils: `mount`, `trigger("click")`, `text()` | `test "…" { click "Save"  expect "Saved" }` |
 
 ## Things that work differently
 
@@ -18430,8 +19407,9 @@ true }`. A project `wf init` creates has it on. The build then writes:
   after `<meta charset>`: a meta policy governs only what the browser
   parses after it, so it stands before the title, the sharing tags and a
   page's own `head { }` tags, which a page's data reaches;
-- a `_headers` file for hosts that read one (Netlify, Cloudflare Pages,
-  Vercel; other hosts ignore it).
+- a `_headers` file for hosts that read one (Netlify, Cloudflare Pages;
+  other hosts ignore it — on Vercel copy the headers into `vercel.json`,
+  see [Deploy to Vercel](/recipes/deploy-to-vercel)).
 
 `frame-ancestors` is only in `_headers`, because a browser ignores it in a
 meta tag. A policy that carried it there would say one thing and do
@@ -18884,7 +19862,7 @@ upgrade asks of you:
 
 | Release | What to do |
 |---|---|
-| [6.0](#6-0) | Nothing for a project; to have each language of a translated site found, give it pages with `lang:` and `translates:`. A program using the Rust crate: see the release's notes |
+| [6.0](#6-0) | Run `wf check`; check `build.output`, `public_env` names taken from the shell, and `wf serve --host` if you test on a phone. To have each language of a translated site found, give it pages with `lang:` and `translates:`. A program using the Rust crate: see the release's notes |
 | [5.14, 5.13](#5-14-and-5-13) | Nothing |
 | [5.12](#5-12) | Run `wf check` (`E118`, `E102`); rename a store member called `valueOf` or `toString` |
 | [5.11](#5-11) | Run `wf check` (`C07`, `T22`), then `wf test --update` once you have read the new snapshots |
@@ -19776,8 +20754,9 @@ from the handler to the text node it changes.
 
 ## One binary
 
-`wf` is the compiler, the dev server, the formatter, the test runner, the
-language server and the template renderer. There is no `node_modules`, no
+`wf` is the compiler, the dev server, the formatter, the test runner and
+the template renderer; its sibling `wf-lsp` is the language server, built
+from the same compiler. There is no `node_modules`, no
 bundler, and no configuration to write before the first page. A build
 writes only the runtime modules the program reaches and only the component
 rules it uses, so a page of text ships a few kilobytes of script. The
@@ -20273,7 +21252,7 @@ A constant may carry a type, as `PAGE_SIZE` does. Assigning to one is an
 `X01`. `env.NAME` reads a value fixed at build time — from the config's
 `env` map, a `.env` file or the shell. A page may read only a public name,
 one that begins `PUBLIC_` or that `public_env` lists;
-[Environments](/recipes) has the rules.
+[Environments and secrets](/recipes/environments-and-secrets) has the rules.
 
 ## Built-in functions
 
@@ -20287,17 +21266,17 @@ has an entry for each.
 | `log(x)` | Prints a value to the console |
 | `navigate(path)` | Changes the route ([Pages and routing](/learn/05-pages-and-routing#links-and-navigation)) |
 | `format(v, .style, opt)`, `ago(d)` | Formats a value ([above](#format-and-ago)) |
-| `t("key", args)`, `setLocale("ar")` | Translates, and switches the locale ([i18n](/recipes)) |
+| `t("key", args)`, `setLocale("ar")` | Translates, and switches the locale ([Translate a site](/recipes/translate-a-site)) |
 | `setTheme("dark")` | `"dark"`, `"light"` or `"system"`, kept across visits ([Styling](/learn/13-styling#dark-mode)) |
 | `keyIs(e, "mod+s")`, `keyLabel("mod+s")` | Tests a key event against a shortcut, and writes a shortcut for this system |
 | `every(ms) { }`, `after(ms) { }` | Timers ([State and reactivity](/learn/07-state-and-reactivity#timers)) |
 | `animate(el, name, ms)`, `replayAnimation(el, name)` | Plays an animation by hand ([Motion](/recipes/drive-an-animation)) |
 | `optimistic(holder, change)` | Shows a change before the server agrees ([Fetching data](/learn/15-data#show-a-change-before-the-server-agrees)) |
-| `beacon(url, data)` | Sends data in a way that outlives the page ([Real-time](/recipes)) |
+| `beacon(url, data)` | Sends data in a way that outlives the page ([Send on unload](/recipes/send-on-unload)) |
 | `sanitize(html)` | Passes markup through an allow-list ([Security](/about/security#show-markup-you-did-not-write)) |
 | `uuid()` | Makes a fresh `Uuid` ([Types](/learn/12-types#the-types-the-language-brings-with-it)) |
 | `fetch(url, options)` | Sends a request, through the same engine as `api` ([Fetching data](/learn/15-data#fetch-on-demand-with-await-fetch)) |
-| `ws(…)`, `sse(…)`, `broadcast(…)`, `rtc(…)`, `spawn(…)` | Open a socket, a stream, a channel, a peer or a worker, after `socket x =` and the rest ([Real-time](/recipes)) |
+| `ws(…)`, `sse(…)`, `broadcast(…)`, `rtc(…)`, `spawn(…)` | Open a socket, a stream, a channel, a peer or a worker, after `socket x =` and the rest ([Open a socket](/recipes/open-a-socket)) |
 
 The browser's own globals need no prefix and compile to themselves:
 `window`, `document`, `console`, `localStorage`, `sessionStorage`, `JSON`,
@@ -20670,7 +21649,7 @@ my-site/
 Only two things are required: `webfluent.app.json` and one `.wf` or `.wfx`
 file under `src/`. Everything else is convention. The config is covered in
 [Configuration](/reference/config), and `.env` in
-[Environments](/recipes).
+[Environments and secrets](/recipes/environments-and-secrets).
 
 ## One program, with no imports
 
@@ -20729,11 +21708,11 @@ The build reads other files too. What each becomes:
 | File | Where | Becomes |
 |---|---|---|
 | `*.css` | anywhere under `src/` | bundled into `styles.css`, in path order, after the built-ins' rules |
-| `*.js` | anywhere under `src/` | copied to `js/` as written and linked on every page before the compiled code; its top-level names are in scope ([JavaScript interop](/recipes)) |
+| `*.js` | anywhere under `src/` | copied to `js/` as written and linked on every page before the compiled code; its top-level names are in scope ([Call your own JavaScript](/recipes/call-your-own-script)) |
 | `*.md` | under `src/` | a page ([Content](/recipes/markdown-pages)) |
 | `*.json` | named by a `data` declaration | a constant, read at build time |
-| images | named by an `image` declaration | resized, hashed files and a `<picture>` ([Media](/recipes)) |
-| `translations/*.json` | the `i18n.dir` | the locale tables ([Internationalization](/recipes)) |
+| images | named by an `image` declaration | resized, hashed files and a `<picture>` ([Add a picture](/recipes/add-a-picture)) |
+| `translations/*.json` | the `i18n.dir` | the locale tables ([Translate a site](/recipes/translate-a-site)) |
 | anything | `public/` | copied as it is to the build's root: `public/favicon.svg` is `/favicon.svg` |
 
 ## Generate a starter file
@@ -21625,9 +22604,11 @@ These rules apply to every function in this chapter:
   meant for your own code are marked **●**.
 - **Modules.** The runtime is a set of feature modules. Each table names
   the module a function belongs to, and a build ships only the modules its
-  own code reaches. A script that calls a module nothing else uses needs
+  own code reaches. The project's own scripts count: a `WF.toast(…)` in
+  `src/support.js` ships `toast`. Only a call the build cannot see — a name
+  built from a string, a script loaded from another origin — needs
   `"build": { "runtime": "full" }`
-  ([JavaScript interop](/recipes)).
+  ([Call WF from a script](/recipes/call-wf-from-a-script)).
 
 ## Events the runtime dispatches
 
@@ -21690,10 +22671,10 @@ What the control-flow statements and slots compile to.
 
 | Function | Module | What it does |
 |---|---|---|
-| `onKey(node, combination, fn)` | `core` | `on key("mod+k")`. |
-| `keyIs(event, combination)` | `core` | `keyIs(e, "mod+k")`: whether a key event is that combination. |
-| `keyLabel(combination)` | `core` | `keyLabel("mod+k")`: how this system writes the combination (`⌘K`, `Ctrl+K`). |
-| `keyAria(combination)` | `core` | The combination as `aria-keyshortcuts` writes it, for a drawn `shortcut:`. |
+| `onKey(node, combination, fn)` | `keys` | `on key("mod+k")`. |
+| `keyIs(event, combination)` | `keys` | `keyIs(e, "mod+k")`: whether a key event is that combination. |
+| `keyLabel(combination)` | `keys` | `keyLabel("mod+k")`: how this system writes the combination (`⌘K`, `Ctrl+K`). |
+| `keyAria(combination)` | `keys` | The combination as `aria-keyshortcuts` writes it, for a drawn `shortcut:`. |
 | `trapFocus(node, read)` | `layer` | `trapFocus: open`. |
 | `gesture(node, name, fn)` | `gesture` | `on longpress(p)`, `on swipe(s)`, `on receive(d)`, `on dragmove(d)`. |
 | `draggable(node, value, options)`, `dropTarget(node, options)` | `gesture` | `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`. |
@@ -21719,6 +22700,7 @@ What the control-flow statements and slots compile to.
 | `params()` ● | `router` | The current route's parameters. |
 | `router(routes, container, options)` | `router` | The router `Router` compiles to; `options.transition` is `fade` or `slide`. |
 | `activeLink(a, href, prefix)` | `router` | Keeps a link's `.active` class and `aria-current`. |
+| `playRoute(options, page)` | `router` | Internal: plays a `Router(transition:)`, which the compiled router passes as `play:`. |
 | `page(name, fn)`, `loadPage(name, cb)`, `loadSheet(name, cb)` | `pages` | Page chunks and their stylesheets. |
 | `setBasePath(path)`, `setSsgMode(on)` | `core` | Set at boot from the config. |
 
@@ -21728,8 +22710,8 @@ What the control-flow statements and slots compile to.
 |---|---|---|
 | `viewport()`, `query()`, `hash()`, `network()` | `browser` | What the language's `viewport`, `query`, `hash` and `network` hold. |
 | `now(options)` | `browser` | `now`, kept current every minute, or as often as `options.every` asks. |
-| `theme()` | `core` | The theme the reader chose. |
-| `setTheme(choice)` ● | `core` | Switches the theme: `"dark"`, `"light"` or `"system"`, kept across visits. |
+| `theme()` | `theme` | The theme the reader chose. |
+| `setTheme(choice)` ● | `theme` | Switches the theme: `"dark"`, `"light"` or `"system"`, kept across visits. |
 
 ## Data and connections
 
@@ -21774,6 +22756,7 @@ What the control-flow statements and slots compile to.
 | `carousel(root, options)` | `carousel` | What `Carousel` compiles to. |
 | `field(control, options)`, `choiceError(label, check)` | `field` | A control's label, hint and error; a `Checkbox` or `Switch`'s rule message. |
 | `form(options)`, `validate(read, rules, options)` | `form` | A `Form` handle and a `validate` block's rules. |
+| `askRules(read, rules, fault, remote, pending)` | `form` | Internal: asks a `validate` block's `async` rules, which the compiled form passes as `ask:`. |
 
 ## Safety
 
@@ -21961,7 +22944,7 @@ writes a newer one, and an older project can take the current one from the
 `wf init` writes a shorter config than the full set of defaults, and turns
 `build.csp` on.
 
-See also: [Internationalisation](/recipes), [Configuration](/reference/config).
+See also: [Translate a site](/recipes/translate-a-site), [Configuration](/reference/config).
 
 ### `wf build`
 
@@ -22427,7 +23410,7 @@ A template is held to the same checks as a build: a component nothing
 declares, or a flag a component does not take, stops the render. The one
 difference is that the names a template reads come from its data.
 
-See also: [Server rendering](/recipes).
+See also: [Render a template](/recipes/render-a-template).
 
 ## Upgrading
 
@@ -22545,7 +23528,7 @@ original. With `--json`, the same sentences are in the `said` field.
 The library has the same as `webfluent::build::assets::{list, plan}`. It reads
 through a `Vfs`, so an editor's unsaved buffers count.
 
-See also: [Media](/recipes).
+See also: [Add a picture](/recipes/add-a-picture).
 
 ### `wf theme`
 
@@ -22607,7 +23590,7 @@ It lists:
 
 The library has it as `webfluent::motion::catalogue` (with the `internals` feature, outside semver).
 
-See also: [Motion](/recipes).
+See also: [Motion defaults](/recipes/motion-defaults).
 
 ### `wf context`
 
@@ -22696,7 +23679,7 @@ a run of counts takes.
 The library has it as `webfluent::i18n::table` (with the `internals` feature, outside semver), whose `set_message` writes
 one message back and keeps every other byte of the file.
 
-See also: [Internationalisation](/recipes).
+See also: [Translate a site](/recipes/translate-a-site).
 
 ### `wf scope`
 
@@ -22870,129 +23853,14 @@ the parameters and return type its JSDoc gives it.
 | `WF_VERSION` | `install.sh`, `install.ps1` | The release to install, such as `v5.11.0`, instead of the latest. |
 | `WF_CHROME` | `wf test`, `wf verify` | The Chrome or Chromium to drive, when it is not found on its own. |
 | `WF_BIN` | the Node binding | The `wf` binary to call. |
-| any `PUBLIC_…` name | `wf build` | A value for `env.NAME` ([Environments](/recipes)). |
+| any `PUBLIC_…` name | `wf build` | A value for `env.NAME` ([Environments and secrets](/recipes/environments-and-secrets)). |
 
 ## Editors
 
 `wf-lsp` is the language server: it runs the compiler's checks as you type
-and answers your editor's questions about the code.
-
-### `wf-lsp`
-
-To install it, download the binary from a
-[release](https://github.com/monzeromer-lab/WebFluent/releases)
-(`wf-lsp-<version>-<arch>-<os>.tar.gz`) and put it on your `PATH`, or build
-it from a clone with `cargo install --path crates/wf-lsp`. Keep it at the
-version of your `wf`; `wf-lsp --version` prints its version.
-
-It provides:
-
-- **Diagnostics as you type** — every check `wf build` runs, for `.wf`,
-  `.wfx` and Markdown pages, rerun whenever a file they depend on changes (a
-  translation, a `.env`, a script, a `public/` asset).
-- **Output awareness.** In a project whose `build.output_type` is `pdf` or
-  `slides`, completion offers only what paper can draw — no `Button`, no
-  `on click`, no `resource`. Inside a `Presentation` it offers slides (and
-  the project's slide components), and inside a slide everything else.
-  Hover says when an element is not drawn in this output, and why. `page`
-  and `pages` are names inside a `Header`, `Footer` or `Background`. In a
-  web project the paper-only elements are offered last.
-- **Completion**, from the compiler's own tables: components and their props
-  after `(`, flags and parts after `.`, enum cases after `:`, events after
-  `on `, `$` tokens, `match` arms and slot names; the fields of a record and
-  the methods of each built-in type (`due.` offers `plus`, `isBefore`, …); a
-  service's endpoints; the keywords each place allows (a store's, an
-  action's, a test's steps); type names after `:`; duration units after a
-  number; `validate` rules, `persist` settings, `format` styles, responsive
-  steps, `Host` tags, key names in `on key("…")`, translation keys in
-  `t("…")`, public `env.` names, and lint codes in `// wf-allow(`.
-- **Hover** — what every name is: a component's documentation and
-  signature, the props every element takes, a name's inferred type, a field
-  or an endpoint, a case, a keyword, a function the language provides, an
-  `image`'s size.
-- **Signature help** inside a call: what it takes and which argument the
-  cursor is on — for an element, a component, an endpoint, an action, a
-  project script's function or a built-in one.
-- **Navigation** — go to definition, find references, highlight the uses in
-  a file, and rename across the project, for every declaration (a type, an
-  enum, a case, a field, a `const`, a `data` file, an animation, an
-  endpoint) and inside a string's `{…}` splices.
-- **Formatting** — `wf fmt`, on the open file.
-- **Folding, inlay hints and semantic highlighting** — an inlay hint shows
-  the type of a `state` or `derived` value written without one, and a name
-  is coloured by what it resolves to: a component, a type, a store, a prop
-  or a state.
-- **Document symbols** and the outline.
-- **Quick fixes**, from the compiler's own findings: the nearest name for a
-  misspelt field, member, method, variable, component or flag; `?.` for a
-  value that may be null; the props a call leaves out; the arms a `match`
-  misses; a bare word written as its flag; `alt: ""` for an image; an `_`
-  before a name nothing reads. **Extract component** turns a selection into
-  a component.
-
-### Zed
-
-The extension is [webfluent-zed](https://github.com/monzeromer-lab/webfluent-zed). It is not in Zed's extension registry
-yet, so clone it and install it with `zed: install dev extension`, pointing
-at the clone. It provides Tree-sitter highlighting, the outline, brackets,
-indentation, snippets and the language server (found on `PATH`, or
-downloaded from the latest release), for `.wf` and `.wfx`.
-
-### VS Code
-
-The extension is [webfluent-vscode](https://github.com/monzeromer-lab/webfluent-vscode): TextMate highlighting and the
-language server. Until it is on the Marketplace, install the `.vsix` from
-its latest release with **Extensions: Install from VSIX**.
-
-### Neovim
-
-Neovim 0.11 or later configures the server with `vim.lsp.config`:
-
-```lua
-vim.filetype.add({ extension = { wf = "webfluent", wfx = "webfluent" } })
-vim.lsp.config("wf_lsp", {
-  cmd = { "wf-lsp" },
-  filetypes = { "webfluent" },
-  root_markers = { "webfluent.app.json" },
-})
-vim.lsp.enable("wf_lsp")
-```
-
-### Helix
-
-Add the language and its server to `languages.toml`:
-
-```toml
-[[language]]
-name = "webfluent"
-scope = "source.webfluent"
-file-types = ["wf", "wfx"]
-roots = ["webfluent.app.json"]
-comment-token = "//"
-indent = { tab-width = 4, unit = "    " }
-language-servers = ["wf-lsp"]
-
-[language-server.wf-lsp]
-command = "wf-lsp"
-```
-
-### Emacs
-
-With Eglot, define a mode and register the server:
-
-```elisp
-(define-derived-mode webfluent-mode prog-mode "WebFluent")
-(add-to-list 'auto-mode-alist '("\\.wfx?\\'" . webfluent-mode))
-(with-eval-after-load 'eglot
-  (add-to-list 'eglot-server-programs '(webfluent-mode . ("wf-lsp"))))
-```
-
-### Other editors
-
-Any editor with LSP support can run `wf-lsp` over standard input and output;
-the project root is the folder that holds `webfluent.app.json`. For
-highlighting in an editor that reads Tree-sitter, use the grammars in
-[tree-sitter-webfluent](https://github.com/monzeromer-lab/tree-sitter-webfluent): `webfluent/` (braces) and `webfluentx/` (indentation).
+and answers your editor's questions about the code. [Editors](/reference/editors)
+says how to install it, what it answers, and how to set up VS Code, Zed,
+Neovim, Helix, Emacs and any other editor with LSP support.
 
 ## Building a tool on the compiler
 
@@ -23191,12 +24059,12 @@ How the project is compiled, and what the build writes.
 | `output_type` | `spa`, `static`, `pdf`, `slides`, `elements` | `"spa"` | What the project builds: `spa` is a website; `static` is a website whose every page is pre-rendered, as `ssg: true` builds it; `pdf` a document; `slides` a deck; `elements` custom elements ([PDF and slides](/learn/17-pdf-and-slides), [custom elements](/recipes/publish-custom-elements)). |
 | `ssg` | boolean | `false` | Pre-renders every page to its own HTML file, so it is read before any script runs ([Static sites and SPAs](/about/static-or-single-page)). |
 | `base_path` | string | `""` | The sub-path the site is served under, such as `"/docs"`. Every link and asset is prefixed with it. |
-| `clean_urls` | `file`, `directory` | unset | How a route's address avoids a redirect on a host that adds a trailing slash. `"file"` also writes `contact.html` beside `contact/index.html`; `"directory"` names every route `/contact/` in canonical links, the sitemap and links to pages ([Content](/recipes)). |
+| `clean_urls` | `file`, `directory` | unset | How a route's address avoids a redirect on a host that adds a trailing slash. `"file"` also writes `contact.html` beside `contact/index.html`; `"directory"` names every route `/contact/` in canonical links, the sitemap and links to pages ([Deploy to GitHub Pages](/recipes/deploy-to-github-pages)). |
 | `split` | boolean | `true` | Writes one script and stylesheet chunk per page, loaded when its route shows. Off, every page ships in `app.js`. |
 | `minify` | boolean | `true` | Strips comments and whitespace from the scripts and stylesheets. Off, the output is readable and larger. |
 | `sourcemap` | boolean | `false` | Writes a source map (version 3) beside the bundle and each page's chunk — `app.js.map`, `pages/Home.js.map` — so a stack trace from the running site reads back to the `.wf` line each statement came from. The scripts are otherwise unchanged. |
 | `compress` | boolean | `true` | Writes a gzipped `.gz` copy beside every text output over a kilobyte, for hosts that serve one. |
-| `runtime` | `auto`, `full` | `"auto"` | `auto` ships only the runtime modules the program reaches; `full` ships every one, for a hand-written script that calls `WF` in ways the build cannot see ([JavaScript interop](/recipes)). |
+| `runtime` | `auto`, `full` | `"auto"` | `auto` ships only the runtime modules the program reaches; `full` ships every one, for a hand-written script that calls `WF` in ways the build cannot see ([Call WF from a script](/recipes/call-wf-from-a-script)). |
 | `csp` | boolean | `false` (`true` in a project `wf init` makes) | Emits a Content-Security-Policy and a `_headers` file, and checks the output against the policy ([Security](/about/security#ship-a-content-security-policy)). |
 | `budget` | map of file to size | `{}` | A gzipped size each named output should stay under: `{ "app.js": "40 kB" }`. A build over it warns and goes on. |
 | `elements` | list of component names | `[]` | With `output_type: "elements"`, the components to publish as custom elements. |
@@ -23206,7 +24074,7 @@ How the project is compiled, and what the build writes.
 ### `build.media`
 
 The image pipeline: how the build resizes and re-encodes the pictures a
-program names ([Media](/recipes)).
+program names ([Add a picture](/recipes/add-a-picture)).
 
 | Key | Type | Default | Meaning |
 |---|---|---|---|
@@ -23259,7 +24127,7 @@ The development server, `wf serve` ([Command line](/reference/cli#wf-serve)).
 ## `motion`
 
 What an animation does when the element says nothing
-([Motion](/recipes)).
+([Motion defaults](/recipes/motion-defaults)).
 
 | Key | Type | Default | Meaning |
 |---|---|---|---|
@@ -23278,7 +24146,7 @@ and the other origins the content security policy allows.
 | `lang` | language tag | `"en"` | The document's language: `en`, `ar`, `pt-BR`. A page written in another language says so with its own `lang:`. |
 | `site_url` | string | `""` | The site's absolute address, such as `https://example.com`. Without it, canonical links, the sitemap's URLs and absolute sharing URLs are left out rather than guessed. |
 | `site_name` | string | `""` | The name a link preview shows, and the site's owner in the structured data. |
-| `owner` | `organization`, `person` | `"organization"` | Whether the site belongs to an organisation or a person: the JSON-LD node the site is published by ([Content](/recipes)). |
+| `owner` | `organization`, `person` | `"organization"` | Whether the site belongs to an organisation or a person: the JSON-LD node the site is published by ([Search and link previews](/recipes/search-and-link-previews)). |
 | `same_as` | list of URLs | `[]` | The owner's profiles elsewhere, as its `sameAs`. |
 | `job_title` | string | `""` | A person's `jobTitle`. |
 | `owner_details` | map | `{}` | More about the owner, as schema.org properties merged into its node as written: `alternateName`, `email`, `worksFor`, `alumniOf`, `knowsAbout`, `logo`… The node's `@type`, `@id`, `name`, `url`, `jobTitle` and `sameAs` come from the settings above; naming one here is `E111`. |
@@ -23288,7 +24156,7 @@ and the other origins the content security policy allows.
 | `touch_icon` | file | `""` | The icon a phone puts on its home screen: a 180×180 PNG in `public/`. iOS reads this, not an SVG `favicon`. |
 | `sitemap` | boolean | `true` | Writes `sitemap.xml` and `robots.txt`. |
 | `fonts` | list of URLs | `[]` | Web-font stylesheets to link, each with a `preconnect`. Their origins join the policy. |
-| `preload` | list of paths | `[]` | Files on this site to fetch with the page, ahead of the stylesheets: a font a project `.css` file's `@font-face` names, the first screen's picture. `as` comes from the extension (a font is also `crossorigin`). A file on another origin is `E111` ([Content](/recipes)). |
+| `preload` | list of paths | `[]` | Files on this site to fetch with the page, ahead of the stylesheets: a font a project `.css` file's `@font-face` names, the first screen's picture. `as` comes from the extension (a font is also `crossorigin`). A file on another origin is `E111` ([Search and link previews](/recipes/search-and-link-previews)). |
 | `stylesheets` | list of paths or URLs | `[]` | Extra stylesheets to link ahead of `styles.css`: a file in `public/` or a URL. |
 | `scripts` | list of scripts | `[]` | Libraries to load before the project's own scripts (below). Their origins join the policy ([JavaScript interop](/recipes/library-from-a-cdn)). |
 | `integrity` | map of URL to hash | `{}` | Subresource-integrity hashes of external assets, by URL. |
@@ -23339,7 +24207,7 @@ The project's translations. Absent, the project has one language.
 | `dir` | string | `"src/translations"` | The folder the translation files are in. |
 | `literals` | boolean | `false` | Translates by the words themselves: each string a reader sees is its own key. |
 
-See also: [Internationalisation](/recipes).
+See also: [Translate a site](/recipes/translate-a-site).
 
 ## `env` and `public_env`
 
@@ -23351,7 +24219,7 @@ browser.
 | `env` | map | `{}` | Values read as `env.NAME`, fixed at build time. A `.env` file and the shell's variables add to them. |
 | `public_env` | list of names | `[]` | The `env` names a page may read — and so ships to the browser — beyond those beginning `PUBLIC_`. |
 
-See also: [Environments](/recipes).
+See also: [Environments and secrets](/recipes/environments-and-secrets).
 
 ## `offline`
 
@@ -23369,7 +24237,7 @@ in **4.1**. Absent, no service worker is written.
 | `cache` | map of glob to strategy | `{}` | How paths the build did not write are fetched: `network-first`, `cache-first`, `stale-while-revalidate` or `network-only`. |
 | `sync` | boolean | `false` | Keeps writes made offline and sends them when the connection returns. |
 
-See also: [Offline](/recipes).
+See also: [Work offline](/recipes/work-offline).
 
 ## `lints`
 
@@ -23810,11 +24678,27 @@ A code's letter is its family:
 | `U` | declared and never used |
 | `V` | vocabulary |
 
-Each code's page has the same parts: the code and its title as the heading,
-what it means, a program that draws it, the message the compiler prints for
-that program, and the fix. The test suite compiles every example program,
-checks that it draws exactly the code it is filed under, and checks that
-the message shown is what the compiler prints.
+Each code's page has the code and its title as the heading, what it means
+and the fix. Most pages also show a program that draws it, the message the
+compiler prints for that program, and the program put right. The test
+suite compiles every one of those programs, checks that the broken one
+draws the code it is filed under and the fixed one draws nothing, and
+checks that the message shown is what the compiler prints.
+
+Some codes depend on more than one file can show: the files in `public/`
+(`D01`), the config (`E108`, `E109`, `E111`, `E112`), the project's scripts
+(`E110`, `E115`), its translations (`I01`–`I05`), the layout of a `.wfx`
+file (`E003`) or the compiler's own output (`E901`, `E902`). Their pages
+describe the case in words, or show a program that is not compiled and
+say what project it needs.
+
+## Trying an example
+
+An example is a whole program. Put it in `src/App.wf` of a project with no
+other `.wf` file under `src/` and no `theme` in `webfluent.app.json`. A
+project `wf init` made already has a page at `/`, a `type User` and a
+`theme Day`; an example pasted beside them draws `S04` (two pages claim
+one route) or `E102` (a name declared twice) instead of its own code.
 
 ## Every code
 

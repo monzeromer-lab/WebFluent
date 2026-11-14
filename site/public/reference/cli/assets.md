@@ -18,3 +18,5 @@ wf assets [options]
 | `--plan PATH` | What the pipeline will make of this image of `public/`: `/hero.png` |
 | `--unused` | Only the files nothing names |
 | `--json` | Print JSON, for tools |
+
+The [full entry for wf assets](https://webfluent.monzeromer.dev/reference/cli.md#wf-assets) has its examples and the details this page leaves out.

@@ -54,7 +54,7 @@ my-site/
 Only two things are required: `webfluent.app.json` and one `.wf` or `.wfx`
 file under `src/`. Everything else is convention. The config is covered in
 [Configuration](configuration.md), and `.env` in
-[Environments](../recipes/index.md).
+[Environments and secrets](../recipes/environments-and-secrets.md).
 
 ## One program, with no imports
 
@@ -113,11 +113,11 @@ The build reads other files too. What each becomes:
 | File | Where | Becomes |
 |---|---|---|
 | `*.css` | anywhere under `src/` | bundled into `styles.css`, in path order, after the built-ins' rules |
-| `*.js` | anywhere under `src/` | copied to `js/` as written and linked on every page before the compiled code; its top-level names are in scope ([JavaScript interop](../recipes/index.md)) |
+| `*.js` | anywhere under `src/` | copied to `js/` as written and linked on every page before the compiled code; its top-level names are in scope ([Call your own JavaScript](../recipes/call-your-own-script.md)) |
 | `*.md` | under `src/` | a page ([Content](../recipes/markdown-pages.md)) |
 | `*.json` | named by a `data` declaration | a constant, read at build time |
-| images | named by an `image` declaration | resized, hashed files and a `<picture>` ([Media](../recipes/index.md)) |
-| `translations/*.json` | the `i18n.dir` | the locale tables ([Internationalization](../recipes/index.md)) |
+| images | named by an `image` declaration | resized, hashed files and a `<picture>` ([Add a picture](../recipes/add-a-picture.md)) |
+| `translations/*.json` | the `i18n.dir` | the locale tables ([Translate a site](../recipes/translate-a-site.md)) |
 | anything | `public/` | copied as it is to the build's root: `public/favicon.svg` is `/favicon.svg` |
 
 ## Generate a starter file

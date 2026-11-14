@@ -26,7 +26,16 @@ Image(_ source: Any, src: String, sizes: String, placeholder: Enum, …)
 
 ## Flags
 
-`.blur` `.color` `.none` `.lazy` `.eager` `.rounded` `.circle` `.dropInside` `.trapFocus`
+`.blur` `.color` `.none` `.lazy` `.eager` `.rounded` `.circle`
+
+## DOM events it answers
+
+Any other DOM event works too, in an `on … { }` handler.
+
+- `on load`: An image, video or frame finished loading
+- `on error`: An image, video or script failed to load
+
+Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 
 ## Example
 
@@ -43,4 +52,4 @@ Image(src: "/flourish.svg", alt: "")
 - [D01](https://webfluent.monzeromer.dev/errors/D01.md): A file the project does not have
 - [A01](https://webfluent.monzeromer.dev/errors/A01.md): An image with no alt text
 
-Since WebFluent 5.0.
+Before WebFluent 5.0.

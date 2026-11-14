@@ -19,3 +19,5 @@ wf translations [options]
 | `--unused` | Only the keys nothing names |
 | `--plurals` | CLDR's plural rules instead: every locale's forms, and the form each of a run of counts takes |
 | `--json` | Print JSON, for tools |
+
+The [full entry for wf translations](https://webfluent.monzeromer.dev/reference/cli.md#wf-translations) has its examples and the details this page leaves out.

@@ -4,12 +4,14 @@ page RecipeBuildABudgetApp(path: "/recipes/build-a-budget-app", title: "Build a 
     RecipeShell("Build a budget app that works offline", summary: "**What you will build.** A personal budget tracker that lives entirely in the reader's browser: money in and money out, a budget per category, what is left of it this month, six months of bars, two languages, a CSV export and import, and a page that keeps working offline. There is no server and no account. The finished project is [`examples/tutorials/hard-pocket`](https://github.com/monzeromer-lab/WebFluent/tree/master/examples/tutorials/hard-pocket).  **Time:** a couple of hours.", outputs: [], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "before-you-start", label: "Before you start"), Anchor(id: "step-1-configure-the-project", label: "Step 1: Configure the project"), Anchor(id: "step-2-describe-money", label: "Step 2: Describe money"), Anchor(id: "step-3-add-up-the-ledger", label: "Step 3: Add up the ledger"), Anchor(id: "step-4-change-the-stored-shape-without-losing-data", label: "Step 4: Change the stored shape without losing data"), Anchor(id: "step-5-fit-the-shell-to-the-screen", label: "Step 5: Fit the shell to the screen"), Anchor(id: "step-6-draw-a-dashboard-from-elements", label: "Step 6: Draw a dashboard from elements"), Anchor(id: "step-7-keep-the-filters-in-the-address", label: "Step 7: Keep the filters in the address"), Anchor(id: "step-8-use-one-form-for-new-and-for-edit", label: "Step 8: Use one form for new and for edit"), Anchor(id: "step-9-add-a-dialog-and-a-shortcut", label: "Step 9: Add a dialog and a shortcut"), Anchor(id: "step-10-speak-two-languages", label: "Step 10: Speak two languages"), Anchor(id: "step-11-export-and-import-the-data", label: "Step 11: Export and import the data"), Anchor(id: "step-12-test-it-and-run-the-checks", label: "Step 12: Test it, and run the checks"), Anchor(id: "what-you-built", label: "What you built")], related: [RelatedLink(kind: "Recipe", title: "Build a statically generated notebook", to: "/recipes/build-a-notebook-site")], source: "md-docs/recipes/build-a-budget-app.md", how: false, hasVariations: false) {
         Heading("Before you start", id: "before-you-start").h2
 
-        Markdown("You need `wf`, Chrome and a copy of the repository (see [Before you start](/learn/03-tutorial-todos#before-you-start) in the Todos tutorial). This tutorial assumes the Todos tutorial, and each step links the chapter that goes deeper. Like Field Notes, it shows the part of each file that teaches something new, so work in the finished project:")
+        Markdown("You need `wf`, Chrome and a copy of the repository (see [Before you start](/learn/03-tutorial-todos#before-you-start) in the Todos tutorial). This tutorial assumes the Todos tutorial, and each step links the chapter that goes deeper.\n\n**This tutorial is read along, not typed along.** Like [Field Notes](/recipes/build-a-notebook-site), each step shows the part of a file that teaches something new, not every line of it, so the snippets alone do not make a working project. Open the finished project, run it, and read each file as its step comes up:")
 
         Terminal(lines: [
                 Line(command: "cd WebFluent/examples/tutorials/hard-pocket"),
                 Line(command: "wf serve")
             ])
+
+        Markdown("To build it yourself instead, start a project with `wf init pocket -t spa --locales en,ar`, then copy each file from `examples/tutorials/hard-pocket` into it as its step names it, and run `wf check` after each step.")
 
         Heading("Step 1: Configure the project", id: "step-1-configure-the-project").h2
 
@@ -41,7 +43,7 @@ page RecipeBuildABudgetApp(path: "/recipes/build-a-budget-app", title: "Build a 
   }
 }"#, title: "json")
 
-        Markdown("It adds three things to the Todos config:\n\n- `i18n` names the languages and the folder their messages live in ([Internationalization](/recipes)).\n- `offline` makes `wf build` write a service worker that stores the four pages, so a second visit opens with no network ([Offline](/recipes)).\n- `theme` names two themes, light and dark, and the build ships both.\n\n**Check it:** `wf build` prints a line that starts `Offline: sw.js`, then `2 locales` in its summary.")
+        Markdown("It adds three things to the Todos config:\n\n- `i18n` names the languages and the folder their messages live in ([Translate a site](/recipes/translate-a-site)).\n- `offline` makes `wf build` write a service worker that stores the four pages, so a second visit opens with no network ([Make a site work offline](/recipes/work-offline)).\n- `theme` names two themes, light and dark, and the build ships both.\n\n**Check it:** `wf build` prints a line that starts `Offline: sw.js`, then `2 locales` in its summary.")
 
         Heading("Step 2: Describe money", id: "step-2-describe-money").h2
 
@@ -282,7 +284,7 @@ component EntryForm(entry: Entry? = null) {
   "entries.other": "{count} entries"
 }"#, title: "json")
 
-        Markdown("- `t(\"entries\", \{ count: n \})` picks the form the language's rules call for. English needs two forms and a zero; Arabic has six ([Internationalization](/recipes)).\n- Switching to Arabic sets `dir=\"rtl\"` on the page, and the sidebar, the rows and the grids mirror themselves.\n- `format(m)` and dates follow the language too.\n- The reader's choice is a `persist` in a small `Prefs` store, and an `effect` in the app shell applies it on every visit.\n\n**Check it:** on **Settings**, choose Arabic. The page reads right to left, and every label is in Arabic. Reload: it stays in Arabic.\n\nIf a key shows on screen instead of its words, it is missing from a translation file; `wf check` reports it as `I01`, and `wf translations` lists what each locale lacks.")
+        Markdown("- `t(\"entries\", \{ count: n \})` picks the form the language's rules call for. English needs two forms and a zero; Arabic has six ([Translate a site](/recipes/translate-a-site)).\n- Switching to Arabic sets `dir=\"rtl\"` on the page, and the sidebar, the rows and the grids mirror themselves.\n- `format(m)` and dates follow the language too.\n- The reader's choice is a `persist` in a small `Prefs` store, and an `effect` in the app shell applies it on every visit.\n\n**Check it:** on **Settings**, choose Arabic. The page reads right to left, and every label is in Arabic. Reload: it stays in Arabic.\n\nIf a key shows on screen instead of its words, it is missing from a translation file; `wf check` reports it as `I01`, and `wf translations` lists what each locale lacks.")
 
         Heading("Step 11: Export and import the data", id: "step-11-export-and-import-the-data").h2
 
@@ -294,13 +296,13 @@ component EntryForm(entry: Entry? = null) {
         saveTextFile("pocket-{Ledger.today}.csv", [CSV_HEADER, ...lines].join("\n"), "text/csv")
     }"#, title: "wf")
 
-        Markdown("`saveTextFile` is not WebFluent. It is a function in `src/files.js`, a plain browser script that the build links on every page. Its JSDoc types the call, so `saveTextFile(1)` is an error where it is written ([JavaScript interop](/recipes)).\n\nImporting reads a file from a `FileUpload` with `await f.text()`, parses each line and merges what is new. Then it tells every other open tab:")
+        Markdown("`saveTextFile` is not WebFluent. It is a function in `src/files.js`, a plain browser script that the build links on every page. Its JSDoc types the call, so `saveTextFile(1)` is an error where it is written ([Call your own JavaScript](/recipes/call-your-own-script)).\n\nImporting reads a file from a `FileUpload` with `await f.text()`, parses each line and merges what is new. Then it tells every other open tab:")
 
         CodeBlock(#"// src/pages/Settings.wf
         let added = Ledger.merge(parsed)
         news.post({ count: added })"#, title: "wf")
 
-        Markdown("`news` is `channel news = broadcast(\"pocket\")`, a channel every tab of the site hears. The app shell listens on it and shows a notice ([Realtime](/recipes)). The ledger itself needs no channel: `persist` already keeps every tab in step.\n\n**Check it:** on **Settings**, export the ledger, and the browser saves `pocket-<today's date>.csv`. Open a second tab, import the file in the first: the second tab shows a notice of how many entries were added.")
+        Markdown("`news` is `channel news = broadcast(\"pocket\")`, a channel every tab of the site hears. The app shell listens on it and shows a notice ([Talk to the site's other tabs](/recipes/talk-between-tabs)). The ledger itself needs no channel: `persist` already keeps every tab in step.\n\n**Check it:** on **Settings**, export the ledger, and the browser saves `pocket-<today's date>.csv`. Open a second tab, import the file in the first: the second tab shows a notice of how many entries were added.")
 
         Heading("Step 12: Test it, and run the checks", id: "step-12-test-it-and-run-the-checks").h2
 
@@ -317,11 +319,11 @@ component EntryForm(entry: Entry? = null) {
                 Line(command: "wf verify")
             ])
 
-        Markdown("**Check it:** `wf test` reports `8 passed`, and `wf verify` ends with `0 problem(s)`. `build/` is a single-page app with a service worker, `sw.js`, beside it. Put it on a host that answers every path with `index.html` ([Deploying](/recipes)), and the second visit works with no network.")
+        Markdown("**Check it:** `wf test` reports `8 passed`, and `wf verify` ends with `0 problem(s)`. `build/` is a single-page app with a service worker, `sw.js`, beside it. Put it on a host that answers every path with `index.html` ([Install wf on a build machine](/recipes/install-wf-in-ci)), and the second visit works with no network.")
 
         Heading("What you built", id: "what-you-built").h2
 
-        Markdown("- A ledger typed with `Money`, `Date`, `Color` and `Uuid` ([Types](/learn/12-types)).\n- Totals that are all `derived` values of one store, and a `persist` migration that keeps returning readers' data ([Stores](/learn/11-stores)).\n- A shell that changes with the window, and responsive grids ([Styling](/learn/13-styling)).\n- A form that validates itself, a dialog and keyboard shortcuts ([Forms](/learn/14-forms), [Events](/learn/08-events)).\n- Two languages, plural forms and right-to-left layout ([Internationalization](/recipes)).\n- A script of your own, and a channel between tabs ([JavaScript interop](/recipes), [Realtime](/recipes)).\n- A site that works offline ([Offline](/recipes)).")
+        Markdown("- A ledger typed with `Money`, `Date`, `Color` and `Uuid` ([Types](/learn/12-types)).\n- Totals that are all `derived` values of one store, and a `persist` migration that keeps returning readers' data ([Stores](/learn/11-stores)).\n- A shell that changes with the window, and responsive grids ([Styling](/learn/13-styling)).\n- A form that validates itself, a dialog and keyboard shortcuts ([Forms](/learn/14-forms), [Events](/learn/08-events)).\n- Two languages, plural forms and right-to-left layout ([Translate a site](/recipes/translate-a-site)).\n- A script of your own, and a channel between tabs ([Call your own JavaScript](/recipes/call-your-own-script), [Talk to the site's other tabs](/recipes/talk-between-tabs)).\n- A site that works offline ([Make a site work offline](/recipes/work-offline)).")
 
     }
 }

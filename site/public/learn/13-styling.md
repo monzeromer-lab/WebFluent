@@ -280,7 +280,7 @@ page Fade(path: "/fade", title: "Fade", description: "A card that fades in and o
 A duration may be a token — `$fast`, `$normal` or `$slow` — or a raw value
 such as `200ms ease-out`. A reader who asked their system for less motion
 gets no transition. Enter and exit animations, and other motion, are in
-[Motion](https://webfluent.monzeromer.dev/recipes.md).
+[Animate an element in and out](https://webfluent.monzeromer.dev/recipes/animate-in-and-out.md).
 
 ## Classes and your own stylesheet
 
@@ -648,6 +648,10 @@ page P(path: "/", title: "Chores", description: "A class that follows state.") {
 Name the class and its condition in a map: `class: { "is-done": done }`
 ([T01](https://webfluent.monzeromer.dev/errors/T01.md)).
 
+Going further: [Animate an element in and out](https://webfluent.monzeromer.dev/recipes/animate-in-and-out.md)
+declares how an element enters and leaves; the runtime plays it, or skips
+it for readers who asked for less.
+
 ## Next
 
-[Motion](https://webfluent.monzeromer.dev/recipes.md): declare how an element enters and leaves, how a list staggers and how pages change — the runtime plays it, or skips it for readers who asked for less.
+[Forms and validation](https://webfluent.monzeromer.dev/learn/14-forms.md).

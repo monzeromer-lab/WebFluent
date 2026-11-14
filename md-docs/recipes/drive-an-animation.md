@@ -1,7 +1,7 @@
 ---
 kind: "recipe"
 route: "/recipes/drive-an-animation"
-group: "look"
+group: "motion"
 description: "Play an animation from a handler with animate(element, name, duration) and a ref: handle, or play an element's own again with replayAnimation."
 outputs: ["website", "app"]
 from: ["/docs/guide/motion#drive-an-animation-yourself"]
@@ -12,6 +12,9 @@ Play an animation when something happens, not only when an element
 arrives: a card that pulses as the pointer reaches it. Call
 `animate(element, name, duration)` from a handler, with a `ref:` handle on
 the element:
+
+**Needs:** nothing besides the page. It claims `/`: paste it into a new
+project, or replace the starter's `src/pages/Home.wf` with it.
 
 ```wf
 page Hover(path: "/", title: "Hover", description: "A card that pulses on hover.") {

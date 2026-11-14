@@ -8,6 +8,9 @@ A component that needs only one value from a store can take it as a prop
 instead of using the store. That keeps the component reusable outside that
 store: a test or another page can hand it any number:
 
+**Needs:** nothing besides the code. It claims `/`: paste it into a new
+project, or replace the starter's `src/pages/Home.wf` with it.
+
 ```wf
 store Cart { state count = 0 }
 

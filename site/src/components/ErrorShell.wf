@@ -1,8 +1,9 @@
 /// T5, one diagnostic: the code, its title, its severity and family; what
-/// the compiler prints, as it prints it; why the rule exists (the page's
-/// body); the broken code and the fixed one, side by side, with what the
-/// fix is under them (`note`); whether `lints`
-/// may lower it; then related codes and the chapter that covers it. Every
+/// the compiler prints, as it prints it; the broken code and the fixed one,
+/// side by side, with what the fix is under them (`note`) — straight after
+/// the message, for a reader who came from a terminal's `docs:` link; why
+/// the rule exists (the page's body); whether `lints` may lower it, and the
+/// setting that does; then related codes and the chapter that covers it. Every
 /// family is in the sidebar. A code with nothing more to say than its
 /// summary has no "Why" (`why: false`), and one no short program can draw
 /// shows only the fix (`broken: false`).
@@ -11,6 +12,8 @@ component ErrorShell(_ code: String, title: String = "", severity: String = "err
     slot fixed
     slot note
     slot
+
+    derived lowered = if severity == "error" { "warn" } else { "off" }
 
     SiteHeader(docs: true, other: other, lang: lang)
 
@@ -51,14 +54,6 @@ component ErrorShell(_ code: String, title: String = "", severity: String = "err
                 }
             }
 
-            if why {
-                Stack(gap: .md, class: "bp-prose") {
-                    style { gap: 14px }
-                    Heading(t("error.why"), id: "why").h2 // wf-allow(A16): one shell per page
-                    children
-                }
-            }
-
             Stack(gap: .sm) {
                 style { gap: 12px }
                 Heading(t("error.fix"), id: "fix").h2 { style { margin: 0; font-size: 19px; font-weight: 600 } } // wf-allow(A16): one shell per page
@@ -81,10 +76,24 @@ component ErrorShell(_ code: String, title: String = "", severity: String = "err
                 }
             }
 
+            if why {
+                Stack(gap: .md, class: "bp-prose") {
+                    style { gap: 14px }
+                    Heading(t("error.why"), id: "why").h2 // wf-allow(A16): one shell per page
+                    children
+                }
+            }
+
             Row(align: .center, gap: .sm, class: "bp-raised") {
                 style { gap: 12px; flex-wrap: wrap; padding: 14px 16px; max-width: $prose-max }
                 Text(if lowerable { t("error.lowerable.yes") } else { t("error.lowerable.no") }) { style { margin: 0; font-size: 14px } }
-                Code("\"lints\": \{ \"{code}\": \"warn\" \}", class: "bp-ltr", dir: "ltr") { style { font-size: 12.5px; color: $muted } }
+                // A warning is already "warn": what lowers it is "off", or an
+                // allow on its one line. An error that may be lowered goes
+                // to "warn"; one that may not shows no setting at all.
+                if lowerable {
+                    Code("\"lints\": \{ \"{code}\": \"{lowered}\" \}", class: "bp-ltr", dir: "ltr") { style { font-size: 12.5px; color: $muted } }
+                    Code("// wf-allow({code})", class: "bp-ltr", dir: "ltr") { style { font-size: 12.5px; color: $muted } }
+                }
             }
 
             Related(links: related)

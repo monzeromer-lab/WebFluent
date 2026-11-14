@@ -30,7 +30,9 @@ Chart(kind: Enum, data: Any, x: String, …)
 
 ## Flags
 
-`.bar` `.line` `.area` `.pie` `.donut` `.legend` `.stacked` `.labels` `.dropInside` `.trapFocus`
+`.bar` `.line` `.area` `.pie` `.donut` `.legend` `.stacked` `.labels`
+
+Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 
 ## Example
 

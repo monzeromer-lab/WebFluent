@@ -25,6 +25,9 @@ Before you start:
 
 Add `offline` to `webfluent.app.json`:
 
+**Needs:** the `offline` setting below, a site served over HTTPS (or from
+`localhost`), and a page at `/` for the fallback page to link to.
+
 ```json
 { "offline": {
     "precache": ["/", "/docs/*"],

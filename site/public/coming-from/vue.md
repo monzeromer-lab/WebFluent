@@ -33,6 +33,8 @@ checked at build time.
 | `v-for` | `<li v-for="i in items" :key="i.id">{{ i.name }}</li>` | `for i in items by i.id { Text(i.name) }` |
 | Class bindings | `:class="{ done: todo.done }"` | `class: { "done": todo.done }` |
 | Transitions | `<Transition name="fade">` | `.fadeIn`, `exit: .fadeOut` |
+| Fetching | `<Suspense>` with an async `setup`, or VueUse's `useFetch("/api/users")` | `resource users = fetch("/api/users")`, read with `match users { … }` |
+| A test | Vitest with Vue Test Utils: `mount`, `trigger("click")`, `text()` | `test "…" { click "Save"  expect "Saved" }` |
 
 ## Things that work differently
 

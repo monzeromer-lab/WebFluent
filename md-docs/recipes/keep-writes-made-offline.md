@@ -13,6 +13,10 @@ comes back. This needs offline support turned on
 ([Make a site work offline](work-offline.md)), with `"sync": true` in its
 config:
 
+**Needs:** `offline` with `"sync": true` in `webfluent.app.json`, below,
+and a site served over HTTPS ([Make a site work
+offline](work-offline.md)).
+
 ```json
 { "offline": { "precache": ["/"], "sync": true } }
 ```

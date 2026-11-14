@@ -27,7 +27,18 @@ Video(src: String, controls: Bool, autoplay: Bool, …)
 
 ## Flags
 
-`.controls` `.autoplay` `.muted` `.loop` `.playsinline` `.dropInside` `.trapFocus`
+`.controls` `.autoplay` `.muted` `.loop` `.playsinline`
+
+## DOM events it answers
+
+Any other DOM event works too, in an `on … { }` handler.
+
+- `on play`: A video or audio started playing
+- `on pause`: A video or audio paused
+- `on ended`: A video or audio reached its end
+- `on timeupdate`: A playing video or audio moved on
+
+Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 
 ## Example
 
@@ -44,4 +55,4 @@ Video(src: "/demo.mp4", captions: "/demo.en.vtt", poster: "/demo.jpg").controls
 - [D01](https://webfluent.monzeromer.dev/errors/D01.md): A file the project does not have
 - [A09](https://webfluent.monzeromer.dev/errors/A09.md): Media nobody can follow without sound
 
-Since WebFluent 5.0.
+Before WebFluent 5.0.

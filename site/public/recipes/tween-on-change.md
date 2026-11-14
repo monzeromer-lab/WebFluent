@@ -9,6 +9,9 @@ colour shifting — rather than an element arriving. Add a `transition { }`
 block that names the property and how long it takes. Press **Toggle** and
 the card grows to show the rest of its text:
 
+**Needs:** nothing besides the page. It claims `/`: paste it into a new
+project, or replace the starter's `src/pages/Home.wf` with it.
+
 ```wf
 page Tween(path: "/", title: "Tween", description: "A panel that grows.") {
     state open = false

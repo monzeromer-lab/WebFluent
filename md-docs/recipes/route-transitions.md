@@ -1,7 +1,7 @@
 ---
 kind: "recipe"
 route: "/recipes/route-transitions"
-group: "look"
+group: "motion"
 description: "Animate every change of page: give the Router a transition: of .fade or .slide and a duration:, played through the View Transitions API."
 outputs: ["website", "app"]
 from: ["/docs/guide/motion#animate-route-changes"]
@@ -10,6 +10,10 @@ from: ["/docs/guide/motion#animate-route-changes"]
 
 Fade or slide from one page to the next, on every route change, by giving
 the `Router` a `transition:` and a `duration:` in `app`:
+
+**Needs:** nothing besides the code, which is a whole project's `app` and
+pages: paste it into a new project, replacing `src/App.wf` and
+`src/pages/Home.wf`.
 
 ```wf
 app {

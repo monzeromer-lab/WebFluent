@@ -285,8 +285,8 @@ reads the browser the way it reads its own state:
 | `theme` | `"light"`, `"dark"` or `"system"` — the reader's choice ([Styling](13-styling.md#dark-mode)) | `setTheme(…)` is called |
 | `now` | a `DateTime`, every minute; `now(every: 1.seconds)` for a finer clock ([Types](12-types.md#now)) | the clock ticks |
 | `network` | `.online`, `.effectiveType`, `.saveData`, `.downlink`, `.queued` ([Real-time](../recipes/show-the-network.md)) | the connection changes |
-| `update` | `.available` and `.apply()` — a new version of an offline site ([Offline](../recipes/index.md)) | a new build is installed |
-| `locale`, `dir` | the current locale and `"ltr"`/`"rtl"`, with i18n configured ([i18n](../recipes/index.md)) | `setLocale(…)` is called |
+| `update` | `.available` and `.apply()` — a new version of an offline site ([Offer a new version](../recipes/offer-a-new-version.md)) | a new build is installed |
+| `locale`, `dir` | the current locale and `"ltr"`/`"rtl"`, with i18n configured ([Translate a site](../recipes/translate-a-site.md)) | `setLocale(…)` is called |
 
 This page reads four of them:
 
@@ -317,16 +317,24 @@ The rules:
 
 ## Where values come from, in order
 
-When a body reads a name, it is looked up in this order:
+When a body reads a name, the nearest declaration wins. The compiler looks
+in this order, innermost first:
 
-1. Route parameters and props (`slug`, `_ label`).
-2. `state`, `persist`, `derived`, `resource` and actions of the body.
-3. A `use`d store's members, through the store's name (`Cart.total`).
-4. Loop variables and arm bindings, inside their block.
-5. Constants, `data` and `image` declarations, `env.X`, and the browser's
+1. A `let` local, a lambda's parameter or a caught error, inside its block.
+2. Loop variables and arm bindings (`if let`, a `match` arm), inside their
+   block.
+3. Route parameters and props (`slug`, `_ label`).
+4. `state`, `persist`, `derived`, `resource` and actions of the body. A
+   body member may not share a name with a parameter or a prop (`E102`).
+5. A `use`d store's members, always through the store's name
+   (`Cart.total`).
+6. Constants, `data` and `image` declarations, `env.X`, and the browser's
    values above.
-6. Browser globals: `window`, `document`, `localStorage`, `JSON`, `Math`,
+7. Browser globals: `window`, `document`, `localStorage`, `JSON`, `Math`,
    `Date`, `fetch`, `setTimeout`, `console`, `navigator`, `location`.
+
+So with `state name = "outer"`, `for name in items by name { Text(name) }`
+shows each item, and a `const name` is hidden by both.
 
 ## Summary
 

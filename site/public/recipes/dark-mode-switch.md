@@ -8,6 +8,11 @@ Let the reader pick a light look, a dark one, or whatever their system
 prefers, and keep that choice across visits. The switch needs a dark theme
 named in `webfluent.app.json`:
 
+**Needs:** the `theme` setting below in `webfluent.app.json`. The starter
+already declares `theme Night` in `src/theme.wf` and a `ThemeToggle`
+component that does this; replace `src/theme.wf` with this code's themes,
+and its `Settings` page replaces the starter's `src/pages/Settings.wf`.
+
 ```json
 { "theme": { "name": "Light", "dark": "Night" } }
 ```

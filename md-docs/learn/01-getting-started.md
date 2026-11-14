@@ -155,7 +155,7 @@ Change it back, save, and the page returns.
 
 You have a working project. Stop the server with Ctrl+C when you are done.
 Run `wf build` to write the finished site to `build/`, ready for any static
-host ([Deploying](../recipes/index.md)).
+host ([Deploy to GitHub Pages](../recipes/deploy-to-github-pages.md)).
 
 The rest of this chapter is optional set-up. To keep learning, go to the
 [tutorial](02-tutorial-shelf.md).

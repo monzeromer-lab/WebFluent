@@ -22,7 +22,9 @@ Row(gap: Enum, align: Enum, justify: Enum, …) { … }
 
 ## Flags
 
-`.xs` `.sm` `.md` `.lg` `.xl` `.stretch` `.baseline` `.between` `.around` `.evenly` `.row` `.column` `.stacks` `.dropInside` `.trapFocus`
+`.xs` `.sm` `.md` `.lg` `.xl` `.stretch` `.baseline` `.between` `.around` `.evenly` `.row` `.column` `.stacks`
+
+Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 
 ## Slots
 
@@ -44,4 +46,4 @@ Row(direction: { base: .column, md: .row }) { Text("a")  Text("b") }
 - [C04](https://webfluent.monzeromer.dev/errors/C04.md): An attribute a built-in does not declare
 - [C05](https://webfluent.monzeromer.dev/errors/C05.md): A positional argument a built-in does not take
 
-Since WebFluent 5.0.
+Before WebFluent 5.0.

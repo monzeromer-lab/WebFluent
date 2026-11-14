@@ -19,8 +19,8 @@ stacks and grids, styled with CSS.
 |---|---|---|
 | The paper | `\documentclass[a4paper]{article}` / `#set page(paper: "a4")` | `Document(size: "A4", margin: "20mm") { … }` |
 | Title and author | `\title{…}\author{…}` / `#set document(title: …)` | `Document(title: "Q1 report", author: "Acme")` |
-| A section | `\section{Results}` / `= Results` | `Heading("Results").h1` |
-| A subsection | `\subsection{Method}` / `== Method` | `Heading("Method").h2` |
+| A section | `\section{Results}` / `= Results` | `Heading("Results").h2` (the title is the `h1`) |
+| A subsection | `\subsection{Method}` / `== Method` | `Heading("Method").h3` |
 | A paragraph | a blank line between paragraphs | `Text("…")`, or `Markdown("…")` for several |
 | Bold and italic | `\textbf{x}`, `\emph{x}` / `*x*`, `_x_` | `Text("x").bold`, `Text("x").italic`, or `**x**` in `Markdown` |
 | A list | `itemize` / `- item` | `List { List.Item { Text("…") } }` |

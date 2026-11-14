@@ -13,7 +13,7 @@ function openHelp() {
 
         Heading("Calling the runtime", id: "calling-the-runtime").h2
 
-        Markdown("These rules apply to every function in this chapter:\n\n- **Who calls it.** The compiled pages call the runtime. So may a project script under `src/` or in `meta.scripts`, a library's callback, or you in the browser's console.\n- **Which functions to call.** Most names here are what the compiler emits for a language feature, listed so you can read the output. The ones meant for your own code are marked **●**.\n- **Modules.** The runtime is a set of feature modules. Each table names the module a function belongs to, and a build ships only the modules its own code reaches. A script that calls a module nothing else uses needs `\"build\": \{ \"runtime\": \"full\" \}` ([JavaScript interop](/recipes)).")
+        Markdown("These rules apply to every function in this chapter:\n\n- **Who calls it.** The compiled pages call the runtime. So may a project script under `src/` or in `meta.scripts`, a library's callback, or you in the browser's console.\n- **Which functions to call.** Most names here are what the compiler emits for a language feature, listed so you can read the output. The ones meant for your own code are marked **●**.\n- **Modules.** The runtime is a set of feature modules. Each table names the module a function belongs to, and a build ships only the modules its own code reaches. The project's own scripts count: a `WF.toast(…)` in `src/support.js` ships `toast`. Only a call the build cannot see — a name built from a string, a script loaded from another origin — needs `\"build\": \{ \"runtime\": \"full\" \}` ([Call WF from a script](/recipes/call-wf-from-a-script)).")
 
         Heading("Events the runtime dispatches", id: "events-the-runtime-dispatches").h2
 
@@ -203,22 +203,22 @@ document.addEventListener("wf:render", (e) => {
             Table.Body {
                 Table.Row {
                     Table.Cell { Markdown("`onKey(node, combination, fn)`") }
-                    Table.Cell { Markdown("`core`") }
+                    Table.Cell { Markdown("`keys`") }
                     Table.Cell { Markdown("`on key(\"mod+k\")`.") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`keyIs(event, combination)`") }
-                    Table.Cell { Markdown("`core`") }
+                    Table.Cell { Markdown("`keys`") }
                     Table.Cell { Markdown("`keyIs(e, \"mod+k\")`: whether a key event is that combination.") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`keyLabel(combination)`") }
-                    Table.Cell { Markdown("`core`") }
+                    Table.Cell { Markdown("`keys`") }
                     Table.Cell { Markdown("`keyLabel(\"mod+k\")`: how this system writes the combination (`⌘K`, `Ctrl+K`).") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`keyAria(combination)`") }
-                    Table.Cell { Markdown("`core`") }
+                    Table.Cell { Markdown("`keys`") }
                     Table.Cell { Markdown("The combination as `aria-keyshortcuts` writes it, for a drawn `shortcut:`.") }
                 }
                 Table.Row {
@@ -325,6 +325,11 @@ document.addEventListener("wf:render", (e) => {
                     Table.Cell { Markdown("Keeps a link's `.active` class and `aria-current`.") }
                 }
                 Table.Row {
+                    Table.Cell { Markdown("`playRoute(options, page)`") }
+                    Table.Cell { Markdown("`router`") }
+                    Table.Cell { Markdown("Internal: plays a `Router(transition:)`, which the compiled router passes as `play:`.") }
+                }
+                Table.Row {
                     Table.Cell { Markdown("`page(name, fn)`, `loadPage(name, cb)`, `loadSheet(name, cb)`") }
                     Table.Cell { Markdown("`pages`") }
                     Table.Cell("Page chunks and their stylesheets.")
@@ -360,12 +365,12 @@ document.addEventListener("wf:render", (e) => {
                 }
                 Table.Row {
                     Table.Cell { Markdown("`theme()`") }
-                    Table.Cell { Markdown("`core`") }
+                    Table.Cell { Markdown("`theme`") }
                     Table.Cell("The theme the reader chose.")
                 }
                 Table.Row {
                     Table.Cell { Markdown("`setTheme(choice)` ●") }
-                    Table.Cell { Markdown("`core`") }
+                    Table.Cell { Markdown("`theme`") }
                     Table.Cell { Markdown("Switches the theme: `\"dark\"`, `\"light\"` or `\"system\"`, kept across visits.") }
                 }
             }
@@ -554,6 +559,11 @@ document.addEventListener("wf:render", (e) => {
                     Table.Cell { Markdown("`form(options)`, `validate(read, rules, options)`") }
                     Table.Cell { Markdown("`form`") }
                     Table.Cell { Markdown("A `Form` handle and a `validate` block's rules.") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`askRules(read, rules, fault, remote, pending)`") }
+                    Table.Cell { Markdown("`form`") }
+                    Table.Cell { Markdown("Internal: asks a `validate` block's `async` rules, which the compiled form passes as `ask:`.") }
                 }
             }
         }

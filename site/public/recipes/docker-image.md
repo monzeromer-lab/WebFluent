@@ -16,7 +16,7 @@ Add a `Dockerfile` at the project's root:
 ```dockerfile
 FROM debian:stable-slim AS build
 RUN apt-get update && apt-get install -y curl ca-certificates
-RUN curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | bash
+RUN curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v6.0.0 bash
 WORKDIR /site
 COPY . .
 RUN /root/.webfluent/bin/wf build
@@ -36,7 +36,8 @@ docker run -p 8080:80 site
 
 1. The first stage, `build`, installs `curl`, installs `wf` into
    `/root/.webfluent/bin/`, copies the project in and builds it to
-   `/site/build`.
+   `/site/build`. `WF_VERSION` pins the release, so the image builds the
+   same way until you change it.
 2. The second stage starts from `nginx:alpine` and copies only the built
    site into nginx's document root. `wf` and the project's sources stay
    behind in the first stage.

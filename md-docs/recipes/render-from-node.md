@@ -1,7 +1,7 @@
 ---
 kind: "recipe"
 route: "/recipes/render-from-node"
-group: "interop"
+group: "server"
 description: "Render WebFluent templates from Node.js with the webfluent package: an Express server that answers with an invoice as HTML or as a PDF."
 outputs: ["website", "pdf", "slides"]
 from: ["/docs/guide/server-rendering#render-from-node"]

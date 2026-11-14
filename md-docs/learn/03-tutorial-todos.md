@@ -13,13 +13,17 @@ learned: ["Describe data with a `type` and an `enum`", "Keep a list across reloa
 This tutorial builds a todo list kept in the reader's browser, with a
 store, a component, a filter in the address and tests that click.
 
-It is the first of three tutorials that each build a whole project, step by step. Each project is complete in the repository under `examples/tutorials/`, and none needs a server: what a project keeps, it keeps in the reader's browser.
+It is the second of the book's tutorials, after Shelf. Two longer projects
+in the recipes build on both. Todos and the two longer projects are
+complete in the repository under `examples/tutorials/`, and none needs a
+server: what a project keeps, it keeps in the reader's browser.
 
-| Tutorial | What you build | What it teaches | Time |
+| Project | What you build | What it teaches | Time |
 |---|---|---|---|
-| [Todos](03-tutorial-todos.md) | A list of things to do: add, tick, rename, filter | Types, a store with `persist`, a component, a keyed list, a filter in the address, tests that click | 20 minutes |
-| [Field Notes](../recipes/build-a-notebook-site.md) | A notebook site, statically built, a page per note | `data` files, a layout, `:slug` pages with `paths:`, Markdown pages, search and tags, what a pre-rendered page can know | An hour |
-| [Pocket](../recipes/build-a-budget-app.md) | A budget tracker with a dashboard, forms and two languages | `Money` and `Date`, derived totals, a `persist` migration, `validate`, a dialog and shortcuts, i18n and right-to-left text, a script of your own, offline | A couple of hours |
+| [Shelf](02-tutorial-shelf.md) (chapter 2) | A reading-list site: a page per book, a saved shelf, a form | Typed `data`, a component, `:slug` pages, a store with `persist`, a form, a theme, a test, a deploy | Half an hour |
+| [Todos](03-tutorial-todos.md) (this chapter) | A list of things to do: add, tick, rename, filter | Types, a store with `persist`, a component, a keyed list, a filter in the address, tests that click | 20 minutes |
+| [Field Notes](../recipes/build-a-notebook-site.md) (a longer project) | A notebook site, statically built, a page per note | `data` files, a layout, `:slug` pages with `paths:`, Markdown pages, search and tags, what a pre-rendered page can know | An hour |
+| [Pocket](../recipes/build-a-budget-app.md) (a longer project) | A budget tracker with a dashboard, forms and two languages | `Money` and `Date`, derived totals, a `persist` migration, `validate`, a dialog and shortcuts, i18n and right-to-left text, a script of your own, offline | A couple of hours |
 
 If you have not written WebFluent before, start with [the Shelf tutorial](02-tutorial-shelf.md): it is a gentler first half hour.
 
@@ -473,8 +477,11 @@ wf build
 ```
 
 `wf check` reports every finding and writes nothing. `wf build` writes
-`build/`, which any static host serves — [Deploying](../recipes/index.md)
-covers GitHub Pages, Netlify and the rest. To load the built page in a
+`build/`, which any static host serves: see the recipes for
+[GitHub Pages](../recipes/deploy-to-github-pages.md),
+[Netlify](../recipes/deploy-to-netlify.md),
+[Vercel](../recipes/deploy-to-vercel.md) and
+[Cloudflare Pages](../recipes/deploy-to-cloudflare-pages.md). To load the built page in a
 real browser before you deploy, run `wf verify`: it fails on an error, a
 missing file or a page that draws nothing.
 
@@ -554,6 +561,9 @@ page Home(path: "/", title: "Todos", description: "A small list of things to do.
 Bind a `state`, as the page binds `draft`, and change the store through
 its actions ([F01](../errors/F01.md)).
 
+Going further: [Field Notes](../recipes/build-a-notebook-site.md) builds a
+statically generated site on what this one taught.
+
 ## Next
 
-[Tutorial: Field Notes](../recipes/build-a-notebook-site.md) builds a statically generated site on what this one taught.
+[Language basics](04-language-basics.md).

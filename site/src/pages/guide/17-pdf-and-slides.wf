@@ -19,7 +19,7 @@ page Learn17PdfAndSlides(path: "/learn/17-pdf-and-slides", title: "PDF and slide
   Output: ./build/my-report.pdf
 Build complete."#, title: "text")
 
-        Markdown("To produce one PDF per invoice from data, use the same templates with [server rendering](/recipes) instead.")
+        Markdown("To produce one PDF per invoice from data, use the same templates with [server rendering](/recipes/render-a-template) instead.")
 
         Heading("Choose what the build writes", id: "choose-what-the-build-writes").h2
 
@@ -165,7 +165,7 @@ page Invoice(path: "/", title: "Invoice", description: "An invoice.") {
             }
         }
 
-        Markdown("Inside a `Header`, `Footer` or `Background`, `page` and `pages` are the page's number and the page count: `Text(\"Page \{page\} of \{pages\}\")`.\n\nThe page's background — the `html` or `body` rule's — fills every page, edge to edge, so a dark theme prints dark.")
+        Markdown("`Header` and `Footer` are the same built-ins that draw the `<header>` and `<footer>` landmarks on a web page ([Elements](/learn/06-elements#layout-elements)). Inside a `Document` they become the margins of every page.\n\nInside a `Header`, `Footer` or `Background`, `page` and `pages` are the page's number and the page count: `Text(\"Page \{page\} of \{pages\}\")`.\n\nThe page's background — the `html` or `body` rule's — fills every page, edge to edge, so a dark theme prints dark.")
 
         Heading("Control where pages break", id: "control-where-pages-break").h3
 
@@ -436,7 +436,7 @@ page Report(path: "/", title: "Sales", description: "The quarter.") {
     }
 }"#, title: "wf · draws T13")
 
-        Markdown("Move the line into `Footer \{ Text(\"Page \{page\} of \{pages\}\") \}` ([T13](/errors/T13)).\n\n**A component named like a built-in.** `Footer` is already the document's footer, so a call of that name draws the built-in and never your component:")
+        Markdown("Move the line into `Footer \{ Text(\"Page \{page\} of \{pages\}\") \}` ([T13](/errors/T13)).\n\n**A component named like a built-in.** `Footer` is already a built-in (the document's footer here, the `<footer>` landmark on the web), so a call of that name draws the built-in and never your component:")
 
         CodeBlock(#"component Footer(_ note: String) {
     Text(note).muted.sm.center

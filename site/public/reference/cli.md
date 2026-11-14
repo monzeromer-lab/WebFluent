@@ -114,7 +114,7 @@ writes a newer one, and an older project can take the current one from the
 `wf init` writes a shorter config than the full set of defaults, and turns
 `build.csp` on.
 
-See also: [Internationalisation](https://webfluent.monzeromer.dev/recipes.md), [Configuration](https://webfluent.monzeromer.dev/reference/config.md).
+See also: [Translate a site](https://webfluent.monzeromer.dev/recipes/translate-a-site.md), [Configuration](https://webfluent.monzeromer.dev/reference/config.md).
 
 ### `wf build`
 
@@ -580,7 +580,7 @@ A template is held to the same checks as a build: a component nothing
 declares, or a flag a component does not take, stops the render. The one
 difference is that the names a template reads come from its data.
 
-See also: [Server rendering](https://webfluent.monzeromer.dev/recipes.md).
+See also: [Render a template](https://webfluent.monzeromer.dev/recipes/render-a-template.md).
 
 ## Upgrading
 
@@ -698,7 +698,7 @@ original. With `--json`, the same sentences are in the `said` field.
 The library has the same as `webfluent::build::assets::{list, plan}`. It reads
 through a `Vfs`, so an editor's unsaved buffers count.
 
-See also: [Media](https://webfluent.monzeromer.dev/recipes.md).
+See also: [Add a picture](https://webfluent.monzeromer.dev/recipes/add-a-picture.md).
 
 ### `wf theme`
 
@@ -760,7 +760,7 @@ It lists:
 
 The library has it as `webfluent::motion::catalogue` (with the `internals` feature, outside semver).
 
-See also: [Motion](https://webfluent.monzeromer.dev/recipes.md).
+See also: [Motion defaults](https://webfluent.monzeromer.dev/recipes/motion-defaults.md).
 
 ### `wf context`
 
@@ -849,7 +849,7 @@ a run of counts takes.
 The library has it as `webfluent::i18n::table` (with the `internals` feature, outside semver), whose `set_message` writes
 one message back and keeps every other byte of the file.
 
-See also: [Internationalisation](https://webfluent.monzeromer.dev/recipes.md).
+See also: [Translate a site](https://webfluent.monzeromer.dev/recipes/translate-a-site.md).
 
 ### `wf scope`
 
@@ -1023,129 +1023,14 @@ the parameters and return type its JSDoc gives it.
 | `WF_VERSION` | `install.sh`, `install.ps1` | The release to install, such as `v5.11.0`, instead of the latest. |
 | `WF_CHROME` | `wf test`, `wf verify` | The Chrome or Chromium to drive, when it is not found on its own. |
 | `WF_BIN` | the Node binding | The `wf` binary to call. |
-| any `PUBLIC_…` name | `wf build` | A value for `env.NAME` ([Environments](https://webfluent.monzeromer.dev/recipes.md)). |
+| any `PUBLIC_…` name | `wf build` | A value for `env.NAME` ([Environments and secrets](https://webfluent.monzeromer.dev/recipes/environments-and-secrets.md)). |
 
 ## Editors
 
 `wf-lsp` is the language server: it runs the compiler's checks as you type
-and answers your editor's questions about the code.
-
-### `wf-lsp`
-
-To install it, download the binary from a
-[release](https://github.com/monzeromer-lab/WebFluent/releases)
-(`wf-lsp-<version>-<arch>-<os>.tar.gz`) and put it on your `PATH`, or build
-it from a clone with `cargo install --path crates/wf-lsp`. Keep it at the
-version of your `wf`; `wf-lsp --version` prints its version.
-
-It provides:
-
-- **Diagnostics as you type** — every check `wf build` runs, for `.wf`,
-  `.wfx` and Markdown pages, rerun whenever a file they depend on changes (a
-  translation, a `.env`, a script, a `public/` asset).
-- **Output awareness.** In a project whose `build.output_type` is `pdf` or
-  `slides`, completion offers only what paper can draw — no `Button`, no
-  `on click`, no `resource`. Inside a `Presentation` it offers slides (and
-  the project's slide components), and inside a slide everything else.
-  Hover says when an element is not drawn in this output, and why. `page`
-  and `pages` are names inside a `Header`, `Footer` or `Background`. In a
-  web project the paper-only elements are offered last.
-- **Completion**, from the compiler's own tables: components and their props
-  after `(`, flags and parts after `.`, enum cases after `:`, events after
-  `on `, `$` tokens, `match` arms and slot names; the fields of a record and
-  the methods of each built-in type (`due.` offers `plus`, `isBefore`, …); a
-  service's endpoints; the keywords each place allows (a store's, an
-  action's, a test's steps); type names after `:`; duration units after a
-  number; `validate` rules, `persist` settings, `format` styles, responsive
-  steps, `Host` tags, key names in `on key("…")`, translation keys in
-  `t("…")`, public `env.` names, and lint codes in `// wf-allow(`.
-- **Hover** — what every name is: a component's documentation and
-  signature, the props every element takes, a name's inferred type, a field
-  or an endpoint, a case, a keyword, a function the language provides, an
-  `image`'s size.
-- **Signature help** inside a call: what it takes and which argument the
-  cursor is on — for an element, a component, an endpoint, an action, a
-  project script's function or a built-in one.
-- **Navigation** — go to definition, find references, highlight the uses in
-  a file, and rename across the project, for every declaration (a type, an
-  enum, a case, a field, a `const`, a `data` file, an animation, an
-  endpoint) and inside a string's `{…}` splices.
-- **Formatting** — `wf fmt`, on the open file.
-- **Folding, inlay hints and semantic highlighting** — an inlay hint shows
-  the type of a `state` or `derived` value written without one, and a name
-  is coloured by what it resolves to: a component, a type, a store, a prop
-  or a state.
-- **Document symbols** and the outline.
-- **Quick fixes**, from the compiler's own findings: the nearest name for a
-  misspelt field, member, method, variable, component or flag; `?.` for a
-  value that may be null; the props a call leaves out; the arms a `match`
-  misses; a bare word written as its flag; `alt: ""` for an image; an `_`
-  before a name nothing reads. **Extract component** turns a selection into
-  a component.
-
-### Zed
-
-The extension is [webfluent-zed](https://github.com/monzeromer-lab/webfluent-zed). It is not in Zed's extension registry
-yet, so clone it and install it with `zed: install dev extension`, pointing
-at the clone. It provides Tree-sitter highlighting, the outline, brackets,
-indentation, snippets and the language server (found on `PATH`, or
-downloaded from the latest release), for `.wf` and `.wfx`.
-
-### VS Code
-
-The extension is [webfluent-vscode](https://github.com/monzeromer-lab/webfluent-vscode): TextMate highlighting and the
-language server. Until it is on the Marketplace, install the `.vsix` from
-its latest release with **Extensions: Install from VSIX**.
-
-### Neovim
-
-Neovim 0.11 or later configures the server with `vim.lsp.config`:
-
-```lua
-vim.filetype.add({ extension = { wf = "webfluent", wfx = "webfluent" } })
-vim.lsp.config("wf_lsp", {
-  cmd = { "wf-lsp" },
-  filetypes = { "webfluent" },
-  root_markers = { "webfluent.app.json" },
-})
-vim.lsp.enable("wf_lsp")
-```
-
-### Helix
-
-Add the language and its server to `languages.toml`:
-
-```toml
-[[language]]
-name = "webfluent"
-scope = "source.webfluent"
-file-types = ["wf", "wfx"]
-roots = ["webfluent.app.json"]
-comment-token = "//"
-indent = { tab-width = 4, unit = "    " }
-language-servers = ["wf-lsp"]
-
-[language-server.wf-lsp]
-command = "wf-lsp"
-```
-
-### Emacs
-
-With Eglot, define a mode and register the server:
-
-```elisp
-(define-derived-mode webfluent-mode prog-mode "WebFluent")
-(add-to-list 'auto-mode-alist '("\\.wfx?\\'" . webfluent-mode))
-(with-eval-after-load 'eglot
-  (add-to-list 'eglot-server-programs '(webfluent-mode . ("wf-lsp"))))
-```
-
-### Other editors
-
-Any editor with LSP support can run `wf-lsp` over standard input and output;
-the project root is the folder that holds `webfluent.app.json`. For
-highlighting in an editor that reads Tree-sitter, use the grammars in
-[tree-sitter-webfluent](https://github.com/monzeromer-lab/tree-sitter-webfluent): `webfluent/` (braces) and `webfluentx/` (indentation).
+and answers your editor's questions about the code. [Editors](https://webfluent.monzeromer.dev/reference/editors.md)
+says how to install it, what it answers, and how to set up VS Code, Zed,
+Neovim, Helix, Emacs and any other editor with LSP support.
 
 ## Building a tool on the compiler
 

@@ -1,7 +1,7 @@
 ---
 kind: "recipe"
 route: "/recipes/environments-and-secrets"
-group: "reach"
+group: "ship"
 description: "Read settings such as an API address with env.NAME, set them per environment, and keep a private value such as an API key out of the bundle."
 from: ["/docs/guide/environments#read-a-value-in-a-page", "/docs/guide/environments#set-a-value", "/docs/guide/environments#keep-a-private-value-out-of-the-bundle", "/docs/guide/environments#name-your-own-values-something-other-than-env", "/docs/guide/environments#build-once-per-environment", "/docs/guide/environments#change-other-settings-per-deploy", "/docs/guide/environments#audit-what-the-project-reads"]
 outputs: ["website", "app", "desktop"]
@@ -14,6 +14,10 @@ a private value such as an API key out of what readers download.
 
 This page reads the API's address and a feature switch, and falls back to
 defaults when nothing sets them:
+
+**Needs:** an API that answers `/api/rows`, and the values set as [Set a
+value](#set-a-value) shows. It claims `/`: paste it into a new project, or
+replace the starter's `src/pages/Home.wf` with it.
 
 ```wf
 const API = env.PUBLIC_API ?? "/api"
@@ -28,6 +32,10 @@ page Rows(path: "/", title: "Rows", description: "Rows from the API.") {
         error(e) { Text(e.message).danger }
         ready(r) { Text("{r.length} rows") }
     }
+}
+
+page Billing(path: "/billing", title: "Billing", description: "Plans and invoices.") {
+    Heading("Billing").h1
 }
 ```
 

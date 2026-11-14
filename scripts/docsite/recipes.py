@@ -7,8 +7,11 @@
   `## How it works` and, when it has them, `## Variations`. Other sections
   follow how it works, under their own headings.
 - `site/src/pages/recipes/Index.wf`: `/recipes`, every recipe by group, with
-  the groups' own lines from `md-docs/recipes/index.md`; and
-  `RECIPE_INDEX`, the recipes' sidebar.
+  the groups' own lines from `md-docs/recipes/index.md`, in the order that
+  file lists them (every recipe must be listed there, under its `group:`);
+  and `RECIPE_INDEX`, the recipes' sidebar.
+- A recipe's `**Needs:**` paragraph, under its intro, is drawn above its
+  code rather than folded into the summary.
 - `site/src/pages/recipes/Moved.wf`: a page at each old chapter address the
   recipes came from, sending the reader on; and `site/src/old-links-map.js`,
   each old `#section` address and the recipe it became, which
@@ -35,15 +38,40 @@ OUT = Path(os.environ["WF_RECIPES_OUT"]) if os.environ.get("WF_RECIPES_OUT") els
 wf = Path(os.environ["WF_BIN"]) if os.environ.get("WF_BIN") else ROOT / "target" / "debug" / "wf"
 
 GROUPS = {
-    "Interaction": "interaction", "Data": "data", "Real time": "realtime",
-    "Content": "content", "Look and motion": "look", "Reach": "reach",
-    "Ship": "ship", "Interop": "interop", "Projects": "projects",
+    "Interaction": "interaction", "Forms and data": "data", "Real time": "realtime",
+    "Content": "content", "Media and themes": "media", "Motion": "motion",
+    "Reach": "reach", "Testing": "testing", "Ship": "ship",
+    "Desktop and phone apps": "desktop", "Interop": "interop",
+    "Server rendering": "server", "Projects": "projects",
 }
 
 
 # A group's key, as front matter writes it, and its name, as the index and
 # the sidebar show it.
 NAMES = {key: name for name, key in GROUPS.items()}
+
+# A recipe's "Needs" line: what it takes besides the page (a setting, a
+# file, another recipe). It is written under the intro, and drawn above the
+# code rather than folded into the summary.
+NEEDS = re.compile(r"(?ms)^\*\*Needs:\*\*.*?(?=\n\s*\n|\Z)")
+
+
+def index_sections():
+    """`md-docs/recipes/index.md`'s groups, in order: each one's heading,
+    the line that says what it holds, and its recipes' files, in the order
+    the index lists them."""
+    meta, body = guide.front_matter(RECIPES / "index.md")
+    lead, *groups = re.split(r"(?m)^## ", re.sub(r"^# .*\n", "", body.lstrip("\n"), count=1))
+    out = []
+    for g in groups:
+        heading, _, text = g.partition("\n")
+        heading = heading.strip()
+        if heading not in GROUPS:
+            raise SystemExit(f"md-docs/recipes/index.md: `## {heading}` is none of {tuple(GROUPS)}")
+        blurb = "\n".join(l for l in text.split("\n") if not l.lstrip().startswith("- ")).strip()
+        files = re.findall(r"(?m)^\s*- \[[^\]]*\]\(([^)#]+\.md)\)", text)
+        out.append((heading, blurb, files))
+    return meta, lead, out
 
 
 def q(text: str) -> str:
@@ -63,6 +91,10 @@ def split(body: str):
     # the task is written in: a page, a workflow file, a server's config.
     # When it takes several files (a config and the page), the code is all
     # of them, with the lines that join them, up to the first heading.
+    needs = NEEDS.search(head)
+    if needs:
+        head = head[: needs.start()] + head[needs.end():]
+        needs = needs.group(0).strip()
     blocks = list(re.finditer(r"(?ms)^```[a-z][^\n]*\n.*?^```[ \t]*$", head))
     if blocks:
         code = head[blocks[0].start():blocks[-1].end()]
@@ -70,6 +102,11 @@ def split(body: str):
         after = head[blocks[-1].end():].strip()
     else:
         intro, after = head.strip(), ""
+    if needs:
+        if code:
+            code = needs + "\n\n" + code
+        else:
+            after = (needs + "\n\n" + after).strip()
     how, variations, others = after, "", []
     has_how = False
     for sec in rest:
@@ -144,9 +181,8 @@ def render(path, meta, title, body, index_entries):
 
 
 def index_page(entries):
-    meta, body = guide.front_matter(RECIPES / "index.md")
+    meta, lead, groups = index_sections()
     guide.CURRENT["dir"] = RECIPES
-    lead, *groups = re.split(r"(?m)^## ", re.sub(r"^# .*\n", "", body.lstrip("\n"), count=1))
     out = [
         "// The recipes, by group: written from md-docs/recipes/ by",
         "// scripts/docsite/recipes.py; edit the recipes, not this file.",
@@ -170,9 +206,7 @@ def index_page(entries):
         "        }",
         "        Input(bind: text, placeholder: t(\"recipes.filter\"), aria-label: t(\"recipes.filter\")).search { style { max-width: 420px } }",
     ]
-    for g in groups:
-        heading, _, text = g.partition("\n")
-        heading = heading.strip()
+    for heading, text, _ in groups:
         key = GROUPS[heading]
         out += [
             f"        if shown.some(e => e.group == {q(heading)}) {{",
@@ -235,10 +269,28 @@ def moved_pages(all_recipes):
 
 def main():
     all_recipes = recipes()
-    entries = sorted(
-        ((title, meta["route"], NAMES.get(meta.get("group", ""), "")) for _, meta, title, _ in all_recipes),
-        key=lambda e: (list(GROUPS).index(e[2]) if e[2] in GROUPS else 99, e[0]),
-    )
+    # The index lists every recipe under its group, in the order a reader
+    # takes them (install before deploy), and the sidebar follows it.
+    _, _, sections = index_sections()
+    listed = {f: (heading, i) for heading, _, files in sections for i, f in enumerate(files)}
+    problems = []
+    for path, meta, _, _ in all_recipes:
+        group = NAMES.get(meta.get("group", ""))
+        if group is None:
+            problems.append(f"{path.name}: `group: {meta.get('group')}` is none of {tuple(NAMES)}")
+        elif path.name not in listed:
+            problems.append(f"{path.name}: md-docs/recipes/index.md does not list it under `## {group}`")
+        elif listed[path.name][0] != group:
+            problems.append(f"{path.name}: listed under `## {listed[path.name][0]}`, but its group is `{group}`")
+    if problems:
+        raise SystemExit("\n".join(problems))
+    order = {path.name: listed[path.name][1] for path, *_ in all_recipes}
+    entries = [
+        e for _, e in sorted(
+            (((list(GROUPS).index(NAMES[meta["group"]]), order[path.name]),
+              (title, meta["route"], NAMES[meta["group"]])) for path, meta, title, _ in all_recipes),
+        )
+    ]
     files = {}
     for path, meta, title, body in all_recipes:
         name, text = render(path, meta, title, body, entries)

@@ -9,6 +9,9 @@ compiler never fetches anything, so it cannot read a file on another
 origin; a script of your own calls the library instead. This page draws a
 Chart.js chart that way, and destroys it when the page leaves:
 
+**Needs:** the script `src/charts.js` and the `meta.scripts` setting, both
+shown below.
+
 ```wf
 page Sales(path: "/sales", title: "Sales", description: "How it is going.") {
     state values: [Number] = [12, 19, 7, 15]

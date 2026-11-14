@@ -13,6 +13,8 @@ notifications. You declare it with `ws(…)` and read it with `match`, the
 way you read a `resource`. This chat page shows a spinner while the socket
 connects, the messages once it is open, and why it stopped when it closes:
 
+**Needs:** a WebSocket server; change `wss://example.com/chat` to yours.
+
 ```wf
 page Chat(path: "/chat", title: "Chat", description: "Talk to the team.") {
     state draft = ""

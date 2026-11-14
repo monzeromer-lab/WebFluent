@@ -30,7 +30,7 @@
   {
    "name": "build",
    "slug": "build",
-   "summary": "Build the project (compile .wf files to HTML + CSS + JS)",
+   "summary": "Build the project: a site or app (HTML, CSS, JS), a PDF, a slide deck or custom elements",
    "writes": "the site, in the output folder",
    "preview": "",
    "usage": "wf build [options]",

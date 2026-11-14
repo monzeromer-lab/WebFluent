@@ -8,6 +8,9 @@ Bring a page's opening elements in one after another — a heading, then a
 line of text, then a button — by wrapping them in `sequence` and putting
 each in a `step`:
 
+**Needs:** nothing besides the page. It claims `/`: paste it into a new
+project, or replace the starter's `src/pages/Home.wf` with it.
+
 ```wf
 page Landing(path: "/", title: "Welcome", description: "A page that introduces itself.") {
     sequence {

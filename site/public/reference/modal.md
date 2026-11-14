@@ -20,11 +20,13 @@ Modal(visible: State, title: String, closable: Bool) { … }
 
 ## Flags
 
-`.closable` `.dropInside` `.trapFocus`
+`.closable`
 
 ## Events
 
 - `close`
+
+Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 
 ## Slots
 
@@ -55,4 +57,4 @@ Modal(visible: open, title: "Delete deploys.wf?").closable {
 - [C05](https://webfluent.monzeromer.dev/errors/C05.md): A positional argument a built-in does not take
 - [A08](https://webfluent.monzeromer.dev/errors/A08.md): A dialog with no title
 
-Since WebFluent 5.0.
+Before WebFluent 5.0.

@@ -13,6 +13,11 @@ a reader in without holding a token at all, let the server set a session
 cookie, describe the service with `credentials: .sameOrigin`, and keep the
 signed-in user in a store:
 
+**Needs:** a server that answers the `/api` endpoints the `api` block
+names and sets the session cookie. The code declares `type User` and an
+`app`, as the starter does: paste it into a new project, replacing
+`src/App.wf` and the starter's `src/stores/auth.wf`.
+
 ```wf
 type User { id: String, name: String }
 

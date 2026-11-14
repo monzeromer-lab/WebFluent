@@ -14,6 +14,8 @@ measurement, glue around a library. Put the function in a `.js` file under
 ([Getting started](../learn/01-getting-started.md)); the script is a plain
 browser script, with no `import`, no `export` and no build step.
 
+**Needs:** the script `src/tilt.js`, shown below.
+
 ```wf
 page Gallery(path: "/gallery", title: "Gallery", description: "Cards that lean.") {
     state max = 15

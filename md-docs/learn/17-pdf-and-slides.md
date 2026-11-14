@@ -43,7 +43,7 @@ Build complete.
 ```
 
 To produce one PDF per invoice from data, use the same templates with
-[server rendering](../recipes/index.md) instead.
+[server rendering](../recipes/render-a-template.md) instead.
 
 ## Choose what the build writes
 
@@ -184,6 +184,10 @@ These elements shape every page of a document:
 | `Background` | Drawn behind each page's content, the size of the whole page, margins and all: a cover's full-bleed gradient, a coloured band, a sidebar strip that runs down every page. It takes `on:` too |
 | `Watermark("DRAFT")` | Large, faint, rotated text behind each page. Its look is the rule `.wf-watermark`, which a stylesheet may change |
 | `PageBreak` | Starts a new page; so do `break-before: page` and `break-after: page` in a style |
+
+`Header` and `Footer` are the same built-ins that draw the `<header>` and
+`<footer>` landmarks on a web page ([Elements](06-elements.md#layout-elements)).
+Inside a `Document` they become the margins of every page.
 
 Inside a `Header`, `Footer` or `Background`, `page` and `pages` are the
 page's number and the page count: `Text("Page {page} of {pages}")`.
@@ -444,8 +448,8 @@ page Report(path: "/", title: "Report", description: "The quarter.") {
 Move the line into `Footer { Text("Page {page} of {pages}") }`
 ([T13](../errors/T13.md)).
 
-**A component named like a built-in.** `Footer` is already the document's
-footer, so a call of that name draws the built-in and never your component:
+**A component named like a built-in.** `Footer` is already a built-in
+(the document's footer here, the `<footer>` landmark on the web), so a call of that name draws the built-in and never your component:
 
 ```wf expect=V11
 component Footer(_ note: String) {
@@ -488,7 +492,7 @@ Add `Table.Head { Table.Row { Table.Cell("Item")  Table.Cell("Amount") } }`
 
 ## Next
 
-- [Server rendering](../recipes/index.md) — render the same templates
+- [Render a template with data](../recipes/render-a-template.md) — render the same templates
   with data, one PDF per record.
 - [Styling](13-styling.md) — the CSS a document and a deck are laid out
   with.

@@ -21,7 +21,9 @@ Heading(_ content: Any, level: Enum, align: Enum, muted: Bool)
 
 ## Flags
 
-`.h1` `.h2` `.h3` `.h4` `.h5` `.h6` `.left` `.center` `.right` `.muted` `.dropInside` `.trapFocus`
+`.h1` `.h2` `.h3` `.h4` `.h5` `.h6` `.left` `.center` `.right` `.muted`
+
+Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 
 ## Example
 
@@ -38,4 +40,4 @@ Heading("Frequently asked").h2
 - [A11](https://webfluent.monzeromer.dev/errors/A11.md): A skipped heading level
 - [A12](https://webfluent.monzeromer.dev/errors/A12.md): A page without exactly one h1
 
-Since WebFluent 5.0.
+Before WebFluent 5.0.

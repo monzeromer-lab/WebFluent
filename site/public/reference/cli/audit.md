@@ -16,3 +16,5 @@ wf audit [PATH] [options]
 |---|---|
 | `[PATH]` | Project directory (default: current directory) |
 | `--json` | Print JSON, for tools |
+
+The [full entry for wf audit](https://webfluent.monzeromer.dev/reference/cli.md#wf-audit) has its examples and the details this page leaves out.

@@ -1,7 +1,7 @@
 ---
 kind: "recipe"
 route: "/recipes/shared-element"
-group: "look"
+group: "motion"
 description: "Carry one element from one page to the next, such as a cover picture that grows into the article's header, by giving it one shared: name on both."
 outputs: ["website", "app"]
 from: ["/docs/guide/motion#carry-an-element-across-a-route-change"]
@@ -12,6 +12,9 @@ Have the browser carry one element from one page to the next — a cover
 picture in a list of posts that grows into the article's header — instead
 of fading it out and back in. Give it the same `shared:` name on both
 pages:
+
+**Needs:** nothing besides the page. It claims `/`: paste it into a new
+project, or replace the starter's `src/pages/Home.wf` with it.
 
 ```wf
 type Post { id: String, slug: String, title: String, cover: String }

@@ -8,6 +8,9 @@ A form should say what is wrong beside the field that is wrong, before the
 reader submits it. To check a form as the reader fills it in, put a
 `validate` block beside each state:
 
+**Needs:** nothing besides the page. It claims `/`: paste it into a new
+project, or replace the starter's `src/pages/Home.wf` with it.
+
 ```wf
 page Signup(path: "/", title: "Sign up", description: "Make an account.") {
     state email = ""

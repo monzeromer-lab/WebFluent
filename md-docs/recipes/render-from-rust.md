@@ -1,7 +1,7 @@
 ---
 kind: "recipe"
 route: "/recipes/render-from-rust"
-group: "interop"
+group: "server"
 description: "Render WebFluent templates from a Rust program or server with the webfluent crate: load them once, then render HTML, fragments, PDFs and slides."
 outputs: ["website", "pdf", "slides"]
 from: ["/docs/guide/server-rendering#render-from-rust"]

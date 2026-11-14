@@ -16,9 +16,7 @@ Table(caption: String) { … }
 |---|---|---|
 | `caption:` | `String` | Accessible name of the table (rendered visually hidden) |
 
-## Flags
-
-`.dropInside` `.trapFocus`
+Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 
 ## Slots
 
@@ -47,4 +45,4 @@ Table(caption: "Deploys") {
 - [C05](https://webfluent.monzeromer.dev/errors/C05.md): A positional argument a built-in does not take
 - [A10](https://webfluent.monzeromer.dev/errors/A10.md): A table with no header row
 
-Since WebFluent 5.0.
+Before WebFluent 5.0.

@@ -16,9 +16,7 @@ Element(_ tag: String) { … }
 |---|---|---|
 | `tag` | `String  (positional)` | The custom element's tag: lower case, with a hyphen, as every custom element's is |
 
-## Flags
-
-`.dropInside` `.trapFocus`
+Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 
 ## Slots
 
@@ -38,4 +36,4 @@ Element("stripe-pricing-table", publishableKey: "pk_test_…") { on ready { log(
 - [E116](https://webfluent.monzeromer.dev/errors/E116.md): A tag that cannot be a custom element's
 - [C04](https://webfluent.monzeromer.dev/errors/C04.md): An attribute a built-in does not declare
 
-Since WebFluent 5.0.
+Before WebFluent 5.0.

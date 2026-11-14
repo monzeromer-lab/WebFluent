@@ -390,6 +390,10 @@ page Tasks(path: "/", title: "Tasks", description: "What to do.") {
 Add `label: "Add one"`, and click it with `click "Add one"`
 ([A02](../errors/A02.md)).
 
+Going further: [Security](../about/security.md) covers what the compiler
+guarantees, what it cannot, and the decisions left to you: markup,
+secrets, storage, headers and a deployment checklist.
+
 ## Next
 
-[Security](../about/security.md): what the compiler guarantees, what it cannot, and the decisions left to you: markup, secrets, storage, headers and a deployment checklist.
+[PDF and slides](17-pdf-and-slides.md).

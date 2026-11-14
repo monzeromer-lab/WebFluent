@@ -445,7 +445,7 @@ image, are still refused."#),
 `list`, `square`, `pill`, `image`, `sparkle`, `lock` and `type`. An icon
 drawn in the browser now carries `data-icon`, as a pre-rendered one did,
 so a style keyed on the name matches both."#),
-                    Change(text: #"**WebP is lossy at `build.media.quality`** ([chapter 42](/reference/config#buildmedia)),
+                    Change(text: #"**WebP is lossy at `build.media.quality`** ([chapter 42](/reference/config#build-media)),
 through libwebp, keeping alpha: a 23 kB PNG that came out as 189 kB of
 WebP is now 5 kB. A file that would be no smaller than its original is
 not written, and `wf assets --plan` says which widths were dropped."#),
@@ -602,7 +602,7 @@ type and completion offers them, where hovering `e` in
 several names."#)
                 ]),
                 NotesSection(title: #"Fixes"#, id: "5.11.0-fixes", items: [
-                    Change(text: #"**A test finds a control by the name a reader hears** ([chapter 24](/learn/16-testing#a-test-that-acts)).
+                    Change(text: #"**A test finds a control by the name a reader hears** ([chapter 24](/learn/16-testing#write-a-test-that-acts)).
 What is `aria-hidden` (a menu item's shortcut, a glyph) is left out of
 a name, so `click "Paste"` finds an item that shows Ctrl+V. A submenu's
 entry is named by its label, not by its items: `WF.submenu` points the
@@ -654,14 +654,14 @@ fields, and `tests/app.wf` and `tests/tasks.wf`. `wf init static` has a
 validated contact form with a required agreement `Checkbox`, English and
 Arabic translations, and `tests/site.wf`. `wf test` passes in a new
 project."#),
-                    Change(text: #"**A test can place a whole page** ([chapter 24](/learn/16-testing#testing-a-whole-page))
+                    Change(text: #"**A test can place a whole page** ([chapter 24](/learn/16-testing#test-a-whole-page))
 by its name, as it places a component (`Tasks`, then `click "Add"`),
 with its state, stores and handlers running. This works for a page with
 no route parameter whose name no component also has. In a test that
 acts, `press "Enter"` in a form's text field submits the form, and
 `click "Name"` also finds, by its name, an element whose role is a link,
 a tab, a menu item (a `Menu.Item`), an option, a tree item, a switch, a
-checkbox or a radio ([chapter 24](/learn/16-testing#a-test-that-acts))."#),
+checkbox or a radio ([chapter 24](/learn/16-testing#write-a-test-that-acts))."#),
                     Change(text: #"**`on blur` and `on focus` on a page** ([chapter 9](/learn/08-events#shortcuts-for-an-app)).
 A page, a component or `app` hears the window lose and gain focus for as
 long as it shows, for example to save when the window is left. Both
@@ -702,7 +702,7 @@ another node the block moves there with its state, and null keeps it
 aside. Its handlers, `emit` and lifetimes belong to where it is written.
 `Portal` is now a built-in's name, so a project's own component or store
 of that name is reported."#),
-                    Change(text: #"**`Markdown(text).inert`** ([chapter 37](/reference#markdown)),
+                    Change(text: #"**`Markdown(text).inert`** ([chapter 37](/reference/markdown)),
 for text somebody else wrote, such as a language server's documentation:
 entities are decoded and shown as text, a link is its words and a
 picture is left out."#)
@@ -752,7 +752,7 @@ a server an editor runs for its preview can send what `wf serve` sends."#),
 files, as (path, text) pairs with the project's name still `{{name}}`;
 `init::create` writes them, and `.gitignore`, `AGENTS.md` and `public/`
 beside them."#),
-                    Change(text: #"**The registry** ([chapter 38](/reference/cli#wf-docs-wf-registry-wf-types)):
+                    Change(text: #"**The registry** ([chapter 38](/reference/cli#wf-docs)):
 `wf registry --json` lists the new icons, `auxclick`, `focusin` and
 `focusout` among every element's events, and `danger` on `Menu.Item`."#),
                     Change(text: #"**Paged layout.** `paged::style::Length::Mix(points, percent)` holds a
@@ -788,7 +788,7 @@ tooltip drawn gets its own id at run time (`WF.uid`), where every copy a
 `for` or a component drew shared one, so `aria-controls` and
 `aria-describedby` could name another copy's. A menu keeps its `class:`
 and its `style { }` class as it opens and closes."#),
-                    Change(text: #"**Forms ask their rules** ([chapter 16](/learn/14-forms#when-a-message-shows)).
+                    Change(text: #"**Forms ask their rules** ([chapter 16](/learn/14-forms#choose-when-a-message-shows)).
 A `Form` with no `bind:` in a page or component with `validate` rules
 ran `on submit` anyway; it now stops on a failing rule and shows the
 messages. Each page and each copy of a component has its own form
@@ -797,7 +797,7 @@ a component shared one form. A validated `Checkbox` or `Switch` shows
 its message beneath it, announced and tied to the control
 (`aria-describedby`, `aria-invalid`). A field's character count follows
 a value the program sets, such as a reset."#),
-                    Change(text: #"**Controls given a value work** ([chapter 16](/learn/14-forms#controls-and-bind)).
+                    Change(text: #"**Controls given a value work** ([chapter 16](/learn/14-forms#bind-a-control-to-state)).
 `Switch(checked: value)` without `bind:` drew no input; it now follows
 the value, and its `on change` hears the click. A `Switch`'s `on change`
 was never attached. A bound `Checkbox` or `Radio` with its own
@@ -813,7 +813,7 @@ text; a `Modal`'s or `Dialog`'s `title:`; a `Menu`'s `trigger:` and a
 name (`Icon(if done { "check" } else { "clock" })`). So
 `Checkbox(label: t("…"))` now changes language with `setLocale`. Fixed
 text compiles as before."#),
-                    Change(text: #"**Stores** ([chapter 12](/learn/11-stores#how-long-it-lives)). A
+                    Change(text: #"**Stores** ([chapter 12](/learn/11-stores)). A
 store outlives the page that reads it first: its derived values and
 effects belonged to that page's scope and stopped when the reader moved
 on. A `derived` that reads one written below it in the same store
@@ -833,14 +833,14 @@ and `controls` are written only when `true`, here and in the template
 engine, so `Button("Go", disabled: false)` is not a dead button.
 `.pop()` and `.shift()` are evaluated on a list the build knows."#),
                     Change(text: #"**A test that looks reads the page as a reader does**
-([chapter 24](/learn/16-testing#a-test-that-looks)). The template
+([chapter 24](/learn/16-testing#write-a-test-that-looks)). The template
 engine draws a `Menu` or `Dropdown` as its button and hidden list,
 `keyLabel("mod+shift+p")` as the build writes it (`Ctrl+Shift+P`), and
 a `t()` with a count in the default locale's CLDR form. `expect` decodes
 every numeric entity and the common named ones, so `expect "It isn't"`
 matches. In a test that acts, `expect` treats any run of white space as
 one space, as a test that looks already did."#),
-                    Change(text: #"**Column spans leave room for the gap** ([chapter 37](/reference#column)).
+                    Change(text: #"**Column spans leave room for the gap** ([chapter 37](/reference/column)).
 `span: 8` and `span: 4` in a `Row` with a gap came to 100% plus the gap,
 and the second always wrapped; each span now gives up its share of the
 gap, a gap or a span given per breakpoint too. A PDF lays a
@@ -848,15 +848,15 @@ gap, a gap or a span given per breakpoint too. A PDF lays a
 PDF engine's `calc()` is a real parser: no spaces needed, nested
 parentheses, unary minus, functions inside, and a sum of a percentage
 and points resolved against the box it lands in
-([chapter 34](/learn/17-pdf-and-slides#the-engine))."#),
-                    Change(text: #"**The `Navbar` follows the theme** ([chapter 37](/reference#navbar)).
+([chapter 34](/learn/17-pdf-and-slides#the-paged-engine))."#),
+                    Change(text: #"**The `Navbar` follows the theme** ([chapter 37](/reference/navbar)).
 Its background was a fixed translucent white; it is now the theme's
 surface, and its text the theme's text colour."#),
                     Change(text: #"**`setLocale` is remembered** ([chapter 21](https://github.com/monzeromer-lab/WebFluent/blob/master/md-docs/recipes/index.md))
 across page loads, in `localStorage` under `wf:locale`, so a static site
 keeps the reader's language from page to page. A `?lang=` address still
 wins, without changing the saved choice."#),
-                    Change(text: #"**A site may frame its own pages** ([chapter 23](/about/security#content-security-policy)).
+                    Change(text: #"**A site may frame its own pages** ([chapter 23](/about/security#ship-a-content-security-policy)).
 A `Frame` whose `src:` is site-relative (`"/preview/"`, `"/embed/{id}"`)
 was refused by the site's own headers. A project that places one is
 served `X-Frame-Options: SAMEORIGIN` by `wf serve`, and its `_headers`
@@ -920,20 +920,20 @@ template engine alike, as `C04` says. `disabled: true` disables a
 `Slider`, `DatePicker` or `FileUpload`. An `html:` written on an element
 is an attribute, never markup."#),
                     Change(text: #"**A long list drawn before its box is laid out**
-([chapter 37](/reference#virtuallist)) paints the
+([chapter 37](/reference/virtuallist)) paints the
 right rows in its first frame, the row `reveal:` names among them, where
 it drew about forty and trimmed them a frame later."#),
                     Change(text: #"**A pre-rendered modal** has its title as its heading, as the live page
 draws it, not as a `title=` tooltip; an `IconButton`'s own `title:` wins
 over its label on every page."#),
                     Change(text: #"**A test reads a page as a reader does**
-([chapter 24](/learn/16-testing#a-test-that-looks)). `expect` reads
+([chapter 24](/learn/16-testing#write-a-test-that-looks)). `expect` reads
 a plain render as a browser lays it out: elements that touch read as
 touching, where the render's line breaks put a space between them. A
 test run in a browser loads the project's own stylesheets and serves
 `public/` beside the page, as the built page does."#),
                     Change(text: #"**A record with all its fields defaulted is `Offers()`**
-([chapter 12](/learn/11-stores#declaring-a-store)), wherever an
+([chapter 12](/learn/11-stores#a-first-store)), wherever an
 expression goes, a prop's default among them; a left-out field of a
 default record is filled in, in the pre-render too."#),
                     Change(text: #"**`data-x: true` is `data-x="true"`** on every page, given to an element

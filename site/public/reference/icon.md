@@ -21,7 +21,9 @@ Icon(_ name: String, size: Enum, tone: Enum, muted: Bool)
 
 ## Flags
 
-`.sm` `.md` `.lg` `.primary` `.secondary` `.success` `.danger` `.warning` `.info` `.muted` `.dropInside` `.trapFocus`
+`.sm` `.md` `.lg` `.primary` `.secondary` `.success` `.danger` `.warning` `.info` `.muted`
+
+Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 
 ## Example
 
@@ -36,4 +38,4 @@ Icon("check").lg.success
 - [C04](https://webfluent.monzeromer.dev/errors/C04.md): An attribute a built-in does not declare
 - [V08](https://webfluent.monzeromer.dev/errors/V08.md): An icon the runtime does not draw
 
-Since WebFluent 5.0.
+Before WebFluent 5.0.

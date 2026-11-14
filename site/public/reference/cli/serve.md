@@ -19,3 +19,5 @@ wf serve [options]
 | `--allow-output-outside` | Let `build.output` name a directory outside the project |
 
 **Writes:** the site, in the output folder, on every save
+
+The [full entry for wf serve](https://webfluent.monzeromer.dev/reference/cli.md#wf-serve) has its examples and the details this page leaves out.

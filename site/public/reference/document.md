@@ -26,7 +26,9 @@ Document(page_size: Enum, size: String, landscape: Bool, …) { … }
 
 ## Flags
 
-`.A4` `.A3` `.A5` `.Letter` `.Legal` `.landscape` `.dropInside` `.trapFocus`
+`.A4` `.A3` `.A5` `.Letter` `.Legal` `.landscape`
+
+Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 
 ## Slots
 
@@ -46,4 +48,4 @@ Document(page_size: "A4") {
 - [C04](https://webfluent.monzeromer.dev/errors/C04.md): An attribute a built-in does not declare
 - [C05](https://webfluent.monzeromer.dev/errors/C05.md): A positional argument a built-in does not take
 
-Since WebFluent 5.0.
+Before WebFluent 5.0.

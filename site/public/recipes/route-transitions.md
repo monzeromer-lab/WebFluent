@@ -7,6 +7,10 @@ The page: https://webfluent.monzeromer.dev/recipes/route-transitions
 Fade or slide from one page to the next, on every route change, by giving
 the `Router` a `transition:` and a `duration:` in `app`:
 
+**Needs:** nothing besides the code, which is a whole project's `app` and
+pages: paste it into a new project, replacing `src/App.wf` and
+`src/pages/Home.wf`.
+
 ```wf
 app {
     Navbar {

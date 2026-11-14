@@ -236,8 +236,10 @@ A layout follows these rules:
 
 - The compiler checks the layout's arguments like any component call
   (`DocsShell("Guide")`).
-- The layout component must declare a default `slot`. Without one, the page
-  has nowhere to go, and the build stops with error `E104`.
+- The layout component must declare a default `slot`, and place `children`
+  where the page goes. Without the `slot` line the build stops with error
+  `E104`. A component that is only ever called, not named as a layout,
+  needs `children` alone ([Slots](https://webfluent.monzeromer.dev/learn/10-components.md#slots)).
 - The page's skip link jumps past the layout's chrome to the page's first
   element. That element gets `id="wf-content"` when it has no id of its own.
 

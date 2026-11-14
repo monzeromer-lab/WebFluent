@@ -18,3 +18,5 @@ wf docs [options]
 | `--out, -o OUT` | Where to write index.html (default: docs/) |
 
 **Writes:** a gallery, in the folder `--out` names
+
+The [full entry for wf docs](https://webfluent.monzeromer.dev/reference/cli.md#wf-docs) has its examples and the details this page leaves out.

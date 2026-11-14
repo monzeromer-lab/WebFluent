@@ -12,6 +12,10 @@ A like that waits for the server feels slow. To show the change at once,
 update the state before the request, keep the old value, and put it back if
 the request fails:
 
+**Needs:** a server that answers `POST /api/like/<id>`. It claims `/`:
+paste it into a new project, or replace the starter's `src/pages/Home.wf`
+with it.
+
 ```wf
 type Item { id: String, liked: Bool }
 
@@ -19,6 +23,7 @@ page Likes(path: "/", title: "Likes", description: "A like that shows at once.")
     state items: [Item] = [Item(id: "a", liked: false)]
     state error = ""
     action like(id: String) {
+        error = ""
         let before = items
         items = items.map(i => if i.id == id { Item(id: i.id, liked: !i.liked) } else { i })
         try {
@@ -46,6 +51,9 @@ page Likes(path: "/", title: "Likes", description: "A like that shows at once.")
 - The request is [awaited](../learn/15-data.md#fetch-on-demand-with-await-fetch)
   inside `try`. If it fails, the `catch` puts `before` back and sets
   `error`, and the `Toast` tells the reader.
+- The action clears `error` first. A `Toast` shows once, when its branch is
+  drawn, so without the reset a second failure would leave `error` as it
+  was and show nothing.
 
 ## Variations
 

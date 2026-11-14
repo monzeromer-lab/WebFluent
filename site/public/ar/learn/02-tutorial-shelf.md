@@ -28,7 +28,7 @@ The page: https://webfluent.monzeromer.dev/ar/learn/02-tutorial-shelf
 - `wf` مثبّتًا وموجودًا في `PATH` ([البدء](https://webfluent.monzeromer.dev/ar/learn/01-getting-started.md)).
   على Windows، اكتب `webfluent` حيث يكتب هذا الدرس `wf`.
 - Chrome أو Chromium على الجهاز، للاختبار الذي ينقر
-  ([الخطوة 9](#الخطوة-9-اختبر-بطاقة-الكتاب)) ولـ `wf verify`
+  ([الخطوة 9](#الخطوة-9-اختبر-بطاقة-الكتاب)) ولـ`wf verify`
   ([الخطوة 10](#الخطوة-10-ابن-الموقع-وتحقق-منه)). إن كان مثبّتًا في
   مكان غير معتاد، فاجعل متغير البيئة `WF_CHROME` يشير إليه.
 - للنشر: حساب على GitHub ومستودع اسمه `shelf`.
@@ -143,12 +143,12 @@ store Shelf {
 > [!NOTE]
 > **قادم من React؟** الحالة المشتركة ليست مزوّد سياق (context provider) يلتفّ
 > حول التطبيق، وحفظها ليس `useEffect` يكتب في
-> `localStorage`. يُقرأ الـ `store` باسمه حيثما استُخدم، و
-> `persist` تتولّى الحفظ. انظر [قادم من React](https://webfluent.monzeromer.dev/ar/coming-from/react.md).
+> `localStorage`. يُقرأ الـ`store` باسمه حيثما استُخدم،
+> و`persist` تتولّى الحفظ. انظر [قادم من React](https://webfluent.monzeromer.dev/ar/coming-from/react.md).
 
 **تحقّق:** شغّل `wf check`. يطبع تحذيرَي `U04`:
-`` `Shelf.count` is declared but never read `` ومثله لـ
-`Shelf.toggle`. لا شيء يستخدم المخزن بعد؛ الخطوات التالية تستخدمه، فيزول
+`` `Shelf.count` is declared but never read `` ومثله
+لـ`Shelf.toggle`. لا شيء يستخدم المخزن بعد؛ الخطوات التالية تستخدمه، فيزول
 التحذيران.
 
 ## الخطوة 4: اعرض كتابًا بمكوّن
@@ -180,8 +180,8 @@ component BookCard(_ book: Book) {
 - `_ book: Book` هي الخاصية الوحيدة التي يمرّرها المستدعي دون اسمها:
   `BookCard(book)`.
 - `Card.outlined` و`Stack(gap: .sm)` و`Text(…).muted.sm` عناصر مدمجة
-  بعلامات. يعرف المترجم خصائص كل منها، ويرفض علامة لا
-  يقبلها.
+  بأعلام. يعرف المُصرِّف خصائص كل منها، ويرفض علمًا لا
+  يقبله.
 - يقرأ `use Shelf` المخزن من الخطوة 3. نص الزر تعبير `if`
   مستخدم قيمةً، وهو يتبع المخزن: حين ينقر القارئ، يتغيّر
   النص ولا يُعاد رسم شيء آخر.
@@ -190,7 +190,7 @@ component BookCard(_ book: Book) {
 
 **تحقّق:** شغّل `wf check`. يُبلغ عن خطأ واحد:
 `` error[R01]: `/books/{…}` is not a route ``. تربط البطاقة بصفحة
-الكتاب، ولا صفحة تجيب عن هذا العنوان بعد. يفحص المترجم كل رابط
+الكتاب، ولا صفحة تجيب عن هذا العنوان بعد. يفحص المُصرِّف كل رابط
 مقابل الصفحات التي تعلنها؛ والخطوة التالية تضيف الصفحة.
 
 ## الخطوة 5: أضف الصفحة الرئيسية وصفحة لكل كتاب
@@ -263,7 +263,7 @@ page BookPage(path: "/books/:slug", slug: String, title: "Book", description: "O
   كتاب، `books/a-pattern-language/index.html` وهكذا.
 - قد لا يجد `books.find(…)` شيئًا، لذا `book` من النوع `Book?` (إما `Book` أو
   `null`). يربطه `if let b = book` فقط حين يكون موجودًا. وقراءة
-  `book.title` دون هذا الفحص خطأ ترجمة (`T04`).
+  `book.title` دون هذا الفحص خطأ تصريف (`T04`).
 - يضيف `head { … }` وسومًا إلى `<head>` هذه الصفحة — هنا، العنوان الذي تظهر به
   معاينة الرابط حين يُشارَك.
 
@@ -274,7 +274,7 @@ page BookPage(path: "/books/:slug", slug: String, title: "Book", description: "O
 مربع البحث: تبقى بطاقة واحدة، ويصير العدد `1 of 3 books`. انقر **Want to read** على بطاقة فيتغيّر
 نصها إلى **On your shelf**. انقر عنوان كتاب فتُفتح صفحته،
 مع مسار تنقّل (breadcrumb) يعود إلى القائمة. لا يُبلغ `wf check` الآن إلا عن تحذير `U04`
-الخاص بـ `Shelf.count`؛ والخطوة 6 تستخدمه.
+الخاص بـ`Shelf.count`؛ والخطوة 6 تستخدمه.
 
 ## الخطوة 6: أضف صفحة الرفّ وإطار الموقع
 
@@ -371,8 +371,8 @@ page Suggest(path: "/suggest", title: "Suggest a book", description: "Tell us wh
 ```
 
 تقع كتلة `validate` بجانب الحالة التي تحرسها، ويعرض عنصر التحكم المربوط بتلك
-الحالة رسائلها بطريقة يسهل الوصول إليها: يأخذ الحقل `aria-invalid`، و
-تُعلَن الرسالة. والإرسال الذي يفشل ينقل التركيز إلى أول حقل
+الحالة رسائلها بطريقة يسهل الوصول إليها: يأخذ الحقل `aria-invalid`،
+وتُعلَن الرسالة. والإرسال الذي يفشل ينقل التركيز إلى أول حقل
 فيه مشكلة ولا يشغّل `on submit`. ([النماذج](https://webfluent.monzeromer.dev/learn/14-forms.md).)
 
 ثم اربط الصفحة من الإطار. أضف الرابط الثالث إلى `src/App.wf`:
@@ -443,8 +443,8 @@ theme Ink {
 }
 ```
 
-ثم سمِّ السمتين في `webfluent.app.json` — `Paper` سمةً و
-`Ink` سمةً داكنة:
+ثم سمِّ السمتين في `webfluent.app.json` — `Paper` سمةً
+و`Ink` سمةً داكنة:
 
 ```json
 {
@@ -498,7 +498,7 @@ wf test
 
 يُصيِّر الاختبار الأول البطاقة ويقرأ ما تعرضه. ويكتب أيضًا
 لقطة (snapshot) تقارن بها المرة التالية. أما الاختبار الثاني **فينقر**، لذا
-يعمل في Chrome بلا واجهة (headless)، بالمترجم ووقت التشغيل نفسيهما اللذين يحصل
+يعمل في Chrome بلا واجهة (headless)، بالمُصرِّف ووقت التشغيل نفسيهما اللذين يحصل
 عليهما القارئ. تُوجد الأزرار بنصها، كما يجدها القارئ.
 ([الاختبار](https://webfluent.monzeromer.dev/learn/16-testing.md).)
 
@@ -532,10 +532,10 @@ wf verify
 صفحة في متصفح حقيقي ويفشل عند خطأ سكربت، أو طلب فاشل، أو
 صفحة فارغة.
 
-**تحقّق:** ينتهي `wf build` بـ `Build complete.`، ويحوي `build/`
+**تحقّق:** ينتهي `wf build` بـ`Build complete.`، ويحوي `build/`
 `index.html` و`shelf/index.html` و`suggest/index.html` و`404.html` وملف
 `books/<slug>/index.html` لكل كتاب. يسرد `wf verify` ستة مسارات، كلٌّ منها `ok`،
-وينتهي بـ `6 page(s), 0 problem(s)`.
+وينتهي بـ`6 page(s), 0 problem(s)`.
 
 ## الخطوة 11: انشر على GitHub Pages
 
@@ -585,8 +585,8 @@ jobs:
 ادفع المشروع إلى مستودع `shelf`. في
 **Settings → Pages** الخاصة بالمستودع، اختر **GitHub Actions** مصدرًا.
 
-**تحقّق:** يُظهر تبويب **Actions** سير العمل **Deploy** ناجحًا، و
-يعرض `https://<you>.github.io/shelf/` العنوان **Books worth reading**.
+**تحقّق:** يُظهر تبويب **Actions** سير العمل **Deploy** ناجحًا،
+ويعرض `https://<you>.github.io/shelf/` العنوان **Books worth reading**.
 يغطي [النشر](https://webfluent.monzeromer.dev/recipes.md) Netlify وVercel وCloudflare Pages
 وnginx ومضيفين آخرين.
 
@@ -784,7 +784,7 @@ Shelf موقع كامل، وكل جزء منه يستخدم فكرة واحدة 
 - اقرأ اللغة كما ينبغي، بدءًا من [أساسيات اللغة](https://webfluent.monzeromer.dev/learn/04-language-basics.md).
 - تحدّث مع خادم حقيقي: [البيانات وواجهات API](https://webfluent.monzeromer.dev/learn/15-data.md).
 - اجعل الموقع يعمل دون اتصال: [العمل دون اتصال](https://webfluent.monzeromer.dev/recipes.md).
-- ترجمه: [التدويل](https://webfluent.monzeromer.dev/recipes.md).
+- ترجمه: [الترجمة](https://webfluent.monzeromer.dev/recipes.md).
 - ابنِ مشروعًا أكبر: [الدروس](https://webfluent.monzeromer.dev/ar/learn/03-tutorial-todos.md).
 
 ## أخطاء شائعة
@@ -803,8 +803,8 @@ page BookPage(path: "/books/:slug", slug: String, title: "Book", description: "O
 }
 ```
 
-اربطه بـ `if let b = book { Heading(b.title).h1 }`، كما تفعل الخطوة 5، أو
-اقرأه بـ `book?.title ?? "Book"` ([T04](https://webfluent.monzeromer.dev/errors/T04.md)).
+اربطه بـ`if let b = book { Heading(b.title).h1 }`، كما تفعل الخطوة 5، أو
+اقرأه بـ`book?.title ?? "Book"` ([T04](https://webfluent.monzeromer.dev/errors/T04.md)).
 
 حقل لا يملكه النوع. يسمّي `type Book` كل حقل، فالخطأ المطبعي
 خطأ في الموضع الذي يُكتب فيه:

@@ -94,7 +94,7 @@ def render(path: Path, sheets: list, other: str = "") -> tuple[str, str]:
         "// scripts/docsite/comingfrom.py; edit the sheet, not this file.",
         f"page {name}(path: {q(meta['route'])}, title: {q(title)}, description: {q(meta['description'])}, {own}) {{".replace(", ) {", ") {"),
         f"    ComingFromShell({q(title)}, summary: {q(summary)}, from: {q(meta['framework'])}, sheets: [{tabs}], "
-        "sections: [Anchor(id: \"differences\", label: t(\"coming.differences\")), Anchor(id: \"port\", label: t(\"coming.port\"))], "
+        "sections: [Anchor(id: \"the-map\", label: t(\"coming.map\")), Anchor(id: \"things-that-work-differently\", label: t(\"coming.differences\")), Anchor(id: \"a-component-ported\", label: t(\"coming.port\"))], "
         f"source: \"md-docs/{rel}\"{shell_lang}) {{",
         "        differences {",
         *diff_lines,

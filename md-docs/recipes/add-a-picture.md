@@ -1,7 +1,7 @@
 ---
 kind: "recipe"
 route: "/recipes/add-a-picture"
-group: "look"
+group: "media"
 description: "Show a picture from public/ or declared with image: the build writes it at every width, sets its size, and gives it a placeholder while it loads."
 from: ["/docs/guide/media#add-a-picture-from-public", "/docs/guide/media#process-a-picture-with-image", "/docs/guide/media#tune-the-image-pipeline", "/docs/guide/media#troubleshooting"]
 outputs: ["website", "app", "pdf", "slides"]
@@ -16,6 +16,11 @@ hero picture or a decorative image.
 This page declares a hero picture with `image` and shows it with a blurred
 placeholder, prints its real size and colour, and shows a second picture
 and a decorative one straight from `public/`:
+
+**Needs:** `hero.jpg`, `office.jpg` and `deco.png` in `public/` (any
+pictures will do); without them the build stops at `image hero`. It claims
+`/`: paste it into a new project, or replace the starter's
+`src/pages/Home.wf` with it.
 
 ```wf
 image hero = "hero.jpg"

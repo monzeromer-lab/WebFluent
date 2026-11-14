@@ -137,8 +137,9 @@ from the handler to the text node it changes.
 
 ## One binary
 
-`wf` is the compiler, the dev server, the formatter, the test runner, the
-language server and the template renderer. There is no `node_modules`, no
+`wf` is the compiler, the dev server, the formatter, the test runner and
+the template renderer; its sibling `wf-lsp` is the language server, built
+from the same compiler. There is no `node_modules`, no
 bundler, and no configuration to write before the first page. A build
 writes only the runtime modules the program reaches and only the component
 rules it uses, so a page of text ships a few kilobytes of script. The

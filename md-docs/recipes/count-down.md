@@ -11,6 +11,9 @@ from: ["/docs/guide/recipes#count-down"]
 A countdown is a number that drops once a second until it reaches zero. To
 build one, change a state in an `every` timer:
 
+**Needs:** nothing besides the page. It claims `/`: paste it into a new
+project, or replace the starter's `src/pages/Home.wf` with it.
+
 ```wf
 page Countdown(path: "/", title: "Countdown", description: "Ten seconds, counted down.") {
     state left = 10

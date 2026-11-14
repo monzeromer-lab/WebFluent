@@ -1,8 +1,9 @@
 // A recipe, written from md-docs/recipes/route-transitions.md by scripts/docsite/recipes.py;
 // edit the recipe, not this file.
 page RecipeRouteTransitions(path: "/recipes/route-transitions", title: "Animate route changes — Recipes", description: "Animate every change of page: give the Router a transition: of .fade or .slide and a duration:, played through the View Transitions API.") {
-    RecipeShell("Animate route changes", summary: "Fade or slide from one page to the next, on every route change, by giving the `Router` a `transition:` and a `duration:` in `app`:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "variations", label: "Variations")], related: [RelatedLink(kind: "Recipe", title: "Add a dark-mode switch", to: "/recipes/dark-mode-switch"), RelatedLink(kind: "Recipe", title: "Add a picture, sized for every screen", to: "/recipes/add-a-picture"), RelatedLink(kind: "Recipe", title: "Add video and audio", to: "/recipes/video-and-audio")], source: "md-docs/recipes/route-transitions.md", how: true, hasVariations: true) {
+    RecipeShell("Animate route changes", summary: "Fade or slide from one page to the next, on every route change, by giving the `Router` a `transition:` and a `duration:` in `app`:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "variations", label: "Variations")], related: [RelatedLink(kind: "Recipe", title: "Animate an element in and out", to: "/recipes/animate-in-and-out"), RelatedLink(kind: "Recipe", title: "Animate a list", to: "/recipes/animate-a-list"), RelatedLink(kind: "Recipe", title: "Run a sequence of animations", to: "/recipes/animation-sequence")], source: "md-docs/recipes/route-transitions.md", how: true, hasVariations: true) {
         code {
+            Markdown("**Needs:** nothing besides the code, which is a whole project's `app` and pages: paste it into a new project, replacing `src/App.wf` and `src/pages/Home.wf`.")
             CodeBlock(#"app {
     Navbar {
         Navbar.Brand { Link("Motion", to: "/") }

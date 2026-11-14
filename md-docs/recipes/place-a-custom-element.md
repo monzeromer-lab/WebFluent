@@ -12,6 +12,9 @@ To place a custom element that a library defines, use `Element` with the
 element's tag. This page places Stripe's pricing table, and shows a
 spinner until the table says it is ready:
 
+**Needs:** the `meta.scripts` setting below, which loads the element's
+library.
+
 ```wf
 // Your publishable key, from the Stripe dashboard.
 const STRIPE_KEY = "pk_test_123"

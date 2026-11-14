@@ -56,7 +56,49 @@ not on your `PATH`.
 | Document and workspace symbols | The outline, and a search over the project's declarations |
 | Code actions | The fixes the compiler attaches to a finding (quick fix), all of a file's fixes at once (fix all), and **Extract component** |
 
-The [command line reference](cli.md#wf-lsp) lists each of these in full.
+### In detail
+
+What the table sums up, request by request.
+
+- **Output awareness.** In a project whose `build.output_type` is `pdf` or
+  `slides`, completion offers only what paper can draw — no `Button`, no
+  `on click`, no `resource`. Inside a `Presentation` it offers slides (and
+  the project's slide components), and inside a slide everything else.
+  Hover says when an element is not drawn in this output, and why. `page`
+  and `pages` are names inside a `Header`, `Footer` or `Background`. In a
+  web project the paper-only elements are offered last.
+- **Completion**, from the compiler's own tables: components and their props
+  after `(`, flags and parts after `.`, enum cases after `:`, events after
+  `on `, `$` tokens, `match` arms and slot names; the fields of a record and
+  the methods of each built-in type (`due.` offers `plus`, `isBefore`, …); a
+  service's endpoints; the keywords each place allows (a store's, an
+  action's, a test's steps); type names after `:`; duration units after a
+  number; `validate` rules, `persist` settings, `format` styles, responsive
+  steps, `Host` tags, key names in `on key("…")`, translation keys in
+  `t("…")`, public `env.` names, and lint codes in `// wf-allow(`.
+- **Hover** — what every name is: a component's documentation and
+  signature, the props every element takes, a name's inferred type, a field
+  or an endpoint, a case, a keyword, a function the language provides, an
+  `image`'s size.
+- **Signature help** inside a call: what it takes and which argument the
+  cursor is on — for an element, a component, an endpoint, an action, a
+  project script's function or a built-in one.
+- **Navigation** — go to definition, find references, highlight the uses in
+  a file, and rename across the project, for every declaration (a type, an
+  enum, a case, a field, a `const`, a `data` file, an animation, an
+  endpoint) and inside a string's `{…}` splices.
+- **Formatting** — `wf fmt`, on the open file.
+- **Folding, inlay hints and semantic highlighting** — an inlay hint shows
+  the type of a `state` or `derived` value written without one, and a name
+  is coloured by what it resolves to: a component, a type, a store, a prop
+  or a state.
+- **Document symbols** and the outline.
+- **Quick fixes**, from the compiler's own findings: the nearest name for a
+  misspelt field, member, method, variable, component or flag; `?.` for a
+  value that may be null; the props a call leaves out; the arms a `match`
+  misses; a bare word written as its flag; `alt: ""` for an image; an `_`
+  before a name nothing reads. **Extract component** turns a selection into
+  a component.
 
 ### How it finds the project
 
@@ -162,14 +204,55 @@ guide.
 
 Any editor with LSP support runs `wf-lsp` over standard input and output
 for the `webfluent` file type (`*.wf`, `*.wfx`), with `webfluent.app.json`
-as the root marker. The command line reference has the configuration for
-[Neovim](cli.md#neovim), [Helix](cli.md#helix) and [Emacs](cli.md#emacs).
-For highlighting in an editor that reads Tree-sitter, use the grammars
-above.
+as the root marker. For highlighting in an editor that reads Tree-sitter,
+use the grammars above. [WebFluent Studio](../learn/01-getting-started.md#webfluent-studio)
+is an editor of its own, with the language server, a live preview and a
+designer in one window.
 
-[WebFluent Studio](../learn/01-getting-started.md#webfluent-studio) is an
-editor of its own, with the language server, a live preview and a designer
-in one window.
+The configuration for three common editors follows.
+
+### Neovim
+
+Neovim 0.11 or later configures the server with `vim.lsp.config`:
+
+```lua
+vim.filetype.add({ extension = { wf = "webfluent", wfx = "webfluent" } })
+vim.lsp.config("wf_lsp", {
+  cmd = { "wf-lsp" },
+  filetypes = { "webfluent" },
+  root_markers = { "webfluent.app.json" },
+})
+vim.lsp.enable("wf_lsp")
+```
+
+### Helix
+
+Add the language and its server to `languages.toml`:
+
+```toml
+[[language]]
+name = "webfluent"
+scope = "source.webfluent"
+file-types = ["wf", "wfx"]
+roots = ["webfluent.app.json"]
+comment-token = "//"
+indent = { tab-width = 4, unit = "    " }
+language-servers = ["wf-lsp"]
+
+[language-server.wf-lsp]
+command = "wf-lsp"
+```
+
+### Emacs
+
+With Eglot, define a mode and register the server:
+
+```elisp
+(define-derived-mode webfluent-mode prog-mode "WebFluent")
+(add-to-list 'auto-mode-alist '("\\.wfx?\\'" . webfluent-mode))
+(with-eval-after-load 'eglot
+  (add-to-list 'eglot-server-programs '(webfluent-mode . ("wf-lsp"))))
+```
 
 ## Next
 

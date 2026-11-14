@@ -1,7 +1,7 @@
 ---
 kind: "recipe"
 route: "/recipes/video-and-audio"
-group: "look"
+group: "media"
 description: "Play a video with Video(src:) and sound with Audio(src:), with the browser's controls, captions for the video and a transcript for the recording."
 from: ["/docs/guide/media#add-video-and-audio"]
 outputs: ["website", "app"]
@@ -14,6 +14,10 @@ the recording.
 
 This page plays a demo with captions and a talk with its transcript, both
 from `public/`:
+
+**Needs:** `demo.mp4`, `demo.en.vtt`, `demo.jpg`, `talk.mp3` and
+`talk.txt` in `public/`. It claims `/`: paste it into a new project, or
+replace the starter's `src/pages/Home.wf` with it.
 
 ```wf
 page Media(path: "/", title: "Media", description: "The demo and the launch talk.") {

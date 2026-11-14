@@ -42,11 +42,10 @@
     }
    ],
    "flags": [
-    ".fluid",
-    ".dropInside",
-    ".trapFocus"
+    ".fluid"
    ],
    "events": [],
+   "domEvents": [],
    "slots": [
     {
      "name": "children",
@@ -188,11 +187,10 @@
     ".evenly",
     ".row",
     ".column",
-    ".stacks",
-    ".dropInside",
-    ".trapFocus"
+    ".stacks"
    ],
    "events": [],
+   "domEvents": [],
    "slots": [
     {
      "name": "children",
@@ -262,11 +260,10 @@
     }
    ],
    "flags": [
-    ".stacks",
-    ".dropInside",
-    ".trapFocus"
+    ".stacks"
    ],
    "events": [],
+   "domEvents": [],
    "slots": [
     {
      "name": "children",
@@ -402,11 +399,10 @@
     ".between",
     ".around",
     ".evenly",
-    ".stacks",
-    ".dropInside",
-    ".trapFocus"
+    ".stacks"
    ],
    "events": [],
+   "domEvents": [],
    "slots": [
     {
      "name": "children",
@@ -520,11 +516,10 @@
     ".baseline",
     ".between",
     ".around",
-    ".evenly",
-    ".dropInside",
-    ".trapFocus"
+    ".evenly"
    ],
    "events": [],
+   "domEvents": [],
    "slots": [
     {
      "name": "children",
@@ -599,11 +594,10 @@
     ".sm",
     ".md",
     ".lg",
-    ".xl",
-    ".dropInside",
-    ".trapFocus"
+    ".xl"
    ],
    "events": [],
+   "domEvents": [],
    "slots": [],
    "parts": [],
    "attributes": [
@@ -675,11 +669,9 @@
      "value": ""
     }
    ],
-   "flags": [
-    ".dropInside",
-    ".trapFocus"
-   ],
+   "flags": [],
    "events": [],
+   "domEvents": [],
    "slots": [
     {
      "name": "children",
@@ -792,11 +784,10 @@
    ],
    "flags": [
     ".horizontal",
-    ".reverse",
-    ".dropInside",
-    ".trapFocus"
+    ".reverse"
    ],
    "events": [],
+   "domEvents": [],
    "slots": [],
    "parts": [],
    "attributes": [
@@ -840,11 +831,9 @@
    "legacy": false,
    "props": [],
    "controls": [],
-   "flags": [
-    ".dropInside",
-    ".trapFocus"
-   ],
+   "flags": [],
    "events": [],
+   "domEvents": [],
    "slots": [],
    "parts": [],
    "attributes": [
@@ -901,11 +890,9 @@
      "value": ""
     }
    ],
-   "flags": [
-    ".dropInside",
-    ".trapFocus"
-   ],
+   "flags": [],
    "events": [],
+   "domEvents": [],
    "slots": [],
    "parts": [],
    "attributes": [
@@ -965,11 +952,9 @@
     }
    ],
    "controls": [],
-   "flags": [
-    ".dropInside",
-    ".trapFocus"
-   ],
+   "flags": [],
    "events": [],
+   "domEvents": [],
    "slots": [
     {
      "name": "children",
@@ -1043,11 +1028,9 @@
      "value": ""
     }
    ],
-   "flags": [
-    ".dropInside",
-    ".trapFocus"
-   ],
+   "flags": [],
    "events": [],
+   "domEvents": [],
    "slots": [
     {
      "name": "children",
@@ -1101,11 +1084,9 @@
    "legacy": false,
    "props": [],
    "controls": [],
-   "flags": [
-    ".dropInside",
-    ".trapFocus"
-   ],
+   "flags": [],
    "events": [],
+   "domEvents": [],
    "slots": [
     {
      "name": "children",
@@ -1180,11 +1161,9 @@
    "legacy": false,
    "props": [],
    "controls": [],
-   "flags": [
-    ".dropInside",
-    ".trapFocus"
-   ],
+   "flags": [],
    "events": [],
+   "domEvents": [],
    "slots": [
     {
      "name": "children",
@@ -1240,11 +1219,9 @@
    "legacy": false,
    "props": [],
    "controls": [],
-   "flags": [
-    ".dropInside",
-    ".trapFocus"
-   ],
+   "flags": [],
    "events": [],
+   "domEvents": [],
    "slots": [
     {
      "name": "children",
@@ -1300,11 +1277,9 @@
    "legacy": false,
    "props": [],
    "controls": [],
-   "flags": [
-    ".dropInside",
-    ".trapFocus"
-   ],
+   "flags": [],
    "events": [],
+   "domEvents": [],
    "slots": [
     {
      "name": "children",
@@ -1360,11 +1335,9 @@
    "legacy": false,
    "props": [],
    "controls": [],
-   "flags": [
-    ".dropInside",
-    ".trapFocus"
-   ],
+   "flags": [],
    "events": [],
+   "domEvents": [],
    "slots": [
     {
      "name": "children",
@@ -1439,11 +1412,9 @@
    "legacy": false,
    "props": [],
    "controls": [],
-   "flags": [
-    ".dropInside",
-    ".trapFocus"
-   ],
+   "flags": [],
    "events": [],
+   "domEvents": [],
    "slots": [
     {
      "name": "children",
@@ -1531,11 +1502,17 @@
     }
    ],
    "flags": [
-    ".prefix",
-    ".dropInside",
-    ".trapFocus"
+    ".prefix"
    ],
    "events": [],
+   "domEvents": [
+    {
+     "name": "click",
+     "kind": "DOM",
+     "detail": "The element was clicked or activated",
+     "fallback": ""
+    }
+   ],
    "slots": [
     {
      "name": "children",
@@ -1592,11 +1569,9 @@
    "legacy": false,
    "props": [],
    "controls": [],
-   "flags": [
-    ".dropInside",
-    ".trapFocus"
-   ],
+   "flags": [],
    "events": [],
+   "domEvents": [],
    "slots": [],
    "parts": [],
    "attributes": [
@@ -1677,11 +1652,17 @@
     }
    ],
    "flags": [
-    ".prefix",
-    ".dropInside",
-    ".trapFocus"
+    ".prefix"
    ],
    "events": [],
+   "domEvents": [
+    {
+     "name": "click",
+     "kind": "DOM",
+     "detail": "The element was clicked or activated",
+     "fallback": ""
+    }
+   ],
    "slots": [
     {
      "name": "children",
@@ -1743,11 +1724,9 @@
    "legacy": false,
    "props": [],
    "controls": [],
-   "flags": [
-    ".dropInside",
-    ".trapFocus"
-   ],
+   "flags": [],
    "events": [],
+   "domEvents": [],
    "slots": [
     {
      "name": "children",
@@ -1823,11 +1802,9 @@
      "value": ""
     }
    ],
-   "flags": [
-    ".dropInside",
-    ".trapFocus"
-   ],
+   "flags": [],
    "events": [],
+   "domEvents": [],
    "slots": [
     {
      "name": "children",
@@ -1878,11 +1855,9 @@
    "legacy": false,
    "props": [],
    "controls": [],
-   "flags": [
-    ".dropInside",
-    ".trapFocus"
-   ],
+   "flags": [],
    "events": [],
+   "domEvents": [],
    "slots": [
     {
      "name": "children",
@@ -1946,11 +1921,16 @@
     }
    ],
    "controls": [],
-   "flags": [
-    ".dropInside",
-    ".trapFocus"
-   ],
+   "flags": [],
    "events": [],
+   "domEvents": [
+    {
+     "name": "click",
+     "kind": "DOM",
+     "detail": "The element was clicked or activated",
+     "fallback": ""
+    }
+   ],
    "slots": [
     {
      "name": "children",
@@ -2080,9 +2060,7 @@
     ".leftEnd",
     ".right",
     ".rightStart",
-    ".rightEnd",
-    ".dropInside",
-    ".trapFocus"
+    ".rightEnd"
    ],
    "events": [
     {
@@ -2092,6 +2070,7 @@
      "fallback": ""
     }
    ],
+   "domEvents": [],
    "slots": [
     {
      "name": "children",
@@ -2215,11 +2194,17 @@
    "flags": [
     ".checked",
     ".disabled",
-    ".danger",
-    ".dropInside",
-    ".trapFocus"
+    ".danger"
    ],
    "events": [],
+   "domEvents": [
+    {
+     "name": "click",
+     "kind": "DOM",
+     "detail": "The element was clicked or activated",
+     "fallback": ""
+    }
+   ],
    "slots": [
     {
      "name": "children",
@@ -2288,11 +2273,9 @@
      "value": ""
     }
    ],
-   "flags": [
-    ".dropInside",
-    ".trapFocus"
-   ],
+   "flags": [],
    "events": [],
+   "domEvents": [],
    "slots": [
     {
      "name": "children",
@@ -2348,11 +2331,9 @@
    "legacy": false,
    "props": [],
    "controls": [],
-   "flags": [
-    ".dropInside",
-    ".trapFocus"
-   ],
+   "flags": [],
    "events": [],
+   "domEvents": [],
    "slots": [],
    "parts": [],
    "attributes": [
@@ -2432,11 +2413,10 @@
    "flags": [
     ".none",
     ".fade",
-    ".slide",
-    ".dropInside",
-    ".trapFocus"
+    ".slide"
    ],
    "events": [],
+   "domEvents": [],
    "slots": [
     {
      "name": "children",
@@ -2517,11 +2497,10 @@
    "flags": [
     ".flat",
     ".elevated",
-    ".outlined",
-    ".dropInside",
-    ".trapFocus"
+    ".outlined"
    ],
    "events": [],
+   "domEvents": [],
    "slots": [
     {
      "name": "children",
@@ -2591,11 +2570,9 @@
    "legacy": false,
    "props": [],
    "controls": [],
-   "flags": [
-    ".dropInside",
-    ".trapFocus"
-   ],
+   "flags": [],
    "events": [],
+   "domEvents": [],
    "slots": [
     {
      "name": "children",
@@ -2651,11 +2628,9 @@
    "legacy": false,
    "props": [],
    "controls": [],
-   "flags": [
-    ".dropInside",
-    ".trapFocus"
-   ],
+   "flags": [],
    "events": [],
+   "domEvents": [],
    "slots": [
     {
      "name": "children",
@@ -2711,11 +2686,9 @@
    "legacy": false,
    "props": [],
    "controls": [],
-   "flags": [
-    ".dropInside",
-    ".trapFocus"
-   ],
+   "flags": [],
    "events": [],
+   "domEvents": [],
    "slots": [
     {
      "name": "children",
@@ -2784,11 +2757,9 @@
      "value": ""
     }
    ],
-   "flags": [
-    ".dropInside",
-    ".trapFocus"
-   ],
+   "flags": [],
    "events": [],
+   "domEvents": [],
    "slots": [
     {
      "name": "children",
@@ -2869,11 +2840,9 @@
    "legacy": false,
    "props": [],
    "controls": [],
-   "flags": [
-    ".dropInside",
-    ".trapFocus"
-   ],
+   "flags": [],
    "events": [],
+   "domEvents": [],
    "slots": [
     {
      "name": "children",
@@ -2929,11 +2898,9 @@
    "legacy": false,
    "props": [],
    "controls": [],
-   "flags": [
-    ".dropInside",
-    ".trapFocus"
-   ],
+   "flags": [],
    "events": [],
+   "domEvents": [],
    "slots": [
     {
      "name": "children",
@@ -2989,11 +2956,9 @@
    "legacy": false,
    "props": [],
    "controls": [],
-   "flags": [
-    ".dropInside",
-    ".trapFocus"
-   ],
+   "flags": [],
    "events": [],
+   "domEvents": [],
    "slots": [
     {
      "name": "children",
@@ -3068,11 +3033,10 @@
     }
    ],
    "flags": [
-    ".header",
-    ".dropInside",
-    ".trapFocus"
+    ".header"
    ],
    "events": [],
+   "domEvents": [],
    "slots": [
     {
      "name": "children",
@@ -3138,11 +3102,10 @@
     }
    ],
    "flags": [
-    ".ordered",
-    ".dropInside",
-    ".trapFocus"
+    ".ordered"
    ],
    "events": [],
+   "domEvents": [],
    "slots": [
     {
      "name": "children",
@@ -3200,11 +3163,9 @@
    "legacy": false,
    "props": [],
    "controls": [],
-   "flags": [
-    ".dropInside",
-    ".trapFocus"
-   ],
+   "flags": [],
    "events": [],
+   "domEvents": [],
    "slots": [
     {
      "name": "children",
@@ -3308,11 +3269,10 @@
     ".danger",
     ".warning",
     ".info",
-    ".pill",
-    ".dropInside",
-    ".trapFocus"
+    ".pill"
    ],
    "events": [],
+   "domEvents": [],
    "slots": [],
    "parts": [],
    "attributes": [
@@ -3364,11 +3324,9 @@
      "value": ""
     }
    ],
-   "flags": [
-    ".dropInside",
-    ".trapFocus"
-   ],
+   "flags": [],
    "events": [],
+   "domEvents": [],
    "slots": [],
    "parts": [],
    "attributes": [
@@ -3474,11 +3432,10 @@
     ".sm",
     ".md",
     ".lg",
-    ".primary",
-    ".dropInside",
-    ".trapFocus"
+    ".primary"
    ],
    "events": [],
+   "domEvents": [],
    "slots": [],
    "parts": [],
    "attributes": [
@@ -3580,11 +3537,10 @@
     ".leftEnd",
     ".right",
     ".rightStart",
-    ".rightEnd",
-    ".dropInside",
-    ".trapFocus"
+    ".rightEnd"
    ],
    "events": [],
+   "domEvents": [],
    "slots": [
     {
      "name": "children",
@@ -3752,11 +3708,10 @@
     ".donut",
     ".legend",
     ".stacked",
-    ".labels",
-    ".dropInside",
-    ".trapFocus"
+    ".labels"
    ],
    "events": [],
+   "domEvents": [],
    "slots": [],
    "parts": [],
    "attributes": [
@@ -3835,11 +3790,9 @@
      "value": ""
     }
    ],
-   "flags": [
-    ".dropInside",
-    ".trapFocus"
-   ],
+   "flags": [],
    "events": [],
+   "domEvents": [],
    "slots": [],
    "parts": [],
    "attributes": [
@@ -4015,11 +3968,41 @@
     ".md",
     ".lg",
     ".full",
-    ".rounded",
-    ".dropInside",
-    ".trapFocus"
+    ".rounded"
    ],
    "events": [],
+   "domEvents": [
+    {
+     "name": "input",
+     "kind": "DOM",
+     "detail": "The value changed, on every keystroke",
+     "fallback": ""
+    },
+    {
+     "name": "change",
+     "kind": "DOM",
+     "detail": "The value was committed",
+     "fallback": ""
+    },
+    {
+     "name": "keydown",
+     "kind": "DOM",
+     "detail": "A key went down; `e.key` names it",
+     "fallback": ""
+    },
+    {
+     "name": "focus",
+     "kind": "DOM",
+     "detail": "The element received focus",
+     "fallback": ""
+    },
+    {
+     "name": "blur",
+     "kind": "DOM",
+     "detail": "The element lost focus",
+     "fallback": ""
+    }
+   ],
    "slots": [],
    "parts": [],
    "attributes": [
@@ -4158,11 +4141,29 @@
    ],
    "flags": [
     ".disabled",
-    ".multiple",
-    ".dropInside",
-    ".trapFocus"
+    ".multiple"
    ],
    "events": [],
+   "domEvents": [
+    {
+     "name": "change",
+     "kind": "DOM",
+     "detail": "The value was committed",
+     "fallback": ""
+    },
+    {
+     "name": "focus",
+     "kind": "DOM",
+     "detail": "The element received focus",
+     "fallback": ""
+    },
+    {
+     "name": "blur",
+     "kind": "DOM",
+     "detail": "The element lost focus",
+     "fallback": ""
+    }
+   ],
    "slots": [
     {
      "name": "children",
@@ -4249,11 +4250,9 @@
      "value": ""
     }
    ],
-   "flags": [
-    ".dropInside",
-    ".trapFocus"
-   ],
+   "flags": [],
    "events": [],
+   "domEvents": [],
    "slots": [],
    "parts": [],
    "attributes": [
@@ -4339,11 +4338,17 @@
    ],
    "flags": [
     ".checked",
-    ".disabled",
-    ".dropInside",
-    ".trapFocus"
+    ".disabled"
    ],
    "events": [],
+   "domEvents": [
+    {
+     "name": "change",
+     "kind": "DOM",
+     "detail": "The value was committed",
+     "fallback": ""
+    }
+   ],
    "slots": [],
    "parts": [],
    "attributes": [
@@ -4450,11 +4455,17 @@
    ],
    "flags": [
     ".checked",
-    ".disabled",
-    ".dropInside",
-    ".trapFocus"
+    ".disabled"
    ],
    "events": [],
+   "domEvents": [
+    {
+     "name": "change",
+     "kind": "DOM",
+     "detail": "The value was committed",
+     "fallback": ""
+    }
+   ],
    "slots": [],
    "parts": [],
    "attributes": [
@@ -4551,11 +4562,17 @@
    ],
    "flags": [
     ".checked",
-    ".disabled",
-    ".dropInside",
-    ".trapFocus"
+    ".disabled"
    ],
    "events": [],
+   "domEvents": [
+    {
+     "name": "change",
+     "kind": "DOM",
+     "detail": "The value was committed",
+     "fallback": ""
+    }
+   ],
    "slots": [],
    "parts": [],
    "attributes": [
@@ -4655,11 +4672,23 @@
     }
    ],
    "flags": [
-    ".disabled",
-    ".dropInside",
-    ".trapFocus"
+    ".disabled"
    ],
    "events": [],
+   "domEvents": [
+    {
+     "name": "input",
+     "kind": "DOM",
+     "detail": "The value changed, on every keystroke",
+     "fallback": ""
+    },
+    {
+     "name": "change",
+     "kind": "DOM",
+     "detail": "The value was committed",
+     "fallback": ""
+    }
+   ],
    "slots": [],
    "parts": [],
    "attributes": [
@@ -4766,11 +4795,17 @@
     }
    ],
    "flags": [
-    ".disabled",
-    ".dropInside",
-    ".trapFocus"
+    ".disabled"
    ],
    "events": [],
+   "domEvents": [
+    {
+     "name": "change",
+     "kind": "DOM",
+     "detail": "The value was committed",
+     "fallback": ""
+    }
+   ],
    "slots": [],
    "parts": [],
    "attributes": [
@@ -4868,11 +4903,17 @@
    ],
    "flags": [
     ".multiple",
-    ".disabled",
-    ".dropInside",
-    ".trapFocus"
+    ".disabled"
    ],
    "events": [],
+   "domEvents": [
+    {
+     "name": "change",
+     "kind": "DOM",
+     "detail": "The value was committed",
+     "fallback": ""
+    }
+   ],
    "slots": [
     {
      "name": "children",
@@ -4954,11 +4995,23 @@
    "flags": [
     ".onBlur",
     ".onSubmit",
-    ".live",
-    ".dropInside",
-    ".trapFocus"
+    ".live"
    ],
    "events": [],
+   "domEvents": [
+    {
+     "name": "submit",
+     "kind": "DOM",
+     "detail": "The form was submitted",
+     "fallback": ""
+    },
+    {
+     "name": "reset",
+     "kind": "DOM",
+     "detail": "The form was reset",
+     "fallback": ""
+    }
+   ],
    "slots": [
     {
      "name": "children",
@@ -5100,11 +5153,41 @@
    ],
    "flags": [
     ".required",
-    ".disabled",
-    ".dropInside",
-    ".trapFocus"
+    ".disabled"
    ],
    "events": [],
+   "domEvents": [
+    {
+     "name": "input",
+     "kind": "DOM",
+     "detail": "The value changed, on every keystroke",
+     "fallback": ""
+    },
+    {
+     "name": "change",
+     "kind": "DOM",
+     "detail": "The value was committed",
+     "fallback": ""
+    },
+    {
+     "name": "keydown",
+     "kind": "DOM",
+     "detail": "A key went down; `e.key` names it",
+     "fallback": ""
+    },
+    {
+     "name": "focus",
+     "kind": "DOM",
+     "detail": "The element received focus",
+     "fallback": ""
+    },
+    {
+     "name": "blur",
+     "kind": "DOM",
+     "detail": "The element lost focus",
+     "fallback": ""
+    }
+   ],
    "slots": [],
    "parts": [],
    "attributes": [
@@ -5192,11 +5275,10 @@
     ".success",
     ".danger",
     ".warning",
-    ".info",
-    ".dropInside",
-    ".trapFocus"
+    ".info"
    ],
    "events": [],
+   "domEvents": [],
    "slots": [
     {
      "name": "children",
@@ -5275,11 +5357,10 @@
     ".success",
     ".danger",
     ".warning",
-    ".info",
-    ".dropInside",
-    ".trapFocus"
+    ".info"
    ],
    "events": [],
+   "domEvents": [],
    "slots": [],
    "parts": [],
    "attributes": [
@@ -5353,9 +5434,7 @@
     }
    ],
    "flags": [
-    ".closable",
-    ".dropInside",
-    ".trapFocus"
+    ".closable"
    ],
    "events": [
     {
@@ -5365,6 +5444,7 @@
      "fallback": ""
     }
    ],
+   "domEvents": [],
    "slots": [
     {
      "name": "children",
@@ -5438,11 +5518,9 @@
    "legacy": false,
    "props": [],
    "controls": [],
-   "flags": [
-    ".dropInside",
-    ".trapFocus"
-   ],
+   "flags": [],
    "events": [],
+   "domEvents": [],
    "slots": [
     {
      "name": "children",
@@ -5498,11 +5576,9 @@
    "legacy": false,
    "props": [],
    "controls": [],
-   "flags": [
-    ".dropInside",
-    ".trapFocus"
-   ],
+   "flags": [],
    "events": [],
+   "domEvents": [],
    "slots": [
     {
      "name": "children",
@@ -5632,9 +5708,7 @@
     ".right",
     ".rightStart",
     ".rightEnd",
-    ".arrow",
-    ".dropInside",
-    ".trapFocus"
+    ".arrow"
    ],
    "events": [
     {
@@ -5644,6 +5718,7 @@
      "fallback": ""
     }
    ],
+   "domEvents": [],
    "slots": [
     {
      "name": "children",
@@ -5729,9 +5804,7 @@
     }
    ],
    "flags": [
-    ".closable",
-    ".dropInside",
-    ".trapFocus"
+    ".closable"
    ],
    "events": [
     {
@@ -5741,6 +5814,7 @@
      "fallback": ""
     }
    ],
+   "domEvents": [],
    "slots": [
     {
      "name": "children",
@@ -5808,11 +5882,9 @@
    "legacy": false,
    "props": [],
    "controls": [],
-   "flags": [
-    ".dropInside",
-    ".trapFocus"
-   ],
+   "flags": [],
    "events": [],
+   "domEvents": [],
    "slots": [
     {
      "name": "children",
@@ -5888,11 +5960,10 @@
    "flags": [
     ".sm",
     ".md",
-    ".lg",
-    ".dropInside",
-    ".trapFocus"
+    ".lg"
    ],
    "events": [],
+   "domEvents": [],
    "slots": [],
    "parts": [],
    "attributes": [
@@ -5947,11 +6018,9 @@
     }
    ],
    "controls": [],
-   "flags": [
-    ".dropInside",
-    ".trapFocus"
-   ],
+   "flags": [],
    "events": [],
+   "domEvents": [],
    "slots": [],
    "parts": [],
    "attributes": [
@@ -6042,11 +6111,10 @@
     }
    ],
    "flags": [
-    ".circle",
-    ".dropInside",
-    ".trapFocus"
+    ".circle"
    ],
    "events": [],
+   "domEvents": [],
    "slots": [],
    "parts": [],
    "attributes": [
@@ -6205,11 +6273,17 @@
     ".button",
     ".submit",
     ".reset",
-    ".disabled",
-    ".dropInside",
-    ".trapFocus"
+    ".disabled"
    ],
    "events": [],
+   "domEvents": [
+    {
+     "name": "click",
+     "kind": "DOM",
+     "detail": "The element was clicked or activated",
+     "fallback": ""
+    }
+   ],
    "slots": [
     {
      "name": "children",
@@ -6353,11 +6427,17 @@
     ".button",
     ".submit",
     ".reset",
-    ".disabled",
-    ".dropInside",
-    ".trapFocus"
+    ".disabled"
    ],
    "events": [],
+   "domEvents": [
+    {
+     "name": "click",
+     "kind": "DOM",
+     "detail": "The element was clicked or activated",
+     "fallback": ""
+    }
+   ],
    "slots": [
     {
      "name": "children",
@@ -6423,11 +6503,9 @@
    "legacy": false,
    "props": [],
    "controls": [],
-   "flags": [
-    ".dropInside",
-    ".trapFocus"
-   ],
+   "flags": [],
    "events": [],
+   "domEvents": [],
    "slots": [
     {
      "name": "children",
@@ -6496,11 +6574,9 @@
      "value": ""
     }
    ],
-   "flags": [
-    ".dropInside",
-    ".trapFocus"
-   ],
+   "flags": [],
    "events": [],
+   "domEvents": [],
    "slots": [
     {
      "name": "children",
@@ -6564,11 +6640,16 @@
    "legacy": false,
    "props": [],
    "controls": [],
-   "flags": [
-    ".dropInside",
-    ".trapFocus"
-   ],
+   "flags": [],
    "events": [],
+   "domEvents": [
+    {
+     "name": "click",
+     "kind": "DOM",
+     "detail": "The element was clicked or activated",
+     "fallback": ""
+    }
+   ],
    "slots": [
     {
      "name": "children",
@@ -6624,11 +6705,9 @@
    "legacy": false,
    "props": [],
    "controls": [],
-   "flags": [
-    ".dropInside",
-    ".trapFocus"
-   ],
+   "flags": [],
    "events": [],
+   "domEvents": [],
    "slots": [],
    "parts": [],
    "attributes": [
@@ -6777,11 +6856,23 @@
     ".lazy",
     ".eager",
     ".rounded",
-    ".circle",
-    ".dropInside",
-    ".trapFocus"
+    ".circle"
    ],
    "events": [],
+   "domEvents": [
+    {
+     "name": "load",
+     "kind": "DOM",
+     "detail": "An image, video or frame finished loading",
+     "fallback": ""
+    },
+    {
+     "name": "error",
+     "kind": "DOM",
+     "detail": "An image, video or script failed to load",
+     "fallback": ""
+    }
+   ],
    "slots": [],
    "parts": [],
    "attributes": [
@@ -6928,11 +7019,35 @@
     ".autoplay",
     ".muted",
     ".loop",
-    ".playsinline",
-    ".dropInside",
-    ".trapFocus"
+    ".playsinline"
    ],
    "events": [],
+   "domEvents": [
+    {
+     "name": "play",
+     "kind": "DOM",
+     "detail": "A video or audio started playing",
+     "fallback": ""
+    },
+    {
+     "name": "pause",
+     "kind": "DOM",
+     "detail": "A video or audio paused",
+     "fallback": ""
+    },
+    {
+     "name": "ended",
+     "kind": "DOM",
+     "detail": "A video or audio reached its end",
+     "fallback": ""
+    },
+    {
+     "name": "timeupdate",
+     "kind": "DOM",
+     "detail": "A playing video or audio moved on",
+     "fallback": ""
+    }
+   ],
    "slots": [],
    "parts": [],
    "attributes": [
@@ -7052,11 +7167,35 @@
    "flags": [
     ".controls",
     ".autoplay",
-    ".loop",
-    ".dropInside",
-    ".trapFocus"
+    ".loop"
    ],
    "events": [],
+   "domEvents": [
+    {
+     "name": "play",
+     "kind": "DOM",
+     "detail": "A video or audio started playing",
+     "fallback": ""
+    },
+    {
+     "name": "pause",
+     "kind": "DOM",
+     "detail": "A video or audio paused",
+     "fallback": ""
+    },
+    {
+     "name": "ended",
+     "kind": "DOM",
+     "detail": "A video or audio reached its end",
+     "fallback": ""
+    },
+    {
+     "name": "timeupdate",
+     "kind": "DOM",
+     "detail": "A playing video or audio moved on",
+     "fallback": ""
+    }
+   ],
    "slots": [],
    "parts": [],
    "attributes": [
@@ -7188,9 +7327,7 @@
    ],
    "flags": [
     ".lazy",
-    ".eager",
-    ".dropInside",
-    ".trapFocus"
+    ".eager"
    ],
    "events": [
     {
@@ -7206,6 +7343,7 @@
      "fallback": ""
     }
    ],
+   "domEvents": [],
    "slots": [],
    "parts": [],
    "attributes": [
@@ -7330,11 +7468,10 @@
     ".danger",
     ".warning",
     ".info",
-    ".muted",
-    ".dropInside",
-    ".trapFocus"
+    ".muted"
    ],
    "events": [],
+   "domEvents": [],
    "slots": [],
    "parts": [],
    "attributes": [
@@ -7408,11 +7545,10 @@
     }
    ],
    "flags": [
-    ".autoplay",
-    ".dropInside",
-    ".trapFocus"
+    ".autoplay"
    ],
    "events": [],
+   "domEvents": [],
    "slots": [
     {
      "name": "children",
@@ -7480,11 +7616,9 @@
    "legacy": false,
    "props": [],
    "controls": [],
-   "flags": [
-    ".dropInside",
-    ".trapFocus"
-   ],
+   "flags": [],
    "events": [],
+   "domEvents": [],
    "slots": [
     {
      "name": "children",
@@ -7668,11 +7802,10 @@
     ".bold",
     ".italic",
     ".underline",
-    ".muted",
-    ".dropInside",
-    ".trapFocus"
+    ".muted"
    ],
    "events": [],
+   "domEvents": [],
    "slots": [],
    "parts": [],
    "attributes": [
@@ -7771,11 +7904,10 @@
     ".left",
     ".center",
     ".right",
-    ".muted",
-    ".dropInside",
-    ".trapFocus"
+    ".muted"
    ],
    "events": [],
+   "domEvents": [],
    "slots": [],
    "parts": [],
    "attributes": [
@@ -7859,11 +7991,10 @@
     }
    ],
    "flags": [
-    ".block",
-    ".dropInside",
-    ".trapFocus"
+    ".block"
    ],
    "events": [],
+   "domEvents": [],
    "slots": [],
    "parts": [],
    "attributes": [
@@ -7927,11 +8058,10 @@
     }
    ],
    "flags": [
-    ".inert",
-    ".dropInside",
-    ".trapFocus"
+    ".inert"
    ],
    "events": [],
+   "domEvents": [],
    "slots": [],
    "parts": [],
    "attributes": [
@@ -7970,11 +8100,9 @@
    "legacy": false,
    "props": [],
    "controls": [],
-   "flags": [
-    ".dropInside",
-    ".trapFocus"
-   ],
+   "flags": [],
    "events": [],
+   "domEvents": [],
    "slots": [],
    "parts": [
     {
@@ -8038,11 +8166,9 @@
      "value": ""
     }
    ],
-   "flags": [
-    ".dropInside",
-    ".trapFocus"
-   ],
+   "flags": [],
    "events": [],
+   "domEvents": [],
    "slots": [],
    "parts": [],
    "attributes": [
@@ -8097,11 +8223,9 @@
     }
    ],
    "controls": [],
-   "flags": [
-    ".dropInside",
-    ".trapFocus"
-   ],
+   "flags": [],
    "events": [],
+   "domEvents": [],
    "slots": [
     {
      "name": "children",
@@ -8165,11 +8289,9 @@
      "value": ""
     }
    ],
-   "flags": [
-    ".dropInside",
-    ".trapFocus"
-   ],
+   "flags": [],
    "events": [],
+   "domEvents": [],
    "slots": [],
    "parts": [],
    "attributes": [
@@ -8310,11 +8432,10 @@
     ".A5",
     ".Letter",
     ".Legal",
-    ".landscape",
-    ".dropInside",
-    ".trapFocus"
+    ".landscape"
    ],
    "events": [],
+   "domEvents": [],
    "slots": [
     {
      "name": "children",
@@ -8367,11 +8488,9 @@
    "legacy": false,
    "props": [],
    "controls": [],
-   "flags": [
-    ".dropInside",
-    ".trapFocus"
-   ],
+   "flags": [],
    "events": [],
+   "domEvents": [],
    "slots": [
     {
      "name": "children",
@@ -8552,11 +8671,10 @@
     ".bold",
     ".italic",
     ".underline",
-    ".muted",
-    ".dropInside",
-    ".trapFocus"
+    ".muted"
    ],
    "events": [],
+   "domEvents": [],
    "slots": [],
    "parts": [],
    "attributes": [
@@ -8621,11 +8739,10 @@
     ".first",
     ".rest",
     ".odd",
-    ".even",
-    ".dropInside",
-    ".trapFocus"
+    ".even"
    ],
    "events": [],
+   "domEvents": [],
    "slots": [
     {
      "name": "children",
@@ -8702,11 +8819,10 @@
     ".first",
     ".rest",
     ".odd",
-    ".even",
-    ".dropInside",
-    ".trapFocus"
+    ".even"
    ],
    "events": [],
+   "domEvents": [],
    "slots": [
     {
      "name": "children",
@@ -8783,11 +8899,10 @@
     ".first",
     ".rest",
     ".odd",
-    ".even",
-    ".dropInside",
-    ".trapFocus"
+    ".even"
    ],
    "events": [],
+   "domEvents": [],
    "slots": [
     {
      "name": "children",
@@ -8875,11 +8990,10 @@
     ".first",
     ".rest",
     ".odd",
-    ".even",
-    ".dropInside",
-    ".trapFocus"
+    ".even"
    ],
    "events": [],
+   "domEvents": [],
    "slots": [],
    "parts": [],
    "attributes": [
@@ -8920,11 +9034,9 @@
    "legacy": false,
    "props": [],
    "controls": [],
-   "flags": [
-    ".dropInside",
-    ".trapFocus"
-   ],
+   "flags": [],
    "events": [],
+   "domEvents": [],
    "slots": [],
    "parts": [],
    "attributes": [
@@ -8970,11 +9082,9 @@
    "legacy": false,
    "props": [],
    "controls": [],
-   "flags": [
-    ".dropInside",
-    ".trapFocus"
-   ],
+   "flags": [],
    "events": [],
+   "domEvents": [],
    "slots": [
     {
      "name": "children",
@@ -9027,11 +9137,9 @@
    "legacy": false,
    "props": [],
    "controls": [],
-   "flags": [
-    ".dropInside",
-    ".trapFocus"
-   ],
+   "flags": [],
    "events": [],
+   "domEvents": [],
    "slots": [
     {
      "name": "children",
@@ -9108,11 +9216,9 @@
      "value": ""
     }
    ],
-   "flags": [
-    ".dropInside",
-    ".trapFocus"
-   ],
+   "flags": [],
    "events": [],
+   "domEvents": [],
    "slots": [],
    "parts": [],
    "attributes": [
@@ -9188,11 +9294,10 @@
     ".success",
     ".danger",
     ".warning",
-    ".info",
-    ".dropInside",
-    ".trapFocus"
+    ".info"
    ],
    "events": [],
+   "domEvents": [],
    "slots": [],
    "parts": [],
    "attributes": [
@@ -9233,11 +9338,9 @@
    "legacy": false,
    "props": [],
    "controls": [],
-   "flags": [
-    ".dropInside",
-    ".trapFocus"
-   ],
+   "flags": [],
    "events": [],
+   "domEvents": [],
    "slots": [
     {
      "name": "children",
@@ -9314,11 +9417,9 @@
      "value": ""
     }
    ],
-   "flags": [
-    ".dropInside",
-    ".trapFocus"
-   ],
+   "flags": [],
    "events": [],
+   "domEvents": [],
    "slots": [],
    "parts": [],
    "attributes": [
@@ -9377,11 +9478,9 @@
      "value": ""
     }
    ],
-   "flags": [
-    ".dropInside",
-    ".trapFocus"
-   ],
+   "flags": [],
    "events": [],
+   "domEvents": [],
    "slots": [
     {
      "name": "children",
@@ -9427,11 +9526,9 @@
    "legacy": true,
    "props": [],
    "controls": [],
-   "flags": [
-    ".dropInside",
-    ".trapFocus"
-   ],
+   "flags": [],
    "events": [],
+   "domEvents": [],
    "slots": [
     {
      "name": "children",
@@ -9482,11 +9579,9 @@
    "legacy": true,
    "props": [],
    "controls": [],
-   "flags": [
-    ".dropInside",
-    ".trapFocus"
-   ],
+   "flags": [],
    "events": [],
+   "domEvents": [],
    "slots": [
     {
      "name": "children",
@@ -9537,11 +9632,9 @@
    "legacy": true,
    "props": [],
    "controls": [],
-   "flags": [
-    ".dropInside",
-    ".trapFocus"
-   ],
+   "flags": [],
    "events": [],
+   "domEvents": [],
    "slots": [
     {
      "name": "children",
@@ -9611,11 +9704,10 @@
     }
    ],
    "flags": [
-    ".header",
-    ".dropInside",
-    ".trapFocus"
+    ".header"
    ],
    "events": [],
+   "domEvents": [],
    "slots": [
     {
      "name": "children",
@@ -9680,11 +9772,9 @@
      "value": ""
     }
    ],
-   "flags": [
-    ".dropInside",
-    ".trapFocus"
-   ],
+   "flags": [],
    "events": [],
+   "domEvents": [],
    "slots": [],
    "parts": [],
    "attributes": [
@@ -9734,11 +9824,9 @@
     }
    ],
    "controls": [],
-   "flags": [
-    ".dropInside",
-    ".trapFocus"
-   ],
+   "flags": [],
    "events": [],
+   "domEvents": [],
    "slots": [],
    "parts": [],
    "attributes": [
@@ -9771,6 +9859,29 @@
   }
  ],
  "universal": {
+  "names": [
+   "animate",
+   "exit",
+   "speed",
+   "duration",
+   "delay",
+   "easing",
+   "stagger",
+   "on",
+   "count",
+   "shared",
+   "class",
+   "ref",
+   "drag",
+   "dragGroup",
+   "dropValue",
+   "dropAxis",
+   "dropInside",
+   "trapFocus",
+   "mount",
+   "update",
+   "cleanup"
+  ],
   "props": [
    {
     "name": "animate:",

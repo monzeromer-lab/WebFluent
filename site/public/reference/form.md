@@ -19,7 +19,16 @@ Form(bind: State, show: Enum) { … }
 
 ## Flags
 
-`.onBlur` `.onSubmit` `.live` `.dropInside` `.trapFocus`
+`.onBlur` `.onSubmit` `.live`
+
+## DOM events it answers
+
+Any other DOM event works too, in an `on … { }` handler.
+
+- `on submit`: The form was submitted
+- `on reset`: The form was reset
+
+Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 
 ## Slots
 
@@ -43,4 +52,4 @@ Form(bind: form) {
 - [C04](https://webfluent.monzeromer.dev/errors/C04.md): An attribute a built-in does not declare
 - [C05](https://webfluent.monzeromer.dev/errors/C05.md): A positional argument a built-in does not take
 
-Since WebFluent 5.0.
+Before WebFluent 5.0.

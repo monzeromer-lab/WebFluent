@@ -24,3 +24,5 @@ wf render TEMPLATE [options]
 | `--lang LANG` | The document's language, `<html lang>` (default: the page's `lang:`, else `en`) |
 
 **Writes:** the file `--output` names
+
+The [full entry for wf render](https://webfluent.monzeromer.dev/reference/cli.md#wf-render) has its examples and the details this page leaves out.

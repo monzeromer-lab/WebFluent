@@ -40,6 +40,13 @@ fences = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(fences)
 
 OPEN = "<!-- codes: written by scripts/docsite/errors.py -->"
+
+# Under every example: where it runs as shown. Pasted beside the pages of
+# a project `wf init` made, most examples draw `S04` or `E102` instead.
+TRY_IT = (
+    "Each example is a whole program: it is all of `src/App.wf` in a project "
+    "with no other `.wf` file ([trying an example](/errors#trying-an-example))."
+)
 CLOSE = "<!-- /codes -->"
 
 
@@ -209,10 +216,12 @@ def page_file(entries: list) -> str:
         "",
     ]
     for e in entries:
+        # In the order the page draws them: the fix comes straight after
+        # the message, and why the rule exists after the fix.
         anchors = [("printed", "error.printed")] if e["printed"] else []
+        anchors.append(("fix", "error.fix"))
         if e["why"]:
             anchors.append(("why", "error.why"))
-        anchors.append(("fix", "error.fix"))
         sections = ", ".join(f'Anchor(id: "{a}", label: t("{k}"))' for a, k in anchors)
         related = ", ".join(
             f'RelatedLink(kind: {q(r["kind"])}, title: {q(r["title"])}, to: {q(r["to"])})' for r in e["related"]
@@ -234,7 +243,10 @@ def page_file(entries: list) -> str:
             # The broken program beside the fixed one, what the fix is under them.
             out.append(f'        broken {{ CodeBlock({guide.wf_raw(e["broken"])}, title: "wf") }}')
             out.append(f'        fixed {{ CodeBlock({guide.wf_raw(e["fixed"])}, title: "wf") }}')
-            out.append(f'        note {{ Markdown({q(e["fix"])}) }}')
+            out.append("        note {")
+            out.append(f'            Markdown({q(e["fix"])})')
+            out.append(f'            Markdown({q(TRY_IT)}) {{ style {{ font-size: 14px; color: $muted }} }}')
+            out.append("        }")
         else:
             out.append("        fixed {")
             out.append("            Stack(gap: .sm) {")

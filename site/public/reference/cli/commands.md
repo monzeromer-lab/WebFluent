@@ -15,3 +15,5 @@ wf commands [options]
 | Option | Meaning |
 |---|---|
 | `--json` | Print JSON, for tools |
+
+The [full entry for wf commands](https://webfluent.monzeromer.dev/reference/cli.md#wf-commands) has its examples and the details this page leaves out.

@@ -32,7 +32,19 @@ Input(bind: State, label: String, hint: String, …)
 
 ## Flags
 
-`.text` `.email` `.password` `.number` `.search` `.tel` `.url` `.date` `.time` `.datetime` `.color` `.required` `.disabled` `.sm` `.md` `.lg` `.full` `.rounded` `.dropInside` `.trapFocus`
+`.text` `.email` `.password` `.number` `.search` `.tel` `.url` `.date` `.time` `.datetime` `.color` `.required` `.disabled` `.sm` `.md` `.lg` `.full` `.rounded`
+
+## DOM events it answers
+
+Any other DOM event works too, in an `on … { }` handler.
+
+- `on input`: The value changed, on every keystroke
+- `on change`: The value was committed
+- `on keydown`: A key went down; `e.key` names it
+- `on focus`: The element received focus
+- `on blur`: The element lost focus
+
+Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 
 ## Example
 
@@ -52,4 +64,4 @@ Input(bind: email, label: "Email", hint: "We never share it").email.required
 - [F03](https://webfluent.monzeromer.dev/errors/F03.md): A validate block no control can satisfy
 - [A03](https://webfluent.monzeromer.dev/errors/A03.md): An input with no label
 
-Since WebFluent 5.0.
+Before WebFluent 5.0.

@@ -1,7 +1,7 @@
 ---
 kind: "recipe"
 route: "/recipes/render-a-template"
-group: "interop"
+group: "server"
 description: "Render a .wf template with JSON data to HTML, an HTML fragment, a PDF or slides with wf render, for invoices, emails and server responses."
 outputs: ["website", "pdf", "slides"]
 from: ["/docs/guide/server-rendering#before-you-start", "/docs/guide/server-rendering#write-a-template-and-its-data", "/docs/guide/server-rendering#render-from-the-command-line", "/docs/guide/server-rendering#what-a-template-may-use", "/docs/guide/server-rendering#pick-an-output-for-the-job", "/docs/guide/server-rendering#troubleshooting"]

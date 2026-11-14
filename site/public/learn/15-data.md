@@ -30,10 +30,10 @@ You should know `state` and `action`
 This chapter does not cover:
 
 - a connection the page holds open — a socket, a stream, a channel or a
-  peer — which is [Real-time](https://webfluent.monzeromer.dev/recipes.md);
-- working without a network, which is [Offline](https://webfluent.monzeromer.dev/recipes.md);
+  peer — which is [Open a socket](https://webfluent.monzeromer.dev/recipes/open-a-socket.md);
+- working without a network, which is [Make a site work offline](https://webfluent.monzeromer.dev/recipes/work-offline.md);
 - values fixed for each build, which are
-  [Environments](https://webfluent.monzeromer.dev/recipes.md).
+  [Environments and secrets](https://webfluent.monzeromer.dev/recipes/environments-and-secrets.md).
 
 ## Choose how to get data
 
@@ -810,6 +810,9 @@ Read it through `?.` with a fallback, `{users.data?.length ?? 0}`, or show
 it inside the `ready` arm, where the binding is never null
 ([T04](https://webfluent.monzeromer.dev/errors/T04.md)).
 
+Going further: [Open a socket](https://webfluent.monzeromer.dev/recipes/open-a-socket.md) keeps a
+connection open for data the server pushes.
+
 ## Next
 
-[Real-time](https://webfluent.monzeromer.dev/recipes.md).
+[Testing](https://webfluent.monzeromer.dev/learn/16-testing.md).

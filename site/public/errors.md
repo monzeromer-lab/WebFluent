@@ -170,11 +170,27 @@ A code's letter is its family:
 | `U` | declared and never used |
 | `V` | vocabulary |
 
-Each code's page has the same parts: the code and its title as the heading,
-what it means, a program that draws it, the message the compiler prints for
-that program, and the fix. The test suite compiles every example program,
-checks that it draws exactly the code it is filed under, and checks that
-the message shown is what the compiler prints.
+Each code's page has the code and its title as the heading, what it means
+and the fix. Most pages also show a program that draws it, the message the
+compiler prints for that program, and the program put right. The test
+suite compiles every one of those programs, checks that the broken one
+draws the code it is filed under and the fixed one draws nothing, and
+checks that the message shown is what the compiler prints.
+
+Some codes depend on more than one file can show: the files in `public/`
+(`D01`), the config (`E108`, `E109`, `E111`, `E112`), the project's scripts
+(`E110`, `E115`), its translations (`I01`–`I05`), the layout of a `.wfx`
+file (`E003`) or the compiler's own output (`E901`, `E902`). Their pages
+describe the case in words, or show a program that is not compiled and
+say what project it needs.
+
+## Trying an example
+
+An example is a whole program. Put it in `src/App.wf` of a project with no
+other `.wf` file under `src/` and no `theme` in `webfluent.app.json`. A
+project `wf init` made already has a page at `/`, a `type User` and a
+`theme Day`; an example pasted beside them draws `S04` (two pages claim
+one route) or `E102` (a name declared twice) instead of its own code.
 
 ## Every code
 

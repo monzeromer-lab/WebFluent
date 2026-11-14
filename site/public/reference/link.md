@@ -20,7 +20,15 @@ Link(_ label: String, to: Path, active: Enum) { … }
 
 ## Flags
 
-`.prefix` `.dropInside` `.trapFocus`
+`.prefix`
+
+## DOM events it answers
+
+Any other DOM event works too, in an `on … { }` handler.
+
+- `on click`: The element was clicked or activated
+
+Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 
 ## Slots
 
@@ -42,4 +50,4 @@ Link(to: "https://example.com", target: "_blank") { Text("Example") }
 - [R01](https://webfluent.monzeromer.dev/errors/R01.md): A route to nothing
 - [A06](https://webfluent.monzeromer.dev/errors/A06.md): A link with no text
 
-Since WebFluent 5.0.
+Before WebFluent 5.0.

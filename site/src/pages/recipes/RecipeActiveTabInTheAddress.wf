@@ -1,20 +1,24 @@
 // A recipe, written from md-docs/recipes/active-tab-in-the-address.md by scripts/docsite/recipes.py;
 // edit the recipe, not this file.
 page RecipeActiveTabInTheAddress(path: "/recipes/active-tab-in-the-address", title: "Keep the active tab in the address — Recipes", description: "Keep the active tab in the address's #fragment, so it survives a reload and a shared link opens on the same tab.") {
-    RecipeShell("Keep the active tab in the address", summary: "A tab held in a `state` goes back to the first one on every reload. To make the tab survive a reload, and a shared link open on the same tab, read it from the address's `#fragment`:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Build a confirm dialog", to: "/recipes/confirm-dialog"), RelatedLink(kind: "Recipe", title: "Copy to the clipboard", to: "/recipes/copy-to-the-clipboard"), RelatedLink(kind: "Recipe", title: "Count down", to: "/recipes/count-down")], source: "md-docs/recipes/active-tab-in-the-address.md", how: true, hasVariations: false) {
+    RecipeShell("Keep the active tab in the address", summary: "A tab held in a `state` goes back to the first one on every reload. To make the tab survive a reload, and a shared link open on the same tab, read it from the address's `#fragment`:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Keep filters in the address", to: "/recipes/filters-in-the-address"), RelatedLink(kind: "Recipe", title: "Build a confirm dialog", to: "/recipes/confirm-dialog"), RelatedLink(kind: "Recipe", title: "Copy to the clipboard", to: "/recipes/copy-to-the-clipboard")], source: "md-docs/recipes/active-tab-in-the-address.md", how: true, hasVariations: false) {
         code {
             CodeBlock(#"page Account(path: "/account", title: "Account", description: "Your profile and billing.") {
     derived tab = if hash != "" { hash } else { "profile" }
     Heading("Account").h1
-    Row(gap: .sm) {
-        Link("Profile", to: "/account#profile")
-        Link("Billing", to: "/account#billing")
+    Row(gap: .sm, role: "tablist", aria-label: "Account") {
+        Button("Profile", role: "tab", aria-selected: tab == "profile", outlined: tab != "profile") {
+            on click { navigate("/account#profile") }
+        }
+        Button("Billing", role: "tab", aria-selected: tab == "billing", outlined: tab != "billing") {
+            on click { navigate("/account#billing") }
+        }
     }
-    if tab == "profile" { Text("Profile settings") }
-    if tab == "billing" { Text("Billing settings") }
+    if tab == "profile" { Text("Profile settings", role: "tabpanel") }
+    if tab == "billing" { Text("Billing settings", role: "tabpanel") }
 }"#, title: "wf")
         }
-        Markdown("- [`hash`](/learn/05-pages-and-routing#query-strings-and-fragments) is the address's fragment without the `#`, kept current by the runtime.\n- `tab` is a [`derived`](/learn/07-state-and-reactivity#derived) value: the fragment when there is one, `\"profile\"` when there is none.\n- Each tab is a `Link` to the same page with another fragment. Following it changes `hash`, `tab` follows, and the matching `if` draws its panel. The back button steps through the tabs the reader opened.\n\nTo keep several settings in the address, such as a sort and a filter, use the query string instead: see [Keep filters in the address](/recipes/filters-in-the-address).")
+        Markdown("Open `/account#billing` and the Billing tab is selected; click Profile and the address becomes `/account#profile`.\n\n- [`hash`](/learn/05-pages-and-routing#query-strings-and-fragments) is the address's fragment without the `#`, kept current by the runtime.\n- `tab` is a [`derived`](/learn/07-state-and-reactivity#derived) value: the fragment when there is one, `\"profile\"` when there is none.\n- Each tab is a `Button` that navigates to the same page with another fragment. `hash` changes, `tab` follows, and the matching `if` draws its panel. Each click is a step in the history, so the back button steps through the tabs the reader opened.\n- `role: \"tablist\"`, `role: \"tab\"` and `aria-selected:` tell a screen reader these are tabs and which one is open; `outlined:` shows the same thing to the eye. Both follow `tab`.\n\nWhy not a `Link` per tab? The router marks a link current by its path, not its fragment: on `/account#billing`, both `/account#profile` and `/account#billing` are links to the current page, so both get the `active` class and `aria-current=\"page\"`, and neither the look nor a screen reader says which tab is open.\n\nTo keep several settings in the address, such as a sort and a filter, use the query string instead: see [Keep filters in the address](/recipes/filters-in-the-address).")
 
     }
 }

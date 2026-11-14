@@ -1,6 +1,6 @@
 /// Tutorial: Shelf, in ar: written from md-docs/ar/learn/02-tutorial-shelf.md by
 /// scripts/docsite/guide.py; edit the translation, not this file.
-page Learn02TutorialShelfAr(path: "/ar/learn/02-tutorial-shelf", title: "درس: Shelf", description: "درس خطوة بخطوة: ابنِ موقع قائمة قراءة بـ WebFluent، واختبره، وانشره على GitHub Pages.", lang: "ar", translates: Learn02TutorialShelf, layout: DocsShell("درس: Shelf", kind: .tutorial, chapter: t("nav.group.tour"), blurb: "ابنِ موقعًا صغيرًا كاملًا — بيانات ومكوّنات ومخزن ونموذج وسمة واختبار — وانشره على الويب.", source: "md-docs/ar/learn/02-tutorial-shelf.md", sections: [Anchor(id: "ما-ستبنيه", label: "ما ستبنيه"), Anchor(id: "قبل-أن-تبدأ", label: "قبل أن تبدأ"), Anchor(id: "الخطوة-1-أنشئ-المشروع", label: "الخطوة 1: أنشئ المشروع"), Anchor(id: "الخطوة-2-صف-الكتب", label: "الخطوة 2: صِف الكتب"), Anchor(id: "الخطوة-3-احفظ-رف-القارئ-في-مخزن", label: "الخطوة 3: احفظ رفّ القارئ في مخزن"), Anchor(id: "الخطوة-4-اعرض-كتابا-بمكون", label: "الخطوة 4: اعرض كتابًا بمكوّن"), Anchor(id: "الخطوة-5-أضف-الصفحة-الرئيسية-وصفحة-لكل-كتاب", label: "الخطوة 5: أضف الصفحة الرئيسية وصفحة لكل كتاب"), Anchor(id: "الخطوة-6-أضف-صفحة-الرف-وإطار-الموقع", label: "الخطوة 6: أضف صفحة الرفّ وإطار الموقع"), Anchor(id: "الخطوة-7-أضف-نموذجا-لاقتراح-كتاب", label: "الخطوة 7: أضف نموذجًا لاقتراح كتاب"), Anchor(id: "الخطوة-8-امنح-الموقع-سمة", label: "الخطوة 8: امنح الموقع سمة"), Anchor(id: "الخطوة-9-اختبر-بطاقة-الكتاب", label: "الخطوة 9: اختبر بطاقة الكتاب"), Anchor(id: "الخطوة-10-ابن-الموقع-وتحقق-منه", label: "الخطوة 10: ابنِ الموقع وتحقّق منه"), Anchor(id: "الخطوة-11-انشر-على-github-pages", label: "الخطوة 11: انشر على GitHub Pages"), Anchor(id: "البرنامج-كاملا", label: "البرنامج كاملًا"), Anchor(id: "ما-بنيته", label: "ما بنيته"), Anchor(id: "أخطاء-شائعة", label: "أخطاء شائعة"), Anchor(id: "التالي", label: "التالي")], learned: ["اقرأ ملف JSON وقت البناء بيانات ذات أنواع، بـ `type` و`data`", "احفظ ما يختاره القارئ عبر الزيارات في `store` مع `persist`", "اكتب مكوّنًا وضعه داخل `for … by` ذي مفاتيح", "اعرض صفحة لكل عنصر بمسار `:slug` و`paths:`", "تحقّق من نموذج، وأضف سمة، واختبر بالنقرات، وانشر الموقع"], book: GUIDE_AR, other: "/learn/02-tutorial-shelf", lang: "ar", prevTo: "/ar/learn/01-getting-started", prevLabel: t("ch.01"), nextTo: "/ar/learn/03-tutorial-todos", nextLabel: t("ch.03"))) {
+page Learn02TutorialShelfAr(path: "/ar/learn/02-tutorial-shelf", title: "درس: Shelf", description: "درس خطوة بخطوة: ابنِ موقع قائمة قراءة بـ WebFluent، واختبره، وانشره على GitHub Pages.", lang: "ar", translates: Learn02TutorialShelf, layout: DocsShell("درس: Shelf", kind: .tutorial, chapter: t("nav.group.tour"), blurb: "ابنِ موقعًا صغيرًا كاملًا — بيانات ومكوّنات ومخزن ونموذج وسمة واختبار — وانشره على الويب.", source: "md-docs/ar/learn/02-tutorial-shelf.md", sections: [Anchor(id: "ما-ستبنيه", label: "ما ستبنيه"), Anchor(id: "قبل-أن-تبدأ", label: "قبل أن تبدأ"), Anchor(id: "الخطوة-1-أنشئ-المشروع", label: "الخطوة 1: أنشئ المشروع"), Anchor(id: "الخطوة-2-صف-الكتب", label: "الخطوة 2: صِف الكتب"), Anchor(id: "الخطوة-3-احفظ-رف-القارئ-في-مخزن", label: "الخطوة 3: احفظ رفّ القارئ في مخزن"), Anchor(id: "الخطوة-4-اعرض-كتابا-بمكون", label: "الخطوة 4: اعرض كتابًا بمكوّن"), Anchor(id: "الخطوة-5-أضف-الصفحة-الرئيسية-وصفحة-لكل-كتاب", label: "الخطوة 5: أضف الصفحة الرئيسية وصفحة لكل كتاب"), Anchor(id: "الخطوة-6-أضف-صفحة-الرف-وإطار-الموقع", label: "الخطوة 6: أضف صفحة الرفّ وإطار الموقع"), Anchor(id: "الخطوة-7-أضف-نموذجا-لاقتراح-كتاب", label: "الخطوة 7: أضف نموذجًا لاقتراح كتاب"), Anchor(id: "الخطوة-8-امنح-الموقع-سمة", label: "الخطوة 8: امنح الموقع سمة"), Anchor(id: "الخطوة-9-اختبر-بطاقة-الكتاب", label: "الخطوة 9: اختبر بطاقة الكتاب"), Anchor(id: "الخطوة-10-ابن-الموقع-وتحقق-منه", label: "الخطوة 10: ابنِ الموقع وتحقّق منه"), Anchor(id: "الخطوة-11-انشر-على-github-pages", label: "الخطوة 11: انشر على GitHub Pages"), Anchor(id: "البرنامج-كاملا", label: "البرنامج كاملًا"), Anchor(id: "ما-بنيته", label: "ما بنيته"), Anchor(id: "أخطاء-شائعة", label: "أخطاء شائعة"), Anchor(id: "التالي", label: "التالي")], learned: ["اقرأ ملف JSON وقت البناء بيانات ذات أنواع، بـ`type` و`data`", "احفظ ما يختاره القارئ عبر الزيارات في `store` مع `persist`", "اكتب مكوّنًا وضعه داخل `for … by` ذي مفاتيح", "اعرض صفحة لكل عنصر بمسار `:slug` و`paths:`", "تحقّق من نموذج، وأضف سمة، واختبر بالنقرات، وانشر الموقع"], book: GUIDE_AR, other: "/learn/02-tutorial-shelf", lang: "ar", prevTo: "/ar/learn/01-getting-started", prevLabel: t("ch.01"), nextTo: "/ar/learn/03-tutorial-todos", nextLabel: t("ch.03"))) {
     Stack(gap: .lg) {
         Markdown("يبني هذا الدرس **Shelf**، موقعًا صغيرًا يسرد كتبًا تستحق القراءة، ويتيح للقارئ أن يحتفظ بما يريد منها. كل خطوة تضيف قطعة واحدة، وتنتهي بما يجب أن تراه.")
 
@@ -10,7 +10,7 @@ page Learn02TutorialShelfAr(path: "/ar/learn/02-tutorial-shelf", title: "درس:
 
         Heading("قبل أن تبدأ", id: "قبل-أن-تبدأ").h2
 
-        Markdown("تحتاج إلى:\n\n- `wf` مثبّتًا وموجودًا في `PATH` ([البدء](/ar/learn/01-getting-started)). على Windows، اكتب `webfluent` حيث يكتب هذا الدرس `wf`.\n- Chrome أو Chromium على الجهاز، للاختبار الذي ينقر ([الخطوة 9](#الخطوة-9-اختبر-بطاقة-الكتاب)) ولـ `wf verify` ([الخطوة 10](#الخطوة-10-ابن-الموقع-وتحقق-منه)). إن كان مثبّتًا في مكان غير معتاد، فاجعل متغير البيئة `WF_CHROME` يشير إليه.\n- للنشر: حساب على GitHub ومستودع اسمه `shelf`.\n\nلا تحتاج إلى معرفة WebFluent بعد.")
+        Markdown("تحتاج إلى:\n\n- `wf` مثبّتًا وموجودًا في `PATH` ([البدء](/ar/learn/01-getting-started)). على Windows، اكتب `webfluent` حيث يكتب هذا الدرس `wf`.\n- Chrome أو Chromium على الجهاز، للاختبار الذي ينقر ([الخطوة 9](#الخطوة-9-اختبر-بطاقة-الكتاب)) ولـ`wf verify` ([الخطوة 10](#الخطوة-10-ابن-الموقع-وتحقق-منه)). إن كان مثبّتًا في مكان غير معتاد، فاجعل متغير البيئة `WF_CHROME` يشير إليه.\n- للنشر: حساب على GitHub ومستودع اسمه `shelf`.\n\nلا تحتاج إلى معرفة WebFluent بعد.")
 
         Heading("الخطوة 1: أنشئ المشروع", id: "الخطوة-1-أنشئ-المشروع").h2
 
@@ -80,9 +80,9 @@ store Shelf {
 
         Markdown("`persist` حالة (`state`) تُحفظ في تخزين المتصفح وتُقرأ من جديد في الزيارة التالية؛ والتغيير الذي يحدث في تبويب آخر يصل إلى هنا أيضًا. ويُعاد حساب `derived count` كلما تغيّر `saved`. ([المخازن](/learn/11-stores).)")
 
-        Callout("**قادم من React؟** الحالة المشتركة ليست مزوّد سياق (context provider) يلتفّ حول التطبيق، وحفظها ليس `useEffect` يكتب في `localStorage`. يُقرأ الـ `store` باسمه حيثما استُخدم، و `persist` تتولّى الحفظ. انظر [قادم من React](/ar/coming-from/react).", kind: .note)
+        Callout("**قادم من React؟** الحالة المشتركة ليست مزوّد سياق (context provider) يلتفّ حول التطبيق، وحفظها ليس `useEffect` يكتب في `localStorage`. يُقرأ الـ`store` باسمه حيثما استُخدم، و`persist` تتولّى الحفظ. انظر [قادم من React](/ar/coming-from/react).", kind: .note)
 
-        Markdown("**تحقّق:** شغّل `wf check`. يطبع تحذيرَي `U04`: `` `Shelf.count` is declared but never read `` ومثله لـ `Shelf.toggle`. لا شيء يستخدم المخزن بعد؛ الخطوات التالية تستخدمه، فيزول التحذيران.")
+        Markdown("**تحقّق:** شغّل `wf check`. يطبع تحذيرَي `U04`: `` `Shelf.count` is declared but never read `` ومثله لـ`Shelf.toggle`. لا شيء يستخدم المخزن بعد؛ الخطوات التالية تستخدمه، فيزول التحذيران.")
 
         Heading("الخطوة 4: اعرض كتابًا بمكوّن", id: "الخطوة-4-اعرض-كتابا-بمكون").h2
 
@@ -107,7 +107,7 @@ component BookCard(_ book: Book) {
     }
 }"#, title: "wf")
 
-        Markdown("- `_ book: Book` هي الخاصية الوحيدة التي يمرّرها المستدعي دون اسمها: `BookCard(book)`.\n- `Card.outlined` و`Stack(gap: .sm)` و`Text(…).muted.sm` عناصر مدمجة بعلامات. يعرف المترجم خصائص كل منها، ويرفض علامة لا يقبلها.\n- يقرأ `use Shelf` المخزن من الخطوة 3. نص الزر تعبير `if` مستخدم قيمةً، وهو يتبع المخزن: حين ينقر القارئ، يتغيّر النص ولا يُعاد رسم شيء آخر.\n\n([المكوّنات](/learn/10-components)، [العناصر](/learn/06-elements).)\n\n**تحقّق:** شغّل `wf check`. يُبلغ عن خطأ واحد: `` error[R01]: `/books/\{…\}` is not a route ``. تربط البطاقة بصفحة الكتاب، ولا صفحة تجيب عن هذا العنوان بعد. يفحص المترجم كل رابط مقابل الصفحات التي تعلنها؛ والخطوة التالية تضيف الصفحة.")
+        Markdown("- `_ book: Book` هي الخاصية الوحيدة التي يمرّرها المستدعي دون اسمها: `BookCard(book)`.\n- `Card.outlined` و`Stack(gap: .sm)` و`Text(…).muted.sm` عناصر مدمجة بأعلام. يعرف المُصرِّف خصائص كل منها، ويرفض علمًا لا يقبله.\n- يقرأ `use Shelf` المخزن من الخطوة 3. نص الزر تعبير `if` مستخدم قيمةً، وهو يتبع المخزن: حين ينقر القارئ، يتغيّر النص ولا يُعاد رسم شيء آخر.\n\n([المكوّنات](/learn/10-components)، [العناصر](/learn/06-elements).)\n\n**تحقّق:** شغّل `wf check`. يُبلغ عن خطأ واحد: `` error[R01]: `/books/\{…\}` is not a route ``. تربط البطاقة بصفحة الكتاب، ولا صفحة تجيب عن هذا العنوان بعد. يفحص المُصرِّف كل رابط مقابل الصفحات التي تعلنها؛ والخطوة التالية تضيف الصفحة.")
 
         Heading("الخطوة 5: أضف الصفحة الرئيسية وصفحة لكل كتاب", id: "الخطوة-5-أضف-الصفحة-الرئيسية-وصفحة-لكل-كتاب").h2
 
@@ -160,7 +160,7 @@ page BookPage(path: "/books/:slug", slug: String, title: "Book", description: "O
     }
 }"#, title: "wf")
 
-        Markdown("- `:slug` في المسار معامل ذو نوع للصفحة.\n- يخبر `paths:` البناءَ الثابت بالقيم التي يُصيِّرها: ملف HTML لكل كتاب، `books/a-pattern-language/index.html` وهكذا.\n- قد لا يجد `books.find(…)` شيئًا، لذا `book` من النوع `Book?` (إما `Book` أو `null`). يربطه `if let b = book` فقط حين يكون موجودًا. وقراءة `book.title` دون هذا الفحص خطأ ترجمة (`T04`).\n- يضيف `head \{ … \}` وسومًا إلى `<head>` هذه الصفحة — هنا، العنوان الذي تظهر به معاينة الرابط حين يُشارَك.\n\n([الصفحات والتوجيه](/learn/05-pages-and-routing).)\n\n**تحقّق:** شغّل `wf serve` وافتح `http://localhost:3000`. ترى **Books worth reading** و`3 of 3 books` وثلاث بطاقات. اكتب `norman` في مربع البحث: تبقى بطاقة واحدة، ويصير العدد `1 of 3 books`. انقر **Want to read** على بطاقة فيتغيّر نصها إلى **On your shelf**. انقر عنوان كتاب فتُفتح صفحته، مع مسار تنقّل (breadcrumb) يعود إلى القائمة. لا يُبلغ `wf check` الآن إلا عن تحذير `U04` الخاص بـ `Shelf.count`؛ والخطوة 6 تستخدمه.")
+        Markdown("- `:slug` في المسار معامل ذو نوع للصفحة.\n- يخبر `paths:` البناءَ الثابت بالقيم التي يُصيِّرها: ملف HTML لكل كتاب، `books/a-pattern-language/index.html` وهكذا.\n- قد لا يجد `books.find(…)` شيئًا، لذا `book` من النوع `Book?` (إما `Book` أو `null`). يربطه `if let b = book` فقط حين يكون موجودًا. وقراءة `book.title` دون هذا الفحص خطأ تصريف (`T04`).\n- يضيف `head \{ … \}` وسومًا إلى `<head>` هذه الصفحة — هنا، العنوان الذي تظهر به معاينة الرابط حين يُشارَك.\n\n([الصفحات والتوجيه](/learn/05-pages-and-routing).)\n\n**تحقّق:** شغّل `wf serve` وافتح `http://localhost:3000`. ترى **Books worth reading** و`3 of 3 books` وثلاث بطاقات. اكتب `norman` في مربع البحث: تبقى بطاقة واحدة، ويصير العدد `1 of 3 books`. انقر **Want to read** على بطاقة فيتغيّر نصها إلى **On your shelf**. انقر عنوان كتاب فتُفتح صفحته، مع مسار تنقّل (breadcrumb) يعود إلى القائمة. لا يُبلغ `wf check` الآن إلا عن تحذير `U04` الخاص بـ`Shelf.count`؛ والخطوة 6 تستخدمه.")
 
         Heading("الخطوة 6: أضف صفحة الرفّ وإطار الموقع", id: "الخطوة-6-أضف-صفحة-الرف-وإطار-الموقع").h2
 
@@ -241,7 +241,7 @@ app {
     }
 }"#, title: "wf")
 
-        Markdown("تقع كتلة `validate` بجانب الحالة التي تحرسها، ويعرض عنصر التحكم المربوط بتلك الحالة رسائلها بطريقة يسهل الوصول إليها: يأخذ الحقل `aria-invalid`، و تُعلَن الرسالة. والإرسال الذي يفشل ينقل التركيز إلى أول حقل فيه مشكلة ولا يشغّل `on submit`. ([النماذج](/learn/14-forms).)\n\nثم اربط الصفحة من الإطار. أضف الرابط الثالث إلى `src/App.wf`:")
+        Markdown("تقع كتلة `validate` بجانب الحالة التي تحرسها، ويعرض عنصر التحكم المربوط بتلك الحالة رسائلها بطريقة يسهل الوصول إليها: يأخذ الحقل `aria-invalid`، وتُعلَن الرسالة. والإرسال الذي يفشل ينقل التركيز إلى أول حقل فيه مشكلة ولا يشغّل `on submit`. ([النماذج](/learn/14-forms).)\n\nثم اربط الصفحة من الإطار. أضف الرابط الثالث إلى `src/App.wf`:")
 
         CodeBlock(#"// … reads what the other steps declare
 app {
@@ -293,7 +293,7 @@ theme Ink {
     color-border: #2B2833
 }"#, title: "wf")
 
-        Markdown("ثم سمِّ السمتين في `webfluent.app.json` — `Paper` سمةً و `Ink` سمةً داكنة:")
+        Markdown("ثم سمِّ السمتين في `webfluent.app.json` — `Paper` سمةً و`Ink` سمةً داكنة:")
 
         CodeBlock(#"{
   "name": "shelf",
@@ -333,7 +333,7 @@ test "a book goes on the shelf, and comes off again" {
                 Line(command: "wf test")
             ])
 
-        Markdown("يُصيِّر الاختبار الأول البطاقة ويقرأ ما تعرضه. ويكتب أيضًا لقطة (snapshot) تقارن بها المرة التالية. أما الاختبار الثاني **فينقر**، لذا يعمل في Chrome بلا واجهة (headless)، بالمترجم ووقت التشغيل نفسيهما اللذين يحصل عليهما القارئ. تُوجد الأزرار بنصها، كما يجدها القارئ. ([الاختبار](/learn/16-testing).)\n\n**تحقّق:** ينتهي التشغيل الأول بما يلي:")
+        Markdown("يُصيِّر الاختبار الأول البطاقة ويقرأ ما تعرضه. ويكتب أيضًا لقطة (snapshot) تقارن بها المرة التالية. أما الاختبار الثاني **فينقر**، لذا يعمل في Chrome بلا واجهة (headless)، بالمُصرِّف ووقت التشغيل نفسيهما اللذين يحصل عليهما القارئ. تُوجد الأزرار بنصها، كما يجدها القارئ. ([الاختبار](/learn/16-testing).)\n\n**تحقّق:** ينتهي التشغيل الأول بما يلي:")
 
         CodeBlock(#"  new   tests/BookCard.wf — a card shows who wrote the book, and when (snapshot written)
   ok    tests/BookCard.wf — a book goes on the shelf, and comes off again (in a browser)
@@ -350,7 +350,7 @@ test "a book goes on the shelf, and comes off again" {
                 Line(command: "wf verify")
             ])
 
-        Markdown("يكتب `wf build` المجلد `build/`، وهو مجلد HTML وCSS وJavaScript يستطيع أي مضيف ثابت تقديمه، ويطبع كل تحذير، مثل `alt` مفقود، أو صفحة بلا وصف، أو حالة لا يقرؤها شيء. ويحمّل `wf verify` كل صفحة في متصفح حقيقي ويفشل عند خطأ سكربت، أو طلب فاشل، أو صفحة فارغة.\n\n**تحقّق:** ينتهي `wf build` بـ `Build complete.`، ويحوي `build/` `index.html` و`shelf/index.html` و`suggest/index.html` و`404.html` وملف `books/<slug>/index.html` لكل كتاب. يسرد `wf verify` ستة مسارات، كلٌّ منها `ok`، وينتهي بـ `6 page(s), 0 problem(s)`.")
+        Markdown("يكتب `wf build` المجلد `build/`، وهو مجلد HTML وCSS وJavaScript يستطيع أي مضيف ثابت تقديمه، ويطبع كل تحذير، مثل `alt` مفقود، أو صفحة بلا وصف، أو حالة لا يقرؤها شيء. ويحمّل `wf verify` كل صفحة في متصفح حقيقي ويفشل عند خطأ سكربت، أو طلب فاشل، أو صفحة فارغة.\n\n**تحقّق:** ينتهي `wf build` بـ`Build complete.`، ويحوي `build/` `index.html` و`shelf/index.html` و`suggest/index.html` و`404.html` وملف `books/<slug>/index.html` لكل كتاب. يسرد `wf verify` ستة مسارات، كلٌّ منها `ok`، وينتهي بـ`6 page(s), 0 problem(s)`.")
 
         Heading("الخطوة 11: انشر على GitHub Pages", id: "الخطوة-11-انشر-على-github-pages").h2
 
@@ -387,7 +387,7 @@ jobs:
       - id: deployment
         uses: actions/deploy-pages@v4"#, title: "yaml")
 
-        Markdown("ادفع المشروع إلى مستودع `shelf`. في **Settings → Pages** الخاصة بالمستودع، اختر **GitHub Actions** مصدرًا.\n\n**تحقّق:** يُظهر تبويب **Actions** سير العمل **Deploy** ناجحًا، و يعرض `https://<you>.github.io/shelf/` العنوان **Books worth reading**. يغطي [النشر](/recipes) Netlify وVercel وCloudflare Pages وnginx ومضيفين آخرين.")
+        Markdown("ادفع المشروع إلى مستودع `shelf`. في **Settings → Pages** الخاصة بالمستودع، اختر **GitHub Actions** مصدرًا.\n\n**تحقّق:** يُظهر تبويب **Actions** سير العمل **Deploy** ناجحًا، ويعرض `https://<you>.github.io/shelf/` العنوان **Books worth reading**. يغطي [النشر](/recipes) Netlify وVercel وCloudflare Pages وnginx ومضيفين آخرين.")
 
         Heading("البرنامج كاملًا", id: "البرنامج-كاملا").h2
 
@@ -624,7 +624,7 @@ test "a card shows who wrote the book, and when" {
             }
         }
 
-        Markdown("لتذهب أبعد:\n\n- اقرأ اللغة كما ينبغي، بدءًا من [أساسيات اللغة](/learn/04-language-basics).\n- تحدّث مع خادم حقيقي: [البيانات وواجهات API](/learn/15-data).\n- اجعل الموقع يعمل دون اتصال: [العمل دون اتصال](/recipes).\n- ترجمه: [التدويل](/recipes).\n- ابنِ مشروعًا أكبر: [الدروس](/ar/learn/03-tutorial-todos).")
+        Markdown("لتذهب أبعد:\n\n- اقرأ اللغة كما ينبغي، بدءًا من [أساسيات اللغة](/learn/04-language-basics).\n- تحدّث مع خادم حقيقي: [البيانات وواجهات API](/learn/15-data).\n- اجعل الموقع يعمل دون اتصال: [العمل دون اتصال](/recipes).\n- ترجمه: [الترجمة](/recipes).\n- ابنِ مشروعًا أكبر: [الدروس](/ar/learn/03-tutorial-todos).")
 
         Heading("أخطاء شائعة", id: "أخطاء-شائعة").h2
 
@@ -639,7 +639,7 @@ page BookPage(path: "/books/:slug", slug: String, title: "Book", description: "O
     Heading(book.title).h1
 }"#, title: "wf · draws T04")
 
-        Markdown("اربطه بـ `if let b = book \{ Heading(b.title).h1 \}`، كما تفعل الخطوة 5، أو اقرأه بـ `book?.title ?? \"Book\"` ([T04](/errors/T04)).\n\nحقل لا يملكه النوع. يسمّي `type Book` كل حقل، فالخطأ المطبعي خطأ في الموضع الذي يُكتب فيه:")
+        Markdown("اربطه بـ`if let b = book \{ Heading(b.title).h1 \}`، كما تفعل الخطوة 5، أو اقرأه بـ`book?.title ?? \"Book\"` ([T04](/errors/T04)).\n\nحقل لا يملكه النوع. يسمّي `type Book` كل حقل، فالخطأ المطبعي خطأ في الموضع الذي يُكتب فيه:")
 
         CodeBlock(#"type Book { slug: String, title: String }
 

@@ -110,18 +110,18 @@ these rules:
 Every element also takes the *universal props*. The reference does not
 repeat them on each element:
 
-| Prop | What it does | Chapter |
+| Prop | What it does | Read more |
 |---|---|---|
-| `class:` | Adds classes from your own stylesheets. It adds; it never replaces | [15](https://webfluent.monzeromer.dev/learn/13-styling.md#classes-and-your-own-stylesheet) |
-| `ref:` | Names a handle on the element: `box.focus()` | [8](https://webfluent.monzeromer.dev/learn/07-state-and-reactivity.md#element-handles) |
-| `mount:`, `update:`, `cleanup:` | Hands the element to a script each time it is made, again when what `update` reads changes, and takes it back when it leaves | [32](https://webfluent.monzeromer.dev/recipes/hand-an-element-to-a-script.md) |
-| `animate:` or a flag (`.fadeIn`) | The animation it enters with | [20](https://webfluent.monzeromer.dev/recipes.md) |
-| `exit:` | The animation it leaves with | [20](https://webfluent.monzeromer.dev/recipes/animate-in-and-out.md#animate-an-element-out) |
-| `delay:`, `duration:`, `speed:` (`.fast`, `.slow`), `easing:` | How the animation is timed | [20](https://webfluent.monzeromer.dev/recipes.md) |
-| `stagger:` | Inside a `for`, each item's delay grows by this much | [20](https://webfluent.monzeromer.dev/recipes/animate-a-list.md) |
-| `on:` | When the animation plays: `.mount` (the default) or `.enterView` | [20](https://webfluent.monzeromer.dev/recipes.md) |
-| `shared:` | A name the element keeps across a route change | [20](https://webfluent.monzeromer.dev/recipes/shared-element.md) |
-| `count:` | A number in its text counts up or down to its new value | [20](https://webfluent.monzeromer.dev/recipes/count-a-number.md) |
+| `class:` | Adds classes from your own stylesheets. It adds; it never replaces | [Styling](https://webfluent.monzeromer.dev/learn/13-styling.md#classes-and-your-own-stylesheet) |
+| `ref:` | Names a handle on the element: `box.focus()` | [State and reactivity](https://webfluent.monzeromer.dev/learn/07-state-and-reactivity.md#element-handles) |
+| `mount:`, `update:`, `cleanup:` | Hands the element to a script each time it is made, again when what `update` reads changes, and takes it back when it leaves | [Hand an element to a script](https://webfluent.monzeromer.dev/recipes/hand-an-element-to-a-script.md) |
+| `animate:` or a flag (`.fadeIn`) | The animation it enters with | [Animate in and out](https://webfluent.monzeromer.dev/recipes/animate-in-and-out.md#animate-an-element-in) |
+| `exit:` | The animation it leaves with | [Animate in and out](https://webfluent.monzeromer.dev/recipes/animate-in-and-out.md#animate-an-element-out) |
+| `delay:`, `duration:`, `speed:` (`.fast`, `.slow`), `easing:` | How the animation is timed | [Animate in and out](https://webfluent.monzeromer.dev/recipes/animate-in-and-out.md), [Motion defaults](https://webfluent.monzeromer.dev/recipes/motion-defaults.md) |
+| `stagger:` | Inside a `for`, each item's delay grows by this much | [Animate a list](https://webfluent.monzeromer.dev/recipes/animate-a-list.md) |
+| `on:` | When the animation plays: `.mount` (the default) or `.enterView` | [Animate in and out](https://webfluent.monzeromer.dev/recipes/animate-in-and-out.md#play-an-animation-when-it-is-scrolled-to) |
+| `shared:` | A name the element keeps across a route change | [Shared element](https://webfluent.monzeromer.dev/recipes/shared-element.md) |
+| `count:` | A number in its text counts up or down to its new value | [Count a number](https://webfluent.monzeromer.dev/recipes/count-a-number.md) |
 
 The [components reference](https://webfluent.monzeromer.dev/reference.md) lists every element's
 own props.
@@ -278,7 +278,9 @@ page Dashboard(path: "/", title: "Dashboard", description: "Every layout element
 
 `Header`, `Section` and `Footer` render real landmarks: `<header>`,
 `<section>` and `<footer>`. Use them for the page's regions, so a screen
-reader and a search engine can follow the page's outline.
+reader and a search engine can follow the page's outline. Inside a
+`Document`, `Header` and `Footer` mean something else: they are drawn in
+the margin of every printed page ([PDF and slides](https://webfluent.monzeromer.dev/learn/17-pdf-and-slides.md#set-the-paper-headers-and-footers)).
 
 ## The families of built-ins
 
@@ -292,9 +294,9 @@ The built-ins fall into these families:
 | Forms | `Form`, `Input`, `Textarea`, `Select`, `Checkbox`, `Radio`, `Switch`, `Slider`, `DatePicker`, `FileUpload` ([Forms](https://webfluent.monzeromer.dev/learn/14-forms.md)) |
 | Feedback | `Alert`, `Toast`, `Modal`, `Dialog`, `Popover`, `Spinner`, `Progress`, `Skeleton` ([Events](https://webfluent.monzeromer.dev/learn/08-events.md#overlays-modals-dialogs-toasts-and-menus)) |
 | Actions | `Button`, `IconButton`, `ButtonGroup`, `Dropdown` |
-| Media | `Image`, `Video`, `Audio`, `Frame`, `Icon`, `Carousel` ([Media](https://webfluent.monzeromer.dev/recipes.md)) |
+| Media | `Image`, `Video`, `Audio`, `Frame`, `Icon`, `Carousel` ([Add a picture](https://webfluent.monzeromer.dev/recipes/add-a-picture.md), [Video and audio](https://webfluent.monzeromer.dev/recipes/video-and-audio.md)) |
 | Typography | `Text`, `Heading`, `Paragraph`, `Code`, `Blockquote`, `Markdown`, `Unsafe.Html` |
-| Somebody else's code | `Host`, `Element`, `Portal` ([JavaScript interop](https://webfluent.monzeromer.dev/recipes.md)) |
+| Somebody else's code | `Host`, `Element`, `Portal` ([Call your own JavaScript](https://webfluent.monzeromer.dev/recipes/call-your-own-script.md), [Hand an element to a script](https://webfluent.monzeromer.dev/recipes/hand-an-element-to-a-script.md)) |
 | Documents and decks | `Document`, `PageBreak`, `TableOfContents`, `Background`, `Watermark`, `Chart`, `QrCode`, `Presentation`, `Slide`, `TitleSlide`, `SectionSlide`, `TwoColumn`, `ImageSlide` ([PDF and slides](https://webfluent.monzeromer.dev/learn/17-pdf-and-slides.md)) |
 | Routing | `Router` ([Pages](https://webfluent.monzeromer.dev/learn/05-pages-and-routing.md#the-app-shell)) |
 

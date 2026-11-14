@@ -198,12 +198,12 @@ page Learn07StateAndReactivity(path: "/learn/07-state-and-reactivity", title: "S
                 }
                 Table.Row {
                     Table.Cell { Markdown("`update`") }
-                    Table.Cell { Markdown("`.available` and `.apply()` — a new version of an offline site ([Offline](/recipes))") }
+                    Table.Cell { Markdown("`.available` and `.apply()` — a new version of an offline site ([Offer a new version](/recipes/offer-a-new-version))") }
                     Table.Cell("a new build is installed")
                 }
                 Table.Row {
                     Table.Cell { Markdown("`locale`, `dir`") }
-                    Table.Cell { Markdown("the current locale and `\"ltr\"`/`\"rtl\"`, with i18n configured ([i18n](/recipes))") }
+                    Table.Cell { Markdown("the current locale and `\"ltr\"`/`\"rtl\"`, with i18n configured ([Translate a site](/recipes/translate-a-site))") }
                     Table.Cell { Markdown("`setLocale(…)` is called") }
                 }
             }
@@ -224,7 +224,7 @@ page Learn07StateAndReactivity(path: "/learn/07-state-and-reactivity", title: "S
 
         Heading("Where values come from, in order", id: "where-values-come-from-in-order").h2
 
-        Markdown("When a body reads a name, it is looked up in this order:\n\n1. Route parameters and props (`slug`, `_ label`).\n2. `state`, `persist`, `derived`, `resource` and actions of the body.\n3. A `use`d store's members, through the store's name (`Cart.total`).\n4. Loop variables and arm bindings, inside their block.\n5. Constants, `data` and `image` declarations, `env.X`, and the browser's values above.\n6. Browser globals: `window`, `document`, `localStorage`, `JSON`, `Math`, `Date`, `fetch`, `setTimeout`, `console`, `navigator`, `location`.")
+        Markdown("When a body reads a name, the nearest declaration wins. The compiler looks in this order, innermost first:\n\n1. A `let` local, a lambda's parameter or a caught error, inside its block.\n2. Loop variables and arm bindings (`if let`, a `match` arm), inside their block.\n3. Route parameters and props (`slug`, `_ label`).\n4. `state`, `persist`, `derived`, `resource` and actions of the body. A body member may not share a name with a parameter or a prop (`E102`).\n5. A `use`d store's members, always through the store's name (`Cart.total`).\n6. Constants, `data` and `image` declarations, `env.X`, and the browser's values above.\n7. Browser globals: `window`, `document`, `localStorage`, `JSON`, `Math`, `Date`, `fetch`, `setTimeout`, `console`, `navigator`, `location`.\n\nSo with `state name = \"outer\"`, `for name in items by name \{ Text(name) \}` shows each item, and a `const name` is hidden by both.")
 
         Heading("Summary", id: "summary").h2
 
