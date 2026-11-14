@@ -782,7 +782,8 @@ effect { log(count) }                // Side effect — runs on change
 - UI elements that reference state variables auto-update when values change
 - String interpolation: `"Hello, {name}!"` — reactive in UI elements
 - A call at the top of a page or component — `Store.load(id)` — is set-up
-  code, run once when it renders
+  code, run once when it renders; at the top of `app`, once when the site
+  opens (`Session.load()`)
 
 ```wf
 persist scheme = "light"              // kept in the browser across visits (page, component or store)

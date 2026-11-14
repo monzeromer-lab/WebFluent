@@ -143,7 +143,13 @@ struct Ctx<'a> {
 }
 
 /// Every structural finding in `program`.
-pub fn lint_structure(program: &Program, file_of: &dyn Fn(usize) -> String) -> Vec<Diagnostic> {
+/// `site_lang` is the language a page with no `lang:` is in (the config's),
+/// when the project has a config.
+pub fn lint_structure(
+    program: &Program,
+    file_of: &dyn Fn(usize) -> String,
+    site_lang: Option<&str>,
+) -> Vec<Diagnostic> {
     let routes: Vec<(String, Vec<RouteSeg>)> = program
         .declarations
         .iter()
@@ -291,14 +297,26 @@ pub fn lint_structure(program: &Program, file_of: &dyn Fn(usize) -> String) -> V
         out.extend(cx.out);
         let _ = cx.decl;
     }
-    translations(program, file_of, &mut out);
+    translations(program, file_of, site_lang, &mut out);
     out
 }
 
 /// `translates:` held to the program: it names a page, not its own, and
 /// the pages it joins are each in a language of their own — two in one
 /// language would be two alternates for one `hreflang`.
-fn translations(program: &Program, file_of: &dyn Fn(usize) -> String, out: &mut Vec<Diagnostic>) {
+fn translations(
+    program: &Program,
+    file_of: &dyn Fn(usize) -> String,
+    site_lang: Option<&str>,
+    out: &mut Vec<Diagnostic>,
+) {
+    // `en-GB` and `en` are one language for `hreflang`'s purpose here: two
+    // pages in it are two alternates for one reader.
+    let language = |l: Option<&String>| {
+        l.map(String::as_str)
+            .or(site_lang)
+            .map(|l| l.split(['-', '_']).next().unwrap_or(l).to_ascii_lowercase())
+    };
     let pages: Vec<(usize, &PageDecl)> = program
         .declarations
         .iter()
@@ -364,16 +382,20 @@ fn translations(program: &Program, file_of: &dyn Fn(usize) -> String, out: &mut 
         let group = crate::syntax::parser::walk::translation_group(&p.name, program);
         reported.extend(group.iter().map(|g| g.name.as_str()));
         for (i, later) in group.iter().enumerate() {
-            let Some(earlier) = group[..i].iter().find(|e| e.lang == later.lang) else {
+            let Some(earlier) = group[..i]
+                .iter()
+                .find(|e| language(e.lang.as_ref()) == language(later.lang.as_ref()))
+            else {
                 continue;
             };
             let Some((index, _)) = pages.iter().find(|(_, q)| q.name == later.name) else {
                 continue;
             };
             let (line, col) = at(later);
-            let language = match &later.lang {
-                Some(l) => format!("`{l}`"),
-                None => "the site's language".to_string(),
+            let language = match (&later.lang, site_lang) {
+                (Some(l), _) => format!("`{l}`"),
+                (None, Some(l)) => format!("the site's language, `{l}`"),
+                (None, None) => "the site's language".to_string(),
             };
             out.push(
                 Diagnostic::coded(
@@ -386,10 +408,17 @@ fn translations(program: &Program, file_of: &dyn Fn(usize) -> String, out: &mut 
                     line,
                     col,
                 )
-                .with_hint(format!(
-                    "Give `{}` the language it is written in: `lang: \"…\"`",
-                    later.name
-                )),
+                .with_hint(if earlier.lang.is_none() || later.lang.is_none() {
+                    format!(
+                        "A page with no `lang:` is in the site's language: set `meta.lang` in webfluent.app.json to the language `{}` is written in, or give it `lang: \"…\"`",
+                        if earlier.lang.is_none() { &earlier.name } else { &later.name }
+                    )
+                } else {
+                    format!(
+                        "Give `{}` the language it is written in: `lang: \"…\"`",
+                        later.name
+                    )
+                }),
             );
         }
     }

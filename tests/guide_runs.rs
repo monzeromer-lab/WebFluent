@@ -133,13 +133,18 @@ fn build_all() -> (Vec<String>, Vec<String>) {
                 }
                 _ => String::new(),
             };
+            // The site's language, when the page shows the config that sets
+            // it: a page with no `lang:` is in it, which `R05` reads.
+            let lang = site_lang(&markdown)
+                .map(|l| format!(r#", "meta": {{ "lang": "{l}" }}"#))
+                .unwrap_or_default();
             // An example is a page of a bigger site: a link it shows to a
             // page it does not, and the translations it reads, are the
             // site's, so `R01` and the `I` family are off here.
             std::fs::write(
                 dir.join("webfluent.app.json"),
                 format!(
-                    r#"{{ "name": "guide"{i18n}{theme}, "lints": {{ "R01": "off", "I": "off" }} }}"#
+                    r#"{{ "name": "guide"{i18n}{theme}{lang}, "lints": {{ "R01": "off", "I": "off" }} }}"#
                 ),
             )
             .unwrap();
@@ -229,4 +234,13 @@ fn every_page_the_guide_shows_builds_and_runs() {
         String::from_utf8_lossy(&out.stderr)
     );
     let _ = Path::new("");
+}
+
+/// `meta.lang` from a JSON block the page shows, if one sets it.
+fn site_lang(markdown: &str) -> Option<String> {
+    markdown.split("```json").skip(1).find_map(|rest| {
+        let block = rest.split("```").next()?;
+        let value: serde_json::Value = serde_json::from_str(block).ok()?;
+        Some(value.get("meta")?.get("lang")?.as_str()?.to_string())
+    })
 }

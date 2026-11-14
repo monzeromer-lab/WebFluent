@@ -262,8 +262,23 @@ impl JsCodegen {
                     .filter(|n| !params.contains(n))
                     .cloned()
                     .collect();
+                // What it showed before the server agreed is taken back if
+                // anything in it throws, as a page's action does.
+                let optimistic = super::shows_optimistically(&a.body);
+                if optimistic {
+                    self.emit_line(if crate::syntax::parser::ast::awaits(&a.body) {
+                        "return await WF.attempt(async () => {"
+                    } else {
+                        "return WF.attempt(async () => {"
+                    });
+                    self.indent += 1;
+                }
                 for stmt in &a.body {
                     self.emit_store_statement(stmt, &visible, &params);
+                }
+                if optimistic {
+                    self.indent -= 1;
+                    self.emit_line("});");
                 }
                 self.store_locals.borrow_mut().clear();
                 self.indent -= 1;

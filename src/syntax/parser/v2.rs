@@ -1862,7 +1862,8 @@ impl ParserV2 {
     }
 
     /// Whether a call statement — `load()`, `Store.load(x)` — starts here,
-    /// at the top level of a page or component, where it is set-up code.
+    /// at the top level of a page, a component or `app`, where it is set-up
+    /// code (on `app`, run once when the site opens).
     fn setup_call_ahead(&self, body: Body) -> bool {
         const KEYWORDS: &[&str] = &[
             "state",
@@ -1887,7 +1888,7 @@ impl ParserV2 {
             "transition",
         ];
 
-        if !matches!(body, Body::Page | Body::Component) {
+        if !matches!(body, Body::Page | Body::Component | Body::App) {
             return false;
         }
         // `row(item: t)` hands a scoped slot its values: not a call.
@@ -3207,6 +3208,12 @@ impl ParserV2 {
                 self.advance();
                 self.advance();
                 let value = self.parse_expression()?;
+                if self.check(&TokenType::Comma) {
+                    return Err(self.error_with_hint(
+                        "`log` takes one value".into(),
+                        "Splice several into one string, `log(\"{a} {b}\")`, or call `console.log(a, b)`",
+                    ));
+                }
                 self.expect(&TokenType::CloseParen, "`)`")?;
                 Ok(StatementKind::Log(value))
             }

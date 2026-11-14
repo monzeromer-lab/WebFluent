@@ -98,7 +98,14 @@ impl JsCodegen {
                 // agreed takes it back if anything in it throws.
                 let optimistic = shows_optimistically(&a.body);
                 if optimistic {
-                    self.emit_line("return await WF.attempt(async () => {");
+                    // `await` only where the function is async: an action
+                    // that awaits nothing is a plain function, and `await`
+                    // in one is a SyntaxError that stopped the whole page.
+                    self.emit_line(if is_async {
+                        "return await WF.attempt(async () => {"
+                    } else {
+                        "return WF.attempt(async () => {"
+                    });
                     self.indent += 1;
                 }
                 // The parameters are the function's own locals. They were read

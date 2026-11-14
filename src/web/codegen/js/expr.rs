@@ -610,7 +610,23 @@ impl JsCodegen {
                         | "keyLabel"
                 ) && !self.body.own_actions.contains(name)
                 {
-                    let args_str: Vec<String> = args.iter().map(|a| self.emit_expr(a)).collect();
+                    let mut args_str: Vec<String> =
+                        args.iter().map(|a| self.emit_expr(a)).collect();
+                    // `optimistic(count, f)` changes the state, so it is
+                    // handed the state itself, not what it holds now.
+                    if name == "optimistic"
+                        && let Some(holder) = args.first()
+                    {
+                        args_str[0] = match holder {
+                            Expr::Identifier(state)
+                                if self.body.own_names.contains(state)
+                                    && !self.body.current_props.contains(state) =>
+                            {
+                                sig(state)
+                            }
+                            _ => place_holder(&args_str[0]),
+                        };
+                    }
                     return format!("WF.{name}({})", args_str.join(", "));
                 }
 
@@ -689,6 +705,10 @@ impl JsCodegen {
                         | "keyIs"
                         | "keyLabel"
                 ) {
+                    let mut args_str = args_str;
+                    if name == "optimistic" && !args_str.is_empty() {
+                        args_str[0] = place_holder(&args_str[0]);
+                    }
                     format!("WF.{}({})", name, args_str.join(", "))
                 } else if name == "fetch" {
                     format!("WF.request({})", args_str.join(", "))
@@ -764,4 +784,11 @@ impl JsCodegen {
         stack.borrow_mut().truncate(bound);
         out
     }
+}
+
+/// What `optimistic` is handed for a place that is not a page's own state —
+/// `store.items` in a store, `Todos.items` from a page: a getter and a
+/// setter over it, so it is changed and put back, not only read.
+fn place_holder(read: &str) -> String {
+    format!("{{ get: () => {read}, set: (v) => {{ {read} = v; }} }}")
 }

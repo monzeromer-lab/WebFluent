@@ -1337,6 +1337,40 @@ fn resolve_short_tokens(stmts: &mut [Statement], theme: &std::collections::HashS
             resolve(&mut mq.properties);
         }
     });
+    // A token as a value — `state accent = $primary`, a prop's argument —
+    // has no property to resolve it by. A short name only one group of the
+    // baseline's has is that group's: `$primary` is
+    // `$color-primary`. One several groups could mean (`$md`) stays as
+    // written.
+    crate::syntax::parser::ast::walk_exprs_mut(stmts, &mut |e| {
+        if let Expr::Token(name) = e
+            && let Some(full) = value_token(name, &declared)
+        {
+            *name = full;
+        }
+    });
+}
+
+/// The one declared token a short `name` written as a value can mean.
+fn value_token(name: &str, declared: &dyn Fn(&str) -> bool) -> Option<String> {
+    use crate::registry::style_tokens::group_suffixes;
+    if declared(name) {
+        return None;
+    }
+    let mut found = [
+        "color",
+        "spacing",
+        "font-size",
+        "radius",
+        "shadow",
+        "line-height",
+        "transition",
+    ]
+    .into_iter()
+    .filter(|g| group_suffixes(g).contains(&name))
+    .map(|g| format!("{g}-{name}"));
+    let first = found.next()?;
+    found.next().is_none().then_some(first)
 }
 
 /// Every style block under `stmts`, at any depth.

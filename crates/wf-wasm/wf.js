@@ -193,6 +193,74 @@ export async function preview(out, route = "", slot = "") {
   return new URL(route.replace(/^\//, ""), scope).href;
 }
 
+// ─── Preview without a service worker ───────────────────────────────────
+//
+// A browser may refuse a service worker (a private window in Firefox, some
+// embedded browsers). Then a build is inlined into one document — its
+// sheets and scripts in place of their links — and `run.html`, a page of
+// this origin with no policy of its own, writes it: an `srcdoc` frame would
+// inherit the framing page's content security policy, which runs no inline
+// script. One page only: build it with `inlineConfig`, which keeps every
+// page in `app.js`.
+
+const runner = new URL("run.html", base);
+const inlined = new Map();
+let answering = false;
+
+/** `config` for a build `previewInline` serves: one bundle, no policy. */
+export function inlineConfig(config) {
+  const object = typeof config === "string" ? JSON.parse(config) : structuredClone(config ?? {});
+  object.name ??= "Playground";
+  object.build = { ...object.build, base_path: runner.pathname, split: false, csp: false, ssg: false };
+  return JSON.stringify(object);
+}
+
+function inlineDocument(out) {
+  const files = out.files ?? {};
+  const prefix = runner.pathname;
+  const fileOf = (href) => {
+    const path = href.split(/[?#]/)[0].replace(prefix, "").replace(/^\.?\//, "");
+    return files[path];
+  };
+  let html = files["index.html"] ?? "";
+  html = html.replace(/<meta[^>]+http-equiv=["']?content-security-policy[^>]*>/gi, "");
+  html = html.replace(/<link[^>]*rel=["']?(?:preload|modulepreload)["']?[^>]*>/gi, "");
+  html = html.replace(/<link[^>]*rel=["']?stylesheet["']?[^>]*>/gi, (tag) => {
+    const href = /href=["']([^"']+)["']/i.exec(tag)?.[1];
+    const css = href && fileOf(href);
+    return css == null ? tag : `<style>${css.replace(/<\/style/gi, "<\\/style")}</style>`;
+  });
+  // Scripts were deferred: they run, in order, once the body is there.
+  const scripts = [];
+  html = html.replace(/<script\b([^>]*)\bsrc=["']([^"']+)["']([^>]*)><\/script>/gi, (tag, a, src) => {
+    const js = fileOf(src);
+    if (js == null) return tag;
+    scripts.push(`<script>${js.replace(/<\/script/gi, "<\\/script")}</script>`);
+    return "";
+  });
+  return html.includes("</body>") ? html.replace("</body>", scripts.join("") + "</body>") : html + scripts.join("");
+}
+
+/**
+ * Serve what `compile()` built (with `inlineConfig`) through `run.html`,
+ * for a browser with no service worker; resolves to the address to load in
+ * an iframe. The frame asks this page for the build when it loads.
+ */
+export function previewInline(out, slot = "") {
+  inlined.set(slot, inlineDocument(out));
+  if (!answering) {
+    answering = true;
+    addEventListener("message", (event) => {
+      if (event.origin !== location.origin || event.data?.type !== "wf-run-ready") return;
+      const html = inlined.get(event.data.slot ?? "");
+      if (html != null) event.source?.postMessage({ type: "wf-run", html }, location.origin);
+    });
+  }
+  const url = new URL(runner);
+  url.searchParams.set("slot", slot);
+  return url.href;
+}
+
 /**
  * A face for documents to be set in or fall back to — a script the built-in
  * faces lack, a brand's family. TTF or OTF bytes, as they are, zlib or gzip.

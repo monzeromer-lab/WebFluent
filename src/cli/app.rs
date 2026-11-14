@@ -395,20 +395,27 @@ enum ConfigAction {
     Get {
         /// A dotted path: `build.base_path`, `build.budget.app.js`
         path: String,
+        /// The project's folder
         #[arg(short, long, default_value = ".")]
         dir: PathBuf,
     },
     /// Set PATH to VALUE — JSON, or a word as a string — keeping the
     /// file's shape
     Set {
+        /// A dotted path: `build.base_path`, `meta.site_url`
         path: String,
+        /// The value: JSON (`true`, `3`, `["en", "ar"]`), or a word, which is
+        /// taken as a string
         value: String,
+        /// The project's folder
         #[arg(short, long, default_value = ".")]
         dir: PathBuf,
     },
     /// Remove PATH, so its default applies
     Unset {
+        /// A dotted path: `build.base_path`, `meta.site_url`
         path: String,
+        /// The project's folder
         #[arg(short, long, default_value = ".")]
         dir: PathBuf,
     },

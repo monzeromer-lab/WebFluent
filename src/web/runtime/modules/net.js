@@ -96,10 +96,14 @@
   /// The change is made at once, and what was there is kept; if the request
   /// that follows fails, `rollback()` puts it back.
   let _undo = null;
+  // `holder` is a state's signal, or `{ get, set }` over a place the
+  // compiler cannot hand as one (a store's state, `Todos.items`).
   function optimistic(holder, change) {
-    const before = holder();
-    holder.set(change(before));
-    const undo = { rollback: () => holder.set(before) };
+    const get = typeof holder === "function" ? holder : holder.get;
+    const set = typeof holder === "function" ? holder.set : holder.set;
+    const before = get();
+    set(change(before));
+    const undo = { rollback: () => set(before) };
     // Inside an action, the rollback is the action's to do: if anything
     // after this throws, what was shown is taken back.
     if (_undo) _undo.push(undo);

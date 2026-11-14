@@ -154,6 +154,7 @@ pub fn check_project_via(vfs: &dyn Vfs, p: &Project<'_>) -> Checked {
         stylesheets: p.stylesheets,
     };
     let shared = &shared;
+    let site_lang = p.config.map(ProjectConfig::page_lang);
 
     // The checks that read the program as parsed, and those that read it
     // lowered, side by side; their findings are joined in the order they
@@ -163,7 +164,11 @@ pub fn check_project_via(vfs: &dyn Vfs, p: &Project<'_>) -> Checked {
             let around = deep(s, || project_checks_via(vfs, shared, file_of));
             let typed = deep(s, || program_checks_typed(p.program, file_of, &source_of));
             let structure = deep(s, || {
-                crate::check::linter::structure::lint_structure(p.program, file_of)
+                crate::check::linter::structure::lint_structure(
+                    p.program,
+                    file_of,
+                    site_lang.as_deref(),
+                )
             });
             let lowered = crate::check::sema::lower(p.program.clone());
             let from_lowered = lowered_checks(vfs, &lowered, shared, file_of);
@@ -582,6 +587,23 @@ pub fn config_checks_via(
             d.end_column -= 1;
         }
         out.push(d);
+    }
+
+    // A theme the config names and the program does not declare stops the
+    // build; `wf check` said "No problems" about it.
+    let theme_errors = [
+        crate::project::themes::resolve::resolve_tokens(program, &config.theme).err(),
+        crate::project::themes::resolve::resolve_dark_tokens(program, &config.theme).err(),
+    ];
+    for e in theme_errors.into_iter().flatten() {
+        if let crate::diagnostics::error::WebFluentError::ConfigError(c) = &e {
+            out.push(config_finding(
+                "E111",
+                c.message().to_string(),
+                &text,
+                "\"theme\"",
+            ));
+        }
     }
 
     // A stylesheet, font or script from another origin is code that origin

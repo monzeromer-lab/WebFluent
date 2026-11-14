@@ -520,10 +520,38 @@ fn an_action_that_shows_before_the_server_agrees_takes_it_back() {
          \x20   }\n\
          \x20   Button(\"Go\") { on click { rename(\"x\") } }",
     ));
-    assert!(js.contains("WF.optimistic("), "{js}");
+    // It is handed the state, which it changes and puts back, not what the
+    // state holds now (`_rows()` threw "holder is not a function").
+    assert!(js.contains("WF.optimistic(_rows, "), "{js}");
     assert!(
         js.contains("WF.attempt(async () =>"),
         "the action rolls itself back: {js}"
+    );
+
+    // A store's state, from the store's own action and from a page, is
+    // handed as a getter and a setter over it.
+    let src = "store Todos {\n\
+         \x20   state items: [Map] = []\n\
+         \x20   action clear() {\n\
+         \x20       optimistic(items, xs => [])\n\
+         \x20       await fetch(\"/api/x\")\n\
+         \x20   }\n\
+         }\n";
+    let src = format!(
+        "{src}{}",
+        page(
+            "use Todos\n\
+             \x20   Button(\"Go\") { on click { optimistic(Todos.items, xs => []) } }",
+        )
+    );
+    let js = spa_generated(&src);
+    assert!(
+        js.contains("WF.optimistic({ get: () => store.items, set: (v) => { store.items = v; } }, "),
+        "{js}"
+    );
+    assert!(
+        js.contains("set: (v) => { Todos.items = v; }") || js.contains("Todos.items = v; } }"),
+        "{js}"
     );
 }
 
@@ -2675,4 +2703,68 @@ fn a_browser_value_in_text_follows_it() {
             &js[text_start.saturating_sub(40)..(at + 30).min(js.len())]
         );
     }
+}
+
+#[test]
+fn a_short_token_written_as_a_value_is_the_one_group_that_has_it() {
+    // `$primary` outside a style has no property to resolve it by; only the
+    // colours have a `primary`, so it is `$color-primary`. It compiled to
+    // `var(--primary)`, which no theme sets.
+    let js = spa_generated(&page(
+        "state accent = $primary\n\
+         \x20   Text(\"x\") { style { border-color: {accent} } }",
+    ));
+    assert!(js.contains("\"var(--color-primary)\""), "{js}");
+    assert!(!js.contains("var(--primary)"), "{js}");
+}
+
+#[test]
+fn log_with_two_values_says_how_to_log_two() {
+    let err = parse_source(&page("Button(\"Go\") { on click { log(1, 2) } }"), "t.wf")
+        .err()
+        .map(|e| format!("{e:?}"))
+        .unwrap_or_default();
+    assert!(err.contains("`log` takes one value"), "{err}");
+    assert!(err.contains("console.log(a, b)"), "{err}");
+}
+
+#[test]
+fn a_call_at_the_top_of_app_runs_once_when_the_site_opens() {
+    // `Session.load()` in `app` was read as an element with a flag `.load`.
+    let src = "store Session {\n\
+         \x20   state checked = false\n\
+         \x20   action load() { checked = true }\n\
+         }\n\
+         app {\n\
+         \x20   use Session\n\
+         \x20   Session.load()\n\
+         \x20   Router\n\
+         }\n";
+    let src = format!("{src}{}", page("Text(\"x\")"));
+    let js = spa_generated(&src);
+    assert!(js.contains("Session.load()"), "{js}");
+}
+
+#[test]
+fn an_optimistic_action_that_awaits_nothing_is_still_a_plain_function() {
+    // `return await WF.attempt(…)` in a function that is not async is a
+    // SyntaxError, which stopped the whole page.
+    let js = spa_generated(&page(
+        "state word = \"a\"\n\
+         \x20   action change() { optimistic(word, w => \"b\") }\n\
+         \x20   Button(\"Go\") { on click { change() } }",
+    ));
+    assert!(js.contains("return WF.attempt(async () =>"), "{js}");
+    assert!(!js.contains("return await WF.attempt"), "{js}");
+
+    // And a store's action rolls back what it showed, as a page's does.
+    let src = "store Names {\n\
+         \x20   state items: [String] = []\n\
+         \x20   action fail() {\n\
+         \x20       optimistic(items, xs => [\"x\"])\n\
+         \x20       await fetch(\"/api/x\")\n\
+         \x20   }\n\
+         }\n";
+    let js = spa_generated(&format!("{src}{}", page("Text(\"x\")")));
+    assert!(js.contains("return await WF.attempt(async () =>"), "{js}");
 }

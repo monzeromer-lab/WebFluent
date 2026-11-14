@@ -30,7 +30,7 @@ done
 rm -rf "$out/wasm"
 dest="$out/wasm/$version"
 mkdir -p "$dest/pkg" "$dest/pkg-pdf/fonts"
-cp "$here/wf.js" "$here/preview-sw.js" "$dest/"
+cp "$here/wf.js" "$here/preview-sw.js" "$here/run.html" "$here/run.js" "$dest/"
 cp "$here/pkg/wf_wasm.js" "$here/pkg/wf_wasm_bg.wasm" "$dest/pkg/"
 cp "$here/pkg-pdf/wf_wasm_pdf.js" "$here/pkg-pdf/wf_wasm_pdf_bg.wasm" "$dest/pkg-pdf/"
 cp "$here"/pkg-pdf/fonts/* "$dest/pkg-pdf/fonts/"
