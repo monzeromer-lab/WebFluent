@@ -10,6 +10,9 @@ same at build time and in the browser, so a hydrated page repaints exactly
 what was painted. This page shows release notes held in a state, and one
 line of inline Markdown:
 
+**Needs:** nothing besides the page. It claims `/`: paste it into a new
+project, or replace the starter's `src/pages/Home.wf` with it.
+
 ```wf
 page Notes(path: "/", title: "Release notes", description: "What changed in this release.") {
     state body = "# Release notes\n\nVersion **3.3** adds:\n\n- Markdown pages\n- `wf docs`\n\n> Ship it."

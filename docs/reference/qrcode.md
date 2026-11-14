@@ -18,9 +18,7 @@ QrCode(_ value: String, color: String, background: String)
 | `color:` | `String` | The colour of the dark modules |
 | `background:` | `String` | The colour behind them |
 
-## Flags
-
-`.dropInside` `.trapFocus`
+Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 
 ## Example
 

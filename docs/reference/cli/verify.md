@@ -19,3 +19,5 @@ wf verify [PATH] [options]
 | `--budget MS` | Fail a route whose first paint is slower than this, in milliseconds |
 | `--returning-visitor` | Visit every route again as a reader whose storage holds what the previous build's pages kept |
 | `--allow-output-outside` | Let `build.output` name a directory outside the project |
+
+The [full entry for wf verify](https://webfluent.monzeromer.dev/reference/cli.md#wf-verify) has its examples and the details this page leaves out.

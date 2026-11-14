@@ -16,9 +16,7 @@ Portal(into: Any) { … }
 |---|---|---|
 | `into:` | `Any  (required)` | Where it draws: an element, a `ref:` handle, or `null` to keep it aside; read again whenever what it reads changes |
 
-## Flags
-
-`.dropInside` `.trapFocus`
+Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 
 ## Slots
 

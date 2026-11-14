@@ -1,2 +1,2 @@
-function Page_OldReferenceNavbar(params){const _root=document.createDocumentFragment();const _e1682=WF.el("h1",{className:"wf-heading"},"Navbar");_root.appendChild(_e1682);const _e1683=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/navbar"},"Navbar");WF.activeLink(_e1683,"/reference/navbar",false);_root.appendChild(_e1683);return _root;}
+function Page_OldReferenceNavbar(params){const _root=document.createDocumentFragment();const _e1803=WF.el("h1",{className:"wf-heading"},"Navbar");_root.appendChild(_e1803);const _e1804=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/navbar"},"Navbar");WF.activeLink(_e1804,"/reference/navbar",false);_root.appendChild(_e1804);return _root;}
 WF.page("OldReferenceNavbar",Page_OldReferenceNavbar,{title:"Navbar"});

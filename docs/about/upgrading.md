@@ -26,7 +26,7 @@ upgrade asks of you:
 
 | Release | What to do |
 |---|---|
-| [6.0](#6-0) | Nothing for a project; to have each language of a translated site found, give it pages with `lang:` and `translates:`. A program using the Rust crate: see the release's notes |
+| [6.0](#6-0) | Run `wf check`; check `build.output`, `public_env` names taken from the shell, and `wf serve --host` if you test on a phone. To have each language of a translated site found, give it pages with `lang:` and `translates:`. A program using the Rust crate: see the release's notes |
 | [5.14, 5.13](#5-14-and-5-13) | Nothing |
 | [5.12](#5-12) | Run `wf check` (`E118`, `E102`); rename a store member called `valueOf` or `toString` |
 | [5.11](#5-11) | Run `wf check` (`C07`, `T22`), then `wf test --update` once you have read the new snapshots |

@@ -21,7 +21,9 @@ Tooltip(_ text: String, shortcut: String, placement: Enum, delay: Number) { … 
 
 ## Flags
 
-`.bottom` `.bottomStart` `.bottomEnd` `.top` `.topStart` `.topEnd` `.left` `.leftStart` `.leftEnd` `.right` `.rightStart` `.rightEnd` `.dropInside` `.trapFocus`
+`.bottom` `.bottomStart` `.bottomEnd` `.top` `.topStart` `.topEnd` `.left` `.leftStart` `.leftEnd` `.right` `.rightStart` `.rightEnd`
+
+Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 
 ## Slots
 
@@ -40,4 +42,4 @@ Tooltip("Save", shortcut: "Ctrl+S", delay: 400, placement: .bottom) { Button("Sa
 - [E109](https://webfluent.monzeromer.dev/errors/E109.md): An element this output cannot draw
 - [C04](https://webfluent.monzeromer.dev/errors/C04.md): An attribute a built-in does not declare
 
-Since WebFluent 5.0.
+Before WebFluent 5.0.

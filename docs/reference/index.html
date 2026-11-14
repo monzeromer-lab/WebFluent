@@ -40,7 +40,7 @@
 </head>
 <body>
     <div id="app">
-        <main id="wf-main">
+        <div id="wf-main">
             <a class="wf-link bp-skip" href="#bp-main">Skip to the content</a>
             <div class="wf-row wf-align--center wf-s55053fdc bp-header" role="banner">
                 <div class="wf-row wf-align--center wf-gap--md wf-sfe495c12 bp-wrap">
@@ -59,7 +59,7 @@
                     </div>
                     <div class="wf-row wf-align--center wf-gap--sm wf-sff642a95">
                         <button class="wf-btn wf-sf8ab46ec bp-field bp-search" aria-label="Search the docs" aria-keyshortcuts="Meta+K Control+K" aria-haspopup="dialog" type="button">
-                            <i class="wf-icon" data-icon="search"></i>
+                            <i class="wf-icon" data-icon="search"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></i>
                             <p class="wf-text wf-sf55a2627 bp-hide-sm">Search the docs</p>
                             <p class="wf-text bp-kbd bp-hide-sm">Ctrl+K</p>
                         </button>
@@ -73,17 +73,17 @@
                                 <option value="elements">Custom elements</option>
                                 <option value="desktop">Desktop / phone</option>
                             </select>
-                            <i class="wf-icon wf-s94250744" data-icon="chevron-down" aria-hidden="true"></i>
+                            <i class="wf-icon wf-s94250744" data-icon="chevron-down" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><polyline points="6 9 12 15 18 9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></i>
                         </div>
                         <button class="wf-icon-btn bp-icon-button" data-track="select_content" data-track-content-type="theme" type="button"></button>
                         <div class="wf-row wf-align--center wf-gap--xs wf-s286d925a bp-hide-sm">
                             <button class="wf-btn bp-button" title="This page is in English only; the switch changes the interface." data-track="select_content" data-track-content-type="language" type="button"></button>
                         </div>
                         <a class="wf-link bp-button bp-hide-md" href="https://github.com/monzeromer-lab/WebFluent" data-tone="quiet" aria-label="GitHub">
-                            <i class="wf-icon" data-icon="git-branch"></i>
+                            <i class="wf-icon" data-icon="git-branch"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="4.5" r="2"/><circle cx="6" cy="15.5" r="2"/><circle cx="14" cy="6.5" r="2"/><path d="M6 6.5v7M14 8.5c0 3.5-8 2.5-8 5"/></g></svg></i>
                             <p class="wf-text">GitHub</p>
                         </a>
-                        <button class="wf-icon-btn wf-sde8ec4aa bp-icon-button" data-icon="menu" aria-label="Menu" title="Menu" aria-expanded="false" type="button"></button>
+                        <button class="wf-icon-btn wf-sde8ec4aa bp-icon-button" data-icon="menu" aria-label="Menu" title="Menu" aria-expanded="false" type="button"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
                     </div>
                 </div>
             </div>
@@ -93,7 +93,7 @@
                     <div class="wf-modal__body">
                         <div class="wf-stack wf-sa8e464d0">
                             <div class="wf-row wf-align--center wf-gap--sm wf-s02e7a482 bp-field">
-                                <i class="wf-icon" data-icon="search"></i>
+                                <i class="wf-icon" data-icon="search"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></i>
                                 <input class="wf-input" placeholder="Search the guide" aria-label="Search the guide" type="search" autofocus>
                                 <p class="wf-text bp-kbd">esc</p>
                             </div>
@@ -114,7 +114,7 @@
             <div class="wf-row wf-align--start wf-sa997482c bp-wrap">
                 <div class="wf-stack wf-gap--sm wf-sa359f878 bp-sidebar" role="navigation" aria-label="Reference">
                     <div class="wf-row wf-align--center wf-gap--sm wf-scc2d619f bp-field">
-                        <i class="wf-icon" data-icon="filter"></i>
+                        <i class="wf-icon" data-icon="filter"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></i>
                         <input class="wf-input" placeholder="Filter" aria-label="Filter" type="search">
                     </div>
                     <div class="wf-stack bp-navlist">
@@ -130,6 +130,8 @@
                         <a class="wf-link bp-navlink" href="/reference/project">Project structure</a>
                         <a class="wf-link bp-navlink" href="/reference/browser-support">Browser support</a>
                         <a class="wf-link bp-navlink" href="/reference/glossary">Glossary</a>
+                        <a class="wf-link bp-navlink" href="/reference/library">Library</a>
+                        <a class="wf-link bp-navlink" href="/reference/editors">Editors</a>
                     </div>
                 </div>
                 <div class="wf-stack wf-gap--lg wf-s54d43750 bp-main reference-main" role="main" id="bp-main" tabindex="-1">
@@ -145,13 +147,13 @@
                         <p class="wf-text bp-lede">111 built-in elements by family, every command, setting and design token — each read from the compiler itself, so what these pages list is exactly what it accepts.</p>
                         <div class="wf-stack wf-gap--sm wf-s8a243922 bp-contents">
                             <button class="wf-btn wf-s1865e956 bp-button" aria-expanded="false" aria-controls="bp-contents-panel" type="button">
-                                <i class="wf-icon" data-icon="list"></i>
+                                <i class="wf-icon" data-icon="list"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 5h10.5M7 10h10.5M7 15h10.5M2.5 5h.5M2.5 10h.5M2.5 15h.5"/></g></svg></i>
                                 <p class="wf-text">Contents</p>
-                                <i class="wf-icon" data-icon="chevron-down"></i>
+                                <i class="wf-icon" data-icon="chevron-down"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><polyline points="6 9 12 15 18 9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></i>
                             </button>
                         </div>
                         <div class="wf-row bp-labels">
-                            <div class="wf-row wf-gap--xs bp-labels" aria-label="Works in">
+                            <div class="wf-row wf-gap--xs bp-labels" role="group" aria-label="Works in">
                             </div>
                         </div>
                     </div>
@@ -196,6 +198,14 @@
                             </a>
                             <a class="wf-link bp-card" href="/reference/glossary">
                                 <p class="wf-text wf-s70571e62">Glossary</p>
+                                <p class="wf-text bp-small">Tools</p>
+                            </a>
+                            <a class="wf-link bp-card" href="/reference/library">
+                                <p class="wf-text wf-s70571e62">Library</p>
+                                <p class="wf-text bp-small">Tools</p>
+                            </a>
+                            <a class="wf-link bp-card" href="/reference/editors">
+                                <p class="wf-text wf-s70571e62">Editors</p>
                                 <p class="wf-text bp-small">Tools</p>
                             </a>
                         </div>
@@ -1493,335 +1503,335 @@
                         <p class="wf-text bp-small">The names Icon(…), IconButton(icon:) and Sidebar.Item(icon:) draw; any other name shows as the word, and the compiler warns.</p>
                         <div class="wf-row wf-gap--sm wf-s0ef3ed1d">
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="close"></i>
+                                <i class="wf-icon" data-icon="close"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></i>
                                 <p class="wf-text">close</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="menu"></i>
+                                <i class="wf-icon" data-icon="menu"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></i>
                                 <p class="wf-text">menu</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="search"></i>
+                                <i class="wf-icon" data-icon="search"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></i>
                                 <p class="wf-text">search</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="home"></i>
+                                <i class="wf-icon" data-icon="home"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><path d="M3 12l9-9 9 9M5 10v10a1 1 0 001 1h3v-5h6v5h3a1 1 0 001-1V10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></i>
                                 <p class="wf-text">home</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="user"></i>
+                                <i class="wf-icon" data-icon="user"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></i>
                                 <p class="wf-text">user</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="settings"></i>
+                                <i class="wf-icon" data-icon="settings"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z" fill="none" stroke="currentColor" stroke-width="2"/></svg></i>
                                 <p class="wf-text">settings</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="check"></i>
+                                <i class="wf-icon" data-icon="check"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></i>
                                 <p class="wf-text">check</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="plus"></i>
+                                <i class="wf-icon" data-icon="plus"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><line x1="12" y1="5" x2="12" y2="19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></i>
                                 <p class="wf-text">plus</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="minus"></i>
+                                <i class="wf-icon" data-icon="minus"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></i>
                                 <p class="wf-text">minus</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="edit"></i>
+                                <i class="wf-icon" data-icon="edit"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" fill="none" stroke="currentColor" stroke-width="2"/></svg></i>
                                 <p class="wf-text">edit</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="trash"></i>
+                                <i class="wf-icon" data-icon="trash"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><polyline points="3 6 5 6 21 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></i>
                                 <p class="wf-text">trash</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="star"></i>
+                                <i class="wf-icon" data-icon="star"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></i>
                                 <p class="wf-text">star</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="heart"></i>
+                                <i class="wf-icon" data-icon="heart"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z" fill="none" stroke="currentColor" stroke-width="2"/></svg></i>
                                 <p class="wf-text">heart</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="mail"></i>
+                                <i class="wf-icon" data-icon="mail"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" fill="none" stroke="currentColor" stroke-width="2"/><polyline points="22,6 12,13 2,6" fill="none" stroke="currentColor" stroke-width="2"/></svg></i>
                                 <p class="wf-text">mail</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="bell"></i>
+                                <i class="wf-icon" data-icon="bell"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></i>
                                 <p class="wf-text">bell</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="download"></i>
+                                <i class="wf-icon" data-icon="download"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></i>
                                 <p class="wf-text">download</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="upload"></i>
+                                <i class="wf-icon" data-icon="upload"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></i>
                                 <p class="wf-text">upload</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="eye"></i>
+                                <i class="wf-icon" data-icon="eye"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2"/></svg></i>
                                 <p class="wf-text">eye</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="link"></i>
+                                <i class="wf-icon" data-icon="link"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></i>
                                 <p class="wf-text">link</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="calendar"></i>
+                                <i class="wf-icon" data-icon="calendar"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="18" rx="2" ry="2" fill="none" stroke="currentColor" stroke-width="2"/><line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" stroke-width="2"/><line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" stroke-width="2"/><line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" stroke-width="2"/></svg></i>
                                 <p class="wf-text">calendar</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="filter"></i>
+                                <i class="wf-icon" data-icon="filter"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></i>
                                 <p class="wf-text">filter</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="chevron-down"></i>
+                                <i class="wf-icon" data-icon="chevron-down"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><polyline points="6 9 12 15 18 9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></i>
                                 <p class="wf-text">chevron-down</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="chevron-right"></i>
+                                <i class="wf-icon" data-icon="chevron-right"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><polyline points="9 18 15 12 9 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></i>
                                 <p class="wf-text">chevron-right</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="chevron-left"></i>
+                                <i class="wf-icon" data-icon="chevron-left"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><polyline points="15 18 9 12 15 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></i>
                                 <p class="wf-text">chevron-left</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="info"></i>
+                                <i class="wf-icon" data-icon="info"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><line x1="12" y1="16" x2="12" y2="12" stroke="currentColor" stroke-width="2"/><line x1="12" y1="8" x2="12.01" y2="8" stroke="currentColor" stroke-width="2"/></svg></i>
                                 <p class="wf-text">info</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="warning"></i>
+                                <i class="wf-icon" data-icon="warning"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" fill="none" stroke="currentColor" stroke-width="2"/><line x1="12" y1="9" x2="12" y2="13" stroke="currentColor" stroke-width="2"/><line x1="12" y1="17" x2="12.01" y2="17" stroke="currentColor" stroke-width="2"/></svg></i>
                                 <p class="wf-text">warning</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="arrow-left"></i>
+                                <i class="wf-icon" data-icon="arrow-left"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><line x1="19" y1="12" x2="5" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><polyline points="12 19 5 12 12 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></i>
                                 <p class="wf-text">arrow-left</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="arrow-right"></i>
+                                <i class="wf-icon" data-icon="arrow-right"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><polyline points="12 5 19 12 12 19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></i>
                                 <p class="wf-text">arrow-right</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="logout"></i>
+                                <i class="wf-icon" data-icon="logout"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></i>
                                 <p class="wf-text">logout</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="copy"></i>
+                                <i class="wf-icon" data-icon="copy"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" ry="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" fill="none" stroke="currentColor" stroke-width="2"/></svg></i>
                                 <p class="wf-text">copy</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="sun"></i>
+                                <i class="wf-icon" data-icon="sun"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="4.3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2.5v2.2M12 19.3v2.2M2.5 12h2.2M19.3 12h2.2M5.3 5.3l1.6 1.6M17.1 17.1l1.6 1.6M18.7 5.3l-1.6 1.6M6.9 17.1l-1.6 1.6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></i>
                                 <p class="wf-text">sun</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="moon"></i>
+                                <i class="wf-icon" data-icon="moon"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><path d="M19.8 14.2A8.4 8.4 0 0 1 9.8 4.2a8.4 8.4 0 1 0 10 10Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></i>
                                 <p class="wf-text">moon</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="folder"></i>
+                                <i class="wf-icon" data-icon="folder"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 5.5h5l1.5 2h8.5v9h-15z"/></g></svg></i>
                                 <p class="wf-text">folder</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="folder-plus"></i>
+                                <i class="wf-icon" data-icon="folder-plus"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 5.5h5l1.5 2h8.5v9h-15z"/><path d="M10 12.5h4M12 10.5v4"/></g></svg></i>
                                 <p class="wf-text">folder-plus</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="folder-off"></i>
+                                <i class="wf-icon" data-icon="folder-off"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 5.5h5l1.5 2h8.5v9h-15z"/><path d="M2.5 2.5l15 15"/></g></svg></i>
                                 <p class="wf-text">folder-off</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="file"></i>
+                                <i class="wf-icon" data-icon="file"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 2.5h6l4 4v11H5z"/><path d="M11 2.5v4h4"/></g></svg></i>
                                 <p class="wf-text">file</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="file-plus"></i>
+                                <i class="wf-icon" data-icon="file-plus"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 2.5h6l4 4v11H5z"/><path d="M11 2.5v4h4"/><path d="M8 12h4M10 10v4"/></g></svg></i>
                                 <p class="wf-text">file-plus</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="refresh"></i>
+                                <i class="wf-icon" data-icon="refresh"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M16.2 10a6.2 6.2 0 1 1-1.9-4.4M16.4 2.8v3.7h-3.7"/></g></svg></i>
                                 <p class="wf-text">refresh</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="alert-circle"></i>
+                                <i class="wf-icon" data-icon="alert-circle"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="7.5"/><path d="M10 6v4.5M10 13.6h.01"/></g></svg></i>
                                 <p class="wf-text">alert-circle</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="clock"></i>
+                                <i class="wf-icon" data-icon="clock"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="7"/><path d="M10 5.5V10l3 2"/></g></svg></i>
                                 <p class="wf-text">clock</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="dot"></i>
+                                <i class="wf-icon" data-icon="dot"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="4" fill="currentColor" stroke="none"/></g></svg></i>
                                 <p class="wf-text">dot</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="diff"></i>
+                                <i class="wf-icon" data-icon="diff"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h10M10.5 4l3 3-3 3M17 13H7M9.5 16l-3-3 3-3"/></g></svg></i>
                                 <p class="wf-text">diff</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="book"></i>
+                                <i class="wf-icon" data-icon="book"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 4.5h5A2.5 2.5 0 0 1 10 7v9.5a2 2 0 0 0-2-2H2.5z"/><path d="M17.5 4.5h-5A2.5 2.5 0 0 0 10 7v9.5a2 2 0 0 1 2-2h5.5z"/></g></svg></i>
                                 <p class="wf-text">book</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="git-pull-request"></i>
+                                <i class="wf-icon" data-icon="git-pull-request"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="5" r="2"/><circle cx="5.5" cy="15" r="2"/><circle cx="14.5" cy="15" r="2"/><path d="M5.5 7v6M14.5 13V8a2.5 2.5 0 0 0-2.5-2.5H8.5"/></g></svg></i>
                                 <p class="wf-text">git-pull-request</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="pin"></i>
+                                <i class="wf-icon" data-icon="pin"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.5l5.5 5.5-2 2-1.5-.5-4 4 .5 2.5-1.5 1.5-6-6L4.5 10l2.5.5 4-4-.5-1.5z"/></g></svg></i>
                                 <p class="wf-text">pin</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="git-branch"></i>
+                                <i class="wf-icon" data-icon="git-branch"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="4.5" r="2"/><circle cx="6" cy="15.5" r="2"/><circle cx="14" cy="6.5" r="2"/><path d="M6 6.5v7M14 8.5c0 3.5-8 2.5-8 5"/></g></svg></i>
                                 <p class="wf-text">git-branch</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="more-horizontal"></i>
+                                <i class="wf-icon" data-icon="more-horizontal"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="4.5" cy="10" r="1.3" fill="currentColor" stroke="none"/><circle cx="10" cy="10" r="1.3" fill="currentColor" stroke="none"/><circle cx="15.5" cy="10" r="1.3" fill="currentColor" stroke="none"/></g></svg></i>
                                 <p class="wf-text">more-horizontal</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="window-minimize"></i>
+                                <i class="wf-icon" data-icon="window-minimize"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10h12"/></g></svg></i>
                                 <p class="wf-text">window-minimize</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="window-maximize"></i>
+                                <i class="wf-icon" data-icon="window-maximize"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="4.5" width="11" height="11" rx="1"/></g></svg></i>
                                 <p class="wf-text">window-maximize</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="outline"></i>
+                                <i class="wf-icon" data-icon="outline"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5.5h2.5M8 5.5h9M5.5 10H8M10.5 10h6.5M8 14.5h2.5M13 14.5h4"/></g></svg></i>
                                 <p class="wf-text">outline</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="help-circle"></i>
+                                <i class="wf-icon" data-icon="help-circle"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="7.5"/><path d="M8 8a2 2 0 1 1 2 2v1.5M10 14.6h.01"/></g></svg></i>
                                 <p class="wf-text">help-circle</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="collapse-all"></i>
+                                <i class="wf-icon" data-icon="collapse-all"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8.5l4-4 4 4M6 15.5h8"/></g></svg></i>
                                 <p class="wf-text">collapse-all</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="locate"></i>
+                                <i class="wf-icon" data-icon="locate"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2.5v8M5 7.5L10 2.5l5 5"/><circle cx="10" cy="14" r="2"/></g></svg></i>
                                 <p class="wf-text">locate</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="chevron-up"></i>
+                                <i class="wf-icon" data-icon="chevron-up"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 12.5L10 8l4.5 4.5"/></g></svg></i>
                                 <p class="wf-text">chevron-up</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="globe"></i>
+                                <i class="wf-icon" data-icon="globe"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 10h15M10 2.5c2 2.2 3 4.7 3 7.5s-1 5.3-3 7.5c-2-2.2-3-4.7-3-7.5s1-5.3 3-7.5z"/><circle cx="10" cy="10" r="7.5"/></g></svg></i>
                                 <p class="wf-text">globe</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="external-link"></i>
+                                <i class="wf-icon" data-icon="external-link"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M11 3.5h5.5V9M16.5 3.5L9 11M14.5 11.5v5h-11v-11h5"/></g></svg></i>
                                 <p class="wf-text">external-link</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="panel-down"></i>
+                                <i class="wf-icon" data-icon="panel-down"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 11.5l4 4 4-4M6 4.5h8"/></g></svg></i>
                                 <p class="wf-text">panel-down</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="panel-up"></i>
+                                <i class="wf-icon" data-icon="panel-up"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 11.5l4-4 4 4M6 15.5h8"/></g></svg></i>
                                 <p class="wf-text">panel-up</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="code"></i>
+                                <i class="wf-icon" data-icon="code"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 5.5L2.5 10 7 14.5M13 5.5l4.5 4.5-4.5 4.5"/></g></svg></i>
                                 <p class="wf-text">code</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="monitor"></i>
+                                <i class="wf-icon" data-icon="monitor"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="15" height="10" rx="1"/><path d="M10 13.5v3M6.5 16.5h7"/></g></svg></i>
                                 <p class="wf-text">monitor</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="git-commit"></i>
+                                <i class="wf-icon" data-icon="git-commit"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="3"/><path d="M2.5 10H7M13 10h4.5"/></g></svg></i>
                                 <p class="wf-text">git-commit</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="play"></i>
+                                <i class="wf-icon" data-icon="play"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 3l11 7-11 7z"/></g></svg></i>
                                 <p class="wf-text">play</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="layers"></i>
+                                <i class="wf-icon" data-icon="layers"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2.5l7.5 4-7.5 4-7.5-4z"/><path d="M2.5 10l7.5 4 7.5-4M2.5 13.5l7.5 4 7.5-4"/></g></svg></i>
                                 <p class="wf-text">layers</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="insert"></i>
+                                <i class="wf-icon" data-icon="insert"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="2.5" width="6" height="6" rx="1"/><rect x="11.5" y="2.5" width="6" height="6" rx="1"/><rect x="2.5" y="11.5" width="6" height="6" rx="1"/><path d="M14.5 11.5v6M11.5 14.5h6"/></g></svg></i>
                                 <p class="wf-text">insert</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="grid"></i>
+                                <i class="wf-icon" data-icon="grid"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="2.5" width="6" height="6" rx="1"/><rect x="11.5" y="2.5" width="6" height="6" rx="1"/><rect x="2.5" y="11.5" width="6" height="6" rx="1"/><rect x="11.5" y="11.5" width="6" height="6" rx="1"/></g></svg></i>
                                 <p class="wf-text">grid</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="list"></i>
+                                <i class="wf-icon" data-icon="list"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 5h10.5M7 10h10.5M7 15h10.5M2.5 5h.5M2.5 10h.5M2.5 15h.5"/></g></svg></i>
                                 <p class="wf-text">list</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="square"></i>
+                                <i class="wf-icon" data-icon="square"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="14" height="12" rx="1.5"/></g></svg></i>
                                 <p class="wf-text">square</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="pill"></i>
+                                <i class="wf-icon" data-icon="pill"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6.5" width="15" height="7" rx="3.5"/></g></svg></i>
                                 <p class="wf-text">pill</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="image"></i>
+                                <i class="wf-icon" data-icon="image"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="3.5" width="15" height="13" rx="1.5"/><circle cx="7" cy="8" r="1.5"/><path d="M17.5 13l-4-4-8 7.5"/></g></svg></i>
                                 <p class="wf-text">image</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="sparkle"></i>
+                                <i class="wf-icon" data-icon="sparkle"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2.5l1.9 4.6 4.6 1.9-4.6 1.9L10 15.5 8.1 10.9 3.5 9l4.6-1.9z"/><path d="M15.5 13.5l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z"/></g></svg></i>
                                 <p class="wf-text">sparkle</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="lock"></i>
+                                <i class="wf-icon" data-icon="lock"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="8.5" width="13" height="9" rx="1.5"/><path d="M6.5 8.5V6a3.5 3.5 0 0 1 7 0v2.5"/></g></svg></i>
                                 <p class="wf-text">lock</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="type"></i>
+                                <i class="wf-icon" data-icon="type"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><path d="M5 7V5h14v2M12 5v14M9 19h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></i>
                                 <p class="wf-text">type</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="pointer"></i>
+                                <i class="wf-icon" data-icon="pointer"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 3l10.5 6-4.6 1.2L8 14.8z" fill="currentColor"/><path d="M10.4 10.2l3.4 4.6"/></g></svg></i>
                                 <p class="wf-text">pointer</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="reach"></i>
+                                <i class="wf-icon" data-icon="reach"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 3l10.5 6-4.6 1.2L8 14.8z"/><path d="M10.4 10.2l3.4 4.6"/></g></svg></i>
                                 <p class="wf-text">reach</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="frame"></i>
+                                <i class="wf-icon" data-icon="frame"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 2.5v15M13.5 2.5v15M2.5 6.5h15M2.5 13.5h15"/></g></svg></i>
                                 <p class="wf-text">frame</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="line"></i>
+                                <i class="wf-icon" data-icon="line"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16L16 4"/></g></svg></i>
                                 <p class="wf-text">line</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="pipette"></i>
+                                <i class="wf-icon" data-icon="pipette"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12.5 3.5l4 4-1.6 1.6-4-4z"/><path d="M11.7 6.3L4.5 13.5V15.5h2l7.2-7.2"/></g></svg></i>
                                 <p class="wf-text">pipette</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="comment"></i>
+                                <i class="wf-icon" data-icon="comment"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 10a6.5 6 0 1 1 3 5.1L3.5 16.5l1-3A6 6 0 0 1 3.5 10z"/></g></svg></i>
                                 <p class="wf-text">comment</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="hand"></i>
+                                <i class="wf-icon" data-icon="hand"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10V4.5a1.2 1.2 0 0 1 2.4 0V9M9.4 8.5V3.5a1.2 1.2 0 0 1 2.4 0V9M11.8 9V4.5a1.2 1.2 0 0 1 2.4 0v6.5a5.5 5.5 0 0 1-5.5 5.5H8.5a4 4 0 0 1-3.2-1.6L3 11.5a1.2 1.2 0 0 1 1.9-1.4L7 12"/></g></svg></i>
                                 <p class="wf-text">hand</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="zoom"></i>
+                                <i class="wf-icon" data-icon="zoom"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="8.5" cy="8.5" r="5.5"/><path d="M16.5 16.5l-4-4M6.5 8.5h4M8.5 6.5v4"/></g></svg></i>
                                 <p class="wf-text">zoom</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="ruler"></i>
+                                <i class="wf-icon" data-icon="ruler"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 13.5l11-11 4 4-11 11z"/><path d="M6 10l1.5 1.5M8.5 7.5L10 9M11 5l1.5 1.5"/></g></svg></i>
                                 <p class="wf-text">ruler</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="eye-off"></i>
+                                <i class="wf-icon" data-icon="eye-off"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l14 14"/><path d="M8.2 5.2A8 8 0 0 1 10 5c4.5 0 7.5 5 7.5 5a13 13 0 0 1-2.2 2.7M12 14.7A7.4 7.4 0 0 1 10 15c-4.5 0-7.5-5-7.5-5a13 13 0 0 1 3.1-3.4"/></g></svg></i>
                                 <p class="wf-text">eye-off</p>
                             </div>
                             <div class="wf-row wf-align--center wf-gap--xs bp-label">
-                                <i class="wf-icon" data-icon="unlock"></i>
+                                <i class="wf-icon" data-icon="unlock"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="8.5" width="13" height="9" rx="1.5"/><path d="M6.5 8.5V6a3.5 3.5 0 0 1 6.8-1.2"/></g></svg></i>
                                 <p class="wf-text">unlock</p>
                             </div>
                         </div>
@@ -1848,21 +1858,21 @@
                     </div>
                     <div class="wf-stack wf-gap--xs wf-see94d5ab">
                         <button class="wf-btn wf-sc1cdfbd7 bp-rail-action" type="button">
-                            <i class="wf-icon" data-icon="copy"></i>
+                            <i class="wf-icon" data-icon="copy"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" ry="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" fill="none" stroke="currentColor" stroke-width="2"/></svg></i>
                             <p class="wf-text">Copy page as Markdown</p>
                         </button>
                         <button class="wf-btn wf-sc1cdfbd7 bp-rail-action" type="button">
-                            <i class="wf-icon" data-icon="file"></i>
+                            <i class="wf-icon" data-icon="file"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 2.5h6l4 4v11H5z"/><path d="M11 2.5v4h4"/></g></svg></i>
                             <p class="wf-text">Open as Markdown</p>
                         </button>
                     </div>
                     <a class="wf-link wf-s48d899f5" href="https://github.com/monzeromer-lab/WebFluent/blob/master/scripts/docsite/reference.py">
-                        <i class="wf-icon" data-icon="edit"></i>
+                        <i class="wf-icon" data-icon="edit"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" fill="none" stroke="currentColor" stroke-width="2"/></svg></i>
                         <p class="wf-text">Edit this page</p>
                     </a>
                 </div>
             </div>
-        </main>
+        </div>
         <footer class="wf-footer wf-s2213a098">
             <div class="wf-stack wf-gap--lg wf-s84d7918c bp-wrap">
                 <div class="wf-grid wf-gap--lg wf-r67559659">

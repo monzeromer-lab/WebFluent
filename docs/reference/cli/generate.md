@@ -19,3 +19,5 @@ wf generate KIND NAME [options]
 | `--dir, -d DIR` | Project directory (default: current directory) |
 
 **Writes:** a new source file
+
+The [full entry for wf generate](https://webfluent.monzeromer.dev/reference/cli.md#wf-generate) has its examples and the details this page leaves out.

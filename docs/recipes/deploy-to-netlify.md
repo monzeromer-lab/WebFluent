@@ -15,7 +15,7 @@ Add `netlify.toml` at the project's root:
 
 ```toml
 [build]
-  command = "curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | bash && ~/.webfluent/bin/wf build"
+  command = "curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v6.0.0 bash && ~/.webfluent/bin/wf build"
   publish = "build"
 ```
 

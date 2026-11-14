@@ -20,3 +20,7 @@ wf migrate [PATH] [options]
 | `--wfx` | Write the migrated files in the indented layout, as `.wfx` |
 
 **Writes:** the project's source files
+
+**Preview:** `--check` says what it would do without doing it.
+
+The [full entry for wf migrate](https://webfluent.monzeromer.dev/reference/cli.md#wf-migrate) has its examples and the details this page leaves out.

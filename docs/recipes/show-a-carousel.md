@@ -10,6 +10,10 @@ and, if you want, advancing on their own. Wrap each slide in a
 
 This page shows three photographs that advance every five seconds:
 
+**Needs:** `one.jpg`, `two.jpg` and `three.jpg` in `public/`. It claims
+`/`: paste it into a new project, or replace the starter's
+`src/pages/Home.wf` with it.
+
 ```wf
 page Gallery(path: "/", title: "Gallery", description: "Three pictures.") {
     Heading("Gallery").h1

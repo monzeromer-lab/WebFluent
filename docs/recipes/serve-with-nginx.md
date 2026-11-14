@@ -12,16 +12,30 @@ You need a server running nginx with a TLS certificate for the site, and a
 `build/` folder from `wf build`
 ([Install wf on a build machine](https://webfluent.monzeromer.dev/recipes/install-wf-in-ci.md)).
 
-Add this `server` block, and pick the `try_files` line for your kind of
-build:
+Put the security headers in a file of their own, so every block that
+needs them can include them:
+
+```nginx
+# /etc/nginx/snippets/site-headers.conf
+add_header X-Content-Type-Options nosniff always;
+add_header Referrer-Policy strict-origin-when-cross-origin always;
+add_header X-Frame-Options DENY always;
+# add_header Content-Security-Policy "…as in build/_headers…" always;
+```
+
+Then add this `server` block, and pick the `try_files` line for your kind
+of build:
 
 ```nginx
 server {
     listen 443 ssl http2;
     server_name example.com;
+    ssl_certificate     /etc/letsencrypt/live/example.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/example.com/privkey.pem;
     root /var/www/site;
 
     gzip_static on;                          # serve the .gz files the build wrote
+    include snippets/site-headers.conf;
 
     location / {
         try_files $uri $uri/ $uri.html =404; # a static build
@@ -29,13 +43,16 @@ server {
     }
     error_page 404 /404.html;
 
-    location = /sw.js { add_header Cache-Control "no-cache"; }
-    location ~* \.(webp|avif|jpg|jpeg|png)$ { add_header Cache-Control "public, max-age=31536000, immutable"; }
+    location = /sw.js {
+        include snippets/site-headers.conf;
+        add_header Cache-Control "no-cache";
+    }
 
-    add_header X-Content-Type-Options nosniff always;
-    add_header Referrer-Policy strict-origin-when-cross-origin always;
-    add_header X-Frame-Options DENY always;
-    # add_header Content-Security-Policy "…as in build/_headers…" always;
+    # Pictures the build resized and renamed: hero.4a6178a1.960.webp, hero.4a6178a1.jpg
+    location ~* "\.[0-9a-f]{8}(\.[0-9]+)?\.(webp|avif|jpe?g|png|gif)$" {
+        include snippets/site-headers.conf;
+        add_header Cache-Control "public, max-age=31536000, immutable";
+    }
 }
 ```
 
@@ -56,12 +73,22 @@ rsync -a --delete build/ server:/var/www/site/
    build, every path falls back to `index.html`, where the router draws the
    page.
 4. `error_page 404 /404.html` serves the page whose `path` is `*`.
-5. `sw.js` is never cached without asking, and resized images, whose names
-   change when the file does, are cached for a year
-   ([Set cache headers](https://webfluent.monzeromer.dev/recipes/cache-and-security-headers.md#set-cache-headers)).
+5. `sw.js` is never cached without asking. The pictures the build resized
+   and renamed (`img/hero.<hash>.<width>.webp`, and the original as
+   `img/hero.<hash>.jpg`) are cached for a year, since a changed picture
+   gets a new name. A file of `public/` keeps the name you gave it, so it is
+   left to the browser's usual checks: a new `/logo.png` reaches readers at
+   once ([Set cache headers](https://webfluent.monzeromer.dev/recipes/cache-and-security-headers.md#set-cache-headers)).
 6. The `add_header` lines are the security headers the build writes to
    `build/_headers`. Copy the `Content-Security-Policy` line from that file
    into the commented line to send the policy as a header too.
+7. nginx drops the server's `add_header` lines in any `location` that has
+   an `add_header` of its own. That is why the two locations that set
+   `Cache-Control` include the headers file again: without it, `sw.js` and
+   the pictures would be sent with no security headers.
+8. `ssl_certificate` and `ssl_certificate_key` name the certificate the
+   `listen 443 ssl` line needs; the paths above are where Certbot puts
+   them.
 
 `rsync -a --delete` makes the server's folder match `build/`, removing
 files an older build left behind.

@@ -1,2 +1,2 @@
-function Page_WasDocsGuideEvents(params){const _root=document.createDocumentFragment();const _e9883=WF.el("h1",{className:"wf-heading"},"Moved");_root.appendChild(_e9883);const _e9884=WF.el("a",{className:"wf-link",href:WF._basePath+"/learn/08-events"},"Go on");WF.activeLink(_e9884,"/learn/08-events",false);_root.appendChild(_e9884);return _root;}
+function Page_WasDocsGuideEvents(params){const _root=document.createDocumentFragment();const _e10038=WF.el("h1",{className:"wf-heading"},"Moved");_root.appendChild(_e10038);const _e10039=WF.el("a",{className:"wf-link",href:WF._basePath+"/learn/08-events"},"Go on");WF.activeLink(_e10039,"/learn/08-events",false);_root.appendChild(_e10039);return _root;}
 WF.page("WasDocsGuideEvents",Page_WasDocsGuideEvents,{title:"Moved"});

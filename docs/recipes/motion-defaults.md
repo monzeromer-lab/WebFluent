@@ -9,6 +9,9 @@ project, in one place, and keep motion away from readers who asked for
 less. On this page every animation takes the project's defaults, and the
 one transition written by hand is held back from those readers:
 
+**Needs:** nothing besides the page. It claims `/`: paste it into a new
+project, or replace the starter's `src/pages/Home.wf` with it.
+
 ```wf
 page Welcome(path: "/", title: "Welcome", description: "Motion that follows the project's defaults.") {
     state open = false

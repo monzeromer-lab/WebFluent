@@ -23,12 +23,14 @@ Frame(src: String, srcdoc: String, title: String, …)
 
 ## Flags
 
-`.lazy` `.eager` `.dropInside` `.trapFocus`
+`.lazy` `.eager`
 
 ## Events
 
 - `message`
 - `load`
+
+Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 
 ## Example
 

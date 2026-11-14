@@ -16,3 +16,5 @@ wf rules [options]
 |---|---|
 | `--dir, -d DIR` | Project directory (default: current directory) |
 | `--json` | Print JSON, for tools |
+
+The [full entry for wf rules](https://webfluent.monzeromer.dev/reference/cli.md#wf-rules) has its examples and the details this page leaves out.

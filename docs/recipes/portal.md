@@ -11,6 +11,9 @@ and its focus; the page draws what is in it. This page starts a CodeMirror
 editor whose hover tooltip shows the line under the pointer, drawn by the
 page:
 
+**Needs:** `src/editor.js`, a CodeMirror bundle in `public/vendor/`, and
+two settings in `webfluent.app.json`, each shown below.
+
 ```wf
 page Edit(path: "/edit", title: "Edit", description: "An editor whose tooltip the page draws.") {
     state tip: String? = null
@@ -33,10 +36,8 @@ page Edit(path: "/edit", title: "Edit", description: "An editor whose tooltip th
 }
 ```
 
-This script starts the editor. It expects CodeMirror loaded from
-`meta.scripts` as a module with `"as": "CM"`, which puts `EditorView`,
-`basicSetup` and `hoverTooltip` on `window.CM`
-([Load a library from a CDN](https://webfluent.monzeromer.dev/recipes/library-from-a-cdn.md#variations)):
+This script starts the editor. It calls CodeMirror as `CM`, which the
+next step provides:
 
 ```js
 // src/editor.js
@@ -75,6 +76,36 @@ function startEditor(node, opened, closed) {
   return new CM.EditorView({ parent: node, extensions: [CM.basicSetup, hover] });
 }
 ```
+
+CodeMirror comes in several npm packages that must share one copy of
+`@codemirror/state`, and no CDN file exports `EditorView`, `basicSetup`
+and `hoverTooltip` together. Bundle the three into one module of your
+site's own, once, with esbuild (it needs Node):
+
+```bash
+npm install --save-dev esbuild codemirror @codemirror/view
+mkdir -p vendor public/vendor
+printf '%s\n' \
+  'export { EditorView, hoverTooltip } from "@codemirror/view";' \
+  'export { basicSetup } from "codemirror";' > vendor/codemirror.js
+npx esbuild vendor/codemirror.js --bundle --format=esm --minify --outfile=public/vendor/codemirror.js
+```
+
+Then load the bundle as a module named `CM`. CodeMirror writes its styles
+from script, which the page's Content-Security-Policy allows only with
+`style_elements`:
+
+```json
+{
+  "meta": {
+    "scripts": [{ "src": "/vendor/codemirror.js", "module": true, "as": "CM" }],
+    "style_elements": true
+  }
+}
+```
+
+The bundle is served from your own site, so it needs no integrity hash;
+run the `esbuild` line again when you update CodeMirror.
 
 ## How it works
 

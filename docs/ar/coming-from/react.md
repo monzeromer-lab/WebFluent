@@ -5,9 +5,9 @@
 The page: https://webfluent.monzeromer.dev/ar/coming-from/react
 
 معظم ما تعرفه من React ينتقل معك: مكوّنات لها خصائص (props)، وحالة،
-وموجّه مسارات (router)، ومتاجر مشتركة. الفرق الذي عليك أن تتذكّره أن
-WebFluent مترجم (compiler) بترميز ذي أنواع، وليس مكتبة: جسم المكوّن يعمل
-مرة واحدة، ولا يتحدّث إلا النص أو السمة أو النمط الذي يقرأ قيمة تغيّرت.
+وموجّه مسارات (router)، ومخازن (stores) مشتركة. الفرق الذي عليك أن تتذكّره أن
+WebFluent مُصرِّف (compiler) بترميز ذي أنواع، وليس مكتبة: جسم المكوّن يعمل
+مرة واحدة، ولا يتحدّث إلا النص أو الصفة أو النمط الذي يقرأ قيمة تغيّرت.
 لا خطافات (hooks)، ولا مصفوفات اعتماديات، ولا دوال ضبط (setters).
 
 ## الخريطة
@@ -21,29 +21,29 @@ WebFluent مترجم (compiler) بترميز ذي أنواع، وليس مكتب
 | مقبض على عنصر | `const box = useRef(null)` … `box.current.focus()` | `Input(bind: q, ref: box)` … `box.focus()` |
 | مكوّن | `function Card({ title }) { … }` | `component Card(_ title: String) { … }` |
 | ما يضعه المستدعي في الداخل | `{props.children}` | `children` |
-| خاصية دالة استدعاء راجع (callback) | `onChange={(v) => setLast(v)}` | `event change(value: Number)`, handled as `on change(value) { last = value }` |
+| خاصية دالة استدعاء راجع (callback) | `onChange={(v) => setLast(v)}` | `event change(value: Number)`، تُعالَج بـ`on change(value) { last = value }` |
 | حقل إدخال متحكَّم به | `value={q} onChange={(e) => setQ(e.target.value)}` | `Input(bind: q, label: "Search")` |
-| حالة مشتركة بين الصفحات | `createContext`, Redux, Zustand | `store Cart { … }`, read as `Cart.items` after `use Cart` |
+| حالة مشتركة بين الصفحات | `createContext`, Redux, Zustand | `store Cart { … }`، تُقرأ `Cart.items` بعد `use Cart` |
 | مسار | `<Route path="/users/:id" element={<User />} />` | `page User(path: "/users/:id", id: String) { … }` |
 | إظهار شيء بشرط | `{open && <Panel />}` | `if open { Panel }` |
 | قائمة | `{items.map((i) => <li key={i.id}>{i.name}</li>)}` | `for i in items by i.id { Text(i.name) }` |
-| الجلب | `useQuery({ queryKey: ["users"], queryFn })` | `resource users = fetch("/api/users")`, read with `match users { … }` |
-| التنسيق | `className`, CSS modules, Tailwind | flags (`Button("Save").primary`), `style { }` on the element, design tokens |
+| الجلب | `useQuery({ queryKey: ["users"], queryFn })` | `resource users = fetch("/api/users")`، تُقرأ بـ`match users { … }` |
+| التنسيق | `className`, CSS modules, Tailwind | أعلام (`Button("Save").primary`)، و`style { }` على العنصر، ورموز التصميم |
 | اختبار | Testing Library: `render`, `fireEvent.click`, `getByText` | `test "…" { click "Save"  expect "Saved" }` |
 
 ## ما يختلف
 
-**إنه مترجم، لا مكتبة.** لا يوجد DOM افتراضي ولا إعادة رسم. كل نص أو سمة
+**إنه مُصرِّف، لا مكتبة.** لا يوجد DOM افتراضي ولا إعادة رسم. كل نص أو صفة
 أو نمط يقرأ حالة يتبعها وحده، وجسم المكوّن يعمل مرة واحدة، حين يوضع. لهذا
 لا خطافات، ولا قواعد عن ترتيب استدعائها.
 
-**الترميز ذو أنواع.** يعرف المترجم خصائص كل عنصر مدمج وكل مكوّن تصرّح به،
-وعلاماته (flags) وأحداثه وفتحاته (slots). `Button("Save").primray` لا
+**الترميز ذو أنواع.** يعرف المُصرِّف خصائص كل عنصر مدمج وكل مكوّن تصرّح به،
+وأعلامه (flags) وأحداثه وفتحاته (slots). `Button("Save").primray` لا
 يُبنى، ولا يُبنى كذلك معالج لحدث لا يطلقه المكوّن أبدًا (`E103`). والخاصية
 المجهولة على مكوّنك أنت هي `C02`، لا تمرير صامت.
 
 **الصفحات تملك مساراتها.** لا يوجد جدول مسارات. كل `page` تسمّي `path:`
-الخاص بها، ويبني المترجم الموجّه منها، مرتّبة حسب دقّتها، فلا يستطيع ترتيب
+الخاص بها، ويبني المُصرِّف الموجّه منها، مرتّبة حسب دقّتها، فلا يستطيع ترتيب
 تصريحك بالصفحات أن يخفي مسارًا.
 
 **لا استيراد ولا npm.** كل ملف تحت `src/` جزء من برنامج واحد، فالمكوّن
@@ -52,14 +52,14 @@ WebFluent مترجم (compiler) بترميز ذي أنواع، وليس مكتب
 تستدعي شيفرة `.wf` دوالّه بأسمائها
 ([استدعِ JavaScript الخاصة بك](https://webfluent.monzeromer.dev/recipes/call-your-own-script.md)).
 
-**البناء هو الموقع.** العرض المسبق، وتقسيم الشيفرة، وتغيير مقاسات الصور،
+**البناء هو الموقع.** الصفحات المُصيَّرة مسبقًا، وتقسيم الشيفرة، وتغيير مقاسات الصور،
 وخريطة الموقع، ومعاينات الروابط، وسياسة Content-Security-Policy، كلها تأتي
-من `wf build`، بلا إضافات تختار بينها. لا عرض على الخادم مع كل طلب: الموقع
-ملفات ثابتة وبيئة تشغيل في المتصفح، تتحدّث إلى واجهتك البرمجية (API).
+من `wf build`، بلا إضافات تختار بينها. لا تصيير على الخادم مع كل طلب: الموقع
+ملفات ثابتة ووقت تشغيل (runtime) في المتصفح، تتحدّث إلى واجهتك البرمجية (API).
 
 **النص نص.** الطريقة الوحيدة لوضع ترميز في صفحة هي `Unsafe.Html(…)`، التي
 ينبّه عليها البناء في كل مرة، أما المعالجات المضمّنة وعناوين `javascript:`
-فلا تُترجَم ([الأمان](https://webfluent.monzeromer.dev/about/security.md)).
+فلا تُصرَّف ([الأمان](https://webfluent.monzeromer.dev/about/security.md)).
 
 **استعماله داخل تطبيق React.** انشر المكوّنات عناصرَ مخصّصة (custom
 elements) وضع وسومها في JSX
@@ -106,7 +106,7 @@ component Counter(start: Number = 0) {
 
 - **لا خطافات ولا مصفوفات اعتماديات.** `derived` يعرف ما يقرؤه.
 - **لا دالة ضبط.** أنت تُسند القيمة: `n = n + 1`.
-- **لا `className`.** `Badge` يأتي مصمَّمًا، و`.info` علامة يفحصها
-  المترجم.
+- **لا `className`.** `Badge` يأتي مصمَّمًا، و`.info` علم يفحصه
+  المُصرِّف.
 - **الحدث مصرَّح به.** المستدعي الذي يعالج `on chnage` يحصل على `E103` وقت
   البناء، بدل معالج لا يعمل أبدًا.

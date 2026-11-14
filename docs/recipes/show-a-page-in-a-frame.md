@@ -8,7 +8,16 @@ Show another page inside yours (a video player, a map, a preview your app
 builds) with `Frame`, and hear what that page posts back.
 
 This page embeds a video player and a preview of the site's own, and shows
-what the preview sends back:
+what the preview sends back. The player is on another origin, so the
+config names it in `meta.frame`; without it, the page's
+Content-Security-Policy blocks the frame and it stays blank:
+
+**Needs:** the `meta.frame` setting below in `webfluent.app.json`, and a
+page at `/preview/` for the second frame to show.
+
+```json
+{ "meta": { "frame": ["https://www.youtube-nocookie.com"] } }
+```
 
 ```wf
 page Talk(path: "/", title: "The talk", description: "The launch talk, and what the preview says.") {
@@ -36,6 +45,9 @@ page Talk(path: "/", title: "The talk", description: "The launch talk, and what 
 
 A frame from another origin must be named in `meta.frame`, or the page's
 Content-Security-Policy refuses it ([Security](https://webfluent.monzeromer.dev/about/security.md)).
+The build and `wf check` do not warn about a missing one: the frame is
+simply blank in the browser. `meta.frame` takes origins only
+(`https://www.youtube-nocookie.com`), not paths.
 
 ### Frame your own pages
 

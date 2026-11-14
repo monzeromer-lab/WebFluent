@@ -1,2 +1,2 @@
-function Page_OldReferenceSelect(params){const _root=document.createDocumentFragment();const _e1708=WF.el("h1",{className:"wf-heading"},"Select");_root.appendChild(_e1708);const _e1709=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/select"},"Select");WF.activeLink(_e1709,"/reference/select",false);_root.appendChild(_e1709);return _root;}
+function Page_OldReferenceSelect(params){const _root=document.createDocumentFragment();const _e1829=WF.el("h1",{className:"wf-heading"},"Select");_root.appendChild(_e1829);const _e1830=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/select"},"Select");WF.activeLink(_e1830,"/reference/select",false);_root.appendChild(_e1830);return _root;}
 WF.page("OldReferenceSelect",Page_OldReferenceSelect,{title:"Select"});

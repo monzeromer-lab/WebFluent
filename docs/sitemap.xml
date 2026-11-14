@@ -643,6 +643,9 @@
     <loc>https://webfluent.monzeromer.dev/recipes/keep-writes-made-offline</loc>
   </url>
   <url>
+    <loc>https://webfluent.monzeromer.dev/recipes/keyboard-shortcuts</loc>
+  </url>
+  <url>
     <loc>https://webfluent.monzeromer.dev/recipes/keyframes</loc>
   </url>
   <url>
@@ -664,6 +667,9 @@
     <loc>https://webfluent.monzeromer.dev/recipes/motion-defaults</loc>
   </url>
   <url>
+    <loc>https://webfluent.monzeromer.dev/recipes/not-found-page</loc>
+  </url>
+  <url>
     <loc>https://webfluent.monzeromer.dev/recipes/offer-a-new-version</loc>
   </url>
   <url>
@@ -674,6 +680,9 @@
   </url>
   <url>
     <loc>https://webfluent.monzeromer.dev/recipes/page-through-results</loc>
+  </url>
+  <url>
+    <loc>https://webfluent.monzeromer.dev/recipes/pdf-report</loc>
   </url>
   <url>
     <loc>https://webfluent.monzeromer.dev/recipes/place-a-custom-element</loc>
@@ -695,6 +704,9 @@
   </url>
   <url>
     <loc>https://webfluent.monzeromer.dev/recipes/render-markdown</loc>
+  </url>
+  <url>
+    <loc>https://webfluent.monzeromer.dev/recipes/reorder-by-dragging</loc>
   </url>
   <url>
     <loc>https://webfluent.monzeromer.dev/recipes/responsive-navigation</loc>
@@ -755,6 +767,9 @@
   </url>
   <url>
     <loc>https://webfluent.monzeromer.dev/recipes/tauri-app</loc>
+  </url>
+  <url>
+    <loc>https://webfluent.monzeromer.dev/recipes/test-a-page</loc>
   </url>
   <url>
     <loc>https://webfluent.monzeromer.dev/recipes/translate-a-site</loc>

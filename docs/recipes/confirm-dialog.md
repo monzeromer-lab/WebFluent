@@ -8,6 +8,9 @@ Before a reader deletes something, ask them. This component wraps a
 `Dialog` with **Cancel** and **Confirm** buttons and tells the page which
 one was pressed, so every destructive action on the site asks the same way:
 
+**Needs:** nothing besides the page. It claims `/`: paste it into a new
+project, or replace the starter's `src/pages/Home.wf` with it.
+
 ```wf
 component Confirm(_ title: String, visible: Bool, danger: Bool = false) {
     event confirm()

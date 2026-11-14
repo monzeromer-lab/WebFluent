@@ -17,9 +17,7 @@ TableOfContents(levels: Number, title: String)
 | `levels:` | `Number` | How deep it lists: 1 is the `h1`s only (default 3) |
 | `title:` | `String` | A heading above the list |
 
-## Flags
-
-`.dropInside` `.trapFocus`
+Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 
 ## Example
 

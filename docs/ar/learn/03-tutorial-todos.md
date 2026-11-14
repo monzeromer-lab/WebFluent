@@ -11,9 +11,9 @@ The page: https://webfluent.monzeromer.dev/ar/learn/03-tutorial-todos
 
 | الدرس | ما تبنيه | ما يعلّمه | الوقت |
 |---|---|---|---|
-| [قائمة المهام](https://webfluent.monzeromer.dev/ar/learn/03-tutorial-todos.md) | قائمة بما عليك فعله: أضف، وعلّم، وأعد التسمية، ورشّح | الأنواع، ومخزن بـ `persist`، ومكوّن، وقائمة بمفاتيح، ومرشّح في العنوان، واختبارات تنقر | 20 دقيقة |
-| [Field Notes](https://webfluent.monzeromer.dev/recipes/build-a-notebook-site.md) | موقع دفتر ملاحظات، مبني بناءً ثابتًا، بصفحة لكل ملاحظة | ملفات `data`، وتخطيط، وصفحات `:slug` مع `paths:`، وصفحات Markdown، والبحث والوسوم، وما يمكن لصفحة مُعدّة مسبقًا أن تعرفه | ساعة |
-| [Pocket](https://webfluent.monzeromer.dev/recipes/build-a-budget-app.md) | متتبّع ميزانية بلوحة معلومات ونماذج ولغتين | `Money` و`Date`، والمجاميع المشتقة، وترحيل `persist`، و`validate`، ونافذة حوار واختصارات، والتدويل (i18n) والنص من اليمين إلى اليسار، وسكربت من كتابتك، والعمل دون اتصال | بضع ساعات |
+| [قائمة المهام](https://webfluent.monzeromer.dev/ar/learn/03-tutorial-todos.md) | قائمة بما عليك فعله: أضف، وعلّم، وأعد التسمية، ورشّح | الأنواع، ومخزن بـ`persist`، ومكوّن، وقائمة بمفاتيح، ومرشّح في العنوان، واختبارات تنقر | 20 دقيقة |
+| [Field Notes](https://webfluent.monzeromer.dev/recipes/build-a-notebook-site.md) | موقع دفتر ملاحظات، مبني بناءً ثابتًا، بصفحة لكل ملاحظة | ملفات `data`، وتخطيط، وصفحات `:slug` مع `paths:`، وصفحات Markdown، والبحث والوسوم، وما يمكن لصفحة مُصيَّرة مسبقًا أن تعرفه | ساعة |
+| [Pocket](https://webfluent.monzeromer.dev/recipes/build-a-budget-app.md) | متتبّع ميزانية بلوحة معلومات ونماذج ولغتين | `Money` و`Date`، والمجاميع المشتقة، وترحيل `persist`، و`validate`، ونافذة حوار واختصارات، والترجمة (i18n) والنص من اليمين إلى اليسار، وسكربت من كتابتك، والعمل دون اتصال | بضع ساعات |
 
 إن لم تكتب WebFluent من قبل، فابدأ بـ[درس Shelf](https://webfluent.monzeromer.dev/ar/learn/02-tutorial-shelf.md): نصف ساعته الأولى ألطف.
 
@@ -389,8 +389,8 @@ wf serve
 ```
 
 **تحقّق:** يطبع `wf check` الرسالة `No problems in todos.`، ويعرض
-<http://localhost:3000/> بطاقة عنوانها **Todos** فيها `0 left` و
-*Nothing yet — add your first todo above.* اكتب مهمة واضغط Enter: تظهر،
+<http://localhost:3000/> بطاقة عنوانها **Todos** فيها `0 left`
+و*Nothing yet — add your first todo above.* اكتب مهمة واضغط Enter: تظهر،
 ويصبح العدّاد `1 left`. أعد تحميل الصفحة، فتجد المهمة ما زالت هناك. انقر
 **Open**، فيصبح العنوان `/?show=open`.
 

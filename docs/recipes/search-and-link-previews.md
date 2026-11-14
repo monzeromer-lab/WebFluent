@@ -11,8 +11,15 @@ result or a shared link shows is set where the page is declared. This blog
 has a home page with its own sharing image, a page per post that adds tags
 of its own, and a thanks page kept out of search:
 
+**Needs:** `src/posts.json` and the pictures it names in `public/`, and
+`meta.site_url` in `webfluent.app.json`, each shown below. It claims `/`
+and the name `Home`: paste it into a new project, or replace the starter's
+`src/pages/Home.wf` with it.
+
 ```wf
 type Post { slug: String, title: String, summary: String, cover: String, date: String, body: String }
+
+const SITE = "https://acme.example"
 
 data posts: [Post] = "posts.json"
 
@@ -23,11 +30,12 @@ page Home(path: "/", title: "Acme", description: "Tools for small teams.", image
     }
 }
 
-page PostPage(path: "/posts/:slug", slug: String, title: "Post", description: "A post from the blog.", type: "article", paths: posts.map(p => p.slug)) {
+page PostPage(path: "/posts/:slug", slug: String, type: "article", paths: posts.map(p => p.slug),
+              title: "{posts.find(p => p.slug == slug)?.title ?? slug} — Acme",
+              description: "{posts.find(p => p.slug == slug)?.summary ?? "A post from the blog."}") {
     derived post = posts.find(p => p.slug == slug)
     head {
-        meta(property: "og:title", content: post?.title ?? "Post")
-        meta(property: "og:image", content: post?.cover ?? "/og-default.png")
+        meta(property: "og:image", content: "{SITE}{post?.cover ?? "/og-default.png"}")
         meta(property: "article:published_time", content: post?.date ?? "")
     }
     if let p = post {
@@ -42,6 +50,28 @@ page Thanks(path: "/thanks", title: "Thanks", description: "Your message reached
     Heading("Thanks").h1
 }
 ```
+
+The posts are a JSON file the build reads, `src/posts.json`; a list of one
+is enough to try it:
+
+```json
+[
+  {
+    "slug": "hello",
+    "title": "Hello, world",
+    "summary": "Why we started Acme, and what we make.",
+    "cover": "/covers/hello.png",
+    "date": "2026-03-05",
+    "body": "We make *tools* for small teams."
+  }
+]
+```
+
+Put the pictures it names in `public/` (`public/og-default.png`,
+`public/covers/hello.png`), and set `meta.site_url` as the config below
+does. Built, `posts/hello/index.html` is titled "Hello, world — Acme",
+its description is the post's summary, and its `og:image` is
+`https://acme.example/covers/hello.png`.
 
 ## How it works
 
@@ -111,14 +141,19 @@ What the build writes into each page's head:
 
 To add tags of a page's own — an article's cover, its publication date —
 write them in `head { }` ([Pages and routing](https://webfluent.monzeromer.dev/learn/05-pages-and-routing.md#per-page-head-tags)).
-`PostPage` above sets its own Open Graph tags from the post.
+`PostPage` above sets its own Open Graph image from the post. A link
+preview fetches the image from another site, so its address must be
+absolute: `{SITE}` puts the site's origin in front of the post's
+site-relative cover. A tag written in `head { }` takes the place of the
+one the build would write, so the page carries one `og:image`.
 
 The `title:` and `description:` of a `:param` page may name its
 parameters — `title: "{slug} — Blog"` — and each pre-rendered file, and the
 live page's tab, has that route's value. The title may also splice an
-expression over the parameters and the program's constants and data:
-`title: "{posts.find(p => p.slug == slug)?.title ?? slug} — Blog"`. The
-build works it out for each file, and the router again on each visit.
+expression over the parameters and the program's constants and data, as
+`PostPage`'s does, and so may the description. The build works it out for
+each file, and the router again on each visit. `image:` is written as it
+stands, so a picture that depends on the parameter goes in `head { }`.
 Anything else the head should say about the entry goes in `head { }`, as
 above; the runtime keeps those tags current as the parameter changes.
 

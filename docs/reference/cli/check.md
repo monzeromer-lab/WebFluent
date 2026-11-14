@@ -18,3 +18,5 @@ wf check [options]
 | `--format FORMAT` | How findings are written: `human` (default), `json`, `sarif` (code scanning) or `github` (annotations on a pull request) |
 | `--deny-warnings` | Fail on a warning too |
 | `--allow-output-outside` | Accept a `build.output` outside the project, as `wf build --allow-output-outside` does; without it the check reports what the build would refuse |
+
+The [full entry for wf check](https://webfluent.monzeromer.dev/reference/cli.md#wf-check) has its examples and the details this page leaves out.

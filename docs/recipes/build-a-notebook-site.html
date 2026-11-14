@@ -39,7 +39,7 @@
 </head>
 <body>
     <div id="app">
-        <main id="wf-main">
+        <div id="wf-main">
             <a class="wf-link bp-skip" href="#bp-main">Skip to the content</a>
             <div class="wf-row wf-align--center wf-s55053fdc bp-header" role="banner">
                 <div class="wf-row wf-align--center wf-gap--md wf-sfe495c12 bp-wrap">
@@ -58,7 +58,7 @@
                     </div>
                     <div class="wf-row wf-align--center wf-gap--sm wf-sff642a95">
                         <button class="wf-btn wf-sf8ab46ec bp-field bp-search" aria-label="Search the docs" aria-keyshortcuts="Meta+K Control+K" aria-haspopup="dialog" type="button">
-                            <i class="wf-icon" data-icon="search"></i>
+                            <i class="wf-icon" data-icon="search"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></i>
                             <p class="wf-text wf-sf55a2627 bp-hide-sm">Search the docs</p>
                             <p class="wf-text bp-kbd bp-hide-sm">Ctrl+K</p>
                         </button>
@@ -72,17 +72,17 @@
                                 <option value="elements">Custom elements</option>
                                 <option value="desktop">Desktop / phone</option>
                             </select>
-                            <i class="wf-icon wf-s94250744" data-icon="chevron-down" aria-hidden="true"></i>
+                            <i class="wf-icon wf-s94250744" data-icon="chevron-down" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><polyline points="6 9 12 15 18 9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></i>
                         </div>
                         <button class="wf-icon-btn bp-icon-button" data-track="select_content" data-track-content-type="theme" type="button"></button>
                         <div class="wf-row wf-align--center wf-gap--xs wf-s286d925a bp-hide-sm">
                             <button class="wf-btn bp-button" title="This page is in English only; the switch changes the interface." data-track="select_content" data-track-content-type="language" type="button"></button>
                         </div>
                         <a class="wf-link bp-button bp-hide-md" href="https://github.com/monzeromer-lab/WebFluent" data-tone="quiet" aria-label="GitHub">
-                            <i class="wf-icon" data-icon="git-branch"></i>
+                            <i class="wf-icon" data-icon="git-branch"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="4.5" r="2"/><circle cx="6" cy="15.5" r="2"/><circle cx="14" cy="6.5" r="2"/><path d="M6 6.5v7M14 8.5c0 3.5-8 2.5-8 5"/></g></svg></i>
                             <p class="wf-text">GitHub</p>
                         </a>
-                        <button class="wf-icon-btn wf-sde8ec4aa bp-icon-button" data-icon="menu" aria-label="Menu" title="Menu" aria-expanded="false" type="button"></button>
+                        <button class="wf-icon-btn wf-sde8ec4aa bp-icon-button" data-icon="menu" aria-label="Menu" title="Menu" aria-expanded="false" type="button"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
                     </div>
                 </div>
             </div>
@@ -92,7 +92,7 @@
                     <div class="wf-modal__body">
                         <div class="wf-stack wf-sa8e464d0">
                             <div class="wf-row wf-align--center wf-gap--sm wf-s02e7a482 bp-field">
-                                <i class="wf-icon" data-icon="search"></i>
+                                <i class="wf-icon" data-icon="search"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></i>
                                 <input class="wf-input" placeholder="Search the guide" aria-label="Search the guide" type="search" autofocus>
                                 <p class="wf-text bp-kbd">esc</p>
                             </div>
@@ -113,96 +113,105 @@
             <div class="wf-row wf-align--start wf-sa997482c bp-wrap">
                 <div class="wf-stack wf-gap--sm wf-sa359f878 bp-sidebar" role="navigation" aria-label="Recipes">
                     <div class="wf-row wf-align--center wf-gap--sm wf-scc2d619f bp-field">
-                        <i class="wf-icon" data-icon="filter"></i>
+                        <i class="wf-icon" data-icon="filter"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></i>
                         <input class="wf-input" placeholder="Filter" aria-label="Filter" type="search">
                     </div>
                     <div class="wf-stack bp-navlist">
                         <!--wf-if-->
+                        <a class="wf-link bp-navlink" href="/recipes/active-tab-in-the-address">Keep the active tab in the address</a>
+                        <a class="wf-link bp-navlink" href="/recipes/filters-in-the-address">Keep filters in the address</a>
                         <a class="wf-link bp-navlink" href="/recipes/confirm-dialog">Build a confirm dialog</a>
                         <a class="wf-link bp-navlink" href="/recipes/copy-to-the-clipboard">Copy to the clipboard</a>
-                        <a class="wf-link bp-navlink" href="/recipes/count-down">Count down</a>
                         <a class="wf-link bp-navlink" href="/recipes/debounce-a-search">Debounce a search</a>
-                        <a class="wf-link bp-navlink" href="/recipes/filters-in-the-address">Keep filters in the address</a>
-                        <a class="wf-link bp-navlink" href="/recipes/active-tab-in-the-address">Keep the active tab in the address</a>
+                        <a class="wf-link bp-navlink" href="/recipes/count-down">Count down</a>
                         <a class="wf-link bp-navlink" href="/recipes/responsive-navigation">Make navigation responsive</a>
                         <a class="wf-link bp-navlink" href="/recipes/store-value-as-a-prop">Pass a store&#x27;s value to a component</a>
-                        <p class="wf-text bp-navgroup">Data</p>
-                        <a class="wf-link bp-navlink" href="/recipes/load-more">Load more as the reader asks</a>
-                        <a class="wf-link bp-navlink" href="/recipes/page-through-results">Page through results</a>
+                        <a class="wf-link bp-navlink" href="/recipes/reorder-by-dragging">Reorder a list by dragging</a>
+                        <a class="wf-link bp-navlink" href="/recipes/keyboard-shortcuts">Add keyboard shortcuts and a command palette</a>
+                        <p class="wf-text bp-navgroup">Forms and data</p>
                         <a class="wf-link bp-navlink" href="/recipes/validation-messages">Show validation messages on a form</a>
                         <a class="wf-link bp-navlink" href="/recipes/sign-in-with-a-session-cookie">Sign in with a session cookie</a>
+                        <a class="wf-link bp-navlink" href="/recipes/page-through-results">Page through results</a>
+                        <a class="wf-link bp-navlink" href="/recipes/load-more">Load more as the reader asks</a>
                         <a class="wf-link bp-navlink" href="/recipes/optimistic-updates">Update at once, and roll back on failure</a>
-                        <p class="wf-text bp-navgroup">Real time</p>
-                        <a class="wf-link bp-navlink" href="/recipes/connect-two-readers">Connect two readers&#x27; pages</a>
-                        <a class="wf-link bp-navlink" href="/recipes/server-sent-events">Listen to server-sent events</a>
-                        <a class="wf-link bp-navlink" href="/recipes/open-a-socket">Open a socket</a>
-                        <a class="wf-link bp-navlink" href="/recipes/run-a-worker">Run a script in a worker</a>
-                        <a class="wf-link bp-navlink" href="/recipes/send-on-unload">Send a message as the page unloads</a>
                         <a class="wf-link bp-navlink" href="/recipes/show-the-network">Show what the network is doing</a>
+                        <a class="wf-link bp-navlink" href="/recipes/send-on-unload">Send a message as the page unloads</a>
+                        <p class="wf-text bp-navgroup">Real time</p>
+                        <a class="wf-link bp-navlink" href="/recipes/open-a-socket">Open a socket</a>
+                        <a class="wf-link bp-navlink" href="/recipes/server-sent-events">Listen to server-sent events</a>
                         <a class="wf-link bp-navlink" href="/recipes/talk-between-tabs">Talk to the site&#x27;s other tabs</a>
+                        <a class="wf-link bp-navlink" href="/recipes/connect-two-readers">Connect two readers&#x27; pages</a>
+                        <a class="wf-link bp-navlink" href="/recipes/run-a-worker">Run a script in a worker</a>
                         <p class="wf-text bp-navgroup">Content</p>
-                        <a class="wf-link bp-navlink" href="/recipes/search-and-link-previews">Describe pages to search engines and link previews</a>
+                        <a class="wf-link bp-navlink" href="/recipes/markdown-pages">Write a page as a Markdown file</a>
                         <a class="wf-link bp-navlink" href="/recipes/render-markdown">Render Markdown</a>
                         <a class="wf-link bp-navlink" href="/recipes/show-code">Show code on a page</a>
-                        <a class="wf-link bp-navlink" href="/recipes/markdown-pages">Write a page as a Markdown file</a>
-                        <p class="wf-text bp-navgroup">Look and motion</p>
-                        <a class="wf-link bp-navlink" href="/recipes/dark-mode-switch">Add a dark-mode switch</a>
+                        <a class="wf-link bp-navlink" href="/recipes/search-and-link-previews">Describe pages to search engines and link previews</a>
+                        <a class="wf-link bp-navlink" href="/recipes/not-found-page">Show your own page for an unknown address</a>
+                        <a class="wf-link bp-navlink" href="/recipes/pdf-report">Make a PDF report</a>
+                        <p class="wf-text bp-navgroup">Media and themes</p>
                         <a class="wf-link bp-navlink" href="/recipes/add-a-picture">Add a picture, sized for every screen</a>
                         <a class="wf-link bp-navlink" href="/recipes/video-and-audio">Add video and audio</a>
-                        <a class="wf-link bp-navlink" href="/recipes/animate-a-list">Animate a list</a>
+                        <a class="wf-link bp-navlink" href="/recipes/show-an-icon">Show an icon</a>
+                        <a class="wf-link bp-navlink" href="/recipes/show-a-carousel">Show a carousel</a>
+                        <a class="wf-link bp-navlink" href="/recipes/show-a-page-in-a-frame">Show another page in a frame</a>
+                        <a class="wf-link bp-navlink" href="/recipes/dark-mode-switch">Add a dark-mode switch</a>
+                        <p class="wf-text bp-navgroup">Motion</p>
                         <a class="wf-link bp-navlink" href="/recipes/animate-in-and-out">Animate an element in and out</a>
+                        <a class="wf-link bp-navlink" href="/recipes/animate-a-list">Animate a list</a>
+                        <a class="wf-link bp-navlink" href="/recipes/animation-sequence">Run a sequence of animations</a>
                         <a class="wf-link bp-navlink" href="/recipes/route-transitions">Animate route changes</a>
                         <a class="wf-link bp-navlink" href="/recipes/shared-element">Carry an element across a route change</a>
+                        <a class="wf-link bp-navlink" href="/recipes/expand-to-content">Open a box to the height of its content</a>
                         <a class="wf-link bp-navlink" href="/recipes/count-a-number">Count a number to its new value</a>
+                        <a class="wf-link bp-navlink" href="/recipes/tween-on-change">Tween a property when state changes</a>
                         <a class="wf-link bp-navlink" href="/recipes/keyframes">Declare your own keyframes</a>
                         <a class="wf-link bp-navlink" href="/recipes/drive-an-animation">Drive an animation yourself</a>
-                        <a class="wf-link bp-navlink" href="/recipes/expand-to-content">Open a box to the height of its content</a>
-                        <a class="wf-link bp-navlink" href="/recipes/animation-sequence">Run a sequence of animations</a>
                         <a class="wf-link bp-navlink" href="/recipes/motion-defaults">Set motion defaults, and respect reduced motion</a>
-                        <a class="wf-link bp-navlink" href="/recipes/show-a-carousel">Show a carousel</a>
-                        <a class="wf-link bp-navlink" href="/recipes/show-an-icon">Show an icon</a>
-                        <a class="wf-link bp-navlink" href="/recipes/show-a-page-in-a-frame">Show another page in a frame</a>
-                        <a class="wf-link bp-navlink" href="/recipes/tween-on-change">Tween a property when state changes</a>
                         <p class="wf-text bp-navgroup">Reach</p>
-                        <a class="wf-link bp-navlink" href="/recipes/keep-writes-made-offline">Keep writes made offline</a>
-                        <a class="wf-link bp-navlink" href="/recipes/work-offline">Make a site work offline</a>
-                        <a class="wf-link bp-navlink" href="/recipes/offer-a-new-version">Offer a new version</a>
-                        <a class="wf-link bp-navlink" href="/recipes/site-in-two-languages">Publish a page in each language</a>
                         <a class="wf-link bp-navlink" href="/recipes/translate-a-site">Translate a site</a>
                         <a class="wf-link bp-navlink" href="/recipes/translate-by-the-words">Translate by the words as written</a>
-                        <a class="wf-link bp-navlink" href="/recipes/environments-and-secrets">Use environment values, and keep secrets out</a>
+                        <a class="wf-link bp-navlink" href="/recipes/site-in-two-languages">Publish a page in each language</a>
+                        <a class="wf-link bp-navlink" href="/recipes/work-offline">Make a site work offline</a>
+                        <a class="wf-link bp-navlink" href="/recipes/keep-writes-made-offline">Keep writes made offline</a>
+                        <a class="wf-link bp-navlink" href="/recipes/offer-a-new-version">Offer a new version</a>
+                        <p class="wf-text bp-navgroup">Testing</p>
+                        <a class="wf-link bp-navlink" href="/recipes/test-a-page">Test a page</a>
                         <p class="wf-text bp-navgroup">Ship</p>
-                        <a class="wf-link bp-navlink" href="/recipes/docker-image">Build a Docker image</a>
-                        <a class="wf-link bp-navlink" href="/recipes/check-a-deploy">Check a deploy</a>
-                        <a class="wf-link bp-navlink" href="/recipes/deploy-to-cloudflare-pages">Deploy to Cloudflare Pages</a>
+                        <a class="wf-link bp-navlink" href="/recipes/install-wf-in-ci">Install wf on a build machine</a>
+                        <a class="wf-link bp-navlink" href="/recipes/environments-and-secrets">Use environment values, and keep secrets out</a>
                         <a class="wf-link bp-navlink" href="/recipes/deploy-to-github-pages">Deploy to GitHub Pages</a>
                         <a class="wf-link bp-navlink" href="/recipes/deploy-to-netlify">Deploy to Netlify</a>
                         <a class="wf-link bp-navlink" href="/recipes/deploy-to-vercel">Deploy to Vercel</a>
-                        <a class="wf-link bp-navlink" href="/recipes/install-wf-in-ci">Install wf on a build machine</a>
-                        <a class="wf-link bp-navlink" href="/recipes/electron-app">Make a desktop app with Electron</a>
-                        <a class="wf-link bp-navlink" href="/recipes/tauri-app">Make a desktop or phone app with Tauri</a>
+                        <a class="wf-link bp-navlink" href="/recipes/deploy-to-cloudflare-pages">Deploy to Cloudflare Pages</a>
+                        <a class="wf-link bp-navlink" href="/recipes/docker-image">Build a Docker image</a>
+                        <a class="wf-link bp-navlink" href="/recipes/serve-with-nginx">Serve a site with nginx</a>
                         <a class="wf-link bp-navlink" href="/recipes/serve-with-apache">Serve a site with Apache</a>
                         <a class="wf-link bp-navlink" href="/recipes/serve-with-caddy">Serve a site with Caddy</a>
-                        <a class="wf-link bp-navlink" href="/recipes/serve-with-nginx">Serve a site with nginx</a>
                         <a class="wf-link bp-navlink" href="/recipes/api-on-the-same-origin">Serve an API on the same origin</a>
                         <a class="wf-link bp-navlink" href="/recipes/cache-and-security-headers">Set cache and security headers</a>
+                        <a class="wf-link bp-navlink" href="/recipes/check-a-deploy">Check a deploy</a>
+                        <p class="wf-text bp-navgroup">Desktop and phone apps</p>
+                        <a class="wf-link bp-navlink" href="/recipes/tauri-app">Make a desktop or phone app with Tauri</a>
+                        <a class="wf-link bp-navlink" href="/recipes/electron-app">Make a desktop app with Electron</a>
                         <p class="wf-text bp-navgroup">Interop</p>
-                        <a class="wf-link bp-navlink" href="/recipes/call-wf-from-a-script">Call WF from a script</a>
                         <a class="wf-link bp-navlink" href="/recipes/call-your-own-script">Call your own JavaScript</a>
-                        <a class="wf-link bp-navlink" href="/recipes/chart-from-a-library">Draw a chart from a library</a>
-                        <a class="wf-link bp-navlink" href="/recipes/portal">Draw into a node a script made</a>
+                        <a class="wf-link bp-navlink" href="/recipes/call-wf-from-a-script">Call WF from a script</a>
                         <a class="wf-link bp-navlink" href="/recipes/hand-an-element-to-a-script">Hand an element to a script</a>
+                        <a class="wf-link bp-navlink" href="/recipes/listen-for-wf-render">Run a script after each page draws</a>
+                        <a class="wf-link bp-navlink" href="/recipes/portal">Draw into a node a script made</a>
                         <a class="wf-link bp-navlink" href="/recipes/library-from-a-cdn">Load a library from a CDN</a>
-                        <a class="wf-link bp-navlink" href="/recipes/migrate-from-external">Migrate from external</a>
+                        <a class="wf-link bp-navlink" href="/recipes/chart-from-a-library">Draw a chart from a library</a>
                         <a class="wf-link bp-navlink" href="/recipes/place-a-custom-element">Place a custom element from a library</a>
                         <a class="wf-link bp-navlink" href="/recipes/publish-custom-elements">Publish components as custom elements</a>
+                        <a class="wf-link bp-navlink" href="/recipes/migrate-from-external">Migrate from external</a>
+                        <p class="wf-text bp-navgroup">Server rendering</p>
                         <a class="wf-link bp-navlink" href="/recipes/render-a-template">Render a template with data</a>
                         <a class="wf-link bp-navlink" href="/recipes/render-from-node">Render templates from Node</a>
                         <a class="wf-link bp-navlink" href="/recipes/render-from-rust">Render templates from Rust</a>
-                        <a class="wf-link bp-navlink" href="/recipes/listen-for-wf-render">Run a script after each page draws</a>
                         <p class="wf-text bp-navgroup">Projects</p>
-                        <a class="wf-link bp-navlink" href="/recipes/build-a-budget-app">Build a budget app that works offline</a>
                         <a class="wf-link bp-navlink active" href="/recipes/build-a-notebook-site" aria-current="page">Build a statically generated notebook</a>
+                        <a class="wf-link bp-navlink" href="/recipes/build-a-budget-app">Build a budget app that works offline</a>
                     </div>
                 </div>
                 <div class="wf-stack wf-gap--lg wf-s54d43750 bp-main" role="main" id="bp-main" tabindex="-1">
@@ -212,7 +221,7 @@
                     </div>
                     <div class="wf-row bp-labels">
                         <p class="wf-text bp-label" data-tone="kind" data-kind="howto">How-to</p>
-                        <div class="wf-row wf-gap--xs bp-labels" aria-label="Works in">
+                        <div class="wf-row wf-gap--xs bp-labels" role="group" aria-label="Works in">
                         </div>
                     </div>
                     <div class="wf-stack wf-gap--sm wf-s4e4189b1">
@@ -222,9 +231,9 @@
                         </div>
                         <div class="wf-stack wf-gap--sm wf-s8a243922 bp-contents">
                             <button class="wf-btn wf-s1865e956 bp-button" aria-expanded="false" aria-controls="bp-contents-panel" type="button">
-                                <i class="wf-icon" data-icon="list"></i>
+                                <i class="wf-icon" data-icon="list"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 5h10.5M7 10h10.5M7 15h10.5M2.5 5h.5M2.5 10h.5M2.5 15h.5"/></g></svg></i>
                                 <p class="wf-text">Contents</p>
-                                <i class="wf-icon" data-icon="chevron-down"></i>
+                                <i class="wf-icon" data-icon="chevron-down"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><polyline points="6 9 12 15 18 9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></i>
                             </button>
                         </div>
                     </div>
@@ -232,33 +241,39 @@
                     <div class="wf-stack wf-gap--lg wf-s841f14ce bp-prose" dir="ltr">
                         <h2 class="wf-heading" id="before-you-start">Before you start</h2>
                         <div class="wf-markdown">
-<p>You need <code>wf</code>, Chrome and a copy of the repository (see <a href="/learn/03-tutorial-todos#before-you-start">Before you start</a> in the Todos tutorial). This tutorial shows the part of each file that teaches something new, so work in the finished project and read each file as its step comes up:</p>
+<p>You need <code>wf</code>, Chrome and a copy of the repository (see <a href="/learn/03-tutorial-todos#before-you-start">Before you start</a> in the Todos tutorial).</p>
+<p><strong>This tutorial is read along, not typed along.</strong> Each step shows the part of a file that teaches something new, not every line of it, so the snippets alone do not make a working project. Open the finished project, run it, and read each file as its step comes up:</p>
                         </div>
                         <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
                             <div class="wf-row wf-s2c416341 bp-console__bar">
                                 <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                     <p class="wf-text wf-s23a4ddd5 bp-mono">bash</p>
                                 </div>
-                                <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
+                                <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
+                                </div>
                             </div>
-                            <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-prompt">$ </span>cd WebFluent/examples/tutorials/medium-field-notes
+                            <code class="wf-code wf-code--block bp-console__code" tabindex="0"><span class="wf-tok-prompt">$ </span>cd WebFluent/examples/tutorials/medium-field-notes
 <span class="wf-tok-prompt">$ </span>wf serve</code>
                         </div>
                         <div class="wf-markdown">
+<p>To build it yourself instead, run the <code>wf init</code> in Step 1, then copy each file from <code>examples/tutorials/medium-field-notes</code> into your project as its step names it, and run <code>wf check</code> after each step.</p>
 <p>The Todos tutorial explains state, stores and components; this one assumes them.</p>
                         </div>
                         <h2 class="wf-heading" id="step-1-create-a-static-project-and-its-look">Step 1: Create a static project and its look</h2>
                         <div class="wf-markdown">
-<p>A new project of this kind starts from the <code>static</code> template:</p>
+<p>The project started from the <code>static</code> template (if you are building it yourself, this is where you start):</p>
                         </div>
                         <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
                             <div class="wf-row wf-s2c416341 bp-console__bar">
                                 <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                     <p class="wf-text wf-s23a4ddd5 bp-mono">bash</p>
                                 </div>
-                                <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
+                                <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
+                                </div>
                             </div>
-                            <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-prompt">$ </span>wf init field-notes -t static
+                            <code class="wf-code wf-code--block bp-console__code" tabindex="0"><span class="wf-tok-prompt">$ </span>wf init field-notes -t static
 <span class="wf-tok-prompt">$ </span>cd field-notes</code>
                         </div>
                         <div class="wf-markdown">
@@ -269,9 +284,11 @@
                                 <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                     <p class="wf-text wf-s23a4ddd5 bp-mono">json</p>
                                 </div>
-                                <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="json" type="button">Copy</button>
+                                <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="json" type="button">Copy</button>
+                                </div>
                             </div>
-                            <code class="wf-code wf-code--block bp-console__code">{
+                            <code class="wf-code wf-code--block bp-console__code" tabindex="0">{
   <span class="wf-tok-prop">&quot;name&quot;</span>: <span class="wf-tok-str">&quot;field-notes&quot;</span>,
   <span class="wf-tok-prop">&quot;version&quot;</span>: <span class="wf-tok-str">&quot;1.0.0&quot;</span>,
   <span class="wf-tok-prop">&quot;author&quot;</span>: <span class="wf-tok-str">&quot;Field Notes&quot;</span>,
@@ -296,7 +313,7 @@
                         <div class="wf-markdown">
 <ul>
 <li><code>&quot;ssg&quot;: true</code> pre-renders every page to its own <code>index.html</code>. When the page loads, the script takes it over in place — <em>hydration</em> (<a href="/about/static-or-single-page">Static sites and SPAs</a>).</li>
-<li><code>site_url</code> lets the build write what search engines and link previews read: a canonical address, Open Graph tags, JSON-LD, <code>sitemap.xml</code> and <code>robots.txt</code> (<a href="/recipes">Content</a>).</li>
+<li><code>site_url</code> lets the build write what search engines and link previews read: a canonical address, Open Graph tags, JSON-LD, <code>sitemap.xml</code> and <code>robots.txt</code> (<a href="/recipes/search-and-link-previews">Describe pages to search engines and link previews</a>).</li>
 </ul>
 <p>The dark theme names only the tokens that change:</p>
                         </div>
@@ -305,9 +322,11 @@
                                 <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                     <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
                                 </div>
-                                <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
                             </div>
-                            <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-cmt">// src/theme.wf</span>
+                            <code class="wf-code wf-code--block bp-console__code" tabindex="0"><span class="wf-tok-cmt">// src/theme.wf</span>
 <span class="wf-tok-cmt">/// The dark theme: only the tokens that change.</span>
 <span class="wf-tok-kw">theme</span> <span class="wf-tok-name">Dusk</span> {
     color-<span class="wf-tok-prop">primary</span>: <span class="wf-tok-num">#86C9A6</span>
@@ -335,9 +354,11 @@
                                 <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                     <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
                                 </div>
-                                <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
                             </div>
-                            <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-cmt">// src/types.wf</span>
+                            <code class="wf-code wf-code--block bp-console__code" tabindex="0"><span class="wf-tok-cmt">// src/types.wf</span>
 <span class="wf-tok-cmt">/// One note in the notebook.</span>
 <span class="wf-tok-kw">type</span> <span class="wf-tok-name">Note</span> {
     <span class="wf-tok-prop">slug</span>: <span class="wf-tok-name">String</span>
@@ -370,9 +391,11 @@
                                 <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                     <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
                                 </div>
-                                <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
                             </div>
-                            <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-cmt">// src/App.wf</span>
+                            <code class="wf-code wf-code--block bp-console__code" tabindex="0"><span class="wf-tok-cmt">// src/App.wf</span>
 <span class="wf-tok-kw">app</span> {
     <span class="wf-tok-kw">use</span> <span class="wf-tok-name">Saved</span>
 
@@ -411,9 +434,11 @@
                                 <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                     <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
                                 </div>
-                                <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
                             </div>
-                            <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-cmt">// src/components/Sheet.wf</span>
+                            <code class="wf-code wf-code--block bp-console__code" tabindex="0"><span class="wf-tok-cmt">// src/components/Sheet.wf</span>
 <span class="wf-tok-cmt">/// The column a page is set in, and the frame every page names with</span>
 <span class="wf-tok-cmt">/// `layout: Sheet`. A narrow sheet is for reading; a wide one holds a grid.</span>
 <span class="wf-tok-kw">component</span> <span class="wf-tok-name">Sheet</span>(<span class="wf-tok-prop">wide</span>: <span class="wf-tok-name">Bool</span> = <span class="wf-tok-kw">false</span>) {
@@ -435,9 +460,11 @@
                                 <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                     <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
                                 </div>
-                                <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
                             </div>
-                            <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-cmt">// src/components/NoteCard.wf</span>
+                            <code class="wf-code wf-code--block bp-console__code" tabindex="0"><span class="wf-tok-cmt">// src/components/NoteCard.wf</span>
 <span class="wf-tok-cmt">/// A note at a glance: when it was written, its title, a summary, its tags</span>
 <span class="wf-tok-cmt">/// and the button that saves it.</span>
 <span class="wf-tok-kw">component</span> <span class="wf-tok-name">NoteCard</span>(
@@ -477,9 +504,11 @@
                                 <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                     <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
                                 </div>
-                                <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
                             </div>
-                            <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-cmt">// src/components/NoteFinder.wf</span>
+                            <code class="wf-code wf-code--block bp-console__code" tabindex="0"><span class="wf-tok-cmt">// src/components/NoteFinder.wf</span>
     <span class="wf-tok-kw">state</span> q = <span class="wf-tok-str">&quot;&quot;</span>
 
     <span class="wf-tok-kw">derived</span> needle = q.trim().toLowerCase()
@@ -501,9 +530,11 @@
                                 <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                     <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
                                 </div>
-                                <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
                             </div>
-                            <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-cmt">// src/components/NoteFinder.wf</span>
+                            <code class="wf-code wf-code--block bp-console__code" tabindex="0"><span class="wf-tok-cmt">// src/components/NoteFinder.wf</span>
             <span class="wf-tok-cmt">// Every note is drawn, and the ones that do not match are hidden.</span>
             <span class="wf-tok-cmt">// A pre-rendered page cannot know the URL's query, so a list</span>
             <span class="wf-tok-cmt">// filtered by it would be missing from the HTML; this way the</span>
@@ -520,9 +551,11 @@
                                 <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                     <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
                                 </div>
-                                <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
                             </div>
-                            <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-cmt">// src/pages/Home.wf</span>
+                            <code class="wf-code wf-code--block bp-console__code" tabindex="0"><span class="wf-tok-cmt">// src/pages/Home.wf</span>
         <span class="wf-tok-cmt">// `query.tag` is the URL's `?tag=…`; it is missing when the URL has</span>
         <span class="wf-tok-cmt">// none, and `?? &quot;&quot;` turns that into the finder's &quot;every note&quot;.</span>
         <span class="wf-tok-name">NoteFinder</span>(notes, <span class="wf-tok-prop">tag</span>: query.tag ?? <span class="wf-tok-str">&quot;&quot;</span>)</code>
@@ -540,9 +573,12 @@
                                 <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                     <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
                                 </div>
-                                <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                    <button class="wf-btn wf-s65c70c32 bp-button bp-hide-sm" data-track="open_playground" data-track-item-id="wf" type="button">Open in the Playground</button>
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
                             </div>
-                            <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-cmt">// src/pages/NotePage.wf</span>
+                            <code class="wf-code wf-code--block bp-console__code" tabindex="0"><span class="wf-tok-cmt">// src/pages/NotePage.wf</span>
 <span class="wf-tok-kw">page</span> <span class="wf-tok-name">NotePage</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/notes/:slug&quot;</span>, <span class="wf-tok-prop">slug</span>: <span class="wf-tok-name">String</span>,
     <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;{notes.find(n =&gt; n.slug == slug)?.title ?? slug} — Field Notes&quot;</span>,
     <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;{notes.find(n =&gt; n.slug == slug)?.summary ?? slug}&quot;</span>,
@@ -555,7 +591,7 @@
                         <div class="wf-markdown">
 <ul>
 <li><code>:slug</code> in the path is a typed parameter of the page.</li>
-<li><code>paths:</code> names the values a static build renders the page for: one <code>notes/&lt;slug&gt;/index.html</code> per note, each listed in the sitemap (<a href="/recipes">Content</a>).</li>
+<li><code>paths:</code> names the values a static build renders the page for: one <code>notes/&lt;slug&gt;/index.html</code> per note, each listed in the sitemap (<a href="/recipes/search-and-link-previews">Describe pages to search engines and link previews</a>).</li>
 <li><code>title:</code> and <code>description:</code> may be worked out from the parameters, so each note's search result shows its own title and summary.</li>
 </ul>
 <p>The body of the page is the note's Markdown:</p>
@@ -565,9 +601,11 @@
                                 <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                     <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
                                 </div>
-                                <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
                             </div>
-                            <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-cmt">// src/pages/NotePage.wf</span>
+                            <code class="wf-code wf-code--block bp-console__code" tabindex="0"><span class="wf-tok-cmt">// src/pages/NotePage.wf</span>
             <span class="wf-tok-name">Markdown</span>(n.body)</code>
                         </div>
                         <div class="wf-markdown">
@@ -583,9 +621,11 @@
                                 <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                     <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
                                 </div>
-                                <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
                             </div>
-                            <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-cmt">// src/pages/Tags.wf</span>
+                            <code class="wf-code wf-code--block bp-console__code" tabindex="0"><span class="wf-tok-cmt">// src/pages/Tags.wf</span>
         <span class="wf-tok-name">Grid</span>(<span class="wf-tok-prop">columns</span>: { <span class="wf-tok-prop">base</span>: <span class="wf-tok-num">1</span>, <span class="wf-tok-prop">md</span>: <span class="wf-tok-num">2</span> }, <span class="wf-tok-prop">gap</span>: .md, <span class="wf-tok-prop">align</span>: .start) {
             <span class="wf-tok-kw">for</span> tag <span class="wf-tok-kw">in</span> allTags <span class="wf-tok-kw">by</span> tag {
                 <span class="wf-tok-kw">derived</span> filed = notes.filter(n =&gt; n.tags.includes(tag)).sortBy(n =&gt; n.date).reverse()</code>
@@ -602,9 +642,11 @@
                                 <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                     <p class="wf-text wf-s23a4ddd5 bp-mono">markdown</p>
                                 </div>
-                                <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="markdown" type="button">Copy</button>
+                                <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="markdown" type="button">Copy</button>
+                                </div>
                             </div>
-                            <code class="wf-code wf-code--block bp-console__code">---
+                            <code class="wf-code wf-code--block bp-console__code" tabindex="0">---
 path: /about
 title: About — Field Notes
 description: Who keeps this notebook, why it exists, and how the site is built.
@@ -624,9 +666,11 @@ layout: Sheet
                                 <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                     <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
                                 </div>
-                                <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
                             </div>
-                            <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-cmt">// src/stores/Saved.wf</span>
+                            <code class="wf-code wf-code--block bp-console__code" tabindex="0"><span class="wf-tok-cmt">// src/stores/Saved.wf</span>
 <span class="wf-tok-cmt">/// The notes this reader has saved for later, kept in their browser.</span>
 <span class="wf-tok-kw">store</span> <span class="wf-tok-name">Saved</span> {
     <span class="wf-tok-kw">persist</span> <span class="wf-tok-prop">slugs</span>: [<span class="wf-tok-name">String</span>] = []
@@ -642,9 +686,11 @@ layout: Sheet
                                 <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                     <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
                                 </div>
-                                <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
                             </div>
-                            <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-cmt">// src/components/SaveButton.wf</span>
+                            <code class="wf-code wf-code--block bp-console__code" tabindex="0"><span class="wf-tok-cmt">// src/components/SaveButton.wf</span>
 <span class="wf-tok-cmt">/// Saves a note for later, or takes it off the saved list.</span>
 <span class="wf-tok-kw">component</span> <span class="wf-tok-name">SaveButton</span>(_ <span class="wf-tok-prop">slug</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-name">String</span>) {
     <span class="wf-tok-kw">use</span> <span class="wf-tok-name">Saved</span>
@@ -670,9 +716,11 @@ layout: Sheet
                                 <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                     <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
                                 </div>
-                                <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                </div>
                             </div>
-                            <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-cmt">// tests/NoteFinder.wf</span>
+                            <code class="wf-code wf-code--block bp-console__code" tabindex="0"><span class="wf-tok-cmt">// tests/NoteFinder.wf</span>
 <span class="wf-tok-kw">test</span> <span class="wf-tok-str">&quot;a search that matches nothing says so, and clears&quot;</span> {
     <span class="wf-tok-name">NoteFinder</span>(notes)
     <span class="wf-tok-kw">type</span> <span class="wf-tok-str">&quot;zeppelin&quot;</span> into <span class="wf-tok-str">&quot;Search the notes&quot;</span>
@@ -691,9 +739,11 @@ layout: Sheet
                                 <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                     <p class="wf-text wf-s23a4ddd5 bp-mono">bash</p>
                                 </div>
-                                <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
+                                <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
+                                </div>
                             </div>
-                            <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-prompt">$ </span>wf test
+                            <code class="wf-code wf-code--block bp-console__code" tabindex="0"><span class="wf-tok-prompt">$ </span>wf test
 <span class="wf-tok-prompt">$ </span>wf check --deny-warnings
 <span class="wf-tok-prompt">$ </span>wf build
 <span class="wf-tok-prompt">$ </span>wf verify</code>
@@ -705,10 +755,10 @@ layout: Sheet
                         <h2 class="wf-heading" id="what-you-built">What you built</h2>
                         <div class="wf-markdown">
 <ul>
-<li>A static build, with canonical addresses, a sitemap and link previews (<a href="/recipes">Content</a>).</li>
+<li>A static build, with canonical addresses, a sitemap and link previews (<a href="/recipes/search-and-link-previews">Describe pages to search engines and link previews</a>).</li>
 <li>Typed data read from a JSON file at build time (<a href="/learn/15-data">Fetching data</a>).</li>
 <li>A shell, and a layout every page names (<a href="/learn/05-pages-and-routing">Pages and routing</a>).</li>
-<li>A page per note from one <code>:slug</code> page and <code>paths:</code>, and a page written in Markdown (<a href="/recipes">Content</a>).</li>
+<li>A page per note from one <code>:slug</code> page and <code>paths:</code>, and a page written in Markdown (<a href="/recipes/markdown-pages">Write a page as a Markdown file</a>).</li>
 <li>A search and a filter that work in pre-rendered HTML (<a href="/about/static-or-single-page">Static sites and SPAs</a>).</li>
 <li>A reader's saved list, with a pressed state assistive technology reads (<a href="/about/accessibility">Accessibility</a>).</li>
 </ul>
@@ -741,21 +791,21 @@ layout: Sheet
                     </div>
                     <div class="wf-stack wf-gap--xs wf-see94d5ab">
                         <button class="wf-btn wf-sc1cdfbd7 bp-rail-action" type="button">
-                            <i class="wf-icon" data-icon="copy"></i>
+                            <i class="wf-icon" data-icon="copy"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" ry="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" fill="none" stroke="currentColor" stroke-width="2"/></svg></i>
                             <p class="wf-text">Copy page as Markdown</p>
                         </button>
                         <button class="wf-btn wf-sc1cdfbd7 bp-rail-action" type="button">
-                            <i class="wf-icon" data-icon="file"></i>
+                            <i class="wf-icon" data-icon="file"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 2.5h6l4 4v11H5z"/><path d="M11 2.5v4h4"/></g></svg></i>
                             <p class="wf-text">Open as Markdown</p>
                         </button>
                     </div>
                     <a class="wf-link wf-s48d899f5" href="https://github.com/monzeromer-lab/WebFluent/blob/master/md-docs/recipes/build-a-notebook-site.md">
-                        <i class="wf-icon" data-icon="edit"></i>
+                        <i class="wf-icon" data-icon="edit"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" fill="none" stroke="currentColor" stroke-width="2"/></svg></i>
                         <p class="wf-text">Edit this page</p>
                     </a>
                 </div>
             </div>
-        </main>
+        </div>
         <footer class="wf-footer wf-s2213a098">
             <div class="wf-stack wf-gap--lg wf-s84d7918c bp-wrap">
                 <div class="wf-grid wf-gap--lg wf-r67559659">

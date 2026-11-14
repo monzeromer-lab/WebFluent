@@ -10,9 +10,7 @@ What the modal's heading draws, in place of its title:'s words, which stay its n
 Modal.Title { … }
 ```
 
-## Flags
-
-`.dropInside` `.trapFocus`
+Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 
 ## Slots
 

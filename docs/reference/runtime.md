@@ -34,9 +34,11 @@ These rules apply to every function in this chapter:
   meant for your own code are marked **●**.
 - **Modules.** The runtime is a set of feature modules. Each table names
   the module a function belongs to, and a build ships only the modules its
-  own code reaches. A script that calls a module nothing else uses needs
+  own code reaches. The project's own scripts count: a `WF.toast(…)` in
+  `src/support.js` ships `toast`. Only a call the build cannot see — a name
+  built from a string, a script loaded from another origin — needs
   `"build": { "runtime": "full" }`
-  ([JavaScript interop](https://webfluent.monzeromer.dev/recipes.md)).
+  ([Call WF from a script](https://webfluent.monzeromer.dev/recipes/call-wf-from-a-script.md)).
 
 ## Events the runtime dispatches
 
@@ -99,10 +101,10 @@ What the control-flow statements and slots compile to.
 
 | Function | Module | What it does |
 |---|---|---|
-| `onKey(node, combination, fn)` | `core` | `on key("mod+k")`. |
-| `keyIs(event, combination)` | `core` | `keyIs(e, "mod+k")`: whether a key event is that combination. |
-| `keyLabel(combination)` | `core` | `keyLabel("mod+k")`: how this system writes the combination (`⌘K`, `Ctrl+K`). |
-| `keyAria(combination)` | `core` | The combination as `aria-keyshortcuts` writes it, for a drawn `shortcut:`. |
+| `onKey(node, combination, fn)` | `keys` | `on key("mod+k")`. |
+| `keyIs(event, combination)` | `keys` | `keyIs(e, "mod+k")`: whether a key event is that combination. |
+| `keyLabel(combination)` | `keys` | `keyLabel("mod+k")`: how this system writes the combination (`⌘K`, `Ctrl+K`). |
+| `keyAria(combination)` | `keys` | The combination as `aria-keyshortcuts` writes it, for a drawn `shortcut:`. |
 | `trapFocus(node, read)` | `layer` | `trapFocus: open`. |
 | `gesture(node, name, fn)` | `gesture` | `on longpress(p)`, `on swipe(s)`, `on receive(d)`, `on dragmove(d)`. |
 | `draggable(node, value, options)`, `dropTarget(node, options)` | `gesture` | `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`. |
@@ -128,6 +130,7 @@ What the control-flow statements and slots compile to.
 | `params()` ● | `router` | The current route's parameters. |
 | `router(routes, container, options)` | `router` | The router `Router` compiles to; `options.transition` is `fade` or `slide`. |
 | `activeLink(a, href, prefix)` | `router` | Keeps a link's `.active` class and `aria-current`. |
+| `playRoute(options, page)` | `router` | Internal: plays a `Router(transition:)`, which the compiled router passes as `play:`. |
 | `page(name, fn)`, `loadPage(name, cb)`, `loadSheet(name, cb)` | `pages` | Page chunks and their stylesheets. |
 | `setBasePath(path)`, `setSsgMode(on)` | `core` | Set at boot from the config. |
 
@@ -137,8 +140,8 @@ What the control-flow statements and slots compile to.
 |---|---|---|
 | `viewport()`, `query()`, `hash()`, `network()` | `browser` | What the language's `viewport`, `query`, `hash` and `network` hold. |
 | `now(options)` | `browser` | `now`, kept current every minute, or as often as `options.every` asks. |
-| `theme()` | `core` | The theme the reader chose. |
-| `setTheme(choice)` ● | `core` | Switches the theme: `"dark"`, `"light"` or `"system"`, kept across visits. |
+| `theme()` | `theme` | The theme the reader chose. |
+| `setTheme(choice)` ● | `theme` | Switches the theme: `"dark"`, `"light"` or `"system"`, kept across visits. |
 
 ## Data and connections
 
@@ -183,6 +186,7 @@ What the control-flow statements and slots compile to.
 | `carousel(root, options)` | `carousel` | What `Carousel` compiles to. |
 | `field(control, options)`, `choiceError(label, check)` | `field` | A control's label, hint and error; a `Checkbox` or `Switch`'s rule message. |
 | `form(options)`, `validate(read, rules, options)` | `form` | A `Form` handle and a `validate` block's rules. |
+| `askRules(read, rules, fault, remote, pending)` | `form` | Internal: asks a `validate` block's `async` rules, which the compiled form passes as `ask:`. |
 
 ## Safety
 

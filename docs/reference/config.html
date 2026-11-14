@@ -39,7 +39,7 @@
 </head>
 <body>
     <div id="app">
-        <main id="wf-main">
+        <div id="wf-main">
             <a class="wf-link bp-skip" href="#bp-main">Skip to the content</a>
             <div class="wf-row wf-align--center wf-s55053fdc bp-header" role="banner">
                 <div class="wf-row wf-align--center wf-gap--md wf-sfe495c12 bp-wrap">
@@ -58,7 +58,7 @@
                     </div>
                     <div class="wf-row wf-align--center wf-gap--sm wf-sff642a95">
                         <button class="wf-btn wf-sf8ab46ec bp-field bp-search" aria-label="Search the docs" aria-keyshortcuts="Meta+K Control+K" aria-haspopup="dialog" type="button">
-                            <i class="wf-icon" data-icon="search"></i>
+                            <i class="wf-icon" data-icon="search"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></i>
                             <p class="wf-text wf-sf55a2627 bp-hide-sm">Search the docs</p>
                             <p class="wf-text bp-kbd bp-hide-sm">Ctrl+K</p>
                         </button>
@@ -72,17 +72,17 @@
                                 <option value="elements">Custom elements</option>
                                 <option value="desktop">Desktop / phone</option>
                             </select>
-                            <i class="wf-icon wf-s94250744" data-icon="chevron-down" aria-hidden="true"></i>
+                            <i class="wf-icon wf-s94250744" data-icon="chevron-down" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><polyline points="6 9 12 15 18 9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></i>
                         </div>
                         <button class="wf-icon-btn bp-icon-button" data-track="select_content" data-track-content-type="theme" type="button"></button>
                         <div class="wf-row wf-align--center wf-gap--xs wf-s286d925a bp-hide-sm">
                             <button class="wf-btn bp-button" title="This page is in English only; the switch changes the interface." data-track="select_content" data-track-content-type="language" type="button"></button>
                         </div>
                         <a class="wf-link bp-button bp-hide-md" href="https://github.com/monzeromer-lab/WebFluent" data-tone="quiet" aria-label="GitHub">
-                            <i class="wf-icon" data-icon="git-branch"></i>
+                            <i class="wf-icon" data-icon="git-branch"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="4.5" r="2"/><circle cx="6" cy="15.5" r="2"/><circle cx="14" cy="6.5" r="2"/><path d="M6 6.5v7M14 8.5c0 3.5-8 2.5-8 5"/></g></svg></i>
                             <p class="wf-text">GitHub</p>
                         </a>
-                        <button class="wf-icon-btn wf-sde8ec4aa bp-icon-button" data-icon="menu" aria-label="Menu" title="Menu" aria-expanded="false" type="button"></button>
+                        <button class="wf-icon-btn wf-sde8ec4aa bp-icon-button" data-icon="menu" aria-label="Menu" title="Menu" aria-expanded="false" type="button"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
                     </div>
                 </div>
             </div>
@@ -92,7 +92,7 @@
                     <div class="wf-modal__body">
                         <div class="wf-stack wf-sa8e464d0">
                             <div class="wf-row wf-align--center wf-gap--sm wf-s02e7a482 bp-field">
-                                <i class="wf-icon" data-icon="search"></i>
+                                <i class="wf-icon" data-icon="search"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></i>
                                 <input class="wf-input" placeholder="Search the guide" aria-label="Search the guide" type="search" autofocus>
                                 <p class="wf-text bp-kbd">esc</p>
                             </div>
@@ -113,7 +113,7 @@
             <div class="wf-row wf-align--start wf-sa997482c bp-wrap">
                 <div class="wf-stack wf-gap--sm wf-sa359f878 bp-sidebar" role="navigation" aria-label="Reference">
                     <div class="wf-row wf-align--center wf-gap--sm wf-scc2d619f bp-field">
-                        <i class="wf-icon" data-icon="filter"></i>
+                        <i class="wf-icon" data-icon="filter"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></i>
                         <input class="wf-input" placeholder="Filter" aria-label="Filter" type="search">
                     </div>
                     <div class="wf-stack bp-navlist">
@@ -129,6 +129,8 @@
                         <a class="wf-link bp-navlink" href="/reference/project">Project structure</a>
                         <a class="wf-link bp-navlink" href="/reference/browser-support">Browser support</a>
                         <a class="wf-link bp-navlink" href="/reference/glossary">Glossary</a>
+                        <a class="wf-link bp-navlink" href="/reference/library">Library</a>
+                        <a class="wf-link bp-navlink" href="/reference/editors">Editors</a>
                     </div>
                 </div>
                 <div class="wf-stack wf-gap--lg wf-s54d43750 bp-main reference-main" role="main" id="bp-main" tabindex="-1">
@@ -145,14 +147,14 @@
                         <p class="wf-text bp-lede">Every one of the 86 keys of webfluent.app.json, with its type and default, read from wf config schema --json.</p>
                         <div class="wf-stack wf-gap--sm wf-s8a243922 bp-contents">
                             <button class="wf-btn wf-s1865e956 bp-button" aria-expanded="false" aria-controls="bp-contents-panel" type="button">
-                                <i class="wf-icon" data-icon="list"></i>
+                                <i class="wf-icon" data-icon="list"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 5h10.5M7 10h10.5M7 15h10.5M2.5 5h.5M2.5 10h.5M2.5 15h.5"/></g></svg></i>
                                 <p class="wf-text">Contents</p>
-                                <i class="wf-icon" data-icon="chevron-down"></i>
+                                <i class="wf-icon" data-icon="chevron-down"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><polyline points="6 9 12 15 18 9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></i>
                             </button>
                         </div>
-                        <code class="wf-code wf-s5539681c bp-ltr" dir="ltr">webfluent.app.json</code>
+                        <code class="wf-code wf-s5539681c bp-ltr" dir="ltr" tabindex="0">webfluent.app.json</code>
                         <div class="wf-row bp-labels">
-                            <div class="wf-row wf-gap--xs bp-labels" aria-label="Works in">
+                            <div class="wf-row wf-gap--xs bp-labels" role="group" aria-label="Works in">
                             </div>
                         </div>
                     </div>
@@ -1355,9 +1357,11 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                         <p class="wf-text wf-s23a4ddd5 bp-mono">json</p>
                                     </div>
-                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="json" type="button">Copy</button>
+                                    <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                        <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="json" type="button">Copy</button>
+                                    </div>
                                 </div>
-                                <code class="wf-code wf-code--block bp-console__code">{ <span class="wf-tok-prop">&quot;name&quot;</span>: <span class="wf-tok-str">&quot;my-site&quot;</span> }</code>
+                                <code class="wf-code wf-code--block bp-console__code" tabindex="0">{ <span class="wf-tok-prop">&quot;name&quot;</span>: <span class="wf-tok-str">&quot;my-site&quot;</span> }</code>
                             </div>
                             <div class="wf-markdown">
 <p>A key the build does not know draws the <code>E112</code> warning, with the key it most likely meant — <code>&quot;defaultLocale&quot;</code> says to write <code>default_locale</code> — instead of being ignored (since <strong>4.1</strong>).</p>
@@ -1377,9 +1381,11 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                         <p class="wf-text wf-s23a4ddd5 bp-mono">bash</p>
                                     </div>
-                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
+                                    <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                        <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
+                                    </div>
                                 </div>
-                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-prompt">$ </span>wf config set build.base_path /Docs
+                                <code class="wf-code wf-code--block bp-console__code" tabindex="0"><span class="wf-tok-prompt">$ </span>wf config set build.base_path /Docs
 <span class="wf-tok-prompt">$ </span>wf config set build.budget.app.js &quot;40 kB&quot;
 <span class="wf-tok-prompt">$ </span>wf config get dev.port
 <span class="wf-tok-prompt">$ </span>wf config unset build.base_path</code>
@@ -1396,9 +1402,11 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                         <p class="wf-text wf-s23a4ddd5 bp-mono">json</p>
                                     </div>
-                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="json" type="button">Copy</button>
+                                    <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                        <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="json" type="button">Copy</button>
+                                    </div>
                                 </div>
-                                <code class="wf-code wf-code--block bp-console__code">{
+                                <code class="wf-code wf-code--block bp-console__code" tabindex="0">{
   <span class="wf-tok-prop">&quot;name&quot;</span>: <span class="wf-tok-str">&quot;my-site&quot;</span>,
   <span class="wf-tok-prop">&quot;version&quot;</span>: <span class="wf-tok-str">&quot;0.1.0&quot;</span>,
   <span class="wf-tok-prop">&quot;author&quot;</span>: <span class="wf-tok-str">&quot;&quot;</span>,
@@ -1652,7 +1660,7 @@
                                         <td>unset</td>
                                         <td>
                                             <div class="wf-markdown">
-<p>How a route's address avoids a redirect on a host that adds a trailing slash. <code>&quot;file&quot;</code> also writes <code>contact.html</code> beside <code>contact/index.html</code>; <code>&quot;directory&quot;</code> names every route <code>/contact/</code> in canonical links, the sitemap and links to pages (<a href="/recipes">Content</a>).</p>
+<p>How a route's address avoids a redirect on a host that adds a trailing slash. <code>&quot;file&quot;</code> also writes <code>contact.html</code> beside <code>contact/index.html</code>; <code>&quot;directory&quot;</code> names every route <code>/contact/</code> in canonical links, the sitemap and links to pages (<a href="/recipes/deploy-to-github-pages">Deploy to GitHub Pages</a>).</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -1742,7 +1750,7 @@
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p><code>auto</code> ships only the runtime modules the program reaches; <code>full</code> ships every one, for a hand-written script that calls <code>WF</code> in ways the build cannot see (<a href="/recipes">JavaScript interop</a>).</p>
+<p><code>auto</code> ships only the runtime modules the program reaches; <code>full</code> ships every one, for a hand-written script that calls <code>WF</code> in ways the build cannot see (<a href="/recipes/call-wf-from-a-script">Call WF from a script</a>).</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -1824,7 +1832,7 @@
                             </table>
                             <h3 class="wf-heading" id="build-media">build.media</h3>
                             <div class="wf-markdown">
-<p>The image pipeline: how the build resizes and re-encodes the pictures a program names (<a href="/recipes">Media</a>).</p>
+<p>The image pipeline: how the build resizes and re-encodes the pictures a program names (<a href="/recipes/add-a-picture">Add a picture</a>).</p>
                             </div>
                             <table class="wf-table">
                                 <caption class="wf-visually-hidden">build.media</caption>
@@ -2272,7 +2280,7 @@
                             </table>
                             <h2 class="wf-heading" id="motion">motion</h2>
                             <div class="wf-markdown">
-<p>What an animation does when the element says nothing (<a href="/recipes">Motion</a>).</p>
+<p>What an animation does when the element says nothing (<a href="/recipes/motion-defaults">Motion defaults</a>).</p>
                             </div>
                             <table class="wf-table">
                                 <caption class="wf-visually-hidden">motion</caption>
@@ -2422,7 +2430,7 @@
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p>Whether the site belongs to an organisation or a person: the JSON-LD node the site is published by (<a href="/recipes">Content</a>).</p>
+<p>Whether the site belongs to an organisation or a person: the JSON-LD node the site is published by (<a href="/recipes/search-and-link-previews">Search and link previews</a>).</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -2602,7 +2610,7 @@
                                         </td>
                                         <td>
                                             <div class="wf-markdown">
-<p>Files on this site to fetch with the page, ahead of the stylesheets: a font a project <code>.css</code> file's <code>@font-face</code> names, the first screen's picture. <code>as</code> comes from the extension (a font is also <code>crossorigin</code>). A file on another origin is <code>E111</code> (<a href="/recipes">Content</a>).</p>
+<p>Files on this site to fetch with the page, ahead of the stylesheets: a font a project <code>.css</code> file's <code>@font-face</code> names, the first screen's picture. <code>as</code> comes from the extension (a font is also <code>crossorigin</code>). A file on another origin is <code>E111</code> (<a href="/recipes/search-and-link-previews">Search and link previews</a>).</p>
                                             </div>
                                         </td>
                                     </tr>
@@ -2905,9 +2913,11 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                         <p class="wf-text wf-s23a4ddd5 bp-mono">json</p>
                                     </div>
-                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="json" type="button">Copy</button>
+                                    <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                        <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="json" type="button">Copy</button>
+                                    </div>
                                 </div>
-                                <code class="wf-code wf-code--block bp-console__code">{ <span class="wf-tok-prop">&quot;i18n&quot;</span>: { <span class="wf-tok-prop">&quot;default_locale&quot;</span>: <span class="wf-tok-str">&quot;en&quot;</span>, <span class="wf-tok-prop">&quot;locales&quot;</span>: [<span class="wf-tok-str">&quot;en&quot;</span>, <span class="wf-tok-str">&quot;ar&quot;</span>], <span class="wf-tok-prop">&quot;dir&quot;</span>: <span class="wf-tok-str">&quot;src/translations&quot;</span> } }</code>
+                                <code class="wf-code wf-code--block bp-console__code" tabindex="0">{ <span class="wf-tok-prop">&quot;i18n&quot;</span>: { <span class="wf-tok-prop">&quot;default_locale&quot;</span>: <span class="wf-tok-str">&quot;en&quot;</span>, <span class="wf-tok-prop">&quot;locales&quot;</span>: [<span class="wf-tok-str">&quot;en&quot;</span>, <span class="wf-tok-str">&quot;ar&quot;</span>], <span class="wf-tok-prop">&quot;dir&quot;</span>: <span class="wf-tok-str">&quot;src/translations&quot;</span> } }</code>
                             </div>
                             <table class="wf-table">
                                 <caption class="wf-visually-hidden">i18n</caption>
@@ -2983,7 +2993,7 @@
                                 </tbody>
                             </table>
                             <div class="wf-markdown">
-<p>See also: <a href="/recipes">Internationalisation</a>.</p>
+<p>See also: <a href="/recipes/translate-a-site">Translate a site</a>.</p>
                             </div>
                             <h2 class="wf-heading" id="env-and-publicenv">env and publicenv</h2>
                             <div class="wf-markdown">
@@ -3039,7 +3049,7 @@
                                 </tbody>
                             </table>
                             <div class="wf-markdown">
-<p>See also: <a href="/recipes">Environments</a>.</p>
+<p>See also: <a href="/recipes/environments-and-secrets">Environments and secrets</a>.</p>
                             </div>
                             <h2 class="wf-heading" id="offline">offline</h2>
                             <div class="wf-markdown">
@@ -3050,9 +3060,11 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                         <p class="wf-text wf-s23a4ddd5 bp-mono">json</p>
                                     </div>
-                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="json" type="button">Copy</button>
+                                    <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                        <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="json" type="button">Copy</button>
+                                    </div>
                                 </div>
-                                <code class="wf-code wf-code--block bp-console__code">{ <span class="wf-tok-prop">&quot;offline&quot;</span>: { <span class="wf-tok-prop">&quot;precache&quot;</span>: [<span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-str">&quot;/docs/*&quot;</span>], <span class="wf-tok-prop">&quot;fallback&quot;</span>: <span class="wf-tok-str">&quot;/offline&quot;</span>, <span class="wf-tok-prop">&quot;cache&quot;</span>: { <span class="wf-tok-prop">&quot;/api/*&quot;</span>: <span class="wf-tok-str">&quot;network-first&quot;</span> }, <span class="wf-tok-prop">&quot;sync&quot;</span>: <span class="wf-tok-kw">true</span> } }</code>
+                                <code class="wf-code wf-code--block bp-console__code" tabindex="0">{ <span class="wf-tok-prop">&quot;offline&quot;</span>: { <span class="wf-tok-prop">&quot;precache&quot;</span>: [<span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-str">&quot;/docs/*&quot;</span>], <span class="wf-tok-prop">&quot;fallback&quot;</span>: <span class="wf-tok-str">&quot;/offline&quot;</span>, <span class="wf-tok-prop">&quot;cache&quot;</span>: { <span class="wf-tok-prop">&quot;/api/*&quot;</span>: <span class="wf-tok-str">&quot;network-first&quot;</span> }, <span class="wf-tok-prop">&quot;sync&quot;</span>: <span class="wf-tok-kw">true</span> } }</code>
                             </div>
                             <table class="wf-table">
                                 <caption class="wf-visually-hidden">offline</caption>
@@ -3132,7 +3144,7 @@
                                 </tbody>
                             </table>
                             <div class="wf-markdown">
-<p>See also: <a href="/recipes">Offline</a>.</p>
+<p>See also: <a href="/recipes/work-offline">Work offline</a>.</p>
                             </div>
                             <h2 class="wf-heading" id="lints">lints</h2>
                             <div class="wf-markdown">
@@ -3143,9 +3155,11 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                         <p class="wf-text wf-s23a4ddd5 bp-mono">json</p>
                                     </div>
-                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="json" type="button">Copy</button>
+                                    <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                        <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="json" type="button">Copy</button>
+                                    </div>
                                 </div>
-                                <code class="wf-code wf-code--block bp-console__code">{ <span class="wf-tok-prop">&quot;lints&quot;</span>: { <span class="wf-tok-prop">&quot;A11&quot;</span>: <span class="wf-tok-str">&quot;off&quot;</span>, <span class="wf-tok-prop">&quot;U&quot;</span>: <span class="wf-tok-str">&quot;error&quot;</span>, <span class="wf-tok-prop">&quot;R01&quot;</span>: <span class="wf-tok-str">&quot;warn&quot;</span> } }</code>
+                                <code class="wf-code wf-code--block bp-console__code" tabindex="0">{ <span class="wf-tok-prop">&quot;lints&quot;</span>: { <span class="wf-tok-prop">&quot;A11&quot;</span>: <span class="wf-tok-str">&quot;off&quot;</span>, <span class="wf-tok-prop">&quot;U&quot;</span>: <span class="wf-tok-str">&quot;error&quot;</span>, <span class="wf-tok-prop">&quot;R01&quot;</span>: <span class="wf-tok-str">&quot;warn&quot;</span> } }</code>
                             </div>
                             <div class="wf-markdown">
 <p>You can turn a warning off or make it an error. You can lower an error only when it cannot ship a broken page:</p>
@@ -3189,21 +3203,21 @@
                     </div>
                     <div class="wf-stack wf-gap--xs wf-see94d5ab">
                         <button class="wf-btn wf-sc1cdfbd7 bp-rail-action" type="button">
-                            <i class="wf-icon" data-icon="copy"></i>
+                            <i class="wf-icon" data-icon="copy"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" ry="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" fill="none" stroke="currentColor" stroke-width="2"/></svg></i>
                             <p class="wf-text">Copy page as Markdown</p>
                         </button>
                         <button class="wf-btn wf-sc1cdfbd7 bp-rail-action" type="button">
-                            <i class="wf-icon" data-icon="file"></i>
+                            <i class="wf-icon" data-icon="file"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 2.5h6l4 4v11H5z"/><path d="M11 2.5v4h4"/></g></svg></i>
                             <p class="wf-text">Open as Markdown</p>
                         </button>
                     </div>
                     <a class="wf-link wf-s48d899f5" href="https://github.com/monzeromer-lab/WebFluent/blob/master/md-docs/reference/configuration.md">
-                        <i class="wf-icon" data-icon="edit"></i>
+                        <i class="wf-icon" data-icon="edit"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" fill="none" stroke="currentColor" stroke-width="2"/></svg></i>
                         <p class="wf-text">Edit this page</p>
                     </a>
                 </div>
             </div>
-        </main>
+        </div>
         <footer class="wf-footer wf-s2213a098">
             <div class="wf-stack wf-gap--lg wf-s84d7918c bp-wrap">
                 <div class="wf-grid wf-gap--lg wf-r67559659">

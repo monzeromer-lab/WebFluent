@@ -16,6 +16,10 @@ The site's language, its address and a static build go in
 in English, and without `meta.site_url` there is no absolute address for
 the alternates:
 
+**Needs:** the settings below in `webfluent.app.json`. It claims `/` and
+the name `Home`: paste it into a new project, or replace the starter's
+`src/pages/Home.wf` with it.
+
 ```json
 {
     "build": { "ssg": true },

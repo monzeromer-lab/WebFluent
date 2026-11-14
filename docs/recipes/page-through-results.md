@@ -8,6 +8,10 @@ A list of thousands of rows is too long to ask for at once. To show it a
 page at a time with **Previous** and **Next** buttons, keep the page number
 in state and splice it into the address:
 
+**Needs:** a server that answers `/api/rows?page=…&per=…` with a list of
+rows. It claims `/`: paste it into a new project, or replace the starter's
+`src/pages/Home.wf` with it.
+
 ```wf
 page Rows(path: "/", title: "Rows", description: "Every row, twenty at a time.") {
     state page = 1

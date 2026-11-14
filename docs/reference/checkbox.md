@@ -21,7 +21,15 @@ Checkbox(bind: State, checked: Bool, label: String, …)
 
 ## Flags
 
-`.checked` `.disabled` `.dropInside` `.trapFocus`
+`.checked` `.disabled`
+
+## DOM events it answers
+
+Any other DOM event works too, in an `on … { }` handler.
+
+- `on change`: The value was committed
+
+Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 
 ## Example
 
@@ -39,4 +47,4 @@ Checkbox(bind: agree, label: "I agree to the terms")
 - [F04](https://webfluent.monzeromer.dev/errors/F04.md): A checkbox that shows a state and never changes it
 - [A04](https://webfluent.monzeromer.dev/errors/A04.md): A control with no label
 
-Since WebFluent 5.0.
+Before WebFluent 5.0.

@@ -18,7 +18,9 @@ Spacer(size: Enum)
 
 ## Flags
 
-`.xs` `.sm` `.md` `.lg` `.xl` `.dropInside` `.trapFocus`
+`.xs` `.sm` `.md` `.lg` `.xl`
+
+Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 
 ## Example
 
@@ -34,4 +36,4 @@ Text("Below")
 - [C04](https://webfluent.monzeromer.dev/errors/C04.md): An attribute a built-in does not declare
 - [C05](https://webfluent.monzeromer.dev/errors/C05.md): A positional argument a built-in does not take
 
-Since WebFluent 5.0.
+Before WebFluent 5.0.

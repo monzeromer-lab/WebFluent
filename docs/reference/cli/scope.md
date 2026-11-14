@@ -18,3 +18,5 @@ wf scope PLACE [options]
 | `--dir, -d DIR` | Project directory (default: current directory) |
 | `--data DATA` | A template's data, a JSON file, to list after the scope |
 | `--json` | Print JSON, for tools |
+
+The [full entry for wf scope](https://webfluent.monzeromer.dev/reference/cli.md#wf-scope) has its examples and the details this page leaves out.

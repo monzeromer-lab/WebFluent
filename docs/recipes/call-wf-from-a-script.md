@@ -8,6 +8,8 @@ The runtime is `window.WF`. A script under `src/`, the console, or a
 library's callback can call it. This page has a button that copies the
 page's address, and the script it calls says so with the runtime's toast:
 
+**Needs:** the script `src/share.js`, shown below.
+
 ```wf
 page Article(path: "/article", title: "Slow roasting", description: "Why we take eleven minutes over it.") {
     Heading("Slow roasting").h1

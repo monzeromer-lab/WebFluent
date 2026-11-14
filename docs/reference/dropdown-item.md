@@ -10,9 +10,13 @@ One entry of the menu.
 Dropdown.Item { … }
 ```
 
-## Flags
+## DOM events it answers
 
-`.dropInside` `.trapFocus`
+Any other DOM event works too, in an `on … { }` handler.
+
+- `on click`: The element was clicked or activated
+
+Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 
 ## Slots
 
@@ -35,4 +39,4 @@ Dropdown(label: "Actions") {
 - [C04](https://webfluent.monzeromer.dev/errors/C04.md): An attribute a built-in does not declare
 - [C05](https://webfluent.monzeromer.dev/errors/C05.md): A positional argument a built-in does not take
 
-Since WebFluent 5.0.
+Before WebFluent 5.0.

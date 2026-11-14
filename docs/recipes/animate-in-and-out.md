@@ -12,6 +12,9 @@ and `match` that draw and remove elements, so read
 that each enter a different way, and an alert that fades out when you
 dismiss it:
 
+**Needs:** nothing besides the page. It claims `/`: paste it into a new
+project, or replace the starter's `src/pages/Home.wf` with it.
+
 ```wf
 page Notices(path: "/", title: "Notices", description: "Cards and an alert that animate in and out.") {
     state open = false

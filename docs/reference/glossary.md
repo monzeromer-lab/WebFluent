@@ -170,7 +170,7 @@ reads it ([Stores](https://webfluent.monzeromer.dev/learn/11-stores.md)).
 
 **Template engine.** WebFluent used from a server, through `wf render`, Rust
 or Node, to render a `.wf` template with JSON data to HTML or PDF
-([Server rendering](https://webfluent.monzeromer.dev/recipes.md)).
+([Render a template](https://webfluent.monzeromer.dev/recipes/render-a-template.md)).
 
 **Theme.** A `theme` declaration: the design tokens it changes from the
 baseline ([Styling](https://webfluent.monzeromer.dev/learn/13-styling.md)).

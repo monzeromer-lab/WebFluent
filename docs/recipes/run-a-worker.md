@@ -10,6 +10,10 @@ stutter — never holds up the page. It is held like a socket: owned by what
 opened it, and stopped when that leaves. Here a store holds one for the
 whole app, and a page shows what it reports:
 
+**Needs:** the worker's script at `public/workers/css.js`, which [How it
+works](#how-it-works) shows. It claims `/`: paste it into a new project,
+or replace the starter's `src/pages/Home.wf` with it.
+
 ```wf
 store Lang {
     state problems: [Map] = []

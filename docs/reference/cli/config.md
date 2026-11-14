@@ -61,3 +61,5 @@ wf config unset PATH [options]
 |---|---|
 | `PATH` | A dotted path: `build.base_path`, `meta.site_url` |
 | `--dir, -d DIR` | The project's folder (default `.`) |
+
+The [full entry for wf config](https://webfluent.monzeromer.dev/reference/cli.md#wf-config) has its examples and the details this page leaves out.

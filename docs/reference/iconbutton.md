@@ -23,7 +23,15 @@ IconButton(icon: String, label: String, size: Enum, …) { … }
 
 ## Flags
 
-`.sm` `.md` `.lg` `.primary` `.danger` `.button` `.submit` `.reset` `.disabled` `.dropInside` `.trapFocus`
+`.sm` `.md` `.lg` `.primary` `.danger` `.button` `.submit` `.reset` `.disabled`
+
+## DOM events it answers
+
+Any other DOM event works too, in an `on … { }` handler.
+
+- `on click`: The element was clicked or activated
+
+Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 
 ## Slots
 
@@ -45,4 +53,4 @@ IconButton(icon: "edit", label: "Edit the title").primary.sm
 - [A02](https://webfluent.monzeromer.dev/errors/A02.md): An icon button with no name
 - [V08](https://webfluent.monzeromer.dev/errors/V08.md): An icon the runtime does not draw
 
-Since WebFluent 5.0.
+Before WebFluent 5.0.

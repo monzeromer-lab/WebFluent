@@ -1,2 +1,2 @@
-function Page_OldReferenceIcon(params){const _root=document.createDocumentFragment();const _e1662=WF.el("h1",{className:"wf-heading"},"Icon");_root.appendChild(_e1662);const _e1663=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/icon"},"Icon");WF.activeLink(_e1663,"/reference/icon",false);_root.appendChild(_e1663);return _root;}
+function Page_OldReferenceIcon(params){const _root=document.createDocumentFragment();const _e1783=WF.el("h1",{className:"wf-heading"},"Icon");_root.appendChild(_e1783);const _e1784=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/icon"},"Icon");WF.activeLink(_e1784,"/reference/icon",false);_root.appendChild(_e1784);return _root;}
 WF.page("OldReferenceIcon",Page_OldReferenceIcon,{title:"Icon"});

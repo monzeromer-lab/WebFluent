@@ -12,7 +12,7 @@ You need a project that builds with `wf build` on your own machine, and a
 build machine with `curl` and `bash`.
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v6.0.0 bash
+curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v6.0.0 bash
 ~/.webfluent/bin/wf build
 ```
 
@@ -21,6 +21,9 @@ curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/inst
 1. The install script downloads `wf` into `~/.webfluent/bin/`. `WF_VERSION`
    pins the release it installs, so a new release cannot change a deploy
    without you knowing.
+   `-f` makes `curl` fail on an error from the server instead of piping
+   the error page to `bash`; `--proto '=https' --tlsv1.2` refuses to fetch
+   the script over anything but HTTPS.
 2. `~/.webfluent/bin/wf build` builds the project in the current folder
    and writes the whole site to `build/`. The full path works even where
    the install has not put `wf` on the `PATH` yet.
@@ -35,8 +38,14 @@ no file for.
 Without `WF_VERSION`, the script installs the latest release:
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | bash
+curl --proto '=https' --tlsv1.2 -fsSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | bash
 ```
+
+To find the latest release, the script asks GitHub's API, which limits how
+often one address may ask. A shared CI runner often hits that limit, and
+the install stops with "could not determine the latest version". A pinned
+`WF_VERSION` never asks, which is one more reason every hosting recipe
+pins it.
 
 You can also build on your own machine and upload `build/`. It is only
 files.

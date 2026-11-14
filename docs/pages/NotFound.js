@@ -1,2 +1,2 @@
-function Page_NotFound(params){const _root=document.createDocumentFragment();const _e1563=Component_NotFoundShell({routes:SECTIONS});_root.appendChild(_e1563);return _root;}
+function Page_NotFound(params){const _root=document.createDocumentFragment();const _e1684=Component_NotFoundShell({routes:SECTIONS});_root.appendChild(_e1684);return _root;}
 WF.page("NotFound",Page_NotFound,{title:"Not found"});

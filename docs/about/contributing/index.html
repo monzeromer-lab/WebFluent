@@ -39,7 +39,7 @@
 </head>
 <body>
     <div id="app">
-        <main id="wf-main">
+        <div id="wf-main">
             <a class="wf-link bp-skip" href="#bp-main">Skip to the content</a>
             <div class="wf-row wf-align--center wf-s55053fdc bp-header" role="banner">
                 <div class="wf-row wf-align--center wf-gap--md wf-sfe495c12 bp-wrap">
@@ -58,7 +58,7 @@
                     </div>
                     <div class="wf-row wf-align--center wf-gap--sm wf-sff642a95">
                         <button class="wf-btn wf-sf8ab46ec bp-field bp-search" aria-label="Search the docs" aria-keyshortcuts="Meta+K Control+K" aria-haspopup="dialog" type="button">
-                            <i class="wf-icon" data-icon="search"></i>
+                            <i class="wf-icon" data-icon="search"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></i>
                             <p class="wf-text wf-sf55a2627 bp-hide-sm">Search the docs</p>
                             <p class="wf-text bp-kbd bp-hide-sm">Ctrl+K</p>
                         </button>
@@ -72,17 +72,17 @@
                                 <option value="elements">Custom elements</option>
                                 <option value="desktop">Desktop / phone</option>
                             </select>
-                            <i class="wf-icon wf-s94250744" data-icon="chevron-down" aria-hidden="true"></i>
+                            <i class="wf-icon wf-s94250744" data-icon="chevron-down" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><polyline points="6 9 12 15 18 9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></i>
                         </div>
                         <button class="wf-icon-btn bp-icon-button" data-track="select_content" data-track-content-type="theme" type="button"></button>
                         <div class="wf-row wf-align--center wf-gap--xs wf-s286d925a bp-hide-sm">
                             <button class="wf-btn bp-button" title="This page is in English only; the switch changes the interface." data-track="select_content" data-track-content-type="language" type="button"></button>
                         </div>
                         <a class="wf-link bp-button bp-hide-md" href="https://github.com/monzeromer-lab/WebFluent" data-tone="quiet" aria-label="GitHub">
-                            <i class="wf-icon" data-icon="git-branch"></i>
+                            <i class="wf-icon" data-icon="git-branch"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="4.5" r="2"/><circle cx="6" cy="15.5" r="2"/><circle cx="14" cy="6.5" r="2"/><path d="M6 6.5v7M14 8.5c0 3.5-8 2.5-8 5"/></g></svg></i>
                             <p class="wf-text">GitHub</p>
                         </a>
-                        <button class="wf-icon-btn wf-sde8ec4aa bp-icon-button" data-icon="menu" aria-label="Menu" title="Menu" aria-expanded="false" type="button"></button>
+                        <button class="wf-icon-btn wf-sde8ec4aa bp-icon-button" data-icon="menu" aria-label="Menu" title="Menu" aria-expanded="false" type="button"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
                     </div>
                 </div>
             </div>
@@ -92,7 +92,7 @@
                     <div class="wf-modal__body">
                         <div class="wf-stack wf-sa8e464d0">
                             <div class="wf-row wf-align--center wf-gap--sm wf-s02e7a482 bp-field">
-                                <i class="wf-icon" data-icon="search"></i>
+                                <i class="wf-icon" data-icon="search"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></i>
                                 <input class="wf-input" placeholder="Search the guide" aria-label="Search the guide" type="search" autofocus>
                                 <p class="wf-text bp-kbd">esc</p>
                             </div>
@@ -115,7 +115,7 @@
                     <div class="wf-row bp-labels">
                         <p class="wf-text bp-label" data-tone="kind" data-kind="explanation">About</p>
                         <p class="wf-text bp-label">About</p>
-                        <div class="wf-row wf-gap--xs bp-labels" aria-label="Works in">
+                        <div class="wf-row wf-gap--xs bp-labels" role="group" aria-label="Works in">
                         </div>
                     </div>
                     <div class="wf-stack wf-gap--sm wf-s4e4189b1">
@@ -123,9 +123,9 @@
                         <p class="wf-text bp-lede">How the compiler is put together, how to build and test it, and how to change the language, a built-in or this guide.</p>
                         <div class="wf-stack wf-gap--sm wf-s8a243922 bp-contents">
                             <button class="wf-btn wf-s1865e956 bp-button" aria-expanded="false" aria-controls="bp-contents-panel" type="button">
-                                <i class="wf-icon" data-icon="list"></i>
+                                <i class="wf-icon" data-icon="list"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 5h10.5M7 10h10.5M7 15h10.5M2.5 5h.5M2.5 10h.5M2.5 15h.5"/></g></svg></i>
                                 <p class="wf-text">Contents</p>
-                                <i class="wf-icon" data-icon="chevron-down"></i>
+                                <i class="wf-icon" data-icon="chevron-down"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><polyline points="6 9 12 15 18 9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></i>
                             </button>
                         </div>
                     </div>
@@ -151,9 +151,11 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                         <p class="wf-text wf-s23a4ddd5 bp-mono">bash</p>
                                     </div>
-                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
+                                    <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                        <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
+                                    </div>
                                 </div>
-                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-prompt">$ </span>git clone https://github.com/monzeromer-lab/WebFluent
+                                <code class="wf-code wf-code--block bp-console__code" tabindex="0"><span class="wf-tok-prompt">$ </span>git clone https://github.com/monzeromer-lab/WebFluent
 <span class="wf-tok-prompt">$ </span>cd WebFluent</code>
                             </div>
                             <h2 class="wf-heading" id="build-and-test">Build and test</h2>
@@ -165,9 +167,11 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                         <p class="wf-text wf-s23a4ddd5 bp-mono">bash</p>
                                     </div>
-                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
+                                    <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                        <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
+                                    </div>
                                 </div>
-                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-prompt">$ </span>cargo build
+                                <code class="wf-code wf-code--block bp-console__code" tabindex="0"><span class="wf-tok-prompt">$ </span>cargo build
 <span class="wf-tok-prompt">$ </span>cargo test --workspace
 <span class="wf-tok-prompt">$ </span>node --test tests/js/*.test.mjs
 <span class="wf-tok-prompt">$ </span>cargo fmt --check &amp;&amp; cargo clippy --workspace -- -D warnings</code>
@@ -180,9 +184,11 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                         <p class="wf-text wf-s23a4ddd5 bp-mono">bash</p>
                                     </div>
-                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
+                                    <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                        <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
+                                    </div>
                                 </div>
-                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-prompt">$ </span>cargo build --release
+                                <code class="wf-code wf-code--block bp-console__code" tabindex="0"><span class="wf-tok-prompt">$ </span>cargo build --release
 <span class="wf-tok-prompt">$ </span>cd tests/browser
 <span class="wf-tok-prompt">$ </span>npm ci
 <span class="wf-tok-prompt">$ </span>npm test</code>
@@ -199,9 +205,11 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                         <p class="wf-text wf-s23a4ddd5 bp-mono">text</p>
                                     </div>
-                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="text" type="button">Copy</button>
+                                    <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                        <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="text" type="button">Copy</button>
+                                    </div>
                                 </div>
-                                <code class="wf-code wf-code--block bp-console__code">src/
+                                <code class="wf-code wf-code--block bp-console__code" tabindex="0">src/
   base/                      spans, text helpers, the file systems a build reads and writes
   diagnostics/               every finding's code (codes.rs), fixes and output; the error types
   syntax/                    lexer/, parser/, the .wfx layout/, the printers and the formatter
@@ -229,9 +237,11 @@ spec/                        design notes and plans</code>
                                     <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                         <p class="wf-text wf-s23a4ddd5 bp-mono">bash</p>
                                     </div>
-                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
+                                    <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                        <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
+                                    </div>
                                 </div>
-                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-prompt">$ </span>git submodule update --init</code>
+                                <code class="wf-code wf-code--block bp-console__code" tabindex="0"><span class="wf-tok-prompt">$ </span>git submodule update --init</code>
                             </div>
                             <div class="wf-markdown">
 <p>A change there is committed and pushed in its own repository; then the submodule's new commit is committed here (<code>git add editors/zed</code>).</p>
@@ -245,9 +255,11 @@ spec/                        design notes and plans</code>
                                     <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                         <p class="wf-text wf-s23a4ddd5 bp-mono">text</p>
                                     </div>
-                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="text" type="button">Copy</button>
+                                    <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                        <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="text" type="button">Copy</button>
+                                    </div>
                                 </div>
-                                <code class="wf-code wf-code--block bp-console__code">.wf / .wfx → lexer → parser → lower → semantic checks → type checker → linters → code generators
+                                <code class="wf-code wf-code--block bp-console__code" tabindex="0">.wf / .wfx → lexer → parser → lower → semantic checks → type checker → linters → code generators
                                                                                  ├─ JavaScript + HTML + CSS
                                                                                  └─ PDF / slides</code>
                             </div>
@@ -267,9 +279,11 @@ spec/                        design notes and plans</code>
                                     <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                         <p class="wf-text wf-s23a4ddd5 bp-mono">bash</p>
                                     </div>
-                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
+                                    <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                        <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
+                                    </div>
                                 </div>
-                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-prompt">$ </span>cargo xtask site</code>
+                                <code class="wf-code wf-code--block bp-console__code" tabindex="0"><span class="wf-tok-prompt">$ </span>cargo xtask site</code>
                             </div>
                             <h2 class="wf-heading" id="change-the-grammar">Change the grammar</h2>
                             <div class="wf-markdown">
@@ -336,21 +350,21 @@ spec/                        design notes and plans</code>
                     </div>
                     <div class="wf-stack wf-gap--xs wf-see94d5ab">
                         <button class="wf-btn wf-sc1cdfbd7 bp-rail-action" type="button">
-                            <i class="wf-icon" data-icon="copy"></i>
+                            <i class="wf-icon" data-icon="copy"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" ry="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" fill="none" stroke="currentColor" stroke-width="2"/></svg></i>
                             <p class="wf-text">Copy page as Markdown</p>
                         </button>
                         <button class="wf-btn wf-sc1cdfbd7 bp-rail-action" type="button">
-                            <i class="wf-icon" data-icon="file"></i>
+                            <i class="wf-icon" data-icon="file"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 2.5h6l4 4v11H5z"/><path d="M11 2.5v4h4"/></g></svg></i>
                             <p class="wf-text">Open as Markdown</p>
                         </button>
                     </div>
                     <a class="wf-link wf-s48d899f5" href="https://github.com/monzeromer-lab/WebFluent/blob/master/md-docs/about/contributing.md">
-                        <i class="wf-icon" data-icon="edit"></i>
+                        <i class="wf-icon" data-icon="edit"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" fill="none" stroke="currentColor" stroke-width="2"/></svg></i>
                         <p class="wf-text">Edit this page</p>
                     </a>
                 </div>
             </div>
-        </main>
+        </div>
         <footer class="wf-footer wf-s2213a098">
             <div class="wf-stack wf-gap--lg wf-s84d7918c bp-wrap">
                 <div class="wf-grid wf-gap--lg wf-r67559659">

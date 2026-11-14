@@ -39,7 +39,7 @@
 </head>
 <body>
     <div id="app">
-        <main id="wf-main">
+        <div id="wf-main">
             <a class="wf-link bp-skip" href="#bp-main">Skip to the content</a>
             <div class="wf-row wf-align--center wf-s55053fdc bp-header" role="banner">
                 <div class="wf-row wf-align--center wf-gap--md wf-sfe495c12 bp-wrap">
@@ -58,7 +58,7 @@
                     </div>
                     <div class="wf-row wf-align--center wf-gap--sm wf-sff642a95">
                         <button class="wf-btn wf-sf8ab46ec bp-field bp-search" aria-label="Search the docs" aria-keyshortcuts="Meta+K Control+K" aria-haspopup="dialog" type="button">
-                            <i class="wf-icon" data-icon="search"></i>
+                            <i class="wf-icon" data-icon="search"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></i>
                             <p class="wf-text wf-sf55a2627 bp-hide-sm">Search the docs</p>
                             <p class="wf-text bp-kbd bp-hide-sm">Ctrl+K</p>
                         </button>
@@ -72,17 +72,17 @@
                                 <option value="elements">Custom elements</option>
                                 <option value="desktop">Desktop / phone</option>
                             </select>
-                            <i class="wf-icon wf-s94250744" data-icon="chevron-down" aria-hidden="true"></i>
+                            <i class="wf-icon wf-s94250744" data-icon="chevron-down" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><polyline points="6 9 12 15 18 9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></i>
                         </div>
                         <button class="wf-icon-btn bp-icon-button" data-track="select_content" data-track-content-type="theme" type="button"></button>
                         <div class="wf-row wf-align--center wf-gap--xs wf-s286d925a bp-hide-sm">
                             <button class="wf-btn bp-button" title="This page is in English only; the switch changes the interface." data-track="select_content" data-track-content-type="language" type="button"></button>
                         </div>
                         <a class="wf-link bp-button bp-hide-md" href="https://github.com/monzeromer-lab/WebFluent" data-tone="quiet" aria-label="GitHub">
-                            <i class="wf-icon" data-icon="git-branch"></i>
+                            <i class="wf-icon" data-icon="git-branch"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="4.5" r="2"/><circle cx="6" cy="15.5" r="2"/><circle cx="14" cy="6.5" r="2"/><path d="M6 6.5v7M14 8.5c0 3.5-8 2.5-8 5"/></g></svg></i>
                             <p class="wf-text">GitHub</p>
                         </a>
-                        <button class="wf-icon-btn wf-sde8ec4aa bp-icon-button" data-icon="menu" aria-label="Menu" title="Menu" aria-expanded="false" type="button"></button>
+                        <button class="wf-icon-btn wf-sde8ec4aa bp-icon-button" data-icon="menu" aria-label="Menu" title="Menu" aria-expanded="false" type="button"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
                     </div>
                 </div>
             </div>
@@ -92,7 +92,7 @@
                     <div class="wf-modal__body">
                         <div class="wf-stack wf-sa8e464d0">
                             <div class="wf-row wf-align--center wf-gap--sm wf-s02e7a482 bp-field">
-                                <i class="wf-icon" data-icon="search"></i>
+                                <i class="wf-icon" data-icon="search"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></i>
                                 <input class="wf-input" placeholder="Search the guide" aria-label="Search the guide" type="search" autofocus>
                                 <p class="wf-text bp-kbd">esc</p>
                             </div>
@@ -202,7 +202,7 @@
                     <div class="wf-row bp-labels">
                         <p class="wf-text bp-label" data-tone="kind" data-kind="tutorial">Tutorial</p>
                         <p class="wf-text bp-label">The language</p>
-                        <div class="wf-row wf-gap--xs bp-labels" aria-label="Works in">
+                        <div class="wf-row wf-gap--xs bp-labels" role="group" aria-label="Works in">
                         </div>
                     </div>
                     <div class="wf-stack wf-gap--sm wf-s4e4189b1">
@@ -210,9 +210,9 @@
                         <p class="wf-text bp-lede">A component is a reusable element you declare: typed props, events, slots, parts and a body, checked like a built-in.</p>
                         <div class="wf-stack wf-gap--sm wf-s8a243922 bp-contents">
                             <button class="wf-btn wf-s1865e956 bp-button" aria-expanded="false" aria-controls="bp-contents-panel" type="button">
-                                <i class="wf-icon" data-icon="list"></i>
+                                <i class="wf-icon" data-icon="list"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 5h10.5M7 10h10.5M7 15h10.5M2.5 5h.5M2.5 10h.5M2.5 15h.5"/></g></svg></i>
                                 <p class="wf-text">Contents</p>
-                                <i class="wf-icon" data-icon="chevron-down"></i>
+                                <i class="wf-icon" data-icon="chevron-down"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><polyline points="6 9 12 15 18 9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></i>
                             </button>
                         </div>
                     </div>
@@ -239,9 +239,12 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                         <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                    <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                        <button class="wf-btn wf-s65c70c32 bp-button bp-hide-sm" data-track="open_playground" data-track-item-id="wf" type="button">Open in the Playground</button>
+                                        <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                    </div>
                                 </div>
-                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-kw">component</span> <span class="wf-tok-name">Greeting</span>(_ <span class="wf-tok-prop">name</span>: <span class="wf-tok-name">String</span>) {
+                                <code class="wf-code wf-code--block bp-console__code" tabindex="0"><span class="wf-tok-kw">component</span> <span class="wf-tok-name">Greeting</span>(_ <span class="wf-tok-prop">name</span>: <span class="wf-tok-name">String</span>) {
     <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Hello, {name}!&quot;</span>)
 }
 
@@ -268,9 +271,12 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                         <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                    <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                        <button class="wf-btn wf-s65c70c32 bp-button bp-hide-sm" data-track="open_playground" data-track-item-id="wf" type="button">Open in the Playground</button>
+                                        <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                    </div>
                                 </div>
-                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-cmt">/// A person, at a glance.</span>
+                                <code class="wf-code wf-code--block bp-console__code" tabindex="0"><span class="wf-tok-cmt">/// A person, at a glance.</span>
 <span class="wf-tok-kw">component</span> <span class="wf-tok-name">UserCard</span>(_ <span class="wf-tok-prop">name</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">role</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">active</span>: <span class="wf-tok-name">Bool</span> = <span class="wf-tok-kw">true</span>, <span class="wf-tok-prop">avatar</span>: <span class="wf-tok-name">String</span>? = <span class="wf-tok-kw">null</span>) {
     <span class="wf-tok-name">Card</span>.elevated {
         <span class="wf-tok-name">Row</span>(<span class="wf-tok-prop">align</span>: .center, <span class="wf-tok-prop">gap</span>: .md) {
@@ -319,9 +325,12 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                         <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                    <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                        <button class="wf-btn wf-s65c70c32 bp-button bp-hide-sm" data-track="open_playground" data-track-item-id="wf" type="button">Open in the Playground</button>
+                                        <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                    </div>
                                 </div>
-                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-kw">enum</span> <span class="wf-tok-name">Tone</span> { calm, loud }
+                                <code class="wf-code wf-code--block bp-console__code" tabindex="0"><span class="wf-tok-kw">enum</span> <span class="wf-tok-name">Tone</span> { calm, loud }
 
 <span class="wf-tok-kw">component</span> <span class="wf-tok-name">Note</span>(_ <span class="wf-tok-prop">text</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">tone</span>: <span class="wf-tok-name">Tone</span> = .calm) {
     <span class="wf-tok-name">Text</span>(text) {
@@ -348,9 +357,12 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                         <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                    <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                        <button class="wf-btn wf-s65c70c32 bp-button bp-hide-sm" data-track="open_playground" data-track-item-id="wf" type="button">Open in the Playground</button>
+                                        <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                    </div>
                                 </div>
-                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-kw">type</span> <span class="wf-tok-name">Todo</span> { <span class="wf-tok-prop">id</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">done</span>: <span class="wf-tok-name">Bool</span> = <span class="wf-tok-kw">false</span> }
+                                <code class="wf-code wf-code--block bp-console__code" tabindex="0"><span class="wf-tok-kw">type</span> <span class="wf-tok-name">Todo</span> { <span class="wf-tok-prop">id</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">done</span>: <span class="wf-tok-name">Bool</span> = <span class="wf-tok-kw">false</span> }
 
 <span class="wf-tok-kw">component</span> <span class="wf-tok-name">TodoRow</span>(_ <span class="wf-tok-prop">todo</span>: <span class="wf-tok-name">Todo</span>) {
     <span class="wf-tok-kw">event</span> toggle(<span class="wf-tok-prop">id</span>: <span class="wf-tok-name">String</span>)
@@ -392,9 +404,12 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                         <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                    <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                        <button class="wf-btn wf-s65c70c32 bp-button bp-hide-sm" data-track="open_playground" data-track-item-id="wf" type="button">Open in the Playground</button>
+                                        <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                    </div>
                                 </div>
-                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-kw">component</span> <span class="wf-tok-name">Entry</span>(_ <span class="wf-tok-prop">key</span>: <span class="wf-tok-name">String</span>) {
+                                <code class="wf-code wf-code--block bp-console__code" tabindex="0"><span class="wf-tok-kw">component</span> <span class="wf-tok-name">Entry</span>(_ <span class="wf-tok-prop">key</span>: <span class="wf-tok-name">String</span>) {
     <span class="wf-tok-kw">event</span> menu(<span class="wf-tok-prop">key</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">x</span>: <span class="wf-tok-name">Number</span>, <span class="wf-tok-prop">y</span>: <span class="wf-tok-name">Number</span>)
     <span class="wf-tok-name">Button</span>(key) {
         <span class="wf-tok-kw">on</span> contextmenu(e) {
@@ -422,10 +437,12 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                         <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                    <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                        <button class="wf-btn wf-s65c70c32 bp-button bp-hide-sm" data-track="open_playground" data-track-item-id="wf" type="button">Open in the Playground</button>
+                                        <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                    </div>
                                 </div>
-                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-kw">component</span> <span class="wf-tok-name">Panel</span>(_ <span class="wf-tok-prop">title</span>: <span class="wf-tok-name">String</span>) {
-    <span class="wf-tok-kw">slot</span>
+                                <code class="wf-code wf-code--block bp-console__code" tabindex="0"><span class="wf-tok-kw">component</span> <span class="wf-tok-name">Panel</span>(_ <span class="wf-tok-prop">title</span>: <span class="wf-tok-name">String</span>) {
     <span class="wf-tok-kw">slot</span> trailing
     <span class="wf-tok-name">Card</span> {
         <span class="wf-tok-name">Row</span>(<span class="wf-tok-prop">justify</span>: .between, <span class="wf-tok-prop">align</span>: .center) {
@@ -446,11 +463,12 @@
                             </div>
                             <div class="wf-markdown">
 <ul>
-<li><code>slot</code> declares the default slot, which the body places as <code>children</code>.</li>
+<li><code>children</code> places the call's block. It needs no declaration: a component that writes <code>children</code> takes a block.</li>
 <li><code>slot trailing</code> declares a named slot, which the body places by its name.</li>
-<li>Anything in the call's block that is not a named fill goes to the default slot. Here that is the <code>Text</code> and the <code>Button</code>.</li>
+<li>Anything in the call's block that is not a named fill goes to <code>children</code>. Here that is the <code>Text</code> and the <code>Button</code>.</li>
+<li>A bare <code>slot</code> line declares the default slot by name. You need it only on a component a page names as its <code>layout:</code>, where it is required (<code>E104</code>); see <a href="/learn/05-pages-and-routing#layouts">Layouts</a>.</li>
 </ul>
-<p>A fill is compiled in the caller's scope: it reads the caller's state and loop variables, and its handlers are the caller's. The component only decides where the fill lands. A page's <code>layout:</code> is a component with a default slot, called with the page as its block (see <a href="/learn/05-pages-and-routing">Pages and routing</a>).</p>
+<p>A fill is compiled in the caller's scope: it reads the caller's state and loop variables, and its handlers are the caller's. The component only decides where the fill lands. A page's <code>layout:</code> is a component with a default slot, called with the page as its block (see <a href="/learn/05-pages-and-routing#layouts">Pages and routing</a>).</p>
                             </div>
                             <h3 class="wf-heading" id="scoped-slots">Scoped slots</h3>
                             <div class="wf-markdown">
@@ -461,9 +479,12 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                         <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                    <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                        <button class="wf-btn wf-s65c70c32 bp-button bp-hide-sm" data-track="open_playground" data-track-item-id="wf" type="button">Open in the Playground</button>
+                                        <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                    </div>
                                 </div>
-                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-kw">type</span> <span class="wf-tok-name">Todo</span> { <span class="wf-tok-prop">id</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">done</span>: <span class="wf-tok-name">Bool</span> = <span class="wf-tok-kw">false</span> }
+                                <code class="wf-code wf-code--block bp-console__code" tabindex="0"><span class="wf-tok-kw">type</span> <span class="wf-tok-name">Todo</span> { <span class="wf-tok-prop">id</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">done</span>: <span class="wf-tok-name">Bool</span> = <span class="wf-tok-kw">false</span> }
 
 <span class="wf-tok-kw">component</span> <span class="wf-tok-name">TodoList</span>(<span class="wf-tok-prop">items</span>: [<span class="wf-tok-name">Todo</span>]) {
     <span class="wf-tok-kw">slot</span> row(<span class="wf-tok-prop">item</span>: <span class="wf-tok-name">Todo</span>, <span class="wf-tok-prop">index</span>: <span class="wf-tok-name">Number</span>)
@@ -495,9 +516,12 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                         <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                    <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                        <button class="wf-btn wf-s65c70c32 bp-button bp-hide-sm" data-track="open_playground" data-track-item-id="wf" type="button">Open in the Playground</button>
+                                        <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                    </div>
                                 </div>
-                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-kw">component</span> <span class="wf-tok-name">Panel</span>(_ <span class="wf-tok-prop">title</span>: <span class="wf-tok-name">String</span>) {
+                                <code class="wf-code wf-code--block bp-console__code" tabindex="0"><span class="wf-tok-kw">component</span> <span class="wf-tok-name">Panel</span>(_ <span class="wf-tok-prop">title</span>: <span class="wf-tok-name">String</span>) {
     <span class="wf-tok-kw">part</span> <span class="wf-tok-name">Header</span>(_ <span class="wf-tok-prop">text</span>: <span class="wf-tok-name">String</span>) { <span class="wf-tok-name">Heading</span>(text).h3 }
     <span class="wf-tok-kw">part</span> <span class="wf-tok-name">Footer</span> { <span class="wf-tok-name">Divider</span>  <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;End&quot;</span>).muted.sm }
     <span class="wf-tok-name">Card</span> { <span class="wf-tok-name">Text</span>(title)  <span class="wf-tok-kw">children</span> }
@@ -524,9 +548,12 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                         <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                    <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                        <button class="wf-btn wf-s65c70c32 bp-button bp-hide-sm" data-track="open_playground" data-track-item-id="wf" type="button">Open in the Playground</button>
+                                        <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                    </div>
                                 </div>
-                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-kw">component</span> <span class="wf-tok-name">Stepper</span>(_ <span class="wf-tok-prop">start</span>: <span class="wf-tok-name">Number</span>, <span class="wf-tok-prop">step</span>: <span class="wf-tok-name">Number</span> = <span class="wf-tok-num">1</span>) {
+                                <code class="wf-code wf-code--block bp-console__code" tabindex="0"><span class="wf-tok-kw">component</span> <span class="wf-tok-name">Stepper</span>(_ <span class="wf-tok-prop">start</span>: <span class="wf-tok-name">Number</span>, <span class="wf-tok-prop">step</span>: <span class="wf-tok-name">Number</span> = <span class="wf-tok-num">1</span>) {
     <span class="wf-tok-kw">event</span> change(<span class="wf-tok-prop">value</span>: <span class="wf-tok-name">Number</span>)
     <span class="wf-tok-kw">state</span> n = start
     <span class="wf-tok-kw">derived</span> even = n % <span class="wf-tok-num">2</span> == <span class="wf-tok-num">0</span>
@@ -559,9 +586,12 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                         <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                    <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                        <button class="wf-btn wf-s65c70c32 bp-button bp-hide-sm" data-track="open_playground" data-track-item-id="wf" type="button">Open in the Playground</button>
+                                        <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                    </div>
                                 </div>
-                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-kw">store</span> <span class="wf-tok-name">Cart</span> {
+                                <code class="wf-code wf-code--block bp-console__code" tabindex="0"><span class="wf-tok-kw">store</span> <span class="wf-tok-name">Cart</span> {
     <span class="wf-tok-kw">state</span> <span class="wf-tok-prop">items</span>: [<span class="wf-tok-name">String</span>] = []
     <span class="wf-tok-kw">action</span> add(<span class="wf-tok-prop">name</span>: <span class="wf-tok-name">String</span>) { items.push(name) }
 }
@@ -588,7 +618,7 @@
 <li><code>class:</code>, which is added to the root's own classes.</li>
 <li>A <code>style { }</code> block, which styles the root: <code>Tile(label: &quot;a&quot;) { style { grid-column: 2 / span 2 } }</code> places that tile in its grid. Its rule's class joins the root's classes, as <code>class:</code> does.</li>
 <li>An attribute the component takes no prop for: <code>aria-*</code>, <code>data-*</code>, <code>id</code>, <code>role</code>, <code>title</code> and <code>hidden</code>. You write it as you would on an element: <code>data-open: true</code> is <code>data-open=&quot;true&quot;</code>, and <code>false</code> writes no attribute, except for an ARIA state, which keeps <code>&quot;false&quot;</code>.</li>
-<li><code>mount:</code>, <code>update:</code> and <code>cleanup:</code> (see <a href="/recipes">JavaScript interop</a>).</li>
+<li><code>mount:</code>, <code>update:</code> and <code>cleanup:</code> (see <a href="/recipes/hand-an-element-to-a-script">Hand an element to a script</a>).</li>
 <li><code>drag:</code>, the <code>drop…:</code> props, <code>on receive</code>, <code>on dragmove</code>, <code>on longpress</code> and <code>on swipe</code>. These need one root element: on a component whose body is an <code>if</code>, a <code>for</code> or several elements they are <code>C07</code>.</li>
 </ul>
 <p>When the component declares a prop of that name, it receives the value instead and decides where it goes. Declare the prop when the root is not the right element for it. This <code>Chip</code> takes the class and the description as props and puts them on its <code>Badge</code>:</p>
@@ -598,9 +628,12 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                         <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                    <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                        <button class="wf-btn wf-s65c70c32 bp-button bp-hide-sm" data-track="open_playground" data-track-item-id="wf" type="button">Open in the Playground</button>
+                                        <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                    </div>
                                 </div>
-                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-kw">component</span> <span class="wf-tok-name">Chip</span>(_ <span class="wf-tok-prop">label</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">extra</span>: <span class="wf-tok-name">String</span> = <span class="wf-tok-str">&quot;&quot;</span>, <span class="wf-tok-prop">note</span>: <span class="wf-tok-name">String</span> = <span class="wf-tok-str">&quot;&quot;</span>) {
+                                <code class="wf-code wf-code--block bp-console__code" tabindex="0"><span class="wf-tok-kw">component</span> <span class="wf-tok-name">Chip</span>(_ <span class="wf-tok-prop">label</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">extra</span>: <span class="wf-tok-name">String</span> = <span class="wf-tok-str">&quot;&quot;</span>, <span class="wf-tok-prop">note</span>: <span class="wf-tok-name">String</span> = <span class="wf-tok-str">&quot;&quot;</span>) {
     <span class="wf-tok-name">Badge</span>(label, <span class="wf-tok-prop">class</span>: extra, aria-<span class="wf-tok-prop">description</span>: note)
 }
 
@@ -625,9 +658,12 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                         <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                    <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                        <button class="wf-btn wf-s65c70c32 bp-button bp-hide-sm" data-track="open_playground" data-track-item-id="wf" type="button">Open in the Playground</button>
+                                        <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                    </div>
                                 </div>
-                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-kw">component</span> <span class="wf-tok-name">Stepper</span>(_ <span class="wf-tok-prop">value</span>: <span class="wf-tok-name">Number</span>, <span class="wf-tok-prop">label</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">min</span>: <span class="wf-tok-name">Number</span> = <span class="wf-tok-num">0</span>) {
+                                <code class="wf-code wf-code--block bp-console__code" tabindex="0"><span class="wf-tok-kw">component</span> <span class="wf-tok-name">Stepper</span>(_ <span class="wf-tok-prop">value</span>: <span class="wf-tok-name">Number</span>, <span class="wf-tok-prop">label</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">min</span>: <span class="wf-tok-name">Number</span> = <span class="wf-tok-num">0</span>) {
     <span class="wf-tok-kw">event</span> change(<span class="wf-tok-prop">value</span>: <span class="wf-tok-name">Number</span>)
     <span class="wf-tok-name">Row</span>(<span class="wf-tok-prop">gap</span>: .sm, <span class="wf-tok-prop">align</span>: .center) {
         <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;−&quot;</span>, <span class="wf-tok-prop">disabled</span>: value &lt;= min).sm { <span class="wf-tok-kw">on</span> click { <span class="wf-tok-kw">emit</span> change(value - <span class="wf-tok-num">1</span>) } }
@@ -724,7 +760,7 @@
                             </div>
                             <h2 class="wf-heading" id="other-people-s-code">Other people&#x27;s code</h2>
                             <div class="wf-markdown">
-<p>To use a JavaScript library — a chart, a map, an editor — call it from a <code>.js</code> file under <code>src/</code> and hand it an element with <code>mount:</code> and <code>cleanup:</code>. To place somebody else's custom element, use <code>Element(&quot;tag-name&quot;, …)</code>. You can also publish your components as custom elements for another framework to place. All three are in <a href="/recipes">JavaScript interop</a>.</p>
+<p>To use a JavaScript library — a chart, a map, an editor — call it from a <code>.js</code> file under <code>src/</code> and hand it an element with <code>mount:</code> and <code>cleanup:</code>. To place somebody else's custom element, use <code>Element(&quot;tag-name&quot;, …)</code>. You can also publish your components as custom elements for another framework to place. See <a href="/recipes/call-your-own-script">Call your own JavaScript</a>, <a href="/recipes/hand-an-element-to-a-script">Hand an element to a script</a>, <a href="/recipes/place-a-custom-element">Place a custom element</a> and <a href="/recipes/publish-custom-elements">Publish components as custom elements</a>.</p>
                             </div>
                             <h2 class="wf-heading" id="components-in-the-pre-rendered-page">Components in the pre-rendered page</h2>
                             <div class="wf-markdown">
@@ -963,9 +999,11 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                         <p class="wf-text wf-s23a4ddd5 bp-mono">wf · draws C01</p>
                                     </div>
-                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf · draws C01" type="button">Copy</button>
+                                    <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                        <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf · draws C01" type="button">Copy</button>
+                                    </div>
                                 </div>
-                                <code class="wf-code wf-code--block bp-console__code">component UserCard(_ name: String, role: String) {
+                                <code class="wf-code wf-code--block bp-console__code" tabindex="0">component UserCard(_ name: String, role: String) {
     Card { Text(name).bold  Text(role).muted }
 }
 
@@ -983,9 +1021,11 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                         <p class="wf-text wf-s23a4ddd5 bp-mono">wf · draws C02</p>
                                     </div>
-                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf · draws C02" type="button">Copy</button>
+                                    <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                        <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf · draws C02" type="button">Copy</button>
+                                    </div>
                                 </div>
-                                <code class="wf-code wf-code--block bp-console__code">component Note(_ text: String, muted: Bool = false) { Text(text) }
+                                <code class="wf-code wf-code--block bp-console__code" tabindex="0">component Note(_ text: String, muted: Bool = false) { Text(text) }
 
 page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
     Heading(&quot;Notes&quot;).h1
@@ -1001,9 +1041,11 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                                     <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                         <p class="wf-text wf-s23a4ddd5 bp-mono">wf · draws T22</p>
                                     </div>
-                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf · draws T22" type="button">Copy</button>
+                                    <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                        <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf · draws T22" type="button">Copy</button>
+                                    </div>
                                 </div>
-                                <code class="wf-code wf-code--block bp-console__code">component Stepper(_ value: Number) {
+                                <code class="wf-code wf-code--block bp-console__code" tabindex="0">component Stepper(_ value: Number) {
     event change(value: Number)
     Button(&quot;+&quot;) { on click { emit change(value + 1) } }
 }
@@ -1083,21 +1125,21 @@ page P(path: &quot;/&quot;, title: &quot;T&quot;, description: &quot;D&quot;) {
                     </div>
                     <div class="wf-stack wf-gap--xs wf-see94d5ab">
                         <button class="wf-btn wf-sc1cdfbd7 bp-rail-action" type="button">
-                            <i class="wf-icon" data-icon="copy"></i>
+                            <i class="wf-icon" data-icon="copy"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" ry="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" fill="none" stroke="currentColor" stroke-width="2"/></svg></i>
                             <p class="wf-text">Copy page as Markdown</p>
                         </button>
                         <button class="wf-btn wf-sc1cdfbd7 bp-rail-action" type="button">
-                            <i class="wf-icon" data-icon="file"></i>
+                            <i class="wf-icon" data-icon="file"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 2.5h6l4 4v11H5z"/><path d="M11 2.5v4h4"/></g></svg></i>
                             <p class="wf-text">Open as Markdown</p>
                         </button>
                     </div>
                     <a class="wf-link wf-s48d899f5" href="https://github.com/monzeromer-lab/WebFluent/blob/master/md-docs/learn/10-components.md">
-                        <i class="wf-icon" data-icon="edit"></i>
+                        <i class="wf-icon" data-icon="edit"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" fill="none" stroke="currentColor" stroke-width="2"/></svg></i>
                         <p class="wf-text">Edit this page</p>
                     </a>
                 </div>
             </div>
-        </main>
+        </div>
         <footer class="wf-footer wf-s2213a098">
             <div class="wf-stack wf-gap--lg wf-s84d7918c bp-wrap">
                 <div class="wf-grid wf-gap--lg wf-r67559659">

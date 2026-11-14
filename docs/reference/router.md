@@ -19,7 +19,9 @@ Router(transition: Enum, duration: String) { … }
 
 ## Flags
 
-`.none` `.fade` `.slide` `.dropInside` `.trapFocus`
+`.none` `.fade` `.slide`
+
+Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 
 ## Slots
 
@@ -42,4 +44,4 @@ app {
 - [C05](https://webfluent.monzeromer.dev/errors/C05.md): A positional argument a built-in does not take
 - [R03](https://webfluent.monzeromer.dev/errors/R03.md): An app with no Router, or with two
 
-Since WebFluent 5.0.
+Before WebFluent 5.0.

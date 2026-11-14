@@ -42,7 +42,7 @@
 </head>
 <body>
     <div id="app">
-        <main id="wf-main">
+        <div id="wf-main">
             <a class="wf-link bp-skip" href="#bp-main">انتقل إلى المحتوى</a>
             <div class="wf-row wf-align--center wf-s55053fdc bp-header" role="banner">
                 <div class="wf-row wf-align--center wf-gap--md wf-sfe495c12 bp-wrap">
@@ -61,7 +61,7 @@
                     </div>
                     <div class="wf-row wf-align--center wf-gap--sm wf-sff642a95">
                         <button class="wf-btn wf-sf8ab46ec bp-field bp-search" aria-label="ابحث في التوثيق" aria-keyshortcuts="Meta+K Control+K" aria-haspopup="dialog" type="button">
-                            <i class="wf-icon" data-icon="search"></i>
+                            <i class="wf-icon" data-icon="search"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></i>
                             <p class="wf-text wf-sf55a2627 bp-hide-sm">ابحث في التوثيق</p>
                             <p class="wf-text bp-kbd bp-hide-sm">Ctrl+K</p>
                         </button>
@@ -75,17 +75,17 @@
                                 <option value="elements">عناصر مخصّصة</option>
                                 <option value="desktop">سطح المكتب / الهاتف</option>
                             </select>
-                            <i class="wf-icon wf-s94250744" data-icon="chevron-down" aria-hidden="true"></i>
+                            <i class="wf-icon wf-s94250744" data-icon="chevron-down" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><polyline points="6 9 12 15 18 9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></i>
                         </div>
                         <button class="wf-icon-btn bp-icon-button" data-track="select_content" data-track-content-type="theme" type="button"></button>
                         <div class="wf-row wf-align--center wf-gap--xs wf-s286d925a bp-hide-sm">
                             <a class="wf-link bp-button" href="/learn/01-getting-started" data-track="select_content" data-track-content-type="language"></a>
                         </div>
                         <a class="wf-link bp-button bp-hide-md" href="https://github.com/monzeromer-lab/WebFluent" data-tone="quiet" aria-label="GitHub">
-                            <i class="wf-icon" data-icon="git-branch"></i>
+                            <i class="wf-icon" data-icon="git-branch"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="4.5" r="2"/><circle cx="6" cy="15.5" r="2"/><circle cx="14" cy="6.5" r="2"/><path d="M6 6.5v7M14 8.5c0 3.5-8 2.5-8 5"/></g></svg></i>
                             <p class="wf-text">GitHub</p>
                         </a>
-                        <button class="wf-icon-btn wf-sde8ec4aa bp-icon-button" data-icon="menu" aria-label="القائمة" title="القائمة" aria-expanded="false" type="button"></button>
+                        <button class="wf-icon-btn wf-sde8ec4aa bp-icon-button" data-icon="menu" aria-label="القائمة" title="القائمة" aria-expanded="false" type="button"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
                     </div>
                 </div>
             </div>
@@ -95,7 +95,7 @@
                     <div class="wf-modal__body">
                         <div class="wf-stack wf-sa8e464d0">
                             <div class="wf-row wf-align--center wf-gap--sm wf-s02e7a482 bp-field">
-                                <i class="wf-icon" data-icon="search"></i>
+                                <i class="wf-icon" data-icon="search"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></i>
                                 <input class="wf-input" placeholder="ابحث في الدليل" aria-label="ابحث في الدليل" type="search" autofocus>
                                 <p class="wf-text bp-kbd">esc</p>
                             </div>
@@ -205,24 +205,24 @@
                     <div class="wf-row bp-labels">
                         <p class="wf-text bp-label" data-tone="kind" data-kind="tutorial">درس</p>
                         <p class="wf-text bp-label">الجولة</p>
-                        <div class="wf-row wf-gap--xs bp-labels" aria-label="يعمل في">
+                        <div class="wf-row wf-gap--xs bp-labels" role="group" aria-label="يعمل في">
                         </div>
                     </div>
                     <div class="wf-stack wf-gap--sm wf-s4e4189b1">
                         <h1 class="wf-heading wf-s900776cd">البدء</h1>
-                        <p class="wf-text bp-lede">ثبّت المترجم، وأنشئ مشروعًا، وشغّله، وغيّره وشاهد التغيير — ثم جهّز محررك أو WebFluent Studio، وتعرّف على ما يكتبه البناء.</p>
+                        <p class="wf-text bp-lede">ثبّت المُصرِّف، وأنشئ مشروعًا، وشغّله، وغيّره وشاهد التغيير — ثم جهّز محررك أو WebFluent Studio، وتعرّف على ما يكتبه البناء.</p>
                         <div class="wf-stack wf-gap--sm wf-s8a243922 bp-contents">
                             <button class="wf-btn wf-s1865e956 bp-button" aria-expanded="false" aria-controls="bp-contents-panel" type="button">
-                                <i class="wf-icon" data-icon="list"></i>
+                                <i class="wf-icon" data-icon="list"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 5h10.5M7 10h10.5M7 15h10.5M2.5 5h.5M2.5 10h.5M2.5 15h.5"/></g></svg></i>
                                 <p class="wf-text">المحتويات</p>
-                                <i class="wf-icon" data-icon="chevron-down"></i>
+                                <i class="wf-icon" data-icon="chevron-down"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><polyline points="6 9 12 15 18 9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></i>
                             </button>
                         </div>
                     </div>
                     <div class="wf-stack wf-gap--lg wf-s399b38f0 bp-prose docs-article" dir="rtl">
                         <div class="wf-stack wf-gap--lg" id="wf-content" tabindex="-1">
                             <div class="wf-markdown">
-<p>يثبّت هذا الفصل <code>wf</code>، مترجم WebFluent، ويشغّل أول مشروع في متصفحك. في نحو عشر دقائق تنشئ المشروع، وتغيّر سطرًا واحدًا، وترى الصفحة تتبعه. بقية الفصل إعداد اختياري: محررك، وقوالب المشاريع الأخرى، وموقع تكتبه من الصفر، وما يكتبه البناء.</p>
+<p>يثبّت هذا الفصل <code>wf</code>، مُصرِّف WebFluent، ويشغّل أول مشروع في متصفحك. في نحو عشر دقائق تنشئ المشروع، وتغيّر سطرًا واحدًا، وترى الصفحة تتبعه. بقية الفصل إعداد اختياري: محررك، وقوالب المشاريع الأخرى، وموقع تكتبه من الصفر، وما يكتبه البناء.</p>
                             </div>
                             <h2 class="wf-heading" id="قبل-أن-تبدأ">قبل أن تبدأ</h2>
                             <div class="wf-markdown">
@@ -243,9 +243,11 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                         <p class="wf-text wf-s23a4ddd5 bp-mono">bash</p>
                                     </div>
-                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="نسخ" data-track="copy_code" data-track-item-id="bash" type="button">نسخ</button>
+                                    <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                        <button class="wf-btn wf-s65c70c32 bp-button" aria-label="نسخ" data-track="copy_code" data-track-item-id="bash" type="button">نسخ</button>
+                                    </div>
                                 </div>
-                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-prompt">$ </span>curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | bash</code>
+                                <code class="wf-code wf-code--block bp-console__code" tabindex="0"><span class="wf-tok-prompt">$ </span>curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | bash</code>
                             </div>
                             <div class="wf-markdown">
 <p>يجلب السكربت الملف التنفيذي المناسب لمنصتك من أحدث إصدار. لا تحتاج إلى Rust. يغطي أجهزة Mac بمعالجات Apple Silicon وIntel، وLinux على x86_64.</p>
@@ -256,9 +258,11 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                         <p class="wf-text wf-s23a4ddd5 bp-mono">powershell</p>
                                     </div>
-                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="نسخ" data-track="copy_code" data-track-item-id="powershell" type="button">نسخ</button>
+                                    <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                        <button class="wf-btn wf-s65c70c32 bp-button" aria-label="نسخ" data-track="copy_code" data-track-item-id="powershell" type="button">نسخ</button>
+                                    </div>
                                 </div>
-                                <code class="wf-code wf-code--block bp-console__code">irm https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.ps1 | iex</code>
+                                <code class="wf-code wf-code--block bp-console__code" tabindex="0">irm https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.ps1 | iex</code>
                             </div>
                             <div class="wf-stack wf-s37f4bada bp-aside" role="note" aria-label="مهم" data-kind="important">
                                 <p class="wf-text bp-aside__label">مهم</p>
@@ -267,7 +271,7 @@
                                 </div>
                             </div>
                             <div class="wf-markdown">
-<p>في Windows أمر اسمه <code>wf</code> أصلًا: <code>C:\Windows\System32\WF.msc</code>، وهو وحدة تحكم جدار حماية Windows. يأتي System32 أولًا في <code>PATH</code>، و<code>.MSC</code> من الامتدادات التي يجرّبها Windows للاسم المجرّد، فكتابة <code>wf</code> تفتح جدار الحماية بدل WebFluent. لهذا يثبّت ملف zip الخاص بالإصدار و<code>install.ps1</code> وملف <code>.msi</code> المترجمَ باسم <code>webfluent.exe</code> بجانب <code>wf.exe</code>، ويضع <code>.msi</code> مجلدهما على <code>PATH</code>. تعمل <code>webfluent build</code> و<code>webfluent serve</code> و<code>wf.exe build</code> كلها. بعد <code>cargo install webfluent</code>، استخدم <code>wf.exe</code>.</p>
+<p>في Windows أمر اسمه <code>wf</code> أصلًا: <code>C:\Windows\System32\WF.msc</code>، وهو وحدة تحكم جدار حماية Windows. يأتي System32 أولًا في <code>PATH</code>، و<code>.MSC</code> من الامتدادات التي يجرّبها Windows للاسم المجرّد، فكتابة <code>wf</code> تفتح جدار الحماية بدل WebFluent. لهذا يثبّت ملف zip الخاص بالإصدار و<code>install.ps1</code> وملف <code>.msi</code> المُصرِّفَ باسم <code>webfluent.exe</code> بجانب <code>wf.exe</code>، ويضع <code>.msi</code> مجلدهما على <code>PATH</code>. تعمل <code>webfluent build</code> و<code>webfluent serve</code> و<code>wf.exe build</code> كلها. بعد <code>cargo install webfluent</code>، استخدم <code>wf.exe</code>.</p>
                             </div>
                             <h3 class="wf-heading" id="باستخدام-rust">باستخدام Rust</h3>
                             <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
@@ -275,9 +279,11 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                         <p class="wf-text wf-s23a4ddd5 bp-mono">bash</p>
                                     </div>
-                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="نسخ" data-track="copy_code" data-track-item-id="bash" type="button">نسخ</button>
+                                    <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                        <button class="wf-btn wf-s65c70c32 bp-button" aria-label="نسخ" data-track="copy_code" data-track-item-id="bash" type="button">نسخ</button>
+                                    </div>
                                 </div>
-                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-prompt">$ </span>cargo install webfluent</code>
+                                <code class="wf-code wf-code--block bp-console__code" tabindex="0"><span class="wf-tok-prompt">$ </span>cargo install webfluent</code>
                             </div>
                             <div class="wf-markdown">
 <p>يبني هذا <code>wf</code> من crates.io. يعمل حيثما تعمل Rust، وهو طريقة التثبيت على Linux arm64، الذي لا ملف تنفيذي جاهزًا له بعد.</p>
@@ -295,9 +301,11 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                         <p class="wf-text wf-s23a4ddd5 bp-mono">bash</p>
                                     </div>
-                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="نسخ" data-track="copy_code" data-track-item-id="bash" type="button">نسخ</button>
+                                    <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                        <button class="wf-btn wf-s65c70c32 bp-button" aria-label="نسخ" data-track="copy_code" data-track-item-id="bash" type="button">نسخ</button>
+                                    </div>
                                 </div>
-                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-prompt">$ </span>wf --version</code>
+                                <code class="wf-code wf-code--block bp-console__code" tabindex="0"><span class="wf-tok-prompt">$ </span>wf --version</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>ترى</strong> الإصدار الذي ثبّته:</p>
@@ -307,9 +315,11 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                         <p class="wf-text wf-s23a4ddd5 bp-mono">text</p>
                                     </div>
-                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="نسخ" data-track="copy_code" data-track-item-id="text" type="button">نسخ</button>
+                                    <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                        <button class="wf-btn wf-s65c70c32 bp-button" aria-label="نسخ" data-track="copy_code" data-track-item-id="text" type="button">نسخ</button>
+                                    </div>
                                 </div>
-                                <code class="wf-code wf-code--block bp-console__code">wf 6.0.0</code>
+                                <code class="wf-code wf-code--block bp-console__code" tabindex="0">wf 6.0.0</code>
                             </div>
                             <div class="wf-markdown">
 <p>إن قالت الصدفة إنها لا تجد <code>wf</code>، فافتح طرفية جديدة. يضيف المثبّت مجلده إلى <code>PATH</code> في ملف بدء تشغيل الصدفة، والطرفية التي شغّلته فيها قرأت ذلك الملف قبل التغيير.</p>
@@ -323,9 +333,11 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                         <p class="wf-text wf-s23a4ddd5 bp-mono">bash</p>
                                     </div>
-                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="نسخ" data-track="copy_code" data-track-item-id="bash" type="button">نسخ</button>
+                                    <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                        <button class="wf-btn wf-s65c70c32 bp-button" aria-label="نسخ" data-track="copy_code" data-track-item-id="bash" type="button">نسخ</button>
+                                    </div>
                                 </div>
-                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-prompt">$ </span>wf init hello
+                                <code class="wf-code wf-code--block bp-console__code" tabindex="0"><span class="wf-tok-prompt">$ </span>wf init hello
 <span class="wf-tok-prompt">$ </span>cd hello</code>
                             </div>
                             <div class="wf-markdown">
@@ -336,13 +348,15 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                         <p class="wf-text wf-s23a4ddd5 bp-mono">text</p>
                                     </div>
-                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="نسخ" data-track="copy_code" data-track-item-id="text" type="button">نسخ</button>
+                                    <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                        <button class="wf-btn wf-s65c70c32 bp-button" aria-label="نسخ" data-track="copy_code" data-track-item-id="text" type="button">نسخ</button>
+                                    </div>
                                 </div>
-                                <code class="wf-code wf-code--block bp-console__code">Created new WebFluent project: hello (template: spa)
+                                <code class="wf-code wf-code--block bp-console__code" tabindex="0">Created new WebFluent project: hello (template: spa)
   AGENTS.md is the language reference, for you and your coding agent</code>
                             </div>
                             <div class="wf-markdown">
-<p>يكتب <code>wf init</code> تطبيقًا صغيرًا لتجد شيئًا حقيقيًا تقرؤه: أربع صفحات (لوحة معلومات، وقائمة مهام، وملف شخصي، وإعدادات)، وثلاثة مكوّنات، ومتجرين، مع اختبارات تحت <code>tests/</code>.</p>
+<p>يكتب <code>wf init</code> تطبيقًا صغيرًا لتجد شيئًا حقيقيًا تقرؤه: أربع صفحات (لوحة معلومات، وقائمة مهام، وملف شخصي، وإعدادات)، وثلاثة مكوّنات، ومخزنين، مع اختبارات تحت <code>tests/</code>.</p>
                             </div>
                             <h2 class="wf-heading" id="تشغيل-خادم-التطوير">تشغيل خادم التطوير</h2>
                             <div class="wf-markdown">
@@ -353,9 +367,11 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                         <p class="wf-text wf-s23a4ddd5 bp-mono">bash</p>
                                     </div>
-                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="نسخ" data-track="copy_code" data-track-item-id="bash" type="button">نسخ</button>
+                                    <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                        <button class="wf-btn wf-s65c70c32 bp-button" aria-label="نسخ" data-track="copy_code" data-track-item-id="bash" type="button">نسخ</button>
+                                    </div>
                                 </div>
-                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-prompt">$ </span>wf serve</code>
+                                <code class="wf-code wf-code--block bp-console__code" tabindex="0"><span class="wf-tok-prompt">$ </span>wf serve</code>
                             </div>
                             <div class="wf-markdown">
 <p><strong>ترى:</strong></p>
@@ -365,9 +381,11 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                         <p class="wf-text wf-s23a4ddd5 bp-mono">text</p>
                                     </div>
-                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="نسخ" data-track="copy_code" data-track-item-id="text" type="button">نسخ</button>
+                                    <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                        <button class="wf-btn wf-s65c70c32 bp-button" aria-label="نسخ" data-track="copy_code" data-track-item-id="text" type="button">نسخ</button>
+                                    </div>
                                 </div>
-                                <code class="wf-code wf-code--block bp-console__code">Building hello...
+                                <code class="wf-code wf-code--block bp-console__code" tabindex="0">Building hello...
   4 pages, 3 components, 2 stores
   Output: ./build/
 Build complete.
@@ -399,9 +417,11 @@ Starting dev server at http://localhost:3000/</code>
                                     <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                         <p class="wf-text wf-s23a4ddd5 bp-mono">bash</p>
                                     </div>
-                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="نسخ" data-track="copy_code" data-track-item-id="bash" type="button">نسخ</button>
+                                    <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                        <button class="wf-btn wf-s65c70c32 bp-button" aria-label="نسخ" data-track="copy_code" data-track-item-id="bash" type="button">نسخ</button>
+                                    </div>
                                 </div>
-                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-prompt">$ </span>cargo install --path crates/wf-lsp</code>
+                                <code class="wf-code wf-code--block bp-console__code" tabindex="0"><span class="wf-tok-prompt">$ </span>cargo install --path crates/wf-lsp</code>
                             </div>
                             <div class="wf-markdown">
 <p>ثم اربط محررك:</p>
@@ -413,10 +433,10 @@ Starting dev server at http://localhost:3000/</code>
                             </div>
                             <h3 class="wf-heading" id="webfluent-studio">WebFluent Studio</h3>
                             <div class="wf-markdown">
-<p><a href="https://github.com/monzeromer-lab/webfluent-studio">WebFluent Studio</a> تطبيق مصنوع لكتابة WebFluent. يجمع في نافذة واحدة محرر شيفرة، ومعاينة حية، ومصممًا مرئيًا، وGit وGitHub، وهذا الدليل، ووكيلًا. لا يستخدم <code>wf-lsp</code>: المترجم يعمل داخل التطبيق، فلا يحتاج إلى <code>wf</code> على <code>PATH</code>، ولا إلى طرفية، ولا إلى خادم تطوير. المشروع المبني في Studio مطابق بايتًا ببايت للمشروع نفسه مبنيًا بـ <code>wf build</code>، فتستطيع التنقل بين Studio وسطر الأوامر متى شئت.</p>
+<p><a href="https://github.com/monzeromer-lab/webfluent-studio">WebFluent Studio</a> تطبيق مصنوع لكتابة WebFluent. يجمع في نافذة واحدة محرر شيفرة، ومعاينة حية، ومصممًا مرئيًا، وGit وGitHub، وهذا الدليل، ووكيلًا. لا يستخدم <code>wf-lsp</code>: المُصرِّف يعمل داخل التطبيق، فلا يحتاج إلى <code>wf</code> على <code>PATH</code>، ولا إلى طرفية، ولا إلى خادم تطوير. المشروع المبني في Studio مطابق بايتًا ببايت للمشروع نفسه مبنيًا بـ<code>wf build</code>، فتستطيع التنقل بين Studio وسطر الأوامر متى شئت.</p>
 <ul>
 <li><strong>المعاينة</strong> تُعاد بناءً أثناء الكتابة، وسجل البناء ووحدة التحكم يربطان بالمصدر.</li>
-<li><strong>التشخيصات</strong> فيها رسالة المترجم نفسها وإصلاحها، على بعد نقرة واحدة؛ ويفتح <strong>Explain</strong> فصل هذا الدليل الخاص بذلك الرمز.</li>
+<li><strong>التشخيصات</strong> فيها رسالة المُصرِّف نفسها وإصلاحها، على بعد نقرة واحدة؛ ويفتح <strong>Explain</strong> فصل هذا الدليل الخاص بذلك الرمز.</li>
 <li><strong>وضع التصميم</strong> يحرّر الصفحة على لوحة رسم ويكتب ملف <code>.wf</code> الذي كنت ستكتبه.</li>
 <li><strong>الوكيل</strong> يبني تغييره قبل أن تراه، ثم تقبله أو ترفضه جزءًا جزءًا.</li>
 </ul>
@@ -470,16 +490,18 @@ Starting dev server at http://localhost:3000/</code>
                             </table>
                             <div class="wf-markdown">
 <p>تشغيل المثبّت مرة أخرى يرقّي <code>wf</code> في مكانه.</p>
-<p>للبناء من نسخة من المستودع بدلًا من ذلك — لتغيير لم يُصدَر بعد، أو للعمل على المترجم نفسه — شغّل:</p>
+<p>للبناء من نسخة من المستودع بدلًا من ذلك — لتغيير لم يُصدَر بعد، أو للعمل على المُصرِّف نفسه — شغّل:</p>
                             </div>
                             <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
                                 <div class="wf-row wf-s2c416341 bp-console__bar">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                         <p class="wf-text wf-s23a4ddd5 bp-mono">bash</p>
                                     </div>
-                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="نسخ" data-track="copy_code" data-track-item-id="bash" type="button">نسخ</button>
+                                    <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                        <button class="wf-btn wf-s65c70c32 bp-button" aria-label="نسخ" data-track="copy_code" data-track-item-id="bash" type="button">نسخ</button>
+                                    </div>
                                 </div>
-                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-prompt">$ </span>git clone https://github.com/monzeromer-lab/WebFluent.git
+                                <code class="wf-code wf-code--block bp-console__code" tabindex="0"><span class="wf-tok-prompt">$ </span>git clone https://github.com/monzeromer-lab/WebFluent.git
 <span class="wf-tok-prompt">$ </span>cd WebFluent &amp;&amp; cargo install --path .</code>
                             </div>
                             <h2 class="wf-heading" id="اختيار-قالب">اختيار قالب</h2>
@@ -530,7 +552,7 @@ Starting dev server at http://localhost:3000/</code>
                                 </tbody>
                             </table>
                             <div class="wf-markdown">
-<p>يبدأ <code>--locales en,ar</code> مشروع <code>spa</code> أو <code>static</code> مترجمًا: نصه في <code>src/translations/</code>، ملف لكل لغة، واللغة الأولى هي الافتراضية (<a href="/recipes/translate-a-site#start-a-project-translated">التدويل</a>).</p>
+<p>يبدأ <code>--locales en,ar</code> مشروع <code>spa</code> أو <code>static</code> مترجَمًا إلى أكثر من لغة: نصه في <code>src/translations/</code>، ملف لكل لغة، واللغة الأولى هي الافتراضية (<a href="/recipes/translate-a-site#start-a-project-translated">الترجمة</a>).</p>
 <p>إن لم تكن متأكدًا بين <code>spa</code> و<code>static</code>، فابدأ بـ<code>static</code>. كل صفحة HTML حقيقية قبل أن يعمل أي سكربت، وهذا أفضل للبحث وللرسم الأول، والصفحة تبقى تفاعلية بالكامل بعد تحميل السكربت. يشرح <a href="/about/static-or-single-page">ثابت أم صفحة واحدة</a> الفرق.</p>
                             </div>
                             <h2 class="wf-heading" id="كتابة-موقع-من-الصفر">كتابة موقع من الصفر</h2>
@@ -543,9 +565,11 @@ Starting dev server at http://localhost:3000/</code>
                                     <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                         <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="نسخ" data-track="copy_code" data-track-item-id="wf" type="button">نسخ</button>
+                                    <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                        <button class="wf-btn wf-s65c70c32 bp-button" aria-label="نسخ" data-track="copy_code" data-track-item-id="wf" type="button">نسخ</button>
+                                    </div>
                                 </div>
-                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-kw">app</span> {
+                                <code class="wf-code wf-code--block bp-console__code" tabindex="0"><span class="wf-tok-kw">app</span> {
     <span class="wf-tok-name">Navbar</span> {
         <span class="wf-tok-name">Navbar</span>.<span class="wf-tok-name">Brand</span> { <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Hello&quot;</span>).heading }
         <span class="wf-tok-name">Navbar</span>.<span class="wf-tok-name">Links</span> {
@@ -564,9 +588,12 @@ Starting dev server at http://localhost:3000/</code>
                                     <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                         <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="نسخ" data-track="copy_code" data-track-item-id="wf" type="button">نسخ</button>
+                                    <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                        <button class="wf-btn wf-s65c70c32 bp-button bp-hide-sm" data-track="open_playground" data-track-item-id="wf" type="button">افتح في الملعب</button>
+                                        <button class="wf-btn wf-s65c70c32 bp-button" aria-label="نسخ" data-track="copy_code" data-track-item-id="wf" type="button">نسخ</button>
+                                    </div>
                                 </div>
-                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Home</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Hello&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;A first WebFluent site.&quot;</span>) {
+                                <code class="wf-code wf-code--block bp-console__code" tabindex="0"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Home</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Hello&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;A first WebFluent site.&quot;</span>) {
     <span class="wf-tok-kw">state</span> count = <span class="wf-tok-num">0</span>
     <span class="wf-tok-name">Container</span> {
         <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Hello, world&quot;</span>).h1
@@ -607,9 +634,11 @@ Starting dev server at http://localhost:3000/</code>
                                     <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                         <p class="wf-text wf-s23a4ddd5 bp-mono">text</p>
                                     </div>
-                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="نسخ" data-track="copy_code" data-track-item-id="text" type="button">نسخ</button>
+                                    <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                        <button class="wf-btn wf-s65c70c32 bp-button" aria-label="نسخ" data-track="copy_code" data-track-item-id="text" type="button">نسخ</button>
+                                    </div>
                                 </div>
-                                <code class="wf-code wf-code--block bp-console__code">build/
+                                <code class="wf-code wf-code--block bp-console__code" tabindex="0">build/
   index.html          the page, pre-rendered (static) or the app shell (spa)
   about/index.html    one directory per route in a static build
   404.html            the `path: &quot;*&quot;` page, which a host serves for unknown paths
@@ -636,9 +665,11 @@ Starting dev server at http://localhost:3000/</code>
                                     <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                         <p class="wf-text wf-s23a4ddd5 bp-mono">text</p>
                                     </div>
-                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="نسخ" data-track="copy_code" data-track-item-id="text" type="button">نسخ</button>
+                                    <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                        <button class="wf-btn wf-s65c70c32 bp-button" aria-label="نسخ" data-track="copy_code" data-track-item-id="text" type="button">نسخ</button>
+                                    </div>
                                 </div>
-                                <code class="wf-code wf-code--block bp-console__code">AGENTS.md             the language reference, for you and a coding agent
+                                <code class="wf-code wf-code--block bp-console__code" tabindex="0">AGENTS.md             the language reference, for you and a coding agent
 webfluent.app.json    the config
 src/
   App.wf              the app shell (optional)
@@ -651,7 +682,7 @@ public/               copied to the build's root (images, fonts, favicon)
 tests/*.wf            `test &quot;…&quot; { }` declarations for `wf test`</code>
                             </div>
                             <div class="wf-markdown">
-<p>يقرأ المترجم كل ملف <code>.wf</code> أو <code>.wfx</code> تحت <code>src/</code> ويدمجها في برنامج واحد، فتستخدم صفحة في ملف مكوّنًا من ملف آخر دون استيراده. المجلدات عُرف، لا قاعدة. يغطي <a href="/reference/project">هيكل المشروع</a> التسمية والتنظيم والإعدادات، ويسرد <a href="/reference/config">مرجع الإعدادات</a> كل مفتاح.</p>
+<p>يقرأ المُصرِّف كل ملف <code>.wf</code> أو <code>.wfx</code> تحت <code>src/</code> ويدمجها في برنامج واحد، فتستخدم صفحة في ملف مكوّنًا من ملف آخر دون استيراده. المجلدات عُرف، لا قاعدة. يغطي <a href="/reference/project">هيكل المشروع</a> التسمية والتنظيم والإعدادات، ويسرد <a href="/reference/config">مرجع الإعدادات</a> كل مفتاح.</p>
 <p>لا تحتاج الإعدادات إلا إلى اسم:</p>
                             </div>
                             <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
@@ -659,9 +690,11 @@ tests/*.wf            `test &quot;…&quot; { }` declarations for `wf test`</cod
                                     <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                         <p class="wf-text wf-s23a4ddd5 bp-mono">json</p>
                                     </div>
-                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="نسخ" data-track="copy_code" data-track-item-id="json" type="button">نسخ</button>
+                                    <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                        <button class="wf-btn wf-s65c70c32 bp-button" aria-label="نسخ" data-track="copy_code" data-track-item-id="json" type="button">نسخ</button>
+                                    </div>
                                 </div>
-                                <code class="wf-code wf-code--block bp-console__code">{ <span class="wf-tok-prop">&quot;name&quot;</span>: <span class="wf-tok-str">&quot;hello&quot;</span> }</code>
+                                <code class="wf-code wf-code--block bp-console__code" tabindex="0">{ <span class="wf-tok-prop">&quot;name&quot;</span>: <span class="wf-tok-str">&quot;hello&quot;</span> }</code>
                             </div>
                             <h2 class="wf-heading" id="أخطاء-شائعة">أخطاء شائعة</h2>
                             <div class="wf-markdown">
@@ -672,9 +705,11 @@ tests/*.wf            `test &quot;…&quot; { }` declarations for `wf test`</cod
                                     <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                         <p class="wf-text wf-s23a4ddd5 bp-mono">wf · draws E103</p>
                                     </div>
-                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="نسخ" data-track="copy_code" data-track-item-id="wf · draws E103" type="button">نسخ</button>
+                                    <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                        <button class="wf-btn wf-s65c70c32 bp-button" aria-label="نسخ" data-track="copy_code" data-track-item-id="wf · draws E103" type="button">نسخ</button>
+                                    </div>
                                 </div>
-                                <code class="wf-code wf-code--block bp-console__code">page Home(path: &quot;/&quot;, title: &quot;Hello&quot;, description: &quot;A first site.&quot;) {
+                                <code class="wf-code wf-code--block bp-console__code" tabindex="0">page Home(path: &quot;/&quot;, title: &quot;Hello&quot;, description: &quot;A first site.&quot;) {
     Heading(&quot;Hello&quot;).h1
     Text(&quot;Welcome back.&quot;).mutd
 }</code>
@@ -688,9 +723,11 @@ tests/*.wf            `test &quot;…&quot; { }` declarations for `wf test`</cod
                                     <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                         <p class="wf-text wf-s23a4ddd5 bp-mono">wf · draws R03</p>
                                     </div>
-                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="نسخ" data-track="copy_code" data-track-item-id="wf · draws R03" type="button">نسخ</button>
+                                    <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                        <button class="wf-btn wf-s65c70c32 bp-button" aria-label="نسخ" data-track="copy_code" data-track-item-id="wf · draws R03" type="button">نسخ</button>
+                                    </div>
                                 </div>
-                                <code class="wf-code wf-code--block bp-console__code">app {
+                                <code class="wf-code wf-code--block bp-console__code" tabindex="0">app {
     Navbar {
         Navbar.Brand { Text(&quot;Hello&quot;).heading }
     }
@@ -702,16 +739,18 @@ page Home(path: &quot;/&quot;, title: &quot;Hello&quot;, description: &quot;A fi
                             </div>
                             <div class="wf-markdown">
 <p>ضع <code>Router</code> في <code>app</code> حيث يجب أن تظهر الصفحة الحالية (<a href="/errors/R03">R03</a>).</p>
-<p>رابط إلى صفحة لم تكتبها بعد. يفحص المترجم كل <code>to:</code> مقابل مسارات الصفحات:</p>
+<p>رابط إلى صفحة لم تكتبها بعد. يفحص المُصرِّف كل <code>to:</code> مقابل مسارات الصفحات:</p>
                             </div>
                             <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
                                 <div class="wf-row wf-s2c416341 bp-console__bar">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                         <p class="wf-text wf-s23a4ddd5 bp-mono">wf · draws R01</p>
                                     </div>
-                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="نسخ" data-track="copy_code" data-track-item-id="wf · draws R01" type="button">نسخ</button>
+                                    <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                        <button class="wf-btn wf-s65c70c32 bp-button" aria-label="نسخ" data-track="copy_code" data-track-item-id="wf · draws R01" type="button">نسخ</button>
+                                    </div>
                                 </div>
-                                <code class="wf-code wf-code--block bp-console__code">app {
+                                <code class="wf-code wf-code--block bp-console__code" tabindex="0">app {
     Navbar {
         Navbar.Links {
             Link(&quot;Home&quot;, to: &quot;/&quot;)
@@ -791,21 +830,21 @@ page Home(path: &quot;/&quot;, title: &quot;Hello&quot;, description: &quot;A fi
                     </div>
                     <div class="wf-stack wf-gap--xs wf-see94d5ab">
                         <button class="wf-btn wf-sc1cdfbd7 bp-rail-action" type="button">
-                            <i class="wf-icon" data-icon="copy"></i>
+                            <i class="wf-icon" data-icon="copy"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" ry="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" fill="none" stroke="currentColor" stroke-width="2"/></svg></i>
                             <p class="wf-text">انسخ الصفحة بصيغة Markdown</p>
                         </button>
                         <button class="wf-btn wf-sc1cdfbd7 bp-rail-action" type="button">
-                            <i class="wf-icon" data-icon="file"></i>
+                            <i class="wf-icon" data-icon="file"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 2.5h6l4 4v11H5z"/><path d="M11 2.5v4h4"/></g></svg></i>
                             <p class="wf-text">افتحها بصيغة Markdown</p>
                         </button>
                     </div>
                     <a class="wf-link wf-s48d899f5" href="https://github.com/monzeromer-lab/WebFluent/blob/master/md-docs/ar/learn/01-getting-started.md">
-                        <i class="wf-icon" data-icon="edit"></i>
+                        <i class="wf-icon" data-icon="edit"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" fill="none" stroke="currentColor" stroke-width="2"/></svg></i>
                         <p class="wf-text">عدّل هذه الصفحة</p>
                     </a>
                 </div>
             </div>
-        </main>
+        </div>
         <footer class="wf-footer wf-s2213a098">
             <div class="wf-stack wf-gap--lg wf-s84d7918c bp-wrap">
                 <div class="wf-grid wf-gap--lg wf-r67559659">

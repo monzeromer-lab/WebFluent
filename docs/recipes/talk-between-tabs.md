@@ -9,6 +9,10 @@ setting. Every tab that opens a channel of the same name hears what the
 others post, with no server involved. This shop keeps its cart count the
 same in every tab:
 
+**Needs:** nothing besides the page; open it in two tabs. It claims `/`:
+paste it into a new project, or replace the starter's `src/pages/Home.wf`
+with it.
+
 ```wf
 store Cart {
     state count = 0

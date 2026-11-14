@@ -1,2 +1,2 @@
-function Page_OldReferenceAudio(params){const _root=document.createDocumentFragment();const _e1604=WF.el("h1",{className:"wf-heading"},"Audio");_root.appendChild(_e1604);const _e1605=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/audio"},"Audio");WF.activeLink(_e1605,"/reference/audio",false);_root.appendChild(_e1605);return _root;}
+function Page_OldReferenceAudio(params){const _root=document.createDocumentFragment();const _e1725=WF.el("h1",{className:"wf-heading"},"Audio");_root.appendChild(_e1725);const _e1726=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/audio"},"Audio");WF.activeLink(_e1726,"/reference/audio",false);_root.appendChild(_e1726);return _root;}
 WF.page("OldReferenceAudio",Page_OldReferenceAudio,{title:"Audio"});

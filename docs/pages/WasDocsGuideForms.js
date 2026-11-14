@@ -1,2 +1,2 @@
-function Page_WasDocsGuideForms(params){const _root=document.createDocumentFragment();const _e9885=WF.el("h1",{className:"wf-heading"},"Moved");_root.appendChild(_e9885);const _e9886=WF.el("a",{className:"wf-link",href:WF._basePath+"/learn/14-forms"},"Go on");WF.activeLink(_e9886,"/learn/14-forms",false);_root.appendChild(_e9886);return _root;}
+function Page_WasDocsGuideForms(params){const _root=document.createDocumentFragment();const _e10040=WF.el("h1",{className:"wf-heading"},"Moved");_root.appendChild(_e10040);const _e10041=WF.el("a",{className:"wf-link",href:WF._basePath+"/learn/14-forms"},"Go on");WF.activeLink(_e10041,"/learn/14-forms",false);_root.appendChild(_e10041);return _root;}
 WF.page("WasDocsGuideForms",Page_WasDocsGuideForms,{title:"Moved"});

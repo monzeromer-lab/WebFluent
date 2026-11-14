@@ -384,6 +384,10 @@ page Tasks(path: "/", title: "Tasks", description: "What to do.") {
 Add `label: "Add one"`, and click it with `click "Add one"`
 ([A02](https://webfluent.monzeromer.dev/errors/A02.md)).
 
+Going further: [Security](https://webfluent.monzeromer.dev/about/security.md) covers what the compiler
+guarantees, what it cannot, and the decisions left to you: markup,
+secrets, storage, headers and a deployment checklist.
+
 ## Next
 
-[Security](https://webfluent.monzeromer.dev/about/security.md): what the compiler guarantees, what it cannot, and the decisions left to you: markup, secrets, storage, headers and a deployment checklist.
+[PDF and slides](https://webfluent.monzeromer.dev/learn/17-pdf-and-slides.md).

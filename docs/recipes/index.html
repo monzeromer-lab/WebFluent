@@ -40,7 +40,7 @@
 </head>
 <body>
     <div id="app">
-        <main id="wf-main">
+        <div id="wf-main">
             <a class="wf-link bp-skip" href="#bp-main">Skip to the content</a>
             <div class="wf-row wf-align--center wf-s55053fdc bp-header" role="banner">
                 <div class="wf-row wf-align--center wf-gap--md wf-sfe495c12 bp-wrap">
@@ -59,7 +59,7 @@
                     </div>
                     <div class="wf-row wf-align--center wf-gap--sm wf-sff642a95">
                         <button class="wf-btn wf-sf8ab46ec bp-field bp-search" aria-label="Search the docs" aria-keyshortcuts="Meta+K Control+K" aria-haspopup="dialog" type="button">
-                            <i class="wf-icon" data-icon="search"></i>
+                            <i class="wf-icon" data-icon="search"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></i>
                             <p class="wf-text wf-sf55a2627 bp-hide-sm">Search the docs</p>
                             <p class="wf-text bp-kbd bp-hide-sm">Ctrl+K</p>
                         </button>
@@ -73,17 +73,17 @@
                                 <option value="elements">Custom elements</option>
                                 <option value="desktop">Desktop / phone</option>
                             </select>
-                            <i class="wf-icon wf-s94250744" data-icon="chevron-down" aria-hidden="true"></i>
+                            <i class="wf-icon wf-s94250744" data-icon="chevron-down" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><polyline points="6 9 12 15 18 9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></i>
                         </div>
                         <button class="wf-icon-btn bp-icon-button" data-track="select_content" data-track-content-type="theme" type="button"></button>
                         <div class="wf-row wf-align--center wf-gap--xs wf-s286d925a bp-hide-sm">
                             <button class="wf-btn bp-button" title="This page is in English only; the switch changes the interface." data-track="select_content" data-track-content-type="language" type="button"></button>
                         </div>
                         <a class="wf-link bp-button bp-hide-md" href="https://github.com/monzeromer-lab/WebFluent" data-tone="quiet" aria-label="GitHub">
-                            <i class="wf-icon" data-icon="git-branch"></i>
+                            <i class="wf-icon" data-icon="git-branch"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="4.5" r="2"/><circle cx="6" cy="15.5" r="2"/><circle cx="14" cy="6.5" r="2"/><path d="M6 6.5v7M14 8.5c0 3.5-8 2.5-8 5"/></g></svg></i>
                             <p class="wf-text">GitHub</p>
                         </a>
-                        <button class="wf-icon-btn wf-sde8ec4aa bp-icon-button" data-icon="menu" aria-label="Menu" title="Menu" aria-expanded="false" type="button"></button>
+                        <button class="wf-icon-btn wf-sde8ec4aa bp-icon-button" data-icon="menu" aria-label="Menu" title="Menu" aria-expanded="false" type="button"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
                     </div>
                 </div>
             </div>
@@ -93,7 +93,7 @@
                     <div class="wf-modal__body">
                         <div class="wf-stack wf-sa8e464d0">
                             <div class="wf-row wf-align--center wf-gap--sm wf-s02e7a482 bp-field">
-                                <i class="wf-icon" data-icon="search"></i>
+                                <i class="wf-icon" data-icon="search"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></i>
                                 <input class="wf-input" placeholder="Search the guide" aria-label="Search the guide" type="search" autofocus>
                                 <p class="wf-text bp-kbd">esc</p>
                             </div>
@@ -118,14 +118,24 @@
                     </div>
                     <h1 class="wf-heading wf-s1cf4ddba">Recipes</h1>
                     <div class="wf-markdown bp-lede">
-<p>Each recipe is one task: the complete code first, then how it works. Copy the code into a page and it runs; every example here is compiled by the test suite.</p>
+<p>Each recipe is one task: the complete code first, then how it works. Every <code>wf</code> example on these pages parses and type-checks in the test suite; a recipe that needs more than its page — a setting in <code>webfluent.app.json</code>, a picture, a data file, a script, another recipe — says so in a <strong>Needs:</strong> line above the code. To try one, paste the page into a new file under <code>src/pages/</code> of a project. Most claim the address <code>/</code> or a name the <code>wf init</code> starter already has (<code>Home</code>, <code>Tasks</code>, <code>Settings</code>, <code>User</code>), so start a new project for it (<code>wf init try-it</code>), or replace the starter's file of that name (<code>src/pages/Home.wf</code> for <code>/</code>).</p>
                     </div>
                 </div>
                 <input class="wf-input wf-s79ef03bf" placeholder="Find a recipe" aria-label="Find a recipe" type="search">
                 <div class="wf-stack wf-gap--md wf-s4e4189b1">
                     <h2 class="wf-heading wf-s259390fe" id="interaction">Interaction</h2>
-                    <p class="wf-text bp-small">Lists, dialogs, filters and the address bar: what a page does when the reader acts.</p>
+                    <p class="wf-text bp-small">Lists, dialogs, filters, the address bar and the keyboard: what a page does when the reader acts.</p>
                     <div class="wf-grid wf-gap--md wf-r4f2ac013">
+                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/active-tab-in-the-address">
+                            <p class="wf-text wf-s39c8faa5">Keep the active tab in the address</p>
+                            <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
+                            </div>
+                        </a>
+                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/filters-in-the-address">
+                            <p class="wf-text wf-s39c8faa5">Keep filters in the address</p>
+                            <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
+                            </div>
+                        </a>
                         <a class="wf-link wf-sb5862844 bp-card" href="/recipes/confirm-dialog">
                             <p class="wf-text wf-s39c8faa5">Build a confirm dialog</p>
                             <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
@@ -136,23 +146,13 @@
                             <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
                             </div>
                         </a>
-                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/count-down">
-                            <p class="wf-text wf-s39c8faa5">Count down</p>
-                            <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
-                            </div>
-                        </a>
                         <a class="wf-link wf-sb5862844 bp-card" href="/recipes/debounce-a-search">
                             <p class="wf-text wf-s39c8faa5">Debounce a search</p>
                             <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
                             </div>
                         </a>
-                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/filters-in-the-address">
-                            <p class="wf-text wf-s39c8faa5">Keep filters in the address</p>
-                            <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
-                            </div>
-                        </a>
-                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/active-tab-in-the-address">
-                            <p class="wf-text wf-s39c8faa5">Keep the active tab in the address</p>
+                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/count-down">
+                            <p class="wf-text wf-s39c8faa5">Count down</p>
                             <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
                             </div>
                         </a>
@@ -166,22 +166,22 @@
                             <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
                             </div>
                         </a>
+                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/reorder-by-dragging">
+                            <p class="wf-text wf-s39c8faa5">Reorder a list by dragging</p>
+                            <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
+                            </div>
+                        </a>
+                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/keyboard-shortcuts">
+                            <p class="wf-text wf-s39c8faa5">Add keyboard shortcuts and a command palette</p>
+                            <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
+                            </div>
+                        </a>
                     </div>
                 </div>
                 <div class="wf-stack wf-gap--md wf-s4e4189b1">
-                    <h2 class="wf-heading wf-s259390fe" id="data">Data</h2>
-                    <p class="wf-text bp-small">Asking a server, showing what it answers, and writing back.</p>
+                    <h2 class="wf-heading wf-s259390fe" id="data">Forms and data</h2>
+                    <p class="wf-text bp-small">Forms, asking a server, showing what it answers, and writing back.</p>
                     <div class="wf-grid wf-gap--md wf-r4f2ac013">
-                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/load-more">
-                            <p class="wf-text wf-s39c8faa5">Load more as the reader asks</p>
-                            <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
-                            </div>
-                        </a>
-                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/page-through-results">
-                            <p class="wf-text wf-s39c8faa5">Page through results</p>
-                            <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
-                            </div>
-                        </a>
                         <a class="wf-link wf-sb5862844 bp-card" href="/recipes/validation-messages">
                             <p class="wf-text wf-s39c8faa5">Show validation messages on a form</p>
                             <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
@@ -192,8 +192,28 @@
                             <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
                             </div>
                         </a>
+                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/page-through-results">
+                            <p class="wf-text wf-s39c8faa5">Page through results</p>
+                            <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
+                            </div>
+                        </a>
+                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/load-more">
+                            <p class="wf-text wf-s39c8faa5">Load more as the reader asks</p>
+                            <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
+                            </div>
+                        </a>
                         <a class="wf-link wf-sb5862844 bp-card" href="/recipes/optimistic-updates">
                             <p class="wf-text wf-s39c8faa5">Update at once, and roll back on failure</p>
+                            <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
+                            </div>
+                        </a>
+                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/show-the-network">
+                            <p class="wf-text wf-s39c8faa5">Show what the network is doing</p>
+                            <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
+                            </div>
+                        </a>
+                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/send-on-unload">
+                            <p class="wf-text wf-s39c8faa5">Send a message as the page unloads</p>
                             <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
                             </div>
                         </a>
@@ -203,8 +223,8 @@
                     <h2 class="wf-heading wf-s259390fe" id="realtime">Real time</h2>
                     <p class="wf-text bp-small">Sockets, streams, other tabs, other readers and workers.</p>
                     <div class="wf-grid wf-gap--md wf-r4f2ac013">
-                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/connect-two-readers">
-                            <p class="wf-text wf-s39c8faa5">Connect two readers&#x27; pages</p>
+                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/open-a-socket">
+                            <p class="wf-text wf-s39c8faa5">Open a socket</p>
                             <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
                             </div>
                         </a>
@@ -213,8 +233,13 @@
                             <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
                             </div>
                         </a>
-                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/open-a-socket">
-                            <p class="wf-text wf-s39c8faa5">Open a socket</p>
+                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/talk-between-tabs">
+                            <p class="wf-text wf-s39c8faa5">Talk to the site&#x27;s other tabs</p>
+                            <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
+                            </div>
+                        </a>
+                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/connect-two-readers">
+                            <p class="wf-text wf-s39c8faa5">Connect two readers&#x27; pages</p>
                             <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
                             </div>
                         </a>
@@ -223,29 +248,14 @@
                             <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
                             </div>
                         </a>
-                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/send-on-unload">
-                            <p class="wf-text wf-s39c8faa5">Send a message as the page unloads</p>
-                            <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
-                            </div>
-                        </a>
-                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/show-the-network">
-                            <p class="wf-text wf-s39c8faa5">Show what the network is doing</p>
-                            <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
-                            </div>
-                        </a>
-                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/talk-between-tabs">
-                            <p class="wf-text wf-s39c8faa5">Talk to the site&#x27;s other tabs</p>
-                            <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
-                            </div>
-                        </a>
                     </div>
                 </div>
                 <div class="wf-stack wf-gap--md wf-s4e4189b1">
                     <h2 class="wf-heading wf-s259390fe" id="content">Content</h2>
-                    <p class="wf-text bp-small">Markdown, pages written as Markdown, code on the page, and what search engines and link previews read.</p>
+                    <p class="wf-text bp-small">Markdown, pages written as Markdown, code on the page, a page for unknown addresses, a PDF, and what search engines and link previews read.</p>
                     <div class="wf-grid wf-gap--md wf-r4f2ac013">
-                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/search-and-link-previews">
-                            <p class="wf-text wf-s39c8faa5">Describe pages to search engines and link previews</p>
+                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/markdown-pages">
+                            <p class="wf-text wf-s39c8faa5">Write a page as a Markdown file</p>
                             <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
                             </div>
                         </a>
@@ -259,22 +269,27 @@
                             <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
                             </div>
                         </a>
-                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/markdown-pages">
-                            <p class="wf-text wf-s39c8faa5">Write a page as a Markdown file</p>
+                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/search-and-link-previews">
+                            <p class="wf-text wf-s39c8faa5">Describe pages to search engines and link previews</p>
+                            <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
+                            </div>
+                        </a>
+                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/not-found-page">
+                            <p class="wf-text wf-s39c8faa5">Show your own page for an unknown address</p>
+                            <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
+                            </div>
+                        </a>
+                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/pdf-report">
+                            <p class="wf-text wf-s39c8faa5">Make a PDF report</p>
                             <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
                             </div>
                         </a>
                     </div>
                 </div>
                 <div class="wf-stack wf-gap--md wf-s4e4189b1">
-                    <h2 class="wf-heading wf-s259390fe" id="look">Look and motion</h2>
-                    <p class="wf-text bp-small">Pictures, video, icons, themes and animation.</p>
+                    <h2 class="wf-heading wf-s259390fe" id="media">Media and themes</h2>
+                    <p class="wf-text bp-small">Pictures, video, icons, a carousel, other pages in a frame, and a dark theme.</p>
                     <div class="wf-grid wf-gap--md wf-r4f2ac013">
-                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/dark-mode-switch">
-                            <p class="wf-text wf-s39c8faa5">Add a dark-mode switch</p>
-                            <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
-                            </div>
-                        </a>
                         <a class="wf-link wf-sb5862844 bp-card" href="/recipes/add-a-picture">
                             <p class="wf-text wf-s39c8faa5">Add a picture, sized for every screen</p>
                             <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
@@ -285,13 +300,44 @@
                             <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
                             </div>
                         </a>
+                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/show-an-icon">
+                            <p class="wf-text wf-s39c8faa5">Show an icon</p>
+                            <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
+                            </div>
+                        </a>
+                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/show-a-carousel">
+                            <p class="wf-text wf-s39c8faa5">Show a carousel</p>
+                            <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
+                            </div>
+                        </a>
+                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/show-a-page-in-a-frame">
+                            <p class="wf-text wf-s39c8faa5">Show another page in a frame</p>
+                            <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
+                            </div>
+                        </a>
+                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/dark-mode-switch">
+                            <p class="wf-text wf-s39c8faa5">Add a dark-mode switch</p>
+                            <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                <div class="wf-stack wf-gap--md wf-s4e4189b1">
+                    <h2 class="wf-heading wf-s259390fe" id="motion">Motion</h2>
+                    <p class="wf-text bp-small">Animation, from one element appearing to a page carried into the next. Read them in order: each builds on the one before.</p>
+                    <div class="wf-grid wf-gap--md wf-r4f2ac013">
+                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/animate-in-and-out">
+                            <p class="wf-text wf-s39c8faa5">Animate an element in and out</p>
+                            <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
+                            </div>
+                        </a>
                         <a class="wf-link wf-sb5862844 bp-card" href="/recipes/animate-a-list">
                             <p class="wf-text wf-s39c8faa5">Animate a list</p>
                             <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
                             </div>
                         </a>
-                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/animate-in-and-out">
-                            <p class="wf-text wf-s39c8faa5">Animate an element in and out</p>
+                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/animation-sequence">
+                            <p class="wf-text wf-s39c8faa5">Run a sequence of animations</p>
                             <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
                             </div>
                         </a>
@@ -305,8 +351,18 @@
                             <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
                             </div>
                         </a>
+                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/expand-to-content">
+                            <p class="wf-text wf-s39c8faa5">Open a box to the height of its content</p>
+                            <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
+                            </div>
+                        </a>
                         <a class="wf-link wf-sb5862844 bp-card" href="/recipes/count-a-number">
                             <p class="wf-text wf-s39c8faa5">Count a number to its new value</p>
+                            <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
+                            </div>
+                        </a>
+                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/tween-on-change">
+                            <p class="wf-text wf-s39c8faa5">Tween a property when state changes</p>
                             <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
                             </div>
                         </a>
@@ -320,38 +376,8 @@
                             <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
                             </div>
                         </a>
-                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/expand-to-content">
-                            <p class="wf-text wf-s39c8faa5">Open a box to the height of its content</p>
-                            <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
-                            </div>
-                        </a>
-                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/animation-sequence">
-                            <p class="wf-text wf-s39c8faa5">Run a sequence of animations</p>
-                            <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
-                            </div>
-                        </a>
                         <a class="wf-link wf-sb5862844 bp-card" href="/recipes/motion-defaults">
                             <p class="wf-text wf-s39c8faa5">Set motion defaults, and respect reduced motion</p>
-                            <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
-                            </div>
-                        </a>
-                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/show-a-carousel">
-                            <p class="wf-text wf-s39c8faa5">Show a carousel</p>
-                            <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
-                            </div>
-                        </a>
-                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/show-an-icon">
-                            <p class="wf-text wf-s39c8faa5">Show an icon</p>
-                            <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
-                            </div>
-                        </a>
-                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/show-a-page-in-a-frame">
-                            <p class="wf-text wf-s39c8faa5">Show another page in a frame</p>
-                            <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
-                            </div>
-                        </a>
-                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/tween-on-change">
-                            <p class="wf-text wf-s39c8faa5">Tween a property when state changes</p>
                             <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
                             </div>
                         </a>
@@ -359,28 +385,8 @@
                 </div>
                 <div class="wf-stack wf-gap--md wf-s4e4189b1">
                     <h2 class="wf-heading wf-s259390fe" id="reach">Reach</h2>
-                    <p class="wf-text bp-small">More readers: other languages, no network, and settings per environment.</p>
+                    <p class="wf-text bp-small">More readers: other languages, and no network.</p>
                     <div class="wf-grid wf-gap--md wf-r4f2ac013">
-                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/keep-writes-made-offline">
-                            <p class="wf-text wf-s39c8faa5">Keep writes made offline</p>
-                            <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
-                            </div>
-                        </a>
-                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/work-offline">
-                            <p class="wf-text wf-s39c8faa5">Make a site work offline</p>
-                            <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
-                            </div>
-                        </a>
-                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/offer-a-new-version">
-                            <p class="wf-text wf-s39c8faa5">Offer a new version</p>
-                            <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
-                            </div>
-                        </a>
-                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/site-in-two-languages">
-                            <p class="wf-text wf-s39c8faa5">Publish a page in each language</p>
-                            <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
-                            </div>
-                        </a>
                         <a class="wf-link wf-sb5862844 bp-card" href="/recipes/translate-a-site">
                             <p class="wf-text wf-s39c8faa5">Translate a site</p>
                             <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
@@ -391,8 +397,34 @@
                             <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
                             </div>
                         </a>
-                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/environments-and-secrets">
-                            <p class="wf-text wf-s39c8faa5">Use environment values, and keep secrets out</p>
+                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/site-in-two-languages">
+                            <p class="wf-text wf-s39c8faa5">Publish a page in each language</p>
+                            <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
+                            </div>
+                        </a>
+                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/work-offline">
+                            <p class="wf-text wf-s39c8faa5">Make a site work offline</p>
+                            <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
+                            </div>
+                        </a>
+                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/keep-writes-made-offline">
+                            <p class="wf-text wf-s39c8faa5">Keep writes made offline</p>
+                            <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
+                            </div>
+                        </a>
+                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/offer-a-new-version">
+                            <p class="wf-text wf-s39c8faa5">Offer a new version</p>
+                            <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                <div class="wf-stack wf-gap--md wf-s4e4189b1">
+                    <h2 class="wf-heading wf-s259390fe" id="testing">Testing</h2>
+                    <p class="wf-text bp-small">Checking that a page does what it should before a reader finds out it does not.</p>
+                    <div class="wf-grid wf-gap--md wf-r4f2ac013">
+                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/test-a-page">
+                            <p class="wf-text wf-s39c8faa5">Test a page</p>
                             <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
                             </div>
                         </a>
@@ -400,20 +432,15 @@
                 </div>
                 <div class="wf-stack wf-gap--md wf-s4e4189b1">
                     <h2 class="wf-heading wf-s259390fe" id="ship">Ship</h2>
-                    <p class="wf-text bp-small">Putting a site on a host, and an app on a desktop or a phone.</p>
+                    <p class="wf-text bp-small">Putting a site on a host, in the order you need them: install `wf` where the site is built, set what changes per environment, deploy to a host or serve from your own server, then check the deploy.</p>
                     <div class="wf-grid wf-gap--md wf-r4f2ac013">
-                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/docker-image">
-                            <p class="wf-text wf-s39c8faa5">Build a Docker image</p>
+                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/install-wf-in-ci">
+                            <p class="wf-text wf-s39c8faa5">Install wf on a build machine</p>
                             <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
                             </div>
                         </a>
-                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/check-a-deploy">
-                            <p class="wf-text wf-s39c8faa5">Check a deploy</p>
-                            <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
-                            </div>
-                        </a>
-                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/deploy-to-cloudflare-pages">
-                            <p class="wf-text wf-s39c8faa5">Deploy to Cloudflare Pages</p>
+                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/environments-and-secrets">
+                            <p class="wf-text wf-s39c8faa5">Use environment values, and keep secrets out</p>
                             <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
                             </div>
                         </a>
@@ -432,18 +459,18 @@
                             <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
                             </div>
                         </a>
-                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/install-wf-in-ci">
-                            <p class="wf-text wf-s39c8faa5">Install wf on a build machine</p>
+                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/deploy-to-cloudflare-pages">
+                            <p class="wf-text wf-s39c8faa5">Deploy to Cloudflare Pages</p>
                             <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
                             </div>
                         </a>
-                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/electron-app">
-                            <p class="wf-text wf-s39c8faa5">Make a desktop app with Electron</p>
+                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/docker-image">
+                            <p class="wf-text wf-s39c8faa5">Build a Docker image</p>
                             <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
                             </div>
                         </a>
-                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/tauri-app">
-                            <p class="wf-text wf-s39c8faa5">Make a desktop or phone app with Tauri</p>
+                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/serve-with-nginx">
+                            <p class="wf-text wf-s39c8faa5">Serve a site with nginx</p>
                             <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
                             </div>
                         </a>
@@ -457,11 +484,6 @@
                             <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
                             </div>
                         </a>
-                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/serve-with-nginx">
-                            <p class="wf-text wf-s39c8faa5">Serve a site with nginx</p>
-                            <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
-                            </div>
-                        </a>
                         <a class="wf-link wf-sb5862844 bp-card" href="/recipes/api-on-the-same-origin">
                             <p class="wf-text wf-s39c8faa5">Serve an API on the same origin</p>
                             <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
@@ -472,29 +494,40 @@
                             <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
                             </div>
                         </a>
+                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/check-a-deploy">
+                            <p class="wf-text wf-s39c8faa5">Check a deploy</p>
+                            <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                <div class="wf-stack wf-gap--md wf-s4e4189b1">
+                    <h2 class="wf-heading wf-s259390fe" id="desktop">Desktop and phone apps</h2>
+                    <p class="wf-text bp-small">The same project in a window of its own, with Tauri or Electron.</p>
+                    <div class="wf-grid wf-gap--md wf-r4f2ac013">
+                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/tauri-app">
+                            <p class="wf-text wf-s39c8faa5">Make a desktop or phone app with Tauri</p>
+                            <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
+                            </div>
+                        </a>
+                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/electron-app">
+                            <p class="wf-text wf-s39c8faa5">Make a desktop app with Electron</p>
+                            <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
+                            </div>
+                        </a>
                     </div>
                 </div>
                 <div class="wf-stack wf-gap--md wf-s4e4189b1">
                     <h2 class="wf-heading wf-s259390fe" id="interop">Interop</h2>
-                    <p class="wf-text bp-small">Your own JavaScript, libraries, custom elements, and rendering on a server.</p>
+                    <p class="wf-text bp-small">Your own JavaScript, libraries, and custom elements, both ways.</p>
                     <div class="wf-grid wf-gap--md wf-r4f2ac013">
-                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/call-wf-from-a-script">
-                            <p class="wf-text wf-s39c8faa5">Call WF from a script</p>
-                            <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
-                            </div>
-                        </a>
                         <a class="wf-link wf-sb5862844 bp-card" href="/recipes/call-your-own-script">
                             <p class="wf-text wf-s39c8faa5">Call your own JavaScript</p>
                             <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
                             </div>
                         </a>
-                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/chart-from-a-library">
-                            <p class="wf-text wf-s39c8faa5">Draw a chart from a library</p>
-                            <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
-                            </div>
-                        </a>
-                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/portal">
-                            <p class="wf-text wf-s39c8faa5">Draw into a node a script made</p>
+                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/call-wf-from-a-script">
+                            <p class="wf-text wf-s39c8faa5">Call WF from a script</p>
                             <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
                             </div>
                         </a>
@@ -503,13 +536,23 @@
                             <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
                             </div>
                         </a>
+                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/listen-for-wf-render">
+                            <p class="wf-text wf-s39c8faa5">Run a script after each page draws</p>
+                            <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
+                            </div>
+                        </a>
+                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/portal">
+                            <p class="wf-text wf-s39c8faa5">Draw into a node a script made</p>
+                            <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
+                            </div>
+                        </a>
                         <a class="wf-link wf-sb5862844 bp-card" href="/recipes/library-from-a-cdn">
                             <p class="wf-text wf-s39c8faa5">Load a library from a CDN</p>
                             <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
                             </div>
                         </a>
-                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/migrate-from-external">
-                            <p class="wf-text wf-s39c8faa5">Migrate from external</p>
+                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/chart-from-a-library">
+                            <p class="wf-text wf-s39c8faa5">Draw a chart from a library</p>
                             <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
                             </div>
                         </a>
@@ -523,6 +566,17 @@
                             <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
                             </div>
                         </a>
+                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/migrate-from-external">
+                            <p class="wf-text wf-s39c8faa5">Migrate from external</p>
+                            <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                <div class="wf-stack wf-gap--md wf-s4e4189b1">
+                    <h2 class="wf-heading wf-s259390fe" id="server">Server rendering</h2>
+                    <p class="wf-text bp-small">WebFluent as a template engine: HTML and PDF from data, from the command line, Node or Rust.</p>
+                    <div class="wf-grid wf-gap--md wf-r4f2ac013">
                         <a class="wf-link wf-sb5862844 bp-card" href="/recipes/render-a-template">
                             <p class="wf-text wf-s39c8faa5">Render a template with data</p>
                             <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
@@ -538,31 +592,26 @@
                             <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
                             </div>
                         </a>
-                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/listen-for-wf-render">
-                            <p class="wf-text wf-s39c8faa5">Run a script after each page draws</p>
-                            <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
-                            </div>
-                        </a>
                     </div>
                 </div>
                 <div class="wf-stack wf-gap--md wf-s4e4189b1">
                     <h2 class="wf-heading wf-s259390fe" id="projects">Projects</h2>
-                    <p class="wf-text bp-small">Two complete projects, built step by step.</p>
+                    <p class="wf-text bp-small">Two complete projects, explained step by step. They are read along in the finished code under `examples/tutorials/`, not typed along; each says how to build it yourself if you want to.</p>
                     <div class="wf-grid wf-gap--md wf-r4f2ac013">
-                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/build-a-budget-app">
-                            <p class="wf-text wf-s39c8faa5">Build a budget app that works offline</p>
+                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/build-a-notebook-site">
+                            <p class="wf-text wf-s39c8faa5">Build a statically generated notebook</p>
                             <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
                             </div>
                         </a>
-                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/build-a-notebook-site">
-                            <p class="wf-text wf-s39c8faa5">Build a statically generated notebook</p>
+                        <a class="wf-link wf-sb5862844 bp-card" href="/recipes/build-a-budget-app">
+                            <p class="wf-text wf-s39c8faa5">Build a budget app that works offline</p>
                             <div class="wf-row wf-gap--xs wf-s4acd1bc9 bp-labels">
                             </div>
                         </a>
                     </div>
                 </div>
             </div>
-        </main>
+        </div>
         <footer class="wf-footer wf-s2213a098">
             <div class="wf-stack wf-gap--lg wf-s84d7918c bp-wrap">
                 <div class="wf-grid wf-gap--lg wf-r67559659">

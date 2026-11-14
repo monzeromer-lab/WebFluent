@@ -24,7 +24,17 @@ Select(bind: State, value: Any, label: String, …) { … }
 
 ## Flags
 
-`.disabled` `.multiple` `.dropInside` `.trapFocus`
+`.disabled` `.multiple`
+
+## DOM events it answers
+
+Any other DOM event works too, in an `on … { }` handler.
+
+- `on change`: The value was committed
+- `on focus`: The element received focus
+- `on blur`: The element lost focus
+
+Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 
 ## Slots
 
@@ -52,4 +62,4 @@ Select(bind: plan, label: "Plan") {
 - [C05](https://webfluent.monzeromer.dev/errors/C05.md): A positional argument a built-in does not take
 - [F05](https://webfluent.monzeromer.dev/errors/F05.md): A select whose value is none of its options
 
-Since WebFluent 5.0.
+Before WebFluent 5.0.

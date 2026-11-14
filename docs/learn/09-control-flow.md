@@ -7,7 +7,7 @@ The page: https://webfluent.monzeromer.dev/learn/09-control-flow
 This chapter covers the five statements that decide what a page shows: `if`,
 `if let`, `for`, `show` and `match`. Each one follows the state it reads, adding and removing elements as
 its condition changes, so you never update the page by hand. Each animates
-when you ask it to ([Motion](https://webfluent.monzeromer.dev/recipes.md)).
+when you ask it to ([Animate an element in and out](https://webfluent.monzeromer.dev/recipes/animate-in-and-out.md)).
 
 In this chapter:
 
@@ -171,40 +171,26 @@ page Search(path: "/", title: "Search", description: "Results, a window at a tim
 }
 ```
 
-Its props:
-
-- **`rowHeight:`** says every row is that tall. It is the fast path.
-- Without `rowHeight:`, each row is measured once drawn, and **`estimate:`**
-  stands for the rows not yet drawn. When a row above what is in view turns
-  out taller or shorter, the scroll moves by as much, so what the reader is
-  looking at stays put.
+- **`rowHeight:`** says every row is that tall, which is the fast path.
+  Without it, each row is measured once drawn, and **`estimate:`** stands for
+  the rows not yet drawn.
 - **`reveal:`** reads a row's key. When it changes, that row is scrolled into
-  view — the selected file as the arrow keys move, the current match.
+  view — the selected file, the current match.
 - **`label:`** is the box's accessible name.
 
-How it draws:
+A few rules keep it right:
 
-- A row keeps its nodes while it stays in the window, and is updated in place
-  when its item changes, as a keyed `for`'s rows are. A row scrolled out of
-  the window is let go.
 - Give rows no vertical margins: a row's height is its box's.
 - A tree is a list of the rows that are showing. Flatten it in a `derived`
   (each open folder followed by its children) and window that.
-- A list drawn before its box is laid out — inside an `if` that has turned
-  true, in a panel not shown yet — draws only the few rows it keeps past the
-  window until the box has a height. The first height it has is laid out before that frame is painted,
-  so the first frame shows the rows in view, not a guess at them trimmed a
-  frame later. A row `reveal:` asks for in the meantime is scrolled to then,
-  so that frame shows it. A list hidden and shown again is laid out the same
-  way.
-- The box takes what any element takes ([Elements](https://webfluent.monzeromer.dev/learn/06-elements.md)): a
-  `role: "listbox"`, a `tabindex:`, an `aria-activedescendant:` that follows
-  the current row, `data-*`, and its `on` handlers — an `on keydown` that
-  moves through a list of references, for example.
-- The pre-rendered page paints the first 60 rows. The runtime draws the window
-  when it takes over.
 - With anything else in its body, or a `for` with no `by`, it draws every row
   (`V12`).
+- The pre-rendered page paints the first 60 rows, and a list drawn before its
+  box has a height waits for one, so its first frame shows the rows in view.
+
+[`VirtualList`](https://webfluent.monzeromer.dev/reference.md#virtuallist) lists its props, and
+the box takes the attributes and handlers any element takes — a
+`role: "listbox"`, an `on keydown`.
 
 > [!IMPORTANT]
 > The box needs a height that does not come from its rows — `style { height:

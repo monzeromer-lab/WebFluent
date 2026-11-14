@@ -9,6 +9,9 @@ picture in a list of posts that grows into the article's header — instead
 of fading it out and back in. Give it the same `shared:` name on both
 pages:
 
+**Needs:** nothing besides the page. It claims `/`: paste it into a new
+project, or replace the starter's `src/pages/Home.wf` with it.
+
 ```wf
 type Post { id: String, slug: String, title: String, cover: String }
 

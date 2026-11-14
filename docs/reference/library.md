@@ -106,9 +106,10 @@ fn main() -> webfluent::Result<()> {
 |---|---|---|
 | `from_str`, `from_file`, `from_files`, `from_dir`, `from_sources` | `page`, `with_theme`, `with_tokens`, `with_lang`, `with_pdf`, `with_slides` | `render_html`, `render_html_fragment`, `render_html_parts` (CSS and body apart), `render_pdf`, `render_slides`, and `render_pdf_report` with the engine's notes |
 
-A template is the static part of the language. [Server
-rendering](https://webfluent.monzeromer.dev/recipes.md) shows what one may use, and how
-to render from a web server.
+A template is the static part of the language. [Render a
+template](https://webfluent.monzeromer.dev/recipes/render-a-template.md) shows what one may use, and
+[Render from Rust](https://webfluent.monzeromer.dev/recipes/render-from-rust.md) how to render from a
+web server.
 
 ### Builds
 

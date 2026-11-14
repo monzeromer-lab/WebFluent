@@ -1,2 +1,2 @@
-function Page_OldReferenceStack(params){const _root=document.createDocumentFragment();const _e1724=WF.el("h1",{className:"wf-heading"},"Stack");_root.appendChild(_e1724);const _e1725=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/stack"},"Stack");WF.activeLink(_e1725,"/reference/stack",false);_root.appendChild(_e1725);return _root;}
+function Page_OldReferenceStack(params){const _root=document.createDocumentFragment();const _e1845=WF.el("h1",{className:"wf-heading"},"Stack");_root.appendChild(_e1845);const _e1846=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/stack"},"Stack");WF.activeLink(_e1846,"/reference/stack",false);_root.appendChild(_e1846);return _root;}
 WF.page("OldReferenceStack",Page_OldReferenceStack,{title:"Stack"});

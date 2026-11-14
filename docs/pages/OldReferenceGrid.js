@@ -1,2 +1,2 @@
-function Page_OldReferenceGrid(params){const _root=document.createDocumentFragment();const _e1654=WF.el("h1",{className:"wf-heading"},"Grid");_root.appendChild(_e1654);const _e1655=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/grid"},"Grid");WF.activeLink(_e1655,"/reference/grid",false);_root.appendChild(_e1655);return _root;}
+function Page_OldReferenceGrid(params){const _root=document.createDocumentFragment();const _e1775=WF.el("h1",{className:"wf-heading"},"Grid");_root.appendChild(_e1775);const _e1776=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/grid"},"Grid");WF.activeLink(_e1776,"/reference/grid",false);_root.appendChild(_e1776);return _root;}
 WF.page("OldReferenceGrid",Page_OldReferenceGrid,{title:"Grid"});

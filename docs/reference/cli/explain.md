@@ -16,3 +16,5 @@ wf explain [CODE] [options]
 |---|---|
 | `[CODE]` | The code: `T05`, `A01`, `E101` |
 | `--json` | Print JSON, for tools: one code, or every code without one |
+
+The [full entry for wf explain](https://webfluent.monzeromer.dev/reference/cli.md#wf-explain) has its examples and the details this page leaves out.

@@ -11,6 +11,9 @@ an icon-only button or in a sidebar.
 This page shows icons on their own, on an icon-only button, and in a
 sidebar:
 
+**Needs:** nothing besides the page. It claims `/`: paste it into a new
+project, or replace the starter's `src/pages/Home.wf` with it.
+
 ```wf
 page Inbox(path: "/", title: "Inbox", description: "Messages, with icons.") {
     Heading("Inbox").h1

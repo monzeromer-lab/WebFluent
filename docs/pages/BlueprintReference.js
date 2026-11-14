@@ -1,2 +1,2 @@
-function Page_BlueprintReference(params){const _root=document.createDocumentFragment();const _e955=Component_PreviewReference({});_root.appendChild(_e955);return _root;}
+function Page_BlueprintReference(params){const _root=document.createDocumentFragment();const _e970=Component_PreviewReference({});_root.appendChild(_e970);return _root;}
 WF.page("BlueprintReference",Page_BlueprintReference,{title:"T4 Reference"});

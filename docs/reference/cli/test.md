@@ -18,3 +18,5 @@ wf test [PATH] [options]
 | `--update` | Rewrite every snapshot with the current render |
 
 **Writes:** the snapshots, with `--update`
+
+The [full entry for wf test](https://webfluent.monzeromer.dev/reference/cli.md#wf-test) has its examples and the details this page leaves out.

@@ -39,7 +39,7 @@
 </head>
 <body>
     <div id="app">
-        <main id="wf-main">
+        <div id="wf-main">
             <a class="wf-link bp-skip" href="#bp-main">Skip to the content</a>
             <div class="wf-row wf-align--center wf-s55053fdc bp-header" role="banner">
                 <div class="wf-row wf-align--center wf-gap--md wf-sfe495c12 bp-wrap">
@@ -58,7 +58,7 @@
                     </div>
                     <div class="wf-row wf-align--center wf-gap--sm wf-sff642a95">
                         <button class="wf-btn wf-sf8ab46ec bp-field bp-search" aria-label="Search the docs" aria-keyshortcuts="Meta+K Control+K" aria-haspopup="dialog" type="button">
-                            <i class="wf-icon" data-icon="search"></i>
+                            <i class="wf-icon" data-icon="search"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></i>
                             <p class="wf-text wf-sf55a2627 bp-hide-sm">Search the docs</p>
                             <p class="wf-text bp-kbd bp-hide-sm">Ctrl+K</p>
                         </button>
@@ -72,17 +72,17 @@
                                 <option value="elements">Custom elements</option>
                                 <option value="desktop">Desktop / phone</option>
                             </select>
-                            <i class="wf-icon wf-s94250744" data-icon="chevron-down" aria-hidden="true"></i>
+                            <i class="wf-icon wf-s94250744" data-icon="chevron-down" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><polyline points="6 9 12 15 18 9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></i>
                         </div>
                         <button class="wf-icon-btn bp-icon-button" data-track="select_content" data-track-content-type="theme" type="button"></button>
                         <div class="wf-row wf-align--center wf-gap--xs wf-s286d925a bp-hide-sm">
                             <button class="wf-btn bp-button" title="This page is in English only; the switch changes the interface." data-track="select_content" data-track-content-type="language" type="button"></button>
                         </div>
                         <a class="wf-link bp-button bp-hide-md" href="https://github.com/monzeromer-lab/WebFluent" data-tone="quiet" aria-label="GitHub">
-                            <i class="wf-icon" data-icon="git-branch"></i>
+                            <i class="wf-icon" data-icon="git-branch"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="4.5" r="2"/><circle cx="6" cy="15.5" r="2"/><circle cx="14" cy="6.5" r="2"/><path d="M6 6.5v7M14 8.5c0 3.5-8 2.5-8 5"/></g></svg></i>
                             <p class="wf-text">GitHub</p>
                         </a>
-                        <button class="wf-icon-btn wf-sde8ec4aa bp-icon-button" data-icon="menu" aria-label="Menu" title="Menu" aria-expanded="false" type="button"></button>
+                        <button class="wf-icon-btn wf-sde8ec4aa bp-icon-button" data-icon="menu" aria-label="Menu" title="Menu" aria-expanded="false" type="button"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><path d="M3 12h18M3 6h18M3 18h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
                     </div>
                 </div>
             </div>
@@ -92,7 +92,7 @@
                     <div class="wf-modal__body">
                         <div class="wf-stack wf-sa8e464d0">
                             <div class="wf-row wf-align--center wf-gap--sm wf-s02e7a482 bp-field">
-                                <i class="wf-icon" data-icon="search"></i>
+                                <i class="wf-icon" data-icon="search"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></i>
                                 <input class="wf-input" placeholder="Search the guide" aria-label="Search the guide" type="search" autofocus>
                                 <p class="wf-text bp-kbd">esc</p>
                             </div>
@@ -202,7 +202,7 @@
                     <div class="wf-row bp-labels">
                         <p class="wf-text bp-label" data-tone="kind" data-kind="tutorial">Tutorial</p>
                         <p class="wf-text bp-label">The language</p>
-                        <div class="wf-row wf-gap--xs bp-labels" aria-label="Works in">
+                        <div class="wf-row wf-gap--xs bp-labels" role="group" aria-label="Works in">
                         </div>
                     </div>
                     <div class="wf-stack wf-gap--sm wf-s4e4189b1">
@@ -210,9 +210,9 @@
                         <p class="wf-text bp-lede">Handlers on elements, keyboard shortcuts, the events components fire, the overlays a page opens, and drag and drop.</p>
                         <div class="wf-stack wf-gap--sm wf-s8a243922 bp-contents">
                             <button class="wf-btn wf-s1865e956 bp-button" aria-expanded="false" aria-controls="bp-contents-panel" type="button">
-                                <i class="wf-icon" data-icon="list"></i>
+                                <i class="wf-icon" data-icon="list"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 5h10.5M7 10h10.5M7 15h10.5M2.5 5h.5M2.5 10h.5M2.5 15h.5"/></g></svg></i>
                                 <p class="wf-text">Contents</p>
-                                <i class="wf-icon" data-icon="chevron-down"></i>
+                                <i class="wf-icon" data-icon="chevron-down"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><polyline points="6 9 12 15 18 9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></i>
                             </button>
                         </div>
                     </div>
@@ -239,9 +239,12 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                         <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                    <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                        <button class="wf-btn wf-s65c70c32 bp-button bp-hide-sm" data-track="open_playground" data-track-item-id="wf" type="button">Open in the Playground</button>
+                                        <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                    </div>
                                 </div>
-                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Clicks</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Clicks&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Handlers on a button and a field.&quot;</span>) {
+                                <code class="wf-code wf-code--block bp-console__code" tabindex="0"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Clicks</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Clicks&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Handlers on a button and a field.&quot;</span>) {
     <span class="wf-tok-kw">state</span> n = <span class="wf-tok-num">0</span>
     <span class="wf-tok-kw">state</span> last = <span class="wf-tok-str">&quot;&quot;</span>
     <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Clicks&quot;</span>).h1
@@ -280,9 +283,12 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                         <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                    <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                        <button class="wf-btn wf-s65c70c32 bp-button bp-hide-sm" data-track="open_playground" data-track-item-id="wf" type="button">Open in the Playground</button>
+                                        <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                    </div>
                                 </div>
-                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Drop</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Drop&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;A place to drop files.&quot;</span>) {
+                                <code class="wf-code wf-code--block bp-console__code" tabindex="0"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Drop</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Drop&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;A place to drop files.&quot;</span>) {
     <span class="wf-tok-kw">state</span> <span class="wf-tok-prop">names</span>: [<span class="wf-tok-name">String</span>] = []
     <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Drop files here&quot;</span>).h1
     <span class="wf-tok-name">Card</span> {
@@ -304,9 +310,12 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                         <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                    <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                        <button class="wf-btn wf-s65c70c32 bp-button bp-hide-sm" data-track="open_playground" data-track-item-id="wf" type="button">Open in the Playground</button>
+                                        <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                    </div>
                                 </div>
-                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Keys</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Keys&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Keys on a field and on the page.&quot;</span>) {
+                                <code class="wf-code wf-code--block bp-console__code" tabindex="0"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Keys</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Keys&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Keys on a field and on the page.&quot;</span>) {
     <span class="wf-tok-kw">state</span> open = <span class="wf-tok-kw">false</span>
     <span class="wf-tok-kw">state</span> q = <span class="wf-tok-str">&quot;&quot;</span>
     <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Keys&quot;</span>).h1
@@ -314,16 +323,15 @@
         <span class="wf-tok-kw">on</span> key(<span class="wf-tok-str">&quot;Escape&quot;</span>) { q = <span class="wf-tok-str">&quot;&quot;</span> }            <span class="wf-tok-cmt">// on the element: while it has focus</span>
         <span class="wf-tok-kw">on</span> key(<span class="wf-tok-str">&quot;Enter&quot;</span>, e) { <span class="wf-tok-kw">log</span>(e.target.value) }
     }
-    <span class="wf-tok-kw">on</span> key(<span class="wf-tok-str">&quot;ctrl+k&quot;</span>) { box.focus() }           <span class="wf-tok-cmt">// on the page: anywhere on the page</span>
-    <span class="wf-tok-kw">on</span> key(<span class="wf-tok-str">&quot;cmd+k&quot;</span>) { box.focus() }
+    <span class="wf-tok-kw">on</span> key(<span class="wf-tok-str">&quot;mod+k&quot;</span>) { box.focus() }            <span class="wf-tok-cmt">// on the page: anywhere on the page</span>
     <span class="wf-tok-kw">on</span> key(<span class="wf-tok-str">&quot;?&quot;</span>) { open = !open }
-    <span class="wf-tok-kw">if</span> open { <span class="wf-tok-name">Alert</span>(<span class="wf-tok-str">&quot;Shortcuts: ctrl+k to search, ? for this.&quot;</span>).info }
+    <span class="wf-tok-kw">if</span> open { <span class="wf-tok-name">Alert</span>(<span class="wf-tok-str">&quot;Shortcuts: {keyLabel(&quot;</span>mod+k<span class="wf-tok-str">&quot;)} to search, ? for this.&quot;</span>).info }
 }</code>
                             </div>
                             <div class="wf-markdown">
 <p>How a combination is spelled:</p>
 <ul>
-<li>Modifiers are <code>ctrl</code>, <code>shift</code>, <code>alt</code> and <code>meta</code> (or <code>cmd</code>), joined with <code>+</code>.</li>
+<li>Modifiers are <code>mod</code>, <code>ctrl</code>, <code>shift</code>, <code>alt</code> and <code>meta</code> (or <code>cmd</code>), joined with <code>+</code>. <code>mod</code> is ⌘ on a Mac and Ctrl everywhere else, so one shortcut works on both; write <code>ctrl</code> or <code>cmd</code> only when you mean exactly that key.</li>
 <li>Then comes the key as the browser names it: <code>k</code>, <code>Enter</code>, <code>Escape</code> (or <code>esc</code>), <code>Tab</code>, <code>ArrowDown</code> (or <code>down</code>), <code>space</code>, <code>F2</code>.</li>
 <li><code>on key(&quot;Enter&quot;, e)</code> names the event too.</li>
 </ul>
@@ -350,9 +358,11 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                         <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                    <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                        <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                    </div>
                                 </div>
-                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-kw">store</span> <span class="wf-tok-name">Commands</span> {
+                                <code class="wf-code wf-code--block bp-console__code" tabindex="0"><span class="wf-tok-kw">store</span> <span class="wf-tok-name">Commands</span> {
     <span class="wf-tok-kw">state</span> said = <span class="wf-tok-str">&quot;&quot;</span>
     <span class="wf-tok-kw">state</span> <span class="wf-tok-prop">table</span>: [<span class="wf-tok-name">Command</span>] = [
         { <span class="wf-tok-prop">id</span>: <span class="wf-tok-str">&quot;palette&quot;</span>, <span class="wf-tok-prop">keys</span>: <span class="wf-tok-str">&quot;mod+shift+p&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Commands&quot;</span> },
@@ -401,9 +411,12 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                         <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                    <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                        <button class="wf-btn wf-s65c70c32 bp-button bp-hide-sm" data-track="open_playground" data-track-item-id="wf" type="button">Open in the Playground</button>
+                                        <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                    </div>
                                 </div>
-                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-kw">component</span> <span class="wf-tok-name">Counter</span>(_ <span class="wf-tok-prop">start</span>: <span class="wf-tok-name">Number</span>) {
+                                <code class="wf-code wf-code--block bp-console__code" tabindex="0"><span class="wf-tok-kw">component</span> <span class="wf-tok-name">Counter</span>(_ <span class="wf-tok-prop">start</span>: <span class="wf-tok-name">Number</span>) {
     <span class="wf-tok-kw">event</span> change(<span class="wf-tok-prop">value</span>: <span class="wf-tok-name">Number</span>)
     <span class="wf-tok-kw">state</span> n = start
     <span class="wf-tok-name">Row</span>(<span class="wf-tok-prop">gap</span>: .sm) {
@@ -429,9 +442,12 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                         <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                    <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                        <button class="wf-btn wf-s65c70c32 bp-button bp-hide-sm" data-track="open_playground" data-track-item-id="wf" type="button">Open in the Playground</button>
+                                        <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                    </div>
                                 </div>
-                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Overlays</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Overlays&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;What a page opens.&quot;</span>) {
+                                <code class="wf-code wf-code--block bp-console__code" tabindex="0"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Overlays</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Overlays&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;What a page opens.&quot;</span>) {
     <span class="wf-tok-kw">state</span> confirm = <span class="wf-tok-kw">false</span>
     <span class="wf-tok-kw">state</span> deleted = <span class="wf-tok-kw">false</span>
     <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Overlays&quot;</span>).h1
@@ -458,9 +474,7 @@
 <li>The browser traps focus, makes the rest of the page inert and closes the dialog on Escape. A click on the backdrop leaves it open.</li>
 <li>When it closes that way, the state is set back to <code>false</code>, so it never disagrees with what is on screen. Focus returns to what opened it.</li>
 <li><code>on close</code> runs when it closes, however it was closed.</li>
-<li><code>title:</code> is its heading, which names it (<code>A08</code> without one). <code>Modal.Footer</code> is the row of actions.</li>
-<li><code>Modal.Title { … }</code> is what the heading draws when words alone will not do — <code>Modal.Title { Markdown(&quot;Rename </code>{name}<code>&quot;) }</code> — while <code>title:</code> stays its name.</li>
-<li><code>.closable</code> puts a close button in the heading row, which closes it as Escape does.</li>
+<li><code>title:</code> is its heading, which names it (<code>A08</code> without one). <code>Modal.Footer</code> is the row of actions, and <code>.closable</code> adds a close button. <a href="/reference#modal"><code>Modal</code></a> lists the rest.</li>
 <li><strong><code>Toast</code></strong> shows the moment it is rendered and leaves after three seconds. It is announced politely to screen readers. Put it under a condition that turns true.</li>
 <li><strong><code>Menu</code></strong> and <strong><code>Dropdown</code></strong> open a list from a button. Arrow keys move between items, Home and End jump to the ends, Enter and Space choose, Escape closes with focus back on the button, and a click outside closes it.</li>
 <li><strong><code>Tooltip</code></strong> shows its text when its child is hovered or focused, and is linked to it with <code>aria-describedby</code>.</li>
@@ -468,56 +482,27 @@
                             </div>
                             <h3 class="wf-heading" id="layers-popovers-menus-and-tooltips-above-everything">Layers: popovers, menus and tooltips above everything</h3>
                             <div class="wf-markdown">
-<p>A <code>Popover</code>, a <code>Menu</code>'s list and a <code>Tooltip</code> are drawn in the browser's <em>top layer</em>, above everything else on the page. A box with <code>overflow: hidden</code>, or one with a stacking context of its own, cannot clip or cover them.</p>
-<p>Each layer is placed against its <em>anchor</em>, the element it belongs to:</p>
-<ul>
-<li>It flips to the other side when there is no room, and slides along its side to stay on screen.</li>
-<li>It follows the anchor while the page scrolls. When the anchor scrolls out of view the layer goes with it, still open, and comes back with it.</li>
-</ul>
-<p>The open layers form one stack, newest on top. A press outside closes every layer it is outside of.</p>
-<p>Escape closes the newest layer that can be dismissed — a popover, a menu, an open <code>Modal</code> or <code>Dialog</code> — and stops there: nothing behind it hears that key. For example:</p>
-<ul>
-<li>A modal opened from a popover is above it. The first Escape closes the modal, which its <code>on close</code> hears, and the next closes the popover.</li>
-<li>A modal covers what is beneath it, so a press in it, or on its backdrop, leaves the popover under it open.</li>
-<li>A tooltip keeps Escape only while focus is on its control: it hides, and the key goes no further. Otherwise the same Escape hides it on its way past and goes on, to the layer below or to the element with focus. So a tooltip under a pointer resting on a toolbar button does not take the Escape that closes an editor's completion list.</li>
-</ul>
-<p>This editor has a popover at a button, a menu bar with every kind of item, a tooltip and a context menu at the pointer:</p>
+<p>A <code>Popover</code>, a <code>Menu</code>'s list and a <code>Tooltip</code> are drawn in the browser's <em>top layer</em>, above everything else on the page, so a box with <code>overflow: hidden</code> cannot clip them. Each is placed against its <em>anchor</em>, the element it belongs to, and flips or slides to stay on screen.</p>
+<p>This page opens a popover at a button and a context menu at the pointer:</p>
                             </div>
                             <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
                                 <div class="wf-row wf-s2c416341 bp-console__bar">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                         <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                    <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                        <button class="wf-btn wf-s65c70c32 bp-button bp-hide-sm" data-track="open_playground" data-track-item-id="wf" type="button">Open in the Playground</button>
+                                        <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                    </div>
                                 </div>
-                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Editor</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Editor&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Layers at a control and at the pointer.&quot;</span>) {
+                                <code class="wf-code wf-code--block bp-console__code" tabindex="0"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Editor</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Editor&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Layers at a control and at the pointer.&quot;</span>) {
     <span class="wf-tok-kw">state</span> branches = <span class="wf-tok-kw">false</span>
-    <span class="wf-tok-kw">state</span> wrap = <span class="wf-tok-kw">false</span>
     <span class="wf-tok-kw">state</span> asked = <span class="wf-tok-kw">false</span>
     <span class="wf-tok-kw">state</span> point = { <span class="wf-tok-prop">x</span>: <span class="wf-tok-num">0</span>, <span class="wf-tok-prop">y</span>: <span class="wf-tok-num">0</span> }
     <span class="wf-tok-kw">state</span> said = <span class="wf-tok-str">&quot;&quot;</span>
     <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Editor&quot;</span>).h1
-    <span class="wf-tok-name">Row</span> {
-        <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;main&quot;</span>, <span class="wf-tok-prop">ref</span>: branch) { <span class="wf-tok-kw">on</span> click { branches = !branches } }
-        <span class="wf-tok-name">Menu</span>(<span class="wf-tok-prop">trigger</span>: <span class="wf-tok-str">&quot;View&quot;</span>) {
-            <span class="wf-tok-name">Menu</span>.<span class="wf-tok-name">Item</span>(<span class="wf-tok-prop">shortcut</span>: <span class="wf-tok-str">&quot;Ctrl+B&quot;</span>) {
-                <span class="wf-tok-kw">on</span> click { said = <span class="wf-tok-str">&quot;sidebar&quot;</span> }
-                <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Toggle sidebar&quot;</span>)
-            }
-            <span class="wf-tok-name">Menu</span>.<span class="wf-tok-name">Item</span>(<span class="wf-tok-prop">checked</span>: wrap) {
-                <span class="wf-tok-kw">on</span> click { wrap = !wrap }
-                <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Word wrap&quot;</span>)
-            }
-            <span class="wf-tok-name">Menu</span>.<span class="wf-tok-name">Item</span>(<span class="wf-tok-prop">disabled</span>: <span class="wf-tok-kw">true</span>) { <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Zen mode&quot;</span>) }
-            <span class="wf-tok-name">Menu</span>.<span class="wf-tok-name">Divider</span>
-            <span class="wf-tok-name">Menu</span>.<span class="wf-tok-name">Sub</span>(<span class="wf-tok-prop">label</span>: <span class="wf-tok-str">&quot;Appearance&quot;</span>) {
-                <span class="wf-tok-name">Menu</span>.<span class="wf-tok-name">Item</span> { <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Light&quot;</span>) }
-                <span class="wf-tok-name">Menu</span>.<span class="wf-tok-name">Item</span> { <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Dark&quot;</span>) }
-            }
-        }
-        <span class="wf-tok-name">Tooltip</span>(<span class="wf-tok-str">&quot;Save&quot;</span>, <span class="wf-tok-prop">shortcut</span>: <span class="wf-tok-str">&quot;Ctrl+S&quot;</span>, <span class="wf-tok-prop">delay</span>: <span class="wf-tok-num">400</span>) { <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Save&quot;</span>) }
-    }
-    <span class="wf-tok-name">Popover</span>(<span class="wf-tok-prop">visible</span>: branches, <span class="wf-tok-prop">anchor</span>: branch, <span class="wf-tok-prop">placement</span>: .bottomStart, <span class="wf-tok-prop">label</span>: <span class="wf-tok-str">&quot;Branches&quot;</span>).arrow {
+    <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;main&quot;</span>, <span class="wf-tok-prop">ref</span>: branch) { <span class="wf-tok-kw">on</span> click { branches = !branches } }
+    <span class="wf-tok-name">Popover</span>(<span class="wf-tok-prop">visible</span>: branches, <span class="wf-tok-prop">anchor</span>: branch, <span class="wf-tok-prop">label</span>: <span class="wf-tok-str">&quot;Branches&quot;</span>) {
         <span class="wf-tok-kw">on</span> close(reason) { said = <span class="wf-tok-str">&quot;closed by {reason}&quot;</span> }
         <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;main&quot;</span>)
         <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;feature/layers&quot;</span>)
@@ -531,8 +516,7 @@
         <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Right-click for the context menu&quot;</span>)
     }
     <span class="wf-tok-name">Menu</span>(<span class="wf-tok-prop">visible</span>: asked, <span class="wf-tok-prop">at</span>: point) {
-        <span class="wf-tok-name">Menu</span>.<span class="wf-tok-name">Item</span>(<span class="wf-tok-prop">shortcut</span>: <span class="wf-tok-str">&quot;F12&quot;</span>) { <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Go to definition&quot;</span>) }
-        <span class="wf-tok-name">Menu</span>.<span class="wf-tok-name">Item</span> { <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Rename&quot;</span>) }
+        <span class="wf-tok-name">Menu</span>.<span class="wf-tok-name">Item</span>(<span class="wf-tok-prop">shortcut</span>: <span class="wf-tok-str">&quot;F2&quot;</span>) { <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Rename&quot;</span>) }
         <span class="wf-tok-name">Menu</span>.<span class="wf-tok-name">Divider</span>
         <span class="wf-tok-name">Menu</span>.<span class="wf-tok-name">Item</span>.danger { <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Delete&quot;</span>) }
     }
@@ -540,73 +524,46 @@
 }</code>
                             </div>
                             <div class="wf-markdown">
-<p>What each part does:</p>
 <ul>
-<li><strong><code>Popover</code></strong> is open while its <code>visible:</code> state is true. It is placed against <code>anchor:</code> — an element's <code>ref:</code> — on <code>placement:</code> (<code>.bottom</code>, <code>.bottomStart</code>, <code>.bottomEnd</code>, <code>.top…</code>, <code>.left…</code>, <code>.right…</code>; unset, <code>.bottomStart</code>), <code>offset:</code> pixels away. When Escape or a press outside closes it, <code>visible:</code> is set back to <code>false</code> and <code>on close(reason)</code> hears why: <code>&quot;escape&quot;</code> or <code>&quot;outside&quot;</code>. <code>.arrow</code> draws a point toward the anchor; <code>label:</code> is its accessible name.</li>
-<li><strong><code>Menu</code></strong> with <code>trigger:</code> is a button and its list. Without one it is a list that state opens — open from the first paint if its state starts <code>true</code> — at an <code>anchor:</code>, or <code>at:</code> a point <code>{ x, y }</code>, where the pointer asked for a context menu. <code>label:</code> names the list for a screen reader; it is never a button's text. Choosing an item closes the menu, and <code>on close</code> hears <code>&quot;choose&quot;</code>.</li>
-<li><strong><code>Menu.Item</code></strong> takes:</li>
-<li><code>shortcut:</code> — the keys that do the same, drawn at its end and given to assistive technology as <code>aria-keyshortcuts</code>;</li>
-<li><code>checked:</code> — makes it a check item that follows its state;</li>
-<li><code>disabled:</code> — keeps it in sight but out of reach: the arrow keys skip it and a press does nothing;</li>
-<li><code>.danger</code> — for what cannot be taken back (Delete, Discard), drawn in the danger colour.</li>
-<li><strong><code>Menu.Sub(label:)</code></strong> is an entry with a menu of its own, opened beside it by a hover, ArrowRight or Enter. ArrowLeft and Escape go back to the entry. Choosing in it closes the whole menu, and it closes with its menu.</li>
-<li><strong><code>Tooltip</code></strong> waits <code>delay:</code> milliseconds of hover (unset, 500) and shows at once for keyboard focus. It never takes focus, and goes on leaving, on a press and on Escape. Once Escape has hidden it, it stays hidden until the pointer comes back to it or keyboard focus reaches its control. <code>shortcut:</code> adds a chip with the keys and gives the control it names its <code>aria-keyshortcuts</code>, in ARIA's spelling (<code>Control+S</code>). <code>placement:</code> is where it goes (unset, <code>.top</code>).</li>
+<li><strong><code>Popover</code></strong> is open while its <code>visible:</code> state is true, placed against <code>anchor:</code>, an element's <code>ref:</code>. Escape or a press outside closes it, sets <code>visible:</code> back to <code>false</code>, and <code>on close(reason)</code> hears <code>&quot;escape&quot;</code> or <code>&quot;outside&quot;</code>.</li>
+<li><strong><code>Menu</code></strong> without <code>trigger:</code> is a list that state opens, at an <code>anchor:</code> or <code>at:</code> a point. Choosing an item closes it.</li>
+<li>The open layers form one stack, newest on top. Escape closes the newest layer that can be dismissed — a popover, a menu, an open <code>Modal</code> or <code>Dialog</code> — and nothing behind it hears that key. A modal opened from a popover takes the first Escape; the popover takes the next.</li>
+<li>A tooltip keeps Escape only while focus is on its control. Otherwise the key goes on to the layer below, or to the element with focus.</li>
+<li>A layer takes the attributes and handlers any element takes — <code>role:</code>, <code>aria-*</code>, <code>ref:</code> — on the element it draws. A <code>Popover</code> is a <code>dialog</code> unless its <code>role:</code> says otherwise.</li>
 </ul>
-<p>A layer takes what any element takes (<a href="/learn/06-elements">Elements</a>), on the element it draws: <code>id:</code>, <code>role:</code>, <code>tabindex:</code>, <code>title:</code>, <code>aria-*</code>, <code>data-*</code>, <code>ref:</code>, and its <code>on</code> handlers. Where they land:</p>
-<ul>
-<li>A <code>Popover</code> is a <code>dialog</code> unless its <code>role:</code> says what else it is — a <code>listbox</code> of choices, for example.</li>
-<li>A <code>Menu</code> with a <code>trigger:</code> takes them on the box around its button and list. One that state opens takes them on its list, whose <code>role:</code> then replaces <code>menu</code>.</li>
-<li>A <code>Tooltip</code> takes them on the box around its control.</li>
-<li>A <code>Modal</code> or a <code>Dialog</code> takes them on its <code>&lt;dialog&gt;</code>, whose <code>title:</code> is its heading rather than an attribute.</li>
-</ul>
-<p>A <code>Popover</code>'s or a <code>Menu</code>'s <code>on close</code> is the layer's own, and hears why it closed.</p>
+<p>Every option of these — <code>placement:</code>, <code>offset:</code>, <code>.arrow</code>, a menu's <code>checked:</code>, <code>disabled:</code> and <code>Menu.Sub</code>, a tooltip's <code>delay:</code> and <code>shortcut:</code> — is listed under <a href="/reference#popover"><code>Popover</code></a>, <a href="/reference#menu"><code>Menu</code></a> and <a href="/reference#tooltip"><code>Tooltip</code></a>. To ask before a destructive action, see <a href="/recipes/confirm-dialog">Build a confirm dialog</a>.</p>
                             </div>
                             <h2 class="wf-heading" id="gestures-drag-long-press-swipe-and-the-splitter">Gestures: drag, long-press, swipe and the splitter</h2>
                             <div class="wf-markdown">
 <p>The runtime turns what the pointer does over time into one event that says what it means. A mouse, a pen and a finger run the same code. A finger picks a drag up with a long press, so a plain swipe still scrolls the page.</p>
-<p>This file browser reorders tabs, moves tree rows into a folder, and sizes its sidebar with a splitter:</p>
+<p>This list reorders its items by drag and drop:</p>
                             </div>
                             <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
                                 <div class="wf-row wf-s2c416341 bp-console__bar">
                                     <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                         <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                    <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                        <button class="wf-btn wf-s65c70c32 bp-button bp-hide-sm" data-track="open_playground" data-track-item-id="wf" type="button">Open in the Playground</button>
+                                        <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                    </div>
                                 </div>
-                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Files</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Files&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Reorder, move and resize.&quot;</span>) {
-    <span class="wf-tok-kw">state</span> side = <span class="wf-tok-num">240</span>
-    <span class="wf-tok-kw">state</span> tabs = [<span class="wf-tok-str">&quot;App.wf&quot;</span>, <span class="wf-tok-str">&quot;Home.wf&quot;</span>]
-    <span class="wf-tok-kw">state</span> rows = [<span class="wf-tok-str">&quot;src&quot;</span>, <span class="wf-tok-str">&quot;public&quot;</span>, <span class="wf-tok-str">&quot;README.md&quot;</span>]
-    <span class="wf-tok-kw">state</span> landing = <span class="wf-tok-str">&quot;&quot;</span>
+                                <code class="wf-code wf-code--block bp-console__code" tabindex="0"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Tabs</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Tabs&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Drag to reorder.&quot;</span>) {
+    <span class="wf-tok-kw">state</span> tabs = [<span class="wf-tok-str">&quot;App.wf&quot;</span>, <span class="wf-tok-str">&quot;Home.wf&quot;</span>, <span class="wf-tok-str">&quot;Shell.wf&quot;</span>]
 
-    <span class="wf-tok-kw">action</span> moveTab(<span class="wf-tok-prop">what</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">near</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">position</span>: <span class="wf-tok-name">String</span>) {
+    <span class="wf-tok-kw">action</span> move(<span class="wf-tok-prop">what</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">near</span>: <span class="wf-tok-name">String</span>, <span class="wf-tok-prop">position</span>: <span class="wf-tok-name">String</span>) {
         <span class="wf-tok-kw">let</span> rest = tabs.filter((x) =&gt; x != what)
         <span class="wf-tok-kw">let</span> at = rest.indexOf(near)
         <span class="wf-tok-kw">let</span> i = <span class="wf-tok-kw">if</span> position == <span class="wf-tok-str">&quot;after&quot;</span> { at + <span class="wf-tok-num">1</span> } <span class="wf-tok-kw">else</span> { at }
         tabs = [...rest.slice(<span class="wf-tok-num">0</span>, i), what, ...rest.slice(i)]
     }
 
-    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Files&quot;</span>).h1
+    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Tabs&quot;</span>).h1
     <span class="wf-tok-name">Row</span> {
-        <span class="wf-tok-name">Stack</span> {
-            <span class="wf-tok-kw">style</span> { <span class="wf-tok-prop">width</span>: {side}px }
-            <span class="wf-tok-kw">for</span> r <span class="wf-tok-kw">in</span> rows {
-                <span class="wf-tok-name">Card</span>(<span class="wf-tok-prop">drag</span>: r, <span class="wf-tok-prop">dragGroup</span>: <span class="wf-tok-str">&quot;tree&quot;</span>, <span class="wf-tok-prop">dropValue</span>: r, <span class="wf-tok-prop">dropInside</span>: r == <span class="wf-tok-str">&quot;src&quot;</span>) {
-                    <span class="wf-tok-kw">on</span> receive(d) { <span class="wf-tok-kw">log</span>(<span class="wf-tok-str">&quot;{d.value} goes {d.position} {r}&quot;</span>) }
-                    <span class="wf-tok-kw">on</span> dragmove(d) { landing = <span class="wf-tok-kw">if</span> d.over == <span class="wf-tok-kw">null</span> { <span class="wf-tok-str">&quot;&quot;</span> } <span class="wf-tok-kw">else</span> { <span class="wf-tok-str">&quot;Goes {d.position} {d.over}&quot;</span> } }
-                    <span class="wf-tok-kw">on</span> longpress(p) { <span class="wf-tok-kw">log</span>(<span class="wf-tok-str">&quot;menu for {r}&quot;</span>) }
-                    <span class="wf-tok-name">Text</span>(r)
-                }
-            }
-            <span class="wf-tok-name">Text</span>(landing)
-        }
-        <span class="wf-tok-name">Splitter</span>(<span class="wf-tok-prop">bind</span>: side, <span class="wf-tok-prop">min</span>: <span class="wf-tok-num">160</span>, <span class="wf-tok-prop">max</span>: <span class="wf-tok-num">480</span>, <span class="wf-tok-prop">reset</span>: <span class="wf-tok-num">240</span>, <span class="wf-tok-prop">label</span>: <span class="wf-tok-str">&quot;Sidebar width&quot;</span>)
-        <span class="wf-tok-name">Row</span> {
-            <span class="wf-tok-kw">for</span> tab <span class="wf-tok-kw">in</span> tabs {
-                <span class="wf-tok-name">Card</span>(<span class="wf-tok-prop">drag</span>: tab, <span class="wf-tok-prop">dragGroup</span>: <span class="wf-tok-str">&quot;tabs&quot;</span>, <span class="wf-tok-prop">dropValue</span>: tab, <span class="wf-tok-prop">dropAxis</span>: .x) {
-                    <span class="wf-tok-kw">on</span> receive(d) { moveTab(d.value, tab, d.position) }
-                    <span class="wf-tok-name">Text</span>(tab)
-                }
+        <span class="wf-tok-kw">for</span> tab <span class="wf-tok-kw">in</span> tabs <span class="wf-tok-kw">by</span> tab {
+            <span class="wf-tok-name">Card</span>(<span class="wf-tok-prop">drag</span>: tab, <span class="wf-tok-prop">dragGroup</span>: <span class="wf-tok-str">&quot;tabs&quot;</span>, <span class="wf-tok-prop">dropAxis</span>: .x) {
+                <span class="wf-tok-kw">on</span> receive(d) { move(d.value, tab, d.position) }
+                <span class="wf-tok-name">Text</span>(tab)
             }
         }
     }
@@ -614,48 +571,14 @@
                             </div>
                             <div class="wf-markdown">
 <ul>
-<li><strong><code>drag: value</code></strong> picks an element up: a mouse moved a few pixels, or a finger held still for half a second. A ghost follows the pointer, a box the pointer passes near the edge of scrolls, and Escape puts the element back. The click a drag ends with is not a click.</li>
-<li><strong><code>on receive(d)</code></strong> takes a drop. <code>d.value</code> is what was dropped, and <code>d.position</code> is where:</li>
-<li><code>&quot;before&quot;</code> or <code>&quot;after&quot;</code> along <code>dropAxis:</code> — <code>.y</code>, down the page, is the default; <code>.x</code>, across it, is for a tab strip;</li>
-<li><code>&quot;inside&quot;</code>, on the middle of a target with <code>dropInside: true</code> (a folder, a container).</li>
-<li>The target shows a line where the drop would go, or an outline for inside.</li>
-<li><strong><code>on dragmove(d)</code></strong> on the dragged element hears, as it moves, what it is over — the target's <code>dropValue:</code> as <code>d.over</code>, null over nothing — and where it would land. That is enough to say &quot;Goes after Badge, inside Row&quot;.</li>
+<li><strong><code>drag: value</code></strong> picks an element up: a mouse moved a few pixels, or a finger held still. Escape puts it back, and the click a drag ends with is not a click.</li>
+<li><strong><code>on receive(d)</code></strong> takes a drop: <code>d.value</code> is what was dropped, and <code>d.position</code> is <code>&quot;before&quot;</code> or <code>&quot;after&quot;</code> along <code>dropAxis:</code> (<code>.y</code>, down the page, unless you say <code>.x</code>), or <code>&quot;inside&quot;</code> on a target with <code>dropInside: true</code>.</li>
 <li><strong><code>dragGroup:</code></strong> on a drag and its targets keeps groups apart, such as tabs and tree rows.</li>
-<li><strong><code>on longpress(p)</code></strong> is half a second held still (<code>p.x</code>, <code>p.y</code>); the click it ends with is not a click. <strong><code>on swipe(s)</code></strong> is a finger or a pen swept across: <code>s.direction</code> is <code>&quot;left&quot;</code>, <code>&quot;right&quot;</code>, <code>&quot;up&quot;</code> or <code>&quot;down&quot;</code>.</li>
-<li><strong><code>Splitter(bind:, min:, max:, reset:)</code></strong> sizes the region beside it:</li>
-<li>It follows the pointer between its bounds; a double-click or Enter resets it; the arrow keys move it 16 px (64 with Shift).</li>
-<li><code>.horizontal</code> sits between regions one above the other; <code>.reverse</code> sits on the start side of what it sizes — a pane on the right, a panel at the bottom.</li>
-<li>A drag or a key starts from the region's size as it is drawn. So the bound value may mean &quot;the default share&quot; — <code>0</code>, with the region's width a percentage until it is dragged — and <code>reset: 0</code> goes back to it: a reset is taken as written, not held to <code>min:</code>.</li>
-<li>It is a <code>separator</code> in the tab order unless its <code>role:</code> or <code>tabindex:</code> says otherwise.</li>
+<li><strong><code>on longpress(p)</code></strong> is half a second held still; <strong><code>on swipe(s)</code></strong> is a finger or a pen swept across, with <code>s.direction</code>.</li>
+<li><strong><code>Splitter(bind: side, min: 160, max: 480, reset: 240, label: &quot;Sidebar width&quot;)</code></strong> sizes the region beside it, by drag or by the arrow keys. A drag or a key starts from the region's size as it is drawn.</li>
 </ul>
-<p>On a call of your own component, all of these — the drag, the drop, the gestures — apply to the one element it draws, as a DOM event's handler or an <code>aria-label</code> written on the call does:</p>
-                            </div>
-                            <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
-                                <div class="wf-row wf-s2c416341 bp-console__bar">
-                                    <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
-                                        <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
-                                    </div>
-                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
-                                </div>
-                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-kw">component</span> <span class="wf-tok-name">TreeRow</span>(_ <span class="wf-tok-prop">name</span>: <span class="wf-tok-name">String</span>) {
-    <span class="wf-tok-name">Row</span> { <span class="wf-tok-name">Icon</span>(<span class="wf-tok-str">&quot;file&quot;</span>)  <span class="wf-tok-name">Text</span>(name) }
-}
-
-<span class="wf-tok-kw">page</span> <span class="wf-tok-name">Files</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/files&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Files&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Tree rows you can drag.&quot;</span>) {
-    <span class="wf-tok-kw">state</span> rows = [<span class="wf-tok-str">&quot;src&quot;</span>, <span class="wf-tok-str">&quot;README.md&quot;</span>]
-    <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Files&quot;</span>).h1
-    <span class="wf-tok-name">Stack</span> {
-        <span class="wf-tok-kw">for</span> r <span class="wf-tok-kw">in</span> rows {
-            <span class="wf-tok-name">TreeRow</span>(r, <span class="wf-tok-prop">drag</span>: r, <span class="wf-tok-prop">dragGroup</span>: <span class="wf-tok-str">&quot;tree&quot;</span>, <span class="wf-tok-prop">dropValue</span>: r, <span class="wf-tok-prop">dropInside</span>: r == <span class="wf-tok-str">&quot;src&quot;</span>) {
-                <span class="wf-tok-kw">on</span> receive(d) { <span class="wf-tok-kw">log</span>(<span class="wf-tok-str">&quot;{d.value} goes {d.position} {r}&quot;</span>) }
-                <span class="wf-tok-kw">on</span> contextmenu(e) { <span class="wf-tok-kw">log</span>(<span class="wf-tok-str">&quot;menu for {r}&quot;</span>) }
-            }
-        }
-    }
-}</code>
-                            </div>
-                            <div class="wf-markdown">
-<p>A component that declares a prop or an event of that name takes it itself. A component whose body is an <code>if</code>, a <code>for</code> or several elements has no one element for them, and the build says so (<code>C07</code>): wrap what it draws in a <code>Stack</code> or a <code>Row</code>.</p>
+<p><a href="/reference#on-every-element">On every element</a> lists the drag props and the gesture events in full, <code>dropValue:</code> and <code>on dragmove(d)</code> among them; <a href="/reference#splitter"><code>Splitter</code></a> lists its props.</p>
+<p>On a call of your own component, the drag, the drop and the gestures apply to the one element it draws. A component whose body is an <code>if</code>, a <code>for</code> or several elements has no one element for them, and the build says so (<code>C07</code>): wrap what it draws in a <code>Stack</code> or a <code>Row</code>.</p>
                             </div>
                             <div class="wf-stack wf-s37f4bada bp-aside" role="note" aria-label="Important" data-kind="important">
                                 <p class="wf-text bp-aside__label">Important</p>
@@ -672,9 +595,12 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                         <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                    <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                        <button class="wf-btn wf-s65c70c32 bp-button bp-hide-sm" data-track="open_playground" data-track-item-id="wf" type="button">Open in the Playground</button>
+                                        <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                    </div>
                                 </div>
-                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Scrolled</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Scrolled&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;How far down the reader is.&quot;</span>) {
+                                <code class="wf-code wf-code--block bp-console__code" tabindex="0"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Scrolled</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Scrolled&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;How far down the reader is.&quot;</span>) {
     <span class="wf-tok-kw">state</span> y = <span class="wf-tok-num">0</span>
     <span class="wf-tok-kw">on</span> scroll { y = window.scrollY }
     <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Scrolled&quot;</span>).h1
@@ -689,9 +615,12 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                         <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
                                     </div>
-                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                    <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                        <button class="wf-btn wf-s65c70c32 bp-button bp-hide-sm" data-track="open_playground" data-track-item-id="wf" type="button">Open in the Playground</button>
+                                        <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                                    </div>
                                 </div>
-                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Selection</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Selection&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;What the reader has selected.&quot;</span>) {
+                                <code class="wf-code wf-code--block bp-console__code" tabindex="0"><span class="wf-tok-kw">page</span> <span class="wf-tok-name">Selection</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Selection&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;What the reader has selected.&quot;</span>) {
     <span class="wf-tok-kw">state</span> picked = <span class="wf-tok-str">&quot;&quot;</span>
     <span class="wf-tok-kw">action</span> track() { picked = document.getSelection().toString() }
     <span class="wf-tok-kw">effect</span> {
@@ -886,9 +815,11 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                         <p class="wf-text wf-s23a4ddd5 bp-mono">wf · draws T22</p>
                                     </div>
-                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf · draws T22" type="button">Copy</button>
+                                    <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                        <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf · draws T22" type="button">Copy</button>
+                                    </div>
                                 </div>
-                                <code class="wf-code wf-code--block bp-console__code">page Spot(path: &quot;/&quot;, title: &quot;Spot&quot;, description: &quot;Where the pointer clicked.&quot;) {
+                                <code class="wf-code wf-code--block bp-console__code" tabindex="0">page Spot(path: &quot;/&quot;, title: &quot;Spot&quot;, description: &quot;Where the pointer clicked.&quot;) {
     state at = &quot;&quot;
     Heading(&quot;Spot&quot;).h1
     Button(&quot;Click me&quot;) { on click(e, x) { at = &quot;{x}&quot; } }
@@ -904,9 +835,11 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                         <p class="wf-text wf-s23a4ddd5 bp-mono">wf · draws V09</p>
                                     </div>
-                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf · draws V09" type="button">Copy</button>
+                                    <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                        <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf · draws V09" type="button">Copy</button>
+                                    </div>
                                 </div>
-                                <code class="wf-code wf-code--block bp-console__code">page Clicks(path: &quot;/&quot;, title: &quot;Clicks&quot;, description: &quot;A misspelled event.&quot;) {
+                                <code class="wf-code wf-code--block bp-console__code" tabindex="0">page Clicks(path: &quot;/&quot;, title: &quot;Clicks&quot;, description: &quot;A misspelled event.&quot;) {
     state n = 0
     Heading(&quot;Clicks&quot;).h1
     Button(&quot;+1&quot;) { on clik { n = n + 1 } }
@@ -922,9 +855,11 @@
                                     <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
                                         <p class="wf-text wf-s23a4ddd5 bp-mono">wf · draws E117</p>
                                     </div>
-                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf · draws E117" type="button">Copy</button>
+                                    <div class="wf-row wf-align--center wf-gap--xs wf-s9399b452">
+                                        <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf · draws E117" type="button">Copy</button>
+                                    </div>
                                 </div>
-                                <code class="wf-code wf-code--block bp-console__code">page Search(path: &quot;/&quot;, title: &quot;Search&quot;, description: &quot;A shortcut no keyboard sends.&quot;) {
+                                <code class="wf-code wf-code--block bp-console__code" tabindex="0">page Search(path: &quot;/&quot;, title: &quot;Search&quot;, description: &quot;A shortcut no keyboard sends.&quot;) {
     state q = &quot;&quot;
     Heading(&quot;Search&quot;).h1
     Input(bind: q, ref: box, placeholder: &quot;Search&quot;)
@@ -991,21 +926,21 @@
                     </div>
                     <div class="wf-stack wf-gap--xs wf-see94d5ab">
                         <button class="wf-btn wf-sc1cdfbd7 bp-rail-action" type="button">
-                            <i class="wf-icon" data-icon="copy"></i>
+                            <i class="wf-icon" data-icon="copy"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" ry="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" fill="none" stroke="currentColor" stroke-width="2"/></svg></i>
                             <p class="wf-text">Copy page as Markdown</p>
                         </button>
                         <button class="wf-btn wf-sc1cdfbd7 bp-rail-action" type="button">
-                            <i class="wf-icon" data-icon="file"></i>
+                            <i class="wf-icon" data-icon="file"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><g transform="scale(1.2)" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 2.5h6l4 4v11H5z"/><path d="M11 2.5v4h4"/></g></svg></i>
                             <p class="wf-text">Open as Markdown</p>
                         </button>
                     </div>
                     <a class="wf-link wf-s48d899f5" href="https://github.com/monzeromer-lab/WebFluent/blob/master/md-docs/learn/08-events.md">
-                        <i class="wf-icon" data-icon="edit"></i>
+                        <i class="wf-icon" data-icon="edit"><svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" fill="none" stroke="currentColor" stroke-width="2"/></svg></i>
                         <p class="wf-text">Edit this page</p>
                     </a>
                 </div>
             </div>
-        </main>
+        </div>
         <footer class="wf-footer wf-s2213a098">
             <div class="wf-stack wf-gap--lg wf-s84d7918c bp-wrap">
                 <div class="wf-grid wf-gap--lg wf-r67559659">

@@ -1,2 +1,2 @@
-function Page_BlueprintEssayAr(params){const _root=document.createDocumentFragment();const _e952=Component_PreviewEssay({ar:true});_root.appendChild(_e952);return _root;}
+function Page_BlueprintEssayAr(params){const _root=document.createDocumentFragment();const _e967=Component_PreviewEssay({ar:true});_root.appendChild(_e967);return _root;}
 WF.page("BlueprintEssayAr",Page_BlueprintEssayAr,{title:"T2 مقال",lang:"ar",dir:"rtl"});

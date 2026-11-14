@@ -1,2 +1,2 @@
-function Page_OldReferenceQrcode(params){const _root=document.createDocumentFragment();const _e1696=WF.el("h1",{className:"wf-heading"},"QrCode");_root.appendChild(_e1696);const _e1697=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/qrcode"},"QrCode");WF.activeLink(_e1697,"/reference/qrcode",false);_root.appendChild(_e1697);return _root;}
+function Page_OldReferenceQrcode(params){const _root=document.createDocumentFragment();const _e1817=WF.el("h1",{className:"wf-heading"},"QrCode");_root.appendChild(_e1817);const _e1818=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/qrcode"},"QrCode");WF.activeLink(_e1818,"/reference/qrcode",false);_root.appendChild(_e1818);return _root;}
 WF.page("OldReferenceQrcode",Page_OldReferenceQrcode,{title:"QrCode"});

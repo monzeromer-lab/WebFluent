@@ -27,7 +27,9 @@ Text(_ content: Any, tone: Enum, size: Enum, align: Enum, …)
 
 ## Flags
 
-`.primary` `.secondary` `.success` `.danger` `.warning` `.info` `.sm` `.md` `.lg` `.left` `.center` `.right` `.uppercase` `.lowercase` `.heading` `.subtitle` `.bold` `.italic` `.underline` `.muted` `.dropInside` `.trapFocus`
+`.primary` `.secondary` `.success` `.danger` `.warning` `.info` `.sm` `.md` `.lg` `.left` `.center` `.right` `.uppercase` `.lowercase` `.heading` `.subtitle` `.bold` `.italic` `.underline` `.muted`
+
+Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 
 ## Example
 
@@ -42,4 +44,4 @@ Text("Important").bold.danger
 - [E103](https://webfluent.monzeromer.dev/errors/E103.md): A flag, case, part, event or slot the component does not have
 - [C04](https://webfluent.monzeromer.dev/errors/C04.md): An attribute a built-in does not declare
 
-Since WebFluent 5.0.
+Before WebFluent 5.0.

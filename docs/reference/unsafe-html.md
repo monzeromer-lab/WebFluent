@@ -16,9 +16,7 @@ Unsafe.Html(_ markup: String)
 |---|---|---|
 | `markup` | `String  (positional)` | The HTML to insert |
 
-## Flags
-
-`.dropInside` `.trapFocus`
+Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 
 ## Example
 
@@ -34,4 +32,4 @@ Unsafe.Html(sanitize(body))
 - [C04](https://webfluent.monzeromer.dev/errors/C04.md): An attribute a built-in does not declare
 - [V03](https://webfluent.monzeromer.dev/errors/V03.md): Markup put in as markup
 
-Since WebFluent 5.0.
+Before WebFluent 5.0.

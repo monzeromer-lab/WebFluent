@@ -1,2 +1,2 @@
-function Page_OldReferenceRow(params){const _root=document.createDocumentFragment();const _e1702=WF.el("h1",{className:"wf-heading"},"Row");_root.appendChild(_e1702);const _e1703=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/row"},"Row");WF.activeLink(_e1703,"/reference/row",false);_root.appendChild(_e1703);return _root;}
+function Page_OldReferenceRow(params){const _root=document.createDocumentFragment();const _e1823=WF.el("h1",{className:"wf-heading"},"Row");_root.appendChild(_e1823);const _e1824=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/row"},"Row");WF.activeLink(_e1824,"/reference/row",false);_root.appendChild(_e1824);return _root;}
 WF.page("OldReferenceRow",Page_OldReferenceRow,{title:"Row"});

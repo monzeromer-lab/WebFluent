@@ -9,6 +9,8 @@ another's, so messages travel between them with no server relaying them.
 This page signals over a `broadcast` channel, so it connects two tabs of one
 browser: open `/room?host=1` in one tab and `/room` in another.
 
+**Needs:** nothing besides the page; open it in two tabs of one browser.
+
 ```wf
 page Room(path: "/room", title: "Room", description: "Two readers, one line.") {
     state heard = ""

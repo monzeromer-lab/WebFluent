@@ -290,6 +290,17 @@ async function wfShare(files) {
 }
 
 /**
+ * Open a program in the Playground, carried in the address as Share
+ * carries one; the Playground builds it when it arrives.
+ * @param {Object} files path → text: `src/pages/Home.wf`
+ */
+async function wfOpenInPlayground(files) {
+  const json = new TextEncoder().encode(JSON.stringify(files));
+  const packed = await wfSqueeze(json, new CompressionStream("deflate-raw"));
+  location.href = "/playground#p=" + wfBase64url(packed);
+}
+
+/**
  * The project a shared address carries, handed to `found`; nothing when the
  * address has none, or one that cannot be read.
  * @param {(files: Object) => void} found

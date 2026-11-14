@@ -149,7 +149,7 @@ Change it back, save, and the page returns.
 
 You have a working project. Stop the server with Ctrl+C when you are done.
 Run `wf build` to write the finished site to `build/`, ready for any static
-host ([Deploying](https://webfluent.monzeromer.dev/recipes.md)).
+host ([Deploy to GitHub Pages](https://webfluent.monzeromer.dev/recipes/deploy-to-github-pages.md)).
 
 The rest of this chapter is optional set-up. To keep learning, go to the
 [tutorial](https://webfluent.monzeromer.dev/learn/02-tutorial-shelf.md).

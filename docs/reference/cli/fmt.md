@@ -20,3 +20,7 @@ wf fmt [PATH] [options]
 | `--stdout` | Print the formatted text to stdout instead of writing it |
 
 **Writes:** the project's source files
+
+**Preview:** `--check` says what it would do without doing it.
+
+The [full entry for wf fmt](https://webfluent.monzeromer.dev/reference/cli.md#wf-fmt) has its examples and the details this page leaves out.

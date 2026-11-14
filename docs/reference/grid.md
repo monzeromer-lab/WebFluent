@@ -22,7 +22,9 @@ Grid(columns: Number, gap: Enum, align: Enum, …) { … }
 
 ## Flags
 
-`.xs` `.sm` `.md` `.lg` `.xl` `.stretch` `.baseline` `.between` `.around` `.evenly` `.stacks` `.dropInside` `.trapFocus`
+`.xs` `.sm` `.md` `.lg` `.xl` `.stretch` `.baseline` `.between` `.around` `.evenly` `.stacks`
+
+Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 
 ## Slots
 
@@ -44,4 +46,4 @@ Grid(columns: { base: 1, md: 3 }, gap: .lg) {
 - [C04](https://webfluent.monzeromer.dev/errors/C04.md): An attribute a built-in does not declare
 - [C05](https://webfluent.monzeromer.dev/errors/C05.md): A positional argument a built-in does not take
 
-Since WebFluent 5.0.
+Before WebFluent 5.0.

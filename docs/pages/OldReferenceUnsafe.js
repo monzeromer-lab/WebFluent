@@ -1,2 +1,2 @@
-function Page_OldReferenceUnsafe(params){const _root=document.createDocumentFragment();const _e1748=WF.el("h1",{className:"wf-heading"},"Unsafe");_root.appendChild(_e1748);const _e1749=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/unsafe"},"Unsafe");WF.activeLink(_e1749,"/reference/unsafe",false);_root.appendChild(_e1749);return _root;}
+function Page_OldReferenceUnsafe(params){const _root=document.createDocumentFragment();const _e1869=WF.el("h1",{className:"wf-heading"},"Unsafe");_root.appendChild(_e1869);const _e1870=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/unsafe"},"Unsafe");WF.activeLink(_e1870,"/reference/unsafe",false);_root.appendChild(_e1870);return _root;}
 WF.page("OldReferenceUnsafe",Page_OldReferenceUnsafe,{title:"Unsafe"});

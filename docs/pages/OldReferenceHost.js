@@ -1,2 +1,2 @@
-function Page_OldReferenceHost(params){const _root=document.createDocumentFragment();const _e1660=WF.el("h1",{className:"wf-heading"},"Host");_root.appendChild(_e1660);const _e1661=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/host"},"Host");WF.activeLink(_e1661,"/reference/host",false);_root.appendChild(_e1661);return _root;}
+function Page_OldReferenceHost(params){const _root=document.createDocumentFragment();const _e1781=WF.el("h1",{className:"wf-heading"},"Host");_root.appendChild(_e1781);const _e1782=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/host"},"Host");WF.activeLink(_e1782,"/reference/host",false);_root.appendChild(_e1782);return _root;}
 WF.page("OldReferenceHost",Page_OldReferenceHost,{title:"Host"});

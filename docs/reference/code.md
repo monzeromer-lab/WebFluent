@@ -20,7 +20,9 @@ Code(_ content: Any, block: Bool, language: String)
 
 ## Flags
 
-`.block` `.dropInside` `.trapFocus`
+`.block`
+
+Every element also takes the props, events and attribute families listed [on every element](https://webfluent.monzeromer.dev/reference.md#on-every-element).
 
 ## Example
 
@@ -35,4 +37,4 @@ Code("page Home(path: \"/\") { Text(\"Hi\") }", language: "wf").block
 - [E103](https://webfluent.monzeromer.dev/errors/E103.md): A flag, case, part, event or slot the component does not have
 - [C04](https://webfluent.monzeromer.dev/errors/C04.md): An attribute a built-in does not declare
 
-Since WebFluent 5.0.
+Before WebFluent 5.0.

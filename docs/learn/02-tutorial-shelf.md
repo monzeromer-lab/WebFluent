@@ -424,7 +424,7 @@ on submit {
 }
 ```
 
-([Data and APIs](https://webfluent.monzeromer.dev/learn/15-data.md), [Environments](https://webfluent.monzeromer.dev/recipes.md).)
+([Data and APIs](https://webfluent.monzeromer.dev/learn/15-data.md), [Environments and secrets](https://webfluent.monzeromer.dev/recipes/environments-and-secrets.md).)
 
 ## Step 8: Give the site a theme
 
@@ -591,8 +591,10 @@ Push the project to your `shelf` repository. In the repository's
 
 **Check it:** the **Actions** tab shows the **Deploy** workflow passing, and
 `https://<you>.github.io/shelf/` shows **Books worth reading**.
-[Deploying](https://webfluent.monzeromer.dev/recipes.md) covers Netlify, Vercel, Cloudflare Pages,
-nginx and other hosts.
+The recipes cover [Netlify](https://webfluent.monzeromer.dev/recipes/deploy-to-netlify.md),
+[Vercel](https://webfluent.monzeromer.dev/recipes/deploy-to-vercel.md),
+[Cloudflare Pages](https://webfluent.monzeromer.dev/recipes/deploy-to-cloudflare-pages.md),
+[nginx](https://webfluent.monzeromer.dev/recipes/serve-with-nginx.md) and other hosts.
 
 ## The whole program
 
@@ -781,14 +783,14 @@ Shelf is a whole site, and each part of it uses one idea of the language:
 | `validate` and `Form(bind: form)` | Validated forms | [Forms](https://webfluent.monzeromer.dev/learn/14-forms.md) |
 | `theme Paper` and `theme Ink` | Design tokens and dark mode | [Styling](https://webfluent.monzeromer.dev/learn/13-styling.md) |
 | `test "…" { … click … expect … }` | Tests that render and click | [Testing](https://webfluent.monzeromer.dev/learn/16-testing.md) |
-| `wf build`, `wf verify` and a workflow | Building, checking and deploying | [Deploying](https://webfluent.monzeromer.dev/recipes.md) |
+| `wf build`, `wf verify` and a workflow | Building, checking and deploying | [Deploy to GitHub Pages](https://webfluent.monzeromer.dev/recipes/deploy-to-github-pages.md) |
 
 To go further:
 
 - Read the language properly, starting at [Language basics](https://webfluent.monzeromer.dev/learn/04-language-basics.md).
 - Talk to a real server: [Data and APIs](https://webfluent.monzeromer.dev/learn/15-data.md).
-- Make the site work offline: [Offline](https://webfluent.monzeromer.dev/recipes.md).
-- Translate it: [Internationalisation](https://webfluent.monzeromer.dev/recipes.md).
+- Make the site work offline: [Make a site work offline](https://webfluent.monzeromer.dev/recipes/work-offline.md).
+- Translate it: [Translate a site](https://webfluent.monzeromer.dev/recipes/translate-a-site.md).
 - Build a bigger project: [Tutorials](https://webfluent.monzeromer.dev/learn/03-tutorial-todos.md).
 
 ## Common mistakes
@@ -850,6 +852,9 @@ page Home(path: "/", title: "Shelf", description: "Books worth reading.") {
 Read a member the store declares, or declare the one you need:
 `derived count = saved.length` ([T06](https://webfluent.monzeromer.dev/errors/T06.md)).
 
+Going further: if you know React, Vue or Svelte, [Coming from React, Vue or
+Svelte](https://webfluent.monzeromer.dev/coming-from/react.md) maps what you know onto WebFluent.
+
 ## Next
 
-[Coming from React, Vue or Svelte](https://webfluent.monzeromer.dev/coming-from/react.md).
+[Tutorial: Todos](https://webfluent.monzeromer.dev/learn/03-tutorial-todos.md): a single-page app, with a store and tests.

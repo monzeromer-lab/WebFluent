@@ -31,11 +31,13 @@ is checked at build time, and the components come designed.
 | `{#await}` | `{#await promise}…{:then data}…{:catch e}…{/await}` | `match users { loading { … } ready(list) { … } error(e) { … } }` |
 | A class that follows state | `class:done={todo.done}` | `class: { "done": todo.done }` |
 | Transitions | `transition:fade` | `.fadeIn`, `exit: .fadeOut` |
+| A test | Vitest with Testing Library: `render`, `fireEvent.click`, `getByText` | `test "…" { click "Save"  expect "Saved" }` |
 
 ## Things that work differently
 
-**The markup is typed.** Svelte checks your script with TypeScript; WebFluent
-checks the markup too. `Button("Save").primray` does not build, and neither
+**The elements are typed too.** `svelte-check` types your props and the
+expressions in your markup; WebFluent also knows every built-in's flags,
+events and slots. `Button("Save").primray` does not build, and neither
 does a handler for an event the component does not fire (`E103`).
 
 **Elements come designed.** `Button`, `Card`, `Table`, `Modal` and the rest

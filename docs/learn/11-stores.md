@@ -351,7 +351,7 @@ window.wfStorage = {
 };
 ```
 
-See [Desktop apps](https://webfluent.monzeromer.dev/recipes.md) for the rest of a desktop project.
+See [Make a desktop or phone app with Tauri](https://webfluent.monzeromer.dev/recipes/tauri-app.md) for the rest of a desktop project.
 
 ### Secrets are never persisted
 
@@ -363,7 +363,7 @@ instead (see [Security](https://webfluent.monzeromer.dev/about/security.md)).
 ## A connection a store holds
 
 A store may hold a connection — a `socket`, a `stream`, a `channel`, a
-`peer` or a `worker` (see [Real-time](https://webfluent.monzeromer.dev/recipes.md)) — for every page at
+`peer` or a `worker` (see [Open a socket](https://webfluent.monzeromer.dev/recipes/open-a-socket.md)) — for every page at
 once. The connection opens when the store is first read and closes with the
 store; a `.route` store's connection closes when its route leaves. The
 store's actions and handlers name the connection as it is declared, and a
