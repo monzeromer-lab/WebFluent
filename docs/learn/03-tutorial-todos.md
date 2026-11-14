@@ -90,6 +90,13 @@ Then replace `webfluent.app.json` with this:
   ([Security](https://webfluent.monzeromer.dev/about/security.md)).
 - `theme` names two themes, `Paper` and `Night`, which you write in the
   next step.
+- `favicon` is the icon in the browser's tab. A file in `public/` is served
+  from the site's root, so put one at `public/favicon.svg`:
+
+```bash
+mkdir -p public
+printf '%s' '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="6" fill="#0F766E"/><path d="M9 16l5 5 9-10" stroke="#fff" stroke-width="3" fill="none"/></svg>' > public/favicon.svg
+```
 
 **Check it:** `wf check` prints `IO Error: No .wf files found in src/`.
 That is expected: `src/` is empty until the next step.

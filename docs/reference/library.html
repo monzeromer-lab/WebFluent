@@ -121,6 +121,13 @@
                     <div class="wf-stack wf-gap--sm wf-s4e4189b1">
                         <h1 class="wf-heading wf-s900776cd">Library</h1>
                         <p class="wf-text bp-lede">The compiler as a library: the Rust crate&#x27;s documented API, the Node package, and wf.js in a browser.</p>
+                        <div class="wf-stack wf-gap--sm wf-s8a243922 bp-contents">
+                            <button class="wf-btn wf-s1865e956 bp-button" aria-expanded="false" aria-controls="bp-contents-panel" type="button">
+                                <i class="wf-icon" data-icon="list"></i>
+                                <p class="wf-text">Contents</p>
+                                <i class="wf-icon" data-icon="chevron-down"></i>
+                            </button>
+                        </div>
                     </div>
                     <div class="wf-stack wf-gap--lg wf-s399b38f0 bp-prose docs-article" dir="ltr">
                         <div class="wf-stack wf-gap--lg" id="wf-content" tabindex="-1">
@@ -653,6 +660,7 @@ webfluent = { version = &quot;=6.0.0&quot;, default-features = false, features =
                             <h2 class="wf-heading" id="node-the-webfluent-package">Node: the webfluent package</h2>
                             <div class="wf-markdown">
 <p>The package renders templates from Node.js. It is a wrapper around <code>wf render</code>: each render runs <code>wf</code> once and sends the data on standard input, so <code>wf</code> must be installed too. Its source is <a href="https://github.com/monzeromer-lab/WebFluent/tree/master/bindings/node"><code>bindings/node/</code></a>, and its version is the compiler's it was released with.</p>
+<p>It is not on the npm registry yet, so install it from a clone of the repository:</p>
                             </div>
                             <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
                                 <div class="wf-row wf-s2c416341 bp-console__bar">
@@ -661,19 +669,8 @@ webfluent = { version = &quot;=6.0.0&quot;, default-features = false, features =
                                     </div>
                                     <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
                                 </div>
-                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-prompt">$ </span>npm install webfluent</code>
-                            </div>
-                            <div class="wf-markdown">
-<p>If npm does not find it, install it from a clone of the repository:</p>
-                            </div>
-                            <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
-                                <div class="wf-row wf-s2c416341 bp-console__bar">
-                                    <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
-                                        <p class="wf-text wf-s23a4ddd5 bp-mono">bash</p>
-                                    </div>
-                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
-                                </div>
-                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-prompt">$ </span>npm install ./WebFluent/bindings/node</code>
+                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-prompt">$ </span>git clone --depth 1 https://github.com/monzeromer-lab/WebFluent.git
+<span class="wf-tok-prompt">$ </span>npm install ./WebFluent/bindings/node</code>
                             </div>
                             <div class="wf-markdown">
 <p>This script renders one page of a directory of templates in a request handler, without blocking the event loop:</p>
@@ -979,11 +976,11 @@ if (out.ok) document.querySelector(&quot;iframe&quot;).src = await preview(out);
                         <a class="wf-link wf-s23505038" href="#browser-wf-js">Browser: wf.js</a>
                     </div>
                     <div class="wf-stack wf-gap--xs wf-see94d5ab">
-                        <button class="wf-btn wf-sfd73f012 bp-rail-action" type="button">
+                        <button class="wf-btn wf-sc1cdfbd7 bp-rail-action" type="button">
                             <i class="wf-icon" data-icon="copy"></i>
                             <p class="wf-text">Copy page as Markdown</p>
                         </button>
-                        <button class="wf-btn wf-sfd73f012 bp-rail-action" type="button">
+                        <button class="wf-btn wf-sc1cdfbd7 bp-rail-action" type="button">
                             <i class="wf-icon" data-icon="file"></i>
                             <p class="wf-text">Open as Markdown</p>
                         </button>

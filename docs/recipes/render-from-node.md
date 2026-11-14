@@ -32,10 +32,13 @@ page Invoice(path: "/", title: "Invoice {number}", description: "An invoice.") {
 }
 ```
 
-Install the binding and Express:
+Install the binding and Express. The binding is not on the npm registry
+yet, so it comes from a clone of the repository; `wf` must be installed
+too, since the binding runs it:
 
 ```bash
-npm install webfluent express
+git clone --depth 1 https://github.com/monzeromer-lab/WebFluent.git
+npm install ./WebFluent/bindings/node express
 ```
 
 This is the server, `server.js`:

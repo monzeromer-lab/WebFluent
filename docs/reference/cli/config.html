@@ -158,15 +158,171 @@
                         </div>
                         <h1 class="wf-heading wf-sdfc6d99e">wf config</h1>
                         <p class="wf-text bp-lede">Read and change `webfluent.app.json`: every setting, what the project sets, and an edit that keeps the file&#x27;s shape</p>
-                        <code class="wf-code wf-s5539681c bp-ltr" dir="ltr">wf config</code>
+                        <div class="wf-stack wf-gap--sm wf-s8a243922 bp-contents">
+                            <button class="wf-btn wf-s1865e956 bp-button" aria-expanded="false" aria-controls="bp-contents-panel" type="button">
+                                <i class="wf-icon" data-icon="list"></i>
+                                <p class="wf-text">Contents</p>
+                                <i class="wf-icon" data-icon="chevron-down"></i>
+                            </button>
+                        </div>
+                        <code class="wf-code wf-s5539681c bp-ltr" dir="ltr">wf config &lt;schema|get|set|unset&gt;</code>
                         <div class="wf-row bp-labels">
                             <div class="wf-row wf-gap--xs bp-labels" aria-label="Works in">
                             </div>
                         </div>
                     </div>
                     <div class="wf-stack wf-gap--lg wf-s4bec642b bp-ltr" dir="ltr">
-                        <h2 class="wf-heading" id="options">Options</h2>
-                        <p class="wf-text bp-small">It takes no options.</p>
+                        <h2 class="wf-heading" id="schema">wf config schema</h2>
+                        <p class="wf-text">Every setting: its type, its default and what it does</p>
+                        <code class="wf-code wf-code--block">wf config schema [options]</code>
+                        <table class="wf-table wf-s67f08b77 props-table">
+                            <caption class="wf-visually-hidden">Options of wf config schema</caption>
+                            <thead>
+                                <tr>
+                                    <th scope="col">Option</th>
+                                    <th scope="col">Type</th>
+                                    <th scope="col">Meaning</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <p class="wf-text wf-sb5ef35ce">--json</p>
+                                    </td>
+                                    <td>flag</td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p>As JSON, for a tool</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <h2 class="wf-heading" id="get">wf config get</h2>
+                        <p class="wf-text">What the project sets at PATH, or the default</p>
+                        <code class="wf-code wf-code--block">wf config get PATH [options]</code>
+                        <table class="wf-table wf-s67f08b77 props-table">
+                            <caption class="wf-visually-hidden">Options of wf config get</caption>
+                            <thead>
+                                <tr>
+                                    <th scope="col">Option</th>
+                                    <th scope="col">Type</th>
+                                    <th scope="col">Meaning</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <p class="wf-text wf-sb5ef35ce">PATH</p>
+                                    </td>
+                                    <td>text</td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p>A dotted path: <code>build.base_path</code>, <code>build.budget.app.js</code></p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <p class="wf-text wf-sb5ef35ce">--dir</p>
+                                        <p class="wf-text wf-sb5ef35ce">-d DIR</p>
+                                    </td>
+                                    <td>path</td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p>The project's folder (default <code>.</code>)</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <h2 class="wf-heading" id="set">wf config set</h2>
+                        <p class="wf-text">Set PATH to VALUE — JSON, or a word as a string — keeping the file&#x27;s shape</p>
+                        <code class="wf-code wf-code--block">wf config set PATH VALUE [options]</code>
+                        <table class="wf-table wf-s67f08b77 props-table">
+                            <caption class="wf-visually-hidden">Options of wf config set</caption>
+                            <thead>
+                                <tr>
+                                    <th scope="col">Option</th>
+                                    <th scope="col">Type</th>
+                                    <th scope="col">Meaning</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <p class="wf-text wf-sb5ef35ce">PATH</p>
+                                    </td>
+                                    <td>text</td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p>A dotted path: <code>build.base_path</code>, <code>meta.site_url</code></p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <p class="wf-text wf-sb5ef35ce">VALUE</p>
+                                    </td>
+                                    <td>text</td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p>The value: JSON (<code>true</code>, <code>3</code>, <code>[&quot;en&quot;, &quot;ar&quot;]</code>), or a word, which is taken as a string</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <p class="wf-text wf-sb5ef35ce">--dir</p>
+                                        <p class="wf-text wf-sb5ef35ce">-d DIR</p>
+                                    </td>
+                                    <td>path</td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p>The project's folder (default <code>.</code>)</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <h2 class="wf-heading" id="unset">wf config unset</h2>
+                        <p class="wf-text">Remove PATH, so its default applies</p>
+                        <code class="wf-code wf-code--block">wf config unset PATH [options]</code>
+                        <table class="wf-table wf-s67f08b77 props-table">
+                            <caption class="wf-visually-hidden">Options of wf config unset</caption>
+                            <thead>
+                                <tr>
+                                    <th scope="col">Option</th>
+                                    <th scope="col">Type</th>
+                                    <th scope="col">Meaning</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <p class="wf-text wf-sb5ef35ce">PATH</p>
+                                    </td>
+                                    <td>text</td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p>A dotted path: <code>build.base_path</code>, <code>meta.site_url</code></p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <p class="wf-text wf-sb5ef35ce">--dir</p>
+                                        <p class="wf-text wf-sb5ef35ce">-d DIR</p>
+                                    </td>
+                                    <td>path</td>
+                                    <td>
+                                        <div class="wf-markdown">
+<p>The project's folder (default <code>.</code>)</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                         <a class="wf-link" href="/reference/cli">Every command</a>
                     </div>
                     <div class="wf-stack wf-gap--sm bp-prose"></div>
@@ -174,19 +330,22 @@
                 <div class="wf-stack wf-gap--lg wf-s2502f5f4 bp-rail" role="navigation" aria-label="On this page">
                     <div class="wf-stack wf-gap--xs wf-se8e8f072">
                         <p class="wf-text wf-sa736415c bp-section-label">On this page</p>
-                        <a class="wf-link wf-s23505038" href="#options">Options</a>
+                        <a class="wf-link wf-s23505038" href="#schema">wf config schema</a>
+                        <a class="wf-link wf-s23505038" href="#get">wf config get</a>
+                        <a class="wf-link wf-s23505038" href="#set">wf config set</a>
+                        <a class="wf-link wf-s23505038" href="#unset">wf config unset</a>
                     </div>
                     <div class="wf-stack wf-gap--xs wf-see94d5ab">
-                        <button class="wf-btn wf-sfd73f012 bp-rail-action" type="button">
+                        <button class="wf-btn wf-sc1cdfbd7 bp-rail-action" type="button">
                             <i class="wf-icon" data-icon="copy"></i>
                             <p class="wf-text">Copy page as Markdown</p>
                         </button>
-                        <button class="wf-btn wf-sfd73f012 bp-rail-action" type="button">
+                        <button class="wf-btn wf-sc1cdfbd7 bp-rail-action" type="button">
                             <i class="wf-icon" data-icon="file"></i>
                             <p class="wf-text">Open as Markdown</p>
                         </button>
                     </div>
-                    <a class="wf-link wf-s48d899f5" href="https://github.com/monzeromer-lab/WebFluent/blob/master/wf commands --json">
+                    <a class="wf-link wf-s48d899f5" href="https://github.com/monzeromer-lab/WebFluent/blob/master/src/cli/app.rs">
                         <i class="wf-icon" data-icon="edit"></i>
                         <p class="wf-text">Edit this page</p>
                     </a>

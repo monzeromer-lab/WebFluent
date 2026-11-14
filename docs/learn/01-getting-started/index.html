@@ -211,6 +211,13 @@
                     <div class="wf-stack wf-gap--sm wf-s4e4189b1">
                         <h1 class="wf-heading wf-s900776cd">Getting started</h1>
                         <p class="wf-text bp-lede">Install the compiler, make a project, run it, change it and see the change — then set up your editor, or WebFluent Studio, and see what a build writes.</p>
+                        <div class="wf-stack wf-gap--sm wf-s8a243922 bp-contents">
+                            <button class="wf-btn wf-s1865e956 bp-button" aria-expanded="false" aria-controls="bp-contents-panel" type="button">
+                                <i class="wf-icon" data-icon="list"></i>
+                                <p class="wf-text">Contents</p>
+                                <i class="wf-icon" data-icon="chevron-down"></i>
+                            </button>
+                        </div>
                     </div>
                     <div class="wf-stack wf-gap--lg wf-s399b38f0 bp-prose docs-article" dir="ltr">
                         <div class="wf-stack wf-gap--lg" id="wf-content" tabindex="-1">
@@ -528,7 +535,7 @@ Starting dev server at http://localhost:3000/</code>
                             </div>
                             <h2 class="wf-heading" id="write-a-site-from-scratch">Write a site from scratch</h2>
                             <div class="wf-markdown">
-<p>To see the smallest whole site, replace the contents of <code>src/</code> with two files, and delete the starter's tests under <code>tests/</code>, which test the pages you removed.</p>
+<p>To see the smallest whole site, replace every file in <code>src/</code> except <code>theme.wf</code> with the two below, and delete the starter's tests under <code>tests/</code>, which test the pages you removed. Keep <code>src/theme.wf</code>: the project's <code>webfluent.app.json</code> names the themes it declares (<code>Day</code> and <code>Night</code>), and the build stops if they are gone.</p>
 <p><code>src/App.wf</code> is the shell every page shares, with the router in it:</p>
                             </div>
                             <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
@@ -778,11 +785,11 @@ page Home(path: &quot;/&quot;, title: &quot;Hello&quot;, description: &quot;A fi
                         <a class="wf-link wf-s23505038" href="#common-mistakes">Common mistakes</a>
                     </div>
                     <div class="wf-stack wf-gap--xs wf-see94d5ab">
-                        <button class="wf-btn wf-sfd73f012 bp-rail-action" type="button">
+                        <button class="wf-btn wf-sc1cdfbd7 bp-rail-action" type="button">
                             <i class="wf-icon" data-icon="copy"></i>
                             <p class="wf-text">Copy page as Markdown</p>
                         </button>
-                        <button class="wf-btn wf-sfd73f012 bp-rail-action" type="button">
+                        <button class="wf-btn wf-sc1cdfbd7 bp-rail-action" type="button">
                             <i class="wf-icon" data-icon="file"></i>
                             <p class="wf-text">Open as Markdown</p>
                         </button>

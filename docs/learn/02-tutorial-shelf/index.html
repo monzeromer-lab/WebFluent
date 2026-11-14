@@ -211,6 +211,13 @@
                     <div class="wf-stack wf-gap--sm wf-s4e4189b1">
                         <h1 class="wf-heading wf-s900776cd">Tutorial: Shelf</h1>
                         <p class="wf-text bp-lede">Build a small, complete site — data, components, a store, a form, a theme, a test — and put it on the web.</p>
+                        <div class="wf-stack wf-gap--sm wf-s8a243922 bp-contents">
+                            <button class="wf-btn wf-s1865e956 bp-button" aria-expanded="false" aria-controls="bp-contents-panel" type="button">
+                                <i class="wf-icon" data-icon="list"></i>
+                                <p class="wf-text">Contents</p>
+                                <i class="wf-icon" data-icon="chevron-down"></i>
+                            </button>
+                        </div>
                     </div>
                     <div class="wf-stack wf-gap--lg wf-s399b38f0 bp-prose docs-article" dir="ltr">
                         <div class="wf-stack wf-gap--lg" id="wf-content" tabindex="-1">
@@ -398,7 +405,7 @@
 <li><code>use Shelf</code> reads the store from step 3. The button's label is an <code>if</code> used as a value, and it follows the store: when the reader clicks, the label changes and nothing else re-renders.</li>
 </ul>
 <p>(<a href="/learn/10-components">Components</a>, <a href="/learn/06-elements">Elements</a>.)</p>
-<p><strong>Check it:</strong> run <code>wf check</code>. It reports one error: `<code> error[R01]: </code>/books/{…}<code> is not a route </code>`. The card links to a book's page, and no page answers that address yet. The compiler checks every link against the pages you declare; the next step adds the page.</p>
+<p><strong>Check it:</strong> run <code>wf check</code>. It reports two warnings and no error: `<code> warning[U03]: </code>BookCard<code> is declared but never placed </code><code> and </code><code> warning[U04]: </code>Shelf.count<code> is declared but never read </code><code>. Nothing places the card yet, and nothing shows the count; the next step does both. The card also links to </code>/books/…`, a page that does not exist yet. The compiler checks every link against the pages you declare, but only in what the site draws, so it says nothing until the card is placed.</p>
                             </div>
                             <h2 class="wf-heading" id="step-5-add-the-home-page-and-a-page-per-book">Step 5: Add the home page and a page per book</h2>
                             <div class="wf-markdown">
@@ -1303,11 +1310,11 @@ page Home(path: &quot;/&quot;, title: &quot;Shelf&quot;, description: &quot;Book
                         <a class="wf-link wf-s23505038" href="#common-mistakes">Common mistakes</a>
                     </div>
                     <div class="wf-stack wf-gap--xs wf-see94d5ab">
-                        <button class="wf-btn wf-sfd73f012 bp-rail-action" type="button">
+                        <button class="wf-btn wf-sc1cdfbd7 bp-rail-action" type="button">
                             <i class="wf-icon" data-icon="copy"></i>
                             <p class="wf-text">Copy page as Markdown</p>
                         </button>
-                        <button class="wf-btn wf-sfd73f012 bp-rail-action" type="button">
+                        <button class="wf-btn wf-sc1cdfbd7 bp-rail-action" type="button">
                             <i class="wf-icon" data-icon="file"></i>
                             <p class="wf-text">Open as Markdown</p>
                         </button>

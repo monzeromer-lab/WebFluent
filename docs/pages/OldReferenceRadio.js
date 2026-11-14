@@ -1,2 +1,2 @@
-function Page_OldReferenceRadio(params){const _root=document.createDocumentFragment();const _e1672=WF.el("h1",{className:"wf-heading"},"Radio");_root.appendChild(_e1672);const _e1673=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/radio"},"Radio");WF.activeLink(_e1673,"/reference/radio",false);_root.appendChild(_e1673);return _root;}
+function Page_OldReferenceRadio(params){const _root=document.createDocumentFragment();const _e1698=WF.el("h1",{className:"wf-heading"},"Radio");_root.appendChild(_e1698);const _e1699=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/radio"},"Radio");WF.activeLink(_e1699,"/reference/radio",false);_root.appendChild(_e1699);return _root;}
 WF.page("OldReferenceRadio",Page_OldReferenceRadio,{title:"Radio"});

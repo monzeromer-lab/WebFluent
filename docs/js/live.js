@@ -5,7 +5,7 @@
 // build then. Nothing here runs on page load. What a build found and wrote
 // goes back to the page as a plain object, handed to one of its actions.
 
-const wfLive = { module: null, timers: new Map(), titles: new Map(), slots: 0 };
+const wfLive = { module: null, timers: new Map(), titles: new Map(), slots: 0, inline: new Set() };
 
 /**
  * The compiler's module, imported once.
@@ -186,7 +186,21 @@ async function wfRun(base, slot, files, given) {
   }
   const written = Object.keys(out.files ?? {});
   const pdf = Object.keys(out.binary ?? {}).find((p) => p.endsWith(".pdf")) ?? "";
-  if (out.ok) await wf.preview(out, "", slot);
+  if (out.ok) {
+    try {
+      await wf.preview(out, "", slot);
+      wfLive.inline.delete(slot);
+    } catch (e) {
+      // No service worker in this browser: the first page, inlined into
+      // one document that `run.html` writes.
+      if (paged) throw e;
+      const flat = await wf.compile(files, wf.inlineConfig(config));
+      if (!flat.ok) throw e;
+      wf.previewInline(flat, slot);
+      wfLive.inline.add(slot);
+      findings.push({ key: "inline", code: "", severity: "warning", title: "", printed: "This browser has service workers turned off, so the preview runs the first page only, and without the files in public/.", to: "", file: "", fix: "", fixed: "" });
+    }
+  }
   const chunks = written.filter((p) => p.startsWith("pages/") && p.endsWith(".js")).sort();
   return {
     ok: out.ok,
@@ -201,6 +215,19 @@ async function wfRun(base, slot, files, given) {
     pdf,
     document: paged,
   };
+}
+
+/**
+ * Where a preview frame loads a slot's build: from the preview worker, or
+ * through `run.html` when the browser has no service worker for it.
+ * @param {string} base `/wasm/<release>/`
+ * @param {string} slot from `wfSlot()`
+ * @param {number} run how many builds the slot has had, so a new one reloads
+ * @returns {string}
+ */
+function wfPreviewSrc(base, slot, run) {
+  if (wfLive.inline.has(slot)) return `${base}run.html?slot=${encodeURIComponent(slot)}&run=${run}`;
+  return `${base}preview/${slot}/?run=${run}`;
 }
 
 /**

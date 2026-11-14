@@ -1,2 +1,2 @@
-function Page_OldReferenceCard(params){const _root=document.createDocumentFragment();const _e1594=WF.el("h1",{className:"wf-heading"},"Card");_root.appendChild(_e1594);const _e1595=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/card"},"Card");WF.activeLink(_e1595,"/reference/card",false);_root.appendChild(_e1595);return _root;}
+function Page_OldReferenceCard(params){const _root=document.createDocumentFragment();const _e1620=WF.el("h1",{className:"wf-heading"},"Card");_root.appendChild(_e1620);const _e1621=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/card"},"Card");WF.activeLink(_e1621,"/reference/card",false);_root.appendChild(_e1621);return _root;}
 WF.page("OldReferenceCard",Page_OldReferenceCard,{title:"Card"});

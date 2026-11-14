@@ -223,6 +223,13 @@
                         <div class="wf-markdown bp-lede">
 <p>The Node binding is a small wrapper around <code>wf render</code>: it renders a template with your data as HTML, a fragment, a PDF or slides. This Express server answers with an invoice in either form. You need Node.js, npm and the <code>wf</code> command, and a template like the one in <a href="/recipes/render-a-template">Render a template with data</a>. This one is <code>templates/invoice.wf</code>:</p>
                         </div>
+                        <div class="wf-stack wf-gap--sm wf-s8a243922 bp-contents">
+                            <button class="wf-btn wf-s1865e956 bp-button" aria-expanded="false" aria-controls="bp-contents-panel" type="button">
+                                <i class="wf-icon" data-icon="list"></i>
+                                <p class="wf-text">Contents</p>
+                                <i class="wf-icon" data-icon="chevron-down"></i>
+                            </button>
+                        </div>
                     </div>
                     <div class="wf-stack wf-gap--sm wf-sa4f807c1">
                         <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
@@ -252,7 +259,7 @@
 }</code>
                         </div>
                         <div class="wf-markdown">
-<p>Install the binding and Express:</p>
+<p>Install the binding and Express. The binding is not on the npm registry yet, so it comes from a clone of the repository; <code>wf</code> must be installed too, since the binding runs it:</p>
                         </div>
                         <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
                             <div class="wf-row wf-s2c416341 bp-console__bar">
@@ -261,7 +268,8 @@
                                 </div>
                                 <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
                             </div>
-                            <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-prompt">$ </span>npm install webfluent express</code>
+                            <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-prompt">$ </span>git clone --depth 1 https://github.com/monzeromer-lab/WebFluent.git
+<span class="wf-tok-prompt">$ </span>npm install ./WebFluent/bindings/node express</code>
                         </div>
                         <div class="wf-markdown">
 <p>This is the server, <code>server.js</code>:</p>
@@ -392,11 +400,11 @@ app.listen(3000, () =&gt; console.log(&quot;http://localhost:3000/invoices/INV-0
                         <a class="wf-link wf-s23505038" href="#troubleshooting">Troubleshooting</a>
                     </div>
                     <div class="wf-stack wf-gap--xs wf-see94d5ab">
-                        <button class="wf-btn wf-sfd73f012 bp-rail-action" type="button">
+                        <button class="wf-btn wf-sc1cdfbd7 bp-rail-action" type="button">
                             <i class="wf-icon" data-icon="copy"></i>
                             <p class="wf-text">Copy page as Markdown</p>
                         </button>
-                        <button class="wf-btn wf-sfd73f012 bp-rail-action" type="button">
+                        <button class="wf-btn wf-sc1cdfbd7 bp-rail-action" type="button">
                             <i class="wf-icon" data-icon="file"></i>
                             <p class="wf-text">Open as Markdown</p>
                         </button>

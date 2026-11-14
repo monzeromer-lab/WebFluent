@@ -1,2 +1,2 @@
-function Page_DocsHome(params){const _root=document.createDocumentFragment();const _e1002=WF.el("h1",{className:"wf-heading"},()=>WF.i18n.t("nav.learn"));_root.appendChild(_e1002);const _e1003=WF.el("a",{className:"wf-link",href:WF._basePath+"/learn"},()=>WF.i18n.t("nav.learn"));WF.activeLink(_e1003,"/learn",false);_root.appendChild(_e1003);return _root;}
+function Page_DocsHome(params){const _root=document.createDocumentFragment();const _e1028=WF.el("h1",{className:"wf-heading"},()=>WF.i18n.t("nav.learn"));_root.appendChild(_e1028);const _e1029=WF.el("a",{className:"wf-link",href:WF._basePath+"/learn"},()=>WF.i18n.t("nav.learn"));WF.activeLink(_e1029,"/learn",false);_root.appendChild(_e1029);return _root;}
 WF.page("DocsHome",Page_DocsHome,{title:"Documentation"});

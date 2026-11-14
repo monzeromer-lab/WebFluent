@@ -121,6 +121,13 @@
                     <div class="wf-stack wf-gap--sm wf-s4e4189b1">
                         <h1 class="wf-heading wf-s900776cd">Built-ins</h1>
                         <p class="wf-text bp-lede">Every function, browser value, method and global the language gives a program, in one place.</p>
+                        <div class="wf-stack wf-gap--sm wf-s8a243922 bp-contents">
+                            <button class="wf-btn wf-s1865e956 bp-button" aria-expanded="false" aria-controls="bp-contents-panel" type="button">
+                                <i class="wf-icon" data-icon="list"></i>
+                                <p class="wf-text">Contents</p>
+                                <i class="wf-icon" data-icon="chevron-down"></i>
+                            </button>
+                        </div>
                     </div>
                     <div class="wf-stack wf-gap--lg wf-s399b38f0 bp-prose docs-article" dir="ltr">
                         <div class="wf-stack wf-gap--lg" id="wf-content" tabindex="-1">
@@ -228,10 +235,10 @@
                                     <tr>
                                         <td>
                                             <div class="wf-markdown">
-<p><code>log(x, …)</code></p>
+<p><code>log(x)</code></p>
                                             </div>
                                         </td>
-                                        <td>Prints to the console</td>
+                                        <td>Prints a value to the console</td>
                                     </tr>
                                     <tr>
                                         <td>
@@ -897,8 +904,8 @@
                             </div>
                             <h3 class="wf-heading" id="log">log</h3>
                             <div class="wf-markdown">
-<p>Prints its arguments to the browser's console.</p>
-<p>Signature: <code>log(value, …)</code></p>
+<p>Prints a value to the browser's console.</p>
+<p>Signature: <code>log(value)</code></p>
                             </div>
                             <table class="wf-table">
                                 <caption class="wf-visually-hidden">log</caption>
@@ -917,7 +924,11 @@
                                             </div>
                                         </td>
                                         <td>any</td>
-                                        <td>One or more values to print</td>
+                                        <td>
+                                            <div class="wf-markdown">
+<p>The value to print. For several, splice them into one string, <code>log(&quot;{a} {b}&quot;)</code>, or call <code>console.log(a, b)</code></p>
+                                            </div>
+                                        </td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -2365,11 +2376,11 @@
                         <a class="wf-link wf-s23505038" href="#browser-globals">Browser globals</a>
                     </div>
                     <div class="wf-stack wf-gap--xs wf-see94d5ab">
-                        <button class="wf-btn wf-sfd73f012 bp-rail-action" type="button">
+                        <button class="wf-btn wf-sc1cdfbd7 bp-rail-action" type="button">
                             <i class="wf-icon" data-icon="copy"></i>
                             <p class="wf-text">Copy page as Markdown</p>
                         </button>
-                        <button class="wf-btn wf-sfd73f012 bp-rail-action" type="button">
+                        <button class="wf-btn wf-sc1cdfbd7 bp-rail-action" type="button">
                             <i class="wf-icon" data-icon="file"></i>
                             <p class="wf-text">Open as Markdown</p>
                         </button>

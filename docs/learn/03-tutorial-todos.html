@@ -211,6 +211,13 @@
                     <div class="wf-stack wf-gap--sm wf-s4e4189b1">
                         <h1 class="wf-heading wf-s900776cd">Tutorial: Todos</h1>
                         <p class="wf-text bp-lede">Build a todo list kept in the reader&#x27;s browser — types, a store that remembers, a component, a filter in the address and tests that click.</p>
+                        <div class="wf-stack wf-gap--sm wf-s8a243922 bp-contents">
+                            <button class="wf-btn wf-s1865e956 bp-button" aria-expanded="false" aria-controls="bp-contents-panel" type="button">
+                                <i class="wf-icon" data-icon="list"></i>
+                                <p class="wf-text">Contents</p>
+                                <i class="wf-icon" data-icon="chevron-down"></i>
+                            </button>
+                        </div>
                     </div>
                     <div class="wf-stack wf-gap--lg wf-s399b38f0 bp-prose docs-article" dir="ltr">
                         <div class="wf-stack wf-gap--lg" id="wf-content" tabindex="-1">
@@ -346,7 +353,20 @@
 <li><code>&quot;output_type&quot;: &quot;spa&quot;</code> makes a single-page app: one HTML shell, with pages swapped without a reload (<a href="/about/static-or-single-page">Static sites and SPAs</a>).</li>
 <li><code>&quot;csp&quot;: true</code> ships a content security policy and holds the build to it (<a href="/about/security">Security</a>).</li>
 <li><code>theme</code> names two themes, <code>Paper</code> and <code>Night</code>, which you write in the next step.</li>
+<li><code>favicon</code> is the icon in the browser's tab. A file in <code>public/</code> is served from the site's root, so put one at <code>public/favicon.svg</code>:</li>
 </ul>
+                            </div>
+                            <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                                <div class="wf-row wf-s2c416341 bp-console__bar">
+                                    <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                        <p class="wf-text wf-s23a4ddd5 bp-mono">bash</p>
+                                    </div>
+                                    <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="bash" type="button">Copy</button>
+                                </div>
+                                <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-prompt">$ </span>mkdir -p public
+<span class="wf-tok-prompt">$ </span>printf '%s' '&lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 32 32&quot;&gt;&lt;rect width=&quot;32&quot; height=&quot;32&quot; rx=&quot;6&quot; fill=&quot;#0F766E&quot;/&gt;&lt;path d=&quot;M9 16l5 5 9-10&quot; stroke=&quot;#fff&quot; stroke-width=&quot;3&quot; fill=&quot;none&quot;/&gt;&lt;/svg&gt;' &gt; public/favicon.svg</code>
+                            </div>
+                            <div class="wf-markdown">
 <p><strong>Check it:</strong> <code>wf check</code> prints <code>IO Error: No .wf files found in src/</code>. That is expected: <code>src/</code> is empty until the next step.</p>
                             </div>
                             <h2 class="wf-heading" id="step-2-give-it-a-look-of-its-own">Step 2: Give it a look of its own</h2>
@@ -883,11 +903,11 @@ page Home(path: &quot;/&quot;, title: &quot;Todos&quot;, description: &quot;A sm
                         <a class="wf-link wf-s23505038" href="#common-mistakes">Common mistakes</a>
                     </div>
                     <div class="wf-stack wf-gap--xs wf-see94d5ab">
-                        <button class="wf-btn wf-sfd73f012 bp-rail-action" type="button">
+                        <button class="wf-btn wf-sc1cdfbd7 bp-rail-action" type="button">
                             <i class="wf-icon" data-icon="copy"></i>
                             <p class="wf-text">Copy page as Markdown</p>
                         </button>
-                        <button class="wf-btn wf-sfd73f012 bp-rail-action" type="button">
+                        <button class="wf-btn wf-sc1cdfbd7 bp-rail-action" type="button">
                             <i class="wf-icon" data-icon="file"></i>
                             <p class="wf-text">Open as Markdown</p>
                         </button>

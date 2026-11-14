@@ -144,7 +144,7 @@ store Shelf {
 > **قادم من React؟** الحالة المشتركة ليست مزوّد سياق (context provider) يلتفّ
 > حول التطبيق، وحفظها ليس `useEffect` يكتب في
 > `localStorage`. يُقرأ الـ `store` باسمه حيثما استُخدم، و
-> `persist` تتولّى الحفظ. انظر [قادم من React](https://webfluent.monzeromer.dev/coming-from/react.md).
+> `persist` تتولّى الحفظ. انظر [قادم من React](https://webfluent.monzeromer.dev/ar/coming-from/react.md).
 
 **تحقّق:** شغّل `wf check`. يطبع تحذيرَي `U04`:
 `` `Shelf.count` is declared but never read `` ومثله لـ
@@ -230,7 +230,7 @@ page Home(path: "/", title: "Shelf", description: "Books worth reading, and the 
 > [!NOTE]
 > **قادم من React؟** الحقل المتحكَّم فيه لا يحتاج إلى `value` ولا إلى
 > `onChange` ينسخ `e.target.value` عائدًا: `bind: q` يفعل الأمرين. انظر
-> [قادم من React](https://webfluent.monzeromer.dev/coming-from/react.md).
+> [قادم من React](https://webfluent.monzeromer.dev/ar/coming-from/react.md).
 
 ثم أضف صفحة لكل كتاب، `src/pages/BookPage.wf`:
 
@@ -848,4 +848,4 @@ page Home(path: "/", title: "Shelf", description: "Books worth reading.") {
 
 ## التالي
 
-[قادم من React أو Vue أو Svelte](https://webfluent.monzeromer.dev/coming-from/react.md).
+[قادم من React أو Vue أو Svelte](https://webfluent.monzeromer.dev/ar/coming-from/react.md).

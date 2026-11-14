@@ -1,2 +1,2 @@
-function Page_BlueprintReferenceAr(params){const _root=document.createDocumentFragment();const _e930=Component_PreviewReference({ar:true});_root.appendChild(_e930);return _root;}
+function Page_BlueprintReferenceAr(params){const _root=document.createDocumentFragment();const _e956=Component_PreviewReference({ar:true});_root.appendChild(_e956);return _root;}
 WF.page("BlueprintReferenceAr",Page_BlueprintReferenceAr,{title:"T4 مرجع",lang:"ar",dir:"rtl"});

@@ -1,2 +1,2 @@
-function Page_BlueprintChapter(params){const _root=document.createDocumentFragment();const _e923=Component_PreviewChapter({});_root.appendChild(_e923);return _root;}
+function Page_BlueprintChapter(params){const _root=document.createDocumentFragment();const _e949=Component_PreviewChapter({});_root.appendChild(_e949);return _root;}
 WF.page("BlueprintChapter",Page_BlueprintChapter,{title:"T2 Chapter"});

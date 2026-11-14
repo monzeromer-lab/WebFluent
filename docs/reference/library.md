@@ -289,13 +289,11 @@ so `wf` must be installed too. Its source is
 [`bindings/node/`](https://github.com/monzeromer-lab/WebFluent/tree/master/bindings/node),
 and its version is the compiler's it was released with.
 
-```bash
-npm install webfluent
-```
-
-If npm does not find it, install it from a clone of the repository:
+It is not on the npm registry yet, so install it from a clone of the
+repository:
 
 ```bash
+git clone --depth 1 https://github.com/monzeromer-lab/WebFluent.git
 npm install ./WebFluent/bindings/node
 ```
 

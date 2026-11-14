@@ -282,9 +282,11 @@ difference.
 
 ## Write a site from scratch
 
-To see the smallest whole site, replace the contents of `src/` with two
-files, and delete the starter's tests under `tests/`, which test the pages
-you removed.
+To see the smallest whole site, replace every file in `src/` except
+`theme.wf` with the two below, and delete the starter's tests under
+`tests/`, which test the pages you removed. Keep `src/theme.wf`: the
+project's `webfluent.app.json` names the themes it declares (`Day` and
+`Night`), and the build stops if they are gone.
 
 `src/App.wf` is the shell every page shares, with the router in it:
 
@@ -662,10 +664,13 @@ component BookCard(_ book: Book) {
 
 ([Components](/learn/10-components), [Elements](/learn/06-elements).)
 
-**Check it:** run `wf check`. It reports one error:
-`` error[R01]: `/books/{…}` is not a route ``. The card links to a book's
-page, and no page answers that address yet. The compiler checks every link
-against the pages you declare; the next step adds the page.
+**Check it:** run `wf check`. It reports two warnings and no error:
+`` warning[U03]: `BookCard` is declared but never placed `` and
+`` warning[U04]: `Shelf.count` is declared but never read ``. Nothing
+places the card yet, and nothing shows the count; the next step does both.
+The card also links to `/books/…`, a page that does not exist yet. The
+compiler checks every link against the pages you declare, but only in what
+the site draws, so it says nothing until the card is placed.
 
 ## Step 5: Add the home page and a page per book
 
@@ -1418,6 +1423,13 @@ Then replace `webfluent.app.json` with this:
   ([Security](/about/security)).
 - `theme` names two themes, `Paper` and `Night`, which you write in the
   next step.
+- `favicon` is the icon in the browser's tab. A file in `public/` is served
+  from the site's root, so put one at `public/favicon.svg`:
+
+```bash
+mkdir -p public
+printf '%s' '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="6" fill="#0F766E"/><path d="M9 16l5 5 9-10" stroke="#fff" stroke-width="3" fill="none"/></svg>' > public/favicon.svg
+```
 
 **Check it:** `wf check` prints `IO Error: No .wf files found in src/`.
 That is expected: `src/` is empty until the next step.
@@ -5238,9 +5250,8 @@ store Cart {
     derived total = subtotal - discount
 
     action add(item: Item) {
-        let found = items.find(i => i.id == item.id)
-        if found != null {
-            found.qty = found.qty + 1
+        if items.some(i => i.id == item.id) {
+            items = items.map(i => if i.id == item.id { { ...i, qty: i.qty + 1 } } else { i })
         } else {
             items.push(item)
         }
@@ -5249,6 +5260,12 @@ store Cart {
     action clear() { items = [] }
 }
 ```
+
+`add` changes `items` itself: it assigns a new list with that one item's
+quantity raised. Writing `let found = items.find(…)` and then
+`found.qty = found.qty + 1` would change only the local copy that `let`
+made ([chapter 7](/learn/07-state-and-reactivity#actions-and-locals)), and the
+cart would stay as it was.
 
 Inside the store you read its members by their bare names: `items`,
 `count`. Outside it, a page or component reads them through the store's
@@ -11704,15 +11721,21 @@ must know that sub-path.
 You need the project in a GitHub repository; the workflow installs `wf` as
 [Install wf on a build machine](/recipes/install-wf-in-ci) shows.
 
-Set the sub-path, the site's address and `clean_urls` in
+Set the sub-path, the site's address, `clean_urls` and `ssg` in
 `webfluent.app.json`:
 
 ```json
 {
-    "build": { "base_path": "/<repo>", "clean_urls": "file" },
+    "build": { "ssg": true, "base_path": "/<repo>", "clean_urls": "file" },
     "meta": { "site_url": "https://<you>.github.io/<repo>" }
 }
 ```
+
+GitHub Pages serves files and nothing else: it has no rewrite that sends
+every address to `index.html`. `"ssg": true` writes a file for every
+page, so a reader who reloads `/<repo>/tasks`, or opens a link to it, gets
+that page. A project made with `wf init -t spa` has `"ssg": false`; keep
+it that way only if you also add the `404.html` step below.
 
 Then add `.github/workflows/pages.yml`:
 
@@ -11735,6 +11758,10 @@ jobs:
       - uses: actions/checkout@v4
       - run: curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v6.0.0 bash
       - run: ~/.webfluent/bin/wf build
+      # Only for a single-page build ("ssg": false): GitHub serves
+      # 404.html for an address it has no file for, so the app loads there
+      # and its router draws the page.
+      # - run: cp build/index.html build/404.html
       - uses: actions/upload-pages-artifact@v3
         with:
           path: build
@@ -11759,7 +11786,10 @@ Finally, in the repository's **Settings → Pages**, set the source to
    `pages: write` and `id-token: write` permissions are what
    `actions/deploy-pages` needs.
 
-GitHub Pages serves `404.html` for a path it has no file for. It ignores
+GitHub Pages serves `404.html` for a path it has no file for. A static
+build writes one when the project has a page on `path: "*"`; a page on a
+`:param` route needs its values listed in `paths:` to have files of its own
+([Data files](/learn/15-data)). GitHub Pages ignores
 `_headers`, but the Content-Security-Policy still ships as a `<meta>` tag in
 every page.
 
@@ -14145,10 +14175,13 @@ page Invoice(path: "/", title: "Invoice {number}", description: "An invoice.") {
 }
 ```
 
-Install the binding and Express:
+Install the binding and Express. The binding is not on the npm registry
+yet, so it comes from a clone of the repository; `wf` must be installed
+too, since the binding runs it:
 
 ```bash
-npm install webfluent express
+git clone --depth 1 https://github.com/monzeromer-lab/WebFluent.git
+npm install ./WebFluent/bindings/node express
 ```
 
 This is the server, `server.js`:
@@ -15670,11 +15703,28 @@ page SignIn(path: "/sign-in", title: "Sign in", description: "Sign in to your ac
     }
 }
 
-page Account(path: "/account", title: "Your account", description: "Your account.", guard: Session.signedIn, redirect: "/sign-in") {
+page Account(path: "/account", title: "Your account", description: "Your account.", guard: !Session.checked || Session.signedIn, redirect: "/sign-in") {
     use Session
+    // The guard is read when the route opens, which on a reload is before
+    // `load` has answered; this sends the reader on once it has.
+    effect { if Session.checked && !Session.signedIn { navigate("/sign-in") } }
     Heading("Your account").h1
-    if let u = Session.user { Text("Signed in as {u.name}") }
-    Button("Sign out") { on click { Session.signOut() } }
+    if !Session.checked { Spinner }
+    if let u = Session.user {
+        Text("Signed in as {u.name}")
+        Button("Sign out") { on click { Session.signOut() } }
+    }
+}
+```
+
+The app asks the server who is signed in once, when the site opens, in
+`src/App.wf`:
+
+```wf
+app {
+    use Session
+    Session.load()
+    Router
 }
 ```
 
@@ -15692,15 +15742,19 @@ page Account(path: "/account", title: "Your account", description: "Your account
   in a `try`, so a wrong password shows an `Alert` instead of throwing.
   `send.pending` disables the button while the request runs, and
   `noindex: true` keeps the page out of search results.
-- The `Account` page has a [guard](/learn/05-pages-and-routing#guards):
-  `guard: Session.signedIn` sends a reader who is signed out to
-  `/sign-in`.
+- `Session.load()` at the top of `app` runs once, when the site opens: a
+  reader who comes back with a session cookie is signed in again, and
+  `checked` turns true when the server has answered either way.
+- The `Account` page has a [guard](/learn/05-pages-and-routing#guards).
+  A guard is read once, when the route opens, so it lets the page through
+  while `checked` is still false, and the `effect` sends a signed-out
+  reader to `/sign-in` as soon as the answer arrives. Until then the page
+  shows a `Spinner`.
 
 The session is an httpOnly cookie the server sets, so the page never holds
 a token. `guard:` hides the page from a reader who is signed out, and the
 server still checks every request
-([Security](/about/security#keep-the-session-in-a-cookie)). Call
-`Session.load()` from the app's set-up, so a returning reader is signed in.
+([Security](/about/security#keep-the-session-in-a-cookie)).
 
 
 
@@ -15716,7 +15770,20 @@ engine indexes what that address's HTML says, which is the default locale.
 A site that wants each language found writes each page once per language,
 at an address of its own, and says how the pages are joined.
 
-This site is written in Arabic, with its home page in English at `/en`:
+This site is written in Arabic, with its home page in English at `/en`.
+The site's language, its address and a static build go in
+`webfluent.app.json`. Without `meta.lang` the site's pages are taken to be
+in English, and without `meta.site_url` there is no absolute address for
+the alternates:
+
+```json
+{
+    "build": { "ssg": true },
+    "meta": { "lang": "ar", "site_url": "https://example.com" }
+}
+```
+
+Then the pages:
 
 ```wf
 page Home(path: "/", title: "منذر عمر", description: "مهندس خلفيات.") {
@@ -20155,6 +20222,11 @@ page Callout(path: "/callout", title: "Callout", description: "A border coloured
 
 When the theme changes `color-primary`, the border changes with it.
 
+As a value there is no property to say which group a short name belongs
+to, so `$primary` is read as the one group that has it, the colours:
+`$color-primary`. A short name several groups have (`$md` is a spacing, a
+radius and a shadow) is written in full: `$spacing-md`.
+
 ## `await`
 
 `await` waits for a promise inside an action or a handler, and makes the
@@ -20212,7 +20284,7 @@ has an entry for each.
 
 | Name | Does |
 |---|---|
-| `log(x, …)` | Prints to the console |
+| `log(x)` | Prints a value to the console |
 | `navigate(path)` | Changes the route ([Pages and routing](/learn/05-pages-and-routing#links-and-navigation)) |
 | `format(v, .style, opt)`, `ago(d)` | Formats a value ([above](#format-and-ago)) |
 | `t("key", args)`, `setLocale("ar")` | Translates, and switches the locale ([i18n](/recipes)) |
@@ -20782,7 +20854,7 @@ The functions, in alphabetical order:
 | `format(value, .style, option)` | A number, date or money as text, in the locale |
 | `keyIs(event, combination)` | Whether a key event is a shortcut |
 | `keyLabel(combination)` | A shortcut as this system writes it |
-| `log(x, …)` | Prints to the console |
+| `log(x)` | Prints a value to the console |
 | `navigate(path)` | Moves to a route |
 | `optimistic(holder, change)` | Shows a change now, and takes it back if the action throws |
 | `replayAnimation(element, name)` | Plays an element's animation again |
@@ -20998,13 +21070,13 @@ Text("Search: {keyLabel("mod+k")}").muted
 
 ### `log`
 
-Prints its arguments to the browser's console.
+Prints a value to the browser's console.
 
-Signature: `log(value, …)`
+Signature: `log(value)`
 
 | Parameter | Type | Meaning |
 |---|---|---|
-| `value` | any | One or more values to print |
+| `value` | any | The value to print. For several, splice them into one string, `log("{a} {b}")`, or call `console.log(a, b)` |
 
 Returns nothing. Where: actions, handlers, effects and timers. A `Secret`
 passed to it is a `T12`.

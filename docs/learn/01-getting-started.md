@@ -250,9 +250,11 @@ difference.
 
 ## Write a site from scratch
 
-To see the smallest whole site, replace the contents of `src/` with two
-files, and delete the starter's tests under `tests/`, which test the pages
-you removed.
+To see the smallest whole site, replace every file in `src/` except
+`theme.wf` with the two below, and delete the starter's tests under
+`tests/`, which test the pages you removed. Keep `src/theme.wf`: the
+project's `webfluent.app.json` names the themes it declares (`Day` and
+`Night`), and the build stops if they are gone.
 
 `src/App.wf` is the shell every page shares, with the router in it:
 

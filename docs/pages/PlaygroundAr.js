@@ -1,2 +1,2 @@
-function Page_PlaygroundAr(params){const _root=document.createDocumentFragment();const _e1539=Component_PlaygroundShell({other:"/playground",lang:"ar"});_root.appendChild(_e1539);return _root;}
+function Page_PlaygroundAr(params){const _root=document.createDocumentFragment();const _e1565=Component_PlaygroundShell({other:"/playground",lang:"ar"});_root.appendChild(_e1565);return _root;}
 WF.page("PlaygroundAr",Page_PlaygroundAr,{title:"الملعب — WebFluent",lang:"ar",dir:"rtl"});

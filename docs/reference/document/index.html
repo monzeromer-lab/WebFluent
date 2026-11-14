@@ -254,6 +254,13 @@
                         </div>
                         <h1 class="wf-heading wf-sdfc6d99e">Document</h1>
                         <p class="wf-text bp-lede">Root of a PDF document: the paper, the margins and what the file says about itself.</p>
+                        <div class="wf-stack wf-gap--sm wf-s8a243922 bp-contents">
+                            <button class="wf-btn wf-s1865e956 bp-button" aria-expanded="false" aria-controls="bp-contents-panel" type="button">
+                                <i class="wf-icon" data-icon="list"></i>
+                                <p class="wf-text">Contents</p>
+                                <i class="wf-icon" data-icon="chevron-down"></i>
+                            </button>
+                        </div>
                         <code class="wf-code wf-s5539681c bp-ltr" dir="ltr">Document(page_size: Enum, size: String, landscape: Bool, …) { … }</code>
                         <div class="wf-row bp-labels">
                             <p class="wf-text bp-label bp-num">Before 5.0</p>
@@ -288,7 +295,7 @@
                     </div>
                     <div class="wf-stack wf-gap--lg wf-s4bec642b bp-ltr" dir="ltr">
                         <h2 class="wf-heading" id="props">Props</h2>
-                        <table class="wf-table wf-sc1856efc props-table">
+                        <table class="wf-table wf-s67f08b77 props-table">
                             <caption class="wf-visually-hidden">Props of Document</caption>
                             <thead>
                                 <tr>
@@ -299,7 +306,9 @@
                             </thead>
                             <tbody>
                                 <tr>
-                                    <td>page_size:</td>
+                                    <td>
+                                        <p class="wf-text wf-sb5ef35ce">page_size:</p>
+                                    </td>
                                     <td>.A4 .A3 .A5 .Letter .Legal</td>
                                     <td>
                                         <div class="wf-markdown">
@@ -308,7 +317,9 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td>size:</td>
+                                    <td>
+                                        <p class="wf-text wf-sb5ef35ce">size:</p>
+                                    </td>
                                     <td>String</td>
                                     <td>
                                         <div class="wf-markdown">
@@ -317,7 +328,9 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td>landscape:</td>
+                                    <td>
+                                        <p class="wf-text wf-sb5ef35ce">landscape:</p>
+                                    </td>
                                     <td>Bool</td>
                                     <td>
                                         <div class="wf-markdown">
@@ -326,7 +339,9 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td>margin:</td>
+                                    <td>
+                                        <p class="wf-text wf-sb5ef35ce">margin:</p>
+                                    </td>
                                     <td>Any</td>
                                     <td>
                                         <div class="wf-markdown">
@@ -335,7 +350,9 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td>title:</td>
+                                    <td>
+                                        <p class="wf-text wf-sb5ef35ce">title:</p>
+                                    </td>
                                     <td>String</td>
                                     <td>
                                         <div class="wf-markdown">
@@ -344,7 +361,9 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td>author:</td>
+                                    <td>
+                                        <p class="wf-text wf-sb5ef35ce">author:</p>
+                                    </td>
                                     <td>String</td>
                                     <td>
                                         <div class="wf-markdown">
@@ -353,7 +372,9 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td>subject:</td>
+                                    <td>
+                                        <p class="wf-text wf-sb5ef35ce">subject:</p>
+                                    </td>
                                     <td>String</td>
                                     <td>
                                         <div class="wf-markdown">
@@ -362,7 +383,9 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td>keywords:</td>
+                                    <td>
+                                        <p class="wf-text wf-sb5ef35ce">keywords:</p>
+                                    </td>
                                     <td>String</td>
                                     <td>
                                         <div class="wf-markdown">
@@ -371,7 +394,9 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td>lang:</td>
+                                    <td>
+                                        <p class="wf-text wf-sb5ef35ce">lang:</p>
+                                    </td>
                                     <td>String</td>
                                     <td>
                                         <div class="wf-markdown">
@@ -463,16 +488,16 @@
                         <a class="wf-link wf-s23505038" href="#example">Example</a>
                     </div>
                     <div class="wf-stack wf-gap--xs wf-see94d5ab">
-                        <button class="wf-btn wf-sfd73f012 bp-rail-action" type="button">
+                        <button class="wf-btn wf-sc1cdfbd7 bp-rail-action" type="button">
                             <i class="wf-icon" data-icon="copy"></i>
                             <p class="wf-text">Copy page as Markdown</p>
                         </button>
-                        <button class="wf-btn wf-sfd73f012 bp-rail-action" type="button">
+                        <button class="wf-btn wf-sc1cdfbd7 bp-rail-action" type="button">
                             <i class="wf-icon" data-icon="file"></i>
                             <p class="wf-text">Open as Markdown</p>
                         </button>
                     </div>
-                    <a class="wf-link wf-s48d899f5" href="https://github.com/monzeromer-lab/WebFluent/blob/master/wf registry --json">
+                    <a class="wf-link wf-s48d899f5" href="https://github.com/monzeromer-lab/WebFluent/blob/master/src/registry/builtins.rs">
                         <i class="wf-icon" data-icon="edit"></i>
                         <p class="wf-text">Edit this page</p>
                     </a>

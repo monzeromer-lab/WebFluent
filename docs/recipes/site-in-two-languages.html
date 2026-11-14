@@ -220,10 +220,32 @@
                     <div class="wf-stack wf-gap--sm wf-s4e4189b1">
                         <h1 class="wf-heading wf-sdfc6d99e">Publish a page in each language</h1>
                         <div class="wf-markdown bp-lede">
-<p>Have a search engine find your site in each of its languages. <code>t()</code> and <code>setLocale</code> translate a page in the browser, at one address, and a search engine indexes what that address's HTML says, which is the default locale. A site that wants each language found writes each page once per language, at an address of its own, and says how the pages are joined.  This site is written in Arabic, with its home page in English at <code>/en</code>:</p>
+<p>Have a search engine find your site in each of its languages. <code>t()</code> and <code>setLocale</code> translate a page in the browser, at one address, and a search engine indexes what that address's HTML says, which is the default locale. A site that wants each language found writes each page once per language, at an address of its own, and says how the pages are joined.  This site is written in Arabic, with its home page in English at <code>/en</code>. The site's language, its address and a static build go in <code>webfluent.app.json</code>. Without <code>meta.lang</code> the site's pages are taken to be in English, and without <code>meta.site_url</code> there is no absolute address for the alternates:</p>
+                        </div>
+                        <div class="wf-stack wf-gap--sm wf-s8a243922 bp-contents">
+                            <button class="wf-btn wf-s1865e956 bp-button" aria-expanded="false" aria-controls="bp-contents-panel" type="button">
+                                <i class="wf-icon" data-icon="list"></i>
+                                <p class="wf-text">Contents</p>
+                                <i class="wf-icon" data-icon="chevron-down"></i>
+                            </button>
                         </div>
                     </div>
                     <div class="wf-stack wf-gap--sm wf-sa4f807c1">
+                        <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                            <div class="wf-row wf-s2c416341 bp-console__bar">
+                                <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                    <p class="wf-text wf-s23a4ddd5 bp-mono">json</p>
+                                </div>
+                                <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="json" type="button">Copy</button>
+                            </div>
+                            <code class="wf-code wf-code--block bp-console__code">{
+    <span class="wf-tok-prop">&quot;build&quot;</span>: { <span class="wf-tok-prop">&quot;ssg&quot;</span>: <span class="wf-tok-kw">true</span> },
+    <span class="wf-tok-prop">&quot;meta&quot;</span>: { <span class="wf-tok-prop">&quot;lang&quot;</span>: <span class="wf-tok-str">&quot;ar&quot;</span>, <span class="wf-tok-prop">&quot;site_url&quot;</span>: <span class="wf-tok-str">&quot;https://example.com&quot;</span> }
+}</code>
+                        </div>
+                        <div class="wf-markdown">
+<p>Then the pages:</p>
+                        </div>
                         <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
                             <div class="wf-row wf-s2c416341 bp-console__bar">
                                 <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
@@ -276,11 +298,11 @@
                         <a class="wf-link wf-s23505038" href="#how-it-works">How it works</a>
                     </div>
                     <div class="wf-stack wf-gap--xs wf-see94d5ab">
-                        <button class="wf-btn wf-sfd73f012 bp-rail-action" type="button">
+                        <button class="wf-btn wf-sc1cdfbd7 bp-rail-action" type="button">
                             <i class="wf-icon" data-icon="copy"></i>
                             <p class="wf-text">Copy page as Markdown</p>
                         </button>
-                        <button class="wf-btn wf-sfd73f012 bp-rail-action" type="button">
+                        <button class="wf-btn wf-sc1cdfbd7 bp-rail-action" type="button">
                             <i class="wf-icon" data-icon="file"></i>
                             <p class="wf-text">Open as Markdown</p>
                         </button>

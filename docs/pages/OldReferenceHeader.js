@@ -1,2 +1,2 @@
-function Page_OldReferenceHeader(params){const _root=document.createDocumentFragment();const _e1630=WF.el("h1",{className:"wf-heading"},"Header");_root.appendChild(_e1630);const _e1631=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/header"},"Header");WF.activeLink(_e1631,"/reference/header",false);_root.appendChild(_e1631);return _root;}
+function Page_OldReferenceHeader(params){const _root=document.createDocumentFragment();const _e1656=WF.el("h1",{className:"wf-heading"},"Header");_root.appendChild(_e1656);const _e1657=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/header"},"Header");WF.activeLink(_e1657,"/reference/header",false);_root.appendChild(_e1657);return _root;}
 WF.page("OldReferenceHeader",Page_OldReferenceHeader,{title:"Header"});

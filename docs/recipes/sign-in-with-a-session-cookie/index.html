@@ -222,6 +222,13 @@
                         <div class="wf-markdown bp-lede">
 <p>A token kept in the page can be read by any script that reaches it. To sign a reader in without holding a token at all, let the server set a session cookie, describe the service with <code>credentials: .sameOrigin</code>, and keep the signed-in user in a store:</p>
                         </div>
+                        <div class="wf-stack wf-gap--sm wf-s8a243922 bp-contents">
+                            <button class="wf-btn wf-s1865e956 bp-button" aria-expanded="false" aria-controls="bp-contents-panel" type="button">
+                                <i class="wf-icon" data-icon="list"></i>
+                                <p class="wf-text">Contents</p>
+                                <i class="wf-icon" data-icon="chevron-down"></i>
+                            </button>
+                        </div>
                     </div>
                     <div class="wf-stack wf-gap--sm wf-sa4f807c1">
                         <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
@@ -280,11 +287,33 @@ api <span class="wf-tok-name">Auth</span>(<span class="wf-tok-prop">base</span>:
     }
 }
 
-<span class="wf-tok-kw">page</span> <span class="wf-tok-name">Account</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/account&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Your account&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Your account.&quot;</span>, <span class="wf-tok-prop">guard</span>: <span class="wf-tok-name">Session</span>.signedIn, <span class="wf-tok-prop">redirect</span>: <span class="wf-tok-str">&quot;/sign-in&quot;</span>) {
+<span class="wf-tok-kw">page</span> <span class="wf-tok-name">Account</span>(<span class="wf-tok-prop">path</span>: <span class="wf-tok-str">&quot;/account&quot;</span>, <span class="wf-tok-prop">title</span>: <span class="wf-tok-str">&quot;Your account&quot;</span>, <span class="wf-tok-prop">description</span>: <span class="wf-tok-str">&quot;Your account.&quot;</span>, <span class="wf-tok-prop">guard</span>: !<span class="wf-tok-name">Session</span>.checked || <span class="wf-tok-name">Session</span>.signedIn, <span class="wf-tok-prop">redirect</span>: <span class="wf-tok-str">&quot;/sign-in&quot;</span>) {
     <span class="wf-tok-kw">use</span> <span class="wf-tok-name">Session</span>
+    <span class="wf-tok-cmt">// The guard is read when the route opens, which on a reload is before</span>
+    <span class="wf-tok-cmt">// `load` has answered; this sends the reader on once it has.</span>
+    <span class="wf-tok-kw">effect</span> { <span class="wf-tok-kw">if</span> <span class="wf-tok-name">Session</span>.checked &amp;&amp; !<span class="wf-tok-name">Session</span>.signedIn { <span class="wf-tok-kw">navigate</span>(<span class="wf-tok-str">&quot;/sign-in&quot;</span>) } }
     <span class="wf-tok-name">Heading</span>(<span class="wf-tok-str">&quot;Your account&quot;</span>).h1
-    <span class="wf-tok-kw">if</span> <span class="wf-tok-kw">let</span> u = <span class="wf-tok-name">Session</span>.user { <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Signed in as {u.name}&quot;</span>) }
-    <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Sign out&quot;</span>) { <span class="wf-tok-kw">on</span> click { <span class="wf-tok-name">Session</span>.signOut() } }
+    <span class="wf-tok-kw">if</span> !<span class="wf-tok-name">Session</span>.checked { <span class="wf-tok-name">Spinner</span> }
+    <span class="wf-tok-kw">if</span> <span class="wf-tok-kw">let</span> u = <span class="wf-tok-name">Session</span>.user {
+        <span class="wf-tok-name">Text</span>(<span class="wf-tok-str">&quot;Signed in as {u.name}&quot;</span>)
+        <span class="wf-tok-name">Button</span>(<span class="wf-tok-str">&quot;Sign out&quot;</span>) { <span class="wf-tok-kw">on</span> click { <span class="wf-tok-name">Session</span>.signOut() } }
+    }
+}</code>
+                        </div>
+                        <div class="wf-markdown">
+<p>The app asks the server who is signed in once, when the site opens, in <code>src/App.wf</code>:</p>
+                        </div>
+                        <div class="wf-stack wf-s5027cce6 bp-console code-block bp-ltr" dir="ltr">
+                            <div class="wf-row wf-s2c416341 bp-console__bar">
+                                <div class="wf-row wf-align--center wf-gap--sm wf-sf8a1df23">
+                                    <p class="wf-text wf-s23a4ddd5 bp-mono">wf</p>
+                                </div>
+                                <button class="wf-btn wf-s65c70c32 bp-button" aria-label="Copy" data-track="copy_code" data-track-item-id="wf" type="button">Copy</button>
+                            </div>
+                            <code class="wf-code wf-code--block bp-console__code"><span class="wf-tok-kw">app</span> {
+    <span class="wf-tok-kw">use</span> <span class="wf-tok-name">Session</span>
+    <span class="wf-tok-name">Session</span>.load()
+    <span class="wf-tok-name">Router</span>
 }</code>
                         </div>
                     </div>
@@ -295,9 +324,10 @@ api <span class="wf-tok-name">Auth</span>(<span class="wf-tok-prop">base</span>:
 <li><code>Auth</code> <a href="/learn/15-data#describe-a-service-with-api">describes the service</a>. <code>credentials: .sameOrigin</code> sends the session cookie with every call, so the page holds no token. <code>errors { 401 -&gt; Map }</code> types what a refused sign-in answers.</li>
 <li>The <code>Session</code> <a href="/learn/11-stores#a-first-store">store</a> holds the user, or <code>null</code>, and <code>signedIn</code> is derived from it. <code>load</code> asks the server who is signed in, <code>signIn</code> and <code>signOut</code> call the service and move the reader on with <code>navigate</code>.</li>
 <li>The <code>SignIn</code> page validates its two fields and calls <code>Session.signIn</code> in a <code>try</code>, so a wrong password shows an <code>Alert</code> instead of throwing. <code>send.pending</code> disables the button while the request runs, and <code>noindex: true</code> keeps the page out of search results.</li>
-<li>The <code>Account</code> page has a <a href="/learn/05-pages-and-routing#guards">guard</a>: <code>guard: Session.signedIn</code> sends a reader who is signed out to <code>/sign-in</code>.</li>
+<li><code>Session.load()</code> at the top of <code>app</code> runs once, when the site opens: a reader who comes back with a session cookie is signed in again, and <code>checked</code> turns true when the server has answered either way.</li>
+<li>The <code>Account</code> page has a <a href="/learn/05-pages-and-routing#guards">guard</a>. A guard is read once, when the route opens, so it lets the page through while <code>checked</code> is still false, and the <code>effect</code> sends a signed-out reader to <code>/sign-in</code> as soon as the answer arrives. Until then the page shows a <code>Spinner</code>.</li>
 </ul>
-<p>The session is an httpOnly cookie the server sets, so the page never holds a token. <code>guard:</code> hides the page from a reader who is signed out, and the server still checks every request (<a href="/about/security#keep-the-session-in-a-cookie">Security</a>). Call <code>Session.load()</code> from the app's set-up, so a returning reader is signed in.</p>
+<p>The session is an httpOnly cookie the server sets, so the page never holds a token. <code>guard:</code> hides the page from a reader who is signed out, and the server still checks every request (<a href="/about/security#keep-the-session-in-a-cookie">Security</a>).</p>
                         </div>
                     </div>
                     <div class="wf-stack wf-gap--sm wf-s982ede03">
@@ -324,11 +354,11 @@ api <span class="wf-tok-name">Auth</span>(<span class="wf-tok-prop">base</span>:
                         <a class="wf-link wf-s23505038" href="#how-it-works">How it works</a>
                     </div>
                     <div class="wf-stack wf-gap--xs wf-see94d5ab">
-                        <button class="wf-btn wf-sfd73f012 bp-rail-action" type="button">
+                        <button class="wf-btn wf-sc1cdfbd7 bp-rail-action" type="button">
                             <i class="wf-icon" data-icon="copy"></i>
                             <p class="wf-text">Copy page as Markdown</p>
                         </button>
-                        <button class="wf-btn wf-sfd73f012 bp-rail-action" type="button">
+                        <button class="wf-btn wf-sc1cdfbd7 bp-rail-action" type="button">
                             <i class="wf-icon" data-icon="file"></i>
                             <p class="wf-text">Open as Markdown</p>
                         </button>
