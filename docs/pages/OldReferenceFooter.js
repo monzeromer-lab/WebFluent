@@ -1,2 +1,0 @@
-function Page_OldReferenceFooter(params){const _root=document.createDocumentFragment();const _e1769=WF.el("h1",{className:"wf-heading"},"Footer");_root.appendChild(_e1769);const _e1770=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/footer"},"Footer");WF.activeLink(_e1770,"/reference/footer",false);_root.appendChild(_e1770);return _root;}
-WF.page("OldReferenceFooter",Page_OldReferenceFooter,{title:"Footer"});

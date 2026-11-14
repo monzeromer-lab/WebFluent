@@ -1,2 +1,0 @@
-function Page_OldReferenceMarkdown(params){const _root=document.createDocumentFragment();const _e1797=WF.el("h1",{className:"wf-heading"},"Markdown");_root.appendChild(_e1797);const _e1798=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/markdown"},"Markdown");WF.activeLink(_e1798,"/reference/markdown",false);_root.appendChild(_e1798);return _root;}
-WF.page("OldReferenceMarkdown",Page_OldReferenceMarkdown,{title:"Markdown"});

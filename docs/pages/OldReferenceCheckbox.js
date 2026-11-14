@@ -1,2 +1,0 @@
-function Page_OldReferenceCheckbox(params){const _root=document.createDocumentFragment();const _e1747=WF.el("h1",{className:"wf-heading"},"Checkbox");_root.appendChild(_e1747);const _e1748=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/checkbox"},"Checkbox");WF.activeLink(_e1748,"/reference/checkbox",false);_root.appendChild(_e1748);return _root;}
-WF.page("OldReferenceCheckbox",Page_OldReferenceCheckbox,{title:"Checkbox"});

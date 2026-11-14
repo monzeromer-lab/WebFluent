@@ -1,2 +1,0 @@
-function Page_BlueprintHomeAr(params){const _root=document.createDocumentFragment();const _e963=Component_PreviewHome({ar:true});_root.appendChild(_e963);return _root;}
-WF.page("BlueprintHomeAr",Page_BlueprintHomeAr,{title:"T1 الرئيسية",lang:"ar",dir:"rtl"});

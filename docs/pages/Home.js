@@ -1,2 +1,0 @@
-function Page_Home(params){const _root=document.createDocumentFragment();const _e1682=Component_HomeShell({other:"/ar"});_root.appendChild(_e1682);return _root;}
-WF.page("Home",Page_Home,{title:"WebFluent — websites, PDFs and slide decks from one language"});

@@ -1,2 +1,0 @@
-function Page_OldReferenceBreadcrumb(params){const _root=document.createDocumentFragment();const _e1735=WF.el("h1",{className:"wf-heading"},"Breadcrumb");_root.appendChild(_e1735);const _e1736=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/breadcrumb"},"Breadcrumb");WF.activeLink(_e1736,"/reference/breadcrumb",false);_root.appendChild(_e1736);return _root;}
-WF.page("OldReferenceBreadcrumb",Page_OldReferenceBreadcrumb,{title:"Breadcrumb"});

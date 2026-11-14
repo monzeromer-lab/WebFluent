@@ -1,2 +1,0 @@
-function Page_OldReferenceModal(params){const _root=document.createDocumentFragment();const _e1801=WF.el("h1",{className:"wf-heading"},"Modal");_root.appendChild(_e1801);const _e1802=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/modal"},"Modal");WF.activeLink(_e1802,"/reference/modal",false);_root.appendChild(_e1802);return _root;}
-WF.page("OldReferenceModal",Page_OldReferenceModal,{title:"Modal"});

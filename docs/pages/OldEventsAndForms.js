@@ -1,2 +1,0 @@
-function Page_OldEventsAndForms(params){const _root=document.createDocumentFragment();const _e1689=WF.el("h1",{className:"wf-heading"},()=>WF.i18n.t("ch.08"));_root.appendChild(_e1689);const _e1690=WF.el("a",{className:"wf-link",href:WF._basePath+"/learn/08-events"},()=>WF.i18n.t("ch.08"));WF.activeLink(_e1690,"/learn/08-events",false);_root.appendChild(_e1690);return _root;}
-WF.page("OldEventsAndForms",Page_OldEventsAndForms,{title:"Events"});

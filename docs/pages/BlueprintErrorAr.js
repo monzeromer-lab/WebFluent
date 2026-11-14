@@ -1,2 +1,0 @@
-function Page_BlueprintErrorAr(params){const _root=document.createDocumentFragment();const _e973=Component_PreviewError({ar:true});_root.appendChild(_e973);return _root;}
-WF.page("BlueprintErrorAr",Page_BlueprintErrorAr,{title:"T5 خطأ",lang:"ar",dir:"rtl"});

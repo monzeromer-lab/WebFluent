@@ -1,2 +1,0 @@
-function Page_WasDocsGuideUpgrading(params){const _root=document.createDocumentFragment();const _e10072=WF.el("h1",{className:"wf-heading"},"Moved");_root.appendChild(_e10072);const _e10073=WF.el("a",{className:"wf-link",href:WF._basePath+"/about/upgrading"},"Go on");WF.activeLink(_e10073,"/about/upgrading",false);_root.appendChild(_e10073);return _root;}
-WF.page("WasDocsGuideUpgrading",Page_WasDocsGuideUpgrading,{title:"Moved"});

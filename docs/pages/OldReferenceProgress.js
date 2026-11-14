@@ -1,2 +1,0 @@
-function Page_OldReferenceProgress(params){const _root=document.createDocumentFragment();const _e1815=WF.el("h1",{className:"wf-heading"},"Progress");_root.appendChild(_e1815);const _e1816=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/progress"},"Progress");WF.activeLink(_e1816,"/reference/progress",false);_root.appendChild(_e1816);return _root;}
-WF.page("OldReferenceProgress",Page_OldReferenceProgress,{title:"Progress"});

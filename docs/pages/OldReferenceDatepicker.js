@@ -1,2 +1,0 @@
-function Page_OldReferenceDatepicker(params){const _root=document.createDocumentFragment();const _e1755=WF.el("h1",{className:"wf-heading"},"DatePicker");_root.appendChild(_e1755);const _e1756=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/datepicker"},"DatePicker");WF.activeLink(_e1756,"/reference/datepicker",false);_root.appendChild(_e1756);return _root;}
-WF.page("OldReferenceDatepicker",Page_OldReferenceDatepicker,{title:"DatePicker"});

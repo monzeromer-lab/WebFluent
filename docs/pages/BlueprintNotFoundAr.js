@@ -1,2 +1,0 @@
-function Page_BlueprintNotFoundAr(params){const _root=document.createDocumentFragment();const _e981=Component_PreviewNotFound({ar:true});_root.appendChild(_e981);return _root;}
-WF.page("BlueprintNotFoundAr",Page_BlueprintNotFoundAr,{title:"T9 غير موجود",lang:"ar",dir:"rtl"});

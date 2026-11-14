@@ -1,2 +1,0 @@
-function Page_OldReferenceSlider(params){const _root=document.createDocumentFragment();const _e1837=WF.el("h1",{className:"wf-heading"},"Slider");_root.appendChild(_e1837);const _e1838=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/slider"},"Slider");WF.activeLink(_e1838,"/reference/slider",false);_root.appendChild(_e1838);return _root;}
-WF.page("OldReferenceSlider",Page_OldReferenceSlider,{title:"Slider"});

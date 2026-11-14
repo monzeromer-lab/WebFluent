@@ -1,2 +1,0 @@
-function Page_WasDocsGuideContributing(params){const _root=document.createDocumentFragment();const _e10030=WF.el("h1",{className:"wf-heading"},"Moved");_root.appendChild(_e10030);const _e10031=WF.el("a",{className:"wf-link",href:WF._basePath+"/about/contributing"},"Go on");WF.activeLink(_e10031,"/about/contributing",false);_root.appendChild(_e10031);return _root;}
-WF.page("WasDocsGuideContributing",Page_WasDocsGuideContributing,{title:"Moved"});

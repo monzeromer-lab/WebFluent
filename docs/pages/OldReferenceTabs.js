@@ -1,2 +1,0 @@
-function Page_OldReferenceTabs(params){const _root=document.createDocumentFragment();const _e1853=WF.el("h1",{className:"wf-heading"},"Tabs");_root.appendChild(_e1853);const _e1854=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/tabs"},"Tabs");WF.activeLink(_e1854,"/reference/tabs",false);_root.appendChild(_e1854);return _root;}
-WF.page("OldReferenceTabs",Page_OldReferenceTabs,{title:"Tabs"});

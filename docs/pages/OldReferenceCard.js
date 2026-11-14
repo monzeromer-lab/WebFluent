@@ -1,2 +1,0 @@
-function Page_OldReferenceCard(params){const _root=document.createDocumentFragment();const _e1741=WF.el("h1",{className:"wf-heading"},"Card");_root.appendChild(_e1741);const _e1742=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/card"},"Card");WF.activeLink(_e1742,"/reference/card",false);_root.appendChild(_e1742);return _root;}
-WF.page("OldReferenceCard",Page_OldReferenceCard,{title:"Card"});

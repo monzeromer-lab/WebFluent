@@ -1,2 +1,0 @@
-function Page_WasDocsGuideState(params){const _root=document.createDocumentFragment();const _e10056=WF.el("h1",{className:"wf-heading"},"Moved");_root.appendChild(_e10056);const _e10057=WF.el("a",{className:"wf-link",href:WF._basePath+"/learn/07-state-and-reactivity"},"Go on");WF.activeLink(_e10057,"/learn/07-state-and-reactivity",false);_root.appendChild(_e10057);return _root;}
-WF.page("WasDocsGuideState",Page_WasDocsGuideState,{title:"Moved"});

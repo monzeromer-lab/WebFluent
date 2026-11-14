@@ -1,2 +1,0 @@
-function Page_OldReferenceFileupload(params){const _root=document.createDocumentFragment();const _e1767=WF.el("h1",{className:"wf-heading"},"FileUpload");_root.appendChild(_e1767);const _e1768=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/fileupload"},"FileUpload");WF.activeLink(_e1768,"/reference/fileupload",false);_root.appendChild(_e1768);return _root;}
-WF.page("OldReferenceFileupload",Page_OldReferenceFileupload,{title:"FileUpload"});

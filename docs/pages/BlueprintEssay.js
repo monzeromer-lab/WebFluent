@@ -1,2 +1,0 @@
-function Page_BlueprintEssay(params){const _root=document.createDocumentFragment();const _e966=Component_PreviewEssay({});_root.appendChild(_e966);return _root;}
-WF.page("BlueprintEssay",Page_BlueprintEssay,{title:"T2 Essay"});

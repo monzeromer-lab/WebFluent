@@ -1,2 +1,0 @@
-function Page_OldReferenceTwocolumn(params){const _root=document.createDocumentFragment();const _e1867=WF.el("h1",{className:"wf-heading"},"TwoColumn");_root.appendChild(_e1867);const _e1868=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/twocolumn"},"TwoColumn");WF.activeLink(_e1868,"/reference/twocolumn",false);_root.appendChild(_e1868);return _root;}
-WF.page("OldReferenceTwocolumn",Page_OldReferenceTwocolumn,{title:"TwoColumn"});

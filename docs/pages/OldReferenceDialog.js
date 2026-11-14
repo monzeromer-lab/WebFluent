@@ -1,2 +1,0 @@
-function Page_OldReferenceDialog(params){const _root=document.createDocumentFragment();const _e1757=WF.el("h1",{className:"wf-heading"},"Dialog");_root.appendChild(_e1757);const _e1758=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/dialog"},"Dialog");WF.activeLink(_e1758,"/reference/dialog",false);_root.appendChild(_e1758);return _root;}
-WF.page("OldReferenceDialog",Page_OldReferenceDialog,{title:"Dialog"});

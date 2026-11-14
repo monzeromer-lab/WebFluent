@@ -1,2 +1,0 @@
-function Page_OldReferenceWatermark(params){const _root=document.createDocumentFragment();const _e1875=WF.el("h1",{className:"wf-heading"},"Watermark");_root.appendChild(_e1875);const _e1876=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/watermark"},"Watermark");WF.activeLink(_e1876,"/reference/watermark",false);_root.appendChild(_e1876);return _root;}
-WF.page("OldReferenceWatermark",Page_OldReferenceWatermark,{title:"Watermark"});

@@ -1,2 +1,0 @@
-function Page_BlueprintNotFound(params){const _root=document.createDocumentFragment();const _e980=Component_PreviewNotFound({});_root.appendChild(_e980);return _root;}
-WF.page("BlueprintNotFound",Page_BlueprintNotFound,{title:"T9 Not found"});

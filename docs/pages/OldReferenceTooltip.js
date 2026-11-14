@@ -1,2 +1,0 @@
-function Page_OldReferenceTooltip(params){const _root=document.createDocumentFragment();const _e1865=WF.el("h1",{className:"wf-heading"},"Tooltip");_root.appendChild(_e1865);const _e1866=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/tooltip"},"Tooltip");WF.activeLink(_e1866,"/reference/tooltip",false);_root.appendChild(_e1866);return _root;}
-WF.page("OldReferenceTooltip",Page_OldReferenceTooltip,{title:"Tooltip"});

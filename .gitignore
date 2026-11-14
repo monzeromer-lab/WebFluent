@@ -26,3 +26,7 @@ node_modules/
 # A developer's own Claude Code settings and preview servers.
 /.claude/settings.local.json
 /.claude/launch.json
+
+# The docs site, built from site/ (wf build -d site); .github/workflows/pages.yml
+# builds and deploys it.
+/docs/

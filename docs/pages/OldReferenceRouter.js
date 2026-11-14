@@ -1,2 +1,0 @@
-function Page_OldReferenceRouter(params){const _root=document.createDocumentFragment();const _e1821=WF.el("h1",{className:"wf-heading"},"Router");_root.appendChild(_e1821);const _e1822=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/router"},"Router");WF.activeLink(_e1822,"/reference/router",false);_root.appendChild(_e1822);return _root;}
-WF.page("OldReferenceRouter",Page_OldReferenceRouter,{title:"Router"});

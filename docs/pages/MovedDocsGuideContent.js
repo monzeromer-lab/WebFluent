@@ -1,2 +1,0 @@
-function Page_MovedDocsGuideContent(params){const _root=document.createDocumentFragment();const _e10177=WF.el("h1",{className:"wf-heading"},()=>WF.i18n.t("nav.recipes"));_root.appendChild(_e10177);const _e10178=WF.el("a",{className:"wf-link",href:WF._basePath+"/recipes#content"},()=>WF.i18n.t("nav.recipes"));WF.activeLink(_e10178,"/recipes#content",false);_root.appendChild(_e10178);return _root;}
-WF.page("MovedDocsGuideContent",Page_MovedDocsGuideContent,{title:"Moved"});

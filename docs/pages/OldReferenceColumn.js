@@ -1,2 +1,0 @@
-function Page_OldReferenceColumn(params){const _root=document.createDocumentFragment();const _e1751=WF.el("h1",{className:"wf-heading"},"Column");_root.appendChild(_e1751);const _e1752=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/column"},"Column");WF.activeLink(_e1752,"/reference/column",false);_root.appendChild(_e1752);return _root;}
-WF.page("OldReferenceColumn",Page_OldReferenceColumn,{title:"Column"});

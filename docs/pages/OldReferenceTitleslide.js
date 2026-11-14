@@ -1,2 +1,0 @@
-function Page_OldReferenceTitleslide(params){const _root=document.createDocumentFragment();const _e1861=WF.el("h1",{className:"wf-heading"},"TitleSlide");_root.appendChild(_e1861);const _e1862=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/titleslide"},"TitleSlide");WF.activeLink(_e1862,"/reference/titleslide",false);_root.appendChild(_e1862);return _root;}
-WF.page("OldReferenceTitleslide",Page_OldReferenceTitleslide,{title:"TitleSlide"});

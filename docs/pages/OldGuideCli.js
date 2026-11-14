@@ -1,2 +1,0 @@
-function Page_OldGuideCli(params){const _root=document.createDocumentFragment();const _e1719=WF.el("h1",{className:"wf-heading"},"Command line");_root.appendChild(_e1719);const _e1720=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/cli"},"Command line");WF.activeLink(_e1720,"/reference/cli",false);_root.appendChild(_e1720);return _root;}
-WF.page("OldGuideCli",Page_OldGuideCli,{title:"Command line"});

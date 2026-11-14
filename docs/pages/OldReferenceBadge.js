@@ -1,2 +1,0 @@
-function Page_OldReferenceBadge(params){const _root=document.createDocumentFragment();const _e1731=WF.el("h1",{className:"wf-heading"},"Badge");_root.appendChild(_e1731);const _e1732=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/badge"},"Badge");WF.activeLink(_e1732,"/reference/badge",false);_root.appendChild(_e1732);return _root;}
-WF.page("OldReferenceBadge",Page_OldReferenceBadge,{title:"Badge"});

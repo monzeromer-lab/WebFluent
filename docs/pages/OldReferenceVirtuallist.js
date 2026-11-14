@@ -1,2 +1,0 @@
-function Page_OldReferenceVirtuallist(params){const _root=document.createDocumentFragment();const _e1873=WF.el("h1",{className:"wf-heading"},"VirtualList");_root.appendChild(_e1873);const _e1874=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/virtuallist"},"VirtualList");WF.activeLink(_e1874,"/reference/virtuallist",false);_root.appendChild(_e1874);return _root;}
-WF.page("OldReferenceVirtuallist",Page_OldReferenceVirtuallist,{title:"VirtualList"});

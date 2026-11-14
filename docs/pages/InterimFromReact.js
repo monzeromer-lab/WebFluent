@@ -1,2 +1,0 @@
-function Page_InterimFromReact(params){const _root=document.createDocumentFragment();const _e1599=WF.el("h1",{className:"wf-heading"},()=>WF.i18n.t("ch.04"));_root.appendChild(_e1599);const _e1600=WF.el("a",{className:"wf-link",href:WF._basePath+"/docs/guide/coming-from"},()=>WF.i18n.t("ch.04"));WF.activeLink(_e1600,"/docs/guide/coming-from",false);_root.appendChild(_e1600);return _root;}
-WF.page("InterimFromReact",Page_InterimFromReact);

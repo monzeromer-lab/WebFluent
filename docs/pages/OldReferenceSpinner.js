@@ -1,2 +1,0 @@
-function Page_OldReferenceSpinner(params){const _root=document.createDocumentFragment();const _e1841=WF.el("h1",{className:"wf-heading"},"Spinner");_root.appendChild(_e1841);const _e1842=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/spinner"},"Spinner");WF.activeLink(_e1842,"/reference/spinner",false);_root.appendChild(_e1842);return _root;}
-WF.page("OldReferenceSpinner",Page_OldReferenceSpinner,{title:"Spinner"});

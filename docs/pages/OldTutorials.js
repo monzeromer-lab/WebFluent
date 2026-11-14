@@ -1,2 +1,0 @@
-function Page_OldTutorials(params){const _root=document.createDocumentFragment();const _e1697=WF.el("h1",{className:"wf-heading"},()=>WF.i18n.t("ch.03"));_root.appendChild(_e1697);const _e1698=WF.el("a",{className:"wf-link",href:WF._basePath+"/learn/03-tutorial-todos"},()=>WF.i18n.t("ch.03"));WF.activeLink(_e1698,"/learn/03-tutorial-todos",false);_root.appendChild(_e1698);return _root;}
-WF.page("OldTutorials",Page_OldTutorials,{title:"Tutorials"});

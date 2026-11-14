@@ -1,2 +1,0 @@
-function Page_OldReferenceDropdown(params){const _root=document.createDocumentFragment();const _e1763=WF.el("h1",{className:"wf-heading"},"Dropdown");_root.appendChild(_e1763);const _e1764=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/dropdown"},"Dropdown");WF.activeLink(_e1764,"/reference/dropdown",false);_root.appendChild(_e1764);return _root;}
-WF.page("OldReferenceDropdown",Page_OldReferenceDropdown,{title:"Dropdown"});

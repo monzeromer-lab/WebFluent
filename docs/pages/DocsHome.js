@@ -1,2 +1,0 @@
-function Page_DocsHome(params){const _root=document.createDocumentFragment();const _e1043=WF.el("h1",{className:"wf-heading"},()=>WF.i18n.t("nav.learn"));_root.appendChild(_e1043);const _e1044=WF.el("a",{className:"wf-link",href:WF._basePath+"/learn"},()=>WF.i18n.t("nav.learn"));WF.activeLink(_e1044,"/learn",false);_root.appendChild(_e1044);return _root;}
-WF.page("DocsHome",Page_DocsHome,{title:"Documentation"});

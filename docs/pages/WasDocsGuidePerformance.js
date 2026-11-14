@@ -1,2 +1,0 @@
-function Page_WasDocsGuidePerformance(params){const _root=document.createDocumentFragment();const _e10052=WF.el("h1",{className:"wf-heading"},"Moved");_root.appendChild(_e10052);const _e10053=WF.el("a",{className:"wf-link",href:WF._basePath+"/about/what-a-build-ships"},"Go on");WF.activeLink(_e10053,"/about/what-a-build-ships",false);_root.appendChild(_e10053);return _root;}
-WF.page("WasDocsGuidePerformance",Page_WasDocsGuidePerformance,{title:"Moved"});

@@ -1,2 +1,0 @@
-function Page_MovedDocsTutorialsFieldNotes(params){const _root=document.createDocumentFragment();const _e10201=WF.el("h1",{className:"wf-heading"},()=>WF.i18n.t("nav.recipes"));_root.appendChild(_e10201);const _e10202=WF.el("a",{className:"wf-link",href:WF._basePath+"/recipes/build-a-notebook-site"},()=>WF.i18n.t("nav.recipes"));WF.activeLink(_e10202,"/recipes/build-a-notebook-site",false);_root.appendChild(_e10202);return _root;}
-WF.page("MovedDocsTutorialsFieldNotes",Page_MovedDocsTutorialsFieldNotes,{title:"Moved"});

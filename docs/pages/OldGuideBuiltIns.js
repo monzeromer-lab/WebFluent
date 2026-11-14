@@ -1,2 +1,0 @@
-function Page_OldGuideBuiltIns(params){const _root=document.createDocumentFragment();const _e1715=WF.el("h1",{className:"wf-heading"},"Built-in functions and values");_root.appendChild(_e1715);const _e1716=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/built-ins"},"Built-in functions and values");WF.activeLink(_e1716,"/reference/built-ins",false);_root.appendChild(_e1716);return _root;}
-WF.page("OldGuideBuiltIns",Page_OldGuideBuiltIns,{title:"Built-in functions and values"});

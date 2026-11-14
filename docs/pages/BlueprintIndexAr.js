@@ -1,2 +1,0 @@
-function Page_BlueprintIndexAr(params){const _root=document.createDocumentFragment();const _e961=Component_PreviewIndex({ar:true});_root.appendChild(_e961);return _root;}
-WF.page("BlueprintIndexAr",Page_BlueprintIndexAr,{title:"Blueprint",lang:"ar",dir:"rtl"});

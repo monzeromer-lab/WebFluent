@@ -1,2 +1,0 @@
-function Page_OldReferenceImage(params){const _root=document.createDocumentFragment();const _e1787=WF.el("h1",{className:"wf-heading"},"Image");_root.appendChild(_e1787);const _e1788=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/image"},"Image");WF.activeLink(_e1788,"/reference/image",false);_root.appendChild(_e1788);return _root;}
-WF.page("OldReferenceImage",Page_OldReferenceImage,{title:"Image"});

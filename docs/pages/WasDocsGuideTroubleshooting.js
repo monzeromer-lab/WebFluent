@@ -1,2 +1,0 @@
-function Page_WasDocsGuideTroubleshooting(params){const _root=document.createDocumentFragment();const _e10066=WF.el("h1",{className:"wf-heading"},"Moved");_root.appendChild(_e10066);const _e10067=WF.el("a",{className:"wf-link",href:WF._basePath+"/errors/troubleshooting"},"Go on");WF.activeLink(_e10067,"/errors/troubleshooting",false);_root.appendChild(_e10067);return _root;}
-WF.page("WasDocsGuideTroubleshooting",Page_WasDocsGuideTroubleshooting,{title:"Moved"});

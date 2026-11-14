@@ -1,2 +1,0 @@
-function Page_BlueprintPlayground(params){const _root=document.createDocumentFragment();const _e976=Component_PreviewPlayground({});_root.appendChild(_e976);return _root;}
-WF.page("BlueprintPlayground",Page_BlueprintPlayground,{title:"T7 Playground"});

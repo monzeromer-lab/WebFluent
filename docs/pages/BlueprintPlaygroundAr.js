@@ -1,2 +1,0 @@
-function Page_BlueprintPlaygroundAr(params){const _root=document.createDocumentFragment();const _e977=Component_PreviewPlayground({ar:true});_root.appendChild(_e977);return _root;}
-WF.page("BlueprintPlaygroundAr",Page_BlueprintPlaygroundAr,{title:"T7 الملعب",lang:"ar",dir:"rtl"});

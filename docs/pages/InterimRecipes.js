@@ -1,2 +1,0 @@
-function Page_InterimRecipes(params){const _root=document.createDocumentFragment();const _e1597=WF.el("h1",{className:"wf-heading"},()=>WF.i18n.t("nav.recipes"));_root.appendChild(_e1597);const _e1598=WF.el("a",{className:"wf-link",href:WF._basePath+"/docs/guide/recipes"},()=>WF.i18n.t("ch.08"));WF.activeLink(_e1598,"/docs/guide/recipes",false);_root.appendChild(_e1598);return _root;}
-WF.page("InterimRecipes",Page_InterimRecipes);

@@ -1,2 +1,0 @@
-function Page_WasDocsGuideSecurity(params){const _root=document.createDocumentFragment();const _e10054=WF.el("h1",{className:"wf-heading"},"Moved");_root.appendChild(_e10054);const _e10055=WF.el("a",{className:"wf-link",href:WF._basePath+"/about/security"},"Go on");WF.activeLink(_e10055,"/about/security",false);_root.appendChild(_e10055);return _root;}
-WF.page("WasDocsGuideSecurity",Page_WasDocsGuideSecurity,{title:"Moved"});

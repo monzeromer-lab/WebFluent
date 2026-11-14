@@ -1,2 +1,0 @@
-function Page_MovedDocsGuideInterop(params){const _root=document.createDocumentFragment();const _e10187=WF.el("h1",{className:"wf-heading"},()=>WF.i18n.t("nav.recipes"));_root.appendChild(_e10187);const _e10188=WF.el("a",{className:"wf-link",href:WF._basePath+"/recipes#interop"},()=>WF.i18n.t("nav.recipes"));WF.activeLink(_e10188,"/recipes#interop",false);_root.appendChild(_e10188);return _root;}
-WF.page("MovedDocsGuideInterop",Page_MovedDocsGuideInterop,{title:"Moved"});

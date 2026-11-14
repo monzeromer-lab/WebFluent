@@ -1,2 +1,0 @@
-function Page_BlueprintRecipe(params){const _root=document.createDocumentFragment();const _e968=Component_PreviewRecipe({});_root.appendChild(_e968);return _root;}
-WF.page("BlueprintRecipe",Page_BlueprintRecipe,{title:"T3 Recipe"});

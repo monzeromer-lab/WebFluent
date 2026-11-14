@@ -1,2 +1,0 @@
-function Page_BlueprintComingFromAr(params){const _root=document.createDocumentFragment();const _e975=Component_PreviewComingFrom({ar:true});_root.appendChild(_e975);return _root;}
-WF.page("BlueprintComingFromAr",Page_BlueprintComingFromAr,{title:"T6 قادم من",lang:"ar",dir:"rtl"});

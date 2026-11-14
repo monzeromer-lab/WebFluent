@@ -1,2 +1,0 @@
-function Page_WasDocsGuideTypes(params){const _root=document.createDocumentFragment();const _e10070=WF.el("h1",{className:"wf-heading"},"Moved");_root.appendChild(_e10070);const _e10071=WF.el("a",{className:"wf-link",href:WF._basePath+"/learn/12-types"},"Go on");WF.activeLink(_e10071,"/learn/12-types",false);_root.appendChild(_e10071);return _root;}
-WF.page("WasDocsGuideTypes",Page_WasDocsGuideTypes,{title:"Moved"});

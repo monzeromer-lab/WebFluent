@@ -1,2 +1,0 @@
-function Page_OldReferenceImageslide(params){const _root=document.createDocumentFragment();const _e1789=WF.el("h1",{className:"wf-heading"},"ImageSlide");_root.appendChild(_e1789);const _e1790=WF.el("a",{className:"wf-link",href:WF._basePath+"/reference/imageslide"},"ImageSlide");WF.activeLink(_e1790,"/reference/imageslide",false);_root.appendChild(_e1790);return _root;}
-WF.page("OldReferenceImageslide",Page_OldReferenceImageslide,{title:"ImageSlide"});

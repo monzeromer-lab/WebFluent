@@ -1,2 +1,0 @@
-function Page_OldOutputs(params){const _root=document.createDocumentFragment();const _e1691=WF.el("h1",{className:"wf-heading"},()=>WF.i18n.t("ch.17"));_root.appendChild(_e1691);const _e1692=WF.el("a",{className:"wf-link",href:WF._basePath+"/learn/17-pdf-and-slides"},()=>WF.i18n.t("ch.17"));WF.activeLink(_e1692,"/learn/17-pdf-and-slides",false);_root.appendChild(_e1692);return _root;}
-WF.page("OldOutputs",Page_OldOutputs,{title:"PDF and slides"});

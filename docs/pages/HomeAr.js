@@ -1,2 +1,0 @@
-function Page_HomeAr(params){const _root=document.createDocumentFragment();const _e1683=Component_HomeShell({other:"/",lang:"ar"});_root.appendChild(_e1683);return _root;}
-WF.page("HomeAr",Page_HomeAr,{title:"WebFluent — مواقع وملفات PDF وعروض شرائح من لغة واحدة",lang:"ar",dir:"rtl"});
