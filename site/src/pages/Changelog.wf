@@ -8,6 +8,7 @@ page Changelog(path: "/changelog", title: "Changelog — WebFluent", description
         style { flex-wrap: nowrap; gap: 0; @md { gap: 32px } @xl { gap: 48px } }
 
         VersionList(releases: [
+                ReleaseNotes(version: "6.1.1", id: "6.1.1"),
                 ReleaseNotes(version: "6.1.0", id: "6.1.0", date: "2026-11-14"),
                 ReleaseNotes(version: "6.0.0", id: "6.0.0", date: "2026-11-13"),
                 ReleaseNotes(version: "5.14.0", id: "5.14.0", date: "2026-11-12"),
@@ -72,6 +73,48 @@ page Changelog(path: "/changelog", title: "Changelog — WebFluent", description
                     Link("RELEASE_NOTES.md", href: "{REPO}/blob/master/RELEASE_NOTES.md")
                 }
             }
+
+            ReleaseEntry(ReleaseNotes(version: "6.1.1", id: "6.1.1", summary: #"Fixes to the built-ins, for keyboards, screen readers and right-to-left
+pages. Nothing a project writes changes."#, sections: [
+                NotesSection(title: #"Reached by every reader"#, id: "6.1.1-reached-by-every-reader", items: [
+                    Change(text: #"**A `Switch` can be reached from the keyboard and is heard as a switch.**
+Its input was `display: none`, which took the very element that says
+"switch" and "on" out of the Tab order and the accessibility tree. It is
+now laid unseen over the control, with a focus ring on the track."#),
+                    Change(text: #"**A `Sidebar` shut off a narrow page is out of the Tab order.** It was
+only slid aside, so Tab walked through links no one could see. It is
+hidden once it has slid out, and opening it from its toggle takes the
+focus to its first link."#),
+                    Change(text: #"**A press on a `Modal`'s or a `Dialog`'s backdrop closes it**, and its
+`visible:` state follows, as a press outside a popover or a menu
+already did. A press inside, or a selection dragged out of it, does not."#),
+                    Change(text: #"**A toast shown while a modal is open is seen and heard.** It was drawn
+under the modal, which also made it inert. The stack is now drawn in the
+top layer and moves into the open modal for as long as it is open."#),
+                    Change(text: #"**The first message is heard.** The live regions that toasts, route
+changes and form errors speak through were made on their first message,
+which a screen reader does not announce. They are made when the page
+loads. A form error is no longer said twice."#)
+                ]),
+                NotesSection(title: #"Right to left"#, id: "6.1.1-right-to-left", items: [
+                    Change(text: #"`Tabs`, menus and a `Splitter` follow the page's direction: in an Arabic
+page ArrowLeft moves to the next tab, opens a submenu, and widens the
+region before a splitter. A submenu opens to the left of its item, and a
+layer placed `.bottomStart` lines up with its anchor's right edge."#),
+                    Change(text: #"A `Carousel` moves to the next slide in the right direction, a `Switch`'s
+thumb slides the right way, and toasts come in from the page's end."#),
+                    Change(text: #"Arrow keys pressed with Alt, Ctrl or ⌘ are left to the browser, so
+Alt+ArrowLeft goes back from a tab strip or a menu."#)
+                ]),
+                NotesSection(title: #"Smaller fixes"#, id: "6.1.1-smaller-fixes", items: [
+                    Change(text: #"An async action's `pending` stays true until every call of it has ended;
+the first of two calls to end used to clear it while the second ran."#),
+                    Change(text: #"`show` with an exit animation no longer hides content that was shown
+again before the exit ended."#),
+                    Change(text: #"A `Splitter`'s handle reaches 24px, WCAG 2.2's least target, around its
+4px line."#)
+                ])
+            ], count: 11), latest: true)
 
             ReleaseEntry(ReleaseNotes(version: "6.1.0", id: "6.1.0", date: "2026-11-14", when: "14 November 2026", summary: #"A site sends much less: the runtime ships only the functions a program
 reaches, with short names, and only the styles and animations it draws
@@ -183,7 +226,7 @@ theme the config names that no file declares) or `R05` (a page and its
 translation both in the site's language: set `meta.lang`, or give the
 page `lang:`). A stylesheet that selects `main#wf-main` should select
 `#wf-main` when the program draws its own `main`."#)
-            ], count: 25), latest: true)
+            ], count: 25))
 
             ReleaseEntry(ReleaseNotes(version: "6.0.0", id: "6.0.0", date: "2026-11-13", when: "13 November 2026", summary: #"A page can be in a language of its own, the compiler holds up to anything
 it is given, and the Rust library has a smaller surface with typed errors.
@@ -3530,6 +3573,6 @@ flattened diagnostics, and the reason a theme failed to resolve."#),
             ], count: 15))
         }
 
-        OnThisPage(sections: [Anchor(id: "6.1.0-smaller", label: #"Smaller"#), Anchor(id: "6.1.0-additions", label: #"Additions"#), Anchor(id: "6.1.0-checks", label: #"Checks"#), Anchor(id: "6.1.0-fixes", label: #"Fixes"#), Anchor(id: "6.1.0-upgrading", label: #"Upgrading"#)], source: "RELEASE_NOTES.md")
+        OnThisPage(sections: [Anchor(id: "6.1.1-reached-by-every-reader", label: #"Reached by every reader"#), Anchor(id: "6.1.1-right-to-left", label: #"Right to left"#), Anchor(id: "6.1.1-smaller-fixes", label: #"Smaller fixes"#)], source: "RELEASE_NOTES.md")
     }
 }

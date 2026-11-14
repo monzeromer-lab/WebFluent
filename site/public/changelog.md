@@ -4,6 +4,52 @@
 
 The page: https://webfluent.monzeromer.dev/changelog
 
+Fixes to the built-ins, for keyboards, screen readers and right-to-left
+pages. Nothing a project writes changes.
+
+## Reached by every reader
+
+- **A `Switch` can be reached from the keyboard and is heard as a switch.**
+  Its input was `display: none`, which took the very element that says
+  "switch" and "on" out of the Tab order and the accessibility tree. It is
+  now laid unseen over the control, with a focus ring on the track.
+- **A `Sidebar` shut off a narrow page is out of the Tab order.** It was
+  only slid aside, so Tab walked through links no one could see. It is
+  hidden once it has slid out, and opening it from its toggle takes the
+  focus to its first link.
+- **A press on a `Modal`'s or a `Dialog`'s backdrop closes it**, and its
+  `visible:` state follows, as a press outside a popover or a menu
+  already did. A press inside, or a selection dragged out of it, does not.
+- **A toast shown while a modal is open is seen and heard.** It was drawn
+  under the modal, which also made it inert. The stack is now drawn in the
+  top layer and moves into the open modal for as long as it is open.
+- **The first message is heard.** The live regions that toasts, route
+  changes and form errors speak through were made on their first message,
+  which a screen reader does not announce. They are made when the page
+  loads. A form error is no longer said twice.
+
+## Right to left
+
+- `Tabs`, menus and a `Splitter` follow the page's direction: in an Arabic
+  page ArrowLeft moves to the next tab, opens a submenu, and widens the
+  region before a splitter. A submenu opens to the left of its item, and a
+  layer placed `.bottomStart` lines up with its anchor's right edge.
+- A `Carousel` moves to the next slide in the right direction, a `Switch`'s
+  thumb slides the right way, and toasts come in from the page's end.
+- Arrow keys pressed with Alt, Ctrl or ⌘ are left to the browser, so
+  Alt+ArrowLeft goes back from a tab strip or a menu.
+
+## Smaller fixes
+
+- An async action's `pending` stays true until every call of it has ended;
+  the first of two calls to end used to clear it while the second ran.
+- `show` with an exit animation no longer hides content that was shown
+  again before the exit ended.
+- A `Splitter`'s handle reaches 24px, WCAG 2.2's least target, around its
+  4px line.
+
+# WebFluent v6.1.0 Release Notes
+
 A site sends much less: the runtime ships only the functions a program
 reaches, with short names, and only the styles and animations it draws
 on. The compiler draws icons and the reader's theme before any script

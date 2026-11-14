@@ -1,5 +1,94 @@
 [
  {
+  "version": "6.1.1",
+  "id": "6.1.1",
+  "date": "",
+  "when": "",
+  "summary": "Fixes to the built-ins, for keyboards, screen readers and right-to-left\npages. Nothing a project writes changes.",
+  "sections": [
+   {
+    "title": "Reached by every reader",
+    "id": "6.1.1-reached-by-every-reader",
+    "intro": "",
+    "items": [
+     {
+      "text": "**A `Switch` can be reached from the keyboard and is heard as a switch.**\nIts input was `display: none`, which took the very element that says\n\"switch\" and \"on\" out of the Tab order and the accessibility tree. It is\nnow laid unseen over the control, with a focus ring on the track.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**A `Sidebar` shut off a narrow page is out of the Tab order.** It was\nonly slid aside, so Tab walked through links no one could see. It is\nhidden once it has slid out, and opening it from its toggle takes the\nfocus to its first link.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**A press on a `Modal`'s or a `Dialog`'s backdrop closes it**, and its\n`visible:` state follows, as a press outside a popover or a menu\nalready did. A press inside, or a selection dragged out of it, does not.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**A toast shown while a modal is open is seen and heard.** It was drawn\nunder the modal, which also made it inert. The stack is now drawn in the\ntop layer and moves into the open modal for as long as it is open.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**The first message is heard.** The live regions that toasts, route\nchanges and form errors speak through were made on their first message,\nwhich a screen reader does not announce. They are made when the page\nloads. A form error is no longer said twice.",
+      "points": [],
+      "after": ""
+     }
+    ],
+    "after": ""
+   },
+   {
+    "title": "Right to left",
+    "id": "6.1.1-right-to-left",
+    "intro": "",
+    "items": [
+     {
+      "text": "`Tabs`, menus and a `Splitter` follow the page's direction: in an Arabic\npage ArrowLeft moves to the next tab, opens a submenu, and widens the\nregion before a splitter. A submenu opens to the left of its item, and a\nlayer placed `.bottomStart` lines up with its anchor's right edge.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "A `Carousel` moves to the next slide in the right direction, a `Switch`'s\nthumb slides the right way, and toasts come in from the page's end.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "Arrow keys pressed with Alt, Ctrl or ⌘ are left to the browser, so\nAlt+ArrowLeft goes back from a tab strip or a menu.",
+      "points": [],
+      "after": ""
+     }
+    ],
+    "after": ""
+   },
+   {
+    "title": "Smaller fixes",
+    "id": "6.1.1-smaller-fixes",
+    "intro": "",
+    "items": [
+     {
+      "text": "An async action's `pending` stays true until every call of it has ended;\nthe first of two calls to end used to clear it while the second ran.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`show` with an exit animation no longer hides content that was shown\nagain before the exit ended.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "A `Splitter`'s handle reaches 24px, WCAG 2.2's least target, around its\n4px line.",
+      "points": [],
+      "after": ""
+     }
+    ],
+    "after": ""
+   }
+  ],
+  "count": 11
+ },
+ {
   "version": "6.1.0",
   "id": "6.1.0",
   "date": "2026-11-14",
