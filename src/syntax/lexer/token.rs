@@ -429,6 +429,22 @@ pub const ALL_COMPONENT_NAMES: &[&str] = &[
     "Code",
     "Blockquote",
     "Markdown",
+    // Content
+    "Callout",
+    "Kbd",
+    "EmptyState",
+    "Stat",
+    "CodeBlock",
+    "Chip",
+    "VisuallyHidden",
+    "CopyButton",
+    "ThemeToggle",
+    "LocaleSwitch",
+    "Accordion",
+    "Field",
+    "Fieldset",
+    "InputGroup",
+    "OnThisPage",
     // A node handed to somebody else's code, with a lifetime.
     "Host",
     // A custom element a script defines, by its tag.

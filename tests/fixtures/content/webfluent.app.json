@@ -1,0 +1,6 @@
+{
+  "name": "content",
+  "build": { "ssg": true, "csp": true },
+  "meta": { "lang": "en" },
+  "i18n": { "default_locale": "en", "locales": ["en", "ar"], "dir": "src/translations" }
+}

@@ -42,6 +42,7 @@ mod component_root;
 mod components_data;
 #[path = "config_edit.rs"]
 mod config_edit;
+mod content;
 #[path = "cookbook.rs"]
 mod cookbook;
 #[path = "derived_in_a_run.rs"]

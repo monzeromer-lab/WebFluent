@@ -199,6 +199,10 @@ impl JsCodegen {
             (Expr::NumberLiteral(n), _) => crate::base::text::number(*n),
             (Expr::BoolLiteral(b), _) => format!("{b}"),
             (Expr::Null, _) => "null".to_string(),
+            // The runtime, by the name only the compiler writes: what the
+            // built-ins drawn as others call (`mount: (n) =>
+            // __wf.copyButton(n, …)`). A program's own `WF` stays its own.
+            (Expr::Identifier(name), _) if name == "__wf" => "WF".to_string(),
             (Expr::Identifier(name), Cx::Page) => {
                 // The names the generated code uses for a route's
                 // parameters, a handler's event and a keyed loop's
@@ -459,6 +463,10 @@ impl JsCodegen {
                 let e = self.emit_expr_in(expr, cx);
                 match op {
                     UnaryOp::Not => format!("!{e}"),
+                    // `-(-0.02)` is not `--0.02`, which JavaScript reads as
+                    // a decrement and refuses: a value that starts with a
+                    // sign keeps its own parentheses.
+                    UnaryOp::Neg if e.starts_with(['-', '+']) => format!("-({e})"),
                     UnaryOp::Neg => format!("-{e}"),
                 }
             }

@@ -444,11 +444,17 @@ impl JsCodegen {
         ui: &UIElement,
         parent: &str,
     ) {
-        let class = format!(
-            "wf-{}__{}",
-            parent_name.to_lowercase(),
-            camel_to_kebab(sub_name)
-        );
+        // A part the registry says is drawn as a tag and a class of its own
+        // (`Callout.Title`), and whose positional is its text.
+        let declared = crate::registry::declared_part(parent_name, sub_name);
+        let class = match declared {
+            Some(sig) => sig.class.to_string(),
+            None => format!(
+                "wf-{}__{}",
+                parent_name.to_lowercase(),
+                camel_to_kebab(sub_name)
+            ),
+        };
         // A part with a `to:` is a link — a `Sidebar.Item` or a
         // `Breadcrumb.Item` reached through a `for` or an `if`, which
         // the owner's own emitter does not see. It used to become a
@@ -459,6 +465,7 @@ impl JsCodegen {
         });
         let tag = match (parent_name, sub_name, &to) {
             (_, _, Some(_)) => "a",
+            _ if declared.is_some() => declared.map_or("div", |sig| sig.tag),
             ("Breadcrumb", "Item", None) => "span",
             (_, "Item", None) => "li",
             _ => "div",
@@ -490,6 +497,19 @@ impl JsCodegen {
                 if matches!(k.as_str(), "to" | "active") {
                     continue;
                 }
+                // What the shared tail below draws — a lifetime, a drag,
+                // motion — is not an attribute: `mount:` written as one was
+                // called with nothing, and threw.
+                if matches!(
+                    k.as_str(),
+                    "mount" | "update" | "cleanup" | "trapFocus" | "roving"
+                ) || DRAG_PROPS.contains(&k.as_str())
+                    || crate::registry::UNIVERSAL_PROPS
+                        .iter()
+                        .any(|p| p.name == k && p.sink == crate::registry::Sink::Special)
+                {
+                    continue;
+                }
                 let value = self.emit_expr(v);
                 let key = attr_key(k);
                 if self.is_reactive(&value) {
@@ -502,6 +522,19 @@ impl JsCodegen {
         if let Some(entry) = self.wf_node_entry(ui) {
             attrs.push(entry);
         }
+        // Its words come after its block, so an icon in the block comes
+        // first: `Callout.Title` is the icon, then the title.
+        let text = if declared.is_some() {
+            ui.args.iter().find_map(|a| match a {
+                Arg::Positional(e) => {
+                    let v = self.emit_expr(e);
+                    Some(self.live(&v))
+                }
+                Arg::Named(..) => None,
+            })
+        } else {
+            None
+        };
         self.emit_line(&format!(
             "const {} = WF.el(\"{}\", {{ {} }});",
             var,
@@ -517,6 +550,9 @@ impl JsCodegen {
         }
         for child in &ui.children {
             self.emit_statement_dom(child, var);
+        }
+        if let Some(text) = text {
+            self.emit_line(&format!("{var}.appendChild(WF.text({text}));"));
         }
         for handler in &ui.events {
             let body = self.emit_event_body(handler);

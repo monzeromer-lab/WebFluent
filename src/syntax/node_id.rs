@@ -419,7 +419,35 @@ fn walk_body<'a>(
     ctx: &Ctx,
     visit: &mut dyn FnMut(&'a UIElement, &str, &str, &Ctx),
 ) {
-    for (i, stmt) in stmts.iter().enumerate() {
+    let mut at = 0;
+    walk_seq(stmts, component, prefix, ctx, visit, &mut at);
+}
+
+/// An element the compiler wrote, not the author: what a built-in drawn as
+/// others is drawn as (`Callout.Title`, a `CopyButton` in a `CodeBlock`),
+/// which has no place in the source. It has no id of its own, and what the
+/// author wrote that it holds keeps the place it had.
+pub fn is_written_by_compiler(ui: &UIElement) -> bool {
+    ui.span.start == 0 && ui.span.end == 0
+}
+
+fn walk_seq<'a>(
+    stmts: &'a [Statement],
+    component: &str,
+    prefix: Option<&str>,
+    ctx: &Ctx,
+    visit: &mut dyn FnMut(&'a UIElement, &str, &str, &Ctx),
+    at: &mut usize,
+) {
+    for stmt in stmts {
+        if let StatementKind::UIElement(ui) = &stmt.kind
+            && is_written_by_compiler(ui)
+        {
+            walk_seq(&ui.children, component, prefix, ctx, visit, at);
+            continue;
+        }
+        let i = *at;
+        *at += 1;
         let seg = match prefix {
             None => format!("{component}:{i}"),
             Some(p) => format!("{p}.{i}"),

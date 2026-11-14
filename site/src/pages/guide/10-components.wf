@@ -48,7 +48,7 @@ page Team(path: "/", title: "Team", description: "Three people, three cards.") {
 
         Callout("**Coming from React?** There is no `...rest` that forwards whatever the caller passed. A prop the component does not declare is an error (`C02`); `class:`, `aria-*`, `data-*` and a few others go to the root element (see [What a call puts on the root element](#what-a-call-puts-on-the-root-element)). See [Coming from React](/coming-from/react).", kind: .note)
 
-        Markdown("A prop that reads the caller's state stays live inside the component: a `Chip(pressed: isOn)` repaints when `isOn` changes. You do not need to pass a callback or re-render anything yourself.\n\nThe checker holds every call to the declaration. Leaving out a prop that has no default is `C01`; passing a prop the component does not declare is `C02`; a second positional argument is `E113`. A positional argument to a component whose first prop is not marked `_` is bound to that first prop, with a `C06` warning asking you to add the `_`.")
+        Markdown("A prop that reads the caller's state stays live inside the component: a `Pill(pressed: isOn)` repaints when `isOn` changes. You do not need to pass a callback or re-render anything yourself.\n\nThe checker holds every call to the declaration. Leaving out a prop that has no default is `C01`; passing a prop the component does not declare is `C02`; a second positional argument is `E113`. A positional argument to a component whose first prop is not marked `_` is bound to that first prop, with a `C06` warning asking you to add the `_`.")
 
         Heading("Enum props", id: "enum-props").h2
 
@@ -254,15 +254,15 @@ page Shop(path: "/", title: "Shop", description: "Buttons that share one cart.")
 
         Heading("What a call puts on the root element", id: "what-a-call-puts-on-the-root-element").h2
 
-        Markdown("A component's *root element* is the one element its body draws at the top. Some of what you write on a call goes to that element rather than to a prop:\n\n- A DOM event handler: `Chip(\"x\") \{ on click \{ … \} \}` attaches to the root, so a styled button component is clickable wherever you place it.\n- `class:`, which is added to the root's own classes.\n- A `style \{ \}` block, which styles the root: `Tile(label: \"a\") \{ style \{ grid-column: 2 / span 2 \} \}` places that tile in its grid. Its rule's class joins the root's classes, as `class:` does.\n- An attribute the component takes no prop for: `aria-*`, `data-*`, `id`, `role`, `title` and `hidden`. You write it as you would on an element: `data-open: true` is `data-open=\"true\"`, and `false` writes no attribute, except for an ARIA state, which keeps `\"false\"`.\n- `mount:`, `update:` and `cleanup:` (see [Hand an element to a script](/recipes/hand-an-element-to-a-script)).\n- `drag:`, the `drop…:` props, `on receive`, `on dragmove`, `on longpress` and `on swipe`. These need one root element: on a component whose body is an `if`, a `for` or several elements they are `C07`.\n\nWhen the component declares a prop of that name, it receives the value instead and decides where it goes. Declare the prop when the root is not the right element for it. This `Chip` takes the class and the description as props and puts them on its `Badge`:")
+        Markdown("A component's *root element* is the one element its body draws at the top. Some of what you write on a call goes to that element rather than to a prop:\n\n- A DOM event handler: `Pill(\"x\") \{ on click \{ … \} \}` attaches to the root, so a styled button component is clickable wherever you place it.\n- `class:`, which is added to the root's own classes.\n- A `style \{ \}` block, which styles the root: `Tile(label: \"a\") \{ style \{ grid-column: 2 / span 2 \} \}` places that tile in its grid. Its rule's class joins the root's classes, as `class:` does.\n- An attribute the component takes no prop for: `aria-*`, `data-*`, `id`, `role`, `title` and `hidden`. You write it as you would on an element: `data-open: true` is `data-open=\"true\"`, and `false` writes no attribute, except for an ARIA state, which keeps `\"false\"`.\n- `mount:`, `update:` and `cleanup:` (see [Hand an element to a script](/recipes/hand-an-element-to-a-script)).\n- `drag:`, the `drop…:` props, `on receive`, `on dragmove`, `on longpress` and `on swipe`. These need one root element: on a component whose body is an `if`, a `for` or several elements they are `C07`.\n\nWhen the component declares a prop of that name, it receives the value instead and decides where it goes. Declare the prop when the root is not the right element for it. This `Pill` takes the class and the description as props and puts them on its `Badge`:")
 
-        CodeBlock(#"component Chip(_ label: String, extra: String = "", note: String = "") {
+        CodeBlock(#"component Pill(_ label: String, extra: String = "", note: String = "") {
     Badge(label, class: extra, aria-description: note)
 }
 
-page Chips(path: "/", title: "Chips", description: "Styled by the caller.") {
-    Heading("Chips").h1
-    Chip("Beta", extra: "chip-beta", note: "Not finished yet") { on click { log("beta") } }
+page Pills(path: "/", title: "Pills", description: "Styled by the caller.") {
+    Heading("Pills").h1
+    Pill("Beta", extra: "chip-beta", note: "Not finished yet") { on click { log("beta") } }
 }"#, title: "wf")
 
         Markdown("The `on click` still goes to the root, which here is the `Badge`.")

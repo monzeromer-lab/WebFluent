@@ -32,7 +32,7 @@ declaration. This file uses all thirteen kinds:
 
 ```wf
 page Home(path: "/", title: "Home", description: "The front page.") { Heading("Welcome").h1 }
-component Chip(_ label: String, tone: Tone = .calm) { Badge(label) }
+component Pill(_ label: String, tone: Tone = .calm) { Badge(label) }
 store Cart { state items = []  derived count = items.length }
 theme Brand { color-primary: #0F766E  radius-md: 14px }
 app { Navbar { Text("Shop").heading }  Router }
@@ -43,7 +43,7 @@ const API = "/api/v1"
 data posts = "posts.json"
 image hero = "hero.jpg"
 animation Pulse { from { opacity: 1 } to { opacity: 0.5 } }
-test "chip shows its label" { Chip("Beta")  expect "Beta" }
+test "pill shows its label" { Pill("Beta")  expect "Beta" }
 ```
 
 Each keyword declares one kind of thing:
@@ -75,7 +75,7 @@ The [grammar](../reference/grammar.md) lists every keyword and where it may appe
 ### One program from many files
 
 All the files under `src/` merge into one program. A component declared in
-`components/Chip.wf` is usable from every page without an import. The
+`components/Pill.wf` is usable from every page without an import. The
 compiler reads `App.wf` (or `App.wfx`) first, then the other files in name
 order, so a build is the same on every machine.
 

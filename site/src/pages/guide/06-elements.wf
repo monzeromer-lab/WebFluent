@@ -244,15 +244,19 @@ page Learn06Elements(path: "/learn/06-elements", title: "Elements", description:
                 }
                 Table.Row {
                     Table.Cell("Navigation")
-                    Table.Cell { Markdown("`Navbar`, `Sidebar`, `Link`, `Tabs`, `Breadcrumb`, `Menu`") }
+                    Table.Cell { Markdown("`Navbar`, `Sidebar`, `Link`, `Tabs`, `Breadcrumb`, `Menu`, `OnThisPage`") }
                 }
                 Table.Row {
                     Table.Cell("Data display")
                     Table.Cell { Markdown("`Card`, `Table`, `List`, `Badge`, `Tag`, `Avatar`, `Tooltip`") }
                 }
                 Table.Row {
+                    Table.Cell("Content")
+                    Table.Cell { Markdown("`Callout`, `Kbd`, `EmptyState`, `Stat`, `CodeBlock`, `Chip`, `Accordion`, `VisuallyHidden` ([below](#content-a-note-a-key-a-figure))") }
+                }
+                Table.Row {
                     Table.Cell("Forms")
-                    Table.Cell { Markdown("`Form`, `Input`, `Textarea`, `Select`, `Checkbox`, `Radio`, `Switch`, `Slider`, `DatePicker`, `FileUpload` ([Forms](/learn/14-forms))") }
+                    Table.Cell { Markdown("`Form`, `Input`, `Textarea`, `Select`, `Checkbox`, `Radio`, `Switch`, `Slider`, `DatePicker`, `FileUpload`, `Field`, `Fieldset`, `InputGroup` ([Forms](/learn/14-forms))") }
                 }
                 Table.Row {
                     Table.Cell("Feedback")
@@ -260,7 +264,7 @@ page Learn06Elements(path: "/learn/06-elements", title: "Elements", description:
                 }
                 Table.Row {
                     Table.Cell("Actions")
-                    Table.Cell { Markdown("`Button`, `IconButton`, `ButtonGroup`, `Dropdown`") }
+                    Table.Cell { Markdown("`Button`, `IconButton`, `ButtonGroup`, `Dropdown`, `CopyButton`, `ThemeToggle`, `LocaleSwitch`") }
                 }
                 Table.Row {
                     Table.Cell("Media")
@@ -284,6 +288,34 @@ page Learn06Elements(path: "/learn/06-elements", title: "Elements", description:
                 }
             }
         }
+
+        Heading("Content: a note, a key, a figure", id: "content-a-note-a-key-a-figure").h3
+
+        Markdown("The content built-ins are the pieces a page of text and figures is made of. Each is drawn the same on the live page, in the static paint and in a PDF:")
+
+        CodeBlock(#"page Report(path: "/", title: "Report", description: "The month, at a glance.") {
+    state tags = ["Rust", "Go"]
+    Heading("Report").h1
+    Callout("Figures are for the month to date.").note
+    Row(gap: .lg) {
+        Stat("Revenue", value: 48210, format: .currency, change: 0.124)
+        Stat("Churn", value: 0.031, format: .percent, change: -0.02)
+    }
+    Text { Text("Search with ")  Kbd("mod+k") }
+    for tag in tags by tag {
+        Chip(tag).removable { on remove { tags = tags.filter(x => x != tag) } }
+    }
+    CodeBlock("wf build", language: "bash", title: "Terminal").copy
+    Accordion.single {
+        Accordion.Item("How is revenue counted?") { Text("Paid invoices, by the day they were paid.") }
+        Accordion.Item("When does the month end?") { Text("At midnight UTC on its last day.") }
+    }
+    if tags.length == 0 {
+        EmptyState(icon: "folder", title: "No tags", text: "Add one to group the report.")
+    }
+}"#, title: "wf")
+
+        Markdown("- **`Callout`** is a note set apart from the text, with its kind's icon and word: `.note`, `.tip`, `.important`, `.warning`, `.caution`, or a `title:` of its own.\n- **`Stat`** says which way a figure moved, to a screen reader as well (\"Up 12.4%\").\n- **`Kbd`** writes a key combination as this system does: `⌘K` on a Mac, `Ctrl+K` elsewhere.\n- **`Chip`** can be pressed (`selected:`, a toggle button) and removed (`.removable`, its button named `Remove Rust`, firing `on remove`).\n- **`CodeBlock`** adds a bar with the file name and a copy button, and `.lines` numbers the lines.\n- **`Accordion`** is native `<details>`; `.single` keeps one open at a time.\n- **`VisuallyHidden`** is words only a screen reader hears.")
 
         Heading("What an element renders", id: "what-an-element-renders").h2
 

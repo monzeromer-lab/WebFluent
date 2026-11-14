@@ -1937,7 +1937,7 @@ declaration. This file uses all thirteen kinds:
 
 ```wf
 page Home(path: "/", title: "Home", description: "The front page.") { Heading("Welcome").h1 }
-component Chip(_ label: String, tone: Tone = .calm) { Badge(label) }
+component Pill(_ label: String, tone: Tone = .calm) { Badge(label) }
 store Cart { state items = []  derived count = items.length }
 theme Brand { color-primary: #0F766E  radius-md: 14px }
 app { Navbar { Text("Shop").heading }  Router }
@@ -1948,7 +1948,7 @@ const API = "/api/v1"
 data posts = "posts.json"
 image hero = "hero.jpg"
 animation Pulse { from { opacity: 1 } to { opacity: 0.5 } }
-test "chip shows its label" { Chip("Beta")  expect "Beta" }
+test "pill shows its label" { Pill("Beta")  expect "Beta" }
 ```
 
 Each keyword declares one kind of thing:
@@ -1980,7 +1980,7 @@ The [grammar](/reference/grammar) lists every keyword and where it may appear.
 ### One program from many files
 
 All the files under `src/` merge into one program. A component declared in
-`components/Chip.wf` is usable from every page without an import. The
+`components/Pill.wf` is usable from every page without an import. The
 compiler reads `App.wf` (or `App.wfx`) first, then the other files in name
 order, so a build is the same on every machine.
 
@@ -3049,16 +3049,61 @@ The built-ins fall into these families:
 | Family | Elements |
 |---|---|
 | Layout | `Container`, `Row`, `Column`, `Grid`, `Stack`, `Spacer`, `Divider`, `Header`, `Section`, `Footer`, `VirtualList`, `Splitter` |
-| Navigation | `Navbar`, `Sidebar`, `Link`, `Tabs`, `Breadcrumb`, `Menu` |
+| Navigation | `Navbar`, `Sidebar`, `Link`, `Tabs`, `Breadcrumb`, `Menu`, `OnThisPage` |
 | Data display | `Card`, `Table`, `List`, `Badge`, `Tag`, `Avatar`, `Tooltip` |
-| Forms | `Form`, `Input`, `Textarea`, `Select`, `Checkbox`, `Radio`, `Switch`, `Slider`, `DatePicker`, `FileUpload` ([Forms](/learn/14-forms)) |
+| Content | `Callout`, `Kbd`, `EmptyState`, `Stat`, `CodeBlock`, `Chip`, `Accordion`, `VisuallyHidden` ([below](#content-a-note-a-key-a-figure)) |
+| Forms | `Form`, `Input`, `Textarea`, `Select`, `Checkbox`, `Radio`, `Switch`, `Slider`, `DatePicker`, `FileUpload`, `Field`, `Fieldset`, `InputGroup` ([Forms](/learn/14-forms)) |
 | Feedback | `Alert`, `Toast`, `Modal`, `Dialog`, `Popover`, `Spinner`, `Progress`, `Skeleton` ([Events](/learn/08-events#overlays-modals-dialogs-toasts-and-menus)) |
-| Actions | `Button`, `IconButton`, `ButtonGroup`, `Dropdown` |
+| Actions | `Button`, `IconButton`, `ButtonGroup`, `Dropdown`, `CopyButton`, `ThemeToggle`, `LocaleSwitch` |
 | Media | `Image`, `Video`, `Audio`, `Frame`, `Icon`, `Carousel` ([Add a picture](/recipes/add-a-picture), [Video and audio](/recipes/video-and-audio)) |
 | Typography | `Text`, `Heading`, `Paragraph`, `Code`, `Blockquote`, `Markdown`, `Unsafe.Html` |
 | Somebody else's code | `Host`, `Element`, `Portal` ([Call your own JavaScript](/recipes/call-your-own-script), [Hand an element to a script](/recipes/hand-an-element-to-a-script)) |
 | Documents and decks | `Document`, `PageBreak`, `TableOfContents`, `Background`, `Watermark`, `Chart`, `QrCode`, `Presentation`, `Slide`, `TitleSlide`, `SectionSlide`, `TwoColumn`, `ImageSlide` ([PDF and slides](/learn/17-pdf-and-slides)) |
 | Routing | `Router` ([Pages](/learn/05-pages-and-routing#the-app-shell)) |
+
+### Content: a note, a key, a figure
+
+The content built-ins are the pieces a page of text and figures is made
+of. Each is drawn the same on the live page, in the static paint and in a
+PDF:
+
+```wf
+page Report(path: "/", title: "Report", description: "The month, at a glance.") {
+    state tags = ["Rust", "Go"]
+    Heading("Report").h1
+    Callout("Figures are for the month to date.").note
+    Row(gap: .lg) {
+        Stat("Revenue", value: 48210, format: .currency, change: 0.124)
+        Stat("Churn", value: 0.031, format: .percent, change: -0.02)
+    }
+    Text { Text("Search with ")  Kbd("mod+k") }
+    for tag in tags by tag {
+        Chip(tag).removable { on remove { tags = tags.filter(x => x != tag) } }
+    }
+    CodeBlock("wf build", language: "bash", title: "Terminal").copy
+    Accordion.single {
+        Accordion.Item("How is revenue counted?") { Text("Paid invoices, by the day they were paid.") }
+        Accordion.Item("When does the month end?") { Text("At midnight UTC on its last day.") }
+    }
+    if tags.length == 0 {
+        EmptyState(icon: "folder", title: "No tags", text: "Add one to group the report.")
+    }
+}
+```
+
+- **`Callout`** is a note set apart from the text, with its kind's icon
+  and word: `.note`, `.tip`, `.important`, `.warning`, `.caution`, or a
+  `title:` of its own.
+- **`Stat`** says which way a figure moved, to a screen reader as well
+  ("Up 12.4%").
+- **`Kbd`** writes a key combination as this system does: `⌘K` on a Mac,
+  `Ctrl+K` elsewhere.
+- **`Chip`** can be pressed (`selected:`, a toggle button) and removed
+  (`.removable`, its button named `Remove Rust`, firing `on remove`).
+- **`CodeBlock`** adds a bar with the file name and a copy button, and
+  `.lines` numbers the lines.
+- **`Accordion`** is native `<details>`; `.single` keeps one open at a time.
+- **`VisuallyHidden`** is words only a screen reader hears.
 
 ## What an element renders
 
@@ -4744,7 +4789,7 @@ The rules for props:
 > See [Coming from React](/coming-from/react).
 
 A prop that reads the caller's state stays live inside the component: a
-`Chip(pressed: isOn)` repaints when `isOn` changes. You do not need to pass
+`Pill(pressed: isOn)` repaints when `isOn` changes. You do not need to pass
 a callback or re-render anything yourself.
 
 The checker holds every call to the declaration. Leaving out a prop that
@@ -5030,7 +5075,7 @@ A component's *root element* is the one element its body draws at the top.
 Some of what you write on a call goes to that element rather than to a
 prop:
 
-- A DOM event handler: `Chip("x") { on click { … } }` attaches to the root,
+- A DOM event handler: `Pill("x") { on click { … } }` attaches to the root,
   so a styled button component is clickable wherever you place it.
 - `class:`, which is added to the root's own classes.
 - A `style { }` block, which styles the root: `Tile(label: "a") { style {
@@ -5048,17 +5093,17 @@ prop:
 
 When the component declares a prop of that name, it receives the value
 instead and decides where it goes. Declare the prop when the root is not
-the right element for it. This `Chip` takes the class and the description
+the right element for it. This `Pill` takes the class and the description
 as props and puts them on its `Badge`:
 
 ```wf
-component Chip(_ label: String, extra: String = "", note: String = "") {
+component Pill(_ label: String, extra: String = "", note: String = "") {
     Badge(label, class: extra, aria-description: note)
 }
 
-page Chips(path: "/", title: "Chips", description: "Styled by the caller.") {
-    Heading("Chips").h1
-    Chip("Beta", extra: "chip-beta", note: "Not finished yet") { on click { log("beta") } }
+page Pills(path: "/", title: "Pills", description: "Styled by the caller.") {
+    Heading("Pills").h1
+    Pill("Beta", extra: "chip-beta", note: "Not finished yet") { on click { log("beta") } }
 }
 ```
 

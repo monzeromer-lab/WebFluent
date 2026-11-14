@@ -486,7 +486,11 @@ pub fn render_test(
         header_span: test.span,
         body_span: test.span,
     }));
-    let mut program = crate::check::sema::lower(Program { declarations });
+    // The project's own component wins over a built-in of its name here as
+    // in a build: a starter's `ThemeToggle` is its own, not the built-in.
+    let mut program = Program { declarations };
+    crate::syntax::prefer_own_components(&mut program);
+    let mut program = crate::check::sema::lower(program);
     // Translated by its own words, as the build translates the page: the
     // default locale's table, its plural forms too, are what a test sees.
     if literals {
@@ -893,7 +897,9 @@ pub fn act(
     // compiled here rather than written back out as source: there is no
     // printer from the tree to the text, and a test does not need one — the
     // compiler takes the tree.
-    let mut program = crate::check::sema::lower(as_program(shared, test));
+    let mut program = as_program(shared, test);
+    crate::syntax::prefer_own_components(&mut program);
+    let mut program = crate::check::sema::lower(program);
     if site.i18n.is_some_and(|(i, _)| i.literals) {
         crate::project::i18n::literals::translate(&mut program);
     }

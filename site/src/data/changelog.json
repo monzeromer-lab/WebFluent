@@ -171,10 +171,98 @@
     "after": ""
    },
    {
+    "title": "Content built-ins",
+    "id": "6.2.0-content-built-ins",
+    "intro": "",
+    "items": [
+     {
+      "text": "`Callout(\"Run wf check first.\").tip` sets a note apart, as GitHub's\nalerts do: `.note`, `.tip`, `.important`, `.warning` or `.caution`, each\nwith its icon and word, or a `title:` of its own.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`Kbd(\"mod+k\")` is a key as this system writes it: `⌘K` on a Mac.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`EmptyState(icon:, title:, text:) { … }` is what a list shows with\nnothing in it, and what to do about it.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`Stat(\"Revenue\", value:, format: .currency, change: 0.124)` is a figure,\nits label and which way it moved, said to a screen reader too.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`CodeBlock(code, language:, title:).copy.lines` is a block of code with\nits file name, a copy button and line numbers.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`Chip(\"Rust\", icon:, selected:).removable` is a compact label that can be\npressed (a toggle button) and removed (`on remove`); `Tag` stays the one\nthat does neither.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`VisuallyHidden(\"(opens in a new tab)\")` is words for a screen reader\nonly.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`CopyButton(value: url)` copies, says `Copied` and announces it.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`ThemeToggle` switches light and dark; `LocaleSwitch` offers each of\n`i18n.locales` in its own language.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`Accordion.single { Accordion.Item(\"Shipping\") { … } }` is sections of\nnative `<details>`, one open at a time.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`Field(label:, hint:, error:) { control }` names and describes a control\nof your own; `Fieldset(legend:)` groups controls under a legend.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`InputGroup { Icon(\"search\")  Input(…)  InputGroup.Clear }` draws an\ninput and what goes beside it as one box.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`OnThisPage(levels: 2)` lists the page's headings, marking the one being\nread.",
+      "points": [],
+      "after": ""
+     }
+    ],
+    "after": "Each is drawn the same on the live page, in the static paint, by the\ntemplate engine and, where it can be, in a PDF."
+   },
+   {
     "title": "Fixes",
     "id": "6.2.0-fixes",
     "intro": "",
     "items": [
+     {
+      "text": "`-(x)` where `x` is negative compiled to `--x`, which a browser refuses,\nand the page did not run.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`format(v, .percent, 1)` wrote `2%` once the page ran where the static\npaint wrote `2.0%`; both write the places asked for.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "A part's `mount:` was written as an attribute and called with nothing.",
+      "points": [],
+      "after": ""
+     },
      {
       "text": "`wf check` knows an `image`'s fields: `hero.width`, `.height`, `.color`\nand the rest were a `T05` there, though `wf build` read them.",
       "points": [],
@@ -298,7 +386,7 @@
     "after": ""
    }
   ],
-  "count": 44
+  "count": 60
  },
  {
   "version": "6.1.0",

@@ -33,8 +33,12 @@
       }
       case "currency":
         return new Intl.NumberFormat(locale, { style: "currency", currency: option || "USD" }).format(Number(value));
-      case "percent":
-        return new Intl.NumberFormat(locale, { style: "percent", maximumFractionDigits: option == null ? 0 : Number(option) }).format(Number(value));
+      // That many places, always, as the build writes it: `2.0%` stays
+      // `2.0%` when the page takes the static paint over.
+      case "percent": {
+        const places = option == null ? 0 : Number(option);
+        return new Intl.NumberFormat(locale, { style: "percent", minimumFractionDigits: places, maximumFractionDigits: places }).format(Number(value));
+      }
       case "compact":
         return new Intl.NumberFormat(locale, { notation: "compact" }).format(Number(value));
       case "date":

@@ -13,6 +13,7 @@
 //! `lower` is idempotent, and a no-op on a program the original grammar
 //! produced.
 
+mod expand;
 pub(crate) mod script;
 pub mod types;
 
@@ -1104,6 +1105,18 @@ pub fn lower(mut program: Program) -> Program {
         })
         .flatten()
         .collect();
+    // The built-ins drawn as others (`Callout`, `Stat`, `CopyButton`), in
+    // what they are drawn as, before the rest of the lowering reads them.
+    let mut expanded = 0;
+    for decl in &mut program.declarations {
+        let body = match decl {
+            Declaration::Page(p) => &mut p.body,
+            Declaration::Component(c) => &mut c.body,
+            Declaration::App(a) => &mut a.body,
+            _ => continue,
+        };
+        expand::expand(body, &mut expanded);
+    }
     for decl in &mut program.declarations {
         if let Declaration::Component(c) = decl {
             mark_enum_props(c, &enum_names, &payload_enums);
@@ -2230,7 +2243,7 @@ mod tests {
 
     #[test]
     fn user_component_flags_become_props_and_motion_lifts_to_the_branch() {
-        let src = "enum Tone { calm, loud }\ncomponent Chip(_ label: String, tone: Tone = .calm, removable: Bool = false) { Text(label) }\npage P(path: \"/\") { if open { Chip(\"x\", exit: .fadeOut, stagger: \"50ms\").loud.removable.fadeIn } }";
+        let src = "enum Tone { calm, loud }\ncomponent Pill(_ label: String, tone: Tone = .calm, removable: Bool = false) { Text(label) }\npage P(path: \"/\") { if open { Pill(\"x\", exit: .fadeOut, stagger: \"50ms\").loud.removable.fadeIn } }";
         let p = lowered(src);
         let Declaration::Page(page) = &p.declarations[2] else {
             panic!()

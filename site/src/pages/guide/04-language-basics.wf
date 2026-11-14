@@ -9,7 +9,7 @@ page Learn04LanguageBasics(path: "/learn/04-language-basics", title: "Language b
         Markdown("A `.wf` file holds top-level declarations and nothing else. You cannot put an element or a statement loose in a file; it belongs in the body of a declaration. This file uses all thirteen kinds:")
 
         CodeBlock(#"page Home(path: "/", title: "Home", description: "The front page.") { Heading("Welcome").h1 }
-component Chip(_ label: String, tone: Tone = .calm) { Badge(label) }
+component Pill(_ label: String, tone: Tone = .calm) { Badge(label) }
 store Cart { state items = []  derived count = items.length }
 theme Brand { color-primary: #0F766E  radius-md: 14px }
 app { Navbar { Text("Shop").heading }  Router }
@@ -20,7 +20,7 @@ const API = "/api/v1"
 data posts = "posts.json"
 image hero = "hero.jpg"
 animation Pulse { from { opacity: 1 } to { opacity: 0.5 } }
-test "chip shows its label" { Chip("Beta")  expect "Beta" }"#, title: "wf")
+test "pill shows its label" { Pill("Beta")  expect "Beta" }"#, title: "wf")
 
         Markdown("Each keyword declares one kind of thing:")
 
@@ -100,7 +100,7 @@ test "chip shows its label" { Chip("Beta")  expect "Beta" }"#, title: "wf")
 
         Heading("One program from many files", id: "one-program-from-many-files").h3
 
-        Markdown("All the files under `src/` merge into one program. A component declared in `components/Chip.wf` is usable from every page without an import. The compiler reads `App.wf` (or `App.wfx`) first, then the other files in name order, so a build is the same on every machine.")
+        Markdown("All the files under `src/` merge into one program. A component declared in `components/Pill.wf` is usable from every page without an import. The compiler reads `App.wf` (or `App.wfx`) first, then the other files in name order, so a build is the same on every machine.")
 
         Callout("**Coming from React?** There is no `import` or `export` between `.wf` files. A component, a store or a type declared in any file under `src/` is in scope in every other one. See [Coming from React](/coming-from/react).", kind: .note)
 

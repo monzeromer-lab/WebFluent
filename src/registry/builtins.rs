@@ -2039,6 +2039,315 @@ pub const COMPONENTS: &[ComponentSig] = &[
     .html("div", "wf-skeleton")
     .css(&["Skeleton", "Animation Keyframes", "Animation Utility Classes", "Hover Replay"])
     .not_on_paper(NOT_ON_PAPER),
+    // ─── Content ──────────────────────────────────────────────────────────
+    comp(
+        "Callout",
+        "Content",
+        "A note set apart from the text around it — `.note`, `.tip`, `.important`, `.warning`, `.caution` — with an icon and a title, as GitHub's alerts are. Its text is the positional, or its block.",
+        Some(special("text", PropType::Str, "What it says")),
+        &[
+            variant(
+                "kind",
+                &[
+                    case("note", "", "Context worth having (the default)"),
+                    case("tip", "", "A way to do it better or sooner"),
+                    case("important", "", "Something to know before going on"),
+                    case("warning", "", "A way to lose work or ship a bug"),
+                    case("caution", "", "A way to lose data or expose a secret"),
+                ],
+                "What kind of note it is",
+            ),
+            special("title", PropType::Str, "Its title; unset, the kind's word (`Tip`)"),
+        ],
+        &["Title"],
+        G,
+        Children::Elements,
+    )
+    .html("div", "wf-callout")
+    .css(&["Callout", "Icon"])
+    .on_paper(),
+    part(
+        "Callout",
+        "Title",
+        Ir::Sub("Callout", "Title"),
+        "Its title row: the icon and the words. Drawn for it; written by hand to draw something else there.",
+        None,
+        &[],
+        G,
+        Children::Elements,
+    )
+    .html("p", "wf-callout__title"),
+    comp(
+        "Kbd",
+        "Content",
+        "A key or a combination, written as this system writes it: `Kbd(\"mod+k\")` is `⌘K` on a Mac and `Ctrl+K` elsewhere.",
+        Some(required(special("keys", PropType::Str, "The combination, as `on key` names it: `mod+k`, `shift+Enter`"))),
+        &[],
+        &[],
+        G,
+        Children::None,
+    )
+    .html("kbd", "wf-kbd")
+    .css(&["Kbd"])
+    .on_paper(),
+    comp(
+        "EmptyState",
+        "Content",
+        "What a list or a page shows when it has nothing yet: an icon, a title, a sentence and, in its block, what to do about it.",
+        None,
+        &[
+            special("icon", PropType::Str, "An icon's name, drawn large above the title"),
+            required(special("title", PropType::Str, "What is missing: `No projects yet`")),
+            special("text", PropType::Str, "A sentence on what to do about it"),
+        ],
+        &["Title", "Text", "Actions"],
+        G,
+        Children::Elements,
+    )
+    .html("div", "wf-empty-state")
+    .css(&["Empty State", "Icon"])
+    .on_paper(),
+    part("EmptyState", "Title", Ir::Sub("EmptyState", "Title"), "Its title.", Some(special("text", PropType::Str, "The title")), &[], G, Children::None)
+        .html("p", "wf-empty-state__title"),
+    part("EmptyState", "Text", Ir::Sub("EmptyState", "Text"), "Its sentence.", Some(special("text", PropType::Str, "The sentence")), &[], G, Children::None)
+        .html("p", "wf-empty-state__text"),
+    part("EmptyState", "Actions", Ir::Sub("EmptyState", "Actions"), "What to do: the block it was given.", None, &[], G, Children::Elements)
+        .html("div", "wf-empty-state__actions"),
+    comp(
+        "Stat",
+        "Content",
+        "A figure with its label — revenue, sign-ups — and how it moved: `Stat(\"Revenue\", value: total, format: .currency, change: 0.124)`. `count:` counts to a new value.",
+        Some(required(special("label", PropType::Str, "What the figure is"))),
+        &[
+            required(special("value", PropType::Any, "The figure")),
+            special(
+                "format",
+                PropType::Enum(&[
+                    case("number", "", "As a number (the default)"),
+                    case("integer", "", "A whole number"),
+                    case("currency", "", "Money, in the page's currency"),
+                    case("percent", "", "A fraction as a percentage"),
+                    case("compact", "", "Short: 1.2K"),
+                ]),
+                "How the figure is written, as `format` writes it",
+            ),
+            special("change", PropType::Num, "How it moved, as a fraction: `0.124` is up 12.4%"),
+        ],
+        &["Label", "Value", "Change"],
+        G,
+        Children::Elements,
+    )
+    .html("div", "wf-stat")
+    .css(&["Stat"])
+    .on_paper(),
+    part("Stat", "Label", Ir::Sub("Stat", "Label"), "Its label.", Some(special("text", PropType::Str, "The label")), &[], G, Children::None)
+        .html("p", "wf-stat__label"),
+    part("Stat", "Value", Ir::Sub("Stat", "Value"), "Its figure.", Some(special("text", PropType::Any, "The figure")), &[], G, Children::None)
+        .html("p", "wf-stat__value"),
+    part("Stat", "Change", Ir::Sub("Stat", "Change"), "How it moved, with its direction.", Some(special("text", PropType::Str, "The change")), &[], G, Children::None)
+        .html("p", "wf-stat__change"),
+    comp(
+        "CodeBlock",
+        "Content",
+        "A block of code with a bar above it: a file name, a copy button (`.copy`), and line numbers (`.lines`). `language:` colours it, as on `Code`.",
+        Some(required(special("code", PropType::Str, "The code"))),
+        &[
+            special("language", PropType::Str, "Colours the code as this language: `wf`, `json`, `bash` or `css`"),
+            special("title", PropType::Str, "The file name or the language, in the bar"),
+            special("copy", PropType::Bool, "A button in the bar that copies the code"),
+            special("lines", PropType::Bool, "Line numbers beside it"),
+        ],
+        &["Bar", "Lines"],
+        G,
+        Children::None,
+    )
+    .html("div", "wf-code-block")
+    .css(&["Code Block", "Code", "Highlight", "Copy Button", "Button"])
+    .on_paper(),
+    part("CodeBlock", "Bar", Ir::Sub("CodeBlock", "Bar"), "The bar above the code.", None, &[], G, Children::Elements)
+        .html("div", "wf-code-block__bar"),
+    part("CodeBlock", "Lines", Ir::Sub("CodeBlock", "Lines"), "The line numbers.", Some(special("text", PropType::Str, "The numbers, a line each")), &[], G, Children::None)
+        .html("pre", "wf-code-block__lines"),
+    ComponentSig {
+        events: &["remove"],
+        ..comp(
+            "Chip",
+            "Content",
+            "A compact label — a filter, a tag, a person — that can carry an icon, be pressed (`selected:`, with `on click`), and be removed (`.removable`, with `on remove`). `Tag` is the one that does none of it.",
+            Some(required(special("label", PropType::Str, "Its words"))),
+            &[
+                special("icon", PropType::Str, "An icon before the words"),
+                special("selected", PropType::Bool, "Pressed: a filter that is on. Makes it a toggle button"),
+                special("removable", PropType::Bool, "A button that removes it, named `Remove {label}`, firing `on remove`"),
+            ],
+            &["Action", "Label", "Remove"],
+            G,
+            Children::None,
+        )
+    }
+    .html("span", "wf-chip")
+    .css(&["Chip", "Icon", "Icon Button"])
+    .on_paper(),
+    part("Chip", "Action", Ir::Sub("Chip", "Action"), "What pressing a chip presses: its icon and words, a toggle button when it can be `selected:`.", Some(special("text", PropType::Str, "Its words")), &[], G, Children::Elements)
+        .html("button", "wf-chip__action"),
+    part("Chip", "Label", Ir::Sub("Chip", "Label"), "Its icon and words, when pressing it does nothing.", Some(special("text", PropType::Str, "Its words")), &[], G, Children::Elements)
+        .html("span", "wf-chip__label"),
+    part("Chip", "Remove", Ir::Sub("Chip", "Remove"), "Its remove button.", None, &[], G, Children::Elements)
+        .html("button", "wf-chip__remove"),
+    comp(
+        "VisuallyHidden",
+        "Content",
+        "Words for a screen reader only: `Link(…) { Text(\"Docs\")  VisuallyHidden(\"(opens in a new tab)\") }`.",
+        Some(special("text", PropType::Str, "The words")),
+        &[],
+        &[],
+        G,
+        Children::Elements,
+    )
+    .html("span", "wf-visually-hidden")
+    .on_paper(),
+    comp(
+        "CopyButton",
+        "Actions",
+        "A button that copies `value:` to the clipboard, says `Copied` for a moment, and tells a screen reader so.",
+        Some(special("label", PropType::Str, "Its words; unset, `Copy`")),
+        &[
+            required(special("value", PropType::Any, "What it copies")),
+            special("copied", PropType::Str, "What it says once it has copied; unset, `Copied`"),
+        ],
+        &[],
+        G,
+        Children::None,
+    )
+    .html("button", "wf-btn wf-copy-button")
+    .css(&["Button", "Copy Button"])
+    .not_on_paper("interactive elements are not supported in PDF"),
+    comp(
+        "ThemeToggle",
+        "Actions",
+        "A button that switches the page between light and dark, over `setTheme`: a moon in a light page, a sun in a dark one, named for the theme it switches to. The reader's choice is kept.",
+        None,
+        &[],
+        &[],
+        G,
+        Children::None,
+    )
+    .html("button", "wf-icon-btn wf-theme-toggle")
+    .css(&["Icon Button", "Theme Toggle", "Icon"])
+    .not_on_paper("interactive elements are not supported in PDF"),
+    comp(
+        "LocaleSwitch",
+        "Actions",
+        "One button for each of `i18n.locales`, each written in its own language (`English`, `العربية`), the current one pressed; a press is `setLocale`.",
+        None,
+        &[special("label", PropType::Str, "The group's name for a screen reader; unset, `Language`")],
+        &[],
+        G,
+        Children::None,
+    )
+    .html("div", "wf-locale-switch")
+    .css(&["Button", "Locale Switch"])
+    .not_on_paper("interactive elements are not supported in PDF"),
+    comp(
+        "Accordion",
+        "Content",
+        "Sections a reader opens one by one, each a native `<details>`: `Accordion.Item(\"Shipping\") { … }`. `.single` keeps one open at a time.",
+        None,
+        &[special("single", PropType::Bool, "One open at a time: opening one closes the others")],
+        &["Item", "Summary", "Panel"],
+        G,
+        Children::Elements,
+    )
+    .html("div", "wf-accordion")
+    .css(&["Accordion"])
+    .on_paper(),
+    part(
+        "Accordion",
+        "Item",
+        Ir::Sub("Accordion", "Item"),
+        "One section: its title is what a reader presses, its block what opens.",
+        Some(required(special("title", PropType::Str, "What a reader presses"))),
+        &[
+            attr_flag("open", "Open when it is drawn"),
+            attr("name", PropType::Str, "Items of one name open one at a time: what `.single` writes"),
+        ],
+        G,
+        Children::Elements,
+    )
+    .html("details", "wf-accordion__item"),
+    part("Accordion", "Summary", Ir::Sub("Accordion", "Summary"), "What a reader presses to open an item: its title. Drawn for it.", Some(special("text", PropType::Str, "The title")), &[], G, Children::Elements)
+        .html("summary", "wf-accordion__summary"),
+    part("Accordion", "Panel", Ir::Sub("Accordion", "Panel"), "What opens: the item's block. Drawn for it.", None, &[], G, Children::Elements)
+        .html("div", "wf-accordion__panel"),
+    comp(
+        "Field",
+        "Form",
+        "A label, a hint and an error around a control of your own: the first control in its block is named by the label and described by the hint and the error, and marked invalid while there is one.",
+        None,
+        &[LABEL, HINT, ERROR],
+        &["Label", "Hint", "Error"],
+        G,
+        Children::Elements,
+    )
+    .html("div", "wf-field wf-field--custom")
+    .css(&["Input", "Field"])
+    .on_paper(),
+    part("Field", "Label", Ir::Sub("Field", "Label"), "Its label. Drawn for it.", Some(special("text", PropType::Str, "The label")), &[], G, Children::Elements)
+        .html("label", "wf-label"),
+    part("Field", "Hint", Ir::Sub("Field", "Hint"), "Its hint. Drawn for it.", Some(special("text", PropType::Str, "The hint")), &[], G, Children::Elements)
+        .html("p", "wf-field__hint"),
+    part("Field", "Error", Ir::Sub("Field", "Error"), "Its error, announced as it appears. Drawn for it.", Some(special("text", PropType::Str, "The error")), &[], G, Children::Elements)
+        .html("p", "wf-field__error"),
+    comp(
+        "Fieldset",
+        "Form",
+        "Controls that belong together — an address, a choice of plan — under a legend that names them.",
+        None,
+        &[required(special("legend", PropType::Str, "What the group is"))],
+        &["Legend"],
+        G,
+        Children::Elements,
+    )
+    .html("fieldset", "wf-fieldset")
+    .css(&["Field"])
+    .on_paper(),
+    part("Fieldset", "Legend", Ir::Sub("Fieldset", "Legend"), "Its legend. Drawn for it.", Some(special("text", PropType::Str, "The legend")), &[], G, Children::Elements)
+        .html("legend", "wf-fieldset__legend"),
+    comp(
+        "InputGroup",
+        "Form",
+        "An input drawn as one box with what goes beside it: an icon, `InputGroup.Addon(\"https://\")`, a button, or `InputGroup.Clear`, which empties the input and gives it the focus back.",
+        None,
+        &[],
+        &["Addon", "Clear"],
+        G,
+        Children::Elements,
+    )
+    .html("div", "wf-input-group")
+    .css(&["Input", "Input Group", "Icon"])
+    .on_paper(),
+    part("InputGroup", "Addon", Ir::Sub("InputGroup", "Addon"), "Text beside the input: `https://`, `.com`, `kg`.", Some(special("text", PropType::Str, "The text")), &[], G, Children::Elements)
+        .html("span", "wf-input-group__addon"),
+    part("InputGroup", "Clear", Ir::Sub("InputGroup", "Clear"), "A button that empties the input and puts the focus back in it; hidden while it is empty.", None, &[], G, Children::None)
+        .html("button", "wf-input-group__clear"),
+    comp(
+        "OnThisPage",
+        "Navigation",
+        "The page's headings as links, the one being read marked as the reader scrolls: a table of contents beside a long page.",
+        None,
+        &[
+            special("levels", PropType::Num, "How many levels below the title it lists: `2` is `h2` and `h3` (the default 1, `h2` alone)"),
+            special("label", PropType::Str, "Its title and name; unset, `On this page`"),
+        ],
+        &["Title"],
+        G,
+        Children::None,
+    )
+    .html("nav", "wf-on-this-page")
+    .css(&["On This Page"])
+    .not_on_paper("a PDF lists its headings with TableOfContents"),
+    part("OnThisPage", "Title", Ir::Sub("OnThisPage", "Title"), "Its title. Drawn for it.", Some(special("text", PropType::Str, "The title")), &[], G, Children::None)
+        .html("p", "wf-on-this-page__title"),
     // ─── Actions ──────────────────────────────────────────────────────────
     comp(
         "Button",

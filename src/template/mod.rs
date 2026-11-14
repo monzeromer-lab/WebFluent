@@ -1643,6 +1643,11 @@ fn render_ui_element(ui: &UIElement, ctx: &mut RenderContext<'_>) -> String {
 fn render_ui_element_unmarked(ui: &UIElement, ctx: &mut RenderContext<'_>) -> String {
     match &ui.component {
         ComponentRef::BuiltIn(name) => render_builtin(name, ui, ctx),
+        ComponentRef::SubComponent(parent, sub)
+            if let Some(sig) = crate::registry::declared_part(parent, sub) =>
+        {
+            crate::web::codegen::ssg::render_declared_part(sig, ui, ctx)
+        }
         ComponentRef::SubComponent(parent, sub) => {
             let class = format!("wf-{}__{}", parent.to_lowercase(), camel_to_kebab(sub));
             // A `to:` makes this a link; dropping it left a dead list item.

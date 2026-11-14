@@ -119,7 +119,10 @@
       if (String(locale()) !== want) setLocale(want, false);
     }
 
-    i18nInstance = { t, locale, dir, setLocale, pageLocale };
+    // The locales the site speaks, the default first: what a
+    // `LocaleSwitch` offers.
+    const codes = [defaultLocale, ...Object.keys(translations || {}).filter((c) => c !== defaultLocale)];
+    i18nInstance = { t, locale, dir, setLocale, pageLocale, codes };
     // `?lang=ar` opens the page in that locale, for a link someone shares.
     // It is not an `hreflang` alternate: the address's HTML is the default
     // locale's, so a search engine indexes pages of their own (`lang:`,

@@ -474,6 +474,13 @@ pub fn part(owner: &str, name: &str) -> Option<&'static ComponentSig> {
         .find(|c| c.owner == Some(owner) && c.name == name)
 }
 
+/// A part that says what it is drawn as — `Callout.Title` is a
+/// `<p class="wf-callout__title">` — where the code generators would
+/// otherwise make it a `div` (an `li` for an `Item`) named after its owner.
+pub fn declared_part(owner: &str, name: &str) -> Option<&'static ComponentSig> {
+    part(owner, name).filter(|p| !p.class.is_empty())
+}
+
 /// The component the compiler knows as `ir` — a built-in name, or an
 /// `owner.name` pair.
 pub fn by_ir(ir: Ir) -> Option<&'static ComponentSig> {

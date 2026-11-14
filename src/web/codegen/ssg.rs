@@ -1295,6 +1295,11 @@ fn substitute_expr(expr: &Expr, bindings: &HashMap<String, Expr>) -> Expr {
 fn render_ui_element(ui: &UIElement, ctx: &mut SsgContext) -> String {
     match &ui.component {
         ComponentRef::BuiltIn(name) => render_builtin(name, ui, ctx),
+        ComponentRef::SubComponent(parent, sub)
+            if let Some(sig) = crate::registry::declared_part(parent, sub) =>
+        {
+            render_declared_part(sig, ui, ctx)
+        }
         ComponentRef::SubComponent(parent, sub) => {
             // A part's flags are its classes too (`Menu.Item.danger` is
             // `wf-menu__item--danger`), as the live page writes them.
@@ -2919,6 +2924,57 @@ fn render_linked_item<C: Paint>(
     out.push_str(&ctx.statements(&ui.children));
     ctx.indent -= 1;
     out.push_str(&format!("{indent}</a>\n"));
+    out
+}
+
+/// A part the registry gives a tag and a class of its own: drawn as that,
+/// with its attributes and its positional text, by the static paint and the
+/// template engine alike.
+pub(crate) fn render_declared_part<C: Paint>(
+    sig: &'static crate::registry::ComponentSig,
+    ui: &UIElement,
+    ctx: &mut C,
+) -> String {
+    let indent = ctx.indent_str();
+    let wf = ctx.wf_node_attr_inline(ui);
+    let class = std::iter::once(class_list(sig.class, &ui.modifiers).join(" "))
+        .chain(extra_classes(ui, ctx))
+        .collect::<Vec<_>>()
+        .join(" ");
+    let attrs = painted_attrs(
+        Some(sig),
+        ui,
+        &|_| true,
+        &|e| painted(e, &ctx.scope),
+        &ctx.app_schemes,
+    );
+    let text = ui.args.iter().find_map(|a| match a {
+        Arg::Positional(e) => {
+            Some(resolve_text_scoped(e, &ctx.default_messages, &ctx.scope).unwrap_or_default())
+        }
+        Arg::Named(..) => None,
+    });
+    let tag = sig.tag;
+    let open = format!(
+        "{indent}<{tag} class=\"{}\"{attrs}{wf}>",
+        html_escape(&class)
+    );
+    if ui.children.is_empty() {
+        return format!(
+            "{open}{}</{tag}>\n",
+            text.map(|t| html_escape(&t)).unwrap_or_default()
+        );
+    }
+    // Its words after its block, as the live page draws them: an icon,
+    // then the title.
+    let mut out = format!("{open}\n");
+    ctx.indent += 1;
+    out.push_str(&ctx.statements(&ui.children));
+    ctx.indent -= 1;
+    if let Some(t) = text {
+        out.push_str(&format!("{indent}    {}\n", html_escape(&t)));
+    }
+    out.push_str(&format!("{indent}</{tag}>\n"));
     out
 }
 

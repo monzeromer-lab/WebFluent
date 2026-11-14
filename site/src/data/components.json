@@ -1,10 +1,11 @@
 {
- "count": 117,
+ "count": 154,
  "families": [
   "Layout",
   "Navigation",
   "Routing",
   "Data display",
+  "Content",
   "Form",
   "Feedback",
   "Actions",
@@ -2593,6 +2594,144 @@
    ]
   },
   {
+   "name": "OnThisPage",
+   "slug": "onthispage",
+   "family": "Navigation",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "The page's headings as links, the one being read marked as the reader scrolls: a table of contents beside a long page.",
+   "plain": "The page's headings as links, the one being read marked as the reader scrolls: a table of contents beside a long page.",
+   "signature": "OnThisPage(levels: Number, label: String)",
+   "block": false,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "levels:",
+     "type": "Number",
+     "meaning": "How many levels below the title it lists: `2` is `h2` and `h3` (the default 1, `h2` alone)"
+    },
+    {
+     "name": "label:",
+     "type": "String",
+     "meaning": "Its title and name; unset, `On this page`"
+    }
+   ],
+   "controls": [
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [],
+   "parts": [
+    {
+     "name": "OnThisPage.Title",
+     "kind": "onthispage-title",
+     "detail": "Its title. Drawn for it.",
+     "fallback": ""
+    }
+   ],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-on-this-page",
+   "example": "OnThisPage(levels: 2)",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "OnThisPage.Title",
+   "slug": "onthispage-title",
+   "family": "Navigation",
+   "owner": "OnThisPage",
+   "ownerSlug": "onthispage",
+   "summary": "Its title. Drawn for it.",
+   "plain": "Its title. Drawn for it.",
+   "signature": "OnThisPage.Title(_ text: String)",
+   "block": false,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "text",
+     "type": "String  (positional)",
+     "meaning": "The title"
+    }
+   ],
+   "controls": [
+    {
+     "name": "text",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "OnThisPage(levels: 2)",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
+   ]
+  },
+  {
    "name": "Router",
    "slug": "router",
    "family": "Routing",
@@ -4126,6 +4265,1785 @@
    ]
   },
   {
+   "name": "Callout",
+   "slug": "callout",
+   "family": "Content",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "A note set apart from the text around it — `.note`, `.tip`, `.important`, `.warning`, `.caution` — with an icon and a title, as GitHub's alerts are. Its text is the positional, or its block.",
+   "plain": "A note set apart from the text around it — .note, .tip, .important, .warning, .caution — with an icon and a title, as GitHub's alerts are. Its text is the positional, or its block.",
+   "signature": "Callout(_ text: String, kind: Enum, title: String) { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "text",
+     "type": "String  (positional)",
+     "meaning": "What it says"
+    },
+    {
+     "name": "kind:",
+     "type": ".note .tip .important .warning .caution",
+     "meaning": "What kind of note it is"
+    },
+    {
+     "name": "title:",
+     "type": "String",
+     "meaning": "Its title; unset, the kind's word (`Tip`)"
+    }
+   ],
+   "controls": [
+    {
+     "name": "text",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "kind",
+     "kind": "enum",
+     "options": [
+      "note",
+      "tip",
+      "important",
+      "warning",
+      "caution"
+     ],
+     "value": "note",
+     "sink": "class"
+    },
+    {
+     "name": "title",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [
+    ".note",
+    ".tip",
+    ".important",
+    ".warning",
+    ".caution"
+   ],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [
+    {
+     "name": "Callout.Title",
+     "kind": "callout-title",
+     "detail": "Its title row: the icon and the words. Drawn for it; written by hand to draw something else there.",
+     "fallback": ""
+    }
+   ],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-callout",
+   "example": "Callout(\"Run `wf check` before you push.\").tip\nCallout(\"Deleting a project deletes its builds too.\", title: \"Before you delete\").caution",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
+   ]
+  },
+  {
+   "name": "Callout.Title",
+   "slug": "callout-title",
+   "family": "Content",
+   "owner": "Callout",
+   "ownerSlug": "callout",
+   "summary": "Its title row: the icon and the words. Drawn for it; written by hand to draw something else there.",
+   "plain": "Its title row: the icon and the words. Drawn for it; written by hand to draw something else there.",
+   "signature": "Callout.Title { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [],
+   "controls": [],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "Callout(\"Run `wf check` before you push.\").tip\nCallout(\"Deleting a project deletes its builds too.\", title: \"Before you delete\").caution",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "Kbd",
+   "slug": "kbd",
+   "family": "Content",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "A key or a combination, written as this system writes it: `Kbd(\"mod+k\")` is `⌘K` on a Mac and `Ctrl+K` elsewhere.",
+   "plain": "A key or a combination, written as this system writes it: Kbd(\"mod+k\") is ⌘K on a Mac and Ctrl+K elsewhere.",
+   "signature": "Kbd(_ keys: String)",
+   "block": false,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "keys",
+     "type": "String  (positional)",
+     "meaning": "The combination, as `on key` names it: `mod+k`, `shift+Enter`"
+    }
+   ],
+   "controls": [
+    {
+     "name": "keys",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-kbd",
+   "example": "Text { Text(\"Press \")  Kbd(\"mod+k\")  Text(\" to search\") }",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
+   ]
+  },
+  {
+   "name": "EmptyState",
+   "slug": "emptystate",
+   "family": "Content",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "What a list or a page shows when it has nothing yet: an icon, a title, a sentence and, in its block, what to do about it.",
+   "plain": "What a list or a page shows when it has nothing yet: an icon, a title, a sentence and, in its block, what to do about it.",
+   "signature": "EmptyState(icon: String, title: String, text: String) { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "icon:",
+     "type": "String",
+     "meaning": "An icon's name, drawn large above the title"
+    },
+    {
+     "name": "title:",
+     "type": "String  (required)",
+     "meaning": "What is missing: `No projects yet`"
+    },
+    {
+     "name": "text:",
+     "type": "String",
+     "meaning": "A sentence on what to do about it"
+    }
+   ],
+   "controls": [
+    {
+     "name": "icon",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "title",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "text",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [
+    {
+     "name": "EmptyState.Title",
+     "kind": "emptystate-title",
+     "detail": "Its title.",
+     "fallback": ""
+    },
+    {
+     "name": "EmptyState.Text",
+     "kind": "emptystate-text",
+     "detail": "Its sentence.",
+     "fallback": ""
+    },
+    {
+     "name": "EmptyState.Actions",
+     "kind": "emptystate-actions",
+     "detail": "What to do: the block it was given.",
+     "fallback": ""
+    }
+   ],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-empty-state",
+   "example": "EmptyState(icon: \"folder\", title: \"No projects yet\", text: \"Create one to get started.\") {\n    Button(\"New project\").primary\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "EmptyState.Title",
+   "slug": "emptystate-title",
+   "family": "Content",
+   "owner": "EmptyState",
+   "ownerSlug": "emptystate",
+   "summary": "Its title.",
+   "plain": "Its title.",
+   "signature": "EmptyState.Title(_ text: String)",
+   "block": false,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "text",
+     "type": "String  (positional)",
+     "meaning": "The title"
+    }
+   ],
+   "controls": [
+    {
+     "name": "text",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "EmptyState(icon: \"folder\", title: \"No projects yet\", text: \"Create one to get started.\") {\n    Button(\"New project\").primary\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
+   ]
+  },
+  {
+   "name": "EmptyState.Text",
+   "slug": "emptystate-text",
+   "family": "Content",
+   "owner": "EmptyState",
+   "ownerSlug": "emptystate",
+   "summary": "Its sentence.",
+   "plain": "Its sentence.",
+   "signature": "EmptyState.Text(_ text: String)",
+   "block": false,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "text",
+     "type": "String  (positional)",
+     "meaning": "The sentence"
+    }
+   ],
+   "controls": [
+    {
+     "name": "text",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "EmptyState(icon: \"folder\", title: \"No projects yet\", text: \"Create one to get started.\") {\n    Button(\"New project\").primary\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
+   ]
+  },
+  {
+   "name": "EmptyState.Actions",
+   "slug": "emptystate-actions",
+   "family": "Content",
+   "owner": "EmptyState",
+   "ownerSlug": "emptystate",
+   "summary": "What to do: the block it was given.",
+   "plain": "What to do: the block it was given.",
+   "signature": "EmptyState.Actions { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [],
+   "controls": [],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "EmptyState(icon: \"folder\", title: \"No projects yet\", text: \"Create one to get started.\") {\n    Button(\"New project\").primary\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "Stat",
+   "slug": "stat",
+   "family": "Content",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "A figure with its label — revenue, sign-ups — and how it moved: `Stat(\"Revenue\", value: total, format: .currency, change: 0.124)`. `count:` counts to a new value.",
+   "plain": "A figure with its label — revenue, sign-ups — and how it moved: Stat(\"Revenue\", value: total, format: .currency, change: 0.124). count: counts to a new value.",
+   "signature": "Stat(_ label: String, value: Any, format: Enum, change: Number) { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "label",
+     "type": "String  (positional)",
+     "meaning": "What the figure is"
+    },
+    {
+     "name": "value:",
+     "type": "Any  (required)",
+     "meaning": "The figure"
+    },
+    {
+     "name": "format:",
+     "type": ".number .integer .currency .percent .compact",
+     "meaning": "How the figure is written, as `format` writes it"
+    },
+    {
+     "name": "change:",
+     "type": "Number",
+     "meaning": "How it moved, as a fraction: `0.124` is up 12.4%"
+    }
+   ],
+   "controls": [
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "format",
+     "kind": "enum",
+     "options": [
+      "number",
+      "integer",
+      "currency",
+      "percent",
+      "compact"
+     ],
+     "value": "number",
+     "sink": "special"
+    }
+   ],
+   "flags": [
+    ".number",
+    ".integer",
+    ".currency",
+    ".percent",
+    ".compact"
+   ],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [
+    {
+     "name": "Stat.Label",
+     "kind": "stat-label",
+     "detail": "Its label.",
+     "fallback": ""
+    },
+    {
+     "name": "Stat.Value",
+     "kind": "stat-value",
+     "detail": "Its figure.",
+     "fallback": ""
+    },
+    {
+     "name": "Stat.Change",
+     "kind": "stat-change",
+     "detail": "How it moved, with its direction.",
+     "fallback": ""
+    }
+   ],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-stat",
+   "example": "Stat(\"Revenue\", value: 48210, format: .currency, change: 0.124)\nStat(\"Churn\", value: 0.031, format: .percent, change: -0.02)",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
+   ]
+  },
+  {
+   "name": "Stat.Label",
+   "slug": "stat-label",
+   "family": "Content",
+   "owner": "Stat",
+   "ownerSlug": "stat",
+   "summary": "Its label.",
+   "plain": "Its label.",
+   "signature": "Stat.Label(_ text: String)",
+   "block": false,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "text",
+     "type": "String  (positional)",
+     "meaning": "The label"
+    }
+   ],
+   "controls": [
+    {
+     "name": "text",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "Stat(\"Revenue\", value: 48210, format: .currency, change: 0.124)\nStat(\"Churn\", value: 0.031, format: .percent, change: -0.02)",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
+   ]
+  },
+  {
+   "name": "Stat.Value",
+   "slug": "stat-value",
+   "family": "Content",
+   "owner": "Stat",
+   "ownerSlug": "stat",
+   "summary": "Its figure.",
+   "plain": "Its figure.",
+   "signature": "Stat.Value(_ text: Any)",
+   "block": false,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "text",
+     "type": "Any  (positional)",
+     "meaning": "The figure"
+    }
+   ],
+   "controls": [],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "Stat(\"Revenue\", value: 48210, format: .currency, change: 0.124)\nStat(\"Churn\", value: 0.031, format: .percent, change: -0.02)",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
+   ]
+  },
+  {
+   "name": "Stat.Change",
+   "slug": "stat-change",
+   "family": "Content",
+   "owner": "Stat",
+   "ownerSlug": "stat",
+   "summary": "How it moved, with its direction.",
+   "plain": "How it moved, with its direction.",
+   "signature": "Stat.Change(_ text: String)",
+   "block": false,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "text",
+     "type": "String  (positional)",
+     "meaning": "The change"
+    }
+   ],
+   "controls": [
+    {
+     "name": "text",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "Stat(\"Revenue\", value: 48210, format: .currency, change: 0.124)\nStat(\"Churn\", value: 0.031, format: .percent, change: -0.02)",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
+   ]
+  },
+  {
+   "name": "CodeBlock",
+   "slug": "codeblock",
+   "family": "Content",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "A block of code with a bar above it: a file name, a copy button (`.copy`), and line numbers (`.lines`). `language:` colours it, as on `Code`.",
+   "plain": "A block of code with a bar above it: a file name, a copy button (.copy), and line numbers (.lines). language: colours it, as on Code.",
+   "signature": "CodeBlock(_ code: String, language: String, title: String, copy: Bool, …)",
+   "block": false,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "code",
+     "type": "String  (positional)",
+     "meaning": "The code"
+    },
+    {
+     "name": "language:",
+     "type": "String",
+     "meaning": "Colours the code as this language: `wf`, `json`, `bash` or `css`"
+    },
+    {
+     "name": "title:",
+     "type": "String",
+     "meaning": "The file name or the language, in the bar"
+    },
+    {
+     "name": "copy:",
+     "type": "Bool",
+     "meaning": "A button in the bar that copies the code"
+    },
+    {
+     "name": "lines:",
+     "type": "Bool",
+     "meaning": "Line numbers beside it"
+    }
+   ],
+   "controls": [
+    {
+     "name": "code",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "language",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "title",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "copy",
+     "kind": "bool",
+     "options": [],
+     "value": "",
+     "sink": "special"
+    },
+    {
+     "name": "lines",
+     "kind": "bool",
+     "options": [],
+     "value": "",
+     "sink": "special"
+    }
+   ],
+   "flags": [
+    ".copy",
+    ".lines"
+   ],
+   "events": [],
+   "domEvents": [],
+   "slots": [],
+   "parts": [
+    {
+     "name": "CodeBlock.Bar",
+     "kind": "codeblock-bar",
+     "detail": "The bar above the code.",
+     "fallback": ""
+    },
+    {
+     "name": "CodeBlock.Lines",
+     "kind": "codeblock-lines",
+     "detail": "The line numbers.",
+     "fallback": ""
+    }
+   ],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-code-block",
+   "example": "CodeBlock(\"page Home(path: \\\"/\\\") {\\n    Text(\\\"Hello\\\")\\n}\", language: \"wf\", title: \"Home.wf\").copy.lines",
+   "preview": false,
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
+   ]
+  },
+  {
+   "name": "CodeBlock.Bar",
+   "slug": "codeblock-bar",
+   "family": "Content",
+   "owner": "CodeBlock",
+   "ownerSlug": "codeblock",
+   "summary": "The bar above the code.",
+   "plain": "The bar above the code.",
+   "signature": "CodeBlock.Bar { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [],
+   "controls": [],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "CodeBlock(\"page Home(path: \\\"/\\\") {\\n    Text(\\\"Hello\\\")\\n}\", language: \"wf\", title: \"Home.wf\").copy.lines",
+   "preview": false,
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "CodeBlock.Lines",
+   "slug": "codeblock-lines",
+   "family": "Content",
+   "owner": "CodeBlock",
+   "ownerSlug": "codeblock",
+   "summary": "The line numbers.",
+   "plain": "The line numbers.",
+   "signature": "CodeBlock.Lines(_ text: String)",
+   "block": false,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "text",
+     "type": "String  (positional)",
+     "meaning": "The numbers, a line each"
+    }
+   ],
+   "controls": [
+    {
+     "name": "text",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "CodeBlock(\"page Home(path: \\\"/\\\") {\\n    Text(\\\"Hello\\\")\\n}\", language: \"wf\", title: \"Home.wf\").copy.lines",
+   "preview": false,
+   "outputs": [],
+   "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
+   ]
+  },
+  {
+   "name": "Chip",
+   "slug": "chip",
+   "family": "Content",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "A compact label — a filter, a tag, a person — that can carry an icon, be pressed (`selected:`, with `on click`), and be removed (`.removable`, with `on remove`). `Tag` is the one that does none of it.",
+   "plain": "A compact label — a filter, a tag, a person — that can carry an icon, be pressed (selected:, with on click), and be removed (.removable, with on remove). Tag is the one that does none of it.",
+   "signature": "Chip(_ label: String, icon: String, selected: Bool, removable: Bool)",
+   "block": false,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "label",
+     "type": "String  (positional)",
+     "meaning": "Its words"
+    },
+    {
+     "name": "icon:",
+     "type": "String",
+     "meaning": "An icon before the words"
+    },
+    {
+     "name": "selected:",
+     "type": "Bool",
+     "meaning": "Pressed: a filter that is on. Makes it a toggle button"
+    },
+    {
+     "name": "removable:",
+     "type": "Bool",
+     "meaning": "A button that removes it, named `Remove {label}`, firing `on remove`"
+    }
+   ],
+   "controls": [
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "icon",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "selected",
+     "kind": "bool",
+     "options": [],
+     "value": "",
+     "sink": "special"
+    },
+    {
+     "name": "removable",
+     "kind": "bool",
+     "options": [],
+     "value": "",
+     "sink": "special"
+    }
+   ],
+   "flags": [
+    ".selected",
+    ".removable"
+   ],
+   "events": [
+    {
+     "name": "remove",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "domEvents": [],
+   "slots": [],
+   "parts": [
+    {
+     "name": "Chip.Action",
+     "kind": "chip-action",
+     "detail": "What pressing a chip presses: its icon and words, a toggle button when it can be selected:.",
+     "fallback": ""
+    },
+    {
+     "name": "Chip.Label",
+     "kind": "chip-label",
+     "detail": "Its icon and words, when pressing it does nothing.",
+     "fallback": ""
+    },
+    {
+     "name": "Chip.Remove",
+     "kind": "chip-remove",
+     "detail": "Its remove button.",
+     "fallback": ""
+    }
+   ],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-chip",
+   "example": "state open = false\nChip(\"Open only\", selected: open) { on click { open = !open } }\nChip(\"Rust\", icon: \"code\").removable { on remove { log(\"removed\") } }",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
+   ]
+  },
+  {
+   "name": "Chip.Action",
+   "slug": "chip-action",
+   "family": "Content",
+   "owner": "Chip",
+   "ownerSlug": "chip",
+   "summary": "What pressing a chip presses: its icon and words, a toggle button when it can be `selected:`.",
+   "plain": "What pressing a chip presses: its icon and words, a toggle button when it can be selected:.",
+   "signature": "Chip.Action(_ text: String) { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "text",
+     "type": "String  (positional)",
+     "meaning": "Its words"
+    }
+   ],
+   "controls": [
+    {
+     "name": "text",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "state open = false\nChip(\"Open only\", selected: open) { on click { open = !open } }\nChip(\"Rust\", icon: \"code\").removable { on remove { log(\"removed\") } }",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
+   ]
+  },
+  {
+   "name": "Chip.Label",
+   "slug": "chip-label",
+   "family": "Content",
+   "owner": "Chip",
+   "ownerSlug": "chip",
+   "summary": "Its icon and words, when pressing it does nothing.",
+   "plain": "Its icon and words, when pressing it does nothing.",
+   "signature": "Chip.Label(_ text: String) { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "text",
+     "type": "String  (positional)",
+     "meaning": "Its words"
+    }
+   ],
+   "controls": [
+    {
+     "name": "text",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "state open = false\nChip(\"Open only\", selected: open) { on click { open = !open } }\nChip(\"Rust\", icon: \"code\").removable { on remove { log(\"removed\") } }",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
+   ]
+  },
+  {
+   "name": "Chip.Remove",
+   "slug": "chip-remove",
+   "family": "Content",
+   "owner": "Chip",
+   "ownerSlug": "chip",
+   "summary": "Its remove button.",
+   "plain": "Its remove button.",
+   "signature": "Chip.Remove { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [],
+   "controls": [],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "state open = false\nChip(\"Open only\", selected: open) { on click { open = !open } }\nChip(\"Rust\", icon: \"code\").removable { on remove { log(\"removed\") } }",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "VisuallyHidden",
+   "slug": "visuallyhidden",
+   "family": "Content",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Words for a screen reader only: `Link(…) { Text(\"Docs\")  VisuallyHidden(\"(opens in a new tab)\") }`.",
+   "plain": "Words for a screen reader only: Link(…) { Text(\"Docs\")  VisuallyHidden(\"(opens in a new tab)\") }.",
+   "signature": "VisuallyHidden(_ text: String) { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "text",
+     "type": "String  (positional)",
+     "meaning": "The words"
+    }
+   ],
+   "controls": [
+    {
+     "name": "text",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-visually-hidden",
+   "example": "Link(to: \"/docs\") { Text(\"Docs\")  VisuallyHidden(\"(the reference)\") }",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
+   ]
+  },
+  {
+   "name": "Accordion",
+   "slug": "accordion",
+   "family": "Content",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Sections a reader opens one by one, each a native `<details>`: `Accordion.Item(\"Shipping\") { … }`. `.single` keeps one open at a time.",
+   "plain": "Sections a reader opens one by one, each a native <details>: Accordion.Item(\"Shipping\") { … }. .single keeps one open at a time.",
+   "signature": "Accordion(single: Bool) { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "single:",
+     "type": "Bool",
+     "meaning": "One open at a time: opening one closes the others"
+    }
+   ],
+   "controls": [
+    {
+     "name": "single",
+     "kind": "bool",
+     "options": [],
+     "value": "",
+     "sink": "special"
+    }
+   ],
+   "flags": [
+    ".single"
+   ],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [
+    {
+     "name": "Accordion.Item",
+     "kind": "accordion-item",
+     "detail": "One section: its title is what a reader presses, its block what opens.",
+     "fallback": ""
+    },
+    {
+     "name": "Accordion.Summary",
+     "kind": "accordion-summary",
+     "detail": "What a reader presses to open an item: its title. Drawn for it.",
+     "fallback": ""
+    },
+    {
+     "name": "Accordion.Panel",
+     "kind": "accordion-panel",
+     "detail": "What opens: the item's block. Drawn for it.",
+     "fallback": ""
+    }
+   ],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-accordion",
+   "example": "Accordion.single {\n    Accordion.Item(\"Shipping\") { Text(\"Two to four days.\") }\n    Accordion.Item(\"Returns\", open: true) { Text(\"Thirty days.\") }\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "Accordion.Item",
+   "slug": "accordion-item",
+   "family": "Content",
+   "owner": "Accordion",
+   "ownerSlug": "accordion",
+   "summary": "One section: its title is what a reader presses, its block what opens.",
+   "plain": "One section: its title is what a reader presses, its block what opens.",
+   "signature": "Accordion.Item(_ title: String, open: Bool, name: String) { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "title",
+     "type": "String  (positional)",
+     "meaning": "What a reader presses"
+    },
+    {
+     "name": "open:",
+     "type": "Bool",
+     "meaning": "Open when it is drawn"
+    },
+    {
+     "name": "name:",
+     "type": "String",
+     "meaning": "Items of one name open one at a time: what `.single` writes"
+    }
+   ],
+   "controls": [
+    {
+     "name": "title",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "open",
+     "kind": "bool",
+     "options": [],
+     "value": "",
+     "sink": "attribute"
+    },
+    {
+     "name": "name",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [
+    ".open"
+   ],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "Accordion.single {\n    Accordion.Item(\"Shipping\") { Text(\"Two to four days.\") }\n    Accordion.Item(\"Returns\", open: true) { Text(\"Thirty days.\") }\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
+   ]
+  },
+  {
+   "name": "Accordion.Summary",
+   "slug": "accordion-summary",
+   "family": "Content",
+   "owner": "Accordion",
+   "ownerSlug": "accordion",
+   "summary": "What a reader presses to open an item: its title. Drawn for it.",
+   "plain": "What a reader presses to open an item: its title. Drawn for it.",
+   "signature": "Accordion.Summary(_ text: String) { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "text",
+     "type": "String  (positional)",
+     "meaning": "The title"
+    }
+   ],
+   "controls": [
+    {
+     "name": "text",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "Accordion.single {\n    Accordion.Item(\"Shipping\") { Text(\"Two to four days.\") }\n    Accordion.Item(\"Returns\", open: true) { Text(\"Thirty days.\") }\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
+   ]
+  },
+  {
+   "name": "Accordion.Panel",
+   "slug": "accordion-panel",
+   "family": "Content",
+   "owner": "Accordion",
+   "ownerSlug": "accordion",
+   "summary": "What opens: the item's block. Drawn for it.",
+   "plain": "What opens: the item's block. Drawn for it.",
+   "signature": "Accordion.Panel { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [],
+   "controls": [],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "Accordion.single {\n    Accordion.Item(\"Shipping\") { Text(\"Two to four days.\") }\n    Accordion.Item(\"Returns\", open: true) { Text(\"Thirty days.\") }\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
    "name": "Input",
    "slug": "input",
    "family": "Form",
@@ -5594,6 +7512,669 @@
      "kind": "A04",
      "title": "A control with no label",
      "to": "/errors/A04"
+    }
+   ]
+  },
+  {
+   "name": "Field",
+   "slug": "field",
+   "family": "Form",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "A label, a hint and an error around a control of your own: the first control in its block is named by the label and described by the hint and the error, and marked invalid while there is one.",
+   "plain": "A label, a hint and an error around a control of your own: the first control in its block is named by the label and described by the hint and the error, and marked invalid while there is one.",
+   "signature": "Field(label: String, hint: String, error: String) { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "label:",
+     "type": "String",
+     "meaning": "Visible label; also the control's accessible name"
+    },
+    {
+     "name": "hint:",
+     "type": "String",
+     "meaning": "Help text under the control, linked to it by `aria-describedby`"
+    },
+    {
+     "name": "error:",
+     "type": "String",
+     "meaning": "Error text (a string; empty when there is none): announced as it appears and sets `aria-invalid`"
+    }
+   ],
+   "controls": [
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "hint",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "error",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [
+    {
+     "name": "Field.Label",
+     "kind": "field-label",
+     "detail": "Its label. Drawn for it.",
+     "fallback": ""
+    },
+    {
+     "name": "Field.Hint",
+     "kind": "field-hint",
+     "detail": "Its hint. Drawn for it.",
+     "fallback": ""
+    },
+    {
+     "name": "Field.Error",
+     "kind": "field-error",
+     "detail": "Its error, announced as it appears. Drawn for it.",
+     "fallback": ""
+    }
+   ],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-field wf-field--custom",
+   "example": "state plan = \"basic\"\nField(label: \"Plan\", hint: \"You can change it later.\") {\n    Select(bind: plan) { Select.Option(\"Basic\", value: \"basic\")  Select.Option(\"Pro\", value: \"pro\") }\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "Field.Label",
+   "slug": "field-label",
+   "family": "Form",
+   "owner": "Field",
+   "ownerSlug": "field",
+   "summary": "Its label. Drawn for it.",
+   "plain": "Its label. Drawn for it.",
+   "signature": "Field.Label(_ text: String) { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "text",
+     "type": "String  (positional)",
+     "meaning": "The label"
+    }
+   ],
+   "controls": [
+    {
+     "name": "text",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "state plan = \"basic\"\nField(label: \"Plan\", hint: \"You can change it later.\") {\n    Select(bind: plan) { Select.Option(\"Basic\", value: \"basic\")  Select.Option(\"Pro\", value: \"pro\") }\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
+   ]
+  },
+  {
+   "name": "Field.Hint",
+   "slug": "field-hint",
+   "family": "Form",
+   "owner": "Field",
+   "ownerSlug": "field",
+   "summary": "Its hint. Drawn for it.",
+   "plain": "Its hint. Drawn for it.",
+   "signature": "Field.Hint(_ text: String) { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "text",
+     "type": "String  (positional)",
+     "meaning": "The hint"
+    }
+   ],
+   "controls": [
+    {
+     "name": "text",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "state plan = \"basic\"\nField(label: \"Plan\", hint: \"You can change it later.\") {\n    Select(bind: plan) { Select.Option(\"Basic\", value: \"basic\")  Select.Option(\"Pro\", value: \"pro\") }\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
+   ]
+  },
+  {
+   "name": "Field.Error",
+   "slug": "field-error",
+   "family": "Form",
+   "owner": "Field",
+   "ownerSlug": "field",
+   "summary": "Its error, announced as it appears. Drawn for it.",
+   "plain": "Its error, announced as it appears. Drawn for it.",
+   "signature": "Field.Error(_ text: String) { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "text",
+     "type": "String  (positional)",
+     "meaning": "The error"
+    }
+   ],
+   "controls": [
+    {
+     "name": "text",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "state plan = \"basic\"\nField(label: \"Plan\", hint: \"You can change it later.\") {\n    Select(bind: plan) { Select.Option(\"Basic\", value: \"basic\")  Select.Option(\"Pro\", value: \"pro\") }\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
+   ]
+  },
+  {
+   "name": "Fieldset",
+   "slug": "fieldset",
+   "family": "Form",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Controls that belong together — an address, a choice of plan — under a legend that names them.",
+   "plain": "Controls that belong together — an address, a choice of plan — under a legend that names them.",
+   "signature": "Fieldset(legend: String) { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "legend:",
+     "type": "String  (required)",
+     "meaning": "What the group is"
+    }
+   ],
+   "controls": [
+    {
+     "name": "legend",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [
+    {
+     "name": "Fieldset.Legend",
+     "kind": "fieldset-legend",
+     "detail": "Its legend. Drawn for it.",
+     "fallback": ""
+    }
+   ],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-fieldset",
+   "example": "state street = \"\"\nstate city = \"\"\nFieldset(legend: \"Address\") {\n    Input(bind: street, label: \"Street\")\n    Input(bind: city, label: \"City\")\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "Fieldset.Legend",
+   "slug": "fieldset-legend",
+   "family": "Form",
+   "owner": "Fieldset",
+   "ownerSlug": "fieldset",
+   "summary": "Its legend. Drawn for it.",
+   "plain": "Its legend. Drawn for it.",
+   "signature": "Fieldset.Legend(_ text: String) { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "text",
+     "type": "String  (positional)",
+     "meaning": "The legend"
+    }
+   ],
+   "controls": [
+    {
+     "name": "text",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "state street = \"\"\nstate city = \"\"\nFieldset(legend: \"Address\") {\n    Input(bind: street, label: \"Street\")\n    Input(bind: city, label: \"City\")\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
+   ]
+  },
+  {
+   "name": "InputGroup",
+   "slug": "inputgroup",
+   "family": "Form",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "An input drawn as one box with what goes beside it: an icon, `InputGroup.Addon(\"https://\")`, a button, or `InputGroup.Clear`, which empties the input and gives it the focus back.",
+   "plain": "An input drawn as one box with what goes beside it: an icon, InputGroup.Addon(\"https://\"), a button, or InputGroup.Clear, which empties the input and gives it the focus back.",
+   "signature": "InputGroup { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [],
+   "controls": [],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [
+    {
+     "name": "InputGroup.Addon",
+     "kind": "inputgroup-addon",
+     "detail": "Text beside the input: https://, .com, kg.",
+     "fallback": ""
+    },
+    {
+     "name": "InputGroup.Clear",
+     "kind": "inputgroup-clear",
+     "detail": "A button that empties the input and puts the focus back in it; hidden while it is empty.",
+     "fallback": ""
+    }
+   ],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-input-group",
+   "example": "state q = \"\"\nInputGroup {\n    Icon(\"search\")\n    Input(bind: q, aria-label: \"Search\")\n    InputGroup.Clear\n}\nstate site = \"\"\nInputGroup { InputGroup.Addon(\"https://\")  Input(bind: site, aria-label: \"Site\") }",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "InputGroup.Addon",
+   "slug": "inputgroup-addon",
+   "family": "Form",
+   "owner": "InputGroup",
+   "ownerSlug": "inputgroup",
+   "summary": "Text beside the input: `https://`, `.com`, `kg`.",
+   "plain": "Text beside the input: https://, .com, kg.",
+   "signature": "InputGroup.Addon(_ text: String) { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "text",
+     "type": "String  (positional)",
+     "meaning": "The text"
+    }
+   ],
+   "controls": [
+    {
+     "name": "text",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "state q = \"\"\nInputGroup {\n    Icon(\"search\")\n    Input(bind: q, aria-label: \"Search\")\n    InputGroup.Clear\n}\nstate site = \"\"\nInputGroup { InputGroup.Addon(\"https://\")  Input(bind: site, aria-label: \"Site\") }",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
+   ]
+  },
+  {
+   "name": "InputGroup.Clear",
+   "slug": "inputgroup-clear",
+   "family": "Form",
+   "owner": "InputGroup",
+   "ownerSlug": "inputgroup",
+   "summary": "A button that empties the input and puts the focus back in it; hidden while it is empty.",
+   "plain": "A button that empties the input and puts the focus back in it; hidden while it is empty.",
+   "signature": "InputGroup.Clear",
+   "block": false,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [],
+   "controls": [],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "state q = \"\"\nInputGroup {\n    Icon(\"search\")\n    Input(bind: q, aria-label: \"Search\")\n    InputGroup.Clear\n}\nstate site = \"\"\nInputGroup { InputGroup.Addon(\"https://\")  Input(bind: site, aria-label: \"Site\") }",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
     }
    ]
   },
@@ -7155,6 +9736,193 @@
    "preview": true,
    "outputs": [],
    "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "CopyButton",
+   "slug": "copybutton",
+   "family": "Actions",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "A button that copies `value:` to the clipboard, says `Copied` for a moment, and tells a screen reader so.",
+   "plain": "A button that copies value: to the clipboard, says Copied for a moment, and tells a screen reader so.",
+   "signature": "CopyButton(_ label: String, value: Any, copied: String)",
+   "block": false,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "label",
+     "type": "String  (positional)",
+     "meaning": "Its words; unset, `Copy`"
+    },
+    {
+     "name": "value:",
+     "type": "Any  (required)",
+     "meaning": "What it copies"
+    },
+    {
+     "name": "copied:",
+     "type": "String",
+     "meaning": "What it says once it has copied; unset, `Copied`"
+    }
+   ],
+   "controls": [
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "copied",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-btn wf-copy-button",
+   "example": "CopyButton(value: \"https://example.com/invite/42\")\nCopyButton(\"Copy link\", value: \"https://example.com\", copied: \"Link copied\")",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
+   ]
+  },
+  {
+   "name": "ThemeToggle",
+   "slug": "themetoggle",
+   "family": "Actions",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "A button that switches the page between light and dark, over `setTheme`: a moon in a light page, a sun in a dark one, named for the theme it switches to. The reader's choice is kept.",
+   "plain": "A button that switches the page between light and dark, over setTheme: a moon in a light page, a sun in a dark one, named for the theme it switches to. The reader's choice is kept.",
+   "signature": "ThemeToggle",
+   "block": false,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [],
+   "controls": [],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-icon-btn wf-theme-toggle",
+   "example": "Row(gap: .sm) { ThemeToggle  LocaleSwitch }",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "LocaleSwitch",
+   "slug": "localeswitch",
+   "family": "Actions",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "One button for each of `i18n.locales`, each written in its own language (`English`, `العربية`), the current one pressed; a press is `setLocale`.",
+   "plain": "One button for each of i18n.locales, each written in its own language (English, العربية), the current one pressed; a press is setLocale.",
+   "signature": "LocaleSwitch(label: String)",
+   "block": false,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "label:",
+     "type": "String",
+     "meaning": "The group's name for a screen reader; unset, `Language`"
+    }
+   ],
+   "controls": [
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-locale-switch",
+   "example": "LocaleSwitch(label: \"Language\")",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
    "codes": [
     {
      "kind": "E103",

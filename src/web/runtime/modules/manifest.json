@@ -1024,6 +1024,40 @@
       "triggers": []
     },
     {
+      "deps": [
+        "theme",
+        "announce"
+      ],
+      "exports": [
+        [
+          "copyButton",
+          "copyButton"
+        ],
+        [
+          "themeToggle",
+          "themeToggle"
+        ],
+        [
+          "localeSwitch",
+          "localeSwitch"
+        ],
+        [
+          "fieldFor",
+          "fieldFor"
+        ],
+        [
+          "inputClear",
+          "inputClear"
+        ],
+        [
+          "onThisPage",
+          "onThisPage"
+        ]
+      ],
+      "name": "content",
+      "triggers": []
+    },
+    {
       "deps": [],
       "exports": [
         [

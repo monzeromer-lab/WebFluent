@@ -100,7 +100,7 @@ The rules for props:
 > See [Coming from React](../coming-from/react.md).
 
 A prop that reads the caller's state stays live inside the component: a
-`Chip(pressed: isOn)` repaints when `isOn` changes. You do not need to pass
+`Pill(pressed: isOn)` repaints when `isOn` changes. You do not need to pass
 a callback or re-render anything yourself.
 
 The checker holds every call to the declaration. Leaving out a prop that
@@ -386,7 +386,7 @@ A component's *root element* is the one element its body draws at the top.
 Some of what you write on a call goes to that element rather than to a
 prop:
 
-- A DOM event handler: `Chip("x") { on click { … } }` attaches to the root,
+- A DOM event handler: `Pill("x") { on click { … } }` attaches to the root,
   so a styled button component is clickable wherever you place it.
 - `class:`, which is added to the root's own classes.
 - A `style { }` block, which styles the root: `Tile(label: "a") { style {
@@ -404,17 +404,17 @@ prop:
 
 When the component declares a prop of that name, it receives the value
 instead and decides where it goes. Declare the prop when the root is not
-the right element for it. This `Chip` takes the class and the description
+the right element for it. This `Pill` takes the class and the description
 as props and puts them on its `Badge`:
 
 ```wf
-component Chip(_ label: String, extra: String = "", note: String = "") {
+component Pill(_ label: String, extra: String = "", note: String = "") {
     Badge(label, class: extra, aria-description: note)
 }
 
-page Chips(path: "/", title: "Chips", description: "Styled by the caller.") {
-    Heading("Chips").h1
-    Chip("Beta", extra: "chip-beta", note: "Not finished yet") { on click { log("beta") } }
+page Pills(path: "/", title: "Pills", description: "Styled by the caller.") {
+    Heading("Pills").h1
+    Pill("Beta", extra: "chip-beta", note: "Not finished yet") { on click { log("beta") } }
 }
 ```
 

@@ -167,6 +167,10 @@ pub const MODULES: &[Module] = &[
     module!("announce", exports: [same("announce")], deps: [], triggers: []),
     module!("busy", exports: [same("sameCall"), same("busy")], deps: [], triggers: []),
     module!("pace", exports: [same("debounce"), same("throttle")], deps: [], triggers: []),
+    module!("content", exports: [
+        same("copyButton"), same("themeToggle"), same("localeSwitch"), same("fieldFor"),
+        same("inputClear"), same("onThisPage"),
+    ], deps: ["theme", "announce"], triggers: []),
     module!("field", exports: [same("field"), same("choiceError")], deps: [], triggers: []),
     module!("carousel", exports: [same("carousel")], deps: ["field", "focus"], triggers: []),
     module!("drawer", exports: [same("drawer")], deps: ["layer"], triggers: []),

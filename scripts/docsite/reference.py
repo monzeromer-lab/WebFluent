@@ -46,7 +46,7 @@ if not wf.exists():
 # The families the index groups the built-ins under, in order: the
 # registry's groups, with its parts under their owner's and the original
 # spellings last.
-FAMILIES = ["Layout", "Navigation", "Routing", "Data display", "Form", "Feedback", "Actions",
+FAMILIES = ["Layout", "Navigation", "Routing", "Data display", "Content", "Form", "Feedback", "Actions",
             "Media", "Typography", "PDF", "Slides"]
 LEGACY = "Original spellings"
 # The controls a Stage draws, at most.

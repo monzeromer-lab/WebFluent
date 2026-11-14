@@ -98,8 +98,45 @@ component takes the built-in's place, which cannot then be placed there.
 - What is playing its exit is `inert`: a press or a Tab cannot land on it.
 - `wf verify` names each control drawn under 24×24, as a warning.
 
+## Content built-ins
+
+- `Callout("Run wf check first.").tip` sets a note apart, as GitHub's
+  alerts do: `.note`, `.tip`, `.important`, `.warning` or `.caution`, each
+  with its icon and word, or a `title:` of its own.
+- `Kbd("mod+k")` is a key as this system writes it: `⌘K` on a Mac.
+- `EmptyState(icon:, title:, text:) { … }` is what a list shows with
+  nothing in it, and what to do about it.
+- `Stat("Revenue", value:, format: .currency, change: 0.124)` is a figure,
+  its label and which way it moved, said to a screen reader too.
+- `CodeBlock(code, language:, title:).copy.lines` is a block of code with
+  its file name, a copy button and line numbers.
+- `Chip("Rust", icon:, selected:).removable` is a compact label that can be
+  pressed (a toggle button) and removed (`on remove`); `Tag` stays the one
+  that does neither.
+- `VisuallyHidden("(opens in a new tab)")` is words for a screen reader
+  only.
+- `CopyButton(value: url)` copies, says `Copied` and announces it.
+- `ThemeToggle` switches light and dark; `LocaleSwitch` offers each of
+  `i18n.locales` in its own language.
+- `Accordion.single { Accordion.Item("Shipping") { … } }` is sections of
+  native `<details>`, one open at a time.
+- `Field(label:, hint:, error:) { control }` names and describes a control
+  of your own; `Fieldset(legend:)` groups controls under a legend.
+- `InputGroup { Icon("search")  Input(…)  InputGroup.Clear }` draws an
+  input and what goes beside it as one box.
+- `OnThisPage(levels: 2)` lists the page's headings, marking the one being
+  read.
+
+Each is drawn the same on the live page, in the static paint, by the
+template engine and, where it can be, in a PDF.
+
 ## Fixes
 
+- `-(x)` where `x` is negative compiled to `--x`, which a browser refuses,
+  and the page did not run.
+- `format(v, .percent, 1)` wrote `2%` once the page ran where the static
+  paint wrote `2.0%`; both write the places asked for.
+- A part's `mount:` was written as an attribute and called with nothing.
 - `wf check` knows an `image`'s fields: `hero.width`, `.height`, `.color`
   and the rest were a `T05` there, though `wf build` read them.
 - `wf test`'s `press "ctrl+k"` holds its modifiers — `ctrl`, `shift`,

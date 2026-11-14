@@ -1,0 +1,24 @@
+test "a callout says its kind and what it says" {
+    Callout("Run wf check first.").tip
+    expect "Tip"
+    expect "Run wf check first."
+}
+
+test "a removable chip goes when its button is pressed" {
+    state tags = ["Rust", "Go"]
+    for tag in tags by tag {
+        Chip(tag).removable { on remove { tags = tags.filter(x => x != tag) } }
+    }
+    expect "Rust"
+    click "Remove Rust"
+    expect not "Rust"
+    expect "Go"
+}
+
+test "an accordion opens by its title" {
+    Accordion {
+        Accordion.Item("Shipping") { Text("Two to four days.") }
+    }
+    click "Shipping"
+    expect "Two to four days."
+}

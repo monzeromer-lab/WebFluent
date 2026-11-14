@@ -1,6 +1,7 @@
 {
   "diagnostics": [
-    "{\"code\":\"V11\",\"severity\":\"info\",\"message\":\"`Sheet` is this project's component, so a call of that name draws it rather than the built-in `Sheet`\",\"file\":\"src/components/Sheet.wf\",\"line\":3,\"column\":1,\"end_line\":0,\"end_column\":0,\"hint\":\"To place the built-in too, rename this one — `MySheet`, `ReportSheet` — and its call sites\",\"related\":[],\"fixes\":[],\"tags\":[]}"
+    "{\"code\":\"V11\",\"severity\":\"info\",\"message\":\"`Sheet` is this project's component, so a call of that name draws it rather than the built-in `Sheet`\",\"file\":\"src/components/Sheet.wf\",\"line\":3,\"column\":1,\"end_line\":0,\"end_column\":0,\"hint\":\"To place the built-in too, rename this one — `MySheet`, `ReportSheet` — and its call sites\",\"related\":[],\"fixes\":[],\"tags\":[]}",
+    "{\"code\":\"V11\",\"severity\":\"info\",\"message\":\"`ThemeToggle` is this project's component, so a call of that name draws it rather than the built-in `ThemeToggle`\",\"file\":\"src/components/ThemeToggle.wf\",\"line\":7,\"column\":1,\"end_line\":0,\"end_column\":0,\"hint\":\"To place the built-in too, rename this one — `MyThemeToggle`, `ReportThemeToggle` — and its call sites\",\"related\":[],\"fixes\":[],\"tags\":[]}"
   ],
   "files": {
     "404.html": "062c2adb7814deab91914146f85c983a9cadbf51164820491594ebd7a04661d5",
@@ -8,8 +9,8 @@
     "_headers": "ab659ef6aa87e4994c047f0afe74c1882b43db8b48e5ed9315716374a749c4b2",
     "about/index.html": "97e7e1160f68d29e8d14c737438aeafe1266ce881c91aa6823cdc41ef7834cca",
     "about/index.html.gz": "30164a735c59ba36a99f9326f4d2bddc2346f18af4ee88c1d3822c6c05f4eb3d",
-    "app.js": "ae3ebf719484f31871eed409343d17e5a63ac56fbf0f75c55cce2146dca18cce",
-    "app.js.gz": "0de1473d5caeee3909937a94da7ea288d70d2d2d5438d827803ee5eaf6078e42",
+    "app.js": "c96db75ecfa694efe70699ecee2b2d25890f679fc30d531cf791a2f8baaac3e7",
+    "app.js.gz": "fd25a5457b7263e6a9c43a04db70df7dd55e854a39d3c689f24e09f5fe2a4b66",
     "card.png": "ecf6fa2a3d6a9435630a73180224d8d14cc129e3a723ff41a65d34dcc7323dca",
     "favicon.svg": "27db8809a3c152062fb19c209c5b2b6249831acc2a44c7f6c347280e7a63a03f",
     "index.html": "e33f415442cd2d204305b35f85a12e244a8337b87f15ecc73fe41e222d1b0a3c",

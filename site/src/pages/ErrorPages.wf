@@ -289,7 +289,7 @@ page ErrorE103(path: "/errors/E103", title: "E103 — A flag, case, part, event 
   |
 3 |     Button("Save").huge
   |                   ^^^^^
-  = help: Its flags are .bounce, .button, .collapse, .danger, .disabled, .dropInside, .expand, .fadeIn, .fadeOut, .fast, .full, .info, .lg, .md, .normal, .outlined, .pill, .primary, .pulse, .reset, .rounded, .scaleIn, .scaleOut, .secondary, .shake, .slideDown, .slideLeft, .slideRight, .slideUp, .slow, .sm, .spin, .submit, .success, .trapFocus, .warning
+  = help: Its flags are .bounce, .button, .collapse, .danger, .disabled, .dropInside, .expand, .fadeIn, .fadeOut, .fast, .full, .info, .lg, .loading, .md, .normal, .outlined, .pill, .primary, .pulse, .reset, .rounded, .scaleIn, .scaleOut, .secondary, .shake, .slideDown, .slideLeft, .slideRight, .slideUp, .slow, .sm, .spin, .submit, .success, .trapFocus, .warning
   = docs: https://webfluent.monzeromer.dev/errors/E103"#, quickfix: "", lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/E103.md") {
         broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
     Heading("Save").h1

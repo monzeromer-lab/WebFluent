@@ -2111,6 +2111,7 @@ impl core::panic::unwind_safe::RefUnwindSafe for webfluent::syntax::node_id::Wit
 impl core::panic::unwind_safe::UnwindSafe for webfluent::syntax::node_id::Within
 pub fn webfluent::syntax::node_id::build_node_map(&webfluent::syntax::parser::Program) -> webfluent::syntax::node_id::NodeMap
 pub fn webfluent::syntax::node_id::build_node_map_with(&webfluent::syntax::parser::Program, &dyn core::ops::function::Fn(usize) -> core::option::Option<alloc::string::String>) -> webfluent::syntax::node_id::NodeMap
+pub fn webfluent::syntax::node_id::is_written_by_compiler(&webfluent::syntax::parser::UIElement) -> bool
 pub fn webfluent::syntax::node_id::layers(&webfluent::syntax::parser::Program, &dyn core::ops::function::Fn(usize) -> core::option::Option<alloc::string::String>) -> alloc::vec::Vec<webfluent::syntax::node_id::Layer>
 pub fn webfluent::syntax::node_id::visit_nodes<'a>(&'a webfluent::syntax::parser::Program, &mut dyn core::ops::function::FnMut(&'a webfluent::syntax::parser::UIElement, &str, &str))
 pub type webfluent::syntax::node_id::NodeId = alloc::string::String

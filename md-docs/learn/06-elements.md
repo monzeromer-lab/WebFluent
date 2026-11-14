@@ -320,16 +320,61 @@ The built-ins fall into these families:
 | Family | Elements |
 |---|---|
 | Layout | `Container`, `Row`, `Column`, `Grid`, `Stack`, `Spacer`, `Divider`, `Header`, `Section`, `Footer`, `VirtualList`, `Splitter` |
-| Navigation | `Navbar`, `Sidebar`, `Link`, `Tabs`, `Breadcrumb`, `Menu` |
+| Navigation | `Navbar`, `Sidebar`, `Link`, `Tabs`, `Breadcrumb`, `Menu`, `OnThisPage` |
 | Data display | `Card`, `Table`, `List`, `Badge`, `Tag`, `Avatar`, `Tooltip` |
-| Forms | `Form`, `Input`, `Textarea`, `Select`, `Checkbox`, `Radio`, `Switch`, `Slider`, `DatePicker`, `FileUpload` ([Forms](14-forms.md)) |
+| Content | `Callout`, `Kbd`, `EmptyState`, `Stat`, `CodeBlock`, `Chip`, `Accordion`, `VisuallyHidden` ([below](#content-a-note-a-key-a-figure)) |
+| Forms | `Form`, `Input`, `Textarea`, `Select`, `Checkbox`, `Radio`, `Switch`, `Slider`, `DatePicker`, `FileUpload`, `Field`, `Fieldset`, `InputGroup` ([Forms](14-forms.md)) |
 | Feedback | `Alert`, `Toast`, `Modal`, `Dialog`, `Popover`, `Spinner`, `Progress`, `Skeleton` ([Events](08-events.md#overlays-modals-dialogs-toasts-and-menus)) |
-| Actions | `Button`, `IconButton`, `ButtonGroup`, `Dropdown` |
+| Actions | `Button`, `IconButton`, `ButtonGroup`, `Dropdown`, `CopyButton`, `ThemeToggle`, `LocaleSwitch` |
 | Media | `Image`, `Video`, `Audio`, `Frame`, `Icon`, `Carousel` ([Add a picture](../recipes/add-a-picture.md), [Video and audio](../recipes/video-and-audio.md)) |
 | Typography | `Text`, `Heading`, `Paragraph`, `Code`, `Blockquote`, `Markdown`, `Unsafe.Html` |
 | Somebody else's code | `Host`, `Element`, `Portal` ([Call your own JavaScript](../recipes/call-your-own-script.md), [Hand an element to a script](../recipes/hand-an-element-to-a-script.md)) |
 | Documents and decks | `Document`, `PageBreak`, `TableOfContents`, `Background`, `Watermark`, `Chart`, `QrCode`, `Presentation`, `Slide`, `TitleSlide`, `SectionSlide`, `TwoColumn`, `ImageSlide` ([PDF and slides](17-pdf-and-slides.md)) |
 | Routing | `Router` ([Pages](05-pages-and-routing.md#the-app-shell)) |
+
+### Content: a note, a key, a figure
+
+The content built-ins are the pieces a page of text and figures is made
+of. Each is drawn the same on the live page, in the static paint and in a
+PDF:
+
+```wf
+page Report(path: "/", title: "Report", description: "The month, at a glance.") {
+    state tags = ["Rust", "Go"]
+    Heading("Report").h1
+    Callout("Figures are for the month to date.").note
+    Row(gap: .lg) {
+        Stat("Revenue", value: 48210, format: .currency, change: 0.124)
+        Stat("Churn", value: 0.031, format: .percent, change: -0.02)
+    }
+    Text { Text("Search with ")  Kbd("mod+k") }
+    for tag in tags by tag {
+        Chip(tag).removable { on remove { tags = tags.filter(x => x != tag) } }
+    }
+    CodeBlock("wf build", language: "bash", title: "Terminal").copy
+    Accordion.single {
+        Accordion.Item("How is revenue counted?") { Text("Paid invoices, by the day they were paid.") }
+        Accordion.Item("When does the month end?") { Text("At midnight UTC on its last day.") }
+    }
+    if tags.length == 0 {
+        EmptyState(icon: "folder", title: "No tags", text: "Add one to group the report.")
+    }
+}
+```
+
+- **`Callout`** is a note set apart from the text, with its kind's icon
+  and word: `.note`, `.tip`, `.important`, `.warning`, `.caution`, or a
+  `title:` of its own.
+- **`Stat`** says which way a figure moved, to a screen reader as well
+  ("Up 12.4%").
+- **`Kbd`** writes a key combination as this system does: `⌘K` on a Mac,
+  `Ctrl+K` elsewhere.
+- **`Chip`** can be pressed (`selected:`, a toggle button) and removed
+  (`.removable`, its button named `Remove Rust`, firing `on remove`).
+- **`CodeBlock`** adds a bar with the file name and a copy button, and
+  `.lines` numbers the lines.
+- **`Accordion`** is native `<details>`; `.single` keeps one open at a time.
+- **`VisuallyHidden`** is words only a screen reader hears.
 
 ## What an element renders
 

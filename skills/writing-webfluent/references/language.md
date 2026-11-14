@@ -1821,6 +1821,7 @@ file would change; a `.wfx` file is normalised through its braced spelling.
 | `Link` | `Link(to: "/path") { Text("Label") }` — the link whose `to` matches the current route carries `.active` and `aria-current="page"`; `active: .prefix` also matches routes beneath it; a `to` with a query (`"/?show=open"`) matches only when the address has those values too, and a plain link to the same path then gives way to it |
 | `Tabs` | `Tabs(bind: tab, label: "Account") { Tabs.Page("Profile", value: "profile") { ... } Tabs.Page("Billing", value: "billing", disabled: !isOwner) { ... } }` — `bind:` reads and writes the open page's `value:` (its place from 0 without one); `value:` only reads it, and `on change(v)` hears the one picked; `.vertical`; `.manual` opens a tab on Enter or Space rather than as the focus reaches it. Only the open tab is in the Tab order; the arrow keys move (the other way round in a right-to-left page), Home and End go to the ends, a disabled tab is passed over |
 | `Breadcrumb` | `Breadcrumb { Breadcrumb.Item(to: "/") { Text("Home") } Breadcrumb.Item { Text("Current") } }` |
+| `OnThisPage` | `OnThisPage(levels: 2, label: "On this page")` — the page's headings (`h2`, and `h3` with `levels: 2`) as links, an id given to one that has none, the one being read marked `aria-current="location"`; drawn once the page runs |
 | `Menu` | `Menu(trigger: "Options") { Menu.Item(shortcut: "F2") { ... } Menu.Divider Menu.Sub(label: "Move to") { ... } }`, or opened by state: `Menu(visible: asked, at: point)` (a context menu, `point = { x: e.clientX, y: e.clientY }`) or `anchor: someRef`; `placement:`, `on close(reason)`. Items take `shortcut:`, `checked:`, `disabled:`. Drawn in the top layer |
 
 ### Data Display
@@ -1849,8 +1850,28 @@ file would change; a `.wfx` file is normalised through its braced spelling.
 | `FileUpload` | `FileUpload(accept: "image/*", label: "Upload Photo") { on change(e) { handleFile(e) } }` — flags: `.multiple` |
 | `Textarea` | `Textarea(bind: note, label: "Notes", rows: 4, maxLength: 200)` — several lines; with `maxLength` it counts what is left |
 | `Form` | `Form(bind: form, show: .onBlur) { on submit { save() } ... }` — `show`: when a `validate` message appears (`.onBlur`, `.onSubmit`, `.live`) |
+| `Field` | `Field(label: "Plan", hint: "…", error: planError) { PlanPicker(bind: plan) }` — a label, hint and error around a control of your own: the first control in its block is named by the label (`aria-labelledby`, `for`), described by the hint and the error, and `aria-invalid` while there is one |
+| `Fieldset` | `Fieldset(legend: "Address") { Input(…) Input(…) }` — controls that belong together, under a legend |
+| `InputGroup` | `InputGroup { Icon("search")  Input(bind: q, aria-label: "Search")  InputGroup.Clear }` — an input and what goes beside it drawn as one box; `InputGroup.Addon("https://")` is text beside it; `InputGroup.Clear` empties the input (its binding follows), gives it the focus back, and hides while it is empty |
 
 Input types (a flag): `.text`, `.email`, `.password`, `.number`, `.search`, `.tel`, `.url`, `.date`, `.time`, `.datetime`, `.color`
+
+### Content
+
+| Component | Usage |
+|-----------|-------|
+| `Callout` | `Callout("Run `wf check` first.", title: "Before you push").tip` — a note set apart, `role="note"`: `.note` (default), `.tip`, `.important`, `.warning`, `.caution`, each with its icon and word (or `title:`); its block follows its text; `Callout.Title { … }` written by hand draws the title row instead |
+| `Kbd` | `Kbd("mod+k")` — a `<kbd>`, written as this system writes it (`⌘K`, `Ctrl+K`; the static paint and a PDF write `Ctrl+K`) |
+| `EmptyState` | `EmptyState(icon: "folder", title: "No projects yet", text: "Create one.") { Button("New project").primary }` — what a list shows with nothing in it; the block is its actions |
+| `Stat` | `Stat("Revenue", value: total, format: .currency, change: 0.124, count: "600ms")` — a figure, its label, and which way it moved (`▲ 12.4%`, read "Up 12.4%"); `format:` is `.number`, `.integer`, `.currency`, `.percent`, `.compact` |
+| `CodeBlock` | `CodeBlock(code, language: "wf", title: "App.wf").copy.lines` — a bar with the file name and a copy button, line numbers beside the code |
+| `Chip` | `Chip("Rust", icon: "code", selected: on).removable { on click { on = !on }  on remove { drop("Rust") } }` — `selected:` (or an `on click`) makes it a toggle button with `aria-pressed`; `.removable` adds a button named `Remove Rust` that fires `on remove`. `Tag` is the one that does neither |
+| `Accordion` | `Accordion.single { Accordion.Item("Shipping") { … }  Accordion.Item("Returns", open: true) { … } }` — native `<details>`, its title the `<summary>`; `.single` keeps one open at a time (a shared `name`) |
+| `VisuallyHidden` | `Link(to: url) { Text("Docs")  VisuallyHidden("(opens in a new tab)") }` — words for a screen reader only |
+
+These are drawn as other elements — parts with a tag and a class of their
+own, and built-ins that already exist — the same on the live page, in the
+static paint, by the template engine and in a PDF.
 
 ### Feedback
 
@@ -1875,6 +1896,9 @@ Input types (a flag): `.text`, `.email`, `.password`, `.number`, `.search`, `.te
 | `IconButton` | `IconButton(icon: "close", label: "Close")` or `IconButton(icon: "edit", label: "Edit").primary { on click { editItem() } }` — flags: `.sm`, `.lg`, `.primary`, `.danger` |
 | `ButtonGroup` | `ButtonGroup { Button("A") Button("B") }` |
 | `Dropdown` | `Dropdown(label: "Actions") { Dropdown.Item { ... } }` |
+| `CopyButton` | `CopyButton("Copy link", value: url, copied: "Link copied")` — copies `value:`, says `copied:` (unset, `Copied`) for a moment and announces it |
+| `ThemeToggle` | `ThemeToggle` — light and dark over `setTheme`: a moon in a light page, a sun in a dark one (chosen by the stylesheet, so the static paint is right), named for the theme it switches to |
+| `LocaleSwitch` | `LocaleSwitch(label: "Language")` — a button per `i18n.locales`, each in its own language (`English`, `العربية`), the current one pressed; drawn once the page runs |
 
 Button tones: `.primary`, `.secondary`, `.success`, `.danger`, `.warning`, `.info`
 Button flags: `.sm`, `.lg`, `.full`, `.rounded`, `.pill`, `.outlined`; `type: .submit` inside a form (any other button is `type="button"`, so it never submits one)

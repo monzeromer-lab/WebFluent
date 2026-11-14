@@ -1,0 +1,45 @@
+// Every content built-in, for `tests/browser/content.mjs`.
+const APP = "page Home(path: \"/\") {\n    Text(\"Hi\")\n}"
+page Home(path: "/", title: "Kit", description: "Every content built-in.") {
+    state q = ""
+    state plan = "basic"
+    state picked = false
+    state tags = ["Rust", "Go"]
+    state revenue = 1234.5
+    Heading("Kit").h1
+    Callout("Run `wf check` before you push.", title: "Before you push").tip
+    Callout("Plain note.")
+    Text { Text("Press ")  Kbd("mod+k")  Text(" to search") }
+    EmptyState(icon: "folder", title: "No projects yet", text: "Create one to get started.") {
+        Button("New project").primary
+    }
+    Stat("Revenue", value: revenue, format: .currency, change: 0.124)
+    Stat("Churn", value: 0.031, format: .percent, change: -0.02)
+    CodeBlock(APP, language: "wf", title: "App.wf").copy.lines
+    Heading("Chips").h2
+    for tag in tags by tag {
+        Chip(tag, icon: "code").removable { on remove { tags = tags.filter(x => x != tag) } }
+    }
+    Chip("Open only", selected: picked) { on click { picked = !picked } }
+    Link(to: "/") { Text("Docs")  VisuallyHidden("(opens in a new tab)") }
+    CopyButton(value: "https://example.com")
+    Row(gap: .sm) { ThemeToggle  LocaleSwitch }
+    Heading("Questions").h2
+    Accordion.single {
+        Accordion.Item("Shipping") { Text("Two to four days.") }
+        Accordion.Item("Returns", open: true) { Text("Thirty days.") }
+    }
+    Field(label: "Plan", hint: "You can change it later.", error: if plan == "" { "Pick a plan" } else { "" }) {
+        Select(bind: plan) { Select.Option("Basic", value: "basic") Select.Option("Pro", value: "pro") }
+    }
+    Fieldset(legend: "Address") { Input(bind: q, label: "Street") }
+    Text("q {q}", id: "said")
+    InputGroup {
+        Icon("search")
+        Input(bind: q, aria-label: "Search")
+        InputGroup.Clear
+    }
+    OnThisPage(levels: 2)
+    Heading("Last").h2
+    Stack { style { height: 1500px } Text("Further down") }
+}

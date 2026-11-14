@@ -596,6 +596,28 @@ This stage can run beside stages 2 to 4. It adds:
 EmptyState, ThemeToggle, LangSwitch and OnThisPage are replaced by the
 built-ins.
 
+**Status: built, 2026-11-14; the site's own are not replaced yet.** All
+fourteen are in the registry and drawn alike on the live page, in the
+static paint, by the template engine and in a PDF. They are not each an
+emitter: `check::sema::expand` rewrites each into parts the registry gives
+a tag and a class (`Callout.Title` is a `<p class="wf-callout__title">`)
+and built-ins that already exist, before anything draws them, and what
+they do is a runtime helper (`WF.copyButton`, `WF.themeToggle`, …) called
+from a `mount:`. The checks are `tests/browser/content.mjs` (22 in
+Chrome, with `wf test`) and `tests/content.rs`. What differs:
+
+- `CodeBlock` has no tabs (`files:`) and no highlighted lines yet; `Stat`
+  no sparkline.
+- `Accordion` opens with the stylesheet's `::details-content` transition,
+  not `.expand`.
+- `LocaleSwitch` and `OnThisPage` are drawn once the page runs: the
+  locales and the page's headings are the page's to read.
+- The site keeps its own `Callout`, `CodeBlock`, `OnThisPage`,
+  `ThemeToggle` and the rest. They carry the site's look, its analytics
+  attributes, the Playground button and the copy-as-Markdown rail, and a
+  project's own component wins over a built-in of its name. Moving the
+  site onto the built-ins is its own piece of work.
+
 ### Stage 6: Tier 1, on the focus module
 
 Toggle, ToggleGroup / SegmentedControl, RadioGroup, Pagination, Stepper /
