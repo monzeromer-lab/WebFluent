@@ -304,6 +304,11 @@ showErrors)` repaints when `showErrors` changes.
 
 #### Slots
 
+A built-in takes the named blocks its entry lists: a `Tree`'s `row(item)`,
+a `DataTable`'s `empty` and a column's `cell(row)`, a `Combobox`'s
+`option(o)` and `empty`. Named blocks come before the children in a
+block (`E002` otherwise).
+
 A component places its caller's block with `children`, and may declare
 named slots the caller fills with `name { … }`. A fill is compiled in the
 caller's scope, so it reads the caller's state and loop bindings; the
@@ -1799,6 +1804,7 @@ file would change; a `.wfx` file is normalised through its braced spelling.
 
 | Component | Usage |
 |-----------|-------|
+| `AppShell` | `AppShell { AppShell.Header { … }  Sidebar { … }  Router  AppShell.Footer { … } }` — an app's frame: the header across the top (it sticks), a `Sidebar` down the start (its drawer on a narrow screen), the page beside it, the footer under them |
 | `Container` | `Container { ... }` — centered max-width wrapper |
 | `Host` | `Host(tag: "canvas", mount: (n) => …, update: (h) => …, cleanup: (h) => …)` — a node handed to somebody else's code, with a lifetime |
 | `Element` | `Element("stripe-pricing-table", publishableKey: key) { on ready { … } }` — any custom element, by its tag; named arguments are attributes, handlers its events |
@@ -1821,6 +1827,7 @@ file would change; a `.wfx` file is normalised through its braced spelling.
 | `Link` | `Link(to: "/path") { Text("Label") }` — the link whose `to` matches the current route carries `.active` and `aria-current="page"`; `active: .prefix` also matches routes beneath it; a `to` with a query (`"/?show=open"`) matches only when the address has those values too, and a plain link to the same path then gives way to it |
 | `Tabs` | `Tabs(bind: tab, label: "Account") { Tabs.Page("Profile", value: "profile") { ... } Tabs.Page("Billing", value: "billing", disabled: !isOwner) { ... } }` — `bind:` reads and writes the open page's `value:` (its place from 0 without one); `value:` only reads it, and `on change(v)` hears the one picked; `.vertical`; `.manual` opens a tab on Enter or Space rather than as the focus reaches it. Only the open tab is in the Tab order; the arrow keys move (the other way round in a right-to-left page), Home and End go to the ends, a disabled tab is passed over |
 | `Breadcrumb` | `Breadcrumb { Breadcrumb.Item(to: "/") { Text("Home") } Breadcrumb.Item { Text("Current") } }` |
+| `CommandPalette` | `CommandPalette(open: palette) { CommandPalette.Group("Pages") { CommandPalette.Item("Home", icon: "home", shortcut: "mod+h") { on select { navigate("/") } } } }` — a modal of a field and the items it filters by their words (a group left empty goes); the arrows go through what is left, Enter or a press runs it (`on select`) and closes; emptied each time it closes |
 | `Pagination` | `Pagination(bind: page, pages: total, siblings: 1)` — Previous, the first and last pages, those around the current one, `…` for the rest, Next; the current is `aria-current="page"`; pages count from 1 |
 | `Stepper` | `Stepper(bind: step) { Stepper.Step("Account") { … }  Stepper.Step("Billing", done: billed) { … } }` — the steps listed with their state (current, done, an `error:`), the current one's block shown; steps count from 0; `.linear` keeps a step ahead out of reach |
 | `OnThisPage` | `OnThisPage(levels: 2, label: "On this page")` — the page's headings (`h2`, and `h3` with `levels: 2`) as links, an id given to one that has none, the one being read marked `aria-current="location"`; drawn once the page runs |
@@ -1831,6 +1838,8 @@ file would change; a `.wfx` file is normalised through its braced spelling.
 | Component | Usage |
 |-----------|-------|
 | `Card` | `Card.elevated { Card.Header { ... } Card.Body { ... } Card.Footer { ... } }` — variants: `.flat`, `.elevated`, `.outlined` |
+| `Tree` | `Tree(items: top, children: f => f.children, key: f => f.path, bind: chosen, label: "Files") { row(f) { Icon("file")  Text(f.name) } }` — nested items as `role="tree"`, one list of rows (`aria-level`, `aria-expanded`, `aria-setsize`, `aria-posinset`): Up/Down through what shows, Right opens or goes in, Left closes or goes to the parent (swapped right to left), Home/End, a letter; Enter or Space chooses its key; `.multiple` adds Shift with an arrow and Ctrl/⌘+A; `open:` the keys open at first |
+| `DataTable` | `DataTable(rows: items, key: d => d.id, bind: chosen, label: "Deploys").multiple { empty { … }  DataTable.Column("Service", value: d => d.service).sortable  DataTable.Column("Status") { cell(d) { Badge(d.status) } } }` — a table of records: a `.sortable` column's header is a button with `aria-sort`, its rows slide to their places; `cell(r)` draws a cell (else `value:` as text); `empty` when there are none; `bind:` a box per row (a radio without `.multiple`) and one for all; the header row sticks; the caption is `label:` |
 | `Table` | `Table(caption: "Deployments") { Table.Head { Table.Row { Table.Cell("Col") } } Table.Body { Table.Row { Table.Cell("Val") } } }` — cells inside `Table.Head` are `<th scope="col">`, as is `Table.Cell("Build").header` anywhere (a header cell a component renders); `caption` is the table's accessible name, rendered visually hidden |
 | `List` | `List { List.Item { Text("Item 1") } List.Item { Text("Item 2") } }` — `List.ordered` for numbered |
 | `Badge` | `Badge("Label").primary` — tones: `.primary`, `.secondary`, `.success`, `.danger`, `.warning`, `.info`; `.pill` |
@@ -1854,6 +1863,8 @@ file would change; a `.wfx` file is normalised through its braced spelling.
 | `Form` | `Form(bind: form, show: .onBlur) { on submit { save() } ... }` — `show`: when a `validate` message appears (`.onBlur`, `.onSubmit`, `.live`) |
 | `Field` | `Field(label: "Plan", hint: "…", error: planError) { PlanPicker(bind: plan) }` — a label, hint and error around a control of your own: the first control in its block is named by the label (`aria-labelledby`, `for`), described by the hint and the error, and `aria-invalid` while there is one |
 | `Fieldset` | `Fieldset(legend: "Address") { Input(…) Input(…) }` — controls that belong together, under a legend |
+| `Listbox` | `Listbox(bind: fruit, label: "Fruit") { Listbox.Option("Apple", value: "apple") … }` — options always shown: one (the choice follows the arrow keys) or, `.multiple`, several — Space chooses, Shift with an arrow takes the next in too, Ctrl/⌘+A all; a letter goes to the option it starts; `aria-disabled: "true"` passes one over |
+| `Combobox` | `Combobox(bind: city, options: Cities.all, text: c => c.name, key: c => c.id, label: "City")`, or `search: q => Geo.cities(q: q), debounce: 250` to ask as the reader types; `{ option(c) { … }  empty { … } }` — a field (`role="combobox"`) offering what matches in a layer at it: the arrows go through them with the focus kept in the field (`aria-activedescendant`), Enter takes one, Escape closes; `bind:` holds the key (the option itself without `key:`); `.multiple` keeps several as chips, Backspace in the empty field takes the last back |
 | `RadioGroup` | `RadioGroup(bind: plan, label: "Plan").cards { RadioGroup.Option("Free", value: "free", hint: "For trying it out") }` — native radios under a legend (the arrow keys choose), each hint read with its option (`aria-description`); `.cards` draws each as a card |
 | `NumberInput` | `NumberInput(bind: qty, min: 1, max: 99, step: 1, label: "Quantity")` — a number input between − and + buttons (out of the Tab order: the arrow keys step it), PageUp and PageDown ten steps, held between its ends |
 | `Calendar` | `Calendar(bind: day, mode: .range, min: @2026-01-01, disabled: d => d.weekday() >= 6, label: "Delivery day")` — a month as a grid: one Tab stop, the arrows by day (the other way round right to left) and week, PageUp and PageDown by month (Shift: year), Home and End to the week's ends, Enter or Space chooses; `.single` (a `Date`), `.range` (`{ start, end }`), `.multiple` (a list); `disabled:` a list of days or a test of one; drawn once the page runs |

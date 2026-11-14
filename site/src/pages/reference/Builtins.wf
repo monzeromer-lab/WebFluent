@@ -29,6 +29,9 @@ const BUILTIN_INDEX: [IndexEntry] = [
     IndexEntry(label: "VirtualList", to: "/reference/virtuallist", group: "Layout"),
     IndexEntry(label: "Splitter", to: "/reference/splitter", group: "Layout"),
     IndexEntry(label: "Divider", to: "/reference/divider", group: "Layout"),
+    IndexEntry(label: "AppShell", to: "/reference/appshell", group: "Layout"),
+    IndexEntry(label: "AppShell.Header", to: "/reference/appshell-header", group: "Layout"),
+    IndexEntry(label: "AppShell.Footer", to: "/reference/appshell-footer", group: "Layout"),
     IndexEntry(label: "Host", to: "/reference/host", group: "Layout"),
     IndexEntry(label: "Portal", to: "/reference/portal", group: "Layout"),
     IndexEntry(label: "Element", to: "/reference/element", group: "Layout"),
@@ -60,6 +63,10 @@ const BUILTIN_INDEX: [IndexEntry] = [
     IndexEntry(label: "Stepper.Step", to: "/reference/stepper-step", group: "Navigation"),
     IndexEntry(label: "Stepper.List", to: "/reference/stepper-list", group: "Navigation"),
     IndexEntry(label: "Stepper.Item", to: "/reference/stepper-item", group: "Navigation"),
+    IndexEntry(label: "CommandPalette", to: "/reference/commandpalette", group: "Navigation"),
+    IndexEntry(label: "CommandPalette.Group", to: "/reference/commandpalette-group", group: "Navigation"),
+    IndexEntry(label: "CommandPalette.Item", to: "/reference/commandpalette-item", group: "Navigation"),
+    IndexEntry(label: "CommandPalette.List", to: "/reference/commandpalette-list", group: "Navigation"),
     IndexEntry(label: "Router", to: "/reference/router", group: "Routing"),
     IndexEntry(label: "Card", to: "/reference/card", group: "Data display"),
     IndexEntry(label: "Card.Header", to: "/reference/card-header", group: "Data display"),
@@ -76,6 +83,9 @@ const BUILTIN_INDEX: [IndexEntry] = [
     IndexEntry(label: "Tag", to: "/reference/tag", group: "Data display"),
     IndexEntry(label: "Avatar", to: "/reference/avatar", group: "Data display"),
     IndexEntry(label: "Tooltip", to: "/reference/tooltip", group: "Data display"),
+    IndexEntry(label: "Tree", to: "/reference/tree", group: "Data display"),
+    IndexEntry(label: "DataTable", to: "/reference/datatable", group: "Data display"),
+    IndexEntry(label: "DataTable.Column", to: "/reference/datatable-column", group: "Data display"),
     IndexEntry(label: "Chart", to: "/reference/chart", group: "Data display"),
     IndexEntry(label: "QrCode", to: "/reference/qrcode", group: "Data display"),
     IndexEntry(label: "Callout", to: "/reference/callout", group: "Content"),
@@ -129,6 +139,9 @@ const BUILTIN_INDEX: [IndexEntry] = [
     IndexEntry(label: "NumberInput.Decrease", to: "/reference/numberinput-decrease", group: "Form"),
     IndexEntry(label: "NumberInput.Increase", to: "/reference/numberinput-increase", group: "Form"),
     IndexEntry(label: "Calendar", to: "/reference/calendar", group: "Form"),
+    IndexEntry(label: "Listbox", to: "/reference/listbox", group: "Form"),
+    IndexEntry(label: "Listbox.Option", to: "/reference/listbox-option", group: "Form"),
+    IndexEntry(label: "Combobox", to: "/reference/combobox", group: "Form"),
     IndexEntry(label: "Alert", to: "/reference/alert", group: "Feedback"),
     IndexEntry(label: "Toast", to: "/reference/toast", group: "Feedback"),
     IndexEntry(label: "Modal", to: "/reference/modal", group: "Feedback"),
@@ -197,7 +210,7 @@ const BUILTIN_INDEX: [IndexEntry] = [
 ]
 
 page ReferenceIndexPage(path: "/reference", title: "Reference", description: "Every built-in element, command, setting and design token, read from the compiler itself, with the language's reference pages.") {
-    ReferenceItemShell(t("nav.reference"), summary: t("ref.lede", { count: 174 }), entries: REFERENCE_PAGES, sections: [Anchor(id: "pages", label: t("ref.pages")), Anchor(id: "layout", label: "Layout"), Anchor(id: "navigation", label: "Navigation"), Anchor(id: "routing", label: "Routing"), Anchor(id: "data-display", label: "Data display"), Anchor(id: "content", label: "Content"), Anchor(id: "form", label: "Form"), Anchor(id: "feedback", label: "Feedback"), Anchor(id: "actions", label: "Actions"), Anchor(id: "media", label: "Media"), Anchor(id: "typography", label: "Typography"), Anchor(id: "pdf", label: "PDF"), Anchor(id: "slides", label: "Slides"), Anchor(id: "original-spellings", label: "Original spellings"), Anchor(id: "on-every-element", label: t("ref.universal.title"))], source: "scripts/docsite/reference.py") {
+    ReferenceItemShell(t("nav.reference"), summary: t("ref.lede", { count: 187 }), entries: REFERENCE_PAGES, sections: [Anchor(id: "pages", label: t("ref.pages")), Anchor(id: "layout", label: "Layout"), Anchor(id: "navigation", label: "Navigation"), Anchor(id: "routing", label: "Routing"), Anchor(id: "data-display", label: "Data display"), Anchor(id: "content", label: "Content"), Anchor(id: "form", label: "Form"), Anchor(id: "feedback", label: "Feedback"), Anchor(id: "actions", label: "Actions"), Anchor(id: "media", label: "Media"), Anchor(id: "typography", label: "Typography"), Anchor(id: "pdf", label: "PDF"), Anchor(id: "slides", label: "Slides"), Anchor(id: "original-spellings", label: "Original spellings"), Anchor(id: "on-every-element", label: t("ref.universal.title"))], source: "scripts/docsite/reference.py") {
         Heading(t("ref.pages"), id: "pages").h2
         Grid(columns: { base: 1, sm: 2, xl: 3 }, gap: .sm) {
             Link(to: "/reference/expressions", class: "bp-card") { Text("Expressions") { style { font-weight: 600 } }  Text("Language", class: "bp-small") }
@@ -250,6 +263,18 @@ page ReferenceIndexPage(path: "/reference", title: "Reference", description: "Ev
             Link(to: "/reference/divider", class: "bp-card") {
                 Text("Divider", class: "bp-mono") { style { font-size: 14px; color: $link } }
                 Text("Horizontal rule.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+            }
+            Link(to: "/reference/appshell", class: "bp-card") {
+                Text("AppShell", class: "bp-mono") { style { font-size: 14px; color: $link } }
+                Text("An app's frame: AppShell.Header across the top, a Sidebar down the start (a drawer on a narrow screen), the Router's page beside it, and an AppShell.Footer.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+            }
+            Link(to: "/reference/appshell-header", class: "bp-card") {
+                Text("AppShell.Header", class: "bp-mono") { style { font-size: 14px; color: $link } }
+                Text("The bar across the top.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+            }
+            Link(to: "/reference/appshell-footer", class: "bp-card") {
+                Text("AppShell.Footer", class: "bp-mono") { style { font-size: 14px; color: $link } }
+                Text("The bar along the bottom.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
             }
             Link(to: "/reference/host", class: "bp-card") {
                 Text("Host", class: "bp-mono") { style { font-size: 14px; color: $link } }
@@ -378,6 +403,22 @@ page ReferenceIndexPage(path: "/reference", title: "Reference", description: "Ev
                 Text("Stepper.Item", class: "bp-mono") { style { font-size: 14px; color: $link } }
                 Text("A step in the list. Drawn for it.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
             }
+            Link(to: "/reference/commandpalette", class: "bp-card") {
+                Text("CommandPalette", class: "bp-mono") { style { font-size: 14px; color: $link } }
+                Text("A dialog of everything a reader can do or go to, filtered as they type: the arrow keys go through what matches, Enter runs it (on select) and closes. open: is the state that shows it.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+            }
+            Link(to: "/reference/commandpalette-group", class: "bp-card") {
+                Text("CommandPalette.Group", class: "bp-mono") { style { font-size: 14px; color: $link } }
+                Text("Items under a heading.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+            }
+            Link(to: "/reference/commandpalette-item", class: "bp-card") {
+                Text("CommandPalette.Item", class: "bp-mono") { style { font-size: 14px; color: $link } }
+                Text("One thing to do or go to; on select is what it does.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+            }
+            Link(to: "/reference/commandpalette-list", class: "bp-card") {
+                Text("CommandPalette.List", class: "bp-mono") { style { font-size: 14px; color: $link } }
+                Text("What matches. Drawn for it.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+            }
         }
         Heading("Routing", id: "routing").h2
         Grid(columns: { base: 1, sm: 2, xl: 3 }, gap: .sm) {
@@ -447,6 +488,18 @@ page ReferenceIndexPage(path: "/reference", title: "Reference", description: "Ev
             Link(to: "/reference/tooltip", class: "bp-card") {
                 Text("Tooltip", class: "bp-mono") { style { font-size: 14px; color: $link } }
                 Text("Shows text above everything when its child is hovered (after delay:) or focused from the keyboard.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+            }
+            Link(to: "/reference/tree", class: "bp-card") {
+                Text("Tree", class: "bp-mono") { style { font-size: 14px; color: $link } }
+                Text("Nested items — files and folders, an outline — as a tree a keyboard can work: Up and Down through what shows, Right to open and go in, Left to close and go out (the other way round right to left), Home and End, a letter. row(item) \{ … \} draws each; bind: holds the chosen item's key, or a list of keys with .multiple.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+            }
+            Link(to: "/reference/datatable", class: "bp-card") {
+                Text("DataTable", class: "bp-mono") { style { font-size: 14px; color: $link } }
+                Text("Rows of records with their columns declared once: a column sorts when it is .sortable (its header a button, aria-sort saying which way), cell(r) \{ … \} draws a cell, empty \{ … \} shows when there are no rows, and bind: chooses rows (a list with .multiple, a box for each and one for all).", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+            }
+            Link(to: "/reference/datatable-column", class: "bp-card") {
+                Text("DataTable.Column", class: "bp-mono") { style { font-size: 14px; color: $link } }
+                Text("One column: its title, its value: (what it shows and sorts by), and a cell(r) \{ … \} that draws it instead.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
             }
             Link(to: "/reference/chart", class: "bp-card") {
                 Text("Chart", class: "bp-mono") { style { font-size: 14px; color: $link } }
@@ -665,6 +718,18 @@ page ReferenceIndexPage(path: "/reference", title: "Reference", description: "Ev
             Link(to: "/reference/calendar", class: "bp-card") {
                 Text("Calendar", class: "bp-mono") { style { font-size: 14px; color: $link } }
                 Text("A month as a grid of days, chosen with a press or the keyboard — the arrows by day and week, PageUp and PageDown by month, Home and End to the week's ends — one day, a range, or several. bind: holds a Date, a \{ start, end \} with .range, a list with .multiple.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+            }
+            Link(to: "/reference/listbox", class: "bp-card") {
+                Text("Listbox", class: "bp-mono") { style { font-size: 14px; color: $link } }
+                Text("A list of options always shown, one chosen (selection follows the arrow keys) or, .multiple, several: Space chooses, Shift with an arrow takes the next one in too, Ctrl or ⌘ with A takes them all; a letter goes to the next option that starts with it.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+            }
+            Link(to: "/reference/listbox-option", class: "bp-card") {
+                Text("Listbox.Option", class: "bp-mono") { style { font-size: 14px; color: $link } }
+                Text("One option: its words, and the value bind: holds when it is chosen.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+            }
+            Link(to: "/reference/combobox", class: "bp-card") {
+                Text("Combobox", class: "bp-mono") { style { font-size: 14px; color: $link } }
+                Text("A text field that offers what matches as the reader types: from options:, or search: asked of a server. The arrow keys go through the offers, Enter takes one, Escape closes them; .multiple keeps several, each a chip Backspace takes back. option(o) \{ … \} draws an offer; empty \{ … \} shows when nothing matches.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
             }
         }
         Heading("Feedback", id: "feedback").h2
@@ -1388,6 +1453,104 @@ page BuiltinDivider(path: "/reference/divider", title: "Divider — Reference", 
 Divider
 Text("Section two")"#, title: "wf")
         Markdown(t("ref.renders", { cls: "wf-divider" }), class: "bp-prose")
+    }
+}
+
+page BuiltinAppshell(path: "/reference/appshell", title: "AppShell — Reference", description: "AppShell: An app's frame: AppShell.Header across the top, a Sidebar down the start (a drawer on a narrow screen), the Router's page beside it, and an…") {
+    ReferenceItemShell("AppShell", summary: "An app's frame: AppShell.Header across the top, a Sidebar down the start (a drawer on a narrow screen), the Router's page beside it, and an AppShell.Footer.", signature: "AppShell \{ … \}", since: "6.2.0", outputs: [], group: "Layout", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
+        stage {
+            Stage(label: "AppShell") {
+                controls {
+                    Text(t("stage.nocontrols"), class: "bp-small")
+                }
+                Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
+            }
+        }
+        notes { Text(t("stage.static"), class: "bp-small") }
+        Heading(t("ref.tab.props"), id: "props").h2
+        Text(t("ref.noprops"), class: "bp-small")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Heading(t("ref.tab.flags"), id: "flags").h2
+        Markdown(t("ref.flags.body"), class: "bp-prose")
+        Text(t("ref.noflags"), class: "bp-small")
+        Heading(t("ref.tab.events"), id: "events").h2
+        Markdown(t("ref.universal.link"), class: "bp-prose")
+        Heading(t("ref.slotsparts"), id: "slots").h2
+        SlotsAndParts(slots: [PropRow(name: "children", kind: "", detail: "")], parts: [PropRow(name: "AppShell.Header", kind: "appshell-header", detail: "The bar across the top."), PropRow(name: "AppShell.Footer", kind: "appshell-footer", detail: "The bar along the bottom.")])
+        Row(gap: .sm) {
+            style { gap: 8px; flex-wrap: wrap }
+            Link("AppShell.Header", to: "/reference/appshell-header", class: "bp-button")
+            Link("AppShell.Footer", to: "/reference/appshell-footer", class: "bp-button")
+        }
+        Heading(t("ref.example"), id: "example").h2
+        CodeBlock(#"AppShell {
+    AppShell.Header { Text("Ledger").bold  Spacer  ThemeToggle }
+    Sidebar { Sidebar.Item(to: "/", icon: "home") { Text("Home") } }
+    Router
+}"#, title: "wf")
+        Markdown(t("ref.renders", { cls: "wf-app-shell" }), class: "bp-prose")
+    }
+}
+
+page BuiltinAppshellHeader(path: "/reference/appshell-header", title: "AppShell.Header — Reference", description: "AppShell.Header: The bar across the top.") {
+    ReferenceItemShell("AppShell.Header", summary: "The bar across the top.", signature: "AppShell.Header \{ … \}", since: "6.2.0", outputs: [], group: "Layout", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C03", title: "A part outside the component it belongs to", to: "/errors/C03"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
+        stage {
+            Stage(label: "AppShell.Header") {
+                controls {
+                    Text(t("stage.nocontrols"), class: "bp-small")
+                }
+                Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
+            }
+        }
+        notes { Text(t("stage.static"), class: "bp-small") }
+        Markdown(t("ref.partof", { owner: "AppShell", to: "/reference/appshell" }), class: "bp-prose")
+        Heading(t("ref.tab.props"), id: "props").h2
+        Text(t("ref.noprops"), class: "bp-small")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Heading(t("ref.tab.flags"), id: "flags").h2
+        Markdown(t("ref.flags.body"), class: "bp-prose")
+        Text(t("ref.noflags"), class: "bp-small")
+        Heading(t("ref.tab.events"), id: "events").h2
+        Markdown(t("ref.universal.link"), class: "bp-prose")
+        Heading(t("ref.slotsparts"), id: "slots").h2
+        SlotsAndParts(slots: [PropRow(name: "children", kind: "", detail: "")], parts: [])
+        Heading(t("ref.example"), id: "example").h2
+        CodeBlock(#"AppShell {
+    AppShell.Header { Text("Ledger").bold  Spacer  ThemeToggle }
+    Sidebar { Sidebar.Item(to: "/", icon: "home") { Text("Home") } }
+    Router
+}"#, title: "wf")
+    }
+}
+
+page BuiltinAppshellFooter(path: "/reference/appshell-footer", title: "AppShell.Footer — Reference", description: "AppShell.Footer: The bar along the bottom.") {
+    ReferenceItemShell("AppShell.Footer", summary: "The bar along the bottom.", signature: "AppShell.Footer \{ … \}", since: "6.2.0", outputs: [], group: "Layout", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C03", title: "A part outside the component it belongs to", to: "/errors/C03"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
+        stage {
+            Stage(label: "AppShell.Footer") {
+                controls {
+                    Text(t("stage.nocontrols"), class: "bp-small")
+                }
+                Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
+            }
+        }
+        notes { Text(t("stage.static"), class: "bp-small") }
+        Markdown(t("ref.partof", { owner: "AppShell", to: "/reference/appshell" }), class: "bp-prose")
+        Heading(t("ref.tab.props"), id: "props").h2
+        Text(t("ref.noprops"), class: "bp-small")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Heading(t("ref.tab.flags"), id: "flags").h2
+        Markdown(t("ref.flags.body"), class: "bp-prose")
+        Text(t("ref.noflags"), class: "bp-small")
+        Heading(t("ref.tab.events"), id: "events").h2
+        Markdown(t("ref.universal.link"), class: "bp-prose")
+        Heading(t("ref.slotsparts"), id: "slots").h2
+        SlotsAndParts(slots: [PropRow(name: "children", kind: "", detail: "")], parts: [])
+        Heading(t("ref.example"), id: "example").h2
+        CodeBlock(#"AppShell {
+    AppShell.Header { Text("Ledger").bold  Spacer  ThemeToggle }
+    Sidebar { Sidebar.Item(to: "/", icon: "home") { Text("Home") } }
+    Router
+}"#, title: "wf")
     }
 }
 
@@ -2451,6 +2614,160 @@ Stepper(bind: step) {
     }
 }
 
+page BuiltinCommandpalette(path: "/reference/commandpalette", title: "CommandPalette — Reference", description: "CommandPalette: A dialog of everything a reader can do or go to, filtered as they type: the arrow keys go through what matches, Enter runs it (on…") {
+    ReferenceItemShell("CommandPalette", summary: "A dialog of everything a reader can do or go to, filtered as they type: the arrow keys go through what matches, Enter runs it (on select) and closes. open: is the state that shows it.", signature: "CommandPalette(open: State, label: String, placeholder: String) \{ … \}", since: "6.2.0", outputs: [], group: "Navigation", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
+        stage {
+            Stage(label: "CommandPalette") {
+                controls {
+                    StageControl({ name: "label", kind: "string", options: [], value: "" })
+                    StageControl({ name: "placeholder", kind: "string", options: [], value: "" })
+                }
+                Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
+            }
+        }
+        notes { Text(t("stage.static"), class: "bp-small") }
+        Heading(t("ref.tab.props"), id: "props").h2
+        PropsTable(rows: [{ name: "open:", type: "State  (required)", meaning: "The state that shows it, written back when it closes" }, { name: "label:", type: "String", meaning: "Its name and the field's; unset, `Commands`" }, { name: "placeholder:", type: "String", meaning: "Shown in the field; unset, `Type a command or search…`" }], caption: "Props of CommandPalette")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Heading(t("ref.tab.flags"), id: "flags").h2
+        Markdown(t("ref.flags.body"), class: "bp-prose")
+        Text(t("ref.noflags"), class: "bp-small")
+        Heading(t("ref.tab.events"), id: "events").h2
+        Markdown(t("ref.universal.link"), class: "bp-prose")
+        Heading(t("ref.slotsparts"), id: "slots").h2
+        SlotsAndParts(slots: [PropRow(name: "children", kind: "", detail: "")], parts: [PropRow(name: "CommandPalette.Group", kind: "commandpalette-group", detail: "Items under a heading."), PropRow(name: "CommandPalette.Item", kind: "commandpalette-item", detail: "One thing to do or go to; on select is what it does."), PropRow(name: "CommandPalette.List", kind: "commandpalette-list", detail: "What matches. Drawn for it.")])
+        Row(gap: .sm) {
+            style { gap: 8px; flex-wrap: wrap }
+            Link("CommandPalette.Group", to: "/reference/commandpalette-group", class: "bp-button")
+            Link("CommandPalette.Item", to: "/reference/commandpalette-item", class: "bp-button")
+            Link("CommandPalette.List", to: "/reference/commandpalette-list", class: "bp-button")
+        }
+        Heading(t("ref.example"), id: "example").h2
+        CodeBlock(#"state palette = false
+Button("Commands") { on click { palette = true } }
+CommandPalette(open: palette) {
+    CommandPalette.Group("Pages") {
+        CommandPalette.Item("Home", icon: "home") { on select { navigate("/") } }
+    }
+    CommandPalette.Group("Actions") {
+        CommandPalette.Item("Toggle theme", shortcut: "mod+shift+l") { on select { setTheme(if theme == "dark" { "light" } else { "dark" }) } }
+    }
+}"#, title: "wf")
+        Markdown(t("ref.renders", { cls: "wf-command-palette" }), class: "bp-prose")
+    }
+}
+
+page BuiltinCommandpaletteGroup(path: "/reference/commandpalette-group", title: "CommandPalette.Group — Reference", description: "CommandPalette.Group: Items under a heading.") {
+    ReferenceItemShell("CommandPalette.Group", summary: "Items under a heading.", signature: "CommandPalette.Group(_ title: String) \{ … \}", since: "6.2.0", outputs: [], group: "Navigation", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C03", title: "A part outside the component it belongs to", to: "/errors/C03"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04")], source: "src/registry/builtins.rs") {
+        stage {
+            Stage(label: "CommandPalette.Group") {
+                controls {
+                    StageControl({ name: "title", kind: "string", options: [], value: "" })
+                }
+                Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
+            }
+        }
+        notes { Text(t("stage.static"), class: "bp-small") }
+        Markdown(t("ref.partof", { owner: "CommandPalette", to: "/reference/commandpalette" }), class: "bp-prose")
+        Heading(t("ref.tab.props"), id: "props").h2
+        PropsTable(rows: [{ name: "title", type: "String  (positional)", meaning: "Its heading" }], caption: "Props of CommandPalette.Group")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Heading(t("ref.tab.flags"), id: "flags").h2
+        Markdown(t("ref.flags.body"), class: "bp-prose")
+        Text(t("ref.noflags"), class: "bp-small")
+        Heading(t("ref.tab.events"), id: "events").h2
+        Markdown(t("ref.universal.link"), class: "bp-prose")
+        Heading(t("ref.slotsparts"), id: "slots").h2
+        SlotsAndParts(slots: [PropRow(name: "children", kind: "", detail: "")], parts: [])
+        Heading(t("ref.example"), id: "example").h2
+        CodeBlock(#"state palette = false
+Button("Commands") { on click { palette = true } }
+CommandPalette(open: palette) {
+    CommandPalette.Group("Pages") {
+        CommandPalette.Item("Home", icon: "home") { on select { navigate("/") } }
+    }
+    CommandPalette.Group("Actions") {
+        CommandPalette.Item("Toggle theme", shortcut: "mod+shift+l") { on select { setTheme(if theme == "dark" { "light" } else { "dark" }) } }
+    }
+}"#, title: "wf")
+    }
+}
+
+page BuiltinCommandpaletteItem(path: "/reference/commandpalette-item", title: "CommandPalette.Item — Reference", description: "CommandPalette.Item: One thing to do or go to; on select is what it does.") {
+    ReferenceItemShell("CommandPalette.Item", summary: "One thing to do or go to; on select is what it does.", signature: "CommandPalette.Item(_ label: String, icon: String, shortcut: String) \{ … \}", since: "6.2.0", outputs: [], group: "Navigation", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C03", title: "A part outside the component it belongs to", to: "/errors/C03"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04")], source: "src/registry/builtins.rs") {
+        stage {
+            Stage(label: "CommandPalette.Item") {
+                controls {
+                    StageControl({ name: "label", kind: "string", options: [], value: "" })
+                    StageControl({ name: "icon", kind: "string", options: [], value: "" })
+                    StageControl({ name: "shortcut", kind: "string", options: [], value: "" })
+                }
+                Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
+            }
+        }
+        notes { Text(t("stage.static"), class: "bp-small") }
+        Markdown(t("ref.partof", { owner: "CommandPalette", to: "/reference/commandpalette" }), class: "bp-prose")
+        Heading(t("ref.tab.props"), id: "props").h2
+        PropsTable(rows: [{ name: "label", type: "String  (positional)", meaning: "Its words, which the typing matches" }, { name: "icon:", type: "String", meaning: "An icon before the words" }, { name: "shortcut:", type: "String", meaning: "Its keys, shown at its end as this system writes them" }], caption: "Props of CommandPalette.Item")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Heading(t("ref.tab.flags"), id: "flags").h2
+        Markdown(t("ref.flags.body"), class: "bp-prose")
+        Text(t("ref.noflags"), class: "bp-small")
+        Heading(t("ref.tab.events"), id: "events").h2
+        EventsTable(rows: [PropRow(name: "select", kind: "", detail: "")], caption: "Events of CommandPalette.Item")
+        Markdown(t("ref.universal.link"), class: "bp-prose")
+        Heading(t("ref.slotsparts"), id: "slots").h2
+        SlotsAndParts(slots: [PropRow(name: "children", kind: "", detail: "")], parts: [])
+        Heading(t("ref.example"), id: "example").h2
+        CodeBlock(#"state palette = false
+Button("Commands") { on click { palette = true } }
+CommandPalette(open: palette) {
+    CommandPalette.Group("Pages") {
+        CommandPalette.Item("Home", icon: "home") { on select { navigate("/") } }
+    }
+    CommandPalette.Group("Actions") {
+        CommandPalette.Item("Toggle theme", shortcut: "mod+shift+l") { on select { setTheme(if theme == "dark" { "light" } else { "dark" }) } }
+    }
+}"#, title: "wf")
+    }
+}
+
+page BuiltinCommandpaletteList(path: "/reference/commandpalette-list", title: "CommandPalette.List — Reference", description: "CommandPalette.List: What matches. Drawn for it.") {
+    ReferenceItemShell("CommandPalette.List", summary: "What matches. Drawn for it.", signature: "CommandPalette.List \{ … \}", since: "6.2.0", outputs: [], group: "Navigation", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C03", title: "A part outside the component it belongs to", to: "/errors/C03"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
+        stage {
+            Stage(label: "CommandPalette.List") {
+                controls {
+                    Text(t("stage.nocontrols"), class: "bp-small")
+                }
+                Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
+            }
+        }
+        notes { Text(t("stage.static"), class: "bp-small") }
+        Markdown(t("ref.partof", { owner: "CommandPalette", to: "/reference/commandpalette" }), class: "bp-prose")
+        Heading(t("ref.tab.props"), id: "props").h2
+        Text(t("ref.noprops"), class: "bp-small")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Heading(t("ref.tab.flags"), id: "flags").h2
+        Markdown(t("ref.flags.body"), class: "bp-prose")
+        Text(t("ref.noflags"), class: "bp-small")
+        Heading(t("ref.tab.events"), id: "events").h2
+        Markdown(t("ref.universal.link"), class: "bp-prose")
+        Heading(t("ref.slotsparts"), id: "slots").h2
+        SlotsAndParts(slots: [PropRow(name: "children", kind: "", detail: "")], parts: [])
+        Heading(t("ref.example"), id: "example").h2
+        CodeBlock(#"state palette = false
+Button("Commands") { on click { palette = true } }
+CommandPalette(open: palette) {
+    CommandPalette.Group("Pages") {
+        CommandPalette.Item("Home", icon: "home") { on select { navigate("/") } }
+    }
+    CommandPalette.Group("Actions") {
+        CommandPalette.Item("Toggle theme", shortcut: "mod+shift+l") { on select { setTheme(if theme == "dark" { "light" } else { "dark" }) } }
+    }
+}"#, title: "wf")
+    }
+}
+
 page BuiltinRouter(path: "/reference/router", title: "Router — Reference", description: "Router: Where the current page renders. May sit at any depth inside app; pages declare their own paths.") {
     ReferenceItemShell("Router", summary: "Where the current page renders. May sit at any depth inside app; pages declare their own paths.", signature: "Router(transition: Enum, duration: String) \{ … \}", older: true, outputs: [], group: "Routing", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "E109", title: "An element this output cannot draw", to: "/errors/E109"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05"), RelatedLink(kind: "R03", title: "An app with no Router, or with two", to: "/errors/R03")], source: "src/registry/builtins.rs") {
         stage {
@@ -2998,6 +3315,119 @@ page BuiltinTooltip(path: "/reference/tooltip", title: "Tooltip — Reference", 
         CodeBlock(#"Tooltip("Copies the link") { IconButton(icon: "copy", label: "Copy link") }
 Tooltip("Save", shortcut: "Ctrl+S", delay: 400, placement: .bottom) { Button("Save") }"#, title: "wf")
         Markdown(t("ref.renders", { cls: "wf-tooltip" }), class: "bp-prose")
+    }
+}
+
+page BuiltinTree(path: "/reference/tree", title: "Tree — Reference", description: "Tree: Nested items — files and folders, an outline — as a tree a keyboard can work: Up and Down through what shows, Right to open and go in, Left to…") {
+    ReferenceItemShell("Tree", summary: "Nested items — files and folders, an outline — as a tree a keyboard can work: Up and Down through what shows, Right to open and go in, Left to close and go out (the other way round right to left), Home and End, a letter. row(item) \{ … \} draws each; bind: holds the chosen item's key, or a list of keys with .multiple.", signature: "Tree(items: Any, children: Any, key: Any, …)", since: "6.2.0", outputs: [], group: "Data display", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
+        stage {
+            Stage(label: "Tree") {
+                controls {
+                    StageControl({ name: "multiple", kind: "bool", options: [], value: "", sink: "special" })
+                    StageControl({ name: "label", kind: "string", options: [], value: "" })
+                }
+                Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
+            }
+        }
+        notes { Text(t("stage.static"), class: "bp-small") }
+        Heading(t("ref.tab.props"), id: "props").h2
+        PropsTable(rows: [{ name: "items:", type: "Any  (required)", meaning: "The items at the top" }, { name: "children:", type: "Any  (required)", meaning: "An item's children: `f => f.children`; none, or an empty list, for a leaf" }, { name: "key:", type: "Any  (required)", meaning: "What tells two items apart: `f => f.path`" }, { name: "bind:", type: "State", meaning: "The chosen key, or a list of them with `.multiple`" }, { name: "multiple:", type: "Bool", meaning: "Several at once: Space, Shift with an arrow, Ctrl or ⌘ with A" }, { name: "open:", type: "Any", meaning: "The keys open when it is drawn" }, { name: "label:", type: "String  (required)", meaning: "What the tree is, for a screen reader" }], caption: "Props of Tree")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Heading(t("ref.tab.flags"), id: "flags").h2
+        Markdown(t("ref.flags.body"), class: "bp-prose")
+        Row(gap: .sm) {
+            style { gap: 8px; flex-wrap: wrap }
+            Text(".multiple", class: "bp-label bp-mono")
+        }
+        Heading(t("ref.tab.events"), id: "events").h2
+        Markdown(t("ref.universal.link"), class: "bp-prose")
+        Heading(t("ref.slotsparts"), id: "slots").h2
+        SlotsAndParts(slots: [], parts: [])
+        Heading(t("ref.example"), id: "example").h2
+        CodeBlock(#"state files = [{ path: "src", name: "src", children: [{ path: "src/App.wf", name: "App.wf", children: [] }] }]
+state file = ""
+Tree(items: files, children: f => f.children, key: f => f.path, bind: file, label: "Files") {
+    row(f) { Icon(if f.children.length > 0 { "folder" } else { "file" })  Text(f.name) }
+}"#, title: "wf")
+        Markdown(t("ref.renders", { cls: "wf-tree" }), class: "bp-prose")
+    }
+}
+
+page BuiltinDatatable(path: "/reference/datatable", title: "DataTable — Reference", description: "DataTable: Rows of records with their columns declared once: a column sorts when it is .sortable (its header a button, aria-sort saying which way)…") {
+    ReferenceItemShell("DataTable", summary: "Rows of records with their columns declared once: a column sorts when it is .sortable (its header a button, aria-sort saying which way), cell(r) \{ … \} draws a cell, empty \{ … \} shows when there are no rows, and bind: chooses rows (a list with .multiple, a box for each and one for all).", signature: "DataTable(rows: Any, key: Any, bind: State, …) \{ … \}", since: "6.2.0", outputs: [], group: "Data display", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
+        stage {
+            Stage(label: "DataTable") {
+                controls {
+                    StageControl({ name: "multiple", kind: "bool", options: [], value: "", sink: "special" })
+                    StageControl({ name: "label", kind: "string", options: [], value: "" })
+                }
+                Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
+            }
+        }
+        notes { Text(t("stage.static"), class: "bp-small") }
+        Heading(t("ref.tab.props"), id: "props").h2
+        PropsTable(rows: [{ name: "rows:", type: "Any  (required)", meaning: "The records" }, { name: "key:", type: "Any  (required)", meaning: "What tells two rows apart: `r => r.id`" }, { name: "bind:", type: "State", meaning: "The chosen row's key, or a list of them with `.multiple`" }, { name: "multiple:", type: "Bool", meaning: "Several rows at once" }, { name: "label:", type: "String  (required)", meaning: "What the table is: its caption, read by a screen reader" }], caption: "Props of DataTable")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Heading(t("ref.tab.flags"), id: "flags").h2
+        Markdown(t("ref.flags.body"), class: "bp-prose")
+        Row(gap: .sm) {
+            style { gap: 8px; flex-wrap: wrap }
+            Text(".multiple", class: "bp-label bp-mono")
+        }
+        Heading(t("ref.tab.events"), id: "events").h2
+        Markdown(t("ref.universal.link"), class: "bp-prose")
+        Heading(t("ref.slotsparts"), id: "slots").h2
+        SlotsAndParts(slots: [PropRow(name: "children", kind: "", detail: "")], parts: [PropRow(name: "DataTable.Column", kind: "datatable-column", detail: "One column: its title, its value: (what it shows and sorts by), and a cell(r) \{ … \} that draws it instead.")])
+        Row(gap: .sm) {
+            style { gap: 8px; flex-wrap: wrap }
+            Link("DataTable.Column", to: "/reference/datatable-column", class: "bp-button")
+        }
+        Heading(t("ref.example"), id: "example").h2
+        CodeBlock(#"state deploys = [{ id: "1", service: "web", status: "live" }, { id: "2", service: "api", status: "failed" }]
+state chosen: [String] = []
+DataTable(rows: deploys, key: d => d.id, bind: chosen, label: "Deploys").multiple {
+    empty { EmptyState(icon: "list", title: "No deploys yet") }
+    DataTable.Column("Service", value: d => d.service).sortable
+    DataTable.Column("Status") { cell(d) { Badge(d.status) } }
+}"#, title: "wf")
+        Markdown(t("ref.renders", { cls: "wf-data-table" }), class: "bp-prose")
+    }
+}
+
+page BuiltinDatatableColumn(path: "/reference/datatable-column", title: "DataTable.Column — Reference", description: "DataTable.Column: One column: its title, its value: (what it shows and sorts by), and a cell(r) \{ … \} that draws it instead.") {
+    ReferenceItemShell("DataTable.Column", summary: "One column: its title, its value: (what it shows and sorts by), and a cell(r) \{ … \} that draws it instead.", signature: "DataTable.Column(_ title: String, value: Any, sortable: Bool)", since: "6.2.0", outputs: [], group: "Data display", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C03", title: "A part outside the component it belongs to", to: "/errors/C03"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04")], source: "src/registry/builtins.rs") {
+        stage {
+            Stage(label: "DataTable.Column") {
+                controls {
+                    StageControl({ name: "title", kind: "string", options: [], value: "" })
+                    StageControl({ name: "sortable", kind: "bool", options: [], value: "", sink: "special" })
+                }
+                Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
+            }
+        }
+        notes { Text(t("stage.static"), class: "bp-small") }
+        Markdown(t("ref.partof", { owner: "DataTable", to: "/reference/datatable" }), class: "bp-prose")
+        Heading(t("ref.tab.props"), id: "props").h2
+        PropsTable(rows: [{ name: "title", type: "String  (positional)", meaning: "Its header" }, { name: "value:", type: "Any", meaning: "What the column holds for a row: `r => r.service`" }, { name: "sortable:", type: "Bool", meaning: "Its header sorts the rows by its `value:`" }], caption: "Props of DataTable.Column")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Heading(t("ref.tab.flags"), id: "flags").h2
+        Markdown(t("ref.flags.body"), class: "bp-prose")
+        Row(gap: .sm) {
+            style { gap: 8px; flex-wrap: wrap }
+            Text(".sortable", class: "bp-label bp-mono")
+        }
+        Heading(t("ref.tab.events"), id: "events").h2
+        Markdown(t("ref.universal.link"), class: "bp-prose")
+        Heading(t("ref.slotsparts"), id: "slots").h2
+        SlotsAndParts(slots: [], parts: [])
+        Heading(t("ref.example"), id: "example").h2
+        CodeBlock(#"state deploys = [{ id: "1", service: "web", status: "live" }, { id: "2", service: "api", status: "failed" }]
+state chosen: [String] = []
+DataTable(rows: deploys, key: d => d.id, bind: chosen, label: "Deploys").multiple {
+    empty { EmptyState(icon: "list", title: "No deploys yet") }
+    DataTable.Column("Service", value: d => d.service).sortable
+    DataTable.Column("Status") { cell(d) { Badge(d.status) } }
+}"#, title: "wf")
     }
 }
 
@@ -4800,6 +5230,117 @@ page BuiltinCalendar(path: "/reference/calendar", title: "Calendar — Reference
         CodeBlock(#"state day: Date? = null
 Calendar(bind: day, min: @2026-01-01, disabled: d => d.weekday() >= 6, label: "Delivery day")"#, title: "wf")
         Markdown(t("ref.renders", { cls: "wf-calendar" }), class: "bp-prose")
+    }
+}
+
+page BuiltinListbox(path: "/reference/listbox", title: "Listbox — Reference", description: "Listbox: A list of options always shown, one chosen (selection follows the arrow keys) or, .multiple, several: Space chooses, Shift with an arrow takes…") {
+    ReferenceItemShell("Listbox", summary: "A list of options always shown, one chosen (selection follows the arrow keys) or, .multiple, several: Space chooses, Shift with an arrow takes the next one in too, Ctrl or ⌘ with A takes them all; a letter goes to the next option that starts with it.", signature: "Listbox(bind: State, label: String, multiple: Bool) \{ … \}", since: "6.2.0", outputs: [], group: "Form", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
+        stage {
+            Stage(label: "Listbox") {
+                controls {
+                    StageControl({ name: "label", kind: "string", options: [], value: "" })
+                    StageControl({ name: "multiple", kind: "bool", options: [], value: "", sink: "special" })
+                }
+                Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
+            }
+        }
+        notes { Text(t("stage.static"), class: "bp-small") }
+        Heading(t("ref.tab.props"), id: "props").h2
+        PropsTable(rows: [{ name: "bind:", type: "State  (required)", meaning: "The chosen value, or a list of them with `.multiple`" }, { name: "label:", type: "String  (required)", meaning: "What is being chosen, for a screen reader" }, { name: "multiple:", type: "Bool", meaning: "Several at once: `bind:` is a list" }], caption: "Props of Listbox")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Heading(t("ref.tab.flags"), id: "flags").h2
+        Markdown(t("ref.flags.body"), class: "bp-prose")
+        Row(gap: .sm) {
+            style { gap: 8px; flex-wrap: wrap }
+            Text(".multiple", class: "bp-label bp-mono")
+        }
+        Heading(t("ref.tab.events"), id: "events").h2
+        Markdown(t("ref.universal.link"), class: "bp-prose")
+        Heading(t("ref.slotsparts"), id: "slots").h2
+        SlotsAndParts(slots: [PropRow(name: "children", kind: "", detail: "")], parts: [PropRow(name: "Listbox.Option", kind: "listbox-option", detail: "One option: its words, and the value bind: holds when it is chosen.")])
+        Row(gap: .sm) {
+            style { gap: 8px; flex-wrap: wrap }
+            Link("Listbox.Option", to: "/reference/listbox-option", class: "bp-button")
+        }
+        Heading(t("ref.example"), id: "example").h2
+        CodeBlock(#"state fruit = "apple"
+Listbox(bind: fruit, label: "Fruit") {
+    Listbox.Option("Apple", value: "apple")
+    Listbox.Option("Banana", value: "banana")
+    Listbox.Option("Cherry", value: "cherry")
+}"#, title: "wf")
+        Markdown(t("ref.renders", { cls: "wf-listbox" }), class: "bp-prose")
+    }
+}
+
+page BuiltinListboxOption(path: "/reference/listbox-option", title: "Listbox.Option — Reference", description: "Listbox.Option: One option: its words, and the value bind: holds when it is chosen.") {
+    ReferenceItemShell("Listbox.Option", summary: "One option: its words, and the value bind: holds when it is chosen.", signature: "Listbox.Option(_ label: String, value: Any, icon: String, aria-disabled: String) \{ … \}", since: "6.2.0", outputs: [], group: "Form", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C03", title: "A part outside the component it belongs to", to: "/errors/C03"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04")], source: "src/registry/builtins.rs") {
+        stage {
+            Stage(label: "Listbox.Option") {
+                controls {
+                    StageControl({ name: "label", kind: "string", options: [], value: "" })
+                    StageControl({ name: "icon", kind: "string", options: [], value: "" })
+                    StageControl({ name: "aria-disabled", kind: "string", options: [], value: "" })
+                }
+                Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
+            }
+        }
+        notes { Text(t("stage.static"), class: "bp-small") }
+        Markdown(t("ref.partof", { owner: "Listbox", to: "/reference/listbox" }), class: "bp-prose")
+        Heading(t("ref.tab.props"), id: "props").h2
+        PropsTable(rows: [{ name: "label", type: "String  (positional)", meaning: "Its words" }, { name: "value:", type: "Any  (required)", meaning: "What `bind:` holds when it is chosen" }, { name: "icon:", type: "String", meaning: "An icon before the words" }, { name: "aria-disabled:", type: "String", meaning: "`\"true\"`: shown, passed over, never chosen" }], caption: "Props of Listbox.Option")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Heading(t("ref.tab.flags"), id: "flags").h2
+        Markdown(t("ref.flags.body"), class: "bp-prose")
+        Text(t("ref.noflags"), class: "bp-small")
+        Heading(t("ref.tab.events"), id: "events").h2
+        Markdown(t("ref.universal.link"), class: "bp-prose")
+        Heading(t("ref.slotsparts"), id: "slots").h2
+        SlotsAndParts(slots: [PropRow(name: "children", kind: "", detail: "")], parts: [])
+        Heading(t("ref.example"), id: "example").h2
+        CodeBlock(#"state fruit = "apple"
+Listbox(bind: fruit, label: "Fruit") {
+    Listbox.Option("Apple", value: "apple")
+    Listbox.Option("Banana", value: "banana")
+    Listbox.Option("Cherry", value: "cherry")
+}"#, title: "wf")
+    }
+}
+
+page BuiltinCombobox(path: "/reference/combobox", title: "Combobox — Reference", description: "Combobox: A text field that offers what matches as the reader types: from options:, or search: asked of a server. The arrow keys go through the offers…") {
+    ReferenceItemShell("Combobox", summary: "A text field that offers what matches as the reader types: from options:, or search: asked of a server. The arrow keys go through the offers, Enter takes one, Escape closes them; .multiple keeps several, each a chip Backspace takes back. option(o) \{ … \} draws an offer; empty \{ … \} shows when nothing matches.", signature: "Combobox(bind: State, options: Any, search: Any, …)", since: "6.2.0", outputs: [], group: "Form", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
+        stage {
+            Stage(label: "Combobox") {
+                controls {
+                    StageControl({ name: "multiple", kind: "bool", options: [], value: "", sink: "special" })
+                    StageControl({ name: "label", kind: "string", options: [], value: "" })
+                    StageControl({ name: "placeholder", kind: "string", options: [], value: "" })
+                }
+                Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
+            }
+        }
+        notes { Text(t("stage.static"), class: "bp-small") }
+        Heading(t("ref.tab.props"), id: "props").h2
+        PropsTable(rows: [{ name: "bind:", type: "State  (required)", meaning: "The chosen option's key (or the option itself without `key:`), or a list with `.multiple`" }, { name: "options:", type: "Any", meaning: "Every option, filtered as the reader types" }, { name: "search:", type: "Any", meaning: "Options asked for as the reader types: `q => Geo.cities(q: q)`" }, { name: "text:", type: "Any  (required)", meaning: "An option's words: `p => p.name`" }, { name: "key:", type: "Any", meaning: "What tells two options apart: `p => p.id`" }, { name: "debounce:", type: "Any", meaning: "How long the typing rests before `search:` is asked (unset, 200ms)" }, { name: "multiple:", type: "Bool", meaning: "Several at once, each a chip" }, { name: "label:", type: "String  (required)", meaning: "Its name for a screen reader" }, { name: "placeholder:", type: "String", meaning: "Shown while it is empty" }], caption: "Props of Combobox")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Heading(t("ref.tab.flags"), id: "flags").h2
+        Markdown(t("ref.flags.body"), class: "bp-prose")
+        Row(gap: .sm) {
+            style { gap: 8px; flex-wrap: wrap }
+            Text(".multiple", class: "bp-label bp-mono")
+        }
+        Heading(t("ref.tab.events"), id: "events").h2
+        Markdown(t("ref.universal.link"), class: "bp-prose")
+        Heading(t("ref.slotsparts"), id: "slots").h2
+        SlotsAndParts(slots: [], parts: [])
+        Heading(t("ref.example"), id: "example").h2
+        CodeBlock(#"state city = ""
+state cities = [{ id: "par", name: "Paris", country: "France" }, { id: "por", name: "Porto", country: "Portugal" }]
+Combobox(bind: city, options: cities, text: c => c.name, key: c => c.id, label: "City") {
+    option(c) { Text(c.name)  Text(c.country).muted }
+    empty { Text("No city by that name") }
+}"#, title: "wf")
+        Markdown(t("ref.renders", { cls: "wf-combobox" }), class: "bp-prose")
     }
 }
 

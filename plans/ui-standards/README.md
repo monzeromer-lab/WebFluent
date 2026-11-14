@@ -641,6 +641,16 @@ left) and `tests/choosing.rs`. What differs is under Leftovers.
 **Done when** the whole of Tier 1 is in, and the site and examples use the
 built-ins wherever they used to build their own.
 
+**Status: built, 2026-11-14; the site and examples are not moved over.**
+`Listbox` and `CommandPalette` are rewritten during lowering as stage 5's
+are; `Tree`, `DataTable` and `Combobox` have emitters that hand the runtime
+their data and compile the blocks written for a row (`row(f)`, `cell(r)`,
+`option(o)`, `empty`) into functions, and a built-in's entry now lists the
+named blocks it takes (`.slots(…)`). `AppShell` is a frame of parts and a
+grid. The checks are `tests/browser/collections.mjs` (36 in Chrome, a tree
+again right to left) and `tests/collections.rs`. What differs is under
+Leftovers.
+
 ### Stage 8: Tier 2, in four groups
 
 Each group is released on its own:
@@ -719,3 +729,20 @@ up together once stage 9 is done. A line comes off when its work lands.
 - A live `Radio` has no `value` attribute (its binding holds the value),
   where its static paint has one: a form posted without script sends `on`.
 - The site's search kinds are still hand-made buttons, not `ToggleGroup`.
+
+### From stage 7
+
+- The site and the examples keep their own shells, search palette, file
+  tree and props tables (`DocsShell`, `SearchPalette`, `FileTree`,
+  `PropsTable`, `EventsTable`): stage 7's "done when" is not met.
+- There is no shared `WF.selection`: `Listbox`, `Tree` and `DataTable` each
+  choose in their own way (a listbox by its options' own presses).
+- `DataTable` has no filter, no pagination, no resizable columns, and is
+  not drawn by `VirtualList` when long.
+- `Tree`, `DataTable` and `Combobox` are drawn once the page runs, not in
+  the static paint; a `row`, `cell` or `option` block's parameter is `Any`
+  to the checker.
+- `Combobox`'s offers are not drawn by `VirtualList`; its `search:` has no
+  `.pending` of its own beyond `aria-busy`.
+- `AppShell.Sidebar` is not a part: the frame takes the project's own
+  `Sidebar`, which is a drawer on a narrow screen rather than a `Sheet`.

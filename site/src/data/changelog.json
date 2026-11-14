@@ -287,6 +287,49 @@
     "after": ""
    },
    {
+    "title": "Collections and an app's frame",
+    "id": "6.2.0-collections-and-an-app-s-frame",
+    "intro": "",
+    "items": [
+     {
+      "text": "`Listbox(bind:, label:) { Listbox.Option(…) }` is options always shown,\none chosen or, `.multiple`, several (Space, Shift with an arrow, Ctrl+A).",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`Tree(items:, children:, key:) { row(f) { … } }` is nested items a\nkeyboard opens and walks as a file tree does.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`DataTable(rows:, key:) { DataTable.Column(…).sortable … }` is a table of\nrecords whose columns sort, with a `cell(r)` block, an `empty` block and\nrows chosen by `bind:`.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`Combobox(bind:, options: | search:, text:)` is a field that offers what\nmatches, from a list or a server, one or several.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`CommandPalette(open:) { … CommandPalette.Item(…) { on select { … } } }`\nis a dialog of everything to do, filtered as the reader types.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`AppShell { AppShell.Header { … }  Sidebar { … }  Router }` frames an app.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "A built-in may take named blocks its entry lists; `E103` names the ones\nit takes.",
+      "points": [],
+      "after": ""
+     }
+    ],
+    "after": ""
+   },
+   {
     "title": "Fixes",
     "id": "6.2.0-fixes",
     "intro": "",
@@ -439,7 +482,7 @@
     "after": ""
    }
   ],
-  "count": 69
+  "count": 76
  },
  {
   "version": "6.1.0",

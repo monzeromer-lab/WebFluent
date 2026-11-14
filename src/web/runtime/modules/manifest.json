@@ -1036,6 +1036,37 @@
     },
     {
       "deps": [
+        "focus",
+        "each",
+        "layer"
+      ],
+      "exports": [
+        [
+          "listbox",
+          "listbox"
+        ],
+        [
+          "tree",
+          "tree"
+        ],
+        [
+          "dataTable",
+          "dataTable"
+        ],
+        [
+          "combobox",
+          "combobox"
+        ],
+        [
+          "commandPalette",
+          "commandPalette"
+        ]
+      ],
+      "name": "collections",
+      "triggers": []
+    },
+    {
+      "deps": [
         "theme",
         "announce"
       ],

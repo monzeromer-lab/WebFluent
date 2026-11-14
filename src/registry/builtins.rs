@@ -135,6 +135,7 @@ const fn comp(
         class: "",
         css: &[],
         paper: Paper::Undecided,
+        slots: &[],
     }
 }
 
@@ -168,6 +169,7 @@ const fn part(
         class: "",
         css: &[],
         paper: Paper::Undecided,
+        slots: &[],
     }
 }
 
@@ -2544,6 +2546,174 @@ pub const COMPONENTS: &[ComponentSig] = &[
     .html("div", "wf-calendar")
     .css(&["Calendar"])
     .not_on_paper("interactive elements are not supported in PDF"),
+    // ─── Collections ──────────────────────────────────────────────────────
+    comp(
+        "Listbox",
+        "Form",
+        "A list of options always shown, one chosen (selection follows the arrow keys) or, `.multiple`, several: Space chooses, Shift with an arrow takes the next one in too, Ctrl or ⌘ with A takes them all; a letter goes to the next option that starts with it.",
+        None,
+        &[
+            required(special("bind", PropType::State, "The chosen value, or a list of them with `.multiple`")),
+            required(special("label", PropType::Str, "What is being chosen, for a screen reader")),
+            special("multiple", PropType::Bool, "Several at once: `bind:` is a list"),
+        ],
+        &["Option"],
+        G,
+        Children::Elements,
+    )
+    .html("div", "wf-listbox")
+    .css(&["Listbox", "Icon"])
+    .not_on_paper("interactive elements are not supported in PDF"),
+    part(
+        "Listbox",
+        "Option",
+        Ir::Sub("Listbox", "Option"),
+        "One option: its words, and the value `bind:` holds when it is chosen.",
+        Some(required(special("label", PropType::Str, "Its words"))),
+        &[
+            required(special("value", PropType::Any, "What `bind:` holds when it is chosen")),
+            special("icon", PropType::Str, "An icon before the words"),
+            attr("aria-disabled", PropType::Str, "`\"true\"`: shown, passed over, never chosen"),
+        ],
+        G,
+        Children::Elements,
+    )
+    .html("div", "wf-listbox__option"),
+    comp(
+        "Tree",
+        "Data display",
+        "Nested items — files and folders, an outline — as a tree a keyboard can work: Up and Down through what shows, Right to open and go in, Left to close and go out (the other way round right to left), Home and End, a letter. `row(item) { … }` draws each; `bind:` holds the chosen item's key, or a list of keys with `.multiple`.",
+        None,
+        &[
+            required(special("items", PropType::Any, "The items at the top")),
+            required(special("children", PropType::Any, "An item's children: `f => f.children`; none, or an empty list, for a leaf")),
+            required(special("key", PropType::Any, "What tells two items apart: `f => f.path`")),
+            special("bind", PropType::State, "The chosen key, or a list of them with `.multiple`"),
+            special("multiple", PropType::Bool, "Several at once: Space, Shift with an arrow, Ctrl or ⌘ with A"),
+            special("open", PropType::Any, "The keys open when it is drawn"),
+            required(special("label", PropType::Str, "What the tree is, for a screen reader")),
+        ],
+        &[],
+        G,
+        Children::None,
+    )
+    .html("ul", "wf-tree")
+    .slots(&["row"])
+    .css(&["Tree", "Icon"])
+    .not_on_paper("interactive elements are not supported in PDF"),
+    comp(
+        "DataTable",
+        "Data display",
+        "Rows of records with their columns declared once: a column sorts when it is `.sortable` (its header a button, `aria-sort` saying which way), `cell(r) { … }` draws a cell, `empty { … }` shows when there are no rows, and `bind:` chooses rows (a list with `.multiple`, a box for each and one for all).",
+        None,
+        &[
+            required(special("rows", PropType::Any, "The records")),
+            required(special("key", PropType::Any, "What tells two rows apart: `r => r.id`")),
+            special("bind", PropType::State, "The chosen row's key, or a list of them with `.multiple`"),
+            special("multiple", PropType::Bool, "Several rows at once"),
+            required(special("label", PropType::Str, "What the table is: its caption, read by a screen reader")),
+        ],
+        &["Column"],
+        G,
+        Children::Elements,
+    )
+    .html("div", "wf-data-table")
+    .slots(&["empty"])
+    .css(&["Data Table", "Table", "Checkbox"])
+    .on_paper(),
+    part(
+        "DataTable",
+        "Column",
+        Ir::Sub("DataTable", "Column"),
+        "One column: its title, its `value:` (what it shows and sorts by), and a `cell(r) { … }` that draws it instead.",
+        Some(required(special("title", PropType::Str, "Its header"))),
+        &[
+            special("value", PropType::Any, "What the column holds for a row: `r => r.service`"),
+            special("sortable", PropType::Bool, "Its header sorts the rows by its `value:`"),
+        ],
+        G,
+        Children::None,
+    )
+    .slots(&["cell"]),
+    comp(
+        "Combobox",
+        "Form",
+        "A text field that offers what matches as the reader types: from `options:`, or `search:` asked of a server. The arrow keys go through the offers, Enter takes one, Escape closes them; `.multiple` keeps several, each a chip Backspace takes back. `option(o) { … }` draws an offer; `empty { … }` shows when nothing matches.",
+        None,
+        &[
+            required(special("bind", PropType::State, "The chosen option's key (or the option itself without `key:`), or a list with `.multiple`")),
+            special("options", PropType::Any, "Every option, filtered as the reader types"),
+            special("search", PropType::Any, "Options asked for as the reader types: `q => Geo.cities(q: q)`"),
+            required(special("text", PropType::Any, "An option's words: `p => p.name`")),
+            special("key", PropType::Any, "What tells two options apart: `p => p.id`"),
+            special("debounce", PropType::Any, "How long the typing rests before `search:` is asked (unset, 200ms)"),
+            special("multiple", PropType::Bool, "Several at once, each a chip"),
+            required(special("label", PropType::Str, "Its name for a screen reader")),
+            special("placeholder", PropType::Str, "Shown while it is empty"),
+        ],
+        &[],
+        G,
+        Children::None,
+    )
+    .html("div", "wf-combobox")
+    .slots(&["option", "empty"])
+    .css(&["Combobox", "Layer", "Chip"])
+    .not_on_paper("interactive elements are not supported in PDF"),
+    comp(
+        "CommandPalette",
+        "Navigation",
+        "A dialog of everything a reader can do or go to, filtered as they type: the arrow keys go through what matches, Enter runs it (`on select`) and closes. `open:` is the state that shows it.",
+        None,
+        &[
+            required(special("open", PropType::State, "The state that shows it, written back when it closes")),
+            special("label", PropType::Str, "Its name and the field's; unset, `Commands`"),
+            special("placeholder", PropType::Str, "Shown in the field; unset, `Type a command or search…`"),
+        ],
+        &["Group", "Item", "List"],
+        G,
+        Children::Elements,
+    )
+    .html("div", "wf-command-palette")
+    .css(&["Command Palette", "Modal", "Input", "Kbd", "Icon", "Layer"])
+    .not_on_paper("interactive elements are not supported in PDF"),
+    part("CommandPalette", "Group", Ir::Sub("CommandPalette", "Group"), "Items under a heading.", Some(required(special("title", PropType::Str, "Its heading"))), &[], G, Children::Elements)
+        .html("div", "wf-command-palette__group"),
+    ComponentSig {
+        events: &["select"],
+        ..part(
+            "CommandPalette",
+            "Item",
+            Ir::Sub("CommandPalette", "Item"),
+            "One thing to do or go to; `on select` is what it does.",
+            Some(required(special("label", PropType::Str, "Its words, which the typing matches"))),
+            &[
+                special("icon", PropType::Str, "An icon before the words"),
+                special("shortcut", PropType::Str, "Its keys, shown at its end as this system writes them"),
+            ],
+            G,
+            Children::Elements,
+        )
+    }
+    .html("div", "wf-command-palette__item"),
+    part("CommandPalette", "List", Ir::Sub("CommandPalette", "List"), "What matches. Drawn for it.", None, &[], G, Children::Elements)
+        .html("div", "wf-command-palette__list"),
+    comp(
+        "AppShell",
+        "Layout",
+        "An app's frame: `AppShell.Header` across the top, a `Sidebar` down the start (a drawer on a narrow screen), the `Router`'s page beside it, and an `AppShell.Footer`.",
+        None,
+        &[],
+        &["Header", "Footer"],
+        G,
+        Children::Elements,
+    )
+    .html("div", "wf-app-shell")
+    .css(&["App Shell"])
+    .not_on_paper("navigation components are web-only"),
+    part("AppShell", "Header", Ir::Sub("AppShell", "Header"), "The bar across the top.", None, &[], G, Children::Elements)
+        .html("header", "wf-app-shell__header"),
+    part("AppShell", "Footer", Ir::Sub("AppShell", "Footer"), "The bar along the bottom.", None, &[], G, Children::Elements)
+        .html("footer", "wf-app-shell__footer"),
     // ─── Actions ──────────────────────────────────────────────────────────
     comp(
         "Button",

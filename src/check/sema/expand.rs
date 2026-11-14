@@ -62,6 +62,8 @@ fn expand_element(el: &mut UIElement, seq: &mut usize) {
         "Pagination" => pagination(el),
         "Stepper" => stepper(el),
         "NumberInput" => number_input(el),
+        "Listbox" => listbox(el),
+        "CommandPalette" => command_palette(el),
         _ => {}
     }
 }
@@ -810,4 +812,126 @@ fn number_input(el: &mut UIElement) {
     let mut seq = 0;
     expand(&mut children, &mut seq);
     el.children = children;
+}
+
+/// `Listbox(bind: chosen, label: "Fruit") { Listbox.Option("Apple", value: "a") }`:
+/// options a press chooses, the keyboard the runtime's.
+fn listbox(el: &mut UIElement) {
+    let Some(bind) = take(el, "bind") else {
+        return;
+    };
+    let b = src(&bind);
+    let multiple = take_flag(el, "multiple").is_some();
+    if let Some(label) = take(el, "label") {
+        give(el, "aria-label", &src(&label));
+    }
+    give(el, "role", "\"listbox\"");
+    give(el, "mount", &format!("(n) => __wf.listbox(n, {multiple})"));
+    listbox_options(&mut el.children, &b, multiple);
+}
+
+fn listbox_options(stmts: &mut [Statement], b: &str, multiple: bool) {
+    for stmt in stmts.iter_mut() {
+        if let StatementKind::UIElement(option) = &mut stmt.kind
+            && matches!(&option.component, ComponentRef::SubComponent(p, s) if p == "Listbox" && s == "Option")
+        {
+            let Some(value) = take(option, "value") else {
+                continue;
+            };
+            let v = src(&value);
+            if let Some(icon) = take(option, "icon") {
+                let mut icon = parse(&format!("Icon({}, aria-hidden: \"true\")", src(&icon)));
+                icon.append(&mut option.children);
+                option.children = icon;
+            }
+            give(option, "role", "\"option\"");
+            let (chosen, choose) = if multiple {
+                (
+                    format!("{b}.includes({v})"),
+                    format!(
+                        "{b} = if {b}.includes({v}) {{ {b}.filter(wfChosen => wfChosen != {v}) }} else {{ {b}.concat([{v}]) }}"
+                    ),
+                )
+            } else {
+                (format!("{b} == {v}"), format!("{b} = {v}"))
+            };
+            give(
+                option,
+                "aria-selected",
+                &format!("if {chosen} {{ \"true\" }} else {{ \"false\" }}"),
+            );
+            // A disabled option's press is stopped by the runtime first.
+            first_handlers(option, &format!("on click {{ {choose} }}"));
+            continue;
+        }
+        if !matches!(stmt.kind, StatementKind::UIElement(_)) {
+            for body in stmt.kind.bodies_mut() {
+                listbox_options(body, b, multiple);
+            }
+        }
+    }
+}
+
+/// `CommandPalette(open: palette) { CommandPalette.Group("Pages") { CommandPalette.Item("Home") { on select { … } } } }`:
+/// a modal with a field and what matches it.
+fn command_palette(el: &mut UIElement) {
+    let Some(open) = take(el, "open") else {
+        return;
+    };
+    let label = take(el, "label").map_or_else(|| lit("Commands"), |e| src(&e));
+    let placeholder =
+        take(el, "placeholder").map_or_else(|| lit("Type a command or search…"), |e| src(&e));
+    palette_parts(&mut el.children);
+    let body = std::mem::take(&mut el.children);
+    let mut modal = parse(&format!(
+        "Modal(visible: {o}, title: {label}) {{\n    Input(aria-label: {label}, placeholder: {placeholder}).search\n    CommandPalette.List(role: \"listbox\", aria-label: {label}) {{ }}\n}}",
+        o = src(&open)
+    ));
+    if let Some(StatementKind::UIElement(m)) = modal.first_mut().map(|s| &mut s.kind)
+        && let Some(StatementKind::UIElement(list)) = m.children.get_mut(1).map(|s| &mut s.kind)
+    {
+        list.children = body;
+    }
+    el.children = modal;
+    give(el, "mount", "(n) => __wf.commandPalette(n)");
+}
+
+fn palette_parts(stmts: &mut [Statement]) {
+    for stmt in stmts.iter_mut() {
+        if let StatementKind::UIElement(part) = &mut stmt.kind {
+            match &part.component {
+                ComponentRef::SubComponent(p, s) if p == "CommandPalette" && s == "Group" => {
+                    if let Some(title) = take_positional(part) {
+                        let t = src(&title);
+                        give(part, "role", "\"group\"");
+                        give(part, "aria-label", &t);
+                        let mut head = parse(&format!("Text({t}, aria-hidden: \"true\").sm.muted"));
+                        palette_parts(&mut part.children);
+                        head.append(&mut part.children);
+                        part.children = head;
+                    }
+                    continue;
+                }
+                ComponentRef::SubComponent(p, s) if p == "CommandPalette" && s == "Item" => {
+                    let mut out = String::new();
+                    if let Some(icon) = take(part, "icon") {
+                        out.push_str(&format!("Icon({}, aria-hidden: \"true\")\n", src(&icon)));
+                    }
+                    if let Some(keys) = take(part, "shortcut") {
+                        out.push_str(&format!("Kbd({}, aria-hidden: \"true\")\n", src(&keys)));
+                    }
+                    let mut children = parse(&out);
+                    expand(&mut children, &mut 0);
+                    children.append(&mut part.children);
+                    part.children = children;
+                    give(part, "role", "\"option\"");
+                    continue;
+                }
+                _ => {}
+            }
+        }
+        for body in stmt.kind.bodies_mut() {
+            palette_parts(body);
+        }
+    }
 }

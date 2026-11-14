@@ -1,0 +1,74 @@
+// Every collection built-in, for `tests/browser/collections.mjs`.
+type Node { path: String, name: String, children: [Node] = [] }
+type Deploy { id: String, service: String, status: String, at: Number }
+const FILES = [
+    Node(path: "src", name: "src", children: [
+        Node(path: "src/pages", name: "pages", children: [Node(path: "src/pages/Home.wf", name: "Home.wf")]),
+        Node(path: "src/App.wf", name: "App.wf"),
+    ]),
+    Node(path: "README.md", name: "README.md"),
+]
+const PEOPLE = [{ id: "ada", name: "Ada" }, { id: "alan", name: "Alan" }, { id: "grace", name: "Grace" }]
+
+page Home(path: "/", title: "Collections", description: "Every collection built-in.") {
+    state fruit = "apple"
+    state fruits: [String] = []
+    state file = ""
+    state picked: [String] = []
+    state deploys: [Deploy] = [
+        Deploy(id: "1", service: "web", status: "live", at: 3),
+        Deploy(id: "2", service: "api", status: "failed", at: 1),
+        Deploy(id: "3", service: "cron", status: "live", at: 2),
+    ]
+    state person = ""
+    state team: [String] = []
+    state palette = false
+    state city = ""
+    state ran = "nothing"
+    Heading("Collections").h1
+    Listbox(bind: fruit, label: "Fruit") {
+        Listbox.Option("Apple", value: "apple")
+        Listbox.Option("Banana", value: "banana")
+        Listbox.Option("Cherry", value: "cherry", aria-disabled: "true")
+        Listbox.Option("Date", value: "date")
+    }
+    Text("fruit {fruit}", id: "fruit")
+    Listbox(bind: fruits, label: "Fruits").multiple {
+        Listbox.Option("Apple", value: "apple")
+        Listbox.Option("Banana", value: "banana")
+        Listbox.Option("Date", value: "date")
+    }
+    Text("fruits {fruits.join(\",\")}", id: "fruits")
+    Tree(items: FILES, children: f => f.children, key: f => f.path, bind: file, label: "Files") {
+        row(f) { Text(f.name) }
+    }
+    Text("file {file}", id: "file")
+    DataTable(rows: deploys, key: d => d.id, bind: picked, label: "Deploys").multiple {
+        empty { Text("No deploys") }
+        DataTable.Column("Service", value: d => d.service).sortable
+        DataTable.Column("Status") { cell(d) { Badge(d.status) } }
+        DataTable.Column("When", value: d => d.at).sortable
+    }
+    Text("picked {picked.join(\",\")}", id: "picked")
+    Button("Clear deploys", id: "clear") { on click { deploys = [] } }
+    Combobox(bind: person, options: PEOPLE, text: p => p.name, key: p => p.id, label: "Person")
+    Text("person {person}", id: "person")
+    Combobox(bind: team, options: PEOPLE, text: p => p.name, key: p => p.id, label: "Team").multiple
+    Text("team {team.join(\",\")}", id: "team")
+    Combobox(bind: city, search: q => findCities(q), text: c => c.name, key: c => c.name, debounce: 100, label: "City") {
+        option(c) { Text(c.name)  Text(c.country).muted }
+        empty { Text("No city by that name") }
+    }
+    Text("city {city}", id: "city")
+    Button("Commands", id: "open") { on click { palette = true } }
+    CommandPalette(open: palette) {
+        CommandPalette.Group("Pages") {
+            CommandPalette.Item("Home", icon: "home") { on select { ran = "home" } }
+            CommandPalette.Item("Settings", icon: "settings") { on select { ran = "settings" } }
+        }
+        CommandPalette.Group("Actions") {
+            CommandPalette.Item("Toggle theme", shortcut: "mod+shift+l") { on select { ran = "theme" } }
+        }
+    }
+    Text("ran {ran}", id: "ran")
+}

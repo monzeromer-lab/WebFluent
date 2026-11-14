@@ -1,0 +1,4 @@
+{
+  "name": "collections",
+  "build": { "ssg": true, "csp": true }
+}

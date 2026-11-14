@@ -278,6 +278,9 @@ pub struct ComponentSig {
     pub css: &'static [&'static str],
     /// What a PDF or a slide deck does with it.
     pub paper: Paper,
+    /// The named blocks it takes, each a function of what it is handed:
+    /// a `Tree`'s `row(item) { … }`, a `DataTable`'s `empty { … }`.
+    pub slots: &'static [&'static str],
 }
 
 /// What a paged output — a PDF, a slide deck — does with a built-in.
@@ -321,6 +324,11 @@ impl ComponentSig {
             css: sections,
             ..self
         }
+    }
+
+    /// This entry, taking these named blocks.
+    pub(crate) const fn slots(self, slots: &'static [&'static str]) -> Self {
+        Self { slots, ..self }
     }
 
     /// This entry, drawn in a PDF and a deck.

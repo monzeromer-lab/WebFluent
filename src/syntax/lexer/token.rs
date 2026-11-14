@@ -453,6 +453,13 @@ pub const ALL_COMPONENT_NAMES: &[&str] = &[
     "Stepper",
     "NumberInput",
     "Calendar",
+    // Collections
+    "Listbox",
+    "Tree",
+    "DataTable",
+    "Combobox",
+    "CommandPalette",
+    "AppShell",
     // A node handed to somebody else's code, with a lifetime.
     "Host",
     // A custom element a script defines, by its tag.

@@ -1,5 +1,5 @@
 {
- "count": 174,
+ "count": 187,
  "families": [
   "Layout",
   "Navigation",
@@ -905,6 +905,200 @@
      "kind": "E103",
      "title": "A flag, case, part, event or slot the component does not have",
      "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "AppShell",
+   "slug": "appshell",
+   "family": "Layout",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "An app's frame: `AppShell.Header` across the top, a `Sidebar` down the start (a drawer on a narrow screen), the `Router`'s page beside it, and an `AppShell.Footer`.",
+   "plain": "An app's frame: AppShell.Header across the top, a Sidebar down the start (a drawer on a narrow screen), the Router's page beside it, and an AppShell.Footer.",
+   "signature": "AppShell { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [],
+   "controls": [],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [
+    {
+     "name": "AppShell.Header",
+     "kind": "appshell-header",
+     "detail": "The bar across the top.",
+     "fallback": ""
+    },
+    {
+     "name": "AppShell.Footer",
+     "kind": "appshell-footer",
+     "detail": "The bar along the bottom.",
+     "fallback": ""
+    }
+   ],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-app-shell",
+   "example": "AppShell {\n    AppShell.Header { Text(\"Ledger\").bold  Spacer  ThemeToggle }\n    Sidebar { Sidebar.Item(to: \"/\", icon: \"home\") { Text(\"Home\") } }\n    Router\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "AppShell.Header",
+   "slug": "appshell-header",
+   "family": "Layout",
+   "owner": "AppShell",
+   "ownerSlug": "appshell",
+   "summary": "The bar across the top.",
+   "plain": "The bar across the top.",
+   "signature": "AppShell.Header { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [],
+   "controls": [],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "AppShell {\n    AppShell.Header { Text(\"Ledger\").bold  Spacer  ThemeToggle }\n    Sidebar { Sidebar.Item(to: \"/\", icon: \"home\") { Text(\"Home\") } }\n    Router\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "AppShell.Footer",
+   "slug": "appshell-footer",
+   "family": "Layout",
+   "owner": "AppShell",
+   "ownerSlug": "appshell",
+   "summary": "The bar along the bottom.",
+   "plain": "The bar along the bottom.",
+   "signature": "AppShell.Footer { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [],
+   "controls": [],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "AppShell {\n    AppShell.Header { Text(\"Ledger\").bold  Spacer  ThemeToggle }\n    Sidebar { Sidebar.Item(to: \"/\", icon: \"home\") { Text(\"Home\") } }\n    Router\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
     },
     {
      "kind": "C04",
@@ -3449,6 +3643,342 @@
    ]
   },
   {
+   "name": "CommandPalette",
+   "slug": "commandpalette",
+   "family": "Navigation",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "A dialog of everything a reader can do or go to, filtered as they type: the arrow keys go through what matches, Enter runs it (`on select`) and closes. `open:` is the state that shows it.",
+   "plain": "A dialog of everything a reader can do or go to, filtered as they type: the arrow keys go through what matches, Enter runs it (on select) and closes. open: is the state that shows it.",
+   "signature": "CommandPalette(open: State, label: String, placeholder: String) { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "open:",
+     "type": "State  (required)",
+     "meaning": "The state that shows it, written back when it closes"
+    },
+    {
+     "name": "label:",
+     "type": "String",
+     "meaning": "Its name and the field's; unset, `Commands`"
+    },
+    {
+     "name": "placeholder:",
+     "type": "String",
+     "meaning": "Shown in the field; unset, `Type a command or search…`"
+    }
+   ],
+   "controls": [
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "placeholder",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [
+    {
+     "name": "CommandPalette.Group",
+     "kind": "commandpalette-group",
+     "detail": "Items under a heading.",
+     "fallback": ""
+    },
+    {
+     "name": "CommandPalette.Item",
+     "kind": "commandpalette-item",
+     "detail": "One thing to do or go to; on select is what it does.",
+     "fallback": ""
+    },
+    {
+     "name": "CommandPalette.List",
+     "kind": "commandpalette-list",
+     "detail": "What matches. Drawn for it.",
+     "fallback": ""
+    }
+   ],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-command-palette",
+   "example": "state palette = false\nButton(\"Commands\") { on click { palette = true } }\nCommandPalette(open: palette) {\n    CommandPalette.Group(\"Pages\") {\n        CommandPalette.Item(\"Home\", icon: \"home\") { on select { navigate(\"/\") } }\n    }\n    CommandPalette.Group(\"Actions\") {\n        CommandPalette.Item(\"Toggle theme\", shortcut: \"mod+shift+l\") { on select { setTheme(if theme == \"dark\" { \"light\" } else { \"dark\" }) } }\n    }\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "CommandPalette.Group",
+   "slug": "commandpalette-group",
+   "family": "Navigation",
+   "owner": "CommandPalette",
+   "ownerSlug": "commandpalette",
+   "summary": "Items under a heading.",
+   "plain": "Items under a heading.",
+   "signature": "CommandPalette.Group(_ title: String) { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "title",
+     "type": "String  (positional)",
+     "meaning": "Its heading"
+    }
+   ],
+   "controls": [
+    {
+     "name": "title",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "state palette = false\nButton(\"Commands\") { on click { palette = true } }\nCommandPalette(open: palette) {\n    CommandPalette.Group(\"Pages\") {\n        CommandPalette.Item(\"Home\", icon: \"home\") { on select { navigate(\"/\") } }\n    }\n    CommandPalette.Group(\"Actions\") {\n        CommandPalette.Item(\"Toggle theme\", shortcut: \"mod+shift+l\") { on select { setTheme(if theme == \"dark\" { \"light\" } else { \"dark\" }) } }\n    }\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
+   ]
+  },
+  {
+   "name": "CommandPalette.Item",
+   "slug": "commandpalette-item",
+   "family": "Navigation",
+   "owner": "CommandPalette",
+   "ownerSlug": "commandpalette",
+   "summary": "One thing to do or go to; `on select` is what it does.",
+   "plain": "One thing to do or go to; on select is what it does.",
+   "signature": "CommandPalette.Item(_ label: String, icon: String, shortcut: String) { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "label",
+     "type": "String  (positional)",
+     "meaning": "Its words, which the typing matches"
+    },
+    {
+     "name": "icon:",
+     "type": "String",
+     "meaning": "An icon before the words"
+    },
+    {
+     "name": "shortcut:",
+     "type": "String",
+     "meaning": "Its keys, shown at its end as this system writes them"
+    }
+   ],
+   "controls": [
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "icon",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "shortcut",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [],
+   "events": [
+    {
+     "name": "select",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "state palette = false\nButton(\"Commands\") { on click { palette = true } }\nCommandPalette(open: palette) {\n    CommandPalette.Group(\"Pages\") {\n        CommandPalette.Item(\"Home\", icon: \"home\") { on select { navigate(\"/\") } }\n    }\n    CommandPalette.Group(\"Actions\") {\n        CommandPalette.Item(\"Toggle theme\", shortcut: \"mod+shift+l\") { on select { setTheme(if theme == \"dark\" { \"light\" } else { \"dark\" }) } }\n    }\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
+   ]
+  },
+  {
+   "name": "CommandPalette.List",
+   "slug": "commandpalette-list",
+   "family": "Navigation",
+   "owner": "CommandPalette",
+   "ownerSlug": "commandpalette",
+   "summary": "What matches. Drawn for it.",
+   "plain": "What matches. Drawn for it.",
+   "signature": "CommandPalette.List { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [],
+   "controls": [],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "state palette = false\nButton(\"Commands\") { on click { palette = true } }\nCommandPalette(open: palette) {\n    CommandPalette.Group(\"Pages\") {\n        CommandPalette.Item(\"Home\", icon: \"home\") { on select { navigate(\"/\") } }\n    }\n    CommandPalette.Group(\"Actions\") {\n        CommandPalette.Item(\"Toggle theme\", shortcut: \"mod+shift+l\") { on select { setTheme(if theme == \"dark\" { \"light\" } else { \"dark\" }) } }\n    }\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
    "name": "Router",
    "slug": "router",
    "family": "Routing",
@@ -4722,6 +5252,296 @@
      "kind": "E109",
      "title": "An element this output cannot draw",
      "to": "/errors/E109"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
+   ]
+  },
+  {
+   "name": "Tree",
+   "slug": "tree",
+   "family": "Data display",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Nested items — files and folders, an outline — as a tree a keyboard can work: Up and Down through what shows, Right to open and go in, Left to close and go out (the other way round right to left), Home and End, a letter. `row(item) { … }` draws each; `bind:` holds the chosen item's key, or a list of keys with `.multiple`.",
+   "plain": "Nested items — files and folders, an outline — as a tree a keyboard can work: Up and Down through what shows, Right to open and go in, Left to close and go out (the other way round right to left), Home and End, a letter. row(item) { … } draws each; bind: holds the chosen item's key, or a list of keys with .multiple.",
+   "signature": "Tree(items: Any, children: Any, key: Any, …)",
+   "block": false,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "items:",
+     "type": "Any  (required)",
+     "meaning": "The items at the top"
+    },
+    {
+     "name": "children:",
+     "type": "Any  (required)",
+     "meaning": "An item's children: `f => f.children`; none, or an empty list, for a leaf"
+    },
+    {
+     "name": "key:",
+     "type": "Any  (required)",
+     "meaning": "What tells two items apart: `f => f.path`"
+    },
+    {
+     "name": "bind:",
+     "type": "State",
+     "meaning": "The chosen key, or a list of them with `.multiple`"
+    },
+    {
+     "name": "multiple:",
+     "type": "Bool",
+     "meaning": "Several at once: Space, Shift with an arrow, Ctrl or ⌘ with A"
+    },
+    {
+     "name": "open:",
+     "type": "Any",
+     "meaning": "The keys open when it is drawn"
+    },
+    {
+     "name": "label:",
+     "type": "String  (required)",
+     "meaning": "What the tree is, for a screen reader"
+    }
+   ],
+   "controls": [
+    {
+     "name": "multiple",
+     "kind": "bool",
+     "options": [],
+     "value": "",
+     "sink": "special"
+    },
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [
+    ".multiple"
+   ],
+   "events": [],
+   "domEvents": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-tree",
+   "example": "state files = [{ path: \"src\", name: \"src\", children: [{ path: \"src/App.wf\", name: \"App.wf\", children: [] }] }]\nstate file = \"\"\nTree(items: files, children: f => f.children, key: f => f.path, bind: file, label: \"Files\") {\n    row(f) { Icon(if f.children.length > 0 { \"folder\" } else { \"file\" })  Text(f.name) }\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "DataTable",
+   "slug": "datatable",
+   "family": "Data display",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Rows of records with their columns declared once: a column sorts when it is `.sortable` (its header a button, `aria-sort` saying which way), `cell(r) { … }` draws a cell, `empty { … }` shows when there are no rows, and `bind:` chooses rows (a list with `.multiple`, a box for each and one for all).",
+   "plain": "Rows of records with their columns declared once: a column sorts when it is .sortable (its header a button, aria-sort saying which way), cell(r) { … } draws a cell, empty { … } shows when there are no rows, and bind: chooses rows (a list with .multiple, a box for each and one for all).",
+   "signature": "DataTable(rows: Any, key: Any, bind: State, …) { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "rows:",
+     "type": "Any  (required)",
+     "meaning": "The records"
+    },
+    {
+     "name": "key:",
+     "type": "Any  (required)",
+     "meaning": "What tells two rows apart: `r => r.id`"
+    },
+    {
+     "name": "bind:",
+     "type": "State",
+     "meaning": "The chosen row's key, or a list of them with `.multiple`"
+    },
+    {
+     "name": "multiple:",
+     "type": "Bool",
+     "meaning": "Several rows at once"
+    },
+    {
+     "name": "label:",
+     "type": "String  (required)",
+     "meaning": "What the table is: its caption, read by a screen reader"
+    }
+   ],
+   "controls": [
+    {
+     "name": "multiple",
+     "kind": "bool",
+     "options": [],
+     "value": "",
+     "sink": "special"
+    },
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [
+    ".multiple"
+   ],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [
+    {
+     "name": "DataTable.Column",
+     "kind": "datatable-column",
+     "detail": "One column: its title, its value: (what it shows and sorts by), and a cell(r) { … } that draws it instead.",
+     "fallback": ""
+    }
+   ],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-data-table",
+   "example": "state deploys = [{ id: \"1\", service: \"web\", status: \"live\" }, { id: \"2\", service: \"api\", status: \"failed\" }]\nstate chosen: [String] = []\nDataTable(rows: deploys, key: d => d.id, bind: chosen, label: \"Deploys\").multiple {\n    empty { EmptyState(icon: \"list\", title: \"No deploys yet\") }\n    DataTable.Column(\"Service\", value: d => d.service).sortable\n    DataTable.Column(\"Status\") { cell(d) { Badge(d.status) } }\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "DataTable.Column",
+   "slug": "datatable-column",
+   "family": "Data display",
+   "owner": "DataTable",
+   "ownerSlug": "datatable",
+   "summary": "One column: its title, its `value:` (what it shows and sorts by), and a `cell(r) { … }` that draws it instead.",
+   "plain": "One column: its title, its value: (what it shows and sorts by), and a cell(r) { … } that draws it instead.",
+   "signature": "DataTable.Column(_ title: String, value: Any, sortable: Bool)",
+   "block": false,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "title",
+     "type": "String  (positional)",
+     "meaning": "Its header"
+    },
+    {
+     "name": "value:",
+     "type": "Any",
+     "meaning": "What the column holds for a row: `r => r.service`"
+    },
+    {
+     "name": "sortable:",
+     "type": "Bool",
+     "meaning": "Its header sorts the rows by its `value:`"
+    }
+   ],
+   "controls": [
+    {
+     "name": "title",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "sortable",
+     "kind": "bool",
+     "options": [],
+     "value": "",
+     "sink": "special"
+    }
+   ],
+   "flags": [
+    ".sortable"
+   ],
+   "events": [],
+   "domEvents": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "state deploys = [{ id: \"1\", service: \"web\", status: \"live\" }, { id: \"2\", service: \"api\", status: \"failed\" }]\nstate chosen: [String] = []\nDataTable(rows: deploys, key: d => d.id, bind: chosen, label: \"Deploys\").multiple {\n    empty { EmptyState(icon: \"list\", title: \"No deploys yet\") }\n    DataTable.Column(\"Service\", value: d => d.service).sortable\n    DataTable.Column(\"Status\") { cell(d) { Badge(d.status) } }\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
     },
     {
      "kind": "C04",
@@ -9574,6 +10394,317 @@
    ],
    "cssClass": "wf-calendar",
    "example": "state day: Date? = null\nCalendar(bind: day, min: @2026-01-01, disabled: d => d.weekday() >= 6, label: \"Delivery day\")",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "Listbox",
+   "slug": "listbox",
+   "family": "Form",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "A list of options always shown, one chosen (selection follows the arrow keys) or, `.multiple`, several: Space chooses, Shift with an arrow takes the next one in too, Ctrl or ⌘ with A takes them all; a letter goes to the next option that starts with it.",
+   "plain": "A list of options always shown, one chosen (selection follows the arrow keys) or, .multiple, several: Space chooses, Shift with an arrow takes the next one in too, Ctrl or ⌘ with A takes them all; a letter goes to the next option that starts with it.",
+   "signature": "Listbox(bind: State, label: String, multiple: Bool) { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "bind:",
+     "type": "State  (required)",
+     "meaning": "The chosen value, or a list of them with `.multiple`"
+    },
+    {
+     "name": "label:",
+     "type": "String  (required)",
+     "meaning": "What is being chosen, for a screen reader"
+    },
+    {
+     "name": "multiple:",
+     "type": "Bool",
+     "meaning": "Several at once: `bind:` is a list"
+    }
+   ],
+   "controls": [
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "multiple",
+     "kind": "bool",
+     "options": [],
+     "value": "",
+     "sink": "special"
+    }
+   ],
+   "flags": [
+    ".multiple"
+   ],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [
+    {
+     "name": "Listbox.Option",
+     "kind": "listbox-option",
+     "detail": "One option: its words, and the value bind: holds when it is chosen.",
+     "fallback": ""
+    }
+   ],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-listbox",
+   "example": "state fruit = \"apple\"\nListbox(bind: fruit, label: \"Fruit\") {\n    Listbox.Option(\"Apple\", value: \"apple\")\n    Listbox.Option(\"Banana\", value: \"banana\")\n    Listbox.Option(\"Cherry\", value: \"cherry\")\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "Listbox.Option",
+   "slug": "listbox-option",
+   "family": "Form",
+   "owner": "Listbox",
+   "ownerSlug": "listbox",
+   "summary": "One option: its words, and the value `bind:` holds when it is chosen.",
+   "plain": "One option: its words, and the value bind: holds when it is chosen.",
+   "signature": "Listbox.Option(_ label: String, value: Any, icon: String, aria-disabled: String) { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "label",
+     "type": "String  (positional)",
+     "meaning": "Its words"
+    },
+    {
+     "name": "value:",
+     "type": "Any  (required)",
+     "meaning": "What `bind:` holds when it is chosen"
+    },
+    {
+     "name": "icon:",
+     "type": "String",
+     "meaning": "An icon before the words"
+    },
+    {
+     "name": "aria-disabled:",
+     "type": "String",
+     "meaning": "`\"true\"`: shown, passed over, never chosen"
+    }
+   ],
+   "controls": [
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "icon",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "aria-disabled",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "state fruit = \"apple\"\nListbox(bind: fruit, label: \"Fruit\") {\n    Listbox.Option(\"Apple\", value: \"apple\")\n    Listbox.Option(\"Banana\", value: \"banana\")\n    Listbox.Option(\"Cherry\", value: \"cherry\")\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
+   ]
+  },
+  {
+   "name": "Combobox",
+   "slug": "combobox",
+   "family": "Form",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "A text field that offers what matches as the reader types: from `options:`, or `search:` asked of a server. The arrow keys go through the offers, Enter takes one, Escape closes them; `.multiple` keeps several, each a chip Backspace takes back. `option(o) { … }` draws an offer; `empty { … }` shows when nothing matches.",
+   "plain": "A text field that offers what matches as the reader types: from options:, or search: asked of a server. The arrow keys go through the offers, Enter takes one, Escape closes them; .multiple keeps several, each a chip Backspace takes back. option(o) { … } draws an offer; empty { … } shows when nothing matches.",
+   "signature": "Combobox(bind: State, options: Any, search: Any, …)",
+   "block": false,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "bind:",
+     "type": "State  (required)",
+     "meaning": "The chosen option's key (or the option itself without `key:`), or a list with `.multiple`"
+    },
+    {
+     "name": "options:",
+     "type": "Any",
+     "meaning": "Every option, filtered as the reader types"
+    },
+    {
+     "name": "search:",
+     "type": "Any",
+     "meaning": "Options asked for as the reader types: `q => Geo.cities(q: q)`"
+    },
+    {
+     "name": "text:",
+     "type": "Any  (required)",
+     "meaning": "An option's words: `p => p.name`"
+    },
+    {
+     "name": "key:",
+     "type": "Any",
+     "meaning": "What tells two options apart: `p => p.id`"
+    },
+    {
+     "name": "debounce:",
+     "type": "Any",
+     "meaning": "How long the typing rests before `search:` is asked (unset, 200ms)"
+    },
+    {
+     "name": "multiple:",
+     "type": "Bool",
+     "meaning": "Several at once, each a chip"
+    },
+    {
+     "name": "label:",
+     "type": "String  (required)",
+     "meaning": "Its name for a screen reader"
+    },
+    {
+     "name": "placeholder:",
+     "type": "String",
+     "meaning": "Shown while it is empty"
+    }
+   ],
+   "controls": [
+    {
+     "name": "multiple",
+     "kind": "bool",
+     "options": [],
+     "value": "",
+     "sink": "special"
+    },
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "placeholder",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [
+    ".multiple"
+   ],
+   "events": [],
+   "domEvents": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-combobox",
+   "example": "state city = \"\"\nstate cities = [{ id: \"par\", name: \"Paris\", country: \"France\" }, { id: \"por\", name: \"Porto\", country: \"Portugal\" }]\nCombobox(bind: city, options: cities, text: c => c.name, key: c => c.id, label: \"City\") {\n    option(c) { Text(c.name)  Text(c.country).muted }\n    empty { Text(\"No city by that name\") }\n}",
    "preview": false,
    "outputs": [],
    "since": "6.2.0",

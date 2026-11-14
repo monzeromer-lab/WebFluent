@@ -42,7 +42,7 @@ own, `/recipes/electron-app`.
 my-app/
 ├── webfluent.app.json
 ├── src/
-│   ├── App.wf             # app { AppShell { Router } } — chrome per platform
+│   ├── App.wf             # app { WindowShell { Router } } — chrome per platform
 │   ├── native.js          # the bridge: every Rust command, typed
 │   ├── shell.css          # title bar, safe areas, touch sizes
 │   ├── types.wf           # the records Rust sends, as `type`s
@@ -652,7 +652,7 @@ component TitleBar(_ title: String) {
 }
 
 /// Every page's frame: a title bar on a desktop, the safe areas on a phone.
-component AppShell(_ title: String) {
+component WindowShell(_ title: String) {
     slot
     derived phone = onPhone()
     Stack(class: { "shell": true, "shell--phone": phone }) {
@@ -666,7 +666,7 @@ component AppShell(_ title: String) {
 }
 
 app {
-    AppShell("Notes") {
+    WindowShell("Notes") {
         Router
     }
 }

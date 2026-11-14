@@ -157,6 +157,18 @@ impl JsCodegen {
                 self.emit_calendar(var, ui, parent);
                 true
             }
+            "Tree" => {
+                self.emit_tree(var, ui, parent);
+                true
+            }
+            "DataTable" => {
+                self.emit_data_table(var, ui, parent);
+                true
+            }
+            "Combobox" => {
+                self.emit_combobox(var, ui, parent);
+                true
+            }
             "Tabs" => {
                 self.emit_tabs(var, ui, parent);
                 true

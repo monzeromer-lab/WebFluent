@@ -143,6 +143,23 @@ template engine and, where it can be, in a PDF.
 - `Calendar(bind: day, mode: .range)` is a month a keyboard can work, for
   one day, a range or several, with days that cannot be chosen.
 
+## Collections and an app's frame
+
+- `Listbox(bind:, label:) { Listbox.Option(…) }` is options always shown,
+  one chosen or, `.multiple`, several (Space, Shift with an arrow, Ctrl+A).
+- `Tree(items:, children:, key:) { row(f) { … } }` is nested items a
+  keyboard opens and walks as a file tree does.
+- `DataTable(rows:, key:) { DataTable.Column(…).sortable … }` is a table of
+  records whose columns sort, with a `cell(r)` block, an `empty` block and
+  rows chosen by `bind:`.
+- `Combobox(bind:, options: | search:, text:)` is a field that offers what
+  matches, from a list or a server, one or several.
+- `CommandPalette(open:) { … CommandPalette.Item(…) { on select { … } } }`
+  is a dialog of everything to do, filtered as the reader types.
+- `AppShell { AppShell.Header { … }  Sidebar { … }  Router }` frames an app.
+- A built-in may take named blocks its entry lists; `E103` names the ones
+  it takes.
+
 ## Fixes
 
 - `wf test` drew a built-in where the project had a component of its

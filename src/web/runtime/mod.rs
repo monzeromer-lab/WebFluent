@@ -168,6 +168,9 @@ pub const MODULES: &[Module] = &[
     module!("busy", exports: [same("sameCall"), same("busy")], deps: [], triggers: []),
     module!("pace", exports: [same("debounce"), same("throttle")], deps: [], triggers: []),
     module!("calendar", exports: [same("calendar")], deps: [], triggers: []),
+    module!("collections", exports: [
+        same("listbox"), same("tree"), same("dataTable"), same("combobox"), same("commandPalette"),
+    ], deps: ["focus", "each", "layer"], triggers: []),
     module!("content", exports: [
         same("copyButton"), same("themeToggle"), same("localeSwitch"), same("fieldFor"),
         same("inputClear"), same("onThisPage"),

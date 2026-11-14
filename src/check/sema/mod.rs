@@ -764,11 +764,27 @@ impl Checker<'_, '_> {
             }
         }
         for fill in &el.slot_fills {
+            if sig.slots.contains(&fill.name.as_str()) {
+                continue;
+            }
+            let hint = if sig.slots.is_empty() {
+                "A built-in's block is its children; named slots belong to components you declare"
+                    .to_string()
+            } else {
+                format!(
+                    "It takes {}",
+                    sig.slots
+                        .iter()
+                        .map(|s| format!("`{s} {{ … }}`"))
+                        .collect::<Vec<_>>()
+                        .join(", ")
+                )
+            };
             self.error(
                 fill.span,
                 "E103",
                 format!("{name} has no slot `{}`", fill.name),
-                "A built-in's block is its children; named slots belong to components you declare",
+                &hint,
             );
         }
     }

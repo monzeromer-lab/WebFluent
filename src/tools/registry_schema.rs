@@ -272,7 +272,15 @@ fn builtin_of(sig: &'static ComponentSig) -> Component {
                 params: Vec::new(),
             }],
             Children::None => Vec::new(),
-        },
+        }
+        .into_iter()
+        // The named blocks it takes: a `Tree`'s `row(item)`, a `DataTable`'s
+        // `empty`.
+        .chain(sig.slots.iter().map(|name| Slot {
+            name: (*name).to_string(),
+            params: Vec::new(),
+        }))
+        .collect(),
         parts: sig
             .parts
             .iter()

@@ -1,5 +1,6 @@
 //! The built-ins that need more than the generic element pass.
 
+mod collections;
 mod control;
 mod display;
 mod host;

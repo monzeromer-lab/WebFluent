@@ -1113,6 +1113,102 @@ pre.wf-code, .wf-code--block { display: block; padding: var(--spacing-md); overf
 .wf-calendar__grid td[aria-selected="true"] > .wf-calendar__day { outline: 2px solid currentColor; }
 /*@both*/
 
+/* ─── Listbox ───────────────────────────────────────── */
+.wf-listbox { display: flex; flex-direction: column; padding: var(--spacing-xs); max-height: 20rem; overflow-y: auto; }
+.wf-listbox__option { display: flex; align-items: center; gap: var(--spacing-xs); min-height: var(--target-min); padding: var(--spacing-xs) var(--spacing-sm); cursor: pointer; border-radius: var(--radius-sm); }
+.wf-listbox__option[aria-disabled="true"] { opacity: 0.45; cursor: default; }
+.wf-listbox__option[aria-selected="true"]::after { content: "✓" / ""; margin-inline-start: auto; }
+/*@full*/
+.wf-listbox { border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-background); }
+.wf-listbox__option:hover { background: var(--color-surface); }
+.wf-listbox__option[aria-selected="true"] { background: var(--color-surface); font-weight: var(--font-weight-medium); }
+/*@both*/
+
+/* ─── Tree ──────────────────────────────────────────── */
+/* One list of rows, each at its depth: the depth is its indent. */
+.wf-tree { margin: 0; padding: 0; list-style: none; }
+.wf-tree__item { display: flex; align-items: center; gap: var(--spacing-xs); min-height: var(--target-min); padding-inline-end: var(--spacing-sm); cursor: pointer; border-radius: var(--radius-sm); }
+.wf-tree__item:not(:has(> .wf-tree__twist)) { padding-inline-start: 1.25rem; }
+.wf-tree__item[data-level="2"] { margin-inline-start: 1.25rem; }
+.wf-tree__item[data-level="3"] { margin-inline-start: 2.5rem; }
+.wf-tree__item[data-level="4"] { margin-inline-start: 3.75rem; }
+.wf-tree__item[data-level="5"] { margin-inline-start: 5rem; }
+.wf-tree__item[data-level="6"] { margin-inline-start: 6.25rem; }
+.wf-tree__twist { display: inline-flex; width: 1.25rem; justify-content: center; flex-shrink: 0; }
+.wf-tree__twist::before { content: ""; width: 0.4em; height: 0.4em; border-inline-end: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(-45deg); transition: transform var(--transition-fast); }
+.wf-tree__twist:dir(rtl)::before { transform: rotate(135deg); }
+.wf-tree__item[aria-expanded="true"] > .wf-tree__twist::before { transform: rotate(45deg); }
+.wf-tree__content { display: inline-flex; align-items: center; gap: var(--spacing-xs); min-width: 0; }
+.wf-tree__content > * { margin: 0; }
+/*@full*/
+.wf-tree__item:hover { background: var(--color-surface); }
+.wf-tree__item[aria-selected="true"] { background: color-mix(in srgb, var(--color-primary) 14%, transparent); }
+/*@both*/
+
+/* ─── Data Table ────────────────────────────────────── */
+.wf-data-table { overflow: auto; max-width: 100%; }
+.wf-data-table__table { width: 100%; }
+.wf-data-table__table thead th { position: sticky; top: 0; z-index: 1; }
+.wf-data-table__sort { display: inline-flex; align-items: center; gap: var(--spacing-xs); padding: 0; border: 0; background: none; color: inherit; font: inherit; font-weight: inherit; cursor: pointer; min-height: var(--target-min); }
+.wf-data-table__sort::after { content: "↕" / ""; opacity: 0.4; font-size: 0.85em; }
+th[aria-sort="ascending"] > .wf-data-table__sort::after { content: "↑" / ""; opacity: 1; }
+th[aria-sort="descending"] > .wf-data-table__sort::after { content: "↓" / ""; opacity: 1; }
+.wf-data-table__check { width: 1%; white-space: nowrap; }
+.wf-data-table__pick { min-width: 1rem; min-height: 1rem; }
+.wf-data-table__empty > td { text-align: center; }
+/*@full*/
+.wf-data-table__table thead th { background: var(--color-background); }
+.wf-data-table__table tr[aria-selected="true"] > td { background: color-mix(in srgb, var(--color-primary) 10%, transparent); }
+/*@both*/
+
+/* ─── Combobox ──────────────────────────────────────── */
+.wf-combobox { display: flex; flex-wrap: wrap; align-items: center; gap: var(--spacing-xs); position: relative; }
+.wf-combobox__chips { display: contents; }
+.wf-combobox__input { flex: 1; min-width: 8rem; }
+.wf-combobox__list { max-height: 18rem; overflow-y: auto; padding: var(--spacing-xs); }
+.wf-combobox__option { display: flex; align-items: center; gap: var(--spacing-xs); min-height: var(--target-min); padding: var(--spacing-xs) var(--spacing-sm); cursor: pointer; border-radius: var(--radius-sm); }
+.wf-combobox__option > * { margin: 0; }
+.wf-combobox__option[aria-selected="true"]::after { content: "✓" / ""; margin-inline-start: auto; }
+.wf-combobox__empty { padding: var(--spacing-sm); color: var(--color-text-muted); }
+/*@full*/
+.wf-combobox__option[data-active] { background: var(--color-surface); outline: 2px solid var(--color-primary); outline-offset: -2px; }
+/*@structural*/
+.wf-combobox__option[data-active] { outline: 2px solid currentColor; outline-offset: -2px; }
+/*@both*/
+
+/* ─── Command Palette ───────────────────────────────── */
+/* A modal of a field and what matches: its title names it, unseen. */
+.wf-command-palette { display: contents; }
+.wf-command-palette .wf-modal__header { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; padding: 0; border: 0; }
+.wf-command-palette .wf-modal { margin-top: 12vh; }
+.wf-command-palette .wf-modal__content { width: min(36rem, 92vw); }
+.wf-command-palette__list { display: flex; flex-direction: column; gap: var(--spacing-xs); max-height: 50vh; overflow-y: auto; margin-top: var(--spacing-sm); }
+.wf-command-palette__group { display: flex; flex-direction: column; }
+.wf-command-palette__group[hidden] { display: none; }
+.wf-command-palette__group > .wf-text { margin: var(--spacing-xs) var(--spacing-sm); }
+.wf-command-palette__item { display: flex; align-items: center; gap: var(--spacing-sm); min-height: var(--target-min); padding: var(--spacing-xs) var(--spacing-sm); border-radius: var(--radius-sm); cursor: pointer; }
+.wf-command-palette__item[hidden] { display: none; }
+.wf-command-palette__item > .wf-kbd { order: 1; margin-inline-start: auto; }
+/*@full*/
+.wf-command-palette__item[data-active] { background: var(--color-surface); }
+/*@structural*/
+.wf-command-palette__item[data-active] { outline: 2px solid currentColor; outline-offset: -2px; }
+/*@both*/
+
+/* ─── App Shell ─────────────────────────────────────── */
+/* A bar across the top, the sidebar down the start, the page beside it,
+   a footer under them. */
+.wf-app-shell { display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-rows: auto 1fr auto; min-height: 100vh; }
+.wf-app-shell > .wf-app-shell__header { grid-column: 1 / -1; position: sticky; top: 0; z-index: var(--z-sticky); }
+.wf-app-shell > .wf-app-shell__footer { grid-column: 1 / -1; }
+.wf-app-shell > main, .wf-app-shell > #wf-main { grid-column: 2; min-width: 0; }
+.wf-app-shell:not(:has(> .wf-sidebar)) > main, .wf-app-shell:not(:has(> .wf-sidebar)) > #wf-main { grid-column: 1 / -1; }
+.wf-app-shell__header { display: flex; align-items: center; gap: var(--spacing-md); padding: var(--spacing-sm) var(--spacing-md); }
+/*@full*/
+.wf-app-shell__header { background: var(--color-background); border-bottom: 1px solid var(--color-border); }
+.wf-app-shell__footer { padding: var(--spacing-md); border-top: 1px solid var(--color-border); }
+/*@both*/
+
 /* ─── Highlight ─────────────────────────────────────── */
 .wf-tok-kw { color: var(--syntax-keyword); }
 .wf-tok-name { color: var(--syntax-function); }

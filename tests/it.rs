@@ -35,6 +35,7 @@ mod choosing;
 mod codegen_fixes;
 #[path = "codegen_fixes_0b.rs"]
 mod codegen_fixes_0b;
+mod collections;
 #[path = "commands_data.rs"]
 mod commands_data;
 #[path = "component_root.rs"]

@@ -699,6 +699,46 @@ The build writes `posts/hello/index.html` and `posts/second/index.html`.
 - A route not in `paths:` still works in a single-page app. Only the static
   build needs the list.
 
+## Lists of data: a table, a tree, a search
+
+Three built-ins draw rows from a list you hand them, each row with a block
+you write for it:
+
+```wf
+type Deploy { id: String, service: String, status: String }
+type Node { path: String, name: String, children: [Node] = [] }
+
+page Ops(path: "/", title: "Ops", description: "Deploys, files and a search.") {
+    state deploys: [Deploy] = [Deploy(id: "1", service: "web", status: "live")]
+    state chosen: [String] = []
+    state files: [Node] = [Node(path: "src", name: "src", children: [Node(path: "src/App.wf", name: "App.wf")])]
+    state file = ""
+    state who = ""
+    Heading("Ops").h1
+    DataTable(rows: deploys, key: d => d.id, bind: chosen, label: "Deploys").multiple {
+        empty { Text("No deploys yet") }
+        DataTable.Column("Service", value: d => d.service).sortable
+        DataTable.Column("Status") { cell(d) { Badge(d.status) } }
+    }
+    Tree(items: files, children: f => f.children, key: f => f.path, bind: file, label: "Files") {
+        row(f) { Text(f.name) }
+    }
+    Combobox(bind: who, options: ["Ada", "Alan", "Grace"], text: p => p, label: "Owner")
+}
+```
+
+- **`DataTable`** declares its columns once. A `.sortable` column's header
+  sorts the rows and says which way (`aria-sort`); `cell(d) { … }` draws a
+  cell; `empty { … }` shows with no rows; `bind:` chooses rows by `key:`.
+- **`Tree`** walks `children:` from `items:`. The arrow keys open, close and
+  move through it as a file tree does; `bind:` holds the chosen item's key.
+- **`Combobox`** offers the `options:` that match what is typed, or asks
+  `search: q => …` once the typing rests; `option(o) { … }` draws an offer.
+
+Named blocks (`empty`, `row`, `cell`, `option`) come before an element's
+children. Each of these is drawn once the page runs; the static paint holds
+its place.
+
 ## Where data lands in the pre-rendered page
 
 A static build writes each page's HTML before any script runs. What each

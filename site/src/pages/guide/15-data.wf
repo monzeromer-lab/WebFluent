@@ -1,6 +1,6 @@
 /// Chapter 15 of the guide, written from md-docs/learn/15-data.md by
 /// scripts/docsite/guide.py; edit the guide, not this file.
-page Learn15Data(path: "/learn/15-data", title: "Fetching data", description: "Describe an API once with retries, caching and typed errors; show a resource with match; fetch in an action; update optimistically; read data files.", layout: DocsShell("Fetching data", kind: .tutorial, chapter: t("nav.group.build"), blurb: "Get data onto a page: describe a service once, show a request's states, fetch on demand, and read files at build time.", source: "md-docs/learn/15-data.md", sections: [Anchor(id: "before-you-start", label: "Before you start"), Anchor(id: "choose-how-to-get-data", label: "Choose how to get data"), Anchor(id: "show-a-request-with-resource", label: "Show a request with resource"), Anchor(id: "describe-a-service-with-api", label: "Describe a service with api"), Anchor(id: "fetch-on-demand-with-await-fetch", label: "Fetch on demand with await fetch"), Anchor(id: "read-a-file-at-build-time-with-data", label: "Read a file at build time with data"), Anchor(id: "where-data-lands-in-the-pre-rendered-page", label: "Where data lands in the pre-rendered page"), Anchor(id: "troubleshooting", label: "Troubleshooting"), Anchor(id: "quiz", label: "Quiz"), Anchor(id: "common-mistakes", label: "Common mistakes")], learned: ["Show a request's loading, error and ready states with `resource` and `match`", "Tell a refresh (`refreshing`, the data stays) from a first load (`loading`)", "Describe a service once with `api`, typed, retried, cached and cancelled", "Fetch on demand with `await fetch` in an action, and roll back an `optimistic` change", "Read a JSON file at build time with `data`, and render a page per item with `paths:`"], prevTo: "/learn/14-forms", prevLabel: t("ch.14"), nextTo: "/learn/16-testing", nextLabel: t("ch.16"))) {
+page Learn15Data(path: "/learn/15-data", title: "Fetching data", description: "Describe an API once with retries, caching and typed errors; show a resource with match; fetch in an action; update optimistically; read data files.", layout: DocsShell("Fetching data", kind: .tutorial, chapter: t("nav.group.build"), blurb: "Get data onto a page: describe a service once, show a request's states, fetch on demand, and read files at build time.", source: "md-docs/learn/15-data.md", sections: [Anchor(id: "before-you-start", label: "Before you start"), Anchor(id: "choose-how-to-get-data", label: "Choose how to get data"), Anchor(id: "show-a-request-with-resource", label: "Show a request with resource"), Anchor(id: "describe-a-service-with-api", label: "Describe a service with api"), Anchor(id: "fetch-on-demand-with-await-fetch", label: "Fetch on demand with await fetch"), Anchor(id: "read-a-file-at-build-time-with-data", label: "Read a file at build time with data"), Anchor(id: "lists-of-data-a-table-a-tree-a-search", label: "Lists of data: a table, a tree, a search"), Anchor(id: "where-data-lands-in-the-pre-rendered-page", label: "Where data lands in the pre-rendered page"), Anchor(id: "troubleshooting", label: "Troubleshooting"), Anchor(id: "quiz", label: "Quiz"), Anchor(id: "common-mistakes", label: "Common mistakes")], learned: ["Show a request's loading, error and ready states with `resource` and `match`", "Tell a refresh (`refreshing`, the data stays) from a first load (`loading`)", "Describe a service once with `api`, typed, retried, cached and cancelled", "Fetch on demand with `await fetch` in an action, and roll back an `optimistic` change", "Read a JSON file at build time with `data`, and render a page per item with `paths:`"], prevTo: "/learn/14-forms", prevLabel: t("ch.14"), nextTo: "/learn/16-testing", nextLabel: t("ch.16"))) {
     Stack(gap: .lg) {
         Markdown("This chapter is about getting data onto a WebFluent page and sending data back: from a request the page makes when it shows, from a request an action makes on demand, and from a file the build reads.\n\nYou will be able to:\n\n- show a request's loading, error and ready states with `resource` and `match`;\n- refresh data without the page going blank;\n- describe a service once with `api`, so every call is typed, retried, cached and cancelled for you;\n- read a service's surface from an OpenAPI file;\n- fetch on demand from an action, and show a change before the server agrees;\n- read a JSON file at build time and render one page per item in it.")
 
@@ -639,6 +639,33 @@ page PostPage(path: "/posts/:slug", slug: String, title: "Post", description: "A
 
         Markdown("The build writes `posts/hello/index.html` and `posts/second/index.html`.\n\n- `paths:` must be known at build time: a `data` file, a `const` or a literal.\n- For a route with several parameters, each value is a map naming them: `paths: pairs.map(x => \{ year: x.y, slug: x.s \})`.\n- A route not in `paths:` still works in a single-page app. Only the static build needs the list.")
 
+        Heading("Lists of data: a table, a tree, a search", id: "lists-of-data-a-table-a-tree-a-search").h2
+
+        Markdown("Three built-ins draw rows from a list you hand them, each row with a block you write for it:")
+
+        CodeBlock(#"type Deploy { id: String, service: String, status: String }
+type Node { path: String, name: String, children: [Node] = [] }
+
+page Ops(path: "/", title: "Ops", description: "Deploys, files and a search.") {
+    state deploys: [Deploy] = [Deploy(id: "1", service: "web", status: "live")]
+    state chosen: [String] = []
+    state files: [Node] = [Node(path: "src", name: "src", children: [Node(path: "src/App.wf", name: "App.wf")])]
+    state file = ""
+    state who = ""
+    Heading("Ops").h1
+    DataTable(rows: deploys, key: d => d.id, bind: chosen, label: "Deploys").multiple {
+        empty { Text("No deploys yet") }
+        DataTable.Column("Service", value: d => d.service).sortable
+        DataTable.Column("Status") { cell(d) { Badge(d.status) } }
+    }
+    Tree(items: files, children: f => f.children, key: f => f.path, bind: file, label: "Files") {
+        row(f) { Text(f.name) }
+    }
+    Combobox(bind: who, options: ["Ada", "Alan", "Grace"], text: p => p, label: "Owner")
+}"#, title: "wf")
+
+        Markdown("- **`DataTable`** declares its columns once. A `.sortable` column's header sorts the rows and says which way (`aria-sort`); `cell(d) \{ … \}` draws a cell; `empty \{ … \}` shows with no rows; `bind:` chooses rows by `key:`.\n- **`Tree`** walks `children:` from `items:`. The arrow keys open, close and move through it as a file tree does; `bind:` holds the chosen item's key.\n- **`Combobox`** offers the `options:` that match what is typed, or asks `search: q => …` once the typing rests; `option(o) \{ … \}` draws an offer.\n\nNamed blocks (`empty`, `row`, `cell`, `option`) come before an element's children. Each of these is drawn once the page runs; the static paint holds its place.")
+
         Heading("Where data lands in the pre-rendered page", id: "where-data-lands-in-the-pre-rendered-page").h2
 
         Markdown("A static build writes each page's HTML before any script runs. What each source of data puts in that HTML:")
@@ -717,25 +744,25 @@ page PostPage(path: "/posts/:slug", slug: String, title: "Post", description: "A
 
         Heading("Quiz", id: "quiz").h2
 
-        Quiz("A resource's `match` has a `loading` arm and a `ready` arm, and no other. What does the reader see when the request fails?", id: "Fetching data#9", choices: [
+        Quiz("A resource's `match` has a `loading` arm and a `ready` arm, and no other. What does the reader see when the request fails?", id: "Fetching data#10", choices: [
             QuizChoice(text: "An error message the runtime draws for you", right: false, why: "The runtime draws only the arms you write; the build warns about the missing one with T21."),
             QuizChoice(text: "Nothing where the `match` is, and the build warns with T21", right: true, why: "No arm matches `\"error\"`, so the place stays empty. Add `error(e) \{ … \}` or an `else`."),
             QuizChoice(text: "The `loading` arm, until a retry succeeds", right: false, why: "A first load that fails is `\"error\"`, not `\"loading\"`.")
         ])
 
-        Quiz("A resource is making its very first request. Which is true?", id: "Fetching data#9", choices: [
+        Quiz("A resource is making its very first request. Which is true?", id: "Fetching data#10", choices: [
             QuizChoice(text: "`pending` is true and `refreshing` is false", right: true, why: "`pending` covers every request of it, the first load included; `refreshing` only a request made again while data is shown."),
             QuizChoice(text: "`refreshing` is true and `pending` is false", right: false, why: "It is the other way round: there is no data yet to refresh."),
             QuizChoice(text: "Both are true", right: false, why: "`refreshing` is true only while data is on screen, and on a first load there is none.")
         ])
 
-        Quiz("A resource with `on: .interval(30.seconds)` asks again while its list is on screen. What does its `match` show while that refresh runs?", id: "Fetching data#9", choices: [
+        Quiz("A resource with `on: .interval(30.seconds)` asks again while its list is on screen. What does its `match` show while that refresh runs?", id: "Fetching data#10", choices: [
             QuizChoice(text: "The `loading` arm, then the new list", right: false, why: "Only a first load, or a request whose address changed, shows `loading`."),
             QuizChoice(text: "An empty list until the answer arrives", right: false, why: "The data stays while a refresh runs; `name.data` is never cleared by one."),
             QuizChoice(text: "The `ready` arm with the old list, then the answer drawn in place", right: true, why: "A refresh keeps `\"ready\"` and the data; rows whose key is still there keep their nodes.")
         ])
 
-        Quiz("The address is `fetch(\"/api/servers?env=\{stage\}\")`, and a button sets `stage` from `\"test\"` to `\"prod\"`. What shows next?", id: "Fetching data#9", choices: [
+        Quiz("The address is `fetch(\"/api/servers?env=\{stage\}\")`, and a button sets `stage` from `\"test\"` to `\"prod\"`. What shows next?", id: "Fetching data#10", choices: [
             QuizChoice(text: "The `loading` arm, then the production servers", right: true, why: "The request now names something else, so it is a first load; the test servers would be the wrong data."),
             QuizChoice(text: "The test servers, with `refreshing` true, until the production servers arrive", right: false, why: "That is a refresh, which asks again for the same request; this one changed."),
             QuizChoice(text: "Nothing changes until the reader reloads the page", right: false, why: "An address that reads state is fetched again whenever that state changes.")

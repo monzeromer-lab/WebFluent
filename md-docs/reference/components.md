@@ -14,10 +14,10 @@ Every component is written `Name(positional, prop: value).flag { block }`. A **p
 
 ## Contents
 
-- **Layout**: [`Container`](https://webfluent.monzeromer.dev/reference/container), [`Row`](https://webfluent.monzeromer.dev/reference/row), [`Column`](https://webfluent.monzeromer.dev/reference/column), [`Grid`](https://webfluent.monzeromer.dev/reference/grid), [`Stack`](https://webfluent.monzeromer.dev/reference/stack), [`Spacer`](https://webfluent.monzeromer.dev/reference/spacer), [`VirtualList`](https://webfluent.monzeromer.dev/reference/virtuallist), [`Splitter`](https://webfluent.monzeromer.dev/reference/splitter), [`Divider`](https://webfluent.monzeromer.dev/reference/divider), [`Host`](https://webfluent.monzeromer.dev/reference/host), [`Portal`](https://webfluent.monzeromer.dev/reference/portal), [`Element`](https://webfluent.monzeromer.dev/reference/element)
-- **Navigation**: [`Navbar`](https://webfluent.monzeromer.dev/reference/navbar), [`Sidebar`](https://webfluent.monzeromer.dev/reference/sidebar), [`Link`](https://webfluent.monzeromer.dev/reference/link), [`Tabs`](https://webfluent.monzeromer.dev/reference/tabs), [`Breadcrumb`](https://webfluent.monzeromer.dev/reference/breadcrumb), [`Menu`](https://webfluent.monzeromer.dev/reference/menu), [`OnThisPage`](https://webfluent.monzeromer.dev/reference/onthispage), [`Pagination`](https://webfluent.monzeromer.dev/reference/pagination), [`Stepper`](https://webfluent.monzeromer.dev/reference/stepper)
-- **Data display**: [`Card`](https://webfluent.monzeromer.dev/reference/card), [`Table`](https://webfluent.monzeromer.dev/reference/table), [`List`](https://webfluent.monzeromer.dev/reference/list), [`Badge`](https://webfluent.monzeromer.dev/reference/badge), [`Tag`](https://webfluent.monzeromer.dev/reference/tag), [`Avatar`](https://webfluent.monzeromer.dev/reference/avatar), [`Tooltip`](https://webfluent.monzeromer.dev/reference/tooltip), [`Chart`](https://webfluent.monzeromer.dev/reference/chart), [`QrCode`](https://webfluent.monzeromer.dev/reference/qrcode)
-- **Form**: [`Input`](https://webfluent.monzeromer.dev/reference/input), [`Select`](https://webfluent.monzeromer.dev/reference/select), [`Checkbox`](https://webfluent.monzeromer.dev/reference/checkbox), [`Radio`](https://webfluent.monzeromer.dev/reference/radio), [`Switch`](https://webfluent.monzeromer.dev/reference/switch), [`Slider`](https://webfluent.monzeromer.dev/reference/slider), [`DatePicker`](https://webfluent.monzeromer.dev/reference/datepicker), [`FileUpload`](https://webfluent.monzeromer.dev/reference/fileupload), [`Form`](https://webfluent.monzeromer.dev/reference/form), [`Textarea`](https://webfluent.monzeromer.dev/reference/textarea), [`Field`](https://webfluent.monzeromer.dev/reference/field), [`Fieldset`](https://webfluent.monzeromer.dev/reference/fieldset), [`InputGroup`](https://webfluent.monzeromer.dev/reference/inputgroup), [`RadioGroup`](https://webfluent.monzeromer.dev/reference/radiogroup), [`NumberInput`](https://webfluent.monzeromer.dev/reference/numberinput), [`Calendar`](https://webfluent.monzeromer.dev/reference/calendar)
+- **Layout**: [`Container`](https://webfluent.monzeromer.dev/reference/container), [`Row`](https://webfluent.monzeromer.dev/reference/row), [`Column`](https://webfluent.monzeromer.dev/reference/column), [`Grid`](https://webfluent.monzeromer.dev/reference/grid), [`Stack`](https://webfluent.monzeromer.dev/reference/stack), [`Spacer`](https://webfluent.monzeromer.dev/reference/spacer), [`VirtualList`](https://webfluent.monzeromer.dev/reference/virtuallist), [`Splitter`](https://webfluent.monzeromer.dev/reference/splitter), [`Divider`](https://webfluent.monzeromer.dev/reference/divider), [`AppShell`](https://webfluent.monzeromer.dev/reference/appshell), [`Host`](https://webfluent.monzeromer.dev/reference/host), [`Portal`](https://webfluent.monzeromer.dev/reference/portal), [`Element`](https://webfluent.monzeromer.dev/reference/element)
+- **Navigation**: [`Navbar`](https://webfluent.monzeromer.dev/reference/navbar), [`Sidebar`](https://webfluent.monzeromer.dev/reference/sidebar), [`Link`](https://webfluent.monzeromer.dev/reference/link), [`Tabs`](https://webfluent.monzeromer.dev/reference/tabs), [`Breadcrumb`](https://webfluent.monzeromer.dev/reference/breadcrumb), [`Menu`](https://webfluent.monzeromer.dev/reference/menu), [`OnThisPage`](https://webfluent.monzeromer.dev/reference/onthispage), [`Pagination`](https://webfluent.monzeromer.dev/reference/pagination), [`Stepper`](https://webfluent.monzeromer.dev/reference/stepper), [`CommandPalette`](https://webfluent.monzeromer.dev/reference/commandpalette)
+- **Data display**: [`Card`](https://webfluent.monzeromer.dev/reference/card), [`Table`](https://webfluent.monzeromer.dev/reference/table), [`List`](https://webfluent.monzeromer.dev/reference/list), [`Badge`](https://webfluent.monzeromer.dev/reference/badge), [`Tag`](https://webfluent.monzeromer.dev/reference/tag), [`Avatar`](https://webfluent.monzeromer.dev/reference/avatar), [`Tooltip`](https://webfluent.monzeromer.dev/reference/tooltip), [`Tree`](https://webfluent.monzeromer.dev/reference/tree), [`DataTable`](https://webfluent.monzeromer.dev/reference/datatable), [`Chart`](https://webfluent.monzeromer.dev/reference/chart), [`QrCode`](https://webfluent.monzeromer.dev/reference/qrcode)
+- **Form**: [`Input`](https://webfluent.monzeromer.dev/reference/input), [`Select`](https://webfluent.monzeromer.dev/reference/select), [`Checkbox`](https://webfluent.monzeromer.dev/reference/checkbox), [`Radio`](https://webfluent.monzeromer.dev/reference/radio), [`Switch`](https://webfluent.monzeromer.dev/reference/switch), [`Slider`](https://webfluent.monzeromer.dev/reference/slider), [`DatePicker`](https://webfluent.monzeromer.dev/reference/datepicker), [`FileUpload`](https://webfluent.monzeromer.dev/reference/fileupload), [`Form`](https://webfluent.monzeromer.dev/reference/form), [`Textarea`](https://webfluent.monzeromer.dev/reference/textarea), [`Field`](https://webfluent.monzeromer.dev/reference/field), [`Fieldset`](https://webfluent.monzeromer.dev/reference/fieldset), [`InputGroup`](https://webfluent.monzeromer.dev/reference/inputgroup), [`RadioGroup`](https://webfluent.monzeromer.dev/reference/radiogroup), [`NumberInput`](https://webfluent.monzeromer.dev/reference/numberinput), [`Calendar`](https://webfluent.monzeromer.dev/reference/calendar), [`Listbox`](https://webfluent.monzeromer.dev/reference/listbox), [`Combobox`](https://webfluent.monzeromer.dev/reference/combobox)
 - **Feedback**: [`Alert`](https://webfluent.monzeromer.dev/reference/alert), [`Toast`](https://webfluent.monzeromer.dev/reference/toast), [`Modal`](https://webfluent.monzeromer.dev/reference/modal), [`Popover`](https://webfluent.monzeromer.dev/reference/popover), [`Dialog`](https://webfluent.monzeromer.dev/reference/dialog), [`AlertDialog`](https://webfluent.monzeromer.dev/reference/alertdialog), [`Sheet`](https://webfluent.monzeromer.dev/reference/sheet), [`Spinner`](https://webfluent.monzeromer.dev/reference/spinner), [`Progress`](https://webfluent.monzeromer.dev/reference/progress), [`Skeleton`](https://webfluent.monzeromer.dev/reference/skeleton)
 - **Content**: [`Callout`](https://webfluent.monzeromer.dev/reference/callout), [`Kbd`](https://webfluent.monzeromer.dev/reference/kbd), [`EmptyState`](https://webfluent.monzeromer.dev/reference/emptystate), [`Stat`](https://webfluent.monzeromer.dev/reference/stat), [`CodeBlock`](https://webfluent.monzeromer.dev/reference/codeblock), [`Chip`](https://webfluent.monzeromer.dev/reference/chip), [`VisuallyHidden`](https://webfluent.monzeromer.dev/reference/visuallyhidden), [`Accordion`](https://webfluent.monzeromer.dev/reference/accordion)
 - **Actions**: [`CopyButton`](https://webfluent.monzeromer.dev/reference/copybutton), [`ThemeToggle`](https://webfluent.monzeromer.dev/reference/themetoggle), [`LocaleSwitch`](https://webfluent.monzeromer.dev/reference/localeswitch), [`Toggle`](https://webfluent.monzeromer.dev/reference/toggle), [`ToggleGroup`](https://webfluent.monzeromer.dev/reference/togglegroup), [`Button`](https://webfluent.monzeromer.dev/reference/button), [`IconButton`](https://webfluent.monzeromer.dev/reference/iconbutton), [`ButtonGroup`](https://webfluent.monzeromer.dev/reference/buttongroup), [`Dropdown`](https://webfluent.monzeromer.dev/reference/dropdown)
@@ -277,6 +277,33 @@ Text("Section two")
 ```
 
 Renders with the class `wf-divider`.
+
+Attribute families: `global`, `aria`, `data`.
+
+### AppShell
+
+An app's frame: `AppShell.Header` across the top, a `Sidebar` down the start (a drawer on a narrow screen), the `Router`'s page beside it, and an `AppShell.Footer`.
+
+```
+AppShell { … }
+```
+
+```wf
+AppShell {
+    AppShell.Header { Text("Ledger").bold  Spacer  ThemeToggle }
+    Sidebar { Sidebar.Item(to: "/", icon: "home") { Text("Home") } }
+    Router
+}
+```
+
+Renders with the class `wf-app-shell`.
+
+**Parts:**
+
+- `AppShell.Header { … }` — The bar across the top.
+- `AppShell.Footer { … }` — The bar along the bottom.
+
+Takes a block of children.
 
 Attribute families: `global`, `aria`, `data`.
 
@@ -658,6 +685,49 @@ Takes a block of children.
 
 Attribute families: `global`, `aria`, `data`.
 
+### CommandPalette
+
+A dialog of everything a reader can do or go to, filtered as they type: the arrow keys go through what matches, Enter runs it (`on select`) and closes. `open:` is the state that shows it.
+
+```
+CommandPalette(open: …, label: …, placeholder: …) { … }
+```
+
+```wf
+state palette = false
+Button("Commands") { on click { palette = true } }
+CommandPalette(open: palette) {
+    CommandPalette.Group("Pages") {
+        CommandPalette.Item("Home", icon: "home") { on select { navigate("/") } }
+    }
+    CommandPalette.Group("Actions") {
+        CommandPalette.Item("Toggle theme", shortcut: "mod+shift+l") { on select { setTheme(if theme == "dark" { "light" } else { "dark" }) } }
+    }
+}
+```
+
+Renders with the class `wf-command-palette`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `open:` (required) | `State` | The state that shows it, written back when it closes |
+| `label:` | `String` | Its name and the field's; unset, `Commands` |
+| `placeholder:` | `String` | Shown in the field; unset, `Type a command or search…` |
+
+**Parts:**
+
+- `CommandPalette.Group(title) { … }` — Items under a heading.
+  - `title:` `String` — Its heading
+- `CommandPalette.Item(label, icon: …, shortcut: …) { … }` — One thing to do or go to; `on select` is what it does.
+  - `label:` `String` — Its words, which the typing matches
+  - `icon:` `String` — An icon before the words
+  - `shortcut:` `String` — Its keys, shown at its end as this system writes them
+- `CommandPalette.List { … }` — What matches. Drawn for it.
+
+Takes a block of children.
+
+Attribute families: `global`, `aria`, `data`.
+
 ## Data display
 
 ### Card
@@ -856,6 +926,80 @@ Renders with the class `wf-tooltip`.
 | `delay:` | `Number` | How long a hover waits before it shows, in ms. Unset, 500 |
 
 **Flags:** `.bottom` `.bottomStart` `.bottomEnd` `.top` `.topStart` `.topEnd` `.left` `.leftStart` `.leftEnd` `.right` `.rightStart` `.rightEnd`
+
+Takes a block of children.
+
+Attribute families: `global`, `aria`, `data`.
+
+### Tree
+
+Nested items — files and folders, an outline — as a tree a keyboard can work: Up and Down through what shows, Right to open and go in, Left to close and go out (the other way round right to left), Home and End, a letter. `row(item) { … }` draws each; `bind:` holds the chosen item's key, or a list of keys with `.multiple`.
+
+```
+Tree(items: …, children: …, key: …)
+```
+
+```wf
+state files = [{ path: "src", name: "src", children: [{ path: "src/App.wf", name: "App.wf", children: [] }] }]
+state file = ""
+Tree(items: files, children: f => f.children, key: f => f.path, bind: file, label: "Files") {
+    row(f) { Icon(if f.children.length > 0 { "folder" } else { "file" })  Text(f.name) }
+}
+```
+
+Renders with the class `wf-tree`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `items:` (required) | `Any` | The items at the top |
+| `children:` (required) | `Any` | An item's children: `f => f.children`; none, or an empty list, for a leaf |
+| `key:` (required) | `Any` | What tells two items apart: `f => f.path` |
+| `bind:` | `State` | The chosen key, or a list of them with `.multiple` |
+| `multiple:` | `Bool` | Several at once: Space, Shift with an arrow, Ctrl or ⌘ with A |
+| `open:` | `Any` | The keys open when it is drawn |
+| `label:` (required) | `String` | What the tree is, for a screen reader |
+
+**Flags:** `.multiple`
+
+Attribute families: `global`, `aria`, `data`.
+
+### DataTable
+
+Rows of records with their columns declared once: a column sorts when it is `.sortable` (its header a button, `aria-sort` saying which way), `cell(r) { … }` draws a cell, `empty { … }` shows when there are no rows, and `bind:` chooses rows (a list with `.multiple`, a box for each and one for all).
+
+```
+DataTable(rows: …, key: …, bind: …) { … }
+```
+
+```wf
+state deploys = [{ id: "1", service: "web", status: "live" }, { id: "2", service: "api", status: "failed" }]
+state chosen: [String] = []
+DataTable(rows: deploys, key: d => d.id, bind: chosen, label: "Deploys").multiple {
+    empty { EmptyState(icon: "list", title: "No deploys yet") }
+    DataTable.Column("Service", value: d => d.service).sortable
+    DataTable.Column("Status") { cell(d) { Badge(d.status) } }
+}
+```
+
+Renders with the class `wf-data-table`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `rows:` (required) | `Any` | The records |
+| `key:` (required) | `Any` | What tells two rows apart: `r => r.id` |
+| `bind:` | `State` | The chosen row's key, or a list of them with `.multiple` |
+| `multiple:` | `Bool` | Several rows at once |
+| `label:` (required) | `String` | What the table is: its caption, read by a screen reader |
+
+**Flags:** `.multiple`
+
+**Parts:**
+
+- `DataTable.Column(title, value: …, sortable: …)` — One column: its title, its `value:` (what it shows and sorts by), and a `cell(r) { … }` that draws it instead.
+  - `title:` `String` — Its header
+  - `value:` `Any` — What the column holds for a row: `r => r.service`
+  - `sortable:` `Bool` — Its header sorts the rows by its `value:`
+  - flags: `.sortable`
 
 Takes a block of children.
 
@@ -1419,6 +1563,80 @@ Renders with the class `wf-calendar`.
 | `label:` | `String` | Its name for a screen reader; unset, `Calendar` |
 
 **Flags:** `.single` `.range` `.multiple`
+
+Attribute families: `global`, `aria`, `data`.
+
+### Listbox
+
+A list of options always shown, one chosen (selection follows the arrow keys) or, `.multiple`, several: Space chooses, Shift with an arrow takes the next one in too, Ctrl or ⌘ with A takes them all; a letter goes to the next option that starts with it.
+
+```
+Listbox(bind: …, label: …, multiple: …) { … }
+```
+
+```wf
+state fruit = "apple"
+Listbox(bind: fruit, label: "Fruit") {
+    Listbox.Option("Apple", value: "apple")
+    Listbox.Option("Banana", value: "banana")
+    Listbox.Option("Cherry", value: "cherry")
+}
+```
+
+Renders with the class `wf-listbox`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `bind:` (required) | `State` | The chosen value, or a list of them with `.multiple` |
+| `label:` (required) | `String` | What is being chosen, for a screen reader |
+| `multiple:` | `Bool` | Several at once: `bind:` is a list |
+
+**Flags:** `.multiple`
+
+**Parts:**
+
+- `Listbox.Option(label, value: …, icon: …, aria-disabled: …) { … }` — One option: its words, and the value `bind:` holds when it is chosen.
+  - `label:` `String` — Its words
+  - `value:` `Any` — What `bind:` holds when it is chosen
+  - `icon:` `String` — An icon before the words
+  - `aria-disabled:` `String` — `"true"`: shown, passed over, never chosen
+
+Takes a block of children.
+
+Attribute families: `global`, `aria`, `data`.
+
+### Combobox
+
+A text field that offers what matches as the reader types: from `options:`, or `search:` asked of a server. The arrow keys go through the offers, Enter takes one, Escape closes them; `.multiple` keeps several, each a chip Backspace takes back. `option(o) { … }` draws an offer; `empty { … }` shows when nothing matches.
+
+```
+Combobox(bind: …, options: …, search: …)
+```
+
+```wf
+state city = ""
+state cities = [{ id: "par", name: "Paris", country: "France" }, { id: "por", name: "Porto", country: "Portugal" }]
+Combobox(bind: city, options: cities, text: c => c.name, key: c => c.id, label: "City") {
+    option(c) { Text(c.name)  Text(c.country).muted }
+    empty { Text("No city by that name") }
+}
+```
+
+Renders with the class `wf-combobox`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `bind:` (required) | `State` | The chosen option's key (or the option itself without `key:`), or a list with `.multiple` |
+| `options:` | `Any` | Every option, filtered as the reader types |
+| `search:` | `Any` | Options asked for as the reader types: `q => Geo.cities(q: q)` |
+| `text:` (required) | `Any` | An option's words: `p => p.name` |
+| `key:` | `Any` | What tells two options apart: `p => p.id` |
+| `debounce:` | `Any` | How long the typing rests before `search:` is asked (unset, 200ms) |
+| `multiple:` | `Bool` | Several at once, each a chip |
+| `label:` (required) | `String` | Its name for a screen reader |
+| `placeholder:` | `String` | Shown while it is empty |
+
+**Flags:** `.multiple`
 
 Attribute families: `global`, `aria`, `data`.
 

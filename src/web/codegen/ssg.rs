@@ -1633,6 +1633,16 @@ pub(crate) fn render_builtin<C: Paint>(name: &str, ui: &UIElement, ctx: &mut C) 
             out.push_str(&format!("{indent}</div>\n"));
             return out;
         }
+        // Drawn from data by the runtime once the page runs: the paint
+        // holds their place, with nothing in it to show and then take back.
+        "Tree" | "DataTable" | "Combobox" | "Calendar" => {
+            let own = own_attrs(name, ui, ctx, &[]);
+            let (tag, _) = builtin_to_html(name);
+            return format!(
+                "{}<{tag} class=\"{class_str}\"{own}{wf}{inline_style}></{tag}>\n",
+                ctx.indent_str()
+            );
+        }
         "Modal" | "Dialog" | "AlertDialog" | "Sheet" => {
             let title = ui.args.iter().find_map(|a| match a {
                 Arg::Named(k, v) if k == "title" => Some(

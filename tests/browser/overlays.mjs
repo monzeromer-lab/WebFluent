@@ -174,7 +174,8 @@ try {
 
   console.log("\nToast");
   await page.click("#archive");
-  await pause(100);
+  // In once it has slid in from the window's edge.
+  await pause(450);
   const t = await page.evaluate(() => {
     const n = document.querySelector(".wf-toast");
     return n && { action: n.querySelector(".wf-toast__action")?.textContent, close: n.querySelector(".wf-toast__close")?.getAttribute("aria-label"), top: n.parentNode.matches(":popover-open") };
