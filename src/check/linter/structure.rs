@@ -716,6 +716,13 @@ fn element(ui: &UIElement, cx: &mut Ctx<'_>, ancestors: &[&UIElement], in_compon
             || cx.components.contains(owner.as_str()))
         && !ancestors.iter().any(|a| match &a.component {
             ComponentRef::BuiltIn(n) => n == owner,
+            // A menu bar's menu and a context menu's items are menus.
+            ComponentRef::SubComponent(o, p)
+                if owner == "Menu"
+                    && ((o == "Menubar" && p == "Menu") || (o == "ContextMenu" && p == "Items")) =>
+            {
+                true
+            }
             ComponentRef::SubComponent(o, _) => o == owner,
             // One of your components may place the part inside its owner.
             ComponentRef::UserDefined(_) => true,

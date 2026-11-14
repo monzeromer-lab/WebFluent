@@ -499,6 +499,15 @@ page Editor(path: "/", title: "Editor", description: "Layers at a control and at
   control, and `label:` is its name (`A18` without one).
 - **`Menu`** without `trigger:` is a list that state opens, at an `anchor:`
   or `at:` a point. Choosing an item closes it.
+- **`ContextMenu`** does what the card above does by hand: what it wraps,
+  and its `ContextMenu.Items` opened where a right-click or a long press
+  happened — or, for a keyboard, at the focused element on the menu key or
+  Shift+F10. `ContextMenu { Text("Right-click here")  ContextMenu.Items {
+  Menu.Item { Text("Rename") } } }` needs no state.
+- **`Menubar`** is a desktop app's File, Edit and View: `Menubar {
+  Menubar.Menu("File") { Menu.Item(shortcut: "mod+n") { Text("New") } } }`.
+  It is one Tab stop; the arrow keys go along it, and with a menu open Left
+  and Right open the one beside it.
 - The open layers form one stack, newest on top. Escape closes the newest
   layer that can be dismissed — a popover, a menu, an open `Modal` or
   `Dialog` — and nothing behind it hears that key. A modal opened from a

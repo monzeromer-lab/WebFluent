@@ -1,0 +1,54 @@
+// The navigation built-ins, each on the one page `tests/browser/navigation.mjs`
+// drives: panels a site's navigation opens, an app's menu bar, a menu a
+// right-click opens, a phone's tab bar, and the pages either side.
+page Home(path: "/", title: "Navigation", description: "Every way around.") {
+    state heard = ""
+
+    NavigationMenu(label: "Main") {
+        NavigationMenu.Item("Products") {
+            Link("Editor", to: "/editor")
+            Link("Compiler", to: "/compiler")
+        }
+        NavigationMenu.Item("Learn") {
+            Link("Guide", to: "/guide")
+        }
+        NavigationMenu.Link("Pricing", to: "/pricing")
+    }
+
+    Heading("Navigation").h1
+    Text("heard {heard}", id: "heard")
+
+    Menubar(label: "Editor") {
+        Menubar.Menu("File") {
+            Menu.Item(shortcut: "mod+n") { on click { heard = "new" }  Text("New") }
+            Menu.Item { on click { heard = "open" }  Text("Open") }
+        }
+        Menubar.Menu("Edit") {
+            Menu.Item(shortcut: "mod+z") { on click { heard = "undo" }  Text("Undo") }
+            Menu.Sub(label: "Find") {
+                Menu.Item { on click { heard = "find" }  Text("Find in files") }
+            }
+        }
+        Menubar.Menu("View") {
+            Menu.Item { on click { heard = "zoom" }  Text("Zoom in") }
+        }
+    }
+
+    ContextMenu {
+        Card(id: "target") { Text("Right-click here")  Button("notes.txt", id: "file") }
+        ContextMenu.Items(label: "File actions") {
+            Menu.Item { on click { heard = "rename" }  Text("Rename") }
+            Menu.Item.danger { on click { heard = "delete" }  Text("Delete") }
+        }
+    }
+
+    PrevNext {
+        PrevNext.Prev("Forms", to: "/guide")
+        PrevNext.Next("Stores", to: "/pricing")
+    }
+}
+
+page Editor(path: "/editor", title: "Editor", description: "The editor.") { Heading("Editor").h1 }
+page Compiler(path: "/compiler", title: "Compiler", description: "The compiler.") { Heading("Compiler").h1 }
+page Guide(path: "/guide", title: "Guide", description: "The guide.") { Heading("Guide").h1 }
+page Pricing(path: "/pricing", title: "Pricing", description: "The prices.") { Heading("Pricing").h1 }

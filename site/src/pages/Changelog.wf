@@ -237,6 +237,19 @@ shows the password on a press; `FileUpload(bind: files).dropzone` takes
 files dropped on it, each shown with a preview and a button to take it
 out."#)
                 ]),
+                NotesSection(title: #"More navigation"#, id: "6.2.0-more-navigation", items: [
+                    Change(text: #"`NavigationMenu { NavigationMenu.Item("Products") { … } }` is a site's
+navigation whose entries open panels, one at a time, with the arrow keys
+along the row."#),
+                    Change(text: #"`Menubar { Menubar.Menu("File") { Menu.Item … } }` is a desktop app's
+menu bar: one Tab stop, and with a menu open Left and Right open the one
+beside it."#),
+                    Change(text: #"`ContextMenu { … ContextMenu.Items { Menu.Item … } }` opens its menu
+where a right-click or a long press happened, or on the menu key — no
+state to write."#),
+                    Change(text: #"`BottomNavigation` is a phone's tab bar, clear of the home indicator;
+`PrevNext` links the pages either side of this one."#)
+                ]),
                 NotesSection(title: #"Fixes"#, id: "6.2.0-fixes", items: [
                     Change(text: #"`wf test` drew a built-in where the project had a component of its
 name in another file."#),
@@ -307,7 +320,7 @@ again before the exit ended."#),
                     Change(text: #"A `Splitter`'s handle reaches 24px, WCAG 2.2's least target, around its
 4px line."#)
                 ])
-            ], count: 83), latest: true)
+            ], count: 87), latest: true)
 
             ReleaseEntry(ReleaseNotes(version: "6.1.0", id: "6.1.0", date: "2026-11-14", when: "14 November 2026", summary: #"A site sends much less: the runtime ships only the functions a program
 reaches, with short names, and only the styles and animations it draws
@@ -3766,6 +3779,6 @@ flattened diagnostics, and the reason a theme failed to resolve."#),
             ], count: 15))
         }
 
-        OnThisPage(sections: [Anchor(id: "6.2.0-a-project-s-own-component-wins", label: #"A project's own component wins"#), Anchor(id: "6.2.0-stacking-and-target-sizes-are-tokens", label: #"Stacking and target sizes are tokens"#), Anchor(id: "6.2.0-the-arrow-keys-everywhere-a-group-needs-them", label: #"The arrow keys, everywhere a group needs them"#), Anchor(id: "6.2.0-overlays-on-one-path", label: #"Overlays on one path"#), Anchor(id: "6.2.0-presses-that-hold-up", label: #"Presses that hold up"#), Anchor(id: "6.2.0-content-built-ins", label: #"Content built-ins"#), Anchor(id: "6.2.0-choosing-built-ins", label: #"Choosing built-ins"#), Anchor(id: "6.2.0-collections-and-an-app-s-frame", label: #"Collections and an app's frame"#), Anchor(id: "6.2.0-more-form-controls", label: #"More form controls"#), Anchor(id: "6.2.0-fixes", label: #"Fixes"#), Anchor(id: "6.2.0-reached-by-every-reader", label: #"Reached by every reader"#), Anchor(id: "6.2.0-right-to-left", label: #"Right to left"#), Anchor(id: "6.2.0-smaller-fixes", label: #"Smaller fixes"#)], source: "RELEASE_NOTES.md")
+        OnThisPage(sections: [Anchor(id: "6.2.0-a-project-s-own-component-wins", label: #"A project's own component wins"#), Anchor(id: "6.2.0-stacking-and-target-sizes-are-tokens", label: #"Stacking and target sizes are tokens"#), Anchor(id: "6.2.0-the-arrow-keys-everywhere-a-group-needs-them", label: #"The arrow keys, everywhere a group needs them"#), Anchor(id: "6.2.0-overlays-on-one-path", label: #"Overlays on one path"#), Anchor(id: "6.2.0-presses-that-hold-up", label: #"Presses that hold up"#), Anchor(id: "6.2.0-content-built-ins", label: #"Content built-ins"#), Anchor(id: "6.2.0-choosing-built-ins", label: #"Choosing built-ins"#), Anchor(id: "6.2.0-collections-and-an-app-s-frame", label: #"Collections and an app's frame"#), Anchor(id: "6.2.0-more-form-controls", label: #"More form controls"#), Anchor(id: "6.2.0-more-navigation", label: #"More navigation"#), Anchor(id: "6.2.0-fixes", label: #"Fixes"#), Anchor(id: "6.2.0-reached-by-every-reader", label: #"Reached by every reader"#), Anchor(id: "6.2.0-right-to-left", label: #"Right to left"#), Anchor(id: "6.2.0-smaller-fixes", label: #"Smaller fixes"#)], source: "RELEASE_NOTES.md")
     }
 }

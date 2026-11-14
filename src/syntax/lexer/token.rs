@@ -466,6 +466,12 @@ pub const ALL_COMPONENT_NAMES: &[&str] = &[
     "TagInput",
     "Rating",
     "DateRangePicker",
+    // More navigation
+    "NavigationMenu",
+    "Menubar",
+    "ContextMenu",
+    "BottomNavigation",
+    "PrevNext",
     // A node handed to somebody else's code, with a lifetime.
     "Host",
     // A custom element a script defines, by its tag.

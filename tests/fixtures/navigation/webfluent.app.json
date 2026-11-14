@@ -1,0 +1,4 @@
+{
+  "name": "navigation",
+  "build": { "ssg": true, "csp": true }
+}

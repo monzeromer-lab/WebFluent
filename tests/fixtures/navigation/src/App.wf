@@ -1,0 +1,9 @@
+// Every page has the phone's tab bar.
+app {
+    Router
+    BottomNavigation(label: "Sections") {
+        BottomNavigation.Item("Home", to: "/", icon: "home")
+        BottomNavigation.Item("Search", to: "/pricing", icon: "search")
+        BottomNavigation.Item("Me", to: "/guide", icon: "user")
+    }
+}

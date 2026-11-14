@@ -543,6 +543,134 @@ impl JsCodegen {
         self.emit_line(&format!("{parent}.appendChild({var});"));
     }
 
+    /// `Menubar`: a `role="menubar"` row of its menus' buttons, which
+    /// `WF.menuBar` makes one Tab stop with the arrow keys along it.
+    pub(in super::super) fn emit_menubar(&mut self, var: &str, ui: &UIElement, parent: &str) {
+        let label = ui.args.iter().find_map(|a| match a {
+            Arg::Named(k, v) if k == "label" => Some(self.emit_expr(v)),
+            _ => None,
+        });
+        let named = label
+            .map(|l| format!(", \"aria-label\": {l}"))
+            .unwrap_or_default();
+        let extra = self.root_attrs("Menubar", ui, &["label"]);
+        self.emit_line(&format!(
+            "const {} = WF.el(\"div\", {{ className: \"{}\", role: \"menubar\"{named}{extra}{} }});",
+            var,
+            self.class_attr("Menubar", ui),
+            self.wf_node_inline(ui)
+        ));
+        for child in &ui.children {
+            self.emit_statement_dom(child, var);
+        }
+        self.emit_line(&format!("WF.menuBar({var});"));
+        self.emit_root_handlers(var, ui, true);
+        self.emit_line(&format!("{parent}.appendChild({var});"));
+    }
+
+    /// `Menubar.Menu("File") { … }`: a `menuitem` button of the bar and the
+    /// menu it opens, as a `Menu`'s trigger and list.
+    pub(in super::super) fn emit_menubar_menu(&mut self, var: &str, ui: &UIElement, parent: &str) {
+        let label = ui
+            .args
+            .iter()
+            .find_map(|a| match a {
+                Arg::Positional(v) => Some(self.emit_expr(v)),
+                Arg::Named(k, v) if k == "label" => Some(self.emit_expr(v)),
+                Arg::Named(..) => None,
+            })
+            .unwrap_or_else(|| "\"\"".to_string());
+        let shown = if self.is_reactive(&label) {
+            format!("() => {label}")
+        } else {
+            label
+        };
+        let open = self.fresh_var();
+        self.emit_line(&format!("const {open} = WF.signal(false);"));
+        self.emit_line(&format!(
+            "const {} = WF.el(\"div\", {{ className: \"wf-menubar__menu\", role: \"none\"{} }});",
+            var,
+            self.wf_node_inline(ui)
+        ));
+        let id = self.fresh_var();
+        self.emit_line(&format!("const {id} = WF.uid(\"wf-menu\");"));
+        let trigger = self.fresh_var();
+        self.emit_line(&format!(
+            "const {trigger} = WF.el(\"button\", {{ className: \"wf-menubar__trigger\", type: \"button\", role: \"menuitem\", \
+             \"aria-haspopup\": \"menu\", \"aria-controls\": {id}, \
+             \"aria-expanded\": () => {open}() ? \"true\" : \"false\", \
+             \"on:click\": () => {open}.set(!{open}()) }}, {shown});"
+        ));
+        self.emit_line(&format!("{var}.appendChild({trigger});"));
+        let list = self.fresh_var();
+        self.emit_line(&format!(
+            "const {list} = WF.el(\"ul\", {{ className: \"wf-menu__items\", id: {id}, role: \"menu\", \"aria-label\": {shown} }});"
+        ));
+        self.emit_line(&format!(
+            "WF.menu({var}, {trigger}, {list}, {open}, (v) => {open}.set(v), {{}});"
+        ));
+        self.menu_lists.push(list.clone());
+        for child in &ui.children {
+            self.emit_statement_dom(child, &list);
+        }
+        self.menu_lists.pop();
+        self.emit_line(&format!("{var}.appendChild({list});"));
+        self.emit_line(&format!("{parent}.appendChild({var});"));
+    }
+
+    /// `ContextMenu { … ContextMenu.Items { Menu.Item … } }`: what it wraps,
+    /// and the menu `WF.contextMenu` opens where a right-click, a long press
+    /// or the menu key asked for it.
+    pub(in super::super) fn emit_context_menu(&mut self, var: &str, ui: &UIElement, parent: &str) {
+        let extra = self.root_attrs("ContextMenu", ui, &[]);
+        self.emit_line(&format!(
+            "const {} = WF.el(\"div\", {{ className: \"{}\"{extra}{} }});",
+            var,
+            self.class_attr("ContextMenu", ui),
+            self.wf_node_inline(ui)
+        ));
+        let mut items = None;
+        for child in &ui.children {
+            if let crate::syntax::parser::ast::StatementKind::UIElement(el) = &child.kind
+                && matches!(&el.component, crate::syntax::parser::ast::ComponentRef::SubComponent(o, p) if o == "ContextMenu" && p == "Items")
+            {
+                items = Some(el);
+                continue;
+            }
+            self.emit_statement_dom(child, var);
+        }
+        if let Some(items) = items {
+            let label = items
+                .args
+                .iter()
+                .find_map(|a| match a {
+                    Arg::Named(k, v) if k == "label" => Some(self.emit_expr(v)),
+                    _ => None,
+                })
+                .map(|l| format!(", \"aria-label\": {l}"))
+                .unwrap_or_default();
+            let list = self.fresh_var();
+            self.emit_line(&format!(
+                "const {list} = WF.el(\"ul\", {{ className: \"wf-menu__items\", role: \"menu\"{label}{} }});",
+                self.wf_node_inline(items)
+            ));
+            let mut opts = self.close_handler(items).into_iter().collect::<Vec<_>>();
+            opts.extend(self.layer_options(items));
+            self.emit_line(&format!(
+                "WF.contextMenu({var}, {list}, {{ {} }});",
+                opts.join(", ")
+            ));
+            self.menu_lists.push(list.clone());
+            for child in &items.children {
+                self.emit_statement_dom(child, &list);
+            }
+            self.menu_lists.pop();
+            self.emit_line(&format!("{var}.appendChild({list});"));
+        }
+        self.emit_root_handlers(var, ui, true);
+        self.emit_line(&format!("{parent}.appendChild({var});"));
+    }
+
     /// `on close(reason)` on a layer, as the `onClose` option.
     pub(in super::super) fn close_handler(&mut self, ui: &UIElement) -> Option<String> {
         let handler = ui.events.iter().find(|h| h.event == "close")?;

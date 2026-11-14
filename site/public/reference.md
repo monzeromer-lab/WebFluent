@@ -11,7 +11,7 @@ Every component is written `Name(positional, prop: value).flag { block }`. A **p
 ## Contents
 
 - **Layout**: [`Container`](https://webfluent.monzeromer.dev/reference/container), [`Row`](https://webfluent.monzeromer.dev/reference/row), [`Column`](https://webfluent.monzeromer.dev/reference/column), [`Grid`](https://webfluent.monzeromer.dev/reference/grid), [`Stack`](https://webfluent.monzeromer.dev/reference/stack), [`Spacer`](https://webfluent.monzeromer.dev/reference/spacer), [`VirtualList`](https://webfluent.monzeromer.dev/reference/virtuallist), [`Splitter`](https://webfluent.monzeromer.dev/reference/splitter), [`Divider`](https://webfluent.monzeromer.dev/reference/divider), [`AppShell`](https://webfluent.monzeromer.dev/reference/appshell), [`Host`](https://webfluent.monzeromer.dev/reference/host), [`Portal`](https://webfluent.monzeromer.dev/reference/portal), [`Element`](https://webfluent.monzeromer.dev/reference/element)
-- **Navigation**: [`Navbar`](https://webfluent.monzeromer.dev/reference/navbar), [`Sidebar`](https://webfluent.monzeromer.dev/reference/sidebar), [`Link`](https://webfluent.monzeromer.dev/reference/link), [`Tabs`](https://webfluent.monzeromer.dev/reference/tabs), [`Breadcrumb`](https://webfluent.monzeromer.dev/reference/breadcrumb), [`Menu`](https://webfluent.monzeromer.dev/reference/menu), [`OnThisPage`](https://webfluent.monzeromer.dev/reference/onthispage), [`Pagination`](https://webfluent.monzeromer.dev/reference/pagination), [`Stepper`](https://webfluent.monzeromer.dev/reference/stepper), [`CommandPalette`](https://webfluent.monzeromer.dev/reference/commandpalette)
+- **Navigation**: [`Navbar`](https://webfluent.monzeromer.dev/reference/navbar), [`Sidebar`](https://webfluent.monzeromer.dev/reference/sidebar), [`Link`](https://webfluent.monzeromer.dev/reference/link), [`Tabs`](https://webfluent.monzeromer.dev/reference/tabs), [`Breadcrumb`](https://webfluent.monzeromer.dev/reference/breadcrumb), [`Menu`](https://webfluent.monzeromer.dev/reference/menu), [`NavigationMenu`](https://webfluent.monzeromer.dev/reference/navigationmenu), [`Menubar`](https://webfluent.monzeromer.dev/reference/menubar), [`ContextMenu`](https://webfluent.monzeromer.dev/reference/contextmenu), [`BottomNavigation`](https://webfluent.monzeromer.dev/reference/bottomnavigation), [`PrevNext`](https://webfluent.monzeromer.dev/reference/prevnext), [`OnThisPage`](https://webfluent.monzeromer.dev/reference/onthispage), [`Pagination`](https://webfluent.monzeromer.dev/reference/pagination), [`Stepper`](https://webfluent.monzeromer.dev/reference/stepper), [`CommandPalette`](https://webfluent.monzeromer.dev/reference/commandpalette)
 - **Data display**: [`Card`](https://webfluent.monzeromer.dev/reference/card), [`Table`](https://webfluent.monzeromer.dev/reference/table), [`List`](https://webfluent.monzeromer.dev/reference/list), [`Badge`](https://webfluent.monzeromer.dev/reference/badge), [`Tag`](https://webfluent.monzeromer.dev/reference/tag), [`Avatar`](https://webfluent.monzeromer.dev/reference/avatar), [`Tooltip`](https://webfluent.monzeromer.dev/reference/tooltip), [`Tree`](https://webfluent.monzeromer.dev/reference/tree), [`DataTable`](https://webfluent.monzeromer.dev/reference/datatable), [`Chart`](https://webfluent.monzeromer.dev/reference/chart), [`QrCode`](https://webfluent.monzeromer.dev/reference/qrcode)
 - **Form**: [`Input`](https://webfluent.monzeromer.dev/reference/input), [`Select`](https://webfluent.monzeromer.dev/reference/select), [`Checkbox`](https://webfluent.monzeromer.dev/reference/checkbox), [`Radio`](https://webfluent.monzeromer.dev/reference/radio), [`Switch`](https://webfluent.monzeromer.dev/reference/switch), [`Slider`](https://webfluent.monzeromer.dev/reference/slider), [`DatePicker`](https://webfluent.monzeromer.dev/reference/datepicker), [`FileUpload`](https://webfluent.monzeromer.dev/reference/fileupload), [`Form`](https://webfluent.monzeromer.dev/reference/form), [`Textarea`](https://webfluent.monzeromer.dev/reference/textarea), [`Field`](https://webfluent.monzeromer.dev/reference/field), [`Fieldset`](https://webfluent.monzeromer.dev/reference/fieldset), [`InputGroup`](https://webfluent.monzeromer.dev/reference/inputgroup), [`RadioGroup`](https://webfluent.monzeromer.dev/reference/radiogroup), [`NumberInput`](https://webfluent.monzeromer.dev/reference/numberinput), [`Calendar`](https://webfluent.monzeromer.dev/reference/calendar), [`Listbox`](https://webfluent.monzeromer.dev/reference/listbox), [`Combobox`](https://webfluent.monzeromer.dev/reference/combobox), [`CheckboxGroup`](https://webfluent.monzeromer.dev/reference/checkboxgroup), [`InputOTP`](https://webfluent.monzeromer.dev/reference/inputotp), [`TagInput`](https://webfluent.monzeromer.dev/reference/taginput), [`Rating`](https://webfluent.monzeromer.dev/reference/rating), [`DateRangePicker`](https://webfluent.monzeromer.dev/reference/daterangepicker)
 - **Feedback**: [`Alert`](https://webfluent.monzeromer.dev/reference/alert), [`Toast`](https://webfluent.monzeromer.dev/reference/toast), [`Modal`](https://webfluent.monzeromer.dev/reference/modal), [`Popover`](https://webfluent.monzeromer.dev/reference/popover), [`Dialog`](https://webfluent.monzeromer.dev/reference/dialog), [`AlertDialog`](https://webfluent.monzeromer.dev/reference/alertdialog), [`Sheet`](https://webfluent.monzeromer.dev/reference/sheet), [`Spinner`](https://webfluent.monzeromer.dev/reference/spinner), [`Progress`](https://webfluent.monzeromer.dev/reference/progress), [`Skeleton`](https://webfluent.monzeromer.dev/reference/skeleton)
@@ -573,6 +573,187 @@ Renders with the class `wf-menu`.
 - `Menu.Sub(label: …) { … }` — An entry that opens a menu of its own beside it.
   - `label:` `String` — What the entry says
 - `Menu.Divider` — A rule between groups of entries.
+
+Takes a block of children.
+
+Attribute families: `global`, `aria`, `data`.
+
+### NavigationMenu
+
+A site's main navigation whose entries open panels (a mega menu) as disclosures: one open at a time, the arrow keys along the row, Down into a panel, Escape, a press outside or the focus leaving closes it.
+
+```
+NavigationMenu(label: …) { … }
+```
+
+```wf
+NavigationMenu(label: "Main") {
+    NavigationMenu.Item("Products") {
+        Link("Editor", to: "/")
+        Link("Compiler", to: "/")
+    }
+    NavigationMenu.Link("Pricing", to: "/")
+}
+```
+
+Renders with the class `wf-nav-menu`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `label:` | `String` | The navigation's name for a screen reader (unset, `Main`) |
+
+**Parts:**
+
+- `NavigationMenu.Item(label) { … }` — An entry that opens a panel: its words are its button, its block the panel.
+  - `label:` `String` — The button's words
+- `NavigationMenu.Link(label, to: …, active: …)` — An entry that is a link, beside the ones that open panels.
+  - `label:` `String` — The link's words
+  - `to:` `Path` — Route to navigate to; the link whose `to` matches the current route carries `.active` and `aria-current="page"`
+  - `active:` `.prefix` — How the link decides it is the current one
+  - flags: `.prefix`
+- `NavigationMenu.List { … }` — Its entries. Drawn for it.
+- `NavigationMenu.Trigger(label) { … }` — An entry's button. Drawn for it.
+  - `label:` `String` — Its words
+- `NavigationMenu.Panel { … }` — An entry's panel. Drawn for it.
+
+Takes a block of children.
+
+Attribute families: `global`, `aria`, `data`.
+
+### Menubar
+
+File, Edit and View, as in a desktop app: one Tab stop, the arrow keys along it; Down or Enter opens a menu, and with one open Left and Right open the one beside it.
+
+```
+Menubar(label: …) { … }
+```
+
+```wf
+state said = ""
+Menubar(label: "Editor") {
+    Menubar.Menu("File") {
+        Menu.Item(shortcut: "mod+n") { on click { said = "new" }  Text("New") }
+        Menu.Item { on click { said = "open" }  Text("Open…") }
+    }
+    Menubar.Menu("Edit") {
+        Menu.Item(shortcut: "mod+z") { on click { said = "undo" }  Text("Undo") }
+    }
+}
+Text(said)
+```
+
+Renders with the class `wf-menubar`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `label:` | `String` | The bar's name for a screen reader |
+
+**Parts:**
+
+- `Menubar.Menu(label) { … }` — One menu of the bar: its button's words, and its `Menu.Item`s, `Menu.Sub`s and `Menu.Divider`s.
+  - `label:` `String` — The button's words
+
+Takes a block of children.
+
+Attribute families: `global`, `aria`, `data`.
+
+### ContextMenu
+
+What it wraps, and a menu a right-click, a long press, the menu key or Shift+F10 inside it opens where it happened.
+
+```
+ContextMenu { … }
+```
+
+```wf
+state said = ""
+ContextMenu {
+    Card { Text("Right-click here, or long-press") }
+    ContextMenu.Items(label: "File actions") {
+        Menu.Item(shortcut: "F2") { on click { said = "rename" }  Text("Rename") }
+        Menu.Item.danger { on click { said = "delete" }  Text("Delete") }
+    }
+}
+Text(said)
+```
+
+Renders with the class `wf-context-menu`.
+
+**Parts:**
+
+- `ContextMenu.Items(label: …) { … }` — The menu: `Menu.Item`s, `Menu.Sub`s and `Menu.Divider`s.
+  - `label:` `String` — The menu's name for a screen reader
+
+Takes a block of children.
+
+Attribute families: `global`, `aria`, `data`.
+
+### BottomNavigation
+
+A phone's tab bar along the bottom of the screen: each entry an icon over its words, at least 44px to press, clear of the home indicator (the safe-area inset); the current route's is marked.
+
+```
+BottomNavigation(label: …) { … }
+```
+
+```wf
+BottomNavigation(label: "Sections") {
+    BottomNavigation.Item("Home", to: "/", icon: "home")
+    BottomNavigation.Item("Search", to: "/", icon: "search")
+    BottomNavigation.Item("Me", to: "/", icon: "user")
+}
+```
+
+Renders with the class `wf-bottom-nav`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `label:` | `String` | The bar's name for a screen reader (unset, `Main`) |
+
+**Parts:**
+
+- `BottomNavigation.Item(label, to: …, active: …, icon: …)` — One entry: its words, where it goes, and its icon.
+  - `label:` `String` — Its words
+  - `to:` `Path` — Route to navigate to; the link whose `to` matches the current route carries `.active` and `aria-current="page"`
+  - `active:` `.prefix` — How the link decides it is the current one
+  - `icon:` `String` — The icon over its words
+  - flags: `.prefix`
+
+Takes a block of children.
+
+Attribute families: `global`, `aria`, `data`.
+
+### PrevNext
+
+The pages before and after this one in an ordered set — a guide's chapters: each a link that says which way it goes and the page's title.
+
+```
+PrevNext(label: …) { … }
+```
+
+```wf
+PrevNext {
+    PrevNext.Prev("Forms", to: "/")
+    PrevNext.Next("Stores", to: "/")
+}
+```
+
+Renders with the class `wf-prev-next`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `label:` | `String` | Its name for a screen reader (unset, `Pages`) |
+
+**Parts:**
+
+- `PrevNext.Prev(title, to: …, label: …)` — The page before: its title, and where it is.
+  - `title:` `String` — The page's title
+  - `to:` `Path` — Route to navigate to; the link whose `to` matches the current route carries `.active` and `aria-current="page"`
+  - `label:` `String` — The word above the title (unset, `Previous`)
+- `PrevNext.Next(title, to: …, label: …)` — The page after: its title, and where it is.
+  - `title:` `String` — The page's title
+  - `to:` `Path` — Route to navigate to; the link whose `to` matches the current route carries `.active` and `aria-current="page"`
+  - `label:` `String` — The word above the title (unset, `Next`)
 
 Takes a block of children.
 

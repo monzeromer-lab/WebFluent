@@ -1084,6 +1084,28 @@
     },
     {
       "deps": [
+        "layer",
+        "gesture"
+      ],
+      "exports": [
+        [
+          "navMenu",
+          "navMenu"
+        ],
+        [
+          "menuBar",
+          "menuBar"
+        ],
+        [
+          "contextMenu",
+          "contextMenu"
+        ]
+      ],
+      "name": "navigation",
+      "triggers": []
+    },
+    {
+      "deps": [
         "focus",
         "each",
         "layer"

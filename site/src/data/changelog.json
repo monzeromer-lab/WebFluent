@@ -373,6 +373,34 @@
     "after": ""
    },
    {
+    "title": "More navigation",
+    "id": "6.2.0-more-navigation",
+    "intro": "",
+    "items": [
+     {
+      "text": "`NavigationMenu { NavigationMenu.Item(\"Products\") { … } }` is a site's\nnavigation whose entries open panels, one at a time, with the arrow keys\nalong the row.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`Menubar { Menubar.Menu(\"File\") { Menu.Item … } }` is a desktop app's\nmenu bar: one Tab stop, and with a menu open Left and Right open the one\nbeside it.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`ContextMenu { … ContextMenu.Items { Menu.Item … } }` opens its menu\nwhere a right-click or a long press happened, or on the menu key — no\nstate to write.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`BottomNavigation` is a phone's tab bar, clear of the home indicator;\n`PrevNext` links the pages either side of this one.",
+      "points": [],
+      "after": ""
+     }
+    ],
+    "after": ""
+   },
+   {
     "title": "Fixes",
     "id": "6.2.0-fixes",
     "intro": "",
@@ -525,7 +553,7 @@
     "after": ""
    }
   ],
-  "count": 83
+  "count": 87
  },
  {
   "version": "6.1.0",

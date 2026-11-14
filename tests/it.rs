@@ -119,6 +119,7 @@ mod migrate_equivalence;
 mod module_layers;
 #[path = "motion.rs"]
 mod motion;
+mod navigation;
 #[path = "nodes_corpus.rs"]
 mod nodes_corpus;
 #[path = "offline.rs"]

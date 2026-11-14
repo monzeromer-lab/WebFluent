@@ -655,7 +655,12 @@ Leftovers.
 
 Each group is released on its own:
 
-**Status: group 1 (forms) done, 2026-11-14; groups 2 to 4 to come.** The
+**Status: groups 1 (forms) and 2 (navigation) done, 2026-11-14; groups 3
+and 4 to come.** Group 2: `Menubar` and `ContextMenu` are drawn on the menu
+module (`WF.menuBar`, `WF.contextMenu`); `NavigationMenu`,
+`BottomNavigation` and `PrevNext` are rewritten into buttons, panels and
+links during lowering, so they paint in a static build. The checks are
+`tests/browser/navigation.mjs` (28 in Chrome) and `tests/navigation.rs`. The
 controls the runtime draws whole (`InputOTP`, `TagInput`, `Rating`,
 `DateRangePicker`, `Slider.range`, `FileUpload.dropzone`) share one emitter
 that hands each its `bind:` and its options; `CheckboxGroup`, `.autosize`
@@ -766,3 +771,16 @@ up together once stage 9 is done. A line comes off when its work lands.
   page's to show).
 - `CheckboxGroup.Option`s are read from the group's own block, not from a
   `for` or an `if`.
+
+### From stage 8, group 2
+
+- A `Menubar`'s `Menu.Item(shortcut:)` is shown and said, but pressing the
+  keys runs nothing: the page writes its own `on key("mod+n")`.
+- In a static build a menu's items (a `Menu`'s, a `Menubar`'s, a
+  `ContextMenu`'s) are painted hidden without their `role="menuitem"`, and a
+  `Menu.Sub` as a `div` in the list; the live page draws them right.
+- `NavigationMenu` and `BottomNavigation` read their entries through a
+  `for` or an `if`, but a `Menubar.Menu` or `ContextMenu.Items` inside one
+  paints, in a static build, as its items shown rather than a hidden menu.
+- `BottomNavigation` shows at every width; hiding it on a wide screen is
+  the page's `style { @md { display: none } }`.

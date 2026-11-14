@@ -41,6 +41,7 @@ pub(super) const GLOBALS: &[&str] = &[
     "IntersectionObserver",
     "matchMedia",
     "CSS",
+    "KeyboardEvent",
     "Intl",
     "JSON",
     "Map",

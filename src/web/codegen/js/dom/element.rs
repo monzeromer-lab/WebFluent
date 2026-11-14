@@ -31,6 +31,11 @@ impl JsCodegen {
                 self.emit_menu_item(parent_name, &var, ui, parent);
             }
             ComponentRef::SubComponent(parent_name, sub_name)
+                if parent_name == "Menubar" && sub_name == "Menu" =>
+            {
+                self.emit_menubar_menu(&var, ui, parent);
+            }
+            ComponentRef::SubComponent(parent_name, sub_name)
                 if parent_name == "Menu" && sub_name == "Sub" =>
             {
                 self.emit_menu_sub(parent_name, &var, ui, parent);
@@ -183,6 +188,14 @@ impl JsCodegen {
             }
             "Dropdown" | "Menu" => {
                 self.emit_dropdown_menu(name, var, &attrs, ui, parent);
+                true
+            }
+            "Menubar" => {
+                self.emit_menubar(var, ui, parent);
+                true
+            }
+            "ContextMenu" => {
+                self.emit_context_menu(var, ui, parent);
                 true
             }
             "Toast" => {

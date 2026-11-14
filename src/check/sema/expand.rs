@@ -66,6 +66,9 @@ fn expand_element(el: &mut UIElement, seq: &mut usize) {
         "Listbox" => listbox(el),
         "CommandPalette" => command_palette(el),
         "CheckboxGroup" => checkbox_group(el),
+        "NavigationMenu" => navigation_menu(el),
+        "BottomNavigation" => bottom_navigation(el),
+        "PrevNext" => prev_next(el),
         "Textarea" if take_flag(el, "autosize").is_some() => {
             give(el, "data-autosize", "\"true\"");
             give(el, "mount", "(n) => __wf.autosize(n)");
@@ -987,4 +990,144 @@ fn checkbox_group(el: &mut UIElement) {
     let mut children = parse(&head);
     children.append(&mut el.children);
     el.children = children;
+}
+
+/// The parts of `owner` under `stmts`, through a `for` or an `if`, each
+/// handed to `each` with its name.
+fn each_part(stmts: &mut [Statement], owner: &str, each: &mut dyn FnMut(&str, &mut UIElement)) {
+    for stmt in stmts.iter_mut() {
+        if let StatementKind::UIElement(part) = &mut stmt.kind
+            && let ComponentRef::SubComponent(p, name) = &part.component
+            && p == owner
+        {
+            let name = name.clone();
+            each(&name, part);
+            continue;
+        }
+        for body in stmt.kind.bodies_mut() {
+            each_part(body, owner, each);
+        }
+    }
+}
+
+/// `part` made the element `src` writes, keeping what else the call said:
+/// its `class:`, attributes, handlers and style.
+fn become_(part: &mut UIElement, src: &str) {
+    let mut stmts = parse(src);
+    let Some(made) = element_of(&mut stmts) else {
+        return;
+    };
+    let mut made = made.clone();
+    made.span = part.span;
+    let args = std::mem::take(&mut part.args);
+    for arg in args {
+        made.args.push(arg);
+        made.arg_spans.push(Span::default());
+    }
+    made.events.append(&mut part.events);
+    made.style_block = part.style_block.take();
+    made.transition_block = part.transition_block.take();
+    made.modifiers.append(&mut part.modifiers);
+    made.modifier_spans = vec![Span::default(); made.modifiers.len()];
+    *part = made;
+}
+
+/// `NavigationMenu(label: "Main") { NavigationMenu.Item("Products") { … }  NavigationMenu.Link("Pricing", to: "/pricing") }`:
+/// a list of entries, each a button and the panel it discloses, or a link.
+fn navigation_menu(el: &mut UIElement) {
+    let label = take(el, "label").map_or_else(|| lit("Main"), |e| src(&e));
+    give(el, "aria-label", &label);
+    each_part(
+        &mut el.children,
+        "NavigationMenu",
+        &mut |name, part| match name {
+            "Item" => {
+                let Some(title) = take_positional(part) else {
+                    return;
+                };
+                let panel = std::mem::take(&mut part.children);
+                let mut made = parse(&format!(
+                    "NavigationMenu.Trigger({}, aria-expanded: \"false\") {{ Icon(\"chevron-down\", aria-hidden: \"true\") }}\nNavigationMenu.Panel(hidden: true) {{ }}",
+                    src(&title)
+                ));
+                if let Some(StatementKind::UIElement(p)) = made.get_mut(1).map(|s| &mut s.kind) {
+                    p.children = panel;
+                }
+                part.children = made;
+            }
+            "Link" => {
+                let (Some(words), Some(to)) = (take_positional(part), take(part, "to")) else {
+                    return;
+                };
+                let active = take(part, "active")
+                    .map(|a| format!(", active: {}", src(&a)))
+                    .unwrap_or_default();
+                part.component = ComponentRef::SubComponent("NavigationMenu".into(), "Item".into());
+                part.children = parse(&format!("Link({}, to: {}{active})", src(&words), src(&to)));
+            }
+            _ => {}
+        },
+    );
+    let body = std::mem::take(&mut el.children);
+    let mut list = parse("NavigationMenu.List { }");
+    if let Some(l) = element_of(&mut list) {
+        l.children = body;
+    }
+    el.children = list;
+    give(el, "mount", "(n) => __wf.navMenu(n)");
+}
+
+/// `BottomNavigation { BottomNavigation.Item("Home", to: "/", icon: "home") }`:
+/// links, each its icon over its words.
+fn bottom_navigation(el: &mut UIElement) {
+    let label = take(el, "label").map_or_else(|| lit("Main"), |e| src(&e));
+    give(el, "aria-label", &label);
+    each_part(&mut el.children, "BottomNavigation", &mut |name, part| {
+        if name != "Item" {
+            return;
+        }
+        let (Some(words), Some(to)) = (take_positional(part), take(part, "to")) else {
+            return;
+        };
+        let active = take(part, "active")
+            .map(|a| format!(", active: {}", src(&a)))
+            .unwrap_or_default();
+        let icon = take(part, "icon")
+            .map(|i| format!("Icon({}, aria-hidden: \"true\")\n", src(&i)))
+            .unwrap_or_default();
+        become_(
+            part,
+            &format!(
+                "Link(to: {}{active}) {{\n{icon}Text({})\n}}",
+                src(&to),
+                src(&words)
+            ),
+        );
+    });
+}
+
+/// `PrevNext { PrevNext.Prev("Forms", to: "/forms")  PrevNext.Next("Stores", to: "/stores") }`:
+/// a link each way, the way it goes above the page's title.
+fn prev_next(el: &mut UIElement) {
+    let label = take(el, "label").map_or_else(|| lit("Pages"), |e| src(&e));
+    give(el, "aria-label", &label);
+    each_part(&mut el.children, "PrevNext", &mut |name, part| {
+        let (dir, word) = match name {
+            "Prev" => ("prev", "Previous"),
+            "Next" => ("next", "Next"),
+            _ => return,
+        };
+        let (Some(title), Some(to)) = (take_positional(part), take(part, "to")) else {
+            return;
+        };
+        let word = take(part, "label").map_or_else(|| lit(word), |e| src(&e));
+        become_(
+            part,
+            &format!(
+                "Link(to: {}, rel: \"{dir}\", data-dir: \"{dir}\") {{\nText({word}).sm.muted\nText({}).bold\n}}",
+                src(&to),
+                src(&title)
+            ),
+        );
+    });
 }

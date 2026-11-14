@@ -151,6 +151,8 @@ Every page below is Markdown. The language's whole reference in one file is [AGE
 - [Background](https://webfluent.monzeromer.dev/reference/background.md): Drawn behind each PDF page's content, the size of the page: a cover, a band, a full-bleed picture.
 - [Badge](https://webfluent.monzeromer.dev/reference/badge.md): Small status label.
 - [Blockquote](https://webfluent.monzeromer.dev/reference/blockquote.md): Quotation: the text, or its block as the quoted content.
+- [BottomNavigation](https://webfluent.monzeromer.dev/reference/bottomnavigation.md): A phone's tab bar along the bottom of the screen: each entry an icon over its words, at least 44px to press, clear of the home indicator (the safe-area inset); the current route's is marked.
+- [BottomNavigation.Item](https://webfluent.monzeromer.dev/reference/bottomnavigation-item.md): One entry: its words, where it goes, and its icon.
 - [Breadcrumb](https://webfluent.monzeromer.dev/reference/breadcrumb.md): Breadcrumb trail. An item without to is the current page.
 - [Breadcrumb.Item](https://webfluent.monzeromer.dev/reference/breadcrumb-item.md): One step of the trail.
 - [Browser support](https://webfluent.monzeromer.dev/reference/browser-support.md): The browsers a WebFluent site targets, and the fallback for each newer platform feature it uses where a browser lacks it.
@@ -214,6 +216,8 @@ Every page below is Markdown. The language's whole reference in one file is [AGE
 - [CommandPalette.List](https://webfluent.monzeromer.dev/reference/commandpalette-list.md): What matches. Drawn for it.
 - [Configuration](https://webfluent.monzeromer.dev/reference/config.md): Every key of webfluent.app.json, its type and default: project, build, media, PDF, slides, dev, motion, meta, theme, i18n, env, offline and lints.
 - [Container](https://webfluent.monzeromer.dev/reference/container.md): Centred wrapper with a maximum width and horizontal padding.
+- [ContextMenu](https://webfluent.monzeromer.dev/reference/contextmenu.md): What it wraps, and a menu a right-click, a long press, the menu key or Shift+F10 inside it opens where it happened.
+- [ContextMenu.Items](https://webfluent.monzeromer.dev/reference/contextmenu-items.md): The menu: Menu.Items, Menu.Subs and Menu.Dividers.
 - [CopyButton](https://webfluent.monzeromer.dev/reference/copybutton.md): A button that copies value: to the clipboard, says Copied for a moment, and tells a screen reader so.
 - [DataTable](https://webfluent.monzeromer.dev/reference/datatable.md): Rows of records with their columns declared once: a column sorts when it is .sortable (its header a button, aria-sort saying which way), cell(r) { … } draws a cell, empty { … } shows when there are no rows, and bind: chooses rows (a list with .multiple, a box for each and one for all).
 - [DataTable.Column](https://webfluent.monzeromer.dev/reference/datatable-column.md): One column: its title, its value: (what it shows and sorts by), and a cell(r) { … } that draws it instead.
@@ -271,6 +275,8 @@ Every page below is Markdown. The language's whole reference in one file is [AGE
 - [Menu.Divider](https://webfluent.monzeromer.dev/reference/menu-divider.md): A rule between groups of entries.
 - [Menu.Item](https://webfluent.monzeromer.dev/reference/menu-item.md): One entry of the menu; on click is what choosing it does.
 - [Menu.Sub](https://webfluent.monzeromer.dev/reference/menu-sub.md): An entry that opens a menu of its own beside it.
+- [Menubar](https://webfluent.monzeromer.dev/reference/menubar.md): File, Edit and View, as in a desktop app: one Tab stop, the arrow keys along it; Down or Enter opens a menu, and with one open Left and Right open the one beside it.
+- [Menubar.Menu](https://webfluent.monzeromer.dev/reference/menubar-menu.md): One menu of the bar: its button's words, and its Menu.Items, Menu.Subs and Menu.Dividers.
 - [Modal](https://webfluent.monzeromer.dev/reference/modal.md): Modal <dialog>, opened by a state flag; the browser supplies focus trapping and Escape. on close runs when it closes, however it was closed, and the focus goes back to what had it.
 - [Modal.Footer](https://webfluent.monzeromer.dev/reference/modal-footer.md): The modal's action row.
 - [Modal.Title](https://webfluent.monzeromer.dev/reference/modal-title.md): What the modal's heading draws, in place of its title:'s words, which stay its name: Modal.Title { Text { "Rename "  Code(name) } }.
@@ -278,6 +284,12 @@ Every page below is Markdown. The language's whole reference in one file is [AGE
 - [Navbar.Actions](https://webfluent.monzeromer.dev/reference/navbar-actions.md): Buttons at the end of the bar.
 - [Navbar.Brand](https://webfluent.monzeromer.dev/reference/navbar-brand.md): The brand area, usually a link home.
 - [Navbar.Links](https://webfluent.monzeromer.dev/reference/navbar-links.md): The navigation links; collapses behind a toggle on small screens.
+- [NavigationMenu](https://webfluent.monzeromer.dev/reference/navigationmenu.md): A site's main navigation whose entries open panels (a mega menu) as disclosures: one open at a time, the arrow keys along the row, Down into a panel, Escape, a press outside or the focus leaving closes it.
+- [NavigationMenu.Item](https://webfluent.monzeromer.dev/reference/navigationmenu-item.md): An entry that opens a panel: its words are its button, its block the panel.
+- [NavigationMenu.Link](https://webfluent.monzeromer.dev/reference/navigationmenu-link.md): An entry that is a link, beside the ones that open panels.
+- [NavigationMenu.List](https://webfluent.monzeromer.dev/reference/navigationmenu-list.md): Its entries. Drawn for it.
+- [NavigationMenu.Panel](https://webfluent.monzeromer.dev/reference/navigationmenu-panel.md): An entry's panel. Drawn for it.
+- [NavigationMenu.Trigger](https://webfluent.monzeromer.dev/reference/navigationmenu-trigger.md): An entry's button. Drawn for it.
 - [NumberInput](https://webfluent.monzeromer.dev/reference/numberinput.md): A number with − and + beside it: the arrow keys step it, PageUp and PageDown by ten steps, and it stays between min: and max:.
 - [NumberInput.Decrease](https://webfluent.monzeromer.dev/reference/numberinput-decrease.md): Its − button. Drawn for it.
 - [NumberInput.Increase](https://webfluent.monzeromer.dev/reference/numberinput-increase.md): Its + button. Drawn for it.
@@ -294,6 +306,9 @@ Every page below is Markdown. The language's whole reference in one file is [AGE
 - [Popover](https://webfluent.monzeromer.dev/reference/popover.md): A layer at a control: drawn above everything, placed against its anchor:, closed by Escape or a press outside, which write false back to visible: and fire on close.
 - [Portal](https://webfluent.monzeromer.dev/reference/portal.md): Its block, drawn into a node somebody else's code owns: an element a script hands over, or a ref: handle. When into: names another node the block moves there with its nodes and state; null keeps it aside until a node comes back; it goes when the page, branch or list item it is written in leaves. What is inside belongs to where it is written: its handlers, emit and lifetimes.
 - [Presentation](https://webfluent.monzeromer.dev/reference/presentation.md): Root of a slide deck; its children must be slides.
+- [PrevNext](https://webfluent.monzeromer.dev/reference/prevnext.md): The pages before and after this one in an ordered set — a guide's chapters: each a link that says which way it goes and the page's title.
+- [PrevNext.Next](https://webfluent.monzeromer.dev/reference/prevnext-next.md): The page after: its title, and where it is.
+- [PrevNext.Prev](https://webfluent.monzeromer.dev/reference/prevnext-prev.md): The page before: its title, and where it is.
 - [Progress](https://webfluent.monzeromer.dev/reference/progress.md): Progress bar; a value that reads state moves with it.
 - [Project structure](https://webfluent.monzeromer.dev/reference/project.md): Where files go, how they merge into one program, naming in a global namespace, wf generate, what to commit, and how to grow a project.
 - [QrCode](https://webfluent.monzeromer.dev/reference/qrcode.md): A QR code for a URL or any text, drawn as vector graphics when the page is built.

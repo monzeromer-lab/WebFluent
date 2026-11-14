@@ -1222,6 +1222,148 @@ pub const COMPONENTS: &[ComponentSig] = &[
         G,
         Children::None,
     ),
+    comp(
+        "NavigationMenu",
+        "Navigation",
+        "A site's main navigation whose entries open panels (a mega menu) as disclosures: one open at a time, the arrow keys along the row, Down into a panel, Escape, a press outside or the focus leaving closes it.",
+        None,
+        &[special("label", PropType::Str, "The navigation's name for a screen reader (unset, `Main`)")],
+        &["Item", "Link", "List", "Trigger", "Panel"],
+        G,
+        Children::Elements,
+    )
+    .html("nav", "wf-nav-menu")
+    .css(&["Navigation Menu"])
+    .not_on_paper("navigation components are web-only"),
+    part(
+        "NavigationMenu",
+        "Item",
+        Ir::Sub("NavigationMenu", "Item"),
+        "An entry that opens a panel: its words are its button, its block the panel.",
+        Some(special("label", PropType::Str, "The button's words")),
+        &[],
+        G,
+        Children::Elements,
+    )
+    .html("li", "wf-nav-menu__item"),
+    part(
+        "NavigationMenu",
+        "Link",
+        Ir::Sub("NavigationMenu", "Link"),
+        "An entry that is a link, beside the ones that open panels.",
+        Some(required(special("label", PropType::Str, "The link's words"))),
+        &[required(TO), ACTIVE],
+        G,
+        Children::None,
+    ),
+    part("NavigationMenu", "List", Ir::Sub("NavigationMenu", "List"), "Its entries. Drawn for it.", None, &[], G, Children::Elements)
+        .html("ul", "wf-nav-menu__list"),
+    part("NavigationMenu", "Trigger", Ir::Sub("NavigationMenu", "Trigger"), "An entry's button. Drawn for it.", Some(special("label", PropType::Str, "Its words")), &[], G, Children::Elements)
+        .html("button", "wf-nav-menu__trigger"),
+    part("NavigationMenu", "Panel", Ir::Sub("NavigationMenu", "Panel"), "An entry's panel. Drawn for it.", None, &[], G, Children::Elements)
+        .html("div", "wf-nav-menu__panel"),
+    comp(
+        "Menubar",
+        "Navigation",
+        "File, Edit and View, as in a desktop app: one Tab stop, the arrow keys along it; Down or Enter opens a menu, and with one open Left and Right open the one beside it.",
+        None,
+        &[special("label", PropType::Str, "The bar's name for a screen reader")],
+        &["Menu"],
+        G,
+        Children::Elements,
+    )
+    .html("div", "wf-menubar")
+    .css(&["Menu", "Layer", "Menubar"])
+    .not_on_paper("navigation components are web-only"),
+    part(
+        "Menubar",
+        "Menu",
+        Ir::Sub("Menubar", "Menu"),
+        "One menu of the bar: its button's words, and its `Menu.Item`s, `Menu.Sub`s and `Menu.Divider`s.",
+        Some(required(special("label", PropType::Str, "The button's words"))),
+        &[],
+        G,
+        Children::Elements,
+    ),
+    comp(
+        "ContextMenu",
+        "Navigation",
+        "What it wraps, and a menu a right-click, a long press, the menu key or Shift+F10 inside it opens where it happened.",
+        None,
+        &[],
+        &["Items"],
+        G,
+        Children::Elements,
+    )
+    .html("div", "wf-context-menu")
+    .css(&["Menu", "Layer"])
+    .not_on_paper("navigation components are web-only"),
+    part(
+        "ContextMenu",
+        "Items",
+        Ir::Sub("ContextMenu", "Items"),
+        "The menu: `Menu.Item`s, `Menu.Sub`s and `Menu.Divider`s.",
+        None,
+        &[special("label", PropType::Str, "The menu's name for a screen reader")],
+        G,
+        Children::Elements,
+    ),
+    comp(
+        "BottomNavigation",
+        "Navigation",
+        "A phone's tab bar along the bottom of the screen: each entry an icon over its words, at least 44px to press, clear of the home indicator (the safe-area inset); the current route's is marked.",
+        None,
+        &[special("label", PropType::Str, "The bar's name for a screen reader (unset, `Main`)")],
+        &["Item"],
+        G,
+        Children::Elements,
+    )
+    .html("nav", "wf-bottom-nav")
+    .css(&["Link", "Bottom Navigation"])
+    .not_on_paper("navigation components are web-only"),
+    part(
+        "BottomNavigation",
+        "Item",
+        Ir::Sub("BottomNavigation", "Item"),
+        "One entry: its words, where it goes, and its icon.",
+        Some(required(special("label", PropType::Str, "Its words"))),
+        &[required(TO), ACTIVE, special("icon", PropType::Str, "The icon over its words")],
+        G,
+        Children::None,
+    ),
+    comp(
+        "PrevNext",
+        "Navigation",
+        "The pages before and after this one in an ordered set — a guide's chapters: each a link that says which way it goes and the page's title.",
+        None,
+        &[special("label", PropType::Str, "Its name for a screen reader (unset, `Pages`)")],
+        &["Prev", "Next"],
+        G,
+        Children::Elements,
+    )
+    .html("nav", "wf-prev-next")
+    .css(&["Link", "Prev Next"])
+    .on_paper(),
+    part(
+        "PrevNext",
+        "Prev",
+        Ir::Sub("PrevNext", "Prev"),
+        "The page before: its title, and where it is.",
+        Some(required(special("title", PropType::Str, "The page's title"))),
+        &[required(TO), special("label", PropType::Str, "The word above the title (unset, `Previous`)")],
+        G,
+        Children::None,
+    ),
+    part(
+        "PrevNext",
+        "Next",
+        Ir::Sub("PrevNext", "Next"),
+        "The page after: its title, and where it is.",
+        Some(required(special("title", PropType::Str, "The page's title"))),
+        &[required(TO), special("label", PropType::Str, "The word above the title (unset, `Next`)")],
+        G,
+        Children::None,
+    ),
     // ─── Data display ─────────────────────────────────────────────────────
     comp(
         "Card",

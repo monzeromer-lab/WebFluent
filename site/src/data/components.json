@@ -1,5 +1,5 @@
 {
- "count": 194,
+ "count": 209,
  "families": [
   "Layout",
   "Navigation",
@@ -2784,6 +2784,1154 @@
      "kind": "C05",
      "title": "A positional argument a built-in does not take",
      "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "NavigationMenu",
+   "slug": "navigationmenu",
+   "family": "Navigation",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "A site's main navigation whose entries open panels (a mega menu) as disclosures: one open at a time, the arrow keys along the row, Down into a panel, Escape, a press outside or the focus leaving closes it.",
+   "plain": "A site's main navigation whose entries open panels (a mega menu) as disclosures: one open at a time, the arrow keys along the row, Down into a panel, Escape, a press outside or the focus leaving closes it.",
+   "signature": "NavigationMenu(label: String) { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "label:",
+     "type": "String",
+     "meaning": "The navigation's name for a screen reader (unset, `Main`)"
+    }
+   ],
+   "controls": [
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [
+    {
+     "name": "NavigationMenu.Item",
+     "kind": "navigationmenu-item",
+     "detail": "An entry that opens a panel: its words are its button, its block the panel.",
+     "fallback": ""
+    },
+    {
+     "name": "NavigationMenu.Link",
+     "kind": "navigationmenu-link",
+     "detail": "An entry that is a link, beside the ones that open panels.",
+     "fallback": ""
+    },
+    {
+     "name": "NavigationMenu.List",
+     "kind": "navigationmenu-list",
+     "detail": "Its entries. Drawn for it.",
+     "fallback": ""
+    },
+    {
+     "name": "NavigationMenu.Trigger",
+     "kind": "navigationmenu-trigger",
+     "detail": "An entry's button. Drawn for it.",
+     "fallback": ""
+    },
+    {
+     "name": "NavigationMenu.Panel",
+     "kind": "navigationmenu-panel",
+     "detail": "An entry's panel. Drawn for it.",
+     "fallback": ""
+    }
+   ],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-nav-menu",
+   "example": "NavigationMenu(label: \"Main\") {\n    NavigationMenu.Item(\"Products\") {\n        Link(\"Editor\", to: \"/\")\n        Link(\"Compiler\", to: \"/\")\n    }\n    NavigationMenu.Link(\"Pricing\", to: \"/\")\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "NavigationMenu.Item",
+   "slug": "navigationmenu-item",
+   "family": "Navigation",
+   "owner": "NavigationMenu",
+   "ownerSlug": "navigationmenu",
+   "summary": "An entry that opens a panel: its words are its button, its block the panel.",
+   "plain": "An entry that opens a panel: its words are its button, its block the panel.",
+   "signature": "NavigationMenu.Item(_ label: String) { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "label",
+     "type": "String  (positional)",
+     "meaning": "The button's words"
+    }
+   ],
+   "controls": [
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "NavigationMenu(label: \"Main\") {\n    NavigationMenu.Item(\"Products\") {\n        Link(\"Editor\", to: \"/\")\n        Link(\"Compiler\", to: \"/\")\n    }\n    NavigationMenu.Link(\"Pricing\", to: \"/\")\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
+   ]
+  },
+  {
+   "name": "NavigationMenu.Link",
+   "slug": "navigationmenu-link",
+   "family": "Navigation",
+   "owner": "NavigationMenu",
+   "ownerSlug": "navigationmenu",
+   "summary": "An entry that is a link, beside the ones that open panels.",
+   "plain": "An entry that is a link, beside the ones that open panels.",
+   "signature": "NavigationMenu.Link(_ label: String, to: Path, active: Enum)",
+   "block": false,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "label",
+     "type": "String  (positional)",
+     "meaning": "The link's words"
+    },
+    {
+     "name": "to:",
+     "type": "Path  (required)",
+     "meaning": "Route to navigate to; the link whose `to` matches the current route carries `.active` and `aria-current=\"page\"`"
+    },
+    {
+     "name": "active:",
+     "type": ".prefix",
+     "meaning": "How the link decides it is the current one"
+    }
+   ],
+   "controls": [
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "active",
+     "kind": "enum",
+     "options": [
+      "prefix"
+     ],
+     "value": "prefix",
+     "sink": "special"
+    }
+   ],
+   "flags": [
+    ".prefix"
+   ],
+   "events": [],
+   "domEvents": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "NavigationMenu(label: \"Main\") {\n    NavigationMenu.Item(\"Products\") {\n        Link(\"Editor\", to: \"/\")\n        Link(\"Compiler\", to: \"/\")\n    }\n    NavigationMenu.Link(\"Pricing\", to: \"/\")\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
+   ]
+  },
+  {
+   "name": "NavigationMenu.List",
+   "slug": "navigationmenu-list",
+   "family": "Navigation",
+   "owner": "NavigationMenu",
+   "ownerSlug": "navigationmenu",
+   "summary": "Its entries. Drawn for it.",
+   "plain": "Its entries. Drawn for it.",
+   "signature": "NavigationMenu.List { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [],
+   "controls": [],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "NavigationMenu(label: \"Main\") {\n    NavigationMenu.Item(\"Products\") {\n        Link(\"Editor\", to: \"/\")\n        Link(\"Compiler\", to: \"/\")\n    }\n    NavigationMenu.Link(\"Pricing\", to: \"/\")\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "NavigationMenu.Trigger",
+   "slug": "navigationmenu-trigger",
+   "family": "Navigation",
+   "owner": "NavigationMenu",
+   "ownerSlug": "navigationmenu",
+   "summary": "An entry's button. Drawn for it.",
+   "plain": "An entry's button. Drawn for it.",
+   "signature": "NavigationMenu.Trigger(_ label: String) { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "label",
+     "type": "String  (positional)",
+     "meaning": "Its words"
+    }
+   ],
+   "controls": [
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "NavigationMenu(label: \"Main\") {\n    NavigationMenu.Item(\"Products\") {\n        Link(\"Editor\", to: \"/\")\n        Link(\"Compiler\", to: \"/\")\n    }\n    NavigationMenu.Link(\"Pricing\", to: \"/\")\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
+   ]
+  },
+  {
+   "name": "NavigationMenu.Panel",
+   "slug": "navigationmenu-panel",
+   "family": "Navigation",
+   "owner": "NavigationMenu",
+   "ownerSlug": "navigationmenu",
+   "summary": "An entry's panel. Drawn for it.",
+   "plain": "An entry's panel. Drawn for it.",
+   "signature": "NavigationMenu.Panel { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [],
+   "controls": [],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "NavigationMenu(label: \"Main\") {\n    NavigationMenu.Item(\"Products\") {\n        Link(\"Editor\", to: \"/\")\n        Link(\"Compiler\", to: \"/\")\n    }\n    NavigationMenu.Link(\"Pricing\", to: \"/\")\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "Menubar",
+   "slug": "menubar",
+   "family": "Navigation",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "File, Edit and View, as in a desktop app: one Tab stop, the arrow keys along it; Down or Enter opens a menu, and with one open Left and Right open the one beside it.",
+   "plain": "File, Edit and View, as in a desktop app: one Tab stop, the arrow keys along it; Down or Enter opens a menu, and with one open Left and Right open the one beside it.",
+   "signature": "Menubar(label: String) { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "label:",
+     "type": "String",
+     "meaning": "The bar's name for a screen reader"
+    }
+   ],
+   "controls": [
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [
+    {
+     "name": "Menubar.Menu",
+     "kind": "menubar-menu",
+     "detail": "One menu of the bar: its button's words, and its Menu.Items, Menu.Subs and Menu.Dividers.",
+     "fallback": ""
+    }
+   ],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-menubar",
+   "example": "state said = \"\"\nMenubar(label: \"Editor\") {\n    Menubar.Menu(\"File\") {\n        Menu.Item(shortcut: \"mod+n\") { on click { said = \"new\" }  Text(\"New\") }\n        Menu.Item { on click { said = \"open\" }  Text(\"Open…\") }\n    }\n    Menubar.Menu(\"Edit\") {\n        Menu.Item(shortcut: \"mod+z\") { on click { said = \"undo\" }  Text(\"Undo\") }\n    }\n}\nText(said)",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "Menubar.Menu",
+   "slug": "menubar-menu",
+   "family": "Navigation",
+   "owner": "Menubar",
+   "ownerSlug": "menubar",
+   "summary": "One menu of the bar: its button's words, and its `Menu.Item`s, `Menu.Sub`s and `Menu.Divider`s.",
+   "plain": "One menu of the bar: its button's words, and its Menu.Items, Menu.Subs and Menu.Dividers.",
+   "signature": "Menubar.Menu(_ label: String) { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "label",
+     "type": "String  (positional)",
+     "meaning": "The button's words"
+    }
+   ],
+   "controls": [
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "state said = \"\"\nMenubar(label: \"Editor\") {\n    Menubar.Menu(\"File\") {\n        Menu.Item(shortcut: \"mod+n\") { on click { said = \"new\" }  Text(\"New\") }\n        Menu.Item { on click { said = \"open\" }  Text(\"Open…\") }\n    }\n    Menubar.Menu(\"Edit\") {\n        Menu.Item(shortcut: \"mod+z\") { on click { said = \"undo\" }  Text(\"Undo\") }\n    }\n}\nText(said)",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
+   ]
+  },
+  {
+   "name": "ContextMenu",
+   "slug": "contextmenu",
+   "family": "Navigation",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "What it wraps, and a menu a right-click, a long press, the menu key or Shift+F10 inside it opens where it happened.",
+   "plain": "What it wraps, and a menu a right-click, a long press, the menu key or Shift+F10 inside it opens where it happened.",
+   "signature": "ContextMenu { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [],
+   "controls": [],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [
+    {
+     "name": "ContextMenu.Items",
+     "kind": "contextmenu-items",
+     "detail": "The menu: Menu.Items, Menu.Subs and Menu.Dividers.",
+     "fallback": ""
+    }
+   ],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-context-menu",
+   "example": "state said = \"\"\nContextMenu {\n    Card { Text(\"Right-click here, or long-press\") }\n    ContextMenu.Items(label: \"File actions\") {\n        Menu.Item(shortcut: \"F2\") { on click { said = \"rename\" }  Text(\"Rename\") }\n        Menu.Item.danger { on click { said = \"delete\" }  Text(\"Delete\") }\n    }\n}\nText(said)",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "ContextMenu.Items",
+   "slug": "contextmenu-items",
+   "family": "Navigation",
+   "owner": "ContextMenu",
+   "ownerSlug": "contextmenu",
+   "summary": "The menu: `Menu.Item`s, `Menu.Sub`s and `Menu.Divider`s.",
+   "plain": "The menu: Menu.Items, Menu.Subs and Menu.Dividers.",
+   "signature": "ContextMenu.Items(label: String) { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "label:",
+     "type": "String",
+     "meaning": "The menu's name for a screen reader"
+    }
+   ],
+   "controls": [
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "state said = \"\"\nContextMenu {\n    Card { Text(\"Right-click here, or long-press\") }\n    ContextMenu.Items(label: \"File actions\") {\n        Menu.Item(shortcut: \"F2\") { on click { said = \"rename\" }  Text(\"Rename\") }\n        Menu.Item.danger { on click { said = \"delete\" }  Text(\"Delete\") }\n    }\n}\nText(said)",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "BottomNavigation",
+   "slug": "bottomnavigation",
+   "family": "Navigation",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "A phone's tab bar along the bottom of the screen: each entry an icon over its words, at least 44px to press, clear of the home indicator (the safe-area inset); the current route's is marked.",
+   "plain": "A phone's tab bar along the bottom of the screen: each entry an icon over its words, at least 44px to press, clear of the home indicator (the safe-area inset); the current route's is marked.",
+   "signature": "BottomNavigation(label: String) { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "label:",
+     "type": "String",
+     "meaning": "The bar's name for a screen reader (unset, `Main`)"
+    }
+   ],
+   "controls": [
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [
+    {
+     "name": "BottomNavigation.Item",
+     "kind": "bottomnavigation-item",
+     "detail": "One entry: its words, where it goes, and its icon.",
+     "fallback": ""
+    }
+   ],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-bottom-nav",
+   "example": "BottomNavigation(label: \"Sections\") {\n    BottomNavigation.Item(\"Home\", to: \"/\", icon: \"home\")\n    BottomNavigation.Item(\"Search\", to: \"/\", icon: \"search\")\n    BottomNavigation.Item(\"Me\", to: \"/\", icon: \"user\")\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "BottomNavigation.Item",
+   "slug": "bottomnavigation-item",
+   "family": "Navigation",
+   "owner": "BottomNavigation",
+   "ownerSlug": "bottomnavigation",
+   "summary": "One entry: its words, where it goes, and its icon.",
+   "plain": "One entry: its words, where it goes, and its icon.",
+   "signature": "BottomNavigation.Item(_ label: String, to: Path, active: Enum, icon: String)",
+   "block": false,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "label",
+     "type": "String  (positional)",
+     "meaning": "Its words"
+    },
+    {
+     "name": "to:",
+     "type": "Path  (required)",
+     "meaning": "Route to navigate to; the link whose `to` matches the current route carries `.active` and `aria-current=\"page\"`"
+    },
+    {
+     "name": "active:",
+     "type": ".prefix",
+     "meaning": "How the link decides it is the current one"
+    },
+    {
+     "name": "icon:",
+     "type": "String",
+     "meaning": "The icon over its words"
+    }
+   ],
+   "controls": [
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "active",
+     "kind": "enum",
+     "options": [
+      "prefix"
+     ],
+     "value": "prefix",
+     "sink": "special"
+    },
+    {
+     "name": "icon",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [
+    ".prefix"
+   ],
+   "events": [],
+   "domEvents": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "BottomNavigation(label: \"Sections\") {\n    BottomNavigation.Item(\"Home\", to: \"/\", icon: \"home\")\n    BottomNavigation.Item(\"Search\", to: \"/\", icon: \"search\")\n    BottomNavigation.Item(\"Me\", to: \"/\", icon: \"user\")\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
+   ]
+  },
+  {
+   "name": "PrevNext",
+   "slug": "prevnext",
+   "family": "Navigation",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "The pages before and after this one in an ordered set — a guide's chapters: each a link that says which way it goes and the page's title.",
+   "plain": "The pages before and after this one in an ordered set — a guide's chapters: each a link that says which way it goes and the page's title.",
+   "signature": "PrevNext(label: String) { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "label:",
+     "type": "String",
+     "meaning": "Its name for a screen reader (unset, `Pages`)"
+    }
+   ],
+   "controls": [
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [
+    {
+     "name": "PrevNext.Prev",
+     "kind": "prevnext-prev",
+     "detail": "The page before: its title, and where it is.",
+     "fallback": ""
+    },
+    {
+     "name": "PrevNext.Next",
+     "kind": "prevnext-next",
+     "detail": "The page after: its title, and where it is.",
+     "fallback": ""
+    }
+   ],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-prev-next",
+   "example": "PrevNext {\n    PrevNext.Prev(\"Forms\", to: \"/\")\n    PrevNext.Next(\"Stores\", to: \"/\")\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "PrevNext.Prev",
+   "slug": "prevnext-prev",
+   "family": "Navigation",
+   "owner": "PrevNext",
+   "ownerSlug": "prevnext",
+   "summary": "The page before: its title, and where it is.",
+   "plain": "The page before: its title, and where it is.",
+   "signature": "PrevNext.Prev(_ title: String, to: Path, label: String)",
+   "block": false,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "title",
+     "type": "String  (positional)",
+     "meaning": "The page's title"
+    },
+    {
+     "name": "to:",
+     "type": "Path  (required)",
+     "meaning": "Route to navigate to; the link whose `to` matches the current route carries `.active` and `aria-current=\"page\"`"
+    },
+    {
+     "name": "label:",
+     "type": "String",
+     "meaning": "The word above the title (unset, `Previous`)"
+    }
+   ],
+   "controls": [
+    {
+     "name": "title",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "PrevNext {\n    PrevNext.Prev(\"Forms\", to: \"/\")\n    PrevNext.Next(\"Stores\", to: \"/\")\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
+   ]
+  },
+  {
+   "name": "PrevNext.Next",
+   "slug": "prevnext-next",
+   "family": "Navigation",
+   "owner": "PrevNext",
+   "ownerSlug": "prevnext",
+   "summary": "The page after: its title, and where it is.",
+   "plain": "The page after: its title, and where it is.",
+   "signature": "PrevNext.Next(_ title: String, to: Path, label: String)",
+   "block": false,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "title",
+     "type": "String  (positional)",
+     "meaning": "The page's title"
+    },
+    {
+     "name": "to:",
+     "type": "Path  (required)",
+     "meaning": "Route to navigate to; the link whose `to` matches the current route carries `.active` and `aria-current=\"page\"`"
+    },
+    {
+     "name": "label:",
+     "type": "String",
+     "meaning": "The word above the title (unset, `Next`)"
+    }
+   ],
+   "controls": [
+    {
+     "name": "title",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "PrevNext {\n    PrevNext.Prev(\"Forms\", to: \"/\")\n    PrevNext.Next(\"Stores\", to: \"/\")\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
     }
    ]
   },

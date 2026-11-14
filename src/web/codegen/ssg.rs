@@ -1437,6 +1437,85 @@ pub(crate) fn render_builtin<C: Paint>(name: &str, ui: &UIElement, ctx: &mut C) 
             out.push_str(&format!("{indent}</{tag}>\n"));
             return out;
         }
+        // A menu bar: its menus' buttons, each list hidden until the script
+        // opens it, as the live page draws them; the first button is the
+        // bar's one Tab stop.
+        "Menubar" | "ContextMenu" => {
+            let label = ui.args.iter().find_map(|a| match a {
+                Arg::Named(k, v) if k == "label" => {
+                    resolve_text_scoped(v, &ctx.default_messages, &ctx.scope)
+                }
+                _ => None,
+            });
+            let aria = label
+                .map(|l| format!(" aria-label=\"{}\"", html_escape(&l)))
+                .unwrap_or_default();
+            let own = own_attrs(name, ui, ctx, &["label"]);
+            let role = if name == "Menubar" {
+                " role=\"menubar\""
+            } else {
+                ""
+            };
+            let indent = ctx.indent_str();
+            let mut out =
+                format!("{indent}<div class=\"{class_str}\"{role}{aria}{own}{wf}{inline_style}>\n");
+            ctx.indent += 1;
+            let mut first = true;
+            for child in &ui.children {
+                let part = match &child.kind {
+                    StatementKind::UIElement(el) => match &el.component {
+                        ComponentRef::SubComponent(o, p)
+                            if (o == "Menubar" && p == "Menu")
+                                || (o == "ContextMenu" && p == "Items") =>
+                        {
+                            Some(el)
+                        }
+                        _ => None,
+                    },
+                    _ => None,
+                };
+                let Some(part) = part else {
+                    out.push_str(&ctx.statements(std::slice::from_ref(child)));
+                    continue;
+                };
+                let inner = ctx.indent_str();
+                let words = part.args.iter().find_map(|a| match a {
+                    Arg::Positional(v) => resolve_text_scoped(v, &ctx.default_messages, &ctx.scope),
+                    Arg::Named(k, v) if k == "label" => {
+                        resolve_text_scoped(v, &ctx.default_messages, &ctx.scope)
+                    }
+                    Arg::Named(..) => None,
+                });
+                let part_wf = ctx.wf_node_attr_inline(part);
+                let named = words
+                    .as_ref()
+                    .map(|w| format!(" aria-label=\"{}\"", html_escape(w)))
+                    .unwrap_or_default();
+                if name == "Menubar" {
+                    let stop = if first { "0" } else { "-1" };
+                    first = false;
+                    out.push_str(&format!(
+                        "{inner}<div class=\"wf-menubar__menu\" role=\"none\"{part_wf}>\n{inner}    <button class=\"wf-menubar__trigger\" type=\"button\" role=\"menuitem\" aria-haspopup=\"menu\" aria-expanded=\"false\" tabindex=\"{stop}\">{}</button>\n{inner}    <ul class=\"wf-menu__items\" role=\"menu\"{named} hidden>\n",
+                        html_escape(words.as_deref().unwrap_or_default())
+                    ));
+                    ctx.indent += 2;
+                    out.push_str(&ctx.statements(&part.children));
+                    ctx.indent -= 2;
+                    out.push_str(&format!("{inner}    </ul>\n{inner}</div>\n"));
+                } else {
+                    out.push_str(&format!(
+                        "{inner}<ul class=\"wf-menu__items\" role=\"menu\"{named}{part_wf} hidden>\n"
+                    ));
+                    ctx.indent += 1;
+                    out.push_str(&ctx.statements(&part.children));
+                    ctx.indent -= 1;
+                    out.push_str(&format!("{inner}</ul>\n"));
+                }
+            }
+            ctx.indent -= 1;
+            out.push_str(&format!("{indent}</div>\n"));
+            return out;
+        }
         // A menu at its button: the button, and the list hidden until the
         // script opens it — as the live page draws it, which takes this one
         // over. Painted as the bare items, a menu used to be a column of

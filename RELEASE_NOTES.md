@@ -177,6 +177,20 @@ template engine and, where it can be, in a PDF.
   files dropped on it, each shown with a preview and a button to take it
   out.
 
+## More navigation
+
+- `NavigationMenu { NavigationMenu.Item("Products") { … } }` is a site's
+  navigation whose entries open panels, one at a time, with the arrow keys
+  along the row.
+- `Menubar { Menubar.Menu("File") { Menu.Item … } }` is a desktop app's
+  menu bar: one Tab stop, and with a menu open Left and Right open the one
+  beside it.
+- `ContextMenu { … ContextMenu.Items { Menu.Item … } }` opens its menu
+  where a right-click or a long press happened, or on the menu key — no
+  state to write.
+- `BottomNavigation` is a phone's tab bar, clear of the home indicator;
+  `PrevNext` links the pages either side of this one.
+
 ## Fixes
 
 - `wf test` drew a built-in where the project had a component of its

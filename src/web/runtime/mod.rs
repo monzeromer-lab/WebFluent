@@ -172,6 +172,9 @@ pub const MODULES: &[Module] = &[
         same("otp"), same("tagInput"), same("rating"), same("rangeSlider"), same("dropzone"),
         same("dateRange"), same("checkboxGroup"), same("autosize"), same("reveal"),
     ], deps: ["calendar", "focus", "layer", "announce"], triggers: []),
+    module!("navigation", exports: [
+        same("navMenu"), same("menuBar"), same("contextMenu"),
+    ], deps: ["layer", "gesture"], triggers: []),
     module!("collections", exports: [
         same("listbox"), same("tree"), same("dataTable"), same("combobox"), same("commandPalette"),
     ], deps: ["focus", "each", "layer"], triggers: []),
