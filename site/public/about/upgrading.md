@@ -19,13 +19,14 @@ upgrade asks of you:
 
 - [Install a newer version](#install-a-newer-version)
 - [Upgrade a project](#upgrade-a-project)
-- The notes for each release, from [6.0](#6-0) back to
+- The notes for each release, from [6.1](#6-1) back to
   [WebFluent 2](#from-webfluent-2)
 
 ## At a glance
 
 | Release | What to do |
 |---|---|
+| [6.1](#6-1) | Run `wf check` (`T10`, `E111`, `R05`); a stylesheet that selects `main#wf-main` should select `#wf-main` |
 | [6.0](#6-0) | Run `wf check`; check `build.output`, `public_env` names taken from the shell, and `wf serve --host` if you test on a phone. To have each language of a translated site found, give it pages with `lang:` and `translates:`. A program using the Rust crate: see the release's notes |
 | [5.14, 5.13](#5-14-and-5-13) | Nothing |
 | [5.12](#5-12) | Run `wf check` (`E118`, `E102`); rename a store member called `valueOf` or `toString` |
@@ -68,6 +69,25 @@ After installing, bring each project forward:
 3. Run `wf test`. If snapshots changed, look at each difference, then run
    `wf test --update`.
 4. Build, and load the result with `wf verify`.
+
+## 6.1
+
+6.1 sends much less: the runtime ships only what a program reaches, and
+the styles only what it draws on. Your project may notice these:
+
+- **`T10`** on an `api` endpoint called with positional arguments. It
+  built, and sent the first value as the call's map; write the call by
+  name (`Backend.signUp(body: { … })`).
+- **`E111` in `wf check`** for a theme `webfluent.app.json` names and no
+  file declares, which only `wf build` reported before.
+- **`R05`** when a page and its translation are both in the site's
+  language: a page with no `lang:` is in `meta.lang`. Set `meta.lang` to
+  the language those pages are written in, or give the page `lang:`.
+- **The router's box is a `div`** when the program draws its own `main`
+  (`role: "main"`); its id is still `wf-main`.
+- **A script that calls the runtime by a name built at run time** (a
+  `WF[name]` call) may find the function left out: set
+  `"build": { "runtime": "full" }`.
 
 ## 6.0
 
