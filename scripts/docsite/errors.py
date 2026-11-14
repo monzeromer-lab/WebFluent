@@ -113,7 +113,12 @@ def related(code: str, text: str, titles: dict) -> list:
 def link_paths(markdown: str) -> str:
     """Links between the error pages as the site's routes."""
     markdown = re.sub(r"\]\(([A-Z]\d{2,3})\.md\)", r"](/errors/\1)", markdown)
-    return re.sub(r"\]\(diagnostics\.md(#[^)]*)?\)", r"](/errors\1)", markdown)
+    markdown = re.sub(r"\]\(diagnostics\.md(#[^)]*)?\)", r"](/errors\1)", markdown)
+    # A page of another part, as its route: `../recipes/x.md#a` is
+    # `/recipes/x#a`. Left as written, it resolved against `/errors/CODE`
+    # to a file the site does not have.
+    markdown = re.sub(r"\]\(\.\./([\w-]+)/index\.md(#[^)]*)?\)", r"](/\1\2)", markdown)
+    return re.sub(r"\]\(\.\./([\w-]+)/([\w-]+)\.md(#[^)]*)?\)", r"](/\1/\2\3)", markdown)
 
 
 def main():

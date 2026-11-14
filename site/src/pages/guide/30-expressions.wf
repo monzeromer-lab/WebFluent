@@ -307,7 +307,7 @@ page Todos(path: "/todos", title: "Todos", description: "A list, filtered and jo
     }
 }"#, title: "wf")
 
-        Markdown("When the theme changes `color-primary`, the border changes with it.")
+        Markdown("When the theme changes `color-primary`, the border changes with it.\n\nAs a value there is no property to say which group a short name belongs to, so `$primary` is read as the one group that has it, the colours: `$color-primary`. A short name several groups have (`$md` is a spacing, a radius and a shadow) is written in full: `$spacing-md`.")
 
         Heading("await", id: "await").h2
 
@@ -356,8 +356,8 @@ page Settings(path: "/settings", title: "Settings", description: "The limits thi
             }
             Table.Body {
                 Table.Row {
-                    Table.Cell { Markdown("`log(x, …)`") }
-                    Table.Cell("Prints to the console")
+                    Table.Cell { Markdown("`log(x)`") }
+                    Table.Cell("Prints a value to the console")
                 }
                 Table.Row {
                     Table.Cell { Markdown("`navigate(path)`") }

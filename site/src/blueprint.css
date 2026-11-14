@@ -251,6 +251,10 @@ a.bp-card:hover { border-color: var(--border-strong); text-decoration: none; }
 
 /* Code reads left to right in every locale. */
 .bp-ltr { direction: ltr; unicode-bidi: isolate; text-align: left; }
+/* Code inside a sentence too: in Arabic prose, a run that starts or ends
+   with punctuation (`.muted`, `-t spa`, `?.`) is otherwise reordered by the
+   paragraph's direction and reads `muted.`. Isolated, it keeps its own. */
+:not(pre) > code, code.wf-code:not(.wf-code--block) { direction: ltr; unicode-bidi: isolate; }
 
 /* An example with a preview: the code and the running page side by side
    from `lg` up. */
@@ -284,17 +288,15 @@ a.bp-card:hover { border-color: var(--border-strong); text-decoration: none; }
 .bp-field > :not(.wf-icon):not(.bp-kbd) { flex: 1 1 auto; min-width: 0; }
 
 /* Tables. Headers are sentence case, as every label is: the engine's
-   default capitalises them. A wide table scrolls inside its own box
-   instead of widening the page, at every width — a command's options or
-   a token's value can outgrow any column — and code in a cell may break. */
+   default capitalises them. A table is an ordinary table at every width,
+   its rows as wide as its box: a cell's text, code included, breaks where
+   it must, so a table fits a phone without scrolling. (It used to be a
+   scrolling block below 1024px, where its rows shrank to their text and
+   stopped short of their own border.) */
 .wf-table th { text-transform: none; letter-spacing: 0; font-size: 12.5px; font-weight: 600; }
-.bp-main .wf-table, .docs-article .wf-table, .props-table.wf-table { display: block; overflow-x: auto; max-width: 100%; -webkit-overflow-scrolling: touch; }
-.bp-main .wf-table thead, .docs-article .wf-table thead { display: table-header-group; }
-.bp-main .wf-table tbody, .docs-article .wf-table tbody { display: table-row-group; }
+.bp-main .wf-table, .docs-article .wf-table, .props-table.wf-table { display: table; width: 100%; max-width: 100%; }
+.bp-main .wf-table th, .bp-main .wf-table td { overflow-wrap: anywhere; }
 .bp-main .wf-table code, .bp-main .wf-table .wf-markdown code { white-space: normal; overflow-wrap: anywhere; }
-@media (min-width: 1024px) {
-  .bp-main .wf-table { display: table; width: 100%; table-layout: auto; }
-}
 
 /* The header's square controls never give up their width to the search. */
 .bp-header .bp-icon-button, .bp-header .bp-search { flex-shrink: 0; }

@@ -119,14 +119,12 @@ pre.wf-code, .wf-code--block { white-space: pre; }
 /* A heading reached by its anchor clears the sticky header. */
 .docs-main [id], .reference-main [id] { scroll-margin-top: 76px; }
 
-/* A wide table scrolls inside its own box rather than widening the page;
-   from `lg` up, where the article has room, it is an ordinary table. */
-.docs-article .wf-table, .props-table.wf-table { display: block; overflow-x: auto; max-width: 100%; }
-.docs-article .wf-table thead, .props-table.wf-table thead { display: table-header-group; }
-.docs-article .wf-table tbody, .props-table.wf-table tbody { display: table-row-group; }
 .entry-title.wf-row { flex-wrap: wrap; }
-@media (min-width: 1024px) {
-  .docs-article .wf-table, .props-table.wf-table { display: table; overflow-x: visible; }
+/* A reference table's three shares, from a tablet up: the type has more
+   room than on a phone, where the meaning needs it. */
+@media (min-width: 768px) {
+  .props-table.wf-table th:first-child { width: 28% !important; }
+  .props-table.wf-table th:nth-child(2) { width: 22% !important; }
 }
 
 /* The analytics question: a card at the foot of the screen. It floats, so

@@ -73,7 +73,14 @@ page Learn03TutorialTodos(path: "/learn/03-tutorial-todos", title: "Tutorial: To
   }
 }"#, title: "json")
 
-        Markdown("- `\"output_type\": \"spa\"` makes a single-page app: one HTML shell, with pages swapped without a reload ([Static sites and SPAs](/about/static-or-single-page)).\n- `\"csp\": true` ships a content security policy and holds the build to it ([Security](/about/security)).\n- `theme` names two themes, `Paper` and `Night`, which you write in the next step.\n\n**Check it:** `wf check` prints `IO Error: No .wf files found in src/`. That is expected: `src/` is empty until the next step.")
+        Markdown("- `\"output_type\": \"spa\"` makes a single-page app: one HTML shell, with pages swapped without a reload ([Static sites and SPAs](/about/static-or-single-page)).\n- `\"csp\": true` ships a content security policy and holds the build to it ([Security](/about/security)).\n- `theme` names two themes, `Paper` and `Night`, which you write in the next step.\n- `favicon` is the icon in the browser's tab. A file in `public/` is served from the site's root, so put one at `public/favicon.svg`:")
+
+        Terminal(lines: [
+                Line(command: "mkdir -p public"),
+                Line(command: "printf '%s' '<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 32 32\"><rect width=\"32\" height=\"32\" rx=\"6\" fill=\"#0F766E\"/><path d=\"M9 16l5 5 9-10\" stroke=\"#fff\" stroke-width=\"3\" fill=\"none\"/></svg>' > public/favicon.svg")
+            ])
+
+        Markdown("**Check it:** `wf check` prints `IO Error: No .wf files found in src/`. That is expected: `src/` is empty until the next step.")
 
         Heading("Step 2: Give it a look of its own", id: "step-2-give-it-a-look-of-its-own").h2
 

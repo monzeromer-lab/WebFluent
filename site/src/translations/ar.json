@@ -493,5 +493,6 @@
   "nav.about": "عن WebFluent",
   "docs.copy": "انسخ الصفحة بصيغة Markdown",
   "docs.copied": "نُسخت",
-  "docs.markdown": "افتحها بصيغة Markdown"
+  "docs.markdown": "افتحها بصيغة Markdown",
+  "docs.contents": "المحتويات"
 }

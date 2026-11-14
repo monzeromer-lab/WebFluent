@@ -55,9 +55,8 @@ store Cart {
     derived total = subtotal - discount
 
     action add(item: Item) {
-        let found = items.find(i => i.id == item.id)
-        if found != null {
-            found.qty = found.qty + 1
+        if items.some(i => i.id == item.id) {
+            items = items.map(i => if i.id == item.id { { ...i, qty: i.qty + 1 } } else { i })
         } else {
             items.push(item)
         }
@@ -66,7 +65,7 @@ store Cart {
     action clear() { items = [] }
 }"#, title: "wf")
 
-        Markdown("Inside the store you read its members by their bare names: `items`, `count`. Outside it, a page or component reads them through the store's name: `Cart.items`, `Cart.count`.")
+        Markdown("`add` changes `items` itself: it assigns a new list with that one item's quantity raised. Writing `let found = items.find(…)` and then `found.qty = found.qty + 1` would change only the local copy that `let` made ([chapter 7](/learn/07-state-and-reactivity#actions-and-locals)), and the cart would stay as it was.\n\nInside the store you read its members by their bare names: `items`, `count`. Outside it, a page or component reads them through the store's name: `Cart.items`, `Cart.count`.")
 
         Callout("**Coming from Vue or Svelte?** `use Cart` is not Pinia's `useCartStore()` and makes no copy; there is no `$cart` prefix either. Every reader gets the one instance, by the store's name. See [Coming from Vue](/coming-from/vue) and [Coming from Svelte](/coming-from/svelte).", kind: .note)
 

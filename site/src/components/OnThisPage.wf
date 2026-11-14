@@ -76,13 +76,13 @@ component OnThisPage(sections: [Anchor] = [], source: String = "md-docs", codes:
         Stack(gap: .xs) {
             style { gap: 8px; padding-top: 20px; border-top: 1px solid $line }
             Button(class: "bp-rail-action") {
-                style { display: flex; align-items: center; justify-content: flex-start; gap: 8px; padding: 0; border: 0; background: none; color: $muted; font-family: inherit; font-size: 13px; cursor: pointer; &:hover { color: $ink } & .wf-icon { display: inline-flex; font-size: 15px } & p { margin: 0 } }
+                style { display: flex; align-items: center; justify-content: flex-start; gap: 8px; min-height: 28px; padding: 0; border: 0; background: none; color: $muted; font-family: inherit; font-size: 13px; cursor: pointer; &:hover { color: $ink } & .wf-icon { display: inline-flex; font-size: 15px } & p { margin: 0 } }
                 on click { copyPage() }
                 Icon(if copied { "check" } else { "copy" })
                 Text(if copied { t("docs.copied") } else { t("docs.copy") })
             }
             Button(class: "bp-rail-action") {
-                style { display: flex; align-items: center; justify-content: flex-start; gap: 8px; padding: 0; border: 0; background: none; color: $muted; font-family: inherit; font-size: 13px; cursor: pointer; &:hover { color: $ink } & .wf-icon { display: inline-flex; font-size: 15px } & p { margin: 0 } }
+                style { display: flex; align-items: center; justify-content: flex-start; gap: 8px; min-height: 28px; padding: 0; border: 0; background: none; color: $muted; font-family: inherit; font-size: 13px; cursor: pointer; &:hover { color: $ink } & .wf-icon { display: inline-flex; font-size: 15px } & p { margin: 0 } }
                 on click { window.open(twin(), "_blank", "noopener") }
                 Icon("file")
                 Text(t("docs.markdown"))

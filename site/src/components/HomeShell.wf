@@ -92,7 +92,7 @@ component HomeShell(other: String = "", lang: String = "en") {
                     if run > 0 {
                         Stack(class: "bp-grid bp-home-example__preview", role: "group", aria-label: t("home.example.preview")) {
                             style { padding: 0 }
-                            Frame(src: "/wasm/{WF_RELEASE}/preview/{stage}/?run={run}", title: t("home.example.preview"), class: "bp-preview-frame")
+                            Frame(src: wfPreviewSrc(WASM, stage, run), title: t("home.example.preview"), class: "bp-preview-frame")
                         }
                     } else {
                         Stack(class: "bp-grid bp-home-example__preview", role: "group", aria-label: t("home.example.preview")) {

@@ -97,9 +97,8 @@ store Cart {
     derived total = subtotal - discount
 
     action add(item: Item) {
-        let found = items.find(i => i.id == item.id)
-        if found != null {
-            found.qty = found.qty + 1
+        if items.some(i => i.id == item.id) {
+            items = items.map(i => if i.id == item.id { { ...i, qty: i.qty + 1 } } else { i })
         } else {
             items.push(item)
         }
@@ -108,6 +107,12 @@ store Cart {
     action clear() { items = [] }
 }
 ```
+
+`add` changes `items` itself: it assigns a new list with that one item's
+quantity raised. Writing `let found = items.find(…)` and then
+`found.qty = found.qty + 1` would change only the local copy that `let`
+made ([chapter 7](https://webfluent.monzeromer.dev/learn/07-state-and-reactivity.md#actions-and-locals)), and the
+cart would stay as it was.
 
 Inside the store you read its members by their bare names: `items`,
 `count`. Outside it, a page or component reads them through the store's

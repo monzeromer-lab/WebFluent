@@ -32,6 +32,7 @@ component ReferenceItemShell(_ name: String, summary: String = "", signature: St
                 if summary != "" {
                     Text(summary, class: "bp-lede")
                 }
+                PageContents(entries: entries, sections: sections, label: t("nav.reference"))
                 if signature != "" {
                     Code(signature, class: "bp-ltr", dir: "ltr") {
                         style { align-self: flex-start; max-width: 100%; overflow-x: auto; padding: 6px 10px; border: 1px solid $line; border-radius: 4px; background: $raised; color: $ink; font-size: 13px; white-space: pre }

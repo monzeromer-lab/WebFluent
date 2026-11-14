@@ -52,14 +52,26 @@ page SignIn(path: "/sign-in", title: "Sign in", description: "Sign in to your ac
     }
 }
 
-page Account(path: "/account", title: "Your account", description: "Your account.", guard: Session.signedIn, redirect: "/sign-in") {
+page Account(path: "/account", title: "Your account", description: "Your account.", guard: !Session.checked || Session.signedIn, redirect: "/sign-in") {
     use Session
+    // The guard is read when the route opens, which on a reload is before
+    // `load` has answered; this sends the reader on once it has.
+    effect { if Session.checked && !Session.signedIn { navigate("/sign-in") } }
     Heading("Your account").h1
-    if let u = Session.user { Text("Signed in as {u.name}") }
-    Button("Sign out") { on click { Session.signOut() } }
+    if !Session.checked { Spinner }
+    if let u = Session.user {
+        Text("Signed in as {u.name}")
+        Button("Sign out") { on click { Session.signOut() } }
+    }
+}"#, title: "wf")
+            Markdown("The app asks the server who is signed in once, when the site opens, in `src/App.wf`:")
+            CodeBlock(#"app {
+    use Session
+    Session.load()
+    Router
 }"#, title: "wf")
         }
-        Markdown("- `Auth` [describes the service](/learn/15-data#describe-a-service-with-api). `credentials: .sameOrigin` sends the session cookie with every call, so the page holds no token. `errors \{ 401 -> Map \}` types what a refused sign-in answers.\n- The `Session` [store](/learn/11-stores#a-first-store) holds the user, or `null`, and `signedIn` is derived from it. `load` asks the server who is signed in, `signIn` and `signOut` call the service and move the reader on with `navigate`.\n- The `SignIn` page validates its two fields and calls `Session.signIn` in a `try`, so a wrong password shows an `Alert` instead of throwing. `send.pending` disables the button while the request runs, and `noindex: true` keeps the page out of search results.\n- The `Account` page has a [guard](/learn/05-pages-and-routing#guards): `guard: Session.signedIn` sends a reader who is signed out to `/sign-in`.\n\nThe session is an httpOnly cookie the server sets, so the page never holds a token. `guard:` hides the page from a reader who is signed out, and the server still checks every request ([Security](/about/security#keep-the-session-in-a-cookie)). Call `Session.load()` from the app's set-up, so a returning reader is signed in.")
+        Markdown("- `Auth` [describes the service](/learn/15-data#describe-a-service-with-api). `credentials: .sameOrigin` sends the session cookie with every call, so the page holds no token. `errors \{ 401 -> Map \}` types what a refused sign-in answers.\n- The `Session` [store](/learn/11-stores#a-first-store) holds the user, or `null`, and `signedIn` is derived from it. `load` asks the server who is signed in, `signIn` and `signOut` call the service and move the reader on with `navigate`.\n- The `SignIn` page validates its two fields and calls `Session.signIn` in a `try`, so a wrong password shows an `Alert` instead of throwing. `send.pending` disables the button while the request runs, and `noindex: true` keeps the page out of search results.\n- `Session.load()` at the top of `app` runs once, when the site opens: a reader who comes back with a session cookie is signed in again, and `checked` turns true when the server has answered either way.\n- The `Account` page has a [guard](/learn/05-pages-and-routing#guards). A guard is read once, when the route opens, so it lets the page through while `checked` is still false, and the `effect` sends a signed-out reader to `/sign-in` as soon as the answer arrives. Until then the page shows a `Spinner`.\n\nThe session is an httpOnly cookie the server sets, so the page never holds a token. `guard:` hides the page from a reader who is signed out, and the server still checks every request ([Security](/about/security#keep-the-session-in-a-cookie)).")
 
     }
 }

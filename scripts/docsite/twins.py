@@ -124,6 +124,12 @@ def command(c) -> str:
         for o in c["options"]:
             out.append(f"| `{o.get('flag') or o.get('name', '')}` | {o.get('meaning') or o.get('help', '')} |")
         out.append("")
+    for sc in c.get("subcommands") or []:
+        out += [f"## wf {c['name']} {sc['name']}", "", sc["summary"], "", "```bash", sc["usage"], "```", ""]
+        if sc["options"]:
+            out += ["| Option | Meaning |", "|---|---|"]
+            out += [f"| `{o.get('name', '')}` | {o.get('meaning', '')} |" for o in sc["options"]]
+            out.append("")
     if c.get("writes"):
         out += [f"**Writes:** {c['writes']}", ""]
     return "\n".join(out)

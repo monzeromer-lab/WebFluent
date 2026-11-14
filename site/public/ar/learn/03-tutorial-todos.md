@@ -366,7 +366,7 @@ page Home(path: "/", title: "Todos", description: "A small list of things to do,
 
 > [!NOTE]
 > **قادم من React؟** يوضع المفتاح على الحلقة، `by todo.id`، لا بوصفه خاصية
-> `key` على الصف. انظر [القادمون من React](https://webfluent.monzeromer.dev/coming-from/react.md).
+> `key` على الصف. انظر [القادمون من React](https://webfluent.monzeromer.dev/ar/coming-from/react.md).
 
 أخيرًا، التصريح `app` هو الإطار الذي تجلس فيه كل صفحة. يحدّد `Router` موضع
 رسم الصفحة الحالية:

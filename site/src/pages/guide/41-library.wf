@@ -325,15 +325,10 @@ webfluent = { version = "=6.0.0", default-features = false, features = ["interna
 
         Heading("Node: the webfluent package", id: "node-the-webfluent-package").h2
 
-        Markdown("The package renders templates from Node.js. It is a wrapper around `wf render`: each render runs `wf` once and sends the data on standard input, so `wf` must be installed too. Its source is [`bindings/node/`](https://github.com/monzeromer-lab/WebFluent/tree/master/bindings/node), and its version is the compiler's it was released with.")
+        Markdown("The package renders templates from Node.js. It is a wrapper around `wf render`: each render runs `wf` once and sends the data on standard input, so `wf` must be installed too. Its source is [`bindings/node/`](https://github.com/monzeromer-lab/WebFluent/tree/master/bindings/node), and its version is the compiler's it was released with.\n\nIt is not on the npm registry yet, so install it from a clone of the repository:")
 
         Terminal(lines: [
-                Line(command: "npm install webfluent")
-            ])
-
-        Markdown("If npm does not find it, install it from a clone of the repository:")
-
-        Terminal(lines: [
+                Line(command: "git clone --depth 1 https://github.com/monzeromer-lab/WebFluent.git"),
                 Line(command: "npm install ./WebFluent/bindings/node")
             ])
 

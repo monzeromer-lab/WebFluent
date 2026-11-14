@@ -245,14 +245,16 @@ def option_row(o: dict) -> dict:
         ty = "flag" if o["takes"] == "nothing" else o["takes"]
     if o["repeats"]:
         ty += ", repeats"
-    meaning = o["help"]
+    meaning = o["help"] or ("The project's folder" if o["name"] == "dir" else "")
     if o["default"] not in (None, "") and "default" not in meaning.lower():
-        meaning += f" (default `{o['default']}`)"
+        meaning = f"{meaning} (default `{o['default']}`)".strip()
     return {"name": name, "type": ty, "meaning": meaning}
 
 
-def usage(c: dict) -> str:
-    parts = ["wf", c["name"]]
+def usage(c: dict, parent: str = "") -> str:
+    parts = ["wf"] + ([parent] if parent else []) + [c["name"]]
+    if c.get("subcommands"):
+        parts.append("<" + "|".join(s["name"] for s in c["subcommands"]) + ">")
     for o in c["options"]:
         if o["positional"]:
             parts.append(o["value_name"] if o["required"] else f"[{o['value_name']}]")
@@ -272,8 +274,24 @@ def commands(data: dict) -> dict:
             "preview": c.get("preview") or "",
             "usage": usage(c),
             "options": [option_row(o) for o in c["options"]],
+            # `wf config get|set|…`: each its own usage and options.
+            "subcommands": [{
+                "name": sc["name"],
+                "summary": sc["summary"],
+                "usage": usage(sc, c["name"]),
+                "options": [option_row(o) for o in sc["options"]],
+            } for sc in c.get("subcommands") or []],
         })
     return {"count": len(items), "items": items}
+
+
+def subsections(c: dict) -> str:
+    """The on-this-page list of a command's page: its options, or one
+    entry per subcommand."""
+    if c["subcommands"]:
+        return anchors([(sc["name"], q("wf " + c["name"] + " " + sc["name"])) for sc in c["subcommands"]])
+    return '[Anchor(id: "options", label: t("cli.options"))]'
+
 
 
 def shown(value) -> str:
@@ -458,7 +476,7 @@ def builtin_page(c: dict, by_slug: dict) -> list:
     older = "older: true, " if c["since"] == OLDER else ""
     out.append(f'    ReferenceItemShell({q(c["name"])}, summary: {q(c["plain"])}, signature: {q(c["signature"])}, '
                f'{since}{older}outputs: {outputs}, group: {q(c["family"])}, entries: BUILTIN_INDEX, sections: {sections}, '
-               f'codes: {codes}, source: "wf registry --json") {{')
+               f'codes: {codes}, source: "src/registry/builtins.rs") {{')
     out.append("        stage {")
     out.append(f'            Stage(label: {q(c["name"])}) {{')
     out.append("                controls {")
@@ -603,17 +621,24 @@ def cli_file(cmds: dict) -> str:
             f'page Cli{pascal(c["slug"])}(path: "/reference/cli/{c["slug"]}", title: {q("wf " + c["name"] + " — Reference")}, '
             f'description: {q(describe("wf " + c["name"] + ": " + c["summary"] + ". What it writes, and every option it takes."))}) {{',
             f'    ReferenceItemShell({q("wf " + c["name"])}, summary: {q(c["summary"])}, signature: {q(c["usage"])}, group: t("cli.title"), '
-            f'entries: CLI_INDEX, sections: [Anchor(id: "options", label: t("cli.options"))], source: "wf commands --json") {{',
+            f'entries: CLI_INDEX, sections: {subsections(c)}, source: "src/cli/app.rs") {{',
         ]
         if c["writes"]:
             p.append(f'        Markdown(t("cli.writes", {{ what: {q(c["writes"])} }}), class: "bp-prose")')
         if c["preview"]:
             p.append(f'        Markdown(t("cli.preview", {{ flag: {q(c["preview"])} }}), class: "bp-prose")')
-        p.append('        Heading(t("cli.options"), id: "options").h2')
-        if c["options"]:
-            p.append(f'        PropsTable(rows: {rows(c["options"])}, caption: {q("Options of wf " + c["name"])}, nameLabel: t("cli.option"))')
-        else:
-            p.append('        Text(t("cli.noopts"), class: "bp-small")')
+        for sc in c["subcommands"]:
+            p.append(f'        Heading({q("wf " + c["name"] + " " + sc["name"])}, id: {q(sc["name"])}).h2')
+            p.append(f'        Text({q(sc["summary"])})')
+            p.append(f'        Code({q(sc["usage"])}).block')
+            if sc["options"]:
+                p.append(f'        PropsTable(rows: {rows(sc["options"])}, caption: {q("Options of wf " + c["name"] + " " + sc["name"])}, nameLabel: t("cli.option"))')
+        if not c["subcommands"]:
+            p.append('        Heading(t("cli.options"), id: "options").h2')
+            if c["options"]:
+                p.append(f'        PropsTable(rows: {rows(c["options"])}, caption: {q("Options of wf " + c["name"])}, nameLabel: t("cli.option"))')
+            else:
+                p.append('        Text(t("cli.noopts"), class: "bp-small")')
         p += ['        Link(t("cli.all"), to: "/reference/cli")', "    }", "}"]
         out.append("\n".join(p) + "\n")
     return "\n".join(out)

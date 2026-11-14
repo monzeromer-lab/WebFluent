@@ -189,10 +189,13 @@ component BookCard(_ book: Book) {
 
 ([Components](https://webfluent.monzeromer.dev/learn/10-components.md), [Elements](https://webfluent.monzeromer.dev/learn/06-elements.md).)
 
-**Check it:** run `wf check`. It reports one error:
-`` error[R01]: `/books/{…}` is not a route ``. The card links to a book's
-page, and no page answers that address yet. The compiler checks every link
-against the pages you declare; the next step adds the page.
+**Check it:** run `wf check`. It reports two warnings and no error:
+`` warning[U03]: `BookCard` is declared but never placed `` and
+`` warning[U04]: `Shelf.count` is declared but never read ``. Nothing
+places the card yet, and nothing shows the count; the next step does both.
+The card also links to `/books/…`, a page that does not exist yet. The
+compiler checks every link against the pages you declare, but only in what
+the site draws, so it says nothing until the card is placed.
 
 ## Step 5: Add the home page and a page per book
 

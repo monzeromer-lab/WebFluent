@@ -622,33 +622,31 @@ Each phase is one branch, merged to `master` and deployed when its exit check pa
 
 ---
 
-## 12. Decisions, now settled, and what still needs you
+## 12. Decisions, all settled
 
 **Settled by 6.0, 5.14 and this plan:**
 
 1. **WebAssembly size:** about 1.6 MB gzipped for the web build. It is never loaded on page load, only on intent (§5.5).
-2. **Arabic:** real pages with `lang:` and `translates:` (§5.6). The interface is complete from Phase 0. Home, Learn 1–3 and the Coming-from index are translated at launch, and the rest after.
+2. **Arabic:** real pages with `lang:` and `translates:` (§5.6). The interface is complete from Phase 0. Home, Learn 1–3 and the React cheat sheet (in place of a Coming-from index, which the site does not have) were translated at launch; the rest follow.
 3. **Quiz analytics:** GA events behind the existing consent banner. No new endpoint and no CSP change.
 4. **Versions:** latest only, with `since` badges and a Changelog. A version switcher waits for the first breaking language change that needs one.
 
-**Needs your call** (each has a recommendation):
+**Settled at launch (2026-11-13), each as recommended:**
 
-1. **Instrument Sans or keep Inter?** Blueprint was drawn with Instrument Sans. *Recommendation: Instrument Sans*, self-hosted, Latin subset. Arabic text uses a system font, as it does today.
-2. **Ask the docs:** build an assistant, or stop at `llms.txt`, twins and an MCP endpoint? *Recommendation: stop at twins and `llms.txt`;* revisit after launch.
-3. **The editor in the browser:** a plain highlighted textarea, or a full editor library from a CDN? *Recommendation: the textarea first* (no new origin, no CSP change), and upgrade only if the Playground needs it.
-4. **`md-docs/` name:** keep it, or rename to `guide/` while everything moves anyway? *Recommendation: keep `md-docs/`*, since `build.rs`, tests and scripts already name it.
+5. **Typeface:** Instrument Sans, self-hosted, Latin subset. Arabic text uses a system font.
+6. **Ask the docs:** no assistant. Agents read the Markdown twins and `llms.txt`; revisit after launch if readers ask for one.
+7. **The editor in the browser:** the plain highlighted textarea. No new origin and no CSP change; upgrade only if the Playground needs it.
+8. **`md-docs/` name:** kept, since `build.rs`, the tests and the scripts name it.
+
+Nothing in this section needs a call any more.
 
 ---
 
 ## 13. Next step
 
-Start Phase 0:
+The plan is complete (see §14). What comes next is the post-launch review: every page swept at three widths, the content read part by part, and the Playground tested, with the findings in `plans/docs-redesign/review-2026-11-14/`.
 
-1. Draw T8 Showcase, T9 404, the essay variant, Changelog and the RTL views on the canvas, for a quick look.
-2. In parallel: W4 (theme, shell, templates) and W2 (tests on the new tree).
-3. Then W6 step 1: move every chapter into the new tree unchanged, behind redirects, with the compiler's embedded guide following.
-
-At the end of Phase 0 the site is in Blueprint, and nothing it says has changed yet.
+---
 
 ## 14. Progress
 

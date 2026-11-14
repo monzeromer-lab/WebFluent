@@ -39,6 +39,7 @@ component RecipeShell(_ title: String, summary: String = "", outputs: [String] =
                 if summary != "" {
                     Markdown(summary, class: "bp-lede")
                 }
+                PageContents(entries: recipes, sections: sections, label: t("nav.recipes"))
             }
 
             Stack(gap: .sm) {

@@ -57,8 +57,8 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
                     Table.Cell("A shortcut as this system writes it")
                 }
                 Table.Row {
-                    Table.Cell { Markdown("`log(x, …)`") }
-                    Table.Cell("Prints to the console")
+                    Table.Cell { Markdown("`log(x)`") }
+                    Table.Cell("Prints a value to the console")
                 }
                 Table.Row {
                     Table.Cell { Markdown("`navigate(path)`") }
@@ -410,7 +410,7 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
 
         Heading("log", id: "log").h3
 
-        Markdown("Prints its arguments to the browser's console.\n\nSignature: `log(value, …)`")
+        Markdown("Prints a value to the browser's console.\n\nSignature: `log(value)`")
 
         Table(caption: "log") {
             Table.Head {
@@ -424,7 +424,7 @@ page BuiltInsGuide(path: "/reference/built-ins", title: "Built-ins", description
                 Table.Row {
                     Table.Cell { Markdown("`value`") }
                     Table.Cell("any")
-                    Table.Cell("One or more values to print")
+                    Table.Cell { Markdown("The value to print. For several, splice them into one string, `log(\"\{a\} \{b\}\")`, or call `console.log(a, b)`") }
                 }
             }
         }

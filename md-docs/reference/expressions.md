@@ -411,6 +411,11 @@ page Callout(path: "/callout", title: "Callout", description: "A border coloured
 
 When the theme changes `color-primary`, the border changes with it.
 
+As a value there is no property to say which group a short name belongs
+to, so `$primary` is read as the one group that has it, the colours:
+`$color-primary`. A short name several groups have (`$md` is a spacing, a
+radius and a shadow) is written in full: `$spacing-md`.
+
 ## `await`
 
 `await` waits for a promise inside an action or a handler, and makes the
@@ -468,7 +473,7 @@ has an entry for each.
 
 | Name | Does |
 |---|---|
-| `log(x, …)` | Prints to the console |
+| `log(x)` | Prints a value to the console |
 | `navigate(path)` | Changes the route ([Pages and routing](../learn/05-pages-and-routing.md#links-and-navigation)) |
 | `format(v, .style, opt)`, `ago(d)` | Formats a value ([above](#format-and-ago)) |
 | `t("key", args)`, `setLocale("ar")` | Translates, and switches the locale ([i18n](../recipes/index.md)) |

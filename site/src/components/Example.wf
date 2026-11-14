@@ -123,7 +123,7 @@ component Example(_ code: String, file: String = "Home.wf", preview: String = ""
                     Stack(class: "bp-grid") {
                         style { min-height: 220px; border-top: 1px solid $console-line; @lg { border-top: 0; border-inline-start: 1px solid $console-line } }
                         if run > 0 {
-                            Frame(src: "/wasm/{WF_RELEASE}/preview/{stage}/?run={run}", title: t("example.preview", { file: file }), class: "bp-preview-frame")
+                            Frame(src: wfPreviewSrc(WASM, stage, run), title: t("example.preview", { file: file }), class: "bp-preview-frame")
                         } else {
                             Frame(src: preview, title: t("example.preview", { file: file }), loading: .lazy, class: "bp-preview-frame")
                         }

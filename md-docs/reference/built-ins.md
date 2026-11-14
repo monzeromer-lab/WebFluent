@@ -35,7 +35,7 @@ The functions, in alphabetical order:
 | `format(value, .style, option)` | A number, date or money as text, in the locale |
 | `keyIs(event, combination)` | Whether a key event is a shortcut |
 | `keyLabel(combination)` | A shortcut as this system writes it |
-| `log(x, …)` | Prints to the console |
+| `log(x)` | Prints a value to the console |
 | `navigate(path)` | Moves to a route |
 | `optimistic(holder, change)` | Shows a change now, and takes it back if the action throws |
 | `replayAnimation(element, name)` | Plays an element's animation again |
@@ -251,13 +251,13 @@ Text("Search: {keyLabel("mod+k")}").muted
 
 ### `log`
 
-Prints its arguments to the browser's console.
+Prints a value to the browser's console.
 
-Signature: `log(value, …)`
+Signature: `log(value)`
 
 | Parameter | Type | Meaning |
 |---|---|---|
-| `value` | any | One or more values to print |
+| `value` | any | The value to print. For several, splice them into one string, `log("{a} {b}")`, or call `console.log(a, b)` |
 
 Returns nothing. Where: actions, handlers, effects and timers. A `Secret`
 passed to it is a `T12`.

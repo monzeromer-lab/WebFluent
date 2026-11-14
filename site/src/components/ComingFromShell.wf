@@ -24,6 +24,7 @@ component ComingFromShell(_ title: String, summary: String = "", from: String = 
                 if summary != "" {
                     Text(summary, class: "bp-lede")
                 }
+                PageContents(sections: sections)
             }
 
             if sheets.length > 0 {

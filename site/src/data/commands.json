@@ -24,7 +24,8 @@
      "type": "text",
      "meaning": "Start it translated: the locales, comma-separated, the default first (\"en,ar\"). Every visible string goes through t(), and src/translations/ holds a file for each. spa and static only"
     }
-   ]
+   ],
+   "subcommands": []
   },
   {
    "name": "build",
@@ -69,7 +70,8 @@
      "type": "flag",
      "meaning": "Let `build.output` name a directory outside the project; without it a build writes only inside the project"
     }
-   ]
+   ],
+   "subcommands": []
   },
   {
    "name": "check",
@@ -99,7 +101,8 @@
      "type": "flag",
      "meaning": "Accept a `build.output` outside the project, as `wf build --allow-output-outside` does; without it the check reports what the build would refuse"
     }
-   ]
+   ],
+   "subcommands": []
   },
   {
    "name": "config",
@@ -107,8 +110,78 @@
    "summary": "Read and change `webfluent.app.json`: every setting, what the project sets, and an edit that keeps the file's shape",
    "writes": "",
    "preview": "",
-   "usage": "wf config",
-   "options": []
+   "usage": "wf config <schema|get|set|unset>",
+   "options": [],
+   "subcommands": [
+    {
+     "name": "schema",
+     "summary": "Every setting: its type, its default and what it does",
+     "usage": "wf config schema [options]",
+     "options": [
+      {
+       "name": "--json",
+       "type": "flag",
+       "meaning": "As JSON, for a tool"
+      }
+     ]
+    },
+    {
+     "name": "get",
+     "summary": "What the project sets at PATH, or the default",
+     "usage": "wf config get PATH [options]",
+     "options": [
+      {
+       "name": "PATH",
+       "type": "text",
+       "meaning": "A dotted path: `build.base_path`, `build.budget.app.js`"
+      },
+      {
+       "name": "--dir, -d DIR",
+       "type": "path",
+       "meaning": "The project's folder (default `.`)"
+      }
+     ]
+    },
+    {
+     "name": "set",
+     "summary": "Set PATH to VALUE — JSON, or a word as a string — keeping the file's shape",
+     "usage": "wf config set PATH VALUE [options]",
+     "options": [
+      {
+       "name": "PATH",
+       "type": "text",
+       "meaning": "A dotted path: `build.base_path`, `meta.site_url`"
+      },
+      {
+       "name": "VALUE",
+       "type": "text",
+       "meaning": "The value: JSON (`true`, `3`, `[\"en\", \"ar\"]`), or a word, which is taken as a string"
+      },
+      {
+       "name": "--dir, -d DIR",
+       "type": "path",
+       "meaning": "The project's folder (default `.`)"
+      }
+     ]
+    },
+    {
+     "name": "unset",
+     "summary": "Remove PATH, so its default applies",
+     "usage": "wf config unset PATH [options]",
+     "options": [
+      {
+       "name": "PATH",
+       "type": "text",
+       "meaning": "A dotted path: `build.base_path`, `meta.site_url`"
+      },
+      {
+       "name": "--dir, -d DIR",
+       "type": "path",
+       "meaning": "The project's folder (default `.`)"
+      }
+     ]
+    }
+   ]
   },
   {
    "name": "motion",
@@ -128,7 +201,8 @@
      "type": "flag",
      "meaning": "Print JSON, for tools"
     }
-   ]
+   ],
+   "subcommands": []
   },
   {
    "name": "context",
@@ -158,7 +232,8 @@
      "type": "flag",
      "meaning": "Print JSON, for tools; otherwise one Markdown document"
     }
-   ]
+   ],
+   "subcommands": []
   },
   {
    "name": "translations",
@@ -193,7 +268,8 @@
      "type": "flag",
      "meaning": "Print JSON, for tools"
     }
-   ]
+   ],
+   "subcommands": []
   },
   {
    "name": "scope",
@@ -223,7 +299,8 @@
      "type": "flag",
      "meaning": "Print JSON, for tools"
     }
-   ]
+   ],
+   "subcommands": []
   },
   {
    "name": "rules",
@@ -243,7 +320,8 @@
      "type": "flag",
      "meaning": "Print JSON, for tools"
     }
-   ]
+   ],
+   "subcommands": []
   },
   {
    "name": "theme",
@@ -263,7 +341,8 @@
      "type": "flag",
      "meaning": "Print JSON, for tools"
     }
-   ]
+   ],
+   "subcommands": []
   },
   {
    "name": "components",
@@ -283,7 +362,8 @@
      "type": "flag",
      "meaning": "Print JSON, for tools"
     }
-   ]
+   ],
+   "subcommands": []
   },
   {
    "name": "assets",
@@ -313,7 +393,8 @@
      "type": "flag",
      "meaning": "Print JSON, for tools"
     }
-   ]
+   ],
+   "subcommands": []
   },
   {
    "name": "commands",
@@ -328,7 +409,8 @@
      "type": "flag",
      "meaning": "Print JSON, for tools"
     }
-   ]
+   ],
+   "subcommands": []
   },
   {
    "name": "fix",
@@ -353,7 +435,8 @@
      "type": "flag",
      "meaning": "Write nothing; say what would change"
     }
-   ]
+   ],
+   "subcommands": []
   },
   {
    "name": "explain",
@@ -373,7 +456,8 @@
      "type": "flag",
      "meaning": "Print JSON, for tools: one code, or every code without one"
     }
-   ]
+   ],
+   "subcommands": []
   },
   {
    "name": "serve",
@@ -398,7 +482,8 @@
      "type": "flag",
      "meaning": "Let `build.output` name a directory outside the project"
     }
-   ]
+   ],
+   "subcommands": []
   },
   {
    "name": "generate",
@@ -423,7 +508,8 @@
      "type": "path",
      "meaning": "Project directory (default: current directory)"
     }
-   ]
+   ],
+   "subcommands": []
   },
   {
    "name": "render",
@@ -473,7 +559,8 @@
      "type": "text",
      "meaning": "The document's language, `<html lang>` (default: the page's `lang:`, else `en`)"
     }
-   ]
+   ],
+   "subcommands": []
   },
   {
    "name": "migrate",
@@ -503,7 +590,8 @@
      "type": "flag",
      "meaning": "Write the migrated files in the indented layout, as `.wfx`"
     }
-   ]
+   ],
+   "subcommands": []
   },
   {
    "name": "docs",
@@ -523,7 +611,8 @@
      "type": "path",
      "meaning": "Where to write index.html (default: docs/)"
     }
-   ]
+   ],
+   "subcommands": []
   },
   {
    "name": "test",
@@ -543,7 +632,8 @@
      "type": "flag",
      "meaning": "Rewrite every snapshot with the current render"
     }
-   ]
+   ],
+   "subcommands": []
   },
   {
    "name": "audit",
@@ -563,7 +653,8 @@
      "type": "flag",
      "meaning": "Print JSON, for tools"
     }
-   ]
+   ],
+   "subcommands": []
   },
   {
    "name": "verify",
@@ -598,7 +689,8 @@
      "type": "flag",
      "meaning": "Let `build.output` name a directory outside the project"
     }
-   ]
+   ],
+   "subcommands": []
   },
   {
    "name": "registry",
@@ -613,7 +705,8 @@
      "type": "flag",
      "meaning": "Print JSON, for tools"
     }
-   ]
+   ],
+   "subcommands": []
   },
   {
    "name": "types",
@@ -633,7 +726,8 @@
      "type": "flag",
      "meaning": "Print JSON, for tools"
     }
-   ]
+   ],
+   "subcommands": []
   },
   {
    "name": "fmt",
@@ -663,7 +757,8 @@
      "type": "flag",
      "meaning": "Print the formatted text to stdout instead of writing it"
     }
-   ]
+   ],
+   "subcommands": []
   }
  ]
 }

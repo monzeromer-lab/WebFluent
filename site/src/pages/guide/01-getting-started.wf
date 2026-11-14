@@ -174,7 +174,7 @@ Starting dev server at http://localhost:3000/"#, title: "text")
 
         Heading("Write a site from scratch", id: "write-a-site-from-scratch").h2
 
-        Markdown("To see the smallest whole site, replace the contents of `src/` with two files, and delete the starter's tests under `tests/`, which test the pages you removed.\n\n`src/App.wf` is the shell every page shares, with the router in it:")
+        Markdown("To see the smallest whole site, replace every file in `src/` except `theme.wf` with the two below, and delete the starter's tests under `tests/`, which test the pages you removed. Keep `src/theme.wf`: the project's `webfluent.app.json` names the themes it declares (`Day` and `Night`), and the build stops if they are gone.\n\n`src/App.wf` is the shell every page shares, with the router in it:")
 
         CodeBlock(#"app {
     Navbar {

@@ -27,6 +27,13 @@ component DocsShell(_ heading: String, chapter: String = "", blurb: String = "",
         else { "/learn" }
     }
 
+    // The book as the contents panel lists it on a phone.
+    derived bookEntries = if kind == .tutorial {
+        book.map(c => IndexEntry(label: "{c.n}. " + (if c.key != "" { t(c.key) } else { c.title }), to: c.to, group: if c.part != "" { t(c.part) } else { "" }))
+    } else {
+        []
+    }
+
     SiteHeader(docs: true, other: other, lang: lang, section: section)
 
     Row(align: .start, class: "bp-wrap") {
@@ -57,6 +64,7 @@ component DocsShell(_ heading: String, chapter: String = "", blurb: String = "",
                     Text(blurb, class: "bp-lede")
                 }
                 Prereqs(links: prereqs)
+                PageContents(entries: bookEntries, sections: sections, label: t("book.title"))
             }
 
             // The guide is written in English; it keeps its direction when

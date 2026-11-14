@@ -1,0 +1,48 @@
+/// Below the widths that show the sidebar and the rail: one button under the
+/// title that opens what they hold — this page's headings, then the pages
+/// of its part (the book, the reference, the errors). Without it, a reader
+/// on a phone could only go to the page before or after.
+///
+/// The button hides from 1200px, where the rail shows the headings; the
+/// part's pages hide from 768px, where the sidebar shows them.
+component PageContents(entries: [IndexEntry] = [], sections: [Anchor] = [], label: String = "") {
+    state open = false
+
+    Stack(gap: .sm, class: "bp-contents") {
+        style { gap: 10px; @media (min-width: 1200px) { display: none } }
+        Button(class: "bp-button", aria-expanded: open, aria-controls: "bp-contents-panel") {
+            style { align-self: flex-start; display: inline-flex; align-items: center; gap: 8px; & .wf-icon { display: inline-flex; font-size: 15px } & p { margin: 0 } }
+            on click { open = !open }
+            Icon("list")
+            Text(t("docs.contents"))
+            Icon(if open { "chevron-up" } else { "chevron-down" })
+        }
+        if open {
+            Stack(gap: .sm, id: "bp-contents-panel", class: "bp-raised") { // wf-allow(A16): one per page
+                style { gap: 12px; max-height: 60vh; overflow-y: auto; padding: 12px }
+                if sections.length > 0 {
+                    Stack(class: "bp-navlist") {
+                        Text(t("docs.onthispage"), class: "bp-navgroup")
+                        for section in sections by section.id {
+                            Link(section.label, href: "#{section.id}", class: "bp-navlink") {
+                                on click { open = false }
+                            }
+                        }
+                    }
+                }
+                if entries.length > 0 {
+                    Stack(class: "bp-navlist") {
+                        style { @md { display: none } }
+                        Text(label, class: "bp-navgroup")
+                        for entry, i in entries by entry.to {
+                            if entry.group != "" && (i == 0 || entries[i - 1]?.group != entry.group) {
+                                Text(entry.group, class: "bp-navgroup") { style { font-size: 12px; opacity: 0.8 } }
+                            }
+                            Link(entry.label, to: entry.to, class: "bp-navlink")
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -280,7 +280,7 @@ page Home(path: "/", title: "Todos", description: "A small list of things to do,
 
         Markdown("- `for … by todo.id` قائمة بمفاتيح. حين تُعاد تسمية مهمة، أو يخفيها المرشّح، لا يتغيّر إلا صفها؛ وتحتفظ الصفوف الأخرى بعناصرها، ويحتفظ الصف قيد التحرير بمؤشّره ([التحكم في التدفق](/learn/09-control-flow)).\n- `animate:` و`exit:` يُظهران الصف ويُخفيانه بتلاشٍ.\n- خريطة الأصناف، `\{ \"is-on\": filter == .all \}`، تفعّل الصنف ما دام شرطه قائمًا.")
 
-        Callout("**قادم من React؟** يوضع المفتاح على الحلقة، `by todo.id`، لا بوصفه خاصية `key` على الصف. انظر [القادمون من React](/coming-from/react).", kind: .note)
+        Callout("**قادم من React؟** يوضع المفتاح على الحلقة، `by todo.id`، لا بوصفه خاصية `key` على الصف. انظر [القادمون من React](/ar/coming-from/react).", kind: .note)
 
         Markdown("أخيرًا، التصريح `app` هو الإطار الذي تجلس فيه كل صفحة. يحدّد `Router` موضع رسم الصفحة الحالية:")
 

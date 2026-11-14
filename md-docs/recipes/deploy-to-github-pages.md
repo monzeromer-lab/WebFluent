@@ -16,15 +16,21 @@ must know that sub-path.
 You need the project in a GitHub repository; the workflow installs `wf` as
 [Install wf on a build machine](install-wf-in-ci.md) shows.
 
-Set the sub-path, the site's address and `clean_urls` in
+Set the sub-path, the site's address, `clean_urls` and `ssg` in
 `webfluent.app.json`:
 
 ```json
 {
-    "build": { "base_path": "/<repo>", "clean_urls": "file" },
+    "build": { "ssg": true, "base_path": "/<repo>", "clean_urls": "file" },
     "meta": { "site_url": "https://<you>.github.io/<repo>" }
 }
 ```
+
+GitHub Pages serves files and nothing else: it has no rewrite that sends
+every address to `index.html`. `"ssg": true` writes a file for every
+page, so a reader who reloads `/<repo>/tasks`, or opens a link to it, gets
+that page. A project made with `wf init -t spa` has `"ssg": false`; keep
+it that way only if you also add the `404.html` step below.
 
 Then add `.github/workflows/pages.yml`:
 
@@ -47,6 +53,10 @@ jobs:
       - uses: actions/checkout@v4
       - run: curl -sSL https://raw.githubusercontent.com/monzeromer-lab/WebFluent/master/install.sh | WF_VERSION=v6.0.0 bash
       - run: ~/.webfluent/bin/wf build
+      # Only for a single-page build ("ssg": false): GitHub serves
+      # 404.html for an address it has no file for, so the app loads there
+      # and its router draws the page.
+      # - run: cp build/index.html build/404.html
       - uses: actions/upload-pages-artifact@v3
         with:
           path: build
@@ -71,7 +81,10 @@ Finally, in the repository's **Settings → Pages**, set the source to
    `pages: write` and `id-token: write` permissions are what
    `actions/deploy-pages` needs.
 
-GitHub Pages serves `404.html` for a path it has no file for. It ignores
+GitHub Pages serves `404.html` for a path it has no file for. A static
+build writes one when the project has a page on `path: "*"`; a page on a
+`:param` route needs its values listed in `paths:` to have files of its own
+([Data files](../learn/15-data.md)). GitHub Pages ignores
 `_headers`, but the Content-Security-Policy still ships as a `<meta>` tag in
 every page.
 

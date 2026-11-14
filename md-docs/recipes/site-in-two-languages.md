@@ -14,7 +14,20 @@ engine indexes what that address's HTML says, which is the default locale.
 A site that wants each language found writes each page once per language,
 at an address of its own, and says how the pages are joined.
 
-This site is written in Arabic, with its home page in English at `/en`:
+This site is written in Arabic, with its home page in English at `/en`.
+The site's language, its address and a static build go in
+`webfluent.app.json`. Without `meta.lang` the site's pages are taken to be
+in English, and without `meta.site_url` there is no absolute address for
+the alternates:
+
+```json
+{
+    "build": { "ssg": true },
+    "meta": { "lang": "ar", "site_url": "https://example.com" }
+}
+```
+
+Then the pages:
 
 ```wf
 page Home(path: "/", title: "منذر عمر", description: "مهندس خلفيات.") {

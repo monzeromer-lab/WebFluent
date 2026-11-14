@@ -40,6 +40,7 @@ component ErrorShell(_ code: String, title: String = "", severity: String = "err
                 if summary != "" {
                     Text(summary, class: "bp-lede")
                 }
+                PageContents(entries: families, sections: sections, label: t("nav.errors"))
             }
 
             if printed != "" {

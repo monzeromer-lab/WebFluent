@@ -21,9 +21,10 @@ page RecipeRenderFromNode(path: "/recipes/render-from-node", title: "Render temp
     if paid { Badge("Paid").success } else { Badge("Due").warning }
     Text("Total: {format(total, .currency)}").bold.lg
 }"#, title: "wf")
-            Markdown("Install the binding and Express:")
+            Markdown("Install the binding and Express. The binding is not on the npm registry yet, so it comes from a clone of the repository; `wf` must be installed too, since the binding runs it:")
             Terminal(lines: [
-                        Line(command: "npm install webfluent express")
+                        Line(command: "git clone --depth 1 https://github.com/monzeromer-lab/WebFluent.git"),
+                        Line(command: "npm install ./WebFluent/bindings/node express")
                     ])
             Markdown("This is the server, `server.js`:")
             CodeBlock(#"// server.js

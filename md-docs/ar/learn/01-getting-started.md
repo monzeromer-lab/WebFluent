@@ -303,7 +303,7 @@ page About(path: "/about", title: "About", description: "What this site is for."
 > [!NOTE]
 > **قادم من React؟** لا جدول مسارات ولا `import`. كل `page` تسمّي `path:`
 > الخاص بها، وكل ملف تحت `src/` جزء من برنامج واحد، فيضع `App.wf` صفحات
-> ومكوّنات لا يستوردها أبدًا. راجع [قادم من React](../../coming-from/react.md).
+> ومكوّنات لا يستوردها أبدًا. راجع [قادم من React](../coming-from/react.md).
 
 ## ما ينتجه البناء
 

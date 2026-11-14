@@ -1672,7 +1672,7 @@ vim.lsp.enable("wf_lsp")"#, title: "lua")
 }
 
 page CliInit(path: "/reference/cli/init", title: "wf init — Reference", description: "wf init: Create a new WebFluent project. What it writes, and every option it takes.") {
-    ReferenceItemShell("wf init", summary: "Create a new WebFluent project", signature: "wf init NAME [options]", group: t("cli.title"), entries: CLI_INDEX, sections: [Anchor(id: "options", label: t("cli.options"))], source: "wf commands --json") {
+    ReferenceItemShell("wf init", summary: "Create a new WebFluent project", signature: "wf init NAME [options]", group: t("cli.title"), entries: CLI_INDEX, sections: [Anchor(id: "options", label: t("cli.options"))], source: "src/cli/app.rs") {
         Markdown(t("cli.writes", { what: "a new project's folder" }), class: "bp-prose")
         Heading(t("cli.options"), id: "options").h2
         PropsTable(rows: [{ name: "NAME", type: "text", meaning: "Project name" }, { name: "--template, -t TEMPLATE", type: "spa | static | pdf | slides", meaning: "Template: \"spa\" (default), \"static\", \"pdf\", or \"slides\"" }, { name: "--locales, -l LOCALES", type: "text", meaning: "Start it translated: the locales, comma-separated, the default first (\"en,ar\"). Every visible string goes through t(), and src/translations/ holds a file for each. spa and static only" }], caption: "Options of wf init", nameLabel: t("cli.option"))
@@ -1681,7 +1681,7 @@ page CliInit(path: "/reference/cli/init", title: "wf init — Reference", descri
 }
 
 page CliBuild(path: "/reference/cli/build", title: "wf build — Reference", description: "wf build: Build the project (compile .wf files to HTML + CSS + JS). What it writes, and every option it takes.") {
-    ReferenceItemShell("wf build", summary: "Build the project (compile .wf files to HTML + CSS + JS)", signature: "wf build [options]", group: t("cli.title"), entries: CLI_INDEX, sections: [Anchor(id: "options", label: t("cli.options"))], source: "wf commands --json") {
+    ReferenceItemShell("wf build", summary: "Build the project (compile .wf files to HTML + CSS + JS)", signature: "wf build [options]", group: t("cli.title"), entries: CLI_INDEX, sections: [Anchor(id: "options", label: t("cli.options"))], source: "src/cli/app.rs") {
         Markdown(t("cli.writes", { what: "the site, in the output folder" }), class: "bp-prose")
         Heading(t("cli.options"), id: "options").h2
         PropsTable(rows: [{ name: "--dir, -d DIR", type: "path", meaning: "Project directory (default: current directory)" }, { name: "--stats", type: "flag", meaning: "Print what the build weighs: every file, gzipped, and the runtime modules it kept and left out" }, { name: "--format FORMAT", type: "human | json | sarif | github", meaning: "How findings are written: `human` (default), `json`, `sarif` (code scanning) or `github` (annotations on a pull request)" }, { name: "--deny-warnings", type: "flag", meaning: "Let a warning stop the build as an error does" }, { name: "--cache", type: "flag", meaning: "Reuse what earlier builds rendered, kept in `.wf-cache/build/`: only the pages an edit changed are rendered again" }, { name: "--studio", type: "flag", meaning: "For an editor's preview: stamp every element with its node id (`data-wf-node`) and write `nodes.json`, from each id to its source" }, { name: "--allow-output-outside", type: "flag", meaning: "Let `build.output` name a directory outside the project; without it a build writes only inside the project" }], caption: "Options of wf build", nameLabel: t("cli.option"))
@@ -1690,7 +1690,7 @@ page CliBuild(path: "/reference/cli/build", title: "wf build — Reference", des
 }
 
 page CliCheck(path: "/reference/cli/check", title: "wf check — Reference", description: "wf check: Check the project — every finding a build would report — and write nothing. What it writes, and every option it takes.") {
-    ReferenceItemShell("wf check", summary: "Check the project — every finding a build would report — and write nothing", signature: "wf check [options]", group: t("cli.title"), entries: CLI_INDEX, sections: [Anchor(id: "options", label: t("cli.options"))], source: "wf commands --json") {
+    ReferenceItemShell("wf check", summary: "Check the project — every finding a build would report — and write nothing", signature: "wf check [options]", group: t("cli.title"), entries: CLI_INDEX, sections: [Anchor(id: "options", label: t("cli.options"))], source: "src/cli/app.rs") {
         Heading(t("cli.options"), id: "options").h2
         PropsTable(rows: [{ name: "--dir, -d DIR", type: "path", meaning: "Project directory (default: current directory)" }, { name: "--format FORMAT", type: "human | json | sarif | github", meaning: "How findings are written: `human` (default), `json`, `sarif` (code scanning) or `github` (annotations on a pull request)" }, { name: "--deny-warnings", type: "flag", meaning: "Fail on a warning too" }, { name: "--allow-output-outside", type: "flag", meaning: "Accept a `build.output` outside the project, as `wf build --allow-output-outside` does; without it the check reports what the build would refuse" }], caption: "Options of wf check", nameLabel: t("cli.option"))
         Link(t("cli.all"), to: "/reference/cli")
@@ -1698,15 +1698,29 @@ page CliCheck(path: "/reference/cli/check", title: "wf check — Reference", des
 }
 
 page CliConfig(path: "/reference/cli/config", title: "wf config — Reference", description: "wf config: Read and change webfluent.app.json: every setting, what the project sets, and an edit that keeps the file's shape. What it writes, and every…") {
-    ReferenceItemShell("wf config", summary: "Read and change `webfluent.app.json`: every setting, what the project sets, and an edit that keeps the file's shape", signature: "wf config", group: t("cli.title"), entries: CLI_INDEX, sections: [Anchor(id: "options", label: t("cli.options"))], source: "wf commands --json") {
-        Heading(t("cli.options"), id: "options").h2
-        Text(t("cli.noopts"), class: "bp-small")
+    ReferenceItemShell("wf config", summary: "Read and change `webfluent.app.json`: every setting, what the project sets, and an edit that keeps the file's shape", signature: "wf config <schema|get|set|unset>", group: t("cli.title"), entries: CLI_INDEX, sections: [Anchor(id: "schema", label: "wf config schema"), Anchor(id: "get", label: "wf config get"), Anchor(id: "set", label: "wf config set"), Anchor(id: "unset", label: "wf config unset")], source: "src/cli/app.rs") {
+        Heading("wf config schema", id: "schema").h2
+        Text("Every setting: its type, its default and what it does")
+        Code("wf config schema [options]").block
+        PropsTable(rows: [{ name: "--json", type: "flag", meaning: "As JSON, for a tool" }], caption: "Options of wf config schema", nameLabel: t("cli.option"))
+        Heading("wf config get", id: "get").h2
+        Text("What the project sets at PATH, or the default")
+        Code("wf config get PATH [options]").block
+        PropsTable(rows: [{ name: "PATH", type: "text", meaning: "A dotted path: `build.base_path`, `build.budget.app.js`" }, { name: "--dir, -d DIR", type: "path", meaning: "The project's folder (default `.`)" }], caption: "Options of wf config get", nameLabel: t("cli.option"))
+        Heading("wf config set", id: "set").h2
+        Text("Set PATH to VALUE — JSON, or a word as a string — keeping the file's shape")
+        Code("wf config set PATH VALUE [options]").block
+        PropsTable(rows: [{ name: "PATH", type: "text", meaning: "A dotted path: `build.base_path`, `meta.site_url`" }, { name: "VALUE", type: "text", meaning: "The value: JSON (`true`, `3`, `[\"en\", \"ar\"]`), or a word, which is taken as a string" }, { name: "--dir, -d DIR", type: "path", meaning: "The project's folder (default `.`)" }], caption: "Options of wf config set", nameLabel: t("cli.option"))
+        Heading("wf config unset", id: "unset").h2
+        Text("Remove PATH, so its default applies")
+        Code("wf config unset PATH [options]").block
+        PropsTable(rows: [{ name: "PATH", type: "text", meaning: "A dotted path: `build.base_path`, `meta.site_url`" }, { name: "--dir, -d DIR", type: "path", meaning: "The project's folder (default `.`)" }], caption: "Options of wf config unset", nameLabel: t("cli.option"))
         Link(t("cli.all"), to: "/reference/cli")
     }
 }
 
 page CliMotion(path: "/reference/cli/motion", title: "wf motion — Reference", description: "wf motion: The animations an element can play, the eases and speeds, the route transitions and the project's default. What it writes, and every option…") {
-    ReferenceItemShell("wf motion", summary: "The animations an element can play, the eases and speeds, the route transitions and the project's default", signature: "wf motion [options]", group: t("cli.title"), entries: CLI_INDEX, sections: [Anchor(id: "options", label: t("cli.options"))], source: "wf commands --json") {
+    ReferenceItemShell("wf motion", summary: "The animations an element can play, the eases and speeds, the route transitions and the project's default", signature: "wf motion [options]", group: t("cli.title"), entries: CLI_INDEX, sections: [Anchor(id: "options", label: t("cli.options"))], source: "src/cli/app.rs") {
         Heading(t("cli.options"), id: "options").h2
         PropsTable(rows: [{ name: "--dir, -d DIR", type: "path", meaning: "Project directory (default: current directory)" }, { name: "--json", type: "flag", meaning: "Print JSON, for tools" }], caption: "Options of wf motion", nameLabel: t("cli.option"))
         Link(t("cli.all"), to: "/reference/cli")
@@ -1714,7 +1728,7 @@ page CliMotion(path: "/reference/cli/motion", title: "wf motion — Reference", 
 }
 
 page CliContext(path: "/reference/cli/context", title: "wf context — Reference", description: "wf context: What an agent is given: the files, the open file, the problems, the components, the theme, the config with only its public env, the guide…") {
-    ReferenceItemShell("wf context", summary: "What an agent is given: the files, the open file, the problems, the components, the theme, the config with only its public env, the guide, and what was withheld", signature: "wf context [options]", group: t("cli.title"), entries: CLI_INDEX, sections: [Anchor(id: "options", label: t("cli.options"))], source: "wf commands --json") {
+    ReferenceItemShell("wf context", summary: "What an agent is given: the files, the open file, the problems, the components, the theme, the config with only its public env, the guide, and what was withheld", signature: "wf context [options]", group: t("cli.title"), entries: CLI_INDEX, sections: [Anchor(id: "options", label: t("cli.options"))], source: "src/cli/app.rs") {
         Heading(t("cli.options"), id: "options").h2
         PropsTable(rows: [{ name: "--dir, -d DIR", type: "path", meaning: "Project directory (default: current directory)" }, { name: "--open OPEN", type: "text", meaning: "The file open in the editor, and its selection as byte offsets: `src/pages/Home.wf` or `src/pages/Home.wf:120-180`" }, { name: "--guide GUIDE", type: "text", meaning: "The guide as its chapters' sections (`index`) or whole (`full`) (default `index`)" }, { name: "--json", type: "flag", meaning: "Print JSON, for tools; otherwise one Markdown document" }], caption: "Options of wf context", nameLabel: t("cli.option"))
         Link(t("cli.all"), to: "/reference/cli")
@@ -1722,7 +1736,7 @@ page CliContext(path: "/reference/cli/context", title: "wf context — Reference
 }
 
 page CliTranslations(path: "/reference/cli/translations", title: "wf translations — Reference", description: "wf translations: The translations as a table: each locale's plural forms and what it lacks, each key's messages, and where a t() names it. What it…") {
-    ReferenceItemShell("wf translations", summary: "The translations as a table: each locale's plural forms and what it lacks, each key's messages, and where a `t()` names it", signature: "wf translations [options]", group: t("cli.title"), entries: CLI_INDEX, sections: [Anchor(id: "options", label: t("cli.options"))], source: "wf commands --json") {
+    ReferenceItemShell("wf translations", summary: "The translations as a table: each locale's plural forms and what it lacks, each key's messages, and where a `t()` names it", signature: "wf translations [options]", group: t("cli.title"), entries: CLI_INDEX, sections: [Anchor(id: "options", label: t("cli.options"))], source: "src/cli/app.rs") {
         Heading(t("cli.options"), id: "options").h2
         PropsTable(rows: [{ name: "--dir, -d DIR", type: "path", meaning: "Project directory (default: current directory)" }, { name: "--missing MISSING", type: "text", meaning: "Only the keys this locale has no message for" }, { name: "--unused", type: "flag", meaning: "Only the keys nothing names" }, { name: "--plurals", type: "flag", meaning: "CLDR's plural rules instead: every locale's forms, and the form each of a run of counts takes" }, { name: "--json", type: "flag", meaning: "Print JSON, for tools" }], caption: "Options of wf translations", nameLabel: t("cli.option"))
         Link(t("cli.all"), to: "/reference/cli")
@@ -1730,7 +1744,7 @@ page CliTranslations(path: "/reference/cli/translations", title: "wf translation
 }
 
 page CliScope(path: "/reference/cli/scope", title: "wf scope — Reference", description: "wf scope: What a path picker lists at a place: the names in scope there, each with its type and where it comes from, and the fields to go on into. What…") {
-    ReferenceItemShell("wf scope", summary: "What a path picker lists at a place: the names in scope there, each with its type and where it comes from, and the fields to go on into", signature: "wf scope PLACE [options]", group: t("cli.title"), entries: CLI_INDEX, sections: [Anchor(id: "options", label: t("cli.options"))], source: "wf commands --json") {
+    ReferenceItemShell("wf scope", summary: "What a path picker lists at a place: the names in scope there, each with its type and where it comes from, and the fields to go on into", signature: "wf scope PLACE [options]", group: t("cli.title"), entries: CLI_INDEX, sections: [Anchor(id: "options", label: t("cli.options"))], source: "src/cli/app.rs") {
         Heading(t("cli.options"), id: "options").h2
         PropsTable(rows: [{ name: "PLACE", type: "text", meaning: "The place: `src/pages/Signup.wf:24` or `…:24:9`" }, { name: "--dir, -d DIR", type: "path", meaning: "Project directory (default: current directory)" }, { name: "--data DATA", type: "path", meaning: "A template's data, a JSON file, to list after the scope" }, { name: "--json", type: "flag", meaning: "Print JSON, for tools" }], caption: "Options of wf scope", nameLabel: t("cli.option"))
         Link(t("cli.all"), to: "/reference/cli")
@@ -1738,7 +1752,7 @@ page CliScope(path: "/reference/cli/scope", title: "wf scope — Reference", des
 }
 
 page CliRules(path: "/reference/cli/rules", title: "wf rules — Reference", description: "wf rules: The rules a validate block may hold, the named patterns, when a form shows its messages, and every state the project holds to a rule. What it…") {
-    ReferenceItemShell("wf rules", summary: "The rules a `validate` block may hold, the named patterns, when a form shows its messages, and every state the project holds to a rule", signature: "wf rules [options]", group: t("cli.title"), entries: CLI_INDEX, sections: [Anchor(id: "options", label: t("cli.options"))], source: "wf commands --json") {
+    ReferenceItemShell("wf rules", summary: "The rules a `validate` block may hold, the named patterns, when a form shows its messages, and every state the project holds to a rule", signature: "wf rules [options]", group: t("cli.title"), entries: CLI_INDEX, sections: [Anchor(id: "options", label: t("cli.options"))], source: "src/cli/app.rs") {
         Heading(t("cli.options"), id: "options").h2
         PropsTable(rows: [{ name: "--dir, -d DIR", type: "path", meaning: "Project directory (default: current directory)" }, { name: "--json", type: "flag", meaning: "Print JSON, for tools" }], caption: "Options of wf rules", nameLabel: t("cli.option"))
         Link(t("cli.all"), to: "/reference/cli")
@@ -1746,7 +1760,7 @@ page CliRules(path: "/reference/cli/rules", title: "wf rules — Reference", des
 }
 
 page CliTheme(path: "/reference/cli/theme", title: "wf theme — Reference", description: "wf theme: The theme the build uses: every token, declared or inherited, where each is used, and its contrast pairs. What it writes, and every option it…") {
-    ReferenceItemShell("wf theme", summary: "The theme the build uses: every token, declared or inherited, where each is used, and its contrast pairs", signature: "wf theme [options]", group: t("cli.title"), entries: CLI_INDEX, sections: [Anchor(id: "options", label: t("cli.options"))], source: "wf commands --json") {
+    ReferenceItemShell("wf theme", summary: "The theme the build uses: every token, declared or inherited, where each is used, and its contrast pairs", signature: "wf theme [options]", group: t("cli.title"), entries: CLI_INDEX, sections: [Anchor(id: "options", label: t("cli.options"))], source: "src/cli/app.rs") {
         Heading(t("cli.options"), id: "options").h2
         PropsTable(rows: [{ name: "--dir, -d DIR", type: "path", meaning: "Project directory (default: current directory)" }, { name: "--json", type: "flag", meaning: "Print JSON, for tools" }], caption: "Options of wf theme", nameLabel: t("cli.option"))
         Link(t("cli.all"), to: "/reference/cli")
@@ -1754,7 +1768,7 @@ page CliTheme(path: "/reference/cli/theme", title: "wf theme — Reference", des
 }
 
 page CliComponents(path: "/reference/cli/components", title: "wf components — Reference", description: "wf components: Every component a call can name — the built-ins and the project's — with what each takes: its props and their kinds, events, slots…") {
-    ReferenceItemShell("wf components", summary: "Every component a call can name — the built-ins and the project's — with what each takes: its props and their kinds, events, slots, parts and children", signature: "wf components [options]", group: t("cli.title"), entries: CLI_INDEX, sections: [Anchor(id: "options", label: t("cli.options"))], source: "wf commands --json") {
+    ReferenceItemShell("wf components", summary: "Every component a call can name — the built-ins and the project's — with what each takes: its props and their kinds, events, slots, parts and children", signature: "wf components [options]", group: t("cli.title"), entries: CLI_INDEX, sections: [Anchor(id: "options", label: t("cli.options"))], source: "src/cli/app.rs") {
         Heading(t("cli.options"), id: "options").h2
         PropsTable(rows: [{ name: "--dir, -d DIR", type: "path", meaning: "Project directory (default: current directory)" }, { name: "--json", type: "flag", meaning: "Print JSON, for tools" }], caption: "Options of wf components", nameLabel: t("cli.option"))
         Link(t("cli.all"), to: "/reference/cli")
@@ -1762,7 +1776,7 @@ page CliComponents(path: "/reference/cli/components", title: "wf components — 
 }
 
 page CliAssets(path: "/reference/cli/assets", title: "wf assets — Reference", description: "wf assets: What public/ holds — each file's kind, size and dimensions, and where the project names it — or what the media pipeline will make of one…") {
-    ReferenceItemShell("wf assets", summary: "What `public/` holds — each file's kind, size and dimensions, and where the project names it — or what the media pipeline will make of one image", signature: "wf assets [options]", group: t("cli.title"), entries: CLI_INDEX, sections: [Anchor(id: "options", label: t("cli.options"))], source: "wf commands --json") {
+    ReferenceItemShell("wf assets", summary: "What `public/` holds — each file's kind, size and dimensions, and where the project names it — or what the media pipeline will make of one image", signature: "wf assets [options]", group: t("cli.title"), entries: CLI_INDEX, sections: [Anchor(id: "options", label: t("cli.options"))], source: "src/cli/app.rs") {
         Heading(t("cli.options"), id: "options").h2
         PropsTable(rows: [{ name: "--dir, -d DIR", type: "path", meaning: "Project directory (default: current directory)" }, { name: "--plan PATH", type: "text", meaning: "What the pipeline will make of this image of `public/`: `/hero.png`" }, { name: "--unused", type: "flag", meaning: "Only the files nothing names" }, { name: "--json", type: "flag", meaning: "Print JSON, for tools" }], caption: "Options of wf assets", nameLabel: t("cli.option"))
         Link(t("cli.all"), to: "/reference/cli")
@@ -1770,7 +1784,7 @@ page CliAssets(path: "/reference/cli/assets", title: "wf assets — Reference", 
 }
 
 page CliCommands(path: "/reference/cli/commands", title: "wf commands — Reference", description: "wf commands: Every wf command, its options and what it writes, as data. What it writes, and every option it takes.") {
-    ReferenceItemShell("wf commands", summary: "Every `wf` command, its options and what it writes, as data", signature: "wf commands [options]", group: t("cli.title"), entries: CLI_INDEX, sections: [Anchor(id: "options", label: t("cli.options"))], source: "wf commands --json") {
+    ReferenceItemShell("wf commands", summary: "Every `wf` command, its options and what it writes, as data", signature: "wf commands [options]", group: t("cli.title"), entries: CLI_INDEX, sections: [Anchor(id: "options", label: t("cli.options"))], source: "src/cli/app.rs") {
         Heading(t("cli.options"), id: "options").h2
         PropsTable(rows: [{ name: "--json", type: "flag", meaning: "Print JSON, for tools" }], caption: "Options of wf commands", nameLabel: t("cli.option"))
         Link(t("cli.all"), to: "/reference/cli")
@@ -1778,7 +1792,7 @@ page CliCommands(path: "/reference/cli/commands", title: "wf commands — Refere
 }
 
 page CliFix(path: "/reference/cli/fix", title: "wf fix — Reference", description: "wf fix: Fix every finding that has a fix — or every one of a code — as wf check and the editor offer it, and say what is left. What it writes, and…") {
-    ReferenceItemShell("wf fix", summary: "Fix every finding that has a fix — or every one of a code — as `wf check` and the editor offer it, and say what is left", signature: "wf fix [options]", group: t("cli.title"), entries: CLI_INDEX, sections: [Anchor(id: "options", label: t("cli.options"))], source: "wf commands --json") {
+    ReferenceItemShell("wf fix", summary: "Fix every finding that has a fix — or every one of a code — as `wf check` and the editor offer it, and say what is left", signature: "wf fix [options]", group: t("cli.title"), entries: CLI_INDEX, sections: [Anchor(id: "options", label: t("cli.options"))], source: "src/cli/app.rs") {
         Markdown(t("cli.writes", { what: "the project's source files" }), class: "bp-prose")
         Markdown(t("cli.preview", { flag: "--dry-run" }), class: "bp-prose")
         Heading(t("cli.options"), id: "options").h2
@@ -1788,7 +1802,7 @@ page CliFix(path: "/reference/cli/fix", title: "wf fix — Reference", descripti
 }
 
 page CliExplain(path: "/reference/cli/explain", title: "wf explain — Reference", description: "wf explain: What a diagnostic code means, a program that draws it, and the fix; with no code, every code. What it writes, and every option it takes.") {
-    ReferenceItemShell("wf explain", summary: "What a diagnostic code means, a program that draws it, and the fix; with no code, every code", signature: "wf explain [CODE] [options]", group: t("cli.title"), entries: CLI_INDEX, sections: [Anchor(id: "options", label: t("cli.options"))], source: "wf commands --json") {
+    ReferenceItemShell("wf explain", summary: "What a diagnostic code means, a program that draws it, and the fix; with no code, every code", signature: "wf explain [CODE] [options]", group: t("cli.title"), entries: CLI_INDEX, sections: [Anchor(id: "options", label: t("cli.options"))], source: "src/cli/app.rs") {
         Heading(t("cli.options"), id: "options").h2
         PropsTable(rows: [{ name: "[CODE]", type: "text", meaning: "The code: `T05`, `A01`, `E101`" }, { name: "--json", type: "flag", meaning: "Print JSON, for tools: one code, or every code without one" }], caption: "Options of wf explain", nameLabel: t("cli.option"))
         Link(t("cli.all"), to: "/reference/cli")
@@ -1796,7 +1810,7 @@ page CliExplain(path: "/reference/cli/explain", title: "wf explain — Reference
 }
 
 page CliServe(path: "/reference/cli/serve", title: "wf serve — Reference", description: "wf serve: Start the development server. What it writes, and every option it takes.") {
-    ReferenceItemShell("wf serve", summary: "Start the development server", signature: "wf serve [options]", group: t("cli.title"), entries: CLI_INDEX, sections: [Anchor(id: "options", label: t("cli.options"))], source: "wf commands --json") {
+    ReferenceItemShell("wf serve", summary: "Start the development server", signature: "wf serve [options]", group: t("cli.title"), entries: CLI_INDEX, sections: [Anchor(id: "options", label: t("cli.options"))], source: "src/cli/app.rs") {
         Markdown(t("cli.writes", { what: "the site, in the output folder, on every save" }), class: "bp-prose")
         Heading(t("cli.options"), id: "options").h2
         PropsTable(rows: [{ name: "--dir, -d DIR", type: "path", meaning: "Project directory (default: current directory)" }, { name: "--host HOST", type: "text", meaning: "The address to listen on: this machine only by default; `0.0.0.0` lets a phone on the same network reach it" }, { name: "--allow-output-outside", type: "flag", meaning: "Let `build.output` name a directory outside the project" }], caption: "Options of wf serve", nameLabel: t("cli.option"))
@@ -1805,7 +1819,7 @@ page CliServe(path: "/reference/cli/serve", title: "wf serve — Reference", des
 }
 
 page CliGenerate(path: "/reference/cli/generate", title: "wf generate — Reference", description: "wf generate: Generate a new page, component, or store. What it writes, and every option it takes.") {
-    ReferenceItemShell("wf generate", summary: "Generate a new page, component, or store", signature: "wf generate KIND NAME [options]", group: t("cli.title"), entries: CLI_INDEX, sections: [Anchor(id: "options", label: t("cli.options"))], source: "wf commands --json") {
+    ReferenceItemShell("wf generate", summary: "Generate a new page, component, or store", signature: "wf generate KIND NAME [options]", group: t("cli.title"), entries: CLI_INDEX, sections: [Anchor(id: "options", label: t("cli.options"))], source: "src/cli/app.rs") {
         Markdown(t("cli.writes", { what: "a new source file" }), class: "bp-prose")
         Heading(t("cli.options"), id: "options").h2
         PropsTable(rows: [{ name: "KIND", type: "page | component | store", meaning: "What to generate: page, component, or store" }, { name: "NAME", type: "text", meaning: "Name of the item to generate" }, { name: "--dir, -d DIR", type: "path", meaning: "Project directory (default: current directory)" }], caption: "Options of wf generate", nameLabel: t("cli.option"))
@@ -1814,7 +1828,7 @@ page CliGenerate(path: "/reference/cli/generate", title: "wf generate — Refere
 }
 
 page CliRender(path: "/reference/cli/render", title: "wf render — Reference", description: "wf render: Render a .wf template with JSON data. What it writes, and every option it takes.") {
-    ReferenceItemShell("wf render", summary: "Render a .wf template with JSON data", signature: "wf render TEMPLATE [options]", group: t("cli.title"), entries: CLI_INDEX, sections: [Anchor(id: "options", label: t("cli.options"))], source: "wf commands --json") {
+    ReferenceItemShell("wf render", summary: "Render a .wf template with JSON data", signature: "wf render TEMPLATE [options]", group: t("cli.title"), entries: CLI_INDEX, sections: [Anchor(id: "options", label: t("cli.options"))], source: "src/cli/app.rs") {
         Markdown(t("cli.writes", { what: "the file `--output` names" }), class: "bp-prose")
         Heading(t("cli.options"), id: "options").h2
         PropsTable(rows: [{ name: "TEMPLATE", type: "path", meaning: "Template file (.wf or .wfx), or a directory: every template under it as one, components shared" }, { name: "--data DATA", type: "path", meaning: "JSON data file (reads stdin if omitted)" }, { name: "--format, -f FORMAT", type: "html | html-fragment | pdf | slides", meaning: "Output format: \"html\" (default), \"html-fragment\", \"pdf\", or \"slides\"" }, { name: "--output, -o OUTPUT", type: "path", meaning: "Output file (stdout if omitted)" }, { name: "--theme THEME", type: "text", meaning: "Which `Theme` declared in the template to render with. Only needed when the template declares more than one" }, { name: "--token NAME=VALUE", type: "text, repeats", meaning: "A design token over the theme's, `NAME=VALUE`; may be given more than once" }, { name: "--page PAGE", type: "text", meaning: "The page to render, by name, when the template has several" }, { name: "--lang LANG", type: "text", meaning: "The document's language, `<html lang>` (default: the page's `lang:`, else `en`)" }], caption: "Options of wf render", nameLabel: t("cli.option"))
@@ -1823,7 +1837,7 @@ page CliRender(path: "/reference/cli/render", title: "wf render — Reference", 
 }
 
 page CliMigrate(path: "/reference/cli/migrate", title: "wf migrate — Reference", description: "wf migrate: Carry a project forward: WebFluent 2 sources to the current grammar, then a 3 project to what 4 allows. What it writes, and every option it…") {
-    ReferenceItemShell("wf migrate", summary: "Carry a project forward: WebFluent 2 sources to the current grammar, then a 3 project to what 4 allows", signature: "wf migrate [PATH] [options]", group: t("cli.title"), entries: CLI_INDEX, sections: [Anchor(id: "options", label: t("cli.options"))], source: "wf commands --json") {
+    ReferenceItemShell("wf migrate", summary: "Carry a project forward: WebFluent 2 sources to the current grammar, then a 3 project to what 4 allows", signature: "wf migrate [PATH] [options]", group: t("cli.title"), entries: CLI_INDEX, sections: [Anchor(id: "options", label: t("cli.options"))], source: "src/cli/app.rs") {
         Markdown(t("cli.writes", { what: "the project's source files" }), class: "bp-prose")
         Markdown(t("cli.preview", { flag: "--check" }), class: "bp-prose")
         Heading(t("cli.options"), id: "options").h2
@@ -1833,7 +1847,7 @@ page CliMigrate(path: "/reference/cli/migrate", title: "wf migrate — Reference
 }
 
 page CliDocs(path: "/reference/cli/docs", title: "wf docs — Reference", description: "wf docs: Write a component gallery: every built-in, and what the project declares. What it writes, and every option it takes.") {
-    ReferenceItemShell("wf docs", summary: "Write a component gallery: every built-in, and what the project declares", signature: "wf docs [options]", group: t("cli.title"), entries: CLI_INDEX, sections: [Anchor(id: "options", label: t("cli.options"))], source: "wf commands --json") {
+    ReferenceItemShell("wf docs", summary: "Write a component gallery: every built-in, and what the project declares", signature: "wf docs [options]", group: t("cli.title"), entries: CLI_INDEX, sections: [Anchor(id: "options", label: t("cli.options"))], source: "src/cli/app.rs") {
         Markdown(t("cli.writes", { what: "a gallery, in the folder `--out` names" }), class: "bp-prose")
         Heading(t("cli.options"), id: "options").h2
         PropsTable(rows: [{ name: "--dir, -d DIR", type: "path", meaning: "Project directory (default: current directory)" }, { name: "--out, -o OUT", type: "path", meaning: "Where to write index.html (default: docs/)" }], caption: "Options of wf docs", nameLabel: t("cli.option"))
@@ -1842,7 +1856,7 @@ page CliDocs(path: "/reference/cli/docs", title: "wf docs — Reference", descri
 }
 
 page CliTest(path: "/reference/cli/test", title: "wf test — Reference", description: "wf test: Run the project's test \"…\" \{ … \} declarations under tests/. What it writes, and every option it takes.") {
-    ReferenceItemShell("wf test", summary: "Run the project's `test \"…\" \{ … \}` declarations under tests/", signature: "wf test [PATH] [options]", group: t("cli.title"), entries: CLI_INDEX, sections: [Anchor(id: "options", label: t("cli.options"))], source: "wf commands --json") {
+    ReferenceItemShell("wf test", summary: "Run the project's `test \"…\" \{ … \}` declarations under tests/", signature: "wf test [PATH] [options]", group: t("cli.title"), entries: CLI_INDEX, sections: [Anchor(id: "options", label: t("cli.options"))], source: "src/cli/app.rs") {
         Markdown(t("cli.writes", { what: "the snapshots, with `--update`" }), class: "bp-prose")
         Heading(t("cli.options"), id: "options").h2
         PropsTable(rows: [{ name: "[PATH]", type: "path", meaning: "Project directory (default: current directory), or one test file" }, { name: "--update", type: "flag", meaning: "Rewrite every snapshot with the current render" }], caption: "Options of wf test", nameLabel: t("cli.option"))
@@ -1851,7 +1865,7 @@ page CliTest(path: "/reference/cli/test", title: "wf test — Reference", descri
 }
 
 page CliAudit(path: "/reference/cli/audit", title: "wf audit — Reference", description: "wf audit: What this project trusts: markup it did not write, other origins, what it keeps on the reader's machine, its env names, its policy and its…") {
-    ReferenceItemShell("wf audit", summary: "What this project trusts: markup it did not write, other origins, what it keeps on the reader's machine, its `env` names, its policy and its dependencies", signature: "wf audit [PATH] [options]", group: t("cli.title"), entries: CLI_INDEX, sections: [Anchor(id: "options", label: t("cli.options"))], source: "wf commands --json") {
+    ReferenceItemShell("wf audit", summary: "What this project trusts: markup it did not write, other origins, what it keeps on the reader's machine, its `env` names, its policy and its dependencies", signature: "wf audit [PATH] [options]", group: t("cli.title"), entries: CLI_INDEX, sections: [Anchor(id: "options", label: t("cli.options"))], source: "src/cli/app.rs") {
         Heading(t("cli.options"), id: "options").h2
         PropsTable(rows: [{ name: "[PATH]", type: "path", meaning: "Project directory (default: current directory)" }, { name: "--json", type: "flag", meaning: "Print JSON, for tools" }], caption: "Options of wf audit", nameLabel: t("cli.option"))
         Link(t("cli.all"), to: "/reference/cli")
@@ -1859,7 +1873,7 @@ page CliAudit(path: "/reference/cli/audit", title: "wf audit — Reference", des
 }
 
 page CliVerify(path: "/reference/cli/verify", title: "wf verify — Reference", description: "wf verify: Load every page of a built project in a real browser: errors, failed requests, paint timing, and which built-ins it drew. What it writes…") {
-    ReferenceItemShell("wf verify", summary: "Load every page of a built project in a real browser: errors, failed requests, paint timing, and which built-ins it drew", signature: "wf verify [PATH] [options]", group: t("cli.title"), entries: CLI_INDEX, sections: [Anchor(id: "options", label: t("cli.options"))], source: "wf commands --json") {
+    ReferenceItemShell("wf verify", summary: "Load every page of a built project in a real browser: errors, failed requests, paint timing, and which built-ins it drew", signature: "wf verify [PATH] [options]", group: t("cli.title"), entries: CLI_INDEX, sections: [Anchor(id: "options", label: t("cli.options"))], source: "src/cli/app.rs") {
         Heading(t("cli.options"), id: "options").h2
         PropsTable(rows: [{ name: "[PATH]", type: "path", meaning: "Project directory (default: current directory)" }, { name: "--json", type: "flag", meaning: "Print JSON, for a pipeline" }, { name: "--budget MS", type: "number", meaning: "Fail a route whose first paint is slower than this, in milliseconds" }, { name: "--returning-visitor", type: "flag", meaning: "Visit every route again as a reader whose storage holds what the previous build's pages kept" }, { name: "--allow-output-outside", type: "flag", meaning: "Let `build.output` name a directory outside the project" }], caption: "Options of wf verify", nameLabel: t("cli.option"))
         Link(t("cli.all"), to: "/reference/cli")
@@ -1867,7 +1881,7 @@ page CliVerify(path: "/reference/cli/verify", title: "wf verify — Reference", 
 }
 
 page CliRegistry(path: "/reference/cli/registry", title: "wf registry — Reference", description: "wf registry: Describe every built-in component: props, cases, flags, events, slots, parts. What it writes, and every option it takes.") {
-    ReferenceItemShell("wf registry", summary: "Describe every built-in component: props, cases, flags, events, slots, parts", signature: "wf registry [options]", group: t("cli.title"), entries: CLI_INDEX, sections: [Anchor(id: "options", label: t("cli.options"))], source: "wf commands --json") {
+    ReferenceItemShell("wf registry", summary: "Describe every built-in component: props, cases, flags, events, slots, parts", signature: "wf registry [options]", group: t("cli.title"), entries: CLI_INDEX, sections: [Anchor(id: "options", label: t("cli.options"))], source: "src/cli/app.rs") {
         Heading(t("cli.options"), id: "options").h2
         PropsTable(rows: [{ name: "--json", type: "flag", meaning: "Print JSON, for tools" }], caption: "Options of wf registry", nameLabel: t("cli.option"))
         Link(t("cli.all"), to: "/reference/cli")
@@ -1875,7 +1889,7 @@ page CliRegistry(path: "/reference/cli/registry", title: "wf registry — Refere
 }
 
 page CliTypes(path: "/reference/cli/types", title: "wf types — Reference", description: "wf types: Describe what a project declares: enums, types, components, stores, pages. What it writes, and every option it takes.") {
-    ReferenceItemShell("wf types", summary: "Describe what a project declares: enums, types, components, stores, pages", signature: "wf types [PATH] [options]", group: t("cli.title"), entries: CLI_INDEX, sections: [Anchor(id: "options", label: t("cli.options"))], source: "wf commands --json") {
+    ReferenceItemShell("wf types", summary: "Describe what a project declares: enums, types, components, stores, pages", signature: "wf types [PATH] [options]", group: t("cli.title"), entries: CLI_INDEX, sections: [Anchor(id: "options", label: t("cli.options"))], source: "src/cli/app.rs") {
         Heading(t("cli.options"), id: "options").h2
         PropsTable(rows: [{ name: "[PATH]", type: "path", meaning: "Project directory (default: current directory)" }, { name: "--json", type: "flag", meaning: "Print JSON, for tools" }], caption: "Options of wf types", nameLabel: t("cli.option"))
         Link(t("cli.all"), to: "/reference/cli")
@@ -1883,7 +1897,7 @@ page CliTypes(path: "/reference/cli/types", title: "wf types — Reference", des
 }
 
 page CliFmt(path: "/reference/cli/fmt", title: "wf fmt — Reference", description: "wf fmt: Format a project's source files; with --to, rewrite them in the other layout: .wfx (blocks by indentation) or .wf (blocks in braces). What it…") {
-    ReferenceItemShell("wf fmt", summary: "Format a project's source files; with `--to`, rewrite them in the other layout: `.wfx` (blocks by indentation) or `.wf` (blocks in braces)", signature: "wf fmt [PATH] [options]", group: t("cli.title"), entries: CLI_INDEX, sections: [Anchor(id: "options", label: t("cli.options"))], source: "wf commands --json") {
+    ReferenceItemShell("wf fmt", summary: "Format a project's source files; with `--to`, rewrite them in the other layout: `.wfx` (blocks by indentation) or `.wf` (blocks in braces)", signature: "wf fmt [PATH] [options]", group: t("cli.title"), entries: CLI_INDEX, sections: [Anchor(id: "options", label: t("cli.options"))], source: "src/cli/app.rs") {
         Markdown(t("cli.writes", { what: "the project's source files" }), class: "bp-prose")
         Markdown(t("cli.preview", { flag: "--check" }), class: "bp-prose")
         Heading(t("cli.options"), id: "options").h2

@@ -23,7 +23,7 @@ component PreviewPane(stage: String = "", run: Number = 0, pdf: String = "") {
                     style { flex: 1 1 auto; width: 100%; min-height: 400px; border: 1px solid $line; border-radius: 4px; background: $sheet }
                 }
             } else {
-                Frame(src: "/wasm/{WF_RELEASE}/preview/{stage}/?run={run}", title: t("playground.preview"), class: if phone { "bp-phone" } else { "" }) {
+                Frame(src: wfPreviewSrc(WASM, stage, run), title: t("playground.preview"), class: if phone { "bp-phone" } else { "" }) {
                     style { flex: 1 1 auto; width: 100%; min-height: 400px; border: 1px solid $line; border-radius: 4px; background: $sheet }
                 }
             }

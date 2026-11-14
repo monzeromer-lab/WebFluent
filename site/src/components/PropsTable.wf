@@ -9,11 +9,15 @@ component PropsTable(rows: [Map], caption: String = "Props", nameLabel: String =
             border-radius: 0
             background: $sheet
             & th { text-align: start; padding: 8px 12px; background: $ground; border-bottom: 1px solid $line; font-size: 12px; line-height: 18px; font-weight: 600; color: $muted }
-            & th:first-child { width: 22% }
-            & th:nth-child(2) { width: 34% }
+            // The same three shares in every table, so the tables of one
+            // page line up, and the meaning has the most room.
+            table-layout: fixed
+            // On a phone the meaning needs the room; the type is a word.
+            & th:first-child { width: 26% }
+            & th:nth-child(2) { width: 18% }
             & td { padding: 7px 12px; border-bottom: 1px solid $line; vertical-align: top; font-size: 13px; line-height: 20px; color: $muted }
-            & td:first-child { font-family: $font-family-mono; font-size: 12px; line-height: 18px; color: $link; white-space: nowrap }
-            & td:nth-child(2) { font-family: $font-family-mono; font-size: 12px; line-height: 18px; color: $ink }
+            & td:first-child { font-family: $font-family-mono; font-size: 12px; line-height: 18px; color: $link; overflow-wrap: anywhere }
+            & td:nth-child(2) { font-family: $font-family-mono; font-size: 12px; line-height: 18px; color: $ink; overflow-wrap: anywhere }
             & td .wf-markdown p { margin: 0; font-size: 13px; line-height: 20px; color: $muted }
             & td .wf-markdown code { font-size: 12px }
             & tr:last-child td { border-bottom: 0 }
@@ -28,7 +32,13 @@ component PropsTable(rows: [Map], caption: String = "Props", nameLabel: String =
         Table.Body {
             for row in rows by row.name {
                 Table.Row {
-                    Table.Cell(row.name)
+                    // `--dir, -d DIR`: each spelling on a line of its own,
+                    // never broken at its hyphen.
+                    Table.Cell {
+                        for spelling, i in row.name.split(", ") by i {
+                            Text(spelling) { style { margin: 0; white-space: nowrap; color: inherit; font: inherit } }
+                        }
+                    }
                     Table.Cell(row.type)
                     Table.Cell { Markdown(row.meaning) }
                 }

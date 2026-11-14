@@ -207,7 +207,7 @@ page About(path: "/about", title: "About", description: "What this site is for."
 
         Markdown("احفظ، فيعرض خادم التطوير شريط تنقل فيه **Home** و**About**. ويعدّ **Click me** نقراتك. هذا ما يفعله كل جزء:\n\n- `app \{ … \}` هو الهيكل: ما تقع داخله كل صفحة. و`Router` هو المكان الذي تُرسم فيه الصفحة الحالية. لا جدول مسارات؛ كل `page` تسمّي `path:` الخاص بها.\n- `page Home(path: \"/\", title: …, description: …)` يعلن صفحة. يصير `title` و`description` وسم `<title>`، ووصف meta، وبطاقات Open Graph وTwitter، وJSON-LD. إن أغفلتهما، ينبّهك البناء.\n- `state count = 0` إشارة (signal). يقرؤها `Text(\"… \{count\} …\")`، فيتحدّث النص حين تتغيّر.\n- في `Button(\"Click me\").primary \{ on click \{ … \} \}`، التسمية هي الوسيط الموضعي الوحيد، و`.primary` علم (حالة من حالات الخاصية `tone` للزر)، والكتلة تحمل معالج النقر.\n- `Container` و`Heading` و`Text` و`Paragraph` و`Navbar` و`Link` عناصر مدمجة. يسردها كلها [مرجع المكوّنات](/reference).")
 
-        Callout("**قادم من React؟** لا جدول مسارات ولا `import`. كل `page` تسمّي `path:` الخاص بها، وكل ملف تحت `src/` جزء من برنامج واحد، فيضع `App.wf` صفحات ومكوّنات لا يستوردها أبدًا. راجع [قادم من React](/coming-from/react).", kind: .note)
+        Callout("**قادم من React؟** لا جدول مسارات ولا `import`. كل `page` تسمّي `path:` الخاص بها، وكل ملف تحت `src/` جزء من برنامج واحد، فيضع `App.wf` صفحات ومكوّنات لا يستوردها أبدًا. راجع [قادم من React](/ar/coming-from/react).", kind: .note)
 
         Heading("ما ينتجه البناء", id: "ما-ينتجه-البناء").h2
 

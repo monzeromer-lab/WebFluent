@@ -80,7 +80,7 @@ store Shelf {
 
         Markdown("`persist` حالة (`state`) تُحفظ في تخزين المتصفح وتُقرأ من جديد في الزيارة التالية؛ والتغيير الذي يحدث في تبويب آخر يصل إلى هنا أيضًا. ويُعاد حساب `derived count` كلما تغيّر `saved`. ([المخازن](/learn/11-stores).)")
 
-        Callout("**قادم من React؟** الحالة المشتركة ليست مزوّد سياق (context provider) يلتفّ حول التطبيق، وحفظها ليس `useEffect` يكتب في `localStorage`. يُقرأ الـ `store` باسمه حيثما استُخدم، و `persist` تتولّى الحفظ. انظر [قادم من React](/coming-from/react).", kind: .note)
+        Callout("**قادم من React؟** الحالة المشتركة ليست مزوّد سياق (context provider) يلتفّ حول التطبيق، وحفظها ليس `useEffect` يكتب في `localStorage`. يُقرأ الـ `store` باسمه حيثما استُخدم، و `persist` تتولّى الحفظ. انظر [قادم من React](/ar/coming-from/react).", kind: .note)
 
         Markdown("**تحقّق:** شغّل `wf check`. يطبع تحذيرَي `U04`: `` `Shelf.count` is declared but never read `` ومثله لـ `Shelf.toggle`. لا شيء يستخدم المخزن بعد؛ الخطوات التالية تستخدمه، فيزول التحذيران.")
 
@@ -134,7 +134,7 @@ page Home(path: "/", title: "Shelf", description: "Books worth reading, and the 
 
         Markdown("- يُبقي `bind: q` الحقل والحالة متطابقين، في الاتجاهين.\n- `found` مشتقة من `q`، فالكتابة تضيّق القائمة وأنت تكتب.\n- `for … by book.slug` حلقة ذات مفاتيح: البطاقة التي تبقى في القائمة تحتفظ بعنصرها بدل أن يُعاد بناؤه.\n- `Grid(columns: \{ base: 1, md: 2 \})` عمود واحد على الهاتف وعمودان ابتداءً من نقطة التوقف `md`. يحمل HTML المُصيَّر مسبقًا هذا التخطيط أصلًا، فلا حاجة إلى سكربت.")
 
-        Callout("**قادم من React؟** الحقل المتحكَّم فيه لا يحتاج إلى `value` ولا إلى `onChange` ينسخ `e.target.value` عائدًا: `bind: q` يفعل الأمرين. انظر [قادم من React](/coming-from/react).", kind: .note)
+        Callout("**قادم من React؟** الحقل المتحكَّم فيه لا يحتاج إلى `value` ولا إلى `onChange` ينسخ `e.target.value` عائدًا: `bind: q` يفعل الأمرين. انظر [قادم من React](/ar/coming-from/react).", kind: .note)
 
         Markdown("ثم أضف صفحة لكل كتاب، `src/pages/BookPage.wf`:")
 
@@ -672,6 +672,6 @@ page Home(path: "/", title: "Shelf", description: "Books worth reading.") {
 
         Heading("التالي", id: "التالي").h2
 
-        Markdown("[قادم من React أو Vue أو Svelte](/coming-from/react).")
+        Markdown("[قادم من React أو Vue أو Svelte](/ar/coming-from/react).")
     }
 }
