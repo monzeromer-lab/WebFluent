@@ -836,8 +836,10 @@
 
   function mainOf(container) {
     if (!container) return container;
-    if (container.tagName === "MAIN") return container;
-    const existing = container.querySelector && container.querySelector("main");
+    if (container.tagName === "MAIN" || container.id === "wf-main") return container;
+    // The router's box: `#wf-main`, a `div` when the program draws its own
+    // `main` (which is then inside it, not the box).
+    const existing = container.querySelector && (container.querySelector("#wf-main") || container.querySelector("main"));
     if (existing) return existing;
     const el = document.createElement("main");
     el.id = "wf-main";

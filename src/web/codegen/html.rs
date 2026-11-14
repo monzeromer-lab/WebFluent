@@ -9,6 +9,14 @@ pub fn generate_html(config: &ProjectConfig, program: &Program) -> String {
         &config.meta.title
     };
 
+    // The box the router draws pages into: a `main`, unless the program
+    // draws its own.
+    let main = if crate::syntax::parser::ast::draws_its_own_main(program) {
+        "div"
+    } else {
+        "main"
+    };
+
     // A single-page app serves every route from this one document, so the tags
     // here describe the entry route. A crawler that runs no JavaScript sees only
     // this — which is the argument for building such a site with SSG on.
@@ -86,7 +94,7 @@ pub fn generate_html(config: &ProjectConfig, program: &Program) -> String {
 {}{}    <script src="{root}/app.js" defer></script>
 {}</head>
 <body>
-{}    <div id="app"><main id="wf-main"></main></div>
+{}    <div id="app"><{main} id="wf-main"></{main}></div>
 </body>
 </html>"#,
         lang,

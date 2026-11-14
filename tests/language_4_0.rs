@@ -2768,3 +2768,52 @@ fn an_optimistic_action_that_awaits_nothing_is_still_a_plain_function() {
     let js = spa_generated(&format!("{src}{}", page("Text(\"x\")")));
     assert!(js.contains("return await WF.attempt(async () =>"), "{js}");
 }
+
+#[test]
+fn an_endpoint_called_with_positional_arguments_is_t10() {
+    let src = "api Backend(base: \"/api\") {\n\
+         \x20   post signUp(body: Map)\n\
+         }\n";
+    let text = errors_of(&format!(
+        "{src}{}",
+        page(
+            "action go() { await Backend.signUp(\"a\", \"b\") }\n\
+             \x20   Button(\"Go\") { on click { go() } }"
+        )
+    ));
+    assert!(text.contains("takes its arguments by name"), "{text}");
+    let text = errors_of(&format!(
+        "{src}{}",
+        page(
+            "action go() { await Backend.signUp(body: { a: 1 }) }\n\
+             \x20   Button(\"Go\") { on click { go() } }"
+        )
+    ));
+    assert!(!text.contains("by name"), "{text}");
+}
+
+#[test]
+fn an_icon_is_drawn_in_the_static_paint() {
+    // It was an empty `<span data-icon>` until the script ran.
+    let html = raw_output(Backend::Ssg, &page("Icon(\"home\")"));
+    assert!(html.contains("data-icon=\"home\"><svg"), "{html}");
+}
+
+#[test]
+fn a_program_that_draws_its_own_main_gets_a_plain_router_box() {
+    let src = format!(
+        "app {{\n    Router\n}}\n{}",
+        page("Stack(role: \"main\") { Text(\"x\") }")
+    );
+    let html = raw_output(Backend::Ssg, &src);
+    assert!(html.contains("<div id=\"wf-main\">"), "{html}");
+    assert!(!html.contains("<main id=\"wf-main\">"), "{html}");
+    let js = spa_generated(&src);
+    assert!(js.contains("document.createElement('div')"), "{js}");
+    // And one that does not keeps the landmark.
+    let html = raw_output(
+        Backend::Ssg,
+        &format!("app {{\n    Router\n}}\n{}", page("Text(\"x\")")),
+    );
+    assert!(html.contains("<main id=\"wf-main\">"), "{html}");
+}

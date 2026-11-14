@@ -180,7 +180,30 @@ impl Checker<'_, '_> {
                                 }
                             }
                         } else {
-                            self.infer(arg, wanted.first().map(|(_, t)| t));
+                            let given = self.infer(arg, wanted.first().map(|(_, t)| t));
+                            // An endpoint takes its arguments by name, as one
+                            // map: `signUp(email, password)` sent the first
+                            // value as that map, and the second nowhere.
+                            let positional = args
+                                .iter()
+                                .filter(|a| !matches!(a, Expr::MapLiteral(_)))
+                                .count();
+                            if positional > 1
+                                || matches!(given, Type::String | Type::Number | Type::Bool)
+                            {
+                                let names: Vec<String> =
+                                    wanted.iter().map(|(n, _)| format!("{n}: …")).collect();
+                                self.error_at_current(
+                                    "T10",
+                                    format!("`{api}.{method}` takes its arguments by name"),
+                                    &if names.is_empty() {
+                                        format!("`{api}.{method}` takes no arguments")
+                                    } else {
+                                        format!("Write `{api}.{method}({})`", names.join(", "))
+                                    },
+                                );
+                                break;
+                            }
                         }
                     }
                     returns

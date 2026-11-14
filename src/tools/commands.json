@@ -163,7 +163,7 @@
         }
       ],
       "preview": null,
-      "summary": "Build the project (compile .wf files to HTML + CSS + JS)",
+      "summary": "Build the project: a site or app (HTML, CSS, JS), a PDF, a slide deck or custom elements",
       "writes": "the site, in the output folder"
     },
     {
@@ -282,7 +282,7 @@
             {
               "default": ".",
               "flag": false,
-              "help": "",
+              "help": "The project's folder",
               "long": "dir",
               "name": "dir",
               "positional": false,
@@ -304,7 +304,7 @@
             {
               "default": null,
               "flag": false,
-              "help": "",
+              "help": "A dotted path: `build.base_path`, `meta.site_url`",
               "long": null,
               "name": "path",
               "positional": true,
@@ -318,7 +318,7 @@
             {
               "default": null,
               "flag": false,
-              "help": "",
+              "help": "The value: JSON (`true`, `3`, `[\"en\", \"ar\"]`), or a word, which is taken as a string",
               "long": null,
               "name": "value",
               "positional": true,
@@ -332,7 +332,7 @@
             {
               "default": ".",
               "flag": false,
-              "help": "",
+              "help": "The project's folder",
               "long": "dir",
               "name": "dir",
               "positional": false,
@@ -354,7 +354,7 @@
             {
               "default": null,
               "flag": false,
-              "help": "",
+              "help": "A dotted path: `build.base_path`, `meta.site_url`",
               "long": null,
               "name": "path",
               "positional": true,
@@ -368,7 +368,7 @@
             {
               "default": ".",
               "flag": false,
-              "help": "",
+              "help": "The project's folder",
               "long": "dir",
               "name": "dir",
               "positional": false,

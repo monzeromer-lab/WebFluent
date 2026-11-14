@@ -432,7 +432,8 @@
         while (i < lines.length && mdTrim(lines[i]) !== "```") { raw += lines[i] + "\n"; i++; }
         i++;
         const code = highlightKnows(lang) ? highlight(raw, lang) : mdEscape(raw);
-        out += lang ? '<pre><code class="language-' + mdEscape(lang) + '">' + code + "</code></pre>\n" : "<pre><code>" + code + "</code></pre>\n";
+        // A long line scrolls the block sideways, so the keyboard can reach it.
+        out += lang ? '<pre tabindex="0"><code class="language-' + mdEscape(lang) + '">' + code + "</code></pre>\n" : '<pre tabindex="0"><code>' + code + "</code></pre>\n";
         continue;
       }
       if (t === "---" || t === "***") { out += "<hr>\n"; i++; continue; }

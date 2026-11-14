@@ -161,7 +161,7 @@ test("inert Markdown shows text somebody else wrote and nothing in it runs", () 
   assert.ok(!linked.includes("<a"), linked);
   assert.equal(linked, "<p>See the guide, run and .</p>\n");
   assert.equal(inert("_Widely_ used"), "<p><em>Widely</em> used</p>\n");
-  assert.equal(inert("```ts\nconst a: Array&lt;T&gt; = [];\n```"), "<pre><code class=\"language-ts\">const a: Array&amp;lt;T&amp;gt; = [];\n</code></pre>\n", "a fence is a pre, its entities as written");
+  assert.equal(inert("```ts\nconst a: Array&lt;T&gt; = [];\n```"), "<pre tabindex=\"0\"><code class=\"language-ts\">const a: Array&amp;lt;T&amp;gt; = [];\n</code></pre>\n", "a fence is a pre, its entities as written");
   assert.equal(inert("`&amp;` is &amp;"), "<p><code>&amp;amp;</code> is &amp;</p>\n", "an entity in code is as written");
   // Plain Markdown keeps today's: an entity is shown as it was written.
   assert.equal(WF.markdown("&lt;color&gt;"), "<p>&amp;lt;color&amp;gt;</p>\n");
@@ -219,7 +219,7 @@ test("a backslash before anything else, ending a block, or in code is shown", ()
   assert.equal(WF.markdown("# Title\\\n\n- item\\"), "<h1>Title\\</h1>\n<ul>\n<li>item\\</li>\n</ul>\n");
   assert.equal(WF.markdown("`a\\*b` `C:\\` \\`not code`"), "<p><code>a\\*b</code> <code>C:\\</code> `not code`</p>\n");
   assert.equal(WF.markdown("`a\\\nb`"), "<p><code>a\\\nb</code></p>\n");
-  assert.equal(WF.markdown("```c\\+\\+\n\\*a\\* \\\\\n```"), "<pre><code class=\"language-c++\">\\*a\\* \\\\\n</code></pre>\n");
+  assert.equal(WF.markdown("```c\\+\\+\n\\*a\\* \\\\\n```"), "<pre tabindex=\"0\"><code class=\"language-c++\">\\*a\\* \\\\\n</code></pre>\n");
   const inert = (md) => WF.markdown(md, { inert: true });
   assert.equal(inert("\\&lt; &lt\\; &lt;"), "<p>&amp;lt; &amp;lt; &lt;</p>\n", "an escaped character begins no entity");
 });

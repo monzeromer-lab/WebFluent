@@ -1680,3 +1680,29 @@ pub enum UnaryOp {
     Not,
     Neg,
 }
+
+/// Whether the program draws its own `main` landmark — an element with
+/// `role: "main"` — so the box the router draws pages into is a plain
+/// `div`, not a second `main` around the program's own (and around the
+/// header a page draws, which is then no top-level banner).
+pub fn draws_its_own_main(program: &Program) -> bool {
+    fn any(stmts: &[Statement]) -> bool {
+        stmts.iter().any(|s| {
+            if let StatementKind::UIElement(el) = &s.kind {
+                let main = el.args.iter().any(|a| {
+                    matches!(a, Arg::Named(k, Expr::StringLiteral(v)) if k == "role" && v == "main")
+                });
+                if main || any(&el.children) || el.slot_fills.iter().any(|f| any(&f.body)) {
+                    return true;
+                }
+            }
+            s.kind.bodies().iter().any(|b| any(b))
+        })
+    }
+    program.declarations.iter().any(|d| match d {
+        Declaration::Page(p) => any(&p.body),
+        Declaration::Component(c) => any(&c.body),
+        Declaration::App(a) => any(&a.body),
+        _ => false,
+    })
+}

@@ -693,7 +693,7 @@ test("the runtime's markdown matches the compiler's, and follows its text", () =
   const md = "# Title\n\nA *word* and **more**, `x < y` and [a link](https://x.y) plus ![alt](/i.png).\\\nSecond line,\nthe same paragraph.\n\n- one\n- two\n\n1. first\n2. second\n\n> quoted *text*\n\n---\n\n```js\nlet a = 1 < 2;\n```\n<script>alert(1)</script>";
   assert.equal(
     WF.markdown(md),
-    "<h1>Title</h1>\n<p>A <em>word</em> and <strong>more</strong>, <code>x &lt; y</code> and <a href=\"https://x.y\">a link</a> plus <img src=\"/i.png\" alt=\"alt\">.<br>\nSecond line,\nthe same paragraph.</p>\n<ul>\n<li>one</li>\n<li>two</li>\n</ul>\n<ol>\n<li>first</li>\n<li>second</li>\n</ol>\n<blockquote>\n<p>quoted <em>text</em></p>\n</blockquote>\n<hr>\n<pre><code class=\"language-js\">let a = 1 &lt; 2;\n</code></pre>\n<p>&lt;script&gt;alert(1)&lt;/script&gt;</p>\n",
+    "<h1>Title</h1>\n<p>A <em>word</em> and <strong>more</strong>, <code>x &lt; y</code> and <a href=\"https://x.y\">a link</a> plus <img src=\"/i.png\" alt=\"alt\">.<br>\nSecond line,\nthe same paragraph.</p>\n<ul>\n<li>one</li>\n<li>two</li>\n</ul>\n<ol>\n<li>first</li>\n<li>second</li>\n</ol>\n<blockquote>\n<p>quoted <em>text</em></p>\n</blockquote>\n<hr>\n<pre tabindex=\"0\"><code class=\"language-js\">let a = 1 &lt; 2;\n</code></pre>\n<p>&lt;script&gt;alert(1)&lt;/script&gt;</p>\n",
   );
   const note = WF.signal("plain");
   const el = WF.el("div", { className: "wf-markdown", markdown: () => note() });
@@ -743,7 +743,7 @@ test("the runtime's highlighter matches the compiler's, and paints a Code elemen
   assert.equal(el.innerHTML, "<span class=\"wf-tok-kw\">state</span> n = <span class=\"wf-tok-num\">1</span>");
   lang.set("text");
   assert.equal(el.innerHTML, "state n = 1", "follows the language");
-  assert.equal(WF.markdown("```wf\nstate n = 1\n```"), "<pre><code class=\"language-wf\"><span class=\"wf-tok-kw\">state</span> n = <span class=\"wf-tok-num\">1</span>\n</code></pre>\n");
+  assert.equal(WF.markdown("```wf\nstate n = 1\n```"), "<pre tabindex=\"0\"><code class=\"language-wf\"><span class=\"wf-tok-kw\">state</span> n = <span class=\"wf-tok-num\">1</span>\n</code></pre>\n");
 });
 
 test("a scoped slot is drawn again when a value it is handed changes, and not when its fill reads change", () => {

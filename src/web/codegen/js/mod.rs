@@ -270,6 +270,8 @@ pub struct JsCodegen {
     /// Each page's `guard:` expression as JavaScript and its `redirect:`,
     /// for pages that have one.
     page_guards: HashMap<String, (String, String)>,
+    /// The program draws its own `main`, so the router's box is a `div`.
+    own_main: bool,
     /// Every page's path, in declaration order, for a router that lists no
     /// routes of its own.
     page_paths: Vec<(String, String)>,
@@ -439,6 +441,7 @@ impl JsCodegen {
             component_slot_params: HashMap::new(),
             page_layouts: HashMap::new(),
             page_guards: HashMap::new(),
+            own_main: false,
             page_paths: Vec::new(),
             body: BodyState::default(),
         }
@@ -872,6 +875,7 @@ impl JsCodegen {
     }
 
     pub fn generate(&mut self, program: &Program) -> String {
+        self.own_main = crate::syntax::parser::ast::draws_its_own_main(program);
         self.static_scope = Some(crate::project::static_eval::Scope::from_program_with_env(
             program,
             &[],

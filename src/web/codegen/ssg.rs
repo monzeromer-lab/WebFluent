@@ -313,6 +313,11 @@ pub fn render_page_html_studio(
         .with_messages(&default_messages);
 
     let mut ctx = SsgContext {
+        main_tag: if crate::syntax::parser::ast::draws_its_own_main(site.program) {
+            "div"
+        } else {
+            "main"
+        },
         paint: PaintState {
             images: 0,
             row_limit: None,
@@ -392,8 +397,9 @@ pub fn render_page_html_studio(
     } else {
         // With no shell there is no Router to stand in for `<main>`, so the page
         // body is the main content itself.
+        let tag = ctx.main_tag;
         body_html = format!(
-            "{}<main id=\"wf-main\">\n{}{}</main>\n",
+            "{}<{tag} id=\"wf-main\">\n{}{}</{tag}>\n",
             ctx.indent_str(),
             {
                 ctx.indent += 1;
@@ -611,6 +617,9 @@ pub(crate) trait Paint: std::ops::DerefMut<Target = PaintState> {
 
 struct SsgContext {
     paint: PaintState,
+    /// What the router's box is: `main`, or `div` when the program draws
+    /// its own `main` ([`draws_its_own_main`]).
+    main_tag: &'static str,
     /// The program's `Component` declarations, so a call to one can be expanded
     /// into the static paint instead of a placeholder comment.
     components: HashMap<String, ComponentDecl>,
@@ -705,11 +714,12 @@ fn render_app_shell_ssg(
             if name == "Router" {
                 // Replace Router with page content, inside the `<main>` landmark
                 // the skip link targets.
-                html.push_str(&format!("{}<main id=\"wf-main\">\n", ctx.indent_str()));
+                let tag = ctx.main_tag;
+                html.push_str(&format!("{}<{tag} id=\"wf-main\">\n", ctx.indent_str()));
                 ctx.indent += 1;
                 html.push_str(&render_statements(page_body, ctx));
                 ctx.indent -= 1;
-                html.push_str(&format!("{}</main>\n", ctx.indent_str()));
+                html.push_str(&format!("{}</{tag}>\n", ctx.indent_str()));
             } else if stmt_contains_router(stmt) {
                 // This is a layout wrapper (like Row) containing the Router
                 // Render the wrapper tag with children, substituting the Router
@@ -2215,7 +2225,14 @@ pub(crate) fn render_builtin<C: Paint>(name: &str, ui: &UIElement, ctx: &mut C) 
     let has_caption =
         name == "Table" && table_caption(ui, |e| static_attr(e, &ctx.scope)).is_some();
     if !has_children && !has_text && !has_caption {
-        return format!("{indent}<{actual_tag}{attrs_str}></{actual_tag}>\n");
+        // An icon is drawn here as the runtime draws it, so a header's
+        // icon buttons are not empty squares until the script runs.
+        let glyph = attrs
+            .iter()
+            .find_map(|a| a.strip_prefix("data-icon=\"")?.strip_suffix('"'))
+            .and_then(crate::web::icons::drawn)
+            .unwrap_or_default();
+        return format!("{indent}<{actual_tag}{attrs_str}>{glyph}</{actual_tag}>\n");
     }
 
     let mut result = format!("{indent}<{actual_tag}{attrs_str}>\n");
@@ -2921,8 +2938,9 @@ pub fn static_dialog(indent: &str, d: &DialogPaint<'_>) -> String {
         };
         let close = if d.closable {
             format!(
-                "<button class=\"{}__close\" type=\"button\" aria-label=\"Close\"><i class=\"wf-icon\" data-icon=\"close\"></i></button>",
-                d.class
+                "<button class=\"{}__close\" type=\"button\" aria-label=\"Close\"><i class=\"wf-icon\" data-icon=\"close\">{}</i></button>",
+                d.class,
+                crate::web::icons::drawn("close").unwrap_or_default()
             )
         } else {
             String::new()

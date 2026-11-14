@@ -425,7 +425,12 @@ impl JsCodegen {
                     // The router's container holds whatever the current route
                     // paints, which is the page's main content — so it is the
                     // `<main>` landmark, and the target the skip link jumps to.
-                    self.emit_line("const _routerEl = document.createElement('main');");
+                    // A program that draws its own `main` gets a plain box.
+                    self.emit_line(if self.own_main {
+                        "const _routerEl = document.createElement('div');"
+                    } else {
+                        "const _routerEl = document.createElement('main');"
+                    });
                     self.emit_line("_routerEl.id = 'wf-main';");
                     self.emit_line("_routerEl.style.flex = '1';");
                     self.emit_line(&format!("{parent}.appendChild(_routerEl);"));

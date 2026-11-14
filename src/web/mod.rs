@@ -3,5 +3,6 @@
 
 pub mod check;
 pub mod codegen;
+pub(crate) mod icons;
 pub mod motion;
 pub mod runtime;

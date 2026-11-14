@@ -35,7 +35,7 @@ enum Commands {
         #[arg(short, long, value_name = "LOCALES")]
         locales: Option<String>,
     },
-    /// Build the project (compile .wf files to HTML + CSS + JS)
+    /// Build the project: a site or app (HTML, CSS, JS), a PDF, a slide deck or custom elements
     Build {
         /// Project directory (default: current directory)
         #[arg(short, long, default_value = ".")]

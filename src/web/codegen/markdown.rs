@@ -104,10 +104,10 @@ fn render_nested(text: &str, options: Options<'_>, depth: usize) -> String {
                 escape(&raw)
             };
             if lang.is_empty() {
-                out.push_str(&format!("<pre><code>{code}</code></pre>\n"));
+                out.push_str(&format!("<pre tabindex=\"0\"><code>{code}</code></pre>\n"));
             } else {
                 out.push_str(&format!(
-                    "<pre><code class=\"language-{}\">{code}</code></pre>\n",
+                    "<pre tabindex=\"0\"><code class=\"language-{}\">{code}</code></pre>\n",
                     escape(lang)
                 ));
             }
@@ -621,7 +621,7 @@ mod tests {
         let html = render(md);
         assert_eq!(
             html,
-            "<h1>Title</h1>\n<p>A <em>word</em> and <strong>more</strong>, <code>x &lt; y</code> and <a href=\"https://x.y\">a link</a> plus <img src=\"/i.png\" alt=\"alt\">.<br>\nSecond line,\nthe same paragraph.</p>\n<ul>\n<li>one</li>\n<li>two</li>\n</ul>\n<ol>\n<li>first</li>\n<li>second</li>\n</ol>\n<blockquote>\n<p>quoted <em>text</em></p>\n</blockquote>\n<hr>\n<pre><code class=\"language-js\">let a = 1 &lt; 2;\n</code></pre>\n<p>&lt;script&gt;alert(1)&lt;/script&gt;</p>\n"
+            "<h1>Title</h1>\n<p>A <em>word</em> and <strong>more</strong>, <code>x &lt; y</code> and <a href=\"https://x.y\">a link</a> plus <img src=\"/i.png\" alt=\"alt\">.<br>\nSecond line,\nthe same paragraph.</p>\n<ul>\n<li>one</li>\n<li>two</li>\n</ul>\n<ol>\n<li>first</li>\n<li>second</li>\n</ol>\n<blockquote>\n<p>quoted <em>text</em></p>\n</blockquote>\n<hr>\n<pre tabindex=\"0\"><code class=\"language-js\">let a = 1 &lt; 2;\n</code></pre>\n<p>&lt;script&gt;alert(1)&lt;/script&gt;</p>\n"
         );
     }
 
@@ -788,7 +788,7 @@ mod tests {
         );
         assert_eq!(
             inert("```rust\nlet a = &lt;b&gt;; // <c>\n```"),
-            "<pre><code class=\"language-rust\">let a = &amp;lt;b&amp;gt;; // &lt;c&gt;\n</code></pre>\n"
+            "<pre tabindex=\"0\"><code class=\"language-rust\">let a = &amp;lt;b&amp;gt;; // &lt;c&gt;\n</code></pre>\n"
         );
     }
 
@@ -951,20 +951,20 @@ mod tests {
         ] {
             assert_eq!(
                 render(md),
-                "<pre><code>\\*a\\* \\\\ \\[x\\]\n</code></pre>\n",
+                "<pre tabindex=\"0\"><code>\\*a\\* \\\\ \\[x\\]\n</code></pre>\n",
                 "{md}"
             );
             assert_eq!(inert(md), render(md), "{md}");
         }
         assert_eq!(
             render("```css\nmargin\\-top: 0\n```"),
-            "<pre><code class=\"language-css\">margin\\-<span class=\"wf-tok-prop\">top</span>: <span class=\"wf-tok-num\">0</span>\n</code></pre>\n"
+            "<pre tabindex=\"0\"><code class=\"language-css\">margin\\-<span class=\"wf-tok-prop\">top</span>: <span class=\"wf-tok-num\">0</span>\n</code></pre>\n"
         );
         // The fence's language is read through its escapes, as
         // CommonMark's info string is.
         assert_eq!(
             render("```c\\+\\+\nx\\+\n```"),
-            "<pre><code class=\"language-c++\">x\\+\n</code></pre>\n"
+            "<pre tabindex=\"0\"><code class=\"language-c++\">x\\+\n</code></pre>\n"
         );
     }
 
@@ -1011,7 +1011,7 @@ mod tests {
             inert(
                 "# T\n\nA *b* **c** `d`  \nnext\n\n- a &amp; b\n1. one\n\n> q &gt; r\n\n---\n\n```\nx < y\n```"
             ),
-            "<h1>T</h1>\n<p>A <em>b</em> <strong>c</strong> <code>d</code><br>\nnext</p>\n<ul>\n<li>a &amp; b</li>\n</ul>\n<ol>\n<li>one</li>\n</ol>\n<blockquote>\n<p>q &gt; r</p>\n</blockquote>\n<hr>\n<pre><code>x &lt; y\n</code></pre>\n"
+            "<h1>T</h1>\n<p>A <em>b</em> <strong>c</strong> <code>d</code><br>\nnext</p>\n<ul>\n<li>a &amp; b</li>\n</ul>\n<ol>\n<li>one</li>\n</ol>\n<blockquote>\n<p>q &gt; r</p>\n</blockquote>\n<hr>\n<pre tabindex=\"0\"><code>x &lt; y\n</code></pre>\n"
         );
         // Text with nothing an inert render changes is drawn the same.
         let md = "# Title\n\nA *word* and **more**, `x < y`.\n\n- one\n\n> quoted";

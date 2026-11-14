@@ -1208,8 +1208,9 @@ fn run(options: &BuildOptions<'_>, out: &Out<'_>) -> Result<()> {
 
     // A meta tag cannot express `frame-ancestors`, and nothing in a static
     // bundle can set a response header, so the policy is also written where a
-    // host can pick it up. Netlify, Cloudflare Pages and Vercel all read this
-    // format; hosts that do not simply ignore the file.
+    // host can pick it up. Netlify and Cloudflare Pages read this format;
+    // Vercel does not (its headers go in `vercel.json`), and hosts that do
+    // not read it simply ignore the file.
     if config.build.csp {
         // A style value that reads state is written on the element, and
         // there is nowhere else for it to go. The policy has to say so, or
