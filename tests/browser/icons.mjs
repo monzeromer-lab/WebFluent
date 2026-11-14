@@ -23,7 +23,7 @@ function check(name, ok, detail = "") {
   console.log(`  ${ok ? "PASS" : "FAIL"}  ${name}${detail && !ok ? `  (${detail})` : ""}`);
 }
 
-const icons = JSON.parse(execFileSync(WF, ["registry", "--json"], { encoding: "utf8" })).icons;
+const icons = JSON.parse(execFileSync(WF, ["registry", "--json"], { encoding: "utf8", maxBuffer: 64 * 1024 * 1024 })).icons;
 
 async function scenario(label, ssg, port) {
   console.log(`\n${label}`);

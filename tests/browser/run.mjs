@@ -141,7 +141,7 @@ function main() {
 
   // Which built-ins nothing in the repository drew. One project need not
   // draw them all; between them they should.
-  const registry = JSON.parse(execFileSync(WF, ["registry", "--json"], { stdio: "pipe" }));
+  const registry = JSON.parse(execFileSync(WF, ["registry", "--json"], { stdio: "pipe", maxBuffer: 64 * 1024 * 1024 }));
   const NOT_IN_A_BROWSER = new Set([
     "Children", "Router", "Unsafe", "UnsafeHtml", "Host",
     "Document", "Header", "Footer", "PageBreak", "Paragraph",
