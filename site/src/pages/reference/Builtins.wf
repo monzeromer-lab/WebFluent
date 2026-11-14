@@ -197,6 +197,7 @@ const BUILTIN_INDEX: [IndexEntry] = [
     IndexEntry(label: "Tour", to: "/reference/tour", group: "Feedback"),
     IndexEntry(label: "Tour.Step", to: "/reference/tour-step", group: "Feedback"),
     IndexEntry(label: "ConsentBanner", to: "/reference/consentbanner", group: "Feedback"),
+    IndexEntry(label: "ConsentSettings", to: "/reference/consentsettings", group: "Feedback"),
     IndexEntry(label: "CircularProgress", to: "/reference/circularprogress", group: "Feedback"),
     IndexEntry(label: "Meter", to: "/reference/meter", group: "Feedback"),
     IndexEntry(label: "Popconfirm", to: "/reference/popconfirm", group: "Feedback"),
@@ -275,7 +276,7 @@ const BUILTIN_INDEX: [IndexEntry] = [
 ]
 
 page ReferenceIndexPage(path: "/reference", title: "Reference", description: "Every built-in element, command, setting and design token, read from the compiler itself, with the language's reference pages.") {
-    ReferenceItemShell(t("nav.reference"), summary: t("ref.lede", { count: 252 }), entries: REFERENCE_PAGES, sections: [Anchor(id: "pages", label: t("ref.pages")), Anchor(id: "layout", label: "Layout"), Anchor(id: "navigation", label: "Navigation"), Anchor(id: "routing", label: "Routing"), Anchor(id: "data-display", label: "Data display"), Anchor(id: "content", label: "Content"), Anchor(id: "form", label: "Form"), Anchor(id: "feedback", label: "Feedback"), Anchor(id: "actions", label: "Actions"), Anchor(id: "media", label: "Media"), Anchor(id: "typography", label: "Typography"), Anchor(id: "pdf", label: "PDF"), Anchor(id: "slides", label: "Slides"), Anchor(id: "original-spellings", label: "Original spellings"), Anchor(id: "on-every-element", label: t("ref.universal.title"))], source: "scripts/docsite/reference.py") {
+    ReferenceItemShell(t("nav.reference"), summary: t("ref.lede", { count: 253 }), entries: REFERENCE_PAGES, sections: [Anchor(id: "pages", label: t("ref.pages")), Anchor(id: "layout", label: "Layout"), Anchor(id: "navigation", label: "Navigation"), Anchor(id: "routing", label: "Routing"), Anchor(id: "data-display", label: "Data display"), Anchor(id: "content", label: "Content"), Anchor(id: "form", label: "Form"), Anchor(id: "feedback", label: "Feedback"), Anchor(id: "actions", label: "Actions"), Anchor(id: "media", label: "Media"), Anchor(id: "typography", label: "Typography"), Anchor(id: "pdf", label: "PDF"), Anchor(id: "slides", label: "Slides"), Anchor(id: "original-spellings", label: "Original spellings"), Anchor(id: "on-every-element", label: t("ref.universal.title"))], source: "scripts/docsite/reference.py") {
         Heading(t("ref.pages"), id: "pages").h2
         Grid(columns: { base: 1, sm: 2, xl: 3 }, gap: .sm) {
             Link(to: "/reference/expressions", class: "bp-card") { Text("Expressions") { style { font-weight: 600 } }  Text("Language", class: "bp-small") }
@@ -1018,6 +1019,10 @@ page ReferenceIndexPage(path: "/reference", title: "Reference", description: "Ev
             Link(to: "/reference/consentbanner", class: "bp-card") {
                 Text("ConsentBanner", class: "bp-mono") { style { font-size: 14px; color: $link } }
                 Text("The reader's say over the scripts that track them: shown until they choose, Decline as easy as Accept, and the choice kept. Accepting loads the meta.scripts entries marked \"load\": \"consent\", then and on every later visit; nothing loads before.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+            }
+            Link(to: "/reference/consentsettings", class: "bp-card") {
+                Text("ConsentSettings", class: "bp-mono") { style { font-size: 14px; color: $link } }
+                Text("A button that asks the reader again — a footer's \"Cookie settings\": it forgets their answer and shows the ConsentBanner. A script already loaded stays until the page is loaded again.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
             }
             Link(to: "/reference/circularprogress", class: "bp-card") {
                 Text("CircularProgress", class: "bp-mono") { style { font-size: 14px; color: $link } }
@@ -7485,6 +7490,34 @@ page BuiltinConsentbanner(path: "/reference/consentbanner", title: "ConsentBanne
     Link("How we count", to: "/")
 }"#, title: "wf")
         Markdown(t("ref.renders", { cls: "wf-consent" }), class: "bp-prose")
+    }
+}
+
+page BuiltinConsentsettings(path: "/reference/consentsettings", title: "ConsentSettings — Reference", description: "ConsentSettings: A button that asks the reader again — a footer's \"Cookie settings\": it forgets their answer and shows the ConsentBanner. A script…") {
+    ReferenceItemShell("ConsentSettings", summary: "A button that asks the reader again — a footer's \"Cookie settings\": it forgets their answer and shows the ConsentBanner. A script already loaded stays until the page is loaded again.", signature: "ConsentSettings(_ label: String)", older: true, outputs: [], group: "Feedback", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04")], source: "src/registry/builtins.rs") {
+        stage {
+            Stage(label: "ConsentSettings") {
+                controls {
+                    StageControl({ name: "label", kind: "string", options: [], value: "" })
+                }
+                Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
+            }
+        }
+        notes { Text(t("stage.static"), class: "bp-small") }
+        Heading(t("ref.tab.props"), id: "props").h2
+        PropsTable(rows: [{ name: "label", type: "String  (positional)", meaning: "What it says (unset, `Cookie settings`)" }], caption: "Props of ConsentSettings")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Heading(t("ref.tab.flags"), id: "flags").h2
+        Markdown(t("ref.flags.body"), class: "bp-prose")
+        Text(t("ref.noflags"), class: "bp-small")
+        Heading(t("ref.tab.events"), id: "events").h2
+        Markdown(t("ref.universal.link"), class: "bp-prose")
+        Heading(t("ref.slotsparts"), id: "slots").h2
+        SlotsAndParts(slots: [], parts: [])
+        Heading(t("ref.example"), id: "example").h2
+        CodeBlock(#"ConsentBanner("We would like to count visits.")
+ConsentSettings("Cookie settings")"#, title: "wf")
+        Markdown(t("ref.renders", { cls: "wf-consent-settings" }), class: "bp-prose")
     }
 }
 

@@ -1295,6 +1295,29 @@ fn substitute_expr(expr: &Expr, bindings: &HashMap<String, Expr>) -> Expr {
 fn render_ui_element(ui: &UIElement, ctx: &mut SsgContext) -> String {
     match &ui.component {
         ComponentRef::BuiltIn(name) => render_builtin(name, ui, ctx),
+        // A menu's entries, as the live page draws them: with their roles,
+        // the list of a submenu hidden until it opens.
+        ComponentRef::SubComponent(parent, sub)
+            if matches!(parent.as_str(), "Menu" | "Dropdown")
+                && sub == "Item"
+                && !ui
+                    .args
+                    .iter()
+                    .any(|a| matches!(a, Arg::Named(k, _) if k == "to")) =>
+        {
+            paint_menu_item(parent, ui, ctx)
+        }
+        ComponentRef::SubComponent(parent, sub) if parent == "Menu" && sub == "Sub" => {
+            paint_menu_sub(ui, ctx)
+        }
+        // A menu bar's menu, or a context menu's items, drawn by a `for` or
+        // an `if` rather than as a direct child.
+        ComponentRef::SubComponent(parent, sub)
+            if (parent == "Menubar" && sub == "Menu")
+                || (parent == "ContextMenu" && sub == "Items") =>
+        {
+            paint_menu_part(ui, false, ctx)
+        }
         ComponentRef::SubComponent(parent, sub)
             if let Some(sig) = crate::registry::declared_part(parent, sub) =>
         {
@@ -1524,39 +1547,8 @@ pub(crate) fn render_builtin<C: Paint>(name: &str, ui: &UIElement, ctx: &mut C) 
                     out.push_str(&ctx.statements(std::slice::from_ref(child)));
                     continue;
                 };
-                let inner = ctx.indent_str();
-                let words = part.args.iter().find_map(|a| match a {
-                    Arg::Positional(v) => resolve_text_scoped(v, &ctx.default_messages, &ctx.scope),
-                    Arg::Named(k, v) if k == "label" => {
-                        resolve_text_scoped(v, &ctx.default_messages, &ctx.scope)
-                    }
-                    Arg::Named(..) => None,
-                });
-                let part_wf = ctx.wf_node_attr_inline(part);
-                let named = words
-                    .as_ref()
-                    .map(|w| format!(" aria-label=\"{}\"", html_escape(w)))
-                    .unwrap_or_default();
-                if name == "Menubar" {
-                    let stop = if first { "0" } else { "-1" };
-                    first = false;
-                    out.push_str(&format!(
-                        "{inner}<div class=\"wf-menubar__menu\" role=\"none\"{part_wf}>\n{inner}    <button class=\"wf-menubar__trigger\" type=\"button\" role=\"menuitem\" aria-haspopup=\"menu\" aria-expanded=\"false\" tabindex=\"{stop}\">{}</button>\n{inner}    <ul class=\"wf-menu__items\" role=\"menu\"{named} hidden>\n",
-                        html_escape(words.as_deref().unwrap_or_default())
-                    ));
-                    ctx.indent += 2;
-                    out.push_str(&ctx.statements(&part.children));
-                    ctx.indent -= 2;
-                    out.push_str(&format!("{inner}    </ul>\n{inner}</div>\n"));
-                } else {
-                    out.push_str(&format!(
-                        "{inner}<ul class=\"wf-menu__items\" role=\"menu\"{named}{part_wf} hidden>\n"
-                    ));
-                    ctx.indent += 1;
-                    out.push_str(&ctx.statements(&part.children));
-                    ctx.indent -= 1;
-                    out.push_str(&format!("{inner}</ul>\n"));
-                }
+                out.push_str(&paint_menu_part(part, first, ctx));
+                first = false;
             }
             ctx.indent -= 1;
             out.push_str(&format!("{indent}</div>\n"));
@@ -3916,5 +3908,126 @@ pub(crate) fn highlight_marks(text: &str, query: &str) -> String {
         }
     }
     out.push_str(&html_escape(&chars[at..].iter().collect::<String>()));
+    out
+}
+
+/// A `Menubar.Menu` — its `menuitem` button and its list, hidden — or a
+/// `ContextMenu.Items`, its list alone and hidden, as the live page draws
+/// them. `first` is the bar's first button, its one Tab stop.
+fn paint_menu_part<C: Paint>(part: &UIElement, first: bool, ctx: &mut C) -> String {
+    let bar = matches!(&part.component, ComponentRef::SubComponent(o, _) if o == "Menubar");
+    let inner = ctx.indent_str();
+    let words = part.args.iter().find_map(|a| match a {
+        Arg::Positional(v) => resolve_text_scoped(v, &ctx.default_messages, &ctx.scope),
+        Arg::Named(k, v) if k == "label" => {
+            resolve_text_scoped(v, &ctx.default_messages, &ctx.scope)
+        }
+        Arg::Named(..) => None,
+    });
+    let part_wf = ctx.wf_node_attr_inline(part);
+    let named = words
+        .as_ref()
+        .map(|w| format!(" aria-label=\"{}\"", html_escape(w)))
+        .unwrap_or_default();
+    let mut out = String::new();
+    if bar {
+        let stop = if first { "0" } else { "-1" };
+        out.push_str(&format!(
+            "{inner}<div class=\"wf-menubar__menu\" role=\"none\"{part_wf}>\n{inner}    <button class=\"wf-menubar__trigger\" type=\"button\" role=\"menuitem\" aria-haspopup=\"menu\" aria-expanded=\"false\" tabindex=\"{stop}\">{}</button>\n{inner}    <ul class=\"wf-menu__items\" role=\"menu\"{named} hidden>\n",
+            html_escape(words.as_deref().unwrap_or_default())
+        ));
+        ctx.indent += 2;
+        out.push_str(&ctx.statements(&part.children));
+        ctx.indent -= 2;
+        out.push_str(&format!("{inner}    </ul>\n{inner}</div>\n"));
+    } else {
+        out.push_str(&format!(
+            "{inner}<ul class=\"wf-menu__items\" role=\"menu\"{named}{part_wf} hidden>\n"
+        ));
+        ctx.indent += 1;
+        out.push_str(&ctx.statements(&part.children));
+        ctx.indent -= 1;
+        out.push_str(&format!("{inner}</ul>\n"));
+    }
+    out
+}
+
+/// A `Menu.Item`: a `menuitem` (a `menuitemcheckbox` with `checked:`),
+/// out of the Tab order, `aria-disabled` while `disabled:` holds, its
+/// shortcut written at its end as most systems write it.
+fn paint_menu_item<C: Paint>(owner: &str, ui: &UIElement, ctx: &mut C) -> String {
+    let indent = ctx.indent_str();
+    let base = format!("wf-{}__item", owner.to_lowercase());
+    let class = std::iter::once(class_list(&base, &ui.modifiers).join(" "))
+        .chain(extra_classes(ui, ctx))
+        .collect::<Vec<_>>()
+        .join(" ");
+    let flag = |key: &str| {
+        ui.args.iter().find_map(|a| match a {
+            Arg::Named(k, v) if k == key => Some(eval(v, &ctx.scope)),
+            _ => None,
+        })
+    };
+    let mut attrs = String::new();
+    let mut role = "menuitem";
+    if let Some(checked) = flag("checked") {
+        role = "menuitemcheckbox";
+        if let Some(Static::Bool(on)) = checked {
+            attrs.push_str(&format!(" aria-checked=\"{on}\""));
+        }
+    }
+    if let Some(Some(Static::Bool(true))) = flag("disabled") {
+        attrs.push_str(" aria-disabled=\"true\"");
+    }
+    let shortcut = ui.args.iter().find_map(|a| match a {
+        Arg::Named(k, v) if k == "shortcut" => static_attr(v, &ctx.scope),
+        _ => None,
+    });
+    let own = own_attrs(
+        &format!("{owner}.Item"),
+        ui,
+        ctx,
+        &["shortcut", "checked", "disabled", "class"],
+    );
+    let wf = ctx.wf_node_attr_inline(ui);
+    let mut out =
+        format!("{indent}<li class=\"{class}\" role=\"{role}\" tabindex=\"-1\"{attrs}{own}{wf}>\n");
+    ctx.indent += 1;
+    out.push_str(&ctx.statements(&ui.children));
+    if let Some(keys) = shortcut {
+        out.push_str(&format!(
+            "{}<kbd class=\"wf-menu__shortcut\" aria-hidden=\"true\">{}</kbd>\n",
+            ctx.indent_str(),
+            html_escape(&crate::project::static_eval::key_label_elsewhere(&keys))
+        ));
+    }
+    ctx.indent -= 1;
+    out.push_str(&format!("{indent}</li>\n"));
+    out
+}
+
+/// A `Menu.Sub`: an entry naming a menu of its own, its list hidden until
+/// it opens.
+fn paint_menu_sub<C: Paint>(ui: &UIElement, ctx: &mut C) -> String {
+    let indent = ctx.indent_str();
+    let label = ui
+        .args
+        .iter()
+        .find_map(|a| match a {
+            Arg::Named(k, v) if k == "label" => {
+                resolve_text_scoped(v, &ctx.default_messages, &ctx.scope)
+            }
+            _ => None,
+        })
+        .unwrap_or_default();
+    let wf = ctx.wf_node_attr_inline(ui);
+    let mut out = format!(
+        "{indent}<li class=\"wf-menu__item wf-menu__sub\" role=\"menuitem\" tabindex=\"-1\" aria-haspopup=\"menu\" aria-expanded=\"false\"{wf}><span>{}</span><span class=\"wf-menu__chevron\" aria-hidden=\"true\">\u{203a}</span>\n{indent}    <ul class=\"wf-menu__items\" role=\"menu\" hidden>\n",
+        html_escape(&label)
+    );
+    ctx.indent += 2;
+    out.push_str(&ctx.statements(&ui.children));
+    ctx.indent -= 2;
+    out.push_str(&format!("{indent}    </ul>\n{indent}</li>\n"));
     out
 }

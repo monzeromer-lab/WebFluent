@@ -86,6 +86,7 @@ EXAMPLES = {
     'Popconfirm': 'state said = ""\nPopconfirm(title: "Delete this file?", yes: "Delete").danger {\n    on confirm { said = "deleted" }\n    Button("Delete")\n}\nText(said)',
     'Highlight': 'state q = "ea"\nInput(bind: q, label: "Search")\nHighlight("Search near and far: each area is clear.", query: q)',
     'ClientOnly': 'ClientOnly { Text("Drawn in your browser only") }',
+    'ConsentSettings': 'ConsentBanner("We would like to count visits.")\nConsentSettings("Cookie settings")',
     'Listbox': 'state fruit = "apple"\nListbox(bind: fruit, label: "Fruit") {\n    Listbox.Option("Apple", value: "apple")\n    Listbox.Option("Banana", value: "banana")\n    Listbox.Option("Cherry", value: "cherry")\n}',
     'Tree': 'state files = [{ path: "src", name: "src", children: [{ path: "src/App.wf", name: "App.wf", children: [] }] }]\nstate file = ""\nTree(items: files, children: f => f.children, key: f => f.path, bind: file, label: "Files") {\n    row(f) { Icon(if f.children.length > 0 { "folder" } else { "file" })  Text(f.name) }\n}',
     'DataTable': 'state deploys = [{ id: "1", service: "web", status: "live" }, { id: "2", service: "api", status: "failed" }]\nstate chosen: [String] = []\nDataTable(rows: deploys, key: d => d.id, bind: chosen, label: "Deploys").multiple {\n    empty { EmptyState(icon: "list", title: "No deploys yet") }\n    DataTable.Column("Service", value: d => d.service).sortable\n    DataTable.Column("Status") { cell(d) { Badge(d.status) } }\n}',

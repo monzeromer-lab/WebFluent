@@ -1085,7 +1085,8 @@
     {
       "deps": [
         "layer",
-        "gesture"
+        "gesture",
+        "keys"
       ],
       "exports": [
         [
@@ -1135,6 +1136,10 @@
         [
           "consentBanner",
           "consentBanner"
+        ],
+        [
+          "consentSettings",
+          "consentSettings"
         ]
       ],
       "name": "covers",

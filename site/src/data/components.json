@@ -1,5 +1,5 @@
 {
- "count": 252,
+ "count": 253,
  "families": [
   "Layout",
   "Navigation",
@@ -14992,6 +14992,64 @@
    "preview": false,
    "outputs": [],
    "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
+   ]
+  },
+  {
+   "name": "ConsentSettings",
+   "slug": "consentsettings",
+   "family": "Feedback",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "A button that asks the reader again — a footer's \"Cookie settings\": it forgets their answer and shows the `ConsentBanner`. A script already loaded stays until the page is loaded again.",
+   "plain": "A button that asks the reader again — a footer's \"Cookie settings\": it forgets their answer and shows the ConsentBanner. A script already loaded stays until the page is loaded again.",
+   "signature": "ConsentSettings(_ label: String)",
+   "block": false,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "label",
+     "type": "String  (positional)",
+     "meaning": "What it says (unset, `Cookie settings`)"
+    }
+   ],
+   "controls": [
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-consent-settings",
+   "example": "ConsentBanner(\"We would like to count visits.\")\nConsentSettings(\"Cookie settings\")",
+   "preview": false,
+   "outputs": [],
+   "since": "5.0",
    "codes": [
     {
      "kind": "E103",

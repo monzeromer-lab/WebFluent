@@ -42,4 +42,5 @@ page Home(path: "/", title: "Overlays", description: "Covers, cards and a tour."
     ConsentBanner("We would like to count visits.") {
         Link("How we count", to: "/")
     }
+    ConsentSettings(id: "ask-again")
 }

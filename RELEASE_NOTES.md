@@ -234,6 +234,18 @@ template engine and, where it can be, in a PDF.
 
 ## Fixes
 
+- A static build paints a menu's items with their roles — `menuitem`,
+  `menuitemcheckbox` with its state, a submenu's entry and its hidden
+  list — and a `Menubar.Menu` or `ContextMenu.Items` drawn by a `for` or an
+  `if` as the menu it is.
+- A live `Radio` carries its `value`, as its static paint did: a form
+  posted before the script runs no longer sends `on`.
+- A `Menubar` item's `shortcut:` runs it from anywhere on the page.
+- `ConsentSettings` asks the reader again; `D06` says when a script
+  waits for consent and no `ConsentBanner` asks for it.
+- The build's read-back of its own JavaScript (`E901`) catches a number
+  after `++` or `--`, which a browser refuses.
+
 - `wf test` drew a built-in where the project had a component of its
   name in another file.
 - `x ?? y` where `x` could only be `null` (a field written `null` in a map)

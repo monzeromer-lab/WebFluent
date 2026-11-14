@@ -531,6 +531,12 @@ pub static CODES: &[CodeInfo] = &[
         "An asset from another origin with no integrity hash",
         "A stylesheet, font or script loaded from another origin is code that origin can change after you read it. A `meta.integrity` hash is how the browser checks it has not.",
     ),
+    code(
+        "D06",
+        Warning,
+        "A script loaded on consent, with nothing to ask for it",
+        "A `meta.scripts` entry marked `\"load\": \"consent\"` loads only once the reader accepts in a `ConsentBanner`. With no banner in the program, nobody is asked, and it never loads.",
+    ),
     // ── I: translations ──────────────────────────────────────────────
     code(
         "I01",

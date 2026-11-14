@@ -106,6 +106,15 @@
     // The arrow down a button hears opens its menu at its first item.
     const into = (t) => t.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: false }));
     rove(triggers()[0]);
+    // An item's shortcut runs it from anywhere on the page, as a desktop
+    // app's menu bar does — unless it is disabled.
+    for (const item of bar.querySelectorAll("[data-shortcut]")) {
+      onKey(document, item.getAttribute("data-shortcut"), (e) => {
+        if (item.getAttribute("aria-disabled") === "true") return;
+        if (e.preventDefault) e.preventDefault();
+        item.click();
+      });
+    }
     bar.addEventListener("focusin", (e) => {
       if (triggers().includes(e.target)) rove(e.target);
     });

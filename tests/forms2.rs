@@ -52,3 +52,11 @@ fn a_flag_changes_what_a_control_is() {
     assert!(js.contains("WF.reveal(n)"), "{js}");
     assert!(js.contains("WF.dropzone("), "{js}");
 }
+
+#[test]
+fn a_live_radio_carries_its_value_as_the_paint_does() {
+    let js = spa_generated(&page(
+        "state plan = \"free\"\n    Radio(bind: plan, value: \"free\", label: \"Free\")\n    Radio(bind: plan, value: \"team\", label: \"Team\")",
+    ));
+    assert!(js.contains("value: \"team\""), "{js}");
+}

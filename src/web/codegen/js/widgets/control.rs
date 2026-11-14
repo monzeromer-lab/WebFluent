@@ -367,6 +367,20 @@ impl JsCodegen {
             input_attrs.push_str(&format!(", name: \"{group}\""));
         }
 
+        // A radio's `value` is what a form posts for it, with or without
+        // the page's script; without one a browser posts `on`. The static
+        // paint has always written it.
+        if name == "Radio"
+            && let Some(val) = &radio_value
+            && !input_attrs.contains("value:")
+        {
+            if self.is_reactive(val) {
+                input_attrs.push_str(&format!(", value: () => {val}"));
+            } else {
+                input_attrs.push_str(&format!(", value: {val}"));
+            }
+        }
+
         let mut bound_change: Option<String> = None;
         if let Some(target) = &bind_var {
             let read = &target.read;

@@ -1468,6 +1468,19 @@ pub const COMPONENTS: &[ComponentSig] = &[
     .html("section", "wf-consent")
     .css(&["Button", "Consent Banner"])
     .not_on_paper("interactive elements are not supported in PDF"),
+    comp(
+        "ConsentSettings",
+        "Feedback",
+        "A button that asks the reader again — a footer's \"Cookie settings\": it forgets their answer and shows the `ConsentBanner`. A script already loaded stays until the page is loaded again.",
+        Some(special("label", PropType::Str, "What it says (unset, `Cookie settings`)")),
+        &[],
+        &[],
+        G,
+        Children::None,
+    )
+    .html("button", "wf-consent-settings")
+    .css(&["Button"])
+    .not_on_paper("interactive elements are not supported in PDF"),
     // ─── Display and layout, the second group ─────────────────────────────
     comp(
         "DescriptionList",

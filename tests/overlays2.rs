@@ -60,3 +60,11 @@ fn a_lightbox_and_a_consent_banner_are_handed_to_the_runtime() {
     assert!(js.contains("WF.lightbox(n, \"Trip\")"), "{js}");
     assert!(js.contains("WF.consentBanner(n)"), "{js}");
 }
+
+#[test]
+fn consent_settings_is_a_button_that_asks_again() {
+    let src = page("ConsentBanner(\"Count visits?\")\n    ConsentSettings");
+    let html = ssg_html(&src);
+    assert!(html.contains(">Cookie settings</button>"), "{html}");
+    assert!(spa_generated(&src).contains("WF.consentSettings(n)"));
+}

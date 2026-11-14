@@ -1444,6 +1444,25 @@
   "related": []
  },
  {
+  "code": "D06",
+  "title": "A script loaded on consent, with nothing to ask for it",
+  "plain": "A script loaded on consent, with nothing to ask for it",
+  "severity": "warning",
+  "family": "D",
+  "group": "Data and assets",
+  "summary": "A `meta.scripts` entry marked `\"load\": \"consent\"` loads only once the reader accepts in a `ConsentBanner`. With no banner in the program, nobody is asked, and it never loads.",
+  "lowerable": true,
+  "description": "A `meta.scripts` entry marked `\"load\": \"consent\"` loads only once the reader accepts in a `ConsentBanner`. With no banner in the program, nobody is…",
+  "printed": "",
+  "broken": "",
+  "fixed": "",
+  "lang": "wf",
+  "quickfix": "",
+  "why": "Warning. A `meta.scripts` entry is marked `\"load\": \"consent\"`, so it loads\nonly once the reader accepts in a `ConsentBanner` — and the program has no\n`ConsentBanner`, so nobody is asked and the script never loads.",
+  "fix": "place a `ConsentBanner(\"…\")` in `app`, where every page shows it,\nor drop `\"load\": \"consent\"` if the script needs no consent.",
+  "related": []
+ },
+ {
   "code": "I01",
   "title": "A message no translation has",
   "plain": "A message no translation has",

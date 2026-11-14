@@ -478,6 +478,7 @@ pub const ALL_COMPONENT_NAMES: &[&str] = &[
     "Lightbox",
     "Tour",
     "ConsentBanner",
+    "ConsentSettings",
     // Display and layout, the second group
     "DescriptionList",
     "Timeline",

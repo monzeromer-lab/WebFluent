@@ -190,6 +190,10 @@ try {
   await page.reload({ waitUntil: "networkidle0" });
   await pause(300);
   check("…and on the next visit, with no question", (await page.evaluate(() => window.counted)) === 1 && !(await banner()));
+  await page.click("#ask-again");
+  await pause(50);
+  check("Cookie settings forgets the answer and asks again", (await banner()) && (await page.evaluate(() => localStorage.length)) === 0 &&
+    (await page.evaluate(() => document.activeElement.textContent)) === "Decline", await page.evaluate(() => document.activeElement.textContent));
 
   check("no errors on the page", problems.length === 0, problems.join("; "));
 } finally {

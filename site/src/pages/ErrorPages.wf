@@ -81,6 +81,7 @@ const ERROR_INDEX: [IndexEntry] = [
     IndexEntry(label: "D03 A persisted value every instance shares", to: "/errors/D03", group: "Data and assets"),
     IndexEntry(label: "D04 A persisted shape changed with no new version", to: "/errors/D04", group: "Data and assets"),
     IndexEntry(label: "D05 An asset from another origin with no integrity hash", to: "/errors/D05", group: "Data and assets"),
+    IndexEntry(label: "D06 A script loaded on consent, with nothing to ask for it", to: "/errors/D06", group: "Data and assets"),
     IndexEntry(label: "I01 A message no translation has", to: "/errors/I01", group: "Translations"),
     IndexEntry(label: "I02 A message and its call that disagree", to: "/errors/I02", group: "Translations"),
     IndexEntry(label: "I03 A message one locale has and another does not", to: "/errors/I03", group: "Translations"),
@@ -1890,6 +1891,17 @@ page ErrorD05(path: "/errors/D05", title: "D05 — An asset from another origin 
             }
         }
         Markdown("Warning. A font, stylesheet or script in `meta.fonts`, `meta.stylesheets`\nor `meta.scripts` from another origin, with no hash in `meta.integrity`.")
+    }
+}
+
+page ErrorD06(path: "/errors/D06", title: "D06 — A script loaded on consent, with nothing to ask for it", description: "A `meta.scripts` entry marked `\"load\": \"consent\"` loads only once the reader accepts in a `ConsentBanner`. With no banner in the program, nobody is…") {
+    ErrorShell("D06", title: "A script loaded on consent, with nothing to ask for it", severity: "warning", family: "Data and assets", summary: "A `meta.scripts` entry marked `\"load\": \"consent\"` loads only once the reader accepts in a `ConsentBanner`. With no banner in the program, nobody is asked, and it never loads.", printed: #""#, quickfix: "", lowerable: true, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/D06.md") {
+        fixed {
+            Stack(gap: .sm) {
+                Markdown("place a `ConsentBanner(\"…\")` in `app`, where every page shows it,\nor drop `\"load\": \"consent\"` if the script needs no consent.")
+            }
+        }
+        Markdown("Warning. A `meta.scripts` entry is marked `\"load\": \"consent\"`, so it loads\nonly once the reader accepts in a `ConsentBanner` — and the program has no\n`ConsentBanner`, so nobody is asked and the script never loads.")
     }
 }
 

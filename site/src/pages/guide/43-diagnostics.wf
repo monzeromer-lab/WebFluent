@@ -175,7 +175,7 @@ page ErrorsGuide(path: "/errors", title: "Diagnostics", description: "Every WebF
 
         Heading("Data and assets", id: "data-and-assets").h3
 
-        Markdown("- [D01](/errors/D01) — A file the project does not have\n- [D02](/errors/D02) — A persisted value storage cannot keep\n- [D03](/errors/D03) — A persisted value every instance shares\n- [D04](/errors/D04) — A persisted shape changed with no new version\n- [D05](/errors/D05) — An asset from another origin with no integrity hash")
+        Markdown("- [D01](/errors/D01) — A file the project does not have\n- [D02](/errors/D02) — A persisted value storage cannot keep\n- [D03](/errors/D03) — A persisted value every instance shares\n- [D04](/errors/D04) — A persisted shape changed with no new version\n- [D05](/errors/D05) — An asset from another origin with no integrity hash\n- [D06](/errors/D06) — A script loaded on consent, with nothing to ask for it")
 
         Heading("Translations", id: "translations").h3
 

@@ -229,6 +229,29 @@ pub fn check_js(source: &str) -> Result<(), JsFault> {
                 last_word.clear();
                 last_word.push_str(word);
             }
+            // `--0.02` and `++1`: a number is no place to store a value,
+            // so a browser refuses the script — what `-(-0.02)` written
+            // without its brackets comes to.
+            b'+' | b'-'
+                if bytes.get(i + 1) == Some(&c)
+                    && bytes.get(i + 2).is_some_and(|b| {
+                        b.is_ascii_digit()
+                            || (*b == b'.' && bytes.get(i + 3).is_some_and(u8::is_ascii_digit))
+                    }) =>
+            {
+                return fault(
+                    line,
+                    format!(
+                        "`{0}{0}` before a number, which cannot be {1}",
+                        c as char,
+                        if c == b'+' {
+                            "incremented"
+                        } else {
+                            "decremented"
+                        }
+                    ),
+                );
+            }
             _ => {
                 i += 1;
                 last = Some(c);
@@ -354,6 +377,21 @@ mod tests {
         assert_eq!(check_js("function C(a = 1) { const a = 2; }"), Ok(()));
         assert_eq!(check_js("function C(a) { function a() {} }"), Ok(()));
         assert_eq!(check_js("function () { const x = 1; }"), Ok(()));
+    }
+
+    #[test]
+    fn a_number_incremented_or_decremented_is_found() {
+        assert!(fault("const a = 1 --0.02;\n").contains("decremented"));
+        assert!(fault("const a = ++1;\n").contains("incremented"));
+        assert!(fault("const a = b --.5;\n").contains("decremented"));
+        for fine in [
+            "let a = 1; a--;\n",
+            "const a = 1 - -0.02;\n",
+            "const s = \"--1\";\n",
+            "i++; j--;\n",
+        ] {
+            assert!(check_js(fine).is_ok(), "{fine}");
+        }
     }
 
     #[test]

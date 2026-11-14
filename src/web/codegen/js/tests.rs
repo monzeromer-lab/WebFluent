@@ -1399,7 +1399,9 @@ fn a_wrapped_control_carries_its_aria_data_and_name_attributes_on_the_input() {
         "{out}"
     );
     assert!(
-        out.contains("type: \"radio\", \"aria-describedby\": \"h\", name: \"pick\", checked:"),
+        out.contains(
+            "type: \"radio\", \"aria-describedby\": \"h\", name: \"pick\", value: \"a\", checked:"
+        ),
         "{out}"
     );
     assert!(

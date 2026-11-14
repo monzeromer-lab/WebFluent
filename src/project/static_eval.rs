@@ -2727,7 +2727,7 @@ mod scalars {
 /// A key combination as a system other than Apple's writes it —
 /// `mod+shift+p` is `Ctrl+Shift+P` — the twin of the runtime's
 /// `keyLabel` there.
-fn key_label_elsewhere(spelling: &str) -> String {
+pub(crate) fn key_label_elsewhere(spelling: &str) -> String {
     spelling
         .split_whitespace()
         .map(|step| {

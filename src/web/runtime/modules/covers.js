@@ -314,3 +314,22 @@
       if (yes) loadAfter(_consentList);
     });
   }
+
+  /// `ConsentSettings`: forget the answer, and ask again in the page's
+  /// `ConsentBanner`.
+  function consentSettings(button) {
+    live(button);
+    button.setAttribute("type", "button");
+    button.addEventListener("click", () => {
+      try {
+        localStorage.removeItem(_consentKey());
+      } catch {
+        // Nothing was kept.
+      }
+      const banner = document.querySelector(".wf-consent");
+      if (!banner) return;
+      banner.hidden = false;
+      const first = banner.querySelector("button");
+      if (first) first.focus();
+    });
+  }

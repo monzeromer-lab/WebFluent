@@ -645,6 +645,31 @@ pub fn config_checks_via(
         );
     }
 
+    // A script that waits for the reader's yes waits for ever when nothing
+    // asks for it.
+    let mut asks = false;
+    crate::syntax::node_id::visit_nodes(program, &mut |ui, _, _| {
+        asks |= matches!(&ui.component, crate::syntax::parser::ast::ComponentRef::BuiltIn(n) if n == "ConsentBanner");
+    });
+    if !asks {
+        for entry in &config.meta.scripts {
+            if entry.loads_on_consent() {
+                out.push(
+                    config_finding(
+                        "D06",
+                        format!(
+                            "`meta.scripts` loads `{}` once the reader consents, but no `ConsentBanner` asks them",
+                            entry.src()
+                        ),
+                        &text,
+                        entry.src(),
+                    )
+                    .with_hint("Place a `ConsentBanner(\"…\")` in `app`, or drop `\"load\": \"consent\"`"),
+                );
+            }
+        }
+    }
+
     // A module is imported and put on a global; without one to put it on,
     // nothing could reach it.
     for entry in &config.meta.scripts {
@@ -1164,6 +1189,30 @@ mod tests {
             !found.iter().any(|d| d.code == "E112"),
             "`load` is a key the config reads: {found:?}"
         );
+    }
+
+    #[test]
+    fn a_script_loaded_on_consent_with_no_banner_to_ask_is_d06() {
+        let config: ProjectConfig = serde_json::from_str(
+            r#"{"name":"t","meta":{"scripts":[{"src":"/count.js","load":"consent"}]}}"#,
+        )
+        .unwrap();
+        let bare =
+            crate::syntax::parse_source("page P(path: \"/\") { Text(\"x\") }", "t.wf").unwrap();
+        let asked = crate::syntax::parse_source(
+            "page P(path: \"/\") { ConsentBanner(\"Count visits?\") }",
+            "t.wf",
+        )
+        .unwrap();
+        let dir = std::env::temp_dir();
+        let d06 = |program: &Program| {
+            config_checks(&dir, &config, program)
+                .into_iter()
+                .filter(|d| d.code == "D06")
+                .count()
+        };
+        assert_eq!(d06(&bare), 1);
+        assert_eq!(d06(&asked), 0);
     }
 
     #[test]

@@ -520,6 +520,31 @@
     "intro": "",
     "items": [
      {
+      "text": "A static build paints a menu's items with their roles — `menuitem`,\n`menuitemcheckbox` with its state, a submenu's entry and its hidden\nlist — and a `Menubar.Menu` or `ContextMenu.Items` drawn by a `for` or an\n`if` as the menu it is.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "A live `Radio` carries its `value`, as its static paint did: a form\nposted before the script runs no longer sends `on`.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "A `Menubar` item's `shortcut:` runs it from anywhere on the page.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`ConsentSettings` asks the reader again; `D06` says when a script\nwaits for consent and no `ConsentBanner` asks for it.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "The build's read-back of its own JavaScript (`E901`) catches a number\nafter `++` or `--`, which a browser refuses.",
+      "points": [],
+      "after": ""
+     },
+     {
       "text": "`wf test` drew a built-in where the project had a component of its\nname in another file.",
       "points": [],
       "after": ""
@@ -667,7 +692,7 @@
     "after": ""
    }
   ],
-  "count": 105
+  "count": 110
  },
  {
   "version": "6.1.0",

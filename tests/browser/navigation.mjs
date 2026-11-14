@@ -108,6 +108,12 @@ try {
   await pause(50);
   check("Escape closes it", (await openMenu()) === null);
 
+  await page.focus("#heard");
+  await page.keyboard.down("Control");
+  await page.keyboard.press("z");
+  await page.keyboard.up("Control");
+  await pause(50);
+  check("an item's shortcut runs it from anywhere on the page", (await text(page, "heard")) === "heard undo", await text(page, "heard"));
   await page.evaluate(() => document.documentElement.setAttribute("dir", "rtl"));
   await (await trigger("File")).focus();
   await page.keyboard.press("ArrowLeft");

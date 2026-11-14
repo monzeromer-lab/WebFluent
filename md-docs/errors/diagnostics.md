@@ -299,6 +299,7 @@ Errors. The type checker's findings; a program that declares no types raises non
 - [D03](D03.md) — A persisted value every instance shares
 - [D04](D04.md) — A persisted shape changed with no new version
 - [D05](D05.md) — An asset from another origin with no integrity hash
+- [D06](D06.md) — A script loaded on consent, with nothing to ask for it
 
 ### Translations
 

@@ -174,10 +174,10 @@ pub const MODULES: &[Module] = &[
     ], deps: ["calendar", "focus", "layer", "announce"], triggers: []),
     module!("navigation", exports: [
         same("navMenu"), same("menuBar"), same("contextMenu"),
-    ], deps: ["layer", "gesture"], triggers: []),
+    ], deps: ["layer", "gesture", "keys"], triggers: []),
     module!("covers", exports: [
         same("hoverCard"), same("loadingOverlay"), same("lightbox"), same("tour"),
-        same("consentScripts"), same("consentBanner"),
+        same("consentScripts"), same("consentBanner"), same("consentSettings"),
     ], deps: ["layer", "overlay", "gesture", "later"], triggers: []),
     module!("display", exports: [
         same("avatarGroup"), same("ring"), same("scrollArea"), same("sticky"), same("panelGroup"),

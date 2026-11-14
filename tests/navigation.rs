@@ -107,3 +107,19 @@ fn a_menu_item_in_a_menubar_or_a_context_menu_is_inside_a_menu() {
     );
     assert!(found.is_empty(), "{found:?}");
 }
+
+#[test]
+fn a_menu_is_painted_with_its_roles_wherever_it_is_drawn() {
+    let html = ssg_html(&page(
+        "state on = true\n    Menubar {\n        for name in [\"File\"] {\n            Menubar.Menu(name) {\n                Menu.Item(shortcut: \"mod+n\", checked: on) { Text(\"New\") }\n                Menu.Sub(label: \"Open recent\") { Menu.Item { Text(\"a.wf\") } }\n            }\n        }\n    }\n    Button(\"x\") { on click { on = !on } }",
+    ));
+    for want in [
+        "<button class=\"wf-menubar__trigger\" type=\"button\" role=\"menuitem\" aria-haspopup=\"menu\" aria-expanded=\"false\" tabindex=\"-1\">File</button>",
+        "role=\"menuitemcheckbox\" tabindex=\"-1\" aria-checked=\"true\"",
+        "<kbd class=\"wf-menu__shortcut\" aria-hidden=\"true\">Ctrl+N</kbd>",
+        "<li class=\"wf-menu__item wf-menu__sub\" role=\"menuitem\" tabindex=\"-1\" aria-haspopup=\"menu\" aria-expanded=\"false\"><span>Open recent</span>",
+        "<ul class=\"wf-menu__items\" role=\"menu\" hidden>",
+    ] {
+        assert!(html.contains(want), "{want}: {html}");
+    }
+}

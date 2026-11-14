@@ -706,6 +706,35 @@ either layout. The checks are `tests/browser/tier3.mjs` (25 in Chrome) and
 What each stage left undone, said at its end and kept here, to be taken
 up together once stage 9 is done. A line comes off when its work lands.
 
+### The order they are taken in
+
+Sorted 2026-11-15, after stage 9:
+
+1. **What is wrong.** Done 2026-11-15: `E901` catches a number after
+   `++` or `--`; menus paint with their roles, under a `for` or an `if`
+   too; a live `Radio` has its `value`; `D06` and `ConsentSettings`; a
+   menu bar's shortcuts run.
+2. **The static paint.** What is drawn once the page runs and could be
+   painted: `OnThisPage`, `LocaleSwitch`, `DataTable`, `Tree`, a read-only
+   `Rating`, `AvatarGroup`'s count, `CircularProgress`'s ring, the rest
+   holding their place with something to show.
+3. **What the built-ins still lack.** `CodeBlock` tabs and highlighted
+   lines, `Stat`'s sparkline, `Accordion` on `.expand`, `NumberInput`
+   through `format`, the column props per breakpoint, `PanelGroup`
+   collapsing, the overlays' words as props, `Popconfirm` on any button,
+   parts read through a `for` or an `if`, the `DataTable` filter and
+   pages, and the keyboard tests run again right to left.
+4. **The site and the examples on the built-ins.** Its hand-made
+   callouts, code tabs, search kinds, shells, search palette, file tree and
+   props tables; the examples' components named like a built-in; the
+   targets under 24×24.
+5. **As designed, kept as they are.** No `InView`, `SegmentedControl`,
+   `Wizard`, `TimePicker` or `DateTimePicker` by those names; the exit
+   animation on `allow-discrete`; the Sidebar's drawer and `AppShell`
+   taking the project's own `Sidebar`; no shared `WF.selection`; a
+   `Sparkline`'s numbers known at build time; `BottomNavigation` hidden on
+   a wide screen by the page's own style.
+
 ### From stage 2
 
 - Keyboard tests do not run a second time with `dir="rtl"`, as the
@@ -727,8 +756,6 @@ up together once stage 9 is done. A line comes off when its work lands.
 - `wf verify` warns of a target under 24×24 and never fails on one; the
   site has 1,714 of them (the footer links at 21px, the cookie button at
   18px).
-- `E901`, the read-back of the JavaScript the build writes, did not catch
-  `--0.02` (a decrement of a literal), which a browser refuses.
 
 ### From stage 5
 
@@ -755,8 +782,6 @@ up together once stage 9 is done. A line comes off when its work lands.
 - `NumberInput` does not write its value through `format`.
 - `Calendar` is drawn once the page runs, not in the static paint, and
   has no month or year picker beyond the previous and next buttons.
-- A live `Radio` has no `value` attribute (its binding holds the value),
-  where its static paint has one: a form posted without script sends `on`.
 - The site's search kinds are still hand-made buttons, not `ToggleGroup`.
 
 ### From stage 7
@@ -791,23 +816,13 @@ up together once stage 9 is done. A line comes off when its work lands.
 
 ### From stage 8, group 2
 
-- A `Menubar`'s `Menu.Item(shortcut:)` is shown and said, but pressing the
-  keys runs nothing: the page writes its own `on key("mod+n")`.
-- In a static build a menu's items (a `Menu`'s, a `Menubar`'s, a
-  `ContextMenu`'s) are painted hidden without their `role="menuitem"`, and a
-  `Menu.Sub` as a `div` in the list; the live page draws them right.
-- `NavigationMenu` and `BottomNavigation` read their entries through a
-  `for` or an `if`, but a `Menubar.Menu` or `ContextMenu.Items` inside one
-  paints, in a static build, as its items shown rather than a hidden menu.
 - `BottomNavigation` shows at every width; hiding it on a wide screen is
   the page's `style { @md { display: none } }`.
 
 ### From stage 8, group 3
 
-- `ConsentBanner` has no way back: a "cookie settings" link that asks
-  again, and a `consent` value a page can read, are still to come.
-- A config with `"load": "consent"` scripts and no `ConsentBanner` loads
-  them never, and nothing warns of it.
+- A page cannot read the reader's consent as a value (`ConsentSettings`
+  asks again, but nothing says `granted` to a page's own code).
 - `Tour` and the lightbox say Back, Next, Done, Close and `1 of 3` in
   English; their words are not yet props or translations.
 - A `Lightbox` zooms to the picture's own size, one step; there is no

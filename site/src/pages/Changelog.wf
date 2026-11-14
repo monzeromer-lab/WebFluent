@@ -289,6 +289,17 @@ things between two lists, and edit text in place."#),
 writes a whole page into `src/pages/` for the project to own."#)
                 ]),
                 NotesSection(title: #"Fixes"#, id: "6.2.0-fixes", items: [
+                    Change(text: #"A static build paints a menu's items with their roles — `menuitem`,
+`menuitemcheckbox` with its state, a submenu's entry and its hidden
+list — and a `Menubar.Menu` or `ContextMenu.Items` drawn by a `for` or an
+`if` as the menu it is."#),
+                    Change(text: #"A live `Radio` carries its `value`, as its static paint did: a form
+posted before the script runs no longer sends `on`."#),
+                    Change(text: #"A `Menubar` item's `shortcut:` runs it from anywhere on the page."#),
+                    Change(text: #"`ConsentSettings` asks the reader again; `D06` says when a script
+waits for consent and no `ConsentBanner` asks for it."#),
+                    Change(text: #"The build's read-back of its own JavaScript (`E901`) catches a number
+after `++` or `--`, which a browser refuses."#),
                     Change(text: #"`wf test` drew a built-in where the project had a component of its
 name in another file."#),
                     Change(text: #"`x ?? y` where `x` could only be `null` (a field written `null` in a map)
@@ -358,7 +369,7 @@ again before the exit ended."#),
                     Change(text: #"A `Splitter`'s handle reaches 24px, WCAG 2.2's least target, around its
 4px line."#)
                 ])
-            ], count: 105), latest: true)
+            ], count: 110), latest: true)
 
             ReleaseEntry(ReleaseNotes(version: "6.1.0", id: "6.1.0", date: "2026-11-14", when: "14 November 2026", summary: #"A site sends much less: the runtime ships only the functions a program
 reaches, with short names, and only the styles and animations it draws

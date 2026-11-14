@@ -74,6 +74,16 @@ fn expand_element(el: &mut UIElement, seq: &mut usize) {
         "Lightbox" => lightbox(el),
         "Tour" => tour(el),
         "ConsentBanner" => consent_banner(el),
+        "ConsentSettings" => {
+            if !el.args.iter().any(|a| matches!(a, Arg::Positional(_))) {
+                let words = take(el, "label").map_or_else(|| lit("Cookie settings"), |e| src(&e));
+                if let Some(e) = parse_expr(&words) {
+                    el.args.insert(0, Arg::Positional(e));
+                    el.arg_spans.insert(0, Span::default());
+                }
+            }
+            give(el, "mount", "(n) => __wf.consentSettings(n)");
+        }
         "DescriptionList" => description_list(el),
         "Timeline" => timeline(el),
         "AvatarGroup" => avatar_group(el),

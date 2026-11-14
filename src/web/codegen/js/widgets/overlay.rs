@@ -746,10 +746,12 @@ impl JsCodegen {
             self.emit_line(&format!(
                 "{var}.appendChild(WF.el(\"kbd\", {{ className: \"wf-menu__shortcut\", \"aria-hidden\": \"true\" }}, WF.keyLabel({keys})));"
             ));
-            // Said once, as the item's own shortcut.
+            // Said once, as the item's own shortcut; and kept as written,
+            // for a menu bar to run it by.
             self.emit_line(&format!(
                 "{var}.setAttribute(\"aria-keyshortcuts\", WF.keyAria({keys}));"
             ));
+            self.emit_line(&format!("{var}.setAttribute(\"data-shortcut\", {keys});"));
         }
         for handler in &ui.events {
             let body = self.emit_event_body(handler);
