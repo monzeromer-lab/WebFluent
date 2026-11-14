@@ -8,9 +8,6 @@ component RecipeShell(_ title: String, summary: String = "", outputs: [String] =
     slot code
     slot variations
     slot
-    use Building
-    // The page the reader arrived on suggests what they are building.
-    effect { if let first = outputs[0] { Building.arrive(first) } }
 
     SiteHeader(other: other, lang: lang)
 

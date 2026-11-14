@@ -1,27 +1,39 @@
 /// One control of a Stage, drawn from a prop's kind: a segmented choice for
-/// an enum, a toggle for a `Bool`. What they would change is a preview the
-/// compiler draws, which waits for the compiler to run in the reader's
-/// browser.
-component StageControl(_ control: Map) {
-    // An enum prop: its name, then its cases as one segmented group, the
-    // default marked. A Bool prop: a small toggle. A String prop is the
-    // example's own text, not a control. Until the compiler runs in the
-    // page they show the defaults and change nothing (the note under the
-    // stage says so), so they are not drawn as buttons waiting to be pressed.
+/// an enum, a toggle for a `Bool`. With `live`, the page holds what is
+/// chosen (`current:`, `pressed:`) and passes it to the element on the stage, so
+/// a press changes the element. Without it (a prop the stage cannot set from
+/// a value) the control is drawn as its cases, not as buttons waiting to be
+/// pressed.
+component StageControl(_ control: Map, live: Bool = false, current: String = "", pressed: Bool = false) {
+    event pick(value: String)
     if control.kind == "enum" {
         Row(align: .center, gap: .xs, role: "group", aria-label: control.name, class: "bp-stage-control") {
             Text(control.name, class: "bp-stage-control__name")
             Row(class: "bp-segmented") {
                 for o in control.options by o {
-                    Text(o, class: "bp-segmented__item", data-on: o == control.value)
+                    if live {
+                        Button(o, aria-pressed: o == current, class: "bp-segmented__item", data-on: o == current) {
+                            on click { emit pick(if o == current { "" } else { o }) }
+                        }
+                    } else {
+                        Text(o, class: "bp-segmented__item", data-on: o == control.value)
+                    }
                 }
             }
         }
     }
     if control.kind == "bool" {
-        Row(align: .center, gap: .xs, class: "bp-stage-control bp-toggle") {
-            Icon("square", aria-hidden: "true")
-            Text(control.name)
+        if live {
+            Button(aria-pressed: pressed, class: "bp-stage-control bp-toggle") {
+                on click { emit pick(control.name) }
+                Icon(if pressed { "check" } else { "square" }, aria-hidden: "true")
+                Text(control.name)
+            }
+        } else {
+            Row(align: .center, gap: .xs, class: "bp-stage-control bp-toggle") {
+                Icon("square", aria-hidden: "true")
+                Text(control.name)
+            }
         }
     }
 }

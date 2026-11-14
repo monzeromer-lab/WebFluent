@@ -726,16 +726,16 @@ page ReferenceIndexPage(path: "/reference", title: "Reference", description: "Ev
 }
 
 page BuiltinContainer(path: "/reference/container", title: "Container — Reference", description: "Container: Centred wrapper with a maximum width and horizontal padding.") {
+    state stageFluid = false
     ReferenceItemShell("Container", summary: "Centred wrapper with a maximum width and horizontal padding.", signature: "Container(fluid: Bool) \{ … \}", older: true, outputs: [], group: "Layout", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
         stage {
             Stage(label: "Container") {
                 controls {
-                    StageControl({ name: "fluid", kind: "bool", options: [], value: "" })
+                    StageControl({ name: "fluid", kind: "bool", options: [], value: "", sink: "class" }, live: true, pressed: stageFluid) { on pick(v) { stageFluid = !stageFluid } }
                 }
-                Container { Text("Centred, at most the content width") }
+                Container(fluid: stageFluid) { Text("Centred, at most the content width") }
             }
         }
-        notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "fluid:", type: "Bool", meaning: "Full width, no maximum" }], caption: "Props of Container")
         Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
@@ -757,20 +757,23 @@ Container.fluid { Text("Edge to edge") }"#, title: "wf")
 }
 
 page BuiltinRow(path: "/reference/row", title: "Row — Reference", description: "Row: Horizontal flex layout. It stays a row at every width unless .stacks or a responsive direction says otherwise.") {
+    state stageGap = "md"
+    state stageAlign = "center"
+    state stageJustify = "start"
+    state stageStacks = false
     ReferenceItemShell("Row", summary: "Horizontal flex layout. It stays a row at every width unless .stacks or a responsive direction says otherwise.", signature: "Row(gap: Enum, align: Enum, justify: Enum, …) \{ … \}", older: true, outputs: [], group: "Layout", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
         stage {
             Stage(label: "Row") {
                 controls {
-                    StageControl({ name: "gap", kind: "enum", options: ["xs", "sm", "md", "lg", "xl"], value: "xs" })
-                    StageControl({ name: "align", kind: "enum", options: ["start", "center", "end", "stretch", "baseline"], value: "start" })
-                    StageControl({ name: "justify", kind: "enum", options: ["start", "center", "end", "between", "around"], value: "start" })
-                    StageControl({ name: "direction", kind: "enum", options: ["row", "column"], value: "row" })
-                    StageControl({ name: "stacks", kind: "bool", options: [], value: "" })
+                    StageControl({ name: "gap", kind: "enum", options: ["xs", "sm", "md", "lg", "xl"], value: "xs", sink: "special" }, live: true, current: stageGap) { on pick(v) { stageGap = v } }
+                    StageControl({ name: "align", kind: "enum", options: ["start", "center", "end", "stretch", "baseline"], value: "start", sink: "special" }, live: true, current: stageAlign) { on pick(v) { stageAlign = v } }
+                    StageControl({ name: "justify", kind: "enum", options: ["start", "center", "end", "between", "around"], value: "start", sink: "special" }, live: true, current: stageJustify) { on pick(v) { stageJustify = v } }
+                    StageControl({ name: "direction", kind: "enum", options: ["row", "column"], value: "row", sink: "special" })
+                    StageControl({ name: "stacks", kind: "bool", options: [], value: "", sink: "class" }, live: true, pressed: stageStacks) { on pick(v) { stageStacks = !stageStacks } }
                 }
-                Row(gap: .md, align: .center) { Badge("One")  Badge("Two")  Badge("Three") }
+                Row(gap: stageGap, align: stageAlign, justify: stageJustify, stacks: stageStacks) { Badge("One")  Badge("Two")  Badge("Three") }
             }
         }
-        notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "gap:", type: ".xs .sm .md .lg .xl", meaning: "Space between children" }, { name: "align:", type: ".start .center .end .stretch .baseline", meaning: "Cross-axis alignment" }, { name: "justify:", type: ".start .center .end .between .around .evenly", meaning: "Main-axis distribution" }, { name: "direction:", type: ".row .column", meaning: "Which way its children run; takes a value per breakpoint" }, { name: "stacks:", type: "Bool", meaning: "Reflow on a narrow screen: a Row becomes a column, a Grid one column" }], caption: "Props of Row")
         Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
@@ -811,7 +814,7 @@ page BuiltinColumn(path: "/reference/column", title: "Column — Reference", des
         stage {
             Stage(label: "Column") {
                 controls {
-                    StageControl({ name: "stacks", kind: "bool", options: [], value: "" })
+                    StageControl({ name: "stacks", kind: "bool", options: [], value: "", sink: "class" })
                 }
                 Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
             }
@@ -840,19 +843,22 @@ page BuiltinColumn(path: "/reference/column", title: "Column — Reference", des
 }
 
 page BuiltinGrid(path: "/reference/grid", title: "Grid — Reference", description: "Grid: CSS grid with a fixed number of columns.") {
+    state stageGap = "sm"
+    state stageAlign = "start"
+    state stageJustify = "start"
+    state stageStacks = false
     ReferenceItemShell("Grid", summary: "CSS grid with a fixed number of columns.", signature: "Grid(columns: Number, gap: Enum, align: Enum, …) \{ … \}", older: true, outputs: [], group: "Layout", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
         stage {
             Stage(label: "Grid") {
                 controls {
-                    StageControl({ name: "gap", kind: "enum", options: ["xs", "sm", "md", "lg", "xl"], value: "xs" })
-                    StageControl({ name: "align", kind: "enum", options: ["start", "center", "end", "stretch", "baseline"], value: "start" })
-                    StageControl({ name: "justify", kind: "enum", options: ["start", "center", "end", "between", "around"], value: "start" })
-                    StageControl({ name: "stacks", kind: "bool", options: [], value: "" })
+                    StageControl({ name: "gap", kind: "enum", options: ["xs", "sm", "md", "lg", "xl"], value: "xs", sink: "special" }, live: true, current: stageGap) { on pick(v) { stageGap = v } }
+                    StageControl({ name: "align", kind: "enum", options: ["start", "center", "end", "stretch", "baseline"], value: "start", sink: "special" }, live: true, current: stageAlign) { on pick(v) { stageAlign = v } }
+                    StageControl({ name: "justify", kind: "enum", options: ["start", "center", "end", "between", "around"], value: "start", sink: "special" }, live: true, current: stageJustify) { on pick(v) { stageJustify = v } }
+                    StageControl({ name: "stacks", kind: "bool", options: [], value: "", sink: "class" }, live: true, pressed: stageStacks) { on pick(v) { stageStacks = !stageStacks } }
                 }
-                Grid(columns: 3, gap: .sm) { Card { Text("One") }  Card { Text("Two") }  Card { Text("Three") } }
+                Grid(columns: 3, gap: stageGap, align: stageAlign, justify: stageJustify, stacks: stageStacks) { Card { Text("One") }  Card { Text("Two") }  Card { Text("Three") } }
             }
         }
-        notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "columns:", type: "Number", meaning: "Number of equal columns" }, { name: "gap:", type: ".xs .sm .md .lg .xl", meaning: "Space between children" }, { name: "align:", type: ".start .center .end .stretch .baseline", meaning: "Cross-axis alignment" }, { name: "justify:", type: ".start .center .end .between .around .evenly", meaning: "Main-axis distribution" }, { name: "stacks:", type: "Bool", meaning: "Reflow on a narrow screen: a Row becomes a column, a Grid one column" }], caption: "Props of Grid")
         Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
@@ -887,18 +893,20 @@ page BuiltinGrid(path: "/reference/grid", title: "Grid — Reference", descripti
 }
 
 page BuiltinStack(path: "/reference/stack", title: "Stack — Reference", description: "Stack: Vertical flex layout.") {
+    state stageGap = "sm"
+    state stageAlign = "start"
+    state stageJustify = "start"
     ReferenceItemShell("Stack", summary: "Vertical flex layout.", signature: "Stack(gap: Enum, align: Enum, justify: Enum) \{ … \}", older: true, outputs: [], group: "Layout", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
         stage {
             Stage(label: "Stack") {
                 controls {
-                    StageControl({ name: "gap", kind: "enum", options: ["xs", "sm", "md", "lg", "xl"], value: "xs" })
-                    StageControl({ name: "align", kind: "enum", options: ["start", "center", "end", "stretch", "baseline"], value: "start" })
-                    StageControl({ name: "justify", kind: "enum", options: ["start", "center", "end", "between", "around"], value: "start" })
+                    StageControl({ name: "gap", kind: "enum", options: ["xs", "sm", "md", "lg", "xl"], value: "xs", sink: "special" }, live: true, current: stageGap) { on pick(v) { stageGap = v } }
+                    StageControl({ name: "align", kind: "enum", options: ["start", "center", "end", "stretch", "baseline"], value: "start", sink: "special" }, live: true, current: stageAlign) { on pick(v) { stageAlign = v } }
+                    StageControl({ name: "justify", kind: "enum", options: ["start", "center", "end", "between", "around"], value: "start", sink: "special" }, live: true, current: stageJustify) { on pick(v) { stageJustify = v } }
                 }
-                Stack(gap: .sm) { Badge("First")  Badge("Second") }
+                Stack(gap: stageGap, align: stageAlign, justify: stageJustify) { Badge("First")  Badge("Second") }
             }
         }
-        notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "gap:", type: ".xs .sm .md .lg .xl", meaning: "Space between children" }, { name: "align:", type: ".start .center .end .stretch .baseline", meaning: "Cross-axis alignment" }, { name: "justify:", type: ".start .center .end .between .around .evenly", meaning: "Main-axis distribution" }], caption: "Props of Stack")
         Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
@@ -935,7 +943,7 @@ page BuiltinSpacer(path: "/reference/spacer", title: "Spacer — Reference", des
         stage {
             Stage(label: "Spacer") {
                 controls {
-                    StageControl({ name: "size", kind: "enum", options: ["xs", "sm", "md", "lg", "xl"], value: "" })
+                    StageControl({ name: "size", kind: "enum", options: ["xs", "sm", "md", "lg", "xl"], value: "", sink: "class" })
                 }
                 Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
             }
@@ -1004,8 +1012,8 @@ page BuiltinSplitter(path: "/reference/splitter", title: "Splitter — Reference
             Stage(label: "Splitter") {
                 controls {
                     StageControl({ name: "label", kind: "string", options: [], value: "" })
-                    StageControl({ name: "horizontal", kind: "bool", options: [], value: "" })
-                    StageControl({ name: "reverse", kind: "bool", options: [], value: "" })
+                    StageControl({ name: "horizontal", kind: "bool", options: [], value: "", sink: "class" })
+                    StageControl({ name: "reverse", kind: "bool", options: [], value: "", sink: "class" })
                 }
                 Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
             }
@@ -1353,7 +1361,7 @@ page BuiltinSidebarItem(path: "/reference/sidebar-item", title: "Sidebar.Item �
             Stage(label: "Sidebar.Item") {
                 controls {
                     StageControl({ name: "icon", kind: "string", options: [], value: "" })
-                    StageControl({ name: "active", kind: "enum", options: ["prefix"], value: "prefix" })
+                    StageControl({ name: "active", kind: "enum", options: ["prefix"], value: "prefix", sink: "special" })
                 }
                 Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
             }
@@ -1423,7 +1431,7 @@ page BuiltinLink(path: "/reference/link", title: "Link — Reference", descripti
             Stage(label: "Link") {
                 controls {
                     StageControl({ name: "label", kind: "string", options: [], value: "" })
-                    StageControl({ name: "active", kind: "enum", options: ["prefix"], value: "prefix" })
+                    StageControl({ name: "active", kind: "enum", options: ["prefix"], value: "prefix", sink: "special" })
                 }
                 Link("Back to the reference", to: "/reference")
             }
@@ -1592,7 +1600,7 @@ page BuiltinMenu(path: "/reference/menu", title: "Menu — Reference", descripti
                 controls {
                     StageControl({ name: "trigger", kind: "string", options: [], value: "" })
                     StageControl({ name: "label", kind: "string", options: [], value: "" })
-                    StageControl({ name: "placement", kind: "enum", options: ["bottom", "bottomStart", "bottomEnd", "top", "topStart"], value: "bottom" })
+                    StageControl({ name: "placement", kind: "enum", options: ["bottom", "bottomStart", "bottomEnd", "top", "topStart"], value: "bottom", sink: "special" })
                 }
                 Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
             }
@@ -1649,9 +1657,9 @@ page BuiltinMenuItem(path: "/reference/menu-item", title: "Menu.Item — Referen
             Stage(label: "Menu.Item") {
                 controls {
                     StageControl({ name: "shortcut", kind: "string", options: [], value: "" })
-                    StageControl({ name: "checked", kind: "bool", options: [], value: "" })
-                    StageControl({ name: "disabled", kind: "bool", options: [], value: "" })
-                    StageControl({ name: "danger", kind: "bool", options: [], value: "" })
+                    StageControl({ name: "checked", kind: "bool", options: [], value: "", sink: "special" })
+                    StageControl({ name: "disabled", kind: "bool", options: [], value: "", sink: "special" })
+                    StageControl({ name: "danger", kind: "bool", options: [], value: "", sink: "class" })
                 }
                 Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
             }
@@ -1763,7 +1771,7 @@ page BuiltinRouter(path: "/reference/router", title: "Router — Reference", des
         stage {
             Stage(label: "Router") {
                 controls {
-                    StageControl({ name: "transition", kind: "enum", options: ["none", "fade", "slide"], value: "none" })
+                    StageControl({ name: "transition", kind: "enum", options: ["none", "fade", "slide"], value: "none", sink: "special" })
                     StageControl({ name: "duration", kind: "string", options: [], value: "" })
                 }
                 Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
@@ -1795,16 +1803,16 @@ page BuiltinRouter(path: "/reference/router", title: "Router — Reference", des
 }
 
 page BuiltinCard(path: "/reference/card", title: "Card — Reference", description: "Card: Card surface with optional header, body and footer sections.") {
+    state stageSurface = "elevated"
     ReferenceItemShell("Card", summary: "Card surface with optional header, body and footer sections.", signature: "Card(surface: Enum) \{ … \}", older: true, outputs: [], group: "Data display", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
         stage {
             Stage(label: "Card") {
                 controls {
-                    StageControl({ name: "surface", kind: "enum", options: ["flat", "elevated", "outlined"], value: "" })
+                    StageControl({ name: "surface", kind: "enum", options: ["flat", "elevated", "outlined"], value: "", sink: "class" }, live: true, current: stageSurface) { on pick(v) { stageSurface = v } }
                 }
-                Card.elevated { Card.Header { Text("Pro").bold }  Card.Body { Text("Everything in Free, and more.") }  Card.Footer { Button("Choose Pro").primary } }
+                Card(surface: stageSurface) { Card.Header { Text("Pro").bold }  Card.Body { Text("Everything in Free, and more.") }  Card.Footer { Button("Choose Pro").primary } }
             }
         }
-        notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "surface:", type: ".flat .elevated .outlined", meaning: "Surface treatment" }], caption: "Props of Card")
         Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
@@ -2061,7 +2069,7 @@ page BuiltinTableCell(path: "/reference/table-cell", title: "Table.Cell — Refe
         stage {
             Stage(label: "Table.Cell") {
                 controls {
-                    StageControl({ name: "header", kind: "bool", options: [], value: "" })
+                    StageControl({ name: "header", kind: "bool", options: [], value: "", sink: "class" })
                 }
                 Table(caption: "Deploys") { Table.Head { Table.Row { Table.Cell("Region")  Table.Cell("Status") } }  Table.Body { Table.Row { Table.Cell("fra1")  Table.Cell("Healthy") } } }
             }
@@ -2090,16 +2098,16 @@ page BuiltinTableCell(path: "/reference/table-cell", title: "Table.Cell — Refe
 }
 
 page BuiltinList(path: "/reference/list", title: "List — Reference", description: "List: List of its children; ordered for a numbered list.") {
+    state stageOrdered = false
     ReferenceItemShell("List", summary: "List of its children; ordered for a numbered list.", signature: "List(ordered: Bool) \{ … \}", older: true, outputs: [], group: "Data display", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
         stage {
             Stage(label: "List") {
                 controls {
-                    StageControl({ name: "ordered", kind: "bool", options: [], value: "" })
+                    StageControl({ name: "ordered", kind: "bool", options: [], value: "", sink: "class" }, live: true, pressed: stageOrdered) { on pick(v) { stageOrdered = !stageOrdered } }
                 }
-                List { List.Item { Text("Milk") }  List.Item { Text("Eggs") } }
+                List(ordered: stageOrdered) { List.Item { Text("Milk") }  List.Item { Text("Eggs") } }
             }
         }
-        notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "ordered:", type: "Bool", meaning: "Numbered (`<ol>`)" }], caption: "Props of List")
         Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
@@ -2159,18 +2167,19 @@ List.ordered { List.Item { Text("First") } }"#, title: "wf")
 }
 
 page BuiltinBadge(path: "/reference/badge", title: "Badge — Reference", description: "Badge: Small status label.") {
+    state stageTone = ""
+    state stagePill = false
     ReferenceItemShell("Badge", summary: "Small status label.", signature: "Badge(_ label: String, tone: Enum, pill: Bool)", older: true, outputs: [], group: "Data display", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04")], source: "src/registry/builtins.rs") {
         stage {
             Stage(label: "Badge") {
                 controls {
                     StageControl({ name: "label", kind: "string", options: [], value: "" })
-                    StageControl({ name: "tone", kind: "enum", options: ["primary", "secondary", "success", "danger", "warning"], value: "" })
-                    StageControl({ name: "pill", kind: "bool", options: [], value: "" })
+                    StageControl({ name: "tone", kind: "enum", options: ["primary", "secondary", "success", "danger", "warning"], value: "", sink: "class" }, live: true, current: stageTone) { on pick(v) { stageTone = v } }
+                    StageControl({ name: "pill", kind: "bool", options: [], value: "", sink: "class" }, live: true, pressed: stagePill) { on pick(v) { stagePill = !stagePill } }
                 }
-                Row(gap: .sm) { Badge("Beta").info  Badge("3 new").primary.pill }
+                Row(gap: .sm) { Badge("Beta", tone: stageTone, pill: stagePill).info  Badge("3 new").primary.pill }
             }
         }
-        notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "label", type: "String  (positional)", meaning: "The badge text" }, { name: "tone:", type: ".primary .secondary .success .danger .warning .info", meaning: "Colour" }, { name: "pill:", type: "Bool", meaning: "Fully rounded ends" }], caption: "Props of Badge")
         Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
@@ -2225,6 +2234,8 @@ page BuiltinTag(path: "/reference/tag", title: "Tag — Reference", description:
 }
 
 page BuiltinAvatar(path: "/reference/avatar", title: "Avatar — Reference", description: "Avatar: A picture of a person, or their initials.") {
+    state stageSize = "lg"
+    state stageTone = "primary"
     ReferenceItemShell("Avatar", summary: "A picture of a person, or their initials.", signature: "Avatar(src: String, alt: String, initials: String, …)", older: true, outputs: [], group: "Data display", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
         stage {
             Stage(label: "Avatar") {
@@ -2232,13 +2243,12 @@ page BuiltinAvatar(path: "/reference/avatar", title: "Avatar — Reference", des
                     StageControl({ name: "src", kind: "string", options: [], value: "" })
                     StageControl({ name: "alt", kind: "string", options: [], value: "" })
                     StageControl({ name: "initials", kind: "string", options: [], value: "" })
-                    StageControl({ name: "size", kind: "enum", options: ["sm", "md", "lg"], value: "md" })
-                    StageControl({ name: "tone", kind: "enum", options: ["primary"], value: "" })
+                    StageControl({ name: "size", kind: "enum", options: ["sm", "md", "lg"], value: "md", sink: "class" }, live: true, current: stageSize) { on pick(v) { stageSize = v } }
+                    StageControl({ name: "tone", kind: "enum", options: ["primary"], value: "", sink: "class" }, live: true, current: stageTone) { on pick(v) { stageTone = v } }
                 }
-                Avatar(initials: "AL").primary.lg
+                Avatar(initials: "AL", size: stageSize, tone: stageTone)
             }
         }
-        notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "src:", type: "String", meaning: "Image URL" }, { name: "alt:", type: "String", meaning: "Text alternative for the image" }, { name: "initials:", type: "String", meaning: "Letters shown when there is no image" }, { name: "size:", type: ".sm .md .lg", meaning: "Its size" }, { name: "tone:", type: ".primary", meaning: "Colour of the initials" }], caption: "Props of Avatar")
         Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
@@ -2269,7 +2279,7 @@ page BuiltinTooltip(path: "/reference/tooltip", title: "Tooltip — Reference", 
                 controls {
                     StageControl({ name: "text", kind: "string", options: [], value: "" })
                     StageControl({ name: "shortcut", kind: "string", options: [], value: "" })
-                    StageControl({ name: "placement", kind: "enum", options: ["bottom", "bottomStart", "bottomEnd", "top", "topStart"], value: "bottom" })
+                    StageControl({ name: "placement", kind: "enum", options: ["bottom", "bottomStart", "bottomEnd", "top", "topStart"], value: "bottom", sink: "special" })
                 }
                 Tooltip("Copies the link") { Button("Copy") }
             }
@@ -2311,12 +2321,12 @@ page BuiltinChart(path: "/reference/chart", title: "Chart — Reference", descri
         stage {
             Stage(label: "Chart") {
                 controls {
-                    StageControl({ name: "kind", kind: "enum", options: ["bar", "line", "area", "pie", "donut"], value: "bar" })
+                    StageControl({ name: "kind", kind: "enum", options: ["bar", "line", "area", "pie", "donut"], value: "bar", sink: "special" })
                     StageControl({ name: "x", kind: "string", options: [], value: "" })
                     StageControl({ name: "ink", kind: "string", options: [], value: "" })
                     StageControl({ name: "grid", kind: "string", options: [], value: "" })
-                    StageControl({ name: "legend", kind: "bool", options: [], value: "" })
-                    StageControl({ name: "stacked", kind: "bool", options: [], value: "" })
+                    StageControl({ name: "legend", kind: "bool", options: [], value: "", sink: "special" })
+                    StageControl({ name: "stacked", kind: "bool", options: [], value: "", sink: "special" })
                 }
                 Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
             }
@@ -2386,9 +2396,9 @@ page BuiltinInput(path: "/reference/input", title: "Input — Reference", descri
                     StageControl({ name: "label", kind: "string", options: [], value: "" })
                     StageControl({ name: "hint", kind: "string", options: [], value: "" })
                     StageControl({ name: "error", kind: "string", options: [], value: "" })
-                    StageControl({ name: "type", kind: "enum", options: ["text", "email", "password", "number", "search"], value: "" })
+                    StageControl({ name: "type", kind: "enum", options: ["text", "email", "password", "number", "search"], value: "", sink: "attribute" })
                     StageControl({ name: "placeholder", kind: "string", options: [], value: "" })
-                    StageControl({ name: "required", kind: "bool", options: [], value: "" })
+                    StageControl({ name: "required", kind: "bool", options: [], value: "", sink: "attribute" })
                 }
                 Input(bind: text, label: "Email", hint: "We never share it").email
             }
@@ -2442,8 +2452,8 @@ page BuiltinSelect(path: "/reference/select", title: "Select — Reference", des
                     StageControl({ name: "label", kind: "string", options: [], value: "" })
                     StageControl({ name: "hint", kind: "string", options: [], value: "" })
                     StageControl({ name: "error", kind: "string", options: [], value: "" })
-                    StageControl({ name: "disabled", kind: "bool", options: [], value: "" })
-                    StageControl({ name: "multiple", kind: "bool", options: [], value: "" })
+                    StageControl({ name: "disabled", kind: "bool", options: [], value: "", sink: "attribute" })
+                    StageControl({ name: "multiple", kind: "bool", options: [], value: "", sink: "attribute" })
                 }
                 Select(bind: plan, label: "Plan") { Select.Option("Free", value: "free")  Select.Option("Team", value: "team") }
             }
@@ -2517,9 +2527,9 @@ page BuiltinCheckbox(path: "/reference/checkbox", title: "Checkbox — Reference
         stage {
             Stage(label: "Checkbox") {
                 controls {
-                    StageControl({ name: "checked", kind: "bool", options: [], value: "" })
+                    StageControl({ name: "checked", kind: "bool", options: [], value: "", sink: "attribute" })
                     StageControl({ name: "label", kind: "string", options: [], value: "" })
-                    StageControl({ name: "disabled", kind: "bool", options: [], value: "" })
+                    StageControl({ name: "disabled", kind: "bool", options: [], value: "", sink: "attribute" })
                 }
                 Checkbox(bind: checked, label: "I agree to the terms")
             }
@@ -2554,9 +2564,9 @@ page BuiltinRadio(path: "/reference/radio", title: "Radio — Reference", descri
         stage {
             Stage(label: "Radio") {
                 controls {
-                    StageControl({ name: "checked", kind: "bool", options: [], value: "" })
+                    StageControl({ name: "checked", kind: "bool", options: [], value: "", sink: "attribute" })
                     StageControl({ name: "label", kind: "string", options: [], value: "" })
-                    StageControl({ name: "disabled", kind: "bool", options: [], value: "" })
+                    StageControl({ name: "disabled", kind: "bool", options: [], value: "", sink: "attribute" })
                 }
                 Stack(gap: .xs) { Radio(bind: size, value: "s", label: "Small")  Radio(bind: size, value: "m", label: "Medium") }
             }
@@ -2592,9 +2602,9 @@ page BuiltinSwitch(path: "/reference/switch", title: "Switch — Reference", des
         stage {
             Stage(label: "Switch") {
                 controls {
-                    StageControl({ name: "checked", kind: "bool", options: [], value: "" })
+                    StageControl({ name: "checked", kind: "bool", options: [], value: "", sink: "attribute" })
                     StageControl({ name: "label", kind: "string", options: [], value: "" })
-                    StageControl({ name: "disabled", kind: "bool", options: [], value: "" })
+                    StageControl({ name: "disabled", kind: "bool", options: [], value: "", sink: "attribute" })
                 }
                 Switch(bind: checked, label: "Email me about replies")
             }
@@ -2630,7 +2640,7 @@ page BuiltinSlider(path: "/reference/slider", title: "Slider — Reference", des
             Stage(label: "Slider") {
                 controls {
                     StageControl({ name: "label", kind: "string", options: [], value: "" })
-                    StageControl({ name: "disabled", kind: "bool", options: [], value: "" })
+                    StageControl({ name: "disabled", kind: "bool", options: [], value: "", sink: "attribute" })
                 }
                 Slider(bind: level, min: 0, max: 100, step: 5, label: "Volume")
             }
@@ -2666,7 +2676,7 @@ page BuiltinDatepicker(path: "/reference/datepicker", title: "DatePicker — Ref
                     StageControl({ name: "label", kind: "string", options: [], value: "" })
                     StageControl({ name: "min", kind: "string", options: [], value: "" })
                     StageControl({ name: "max", kind: "string", options: [], value: "" })
-                    StageControl({ name: "disabled", kind: "bool", options: [], value: "" })
+                    StageControl({ name: "disabled", kind: "bool", options: [], value: "", sink: "attribute" })
                 }
                 Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
             }
@@ -2701,8 +2711,8 @@ page BuiltinFileupload(path: "/reference/fileupload", title: "FileUpload — Ref
                 controls {
                     StageControl({ name: "accept", kind: "string", options: [], value: "" })
                     StageControl({ name: "label", kind: "string", options: [], value: "" })
-                    StageControl({ name: "multiple", kind: "bool", options: [], value: "" })
-                    StageControl({ name: "disabled", kind: "bool", options: [], value: "" })
+                    StageControl({ name: "multiple", kind: "bool", options: [], value: "", sink: "attribute" })
+                    StageControl({ name: "disabled", kind: "bool", options: [], value: "", sink: "attribute" })
                 }
                 Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
             }
@@ -2735,7 +2745,7 @@ page BuiltinForm(path: "/reference/form", title: "Form — Reference", descripti
         stage {
             Stage(label: "Form") {
                 controls {
-                    StageControl({ name: "show", kind: "enum", options: ["onBlur", "onSubmit", "live"], value: "" })
+                    StageControl({ name: "show", kind: "enum", options: ["onBlur", "onSubmit", "live"], value: "", sink: "attribute" })
                 }
                 Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
             }
@@ -2779,8 +2789,8 @@ page BuiltinTextarea(path: "/reference/textarea", title: "Textarea — Reference
                     StageControl({ name: "hint", kind: "string", options: [], value: "" })
                     StageControl({ name: "error", kind: "string", options: [], value: "" })
                     StageControl({ name: "placeholder", kind: "string", options: [], value: "" })
-                    StageControl({ name: "required", kind: "bool", options: [], value: "" })
-                    StageControl({ name: "disabled", kind: "bool", options: [], value: "" })
+                    StageControl({ name: "required", kind: "bool", options: [], value: "", sink: "attribute" })
+                    StageControl({ name: "disabled", kind: "bool", options: [], value: "", sink: "attribute" })
                 }
                 Textarea(bind: text, label: "Notes", rows: 3, maxLength: 200)
             }
@@ -2810,17 +2820,17 @@ Textarea(bind: note, label: "Notes", rows: 4, maxLength: 200)"#, title: "wf")
 }
 
 page BuiltinAlert(path: "/reference/alert", title: "Alert — Reference", description: "Alert: Inline notice; a danger or warning one is announced as an alert.") {
+    state stageTone = "info"
     ReferenceItemShell("Alert", summary: "Inline notice; a danger or warning one is announced as an alert.", signature: "Alert(_ message: String, tone: Enum) \{ … \}", older: true, outputs: [], group: "Feedback", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04")], source: "src/registry/builtins.rs") {
         stage {
             Stage(label: "Alert") {
                 controls {
                     StageControl({ name: "message", kind: "string", options: [], value: "" })
-                    StageControl({ name: "tone", kind: "enum", options: ["success", "danger", "warning", "info"], value: "" })
+                    StageControl({ name: "tone", kind: "enum", options: ["success", "danger", "warning", "info"], value: "", sink: "class" }, live: true, current: stageTone) { on pick(v) { stageTone = v } }
                 }
-                Alert("Your changes were saved.").info
+                Alert("Your changes were saved.", tone: stageTone)
             }
         }
-        notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "message", type: "String  (positional)", meaning: "The message" }, { name: "tone:", type: ".success .danger .warning .info", meaning: "Kind of notice" }], caption: "Props of Alert")
         Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
@@ -2850,7 +2860,7 @@ page BuiltinToast(path: "/reference/toast", title: "Toast — Reference", descri
             Stage(label: "Toast") {
                 controls {
                     StageControl({ name: "message", kind: "string", options: [], value: "" })
-                    StageControl({ name: "tone", kind: "enum", options: ["success", "danger", "warning", "info"], value: "" })
+                    StageControl({ name: "tone", kind: "enum", options: ["success", "danger", "warning", "info"], value: "", sink: "class" })
                 }
                 Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
             }
@@ -2885,7 +2895,7 @@ page BuiltinModal(path: "/reference/modal", title: "Modal — Reference", descri
             Stage(label: "Modal") {
                 controls {
                     StageControl({ name: "title", kind: "string", options: [], value: "" })
-                    StageControl({ name: "closable", kind: "bool", options: [], value: "" })
+                    StageControl({ name: "closable", kind: "bool", options: [], value: "", sink: "class" })
                 }
                 Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
             }
@@ -2993,9 +3003,9 @@ page BuiltinPopover(path: "/reference/popover", title: "Popover — Reference", 
         stage {
             Stage(label: "Popover") {
                 controls {
-                    StageControl({ name: "placement", kind: "enum", options: ["bottom", "bottomStart", "bottomEnd", "top", "topStart"], value: "bottom" })
+                    StageControl({ name: "placement", kind: "enum", options: ["bottom", "bottomStart", "bottomEnd", "top", "topStart"], value: "bottom", sink: "special" })
                     StageControl({ name: "label", kind: "string", options: [], value: "" })
-                    StageControl({ name: "arrow", kind: "bool", options: [], value: "" })
+                    StageControl({ name: "arrow", kind: "bool", options: [], value: "", sink: "class" })
                 }
                 Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
             }
@@ -3044,7 +3054,7 @@ page BuiltinDialog(path: "/reference/dialog", title: "Dialog — Reference", des
             Stage(label: "Dialog") {
                 controls {
                     StageControl({ name: "title", kind: "string", options: [], value: "" })
-                    StageControl({ name: "closable", kind: "bool", options: [], value: "" })
+                    StageControl({ name: "closable", kind: "bool", options: [], value: "", sink: "class" })
                 }
                 Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
             }
@@ -3110,16 +3120,16 @@ Dialog(visible: asking, title: "Leave without saving notes.md?") {
 }
 
 page BuiltinSpinner(path: "/reference/spinner", title: "Spinner — Reference", description: "Spinner: Loading indicator, announced as a status.") {
+    state stageSize = "lg"
     ReferenceItemShell("Spinner", summary: "Loading indicator, announced as a status.", signature: "Spinner(size: Enum)", older: true, outputs: [], group: "Feedback", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
         stage {
             Stage(label: "Spinner") {
                 controls {
-                    StageControl({ name: "size", kind: "enum", options: ["sm", "md", "lg"], value: "md" })
+                    StageControl({ name: "size", kind: "enum", options: ["sm", "md", "lg"], value: "md", sink: "class" }, live: true, current: stageSize) { on pick(v) { stageSize = v } }
                 }
-                Spinner.lg
+                Spinner(size: stageSize)
             }
         }
-        notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "size:", type: ".sm .md .lg", meaning: "Its size" }], caption: "Props of Spinner")
         Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
@@ -3170,6 +3180,7 @@ page BuiltinProgress(path: "/reference/progress", title: "Progress — Reference
 }
 
 page BuiltinSkeleton(path: "/reference/skeleton", title: "Skeleton — Reference", description: "Skeleton: Placeholder shape shown while content loads.") {
+    state stageCircle = false
     ReferenceItemShell("Skeleton", summary: "Placeholder shape shown while content loads.", signature: "Skeleton(height: String, width: String, size: String, …)", older: true, outputs: [], group: "Feedback", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
         stage {
             Stage(label: "Skeleton") {
@@ -3177,12 +3188,11 @@ page BuiltinSkeleton(path: "/reference/skeleton", title: "Skeleton — Reference
                     StageControl({ name: "height", kind: "string", options: [], value: "" })
                     StageControl({ name: "width", kind: "string", options: [], value: "" })
                     StageControl({ name: "size", kind: "string", options: [], value: "" })
-                    StageControl({ name: "circle", kind: "bool", options: [], value: "" })
+                    StageControl({ name: "circle", kind: "bool", options: [], value: "", sink: "class" }, live: true, pressed: stageCircle) { on pick(v) { stageCircle = !stageCircle } }
                 }
-                Skeleton(height: "20px", width: "200px")
+                Skeleton(height: "20px", width: "200px", circle: stageCircle)
             }
         }
-        notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "height:", type: "String", meaning: "CSS height" }, { name: "width:", type: "String", meaning: "CSS width" }, { name: "size:", type: "String", meaning: "Diameter of a `circle`" }, { name: "circle:", type: "Bool", meaning: "A round placeholder" }], caption: "Props of Skeleton")
         Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
@@ -3204,21 +3214,25 @@ Skeleton(size: "48px").circle"#, title: "wf")
 }
 
 page BuiltinButton(path: "/reference/button", title: "Button — Reference", description: "Button: Button. Its block holds what it shows; on click what it does.") {
+    state stageTone = "primary"
+    state stageSize = "md"
+    state stageShape = ""
+    state stageWidth = ""
+    state stageOutlined = false
     ReferenceItemShell("Button", summary: "Button. Its block holds what it shows; on click what it does.", signature: "Button(_ label: String, tone: Enum, size: Enum, shape: Enum, …) \{ … \}", older: true, outputs: [], group: "Actions", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "E109", title: "An element this output cannot draw", to: "/errors/E109"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "A05", title: "A button with no text", to: "/errors/A05")], source: "src/registry/builtins.rs") {
         stage {
             Stage(label: "Button") {
                 controls {
                     StageControl({ name: "label", kind: "string", options: [], value: "" })
-                    StageControl({ name: "tone", kind: "enum", options: ["primary", "secondary", "success", "danger", "warning"], value: "" })
-                    StageControl({ name: "size", kind: "enum", options: ["sm", "md", "lg"], value: "md" })
-                    StageControl({ name: "shape", kind: "enum", options: ["rounded", "pill"], value: "" })
-                    StageControl({ name: "width", kind: "enum", options: ["full"], value: "" })
-                    StageControl({ name: "outlined", kind: "bool", options: [], value: "" })
+                    StageControl({ name: "tone", kind: "enum", options: ["primary", "secondary", "success", "danger", "warning"], value: "", sink: "class" }, live: true, current: stageTone) { on pick(v) { stageTone = v } }
+                    StageControl({ name: "size", kind: "enum", options: ["sm", "md", "lg"], value: "md", sink: "class" }, live: true, current: stageSize) { on pick(v) { stageSize = v } }
+                    StageControl({ name: "shape", kind: "enum", options: ["rounded", "pill"], value: "", sink: "class" }, live: true, current: stageShape) { on pick(v) { stageShape = v } }
+                    StageControl({ name: "width", kind: "enum", options: ["full"], value: "", sink: "class" }, live: true, current: stageWidth) { on pick(v) { stageWidth = v } }
+                    StageControl({ name: "outlined", kind: "bool", options: [], value: "", sink: "class" }, live: true, pressed: stageOutlined) { on pick(v) { stageOutlined = !stageOutlined } }
                 }
-                Button("Save changes").primary
+                Button("Save changes", tone: stageTone, size: stageSize, shape: stageShape, width: stageWidth, outlined: stageOutlined)
             }
         }
-        notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "label", type: "String  (positional)", meaning: "The label" }, { name: "tone:", type: ".primary .secondary .success .danger .warning .info", meaning: "Colour" }, { name: "size:", type: ".sm .md .lg", meaning: "Its size" }, { name: "shape:", type: ".rounded .pill", meaning: "Corner shape" }, { name: "width:", type: ".full", meaning: "Width" }, { name: "outlined:", type: "Bool", meaning: "A border and no fill" }, { name: "type:", type: ".button .submit .reset", meaning: "Its role inside a form" }, { name: "to:", type: "Path", meaning: "Route to navigate to; the link whose `to` matches the current route carries `.active` and `aria-current=\"page\"`" }, { name: "disabled:", type: "Bool", meaning: "Whether the control is inert" }], caption: "Props of Button")
         Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
@@ -3259,21 +3273,22 @@ Button("Send", type: .submit).primary.full"#, title: "wf")
 }
 
 page BuiltinIconbutton(path: "/reference/iconbutton", title: "IconButton — Reference", description: "IconButton: Icon-only button. label is its accessible name, never visible text.") {
+    state stageSize = "md"
+    state stageTone = "primary"
     ReferenceItemShell("IconButton", summary: "Icon-only button. label is its accessible name, never visible text.", signature: "IconButton(icon: String, label: String, size: Enum, …) \{ … \}", older: true, outputs: [], group: "Actions", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "E109", title: "An element this output cannot draw", to: "/errors/E109"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05"), RelatedLink(kind: "A02", title: "An icon button with no name", to: "/errors/A02"), RelatedLink(kind: "V08", title: "An icon the runtime does not draw", to: "/errors/V08")], source: "src/registry/builtins.rs") {
         stage {
             Stage(label: "IconButton") {
                 controls {
                     StageControl({ name: "icon", kind: "string", options: [], value: "" })
                     StageControl({ name: "label", kind: "string", options: [], value: "" })
-                    StageControl({ name: "size", kind: "enum", options: ["sm", "md", "lg"], value: "md" })
-                    StageControl({ name: "tone", kind: "enum", options: ["primary", "danger"], value: "" })
-                    StageControl({ name: "type", kind: "enum", options: ["button", "submit", "reset"], value: "button" })
-                    StageControl({ name: "disabled", kind: "bool", options: [], value: "" })
+                    StageControl({ name: "size", kind: "enum", options: ["sm", "md", "lg"], value: "md", sink: "class" }, live: true, current: stageSize) { on pick(v) { stageSize = v } }
+                    StageControl({ name: "tone", kind: "enum", options: ["primary", "danger"], value: "", sink: "class" }, live: true, current: stageTone) { on pick(v) { stageTone = v } }
+                    StageControl({ name: "type", kind: "enum", options: ["button", "submit", "reset"], value: "button", sink: "attribute" })
+                    StageControl({ name: "disabled", kind: "bool", options: [], value: "", sink: "attribute" })
                 }
-                IconButton(icon: "edit", label: "Edit the title").primary
+                IconButton(icon: "edit", label: "Edit the title", size: stageSize, tone: stageTone)
             }
         }
-        notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "icon:", type: "String", meaning: "One of the built-in icon names" }, { name: "label:", type: "String", meaning: "Accessible name (`aria-label` and `title`)" }, { name: "size:", type: ".sm .md .lg", meaning: "Its size" }, { name: "tone:", type: ".primary .danger", meaning: "Colour" }, { name: "type:", type: ".button .submit .reset", meaning: "Its role inside a form" }, { name: "disabled:", type: "Bool", meaning: "Whether the control is inert" }], caption: "Props of IconButton")
         Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
@@ -3442,10 +3457,10 @@ page BuiltinImage(path: "/reference/image", title: "Image — Reference", descri
                 controls {
                     StageControl({ name: "src", kind: "string", options: [], value: "" })
                     StageControl({ name: "sizes", kind: "string", options: [], value: "" })
-                    StageControl({ name: "placeholder", kind: "enum", options: ["blur", "color", "none"], value: "" })
+                    StageControl({ name: "placeholder", kind: "enum", options: ["blur", "color", "none"], value: "", sink: "special" })
                     StageControl({ name: "alt", kind: "string", options: [], value: "" })
-                    StageControl({ name: "loading", kind: "enum", options: ["lazy", "eager"], value: "lazy" })
-                    StageControl({ name: "shape", kind: "enum", options: ["rounded", "circle"], value: "" })
+                    StageControl({ name: "loading", kind: "enum", options: ["lazy", "eager"], value: "lazy", sink: "attribute" })
+                    StageControl({ name: "shape", kind: "enum", options: ["rounded", "circle"], value: "", sink: "class" })
                 }
                 Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
             }
@@ -3485,11 +3500,11 @@ page BuiltinVideo(path: "/reference/video", title: "Video — Reference", descri
             Stage(label: "Video") {
                 controls {
                     StageControl({ name: "src", kind: "string", options: [], value: "" })
-                    StageControl({ name: "controls", kind: "bool", options: [], value: "" })
-                    StageControl({ name: "autoplay", kind: "bool", options: [], value: "" })
+                    StageControl({ name: "controls", kind: "bool", options: [], value: "", sink: "attribute" })
+                    StageControl({ name: "autoplay", kind: "bool", options: [], value: "", sink: "attribute" })
                     StageControl({ name: "poster", kind: "string", options: [], value: "" })
-                    StageControl({ name: "muted", kind: "bool", options: [], value: "" })
-                    StageControl({ name: "loop", kind: "bool", options: [], value: "" })
+                    StageControl({ name: "muted", kind: "bool", options: [], value: "", sink: "attribute" })
+                    StageControl({ name: "loop", kind: "bool", options: [], value: "", sink: "attribute" })
                 }
                 Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
             }
@@ -3526,9 +3541,9 @@ page BuiltinAudio(path: "/reference/audio", title: "Audio — Reference", descri
             Stage(label: "Audio") {
                 controls {
                     StageControl({ name: "src", kind: "string", options: [], value: "" })
-                    StageControl({ name: "controls", kind: "bool", options: [], value: "" })
-                    StageControl({ name: "autoplay", kind: "bool", options: [], value: "" })
-                    StageControl({ name: "loop", kind: "bool", options: [], value: "" })
+                    StageControl({ name: "controls", kind: "bool", options: [], value: "", sink: "attribute" })
+                    StageControl({ name: "autoplay", kind: "bool", options: [], value: "", sink: "attribute" })
+                    StageControl({ name: "loop", kind: "bool", options: [], value: "", sink: "attribute" })
                     StageControl({ name: "transcript", kind: "string", options: [], value: "" })
                 }
                 Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
@@ -3568,7 +3583,7 @@ page BuiltinFrame(path: "/reference/frame", title: "Frame — Reference", descri
                     StageControl({ name: "title", kind: "string", options: [], value: "" })
                     StageControl({ name: "sandbox", kind: "string", options: [], value: "" })
                     StageControl({ name: "allow", kind: "string", options: [], value: "" })
-                    StageControl({ name: "loading", kind: "enum", options: ["lazy", "eager"], value: "lazy" })
+                    StageControl({ name: "loading", kind: "enum", options: ["lazy", "eager"], value: "lazy", sink: "attribute" })
                 }
                 Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
             }
@@ -3602,19 +3617,21 @@ Frame(srcdoc: "<p>Version {version}</p>", title: "Example", sandbox: "")"#, titl
 }
 
 page BuiltinIcon(path: "/reference/icon", title: "Icon — Reference", description: "Icon: One of the built-in SVG icons, rendered inline.") {
+    state stageSize = "md"
+    state stageTone = ""
+    state stageMuted = false
     ReferenceItemShell("Icon", summary: "One of the built-in SVG icons, rendered inline.", signature: "Icon(_ name: String, size: Enum, tone: Enum, muted: Bool)", older: true, outputs: [], group: "Media", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "V08", title: "An icon the runtime does not draw", to: "/errors/V08")], source: "src/registry/builtins.rs") {
         stage {
             Stage(label: "Icon") {
                 controls {
                     StageControl({ name: "name", kind: "string", options: [], value: "" })
-                    StageControl({ name: "size", kind: "enum", options: ["sm", "md", "lg"], value: "md" })
-                    StageControl({ name: "tone", kind: "enum", options: ["primary", "secondary", "success", "danger", "warning"], value: "" })
-                    StageControl({ name: "muted", kind: "bool", options: [], value: "" })
+                    StageControl({ name: "size", kind: "enum", options: ["sm", "md", "lg"], value: "md", sink: "class" }, live: true, current: stageSize) { on pick(v) { stageSize = v } }
+                    StageControl({ name: "tone", kind: "enum", options: ["primary", "secondary", "success", "danger", "warning"], value: "", sink: "class" }, live: true, current: stageTone) { on pick(v) { stageTone = v } }
+                    StageControl({ name: "muted", kind: "bool", options: [], value: "", sink: "class" }, live: true, pressed: stageMuted) { on pick(v) { stageMuted = !stageMuted } }
                 }
-                Row(gap: .md) { Icon("search")  Icon("check").lg }
+                Row(gap: .md) { Icon("search", size: stageSize, tone: stageTone, muted: stageMuted)  Icon("check").lg }
             }
         }
-        notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "name", type: "String  (positional)", meaning: "The icon name" }, { name: "size:", type: ".sm .md .lg", meaning: "Its size" }, { name: "tone:", type: ".primary .secondary .success .danger .warning .info", meaning: "Colour" }, { name: "muted:", type: "Bool", meaning: "Dimmed, for secondary text" }], caption: "Props of Icon")
         Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
@@ -3650,7 +3667,7 @@ page BuiltinCarousel(path: "/reference/carousel", title: "Carousel — Reference
             Stage(label: "Carousel") {
                 controls {
                     StageControl({ name: "label", kind: "string", options: [], value: "" })
-                    StageControl({ name: "autoplay", kind: "bool", options: [], value: "" })
+                    StageControl({ name: "autoplay", kind: "bool", options: [], value: "", sink: "special" })
                 }
                 Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
             }
@@ -3713,21 +3730,26 @@ page BuiltinCarouselSlide(path: "/reference/carousel-slide", title: "Carousel.Sl
 }
 
 page BuiltinText(path: "/reference/text", title: "Text — Reference", description: "Text: A paragraph of text. \{…\} in the string reads state and stays live.") {
+    state stageTone = ""
+    state stageSize = "md"
+    state stageAlign = ""
+    state stageTransform = ""
+    state stageKind = ""
+    state stageBold = true
     ReferenceItemShell("Text", summary: "A paragraph of text. \{…\} in the string reads state and stays live.", signature: "Text(_ content: Any, tone: Enum, size: Enum, align: Enum, …)", older: true, outputs: [], group: "Typography", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04")], source: "src/registry/builtins.rs") {
         stage {
             Stage(label: "Text") {
                 controls {
-                    StageControl({ name: "tone", kind: "enum", options: ["primary", "secondary", "success", "danger", "warning"], value: "" })
-                    StageControl({ name: "size", kind: "enum", options: ["sm", "md", "lg"], value: "md" })
-                    StageControl({ name: "align", kind: "enum", options: ["left", "center", "right"], value: "" })
-                    StageControl({ name: "transform", kind: "enum", options: ["uppercase", "lowercase"], value: "" })
-                    StageControl({ name: "kind", kind: "enum", options: ["heading", "subtitle"], value: "" })
-                    StageControl({ name: "bold", kind: "bool", options: [], value: "" })
+                    StageControl({ name: "tone", kind: "enum", options: ["primary", "secondary", "success", "danger", "warning"], value: "", sink: "class" }, live: true, current: stageTone) { on pick(v) { stageTone = v } }
+                    StageControl({ name: "size", kind: "enum", options: ["sm", "md", "lg"], value: "md", sink: "class" }, live: true, current: stageSize) { on pick(v) { stageSize = v } }
+                    StageControl({ name: "align", kind: "enum", options: ["left", "center", "right"], value: "", sink: "class" }, live: true, current: stageAlign) { on pick(v) { stageAlign = v } }
+                    StageControl({ name: "transform", kind: "enum", options: ["uppercase", "lowercase"], value: "", sink: "class" }, live: true, current: stageTransform) { on pick(v) { stageTransform = v } }
+                    StageControl({ name: "kind", kind: "enum", options: ["heading", "subtitle"], value: "", sink: "class" }, live: true, current: stageKind) { on pick(v) { stageKind = v } }
+                    StageControl({ name: "bold", kind: "bool", options: [], value: "", sink: "class" }, live: true, pressed: stageBold) { on pick(v) { stageBold = !stageBold } }
                 }
-                Text("Hello, reader").bold
+                Text("Hello, reader", tone: stageTone, size: stageSize, align: stageAlign, transform: stageTransform, kind: stageKind, bold: stageBold)
             }
         }
-        notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "content", type: "Any  (positional)", meaning: "The text" }, { name: "tone:", type: ".primary .secondary .success .danger .warning .info", meaning: "Colour" }, { name: "size:", type: ".sm .md .lg", meaning: "Its size" }, { name: "align:", type: ".left .center .right", meaning: "Text alignment" }, { name: "transform:", type: ".uppercase .lowercase", meaning: "Letter case" }, { name: "kind:", type: ".heading .subtitle", meaning: "Typographic role" }, { name: "bold:", type: "Bool", meaning: "Bold" }, { name: "italic:", type: "Bool", meaning: "Italic" }, { name: "underline:", type: "Bool", meaning: "Underlined" }, { name: "muted:", type: "Bool", meaning: "Dimmed, for secondary text" }], caption: "Props of Text")
         Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
@@ -3769,18 +3791,19 @@ Text("Important").bold.danger"#, title: "wf")
 }
 
 page BuiltinHeading(path: "/reference/heading", title: "Heading — Reference", description: "Heading: Heading; level picks the tag (h2 when none is given).") {
+    state stageAlign = ""
+    state stageMuted = false
     ReferenceItemShell("Heading", summary: "Heading; level picks the tag (h2 when none is given).", signature: "Heading(_ content: Any, level: Enum, align: Enum, muted: Bool)", older: true, outputs: [], group: "Typography", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "A07", title: "An empty heading", to: "/errors/A07"), RelatedLink(kind: "A11", title: "A skipped heading level", to: "/errors/A11"), RelatedLink(kind: "A12", title: "A page without exactly one h1", to: "/errors/A12")], source: "src/registry/builtins.rs") {
         stage {
             Stage(label: "Heading") {
                 controls {
-                    StageControl({ name: "level", kind: "enum", options: ["h1", "h2", "h3", "h4", "h5"], value: "" })
-                    StageControl({ name: "align", kind: "enum", options: ["left", "center", "right"], value: "" })
-                    StageControl({ name: "muted", kind: "bool", options: [], value: "" })
+                    StageControl({ name: "level", kind: "enum", options: ["h1", "h2", "h3", "h4", "h5"], value: "", sink: "special" })
+                    StageControl({ name: "align", kind: "enum", options: ["left", "center", "right"], value: "", sink: "class" }, live: true, current: stageAlign) { on pick(v) { stageAlign = v } }
+                    StageControl({ name: "muted", kind: "bool", options: [], value: "", sink: "class" }, live: true, pressed: stageMuted) { on pick(v) { stageMuted = !stageMuted } }
                 }
-                Heading("A heading").h2
+                Heading("A heading", align: stageAlign, muted: stageMuted).h2
             }
         }
-        notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "content", type: "Any  (positional)", meaning: "The heading text" }, { name: "level:", type: ".h1 .h2 .h3 .h4 .h5 .h6", meaning: "Heading level: the tag, and its place in the outline" }, { name: "align:", type: ".left .center .right", meaning: "Text alignment" }, { name: "muted:", type: "Bool", meaning: "Dimmed, for secondary text" }], caption: "Props of Heading")
         Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
@@ -3811,17 +3834,17 @@ Heading("Frequently asked").h2"#, title: "wf")
 }
 
 page BuiltinCode(path: "/reference/code", title: "Code — Reference", description: "Code: Inline code, or a code block with block; language: colours it.") {
+    state stageBlock = false
     ReferenceItemShell("Code", summary: "Inline code, or a code block with block; language: colours it.", signature: "Code(_ content: Any, block: Bool, language: String)", older: true, outputs: [], group: "Typography", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04")], source: "src/registry/builtins.rs") {
         stage {
             Stage(label: "Code") {
                 controls {
-                    StageControl({ name: "block", kind: "bool", options: [], value: "" })
+                    StageControl({ name: "block", kind: "bool", options: [], value: "", sink: "class" }, live: true, pressed: stageBlock) { on pick(v) { stageBlock = !stageBlock } }
                     StageControl({ name: "language", kind: "string", options: [], value: "" })
                 }
-                Code("const x = 1")
+                Code("const x = 1", block: stageBlock)
             }
         }
-        notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
         PropsTable(rows: [{ name: "content", type: "Any  (positional)", meaning: "The code" }, { name: "block:", type: "Bool", meaning: "A multi-line block" }, { name: "language:", type: "String", meaning: "Colours the code as this language: `wf`, `json`, `bash` or `css`" }], caption: "Props of Code")
         Markdown(t("ref.attrs", { families: "global, aria, data", n: 21, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
@@ -3849,7 +3872,7 @@ page BuiltinMarkdown(path: "/reference/markdown", title: "Markdown — Reference
             Stage(label: "Markdown") {
                 controls {
                     StageControl({ name: "text", kind: "string", options: [], value: "" })
-                    StageControl({ name: "inert", kind: "bool", options: [], value: "" })
+                    StageControl({ name: "inert", kind: "bool", options: [], value: "", sink: "special" })
                 }
                 Markdown("Some **bold** words and `code`.")
             }
@@ -3995,9 +4018,9 @@ page BuiltinDocument(path: "/reference/document", title: "Document — Reference
         stage {
             Stage(label: "Document") {
                 controls {
-                    StageControl({ name: "page_size", kind: "enum", options: ["A4", "A3", "A5", "Letter", "Legal"], value: "A4" })
+                    StageControl({ name: "page_size", kind: "enum", options: ["A4", "A3", "A5", "Letter", "Legal"], value: "A4", sink: "special" })
                     StageControl({ name: "size", kind: "string", options: [], value: "" })
-                    StageControl({ name: "landscape", kind: "bool", options: [], value: "" })
+                    StageControl({ name: "landscape", kind: "bool", options: [], value: "", sink: "special" })
                     StageControl({ name: "title", kind: "string", options: [], value: "" })
                     StageControl({ name: "author", kind: "string", options: [], value: "" })
                     StageControl({ name: "subject", kind: "string", options: [], value: "" })
@@ -4067,12 +4090,12 @@ page BuiltinParagraph(path: "/reference/paragraph", title: "Paragraph — Refere
         stage {
             Stage(label: "Paragraph") {
                 controls {
-                    StageControl({ name: "tone", kind: "enum", options: ["primary", "secondary", "success", "danger", "warning"], value: "" })
-                    StageControl({ name: "size", kind: "enum", options: ["sm", "md", "lg"], value: "md" })
-                    StageControl({ name: "align", kind: "enum", options: ["left", "center", "right"], value: "" })
-                    StageControl({ name: "transform", kind: "enum", options: ["uppercase", "lowercase"], value: "" })
-                    StageControl({ name: "kind", kind: "enum", options: ["heading", "subtitle"], value: "" })
-                    StageControl({ name: "bold", kind: "bool", options: [], value: "" })
+                    StageControl({ name: "tone", kind: "enum", options: ["primary", "secondary", "success", "danger", "warning"], value: "", sink: "class" })
+                    StageControl({ name: "size", kind: "enum", options: ["sm", "md", "lg"], value: "md", sink: "class" })
+                    StageControl({ name: "align", kind: "enum", options: ["left", "center", "right"], value: "", sink: "class" })
+                    StageControl({ name: "transform", kind: "enum", options: ["uppercase", "lowercase"], value: "", sink: "class" })
+                    StageControl({ name: "kind", kind: "enum", options: ["heading", "subtitle"], value: "", sink: "class" })
+                    StageControl({ name: "bold", kind: "bool", options: [], value: "", sink: "class" })
                 }
                 Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
             }
@@ -4121,7 +4144,7 @@ page BuiltinHeader(path: "/reference/header", title: "Header — Reference", des
         stage {
             Stage(label: "Header") {
                 controls {
-                    StageControl({ name: "on", kind: "enum", options: ["all", "first", "rest", "odd", "even"], value: "all" })
+                    StageControl({ name: "on", kind: "enum", options: ["all", "first", "rest", "odd", "even"], value: "all", sink: "special" })
                 }
                 Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
             }
@@ -4155,7 +4178,7 @@ page BuiltinFooter(path: "/reference/footer", title: "Footer — Reference", des
         stage {
             Stage(label: "Footer") {
                 controls {
-                    StageControl({ name: "on", kind: "enum", options: ["all", "first", "rest", "odd", "even"], value: "all" })
+                    StageControl({ name: "on", kind: "enum", options: ["all", "first", "rest", "odd", "even"], value: "all", sink: "special" })
                 }
                 Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
             }
@@ -4189,7 +4212,7 @@ page BuiltinBackground(path: "/reference/background", title: "Background — Ref
         stage {
             Stage(label: "Background") {
                 controls {
-                    StageControl({ name: "on", kind: "enum", options: ["all", "first", "rest", "odd", "even"], value: "all" })
+                    StageControl({ name: "on", kind: "enum", options: ["all", "first", "rest", "odd", "even"], value: "all", sink: "special" })
                 }
                 Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
             }
@@ -4224,7 +4247,7 @@ page BuiltinWatermark(path: "/reference/watermark", title: "Watermark — Refere
             Stage(label: "Watermark") {
                 controls {
                     StageControl({ name: "text", kind: "string", options: [], value: "" })
-                    StageControl({ name: "on", kind: "enum", options: ["all", "first", "rest", "odd", "even"], value: "all" })
+                    StageControl({ name: "on", kind: "enum", options: ["all", "first", "rest", "odd", "even"], value: "all", sink: "special" })
                 }
                 Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
             }
@@ -4378,7 +4401,7 @@ page BuiltinSectionslide(path: "/reference/sectionslide", title: "SectionSlide �
             Stage(label: "SectionSlide") {
                 controls {
                     StageControl({ name: "label", kind: "string", options: [], value: "" })
-                    StageControl({ name: "tone", kind: "enum", options: ["primary", "success", "danger", "warning", "info"], value: "" })
+                    StageControl({ name: "tone", kind: "enum", options: ["primary", "success", "danger", "warning", "info"], value: "", sink: "class" })
                 }
                 Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
             }
@@ -4577,7 +4600,7 @@ page BuiltinTcell(path: "/reference/tcell", title: "Tcell — Reference", descri
         stage {
             Stage(label: "Tcell") {
                 controls {
-                    StageControl({ name: "header", kind: "bool", options: [], value: "" })
+                    StageControl({ name: "header", kind: "bool", options: [], value: "", sink: "class" })
                 }
                 Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
             }

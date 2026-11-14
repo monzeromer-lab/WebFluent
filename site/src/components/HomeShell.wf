@@ -1,10 +1,9 @@
 /// T1, the home page, as Blueprint draws it: the hero (what WebFluent is,
 /// the install line and three ways to start) beside an example and what it
-/// draws; what are you making — the six outputs, which set the Building
-/// switch; coming from somewhere; find your way — the four kinds of page;
+/// draws; what are you making — the six outputs, each a link to where it is
+/// taught; coming from somewhere; find your way — the four kinds of page;
 /// and how to install it.
 component HomeShell(other: String = "", lang: String = "en") {
-    use Building
     state count = 0
     state copied = false
     // The hero's example, live once the reader edits it (see `Example`).
@@ -131,14 +130,13 @@ component HomeShell(other: String = "", lang: String = "en") {
             }
         }
 
-        // What are you making: each output sets the Building switch.
+        // What are you making: each output, and where it is taught.
         Stack(gap: .md, class: "bp-wrap bp-home-section") {
             Heading(t("home.making"), class: "bp-h2").h2
             Text(t("home.making.body"), class: "bp-lede")
             Grid(columns: { base: 2, lg: 4 }, gap: .md, role: "group", aria-label: t("home.making")) {
                 for o in OUTPUTS by o {
-                    Button(class: "bp-card bp-out-tile", aria-pressed: Building.output == o) {
-                        on click { Building.pick(o) }
+                    Link(to: OUTPUT_PAGES[o], class: "bp-card bp-out-tile") {
                         Stack(class: "bp-out-tile__thumb", data-kind: o, aria-hidden: "true") {
                             if o == "pdf" {
                                 Image(src: "/showcase/invoice-2026-0417-1.webp", alt: "")
@@ -229,6 +227,16 @@ const INSTALL_AND_START = """
     wf init my-site -t static
     cd my-site && wf serve
     """
+
+/// Where each output is taught.
+const OUTPUT_PAGES: Map = {
+    website: "/learn/01-getting-started",
+    app: "/learn/03-tutorial-todos",
+    pdf: "/learn/17-pdf-and-slides#make-a-pdf-document",
+    slides: "/learn/17-pdf-and-slides#make-a-slide-deck",
+    elements: "/recipes/publish-custom-elements",
+    desktop: "/recipes/tauri-app"
+}
 
 /// How each output starts.
 const OUTPUT_COMMANDS: Map = {

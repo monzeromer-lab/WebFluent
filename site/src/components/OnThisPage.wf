@@ -4,6 +4,9 @@
 /// the page's source.
 component OnThisPage(sections: [Anchor] = [], source: String = "md-docs", codes: [RelatedLink] = []) {
     state copied = false
+    // The section the reader is in, followed as they scroll.
+    state current = ""
+    action reading(id: String) { current = id }
 
     /// Where this page's twin is: the address with `.md` on the end.
     action twin() {
@@ -23,7 +26,7 @@ component OnThisPage(sections: [Anchor] = [], source: String = "md-docs", codes:
     }
     action uncopy() { copied = false }
 
-    Stack(gap: .lg, role: "navigation", aria-label: t("docs.onthispage"), class: "bp-rail") {
+    Stack(gap: .lg, role: "navigation", aria-label: t("docs.onthispage"), class: "bp-rail", mount: (n) => wfSpy(sections.map(x => x.id), (id) => reading(id)), cleanup: (h) => h.stop()) {
         style {
             display: none
             gap: 24px
@@ -44,7 +47,7 @@ component OnThisPage(sections: [Anchor] = [], source: String = "md-docs", codes:
                 style { gap: 2px }
                 Text(t("docs.onthispage"), class: "bp-section-label") { style { margin-bottom: 6px } }
                 for section in sections by section.id {
-                    Link(section.label, href: "#{section.id}") {
+                    Link(section.label, href: "#{section.id}", aria-current: if section.id == current { "location" } else { null }) {
                         style {
                             padding: 4px 0 4px 12px
                             border-inline-start: 1px solid $line
@@ -53,6 +56,7 @@ component OnThisPage(sections: [Anchor] = [], source: String = "md-docs", codes:
                             line-height: 20px
                             text-decoration: none
                             &:hover { border-color: $construction; color: $ink; text-decoration: none }
+                            &[aria-current="location"] { border-inline-start: 2px solid $construction; padding-inline-start: 11px; color: $ink; font-weight: 600 }
                         }
                     }
                 }

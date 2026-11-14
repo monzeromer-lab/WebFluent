@@ -7,8 +7,10 @@
 /// part's pages hide from 768px, where the sidebar shows them.
 component PageContents(entries: [IndexEntry] = [], sections: [Anchor] = [], label: String = "") {
     state open = false
+    state current = ""
+    action reading(id: String) { current = id }
 
-    Stack(gap: .sm, class: "bp-contents") {
+    Stack(gap: .sm, class: "bp-contents", mount: (n) => wfSpy(sections.map(x => x.id), (id) => reading(id)), cleanup: (h) => h.stop()) {
         style { gap: 10px; @media (min-width: 1200px) { display: none } }
         Button(class: "bp-button", aria-expanded: open, aria-controls: "bp-contents-panel") {
             style { align-self: flex-start; display: inline-flex; align-items: center; gap: 8px; & .wf-icon { display: inline-flex; font-size: 15px } & p { margin: 0 } }
@@ -24,7 +26,7 @@ component PageContents(entries: [IndexEntry] = [], sections: [Anchor] = [], labe
                     Stack(class: "bp-navlist") {
                         Text(t("docs.onthispage"), class: "bp-navgroup")
                         for section in sections by section.id {
-                            Link(section.label, href: "#{section.id}", class: "bp-navlink") {
+                            Link(section.label, href: "#{section.id}", class: "bp-navlink", aria-current: if section.id == current { "location" } else { null }) {
                                 on click { open = false }
                             }
                         }

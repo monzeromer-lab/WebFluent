@@ -38,7 +38,8 @@
      "name": "fluid",
      "kind": "bool",
      "options": [],
-     "value": ""
+     "value": "",
+     "sink": "class"
     }
    ],
    "flags": [
@@ -132,7 +133,8 @@
       "lg",
       "xl"
      ],
-     "value": "xs"
+     "value": "xs",
+     "sink": "special"
     },
     {
      "name": "align",
@@ -144,7 +146,8 @@
       "stretch",
       "baseline"
      ],
-     "value": "start"
+     "value": "start",
+     "sink": "special"
     },
     {
      "name": "justify",
@@ -156,7 +159,8 @@
       "between",
       "around"
      ],
-     "value": "start"
+     "value": "start",
+     "sink": "special"
     },
     {
      "name": "direction",
@@ -165,13 +169,15 @@
       "row",
       "column"
      ],
-     "value": "row"
+     "value": "row",
+     "sink": "special"
     },
     {
      "name": "stacks",
      "kind": "bool",
      "options": [],
-     "value": ""
+     "value": "",
+     "sink": "class"
     }
    ],
    "flags": [
@@ -256,7 +262,8 @@
      "name": "stacks",
      "kind": "bool",
      "options": [],
-     "value": ""
+     "value": "",
+     "sink": "class"
     }
    ],
    "flags": [
@@ -355,7 +362,8 @@
       "lg",
       "xl"
      ],
-     "value": "xs"
+     "value": "xs",
+     "sink": "special"
     },
     {
      "name": "align",
@@ -367,7 +375,8 @@
       "stretch",
       "baseline"
      ],
-     "value": "start"
+     "value": "start",
+     "sink": "special"
     },
     {
      "name": "justify",
@@ -379,13 +388,15 @@
       "between",
       "around"
      ],
-     "value": "start"
+     "value": "start",
+     "sink": "special"
     },
     {
      "name": "stacks",
      "kind": "bool",
      "options": [],
-     "value": ""
+     "value": "",
+     "sink": "class"
     }
    ],
    "flags": [
@@ -479,7 +490,8 @@
       "lg",
       "xl"
      ],
-     "value": "xs"
+     "value": "xs",
+     "sink": "special"
     },
     {
      "name": "align",
@@ -491,7 +503,8 @@
       "stretch",
       "baseline"
      ],
-     "value": "start"
+     "value": "start",
+     "sink": "special"
     },
     {
      "name": "justify",
@@ -503,7 +516,8 @@
       "between",
       "around"
      ],
-     "value": "start"
+     "value": "start",
+     "sink": "special"
     }
    ],
    "flags": [
@@ -586,7 +600,8 @@
       "lg",
       "xl"
      ],
-     "value": ""
+     "value": "",
+     "sink": "class"
     }
    ],
    "flags": [
@@ -773,13 +788,15 @@
      "name": "horizontal",
      "kind": "bool",
      "options": [],
-     "value": ""
+     "value": "",
+     "sink": "class"
     },
     {
      "name": "reverse",
      "kind": "bool",
      "options": [],
-     "value": ""
+     "value": "",
+     "sink": "class"
     }
    ],
    "flags": [
@@ -1498,7 +1515,8 @@
      "options": [
       "prefix"
      ],
-     "value": "prefix"
+     "value": "prefix",
+     "sink": "special"
     }
    ],
    "flags": [
@@ -1648,7 +1666,8 @@
      "options": [
       "prefix"
      ],
-     "value": "prefix"
+     "value": "prefix",
+     "sink": "special"
     }
    ],
    "flags": [
@@ -2045,7 +2064,8 @@
       "top",
       "topStart"
      ],
-     "value": "bottom"
+     "value": "bottom",
+     "sink": "special"
     }
    ],
    "flags": [
@@ -2176,19 +2196,22 @@
      "name": "checked",
      "kind": "bool",
      "options": [],
-     "value": ""
+     "value": "",
+     "sink": "special"
     },
     {
      "name": "disabled",
      "kind": "bool",
      "options": [],
-     "value": ""
+     "value": "",
+     "sink": "special"
     },
     {
      "name": "danger",
      "kind": "bool",
      "options": [],
-     "value": ""
+     "value": "",
+     "sink": "class"
     }
    ],
    "flags": [
@@ -2401,7 +2424,8 @@
       "fade",
       "slide"
      ],
-     "value": "none"
+     "value": "none",
+     "sink": "special"
     },
     {
      "name": "duration",
@@ -2491,7 +2515,8 @@
       "elevated",
       "outlined"
      ],
-     "value": ""
+     "value": "",
+     "sink": "class"
     }
    ],
    "flags": [
@@ -3029,7 +3054,8 @@
      "name": "header",
      "kind": "bool",
      "options": [],
-     "value": ""
+     "value": "",
+     "sink": "class"
     }
    ],
    "flags": [
@@ -3098,7 +3124,8 @@
      "name": "ordered",
      "kind": "bool",
      "options": [],
-     "value": ""
+     "value": "",
+     "sink": "class"
     }
    ],
    "flags": [
@@ -3253,13 +3280,15 @@
       "danger",
       "warning"
      ],
-     "value": ""
+     "value": "",
+     "sink": "class"
     },
     {
      "name": "pill",
      "kind": "bool",
      "options": [],
-     "value": ""
+     "value": "",
+     "sink": "class"
     }
    ],
    "flags": [
@@ -3417,7 +3446,8 @@
       "md",
       "lg"
      ],
-     "value": "md"
+     "value": "md",
+     "sink": "class"
     },
     {
      "name": "tone",
@@ -3425,7 +3455,8 @@
      "options": [
       "primary"
      ],
-     "value": ""
+     "value": "",
+     "sink": "class"
     }
    ],
    "flags": [
@@ -3522,7 +3553,8 @@
       "top",
       "topStart"
      ],
-     "value": "bottom"
+     "value": "bottom",
+     "sink": "special"
     }
    ],
    "flags": [
@@ -3667,7 +3699,8 @@
       "pie",
       "donut"
      ],
-     "value": "bar"
+     "value": "bar",
+     "sink": "special"
     },
     {
      "name": "x",
@@ -3691,13 +3724,15 @@
      "name": "legend",
      "kind": "bool",
      "options": [],
-     "value": ""
+     "value": "",
+     "sink": "special"
     },
     {
      "name": "stacked",
      "kind": "bool",
      "options": [],
-     "value": ""
+     "value": "",
+     "sink": "special"
     }
    ],
    "flags": [
@@ -3935,7 +3970,8 @@
       "number",
       "search"
      ],
-     "value": ""
+     "value": "",
+     "sink": "attribute"
     },
     {
      "name": "placeholder",
@@ -3947,7 +3983,8 @@
      "name": "required",
      "kind": "bool",
      "options": [],
-     "value": ""
+     "value": "",
+     "sink": "attribute"
     }
    ],
    "flags": [
@@ -4130,13 +4167,15 @@
      "name": "disabled",
      "kind": "bool",
      "options": [],
-     "value": ""
+     "value": "",
+     "sink": "attribute"
     },
     {
      "name": "multiple",
      "kind": "bool",
      "options": [],
-     "value": ""
+     "value": "",
+     "sink": "attribute"
     }
    ],
    "flags": [
@@ -4321,7 +4360,8 @@
      "name": "checked",
      "kind": "bool",
      "options": [],
-     "value": ""
+     "value": "",
+     "sink": "attribute"
     },
     {
      "name": "label",
@@ -4333,7 +4373,8 @@
      "name": "disabled",
      "kind": "bool",
      "options": [],
-     "value": ""
+     "value": "",
+     "sink": "attribute"
     }
    ],
    "flags": [
@@ -4438,7 +4479,8 @@
      "name": "checked",
      "kind": "bool",
      "options": [],
-     "value": ""
+     "value": "",
+     "sink": "attribute"
     },
     {
      "name": "label",
@@ -4450,7 +4492,8 @@
      "name": "disabled",
      "kind": "bool",
      "options": [],
-     "value": ""
+     "value": "",
+     "sink": "attribute"
     }
    ],
    "flags": [
@@ -4545,7 +4588,8 @@
      "name": "checked",
      "kind": "bool",
      "options": [],
-     "value": ""
+     "value": "",
+     "sink": "attribute"
     },
     {
      "name": "label",
@@ -4557,7 +4601,8 @@
      "name": "disabled",
      "kind": "bool",
      "options": [],
-     "value": ""
+     "value": "",
+     "sink": "attribute"
     }
    ],
    "flags": [
@@ -4668,7 +4713,8 @@
      "name": "disabled",
      "kind": "bool",
      "options": [],
-     "value": ""
+     "value": "",
+     "sink": "attribute"
     }
    ],
    "flags": [
@@ -4791,7 +4837,8 @@
      "name": "disabled",
      "kind": "bool",
      "options": [],
-     "value": ""
+     "value": "",
+     "sink": "attribute"
     }
    ],
    "flags": [
@@ -4892,13 +4939,15 @@
      "name": "multiple",
      "kind": "bool",
      "options": [],
-     "value": ""
+     "value": "",
+     "sink": "attribute"
     },
     {
      "name": "disabled",
      "kind": "bool",
      "options": [],
-     "value": ""
+     "value": "",
+     "sink": "attribute"
     }
    ],
    "flags": [
@@ -4989,7 +5038,8 @@
       "onSubmit",
       "live"
      ],
-     "value": ""
+     "value": "",
+     "sink": "attribute"
     }
    ],
    "flags": [
@@ -5142,13 +5192,15 @@
      "name": "required",
      "kind": "bool",
      "options": [],
-     "value": ""
+     "value": "",
+     "sink": "attribute"
     },
     {
      "name": "disabled",
      "kind": "bool",
      "options": [],
-     "value": ""
+     "value": "",
+     "sink": "attribute"
     }
    ],
    "flags": [
@@ -5268,7 +5320,8 @@
       "warning",
       "info"
      ],
-     "value": ""
+     "value": "",
+     "sink": "class"
     }
    ],
    "flags": [
@@ -5350,7 +5403,8 @@
       "warning",
       "info"
      ],
-     "value": ""
+     "value": "",
+     "sink": "class"
     }
    ],
    "flags": [
@@ -5430,7 +5484,8 @@
      "name": "closable",
      "kind": "bool",
      "options": [],
-     "value": ""
+     "value": "",
+     "sink": "class"
     }
    ],
    "flags": [
@@ -5680,7 +5735,8 @@
       "top",
       "topStart"
      ],
-     "value": "bottom"
+     "value": "bottom",
+     "sink": "special"
     },
     {
      "name": "label",
@@ -5692,7 +5748,8 @@
      "name": "arrow",
      "kind": "bool",
      "options": [],
-     "value": ""
+     "value": "",
+     "sink": "class"
     }
    ],
    "flags": [
@@ -5800,7 +5857,8 @@
      "name": "closable",
      "kind": "bool",
      "options": [],
-     "value": ""
+     "value": "",
+     "sink": "class"
     }
    ],
    "flags": [
@@ -5954,7 +6012,8 @@
       "md",
       "lg"
      ],
-     "value": "md"
+     "value": "md",
+     "sink": "class"
     }
    ],
    "flags": [
@@ -6107,7 +6166,8 @@
      "name": "circle",
      "kind": "bool",
      "options": [],
-     "value": ""
+     "value": "",
+     "sink": "class"
     }
    ],
    "flags": [
@@ -6220,7 +6280,8 @@
       "danger",
       "warning"
      ],
-     "value": ""
+     "value": "",
+     "sink": "class"
     },
     {
      "name": "size",
@@ -6230,7 +6291,8 @@
       "md",
       "lg"
      ],
-     "value": "md"
+     "value": "md",
+     "sink": "class"
     },
     {
      "name": "shape",
@@ -6239,7 +6301,8 @@
       "rounded",
       "pill"
      ],
-     "value": ""
+     "value": "",
+     "sink": "class"
     },
     {
      "name": "width",
@@ -6247,13 +6310,15 @@
      "options": [
       "full"
      ],
-     "value": ""
+     "value": "",
+     "sink": "class"
     },
     {
      "name": "outlined",
      "kind": "bool",
      "options": [],
-     "value": ""
+     "value": "",
+     "sink": "class"
     }
    ],
    "flags": [
@@ -6390,7 +6455,8 @@
       "md",
       "lg"
      ],
-     "value": "md"
+     "value": "md",
+     "sink": "class"
     },
     {
      "name": "tone",
@@ -6399,7 +6465,8 @@
       "primary",
       "danger"
      ],
-     "value": ""
+     "value": "",
+     "sink": "class"
     },
     {
      "name": "type",
@@ -6409,13 +6476,15 @@
       "submit",
       "reset"
      ],
-     "value": "button"
+     "value": "button",
+     "sink": "attribute"
     },
     {
      "name": "disabled",
      "kind": "bool",
      "options": [],
-     "value": ""
+     "value": "",
+     "sink": "attribute"
     }
    ],
    "flags": [
@@ -6822,7 +6891,8 @@
       "color",
       "none"
      ],
-     "value": ""
+     "value": "",
+     "sink": "special"
     },
     {
      "name": "alt",
@@ -6837,7 +6907,8 @@
       "lazy",
       "eager"
      ],
-     "value": "lazy"
+     "value": "lazy",
+     "sink": "attribute"
     },
     {
      "name": "shape",
@@ -6846,7 +6917,8 @@
       "rounded",
       "circle"
      ],
-     "value": ""
+     "value": "",
+     "sink": "class"
     }
    ],
    "flags": [
@@ -6987,13 +7059,15 @@
      "name": "controls",
      "kind": "bool",
      "options": [],
-     "value": ""
+     "value": "",
+     "sink": "attribute"
     },
     {
      "name": "autoplay",
      "kind": "bool",
      "options": [],
-     "value": ""
+     "value": "",
+     "sink": "attribute"
     },
     {
      "name": "poster",
@@ -7005,13 +7079,15 @@
      "name": "muted",
      "kind": "bool",
      "options": [],
-     "value": ""
+     "value": "",
+     "sink": "attribute"
     },
     {
      "name": "loop",
      "kind": "bool",
      "options": [],
-     "value": ""
+     "value": "",
+     "sink": "attribute"
     }
    ],
    "flags": [
@@ -7143,19 +7219,22 @@
      "name": "controls",
      "kind": "bool",
      "options": [],
-     "value": ""
+     "value": "",
+     "sink": "attribute"
     },
     {
      "name": "autoplay",
      "kind": "bool",
      "options": [],
-     "value": ""
+     "value": "",
+     "sink": "attribute"
     },
     {
      "name": "loop",
      "kind": "bool",
      "options": [],
-     "value": ""
+     "value": "",
+     "sink": "attribute"
     },
     {
      "name": "transcript",
@@ -7322,7 +7401,8 @@
       "lazy",
       "eager"
      ],
-     "value": "lazy"
+     "value": "lazy",
+     "sink": "attribute"
     }
    ],
    "flags": [
@@ -7437,7 +7517,8 @@
       "md",
       "lg"
      ],
-     "value": "md"
+     "value": "md",
+     "sink": "class"
     },
     {
      "name": "tone",
@@ -7449,13 +7530,15 @@
       "danger",
       "warning"
      ],
-     "value": ""
+     "value": "",
+     "sink": "class"
     },
     {
      "name": "muted",
      "kind": "bool",
      "options": [],
-     "value": ""
+     "value": "",
+     "sink": "class"
     }
    ],
    "flags": [
@@ -7541,7 +7624,8 @@
      "name": "autoplay",
      "kind": "bool",
      "options": [],
-     "value": ""
+     "value": "",
+     "sink": "special"
     }
    ],
    "flags": [
@@ -7735,7 +7819,8 @@
       "danger",
       "warning"
      ],
-     "value": ""
+     "value": "",
+     "sink": "class"
     },
     {
      "name": "size",
@@ -7745,7 +7830,8 @@
       "md",
       "lg"
      ],
-     "value": "md"
+     "value": "md",
+     "sink": "class"
     },
     {
      "name": "align",
@@ -7755,7 +7841,8 @@
       "center",
       "right"
      ],
-     "value": ""
+     "value": "",
+     "sink": "class"
     },
     {
      "name": "transform",
@@ -7764,7 +7851,8 @@
       "uppercase",
       "lowercase"
      ],
-     "value": ""
+     "value": "",
+     "sink": "class"
     },
     {
      "name": "kind",
@@ -7773,13 +7861,15 @@
       "heading",
       "subtitle"
      ],
-     "value": ""
+     "value": "",
+     "sink": "class"
     },
     {
      "name": "bold",
      "kind": "bool",
      "options": [],
-     "value": ""
+     "value": "",
+     "sink": "class"
     }
    ],
    "flags": [
@@ -7875,7 +7965,8 @@
       "h4",
       "h5"
      ],
-     "value": ""
+     "value": "",
+     "sink": "special"
     },
     {
      "name": "align",
@@ -7885,13 +7976,15 @@
       "center",
       "right"
      ],
-     "value": ""
+     "value": "",
+     "sink": "class"
     },
     {
      "name": "muted",
      "kind": "bool",
      "options": [],
-     "value": ""
+     "value": "",
+     "sink": "class"
     }
    ],
    "flags": [
@@ -7981,7 +8074,8 @@
      "name": "block",
      "kind": "bool",
      "options": [],
-     "value": ""
+     "value": "",
+     "sink": "class"
     },
     {
      "name": "language",
@@ -8054,7 +8148,8 @@
      "name": "inert",
      "kind": "bool",
      "options": [],
-     "value": ""
+     "value": "",
+     "sink": "special"
     }
    ],
    "flags": [
@@ -8393,7 +8488,8 @@
       "Letter",
       "Legal"
      ],
-     "value": "A4"
+     "value": "A4",
+     "sink": "special"
     },
     {
      "name": "size",
@@ -8405,7 +8501,8 @@
      "name": "landscape",
      "kind": "bool",
      "options": [],
-     "value": ""
+     "value": "",
+     "sink": "special"
     },
     {
      "name": "title",
@@ -8604,7 +8701,8 @@
       "danger",
       "warning"
      ],
-     "value": ""
+     "value": "",
+     "sink": "class"
     },
     {
      "name": "size",
@@ -8614,7 +8712,8 @@
       "md",
       "lg"
      ],
-     "value": "md"
+     "value": "md",
+     "sink": "class"
     },
     {
      "name": "align",
@@ -8624,7 +8723,8 @@
       "center",
       "right"
      ],
-     "value": ""
+     "value": "",
+     "sink": "class"
     },
     {
      "name": "transform",
@@ -8633,7 +8733,8 @@
       "uppercase",
       "lowercase"
      ],
-     "value": ""
+     "value": "",
+     "sink": "class"
     },
     {
      "name": "kind",
@@ -8642,13 +8743,15 @@
       "heading",
       "subtitle"
      ],
-     "value": ""
+     "value": "",
+     "sink": "class"
     },
     {
      "name": "bold",
      "kind": "bool",
      "options": [],
-     "value": ""
+     "value": "",
+     "sink": "class"
     }
    ],
    "flags": [
@@ -8731,7 +8834,8 @@
       "odd",
       "even"
      ],
-     "value": "all"
+     "value": "all",
+     "sink": "special"
     }
    ],
    "flags": [
@@ -8811,7 +8915,8 @@
       "odd",
       "even"
      ],
-     "value": "all"
+     "value": "all",
+     "sink": "special"
     }
    ],
    "flags": [
@@ -8891,7 +8996,8 @@
       "odd",
       "even"
      ],
-     "value": "all"
+     "value": "all",
+     "sink": "special"
     }
    ],
    "flags": [
@@ -8982,7 +9088,8 @@
       "odd",
       "even"
      ],
-     "value": "all"
+     "value": "all",
+     "sink": "special"
     }
    ],
    "flags": [
@@ -9286,7 +9393,8 @@
       "warning",
       "info"
      ],
-     "value": ""
+     "value": "",
+     "sink": "class"
     }
    ],
    "flags": [
@@ -9700,7 +9808,8 @@
      "name": "header",
      "kind": "bool",
      "options": [],
-     "value": ""
+     "value": "",
+     "sink": "class"
     }
    ],
    "flags": [

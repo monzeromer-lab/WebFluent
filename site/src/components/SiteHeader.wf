@@ -59,7 +59,6 @@ component SiteHeader(docs: Bool = false, other: String = "", lang: String = "en"
                     Text(keyLabel("mod+k"), class: "bp-kbd bp-hide-sm")
                 }
 
-                BuildingSwitch(class: "bp-hide-md")
                 ThemeToggle
                 LangSwitch(other: other, lang: lang, class: "bp-hide-sm")
 
@@ -99,7 +98,6 @@ component SiteHeader(docs: Bool = false, other: String = "", lang: String = "en"
             Divider { style { margin: 8px 0; border-color: $line } }
             Row(align: .center, gap: .sm) {
                 style { flex-wrap: wrap; gap: 8px }
-                BuildingSwitch(class: "bp-only-md")
                 LangSwitch(other: other, lang: lang, class: "bp-only-sm")
             }
             Link(t("nav.source"), href: REPO, class: "bp-navlink") { style { min-height: 44px } }

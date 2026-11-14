@@ -149,8 +149,8 @@ body { margin: 0; background: var(--ground); color: var(--ink); font-family: var
 .bp-navlist { display: flex; flex-direction: column; gap: 1px; margin: 0; padding: 0; }
 .bp-navlink { position: relative; display: flex; align-items: center; gap: var(--space-2); min-height: 36px; box-sizing: border-box; padding: 6px var(--space-3); border-radius: var(--radius-sm); color: var(--muted); font-size: 14px; line-height: 20px; text-decoration: none; }
 .bp-navlink:hover { background: var(--raised); color: var(--ink); text-decoration: none; }
-.bp-navlink.active, .bp-navlink[aria-current="page"] { background: var(--action-subtle); color: var(--ink); font-weight: 600; box-shadow: inset 2px 0 0 var(--construction); }
-[dir="rtl"] .bp-navlink.active, [dir="rtl"] .bp-navlink[aria-current="page"] { box-shadow: inset -2px 0 0 var(--construction); }
+.bp-navlink.active, .bp-navlink[aria-current="page"], .bp-navlink[aria-current="location"] { background: var(--action-subtle); color: var(--ink); font-weight: 600; box-shadow: inset 2px 0 0 var(--construction); }
+[dir="rtl"] .bp-navlink.active, [dir="rtl"] .bp-navlink[aria-current="page"], [dir="rtl"] .bp-navlink[aria-current="location"] { box-shadow: inset -2px 0 0 var(--construction); }
 .bp-navlink p { margin: 0; }
 .bp-navgroup { margin: var(--space-5) 0 var(--space-2); padding: 0 var(--space-3); font-size: 12px; line-height: 18px; font-weight: 600; color: var(--muted); }
 .bp-navgroup:first-child { margin-top: 0; }

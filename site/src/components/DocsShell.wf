@@ -12,12 +12,10 @@ component DocsShell(_ heading: String, chapter: String = "", blurb: String = "",
     slot
     use Book
 
-    // A chapter opened counts as read, for the book's progress.
-    effect { Book.visit(location.pathname) }
-
-    // The page the reader arrived on suggests what they are building.
-    use Building
-    effect { if let first = outputs[0] { Building.arrive(first) } }
+    // A chapter counts as read once its end has been seen, not when it
+    // opens: `finished` runs when the mark below its last section comes
+    // into view.
+    action finished() { Book.visit(location.pathname) }
 
     // The place in the header a page of this kind belongs to.
     derived section = match kind {
@@ -84,6 +82,8 @@ component DocsShell(_ heading: String, chapter: String = "", blurb: String = "",
                 }
             }
 
+            // The end of the chapter: reaching it marks the chapter read.
+            Host(tag: "div", aria-hidden: "true", mount: (n) => wfWhenSeen(n, () => finished()), cleanup: (h) => h.stop())
             PrevNext(prevTo: prevTo, prevLabel: prevLabel, nextTo: nextTo, nextLabel: nextLabel)
         }
 

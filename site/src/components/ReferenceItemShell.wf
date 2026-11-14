@@ -7,9 +7,6 @@ component ReferenceItemShell(_ name: String, summary: String = "", signature: St
     slot stage
     slot notes
     slot
-    use Building
-    // The page the reader arrived on suggests what they are building.
-    effect { if let first = outputs[0] { Building.arrive(first) } }
 
     SiteHeader(docs: true, other: other, lang: lang)
 

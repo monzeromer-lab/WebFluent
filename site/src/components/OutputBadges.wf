@@ -1,11 +1,9 @@
-/// The outputs something works in. The one the reader is building is
-/// marked; an output it does not work in is struck through when `missing`
-/// names it.
+/// The outputs something works in; an output it does not work in is struck
+/// through when `missing` names it.
 component OutputBadges(outputs: [String] = [], missing: [String] = []) {
-    use Building
     Row(gap: .xs, class: "bp-labels", role: "group", aria-label: t("outputs.label")) {
         for o in outputs by o {
-            Text(t("building.{o}"), class: "bp-label", data-tone: if o == Building.output { "construction" } else { "plain" })
+            Text(t("building.{o}"), class: "bp-label", data-tone: "plain")
         }
         for o in missing by o {
             Text(t("building.{o}"), class: "bp-label", data-tone: "off", title: t("outputs.missing"))
