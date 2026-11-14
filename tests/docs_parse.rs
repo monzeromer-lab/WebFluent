@@ -2216,7 +2216,7 @@ fn the_book_is_written_to_its_rules() {
 #[test]
 fn every_published_page_has_a_markdown_twin() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR"));
-    let sitemap = std::fs::read_to_string(root.join("docs/sitemap.xml")).expect("docs/sitemap.xml");
+    let sitemap = built_sitemap();
     let llms = std::fs::read_to_string(root.join("site/public/llms.txt")).expect("llms.txt");
     let loc = regex::Regex::new(r"<loc>https?://[^/<]+(/[^<]*)</loc>").unwrap();
     let mut failures = Vec::new();
@@ -2300,7 +2300,7 @@ fn the_search_knows_other_frameworks_words() {
 #[test]
 fn the_agent_files_agree_with_the_site_and_the_compiler() {
     let root = Path::new(env!("CARGO_MANIFEST_DIR"));
-    let sitemap = std::fs::read_to_string(root.join("docs/sitemap.xml")).expect("docs/sitemap.xml");
+    let sitemap = built_sitemap();
     let loc = regex::Regex::new(r"<loc>https?://[^/<]+(/[^<]*)</loc>").unwrap();
     let live: Vec<String> = loc
         .captures_iter(&sitemap)
@@ -2374,4 +2374,24 @@ fn the_agent_files_agree_with_the_site_and_the_compiler() {
         failures.push(format!("AGENTS.md: an icon count other than `{count}`"));
     }
     assert!(failures.is_empty(), "{}", failures.join("\n"));
+}
+
+/// The site's sitemap, as a build writes it. The built site is not kept in
+/// the repository (a workflow builds and deploys it), so the site is built
+/// here, once, into the target folder.
+fn built_sitemap() -> String {
+    static SITEMAP: std::sync::OnceLock<String> = std::sync::OnceLock::new();
+    SITEMAP
+        .get_or_init(|| {
+            let root = Path::new(env!("CARGO_MANIFEST_DIR"));
+            let out = root.join("target/docs-parse-site");
+            let site = root.join("site");
+            let options = webfluent::build::BuildOptions {
+                output_dir: Some(out.clone()),
+                ..webfluent::build::BuildOptions::new(&site, &webfluent::vfs::FsVfs)
+            };
+            webfluent::build::build(&options).expect("the site builds");
+            std::fs::read_to_string(out.join("sitemap.xml")).expect("the built sitemap")
+        })
+        .clone()
 }

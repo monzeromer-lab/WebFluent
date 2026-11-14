@@ -12,8 +12,10 @@
 #
 # What it does: checks the tree, the tag and CI on the commit being
 # released; runs scripts/check.sh; re-pins the Zed grammar when it changed;
-# bumps the crates, the Node binding and the agents' skill; rebuilds the docs site and its
-# gallery of rendered examples (scripts/showcase.py); runs the
+# bumps the crates, the Node binding and the agents' skill; rewrites the docs
+# site's pages and its gallery of rendered examples (scripts/showcase.py) —
+# the site itself is built and deployed by .github/workflows/pages.yml when
+# the release commit lands; runs the
 # release preflight; then commits, pushes, tags and pushes the tag — which
 # is what starts the release workflow. Saying no at the prompt puts every
 # file back as it was.
@@ -109,7 +111,7 @@ scripts/check.sh
 
 restore() {
     git restore --staged --worktree -- . ':!RELEASE_NOTES.md' 2>/dev/null || true
-    git clean -fdq -- docs site/public/showcase
+    git clean -fdq -- site/public/showcase
 }
 
 step "The Zed extension's grammar"
@@ -139,11 +141,9 @@ WF_BIN=target/release/wf python3 scripts/docsite >/dev/null
 # The gallery (/showcase): every example rendered by this compiler, with
 # previews. Needs pdftoppm and pdfinfo (poppler-utils) and magick.
 python3 scripts/showcase.py | tail -n1
+# The site builds; .github/workflows/pages.yml builds it again, with the
+# compiler the Playground loads, and deploys it.
 target/release/wf build -d site --allow-output-outside | tail -n1
-# The compiler the live examples and the Playground load, under
-# /wasm/$version/, held to its size budget.
-crates/wf-wasm/build.sh >/dev/null
-scripts/site-wasm.sh | tail -n4
 
 step "Release preflight"
 scripts/release-preflight.sh "$tag" || { restore; stop "the preflight failed; every file is back as it was"; }
@@ -164,7 +164,7 @@ fi
 
 step "Commit, push, tag"
 git add -A -- Cargo.toml Cargo.lock crates/wf-lsp/Cargo.toml crates/wf-wasm/Cargo.toml \
-    bindings/node/package.json skills RELEASE_NOTES.md site docs md-docs
+    bindings/node/package.json skills RELEASE_NOTES.md site md-docs
 if git diff --cached --quiet; then
     [ "$resume" = 1 ] || { restore; stop "nothing to commit — the tree is already at $version but HEAD is not \"Release $version\""; }
     echo "  ..  the release commit is already made"

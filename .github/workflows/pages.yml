@@ -1,0 +1,92 @@
+# The docs site, built and deployed on every push to master that changes
+# what it is made from: the site, the guide, the compiler (whose registry,
+# messages and runtime the pages are written from) and the compiler the
+# Playground loads. Nothing built is committed; GitHub Pages serves this
+# workflow's artifact.
+name: Docs site
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - "site/**"
+      - "md-docs/**"
+      - "src/**"
+      - "crates/wf-wasm/**"
+      - "scripts/docsite/**"
+      - "scripts/site-wasm.sh"
+      - "RELEASE_NOTES.md"
+      - "Cargo.toml"
+      - "Cargo.lock"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deploy at a time, and a deploy that started is let finish.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build the site
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
+        with:
+          toolchain: stable
+          targets: wasm32-unknown-unknown
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+
+      - name: Build wf
+        run: cargo build --release --bin wf
+
+      # The pages written from md-docs/ and the compiler are committed;
+      # one that is behind would publish an old page.
+      - name: The site's generated files are current
+        run: WF_BIN=target/release/wf python3 scripts/docsite --check
+
+      - name: Build the site
+        run: target/release/wf build -d site --allow-output-outside
+
+      # libwebp is C, compiled for wasm32 by clang against crates/wf-wasm/libc.
+      - name: Point the C build at clang and llvm-ar
+        run: |
+          set -euo pipefail
+          ar=$(command -v llvm-ar || find /usr/bin -name 'llvm-ar-*' | sort -V | tail -1)
+          {
+            echo "CC_wasm32_unknown_unknown=clang"
+            echo "AR_wasm32_unknown_unknown=$ar"
+            echo "CFLAGS_wasm32_unknown_unknown=-ffreestanding -nostdlibinc -isystem $GITHUB_WORKSPACE/crates/wf-wasm/libc/include"
+          } >> "$GITHUB_ENV"
+
+      - name: Install wasm-bindgen
+        run: cargo install --locked wasm-bindgen-cli --version 0.2.130
+
+      # What the live examples and the Playground load, under
+      # /wasm/<version>/, held to its size budget.
+      - name: The compiler the Playground loads
+        run: |
+          crates/wf-wasm/build.sh
+          scripts/site-wasm.sh docs
+
+      - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: docs
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
