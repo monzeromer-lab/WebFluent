@@ -138,7 +138,7 @@ pub const MODULES: &[Module] = &[
     module!("store", exports: [
         same("store"), same("dropRouteStores"), same("watchStores"), same("storeSnapshot"),
         same("restoreStore"),
-    ], deps: ["keep"], triggers: []),
+    ], deps: ["keep", "busy"], triggers: []),
     module!("http", exports: [
         same("send"), same("beacon"), same("invalidate"),
     ], deps: [], triggers: []),
@@ -165,6 +165,8 @@ pub const MODULES: &[Module] = &[
         same("trapFocus"), same("uid"),
     ], deps: ["keys", "focus"], triggers: []),
     module!("announce", exports: [same("announce")], deps: [], triggers: []),
+    module!("busy", exports: [same("sameCall"), same("busy")], deps: [], triggers: []),
+    module!("pace", exports: [same("debounce"), same("throttle")], deps: [], triggers: []),
     module!("field", exports: [same("field"), same("choiceError")], deps: [], triggers: []),
     module!("carousel", exports: [same("carousel")], deps: ["field", "focus"], triggers: []),
     module!("drawer", exports: [same("drawer")], deps: ["layer"], triggers: []),

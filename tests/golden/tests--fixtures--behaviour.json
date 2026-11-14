@@ -1,11 +1,11 @@
 {
   "diagnostics": [],
   "files": {
-    "app.js": "6aa99c2111b586c80917e7eb09ec652d6983619b14e40133265d4217cb24275d",
-    "app.js.gz": "72620ec8bd87b5820471bf25f43711a4f0e1c8c8ca6a2de48dbc4ec23b58efdc",
+    "app.js": "74aee22bc688a80a707a8effecedb21f2a25e9a8ef3e74fbc64150570f46c270",
+    "app.js.gz": "40ec3ec041961ff051709b3535ea946ac5a0803d4d8fc46b078dd980ea60c276",
     "index.html": "7596998b06cac5b415b1c8797522c8278a7b3ad39564b210fe71bd5b9059cb91",
     "robots.txt": "16ceb5ee3e0dc13aa9adf31a3ebbe45a1d965b8c2b9f72eaf84e5911e140ed95",
-    "styles.css": "c58c4fe056e0abf58a16dcf6f174e9ba041bd27886d692e333ace16ed70a3dda",
-    "styles.css.gz": "2ba4c51920a69064cc6e64610368e3645ea4ac3abe29b1b47062d383043e332d"
+    "styles.css": "fa3703381143c0844fbb2dcabf31653f5b1b1789124073c2e09cca1bc0ab6dee",
+    "styles.css.gz": "7152430e19fbfc75fd00d03fcf8ea29e08ac627ac0957d4fc33faf717505ef6f"
   }
 }

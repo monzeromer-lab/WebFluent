@@ -7233,6 +7233,11 @@
      "name": "disabled:",
      "type": "Bool",
      "meaning": "Whether the control is inert"
+    },
+    {
+     "name": "loading:",
+     "type": "Bool",
+     "meaning": "Busy while it holds — `loading: Checkout.pay.pending`: a spinner in place of its label, at the same width, and a press does nothing"
     }
    ],
    "controls": [
@@ -7310,7 +7315,8 @@
     ".button",
     ".submit",
     ".reset",
-    ".disabled"
+    ".disabled",
+    ".loading"
    ],
    "events": [],
    "domEvents": [
@@ -11305,6 +11311,12 @@
     "name": "dragmove",
     "kind": "",
     "detail": "On what is dragged, while it moves: `d.over` is the target's `dropValue` or null, `d.position` where it would land",
+    "fallback": ""
+   },
+   {
+    "name": "visible",
+    "kind": "",
+    "detail": "It came into view: scrolled to, or drawn where the reader is looking. `v.ratio` is how much of it shows. A \"load more\" row's cue",
     "fallback": ""
    },
    {

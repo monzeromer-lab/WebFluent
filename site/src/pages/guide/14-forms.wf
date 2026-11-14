@@ -451,7 +451,7 @@ page Welcome(path: "/welcome", title: "Join", description: "Make an account.") {
 
         Heading("Show that a request is running", id: "show-that-a-request-is-running").h2
 
-        Markdown("An action that `await`s has a `.pending` value, `true` while a call of it runs. Use it to disable a button or show a spinner. On a store's action, read it as `Store.action.pending`:")
+        Markdown("An action that `await`s has a `.pending` value, `true` while a call of it runs. Use it to show a spinner, or to keep a button busy with `loading:`. On a store's action, read it as `Store.action.pending`:")
 
         CodeBlock(#"store Api {
     state saved = 0
@@ -467,12 +467,12 @@ page Notes(path: "/notes", title: "Notes", description: "Save a note.") {
 
     Heading("Notes").h1
     Input(bind: text, label: "Note")
-    Button("Save", disabled: Api.save.pending).primary { on click { Api.save({ text: text }) } }
-    if Api.save.pending { Spinner.sm }
+    Button("Save").primary { on click { Api.save({ text: text }) } }
+    Button("Save a copy", loading: Api.save.pending) { on click { Api.save({ text: text, copy: true }) } }
     Text("Saved {Api.saved} times")
 }"#, title: "wf")
 
-        Markdown("While a save runs, **Save** is disabled and a spinner shows beside it. Reading `.pending` on an action that awaits nothing is `T17`.")
+        Markdown("- **A button or a form waits for its work.** A `Button`'s `on click` or a `Form`'s `on submit` that calls an action that awaits is busy until that call ends: `aria-busy`, a press that does nothing, and, past a moment, a spinner in place of its label at the same width. The focus stays on it. Nothing has to be written for it.\n- **A double click submits once.** A call of an action with the same arguments as one still running *is* that call: the work is not done twice, and both get the same answer. A call with other arguments — the next row's save — runs beside it. An action whose every call should run, a poll, says so: `action poll() concurrent \{ … \}`.\n- **`loading:`** keeps any button busy while a value holds — another button's work, a store's state.\n\nReading `.pending` on an action that awaits nothing is `T17`.")
 
         Heading("Checklist for a good form", id: "checklist-for-a-good-form").h2
 

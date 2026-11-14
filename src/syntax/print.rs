@@ -799,7 +799,17 @@ pub fn transition(t: &TransitionBlock, indent: usize) -> String {
 
 /// `on click(e) { … }`, `on key("mod+k") { … }`.
 pub fn handler(h: &EventHandler, indent: usize) -> String {
-    let names = h.params.join(", ");
+    let mut names = h.params.clone();
+    match &h.pace {
+        Some(crate::syntax::parser::ast::Pace::Debounce(e)) => {
+            names.push(format!("debounce: {}", expr(e)));
+        }
+        Some(crate::syntax::parser::ast::Pace::Throttle(e)) => {
+            names.push(format!("throttle: {}", expr(e)));
+        }
+        None => {}
+    }
+    let names = names.join(", ");
     let head = match (&h.key, names.is_empty()) {
         (Some(key), false) => format!("({}, {names})", string(key)),
         (Some(key), true) => format!("({})", string(key)),
@@ -988,8 +998,9 @@ fn bare_statement(s: &Statement, block: Block, indent: usize) -> String {
                 )
             };
             format!(
-                "action {}{params}{}",
+                "action {}{params}{}{}",
                 a.name,
+                if a.concurrent { " concurrent" } else { "" },
                 body(&a.body, Block::Imperative, indent)
             )
         }

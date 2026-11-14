@@ -23,10 +23,11 @@ Button(_ label: String, tone: Enum, size: Enum, shape: Enum, …) { … }
 | `type:` | `.button .submit .reset` | Its role inside a form |
 | `to:` | `Path` | The route to go to when it is pressed |
 | `disabled:` | `Bool` | Whether the control is inert |
+| `loading:` | `Bool` | Busy while it holds — `loading: Checkout.pay.pending`: a spinner in place of its label, at the same width, and a press does nothing |
 
 ## Flags
 
-`.primary` `.secondary` `.success` `.danger` `.warning` `.info` `.sm` `.md` `.lg` `.rounded` `.pill` `.full` `.outlined` `.button` `.submit` `.reset` `.disabled`
+`.primary` `.secondary` `.success` `.danger` `.warning` `.info` `.sm` `.md` `.lg` `.rounded` `.pill` `.full` `.outlined` `.button` `.submit` `.reset` `.disabled` `.loading`
 
 ## DOM events it answers
 

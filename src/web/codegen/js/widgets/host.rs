@@ -103,8 +103,9 @@ impl JsCodegen {
             )
         } else {
             format!(
-                "{var}.addEventListener(\"{}\", {head} => {{ {body} }});",
-                handler.event
+                "{var}.addEventListener(\"{}\", {});",
+                handler.event,
+                self.paced(handler, format!("{head} => {{ {body} }}"))
             )
         }
     }

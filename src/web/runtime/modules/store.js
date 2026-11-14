@@ -136,11 +136,14 @@
           }
         };
         // An async action carries `pending`: true while any call of it
-        // runs, so the first of two calls to end does not clear it.
+        // runs, so the first of two calls to end does not clear it. A call
+        // with the arguments of one still running is that call
+        // (`sameCall`), unless the action is `concurrent`.
         if (fn.constructor && fn.constructor.name === "AsyncFunction") {
           const pending = signal(false);
+          const concurrent = (definition.concurrent || []).includes(key);
           let runs = 0;
-          store[key] = async (...args) => {
+          const run = async (args) => {
             const before = storeWatcher ? snap(states) : null;
             runs += 1;
             pending.set(true);
@@ -150,6 +153,7 @@
               report(args, before);
             }
           };
+          store[key] = (...args) => sameCall(pending, args, () => run(args), concurrent);
           store[key].pending = pending;
         } else {
           store[key] = (...args) => {

@@ -77,19 +77,22 @@ impl JsCodegen {
                 // An action that awaits is an async function, and `name.pending`
                 // is true while a call of it runs.
                 let is_async = crate::syntax::parser::ast::awaits(&a.body);
-                let kind = if is_async {
-                    "async function"
-                } else {
-                    "function"
-                };
                 self.emit_line(&format!(
-                    "{} {}({}) {{",
-                    kind,
+                    "function {}({}) {{",
                     bare(&a.name),
                     bare_list(&params.join(", "))
                 ));
                 self.indent += 1;
                 if is_async {
+                    // A call with the arguments of one still running is
+                    // that call — a double click submits once — unless the
+                    // action is `concurrent`.
+                    self.emit_line(&format!(
+                        "return WF.sameCall({}_pending, [{}], async () => {{",
+                        sig(&a.name),
+                        bare_list(&params.join(", "))
+                    ));
+                    self.indent += 1;
                     // `pending` holds while any call of it runs: two clicks
                     // are two calls, and the first to end must not clear it
                     // while the second is still going. The count is kept
@@ -137,6 +140,8 @@ impl JsCodegen {
                     self.emit_line(&format!(
                         "}} finally {{ {p}.runs -= 1; if (!{p}.runs) {p}.set(false); }}"
                     ));
+                    self.indent -= 1;
+                    self.emit_line(&format!("}}, {});", a.concurrent));
                 }
                 self.indent -= 1;
                 self.emit_line("}");
@@ -179,11 +184,13 @@ impl JsCodegen {
                 } else {
                     "document"
                 };
+                let func = self.paced(
+                    handler,
+                    format!("{} => {{ {} }}", self.handler_head(handler, "event"), body),
+                );
                 self.emit_line(&format!(
-                    "WF.listen({target}, \"{}\", {} => {{ {} }});",
-                    handler.event,
-                    self.handler_head(handler, "event"),
-                    body
+                    "WF.listen({target}, \"{}\", {func});",
+                    handler.event
                 ));
             }
             _ => {

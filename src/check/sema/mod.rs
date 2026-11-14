@@ -1883,6 +1883,7 @@ fn lower_action_shorthand(el: &mut UIElement) {
         ..actions[0].span
     };
     el.events.push(EventHandler {
+        pace: None,
         event: "click".to_string(),
         params: Vec::new(),
         key: None,

@@ -95,13 +95,24 @@
       const attr = (name) => el.getAttribute(name) || "";
       plays.push(animateOut(el, attr("data-wf-exit"), attr("data-wf-duration"), attr("data-wf-delay"), attr("data-wf-easing")));
     };
+    const roots = [];
     for (const drawn of nodes) {
       const n = inPage(drawn);
       if (!(n instanceof Element)) continue;
+      roots.push(n);
       if (config && config.exit) plays.push(animateOut(n, config.exit, config.duration, "", config.easing));
       else marked(n);
       if (typeof n.querySelectorAll === "function") {
         for (const el of n.querySelectorAll("[data-wf-exit]")) marked(el);
+      }
+    }
+    // What is on its way out takes no press and no focus while its exit
+    // plays: a click on a closing card, a Tab into a leaving row, lands
+    // nowhere. One that comes back (a `show`) is given them again.
+    if (plays.length) {
+      for (const n of roots) {
+        if (n.contains && n.contains(document.activeElement) && document.activeElement.blur) document.activeElement.blur();
+        n.inert = true;
       }
     }
     return plays;

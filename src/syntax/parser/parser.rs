@@ -566,6 +566,7 @@ impl Parser {
             name,
             params,
             body,
+            concurrent: false,
             doc: None,
         }))
     }
@@ -1786,6 +1787,7 @@ impl Parser {
         };
         let body = self.parse_block()?;
         Ok(EventHandler {
+            pace: None,
             event,
             params: Vec::new(),
             key: None,

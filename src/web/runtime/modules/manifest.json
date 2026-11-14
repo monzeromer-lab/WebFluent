@@ -741,7 +741,8 @@
     },
     {
       "deps": [
-        "keep"
+        "keep",
+        "busy"
       ],
       "exports": [
         [
@@ -990,6 +991,36 @@
         ]
       ],
       "name": "announce",
+      "triggers": []
+    },
+    {
+      "deps": [],
+      "exports": [
+        [
+          "sameCall",
+          "sameCall"
+        ],
+        [
+          "busy",
+          "busy"
+        ]
+      ],
+      "name": "busy",
+      "triggers": []
+    },
+    {
+      "deps": [],
+      "exports": [
+        [
+          "debounce",
+          "debounce"
+        ],
+        [
+          "throttle",
+          "throttle"
+        ]
+      ],
+      "name": "pace",
       "triggers": []
     },
     {

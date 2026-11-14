@@ -3684,6 +3684,42 @@ page Drop(path: "/", title: "Drop", description: "A place to drop files.") {
 }
 ```
 
+### How often a handler runs
+
+An event can come far more often than its handler needs to run: a key per
+letter, a scroll per pixel. Say how often in the handler's parentheses:
+
+```wf
+page Reader(path: "/", title: "Reader", description: "A search box and a long page.") {
+    state typed = ""
+    state q = ""
+    state read = 0
+    state loads = 0
+    Heading("Reader").h1
+    Input(bind: typed, label: "Search") {
+        on input(debounce: 300.ms) { q = typed }
+    }
+    Stack {
+        style { height: 300px; overflow-y: auto }
+        on scroll(e, throttle: 100.ms) { read = e.target.scrollTop }
+        Stack { style { height: 2000px; flex-shrink: 0 } Text("A long article") }
+    }
+    Text("Searching for {q}, scrolled {read}px")
+    Text("End of the list") { on visible { loads = loads + 1 } }
+}
+```
+
+- **`debounce: 300.ms`** runs the handler once the events have stopped
+  coming for that long, with the last of them: a search asked when the
+  reader stops typing.
+- **`throttle: 100.ms`** runs it at once, then at most once in that long,
+  and once more where the events stopped: a scroll position followed
+  without running on every pixel.
+- A wait still pending when the page, branch or item leaves is dropped.
+- **`on visible`** runs each time the element comes into view: scrolled to,
+  or drawn where the reader is looking. A "load more" row is an element
+  with `on visible { feed.loadMore() }` at the end of the list.
+
 ## Keys
 
 `on key("…")` answers to one key, with modifiers. On an element it fires while
@@ -4167,6 +4203,8 @@ needed ([State](/learn/07-state-and-reactivity#the-browser-as-values)).
 |---|---|---|
 | `on click { … }` | runs when the element fires the event | [Handlers](#handlers) |
 | `on keydown(e) { … }` | names the event object | [The event object](#the-event-object) |
+| `on input(debounce: 300.ms) { … }`, `on scroll(e, throttle: 100.ms) { … }` | runs once the events stop; at most once a while | [How often a handler runs](#how-often-a-handler-runs) |
+| `on visible { … }` | runs when the element comes into view | [How often a handler runs](#how-often-a-handler-runs) |
 | `on key("Escape") { … }` | answers to one key or combination | [Keys](#keys) |
 | `on key("mod+k mod+s") { … }` on `app` | an app-wide shortcut, here a chord | [Shortcuts for an app](#shortcuts-for-an-app) |
 | `keyIs(e, "mod+s")`, `keyLabel("mod+s")` | test a key event; write a combination for this system | [Shortcuts for an app](#shortcuts-for-an-app) |
@@ -7651,8 +7689,8 @@ and typed errors.
 ## Show that a request is running
 
 An action that `await`s has a `.pending` value, `true` while a call of it
-runs. Use it to disable a button or show a spinner. On a store's action, read
-it as `Store.action.pending`:
+runs. Use it to show a spinner, or to keep a button busy with `loading:`.
+On a store's action, read it as `Store.action.pending`:
 
 ```wf
 store Api {
@@ -7669,13 +7707,25 @@ page Notes(path: "/notes", title: "Notes", description: "Save a note.") {
 
     Heading("Notes").h1
     Input(bind: text, label: "Note")
-    Button("Save", disabled: Api.save.pending).primary { on click { Api.save({ text: text }) } }
-    if Api.save.pending { Spinner.sm }
+    Button("Save").primary { on click { Api.save({ text: text }) } }
+    Button("Save a copy", loading: Api.save.pending) { on click { Api.save({ text: text, copy: true }) } }
     Text("Saved {Api.saved} times")
 }
 ```
 
-While a save runs, **Save** is disabled and a spinner shows beside it.
+- **A button or a form waits for its work.** A `Button`'s `on click` or a
+  `Form`'s `on submit` that calls an action that awaits is busy until that
+  call ends: `aria-busy`, a press that does nothing, and, past a moment, a
+  spinner in place of its label at the same width. The focus stays on it.
+  Nothing has to be written for it.
+- **A double click submits once.** A call of an action with the same
+  arguments as one still running *is* that call: the work is not done
+  twice, and both get the same answer. A call with other arguments — the
+  next row's save — runs beside it. An action whose every call should run,
+  a poll, says so: `action poll() concurrent { … }`.
+- **`loading:`** keeps any button busy while a value holds — another
+  button's work, a store's state.
+
 Reading `.pending` on an action that awaits nothing is `T17`.
 
 ## Checklist for a good form
@@ -12080,7 +12130,7 @@ https://webfluent.monzeromer.dev/recipes/debounce-a-search
 
 A search box that asks the server on every key sends a request per letter.
 To wait until the reader stops typing, keep what they typed apart from
-what you search for, and copy one to the other only after a pause:
+what you search for, and copy one to the other once they pause:
 
 **Needs:** a server that answers `/api/search?q=…` with a list of results.
 It claims `/`: paste it into a new project, or replace the starter's
@@ -12090,14 +12140,11 @@ It claims `/`: paste it into a new project, or replace the starter's
 page Search(path: "/", title: "Search", description: "Search as you type, without a request per key.") {
     state typed = ""
     state q = ""
-    action commit(value: String) { if value == typed { q = value } }
-    effect {
-        let pending = typed
-        setTimeout(() => commit(pending), 300)
-    }
     resource hits = fetch("/api/search?q={q}")
     Heading("Search").h1
-    Input(bind: typed, placeholder: "Search", aria-label: "Search")
+    Input(bind: typed, placeholder: "Search", aria-label: "Search") {
+        on input(debounce: 300.ms) { q = typed }
+    }
     if q != "" {
         match hits {
             loading { Spinner.sm }
@@ -12111,13 +12158,10 @@ page Search(path: "/", title: "Search", description: "Search as you type, withou
 ## How it works
 
 - `typed` follows the input on every key, through `bind:`. `q` is what the
-  page searches for, and only `commit` writes it.
-- The [effect](/learn/07-state-and-reactivity#effect) reads `typed`,
-  so it runs again on every keystroke. Each run keeps the value it saw in
-  `pending` and schedules a check 300 ms later.
-- When a check runs, `commit` writes `q` only if `pending` is still what the
-  reader has typed. A check from an earlier key finds `typed` has moved on
-  and does nothing, so only the last pause gets through.
+  page searches for, and only the handler writes it.
+- `debounce: 300.ms` runs the handler once the `input` events have stopped
+  coming for 300 ms, so a word typed quickly is one run, with the last of
+  them. A wait still pending when the page leaves is dropped.
 - The [resource](/learn/15-data#show-a-request-with-resource) splices
   `q` into its address, so it asks again each time `q` changes — once per
   pause, not once per key. It also asks once as the page opens, for
@@ -12125,9 +12169,11 @@ page Search(path: "/", title: "Search", description: "Search as you type, withou
   nothing of that answer, so the server only has to answer it quickly
   (an empty list will do).
 
-The timer is the browser's `setTimeout`, because
-[`after(ms)`](/learn/07-state-and-reactivity#timers) is a declaration
-with a body, not a statement an effect can hold.
+For something that should run while the events keep coming, only less often
+— a scroll position, a window being resized — write `throttle:` instead:
+`on scroll(e, throttle: 100.ms) { … }` runs at once, then at most once
+every 100 ms, and once more where the scrolling stopped. Both are in
+[Events](/learn/08-events#how-often-a-handler-runs).
 
 
 

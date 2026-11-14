@@ -103,6 +103,42 @@ page Drop(path: "/", title: "Drop", description: "A place to drop files.") {
 }
 ```
 
+### How often a handler runs
+
+An event can come far more often than its handler needs to run: a key per
+letter, a scroll per pixel. Say how often in the handler's parentheses:
+
+```wf
+page Reader(path: "/", title: "Reader", description: "A search box and a long page.") {
+    state typed = ""
+    state q = ""
+    state read = 0
+    state loads = 0
+    Heading("Reader").h1
+    Input(bind: typed, label: "Search") {
+        on input(debounce: 300.ms) { q = typed }
+    }
+    Stack {
+        style { height: 300px; overflow-y: auto }
+        on scroll(e, throttle: 100.ms) { read = e.target.scrollTop }
+        Stack { style { height: 2000px; flex-shrink: 0 } Text("A long article") }
+    }
+    Text("Searching for {q}, scrolled {read}px")
+    Text("End of the list") { on visible { loads = loads + 1 } }
+}
+```
+
+- **`debounce: 300.ms`** runs the handler once the events have stopped
+  coming for that long, with the last of them: a search asked when the
+  reader stops typing.
+- **`throttle: 100.ms`** runs it at once, then at most once in that long,
+  and once more where the events stopped: a scroll position followed
+  without running on every pixel.
+- A wait still pending when the page, branch or item leaves is dropped.
+- **`on visible`** runs each time the element comes into view: scrolled to,
+  or drawn where the reader is looking. A "load more" row is an element
+  with `on visible { feed.loadMore() }` at the end of the list.
+
 ## Keys
 
 `on key("…")` answers to one key, with modifiers. On an element it fires while
@@ -586,6 +622,8 @@ needed ([State](07-state-and-reactivity.md#the-browser-as-values)).
 |---|---|---|
 | `on click { … }` | runs when the element fires the event | [Handlers](#handlers) |
 | `on keydown(e) { … }` | names the event object | [The event object](#the-event-object) |
+| `on input(debounce: 300.ms) { … }`, `on scroll(e, throttle: 100.ms) { … }` | runs once the events stop; at most once a while | [How often a handler runs](#how-often-a-handler-runs) |
+| `on visible { … }` | runs when the element comes into view | [How often a handler runs](#how-often-a-handler-runs) |
 | `on key("Escape") { … }` | answers to one key or combination | [Keys](#keys) |
 | `on key("mod+k mod+s") { … }` on `app` | an app-wide shortcut, here a chord | [Shortcuts for an app](#shortcuts-for-an-app) |
 | `keyIs(e, "mod+s")`, `keyLabel("mod+s")` | test a key event; write a combination for this system | [Shortcuts for an app](#shortcuts-for-an-app) |

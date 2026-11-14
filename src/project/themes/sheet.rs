@@ -404,6 +404,15 @@ ol.wf-list { list-style: decimal; padding-left: var(--spacing-lg); }
 /*@both*/
 .wf-btn--outlined.wf-btn--primary { color: var(--color-primary); background: transparent; }
 .wf-btn--outlined.wf-btn--danger { color: var(--color-danger); background: transparent; }
+/* Busy: its work is under way (`loading:`, or a handler's action still
+   running). Past a moment — so a quick save does not flicker — its label
+   gives way to a spinner, and the button keeps its width. */
+.wf-btn[aria-busy="true"] { position: relative; cursor: progress; animation: wf-busy-label 0s linear 300ms forwards; }
+.wf-btn[aria-busy="true"]::after { content: ""; position: absolute; inset: 0; margin: auto; width: 1em; height: 1em; box-sizing: border-box; border: 2px solid currentColor; border-inline-end-color: transparent; border-radius: 50%; opacity: 0; animation: wf-busy-show 0s linear 300ms forwards, wf-busy-spin 0.6s linear infinite; }
+@keyframes wf-busy-label { to { -webkit-text-fill-color: transparent; } }
+@keyframes wf-busy-show { to { opacity: 1; } }
+@keyframes wf-busy-spin { to { transform: rotate(360deg); } }
+.wf-form[aria-busy="true"] { cursor: progress; }
 
 /* ─── Icon Button ───────────────────────────────────── */
 /*@full*/

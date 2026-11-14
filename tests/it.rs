@@ -68,7 +68,6 @@ mod fixes;
 mod fmt_corpus;
 #[path = "focus.rs"]
 mod focus;
-mod overlays;
 #[path = "frontend_fixes.rs"]
 mod frontend_fixes;
 #[path = "fs_security.rs"]
@@ -85,6 +84,7 @@ mod handler_values;
 mod html_output_hygiene;
 #[path = "in_place.rs"]
 mod in_place;
+mod interactions;
 #[path = "io_errors.rs"]
 mod io_errors;
 #[path = "js_strings.rs"]
@@ -123,6 +123,7 @@ mod offline;
 mod output_security;
 #[path = "output_type_static.rs"]
 mod output_type_static;
+mod overlays;
 #[path = "page_lang.rs"]
 mod page_lang;
 #[path = "paged.rs"]

@@ -39,6 +39,7 @@
         const shown = box();
         if (condFn()) {
           shown.style.display = "contents";
+          for (const n of shown.children) n.inert = false;
           if (animConfig.enter) {
             for (const n of shown.children) animateIn(n, animConfig.enter, animConfig.duration, animConfig.delay, animConfig.easing);
           }

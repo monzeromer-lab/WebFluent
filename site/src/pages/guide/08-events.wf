@@ -45,6 +45,30 @@ page Learn08Events(path: "/learn/08-events", title: "Events", description: "DOM 
     }
 }"#, title: "wf")
 
+        Heading("How often a handler runs", id: "how-often-a-handler-runs").h3
+
+        Markdown("An event can come far more often than its handler needs to run: a key per letter, a scroll per pixel. Say how often in the handler's parentheses:")
+
+        CodeBlock(#"page Reader(path: "/", title: "Reader", description: "A search box and a long page.") {
+    state typed = ""
+    state q = ""
+    state read = 0
+    state loads = 0
+    Heading("Reader").h1
+    Input(bind: typed, label: "Search") {
+        on input(debounce: 300.ms) { q = typed }
+    }
+    Stack {
+        style { height: 300px; overflow-y: auto }
+        on scroll(e, throttle: 100.ms) { read = e.target.scrollTop }
+        Stack { style { height: 2000px; flex-shrink: 0 } Text("A long article") }
+    }
+    Text("Searching for {q}, scrolled {read}px")
+    Text("End of the list") { on visible { loads = loads + 1 } }
+}"#, title: "wf")
+
+        Markdown("- **`debounce: 300.ms`** runs the handler once the events have stopped coming for that long, with the last of them: a search asked when the reader stops typing.\n- **`throttle: 100.ms`** runs it at once, then at most once in that long, and once more where the events stopped: a scroll position followed without running on every pixel.\n- A wait still pending when the page, branch or item leaves is dropped.\n- **`on visible`** runs each time the element comes into view: scrolled to, or drawn where the reader is looking. A \"load more\" row is an element with `on visible \{ feed.loadMore() \}` at the end of the list.")
+
         Heading("Keys", id: "keys").h2
 
         Markdown("`on key(\"…\")` answers to one key, with modifiers. On an element it fires while that element has focus; at the top of a page or component it fires anywhere on the page:")
@@ -335,6 +359,16 @@ page Inbox(path: "/", title: "Inbox", description: "Toasts, a question, an annou
                     Table.Cell { Markdown("`on keydown(e) \{ … \}`") }
                     Table.Cell("names the event object")
                     Table.Cell { Markdown("[The event object](#the-event-object)") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`on input(debounce: 300.ms) \{ … \}`, `on scroll(e, throttle: 100.ms) \{ … \}`") }
+                    Table.Cell("runs once the events stop; at most once a while")
+                    Table.Cell { Markdown("[How often a handler runs](#how-often-a-handler-runs)") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`on visible \{ … \}`") }
+                    Table.Cell("runs when the element comes into view")
+                    Table.Cell { Markdown("[How often a handler runs](#how-often-a-handler-runs)") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`on key(\"Escape\") \{ … \}`") }

@@ -286,6 +286,15 @@ impl JsCodegen {
             }
             self.indent -= 1;
             self.emit_line("},");
+            // The actions every call of which runs, overlapping or not.
+            let concurrent: Vec<String> = actions
+                .iter()
+                .filter(|a| a.concurrent)
+                .map(|a| format!("\"{}\"", a.name))
+                .collect();
+            if !concurrent.is_empty() {
+                self.emit_line(&format!("concurrent: [{}],", concurrent.join(", ")));
+            }
         }
 
         // The connections the store holds open — a socket, a worker — made

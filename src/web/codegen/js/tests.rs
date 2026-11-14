@@ -374,6 +374,7 @@ fn a_declared_event_is_emitted_to_the_handler_the_caller_passed() {
                     Vec::new(),
                 );
                 b.events.push(EventHandler {
+                    pace: None,
                     event: "click".to_string(),
                     params: vec!["ev".to_string()],
                     key: None,
@@ -407,6 +408,7 @@ fn a_declared_event_is_emitted_to_the_handler_the_caller_passed() {
         )
     };
     call.events.push(EventHandler {
+        pace: None,
         event: "pick".to_string(),
         params: vec!["which".to_string()],
         key: None,
@@ -416,6 +418,7 @@ fn a_declared_event_is_emitted_to_the_handler_the_caller_passed() {
         span: Span::dummy(),
     });
     call.events.push(EventHandler {
+        pace: None,
         event: "mouseenter".to_string(),
         params: Vec::new(),
         key: None,
@@ -560,6 +563,7 @@ fn if_let_binds_the_value_and_for_by_passes_the_key() {
                         vec![Expr::StringLiteral("/x".into())],
                     ))),
                 }))],
+                concurrent: false,
                 doc: None,
             })),
         ],
@@ -577,7 +581,9 @@ fn if_let_binds_the_value_and_for_by_passes_the_key() {
         "a keyed item is read live: {out}"
     );
     assert!(
-        out.contains("async function load()") && out.contains("(await WF.request(\"/x\"))"),
+        out.contains("function load() {")
+            && out.contains("return WF.sameCall(_load_pending, [], async () => {")
+            && out.contains("(await WF.request(\"/x\"))"),
         "{out}"
     );
 }

@@ -356,6 +356,7 @@ impl JsCodegen {
                     "const {}_pending = WF.signal(false);",
                     sig(&a.name)
                 ));
+                self.body.async_actions.push(a.name.clone());
             }
         }
     }

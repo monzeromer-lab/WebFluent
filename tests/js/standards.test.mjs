@@ -108,10 +108,11 @@ test("a store's async action is pending until every call of it has ended", async
   const { WF } = load();
   const resolvers = [];
   const Api = WF.store("Api", () => ({
-    actions: { sync: async () => { await new Promise((r) => resolvers.push(r)); } },
+    actions: { sync: async (store, id) => { await new Promise((r) => resolvers.push(r)); } },
   }));
-  const first = Api.sync();
-  const second = Api.sync();
+  // Two calls with different arguments — two rows' saves — both run.
+  const first = Api.sync(1);
+  const second = Api.sync(2);
   assert.equal(Api.sync.pending(), true);
   resolvers[0]();
   await first;

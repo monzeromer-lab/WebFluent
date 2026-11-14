@@ -2215,11 +2215,13 @@ impl ParserV2 {
         } else {
             Vec::new()
         };
+        let concurrent = self.eat_word("concurrent");
         let (stmts, _) = self.parse_imperative_block()?;
         Ok(StatementKind::Action(ActionDecl {
             name,
             params,
             body: stmts,
+            concurrent,
             doc: None,
         }))
     }
@@ -3002,6 +3004,7 @@ impl ParserV2 {
         let event = self.expect_ident("the event's name")?;
         let mut key = None;
         let mut params = Vec::new();
+        let mut pace = None;
         if self.eat(&TokenType::OpenParen) {
             // `on key("ctrl+k")`, or `on key("Escape", e)`.
             if event == "key" {
@@ -3032,9 +3035,30 @@ impl ParserV2 {
             } else {
                 // `on menu(key, x, y)`: a name for each value the event
                 // sends. How many it may have is the checker's to say.
-                params.push(self.expect_ident("the event parameter's name")?);
-                while self.eat(&TokenType::Comma) {
-                    params.push(self.expect_ident("the event parameter's name")?);
+                // `debounce:` or `throttle:` says how often it runs.
+                loop {
+                    if let TokenType::Identifier(word) = self.kind().clone()
+                        && matches!(self.kind_at(1), TokenType::Colon)
+                    {
+                        self.advance();
+                        self.advance();
+                        let every = self.parse_expression()?;
+                        pace = Some(match word.as_str() {
+                            "debounce" => crate::syntax::parser::ast::Pace::Debounce(every),
+                            "throttle" => crate::syntax::parser::ast::Pace::Throttle(every),
+                            _ => {
+                                return Err(self.error_with_hint(
+                                    format!("A handler takes `debounce:` or `throttle:`, not `{word}:`"),
+                                    "`on input(debounce: 300.ms) { … }` runs once the events stop; `on scroll(e, throttle: 100.ms) { … }` at most once in that long",
+                                ));
+                            }
+                        });
+                    } else {
+                        params.push(self.expect_ident("the event parameter's name")?);
+                    }
+                    if !self.eat(&TokenType::Comma) {
+                        break;
+                    }
                 }
             }
             self.expect(&TokenType::CloseParen, "`)`")?;
@@ -3050,6 +3074,7 @@ impl ParserV2 {
             event,
             params,
             key,
+            pace,
             body,
             span: self.span_since(mark),
         })

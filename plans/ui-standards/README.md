@@ -561,6 +561,27 @@ no name of its own so called: `state toast` stays a program's, as it was.
 
 **Done when** standard 7 holds, and the debounce recipe is one line.
 
+**Status: done, 2026-11-14.** The checks are `tests/browser/busy.mjs` (21
+in Chrome), `tests/js/busy.test.mjs` and `tests/interactions.rs`; the
+debounce recipe is `on input(debounce: 300.ms) { q = typed }`. Five things
+differ from the plan:
+
+- `pending` stays a `Bool`. Stage 0 already kept a count of the calls under
+  it, so it is true until the last ends; a number would have broken every
+  `disabled: save.pending`.
+- A second call is not dropped: one with the *same arguments* as a call
+  still running is that call (the same promise, so an `await` of it gets
+  the answer). Dropping every second call would have dropped the next row's
+  toggle while the first was saving.
+- A busy button is `aria-disabled`, not `disabled`: a disabled button
+  loses the focus, which a keyboard user would then have to find again. A
+  press while it is busy does nothing all the same.
+- There is no `InView` component. `on visible` works on any element, so a
+  wrapper added nothing.
+- `wf verify` warns of a target under 24×24 rather than failing: WCAG lets
+  a small target pass by the space around it, which a box's size cannot
+  tell.
+
 ### Stage 5: Tier 1, the components that need no new foundation
 
 This stage can run beside stages 2 to 4. It adds:

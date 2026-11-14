@@ -2,13 +2,13 @@
   "diagnostics": [],
   "files": {
     "_headers": "ab659ef6aa87e4994c047f0afe74c1882b43db8b48e5ed9315716374a749c4b2",
-    "app.js": "2bdfbf802246fc92af4de00e2116be35571526f1db0ffc36aa167909b7e8c7e7",
-    "app.js.gz": "d745a3a2aab7fd9cb75f003637fcdb4d5e1df2d2b3215cf44d7511b998239e09",
+    "app.js": "6fc72efee60ef67be7e820d8cb099b7a888bcbb0a9e6fb614bf45a3b3c828710",
+    "app.js.gz": "06d9a7fc5c01f02fde75d9a1457e0078608dc954dd13a3f31a8d88c0bd99566b",
     "index.html": "f5dd673da4db710fdc4a011cab421dbe89453daf52ef97600dbe023bba2fb30b",
     "index.html.gz": "2f91f03e47ec6c9b112ed9c6a48c3bc531e13606efcbb14b239052d57e0538c6",
     "js/wait.js": "29ef4e930fcc693923b9264ff4ce7c2be9a68c3646eb32c12a65d99d7c0c32a3",
     "robots.txt": "16ceb5ee3e0dc13aa9adf31a3ebbe45a1d965b8c2b9f72eaf84e5911e140ed95",
-    "styles.css": "26005fd527c3a9f16577512677878d2f76346e06e64d1cd92dfec6bb8e8b3bf1",
-    "styles.css.gz": "2ef51321a43c4f7927a7274f5fff0aa38a5eaa3e112e9a690c1c9d1eedb3b9c6"
+    "styles.css": "234f7f0695da9f0aca76067371c923da278752fdf28c5d633e129543b7d98691",
+    "styles.css.gz": "a0dda468063403839c128f28492b1f35c362d4561fcad10cb9523a9a14f1e4dd"
   }
 }

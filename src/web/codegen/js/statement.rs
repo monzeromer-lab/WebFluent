@@ -366,6 +366,21 @@ impl JsCodegen {
         body
     }
 
+    /// `func`, a handler's function, run as often as its `debounce:` or
+    /// `throttle:` says.
+    pub(super) fn paced(&self, handler: &EventHandler, func: String) -> String {
+        use crate::syntax::parser::ast::Pace;
+        match &handler.pace {
+            None => func,
+            Some(Pace::Debounce(every)) => {
+                format!("WF.debounce({func}, {})", self.emit_expr(every))
+            }
+            Some(Pace::Throttle(every)) => {
+                format!("WF.throttle({func}, {})", self.emit_expr(every))
+            }
+        }
+    }
+
     /// The head of a handler's arrow function: its parameter, and `async`
     /// when the body awaits.
     /// A component's event sends as many values as it declares, and the

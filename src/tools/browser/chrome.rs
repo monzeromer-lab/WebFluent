@@ -61,6 +61,10 @@ pub struct Visit {
     pub text: u64,
     /// The `wf-*` classes the page carried — what it actually drew.
     pub drew: Vec<String>,
+    /// The controls drawn smaller than 24 by 24 pixels, WCAG 2.2's least
+    /// target (2.5.8), each as `button "Close" 16×16`. A warning: a
+    /// target that small may still pass by the spacing around it.
+    pub small: Vec<String>,
 }
 
 /// One page a browser has open.
@@ -678,6 +682,14 @@ pub fn read_report(visit: &mut Visit, text: &str) {
                 .collect()
         })
         .unwrap_or_default();
+    visit.small = report["small"]
+        .as_array()
+        .map(|a| {
+            a.iter()
+                .filter_map(|v| v.as_str().map(str::to_string))
+                .collect()
+        })
+        .unwrap_or_default();
     for broken in report["images"].as_array().into_iter().flatten() {
         visit.errors.push(format!(
             "an image did not load: {}",
@@ -704,5 +716,25 @@ pub const PAGE_REPORT: &str = r#"(() => {
     images: [...document.images]
       .filter((i) => i.complete && i.naturalWidth === 0 && i.getAttribute("src"))
       .map((i) => i.currentSrc || i.src),
+    // Every control a pointer aims at, drawn smaller than 24×24. Left out,
+    // as WCAG 2.5.8 leaves them out: a link inside a line of text, a box
+    // or a radio its label makes larger, what is hidden or not drawn.
+    small: [...document.querySelectorAll('a[href], button, input:not([type="hidden"]), select, textarea, summary, [role="button"], [role="tab"], [role="menuitem"], [role="switch"], [role="checkbox"], [role="radio"], [tabindex]:not([tabindex="-1"])')]
+      .filter((n) => {
+        if (n.closest('[hidden], [inert], .wf-visually-hidden, dialog:not([open])')) return false;
+        const css = getComputedStyle(n);
+        if (css.visibility === "hidden" || css.display === "none" || Number(css.opacity) === 0) return false;
+        if (n.tagName === "A" && css.display === "inline") return false;
+        if (n.tagName === "INPUT" && (n.labels || []).length) return false;
+        const r = n.getBoundingClientRect();
+        if (r.width <= 1 || r.height <= 1) return false;
+        return r.width < 23.5 || r.height < 23.5;
+      })
+      .slice(0, 20)
+      .map((n) => {
+        const r = n.getBoundingClientRect();
+        const name = (n.getAttribute("aria-label") || n.textContent || n.getAttribute("title") || n.getAttribute("name") || "").trim().replace(/\s+/g, " ").slice(0, 30);
+        return `${n.tagName.toLowerCase()} "${name}" ${Math.round(r.width)}×${Math.round(r.height)}`;
+      }),
   });
 })()"#;

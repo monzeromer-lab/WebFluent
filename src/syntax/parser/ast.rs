@@ -862,6 +862,9 @@ pub struct ActionDecl {
     pub name: String,
     pub params: Vec<ParamDecl>,
     pub body: Vec<Statement>,
+    /// `action poll() concurrent { … }`: every call runs, where a call
+    /// with the arguments of one still running is otherwise that call.
+    pub concurrent: bool,
     /// The `///` lines above it.
     pub doc: Option<String>,
 }
@@ -1022,9 +1025,23 @@ pub struct EventHandler {
     pub params: Vec<String>,
     /// `on key("ctrl+k")`: the key the handler answers to.
     pub key: Option<String>,
+    /// `on input(debounce: 300.ms)`, `on scroll(e, throttle: 100.ms)`: how
+    /// often it runs.
+    pub pace: Option<Pace>,
     pub body: Vec<Statement>,
     /// The whole handler, from `on` to the closing brace.
     pub span: Span,
+}
+
+/// How often a handler runs, however often its event comes.
+#[derive(Debug, Clone)]
+pub enum Pace {
+    /// Once the events have stopped coming for this long: a search box
+    /// asks when the reader stops typing.
+    Debounce(Expr),
+    /// At most once in this long, the first at once and the last kept: a
+    /// scroll position followed without running on every pixel.
+    Throttle(Expr),
 }
 
 impl EventHandler {

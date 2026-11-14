@@ -2,8 +2,9 @@
 //! unprefixed, the live values, what the language's own types can do, the
 //! gestures and drag props, and the attributes a component's root takes.
 
-/// The events a runtime recogniser turns the pointer into (`gesture.js`).
-pub const GESTURE_EVENTS: &[&str] = &["longpress", "swipe", "receive", "dragmove"];
+/// The events a runtime recogniser turns the pointer into (`gesture.js`),
+/// and `visible`, which it hears from an `IntersectionObserver`.
+pub const GESTURE_EVENTS: &[&str] = &["longpress", "swipe", "receive", "dragmove", "visible"];
 
 /// The props of a drag and of what takes a drop: the runtime's, not
 /// attributes the element carries.

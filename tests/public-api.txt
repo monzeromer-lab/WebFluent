@@ -2290,6 +2290,20 @@ impl core::marker::Unpin for webfluent::syntax::parser::Expr
 impl core::marker::UnsafeUnpin for webfluent::syntax::parser::Expr
 impl core::panic::unwind_safe::RefUnwindSafe for webfluent::syntax::parser::Expr
 impl core::panic::unwind_safe::UnwindSafe for webfluent::syntax::parser::Expr
+pub enum webfluent::syntax::parser::ast::Pace
+pub webfluent::syntax::parser::ast::Pace::Debounce(webfluent::syntax::parser::Expr)
+pub webfluent::syntax::parser::ast::Pace::Throttle(webfluent::syntax::parser::Expr)
+impl core::clone::Clone for webfluent::syntax::parser::Pace
+pub fn webfluent::syntax::parser::Pace::clone(&self) -> Self
+impl core::fmt::Debug for webfluent::syntax::parser::Pace
+pub fn webfluent::syntax::parser::Pace::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for webfluent::syntax::parser::Pace
+impl core::marker::Send for webfluent::syntax::parser::Pace
+impl core::marker::Sync for webfluent::syntax::parser::Pace
+impl core::marker::Unpin for webfluent::syntax::parser::Pace
+impl core::marker::UnsafeUnpin for webfluent::syntax::parser::Pace
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::syntax::parser::Pace
+impl core::panic::unwind_safe::UnwindSafe for webfluent::syntax::parser::Pace
 #[non_exhaustive] pub enum webfluent::syntax::parser::ast::StatementKind
 pub webfluent::syntax::parser::ast::StatementKind::Action(webfluent::syntax::parser::ActionDecl)
 pub webfluent::syntax::parser::ast::StatementKind::Animate(webfluent::syntax::parser::AnimateStmt)
@@ -2339,6 +2353,9 @@ pub webfluent::syntax::parser::ast::Step::Expect
 pub webfluent::syntax::parser::ast::Step::Expect::negated: bool
 pub webfluent::syntax::parser::ast::Step::Expect::span: webfluent::syntax::parser::Span
 pub webfluent::syntax::parser::ast::Step::Expect::text: webfluent::syntax::parser::Expr
+pub webfluent::syntax::parser::ast::Step::ExpectFocus
+pub webfluent::syntax::parser::ast::Step::ExpectFocus::name: webfluent::syntax::parser::Expr
+pub webfluent::syntax::parser::ast::Step::ExpectFocus::span: webfluent::syntax::parser::Span
 pub webfluent::syntax::parser::ast::Step::Press
 pub webfluent::syntax::parser::ast::Step::Press::key: webfluent::syntax::parser::Expr
 pub webfluent::syntax::parser::ast::Step::Press::span: webfluent::syntax::parser::Span
@@ -2447,6 +2464,7 @@ impl core::panic::unwind_safe::RefUnwindSafe for webfluent::syntax::parser::Unar
 impl core::panic::unwind_safe::UnwindSafe for webfluent::syntax::parser::UnaryOp
 pub struct webfluent::syntax::parser::ast::ActionDecl
 pub webfluent::syntax::parser::ast::ActionDecl::body: alloc::vec::Vec<webfluent::syntax::parser::Statement>
+pub webfluent::syntax::parser::ast::ActionDecl::concurrent: bool
 pub webfluent::syntax::parser::ast::ActionDecl::doc: core::option::Option<alloc::string::String>
 pub webfluent::syntax::parser::ast::ActionDecl::name: alloc::string::String
 pub webfluent::syntax::parser::ast::ActionDecl::params: alloc::vec::Vec<webfluent::syntax::parser::ParamDecl>
@@ -2752,6 +2770,7 @@ pub struct webfluent::syntax::parser::ast::EventHandler
 pub webfluent::syntax::parser::ast::EventHandler::body: alloc::vec::Vec<webfluent::syntax::parser::Statement>
 pub webfluent::syntax::parser::ast::EventHandler::event: alloc::string::String
 pub webfluent::syntax::parser::ast::EventHandler::key: core::option::Option<alloc::string::String>
+pub webfluent::syntax::parser::ast::EventHandler::pace: core::option::Option<webfluent::syntax::parser::Pace>
 pub webfluent::syntax::parser::ast::EventHandler::params: alloc::vec::Vec<alloc::string::String>
 pub webfluent::syntax::parser::ast::EventHandler::span: webfluent::syntax::parser::Span
 impl webfluent::syntax::parser::EventHandler
@@ -2990,6 +3009,7 @@ pub webfluent::syntax::parser::ast::PageDecl::head: alloc::vec::Vec<webfluent::s
 pub webfluent::syntax::parser::ast::PageDecl::header_span: webfluent::syntax::parser::Span
 pub webfluent::syntax::parser::ast::PageDecl::image: core::option::Option<alloc::string::String>
 pub webfluent::syntax::parser::ast::PageDecl::image_alt: core::option::Option<alloc::string::String>
+pub webfluent::syntax::parser::ast::PageDecl::image_expr: core::option::Option<webfluent::syntax::parser::Expr>
 pub webfluent::syntax::parser::ast::PageDecl::lang: core::option::Option<alloc::string::String>
 pub webfluent::syntax::parser::ast::PageDecl::layout: core::option::Option<webfluent::syntax::parser::LayoutRef>
 pub webfluent::syntax::parser::ast::PageDecl::name: alloc::string::String
@@ -3450,6 +3470,7 @@ pub webfluent::syntax::parser::ast::UIElement::style_block: core::option::Option
 pub webfluent::syntax::parser::ast::UIElement::style_span: core::option::Option<webfluent::syntax::parser::Span>
 pub webfluent::syntax::parser::ast::UIElement::transition_block: core::option::Option<webfluent::syntax::parser::TransitionBlock>
 impl webfluent::syntax::parser::UIElement
+pub fn webfluent::syntax::parser::UIElement::case_of<'a>(&self, &str, &[&'a str]) -> core::option::Option<&'a str>
 pub fn webfluent::syntax::parser::UIElement::slot_name(&self) -> core::option::Option<&str>
 impl core::clone::Clone for webfluent::syntax::parser::UIElement
 pub fn webfluent::syntax::parser::UIElement::clone(&self) -> Self
@@ -3667,6 +3688,20 @@ impl core::marker::Unpin for webfluent::syntax::parser::Expr
 impl core::marker::UnsafeUnpin for webfluent::syntax::parser::Expr
 impl core::panic::unwind_safe::RefUnwindSafe for webfluent::syntax::parser::Expr
 impl core::panic::unwind_safe::UnwindSafe for webfluent::syntax::parser::Expr
+pub enum webfluent::syntax::parser::Pace
+pub webfluent::syntax::parser::Pace::Debounce(webfluent::syntax::parser::Expr)
+pub webfluent::syntax::parser::Pace::Throttle(webfluent::syntax::parser::Expr)
+impl core::clone::Clone for webfluent::syntax::parser::Pace
+pub fn webfluent::syntax::parser::Pace::clone(&self) -> Self
+impl core::fmt::Debug for webfluent::syntax::parser::Pace
+pub fn webfluent::syntax::parser::Pace::fmt(&self, &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+impl core::marker::Freeze for webfluent::syntax::parser::Pace
+impl core::marker::Send for webfluent::syntax::parser::Pace
+impl core::marker::Sync for webfluent::syntax::parser::Pace
+impl core::marker::Unpin for webfluent::syntax::parser::Pace
+impl core::marker::UnsafeUnpin for webfluent::syntax::parser::Pace
+impl core::panic::unwind_safe::RefUnwindSafe for webfluent::syntax::parser::Pace
+impl core::panic::unwind_safe::UnwindSafe for webfluent::syntax::parser::Pace
 #[non_exhaustive] pub enum webfluent::syntax::parser::StatementKind
 pub webfluent::syntax::parser::StatementKind::Action(webfluent::syntax::parser::ActionDecl)
 pub webfluent::syntax::parser::StatementKind::Animate(webfluent::syntax::parser::AnimateStmt)
@@ -3716,6 +3751,9 @@ pub webfluent::syntax::parser::Step::Expect
 pub webfluent::syntax::parser::Step::Expect::negated: bool
 pub webfluent::syntax::parser::Step::Expect::span: webfluent::syntax::parser::Span
 pub webfluent::syntax::parser::Step::Expect::text: webfluent::syntax::parser::Expr
+pub webfluent::syntax::parser::Step::ExpectFocus
+pub webfluent::syntax::parser::Step::ExpectFocus::name: webfluent::syntax::parser::Expr
+pub webfluent::syntax::parser::Step::ExpectFocus::span: webfluent::syntax::parser::Span
 pub webfluent::syntax::parser::Step::Press
 pub webfluent::syntax::parser::Step::Press::key: webfluent::syntax::parser::Expr
 pub webfluent::syntax::parser::Step::Press::span: webfluent::syntax::parser::Span
@@ -3824,6 +3862,7 @@ impl core::panic::unwind_safe::RefUnwindSafe for webfluent::syntax::parser::Unar
 impl core::panic::unwind_safe::UnwindSafe for webfluent::syntax::parser::UnaryOp
 pub struct webfluent::syntax::parser::ActionDecl
 pub webfluent::syntax::parser::ActionDecl::body: alloc::vec::Vec<webfluent::syntax::parser::Statement>
+pub webfluent::syntax::parser::ActionDecl::concurrent: bool
 pub webfluent::syntax::parser::ActionDecl::doc: core::option::Option<alloc::string::String>
 pub webfluent::syntax::parser::ActionDecl::name: alloc::string::String
 pub webfluent::syntax::parser::ActionDecl::params: alloc::vec::Vec<webfluent::syntax::parser::ParamDecl>
@@ -4129,6 +4168,7 @@ pub struct webfluent::syntax::parser::EventHandler
 pub webfluent::syntax::parser::EventHandler::body: alloc::vec::Vec<webfluent::syntax::parser::Statement>
 pub webfluent::syntax::parser::EventHandler::event: alloc::string::String
 pub webfluent::syntax::parser::EventHandler::key: core::option::Option<alloc::string::String>
+pub webfluent::syntax::parser::EventHandler::pace: core::option::Option<webfluent::syntax::parser::Pace>
 pub webfluent::syntax::parser::EventHandler::params: alloc::vec::Vec<alloc::string::String>
 pub webfluent::syntax::parser::EventHandler::span: webfluent::syntax::parser::Span
 impl webfluent::syntax::parser::EventHandler
@@ -4367,6 +4407,7 @@ pub webfluent::syntax::parser::PageDecl::head: alloc::vec::Vec<webfluent::syntax
 pub webfluent::syntax::parser::PageDecl::header_span: webfluent::syntax::parser::Span
 pub webfluent::syntax::parser::PageDecl::image: core::option::Option<alloc::string::String>
 pub webfluent::syntax::parser::PageDecl::image_alt: core::option::Option<alloc::string::String>
+pub webfluent::syntax::parser::PageDecl::image_expr: core::option::Option<webfluent::syntax::parser::Expr>
 pub webfluent::syntax::parser::PageDecl::lang: core::option::Option<alloc::string::String>
 pub webfluent::syntax::parser::PageDecl::layout: core::option::Option<webfluent::syntax::parser::LayoutRef>
 pub webfluent::syntax::parser::PageDecl::name: alloc::string::String
@@ -4827,6 +4868,7 @@ pub webfluent::syntax::parser::UIElement::style_block: core::option::Option<webf
 pub webfluent::syntax::parser::UIElement::style_span: core::option::Option<webfluent::syntax::parser::Span>
 pub webfluent::syntax::parser::UIElement::transition_block: core::option::Option<webfluent::syntax::parser::TransitionBlock>
 impl webfluent::syntax::parser::UIElement
+pub fn webfluent::syntax::parser::UIElement::case_of<'a>(&self, &str, &[&'a str]) -> core::option::Option<&'a str>
 pub fn webfluent::syntax::parser::UIElement::slot_name(&self) -> core::option::Option<&str>
 impl core::clone::Clone for webfluent::syntax::parser::UIElement
 pub fn webfluent::syntax::parser::UIElement::clone(&self) -> Self
@@ -4896,6 +4938,7 @@ pub fn webfluent::syntax::detect_dialect(&str) -> webfluent::syntax::Dialect
 pub fn webfluent::syntax::is_source_file(&std::path::Path) -> bool
 pub fn webfluent::syntax::parse_source(&str, &str) -> webfluent::diagnostics::error::diagnostic::Result<webfluent::syntax::parser::Program>
 pub fn webfluent::syntax::parse_source_recovering(&str, &str) -> (webfluent::syntax::parser::Program, alloc::vec::Vec<webfluent::diagnostics::Diagnostic>)
+pub fn webfluent::syntax::prefer_own_components(&mut webfluent::syntax::parser::Program)
 pub mod webfluent::template
 pub struct webfluent::template::PdfReport
 pub webfluent::template::PdfReport::bytes: alloc::vec::Vec<u8>

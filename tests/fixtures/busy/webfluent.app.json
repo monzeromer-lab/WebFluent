@@ -1,0 +1,4 @@
+{
+  "name": "busy",
+  "build": { "ssg": true, "csp": true }
+}

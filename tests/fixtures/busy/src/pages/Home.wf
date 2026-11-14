@@ -1,0 +1,79 @@
+// Interactions that hold up, for `tests/browser/busy.mjs`: a double click
+// that submits once, a button busy while its work runs, a handler run as
+// often as it asks, a row that loads more as it comes into view, and what
+// is leaving taking no press.
+store Saver {
+    state saved = 0
+    state polled = 0
+    action save() {
+        await wait(400)
+        saved = saved + 1
+    }
+    action poll() concurrent {
+        await wait(200)
+        polled = polled + 1
+    }
+}
+
+page Home(path: "/", title: "Busy", description: "Interactions that hold up.") {
+    use Saver
+    state toggled: [String] = []
+    state paying = false
+    state paid = 0
+    state typed = ""
+    state asked = ""
+    state searches = 0
+    state scrolls = 0
+    state loads = 0
+    state open = true
+    state pressedGone = 0
+    action toggle(id: String) {
+        await wait(200)
+        toggled = toggled.concat([id])
+    }
+    action send() {
+        await wait(300)
+        paid = paid + 1
+    }
+
+    Heading("Busy").h1
+    Button("Save", id: "save") { on click { Saver.save() } }
+    Text("saved {Saver.saved}", id: "saved")
+    Button("Poll", id: "poll") { on click { Saver.poll() } }
+    Button("Poll too", id: "poll2") { on click { Saver.poll() } }
+    Text("polled {Saver.polled}", id: "polled")
+    Button("Toggle a", id: "ta") { on click { toggle("a") } }
+    Button("Toggle b", id: "tb") { on click { toggle("b") } }
+    Text("toggled {toggled.join(\",\")}", id: "toggled")
+    Form(id: "form") {
+        on submit { send() }
+        Button("Pay", type: .submit, id: "pay")
+    }
+    Text("paid {paid}", id: "paid")
+    Button("Hold", id: "hold", loading: paying) { on click { paid = paid + 100 } }
+    Button("Start paying", id: "start") { on click { paying = !paying } }
+    Input(bind: typed, label: "Search", id: "search") {
+        on input(debounce: 300.ms) {
+            asked = typed
+            searches = searches + 1
+        }
+    }
+    Text("asked {asked} {searches}", id: "asked")
+    Stack(id: "scroller") {
+        style { height: 120px; overflow-y: auto }
+        on scroll(throttle: 200.ms) { scrolls = scrolls + 1 }
+        Stack { style { height: 2000px; flex-shrink: 0 } Text("Tall") }
+    }
+    Text("scrolls {scrolls}", id: "scrolls")
+    Button("Hide", id: "hide") { on click { open = !open } }
+    if open {
+        Card(id: "leaving", exit: .fadeOut, duration: "600ms") {
+            Button("Inside", id: "inside") { on click { pressedGone = pressedGone + 1 } }
+        }
+    }
+    Text("pressed {pressedGone}", id: "pressed")
+    Button("x", id: "tiny") { style { width: 16px; height: 16px; min-width: 0; min-height: 0; padding: 0 } }
+    Stack { style { height: 1500px } Text("Far down") }
+    Text("End of the list", id: "end") { on visible { loads = loads + 1 } }
+    Text("loads {loads}", id: "loads")
+}

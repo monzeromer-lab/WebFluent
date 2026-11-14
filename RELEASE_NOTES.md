@@ -74,6 +74,26 @@ component takes the built-in's place, which cannot then be placed there.
 - `A18` warns of a `Popover` with no name; `A08` covers `AlertDialog` and
   `Sheet`.
 
+## Presses that hold up
+
+- A double click submits once: a call of an async action with the same
+  arguments as one still running is that call, and both get its answer. A
+  call with other arguments still runs beside it, and
+  `action poll() concurrent { … }` runs every call.
+- A `Button` whose `on click`, or a `Form` whose `on submit`, calls an
+  async action is busy until the call ends — `aria-busy`, a press that does
+  nothing, and past 300 ms a spinner in place of its label at the same
+  width — with nothing written for it. The focus stays on it.
+- `Button(loading: Checkout.pay.pending)` is busy the same way while a
+  value holds.
+- `on input(debounce: 300.ms) { … }` runs once the typing stops;
+  `on scroll(e, throttle: 100.ms) { … }` at most once in that long. The
+  debounced search is one line.
+- `on visible { … }` runs when an element comes into view: a "load more"
+  row.
+- What is playing its exit is `inert`: a press or a Tab cannot land on it.
+- `wf verify` names each control drawn under 24×24, as a warning.
+
 ## Fixes
 
 - `wf check` knows an `image`'s fields: `hero.width`, `.height`, `.color`

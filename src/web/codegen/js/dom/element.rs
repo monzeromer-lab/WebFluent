@@ -368,7 +368,14 @@ impl JsCodegen {
                         ));
                 continue;
             }
-            let line = self.element_listener(var, handler, &body);
+            let line = if (name == "Button" && handler.event == "click")
+                || (name == "Form" && handler.event == "submit")
+            {
+                self.busy_listener(var, ui, handler, &body)
+                    .unwrap_or_else(|| self.element_listener(var, handler, &body))
+            } else {
+                self.element_listener(var, handler, &body)
+            };
             self.emit_line(&line);
         }
 
@@ -832,6 +839,19 @@ impl JsCodegen {
                         "maxLength" => {
                             let v = self.emit_expr(val);
                             attrs.push(format!("maxlength: {v}"));
+                        }
+                        // `Button(loading: Checkout.pay.pending)`: busy while
+                        // it holds — a spinner in place of its label, at its
+                        // width — and pressing it does nothing (`WF.busy`).
+                        "loading" if name == "Button" => {
+                            let v = self.emit_expr(val);
+                            let read = if self.is_reactive(&v) {
+                                format!("() => ({v}) ? \"true\" : null")
+                            } else {
+                                format!("({v}) ? \"true\" : null")
+                            };
+                            attrs.push(format!("\"aria-busy\": {read}"));
+                            attrs.push(format!("\"aria-disabled\": {read}"));
                         }
                         "src" | "alt" | "href" | "placeholder" | "type" | "min" | "max"
                         | "step" | "accept" | "label" | "required" | "disabled" | "controls"
@@ -1641,6 +1661,43 @@ impl JsCodegen {
     /// A built-in's `on …` handlers, on its root as on any element: every
     /// one but `on close`, which a layer hears itself (`close_handler`)
     /// when `own_close` says so.
+    /// A button's click or a form's submit that starts work — it awaits,
+    /// or calls an action of the page's or a store's that awaits —
+    /// listened to through `WF.busy`, which marks the control busy until
+    /// that work ends and takes no other press meanwhile. `None` for a
+    /// handler that only changes state, which needs none of that.
+    pub(in super::super) fn busy_listener(
+        &self,
+        var: &str,
+        ui: &UIElement,
+        handler: &crate::syntax::parser::ast::EventHandler,
+        body: &str,
+    ) -> Option<String> {
+        let mut stmts = handler.body.clone();
+        let mut works = crate::syntax::parser::ast::awaits(&stmts);
+        crate::syntax::parser::ast::walk_exprs_mut(&mut stmts, &mut |e| match e {
+            Expr::FunctionCall(f, _) if self.body.async_actions.contains(f) => works = true,
+            Expr::MethodCall(obj, action, _)
+                if matches!(&**obj, Expr::Identifier(s)
+                    if self.store_async_actions.iter().any(|(st, a)| st == s && a == action)) =>
+            {
+                works = true;
+            }
+            _ => {}
+        });
+        // A button that says when it is loading takes no press meanwhile,
+        // whatever its handler does.
+        if !works && !Self::gives(ui, "loading") {
+            return None;
+        }
+        let head = self.handler_head(handler, "event");
+        Some(format!(
+            "{var}.addEventListener(\"{}\", WF.busy({var}, {}));",
+            handler.event,
+            self.paced(handler, format!("{head} => {{ {body} }}"))
+        ))
+    }
+
     pub(in super::super) fn emit_root_handlers(
         &mut self,
         var: &str,

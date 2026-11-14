@@ -61,8 +61,10 @@ project has, and fails on an uncaught exception, a `console.error`, a
 file that did not arrive, an image that failed, or a page that rendered
 no text. It prints the first-contentful-paint, the node count and the
 bytes each route fetched, says which built-ins no page drew, and takes
-`--budget MS` to fail a route that paints too slowly. `--json` is the
-same report for a pipeline. It needs a Chrome or Chromium on the machine
+`--budget MS` to fail a route that paints too slowly. It names every
+control a pointer aims at that is drawn under 24×24 (WCAG 2.5.8), leaving
+out a link inside a line of text and a box its label makes larger — a
+warning, never a failure. `--json` is the same report for a pipeline. It needs a Chrome or Chromium on the machine
 (or `WF_CHROME` pointing at one) and says so plainly when there is none.
 
 ```
@@ -812,7 +814,14 @@ Text(query.tab ?? "all")              // the URL's ?tab=…, and `hash` its #fra
 What a page, a branch, a list item, a match arm or a slot creates — effects,
 timers, listeners, handles — is disposed of when it leaves; an async action's
 `name.pending` is true while a call of it runs (`Button("Save",
-disabled: save.pending)`, `Api.sync.pending` on a store).
+loading: save.pending)`, `Api.sync.pending` on a store). A call with the
+arguments of one still running is that call — the work is not done twice,
+and both get its answer — so a double click submits once; a call with
+other arguments runs beside it, and `action poll() concurrent { … }` runs
+every call. A `Button`'s `on click` or a `Form`'s `on submit` that calls an
+async action is busy until that call ends (`aria-busy`, a press that does
+nothing, and past 300 ms a spinner in place of the label), with nothing
+written for it.
 
 <!-- core -->
 ### Events
@@ -848,6 +857,13 @@ event sends that one value and nothing beside it: `on click(e, x)` is T22
 declared event sends several (Components, Events). An
 element's block is ordered `style` → `transition` → `on …` → slot fills →
 children.
+
+How often a handler runs goes in its parentheses: `on input(debounce:
+300.ms) { q = typed }` runs once the events stop for that long, with the
+last; `on scroll(e, throttle: 100.ms) { … }` at once, then at most once in
+that long, and once more where they stopped. A wait still pending when its
+page, branch or item leaves is dropped. `on visible { feed.loadMore() }`
+runs each time the element comes into view.
 
 Drag and drop: `drag: value` on any element picks it up (a mouse moved a
 few pixels, a finger held still) and `on receive(d)` on another takes it:
@@ -1855,7 +1871,7 @@ Input types (a flag): `.text`, `.email`, `.password`, `.number`, `.search`, `.te
 
 | Component | Usage |
 |-----------|-------|
-| `Button` | `Button("Label").primary.lg` — click handler: `Button("Save") { on click { doSave() } }` |
+| `Button` | `Button("Label").primary.lg` — click handler: `Button("Save") { on click { doSave() } }`; `loading: Checkout.pay.pending` keeps it busy while a value holds (a spinner at its width, a press does nothing), as a click whose action is still running does by itself |
 | `IconButton` | `IconButton(icon: "close", label: "Close")` or `IconButton(icon: "edit", label: "Edit").primary { on click { editItem() } }` — flags: `.sm`, `.lg`, `.primary`, `.danger` |
 | `ButtonGroup` | `ButtonGroup { Button("A") Button("B") }` |
 | `Dropdown` | `Dropdown(label: "Actions") { Dropdown.Item { ... } }` |
@@ -2134,7 +2150,9 @@ sheet defines for `[data-wf-transition="slide"]`, which a project's own
 `::view-transition-*` rules may restyle — and the class-based animation is
 the fallback. A reader who asked for less motion
 (`prefers-reduced-motion`) gets none: nothing started, no wait, a box that
-expands simply open and a number that counts simply there.
+expands simply open and a number that counts simply there. What is playing
+its exit is `inert` while it does: a press or a Tab lands on nothing that
+is leaving.
 
 `easing:` takes a named easing — `.standard`, `.spring`, `.ease`,
 `.easeIn`, `.easeOut`, `.easeInOut`, `.linear`, `.bouncy`, `.smooth` — or
@@ -2543,6 +2561,7 @@ may too. Its surface:
 | Interop | `attach(node, mount, update, cleanup)` — what `mount:`/`update:`/`cleanup:` compile to on any element (a component's fragment is attached at its root); `portal(box, read)` — what `Portal` compiles to: `box` kept in the node `read()` names (read again once the drawing is over), aside on `null`, gone with its scope, returning what runs the lifetimes its block held; `wf:render` on `document` after each drawing; `jsonAttr(raw)` — an attribute holding JSON, as the prop it stands for |
 | Boot | `mount(fn, container)`; `hydrate(fn, container)` and `hydrating(root)` — draw beside a pre-rendered page and take it over in place; `live(node)` — something holds `node`, so the takeover keeps the drawn one; `mainOf(root)`; `setBasePath`; `setSsgMode`; `__debug`, `__reg` (the studio's) |
 | Scopes | `onCleanup(fn)` — run when what owns it leaves; `attempt(fn)` — an action that rolls itself back on a throw |
+| Calls | `sameCall(pending, args, run, concurrent)` — what an async action's call compiles to: the call already running with those arguments, or a new one; `busy(el, handler)` — a click or submit handler that marks `el` busy while the calls it started run; `debounce(fn, ms)`, `throttle(fn, ms)` |
 | Keys | `onKey(node, combination, fn)`; `keyIs(event, combination)`; `keyLabel(combination)`, `keyAria(combination)` — what `on key("mod+k")`, `keyIs` and `keyLabel` compile to |
 | Focus | `trapFocus(node, read)` — what `trapFocus:` compiles to |
 | Long lists | `windowed(node, listFn, itemFn, options)` — what a `VirtualList`'s `for` compiles to |

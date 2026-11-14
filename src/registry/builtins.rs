@@ -592,6 +592,10 @@ pub const UNIVERSAL_EVENTS: &[(&str, &str)] = &[
         "dragmove",
         "On what is dragged, while it moves: `d.over` is the target's `dropValue` or null, `d.position` where it would land",
     ),
+    (
+        "visible",
+        "It came into view: scrolled to, or drawn where the reader is looking. `v.ratio` is how much of it shows. A \"load more\" row's cue",
+    ),
     ("key", "One key, named: `on key(\"ctrl+k\") { }`"),
     ("keyup", "A key came up"),
     ("keypress", "A character key was pressed"),
@@ -2065,6 +2069,11 @@ pub const COMPONENTS: &[ComponentSig] = &[
             ),
             special("to", PropType::Path, "The route to go to when it is pressed"),
             DISABLED,
+            special(
+                "loading",
+                PropType::Bool,
+                "Busy while it holds — `loading: Checkout.pay.pending`: a spinner in place of its label, at the same width, and a press does nothing",
+            ),
         ],
         &[],
         G,

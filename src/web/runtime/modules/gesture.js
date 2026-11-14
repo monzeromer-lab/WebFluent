@@ -28,7 +28,22 @@
     live(el);
     if (name === "longpress") _longPress(el);
     else if (name === "swipe") _swipe(el);
+    else if (name === "visible") _inView(el);
     listen(el, `wf-${name}`, (e) => fn(e.detail));
+  }
+
+  // `on visible`: each time the element comes into view. Every browser
+  // the runtime runs in has an `IntersectionObserver`; a page run without
+  // one (a test's fake document) never hears it.
+  function _inView(el) {
+    if (typeof IntersectionObserver !== "function") return;
+    const seen = new IntersectionObserver((entries) => {
+      for (const e of entries) {
+        if (e.isIntersecting) _say(el, "visible", { ratio: e.intersectionRatio });
+      }
+    });
+    seen.observe(el);
+    onCleanup(() => seen.disconnect());
   }
 
   function _say(el, name, detail) {

@@ -2,12 +2,12 @@
   "diagnostics": [],
   "files": {
     "_headers": "ab659ef6aa87e4994c047f0afe74c1882b43db8b48e5ed9315716374a749c4b2",
-    "app.js": "b284071d1784a3f25b5619e21032a42047b2efb4a1fad83b0639d4d8df85ca3e",
-    "app.js.gz": "7d8bd284f06add96a34bdc8d28d6805dd36d7ddaa31a9afb6837de4b2dda3d68",
+    "app.js": "aaa6fc584534d4f8c6e44c141f0c90ec8893ba56c51523c810e922173bf98442",
+    "app.js.gz": "8d17938381a546f993839050696b43df79235684191ea8c4c490bd5d0dde05df",
     "index.html": "03017de836df8e2b2f83b587a644eefa5be9307f06eca5fb8c49134f5d97e341",
     "index.html.gz": "cced0e1c1e097ba61f46bb395344ffd0127f048c2dc693c1dea7dd2e5bd1eda8",
     "robots.txt": "16ceb5ee3e0dc13aa9adf31a3ebbe45a1d965b8c2b9f72eaf84e5911e140ed95",
-    "styles.css": "e4d9cdbe404cf360c282eec19005a5db640ae01d6dc3125e0af48ac117c5ab77",
-    "styles.css.gz": "c7864a389cfea7cf351078bba50bd4e5fb4b5a3f27628cf2b7a6eafe1cfadd18"
+    "styles.css": "0d22ad48c5c16ad67ea3dad358fab8854e618bc17259a38d141490c6d3d12aa8",
+    "styles.css.gz": "dde577131ee6001d67364615fa4a83b2805c28e3bd9aa94d7931ce116cb445b3"
   }
 }

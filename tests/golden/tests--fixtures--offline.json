@@ -3,8 +3,8 @@
   "files": {
     "about/index.html": "1fa40364be85bead69bd0f0ab6e0f0da6e065e726d960d6f93bcddd5215386d1",
     "about/index.html.gz": "d2d94bcb4b9f488188c471d634d8487343c52d7cb059377b969cc580d718b94d",
-    "app.js": "4511cd4b1e111b1f324ab8ed8694657d12fb20bd4250467e1937dfc0de75f1c0",
-    "app.js.gz": "4a4686f311463b329eb6088b91e5d6962adaf44ec7eb49f3dcd7111faa0ee681",
+    "app.js": "3241092656ef1eae56ee77b58117e69ea1375ebecc15ee7f8ad1d6af272698ab",
+    "app.js.gz": "fa8b75c28ccbd70998796585486f6604a8fa92e91f9d5e2bc14b5aa319e7811b",
     "contact/index.html": "206e6294292b4a3e9d9b0bfb88d010497da2771ee44671b25ec72b390631ef20",
     "contact/index.html.gz": "259f58053c53a35d46f789e3daccccc613718fd4d12810723181ccc0547a9122",
     "index.html": "d627de4e68b4034abae24329d0f9133c6ecbd9423777a95e0b2754c396a0e7c1",
@@ -13,13 +13,13 @@
     "offline/index.html.gz": "bc668c5f42dfd15d52a704103cfcc17cf47f161049326eb926a96d8b01a05771",
     "pages/About.js": "bf5a4823ed8418cabf260d748a036e2e1a503a6255b94b31d86daeebe75f8180",
     "pages/Contact.js": "47649b9e54ba6e93bdc892f865eb7efd1810129eeebc40c49d9af27bac14cb77",
-    "pages/Home.js": "01a82ae67f66897daf791512f400c42220b7eae54899ae659979892e72a9d7f1",
-    "pages/Home.js.gz": "728ef6d5ac9a63d674493b9ce9338536e18277139872ebd0c5cf991c441cdcd9",
+    "pages/Home.js": "8f97bed254e967dc1deae97fd78c71116c9ff2a6ec4b98d3bce153ba9d504b28",
+    "pages/Home.js.gz": "c9e3ddec9fc78028568ef1051dae57d3ec3d9d524cfd4afc6fcaa342fa8ae821",
     "pages/Offline.js": "b0efea1d3e4c1e6e899a749b641e894630b48a5263754df5a09416cb77ce92fa",
     "robots.txt": "16ceb5ee3e0dc13aa9adf31a3ebbe45a1d965b8c2b9f72eaf84e5911e140ed95",
-    "styles.css": "2bb34300078f4328a8e43d4a4ff86c675dc3604660705f11ff9752e759d44c65",
-    "styles.css.gz": "addd9d34a167a41265f7b5be2565e2d8c63f75888a7abbc81d14506a97b91992",
-    "sw.js": "4b65b6ccfd71353ff57526ea949ff4c8f49444fab46b9d4ceeed819bf6b14500",
-    "sw.js.gz": "0c60faa6dc7f96fe2b5bda938fa24f1f9a3a37718c3d60ab504c9ca0d9d4229f"
+    "styles.css": "b8e7589e1613971e434c3c43e99b579783bd792ac00984e87fd3eb12874f5d19",
+    "styles.css.gz": "d87b34ea17c9a52de60a1d78449adb48017c1d9cf659e8a8b6c852b452369d80",
+    "sw.js": "80e6c011a35ee086bb9174f8139594be1607c67950f8dab3857d6aef40d1df3b",
+    "sw.js.gz": "0ea8404fb3fa1b9c3477d7724e35d88a8c1211ce233aca60fbbb5ccc6a8018bf"
   }
 }

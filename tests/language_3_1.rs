@@ -180,7 +180,11 @@ fn try_catch_guards_an_await_that_may_fail() {
         "state error = \"\"\n action load() { try { let r = await fetch(\"/x\")\n log(r) } catch e { error = e.message } }\n Button(\"go\") { on click { load() } }\n Text(error)",
     );
     let js = raw_output(Backend::Spa, &src);
-    assert!(js.contains("async function load() {"), "{js}");
+    assert!(
+        js.contains("function load() {")
+            && js.contains("WF.sameCall(_load_pending, [], async () => {"),
+        "{js}"
+    );
     assert!(js.contains("try {"), "{js}");
     assert!(js.contains("} catch (e) {"), "{js}");
     assert!(

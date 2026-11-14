@@ -145,6 +145,9 @@ pub struct JsCodegen {
     components: Vec<String>,
     /// Track store names
     stores: Vec<String>,
+    /// Each store's actions that await, as `(store, action)`: a call of one
+    /// is work a button waits for.
+    store_async_actions: Vec<(String, String)>,
     /// The program's `const` names: plain values, read as written.
     consts: Vec<String>,
     /// The program's constants as build-time values, for what is drawn when
@@ -294,6 +297,8 @@ struct BodyState {
     /// The actions the page or component being emitted declares: a call to
     /// one is its own, even where a built-in has the same name.
     own_actions: Vec<String>,
+    /// Those of them that await: a call of one is work a button waits for.
+    async_actions: Vec<String>,
     /// The element handles the page or component declares with `ref:`,
     /// and the form handles it declares with `Form(bind: name)`.
     refs: Vec<String>,
@@ -403,6 +408,7 @@ impl JsCodegen {
             indent: 0,
             components: Vec::new(),
             stores: Vec::new(),
+            store_async_actions: Vec::new(),
             menu_lists: Vec::new(),
             store_connections: Vec::new(),
             own_connections: Vec::new(),
@@ -959,6 +965,12 @@ impl JsCodegen {
                         }
                         if let StatementKind::Resource(r) = &stmt.kind {
                             self.store_resources.push((s.name.clone(), r.name.clone()));
+                        }
+                        if let StatementKind::Action(a) = &stmt.kind
+                            && crate::syntax::parser::ast::awaits(&a.body)
+                        {
+                            self.store_async_actions
+                                .push((s.name.clone(), a.name.clone()));
                         }
                     }
                 }

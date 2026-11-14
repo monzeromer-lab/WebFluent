@@ -1469,8 +1469,9 @@ Renders with the class `wf-btn`.
 | `type:` | `.button` `.submit` `.reset` | Its role inside a form |
 | `to:` | `Path` | The route to go to when it is pressed |
 | `disabled:` | `Bool` | Whether the control is inert |
+| `loading:` | `Bool` | Busy while it holds — `loading: Checkout.pay.pending`: a spinner in place of its label, at the same width, and a press does nothing |
 
-**Flags:** `.primary` `.secondary` `.success` `.danger` `.warning` `.info` `.sm` `.md` `.lg` `.rounded` `.pill` `.full` `.outlined` `.button` `.submit` `.reset` `.disabled`
+**Flags:** `.primary` `.secondary` `.success` `.danger` `.warning` `.info` `.sm` `.md` `.lg` `.rounded` `.pill` `.full` `.outlined` `.button` `.submit` `.reset` `.disabled` `.loading`
 
 Takes a block of children.
 
@@ -2326,6 +2327,7 @@ Events every element accepts in an `on … { }` handler:
 - `on swipe` — A finger or a pen swept across it; `s.direction` is "left", "right", "up" or "down"
 - `on receive` — Something with `drag:` was dropped on it; `d.value` is what, `d.position` "before", "after" or "inside"
 - `on dragmove` — On what is dragged, while it moves: `d.over` is the target's `dropValue` or null, `d.position` where it would land
+- `on visible` — It came into view: scrolled to, or drawn where the reader is looking. `v.ratio` is how much of it shows. A "load more" row's cue
 - `on key` — One key, named: `on key("ctrl+k") { }`
 - `on keyup` — A key came up
 - `on keypress` — A character key was pressed

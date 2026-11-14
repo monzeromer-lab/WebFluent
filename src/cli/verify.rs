@@ -44,6 +44,8 @@ pub(crate) fn run_verify(
     let server = super::preview::serve_directory(output_dir, &base_path)?;
     let mut visits = Vec::new();
     let mut drew: BTreeSet<String> = BTreeSet::new();
+    // The controls drawn under 24×24: said, never failed on.
+    let mut small = 0usize;
     let mut problems = 0usize;
 
     if !json {
@@ -105,6 +107,7 @@ pub(crate) fn run_verify(
             crate::verify::judge(&mut visit, route, budget_ms);
             drew.extend(visit.drew.iter().cloned());
             problems += visit.errors.len();
+            small += visit.small.len();
             if !json {
                 println!(
                     "    {} {:<34} {:>5}ms  {:>6} nodes  {:>8.1} kB  {:>3} req",
@@ -122,6 +125,9 @@ pub(crate) fn run_verify(
                 for problem in &visit.errors {
                     println!("         {problem}");
                 }
+                for small in &visit.small {
+                    println!("         small: {small}, under 24×24");
+                }
             }
             visits.push(visit);
         }
@@ -138,6 +144,7 @@ pub(crate) fn run_verify(
                 "routes": visits,
                 "undrawn": undrawn,
                 "problems": problems,
+                "small": small,
             }))
             .unwrap_or_default()
         );
@@ -149,6 +156,11 @@ pub(crate) fn run_verify(
                 "\n  {} built-in(s) no page drew: {}",
                 undrawn.len(),
                 undrawn.join(", ")
+            );
+        }
+        if small > 0 {
+            println!(
+                "\n  {small} control(s) drawn under 24×24, the least a pointer target should be (WCAG 2.5.8)"
             );
         }
         println!("\n  {} page(s), {problems} problem(s)", visits.len());
