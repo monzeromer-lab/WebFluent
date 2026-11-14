@@ -146,8 +146,10 @@ Every page below is Markdown. The language's whole reference in one file is [AGE
 - [AppShell](https://webfluent.monzeromer.dev/reference/appshell.md): An app's frame: AppShell.Header across the top, a Sidebar down the start (a drawer on a narrow screen), the Router's page beside it, and an AppShell.Footer.
 - [AppShell.Footer](https://webfluent.monzeromer.dev/reference/appshell-footer.md): The bar along the bottom.
 - [AppShell.Header](https://webfluent.monzeromer.dev/reference/appshell-header.md): The bar across the top.
+- [AspectRatio](https://webfluent.monzeromer.dev/reference/aspectratio.md): A box that keeps its shape as its width changes — ratio: 16 / 9 — its child filling it: a picture, a video, a frame.
 - [Audio](https://webfluent.monzeromer.dev/reference/audio.md): Audio player. transcript links what was said, which is what a reader who cannot hear it needs.
 - [Avatar](https://webfluent.monzeromer.dev/reference/avatar.md): A picture of a person, or their initials.
+- [AvatarGroup](https://webfluent.monzeromer.dev/reference/avatargroup.md): Avatars overlapping in a row: past max: the rest are one +3.
 - [Background](https://webfluent.monzeromer.dev/reference/background.md): Drawn behind each PDF page's content, the size of the page: a cover, a band, a full-bleed picture.
 - [Badge](https://webfluent.monzeromer.dev/reference/badge.md): Small status label.
 - [Blockquote](https://webfluent.monzeromer.dev/reference/blockquote.md): Quotation: the text, or its block as the quoted content.
@@ -168,6 +170,7 @@ Every page below is Markdown. The language's whole reference in one file is [AGE
 - [Card.Header](https://webfluent.monzeromer.dev/reference/card-header.md): The card's heading area.
 - [Carousel](https://webfluent.monzeromer.dev/reference/carousel.md): Slide track with named controls and dots; optional autoplay.
 - [Carousel.Slide](https://webfluent.monzeromer.dev/reference/carousel-slide.md): One slide of a carousel.
+- [Center](https://webfluent.monzeromer.dev/reference/center.md): Its children in the middle of it, across and down.
 - [Chart](https://webfluent.monzeromer.dev/reference/chart.md): A chart drawn as vector graphics when the page is built: bars, lines, areas, a pie or a donut over a list of records.
 - [Checkbox](https://webfluent.monzeromer.dev/reference/checkbox.md): Checkbox bound to a boolean state.
 - [CheckboxGroup](https://webfluent.monzeromer.dev/reference/checkboxgroup.md): Check boxes under a legend whose bind: is the list of the values ticked, with all: a box above them for every one at once — ticked when all are, mixed when some are.
@@ -177,6 +180,7 @@ Every page below is Markdown. The language's whole reference in one file is [AGE
 - [Chip.Action](https://webfluent.monzeromer.dev/reference/chip-action.md): What pressing a chip presses: its icon and words, a toggle button when it can be selected:.
 - [Chip.Label](https://webfluent.monzeromer.dev/reference/chip-label.md): Its icon and words, when pressing it does nothing.
 - [Chip.Remove](https://webfluent.monzeromer.dev/reference/chip-remove.md): Its remove button.
+- [CircularProgress](https://webfluent.monzeromer.dev/reference/circularprogress.md): A ring that fills to value: of max:, announced as a progress bar; with no value:, it turns, for work of no known length. Its block is drawn in the middle.
 - [Command line and editors](https://webfluent.monzeromer.dev/reference/cli.md): The wf command line — every command and flag, from init, build and serve to render, migrate and verify — and how to set up the language server in your editor.
 - [wf assets](https://webfluent.monzeromer.dev/reference/cli/assets.md): What `public/` holds — each file's kind, size and dimensions, and where the project names it — or what the media pipeline will make of one image
 - [wf audit](https://webfluent.monzeromer.dev/reference/cli/audit.md): What this project trusts: markup it did not write, other origins, what it keeps on the reader's machine, its `env` names, its policy and its dependencies
@@ -224,6 +228,10 @@ Every page below is Markdown. The language's whole reference in one file is [AGE
 - [DataTable.Column](https://webfluent.monzeromer.dev/reference/datatable-column.md): One column: its title, its value: (what it shows and sorts by), and a cell(r) { … } that draws it instead.
 - [DatePicker](https://webfluent.monzeromer.dev/reference/datepicker.md): A date field: the reader picks a day, and the bound state holds a Date.
 - [DateRangePicker](https://webfluent.monzeromer.dev/reference/daterangepicker.md): A first and a last day, chosen in two months side by side that a button opens, or by a preset: presets: [.last7, .thisMonth]. bind: holds { start, end }.
+- [DescriptionList](https://webfluent.monzeromer.dev/reference/descriptionlist.md): Terms and what they are (<dl>): a column of pairs, or .grid, each term beside its value.
+- [DescriptionList.Details](https://webfluent.monzeromer.dev/reference/descriptionlist-details.md): A value. Drawn for it.
+- [DescriptionList.Item](https://webfluent.monzeromer.dev/reference/descriptionlist-item.md): One pair: its term, and value: or its block.
+- [DescriptionList.Term](https://webfluent.monzeromer.dev/reference/descriptionlist-term.md): A term. Drawn for it.
 - [Dialog](https://webfluent.monzeromer.dev/reference/dialog.md): Confirmation <dialog>, opened by a state flag. on close runs when it closes, however it was closed, and the focus goes back to what had it.
 - [Dialog.Title](https://webfluent.monzeromer.dev/reference/dialog-title.md): What the dialog's heading draws, in place of its title:'s words, which stay its name.
 - [Divider](https://webfluent.monzeromer.dev/reference/divider.md): Horizontal rule.
@@ -248,6 +256,7 @@ Every page below is Markdown. The language's whole reference in one file is [AGE
 - [Footer](https://webfluent.monzeromer.dev/reference/footer.md): Repeated at the bottom of every PDF page (or those on: names), where page and pages are the page's number and the count; a <footer> on the web.
 - [Form](https://webfluent.monzeromer.dev/reference/form.md): Groups controls; on submit runs when it is submitted, and the page never navigates away.
 - [Frame](https://webfluent.monzeromer.dev/reference/frame.md): Another page, shown inside this one: an iframe — the page at src:, or the HTML srcdoc: gives it, sandboxed as sandbox: says. on message(m) hears what that page posts to this one (m.data), and nothing any other page posts. Without title: it draws an A17 warning: a frame is announced by its title.
+- [Gallery](https://webfluent.monzeromer.dev/reference/gallery.md): Pictures in a grid of columns: (unset, as many as fit), each cropped to one shape — ratio:, unset square. In a Lightbox, each opens full screen.
 - [Glossary](https://webfluent.monzeromer.dev/reference/glossary.md): The terms this guide uses — state, signal, pre-rendered page, hydration, flag, part, slot, registry, scope and more — each in a sentence, with a link.
 - [Grammar](https://webfluent.monzeromer.dev/reference/grammar.md): The WebFluent grammar on one page: keywords, declarations, render and imperative blocks, components, tests, styles, operators, precedence and literals.
 - [Grid](https://webfluent.monzeromer.dev/reference/grid.md): CSS grid with a fixed number of columns.
@@ -265,6 +274,10 @@ Every page below is Markdown. The language's whole reference in one file is [AGE
 - [InputGroup.Addon](https://webfluent.monzeromer.dev/reference/inputgroup-addon.md): Text beside the input: https://, .com, kg.
 - [InputGroup.Clear](https://webfluent.monzeromer.dev/reference/inputgroup-clear.md): A button that empties the input and puts the focus back in it; hidden while it is empty.
 - [InputOTP](https://webfluent.monzeromer.dev/reference/inputotp.md): A one-time code typed a digit to a box: the focus moves on as each is typed and back with Backspace, and a code pasted into any box fills them all; the browser offers the code it was sent (autocomplete="one-time-code").
+- [Item](https://webfluent.monzeromer.dev/reference/item.md): A row of a list, a settings page or a search's results: Item.Media at its start, its title: and description:, then its block, and Item.Actions at its end.
+- [Item.Actions](https://webfluent.monzeromer.dev/reference/item-actions.md): What goes at its end: a switch, a button, a menu.
+- [Item.Content](https://webfluent.monzeromer.dev/reference/item-content.md): Its title, description and block. Drawn for it.
+- [Item.Media](https://webfluent.monzeromer.dev/reference/item-media.md): What goes at its start: an icon, an avatar, a picture.
 - [Kbd](https://webfluent.monzeromer.dev/reference/kbd.md): A key or a combination, written as this system writes it: Kbd("mod+k") is ⌘K on a Mac and Ctrl+K elsewhere.
 - [Library](https://webfluent.monzeromer.dev/reference/library.md): The compiler as a library: the webfluent crate (Template, build, memory, vfs, diagnostics, config, errors, semver), the Node package and wf.js.
 - [Lightbox](https://webfluent.monzeromer.dev/reference/lightbox.md): Every picture in its block opens, on a press or Enter, full screen: the arrow keys and a swipe go between them, a double press or + zooms, Escape closes and the focus goes back. A picture's data-full: is the file it opens, else its largest size.
@@ -278,12 +291,14 @@ Every page below is Markdown. The language's whole reference in one file is [AGE
 - [LoadingOverlay.Cover](https://webfluent.monzeromer.dev/reference/loadingoverlay-cover.md): What covers it while it is busy. Drawn for it.
 - [LocaleSwitch](https://webfluent.monzeromer.dev/reference/localeswitch.md): One button for each of i18n.locales, each written in its own language (English, العربية), the current one pressed; a press is setLocale.
 - [Markdown](https://webfluent.monzeromer.dev/reference/markdown.md): Markdown text rendered as HTML: headings, paragraphs, lists, quotes, code, links, emphasis. The text is escaped first, so HTML in it is shown, not run, and a link or picture whose URL a browser would run is drawn as its words. .inert is for text somebody else wrote.
+- [Masonry](https://webfluent.monzeromer.dev/reference/masonry.md): Its children in columns: columns, each placed under the last in its column, keeping its own height.
 - [Menu](https://webfluent.monzeromer.dev/reference/menu.md): A menu above everything: opened by its trigger: button, or by visible: at an anchor: or a point at: — a context menu. Escape, a press outside or a choice close it, write false back to visible: and fire on close.
 - [Menu.Divider](https://webfluent.monzeromer.dev/reference/menu-divider.md): A rule between groups of entries.
 - [Menu.Item](https://webfluent.monzeromer.dev/reference/menu-item.md): One entry of the menu; on click is what choosing it does.
 - [Menu.Sub](https://webfluent.monzeromer.dev/reference/menu-sub.md): An entry that opens a menu of its own beside it.
 - [Menubar](https://webfluent.monzeromer.dev/reference/menubar.md): File, Edit and View, as in a desktop app: one Tab stop, the arrow keys along it; Down or Enter opens a menu, and with one open Left and Right open the one beside it.
 - [Menubar.Menu](https://webfluent.monzeromer.dev/reference/menubar-menu.md): One menu of the bar: its button's words, and its Menu.Items, Menu.Subs and Menu.Dividers.
+- [Meter](https://webfluent.monzeromer.dev/reference/meter.md): A level against its range (<meter>): a disk's use, a password's strength. Past high: or under low: it says so in its colour; optimum: says which end is good.
 - [Modal](https://webfluent.monzeromer.dev/reference/modal.md): Modal <dialog>, opened by a state flag; the browser supplies focus trapping and Escape. on close runs when it closes, however it was closed, and the focus goes back to what had it.
 - [Modal.Footer](https://webfluent.monzeromer.dev/reference/modal-footer.md): The modal's action row.
 - [Modal.Title](https://webfluent.monzeromer.dev/reference/modal-title.md): What the modal's heading draws, in place of its title:'s words, which stay its name: Modal.Title { Text { "Rename "  Code(name) } }.
@@ -309,6 +324,8 @@ Every page below is Markdown. The language's whole reference in one file is [AGE
 - [Pagination.Next](https://webfluent.monzeromer.dev/reference/pagination-next.md): The next page. Drawn for it.
 - [Pagination.Page](https://webfluent.monzeromer.dev/reference/pagination-page.md): A page. Drawn for it.
 - [Pagination.Prev](https://webfluent.monzeromer.dev/reference/pagination-prev.md): The previous page. Drawn for it.
+- [PanelGroup](https://webfluent.monzeromer.dev/reference/panelgroup.md): Panels side by side (or .vertical, one above another) with a handle between each two that resizes them: dragged, or the arrow keys on it. bind: holds their sizes in percent — a persist keeps them across visits — and on resize(e) hears them as e.detail.
+- [PanelGroup.Panel](https://webfluent.monzeromer.dev/reference/panelgroup-panel.md): One panel.
 - [Paragraph](https://webfluent.monzeromer.dev/reference/paragraph.md): Block of text with paragraph spacing.
 - [Popover](https://webfluent.monzeromer.dev/reference/popover.md): A layer at a control: drawn above everything, placed against its anchor:, closed by Escape or a press outside, which write false back to visible: and fire on close.
 - [Portal](https://webfluent.monzeromer.dev/reference/portal.md): Its block, drawn into a node somebody else's code owns: an element a script hands over, or a ref: handle. When into: names another node the block moves there with its nodes and state; null keeps it aside until a node comes back; it goes when the page, branch or list item it is written in leaves. What is inside belongs to where it is written: its handlers, emit and lifetimes.
@@ -325,10 +342,12 @@ Every page below is Markdown. The language's whole reference in one file is [AGE
 - [RadioGroup.Legend](https://webfluent.monzeromer.dev/reference/radiogroup-legend.md): Its legend. Drawn for it.
 - [RadioGroup.Option](https://webfluent.monzeromer.dev/reference/radiogroup-option.md): One choice: its words, its value, and a hint said with it.
 - [Rating](https://webfluent.monzeromer.dev/reference/rating.md): Stars, as radio buttons a screen reader hears as a choice of one to max:: the arrow keys move between them; .half takes halves; .readonly only shows.
+- [RelativeTime](https://webfluent.monzeromer.dev/reference/relativetime.md): A moment as 3 minutes ago, kept current, with the exact time on hover (<time>).
 - [Route](https://webfluent.monzeromer.dev/reference/route.md): Maps a path to a page (the original grammar; pages now declare their paths).
 - [Router](https://webfluent.monzeromer.dev/reference/router.md): Where the current page renders. May sit at any depth inside app; pages declare their own paths.
 - [Row](https://webfluent.monzeromer.dev/reference/row.md): Horizontal flex layout. It stays a row at every width unless .stacks or a responsive direction says otherwise.
 - [Runtime API](https://webfluent.monzeromer.dev/reference/runtime.md): The runtime reference, window.WF: signals, elements, motion, routing, data, stores and their inspection, widgets, safety, text and boot, module by module.
+- [ScrollArea](https://webfluent.monzeromer.dev/reference/scrollarea.md): A box that scrolls within height:, with a thin scrollbar, its edges fading where there is more, and a Tab stop so a keyboard can scroll it.
 - [Section](https://webfluent.monzeromer.dev/reference/section.md): Groups content with spacing; on the web, a <section>.
 - [SectionSlide](https://webfluent.monzeromer.dev/reference/sectionslide.md): Full-bleed coloured band with a centred label.
 - [Select](https://webfluent.monzeromer.dev/reference/select.md): Drop-down of Select.Option children.
@@ -344,6 +363,7 @@ Every page below is Markdown. The language's whole reference in one file is [AGE
 - [Slide](https://webfluent.monzeromer.dev/reference/slide.md): One slide, one PDF page; content is top-aligned and clipped at the bottom margin.
 - [Slider](https://webfluent.monzeromer.dev/reference/slider.md): Range input. aria-* and its other attributes reach the input; with aria-valuetext the raw number is not shown beside the track.
 - [Spacer](https://webfluent.monzeromer.dev/reference/spacer.md): Vertical space; md when no size is given.
+- [Sparkline](https://webfluent.monzeromer.dev/reference/sparkline.md): A tiny chart in a line of text — a line, or .bar — of a list of numbers, drawn as an SVG when the page is built.
 - [Spinner](https://webfluent.monzeromer.dev/reference/spinner.md): Loading indicator, announced as a status.
 - [Splitter](https://webfluent.monzeromer.dev/reference/splitter.md): A handle that sets the size of a region beside it: dragged, between min: and max:; double-clicked or Enter, back to reset:; the arrow keys move it.
 - [Stack](https://webfluent.monzeromer.dev/reference/stack.md): Vertical flex layout.
@@ -355,6 +375,7 @@ Every page below is Markdown. The language's whole reference in one file is [AGE
 - [Stepper.Item](https://webfluent.monzeromer.dev/reference/stepper-item.md): A step in the list. Drawn for it.
 - [Stepper.List](https://webfluent.monzeromer.dev/reference/stepper-list.md): The steps, in order. Drawn for it.
 - [Stepper.Step](https://webfluent.monzeromer.dev/reference/stepper-step.md): One step: its title in the list, its block shown while it is the current one.
+- [Sticky](https://webfluent.monzeromer.dev/reference/sticky.md): A box that sticks to the top of its scrolling parent (offset: below it) as the page scrolls past, marked data-stuck while it is stuck.
 - [Switch](https://webfluent.monzeromer.dev/reference/switch.md): On/off toggle bound to a boolean state.
 - [Table](https://webfluent.monzeromer.dev/reference/table.md): Data table. Cells inside Table.Head render as <th scope="col">; caption is the table's accessible name, visually hidden.
 - [Table.Body](https://webfluent.monzeromer.dev/reference/table-body.md): The body of a table: its rows of data.
@@ -373,6 +394,9 @@ Every page below is Markdown. The language's whole reference in one file is [AGE
 - [Textarea](https://webfluent.monzeromer.dev/reference/textarea.md): Several lines of text. With label, hint or error it is a labelled field; with maxLength it counts what is left.
 - [Thead](https://webfluent.monzeromer.dev/reference/thead.md): Table header section (the original spelling of Table.Head).
 - [ThemeToggle](https://webfluent.monzeromer.dev/reference/themetoggle.md): A button that switches the page between light and dark, over setTheme: a moon in a light page, a sun in a dark one, named for the theme it switches to. The reader's choice is kept.
+- [Timeline](https://webfluent.monzeromer.dev/reference/timeline.md): Events in order (<ol>), each a dot on a line, its title, its time and its block.
+- [Timeline.Item](https://webfluent.monzeromer.dev/reference/timeline-item.md): One event: its title, at: its time, and its block.
+- [Timeline.Time](https://webfluent.monzeromer.dev/reference/timeline-time.md): An event's time (<time>). Drawn for it.
 - [TitleSlide](https://webfluent.monzeromer.dev/reference/titleslide.md): Cover slide: title and subtitle, vertically centred.
 - [Toast](https://webfluent.monzeromer.dev/reference/toast.md): Temporary notification.
 - [Toggle](https://webfluent.monzeromer.dev/reference/toggle.md): A button that stays pressed while its state holds — bold in an editor, a filter that is on: aria-pressed, a press flipping bind:.

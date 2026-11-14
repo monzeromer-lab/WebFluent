@@ -478,6 +478,22 @@ pub const ALL_COMPONENT_NAMES: &[&str] = &[
     "Lightbox",
     "Tour",
     "ConsentBanner",
+    // Display and layout, the second group
+    "DescriptionList",
+    "Timeline",
+    "AvatarGroup",
+    "Item",
+    "Gallery",
+    "Masonry",
+    "CircularProgress",
+    "Meter",
+    "Sparkline",
+    "RelativeTime",
+    "AspectRatio",
+    "ScrollArea",
+    "Center",
+    "Sticky",
+    "PanelGroup",
     // A node handed to somebody else's code, with a lifetime.
     "Host",
     // A custom element a script defines, by its tag.

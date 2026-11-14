@@ -1819,6 +1819,12 @@ file would change; a `.wfx` file is normalised through its braced spelling.
 | `Divider` | `Divider()` — horizontal line |
 | `VirtualList` | `VirtualList(rowHeight: 32, reveal: selected, label: "Files") { for f in files by f.path { … } }` — a scrolling box that draws only the rows in view of its one keyed `for`; without `rowHeight:` rows are measured (`estimate:` for the rest); `reveal:` scrolls the row with that key into view; give the box a height its rows do not set (`style { height: 400px }`, a `max-height:`), and one drawn before it is laid out paints its first frame with the rows in view and the overscan only, its `reveal:` row among them; anything else in its body is a `V12` and draws everything |
 | `Splitter` | `Splitter(bind: side, min: 160, max: 480, reset: 240, label: "Sidebar width")` — a handle that sizes the region beside it: dragged between `min:` and `max:`, double-click or Enter back to `reset:`, arrows ±16 px (Shift ±64), Home/End; `.horizontal` between regions one above the other, `.reverse` on the start side of what it sizes (a pane on the right, a panel below) |
+| `Masonry` | `Masonry(columns: 3) { for p in posts by p.id { Card { … } } }` — its children in columns, each under the last in its column at its own height |
+| `AspectRatio` | `AspectRatio(ratio: 16 / 9) { Frame(src: "/demo/", title: "Demo") }` — a box that keeps its shape as its width changes, its child filling it; a literal ratio is a rule of the sheet, one that reads state follows it |
+| `ScrollArea` | `ScrollArea(height: "300px", label: "Log") { … }` — a box that scrolls within `height:`, a thin scrollbar, its edges fading where there is more (`data-before`, `data-after`), a Tab stop named by `label:` so a keyboard can scroll it; `.horizontal` |
+| `Center` | `Center { Spinner }` — its children in its middle, across and down |
+| `Sticky` | `Sticky(offset: "64px") { Toolbar() }` — sticks to the top of its scrolling parent, `offset:` below it (`.bottom` to the bottom), and is marked `data-stuck` while it is |
+| `PanelGroup` | `persist sizes: [Number] = [25, 75]` · `PanelGroup(bind: sizes, label: "Resize the sidebar") { PanelGroup.Panel(min: 15) { … }  PanelGroup.Panel { … } }` — panels side by side (`.vertical`, one above another), a handle (`role="separator"`) between each two: dragged, or the arrow keys on it (Shift for larger steps), Home and End; each held to its `min:` in percent; `bind:` holds the sizes in percent, and a `persist` keeps them across visits |
 
 ### Navigation
 
@@ -1853,6 +1859,12 @@ file would change; a `.wfx` file is normalised through its braced spelling.
 | `Tag` | `Tag("JavaScript")` |
 | `Avatar` | `Avatar(src: "/photo.jpg", alt: "User")` or `Avatar(initials: "MO").primary` — flags: `.sm`, `.md`, `.lg`, `.primary` |
 | `Tooltip` | `Tooltip("Save", shortcut: "Ctrl+S", delay: 400, placement: .bottom) { Button("Save").primary }` — wraps children; shows above everything after `delay:` ms of hover (unset, 500), at once on keyboard focus |
+| `DescriptionList` | `DescriptionList.grid { DescriptionList.Item("Region", value: "eu-west")  DescriptionList.Item("Status") { Badge("Live").success } }` — terms and their values (`<dl>`), in a column or, `.grid`, each term beside its value |
+| `Timeline` | `Timeline { for r in releases by r.version { Timeline.Item(r.version, at: r.date) { Markdown(r.notes) } } }` — events in order (`<ol>`), each a dot on a line, its title, its date (`<time datetime>`) and its block |
+| `AvatarGroup` | `AvatarGroup(max: 3, label: "Team") { for p in people by p.id { Avatar(initials: p.initials) } }` — avatars overlapping in a row; past `max:` the rest are one `+2` (said "2 more"), counted again as the list changes |
+| `Item` | `Item(title: "Notifications", description: "Sent to your phone") { Item.Media { Icon("bell") }  Item.Actions { Switch(bind: on, aria-label: "Notifications") } }` — a row of a list, a settings page or search results: media, its words and its block, then its actions |
+| `Sparkline` | `Sparkline(signups, label: "Sign-ups this week")` or `.bar` — a tiny chart in a line of text, an SVG made when the page is built (`E109` when what it reads is not known then); `width:`, `height:`, `color:` |
+| `RelativeTime` | `RelativeTime(post.date)` — `3 minutes ago`, kept current, the exact time its title (`<time datetime title>`); the static paint shows the exact time until the page runs |
 
 ### Form & Input
 
@@ -1920,6 +1932,8 @@ static paint, by the template engine and in a PDF.
 | `ConsentBanner` | `ConsentBanner("We would like to count visits.", accept: "Allow", decline: "No thanks") { Link("How we count", to: "/privacy") }` — shown until the reader chooses, Decline first and drawn as Accept is; the choice is kept, and Accept loads the `meta.scripts` entries marked `"load": "consent"` — then and on every later visit. Nothing they name loads before |
 | `Spinner` | `Spinner` or `Spinner.lg` |
 | `Progress` | `Progress(value: 75, max: 100)` |
+| `CircularProgress` | `CircularProgress(value: done, max: total, label: "Upload") { Text("{done}%").sm }` — a ring that fills, announced as a progress bar; with no `value:` it turns; its block sits in its middle |
+| `Meter` | `Meter(value: used, max: 1, high: 0.9, label: "Disk")` — a level against its range, the native `<meter>`: past `high:` or under `low:` its colour says so, `optimum:` which end is good |
 | `Skeleton` | `Skeleton(height: "20px", width: "200px")` or `Skeleton(size: "48px").circle` — flags: `.circle` |
 
 ### Actions
@@ -1950,6 +1964,7 @@ Button flags: `.sm`, `.lg`, `.full`, `.rounded`, `.pill`, `.outlined`; `type: .s
 | `Icon` | `Icon("home")` or `Icon("search").lg.primary` — 83 built-in SVG icons rendered inline (see [Icon System](#icon-system)) |
 | `Carousel` | `Carousel(autoplay: true, interval: 5000) { Carousel.Slide { Image(src: "...") } }` — slide track with dots and autoplay |
 | `Lightbox` | `Lightbox(label: "Trip") { Image(hero, alt: "The harbour")  Image(src: "/hills.jpg", alt: "The hills", data-full: "/hills-large.jpg") }` — every picture in its block a button that opens it full screen: the arrow keys (the other way round right to left) and a swipe go between them, Home and End to the ends, a double press or `+` zooms and `-` comes back, Escape closes and the focus goes back to the picture; it opens a picture's `data-full:`, else its largest size |
+| `Gallery` | `Gallery(columns: 3, ratio: 4 / 3) { for p in photos by p.id { Image(src: p.src, alt: p.alt) } }` — pictures in a grid, each cropped to one shape (unset, square), as many across as fit unless `columns:` says; in a `Lightbox`, each opens full screen |
 
 ### Typography
 

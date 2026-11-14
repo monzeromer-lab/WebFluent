@@ -313,14 +313,14 @@ The built-ins fall into these families:
 
 | Family | Elements |
 |---|---|
-| Layout | `AppShell`, `Container`, `Row`, `Column`, `Grid`, `Stack`, `Spacer`, `Divider`, `Header`, `Section`, `Footer`, `VirtualList`, `Splitter` |
+| Layout | `AppShell`, `Container`, `Row`, `Column`, `Grid`, `Stack`, `Spacer`, `Divider`, `Header`, `Section`, `Footer`, `VirtualList`, `Splitter`, `Masonry`, `AspectRatio`, `ScrollArea`, `Center`, `Sticky`, `PanelGroup` |
 | Navigation | `Navbar`, `Sidebar`, `Link`, `Tabs`, `Breadcrumb`, `Menu`, `OnThisPage`, `Pagination`, `Stepper`, `CommandPalette`, `NavigationMenu`, `Menubar`, `ContextMenu`, `BottomNavigation`, `PrevNext` |
-| Data display | `Card`, `Table`, `DataTable`, `Tree`, `List`, `Badge`, `Tag`, `Avatar`, `Tooltip` ([Lists of data](https://webfluent.monzeromer.dev/learn/15-data.md#lists-of-data-a-table-a-tree-a-search)) |
+| Data display | `Card`, `Table`, `DataTable`, `Tree`, `List`, `Badge`, `Tag`, `Avatar`, `Tooltip`, `DescriptionList`, `Timeline`, `AvatarGroup`, `Item`, `Sparkline`, `RelativeTime` ([Lists of data](https://webfluent.monzeromer.dev/learn/15-data.md#lists-of-data-a-table-a-tree-a-search)) |
 | Content | `Callout`, `Kbd`, `EmptyState`, `Stat`, `CodeBlock`, `Chip`, `Accordion`, `VisuallyHidden` ([below](#content-a-note-a-key-a-figure)) |
 | Forms | `Form`, `Input`, `Textarea`, `Select`, `Checkbox`, `Radio`, `Switch`, `Slider`, `DatePicker`, `FileUpload`, `Field`, `Fieldset`, `InputGroup`, `RadioGroup`, `NumberInput`, `Calendar`, `Listbox`, `Combobox`, `CheckboxGroup`, `InputOTP`, `TagInput`, `Rating`, `DateRangePicker` ([Forms](https://webfluent.monzeromer.dev/learn/14-forms.md)) |
-| Feedback | `Alert`, `Toast`, `Modal`, `Dialog`, `Popover`, `Spinner`, `Progress`, `Skeleton`, `HoverCard`, `LoadingOverlay`, `Tour`, `ConsentBanner` ([Events](https://webfluent.monzeromer.dev/learn/08-events.md#overlays-modals-dialogs-toasts-and-menus)) |
+| Feedback | `Alert`, `Toast`, `Modal`, `Dialog`, `Popover`, `Spinner`, `Progress`, `CircularProgress`, `Meter`, `Skeleton`, `HoverCard`, `LoadingOverlay`, `Tour`, `ConsentBanner` ([Events](https://webfluent.monzeromer.dev/learn/08-events.md#overlays-modals-dialogs-toasts-and-menus)) |
 | Actions | `Button`, `IconButton`, `ButtonGroup`, `Dropdown`, `CopyButton`, `ThemeToggle`, `LocaleSwitch`, `Toggle`, `ToggleGroup` |
-| Media | `Image`, `Video`, `Audio`, `Frame`, `Icon`, `Carousel`, `Lightbox` ([Add a picture](https://webfluent.monzeromer.dev/recipes/add-a-picture.md), [Video and audio](https://webfluent.monzeromer.dev/recipes/video-and-audio.md)) |
+| Media | `Image`, `Video`, `Audio`, `Frame`, `Icon`, `Carousel`, `Lightbox`, `Gallery` ([Add a picture](https://webfluent.monzeromer.dev/recipes/add-a-picture.md), [Video and audio](https://webfluent.monzeromer.dev/recipes/video-and-audio.md)) |
 | Typography | `Text`, `Heading`, `Paragraph`, `Code`, `Blockquote`, `Markdown`, `Unsafe.Html` |
 | Somebody else's code | `Host`, `Element`, `Portal` ([Call your own JavaScript](https://webfluent.monzeromer.dev/recipes/call-your-own-script.md), [Hand an element to a script](https://webfluent.monzeromer.dev/recipes/hand-an-element-to-a-script.md)) |
 | Documents and decks | `Document`, `PageBreak`, `TableOfContents`, `Background`, `Watermark`, `Chart`, `QrCode`, `Presentation`, `Slide`, `TitleSlide`, `SectionSlide`, `TwoColumn`, `ImageSlide` ([PDF and slides](https://webfluent.monzeromer.dev/learn/17-pdf-and-slides.md)) |

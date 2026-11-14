@@ -1441,6 +1441,25 @@ pub(crate) fn render_builtin<C: Paint>(name: &str, ui: &UIElement, ctx: &mut C) 
             out.push_str(&format!("{indent}</{tag}>\n"));
             return out;
         }
+        // A moment, painted as the exact time its title says: `3 minutes
+        // ago` depends on when it is read, which the live page knows and
+        // the build does not.
+        "RelativeTime" => {
+            let exact = ui
+                .args
+                .iter()
+                .find_map(|a| match a {
+                    Arg::Named(k, v) if k == "title" => static_attr(v, &ctx.scope),
+                    _ => None,
+                })
+                .unwrap_or_default();
+            return format!(
+                "{}<time class=\"{class_str}\"{}{wf}{inline_style}>{}</time>\n",
+                ctx.indent_str(),
+                own_attrs(name, ui, ctx, &[]),
+                html_escape(&exact)
+            );
+        }
         // A menu bar: its menus' buttons, each list hidden until the script
         // opens it, as the live page draws them; the first button is the
         // bar's one Tab stop.
@@ -1911,7 +1930,7 @@ pub(crate) fn render_builtin<C: Paint>(name: &str, ui: &UIElement, ctx: &mut C) 
         }
         // A chart or a QR code over values known at build time: its SVG,
         // the same the live page inserts.
-        "Chart" | "QrCode" => {
+        "Chart" | "QrCode" | "Sparkline" => {
             let mut named = Vec::new();
             let mut positional = None;
             let mut all = true;
@@ -1938,8 +1957,13 @@ pub(crate) fn render_builtin<C: Paint>(name: &str, ui: &UIElement, ctx: &mut C) 
             } else {
                 String::new()
             };
+            let tag = if name == "Sparkline" {
+                "span"
+            } else {
+                "figure"
+            };
             return format!(
-                "{}<figure class=\"{}\"{}{}{}>{}</figure>\n",
+                "{}<{tag} class=\"{}\"{}{}{}>{}</{tag}>\n",
                 ctx.indent_str(),
                 class_str,
                 own_attrs(name, ui, ctx, &[]),
@@ -2220,6 +2244,19 @@ pub(crate) fn render_builtin<C: Paint>(name: &str, ui: &UIElement, ctx: &mut C) 
                         }
                     }
                     "gap" | "align" | "justify" => {} // Utility classes, added below
+                    // A prop the registry writes as an attribute (a
+                    // `Meter`'s `high:`, a `<time>`'s `datetime:`), as the
+                    // live page writes it.
+                    k if crate::registry::component(name)
+                        .and_then(|s| s.prop(k))
+                        .is_some_and(|p| p.sink == crate::registry::Sink::Attr) =>
+                    {
+                        if let Some(one) =
+                            paint_attr(k, val, &|e| painted(e, &ctx.scope), &ctx.app_schemes)
+                        {
+                            attrs.push(one);
+                        }
+                    }
                     // A hyphenated name is an HTML attribute (`aria-*`, `data-*`);
                     // it is painted when its value is known at build time, as
                     // the live page writes it: `true` is `"true"`, `false`

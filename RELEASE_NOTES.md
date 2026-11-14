@@ -205,6 +205,21 @@ template engine and, where it can be, in a PDF.
   `meta.scripts` entry marked `"load": "consent"` loads only once they
   accept, and Decline is as easy as Accept.
 
+## More for showing and laying out
+
+- `DescriptionList`, `Timeline`, `Item` and `AvatarGroup` show pairs,
+  events, rows and people.
+- `Gallery` lays pictures out in a grid of one shape; `Masonry` places
+  anything in columns at its own height.
+- `CircularProgress` is a ring; `Meter` is a level against its range.
+- `Sparkline([3, 5, 2, 8])` is a tiny chart in a line of text, drawn when
+  the page is built.
+- `RelativeTime(post.date)` says `3 minutes ago` and keeps saying it.
+- `AspectRatio`, `ScrollArea`, `Center` and `Sticky` hold a box's shape,
+  scroll it, centre what is in it, and stick it to the top.
+- `PanelGroup(bind: sizes)` puts handles between panels that resize them,
+  by pointer or keyboard; a `persist` keeps the sizes.
+
 ## Fixes
 
 - `wf test` drew a built-in where the project had a component of its

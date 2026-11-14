@@ -1468,6 +1468,297 @@ pub const COMPONENTS: &[ComponentSig] = &[
     .html("section", "wf-consent")
     .css(&["Button", "Consent Banner"])
     .not_on_paper("interactive elements are not supported in PDF"),
+    // ─── Display and layout, the second group ─────────────────────────────
+    comp(
+        "DescriptionList",
+        "Data display",
+        "Terms and what they are (`<dl>`): a column of pairs, or `.grid`, each term beside its value.",
+        None,
+        &[flag("grid", "grid", "Each term beside its value")],
+        &["Item", "Term", "Details"],
+        G,
+        Children::Elements,
+    )
+    .html("dl", "wf-description-list")
+    .css(&["Description List"])
+    .on_paper(),
+    part(
+        "DescriptionList",
+        "Item",
+        Ir::Sub("DescriptionList", "Item"),
+        "One pair: its term, and `value:` or its block.",
+        Some(required(special("term", PropType::Str, "What it is"))),
+        &[special("value", PropType::Any, "Its value, as text; unset, its block")],
+        G,
+        Children::Elements,
+    )
+    .html("div", "wf-description-list__item"),
+    part("DescriptionList", "Term", Ir::Sub("DescriptionList", "Term"), "A term. Drawn for it.", Some(special("text", PropType::Str, "The term")), &[], G, Children::Elements)
+        .html("dt", "wf-description-list__term"),
+    part("DescriptionList", "Details", Ir::Sub("DescriptionList", "Details"), "A value. Drawn for it.", Some(special("text", PropType::Str, "The value")), &[], G, Children::Elements)
+        .html("dd", "wf-description-list__details"),
+    comp(
+        "Timeline",
+        "Data display",
+        "Events in order (`<ol>`), each a dot on a line, its title, its time and its block.",
+        None,
+        &[],
+        &["Item", "Time"],
+        G,
+        Children::Elements,
+    )
+    .html("ol", "wf-timeline")
+    .css(&["Timeline"])
+    .on_paper(),
+    part(
+        "Timeline",
+        "Item",
+        Ir::Sub("Timeline", "Item"),
+        "One event: its title, `at:` its time, and its block.",
+        Some(required(special("title", PropType::Str, "What happened"))),
+        &[special("at", PropType::Any, "When: a `Date`, a `DateTime` or an ISO string, written as a date")],
+        G,
+        Children::Elements,
+    )
+    .html("li", "wf-timeline__item"),
+    part(
+        "Timeline",
+        "Time",
+        Ir::Sub("Timeline", "Time"),
+        "An event's time (`<time>`). Drawn for it.",
+        Some(special("text", PropType::Str, "The time, as read")),
+        &[attr("datetime", PropType::Str, "The time, as a machine reads it")],
+        G,
+        Children::Elements,
+    )
+    .html("time", "wf-timeline__time"),
+    comp(
+        "AvatarGroup",
+        "Data display",
+        "Avatars overlapping in a row: past `max:` the rest are one `+3`.",
+        None,
+        &[
+            special("max", PropType::Num, "How many show before the rest are counted"),
+            special("label", PropType::Str, "Who they are, for a screen reader"),
+        ],
+        &[],
+        G,
+        Children::Elements,
+    )
+    .html("div", "wf-avatar-group")
+    .css(&["Avatar", "Avatar Group"])
+    .on_paper(),
+    comp(
+        "Item",
+        "Data display",
+        "A row of a list, a settings page or a search's results: `Item.Media` at its start, its `title:` and `description:`, then its block, and `Item.Actions` at its end.",
+        None,
+        &[
+            special("title", PropType::Str, "What it is"),
+            special("description", PropType::Str, "A line more, muted"),
+        ],
+        &["Media", "Content", "Actions"],
+        G,
+        Children::Elements,
+    )
+    .html("div", "wf-item")
+    .css(&["Item"])
+    .on_paper(),
+    part("Item", "Media", Ir::Sub("Item", "Media"), "What goes at its start: an icon, an avatar, a picture.", None, &[], G, Children::Elements)
+        .html("div", "wf-item__media"),
+    part("Item", "Content", Ir::Sub("Item", "Content"), "Its title, description and block. Drawn for it.", None, &[], G, Children::Elements)
+        .html("div", "wf-item__content"),
+    part("Item", "Actions", Ir::Sub("Item", "Actions"), "What goes at its end: a switch, a button, a menu.", None, &[], G, Children::Elements)
+        .html("div", "wf-item__actions"),
+    comp(
+        "Gallery",
+        "Media",
+        "Pictures in a grid of `columns:` (unset, as many as fit), each cropped to one shape — `ratio:`, unset square. In a `Lightbox`, each opens full screen.",
+        None,
+        &[
+            special("columns", PropType::Num, "How many across; unset, as many as fit"),
+            special("ratio", PropType::Any, "Each picture's shape, `4 / 3` (unset, `1`)"),
+        ],
+        &[],
+        G,
+        Children::Elements,
+    )
+    .html("div", "wf-gallery")
+    .css(&["Gallery"])
+    .on_paper(),
+    comp(
+        "Masonry",
+        "Layout",
+        "Its children in `columns:` columns, each placed under the last in its column, keeping its own height.",
+        None,
+        &[special("columns", PropType::Num, "How many columns (unset, 3)")],
+        &[],
+        G,
+        Children::Elements,
+    )
+    .html("div", "wf-masonry")
+    .css(&["Masonry"])
+    .on_paper(),
+    comp(
+        "CircularProgress",
+        "Feedback",
+        "A ring that fills to `value:` of `max:`, announced as a progress bar; with no `value:`, it turns, for work of no known length. Its block is drawn in the middle.",
+        None,
+        &[
+            special("value", PropType::Num, "How far along; unset, it turns"),
+            special("max", PropType::Num, "The value when full (unset, 100)"),
+            special("label", PropType::Str, "What is progressing, for a screen reader"),
+        ],
+        &[],
+        G,
+        Children::Elements,
+    )
+    .html("div", "wf-circular-progress")
+    .css(&["Circular Progress"])
+    .not_on_paper(NOT_ON_PAPER),
+    comp(
+        "Meter",
+        "Feedback",
+        "A level against its range (`<meter>`): a disk's use, a password's strength. Past `high:` or under `low:` it says so in its colour; `optimum:` says which end is good.",
+        None,
+        &[
+            attr("value", PropType::Num, "The level"),
+            attr("min", PropType::Num, "The bottom of the range (unset, 0)"),
+            attr("max", PropType::Num, "The top of the range (unset, 1)"),
+            attr("low", PropType::Num, "Under this, it is low"),
+            attr("high", PropType::Num, "Over this, it is high"),
+            attr("optimum", PropType::Num, "The best level"),
+            special("label", PropType::Str, "What it measures, for a screen reader"),
+        ],
+        &[],
+        G,
+        Children::None,
+    )
+    .html("meter", "wf-meter")
+    .css(&["Meter"])
+    .on_paper(),
+    comp(
+        "Sparkline",
+        "Data display",
+        "A tiny chart in a line of text — a line, or `.bar` — of a list of numbers, drawn as an SVG when the page is built.",
+        Some(required(special("data", PropType::Any, "The numbers: a list"))),
+        &[
+            flag("bar", "bar", "Bars rather than a line"),
+            special("width", PropType::Num, "Its width in px (unset, 80)"),
+            special("height", PropType::Num, "Its height in px (unset, 20)"),
+            special("color", PropType::Str, "Its colour (unset, the text's)"),
+            special("label", PropType::Str, "What it shows, for a screen reader"),
+        ],
+        &[],
+        G,
+        Children::None,
+    )
+    .html("span", "wf-sparkline")
+    .css(&["Sparkline"])
+    .on_paper(),
+    comp(
+        "RelativeTime",
+        "Data display",
+        "A moment as `3 minutes ago`, kept current, with the exact time on hover (`<time>`).",
+        Some(required(special("when", PropType::Any, "The moment: a `Date`, a `DateTime` or an ISO string"))),
+        &[attr("datetime", PropType::Str, "The moment, as a machine reads it. Written for it")],
+        &[],
+        G,
+        Children::None,
+    )
+    .html("time", "wf-relative-time")
+    .css(&["Relative Time"])
+    .on_paper(),
+    comp(
+        "AspectRatio",
+        "Layout",
+        "A box that keeps its shape as its width changes — `ratio: 16 / 9` — its child filling it: a picture, a video, a frame.",
+        None,
+        &[required(special("ratio", PropType::Any, "Its width over its height, `16 / 9`"))],
+        &[],
+        G,
+        Children::Elements,
+    )
+    .html("div", "wf-aspect-ratio")
+    .css(&["Aspect Ratio"])
+    .on_paper(),
+    comp(
+        "ScrollArea",
+        "Layout",
+        "A box that scrolls within `height:`, with a thin scrollbar, its edges fading where there is more, and a Tab stop so a keyboard can scroll it.",
+        None,
+        &[
+            special("height", PropType::Str, "How tall it may grow before it scrolls, `300px`"),
+            required(special("label", PropType::Str, "What it holds, for a screen reader")),
+            flag("horizontal", "horizontal", "It scrolls across rather than down"),
+        ],
+        &[],
+        G,
+        Children::Elements,
+    )
+    .html("div", "wf-scroll-area")
+    .css(&["Scroll Area"])
+    .not_on_paper(NOT_ON_PAPER),
+    comp(
+        "Center",
+        "Layout",
+        "Its children in the middle of it, across and down.",
+        None,
+        &[],
+        &[],
+        G,
+        Children::Elements,
+    )
+    .html("div", "wf-center")
+    .css(&["Center"])
+    .on_paper(),
+    comp(
+        "Sticky",
+        "Layout",
+        "A box that sticks to the top of its scrolling parent (`offset:` below it) as the page scrolls past, marked `data-stuck` while it is stuck.",
+        None,
+        &[
+            special("offset", PropType::Str, "How far below the top it sticks, `64px` (unset, 0)"),
+            flag("bottom", "bottom", "It sticks to the bottom instead"),
+        ],
+        &[],
+        G,
+        Children::Elements,
+    )
+    .html("div", "wf-sticky")
+    .css(&["Sticky"])
+    .not_on_paper(NOT_ON_PAPER),
+    ComponentSig {
+        events: &["resize"],
+        ..comp(
+            "PanelGroup",
+            "Layout",
+            "Panels side by side (or `.vertical`, one above another) with a handle between each two that resizes them: dragged, or the arrow keys on it. `bind:` holds their sizes in percent — a `persist` keeps them across visits — and `on resize(e)` hears them as `e.detail`.",
+            None,
+            &[
+                special("bind", PropType::State, "The panels' sizes, in percent: `[30, 70]`"),
+                flag("vertical", "vertical", "One above another"),
+                special("label", PropType::Str, "What the handles resize, for a screen reader"),
+            ],
+            &["Panel"],
+            G,
+            Children::Elements,
+        )
+    }
+    .html("div", "wf-panel-group")
+    .css(&["Panel Group"])
+    .not_on_paper(NOT_ON_PAPER),
+    part(
+        "PanelGroup",
+        "Panel",
+        Ir::Sub("PanelGroup", "Panel"),
+        "One panel.",
+        None,
+        &[special("min", PropType::Num, "The least it may be, in percent (unset, 10)")],
+        G,
+        Children::Elements,
+    )
+    .html("div", "wf-panel-group__panel"),
     // ─── Data display ─────────────────────────────────────────────────────
     comp(
         "Card",

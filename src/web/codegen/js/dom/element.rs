@@ -84,15 +84,21 @@ impl JsCodegen {
             }
             // A chart or a QR code is drawn when the page is built,
             // from values known then, and inserted as its SVG.
-            "Chart" | "QrCode" => {
+            "Chart" | "QrCode" | "Sparkline" => {
                 if let Some(svg) = self.static_graphic(name, ui) {
                     let (_, class) = builtin_to_html(name);
+                    let tag = if name == "Sparkline" {
+                        "span"
+                    } else {
+                        "figure"
+                    };
                     let svg = serde_json::to_string(&svg).unwrap_or_default();
                     // The figure takes what any element takes: an
                     // `aria-label:` naming the chart, a `role:`, its
                     // handlers, `class:` and a `style { }` block.
                     let extra = self.root_attrs(name, ui, &[]);
-                    self.emit_line(&format!("const {var} = WF.el(\"figure\", {{ className: \"{class}\", html: {svg}{extra} }});"));
+                    let node = self.wf_node_inline(ui);
+                    self.emit_line(&format!("const {var} = WF.el(\"{tag}\", {{ className: \"{class}\", html: {svg}{extra}{node} }});"));
                     self.emit_root_handlers(var, ui, false);
                     self.emit_style_and_transition(var, ui);
                     self.emit_motion(var, ui);

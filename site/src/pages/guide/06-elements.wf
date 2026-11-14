@@ -240,7 +240,7 @@ page Learn06Elements(path: "/learn/06-elements", title: "Elements", description:
             Table.Body {
                 Table.Row {
                     Table.Cell("Layout")
-                    Table.Cell { Markdown("`AppShell`, `Container`, `Row`, `Column`, `Grid`, `Stack`, `Spacer`, `Divider`, `Header`, `Section`, `Footer`, `VirtualList`, `Splitter`") }
+                    Table.Cell { Markdown("`AppShell`, `Container`, `Row`, `Column`, `Grid`, `Stack`, `Spacer`, `Divider`, `Header`, `Section`, `Footer`, `VirtualList`, `Splitter`, `Masonry`, `AspectRatio`, `ScrollArea`, `Center`, `Sticky`, `PanelGroup`") }
                 }
                 Table.Row {
                     Table.Cell("Navigation")
@@ -248,7 +248,7 @@ page Learn06Elements(path: "/learn/06-elements", title: "Elements", description:
                 }
                 Table.Row {
                     Table.Cell("Data display")
-                    Table.Cell { Markdown("`Card`, `Table`, `DataTable`, `Tree`, `List`, `Badge`, `Tag`, `Avatar`, `Tooltip` ([Lists of data](/learn/15-data#lists-of-data-a-table-a-tree-a-search))") }
+                    Table.Cell { Markdown("`Card`, `Table`, `DataTable`, `Tree`, `List`, `Badge`, `Tag`, `Avatar`, `Tooltip`, `DescriptionList`, `Timeline`, `AvatarGroup`, `Item`, `Sparkline`, `RelativeTime` ([Lists of data](/learn/15-data#lists-of-data-a-table-a-tree-a-search))") }
                 }
                 Table.Row {
                     Table.Cell("Content")
@@ -260,7 +260,7 @@ page Learn06Elements(path: "/learn/06-elements", title: "Elements", description:
                 }
                 Table.Row {
                     Table.Cell("Feedback")
-                    Table.Cell { Markdown("`Alert`, `Toast`, `Modal`, `Dialog`, `Popover`, `Spinner`, `Progress`, `Skeleton`, `HoverCard`, `LoadingOverlay`, `Tour`, `ConsentBanner` ([Events](/learn/08-events#overlays-modals-dialogs-toasts-and-menus))") }
+                    Table.Cell { Markdown("`Alert`, `Toast`, `Modal`, `Dialog`, `Popover`, `Spinner`, `Progress`, `CircularProgress`, `Meter`, `Skeleton`, `HoverCard`, `LoadingOverlay`, `Tour`, `ConsentBanner` ([Events](/learn/08-events#overlays-modals-dialogs-toasts-and-menus))") }
                 }
                 Table.Row {
                     Table.Cell("Actions")
@@ -268,7 +268,7 @@ page Learn06Elements(path: "/learn/06-elements", title: "Elements", description:
                 }
                 Table.Row {
                     Table.Cell("Media")
-                    Table.Cell { Markdown("`Image`, `Video`, `Audio`, `Frame`, `Icon`, `Carousel`, `Lightbox` ([Add a picture](/recipes/add-a-picture), [Video and audio](/recipes/video-and-audio))") }
+                    Table.Cell { Markdown("`Image`, `Video`, `Audio`, `Frame`, `Icon`, `Carousel`, `Lightbox`, `Gallery` ([Add a picture](/recipes/add-a-picture), [Video and audio](/recipes/video-and-audio))") }
                 }
                 Table.Row {
                     Table.Cell("Typography")

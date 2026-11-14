@@ -263,6 +263,20 @@ walks through the page, each target lit through a cut-out."#),
 `meta.scripts` entry marked `"load": "consent"` loads only once they
 accept, and Decline is as easy as Accept."#)
                 ]),
+                NotesSection(title: #"More for showing and laying out"#, id: "6.2.0-more-for-showing-and-laying-out", items: [
+                    Change(text: #"`DescriptionList`, `Timeline`, `Item` and `AvatarGroup` show pairs,
+events, rows and people."#),
+                    Change(text: #"`Gallery` lays pictures out in a grid of one shape; `Masonry` places
+anything in columns at its own height."#),
+                    Change(text: #"`CircularProgress` is a ring; `Meter` is a level against its range."#),
+                    Change(text: #"`Sparkline([3, 5, 2, 8])` is a tiny chart in a line of text, drawn when
+the page is built."#),
+                    Change(text: #"`RelativeTime(post.date)` says `3 minutes ago` and keeps saying it."#),
+                    Change(text: #"`AspectRatio`, `ScrollArea`, `Center` and `Sticky` hold a box's shape,
+scroll it, centre what is in it, and stick it to the top."#),
+                    Change(text: #"`PanelGroup(bind: sizes)` puts handles between panels that resize them,
+by pointer or keyboard; a `persist` keeps the sizes."#)
+                ]),
                 NotesSection(title: #"Fixes"#, id: "6.2.0-fixes", items: [
                     Change(text: #"`wf test` drew a built-in where the project had a component of its
 name in another file."#),
@@ -333,7 +347,7 @@ again before the exit ended."#),
                     Change(text: #"A `Splitter`'s handle reaches 24px, WCAG 2.2's least target, around its
 4px line."#)
                 ])
-            ], count: 92), latest: true)
+            ], count: 99), latest: true)
 
             ReleaseEntry(ReleaseNotes(version: "6.1.0", id: "6.1.0", date: "2026-11-14", when: "14 November 2026", summary: #"A site sends much less: the runtime ships only the functions a program
 reaches, with short names, and only the styles and animations it draws
@@ -3792,6 +3806,6 @@ flattened diagnostics, and the reason a theme failed to resolve."#),
             ], count: 15))
         }
 
-        OnThisPage(sections: [Anchor(id: "6.2.0-a-project-s-own-component-wins", label: #"A project's own component wins"#), Anchor(id: "6.2.0-stacking-and-target-sizes-are-tokens", label: #"Stacking and target sizes are tokens"#), Anchor(id: "6.2.0-the-arrow-keys-everywhere-a-group-needs-them", label: #"The arrow keys, everywhere a group needs them"#), Anchor(id: "6.2.0-overlays-on-one-path", label: #"Overlays on one path"#), Anchor(id: "6.2.0-presses-that-hold-up", label: #"Presses that hold up"#), Anchor(id: "6.2.0-content-built-ins", label: #"Content built-ins"#), Anchor(id: "6.2.0-choosing-built-ins", label: #"Choosing built-ins"#), Anchor(id: "6.2.0-collections-and-an-app-s-frame", label: #"Collections and an app's frame"#), Anchor(id: "6.2.0-more-form-controls", label: #"More form controls"#), Anchor(id: "6.2.0-more-navigation", label: #"More navigation"#), Anchor(id: "6.2.0-more-overlays", label: #"More overlays"#), Anchor(id: "6.2.0-fixes", label: #"Fixes"#), Anchor(id: "6.2.0-reached-by-every-reader", label: #"Reached by every reader"#), Anchor(id: "6.2.0-right-to-left", label: #"Right to left"#), Anchor(id: "6.2.0-smaller-fixes", label: #"Smaller fixes"#)], source: "RELEASE_NOTES.md")
+        OnThisPage(sections: [Anchor(id: "6.2.0-a-project-s-own-component-wins", label: #"A project's own component wins"#), Anchor(id: "6.2.0-stacking-and-target-sizes-are-tokens", label: #"Stacking and target sizes are tokens"#), Anchor(id: "6.2.0-the-arrow-keys-everywhere-a-group-needs-them", label: #"The arrow keys, everywhere a group needs them"#), Anchor(id: "6.2.0-overlays-on-one-path", label: #"Overlays on one path"#), Anchor(id: "6.2.0-presses-that-hold-up", label: #"Presses that hold up"#), Anchor(id: "6.2.0-content-built-ins", label: #"Content built-ins"#), Anchor(id: "6.2.0-choosing-built-ins", label: #"Choosing built-ins"#), Anchor(id: "6.2.0-collections-and-an-app-s-frame", label: #"Collections and an app's frame"#), Anchor(id: "6.2.0-more-form-controls", label: #"More form controls"#), Anchor(id: "6.2.0-more-navigation", label: #"More navigation"#), Anchor(id: "6.2.0-more-overlays", label: #"More overlays"#), Anchor(id: "6.2.0-more-for-showing-and-laying-out", label: #"More for showing and laying out"#), Anchor(id: "6.2.0-fixes", label: #"Fixes"#), Anchor(id: "6.2.0-reached-by-every-reader", label: #"Reached by every reader"#), Anchor(id: "6.2.0-right-to-left", label: #"Right to left"#), Anchor(id: "6.2.0-smaller-fixes", label: #"Smaller fixes"#)], source: "RELEASE_NOTES.md")
     }
 }

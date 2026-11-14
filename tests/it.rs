@@ -51,6 +51,7 @@ mod cookbook;
 mod derived_in_a_run;
 #[path = "diagnostics.rs"]
 mod diagnostics;
+mod display;
 #[path = "docs_audit_fixes.rs"]
 mod docs_audit_fixes;
 #[path = "docs_parse.rs"]

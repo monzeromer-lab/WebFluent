@@ -14,11 +14,11 @@ Every component is written `Name(positional, prop: value).flag { block }`. A **p
 
 ## Contents
 
-- **Layout**: [`Container`](https://webfluent.monzeromer.dev/reference/container), [`Row`](https://webfluent.monzeromer.dev/reference/row), [`Column`](https://webfluent.monzeromer.dev/reference/column), [`Grid`](https://webfluent.monzeromer.dev/reference/grid), [`Stack`](https://webfluent.monzeromer.dev/reference/stack), [`Spacer`](https://webfluent.monzeromer.dev/reference/spacer), [`VirtualList`](https://webfluent.monzeromer.dev/reference/virtuallist), [`Splitter`](https://webfluent.monzeromer.dev/reference/splitter), [`Divider`](https://webfluent.monzeromer.dev/reference/divider), [`AppShell`](https://webfluent.monzeromer.dev/reference/appshell), [`Host`](https://webfluent.monzeromer.dev/reference/host), [`Portal`](https://webfluent.monzeromer.dev/reference/portal), [`Element`](https://webfluent.monzeromer.dev/reference/element)
+- **Layout**: [`Container`](https://webfluent.monzeromer.dev/reference/container), [`Row`](https://webfluent.monzeromer.dev/reference/row), [`Column`](https://webfluent.monzeromer.dev/reference/column), [`Grid`](https://webfluent.monzeromer.dev/reference/grid), [`Stack`](https://webfluent.monzeromer.dev/reference/stack), [`Spacer`](https://webfluent.monzeromer.dev/reference/spacer), [`VirtualList`](https://webfluent.monzeromer.dev/reference/virtuallist), [`Splitter`](https://webfluent.monzeromer.dev/reference/splitter), [`Divider`](https://webfluent.monzeromer.dev/reference/divider), [`Masonry`](https://webfluent.monzeromer.dev/reference/masonry), [`AspectRatio`](https://webfluent.monzeromer.dev/reference/aspectratio), [`ScrollArea`](https://webfluent.monzeromer.dev/reference/scrollarea), [`Center`](https://webfluent.monzeromer.dev/reference/center), [`Sticky`](https://webfluent.monzeromer.dev/reference/sticky), [`PanelGroup`](https://webfluent.monzeromer.dev/reference/panelgroup), [`AppShell`](https://webfluent.monzeromer.dev/reference/appshell), [`Host`](https://webfluent.monzeromer.dev/reference/host), [`Portal`](https://webfluent.monzeromer.dev/reference/portal), [`Element`](https://webfluent.monzeromer.dev/reference/element)
 - **Navigation**: [`Navbar`](https://webfluent.monzeromer.dev/reference/navbar), [`Sidebar`](https://webfluent.monzeromer.dev/reference/sidebar), [`Link`](https://webfluent.monzeromer.dev/reference/link), [`Tabs`](https://webfluent.monzeromer.dev/reference/tabs), [`Breadcrumb`](https://webfluent.monzeromer.dev/reference/breadcrumb), [`Menu`](https://webfluent.monzeromer.dev/reference/menu), [`NavigationMenu`](https://webfluent.monzeromer.dev/reference/navigationmenu), [`Menubar`](https://webfluent.monzeromer.dev/reference/menubar), [`ContextMenu`](https://webfluent.monzeromer.dev/reference/contextmenu), [`BottomNavigation`](https://webfluent.monzeromer.dev/reference/bottomnavigation), [`PrevNext`](https://webfluent.monzeromer.dev/reference/prevnext), [`OnThisPage`](https://webfluent.monzeromer.dev/reference/onthispage), [`Pagination`](https://webfluent.monzeromer.dev/reference/pagination), [`Stepper`](https://webfluent.monzeromer.dev/reference/stepper), [`CommandPalette`](https://webfluent.monzeromer.dev/reference/commandpalette)
-- **Feedback**: [`HoverCard`](https://webfluent.monzeromer.dev/reference/hovercard), [`LoadingOverlay`](https://webfluent.monzeromer.dev/reference/loadingoverlay), [`Tour`](https://webfluent.monzeromer.dev/reference/tour), [`ConsentBanner`](https://webfluent.monzeromer.dev/reference/consentbanner), [`Alert`](https://webfluent.monzeromer.dev/reference/alert), [`Toast`](https://webfluent.monzeromer.dev/reference/toast), [`Modal`](https://webfluent.monzeromer.dev/reference/modal), [`Popover`](https://webfluent.monzeromer.dev/reference/popover), [`Dialog`](https://webfluent.monzeromer.dev/reference/dialog), [`AlertDialog`](https://webfluent.monzeromer.dev/reference/alertdialog), [`Sheet`](https://webfluent.monzeromer.dev/reference/sheet), [`Spinner`](https://webfluent.monzeromer.dev/reference/spinner), [`Progress`](https://webfluent.monzeromer.dev/reference/progress), [`Skeleton`](https://webfluent.monzeromer.dev/reference/skeleton)
-- **Media**: [`Lightbox`](https://webfluent.monzeromer.dev/reference/lightbox), [`Image`](https://webfluent.monzeromer.dev/reference/image), [`Video`](https://webfluent.monzeromer.dev/reference/video), [`Audio`](https://webfluent.monzeromer.dev/reference/audio), [`Frame`](https://webfluent.monzeromer.dev/reference/frame), [`Icon`](https://webfluent.monzeromer.dev/reference/icon), [`Carousel`](https://webfluent.monzeromer.dev/reference/carousel)
-- **Data display**: [`Card`](https://webfluent.monzeromer.dev/reference/card), [`Table`](https://webfluent.monzeromer.dev/reference/table), [`List`](https://webfluent.monzeromer.dev/reference/list), [`Badge`](https://webfluent.monzeromer.dev/reference/badge), [`Tag`](https://webfluent.monzeromer.dev/reference/tag), [`Avatar`](https://webfluent.monzeromer.dev/reference/avatar), [`Tooltip`](https://webfluent.monzeromer.dev/reference/tooltip), [`Tree`](https://webfluent.monzeromer.dev/reference/tree), [`DataTable`](https://webfluent.monzeromer.dev/reference/datatable), [`Chart`](https://webfluent.monzeromer.dev/reference/chart), [`QrCode`](https://webfluent.monzeromer.dev/reference/qrcode)
+- **Feedback**: [`HoverCard`](https://webfluent.monzeromer.dev/reference/hovercard), [`LoadingOverlay`](https://webfluent.monzeromer.dev/reference/loadingoverlay), [`Tour`](https://webfluent.monzeromer.dev/reference/tour), [`ConsentBanner`](https://webfluent.monzeromer.dev/reference/consentbanner), [`CircularProgress`](https://webfluent.monzeromer.dev/reference/circularprogress), [`Meter`](https://webfluent.monzeromer.dev/reference/meter), [`Alert`](https://webfluent.monzeromer.dev/reference/alert), [`Toast`](https://webfluent.monzeromer.dev/reference/toast), [`Modal`](https://webfluent.monzeromer.dev/reference/modal), [`Popover`](https://webfluent.monzeromer.dev/reference/popover), [`Dialog`](https://webfluent.monzeromer.dev/reference/dialog), [`AlertDialog`](https://webfluent.monzeromer.dev/reference/alertdialog), [`Sheet`](https://webfluent.monzeromer.dev/reference/sheet), [`Spinner`](https://webfluent.monzeromer.dev/reference/spinner), [`Progress`](https://webfluent.monzeromer.dev/reference/progress), [`Skeleton`](https://webfluent.monzeromer.dev/reference/skeleton)
+- **Media**: [`Lightbox`](https://webfluent.monzeromer.dev/reference/lightbox), [`Gallery`](https://webfluent.monzeromer.dev/reference/gallery), [`Image`](https://webfluent.monzeromer.dev/reference/image), [`Video`](https://webfluent.monzeromer.dev/reference/video), [`Audio`](https://webfluent.monzeromer.dev/reference/audio), [`Frame`](https://webfluent.monzeromer.dev/reference/frame), [`Icon`](https://webfluent.monzeromer.dev/reference/icon), [`Carousel`](https://webfluent.monzeromer.dev/reference/carousel)
+- **Data display**: [`DescriptionList`](https://webfluent.monzeromer.dev/reference/descriptionlist), [`Timeline`](https://webfluent.monzeromer.dev/reference/timeline), [`AvatarGroup`](https://webfluent.monzeromer.dev/reference/avatargroup), [`Item`](https://webfluent.monzeromer.dev/reference/item), [`Sparkline`](https://webfluent.monzeromer.dev/reference/sparkline), [`RelativeTime`](https://webfluent.monzeromer.dev/reference/relativetime), [`Card`](https://webfluent.monzeromer.dev/reference/card), [`Table`](https://webfluent.monzeromer.dev/reference/table), [`List`](https://webfluent.monzeromer.dev/reference/list), [`Badge`](https://webfluent.monzeromer.dev/reference/badge), [`Tag`](https://webfluent.monzeromer.dev/reference/tag), [`Avatar`](https://webfluent.monzeromer.dev/reference/avatar), [`Tooltip`](https://webfluent.monzeromer.dev/reference/tooltip), [`Tree`](https://webfluent.monzeromer.dev/reference/tree), [`DataTable`](https://webfluent.monzeromer.dev/reference/datatable), [`Chart`](https://webfluent.monzeromer.dev/reference/chart), [`QrCode`](https://webfluent.monzeromer.dev/reference/qrcode)
 - **Form**: [`Input`](https://webfluent.monzeromer.dev/reference/input), [`Select`](https://webfluent.monzeromer.dev/reference/select), [`Checkbox`](https://webfluent.monzeromer.dev/reference/checkbox), [`Radio`](https://webfluent.monzeromer.dev/reference/radio), [`Switch`](https://webfluent.monzeromer.dev/reference/switch), [`Slider`](https://webfluent.monzeromer.dev/reference/slider), [`DatePicker`](https://webfluent.monzeromer.dev/reference/datepicker), [`FileUpload`](https://webfluent.monzeromer.dev/reference/fileupload), [`Form`](https://webfluent.monzeromer.dev/reference/form), [`Textarea`](https://webfluent.monzeromer.dev/reference/textarea), [`Field`](https://webfluent.monzeromer.dev/reference/field), [`Fieldset`](https://webfluent.monzeromer.dev/reference/fieldset), [`InputGroup`](https://webfluent.monzeromer.dev/reference/inputgroup), [`RadioGroup`](https://webfluent.monzeromer.dev/reference/radiogroup), [`NumberInput`](https://webfluent.monzeromer.dev/reference/numberinput), [`Calendar`](https://webfluent.monzeromer.dev/reference/calendar), [`Listbox`](https://webfluent.monzeromer.dev/reference/listbox), [`Combobox`](https://webfluent.monzeromer.dev/reference/combobox), [`CheckboxGroup`](https://webfluent.monzeromer.dev/reference/checkboxgroup), [`InputOTP`](https://webfluent.monzeromer.dev/reference/inputotp), [`TagInput`](https://webfluent.monzeromer.dev/reference/taginput), [`Rating`](https://webfluent.monzeromer.dev/reference/rating), [`DateRangePicker`](https://webfluent.monzeromer.dev/reference/daterangepicker)
 - **Content**: [`Callout`](https://webfluent.monzeromer.dev/reference/callout), [`Kbd`](https://webfluent.monzeromer.dev/reference/kbd), [`EmptyState`](https://webfluent.monzeromer.dev/reference/emptystate), [`Stat`](https://webfluent.monzeromer.dev/reference/stat), [`CodeBlock`](https://webfluent.monzeromer.dev/reference/codeblock), [`Chip`](https://webfluent.monzeromer.dev/reference/chip), [`VisuallyHidden`](https://webfluent.monzeromer.dev/reference/visuallyhidden), [`Accordion`](https://webfluent.monzeromer.dev/reference/accordion)
 - **Actions**: [`CopyButton`](https://webfluent.monzeromer.dev/reference/copybutton), [`ThemeToggle`](https://webfluent.monzeromer.dev/reference/themetoggle), [`LocaleSwitch`](https://webfluent.monzeromer.dev/reference/localeswitch), [`Toggle`](https://webfluent.monzeromer.dev/reference/toggle), [`ToggleGroup`](https://webfluent.monzeromer.dev/reference/togglegroup), [`Button`](https://webfluent.monzeromer.dev/reference/button), [`IconButton`](https://webfluent.monzeromer.dev/reference/iconbutton), [`ButtonGroup`](https://webfluent.monzeromer.dev/reference/buttongroup), [`Dropdown`](https://webfluent.monzeromer.dev/reference/dropdown)
@@ -277,6 +277,168 @@ Text("Section two")
 ```
 
 Renders with the class `wf-divider`.
+
+Attribute families: `global`, `aria`, `data`.
+
+### Masonry
+
+Its children in `columns:` columns, each placed under the last in its column, keeping its own height.
+
+```
+Masonry(columns: …) { … }
+```
+
+```wf
+Masonry(columns: 2) {
+    Card { Text("A short note") }
+    Card { Text("A longer note, which runs to more than one line of text.") }
+    Card { Text("Another") }
+}
+```
+
+Renders with the class `wf-masonry`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `columns:` | `Number` | How many columns (unset, 3) |
+
+Takes a block of children.
+
+Attribute families: `global`, `aria`, `data`.
+
+### AspectRatio
+
+A box that keeps its shape as its width changes — `ratio: 16 / 9` — its child filling it: a picture, a video, a frame.
+
+```
+AspectRatio(ratio: …) { … }
+```
+
+```wf
+AspectRatio(ratio: 16 / 9) {
+    Image(src: "/favicon.svg", alt: "The logo, wide")
+}
+```
+
+Renders with the class `wf-aspect-ratio`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `ratio:` (required) | `Any` | Its width over its height, `16 / 9` |
+
+Takes a block of children.
+
+Attribute families: `global`, `aria`, `data`.
+
+### ScrollArea
+
+A box that scrolls within `height:`, with a thin scrollbar, its edges fading where there is more, and a Tab stop so a keyboard can scroll it.
+
+```
+ScrollArea(height: …, label: …, horizontal: …) { … }
+```
+
+```wf
+ScrollArea(height: "120px", label: "Log") {
+    for n in 1..=20 { Text("Line {n}") }
+}
+```
+
+Renders with the class `wf-scroll-area`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `height:` | `String` | How tall it may grow before it scrolls, `300px` |
+| `label:` (required) | `String` | What it holds, for a screen reader |
+| `horizontal:` | `Bool` | It scrolls across rather than down |
+
+**Flags:** `.horizontal`
+
+Takes a block of children.
+
+Attribute families: `global`, `aria`, `data`.
+
+### Center
+
+Its children in the middle of it, across and down.
+
+```
+Center { … }
+```
+
+```wf
+Center {
+    style { height: 120px }
+    Spinner
+}
+```
+
+Renders with the class `wf-center`.
+
+Takes a block of children.
+
+Attribute families: `global`, `aria`, `data`.
+
+### Sticky
+
+A box that sticks to the top of its scrolling parent (`offset:` below it) as the page scrolls past, marked `data-stuck` while it is stuck.
+
+```
+Sticky(offset: …, bottom: …) { … }
+```
+
+```wf
+Sticky(offset: "8px") { Text("Stays in view").bold }
+```
+
+Renders with the class `wf-sticky`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `offset:` | `String` | How far below the top it sticks, `64px` (unset, 0) |
+| `bottom:` | `Bool` | It sticks to the bottom instead |
+
+**Flags:** `.bottom`
+
+Takes a block of children.
+
+Attribute families: `global`, `aria`, `data`.
+
+### PanelGroup
+
+Panels side by side (or `.vertical`, one above another) with a handle between each two that resizes them: dragged, or the arrow keys on it. `bind:` holds their sizes in percent — a `persist` keeps them across visits — and `on resize(e)` hears them as `e.detail`.
+
+```
+PanelGroup(bind: …, vertical: …, label: …) { … }
+```
+
+```wf
+state sizes: [Number] = [30, 70]
+PanelGroup(bind: sizes, label: "Resize the panels") {
+    style { height: 160px }
+    PanelGroup.Panel(min: 20) { Text("Files") }
+    PanelGroup.Panel { Text("Editor") }
+}
+```
+
+Renders with the class `wf-panel-group`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `bind:` | `State` | The panels' sizes, in percent: `[30, 70]` |
+| `vertical:` | `Bool` | One above another |
+| `label:` | `String` | What the handles resize, for a screen reader |
+
+**Flags:** `.vertical`
+
+**Events of its own:** `on resize`
+
+**Parts:**
+
+- `PanelGroup.Panel(min: …) { … }` — One panel.
+  - `min:` `Number` — The least it may be, in percent (unset, 10)
+
+Takes a block of children.
 
 Attribute families: `global`, `aria`, `data`.
 
@@ -1039,6 +1201,58 @@ Takes a block of children.
 
 Attribute families: `global`, `aria`, `data`.
 
+### CircularProgress
+
+A ring that fills to `value:` of `max:`, announced as a progress bar; with no `value:`, it turns, for work of no known length. Its block is drawn in the middle.
+
+```
+CircularProgress(value: …, max: …, label: …) { … }
+```
+
+```wf
+state done = 40
+CircularProgress(value: done, label: "Upload") { Text("{done}%").sm }
+Button("More") { on click { done = done + 20 } }
+```
+
+Renders with the class `wf-circular-progress`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `value:` | `Number` | How far along; unset, it turns |
+| `max:` | `Number` | The value when full (unset, 100) |
+| `label:` | `String` | What is progressing, for a screen reader |
+
+Takes a block of children.
+
+Attribute families: `global`, `aria`, `data`.
+
+### Meter
+
+A level against its range (`<meter>`): a disk's use, a password's strength. Past `high:` or under `low:` it says so in its colour; `optimum:` says which end is good.
+
+```
+Meter(value: …, min: …, max: …)
+```
+
+```wf
+Meter(value: 0.92, high: 0.9, label: "Disk")
+```
+
+Renders with the class `wf-meter`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `value:` | `Number` | The level |
+| `min:` | `Number` | The bottom of the range (unset, 0) |
+| `max:` | `Number` | The top of the range (unset, 1) |
+| `low:` | `Number` | Under this, it is low |
+| `high:` | `Number` | Over this, it is high |
+| `optimum:` | `Number` | The best level |
+| `label:` | `String` | What it measures, for a screen reader |
+
+Attribute families: `global`, `aria`, `data`.
+
 ### Alert
 
 Inline notice; a `danger` or `warning` one is announced as an alert.
@@ -1392,6 +1606,32 @@ Takes a block of children.
 
 Attribute families: `global`, `aria`, `data`.
 
+### Gallery
+
+Pictures in a grid of `columns:` (unset, as many as fit), each cropped to one shape — `ratio:`, unset square. In a `Lightbox`, each opens full screen.
+
+```
+Gallery(columns: …, ratio: …) { … }
+```
+
+```wf
+Gallery(columns: 2, ratio: 4 / 3) {
+    Image(src: "/favicon.svg", alt: "The logo")
+    Image(src: "/favicon.svg", alt: "The logo again")
+}
+```
+
+Renders with the class `wf-gallery`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `columns:` | `Number` | How many across; unset, as many as fit |
+| `ratio:` | `Any` | Each picture's shape, `4 / 3` (unset, `1`) |
+
+Takes a block of children.
+
+Attribute families: `global`, `aria`, `data`.
+
 ### Image
 
 Image; `alt` is required for accessibility (rule A01). Given an `image` the program declares, it becomes a `<picture>` with every width the build wrote.
@@ -1575,6 +1815,184 @@ Takes a block of children.
 Attribute families: `global`, `aria`, `data`.
 
 ## Data display
+
+### DescriptionList
+
+Terms and what they are (`<dl>`): a column of pairs, or `.grid`, each term beside its value.
+
+```
+DescriptionList(grid: …) { … }
+```
+
+```wf
+DescriptionList.grid {
+    DescriptionList.Item("Region", value: "eu-west")
+    DescriptionList.Item("Status") { Badge("Live").success }
+}
+```
+
+Renders with the class `wf-description-list`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `grid:` | `Bool` | Each term beside its value |
+
+**Flags:** `.grid`
+
+**Parts:**
+
+- `DescriptionList.Item(term, value: …) { … }` — One pair: its term, and `value:` or its block.
+  - `term:` `String` — What it is
+  - `value:` `Any` — Its value, as text; unset, its block
+- `DescriptionList.Term(text) { … }` — A term. Drawn for it.
+  - `text:` `String` — The term
+- `DescriptionList.Details(text) { … }` — A value. Drawn for it.
+  - `text:` `String` — The value
+
+Takes a block of children.
+
+Attribute families: `global`, `aria`, `data`.
+
+### Timeline
+
+Events in order (`<ol>`), each a dot on a line, its title, its time and its block.
+
+```
+Timeline { … }
+```
+
+```wf
+Timeline {
+    Timeline.Item("Released", at: "2026-11-14") { Text("Version 6.1") }
+    Timeline.Item("Planned") { Text("Version 7") }
+}
+```
+
+Renders with the class `wf-timeline`.
+
+**Parts:**
+
+- `Timeline.Item(title, at: …) { … }` — One event: its title, `at:` its time, and its block.
+  - `title:` `String` — What happened
+  - `at:` `Any` — When: a `Date`, a `DateTime` or an ISO string, written as a date
+- `Timeline.Time(text, datetime: …) { … }` — An event's time (`<time>`). Drawn for it.
+  - `text:` `String` — The time, as read
+  - `datetime:` `String` — The time, as a machine reads it
+
+Takes a block of children.
+
+Attribute families: `global`, `aria`, `data`.
+
+### AvatarGroup
+
+Avatars overlapping in a row: past `max:` the rest are one `+3`.
+
+```
+AvatarGroup(max: …, label: …) { … }
+```
+
+```wf
+AvatarGroup(max: 3, label: "Team") {
+    Avatar(initials: "AL")
+    Avatar(initials: "GH")
+    Avatar(initials: "AT")
+    Avatar(initials: "ED")
+}
+```
+
+Renders with the class `wf-avatar-group`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `max:` | `Number` | How many show before the rest are counted |
+| `label:` | `String` | Who they are, for a screen reader |
+
+Takes a block of children.
+
+Attribute families: `global`, `aria`, `data`.
+
+### Item
+
+A row of a list, a settings page or a search's results: `Item.Media` at its start, its `title:` and `description:`, then its block, and `Item.Actions` at its end.
+
+```
+Item(title: …, description: …) { … }
+```
+
+```wf
+state on = true
+Item(title: "Notifications", description: "Sent to your phone") {
+    Item.Media { Icon("bell") }
+    Item.Actions { Switch(bind: on, label: "On") }
+}
+```
+
+Renders with the class `wf-item`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `title:` | `String` | What it is |
+| `description:` | `String` | A line more, muted |
+
+**Parts:**
+
+- `Item.Media { … }` — What goes at its start: an icon, an avatar, a picture.
+- `Item.Content { … }` — Its title, description and block. Drawn for it.
+- `Item.Actions { … }` — What goes at its end: a switch, a button, a menu.
+
+Takes a block of children.
+
+Attribute families: `global`, `aria`, `data`.
+
+### Sparkline
+
+A tiny chart in a line of text — a line, or `.bar` — of a list of numbers, drawn as an SVG when the page is built.
+
+```
+Sparkline(data, bar: …, width: …, height: …)
+```
+
+```wf
+Text("Sign-ups ")
+Sparkline([3, 5, 2, 8, 6], label: "Sign-ups this week")
+Sparkline([3, 5, 2, 8, 6], label: "By day").bar
+```
+
+Renders with the class `wf-sparkline`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `data` (positional) | `Any` | The numbers: a list |
+| `bar:` | `Bool` | Bars rather than a line |
+| `width:` | `Number` | Its width in px (unset, 80) |
+| `height:` | `Number` | Its height in px (unset, 20) |
+| `color:` | `String` | Its colour (unset, the text's) |
+| `label:` | `String` | What it shows, for a screen reader |
+
+**Flags:** `.bar`
+
+Attribute families: `global`, `aria`, `data`.
+
+### RelativeTime
+
+A moment as `3 minutes ago`, kept current, with the exact time on hover (`<time>`).
+
+```
+RelativeTime(when, datetime: …)
+```
+
+```wf
+RelativeTime("2026-01-01T09:00:00Z")
+```
+
+Renders with the class `wf-relative-time`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `when` (positional) | `Any` | The moment: a `Date`, a `DateTime` or an ISO string |
+| `datetime:` | `String` | The moment, as a machine reads it. Written for it |
+
+Attribute families: `global`, `aria`, `data`.
 
 ### Card
 

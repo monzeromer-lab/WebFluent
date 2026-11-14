@@ -1367,6 +1367,128 @@ body:has(.wf-bottom-nav) { padding-bottom: calc(3.5rem + env(safe-area-inset-bot
 .wf-consent { color: var(--color-text); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); box-shadow: var(--shadow-lg); }
 /*@both*/
 
+/* ─── Description List ──────────────────────────────── */
+.wf-description-list { margin: 0; display: flex; flex-direction: column; gap: var(--spacing-sm); }
+.wf-description-list__item { display: flex; flex-direction: column; gap: 2px; }
+.wf-description-list__term { font-weight: var(--font-weight-bold); }
+.wf-description-list__details { margin: 0; }
+.wf-description-list--grid { display: grid; grid-template-columns: max-content 1fr; column-gap: var(--spacing-lg); row-gap: var(--spacing-sm); }
+.wf-description-list--grid > .wf-description-list__item { display: contents; }
+/*@full*/
+.wf-description-list__term { color: var(--color-text-muted); font-weight: var(--font-weight-medium); }
+/*@both*/
+
+/* ─── Timeline ──────────────────────────────────────── */
+/* A dot for each event on a line down its start. */
+.wf-timeline { list-style: none; margin: 0; padding: 0; }
+.wf-timeline__item { position: relative; display: flex; flex-direction: column; gap: 2px; padding-inline-start: 1.5rem; padding-bottom: var(--spacing-md); }
+.wf-timeline__item::before { content: ""; position: absolute; inset-inline-start: 0; top: 0.4em; width: 0.65rem; height: 0.65rem; border-radius: 50%; background: currentColor; }
+.wf-timeline__item::after { content: ""; position: absolute; inset-inline-start: calc(0.325rem - 1px); top: 1.2em; bottom: 0; width: 2px; background: currentColor; opacity: 0.25; }
+.wf-timeline__item:last-child::after { display: none; }
+.wf-timeline__item > * { margin: 0; }
+.wf-timeline__time { font-size: var(--font-size-sm); }
+/*@full*/
+.wf-timeline__item::before { background: var(--color-primary); }
+.wf-timeline__item::after { background: var(--color-border); opacity: 1; }
+.wf-timeline__time { color: var(--color-text-muted); }
+/*@both*/
+
+/* ─── Avatar Group ──────────────────────────────────── */
+.wf-avatar-group { display: inline-flex; align-items: center; }
+.wf-avatar-group > * + * { margin-inline-start: -0.6rem; }
+.wf-avatar-group > [hidden] { display: none; }
+.wf-avatar-group__more { display: inline-flex; align-items: center; justify-content: center; font-size: var(--font-size-sm); }
+/*@full*/
+.wf-avatar-group > * { box-shadow: 0 0 0 2px var(--color-background); border-radius: 50%; }
+.wf-avatar-group__more { color: var(--color-text); background: var(--color-surface); }
+/*@both*/
+
+/* ─── Item ──────────────────────────────────────────── */
+.wf-item { display: flex; align-items: center; gap: var(--spacing-md); padding: var(--spacing-sm) 0; }
+.wf-item__media { flex: none; display: flex; align-items: center; }
+.wf-item__content { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.wf-item__content > * { margin: 0; }
+.wf-item__actions { flex: none; display: flex; align-items: center; gap: var(--spacing-xs); }
+
+/* ─── Gallery ───────────────────────────────────────── */
+.wf-gallery { display: grid; gap: var(--spacing-sm); grid-template-columns: repeat(var(--wf-columns, auto-fill), minmax(min(10rem, 100%), 1fr)); }
+.wf-gallery img { display: block; width: 100%; height: auto; aspect-ratio: var(--wf-ratio, 1); object-fit: cover; }
+.wf-gallery picture { display: block; }
+/*@full*/
+.wf-gallery img { border-radius: var(--radius-sm); }
+/*@both*/
+
+/* ─── Masonry ───────────────────────────────────────── */
+.wf-masonry { columns: var(--wf-columns, 3) 12rem; column-gap: var(--spacing-md); }
+.wf-masonry > * { break-inside: avoid; margin: 0 0 var(--spacing-md); }
+.wf-masonry img { display: block; width: 100%; height: auto; }
+
+/* ─── Circular Progress ─────────────────────────────── */
+.wf-circular-progress { display: inline-grid; place-items: center; width: 3rem; height: 3rem; }
+.wf-circular-progress > * { grid-area: 1 / 1; }
+.wf-circular-progress__ring { width: 100%; height: 100%; transform: rotate(-90deg); }
+.wf-circular-progress__track, .wf-circular-progress__bar { fill: none; stroke-width: 4; }
+.wf-circular-progress__track { stroke: currentColor; opacity: 0.15; }
+.wf-circular-progress__bar { stroke: currentColor; stroke-linecap: round; transition: stroke-dasharray var(--transition-fast); }
+.wf-circular-progress[data-indeterminate] .wf-circular-progress__ring { animation: wf-ring-turn 1s linear infinite; }
+@keyframes wf-ring-turn { to { transform: rotate(270deg); } }
+@media (prefers-reduced-motion: reduce) { .wf-circular-progress[data-indeterminate] .wf-circular-progress__ring { animation-duration: 4s; } }
+/*@full*/
+.wf-circular-progress__bar { stroke: var(--color-primary); }
+/*@both*/
+
+/* ─── Meter ─────────────────────────────────────────── */
+.wf-meter { width: 100%; min-width: 6rem; height: 0.75rem; }
+
+/* ─── Sparkline ─────────────────────────────────────── */
+.wf-sparkline { display: inline-block; vertical-align: middle; line-height: 0; }
+.wf-sparkline--bar { vertical-align: text-bottom; }
+
+/* ─── Relative Time ─────────────────────────────────── */
+.wf-relative-time { white-space: nowrap; }
+
+/* ─── Aspect Ratio ──────────────────────────────────── */
+.wf-aspect-ratio { position: relative; overflow: hidden; }
+.wf-aspect-ratio > * { position: absolute; inset: 0; width: 100%; height: 100%; }
+.wf-aspect-ratio > picture > img, .wf-aspect-ratio > img, .wf-aspect-ratio > video { object-fit: cover; }
+.wf-aspect-ratio > picture > img { width: 100%; height: 100%; }
+
+/* ─── Scroll Area ───────────────────────────────────── */
+/* Its edges fade where there is more to scroll to. */
+.wf-scroll-area { overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
+.wf-scroll-area--horizontal { overflow-x: auto; overflow-y: hidden; }
+.wf-scroll-area:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+.wf-scroll-area[data-before] { mask-image: linear-gradient(to bottom, transparent, #000 1.5rem); }
+.wf-scroll-area[data-after] { mask-image: linear-gradient(to top, transparent, #000 1.5rem); }
+.wf-scroll-area[data-before][data-after] { mask-image: linear-gradient(to bottom, transparent, #000 1.5rem, #000 calc(100% - 1.5rem), transparent); }
+.wf-scroll-area--horizontal[data-before] { mask-image: linear-gradient(to right, transparent, #000 1.5rem); }
+.wf-scroll-area--horizontal[data-after] { mask-image: linear-gradient(to left, transparent, #000 1.5rem); }
+.wf-scroll-area--horizontal[data-before][data-after] { mask-image: linear-gradient(to right, transparent, #000 1.5rem, #000 calc(100% - 1.5rem), transparent); }
+
+/* ─── Center ────────────────────────────────────────── */
+.wf-center { display: grid; place-items: center; text-align: center; }
+
+/* ─── Sticky ────────────────────────────────────────── */
+.wf-sticky { position: sticky; top: 0; z-index: var(--z-sticky); }
+.wf-sticky--bottom { top: auto; bottom: 0; }
+/*@full*/
+.wf-sticky[data-stuck] { background: var(--color-background); box-shadow: var(--shadow-sm); }
+/*@both*/
+
+/* ─── Panel Group ───────────────────────────────────── */
+.wf-panel-group { display: flex; min-height: 0; }
+.wf-panel-group--vertical { flex-direction: column; }
+.wf-panel-group__panel { flex: 1 1 0; min-width: 0; min-height: 0; overflow: auto; }
+.wf-panel-group__handle { flex: none; width: 6px; cursor: col-resize; touch-action: none; background: currentColor; opacity: 0.12; }
+.wf-panel-group--vertical > .wf-panel-group__handle { width: auto; height: 6px; cursor: row-resize; }
+.wf-panel-group__handle:hover, .wf-panel-group__handle:focus-visible, .wf-panel-group[data-dragging] > .wf-panel-group__handle { opacity: 0.4; }
+.wf-panel-group__handle:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 1px; }
+.wf-panel-group[data-dragging] { user-select: none; }
+/*@full*/
+.wf-panel-group__handle { background: var(--color-border); opacity: 1; }
+.wf-panel-group__handle:hover, .wf-panel-group__handle:focus-visible, .wf-panel-group[data-dragging] > .wf-panel-group__handle { background: var(--color-primary); opacity: 1; }
+/*@both*/
+
 /* ─── Highlight ─────────────────────────────────────── */
 .wf-tok-kw { color: var(--syntax-keyword); }
 .wf-tok-name { color: var(--syntax-function); }

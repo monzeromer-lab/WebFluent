@@ -179,6 +179,9 @@ pub const MODULES: &[Module] = &[
         same("hoverCard"), same("loadingOverlay"), same("lightbox"), same("tour"),
         same("consentScripts"), same("consentBanner"),
     ], deps: ["layer", "overlay", "gesture", "later"], triggers: []),
+    module!("display", exports: [
+        same("avatarGroup"), same("ring"), same("scrollArea"), same("sticky"), same("panelGroup"),
+    ], deps: ["layer"], triggers: []),
     module!("collections", exports: [
         same("listbox"), same("tree"), same("dataTable"), same("combobox"), same("commandPalette"),
     ], deps: ["focus", "each", "layer"], triggers: []),

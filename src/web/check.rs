@@ -959,7 +959,7 @@ fn unknown_graphic_args<'s>(
         for stmt in stmts {
             if let StatementKind::UIElement(ui) = &stmt.kind
                 && let ComponentRef::BuiltIn(name) = &ui.component
-                && (name == "Chart" || name == "QrCode")
+                && (name == "Chart" || name == "QrCode" || name == "Sparkline")
             {
                 for arg in &ui.args {
                     let (label, e) = match arg {

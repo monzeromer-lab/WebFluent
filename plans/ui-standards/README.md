@@ -655,8 +655,12 @@ Leftovers.
 
 Each group is released on its own:
 
-**Status: groups 1 (forms), 2 (navigation) and 3 (overlays) done,
-2026-11-14; group 4 to come.** Group 3: `HoverCard`, `LoadingOverlay`,
+**Status: done, 2026-11-14.** Group 4: `DescriptionList`, `Timeline`,
+`Item`, `Gallery`, `Masonry`, `Meter`, `AspectRatio` and `Center` are
+drawn as elements and rules; `Sparkline` is an SVG made at
+build time; `CircularProgress`, `AvatarGroup`, `ScrollArea`, `Sticky` and
+`PanelGroup` lean on the `display` runtime module. The checks are
+`tests/browser/display.mjs` (27 in Chrome) and `tests/display.rs`. Group 3: `HoverCard`, `LoadingOverlay`,
 `Lightbox`, `Tour` and `ConsentBanner` are rewritten during lowering and
 handed to the `covers` runtime module; `"load": "consent"` is a new
 `meta.scripts` mode. The checks are `tests/browser/overlays2.mjs` (32 in
@@ -801,3 +805,15 @@ up together once stage 9 is done. A line comes off when its work lands.
   pinch, and no pan but scrolling.
 - `LoadingOverlay` keeps its content `inert` only on the live page; the
   static paint is never busy.
+
+### From stage 8, group 4
+
+- `AvatarGroup` counts its avatars once the page runs: the static paint
+  shows them all.
+- `CircularProgress` draws its ring once the page runs; `RelativeTime`
+  paints the exact time until then.
+- `Gallery` and `Masonry` take one `columns:` number, not a value per
+  breakpoint.
+- `PanelGroup`'s handles are not in the static paint, and it has no
+  collapsing a panel to nothing.
+- `Sparkline` takes numbers it can read at build time, as `Chart` does.

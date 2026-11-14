@@ -1,0 +1,4 @@
+{
+  "name": "display",
+  "build": { "ssg": true, "csp": true }
+}

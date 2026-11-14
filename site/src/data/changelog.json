@@ -434,6 +434,49 @@
     "after": ""
    },
    {
+    "title": "More for showing and laying out",
+    "id": "6.2.0-more-for-showing-and-laying-out",
+    "intro": "",
+    "items": [
+     {
+      "text": "`DescriptionList`, `Timeline`, `Item` and `AvatarGroup` show pairs,\nevents, rows and people.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`Gallery` lays pictures out in a grid of one shape; `Masonry` places\nanything in columns at its own height.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`CircularProgress` is a ring; `Meter` is a level against its range.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`Sparkline([3, 5, 2, 8])` is a tiny chart in a line of text, drawn when\nthe page is built.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`RelativeTime(post.date)` says `3 minutes ago` and keeps saying it.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`AspectRatio`, `ScrollArea`, `Center` and `Sticky` hold a box's shape,\nscroll it, centre what is in it, and stick it to the top.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`PanelGroup(bind: sizes)` puts handles between panels that resize them,\nby pointer or keyboard; a `persist` keeps the sizes.",
+      "points": [],
+      "after": ""
+     }
+    ],
+    "after": ""
+   },
+   {
     "title": "Fixes",
     "id": "6.2.0-fixes",
     "intro": "",
@@ -586,7 +629,7 @@
     "after": ""
    }
   ],
-  "count": 92
+  "count": 99
  },
  {
   "version": "6.1.0",

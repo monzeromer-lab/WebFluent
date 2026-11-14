@@ -1142,6 +1142,35 @@
     },
     {
       "deps": [
+        "layer"
+      ],
+      "exports": [
+        [
+          "avatarGroup",
+          "avatarGroup"
+        ],
+        [
+          "ring",
+          "ring"
+        ],
+        [
+          "scrollArea",
+          "scrollArea"
+        ],
+        [
+          "sticky",
+          "sticky"
+        ],
+        [
+          "panelGroup",
+          "panelGroup"
+        ]
+      ],
+      "name": "display",
+      "triggers": []
+    },
+    {
+      "deps": [
         "focus",
         "each",
         "layer"

@@ -1,5 +1,5 @@
 {
- "count": 218,
+ "count": 242,
  "families": [
   "Layout",
   "Navigation",
@@ -905,6 +905,539 @@
      "kind": "E103",
      "title": "A flag, case, part, event or slot the component does not have",
      "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "Masonry",
+   "slug": "masonry",
+   "family": "Layout",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Its children in `columns:` columns, each placed under the last in its column, keeping its own height.",
+   "plain": "Its children in columns: columns, each placed under the last in its column, keeping its own height.",
+   "signature": "Masonry(columns: Number) { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "columns:",
+     "type": "Number",
+     "meaning": "How many columns (unset, 3)"
+    }
+   ],
+   "controls": [],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-masonry",
+   "example": "Masonry(columns: 2) {\n    Card { Text(\"A short note\") }\n    Card { Text(\"A longer note, which runs to more than one line of text.\") }\n    Card { Text(\"Another\") }\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "AspectRatio",
+   "slug": "aspectratio",
+   "family": "Layout",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "A box that keeps its shape as its width changes — `ratio: 16 / 9` — its child filling it: a picture, a video, a frame.",
+   "plain": "A box that keeps its shape as its width changes — ratio: 16 / 9 — its child filling it: a picture, a video, a frame.",
+   "signature": "AspectRatio(ratio: Any) { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "ratio:",
+     "type": "Any  (required)",
+     "meaning": "Its width over its height, `16 / 9`"
+    }
+   ],
+   "controls": [],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-aspect-ratio",
+   "example": "AspectRatio(ratio: 16 / 9) {\n    Image(src: \"/favicon.svg\", alt: \"The logo, wide\")\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "ScrollArea",
+   "slug": "scrollarea",
+   "family": "Layout",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "A box that scrolls within `height:`, with a thin scrollbar, its edges fading where there is more, and a Tab stop so a keyboard can scroll it.",
+   "plain": "A box that scrolls within height:, with a thin scrollbar, its edges fading where there is more, and a Tab stop so a keyboard can scroll it.",
+   "signature": "ScrollArea(height: String, label: String, horizontal: Bool) { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "height:",
+     "type": "String",
+     "meaning": "How tall it may grow before it scrolls, `300px`"
+    },
+    {
+     "name": "label:",
+     "type": "String  (required)",
+     "meaning": "What it holds, for a screen reader"
+    },
+    {
+     "name": "horizontal:",
+     "type": "Bool",
+     "meaning": "It scrolls across rather than down"
+    }
+   ],
+   "controls": [
+    {
+     "name": "height",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "horizontal",
+     "kind": "bool",
+     "options": [],
+     "value": "",
+     "sink": "class"
+    }
+   ],
+   "flags": [
+    ".horizontal"
+   ],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-scroll-area",
+   "example": "ScrollArea(height: \"120px\", label: \"Log\") {\n    for n in 1..=20 { Text(\"Line {n}\") }\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "Center",
+   "slug": "center",
+   "family": "Layout",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Its children in the middle of it, across and down.",
+   "plain": "Its children in the middle of it, across and down.",
+   "signature": "Center { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [],
+   "controls": [],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-center",
+   "example": "Center {\n    style { height: 120px }\n    Spinner\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "Sticky",
+   "slug": "sticky",
+   "family": "Layout",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "A box that sticks to the top of its scrolling parent (`offset:` below it) as the page scrolls past, marked `data-stuck` while it is stuck.",
+   "plain": "A box that sticks to the top of its scrolling parent (offset: below it) as the page scrolls past, marked data-stuck while it is stuck.",
+   "signature": "Sticky(offset: String, bottom: Bool) { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "offset:",
+     "type": "String",
+     "meaning": "How far below the top it sticks, `64px` (unset, 0)"
+    },
+    {
+     "name": "bottom:",
+     "type": "Bool",
+     "meaning": "It sticks to the bottom instead"
+    }
+   ],
+   "controls": [
+    {
+     "name": "offset",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "bottom",
+     "kind": "bool",
+     "options": [],
+     "value": "",
+     "sink": "class"
+    }
+   ],
+   "flags": [
+    ".bottom"
+   ],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-sticky",
+   "example": "Sticky(offset: \"8px\") { Text(\"Stays in view\").bold }",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "PanelGroup",
+   "slug": "panelgroup",
+   "family": "Layout",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Panels side by side (or `.vertical`, one above another) with a handle between each two that resizes them: dragged, or the arrow keys on it. `bind:` holds their sizes in percent — a `persist` keeps them across visits — and `on resize(e)` hears them as `e.detail`.",
+   "plain": "Panels side by side (or .vertical, one above another) with a handle between each two that resizes them: dragged, or the arrow keys on it. bind: holds their sizes in percent — a persist keeps them across visits — and on resize(e) hears them as e.detail.",
+   "signature": "PanelGroup(bind: State, vertical: Bool, label: String) { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "bind:",
+     "type": "State",
+     "meaning": "The panels' sizes, in percent: `[30, 70]`"
+    },
+    {
+     "name": "vertical:",
+     "type": "Bool",
+     "meaning": "One above another"
+    },
+    {
+     "name": "label:",
+     "type": "String",
+     "meaning": "What the handles resize, for a screen reader"
+    }
+   ],
+   "controls": [
+    {
+     "name": "vertical",
+     "kind": "bool",
+     "options": [],
+     "value": "",
+     "sink": "class"
+    },
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [
+    ".vertical"
+   ],
+   "events": [
+    {
+     "name": "resize",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [
+    {
+     "name": "PanelGroup.Panel",
+     "kind": "panelgroup-panel",
+     "detail": "One panel.",
+     "fallback": ""
+    }
+   ],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-panel-group",
+   "example": "state sizes: [Number] = [30, 70]\nPanelGroup(bind: sizes, label: \"Resize the panels\") {\n    style { height: 160px }\n    PanelGroup.Panel(min: 20) { Text(\"Files\") }\n    PanelGroup.Panel { Text(\"Editor\") }\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "PanelGroup.Panel",
+   "slug": "panelgroup-panel",
+   "family": "Layout",
+   "owner": "PanelGroup",
+   "ownerSlug": "panelgroup",
+   "summary": "One panel.",
+   "plain": "One panel.",
+   "signature": "PanelGroup.Panel(min: Number) { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "min:",
+     "type": "Number",
+     "meaning": "The least it may be, in percent (unset, 10)"
+    }
+   ],
+   "controls": [],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "state sizes: [Number] = [30, 70]\nPanelGroup(bind: sizes, label: \"Resize the panels\") {\n    style { height: 160px }\n    PanelGroup.Panel(min: 20) { Text(\"Files\") }\n    PanelGroup.Panel { Text(\"Editor\") }\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
     },
     {
      "kind": "C04",
@@ -5223,6 +5756,1061 @@
      "kind": "R03",
      "title": "An app with no Router, or with two",
      "to": "/errors/R03"
+    }
+   ]
+  },
+  {
+   "name": "DescriptionList",
+   "slug": "descriptionlist",
+   "family": "Data display",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Terms and what they are (`<dl>`): a column of pairs, or `.grid`, each term beside its value.",
+   "plain": "Terms and what they are (<dl>): a column of pairs, or .grid, each term beside its value.",
+   "signature": "DescriptionList(grid: Bool) { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "grid:",
+     "type": "Bool",
+     "meaning": "Each term beside its value"
+    }
+   ],
+   "controls": [
+    {
+     "name": "grid",
+     "kind": "bool",
+     "options": [],
+     "value": "",
+     "sink": "class"
+    }
+   ],
+   "flags": [
+    ".grid"
+   ],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [
+    {
+     "name": "DescriptionList.Item",
+     "kind": "descriptionlist-item",
+     "detail": "One pair: its term, and value: or its block.",
+     "fallback": ""
+    },
+    {
+     "name": "DescriptionList.Term",
+     "kind": "descriptionlist-term",
+     "detail": "A term. Drawn for it.",
+     "fallback": ""
+    },
+    {
+     "name": "DescriptionList.Details",
+     "kind": "descriptionlist-details",
+     "detail": "A value. Drawn for it.",
+     "fallback": ""
+    }
+   ],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-description-list",
+   "example": "DescriptionList.grid {\n    DescriptionList.Item(\"Region\", value: \"eu-west\")\n    DescriptionList.Item(\"Status\") { Badge(\"Live\").success }\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "DescriptionList.Item",
+   "slug": "descriptionlist-item",
+   "family": "Data display",
+   "owner": "DescriptionList",
+   "ownerSlug": "descriptionlist",
+   "summary": "One pair: its term, and `value:` or its block.",
+   "plain": "One pair: its term, and value: or its block.",
+   "signature": "DescriptionList.Item(_ term: String, value: Any) { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "term",
+     "type": "String  (positional)",
+     "meaning": "What it is"
+    },
+    {
+     "name": "value:",
+     "type": "Any",
+     "meaning": "Its value, as text; unset, its block"
+    }
+   ],
+   "controls": [
+    {
+     "name": "term",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "DescriptionList.grid {\n    DescriptionList.Item(\"Region\", value: \"eu-west\")\n    DescriptionList.Item(\"Status\") { Badge(\"Live\").success }\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
+   ]
+  },
+  {
+   "name": "DescriptionList.Term",
+   "slug": "descriptionlist-term",
+   "family": "Data display",
+   "owner": "DescriptionList",
+   "ownerSlug": "descriptionlist",
+   "summary": "A term. Drawn for it.",
+   "plain": "A term. Drawn for it.",
+   "signature": "DescriptionList.Term(_ text: String) { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "text",
+     "type": "String  (positional)",
+     "meaning": "The term"
+    }
+   ],
+   "controls": [
+    {
+     "name": "text",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "DescriptionList.grid {\n    DescriptionList.Item(\"Region\", value: \"eu-west\")\n    DescriptionList.Item(\"Status\") { Badge(\"Live\").success }\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
+   ]
+  },
+  {
+   "name": "DescriptionList.Details",
+   "slug": "descriptionlist-details",
+   "family": "Data display",
+   "owner": "DescriptionList",
+   "ownerSlug": "descriptionlist",
+   "summary": "A value. Drawn for it.",
+   "plain": "A value. Drawn for it.",
+   "signature": "DescriptionList.Details(_ text: String) { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "text",
+     "type": "String  (positional)",
+     "meaning": "The value"
+    }
+   ],
+   "controls": [
+    {
+     "name": "text",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "DescriptionList.grid {\n    DescriptionList.Item(\"Region\", value: \"eu-west\")\n    DescriptionList.Item(\"Status\") { Badge(\"Live\").success }\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
+   ]
+  },
+  {
+   "name": "Timeline",
+   "slug": "timeline",
+   "family": "Data display",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Events in order (`<ol>`), each a dot on a line, its title, its time and its block.",
+   "plain": "Events in order (<ol>), each a dot on a line, its title, its time and its block.",
+   "signature": "Timeline { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [],
+   "controls": [],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [
+    {
+     "name": "Timeline.Item",
+     "kind": "timeline-item",
+     "detail": "One event: its title, at: its time, and its block.",
+     "fallback": ""
+    },
+    {
+     "name": "Timeline.Time",
+     "kind": "timeline-time",
+     "detail": "An event's time (<time>). Drawn for it.",
+     "fallback": ""
+    }
+   ],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-timeline",
+   "example": "Timeline {\n    Timeline.Item(\"Released\", at: \"2026-11-14\") { Text(\"Version 6.1\") }\n    Timeline.Item(\"Planned\") { Text(\"Version 7\") }\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "Timeline.Item",
+   "slug": "timeline-item",
+   "family": "Data display",
+   "owner": "Timeline",
+   "ownerSlug": "timeline",
+   "summary": "One event: its title, `at:` its time, and its block.",
+   "plain": "One event: its title, at: its time, and its block.",
+   "signature": "Timeline.Item(_ title: String, at: Any) { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "title",
+     "type": "String  (positional)",
+     "meaning": "What happened"
+    },
+    {
+     "name": "at:",
+     "type": "Any",
+     "meaning": "When: a `Date`, a `DateTime` or an ISO string, written as a date"
+    }
+   ],
+   "controls": [
+    {
+     "name": "title",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "Timeline {\n    Timeline.Item(\"Released\", at: \"2026-11-14\") { Text(\"Version 6.1\") }\n    Timeline.Item(\"Planned\") { Text(\"Version 7\") }\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
+   ]
+  },
+  {
+   "name": "Timeline.Time",
+   "slug": "timeline-time",
+   "family": "Data display",
+   "owner": "Timeline",
+   "ownerSlug": "timeline",
+   "summary": "An event's time (`<time>`). Drawn for it.",
+   "plain": "An event's time (<time>). Drawn for it.",
+   "signature": "Timeline.Time(_ text: String, datetime: String) { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "text",
+     "type": "String  (positional)",
+     "meaning": "The time, as read"
+    },
+    {
+     "name": "datetime:",
+     "type": "String",
+     "meaning": "The time, as a machine reads it"
+    }
+   ],
+   "controls": [
+    {
+     "name": "text",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "datetime",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "Timeline {\n    Timeline.Item(\"Released\", at: \"2026-11-14\") { Text(\"Version 6.1\") }\n    Timeline.Item(\"Planned\") { Text(\"Version 7\") }\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
+   ]
+  },
+  {
+   "name": "AvatarGroup",
+   "slug": "avatargroup",
+   "family": "Data display",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Avatars overlapping in a row: past `max:` the rest are one `+3`.",
+   "plain": "Avatars overlapping in a row: past max: the rest are one +3.",
+   "signature": "AvatarGroup(max: Number, label: String) { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "max:",
+     "type": "Number",
+     "meaning": "How many show before the rest are counted"
+    },
+    {
+     "name": "label:",
+     "type": "String",
+     "meaning": "Who they are, for a screen reader"
+    }
+   ],
+   "controls": [
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-avatar-group",
+   "example": "AvatarGroup(max: 3, label: \"Team\") {\n    Avatar(initials: \"AL\")\n    Avatar(initials: \"GH\")\n    Avatar(initials: \"AT\")\n    Avatar(initials: \"ED\")\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "Item",
+   "slug": "item",
+   "family": "Data display",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "A row of a list, a settings page or a search's results: `Item.Media` at its start, its `title:` and `description:`, then its block, and `Item.Actions` at its end.",
+   "plain": "A row of a list, a settings page or a search's results: Item.Media at its start, its title: and description:, then its block, and Item.Actions at its end.",
+   "signature": "Item(title: String, description: String) { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "title:",
+     "type": "String",
+     "meaning": "What it is"
+    },
+    {
+     "name": "description:",
+     "type": "String",
+     "meaning": "A line more, muted"
+    }
+   ],
+   "controls": [
+    {
+     "name": "title",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "description",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [
+    {
+     "name": "Item.Media",
+     "kind": "item-media",
+     "detail": "What goes at its start: an icon, an avatar, a picture.",
+     "fallback": ""
+    },
+    {
+     "name": "Item.Content",
+     "kind": "item-content",
+     "detail": "Its title, description and block. Drawn for it.",
+     "fallback": ""
+    },
+    {
+     "name": "Item.Actions",
+     "kind": "item-actions",
+     "detail": "What goes at its end: a switch, a button, a menu.",
+     "fallback": ""
+    }
+   ],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-item",
+   "example": "state on = true\nItem(title: \"Notifications\", description: \"Sent to your phone\") {\n    Item.Media { Icon(\"bell\") }\n    Item.Actions { Switch(bind: on, label: \"On\") }\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "Item.Media",
+   "slug": "item-media",
+   "family": "Data display",
+   "owner": "Item",
+   "ownerSlug": "item",
+   "summary": "What goes at its start: an icon, an avatar, a picture.",
+   "plain": "What goes at its start: an icon, an avatar, a picture.",
+   "signature": "Item.Media { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [],
+   "controls": [],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "state on = true\nItem(title: \"Notifications\", description: \"Sent to your phone\") {\n    Item.Media { Icon(\"bell\") }\n    Item.Actions { Switch(bind: on, label: \"On\") }\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "Item.Content",
+   "slug": "item-content",
+   "family": "Data display",
+   "owner": "Item",
+   "ownerSlug": "item",
+   "summary": "Its title, description and block. Drawn for it.",
+   "plain": "Its title, description and block. Drawn for it.",
+   "signature": "Item.Content { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [],
+   "controls": [],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "state on = true\nItem(title: \"Notifications\", description: \"Sent to your phone\") {\n    Item.Media { Icon(\"bell\") }\n    Item.Actions { Switch(bind: on, label: \"On\") }\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "Item.Actions",
+   "slug": "item-actions",
+   "family": "Data display",
+   "owner": "Item",
+   "ownerSlug": "item",
+   "summary": "What goes at its end: a switch, a button, a menu.",
+   "plain": "What goes at its end: a switch, a button, a menu.",
+   "signature": "Item.Actions { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [],
+   "controls": [],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "state on = true\nItem(title: \"Notifications\", description: \"Sent to your phone\") {\n    Item.Media { Icon(\"bell\") }\n    Item.Actions { Switch(bind: on, label: \"On\") }\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "Sparkline",
+   "slug": "sparkline",
+   "family": "Data display",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "A tiny chart in a line of text — a line, or `.bar` — of a list of numbers, drawn as an SVG when the page is built.",
+   "plain": "A tiny chart in a line of text — a line, or .bar — of a list of numbers, drawn as an SVG when the page is built.",
+   "signature": "Sparkline(_ data: Any, bar: Bool, width: Number, height: Number, …)",
+   "block": false,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "data",
+     "type": "Any  (positional)",
+     "meaning": "The numbers: a list"
+    },
+    {
+     "name": "bar:",
+     "type": "Bool",
+     "meaning": "Bars rather than a line"
+    },
+    {
+     "name": "width:",
+     "type": "Number",
+     "meaning": "Its width in px (unset, 80)"
+    },
+    {
+     "name": "height:",
+     "type": "Number",
+     "meaning": "Its height in px (unset, 20)"
+    },
+    {
+     "name": "color:",
+     "type": "String",
+     "meaning": "Its colour (unset, the text's)"
+    },
+    {
+     "name": "label:",
+     "type": "String",
+     "meaning": "What it shows, for a screen reader"
+    }
+   ],
+   "controls": [
+    {
+     "name": "bar",
+     "kind": "bool",
+     "options": [],
+     "value": "",
+     "sink": "class"
+    },
+    {
+     "name": "color",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [
+    ".bar"
+   ],
+   "events": [],
+   "domEvents": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-sparkline",
+   "example": "Text(\"Sign-ups \")\nSparkline([3, 5, 2, 8, 6], label: \"Sign-ups this week\")\nSparkline([3, 5, 2, 8, 6], label: \"By day\").bar",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
+   ]
+  },
+  {
+   "name": "RelativeTime",
+   "slug": "relativetime",
+   "family": "Data display",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "A moment as `3 minutes ago`, kept current, with the exact time on hover (`<time>`).",
+   "plain": "A moment as 3 minutes ago, kept current, with the exact time on hover (<time>).",
+   "signature": "RelativeTime(_ when: Any, datetime: String)",
+   "block": false,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "when",
+     "type": "Any  (positional)",
+     "meaning": "The moment: a `Date`, a `DateTime` or an ISO string"
+    },
+    {
+     "name": "datetime:",
+     "type": "String",
+     "meaning": "The moment, as a machine reads it. Written for it"
+    }
+   ],
+   "controls": [
+    {
+     "name": "datetime",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-relative-time",
+   "example": "RelativeTime(\"2026-01-01T09:00:00Z\")",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
     }
    ]
   },
@@ -13104,6 +14692,179 @@
    ]
   },
   {
+   "name": "CircularProgress",
+   "slug": "circularprogress",
+   "family": "Feedback",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "A ring that fills to `value:` of `max:`, announced as a progress bar; with no `value:`, it turns, for work of no known length. Its block is drawn in the middle.",
+   "plain": "A ring that fills to value: of max:, announced as a progress bar; with no value:, it turns, for work of no known length. Its block is drawn in the middle.",
+   "signature": "CircularProgress(value: Number, max: Number, label: String) { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "value:",
+     "type": "Number",
+     "meaning": "How far along; unset, it turns"
+    },
+    {
+     "name": "max:",
+     "type": "Number",
+     "meaning": "The value when full (unset, 100)"
+    },
+    {
+     "name": "label:",
+     "type": "String",
+     "meaning": "What is progressing, for a screen reader"
+    }
+   ],
+   "controls": [
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-circular-progress",
+   "example": "state done = 40\nCircularProgress(value: done, label: \"Upload\") { Text(\"{done}%\").sm }\nButton(\"More\") { on click { done = done + 20 } }",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "Meter",
+   "slug": "meter",
+   "family": "Feedback",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "A level against its range (`<meter>`): a disk's use, a password's strength. Past `high:` or under `low:` it says so in its colour; `optimum:` says which end is good.",
+   "plain": "A level against its range (<meter>): a disk's use, a password's strength. Past high: or under low: it says so in its colour; optimum: says which end is good.",
+   "signature": "Meter(value: Number, min: Number, max: Number, …)",
+   "block": false,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "value:",
+     "type": "Number",
+     "meaning": "The level"
+    },
+    {
+     "name": "min:",
+     "type": "Number",
+     "meaning": "The bottom of the range (unset, 0)"
+    },
+    {
+     "name": "max:",
+     "type": "Number",
+     "meaning": "The top of the range (unset, 1)"
+    },
+    {
+     "name": "low:",
+     "type": "Number",
+     "meaning": "Under this, it is low"
+    },
+    {
+     "name": "high:",
+     "type": "Number",
+     "meaning": "Over this, it is high"
+    },
+    {
+     "name": "optimum:",
+     "type": "Number",
+     "meaning": "The best level"
+    },
+    {
+     "name": "label:",
+     "type": "String",
+     "meaning": "What it measures, for a screen reader"
+    }
+   ],
+   "controls": [
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-meter",
+   "example": "Meter(value: 0.92, high: 0.9, label: \"Disk\")",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
    "name": "Alert",
    "slug": "alert",
    "family": "Feedback",
@@ -15815,6 +17576,74 @@
    ],
    "cssClass": "wf-lightbox",
    "example": "Lightbox(label: \"Trip\") {\n    Image(src: \"/favicon.svg\", alt: \"The logo\")\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "Gallery",
+   "slug": "gallery",
+   "family": "Media",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Pictures in a grid of `columns:` (unset, as many as fit), each cropped to one shape — `ratio:`, unset square. In a `Lightbox`, each opens full screen.",
+   "plain": "Pictures in a grid of columns: (unset, as many as fit), each cropped to one shape — ratio:, unset square. In a Lightbox, each opens full screen.",
+   "signature": "Gallery(columns: Number, ratio: Any) { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "columns:",
+     "type": "Number",
+     "meaning": "How many across; unset, as many as fit"
+    },
+    {
+     "name": "ratio:",
+     "type": "Any",
+     "meaning": "Each picture's shape, `4 / 3` (unset, `1`)"
+    }
+   ],
+   "controls": [],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-gallery",
+   "example": "Gallery(columns: 2, ratio: 4 / 3) {\n    Image(src: \"/favicon.svg\", alt: \"The logo\")\n    Image(src: \"/favicon.svg\", alt: \"The logo again\")\n}",
    "preview": false,
    "outputs": [],
    "since": "6.2.0",

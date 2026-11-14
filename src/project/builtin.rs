@@ -121,6 +121,13 @@ pub fn modifier_to_class(base_class: &str, modifier: &str) -> String {
         "arrow" => format!("{base_class}--arrow"),
         // A splitter between regions one above the other.
         "horizontal" => format!("{base_class}--horizontal"),
+        // Words a few built-ins take as flags, and others as cases of an
+        // enum (a `Sheet`'s `.bottom`, a `Tabs`' `.vertical`): a class only
+        // where they are flags.
+        "grid" if base_class == "wf-description-list" => format!("{base_class}--grid"),
+        "bar" if base_class == "wf-sparkline" => format!("{base_class}--bar"),
+        "bottom" if base_class == "wf-sticky" => format!("{base_class}--bottom"),
+        "vertical" if base_class == "wf-panel-group" => format!("{base_class}--vertical"),
 
         // ─── Attributes, not classes ─────────────────────
         "text" | "email" | "password" | "number" | "search" | "tel" | "url" | "date" | "time"

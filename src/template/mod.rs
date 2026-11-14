@@ -1752,7 +1752,9 @@ fn render_builtin(name: &str, ui: &UIElement, ctx: &mut RenderContext<'_>) -> St
     // the paged engine relies on; on a web page they are drawn as the
     // build draws them.
     let paged = ctx.locals.contains_key(PAGED);
-    if paged || !matches!(name, "List" | "Avatar" | "Chart" | "QrCode") {
+    if (paged && name != "Sparkline")
+        || !matches!(name, "List" | "Avatar" | "Chart" | "QrCode" | "Sparkline")
+    {
         let (_, base_class) = builtin_to_html(name);
         let mut classes = class_list(base_class, &ui.modifiers);
         classes.extend(layout_arg_classes(&ui.args));

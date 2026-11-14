@@ -74,6 +74,20 @@ fn expand_element(el: &mut UIElement, seq: &mut usize) {
         "Lightbox" => lightbox(el),
         "Tour" => tour(el),
         "ConsentBanner" => consent_banner(el),
+        "DescriptionList" => description_list(el),
+        "Timeline" => timeline(el),
+        "AvatarGroup" => avatar_group(el),
+        "Item" => item(el),
+        "Gallery" => gallery(el),
+        "Masonry" => masonry(el),
+        "CircularProgress" => circular_progress(el),
+        "Meter" => meter(el),
+        "Sparkline" => sparkline(el),
+        "RelativeTime" => relative_time(el),
+        "AspectRatio" => aspect_ratio(el),
+        "ScrollArea" => scroll_area(el),
+        "Sticky" => sticky(el),
+        "PanelGroup" => panel_group(el),
         "Textarea" if take_flag(el, "autosize").is_some() => {
             give(el, "data-autosize", "\"true\"");
             give(el, "mount", "(n) => __wf.autosize(n)");
@@ -1231,4 +1245,252 @@ fn consent_banner(el: &mut UIElement) {
     give(el, "aria-label", &label);
     give(el, "hidden", "true");
     give(el, "mount", "(n) => __wf.consentBanner(n)");
+}
+
+/// `css`, a style block's declarations, ahead of the call's own.
+fn add_style(el: &mut UIElement, css: &str) {
+    let mut stmts = parse(&format!(
+        "Text(\"\") {{\n    style {{\n        {css}\n    }}\n}}"
+    ));
+    let Some(made) = element_of(&mut stmts).and_then(|e| e.style_block.take()) else {
+        return;
+    };
+    match &mut el.style_block {
+        Some(own) => {
+            let mut props = made.properties;
+            props.append(&mut own.properties);
+            own.properties = props;
+        }
+        None => el.style_block = Some(made),
+    }
+}
+
+/// `e` as a CSS value: written as it is when it is a literal (`16 / 9`,
+/// `"300px"`), so it is a rule of the sheet; spliced when it reads
+/// something, so it follows it.
+fn css_value(e: &Expr) -> String {
+    if let Expr::StringLiteral(text) = e {
+        return text.clone();
+    }
+    let text = src(e);
+    if text
+        .chars()
+        .all(|c| c.is_ascii_digit() || matches!(c, ' ' | '.' | '/'))
+    {
+        text
+    } else {
+        format!("{{{text}}}")
+    }
+}
+
+/// `DescriptionList { DescriptionList.Item("Region", value: "eu-west") }`:
+/// each pair a term and its value.
+fn description_list(el: &mut UIElement) {
+    each_part(&mut el.children, "DescriptionList", &mut |name, part| {
+        if name != "Item" {
+            return;
+        }
+        let Some(term) = take_positional(part).or_else(|| take(part, "term")) else {
+            return;
+        };
+        let details = match take(part, "value") {
+            Some(v) => format!("DescriptionList.Details({})", src(&v)),
+            None => "DescriptionList.Details { }".to_string(),
+        };
+        let block = std::mem::take(&mut part.children);
+        let mut made = parse(&format!("DescriptionList.Term({})\n{details}", src(&term)));
+        if let Some(StatementKind::UIElement(d)) = made.get_mut(1).map(|s| &mut s.kind)
+            && d.children.is_empty()
+        {
+            d.children = block;
+        }
+        part.children = made;
+    });
+}
+
+/// `Timeline { Timeline.Item("v6.1", at: "2026-11-14") { … } }`: each event
+/// its title, its time and its block.
+fn timeline(el: &mut UIElement) {
+    each_part(&mut el.children, "Timeline", &mut |name, part| {
+        if name != "Item" {
+            return;
+        }
+        let Some(title) = take_positional(part).or_else(|| take(part, "title")) else {
+            return;
+        };
+        let mut head = format!("Text({}).bold\n", src(&title));
+        if let Some(at) = take(part, "at") {
+            let a = src(&at);
+            head.push_str(&format!(
+                "Timeline.Time(format({a}, .date, \"medium\"), datetime: \"\" + ({a}))\n"
+            ));
+        }
+        let mut made = parse(&head);
+        made.append(&mut part.children);
+        part.children = made;
+    });
+}
+
+/// `AvatarGroup(max: 3, label: "Team") { Avatar(…) … }`.
+fn avatar_group(el: &mut UIElement) {
+    give(el, "role", "\"group\"");
+    if let Some(label) = take(el, "label") {
+        give(el, "aria-label", &src(&label));
+    }
+    let max = take(el, "max").map_or_else(|| "0".to_string(), |e| src(&e));
+    give(el, "mount", &format!("(n) => __wf.avatarGroup(n, {max})"));
+}
+
+/// `Item(title: "Alerts", description: "…") { Item.Media { … }  Item.Actions { … } }`:
+/// the media, then the words and the rest of the block, then the actions.
+fn item(el: &mut UIElement) {
+    let mut words = String::new();
+    if let Some(t) = take(el, "title") {
+        words.push_str(&format!("Text({}).bold\n", src(&t)));
+    }
+    if let Some(d) = take(el, "description") {
+        words.push_str(&format!("Text({}).sm.muted\n", src(&d)));
+    }
+    let is = |s: &Statement, part: &str| matches!(&s.kind, StatementKind::UIElement(e) if matches!(&e.component, ComponentRef::SubComponent(o, p) if o == "Item" && p == part));
+    let all = std::mem::take(&mut el.children);
+    let (media, rest): (Vec<_>, Vec<_>) = all.into_iter().partition(|s| is(s, "Media"));
+    let (actions, mut body): (Vec<_>, Vec<_>) = rest.into_iter().partition(|s| is(s, "Actions"));
+    let mut content = parse("Item.Content { }");
+    if let Some(c) = element_of(&mut content) {
+        let mut inner = parse(&words);
+        inner.append(&mut body);
+        c.children = inner;
+    }
+    el.children = media;
+    el.children.append(&mut content);
+    el.children.extend(actions);
+}
+
+/// `Gallery(columns: 3, ratio: 4 / 3) { Image(…) … }`.
+fn gallery(el: &mut UIElement) {
+    let mut css = String::new();
+    if let Some(c) = take(el, "columns") {
+        css.push_str(&format!("--wf-columns: {}\n", css_value(&c)));
+    }
+    if let Some(r) = take(el, "ratio") {
+        css.push_str(&format!("--wf-ratio: {}\n", css_value(&r)));
+    }
+    if !css.is_empty() {
+        add_style(el, &css);
+    }
+}
+
+/// `Masonry(columns: 3) { … }`.
+fn masonry(el: &mut UIElement) {
+    if let Some(c) = take(el, "columns") {
+        add_style(el, &format!("--wf-columns: {}", css_value(&c)));
+    }
+}
+
+/// `CircularProgress(value: 40, label: "Upload")`: a progress bar the
+/// runtime draws as a ring.
+fn circular_progress(el: &mut UIElement) {
+    let value = take(el, "value").map_or_else(|| "null".to_string(), |e| src(&e));
+    let max = take(el, "max").map_or_else(|| "100".to_string(), |e| src(&e));
+    give(el, "role", "\"progressbar\"");
+    if let Some(label) = take(el, "label") {
+        give(el, "aria-label", &src(&label));
+    }
+    give(
+        el,
+        "mount",
+        &format!("(n) => __wf.ring(n, () => {value}, () => {max})"),
+    );
+}
+
+/// `Meter(value: used, max: 1, high: 0.9, label: "Disk")`.
+fn meter(el: &mut UIElement) {
+    if let Some(label) = take(el, "label") {
+        give(el, "aria-label", &src(&label));
+    }
+}
+
+/// `Sparkline([3, 5, 2, 8], label: "Sign-ups")`: a picture of numbers.
+fn sparkline(el: &mut UIElement) {
+    give(el, "role", "\"img\"");
+    let label = take(el, "label").map_or_else(|| lit("Trend"), |e| src(&e));
+    give(el, "aria-label", &label);
+}
+
+/// `RelativeTime(post.date)`: `3 minutes ago`, kept current, the exact
+/// time its title.
+fn relative_time(el: &mut UIElement) {
+    let Some(when) = take_positional(el).or_else(|| take(el, "when")) else {
+        return;
+    };
+    let w = src(&when);
+    if let Some(e) = parse_expr(&format!("ago({w}, now)")) {
+        el.args.insert(0, Arg::Positional(e));
+        el.arg_spans.insert(0, Span::default());
+    }
+    give(el, "datetime", &format!("\"\" + ({w})"));
+    give(el, "title", &format!("format({w}, .datetime, \"long\")"));
+}
+
+/// `AspectRatio(ratio: 16 / 9) { Video(…) }`.
+fn aspect_ratio(el: &mut UIElement) {
+    if let Some(r) = take(el, "ratio") {
+        add_style(el, &format!("aspect-ratio: {}", css_value(&r)));
+    }
+}
+
+/// `ScrollArea(height: "300px", label: "Log") { … }`: a region a keyboard
+/// can scroll.
+fn scroll_area(el: &mut UIElement) {
+    if let Some(label) = take(el, "label") {
+        give(el, "aria-label", &src(&label));
+    }
+    give(el, "role", "\"region\"");
+    give(el, "tabindex", "\"0\"");
+    if let Some(h) = take(el, "height") {
+        add_style(el, &format!("max-height: {}", css_value(&h)));
+    }
+    give(el, "mount", "(n) => __wf.scrollArea(n)");
+}
+
+/// `Sticky(offset: "64px") { … }`.
+fn sticky(el: &mut UIElement) {
+    let side = if el.modifiers.iter().any(|m| m == "bottom") {
+        "bottom"
+    } else {
+        "top"
+    };
+    if let Some(o) = take(el, "offset") {
+        add_style(el, &format!("{side}: {}", css_value(&o)));
+    }
+    give(el, "mount", "(n) => __wf.sticky(n)");
+}
+
+/// `PanelGroup(bind: sizes) { PanelGroup.Panel(min: 20) { … } … }`: the
+/// runtime puts a handle between each two panels.
+fn panel_group(el: &mut UIElement) {
+    each_part(&mut el.children, "PanelGroup", &mut |name, part| {
+        if name == "Panel"
+            && let Some(m) = take(part, "min")
+        {
+            give(part, "data-min", &format!("\"\" + ({})", src(&m)));
+        }
+    });
+    let label = take(el, "label").map_or_else(|| lit("Resize"), |e| src(&e));
+    let read = match take(el, "bind") {
+        Some(b) => {
+            let b = src(&b);
+            first_handlers(
+                el,
+                &format!("on resize(e) {{ if e.target == e.currentTarget {{ {b} = e.detail }} }}"),
+            );
+            format!("() => {b}")
+        }
+        None => "() => null".to_string(),
+    };
+    give(
+        el,
+        "mount",
+        &format!("(n) => __wf.panelGroup(n, {read}, {label})"),
+    );
 }

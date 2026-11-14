@@ -111,6 +111,21 @@ pub fn graphic(
 ) -> Option<String> {
     match name {
         "Chart" => Some(chart_from(named, modifiers).svg()),
+        "Sparkline" => {
+            let get = |k: &str| named.iter().find(|(n, _)| n == k).map(|(_, v)| v);
+            let data = positional.or_else(|| get("data"))?;
+            let values: Vec<f64> = data.as_array()?.iter().map(num).collect();
+            Some(sparkline_svg(
+                &values,
+                modifiers.iter().any(|m| m == "bar")
+                    || get("bar").is_some_and(|v| v.as_bool() == Some(true)),
+                get("width").map_or(80.0, num),
+                get("height").map_or(20.0, num),
+                &get("color")
+                    .and_then(|c| css_color(&label(c)))
+                    .unwrap_or_else(|| "currentColor".into()),
+            ))
+        }
         "QrCode" => {
             let get = |k: &str| named.iter().find(|(n, _)| n == k).map(|(_, v)| label(v));
             let value = positional.map(label).or_else(|| get("value"))?;
@@ -186,6 +201,66 @@ pub fn css_color(text: &str) -> Option<String> {
         !t.is_empty() && t.len() <= 32 && t.chars().all(|c| c.is_ascii_alphabetic())
     };
     ok.then(|| t.to_string())
+}
+
+/// A `Sparkline`'s SVG: `values` as a line from its first to its last, or
+/// as bars, scaled from the least to the most to fill `w` × `h`.
+pub fn sparkline_svg(values: &[f64], bar: bool, w: f64, h: f64, color: &str) -> String {
+    let w = if w > 0.0 { w } else { 80.0 };
+    let h = if h > 0.0 { h } else { 20.0 };
+    let open = format!(
+        "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"{}\" height=\"{}\" viewBox=\"0 0 {} {}\" aria-hidden=\"true\" focusable=\"false\">",
+        trim(w),
+        trim(h),
+        trim(w),
+        trim(h)
+    );
+    if values.is_empty() {
+        return format!("{open}</svg>");
+    }
+    let low = if bar {
+        values.iter().copied().fold(0.0, f64::min)
+    } else {
+        values.iter().copied().fold(f64::INFINITY, f64::min)
+    };
+    let high = values.iter().copied().fold(f64::NEG_INFINITY, f64::max);
+    let span = if high > low { high - low } else { 1.0 };
+    // A line keeps half its stroke inside the box at the top and bottom.
+    let pad = if bar { 0.0 } else { 1.0 };
+    let y = |v: f64| pad + (h - 2.0 * pad) * (1.0 - (v - low) / span);
+    let color = esc(color);
+    let mut out = open;
+    if bar {
+        let step = w / values.len() as f64;
+        let gap = (step * 0.2).min(2.0);
+        for (i, v) in values.iter().enumerate() {
+            let top = y(*v);
+            out.push_str(&format!(
+                "<rect x=\"{}\" y=\"{}\" width=\"{}\" height=\"{}\" fill=\"{color}\"/>",
+                trim(i as f64 * step + gap / 2.0),
+                trim(top),
+                trim(step - gap),
+                trim((h - top).max(0.5))
+            ));
+        }
+    } else {
+        let step = if values.len() > 1 {
+            w / (values.len() - 1) as f64
+        } else {
+            0.0
+        };
+        let points: Vec<String> = values
+            .iter()
+            .enumerate()
+            .map(|(i, v)| format!("{},{}", trim(i as f64 * step), trim(y(*v))))
+            .collect();
+        out.push_str(&format!(
+            "<polyline points=\"{}\" fill=\"none\" stroke=\"{color}\" stroke-width=\"1.5\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/>",
+            points.join(" ")
+        ));
+    }
+    out.push_str("</svg>");
+    out
 }
 
 fn esc(s: &str) -> String {
