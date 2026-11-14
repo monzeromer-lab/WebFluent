@@ -191,6 +191,20 @@ template engine and, where it can be, in a PDF.
 - `BottomNavigation` is a phone's tab bar, clear of the home indicator;
   `PrevNext` links the pages either side of this one.
 
+## More overlays
+
+- `HoverCard { Link(…)  HoverCard.Content { … } }` previews what a link
+  points at, on hover or focus.
+- `LoadingOverlay(visible: saving) { … }` covers a region while it is
+  busy, and keeps its content out of reach.
+- `Lightbox { Image(…) … }` opens its pictures full screen, with the arrow
+  keys, a swipe and zoom.
+- `Tour(open: touring) { Tour.Step(target: newBtn, title: "New") { … } }`
+  walks through the page, each target lit through a cut-out.
+- `ConsentBanner("…")` asks before anything tracks the reader: a
+  `meta.scripts` entry marked `"load": "consent"` loads only once they
+  accept, and Decline is as easy as Accept.
+
 ## Fixes
 
 - `wf test` drew a built-in where the project had a component of its

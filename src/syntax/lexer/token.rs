@@ -472,6 +472,12 @@ pub const ALL_COMPONENT_NAMES: &[&str] = &[
     "ContextMenu",
     "BottomNavigation",
     "PrevNext",
+    // More overlays
+    "HoverCard",
+    "LoadingOverlay",
+    "Lightbox",
+    "Tour",
+    "ConsentBanner",
     // A node handed to somebody else's code, with a lifetime.
     "Host",
     // A custom element a script defines, by its tag.

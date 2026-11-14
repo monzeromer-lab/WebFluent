@@ -762,7 +762,9 @@ pub struct ScriptSpec {
     /// loads, or `"after"` — once the page has loaded and its first frame is
     /// drawn. For a script nothing on the page waits for (analytics, a chat
     /// widget), so fetching it never counts against how soon the page is
-    /// ready. Nothing may call its `globals`, and a module cannot be (`E111`).
+    /// ready. Or `"consent"`: only once the reader has accepted it in a
+    /// `ConsentBanner`. Nothing may call the `globals` of either, and a
+    /// module cannot be either (`E111`).
     #[serde(default)]
     pub load: ScriptLoad,
 }
@@ -777,6 +779,9 @@ pub enum ScriptLoad {
     Page,
     /// Once the page has loaded and painted, by the runtime.
     After,
+    /// Only once the reader has accepted it in a `ConsentBanner` — on the
+    /// visit they accept, and on every visit after — by the runtime.
+    Consent,
 }
 
 impl ScriptEntry {
@@ -800,6 +805,12 @@ impl ScriptEntry {
     /// (`"load": "after"`), rather than by a tag in the HTML.
     pub fn loads_after(&self) -> bool {
         matches!(self, ScriptEntry::Spec(spec) if spec.load == ScriptLoad::After)
+    }
+
+    /// Whether it is asked for only once the reader has accepted it in a
+    /// `ConsentBanner` (`"load": "consent"`).
+    pub fn loads_on_consent(&self) -> bool {
+        matches!(self, ScriptEntry::Spec(spec) if spec.load == ScriptLoad::Consent)
     }
 
     /// Every name `.wf` code may read from it: its `globals`, and a

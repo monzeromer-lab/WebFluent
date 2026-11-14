@@ -691,6 +691,10 @@ page ConfigPage(path: "/reference/config", title: "Configuration — Reference",
                             Table.Cell { Markdown("`\{ \"src\": \"…\", \"load\": \"after\" \}`") }
                             Table.Cell("A script the page asks for only once it has loaded and painted.")
                         }
+                        Table.Row {
+                            Table.Cell { Markdown("`\{ \"src\": \"…\", \"load\": \"consent\" \}`") }
+                            Table.Cell { Markdown("A script the page asks for only once the reader has accepted it in a `ConsentBanner`.") }
+                        }
                     }
                 }
 

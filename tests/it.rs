@@ -129,6 +129,7 @@ mod output_security;
 #[path = "output_type_static.rs"]
 mod output_type_static;
 mod overlays;
+mod overlays2;
 #[path = "page_lang.rs"]
 mod page_lang;
 #[path = "paged.rs"]

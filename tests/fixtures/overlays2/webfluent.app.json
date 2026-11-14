@@ -1,0 +1,5 @@
+{
+  "name": "overlays2",
+  "build": { "ssg": true, "csp": true },
+  "meta": { "scripts": [{ "src": "/count.js", "load": "consent" }] }
+}

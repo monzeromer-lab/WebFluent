@@ -1,5 +1,5 @@
 {
- "count": 209,
+ "count": 218,
  "families": [
   "Layout",
   "Navigation",
@@ -12490,6 +12490,620 @@
    ]
   },
   {
+   "name": "HoverCard",
+   "slug": "hovercard",
+   "family": "Feedback",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "A preview card at a link or a button: shown after `delay:` ms of hover, at once on focus; it stays while the pointer is on it, and goes when the pointer leaves both, on Escape or on a press outside.",
+   "plain": "A preview card at a link or a button: shown after delay: ms of hover, at once on focus; it stays while the pointer is on it, and goes when the pointer leaves both, on Escape or on a press outside.",
+   "signature": "HoverCard(delay: Number) { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "delay:",
+     "type": "Number",
+     "meaning": "How long the pointer rests before it shows, in ms (unset, 500)"
+    }
+   ],
+   "controls": [],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [
+    {
+     "name": "HoverCard.Content",
+     "kind": "hovercard-content",
+     "detail": "What the card shows. The rest of the block is what it is at.",
+     "fallback": ""
+    }
+   ],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-hover-card",
+   "example": "HoverCard(delay: 300) {\n    Link(\"@ada\", to: \"/\")\n    HoverCard.Content {\n        Text(\"Ada Lovelace\").bold\n        Text(\"Wrote the first program.\").muted\n    }\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "HoverCard.Content",
+   "slug": "hovercard-content",
+   "family": "Feedback",
+   "owner": "HoverCard",
+   "ownerSlug": "hovercard",
+   "summary": "What the card shows. The rest of the block is what it is at.",
+   "plain": "What the card shows. The rest of the block is what it is at.",
+   "signature": "HoverCard.Content { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [],
+   "controls": [],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "HoverCard(delay: 300) {\n    Link(\"@ada\", to: \"/\")\n    HoverCard.Content {\n        Text(\"Ada Lovelace\").bold\n        Text(\"Wrote the first program.\").muted\n    }\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "LoadingOverlay",
+   "slug": "loadingoverlay",
+   "family": "Feedback",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "A region covered while it is busy: `aria-busy` on it, its content out of reach, and a spinner with `label:` over it — the region, not the page.",
+   "plain": "A region covered while it is busy: aria-busy on it, its content out of reach, and a spinner with label: over it — the region, not the page.",
+   "signature": "LoadingOverlay(visible: Bool, label: String) { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "visible:",
+     "type": "Bool  (required)",
+     "meaning": "While it holds, the region is busy"
+    },
+    {
+     "name": "label:",
+     "type": "String",
+     "meaning": "What it is busy with (unset, `Loading`)"
+    }
+   ],
+   "controls": [
+    {
+     "name": "visible",
+     "kind": "bool",
+     "options": [],
+     "value": "",
+     "sink": "special"
+    },
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [
+    ".visible"
+   ],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [
+    {
+     "name": "LoadingOverlay.Content",
+     "kind": "loadingoverlay-content",
+     "detail": "The region. Drawn for it.",
+     "fallback": ""
+    },
+    {
+     "name": "LoadingOverlay.Cover",
+     "kind": "loadingoverlay-cover",
+     "detail": "What covers it while it is busy. Drawn for it.",
+     "fallback": ""
+    }
+   ],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-loading-overlay",
+   "example": "state saving = false\nButton(\"Save\") { on click { saving = !saving } }\nLoadingOverlay(visible: saving, label: \"Saving\") {\n    Card { Text(\"Your profile\") }\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "LoadingOverlay.Content",
+   "slug": "loadingoverlay-content",
+   "family": "Feedback",
+   "owner": "LoadingOverlay",
+   "ownerSlug": "loadingoverlay",
+   "summary": "The region. Drawn for it.",
+   "plain": "The region. Drawn for it.",
+   "signature": "LoadingOverlay.Content { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [],
+   "controls": [],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "state saving = false\nButton(\"Save\") { on click { saving = !saving } }\nLoadingOverlay(visible: saving, label: \"Saving\") {\n    Card { Text(\"Your profile\") }\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "LoadingOverlay.Cover",
+   "slug": "loadingoverlay-cover",
+   "family": "Feedback",
+   "owner": "LoadingOverlay",
+   "ownerSlug": "loadingoverlay",
+   "summary": "What covers it while it is busy. Drawn for it.",
+   "plain": "What covers it while it is busy. Drawn for it.",
+   "signature": "LoadingOverlay.Cover { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [],
+   "controls": [],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "state saving = false\nButton(\"Save\") { on click { saving = !saving } }\nLoadingOverlay(visible: saving, label: \"Saving\") {\n    Card { Text(\"Your profile\") }\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "Tour",
+   "slug": "tour",
+   "family": "Feedback",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "A tour of the page while `open:` holds: each step in a card at its `target:` (a `ref:`), lit through a cut-out in the dimmed page, with Back, Next and Done; Escape ends it and writes `false` back. `on finish` hears Done, `on close` any end.",
+   "plain": "A tour of the page while open: holds: each step in a card at its target: (a ref:), lit through a cut-out in the dimmed page, with Back, Next and Done; Escape ends it and writes false back. on finish hears Done, on close any end.",
+   "signature": "Tour(open: State) { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "open:",
+     "type": "State  (required)",
+     "meaning": "Whether the tour is showing; written `false` when it ends"
+    }
+   ],
+   "controls": [],
+   "flags": [],
+   "events": [
+    {
+     "name": "close",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    },
+    {
+     "name": "finish",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [
+    {
+     "name": "Tour.Step",
+     "kind": "tour-step",
+     "detail": "One step: what it points at, its title, and its block.",
+     "fallback": ""
+    }
+   ],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-tour",
+   "example": "state touring = false\nButton(\"New\", ref: newBtn)\nButton(\"Take the tour\") { on click { touring = true } }\nTour(open: touring) {\n    Tour.Step(target: newBtn, title: \"New\") { Text(\"Start a project here.\") }\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "Tour.Step",
+   "slug": "tour-step",
+   "family": "Feedback",
+   "owner": "Tour",
+   "ownerSlug": "tour",
+   "summary": "One step: what it points at, its title, and its block.",
+   "plain": "One step: what it points at, its title, and its block.",
+   "signature": "Tour.Step(target: Any, title: String) { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "target:",
+     "type": "Any  (required)",
+     "meaning": "The element it points at: a `ref:`"
+    },
+    {
+     "name": "title:",
+     "type": "String",
+     "meaning": "Its heading"
+    }
+   ],
+   "controls": [
+    {
+     "name": "title",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "state touring = false\nButton(\"New\", ref: newBtn)\nButton(\"Take the tour\") { on click { touring = true } }\nTour(open: touring) {\n    Tour.Step(target: newBtn, title: \"New\") { Text(\"Start a project here.\") }\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "ConsentBanner",
+   "slug": "consentbanner",
+   "family": "Feedback",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "The reader's say over the scripts that track them: shown until they choose, Decline as easy as Accept, and the choice kept. Accepting loads the `meta.scripts` entries marked `\"load\": \"consent\"`, then and on every later visit; nothing loads before.",
+   "plain": "The reader's say over the scripts that track them: shown until they choose, Decline as easy as Accept, and the choice kept. Accepting loads the meta.scripts entries marked \"load\": \"consent\", then and on every later visit; nothing loads before.",
+   "signature": "ConsentBanner(_ text: String, accept: String, decline: String, label: String) { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "text",
+     "type": "String  (positional)",
+     "meaning": "What is asked"
+    },
+    {
+     "name": "accept:",
+     "type": "String",
+     "meaning": "The yes button's words (unset, `Accept`)"
+    },
+    {
+     "name": "decline:",
+     "type": "String",
+     "meaning": "The no button's words (unset, `Decline`)"
+    },
+    {
+     "name": "label:",
+     "type": "String",
+     "meaning": "The banner's name for a screen reader (unset, `Cookies`)"
+    }
+   ],
+   "controls": [
+    {
+     "name": "text",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "accept",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "decline",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-consent",
+   "example": "ConsentBanner(\"We would like to count visits.\", accept: \"Allow\", decline: \"No thanks\") {\n    Link(\"How we count\", to: \"/\")\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
+   ]
+  },
+  {
    "name": "Alert",
    "slug": "alert",
    "family": "Feedback",
@@ -15139,6 +15753,76 @@
      "kind": "C03",
      "title": "A part outside the component it belongs to",
      "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "Lightbox",
+   "slug": "lightbox",
+   "family": "Media",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Every picture in its block opens, on a press or Enter, full screen: the arrow keys and a swipe go between them, a double press or `+` zooms, Escape closes and the focus goes back. A picture's `data-full:` is the file it opens, else its largest size.",
+   "plain": "Every picture in its block opens, on a press or Enter, full screen: the arrow keys and a swipe go between them, a double press or + zooms, Escape closes and the focus goes back. A picture's data-full: is the file it opens, else its largest size.",
+   "signature": "Lightbox(label: String) { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "label:",
+     "type": "String",
+     "meaning": "What the pictures are, for a screen reader (unset, `Pictures`)"
+    }
+   ],
+   "controls": [
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-lightbox",
+   "example": "Lightbox(label: \"Trip\") {\n    Image(src: \"/favicon.svg\", alt: \"The logo\")\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
     },
     {
      "kind": "C04",

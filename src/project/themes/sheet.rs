@@ -1311,6 +1311,62 @@ body:has(.wf-bottom-nav) { padding-bottom: calc(3.5rem + env(safe-area-inset-bot
 .wf-prev-next > .wf-link:hover { border-color: var(--color-primary); }
 /*@both*/
 
+/* ─── Hover Card ────────────────────────────────────── */
+.wf-hover-card { display: inline-block; }
+.wf-hover-card__content { max-width: min(20rem, calc(100vw - 16px)); padding: var(--spacing-md); }
+.wf-hover-card__content[hidden] { display: none; }
+/*@full*/
+.wf-hover-card__content { color: var(--color-text); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); box-shadow: var(--shadow-lg); }
+/*@both*/
+
+/* ─── Loading Overlay ───────────────────────────────── */
+/* The region, not the page: the cover is the region's size. */
+.wf-loading-overlay { position: relative; }
+.wf-loading-overlay__cover { position: absolute; inset: 0; z-index: 1; display: none; flex-direction: column; align-items: center; justify-content: center; gap: var(--spacing-sm); }
+.wf-loading-overlay[aria-busy="true"] > .wf-loading-overlay__cover { display: flex; }
+/*@full*/
+.wf-loading-overlay__cover { background: color-mix(in srgb, var(--color-background) 72%, transparent); border-radius: inherit; }
+/*@both*/
+
+/* ─── Lightbox ──────────────────────────────────────── */
+.wf-lightbox img[role="button"] { cursor: zoom-in; }
+.wf-lightbox__dialog { width: 100vw; height: 100vh; max-width: none; max-height: none; margin: 0; padding: 0; border: 0; color: #fff; background: rgb(0 0 0 / 0.92); }
+.wf-lightbox__dialog[open] { display: grid; grid-template-rows: auto minmax(0, 1fr) auto; }
+.wf-lightbox__bar { display: flex; align-items: center; justify-content: flex-end; gap: var(--spacing-xs); padding: var(--spacing-sm); }
+.wf-lightbox__count { margin: 0; margin-inline-end: auto; font-variant-numeric: tabular-nums; }
+.wf-lightbox__stage { display: flex; align-items: center; justify-content: center; overflow: auto; min-height: 0; }
+.wf-lightbox__image { max-width: 100%; max-height: 100%; object-fit: contain; cursor: zoom-in; }
+.wf-lightbox__dialog[data-zoomed] .wf-lightbox__stage { display: block; }
+.wf-lightbox__dialog[data-zoomed] .wf-lightbox__image { max-width: none; max-height: none; cursor: zoom-out; }
+.wf-lightbox__caption { margin: 0; padding: var(--spacing-sm); text-align: center; }
+.wf-lightbox__dialog button { min-width: var(--target-min-touch); min-height: var(--target-min-touch); border: 0; border-radius: 999px; color: inherit; background: rgb(255 255 255 / 0.12); font-size: 1.5rem; line-height: 1; cursor: pointer; }
+.wf-lightbox__prev, .wf-lightbox__next { position: absolute; top: 50%; translate: 0 -50%; }
+.wf-lightbox__prev { inset-inline-start: var(--spacing-sm); }
+.wf-lightbox__next { inset-inline-end: var(--spacing-sm); }
+
+/* ─── Tour ──────────────────────────────────────────── */
+/* The page dimmed around a cut-out at the step's target, and a card. */
+.wf-tour { display: contents; }
+.wf-tour__step[hidden] { display: none; }
+.wf-tour__spot { position: fixed; inset: auto; margin: 0; padding: 0; border: 0; overflow: visible; background: transparent; border-radius: var(--radius-md); box-shadow: 0 0 0 200vmax rgb(0 0 0 / 0.55); pointer-events: none; transition: left var(--transition-fast), top var(--transition-fast), width var(--transition-fast), height var(--transition-fast); }
+.wf-tour__spot:not(:popover-open) { display: none; }
+.wf-tour__card { width: min(22rem, calc(100vw - 16px)); padding: var(--spacing-md); }
+.wf-tour__body > .wf-tour__step > * + * { margin-top: var(--spacing-sm); }
+.wf-tour__nav { display: flex; align-items: center; gap: var(--spacing-xs); margin-top: var(--spacing-md); }
+.wf-tour__count { margin-inline-end: auto; font-size: var(--font-size-sm); }
+.wf-tour__skip { float: inline-end; min-width: var(--target-min); min-height: var(--target-min); border: 0; background: none; color: inherit; font-size: 1.25rem; cursor: pointer; }
+/*@full*/
+.wf-tour__card { color: var(--color-text); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); box-shadow: var(--shadow-lg); }
+.wf-tour__count { color: var(--color-text-muted); }
+/*@both*/
+
+/* ─── Consent Banner ────────────────────────────────── */
+.wf-consent { position: fixed; inset-inline: var(--spacing-md); bottom: calc(var(--spacing-md) + env(safe-area-inset-bottom)); z-index: var(--z-toast); display: flex; flex-direction: column; gap: var(--spacing-sm); max-width: 40rem; margin-inline: auto; padding: var(--spacing-md); }
+.wf-consent[hidden] { display: none; }
+/*@full*/
+.wf-consent { color: var(--color-text); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); box-shadow: var(--shadow-lg); }
+/*@both*/
+
 /* ─── Highlight ─────────────────────────────────────── */
 .wf-tok-kw { color: var(--syntax-keyword); }
 .wf-tok-name { color: var(--syntax-function); }

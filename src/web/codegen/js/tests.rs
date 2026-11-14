@@ -61,6 +61,20 @@ fn a_script_loaded_after_the_page_is_asked_for_by_the_runtime() {
     );
 }
 
+#[test]
+fn a_script_loaded_on_consent_waits_for_the_readers_yes() {
+    let program =
+        crate::syntax::parse_source("page P(path: \"/\") { Text(\"x\") }", "<t>").expect("parse");
+    let mut codegen = JsCodegen::new();
+    codegen.set_consent_scripts(vec![("/count.js".to_string(), None)]);
+    let out = codegen.generate(&crate::check::sema::lower(program));
+    assert!(
+        out.contains(r#"WF.consentScripts([{ src: "/count.js" }]);"#),
+        "{out}"
+    );
+    assert!(out.contains("function consentScripts("), "{out}");
+}
+
 /// A static build draws its app beside the pre-rendered one and takes
 /// that over (runtime/modules/hydrate.js); a single-page build still
 /// clears the root.

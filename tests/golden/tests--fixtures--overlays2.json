@@ -1,0 +1,20 @@
+{
+  "diagnostics": [],
+  "files": {
+    "_headers": "ab659ef6aa87e4994c047f0afe74c1882b43db8b48e5ed9315716374a749c4b2",
+    "app.js": "a179430066e3996ddd5366f0e1bcbef467b0ca3abcfeeb0f8cffc29b4fa18f9f",
+    "app.js.gz": "6dcbd0c499428f3a160759586bb75736cf1342524c3e7f1a08e3ffddabc0e1a7",
+    "count.js": "1b6818fdf886922de9a2246c6e066d6f1f5c8d755e4ccc3a6f7b446b6658cc3a",
+    "harbour.png": "e1b3d357d15672a8b60c78c20eb9e4c5f762daa5f6a6156fc6dd99c556cde1d9",
+    "hills.png": "80f529e0b9313365a0357de599128a9f2a2cd981919d88aa2cbcf1b40f90c63b",
+    "img/harbour.f563a455.80.webp": "3cfaf2f7242019f1be4474428f3bced55d64c9d6c676b5b429e3eb3a5b370ea7",
+    "img/harbour.f563a455.png": "e1b3d357d15672a8b60c78c20eb9e4c5f762daa5f6a6156fc6dd99c556cde1d9",
+    "img/hills.5a675f3e.80.webp": "51ad52a3f922145712418284c7ae515aecc05e78acd6fe7b7820b4cd93a3c210",
+    "img/hills.5a675f3e.png": "80f529e0b9313365a0357de599128a9f2a2cd981919d88aa2cbcf1b40f90c63b",
+    "index.html": "8b05a57235abae4fb1a465ad4f43a9bfb77ea5141d048d716beee25043c18336",
+    "index.html.gz": "7614974398cce48f579bee9da48eb9d5ae9f70a772d6b185abf5ace66085ea69",
+    "robots.txt": "16ceb5ee3e0dc13aa9adf31a3ebbe45a1d965b8c2b9f72eaf84e5911e140ed95",
+    "styles.css": "1b01cc95a22d38ac9175075dce10475a6a46b5cd7d5036a66682e7f447d8b0a9",
+    "styles.css.gz": "7a84b3508fd2b64fc4d8fd6607fab7d8b3e29bd61fe778a737f9e3fb5e8b1dff"
+  }
+}

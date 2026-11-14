@@ -245,6 +245,8 @@ Each of these is a function of the value it works on.
 | `picture(asset, options)` | `picture` | An `image`'s `<picture>`. |
 | `offline(options)`, `update()`, `clearQueued()` | `offline` | The service worker, the update flow, and forgetting the writes kept offline. |
 | `loadAfter(scripts)` | `later` | Loads the `meta.scripts` entries marked `"load": "after"` once the page has painted. |
+| `consentScripts(scripts)`, `consentBanner(node)` | `covers` | The `meta.scripts` entries marked `"load": "consent"`, loaded once the reader accepts in a `ConsentBanner` (and on every visit after). |
+| `hoverCard(node, delay)`, `loadingOverlay(node, read)`, `lightbox(node, label)`, `tour(node, read, targets)` | `covers` | What `HoverCard`, `LoadingOverlay`, `Lightbox` and `Tour` compile to. |
 | `__debug`, `__reg` | `debug` | For WebFluent Studio. |
 
 `portal(box, read)` keeps `box` in the element, or `ref:` handle, that

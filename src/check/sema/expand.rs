@@ -69,6 +69,11 @@ fn expand_element(el: &mut UIElement, seq: &mut usize) {
         "NavigationMenu" => navigation_menu(el),
         "BottomNavigation" => bottom_navigation(el),
         "PrevNext" => prev_next(el),
+        "HoverCard" => hover_card(el),
+        "LoadingOverlay" => loading_overlay(el),
+        "Lightbox" => lightbox(el),
+        "Tour" => tour(el),
+        "ConsentBanner" => consent_banner(el),
         "Textarea" if take_flag(el, "autosize").is_some() => {
             give(el, "data-autosize", "\"true\"");
             give(el, "mount", "(n) => __wf.autosize(n)");
@@ -1130,4 +1135,100 @@ fn prev_next(el: &mut UIElement) {
             ),
         );
     });
+}
+
+/// `HoverCard { Link("@ada", to: "/u/ada")  HoverCard.Content { … } }`: the
+/// content hidden until the runtime shows it at the link.
+fn hover_card(el: &mut UIElement) {
+    let delay = take(el, "delay").map_or_else(|| "500".to_string(), |e| src(&e));
+    each_part(&mut el.children, "HoverCard", &mut |name, part| {
+        if name == "Content" {
+            give(part, "hidden", "true");
+        }
+    });
+    give(el, "mount", &format!("(n) => __wf.hoverCard(n, {delay})"));
+}
+
+/// `LoadingOverlay(visible: saving, label: "Saving") { … }`: the region, and
+/// a cover with a spinner over it while it is busy.
+fn loading_overlay(el: &mut UIElement) {
+    let Some(visible) = take(el, "visible") else {
+        return;
+    };
+    let v = src(&visible);
+    let label = take(el, "label").map_or_else(|| lit("Loading"), |e| src(&e));
+    let body = std::mem::take(&mut el.children);
+    let mut made = parse(&format!(
+        "LoadingOverlay.Content {{ }}\nLoadingOverlay.Cover {{\n    Spinner\n    Text({label}).sm\n}}"
+    ));
+    if let Some(content) = element_of(&mut made) {
+        content.children = body;
+    }
+    el.children = made;
+    give(
+        el,
+        "aria-busy",
+        &format!("if {v} {{ \"true\" }} else {{ \"false\" }}"),
+    );
+    give(
+        el,
+        "mount",
+        &format!("(n) => __wf.loadingOverlay(n, () => {v})"),
+    );
+}
+
+/// `Lightbox { Image(…) … }`: its pictures open full screen.
+fn lightbox(el: &mut UIElement) {
+    let label = take(el, "label").map_or_else(|| lit("Pictures"), |e| src(&e));
+    give(el, "mount", &format!("(n) => __wf.lightbox(n, {label})"));
+}
+
+/// `Tour(open: touring) { Tour.Step(target: newBtn, title: "New") { … } }`:
+/// its steps hidden, each with its heading, handed to the runtime with what
+/// each points at.
+fn tour(el: &mut UIElement) {
+    let Some(open) = take(el, "open") else {
+        return;
+    };
+    let o = src(&open);
+    let mut targets = Vec::new();
+    each_part(&mut el.children, "Tour", &mut |name, part| {
+        if name != "Step" {
+            return;
+        }
+        let target = take(part, "target").map_or_else(|| "null".to_string(), |t| src(&t));
+        targets.push(format!("() => {target}"));
+        if let Some(title) = take(part, "title") {
+            let mut head = parse(&format!("Heading({}).h2", src(&title)));
+            head.append(&mut part.children);
+            part.children = head;
+        }
+        give(part, "hidden", "true");
+    });
+    give(
+        el,
+        "mount",
+        &format!("(n) => __wf.tour(n, () => {o}, [{}])", targets.join(", ")),
+    );
+    first_handlers(el, &format!("on close {{ {o} = false }}"));
+}
+
+/// `ConsentBanner("We use analytics to learn what is read.") { Link("Privacy", to: "/privacy") }`:
+/// the question, the caller's block, and Decline beside Accept.
+fn consent_banner(el: &mut UIElement) {
+    let Some(text) = take_positional(el).or_else(|| take(el, "text")) else {
+        return;
+    };
+    let accept = take(el, "accept").map_or_else(|| lit("Accept"), |e| src(&e));
+    let decline = take(el, "decline").map_or_else(|| lit("Decline"), |e| src(&e));
+    let label = take(el, "label").map_or_else(|| lit("Cookies"), |e| src(&e));
+    let mut made = parse(&format!("Text({})", src(&text)));
+    made.append(&mut el.children);
+    made.append(&mut parse(&format!(
+        "Row(gap: .sm) {{\n    Button({decline}, data-consent: \"decline\")\n    Button({accept}, data-consent: \"accept\")\n}}"
+    )));
+    el.children = made;
+    give(el, "aria-label", &label);
+    give(el, "hidden", "true");
+    give(el, "mount", "(n) => __wf.consentBanner(n)");
 }

@@ -1357,6 +1357,10 @@ pub(crate) fn render_builtin<C: Paint>(name: &str, ui: &UIElement, ctx: &mut C) 
     classes.extend(layout_arg_classes(&ui.args));
     classes.extend(span_class(base_class, &ui.args));
     classes.extend(extra_classes(ui, ctx));
+    // A layout prop given as a case (`gap: .sm`) is a class by two roads;
+    // it is written once.
+    let mut seen = std::collections::HashSet::new();
+    classes.retain(|c| seen.insert(c.clone()));
     let mut current_link = false;
     let class_str = classes.join(" ");
 

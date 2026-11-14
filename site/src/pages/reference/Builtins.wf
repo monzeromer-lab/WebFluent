@@ -164,6 +164,14 @@ const BUILTIN_INDEX: [IndexEntry] = [
     IndexEntry(label: "TagInput", to: "/reference/taginput", group: "Form"),
     IndexEntry(label: "Rating", to: "/reference/rating", group: "Form"),
     IndexEntry(label: "DateRangePicker", to: "/reference/daterangepicker", group: "Form"),
+    IndexEntry(label: "HoverCard", to: "/reference/hovercard", group: "Feedback"),
+    IndexEntry(label: "HoverCard.Content", to: "/reference/hovercard-content", group: "Feedback"),
+    IndexEntry(label: "LoadingOverlay", to: "/reference/loadingoverlay", group: "Feedback"),
+    IndexEntry(label: "LoadingOverlay.Content", to: "/reference/loadingoverlay-content", group: "Feedback"),
+    IndexEntry(label: "LoadingOverlay.Cover", to: "/reference/loadingoverlay-cover", group: "Feedback"),
+    IndexEntry(label: "Tour", to: "/reference/tour", group: "Feedback"),
+    IndexEntry(label: "Tour.Step", to: "/reference/tour-step", group: "Feedback"),
+    IndexEntry(label: "ConsentBanner", to: "/reference/consentbanner", group: "Feedback"),
     IndexEntry(label: "Alert", to: "/reference/alert", group: "Feedback"),
     IndexEntry(label: "Toast", to: "/reference/toast", group: "Feedback"),
     IndexEntry(label: "Modal", to: "/reference/modal", group: "Feedback"),
@@ -193,6 +201,7 @@ const BUILTIN_INDEX: [IndexEntry] = [
     IndexEntry(label: "Dropdown", to: "/reference/dropdown", group: "Actions"),
     IndexEntry(label: "Dropdown.Item", to: "/reference/dropdown-item", group: "Actions"),
     IndexEntry(label: "Dropdown.Divider", to: "/reference/dropdown-divider", group: "Actions"),
+    IndexEntry(label: "Lightbox", to: "/reference/lightbox", group: "Media"),
     IndexEntry(label: "Image", to: "/reference/image", group: "Media"),
     IndexEntry(label: "Video", to: "/reference/video", group: "Media"),
     IndexEntry(label: "Audio", to: "/reference/audio", group: "Media"),
@@ -232,7 +241,7 @@ const BUILTIN_INDEX: [IndexEntry] = [
 ]
 
 page ReferenceIndexPage(path: "/reference", title: "Reference", description: "Every built-in element, command, setting and design token, read from the compiler itself, with the language's reference pages.") {
-    ReferenceItemShell(t("nav.reference"), summary: t("ref.lede", { count: 209 }), entries: REFERENCE_PAGES, sections: [Anchor(id: "pages", label: t("ref.pages")), Anchor(id: "layout", label: "Layout"), Anchor(id: "navigation", label: "Navigation"), Anchor(id: "routing", label: "Routing"), Anchor(id: "data-display", label: "Data display"), Anchor(id: "content", label: "Content"), Anchor(id: "form", label: "Form"), Anchor(id: "feedback", label: "Feedback"), Anchor(id: "actions", label: "Actions"), Anchor(id: "media", label: "Media"), Anchor(id: "typography", label: "Typography"), Anchor(id: "pdf", label: "PDF"), Anchor(id: "slides", label: "Slides"), Anchor(id: "original-spellings", label: "Original spellings"), Anchor(id: "on-every-element", label: t("ref.universal.title"))], source: "scripts/docsite/reference.py") {
+    ReferenceItemShell(t("nav.reference"), summary: t("ref.lede", { count: 218 }), entries: REFERENCE_PAGES, sections: [Anchor(id: "pages", label: t("ref.pages")), Anchor(id: "layout", label: "Layout"), Anchor(id: "navigation", label: "Navigation"), Anchor(id: "routing", label: "Routing"), Anchor(id: "data-display", label: "Data display"), Anchor(id: "content", label: "Content"), Anchor(id: "form", label: "Form"), Anchor(id: "feedback", label: "Feedback"), Anchor(id: "actions", label: "Actions"), Anchor(id: "media", label: "Media"), Anchor(id: "typography", label: "Typography"), Anchor(id: "pdf", label: "PDF"), Anchor(id: "slides", label: "Slides"), Anchor(id: "original-spellings", label: "Original spellings"), Anchor(id: "on-every-element", label: t("ref.universal.title"))], source: "scripts/docsite/reference.py") {
         Heading(t("ref.pages"), id: "pages").h2
         Grid(columns: { base: 1, sm: 2, xl: 3 }, gap: .sm) {
             Link(to: "/reference/expressions", class: "bp-card") { Text("Expressions") { style { font-weight: 600 } }  Text("Language", class: "bp-small") }
@@ -844,6 +853,38 @@ page ReferenceIndexPage(path: "/reference", title: "Reference", description: "Ev
         }
         Heading("Feedback", id: "feedback").h2
         Grid(columns: { base: 1, sm: 2, xl: 3 }, gap: .sm) {
+            Link(to: "/reference/hovercard", class: "bp-card") {
+                Text("HoverCard", class: "bp-mono") { style { font-size: 14px; color: $link } }
+                Text("A preview card at a link or a button: shown after delay: ms of hover, at once on focus; it stays while the pointer is on it, and goes when the pointer leaves both, on Escape or on a press outside.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+            }
+            Link(to: "/reference/hovercard-content", class: "bp-card") {
+                Text("HoverCard.Content", class: "bp-mono") { style { font-size: 14px; color: $link } }
+                Text("What the card shows. The rest of the block is what it is at.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+            }
+            Link(to: "/reference/loadingoverlay", class: "bp-card") {
+                Text("LoadingOverlay", class: "bp-mono") { style { font-size: 14px; color: $link } }
+                Text("A region covered while it is busy: aria-busy on it, its content out of reach, and a spinner with label: over it — the region, not the page.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+            }
+            Link(to: "/reference/loadingoverlay-content", class: "bp-card") {
+                Text("LoadingOverlay.Content", class: "bp-mono") { style { font-size: 14px; color: $link } }
+                Text("The region. Drawn for it.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+            }
+            Link(to: "/reference/loadingoverlay-cover", class: "bp-card") {
+                Text("LoadingOverlay.Cover", class: "bp-mono") { style { font-size: 14px; color: $link } }
+                Text("What covers it while it is busy. Drawn for it.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+            }
+            Link(to: "/reference/tour", class: "bp-card") {
+                Text("Tour", class: "bp-mono") { style { font-size: 14px; color: $link } }
+                Text("A tour of the page while open: holds: each step in a card at its target: (a ref:), lit through a cut-out in the dimmed page, with Back, Next and Done; Escape ends it and writes false back. on finish hears Done, on close any end.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+            }
+            Link(to: "/reference/tour-step", class: "bp-card") {
+                Text("Tour.Step", class: "bp-mono") { style { font-size: 14px; color: $link } }
+                Text("One step: what it points at, its title, and its block.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+            }
+            Link(to: "/reference/consentbanner", class: "bp-card") {
+                Text("ConsentBanner", class: "bp-mono") { style { font-size: 14px; color: $link } }
+                Text("The reader's say over the scripts that track them: shown until they choose, Decline as easy as Accept, and the choice kept. Accepting loads the meta.scripts entries marked \"load\": \"consent\", then and on every later visit; nothing loads before.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+            }
             Link(to: "/reference/alert", class: "bp-card") {
                 Text("Alert", class: "bp-mono") { style { font-size: 14px; color: $link } }
                 Text("Inline notice; a danger or warning one is announced as an alert.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
@@ -966,6 +1007,10 @@ page ReferenceIndexPage(path: "/reference", title: "Reference", description: "Ev
         }
         Heading("Media", id: "media").h2
         Grid(columns: { base: 1, sm: 2, xl: 3 }, gap: .sm) {
+            Link(to: "/reference/lightbox", class: "bp-card") {
+                Text("Lightbox", class: "bp-mono") { style { font-size: 14px; color: $link } }
+                Text("Every picture in its block opens, on a press or Enter, full screen: the arrow keys and a swipe go between them, a double press or + zooms, Escape closes and the focus goes back. A picture's data-full: is the file it opens, else its largest size.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+            }
             Link(to: "/reference/image", class: "bp-card") {
                 Text("Image", class: "bp-mono") { style { font-size: 14px; color: $link } }
                 Text("Image; alt is required for accessibility (rule A01). Given an image the program declares, it becomes a <picture> with every width the build wrote.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
@@ -6209,6 +6254,279 @@ DateRangePicker(bind: stay, label: "Stay", presets: [.last7, .thisMonth])"#, tit
     }
 }
 
+page BuiltinHovercard(path: "/reference/hovercard", title: "HoverCard — Reference", description: "HoverCard: A preview card at a link or a button: shown after delay: ms of hover, at once on focus; it stays while the pointer is on it, and goes when…") {
+    ReferenceItemShell("HoverCard", summary: "A preview card at a link or a button: shown after delay: ms of hover, at once on focus; it stays while the pointer is on it, and goes when the pointer leaves both, on Escape or on a press outside.", signature: "HoverCard(delay: Number) \{ … \}", since: "6.2.0", outputs: [], group: "Feedback", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
+        stage {
+            Stage(label: "HoverCard") {
+                controls {
+                    Text(t("stage.nocontrols"), class: "bp-small")
+                }
+                Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
+            }
+        }
+        notes { Text(t("stage.static"), class: "bp-small") }
+        Heading(t("ref.tab.props"), id: "props").h2
+        PropsTable(rows: [{ name: "delay:", type: "Number", meaning: "How long the pointer rests before it shows, in ms (unset, 500)" }], caption: "Props of HoverCard")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Heading(t("ref.tab.flags"), id: "flags").h2
+        Markdown(t("ref.flags.body"), class: "bp-prose")
+        Text(t("ref.noflags"), class: "bp-small")
+        Heading(t("ref.tab.events"), id: "events").h2
+        Markdown(t("ref.universal.link"), class: "bp-prose")
+        Heading(t("ref.slotsparts"), id: "slots").h2
+        SlotsAndParts(slots: [PropRow(name: "children", kind: "", detail: "")], parts: [PropRow(name: "HoverCard.Content", kind: "hovercard-content", detail: "What the card shows. The rest of the block is what it is at.")])
+        Row(gap: .sm) {
+            style { gap: 8px; flex-wrap: wrap }
+            Link("HoverCard.Content", to: "/reference/hovercard-content", class: "bp-button")
+        }
+        Heading(t("ref.example"), id: "example").h2
+        CodeBlock(#"HoverCard(delay: 300) {
+    Link("@ada", to: "/")
+    HoverCard.Content {
+        Text("Ada Lovelace").bold
+        Text("Wrote the first program.").muted
+    }
+}"#, title: "wf")
+        Markdown(t("ref.renders", { cls: "wf-hover-card" }), class: "bp-prose")
+    }
+}
+
+page BuiltinHovercardContent(path: "/reference/hovercard-content", title: "HoverCard.Content — Reference", description: "HoverCard.Content: What the card shows. The rest of the block is what it is at.") {
+    ReferenceItemShell("HoverCard.Content", summary: "What the card shows. The rest of the block is what it is at.", signature: "HoverCard.Content \{ … \}", since: "6.2.0", outputs: [], group: "Feedback", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C03", title: "A part outside the component it belongs to", to: "/errors/C03"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
+        stage {
+            Stage(label: "HoverCard.Content") {
+                controls {
+                    Text(t("stage.nocontrols"), class: "bp-small")
+                }
+                Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
+            }
+        }
+        notes { Text(t("stage.static"), class: "bp-small") }
+        Markdown(t("ref.partof", { owner: "HoverCard", to: "/reference/hovercard" }), class: "bp-prose")
+        Heading(t("ref.tab.props"), id: "props").h2
+        Text(t("ref.noprops"), class: "bp-small")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Heading(t("ref.tab.flags"), id: "flags").h2
+        Markdown(t("ref.flags.body"), class: "bp-prose")
+        Text(t("ref.noflags"), class: "bp-small")
+        Heading(t("ref.tab.events"), id: "events").h2
+        Markdown(t("ref.universal.link"), class: "bp-prose")
+        Heading(t("ref.slotsparts"), id: "slots").h2
+        SlotsAndParts(slots: [PropRow(name: "children", kind: "", detail: "")], parts: [])
+        Heading(t("ref.example"), id: "example").h2
+        CodeBlock(#"HoverCard(delay: 300) {
+    Link("@ada", to: "/")
+    HoverCard.Content {
+        Text("Ada Lovelace").bold
+        Text("Wrote the first program.").muted
+    }
+}"#, title: "wf")
+    }
+}
+
+page BuiltinLoadingoverlay(path: "/reference/loadingoverlay", title: "LoadingOverlay — Reference", description: "LoadingOverlay: A region covered while it is busy: aria-busy on it, its content out of reach, and a spinner with label: over it — the region, not the page.") {
+    ReferenceItemShell("LoadingOverlay", summary: "A region covered while it is busy: aria-busy on it, its content out of reach, and a spinner with label: over it — the region, not the page.", signature: "LoadingOverlay(visible: Bool, label: String) \{ … \}", since: "6.2.0", outputs: [], group: "Feedback", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
+        stage {
+            Stage(label: "LoadingOverlay") {
+                controls {
+                    StageControl({ name: "visible", kind: "bool", options: [], value: "", sink: "special" })
+                    StageControl({ name: "label", kind: "string", options: [], value: "" })
+                }
+                Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
+            }
+        }
+        notes { Text(t("stage.static"), class: "bp-small") }
+        Heading(t("ref.tab.props"), id: "props").h2
+        PropsTable(rows: [{ name: "visible:", type: "Bool  (required)", meaning: "While it holds, the region is busy" }, { name: "label:", type: "String", meaning: "What it is busy with (unset, `Loading`)" }], caption: "Props of LoadingOverlay")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Heading(t("ref.tab.flags"), id: "flags").h2
+        Markdown(t("ref.flags.body"), class: "bp-prose")
+        Row(gap: .sm) {
+            style { gap: 8px; flex-wrap: wrap }
+            Text(".visible", class: "bp-label bp-mono")
+        }
+        Heading(t("ref.tab.events"), id: "events").h2
+        Markdown(t("ref.universal.link"), class: "bp-prose")
+        Heading(t("ref.slotsparts"), id: "slots").h2
+        SlotsAndParts(slots: [PropRow(name: "children", kind: "", detail: "")], parts: [PropRow(name: "LoadingOverlay.Content", kind: "loadingoverlay-content", detail: "The region. Drawn for it."), PropRow(name: "LoadingOverlay.Cover", kind: "loadingoverlay-cover", detail: "What covers it while it is busy. Drawn for it.")])
+        Row(gap: .sm) {
+            style { gap: 8px; flex-wrap: wrap }
+            Link("LoadingOverlay.Content", to: "/reference/loadingoverlay-content", class: "bp-button")
+            Link("LoadingOverlay.Cover", to: "/reference/loadingoverlay-cover", class: "bp-button")
+        }
+        Heading(t("ref.example"), id: "example").h2
+        CodeBlock(#"state saving = false
+Button("Save") { on click { saving = !saving } }
+LoadingOverlay(visible: saving, label: "Saving") {
+    Card { Text("Your profile") }
+}"#, title: "wf")
+        Markdown(t("ref.renders", { cls: "wf-loading-overlay" }), class: "bp-prose")
+    }
+}
+
+page BuiltinLoadingoverlayContent(path: "/reference/loadingoverlay-content", title: "LoadingOverlay.Content — Reference", description: "LoadingOverlay.Content: The region. Drawn for it.") {
+    ReferenceItemShell("LoadingOverlay.Content", summary: "The region. Drawn for it.", signature: "LoadingOverlay.Content \{ … \}", since: "6.2.0", outputs: [], group: "Feedback", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C03", title: "A part outside the component it belongs to", to: "/errors/C03"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
+        stage {
+            Stage(label: "LoadingOverlay.Content") {
+                controls {
+                    Text(t("stage.nocontrols"), class: "bp-small")
+                }
+                Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
+            }
+        }
+        notes { Text(t("stage.static"), class: "bp-small") }
+        Markdown(t("ref.partof", { owner: "LoadingOverlay", to: "/reference/loadingoverlay" }), class: "bp-prose")
+        Heading(t("ref.tab.props"), id: "props").h2
+        Text(t("ref.noprops"), class: "bp-small")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Heading(t("ref.tab.flags"), id: "flags").h2
+        Markdown(t("ref.flags.body"), class: "bp-prose")
+        Text(t("ref.noflags"), class: "bp-small")
+        Heading(t("ref.tab.events"), id: "events").h2
+        Markdown(t("ref.universal.link"), class: "bp-prose")
+        Heading(t("ref.slotsparts"), id: "slots").h2
+        SlotsAndParts(slots: [PropRow(name: "children", kind: "", detail: "")], parts: [])
+        Heading(t("ref.example"), id: "example").h2
+        CodeBlock(#"state saving = false
+Button("Save") { on click { saving = !saving } }
+LoadingOverlay(visible: saving, label: "Saving") {
+    Card { Text("Your profile") }
+}"#, title: "wf")
+    }
+}
+
+page BuiltinLoadingoverlayCover(path: "/reference/loadingoverlay-cover", title: "LoadingOverlay.Cover — Reference", description: "LoadingOverlay.Cover: What covers it while it is busy. Drawn for it.") {
+    ReferenceItemShell("LoadingOverlay.Cover", summary: "What covers it while it is busy. Drawn for it.", signature: "LoadingOverlay.Cover \{ … \}", since: "6.2.0", outputs: [], group: "Feedback", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C03", title: "A part outside the component it belongs to", to: "/errors/C03"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
+        stage {
+            Stage(label: "LoadingOverlay.Cover") {
+                controls {
+                    Text(t("stage.nocontrols"), class: "bp-small")
+                }
+                Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
+            }
+        }
+        notes { Text(t("stage.static"), class: "bp-small") }
+        Markdown(t("ref.partof", { owner: "LoadingOverlay", to: "/reference/loadingoverlay" }), class: "bp-prose")
+        Heading(t("ref.tab.props"), id: "props").h2
+        Text(t("ref.noprops"), class: "bp-small")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Heading(t("ref.tab.flags"), id: "flags").h2
+        Markdown(t("ref.flags.body"), class: "bp-prose")
+        Text(t("ref.noflags"), class: "bp-small")
+        Heading(t("ref.tab.events"), id: "events").h2
+        Markdown(t("ref.universal.link"), class: "bp-prose")
+        Heading(t("ref.slotsparts"), id: "slots").h2
+        SlotsAndParts(slots: [PropRow(name: "children", kind: "", detail: "")], parts: [])
+        Heading(t("ref.example"), id: "example").h2
+        CodeBlock(#"state saving = false
+Button("Save") { on click { saving = !saving } }
+LoadingOverlay(visible: saving, label: "Saving") {
+    Card { Text("Your profile") }
+}"#, title: "wf")
+    }
+}
+
+page BuiltinTour(path: "/reference/tour", title: "Tour — Reference", description: "Tour: A tour of the page while open: holds: each step in a card at its target: (a ref:), lit through a cut-out in the dimmed page, with Back, Next and…") {
+    ReferenceItemShell("Tour", summary: "A tour of the page while open: holds: each step in a card at its target: (a ref:), lit through a cut-out in the dimmed page, with Back, Next and Done; Escape ends it and writes false back. on finish hears Done, on close any end.", signature: "Tour(open: State) \{ … \}", since: "6.2.0", outputs: [], group: "Feedback", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
+        stage {
+            Stage(label: "Tour") {
+                controls {
+                    Text(t("stage.nocontrols"), class: "bp-small")
+                }
+                Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
+            }
+        }
+        notes { Text(t("stage.static"), class: "bp-small") }
+        Heading(t("ref.tab.props"), id: "props").h2
+        PropsTable(rows: [{ name: "open:", type: "State  (required)", meaning: "Whether the tour is showing; written `false` when it ends" }], caption: "Props of Tour")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Heading(t("ref.tab.flags"), id: "flags").h2
+        Markdown(t("ref.flags.body"), class: "bp-prose")
+        Text(t("ref.noflags"), class: "bp-small")
+        Heading(t("ref.tab.events"), id: "events").h2
+        EventsTable(rows: [PropRow(name: "close", kind: "", detail: ""), PropRow(name: "finish", kind: "", detail: "")], caption: "Events of Tour")
+        Markdown(t("ref.universal.link"), class: "bp-prose")
+        Heading(t("ref.slotsparts"), id: "slots").h2
+        SlotsAndParts(slots: [PropRow(name: "children", kind: "", detail: "")], parts: [PropRow(name: "Tour.Step", kind: "tour-step", detail: "One step: what it points at, its title, and its block.")])
+        Row(gap: .sm) {
+            style { gap: 8px; flex-wrap: wrap }
+            Link("Tour.Step", to: "/reference/tour-step", class: "bp-button")
+        }
+        Heading(t("ref.example"), id: "example").h2
+        CodeBlock(#"state touring = false
+Button("New", ref: newBtn)
+Button("Take the tour") { on click { touring = true } }
+Tour(open: touring) {
+    Tour.Step(target: newBtn, title: "New") { Text("Start a project here.") }
+}"#, title: "wf")
+        Markdown(t("ref.renders", { cls: "wf-tour" }), class: "bp-prose")
+    }
+}
+
+page BuiltinTourStep(path: "/reference/tour-step", title: "Tour.Step — Reference", description: "Tour.Step: One step: what it points at, its title, and its block.") {
+    ReferenceItemShell("Tour.Step", summary: "One step: what it points at, its title, and its block.", signature: "Tour.Step(target: Any, title: String) \{ … \}", since: "6.2.0", outputs: [], group: "Feedback", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C03", title: "A part outside the component it belongs to", to: "/errors/C03"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
+        stage {
+            Stage(label: "Tour.Step") {
+                controls {
+                    StageControl({ name: "title", kind: "string", options: [], value: "" })
+                }
+                Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
+            }
+        }
+        notes { Text(t("stage.static"), class: "bp-small") }
+        Markdown(t("ref.partof", { owner: "Tour", to: "/reference/tour" }), class: "bp-prose")
+        Heading(t("ref.tab.props"), id: "props").h2
+        PropsTable(rows: [{ name: "target:", type: "Any  (required)", meaning: "The element it points at: a `ref:`" }, { name: "title:", type: "String", meaning: "Its heading" }], caption: "Props of Tour.Step")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Heading(t("ref.tab.flags"), id: "flags").h2
+        Markdown(t("ref.flags.body"), class: "bp-prose")
+        Text(t("ref.noflags"), class: "bp-small")
+        Heading(t("ref.tab.events"), id: "events").h2
+        Markdown(t("ref.universal.link"), class: "bp-prose")
+        Heading(t("ref.slotsparts"), id: "slots").h2
+        SlotsAndParts(slots: [PropRow(name: "children", kind: "", detail: "")], parts: [])
+        Heading(t("ref.example"), id: "example").h2
+        CodeBlock(#"state touring = false
+Button("New", ref: newBtn)
+Button("Take the tour") { on click { touring = true } }
+Tour(open: touring) {
+    Tour.Step(target: newBtn, title: "New") { Text("Start a project here.") }
+}"#, title: "wf")
+    }
+}
+
+page BuiltinConsentbanner(path: "/reference/consentbanner", title: "ConsentBanner — Reference", description: "ConsentBanner: The reader's say over the scripts that track them: shown until they choose, Decline as easy as Accept, and the choice kept. Accepting…") {
+    ReferenceItemShell("ConsentBanner", summary: "The reader's say over the scripts that track them: shown until they choose, Decline as easy as Accept, and the choice kept. Accepting loads the meta.scripts entries marked \"load\": \"consent\", then and on every later visit; nothing loads before.", signature: "ConsentBanner(_ text: String, accept: String, decline: String, label: String) \{ … \}", since: "6.2.0", outputs: [], group: "Feedback", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04")], source: "src/registry/builtins.rs") {
+        stage {
+            Stage(label: "ConsentBanner") {
+                controls {
+                    StageControl({ name: "text", kind: "string", options: [], value: "" })
+                    StageControl({ name: "accept", kind: "string", options: [], value: "" })
+                    StageControl({ name: "decline", kind: "string", options: [], value: "" })
+                    StageControl({ name: "label", kind: "string", options: [], value: "" })
+                }
+                Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
+            }
+        }
+        notes { Text(t("stage.static"), class: "bp-small") }
+        Heading(t("ref.tab.props"), id: "props").h2
+        PropsTable(rows: [{ name: "text", type: "String  (positional)", meaning: "What is asked" }, { name: "accept:", type: "String", meaning: "The yes button's words (unset, `Accept`)" }, { name: "decline:", type: "String", meaning: "The no button's words (unset, `Decline`)" }, { name: "label:", type: "String", meaning: "The banner's name for a screen reader (unset, `Cookies`)" }], caption: "Props of ConsentBanner")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Heading(t("ref.tab.flags"), id: "flags").h2
+        Markdown(t("ref.flags.body"), class: "bp-prose")
+        Text(t("ref.noflags"), class: "bp-small")
+        Heading(t("ref.tab.events"), id: "events").h2
+        Markdown(t("ref.universal.link"), class: "bp-prose")
+        Heading(t("ref.slotsparts"), id: "slots").h2
+        SlotsAndParts(slots: [PropRow(name: "children", kind: "", detail: "")], parts: [])
+        Heading(t("ref.example"), id: "example").h2
+        CodeBlock(#"ConsentBanner("We would like to count visits.", accept: "Allow", decline: "No thanks") {
+    Link("How we count", to: "/")
+}"#, title: "wf")
+        Markdown(t("ref.renders", { cls: "wf-consent" }), class: "bp-prose")
+    }
+}
+
 page BuiltinAlert(path: "/reference/alert", title: "Alert — Reference", description: "Alert: Inline notice; a danger or warning one is announced as an alert.") {
     state stageTone = "info"
     ReferenceItemShell("Alert", summary: "Inline notice; a danger or warning one is announced as an alert.", signature: "Alert(_ message: String, tone: Enum) \{ … \}", older: true, outputs: [], group: "Feedback", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04")], source: "src/registry/builtins.rs") {
@@ -7291,6 +7609,35 @@ page BuiltinDropdownDivider(path: "/reference/dropdown-divider", title: "Dropdow
     Dropdown.Divider
     Dropdown.Item { Text("Archive") }
 }"#, title: "wf")
+    }
+}
+
+page BuiltinLightbox(path: "/reference/lightbox", title: "Lightbox — Reference", description: "Lightbox: Every picture in its block opens, on a press or Enter, full screen: the arrow keys and a swipe go between them, a double press or + zooms…") {
+    ReferenceItemShell("Lightbox", summary: "Every picture in its block opens, on a press or Enter, full screen: the arrow keys and a swipe go between them, a double press or + zooms, Escape closes and the focus goes back. A picture's data-full: is the file it opens, else its largest size.", signature: "Lightbox(label: String) \{ … \}", since: "6.2.0", outputs: [], group: "Media", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
+        stage {
+            Stage(label: "Lightbox") {
+                controls {
+                    StageControl({ name: "label", kind: "string", options: [], value: "" })
+                }
+                Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
+            }
+        }
+        notes { Text(t("stage.static"), class: "bp-small") }
+        Heading(t("ref.tab.props"), id: "props").h2
+        PropsTable(rows: [{ name: "label:", type: "String", meaning: "What the pictures are, for a screen reader (unset, `Pictures`)" }], caption: "Props of Lightbox")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Heading(t("ref.tab.flags"), id: "flags").h2
+        Markdown(t("ref.flags.body"), class: "bp-prose")
+        Text(t("ref.noflags"), class: "bp-small")
+        Heading(t("ref.tab.events"), id: "events").h2
+        Markdown(t("ref.universal.link"), class: "bp-prose")
+        Heading(t("ref.slotsparts"), id: "slots").h2
+        SlotsAndParts(slots: [PropRow(name: "children", kind: "", detail: "")], parts: [])
+        Heading(t("ref.example"), id: "example").h2
+        CodeBlock(#"Lightbox(label: "Trip") {
+    Image(src: "/favicon.svg", alt: "The logo")
+}"#, title: "wf")
+        Markdown(t("ref.renders", { cls: "wf-lightbox" }), class: "bp-prose")
     }
 }
 

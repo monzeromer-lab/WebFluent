@@ -260,7 +260,7 @@ page Learn06Elements(path: "/learn/06-elements", title: "Elements", description:
                 }
                 Table.Row {
                     Table.Cell("Feedback")
-                    Table.Cell { Markdown("`Alert`, `Toast`, `Modal`, `Dialog`, `Popover`, `Spinner`, `Progress`, `Skeleton` ([Events](/learn/08-events#overlays-modals-dialogs-toasts-and-menus))") }
+                    Table.Cell { Markdown("`Alert`, `Toast`, `Modal`, `Dialog`, `Popover`, `Spinner`, `Progress`, `Skeleton`, `HoverCard`, `LoadingOverlay`, `Tour`, `ConsentBanner` ([Events](/learn/08-events#overlays-modals-dialogs-toasts-and-menus))") }
                 }
                 Table.Row {
                     Table.Cell("Actions")
@@ -268,7 +268,7 @@ page Learn06Elements(path: "/learn/06-elements", title: "Elements", description:
                 }
                 Table.Row {
                     Table.Cell("Media")
-                    Table.Cell { Markdown("`Image`, `Video`, `Audio`, `Frame`, `Icon`, `Carousel` ([Add a picture](/recipes/add-a-picture), [Video and audio](/recipes/video-and-audio))") }
+                    Table.Cell { Markdown("`Image`, `Video`, `Audio`, `Frame`, `Icon`, `Carousel`, `Lightbox` ([Add a picture](/recipes/add-a-picture), [Video and audio](/recipes/video-and-audio))") }
                 }
                 Table.Row {
                     Table.Cell("Typography")

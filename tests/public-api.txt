@@ -279,6 +279,7 @@ impl webfluent::config::project::ScriptEntry
 pub fn webfluent::config::project::ScriptEntry::is_async(&self) -> bool
 pub fn webfluent::config::project::ScriptEntry::is_module(&self) -> bool
 pub fn webfluent::config::project::ScriptEntry::loads_after(&self) -> bool
+pub fn webfluent::config::project::ScriptEntry::loads_on_consent(&self) -> bool
 pub fn webfluent::config::project::ScriptEntry::names(&self) -> alloc::vec::Vec<&str>
 pub fn webfluent::config::project::ScriptEntry::src(&self) -> &str
 impl core::clone::Clone for webfluent::config::project::ScriptEntry
@@ -301,6 +302,7 @@ impl core::panic::unwind_safe::RefUnwindSafe for webfluent::config::project::Scr
 impl core::panic::unwind_safe::UnwindSafe for webfluent::config::project::ScriptEntry
 #[non_exhaustive] pub enum webfluent::config::project::ScriptLoad
 pub webfluent::config::project::ScriptLoad::After
+pub webfluent::config::project::ScriptLoad::Consent
 pub webfluent::config::project::ScriptLoad::Page
 impl core::clone::Clone for webfluent::config::project::ScriptLoad
 pub fn webfluent::config::project::ScriptLoad::clone(&self) -> Self

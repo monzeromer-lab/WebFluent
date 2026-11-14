@@ -1630,8 +1630,10 @@ class among them is constructed when called. `"async": true` loads one
 nothing waits for (analytics, a tag manager) with `<script async>`, so it
 never holds up the page's code; `"load": "after"` goes further and has no
 tag at all — the runtime asks for it once the page has loaded and drawn its
-first frame, so it never counts against how soon the page is ready. Neither
-can be a module or have `globals` (`E111`). Their origins join
+first frame, so it never counts against how soon the page is ready.
+`"load": "consent"` waits further still: no tag, and nothing asked for
+until the reader accepts in a `ConsentBanner` (then on every visit after).
+None of these can be a module or have `globals` (`E111`). Their origins join
 `script-src`, and one without an integrity hash draws a warning.
 
 ### Somebody else's custom element
@@ -1912,6 +1914,10 @@ static paint, by the template engine and in a PDF.
 | `AlertDialog` | `AlertDialog(visible: sure, title: "Discard changes?") { Text("Your edits will be lost.") AlertDialog.Footer { Button("Keep editing") { … } Button("Discard").danger { … } } }` — `role="alertdialog"`, read with its body; Escape answers it and a press beside it does not (`dismiss: .escape` unless it says otherwise); the answer that loses nothing goes first |
 | `Sheet` | `Sheet(visible: filters, title: "Filters", side: .bottom, snap: [0.5, 1]).closable { … Sheet.Footer { … } }` — a modal `<dialog>` from an edge: `.bottom` (the default), `.start` or `.end`, swapped in a right-to-left page; dragged by its handle or heading toward its edge past 30% of its size, or flicked, it closes; a bottom sheet opens at its first `snap:` point (fractions of the window's height) and settles at the nearest; `dismiss:`, `initialFocus:`, `Sheet.Title` as on `Modal`; `label:` names one with no title |
 | `Popover` | `Popover(visible: open, anchor: button, placement: .bottomStart, label: "Branches").arrow { on close(reason) { ... } ... }` — a layer above everything at `anchor:` (a `ref:`) or `at:` a point; flips and slides to stay on screen; Escape or a press outside sets `visible:` back to `false` (as `dismiss:` allows), and `on close` hears `"escape"` or `"outside"`; the focus goes to `initialFocus:`, else its first control; its anchor carries `aria-controls`, `aria-expanded` and `aria-haspopup`; `label:` is its name (`A18` without one); `role:` (in place of `dialog`), `tabindex:`, `aria-*`, `data-*`, `ref:` and its other `on` handlers are its element's, as on any element — and on a `Menu`, a `Tooltip`, a `Modal` and a `Dialog` too |
+| `HoverCard` | `HoverCard(delay: 300) { Link("@ada", to: "/u/ada")  HoverCard.Content { UserCard(ada) } }` — a preview card at the first control in its block, in a layer: shown after `delay:` ms of hover (unset, 500), at once on focus; it stays while the pointer is on it, and goes when the pointer leaves both, on Escape or a press outside |
+| `LoadingOverlay` | `LoadingOverlay(visible: saving, label: "Saving") { Form { … } }` — a region covered while it is busy: `aria-busy` on it, its content `inert`, a spinner and `label:` (unset, `Loading`) over the region alone, never the page |
+| `Tour` | `Tour(open: touring) { on finish { … }  Tour.Step(target: newBtn, title: "New") { Text("Start here.") } … }` — a step at a time in a card at its `target:` (a `ref:`, even one written further down), the target lit through a cut-out in the dimmed page; Back, Next and Done, `1 of 3`, the focus on Next; Escape or the close button ends it and writes `false` to `open:`; `on finish` hears Done, `on close` any end |
+| `ConsentBanner` | `ConsentBanner("We would like to count visits.", accept: "Allow", decline: "No thanks") { Link("How we count", to: "/privacy") }` — shown until the reader chooses, Decline first and drawn as Accept is; the choice is kept, and Accept loads the `meta.scripts` entries marked `"load": "consent"` — then and on every later visit. Nothing they name loads before |
 | `Spinner` | `Spinner` or `Spinner.lg` |
 | `Progress` | `Progress(value: 75, max: 100)` |
 | `Skeleton` | `Skeleton(height: "20px", width: "200px")` or `Skeleton(size: "48px").circle` — flags: `.circle` |
@@ -1943,6 +1949,7 @@ Button flags: `.sm`, `.lg`, `.full`, `.rounded`, `.pill`, `.outlined`; `type: .s
 | `Frame` | `Frame(src: "/preview/", title: "Preview", sandbox: "allow-scripts") { on message(m) { heard = m.data } }` — another page inside this one; `on message` hears only what that page posts; without `title:` it draws an `A17`. `Frame(srcdoc: html, title: "Example", sandbox: "")` draws the HTML it is given instead of an address, sandboxed as `sandbox:` says (HTML from a value with no `sandbox:` gets `sandbox=""` and a `V03`), and draws the new HTML when a value that reads state changes; `on message` checks the sender's origin too, so a page the frame navigated to is not heard |
 | `Icon` | `Icon("home")` or `Icon("search").lg.primary` — 83 built-in SVG icons rendered inline (see [Icon System](#icon-system)) |
 | `Carousel` | `Carousel(autoplay: true, interval: 5000) { Carousel.Slide { Image(src: "...") } }` — slide track with dots and autoplay |
+| `Lightbox` | `Lightbox(label: "Trip") { Image(hero, alt: "The harbour")  Image(src: "/hills.jpg", alt: "The hills", data-full: "/hills-large.jpg") }` — every picture in its block a button that opens it full screen: the arrow keys (the other way round right to left) and a swipe go between them, Home and End to the ends, a double press or `+` zooms and `-` comes back, Escape closes and the focus goes back to the picture; it opens a picture's `data-full:`, else its largest size |
 
 ### Typography
 

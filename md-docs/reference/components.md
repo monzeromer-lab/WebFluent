@@ -16,12 +16,12 @@ Every component is written `Name(positional, prop: value).flag { block }`. A **p
 
 - **Layout**: [`Container`](https://webfluent.monzeromer.dev/reference/container), [`Row`](https://webfluent.monzeromer.dev/reference/row), [`Column`](https://webfluent.monzeromer.dev/reference/column), [`Grid`](https://webfluent.monzeromer.dev/reference/grid), [`Stack`](https://webfluent.monzeromer.dev/reference/stack), [`Spacer`](https://webfluent.monzeromer.dev/reference/spacer), [`VirtualList`](https://webfluent.monzeromer.dev/reference/virtuallist), [`Splitter`](https://webfluent.monzeromer.dev/reference/splitter), [`Divider`](https://webfluent.monzeromer.dev/reference/divider), [`AppShell`](https://webfluent.monzeromer.dev/reference/appshell), [`Host`](https://webfluent.monzeromer.dev/reference/host), [`Portal`](https://webfluent.monzeromer.dev/reference/portal), [`Element`](https://webfluent.monzeromer.dev/reference/element)
 - **Navigation**: [`Navbar`](https://webfluent.monzeromer.dev/reference/navbar), [`Sidebar`](https://webfluent.monzeromer.dev/reference/sidebar), [`Link`](https://webfluent.monzeromer.dev/reference/link), [`Tabs`](https://webfluent.monzeromer.dev/reference/tabs), [`Breadcrumb`](https://webfluent.monzeromer.dev/reference/breadcrumb), [`Menu`](https://webfluent.monzeromer.dev/reference/menu), [`NavigationMenu`](https://webfluent.monzeromer.dev/reference/navigationmenu), [`Menubar`](https://webfluent.monzeromer.dev/reference/menubar), [`ContextMenu`](https://webfluent.monzeromer.dev/reference/contextmenu), [`BottomNavigation`](https://webfluent.monzeromer.dev/reference/bottomnavigation), [`PrevNext`](https://webfluent.monzeromer.dev/reference/prevnext), [`OnThisPage`](https://webfluent.monzeromer.dev/reference/onthispage), [`Pagination`](https://webfluent.monzeromer.dev/reference/pagination), [`Stepper`](https://webfluent.monzeromer.dev/reference/stepper), [`CommandPalette`](https://webfluent.monzeromer.dev/reference/commandpalette)
+- **Feedback**: [`HoverCard`](https://webfluent.monzeromer.dev/reference/hovercard), [`LoadingOverlay`](https://webfluent.monzeromer.dev/reference/loadingoverlay), [`Tour`](https://webfluent.monzeromer.dev/reference/tour), [`ConsentBanner`](https://webfluent.monzeromer.dev/reference/consentbanner), [`Alert`](https://webfluent.monzeromer.dev/reference/alert), [`Toast`](https://webfluent.monzeromer.dev/reference/toast), [`Modal`](https://webfluent.monzeromer.dev/reference/modal), [`Popover`](https://webfluent.monzeromer.dev/reference/popover), [`Dialog`](https://webfluent.monzeromer.dev/reference/dialog), [`AlertDialog`](https://webfluent.monzeromer.dev/reference/alertdialog), [`Sheet`](https://webfluent.monzeromer.dev/reference/sheet), [`Spinner`](https://webfluent.monzeromer.dev/reference/spinner), [`Progress`](https://webfluent.monzeromer.dev/reference/progress), [`Skeleton`](https://webfluent.monzeromer.dev/reference/skeleton)
+- **Media**: [`Lightbox`](https://webfluent.monzeromer.dev/reference/lightbox), [`Image`](https://webfluent.monzeromer.dev/reference/image), [`Video`](https://webfluent.monzeromer.dev/reference/video), [`Audio`](https://webfluent.monzeromer.dev/reference/audio), [`Frame`](https://webfluent.monzeromer.dev/reference/frame), [`Icon`](https://webfluent.monzeromer.dev/reference/icon), [`Carousel`](https://webfluent.monzeromer.dev/reference/carousel)
 - **Data display**: [`Card`](https://webfluent.monzeromer.dev/reference/card), [`Table`](https://webfluent.monzeromer.dev/reference/table), [`List`](https://webfluent.monzeromer.dev/reference/list), [`Badge`](https://webfluent.monzeromer.dev/reference/badge), [`Tag`](https://webfluent.monzeromer.dev/reference/tag), [`Avatar`](https://webfluent.monzeromer.dev/reference/avatar), [`Tooltip`](https://webfluent.monzeromer.dev/reference/tooltip), [`Tree`](https://webfluent.monzeromer.dev/reference/tree), [`DataTable`](https://webfluent.monzeromer.dev/reference/datatable), [`Chart`](https://webfluent.monzeromer.dev/reference/chart), [`QrCode`](https://webfluent.monzeromer.dev/reference/qrcode)
 - **Form**: [`Input`](https://webfluent.monzeromer.dev/reference/input), [`Select`](https://webfluent.monzeromer.dev/reference/select), [`Checkbox`](https://webfluent.monzeromer.dev/reference/checkbox), [`Radio`](https://webfluent.monzeromer.dev/reference/radio), [`Switch`](https://webfluent.monzeromer.dev/reference/switch), [`Slider`](https://webfluent.monzeromer.dev/reference/slider), [`DatePicker`](https://webfluent.monzeromer.dev/reference/datepicker), [`FileUpload`](https://webfluent.monzeromer.dev/reference/fileupload), [`Form`](https://webfluent.monzeromer.dev/reference/form), [`Textarea`](https://webfluent.monzeromer.dev/reference/textarea), [`Field`](https://webfluent.monzeromer.dev/reference/field), [`Fieldset`](https://webfluent.monzeromer.dev/reference/fieldset), [`InputGroup`](https://webfluent.monzeromer.dev/reference/inputgroup), [`RadioGroup`](https://webfluent.monzeromer.dev/reference/radiogroup), [`NumberInput`](https://webfluent.monzeromer.dev/reference/numberinput), [`Calendar`](https://webfluent.monzeromer.dev/reference/calendar), [`Listbox`](https://webfluent.monzeromer.dev/reference/listbox), [`Combobox`](https://webfluent.monzeromer.dev/reference/combobox), [`CheckboxGroup`](https://webfluent.monzeromer.dev/reference/checkboxgroup), [`InputOTP`](https://webfluent.monzeromer.dev/reference/inputotp), [`TagInput`](https://webfluent.monzeromer.dev/reference/taginput), [`Rating`](https://webfluent.monzeromer.dev/reference/rating), [`DateRangePicker`](https://webfluent.monzeromer.dev/reference/daterangepicker)
-- **Feedback**: [`Alert`](https://webfluent.monzeromer.dev/reference/alert), [`Toast`](https://webfluent.monzeromer.dev/reference/toast), [`Modal`](https://webfluent.monzeromer.dev/reference/modal), [`Popover`](https://webfluent.monzeromer.dev/reference/popover), [`Dialog`](https://webfluent.monzeromer.dev/reference/dialog), [`AlertDialog`](https://webfluent.monzeromer.dev/reference/alertdialog), [`Sheet`](https://webfluent.monzeromer.dev/reference/sheet), [`Spinner`](https://webfluent.monzeromer.dev/reference/spinner), [`Progress`](https://webfluent.monzeromer.dev/reference/progress), [`Skeleton`](https://webfluent.monzeromer.dev/reference/skeleton)
 - **Content**: [`Callout`](https://webfluent.monzeromer.dev/reference/callout), [`Kbd`](https://webfluent.monzeromer.dev/reference/kbd), [`EmptyState`](https://webfluent.monzeromer.dev/reference/emptystate), [`Stat`](https://webfluent.monzeromer.dev/reference/stat), [`CodeBlock`](https://webfluent.monzeromer.dev/reference/codeblock), [`Chip`](https://webfluent.monzeromer.dev/reference/chip), [`VisuallyHidden`](https://webfluent.monzeromer.dev/reference/visuallyhidden), [`Accordion`](https://webfluent.monzeromer.dev/reference/accordion)
 - **Actions**: [`CopyButton`](https://webfluent.monzeromer.dev/reference/copybutton), [`ThemeToggle`](https://webfluent.monzeromer.dev/reference/themetoggle), [`LocaleSwitch`](https://webfluent.monzeromer.dev/reference/localeswitch), [`Toggle`](https://webfluent.monzeromer.dev/reference/toggle), [`ToggleGroup`](https://webfluent.monzeromer.dev/reference/togglegroup), [`Button`](https://webfluent.monzeromer.dev/reference/button), [`IconButton`](https://webfluent.monzeromer.dev/reference/iconbutton), [`ButtonGroup`](https://webfluent.monzeromer.dev/reference/buttongroup), [`Dropdown`](https://webfluent.monzeromer.dev/reference/dropdown)
-- **Media**: [`Image`](https://webfluent.monzeromer.dev/reference/image), [`Video`](https://webfluent.monzeromer.dev/reference/video), [`Audio`](https://webfluent.monzeromer.dev/reference/audio), [`Frame`](https://webfluent.monzeromer.dev/reference/frame), [`Icon`](https://webfluent.monzeromer.dev/reference/icon), [`Carousel`](https://webfluent.monzeromer.dev/reference/carousel)
 - **Typography**: [`Text`](https://webfluent.monzeromer.dev/reference/text), [`Heading`](https://webfluent.monzeromer.dev/reference/heading), [`Code`](https://webfluent.monzeromer.dev/reference/code), [`Markdown`](https://webfluent.monzeromer.dev/reference/markdown), [`Unsafe`](https://webfluent.monzeromer.dev/reference/unsafe), [`Blockquote`](https://webfluent.monzeromer.dev/reference/blockquote)
 - **PDF**: [`TableOfContents`](https://webfluent.monzeromer.dev/reference/tableofcontents), [`Document`](https://webfluent.monzeromer.dev/reference/document), [`Section`](https://webfluent.monzeromer.dev/reference/section), [`Paragraph`](https://webfluent.monzeromer.dev/reference/paragraph), [`Header`](https://webfluent.monzeromer.dev/reference/header), [`Footer`](https://webfluent.monzeromer.dev/reference/footer), [`Background`](https://webfluent.monzeromer.dev/reference/background), [`Watermark`](https://webfluent.monzeromer.dev/reference/watermark), [`PageBreak`](https://webfluent.monzeromer.dev/reference/pagebreak)
 - **Slides**: [`Presentation`](https://webfluent.monzeromer.dev/reference/presentation), [`Slide`](https://webfluent.monzeromer.dev/reference/slide), [`TitleSlide`](https://webfluent.monzeromer.dev/reference/titleslide), [`SectionSlide`](https://webfluent.monzeromer.dev/reference/sectionslide), [`TwoColumn`](https://webfluent.monzeromer.dev/reference/twocolumn), [`ImageSlide`](https://webfluent.monzeromer.dev/reference/imageslide)
@@ -904,6 +904,671 @@ Renders with the class `wf-command-palette`.
   - `icon:` `String` — An icon before the words
   - `shortcut:` `String` — Its keys, shown at its end as this system writes them
 - `CommandPalette.List { … }` — What matches. Drawn for it.
+
+Takes a block of children.
+
+Attribute families: `global`, `aria`, `data`.
+
+## Feedback
+
+### HoverCard
+
+A preview card at a link or a button: shown after `delay:` ms of hover, at once on focus; it stays while the pointer is on it, and goes when the pointer leaves both, on Escape or on a press outside.
+
+```
+HoverCard(delay: …) { … }
+```
+
+```wf
+HoverCard(delay: 300) {
+    Link("@ada", to: "/")
+    HoverCard.Content {
+        Text("Ada Lovelace").bold
+        Text("Wrote the first program.").muted
+    }
+}
+```
+
+Renders with the class `wf-hover-card`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `delay:` | `Number` | How long the pointer rests before it shows, in ms (unset, 500) |
+
+**Parts:**
+
+- `HoverCard.Content { … }` — What the card shows. The rest of the block is what it is at.
+
+Takes a block of children.
+
+Attribute families: `global`, `aria`, `data`.
+
+### LoadingOverlay
+
+A region covered while it is busy: `aria-busy` on it, its content out of reach, and a spinner with `label:` over it — the region, not the page.
+
+```
+LoadingOverlay(visible: …, label: …) { … }
+```
+
+```wf
+state saving = false
+Button("Save") { on click { saving = !saving } }
+LoadingOverlay(visible: saving, label: "Saving") {
+    Card { Text("Your profile") }
+}
+```
+
+Renders with the class `wf-loading-overlay`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `visible:` (required) | `Bool` | While it holds, the region is busy |
+| `label:` | `String` | What it is busy with (unset, `Loading`) |
+
+**Flags:** `.visible`
+
+**Parts:**
+
+- `LoadingOverlay.Content { … }` — The region. Drawn for it.
+- `LoadingOverlay.Cover { … }` — What covers it while it is busy. Drawn for it.
+
+Takes a block of children.
+
+Attribute families: `global`, `aria`, `data`.
+
+### Tour
+
+A tour of the page while `open:` holds: each step in a card at its `target:` (a `ref:`), lit through a cut-out in the dimmed page, with Back, Next and Done; Escape ends it and writes `false` back. `on finish` hears Done, `on close` any end.
+
+```
+Tour(open: …) { … }
+```
+
+```wf
+state touring = false
+Button("New", ref: newBtn)
+Button("Take the tour") { on click { touring = true } }
+Tour(open: touring) {
+    Tour.Step(target: newBtn, title: "New") { Text("Start a project here.") }
+}
+```
+
+Renders with the class `wf-tour`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `open:` (required) | `State` | Whether the tour is showing; written `false` when it ends |
+
+**Events of its own:** `on close`, `on finish`
+
+**Parts:**
+
+- `Tour.Step(target: …, title: …) { … }` — One step: what it points at, its title, and its block.
+  - `target:` `Any` — The element it points at: a `ref:`
+  - `title:` `String` — Its heading
+
+Takes a block of children.
+
+Attribute families: `global`, `aria`, `data`.
+
+### ConsentBanner
+
+The reader's say over the scripts that track them: shown until they choose, Decline as easy as Accept, and the choice kept. Accepting loads the `meta.scripts` entries marked `"load": "consent"`, then and on every later visit; nothing loads before.
+
+```
+ConsentBanner(text, accept: …, decline: …, label: …) { … }
+```
+
+```wf
+ConsentBanner("We would like to count visits.", accept: "Allow", decline: "No thanks") {
+    Link("How we count", to: "/")
+}
+```
+
+Renders with the class `wf-consent`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `text` (positional) | `String` | What is asked |
+| `accept:` | `String` | The yes button's words (unset, `Accept`) |
+| `decline:` | `String` | The no button's words (unset, `Decline`) |
+| `label:` | `String` | The banner's name for a screen reader (unset, `Cookies`) |
+
+Takes a block of children.
+
+Attribute families: `global`, `aria`, `data`.
+
+### Alert
+
+Inline notice; a `danger` or `warning` one is announced as an alert.
+
+```
+Alert(message, tone: …) { … }
+```
+
+```wf
+Alert("Your changes were saved.").success
+Alert("The server is not answering.").danger
+```
+
+Renders with the class `wf-alert`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `message` (positional) | `String` | The message |
+| `tone:` | `.success` `.danger` `.warning` `.info` | Kind of notice |
+
+**Flags:** `.success` `.danger` `.warning` `.info`
+
+Takes a block of children.
+
+Attribute families: `global`, `aria`, `data`.
+
+### Toast
+
+Temporary notification.
+
+```
+Toast(message, tone: …)
+```
+
+```wf
+state saved = false
+if saved { Toast("Saved").success }
+```
+
+Renders with the class `wf-toast`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `message` (positional) | `String` | The message |
+| `tone:` | `.success` `.danger` `.warning` `.info` | Kind of notice |
+
+**Flags:** `.success` `.danger` `.warning` `.info`
+
+Attribute families: `global`, `aria`, `data`.
+
+### Modal
+
+Modal `<dialog>`, opened by a state flag; the browser supplies focus trapping and Escape. `on close` runs when it closes, however it was closed, and the focus goes back to what had it.
+
+```
+Modal(visible: …, title: …, closable: …) { … }
+```
+
+```wf
+state open = false
+Button("Delete") { on click { open = true } }
+Modal(visible: open, title: "Delete deploys.wf?").closable {
+    Modal.Title { Markdown("Delete `deploys.wf`?") }
+    Text("This cannot be undone.")
+    Modal.Footer { Button("Cancel") { on click { open = false } } }
+}
+```
+
+Renders with the class `wf-modal`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `visible:` | `State` | State flag that opens and closes it |
+| `title:` | `String` | Heading shown at the top |
+| `closable:` | `Bool` | A close button in the heading row, which closes it as Escape does |
+| `dismiss:` | `.any` `.escape` `.none` | What closes it besides the page's own button |
+| `initialFocus:` | `Any` | What takes the focus when it opens, by its `ref:`; unset, what says `autofocus`, else its first control |
+
+**Flags:** `.closable` `.any` `.escape` `.none`
+
+**Events of its own:** `on close`
+
+**Parts:**
+
+- `Modal.Title { … }` — What the modal's heading draws, in place of its `title:`'s words, which stay its name: `Modal.Title { Text { "Rename "  Code(name) } }`.
+- `Modal.Footer { … }` — The modal's action row.
+
+Takes a block of children.
+
+Attribute families: `global`, `aria`, `data`.
+
+### Popover
+
+A layer at a control: drawn above everything, placed against its `anchor:`, closed by `Escape` or a press outside, which write `false` back to `visible:` and fire `on close`.
+
+```
+Popover(visible: …, anchor: …, at: …) { … }
+```
+
+```wf
+state open = false
+Button("Branches", ref: branches) { on click { open = !open } }
+Popover(visible: open, anchor: branches, placement: .bottomStart, label: "Branches").arrow {
+    on close(reason) { log(reason) }
+    Text("main")
+}
+```
+
+Renders with the class `wf-popover`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `visible:` | `State` | State flag that opens and closes it |
+| `anchor:` | `Any` | What it is placed against: an element's `ref:`, or a point `{ x: e.clientX, y: e.clientY }` |
+| `at:` | `Any` | A point to place it at, `{ x: e.clientX, y: e.clientY }`: where the pointer asked for a context menu |
+| `placement:` | `.bottom` `.bottomStart` `.bottomEnd` `.top` `.topStart` `.topEnd` `.left` `.leftStart` `.leftEnd` `.right` `.rightStart` `.rightEnd` | Where it goes against its anchor; it flips to the other side when there is no room. Unset, `.bottomStart` |
+| `offset:` | `Number` | How far from the anchor, in px |
+| `label:` | `String` | What it is, for a screen reader: its accessible name |
+| `arrow:` | `Bool` | A point toward the anchor |
+| `dismiss:` | `.any` `.escape` `.none` | What closes it besides the page's own button |
+| `initialFocus:` | `Any` | What takes the focus when it opens, by its `ref:`; unset, what says `autofocus`, else its first control |
+
+**Flags:** `.bottom` `.bottomStart` `.bottomEnd` `.top` `.topStart` `.topEnd` `.left` `.leftStart` `.leftEnd` `.right` `.rightStart` `.rightEnd` `.arrow` `.any` `.escape` `.none`
+
+**Events of its own:** `on close`
+
+Takes a block of children.
+
+Attribute families: `global`, `aria`, `data`.
+
+### Dialog
+
+Confirmation `<dialog>`, opened by a state flag. `on close` runs when it closes, however it was closed, and the focus goes back to what had it.
+
+```
+Dialog(visible: …, title: …, closable: …) { … }
+```
+
+```wf
+state asking = false
+Dialog(visible: asking, title: "Leave without saving notes.md?") {
+    Dialog.Title { Markdown("Leave without saving `notes.md`?") }
+    Text("Your draft will be lost.")
+}
+```
+
+Renders with the class `wf-dialog`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `visible:` | `State` | State flag that opens and closes it |
+| `title:` | `String` | Heading shown at the top |
+| `closable:` | `Bool` | A close button in the heading row, which closes it as Escape does |
+| `dismiss:` | `.any` `.escape` `.none` | What closes it besides the page's own button |
+| `initialFocus:` | `Any` | What takes the focus when it opens, by its `ref:`; unset, what says `autofocus`, else its first control |
+
+**Flags:** `.closable` `.any` `.escape` `.none`
+
+**Events of its own:** `on close`
+
+**Parts:**
+
+- `Dialog.Title { … }` — What the dialog's heading draws, in place of its `title:`'s words, which stay its name.
+
+Takes a block of children.
+
+Attribute families: `global`, `aria`, `data`.
+
+### AlertDialog
+
+A `<dialog>` that asks before something that cannot be undone: `role="alertdialog"`, its body read out with its title, and closed by Escape or its own buttons, not a press outside. For a question asked from a handler, `await ask(…)` draws one.
+
+```
+AlertDialog(visible: …, title: …, dismiss: …) { … }
+```
+
+```wf
+state sure = false
+Button("Discard") { on click { sure = true } }
+AlertDialog(visible: sure, title: "Discard your changes?") {
+    Text("Your edits will be lost.")
+    AlertDialog.Footer {
+        Button("Keep editing") { on click { sure = false } }
+        Button("Discard").danger { on click { sure = false } }
+    }
+}
+```
+
+Renders with the class `wf-dialog wf-alert-dialog`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `visible:` | `State` | State flag that opens and closes it |
+| `title:` | `String` | Heading shown at the top |
+| `dismiss:` | `.any` `.escape` `.none` | What closes it besides the page's own button |
+| `initialFocus:` | `Any` | What takes the focus when it opens, by its `ref:`; unset, what says `autofocus`, else its first control |
+
+**Flags:** `.any` `.escape` `.none`
+
+**Events of its own:** `on close`
+
+**Parts:**
+
+- `AlertDialog.Title { … }` — What the alert dialog's heading draws, in place of its `title:`'s words, which stay its name.
+- `AlertDialog.Footer { … }` — Its answers: the button that loses nothing first.
+
+Takes a block of children.
+
+Attribute families: `global`, `aria`, `data`.
+
+### Sheet
+
+A modal `<dialog>` that comes in from an edge: the bottom (a phone's filters, a share list) or the start or end of the line. Dragged by its handle or heading toward its edge it closes; a bottom sheet with `snap:` points settles at the nearest.
+
+```
+Sheet(visible: …, title: …, closable: …) { … }
+```
+
+```wf
+state filters = false
+state sort = "new"
+Button("Filters") { on click { filters = true } }
+Sheet(visible: filters, title: "Filters", snap: [0.5, 1]).closable {
+    Radio(bind: sort, value: "new", label: "Newest")
+    Radio(bind: sort, value: "price", label: "Price")
+    Sheet.Footer { Button("Show results").primary { on click { filters = false } } }
+}
+state details = false
+Sheet(visible: details, side: .end, title: "Details") { Text("Opened 3 days ago") }
+```
+
+Renders with the class `wf-sheet`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `visible:` | `State` | State flag that opens and closes it |
+| `title:` | `String` | Heading shown at the top |
+| `closable:` | `Bool` | A close button in the heading row, which closes it as Escape does |
+| `side:` | `.bottom` `.start` `.end` | The edge it comes in from |
+| `snap:` | `Any` | A bottom sheet's heights, as fractions of the window's, `[0.5, 1]`: it opens at the first |
+| `label:` | `String` | Its accessible name, when it has no `title:` |
+| `dismiss:` | `.any` `.escape` `.none` | What closes it besides the page's own button |
+| `initialFocus:` | `Any` | What takes the focus when it opens, by its `ref:`; unset, what says `autofocus`, else its first control |
+
+**Flags:** `.closable` `.bottom` `.start` `.end` `.any` `.escape` `.none`
+
+**Events of its own:** `on close`
+
+**Parts:**
+
+- `Sheet.Title { … }` — What the sheet's heading draws, in place of its `title:`'s words, which stay its name.
+- `Sheet.Footer { … }` — The sheet's action row, kept in view below what scrolls.
+
+Takes a block of children.
+
+Attribute families: `global`, `aria`, `data`.
+
+### Spinner
+
+Loading indicator, announced as a status.
+
+```
+Spinner(size: …)
+```
+
+```wf
+Spinner
+Spinner.lg
+```
+
+Renders with the class `wf-spinner`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `size:` | `.sm` `.md` `.lg` | Its size |
+
+**Flags:** `.sm` `.md` `.lg`
+
+Attribute families: `global`, `aria`, `data`.
+
+### Progress
+
+Progress bar; a `value` that reads state moves with it.
+
+```
+Progress(value: …, max: …)
+```
+
+```wf
+Progress(value: 40, max: 100)
+```
+
+Renders with the class `wf-progress`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `value:` | `Number` | Current value |
+| `max:` | `Number` | Value at 100% |
+
+Attribute families: `global`, `aria`, `data`.
+
+### Skeleton
+
+Placeholder shape shown while content loads.
+
+```
+Skeleton(height: …, width: …, size: …)
+```
+
+```wf
+Skeleton(height: "20px", width: "200px")
+Skeleton(size: "48px").circle
+```
+
+Renders with the class `wf-skeleton`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `height:` | `String` | CSS height |
+| `width:` | `String` | CSS width |
+| `size:` | `String` | Diameter of a `circle` |
+| `circle:` | `Bool` | A round placeholder |
+
+**Flags:** `.circle`
+
+Attribute families: `global`, `aria`, `data`.
+
+## Media
+
+### Lightbox
+
+Every picture in its block opens, on a press or Enter, full screen: the arrow keys and a swipe go between them, a double press or `+` zooms, Escape closes and the focus goes back. A picture's `data-full:` is the file it opens, else its largest size.
+
+```
+Lightbox(label: …) { … }
+```
+
+```wf
+Lightbox(label: "Trip") {
+    Image(src: "/favicon.svg", alt: "The logo")
+}
+```
+
+Renders with the class `wf-lightbox`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `label:` | `String` | What the pictures are, for a screen reader (unset, `Pictures`) |
+
+Takes a block of children.
+
+Attribute families: `global`, `aria`, `data`.
+
+### Image
+
+Image; `alt` is required for accessibility (rule A01). Given an `image` the program declares, it becomes a `<picture>` with every width the build wrote.
+
+```
+Image(source, src: …, sizes: …, placeholder: …)
+```
+
+```wf
+Image(src: "/team.jpg", alt: "The team at the launch", width: 1200, height: 630)
+Image(src: "/flourish.svg", alt: "")
+```
+
+Renders with the class `wf-image`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `source` (positional) | `Any` | An `image` the program declares, or a URL |
+| `src:` | `String` | Image URL |
+| `sizes:` | `String` | How wide it will be shown, so the browser picks a width: `(max-width: 768px) 100vw, 1200px` |
+| `placeholder:` | `.blur` `.color` `.none` | What fills the box while the image loads |
+| `alt:` | `String` | Text alternative; empty for a purely decorative image |
+| `width:` | `Number` | Intrinsic width |
+| `height:` | `Number` | Intrinsic height |
+| `loading:` | `.lazy` `.eager` | Unset, the first image on a page is eager at high priority and the rest lazy |
+| `shape:` | `.rounded` `.circle` | Shape |
+
+**Flags:** `.blur` `.color` `.none` `.lazy` `.eager` `.rounded` `.circle`
+
+Attribute families: `global`, `aria`, `data`.
+
+### Video
+
+Video player. Without `captions` it draws an `A09` warning: a video nobody can hear is a video nobody can follow.
+
+```
+Video(src: …, controls: …, autoplay: …)
+```
+
+```wf
+Video(src: "/demo.mp4", captions: "/demo.en.vtt", poster: "/demo.jpg").controls
+```
+
+Renders with the class `wf-video`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `src:` | `String` | Video URL |
+| `controls:` | `Bool` | Show the browser's playback controls |
+| `autoplay:` | `Bool` | Start playing when shown |
+| `poster:` | `String` | The frame shown before it plays |
+| `muted:` | `Bool` | Start with the sound off |
+| `loop:` | `Bool` | Start again when it ends |
+| `playsinline:` | `Bool` | Play where it sits, rather than full screen |
+| `captions:` | `String` | A WebVTT file of captions, which becomes a `<track>` |
+| `width:` | `Number` | Intrinsic width |
+| `height:` | `Number` | Intrinsic height |
+
+**Flags:** `.controls` `.autoplay` `.muted` `.loop` `.playsinline`
+
+Attribute families: `global`, `aria`, `data`, `media`.
+
+### Audio
+
+Audio player. `transcript` links what was said, which is what a reader who cannot hear it needs.
+
+```
+Audio(src: …, controls: …, autoplay: …)
+```
+
+```wf
+Audio(src: "/episode-1.mp3", transcript: "/episode-1.txt").controls
+```
+
+Renders with the class `wf-audio`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `src:` | `String` | Audio URL |
+| `controls:` | `Bool` | Show the browser's playback controls |
+| `autoplay:` | `Bool` | Start playing when shown |
+| `loop:` | `Bool` | Start again when it ends |
+| `transcript:` | `String` | A link to what was said, shown beneath the player |
+
+**Flags:** `.controls` `.autoplay` `.loop`
+
+Attribute families: `global`, `aria`, `data`.
+
+### Frame
+
+Another page, shown inside this one: an `iframe` — the page at `src:`, or the HTML `srcdoc:` gives it, sandboxed as `sandbox:` says. `on message(m)` hears what that page posts to this one (`m.data`), and nothing any other page posts. Without `title:` it draws an `A17` warning: a frame is announced by its title.
+
+```
+Frame(src: …, srcdoc: …, title: …)
+```
+
+```wf
+Frame(src: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ", title: "The launch talk", allow: "fullscreen")
+state heard = ""
+Frame(src: "/preview/", title: "Preview", sandbox: "allow-scripts") {
+    on message(m) { heard = m.data }
+}
+state version = 1
+Frame(srcdoc: "<p>Version {version}</p>", title: "Example", sandbox: "")
+```
+
+Renders with the class `wf-frame`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `src:` | `String` | The address of the page it shows |
+| `srcdoc:` | `String` | The HTML it draws in place of an address, sandboxed as `sandbox:` says; a value that reads state draws the new HTML as it changes |
+| `title:` | `String` | What it shows, in a few words: its accessible name |
+| `sandbox:` | `String` | What the framed page may do: `"allow-scripts allow-forms"`; empty, it may do nothing |
+| `allow:` | `String` | The features it may use: `"fullscreen; clipboard-write"` |
+| `loading:` | `.lazy` `.eager` | Unset, at once |
+
+**Flags:** `.lazy` `.eager`
+
+**Events of its own:** `on message`, `on load`
+
+Attribute families: `global`, `aria`, `data`.
+
+### Icon
+
+One of the built-in SVG icons, rendered inline.
+
+```
+Icon(name, size: …, tone: …, muted: …)
+```
+
+```wf
+Icon("search")
+Icon("check").lg.success
+```
+
+Renders with the class `wf-icon`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `name` (positional) | `String` | The icon name |
+| `size:` | `.sm` `.md` `.lg` | Its size |
+| `tone:` | `.primary` `.secondary` `.success` `.danger` `.warning` `.info` | Colour |
+| `muted:` | `Bool` | Dimmed, for secondary text |
+
+**Flags:** `.sm` `.md` `.lg` `.primary` `.secondary` `.success` `.danger` `.warning` `.info` `.muted`
+
+Attribute families: `global`, `aria`, `data`.
+
+### Carousel
+
+Slide track with named controls and dots; optional autoplay.
+
+```
+Carousel(label: …, autoplay: …, interval: …) { … }
+```
+
+```wf
+Carousel(label: "Recent work", autoplay: true, interval: 5000) {
+    Carousel.Slide { Image(src: "/one.jpg", alt: "A bridge at dusk") }
+    Carousel.Slide { Image(src: "/two.jpg", alt: "The harbour") }
+}
+```
+
+Renders with the class `wf-carousel`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `label:` | `String` | Accessible name of the region |
+| `autoplay:` | `Bool` | Advance automatically |
+| `interval:` | `Number` | Milliseconds between slides |
+
+**Flags:** `.autoplay`
+
+**Parts:**
+
+- `Carousel.Slide { … }` — One slide of a carousel.
 
 Takes a block of children.
 
@@ -1961,335 +2626,6 @@ Renders with the class `wf-date-range`.
 
 Attribute families: `global`, `aria`, `data`.
 
-## Feedback
-
-### Alert
-
-Inline notice; a `danger` or `warning` one is announced as an alert.
-
-```
-Alert(message, tone: …) { … }
-```
-
-```wf
-Alert("Your changes were saved.").success
-Alert("The server is not answering.").danger
-```
-
-Renders with the class `wf-alert`.
-
-| Prop | Type | Meaning |
-|---|---|---|
-| `message` (positional) | `String` | The message |
-| `tone:` | `.success` `.danger` `.warning` `.info` | Kind of notice |
-
-**Flags:** `.success` `.danger` `.warning` `.info`
-
-Takes a block of children.
-
-Attribute families: `global`, `aria`, `data`.
-
-### Toast
-
-Temporary notification.
-
-```
-Toast(message, tone: …)
-```
-
-```wf
-state saved = false
-if saved { Toast("Saved").success }
-```
-
-Renders with the class `wf-toast`.
-
-| Prop | Type | Meaning |
-|---|---|---|
-| `message` (positional) | `String` | The message |
-| `tone:` | `.success` `.danger` `.warning` `.info` | Kind of notice |
-
-**Flags:** `.success` `.danger` `.warning` `.info`
-
-Attribute families: `global`, `aria`, `data`.
-
-### Modal
-
-Modal `<dialog>`, opened by a state flag; the browser supplies focus trapping and Escape. `on close` runs when it closes, however it was closed, and the focus goes back to what had it.
-
-```
-Modal(visible: …, title: …, closable: …) { … }
-```
-
-```wf
-state open = false
-Button("Delete") { on click { open = true } }
-Modal(visible: open, title: "Delete deploys.wf?").closable {
-    Modal.Title { Markdown("Delete `deploys.wf`?") }
-    Text("This cannot be undone.")
-    Modal.Footer { Button("Cancel") { on click { open = false } } }
-}
-```
-
-Renders with the class `wf-modal`.
-
-| Prop | Type | Meaning |
-|---|---|---|
-| `visible:` | `State` | State flag that opens and closes it |
-| `title:` | `String` | Heading shown at the top |
-| `closable:` | `Bool` | A close button in the heading row, which closes it as Escape does |
-| `dismiss:` | `.any` `.escape` `.none` | What closes it besides the page's own button |
-| `initialFocus:` | `Any` | What takes the focus when it opens, by its `ref:`; unset, what says `autofocus`, else its first control |
-
-**Flags:** `.closable` `.any` `.escape` `.none`
-
-**Events of its own:** `on close`
-
-**Parts:**
-
-- `Modal.Title { … }` — What the modal's heading draws, in place of its `title:`'s words, which stay its name: `Modal.Title { Text { "Rename "  Code(name) } }`.
-- `Modal.Footer { … }` — The modal's action row.
-
-Takes a block of children.
-
-Attribute families: `global`, `aria`, `data`.
-
-### Popover
-
-A layer at a control: drawn above everything, placed against its `anchor:`, closed by `Escape` or a press outside, which write `false` back to `visible:` and fire `on close`.
-
-```
-Popover(visible: …, anchor: …, at: …) { … }
-```
-
-```wf
-state open = false
-Button("Branches", ref: branches) { on click { open = !open } }
-Popover(visible: open, anchor: branches, placement: .bottomStart, label: "Branches").arrow {
-    on close(reason) { log(reason) }
-    Text("main")
-}
-```
-
-Renders with the class `wf-popover`.
-
-| Prop | Type | Meaning |
-|---|---|---|
-| `visible:` | `State` | State flag that opens and closes it |
-| `anchor:` | `Any` | What it is placed against: an element's `ref:`, or a point `{ x: e.clientX, y: e.clientY }` |
-| `at:` | `Any` | A point to place it at, `{ x: e.clientX, y: e.clientY }`: where the pointer asked for a context menu |
-| `placement:` | `.bottom` `.bottomStart` `.bottomEnd` `.top` `.topStart` `.topEnd` `.left` `.leftStart` `.leftEnd` `.right` `.rightStart` `.rightEnd` | Where it goes against its anchor; it flips to the other side when there is no room. Unset, `.bottomStart` |
-| `offset:` | `Number` | How far from the anchor, in px |
-| `label:` | `String` | What it is, for a screen reader: its accessible name |
-| `arrow:` | `Bool` | A point toward the anchor |
-| `dismiss:` | `.any` `.escape` `.none` | What closes it besides the page's own button |
-| `initialFocus:` | `Any` | What takes the focus when it opens, by its `ref:`; unset, what says `autofocus`, else its first control |
-
-**Flags:** `.bottom` `.bottomStart` `.bottomEnd` `.top` `.topStart` `.topEnd` `.left` `.leftStart` `.leftEnd` `.right` `.rightStart` `.rightEnd` `.arrow` `.any` `.escape` `.none`
-
-**Events of its own:** `on close`
-
-Takes a block of children.
-
-Attribute families: `global`, `aria`, `data`.
-
-### Dialog
-
-Confirmation `<dialog>`, opened by a state flag. `on close` runs when it closes, however it was closed, and the focus goes back to what had it.
-
-```
-Dialog(visible: …, title: …, closable: …) { … }
-```
-
-```wf
-state asking = false
-Dialog(visible: asking, title: "Leave without saving notes.md?") {
-    Dialog.Title { Markdown("Leave without saving `notes.md`?") }
-    Text("Your draft will be lost.")
-}
-```
-
-Renders with the class `wf-dialog`.
-
-| Prop | Type | Meaning |
-|---|---|---|
-| `visible:` | `State` | State flag that opens and closes it |
-| `title:` | `String` | Heading shown at the top |
-| `closable:` | `Bool` | A close button in the heading row, which closes it as Escape does |
-| `dismiss:` | `.any` `.escape` `.none` | What closes it besides the page's own button |
-| `initialFocus:` | `Any` | What takes the focus when it opens, by its `ref:`; unset, what says `autofocus`, else its first control |
-
-**Flags:** `.closable` `.any` `.escape` `.none`
-
-**Events of its own:** `on close`
-
-**Parts:**
-
-- `Dialog.Title { … }` — What the dialog's heading draws, in place of its `title:`'s words, which stay its name.
-
-Takes a block of children.
-
-Attribute families: `global`, `aria`, `data`.
-
-### AlertDialog
-
-A `<dialog>` that asks before something that cannot be undone: `role="alertdialog"`, its body read out with its title, and closed by Escape or its own buttons, not a press outside. For a question asked from a handler, `await ask(…)` draws one.
-
-```
-AlertDialog(visible: …, title: …, dismiss: …) { … }
-```
-
-```wf
-state sure = false
-Button("Discard") { on click { sure = true } }
-AlertDialog(visible: sure, title: "Discard your changes?") {
-    Text("Your edits will be lost.")
-    AlertDialog.Footer {
-        Button("Keep editing") { on click { sure = false } }
-        Button("Discard").danger { on click { sure = false } }
-    }
-}
-```
-
-Renders with the class `wf-dialog wf-alert-dialog`.
-
-| Prop | Type | Meaning |
-|---|---|---|
-| `visible:` | `State` | State flag that opens and closes it |
-| `title:` | `String` | Heading shown at the top |
-| `dismiss:` | `.any` `.escape` `.none` | What closes it besides the page's own button |
-| `initialFocus:` | `Any` | What takes the focus when it opens, by its `ref:`; unset, what says `autofocus`, else its first control |
-
-**Flags:** `.any` `.escape` `.none`
-
-**Events of its own:** `on close`
-
-**Parts:**
-
-- `AlertDialog.Title { … }` — What the alert dialog's heading draws, in place of its `title:`'s words, which stay its name.
-- `AlertDialog.Footer { … }` — Its answers: the button that loses nothing first.
-
-Takes a block of children.
-
-Attribute families: `global`, `aria`, `data`.
-
-### Sheet
-
-A modal `<dialog>` that comes in from an edge: the bottom (a phone's filters, a share list) or the start or end of the line. Dragged by its handle or heading toward its edge it closes; a bottom sheet with `snap:` points settles at the nearest.
-
-```
-Sheet(visible: …, title: …, closable: …) { … }
-```
-
-```wf
-state filters = false
-state sort = "new"
-Button("Filters") { on click { filters = true } }
-Sheet(visible: filters, title: "Filters", snap: [0.5, 1]).closable {
-    Radio(bind: sort, value: "new", label: "Newest")
-    Radio(bind: sort, value: "price", label: "Price")
-    Sheet.Footer { Button("Show results").primary { on click { filters = false } } }
-}
-state details = false
-Sheet(visible: details, side: .end, title: "Details") { Text("Opened 3 days ago") }
-```
-
-Renders with the class `wf-sheet`.
-
-| Prop | Type | Meaning |
-|---|---|---|
-| `visible:` | `State` | State flag that opens and closes it |
-| `title:` | `String` | Heading shown at the top |
-| `closable:` | `Bool` | A close button in the heading row, which closes it as Escape does |
-| `side:` | `.bottom` `.start` `.end` | The edge it comes in from |
-| `snap:` | `Any` | A bottom sheet's heights, as fractions of the window's, `[0.5, 1]`: it opens at the first |
-| `label:` | `String` | Its accessible name, when it has no `title:` |
-| `dismiss:` | `.any` `.escape` `.none` | What closes it besides the page's own button |
-| `initialFocus:` | `Any` | What takes the focus when it opens, by its `ref:`; unset, what says `autofocus`, else its first control |
-
-**Flags:** `.closable` `.bottom` `.start` `.end` `.any` `.escape` `.none`
-
-**Events of its own:** `on close`
-
-**Parts:**
-
-- `Sheet.Title { … }` — What the sheet's heading draws, in place of its `title:`'s words, which stay its name.
-- `Sheet.Footer { … }` — The sheet's action row, kept in view below what scrolls.
-
-Takes a block of children.
-
-Attribute families: `global`, `aria`, `data`.
-
-### Spinner
-
-Loading indicator, announced as a status.
-
-```
-Spinner(size: …)
-```
-
-```wf
-Spinner
-Spinner.lg
-```
-
-Renders with the class `wf-spinner`.
-
-| Prop | Type | Meaning |
-|---|---|---|
-| `size:` | `.sm` `.md` `.lg` | Its size |
-
-**Flags:** `.sm` `.md` `.lg`
-
-Attribute families: `global`, `aria`, `data`.
-
-### Progress
-
-Progress bar; a `value` that reads state moves with it.
-
-```
-Progress(value: …, max: …)
-```
-
-```wf
-Progress(value: 40, max: 100)
-```
-
-Renders with the class `wf-progress`.
-
-| Prop | Type | Meaning |
-|---|---|---|
-| `value:` | `Number` | Current value |
-| `max:` | `Number` | Value at 100% |
-
-Attribute families: `global`, `aria`, `data`.
-
-### Skeleton
-
-Placeholder shape shown while content loads.
-
-```
-Skeleton(height: …, width: …, size: …)
-```
-
-```wf
-Skeleton(height: "20px", width: "200px")
-Skeleton(size: "48px").circle
-```
-
-Renders with the class `wf-skeleton`.
-
-| Prop | Type | Meaning |
-|---|---|---|
-| `height:` | `String` | CSS height |
-| `width:` | `String` | CSS width |
-| `size:` | `String` | Diameter of a `circle` |
-| `circle:` | `Bool` | A round placeholder |
-
-**Flags:** `.circle`
-
-Attribute families: `global`, `aria`, `data`.
-
 ## Content
 
 ### Callout
@@ -2784,190 +3120,6 @@ Renders with the class `wf-dropdown`.
 
 - `Dropdown.Item { … }` — One entry of the menu.
 - `Dropdown.Divider` — A rule between groups of entries.
-
-Takes a block of children.
-
-Attribute families: `global`, `aria`, `data`.
-
-## Media
-
-### Image
-
-Image; `alt` is required for accessibility (rule A01). Given an `image` the program declares, it becomes a `<picture>` with every width the build wrote.
-
-```
-Image(source, src: …, sizes: …, placeholder: …)
-```
-
-```wf
-Image(src: "/team.jpg", alt: "The team at the launch", width: 1200, height: 630)
-Image(src: "/flourish.svg", alt: "")
-```
-
-Renders with the class `wf-image`.
-
-| Prop | Type | Meaning |
-|---|---|---|
-| `source` (positional) | `Any` | An `image` the program declares, or a URL |
-| `src:` | `String` | Image URL |
-| `sizes:` | `String` | How wide it will be shown, so the browser picks a width: `(max-width: 768px) 100vw, 1200px` |
-| `placeholder:` | `.blur` `.color` `.none` | What fills the box while the image loads |
-| `alt:` | `String` | Text alternative; empty for a purely decorative image |
-| `width:` | `Number` | Intrinsic width |
-| `height:` | `Number` | Intrinsic height |
-| `loading:` | `.lazy` `.eager` | Unset, the first image on a page is eager at high priority and the rest lazy |
-| `shape:` | `.rounded` `.circle` | Shape |
-
-**Flags:** `.blur` `.color` `.none` `.lazy` `.eager` `.rounded` `.circle`
-
-Attribute families: `global`, `aria`, `data`.
-
-### Video
-
-Video player. Without `captions` it draws an `A09` warning: a video nobody can hear is a video nobody can follow.
-
-```
-Video(src: …, controls: …, autoplay: …)
-```
-
-```wf
-Video(src: "/demo.mp4", captions: "/demo.en.vtt", poster: "/demo.jpg").controls
-```
-
-Renders with the class `wf-video`.
-
-| Prop | Type | Meaning |
-|---|---|---|
-| `src:` | `String` | Video URL |
-| `controls:` | `Bool` | Show the browser's playback controls |
-| `autoplay:` | `Bool` | Start playing when shown |
-| `poster:` | `String` | The frame shown before it plays |
-| `muted:` | `Bool` | Start with the sound off |
-| `loop:` | `Bool` | Start again when it ends |
-| `playsinline:` | `Bool` | Play where it sits, rather than full screen |
-| `captions:` | `String` | A WebVTT file of captions, which becomes a `<track>` |
-| `width:` | `Number` | Intrinsic width |
-| `height:` | `Number` | Intrinsic height |
-
-**Flags:** `.controls` `.autoplay` `.muted` `.loop` `.playsinline`
-
-Attribute families: `global`, `aria`, `data`, `media`.
-
-### Audio
-
-Audio player. `transcript` links what was said, which is what a reader who cannot hear it needs.
-
-```
-Audio(src: …, controls: …, autoplay: …)
-```
-
-```wf
-Audio(src: "/episode-1.mp3", transcript: "/episode-1.txt").controls
-```
-
-Renders with the class `wf-audio`.
-
-| Prop | Type | Meaning |
-|---|---|---|
-| `src:` | `String` | Audio URL |
-| `controls:` | `Bool` | Show the browser's playback controls |
-| `autoplay:` | `Bool` | Start playing when shown |
-| `loop:` | `Bool` | Start again when it ends |
-| `transcript:` | `String` | A link to what was said, shown beneath the player |
-
-**Flags:** `.controls` `.autoplay` `.loop`
-
-Attribute families: `global`, `aria`, `data`.
-
-### Frame
-
-Another page, shown inside this one: an `iframe` — the page at `src:`, or the HTML `srcdoc:` gives it, sandboxed as `sandbox:` says. `on message(m)` hears what that page posts to this one (`m.data`), and nothing any other page posts. Without `title:` it draws an `A17` warning: a frame is announced by its title.
-
-```
-Frame(src: …, srcdoc: …, title: …)
-```
-
-```wf
-Frame(src: "https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ", title: "The launch talk", allow: "fullscreen")
-state heard = ""
-Frame(src: "/preview/", title: "Preview", sandbox: "allow-scripts") {
-    on message(m) { heard = m.data }
-}
-state version = 1
-Frame(srcdoc: "<p>Version {version}</p>", title: "Example", sandbox: "")
-```
-
-Renders with the class `wf-frame`.
-
-| Prop | Type | Meaning |
-|---|---|---|
-| `src:` | `String` | The address of the page it shows |
-| `srcdoc:` | `String` | The HTML it draws in place of an address, sandboxed as `sandbox:` says; a value that reads state draws the new HTML as it changes |
-| `title:` | `String` | What it shows, in a few words: its accessible name |
-| `sandbox:` | `String` | What the framed page may do: `"allow-scripts allow-forms"`; empty, it may do nothing |
-| `allow:` | `String` | The features it may use: `"fullscreen; clipboard-write"` |
-| `loading:` | `.lazy` `.eager` | Unset, at once |
-
-**Flags:** `.lazy` `.eager`
-
-**Events of its own:** `on message`, `on load`
-
-Attribute families: `global`, `aria`, `data`.
-
-### Icon
-
-One of the built-in SVG icons, rendered inline.
-
-```
-Icon(name, size: …, tone: …, muted: …)
-```
-
-```wf
-Icon("search")
-Icon("check").lg.success
-```
-
-Renders with the class `wf-icon`.
-
-| Prop | Type | Meaning |
-|---|---|---|
-| `name` (positional) | `String` | The icon name |
-| `size:` | `.sm` `.md` `.lg` | Its size |
-| `tone:` | `.primary` `.secondary` `.success` `.danger` `.warning` `.info` | Colour |
-| `muted:` | `Bool` | Dimmed, for secondary text |
-
-**Flags:** `.sm` `.md` `.lg` `.primary` `.secondary` `.success` `.danger` `.warning` `.info` `.muted`
-
-Attribute families: `global`, `aria`, `data`.
-
-### Carousel
-
-Slide track with named controls and dots; optional autoplay.
-
-```
-Carousel(label: …, autoplay: …, interval: …) { … }
-```
-
-```wf
-Carousel(label: "Recent work", autoplay: true, interval: 5000) {
-    Carousel.Slide { Image(src: "/one.jpg", alt: "A bridge at dusk") }
-    Carousel.Slide { Image(src: "/two.jpg", alt: "The harbour") }
-}
-```
-
-Renders with the class `wf-carousel`.
-
-| Prop | Type | Meaning |
-|---|---|---|
-| `label:` | `String` | Accessible name of the region |
-| `autoplay:` | `Bool` | Advance automatically |
-| `interval:` | `Number` | Milliseconds between slides |
-
-**Flags:** `.autoplay`
-
-**Parts:**
-
-- `Carousel.Slide { … }` — One slide of a carousel.
 
 Takes a block of children.
 

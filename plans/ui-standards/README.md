@@ -655,8 +655,12 @@ Leftovers.
 
 Each group is released on its own:
 
-**Status: groups 1 (forms) and 2 (navigation) done, 2026-11-14; groups 3
-and 4 to come.** Group 2: `Menubar` and `ContextMenu` are drawn on the menu
+**Status: groups 1 (forms), 2 (navigation) and 3 (overlays) done,
+2026-11-14; group 4 to come.** Group 3: `HoverCard`, `LoadingOverlay`,
+`Lightbox`, `Tour` and `ConsentBanner` are rewritten during lowering and
+handed to the `covers` runtime module; `"load": "consent"` is a new
+`meta.scripts` mode. The checks are `tests/browser/overlays2.mjs` (32 in
+Chrome) and `tests/overlays2.rs`. Group 2: `Menubar` and `ContextMenu` are drawn on the menu
 module (`WF.menuBar`, `WF.contextMenu`); `NavigationMenu`,
 `BottomNavigation` and `PrevNext` are rewritten into buttons, panels and
 links during lowering, so they paint in a static build. The checks are
@@ -784,3 +788,16 @@ up together once stage 9 is done. A line comes off when its work lands.
   paints, in a static build, as its items shown rather than a hidden menu.
 - `BottomNavigation` shows at every width; hiding it on a wide screen is
   the page's `style { @md { display: none } }`.
+
+### From stage 8, group 3
+
+- `ConsentBanner` has no way back: a "cookie settings" link that asks
+  again, and a `consent` value a page can read, are still to come.
+- A config with `"load": "consent"` scripts and no `ConsentBanner` loads
+  them never, and nothing warns of it.
+- `Tour` and the lightbox say Back, Next, Done, Close and `1 of 3` in
+  English; their words are not yet props or translations.
+- A `Lightbox` zooms to the picture's own size, one step; there is no
+  pinch, and no pan but scrolling.
+- `LoadingOverlay` keeps its content `inert` only on the live page; the
+  static paint is never busy.

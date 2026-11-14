@@ -119,7 +119,8 @@ pub fn generate_html(config: &ProjectConfig, program: &Program) -> String {
 /// it, and a name a script declares is there when the page's code runs.
 /// A library marked `async` keeps no place in that order: it runs when it
 /// arrives, and nothing waits for it. One marked `"load": "after"` has no
-/// tag at all: the runtime asks for it once the page has painted.
+/// tag at all: the runtime asks for it once the page has painted; nor has
+/// one marked `"load": "consent"`, which waits for the reader's yes.
 pub fn script_tags(config: &ProjectConfig, root: &str) -> String {
     let mut out = String::new();
     let mut linked: Vec<&str> = Vec::new();
@@ -127,7 +128,7 @@ pub fn script_tags(config: &ProjectConfig, root: &str) -> String {
         .meta
         .scripts
         .iter()
-        .filter(|s| !s.is_module() && !s.loads_after())
+        .filter(|s| !s.is_module() && !s.loads_after() && !s.loads_on_consent())
     {
         // One library listed twice — once plain, once for its globals — is
         // loaded once.

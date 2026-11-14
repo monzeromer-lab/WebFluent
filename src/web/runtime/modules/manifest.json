@@ -1106,6 +1106,42 @@
     },
     {
       "deps": [
+        "layer",
+        "overlay",
+        "gesture",
+        "later"
+      ],
+      "exports": [
+        [
+          "hoverCard",
+          "hoverCard"
+        ],
+        [
+          "loadingOverlay",
+          "loadingOverlay"
+        ],
+        [
+          "lightbox",
+          "lightbox"
+        ],
+        [
+          "tour",
+          "tour"
+        ],
+        [
+          "consentScripts",
+          "consentScripts"
+        ],
+        [
+          "consentBanner",
+          "consentBanner"
+        ]
+      ],
+      "name": "covers",
+      "triggers": []
+    },
+    {
+      "deps": [
         "focus",
         "each",
         "layer"

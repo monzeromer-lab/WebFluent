@@ -856,6 +856,19 @@ fn run(options: &BuildOptions<'_>, out: &Out<'_>) -> Result<()> {
             })
             .collect(),
     );
+    js_codegen.set_consent_scripts(
+        config
+            .meta
+            .scripts
+            .iter()
+            .filter(|s| s.loads_on_consent())
+            .map(|s| {
+                let src = s.src().to_string();
+                let integrity = config.meta.integrity.get(&src).cloned();
+                (src, integrity)
+            })
+            .collect(),
+    );
     if !config.build.base_path.is_empty() {
         js_codegen.set_base_path(config.build.base_path.clone());
     }

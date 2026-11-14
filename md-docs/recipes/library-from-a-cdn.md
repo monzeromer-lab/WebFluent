@@ -95,6 +95,12 @@ An entry may be an object instead of a URL, to say how it loads.
   first second is not counted. The same limits as `async` apply (`E111`).
   The confetti above could load this way too, since nothing calls it until
   a press, and `celebrate` does nothing if pressed before it arrives.
+- **Only with consent.** `{ "src": "…", "load": "consent" }` puts no tag in
+  the HTML either, and the runtime requests the script only once the reader
+  has pressed Accept in a `ConsentBanner` — on that visit and every visit
+  after. Decline, or no answer yet, and nothing is fetched. Place the
+  banner once, in `app`: `ConsentBanner("We would like to count visits.")`.
+  The same limits as `async` apply (`E111`).
 - **As a module.** `{ "src": "https://…/confetti.mjs", "module": true,
   "as": "Confetti" }` imports an ES module and puts its exports on
   `window.Confetti`. Most CDNs also serve a plain build, which needs

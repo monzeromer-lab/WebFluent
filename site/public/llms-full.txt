@@ -3053,9 +3053,9 @@ The built-ins fall into these families:
 | Data display | `Card`, `Table`, `DataTable`, `Tree`, `List`, `Badge`, `Tag`, `Avatar`, `Tooltip` ([Lists of data](/learn/15-data#lists-of-data-a-table-a-tree-a-search)) |
 | Content | `Callout`, `Kbd`, `EmptyState`, `Stat`, `CodeBlock`, `Chip`, `Accordion`, `VisuallyHidden` ([below](#content-a-note-a-key-a-figure)) |
 | Forms | `Form`, `Input`, `Textarea`, `Select`, `Checkbox`, `Radio`, `Switch`, `Slider`, `DatePicker`, `FileUpload`, `Field`, `Fieldset`, `InputGroup`, `RadioGroup`, `NumberInput`, `Calendar`, `Listbox`, `Combobox`, `CheckboxGroup`, `InputOTP`, `TagInput`, `Rating`, `DateRangePicker` ([Forms](/learn/14-forms)) |
-| Feedback | `Alert`, `Toast`, `Modal`, `Dialog`, `Popover`, `Spinner`, `Progress`, `Skeleton` ([Events](/learn/08-events#overlays-modals-dialogs-toasts-and-menus)) |
+| Feedback | `Alert`, `Toast`, `Modal`, `Dialog`, `Popover`, `Spinner`, `Progress`, `Skeleton`, `HoverCard`, `LoadingOverlay`, `Tour`, `ConsentBanner` ([Events](/learn/08-events#overlays-modals-dialogs-toasts-and-menus)) |
 | Actions | `Button`, `IconButton`, `ButtonGroup`, `Dropdown`, `CopyButton`, `ThemeToggle`, `LocaleSwitch`, `Toggle`, `ToggleGroup` |
-| Media | `Image`, `Video`, `Audio`, `Frame`, `Icon`, `Carousel` ([Add a picture](/recipes/add-a-picture), [Video and audio](/recipes/video-and-audio)) |
+| Media | `Image`, `Video`, `Audio`, `Frame`, `Icon`, `Carousel`, `Lightbox` ([Add a picture](/recipes/add-a-picture), [Video and audio](/recipes/video-and-audio)) |
 | Typography | `Text`, `Heading`, `Paragraph`, `Code`, `Blockquote`, `Markdown`, `Unsafe.Html` |
 | Somebody else's code | `Host`, `Element`, `Portal` ([Call your own JavaScript](/recipes/call-your-own-script), [Hand an element to a script](/recipes/hand-an-element-to-a-script)) |
 | Documents and decks | `Document`, `PageBreak`, `TableOfContents`, `Background`, `Watermark`, `Chart`, `QrCode`, `Presentation`, `Slide`, `TitleSlide`, `SectionSlide`, `TwoColumn`, `ImageSlide` ([PDF and slides](/learn/17-pdf-and-slides)) |
@@ -4130,6 +4130,11 @@ page Editor(path: "/", title: "Editor", description: "Layers at a control and at
   happened — or, for a keyboard, at the focused element on the menu key or
   Shift+F10. `ContextMenu { Text("Right-click here")  ContextMenu.Items {
   Menu.Item { Text("Rename") } } }` needs no state.
+- **`HoverCard`** previews what a link points at — `HoverCard {
+  Link("@ada", to: "/u/ada")  HoverCard.Content { … } }` — after the pointer
+  rests on it, or at once on focus; **`Tour`** walks a reader through the
+  page a step at a time, each `Tour.Step(target:)` lit through a cut-out
+  in the dimmed page.
 - **`Menubar`** is a desktop app's File, Edit and View: `Menubar {
   Menubar.Menu("File") { Menu.Item(shortcut: "mod+n") { Text("New") } } }`.
   It is one Tab stop; the arrow keys go along it, and with a menu open Left
@@ -13884,6 +13889,12 @@ An entry may be an object instead of a URL, to say how it loads.
   first second is not counted. The same limits as `async` apply (`E111`).
   The confetti above could load this way too, since nothing calls it until
   a press, and `celebrate` does nothing if pressed before it arrives.
+- **Only with consent.** `{ "src": "…", "load": "consent" }` puts no tag in
+  the HTML either, and the runtime requests the script only once the reader
+  has pressed Accept in a `ConsentBanner` — on that visit and every visit
+  after. Decline, or no answer yet, and nothing is fetched. Place the
+  banner once, in `app`: `ConsentBanner("We would like to count visits.")`.
+  The same limits as `async` apply (`E111`).
 - **As a module.** `{ "src": "https://…/confetti.mjs", "module": true,
   "as": "Confetti" }` imports an ES module and puts its exports on
   `window.Confetti`. Most CDNs also serve a plain build, which needs
@@ -22762,6 +22773,8 @@ Each of these is a function of the value it works on.
 | `picture(asset, options)` | `picture` | An `image`'s `<picture>`. |
 | `offline(options)`, `update()`, `clearQueued()` | `offline` | The service worker, the update flow, and forgetting the writes kept offline. |
 | `loadAfter(scripts)` | `later` | Loads the `meta.scripts` entries marked `"load": "after"` once the page has painted. |
+| `consentScripts(scripts)`, `consentBanner(node)` | `covers` | The `meta.scripts` entries marked `"load": "consent"`, loaded once the reader accepts in a `ConsentBanner` (and on every visit after). |
+| `hoverCard(node, delay)`, `loadingOverlay(node, read)`, `lightbox(node, label)`, `tour(node, read, targets)` | `covers` | What `HoverCard`, `LoadingOverlay`, `Lightbox` and `Tour` compile to. |
 | `__debug`, `__reg` | `debug` | For WebFluent Studio. |
 
 `portal(box, read)` keeps `box` in the element, or `ref:` handle, that
@@ -24137,6 +24150,7 @@ An entry of `meta.scripts` takes one of these forms:
 | `{ "src": "…", "globals": ["Chart"] }` | A script whose names `.wf` may call directly. |
 | `{ "src": "…", "async": true }` | A script nothing waits for — analytics — loaded without holding up the page's code. |
 | `{ "src": "…", "load": "after" }` | A script the page asks for only once it has loaded and painted. |
+| `{ "src": "…", "load": "consent" }` | A script the page asks for only once the reader has accepted it in a `ConsentBanner`. |
 
 ## `theme`
 

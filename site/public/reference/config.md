@@ -283,6 +283,7 @@ An entry of `meta.scripts` takes one of these forms:
 | `{ "src": "…", "globals": ["Chart"] }` | A script whose names `.wf` may call directly. |
 | `{ "src": "…", "async": true }` | A script nothing waits for — analytics — loaded without holding up the page's code. |
 | `{ "src": "…", "load": "after" }` | A script the page asks for only once it has loaded and painted. |
+| `{ "src": "…", "load": "consent" }` | A script the page asks for only once the reader has accepted it in a `ConsentBanner`. |
 
 ## `theme`
 

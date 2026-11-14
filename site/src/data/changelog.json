@@ -401,6 +401,39 @@
     "after": ""
    },
    {
+    "title": "More overlays",
+    "id": "6.2.0-more-overlays",
+    "intro": "",
+    "items": [
+     {
+      "text": "`HoverCard { Link(…)  HoverCard.Content { … } }` previews what a link\npoints at, on hover or focus.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`LoadingOverlay(visible: saving) { … }` covers a region while it is\nbusy, and keeps its content out of reach.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`Lightbox { Image(…) … }` opens its pictures full screen, with the arrow\nkeys, a swipe and zoom.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`Tour(open: touring) { Tour.Step(target: newBtn, title: \"New\") { … } }`\nwalks through the page, each target lit through a cut-out.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`ConsentBanner(\"…\")` asks before anything tracks the reader: a\n`meta.scripts` entry marked `\"load\": \"consent\"` loads only once they\naccept, and Decline is as easy as Accept.",
+      "points": [],
+      "after": ""
+     }
+    ],
+    "after": ""
+   },
+   {
     "title": "Fixes",
     "id": "6.2.0-fixes",
     "intro": "",
@@ -553,7 +586,7 @@
     "after": ""
    }
   ],
-  "count": 87
+  "count": 92
  },
  {
   "version": "6.1.0",

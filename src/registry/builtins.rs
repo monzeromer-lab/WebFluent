@@ -1364,6 +1364,110 @@ pub const COMPONENTS: &[ComponentSig] = &[
         G,
         Children::None,
     ),
+    comp(
+        "HoverCard",
+        "Feedback",
+        "A preview card at a link or a button: shown after `delay:` ms of hover, at once on focus; it stays while the pointer is on it, and goes when the pointer leaves both, on Escape or on a press outside.",
+        None,
+        &[special("delay", PropType::Num, "How long the pointer rests before it shows, in ms (unset, 500)")],
+        &["Content"],
+        G,
+        Children::Elements,
+    )
+    .html("div", "wf-hover-card")
+    .css(&["Layer", "Hover Card"])
+    .not_on_paper("interactive elements are not supported in PDF"),
+    part(
+        "HoverCard",
+        "Content",
+        Ir::Sub("HoverCard", "Content"),
+        "What the card shows. The rest of the block is what it is at.",
+        None,
+        &[],
+        G,
+        Children::Elements,
+    )
+    .html("div", "wf-hover-card__content"),
+    comp(
+        "LoadingOverlay",
+        "Feedback",
+        "A region covered while it is busy: `aria-busy` on it, its content out of reach, and a spinner with `label:` over it — the region, not the page.",
+        None,
+        &[
+            required(special("visible", PropType::Bool, "While it holds, the region is busy")),
+            special("label", PropType::Str, "What it is busy with (unset, `Loading`)"),
+        ],
+        &["Content", "Cover"],
+        G,
+        Children::Elements,
+    )
+    .html("div", "wf-loading-overlay")
+    .css(&["Spinner", "Loading Overlay"])
+    .not_on_paper("interactive elements are not supported in PDF"),
+    part("LoadingOverlay", "Content", Ir::Sub("LoadingOverlay", "Content"), "The region. Drawn for it.", None, &[], G, Children::Elements)
+        .html("div", "wf-loading-overlay__content"),
+    part("LoadingOverlay", "Cover", Ir::Sub("LoadingOverlay", "Cover"), "What covers it while it is busy. Drawn for it.", None, &[], G, Children::Elements)
+        .html("div", "wf-loading-overlay__cover"),
+    comp(
+        "Lightbox",
+        "Media",
+        "Every picture in its block opens, on a press or Enter, full screen: the arrow keys and a swipe go between them, a double press or `+` zooms, Escape closes and the focus goes back. A picture's `data-full:` is the file it opens, else its largest size.",
+        None,
+        &[special("label", PropType::Str, "What the pictures are, for a screen reader (unset, `Pictures`)")],
+        &[],
+        G,
+        Children::Elements,
+    )
+    .html("div", "wf-lightbox")
+    .css(&["Lightbox"])
+    .on_paper(),
+    ComponentSig {
+        events: &["close", "finish"],
+        ..comp(
+            "Tour",
+            "Feedback",
+            "A tour of the page while `open:` holds: each step in a card at its `target:` (a `ref:`), lit through a cut-out in the dimmed page, with Back, Next and Done; Escape ends it and writes `false` back. `on finish` hears Done, `on close` any end.",
+            None,
+            &[required(special("open", PropType::State, "Whether the tour is showing; written `false` when it ends"))],
+            &["Step"],
+            G,
+            Children::Elements,
+        )
+    }
+    .html("div", "wf-tour")
+    .css(&["Button", "Layer", "Tour"])
+    .not_on_paper("interactive elements are not supported in PDF"),
+    part(
+        "Tour",
+        "Step",
+        Ir::Sub("Tour", "Step"),
+        "One step: what it points at, its title, and its block.",
+        None,
+        &[
+            required(special("target", PropType::Any, "The element it points at: a `ref:`")),
+            special("title", PropType::Str, "Its heading"),
+        ],
+        G,
+        Children::Elements,
+    )
+    .html("div", "wf-tour__step"),
+    comp(
+        "ConsentBanner",
+        "Feedback",
+        "The reader's say over the scripts that track them: shown until they choose, Decline as easy as Accept, and the choice kept. Accepting loads the `meta.scripts` entries marked `\"load\": \"consent\"`, then and on every later visit; nothing loads before.",
+        Some(required(special("text", PropType::Str, "What is asked"))),
+        &[
+            special("accept", PropType::Str, "The yes button's words (unset, `Accept`)"),
+            special("decline", PropType::Str, "The no button's words (unset, `Decline`)"),
+            special("label", PropType::Str, "The banner's name for a screen reader (unset, `Cookies`)"),
+        ],
+        &[],
+        G,
+        Children::Elements,
+    )
+    .html("section", "wf-consent")
+    .css(&["Button", "Consent Banner"])
+    .not_on_paper("interactive elements are not supported in PDF"),
     // ─── Data display ─────────────────────────────────────────────────────
     comp(
         "Card",

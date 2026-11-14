@@ -130,6 +130,9 @@ pub struct JsCodegen {
     /// `meta.scripts` entries loaded `"after"` the page, with their
     /// integrity hashes: asked for by the runtime once the page has painted.
     later: Vec<(String, Option<String>)>,
+    /// `meta.scripts` entries loaded only on the reader's consent
+    /// (`"load": "consent"`), with their integrity hashes.
+    consented: Vec<(String, Option<String>)>,
     /// Ship every runtime module rather than the ones the program reaches
     /// (`build.runtime: "full"`).
     full_runtime: bool,
@@ -396,6 +399,7 @@ impl JsCodegen {
             shapes: Default::default(),
             offline: None,
             later: Vec::new(),
+            consented: Vec::new(),
             consts: Vec::new(),
             static_scope: None,
             env: std::collections::BTreeMap::default(),
@@ -631,6 +635,12 @@ impl JsCodegen {
     /// `meta.integrity` hash when it has one.
     pub fn set_later_scripts(&mut self, scripts: Vec<(String, Option<String>)>) {
         self.later = scripts;
+    }
+
+    /// The scripts `meta.scripts` loads only once the reader has accepted
+    /// them in a `ConsentBanner`, each with its `meta.integrity` hash.
+    pub fn set_consent_scripts(&mut self, scripts: Vec<(String, Option<String>)>) {
+        self.consented = scripts;
     }
 
     /// The values `env.NAME` reads, from the project's config.
@@ -1047,9 +1057,15 @@ impl JsCodegen {
         }
         // Scripts nothing on the page waits for, asked for once it has
         // painted.
-        if !self.later.is_empty() {
-            let list: Vec<String> = self
-                .later
+        let lists = [
+            ("loadAfter", self.later.clone()),
+            ("consentScripts", self.consented.clone()),
+        ];
+        for (call, scripts) in lists {
+            if scripts.is_empty() {
+                continue;
+            }
+            let list: Vec<String> = scripts
                 .iter()
                 .map(|(src, integrity)| {
                     let src = serde_json::to_string(src).unwrap_or_default();
@@ -1062,7 +1078,8 @@ impl JsCodegen {
                     }
                 })
                 .collect();
-            self.emit_line(&format!("WF.loadAfter([{}]);", list.join(", ")));
+            let line = format!("WF.{call}([{}]);", list.join(", "));
+            self.emit_line(&line);
         }
 
         // Emit i18n setup if configured

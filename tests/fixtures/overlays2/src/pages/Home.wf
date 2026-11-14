@@ -1,0 +1,45 @@
+// The second group of overlays, each on the one page
+// `tests/browser/overlays2.mjs` drives: a card a link previews, a region
+// covered while it is busy, pictures opened full screen, a tour of the
+// page, and the reader's say over a script that counts them.
+page Home(path: "/", title: "Overlays", description: "Covers, cards and a tour.") {
+    state saving = false
+    state touring = false
+    state heard = ""
+    state q = ""
+
+    Heading("Overlays").h1
+    Text("heard {heard}", id: "heard")
+
+    HoverCard(delay: 200) {
+        Link("@ada", to: "/")
+        HoverCard.Content {
+            Text("Ada Lovelace")
+            Link("Profile", to: "/")
+        }
+    }
+
+    Button("Busy", id: "busy") { on click { saving = !saving } }
+    LoadingOverlay(visible: saving, label: "Saving", id: "region") {
+        Card { Button("Inside", id: "inside") }
+    }
+
+    Lightbox(label: "Trip") {
+        Image(src: "/harbour.png", alt: "The harbour")
+        Image(src: "/hills.png", alt: "The hills")
+    }
+
+    Button("New", ref: newBtn, id: "new")
+    Input(bind: q, label: "Search", ref: search)
+    Button("Take the tour", id: "start") { on click { touring = true } }
+    Text(if touring { "touring" } else { "idle" }, id: "touring")
+    Tour(open: touring) {
+        on finish { heard = "finished" }
+        Tour.Step(target: newBtn, title: "New") { Text("Start here.") }
+        Tour.Step(target: search, title: "Search") { Text("Find anything.") }
+    }
+
+    ConsentBanner("We would like to count visits.") {
+        Link("How we count", to: "/")
+    }
+}

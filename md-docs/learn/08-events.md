@@ -504,6 +504,11 @@ page Editor(path: "/", title: "Editor", description: "Layers at a control and at
   happened — or, for a keyboard, at the focused element on the menu key or
   Shift+F10. `ContextMenu { Text("Right-click here")  ContextMenu.Items {
   Menu.Item { Text("Rename") } } }` needs no state.
+- **`HoverCard`** previews what a link points at — `HoverCard {
+  Link("@ada", to: "/u/ada")  HoverCard.Content { … } }` — after the pointer
+  rests on it, or at once on focus; **`Tour`** walks a reader through the
+  page a step at a time, each `Tour.Step(target:)` lit through a cut-out
+  in the dimmed page.
 - **`Menubar`** is a desktop app's File, Edit and View: `Menubar {
   Menubar.Menu("File") { Menu.Item(shortcut: "mod+n") { Text("New") } } }`.
   It is one Tab stop; the arrow keys go along it, and with a menu open Left

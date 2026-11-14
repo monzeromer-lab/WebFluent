@@ -673,23 +673,31 @@ pub fn config_checks_via(
     // its globals before they exist.
     for entry in &config.meta.scripts {
         if let crate::project::config::project::ScriptEntry::Spec(spec) = entry
-            && spec.load == crate::project::config::project::ScriptLoad::After
+            && spec.load != crate::project::config::project::ScriptLoad::Page
         {
+            let (when, setting) =
+                if spec.load == crate::project::config::project::ScriptLoad::Consent {
+                    ("once the reader consents", "\"load\": \"consent\"")
+                } else {
+                    ("after the page", "\"load\": \"after\"")
+                };
             let problem = if spec.module {
                 Some((
                     format!(
-                        "`meta.scripts` loads `{}` after the page, but it is a module",
+                        "`meta.scripts` loads `{}` {when}, but it is a module",
                         spec.src
                     ),
-                    "A module is imported by the page's loader; drop `\"load\": \"after\"`",
+                    format!("A module is imported by the page's loader; drop `{setting}`"),
                 ))
             } else if !spec.globals.is_empty() {
                 Some((
                     format!(
-                        "`meta.scripts` loads `{}` after the page, but `.wf` code calls its globals",
+                        "`meta.scripts` loads `{}` {when}, but `.wf` code calls its globals",
                         spec.src
                     ),
-                    "It arrives after the page's code has run: drop `\"load\": \"after\"`, or call it from a project script that waits for it",
+                    format!(
+                        "It arrives after the page's code has run: drop `{setting}`, or call it from a project script that waits for it"
+                    ),
                 ))
             } else {
                 None
@@ -1155,6 +1163,25 @@ mod tests {
         assert!(
             !found.iter().any(|d| d.code == "E112"),
             "`load` is a key the config reads: {found:?}"
+        );
+    }
+
+    #[test]
+    fn a_script_loaded_on_consent_may_not_be_a_module_or_have_globals() {
+        let found = config_findings(
+            r#"{"name":"t","meta":{"scripts":[
+                {"src":"https://a.example/a.js","load":"consent"},
+                {"src":"https://c.example/c.js","load":"consent","globals":["C"]}]}}"#,
+        );
+        let e111: Vec<&str> = found
+            .iter()
+            .filter(|d| d.code == "E111")
+            .map(|d| d.message.as_str())
+            .collect();
+        assert_eq!(e111.len(), 1, "{e111:?}");
+        assert!(
+            e111[0].contains("c.js") && e111[0].contains("once the reader consents"),
+            "{e111:?}"
         );
     }
 

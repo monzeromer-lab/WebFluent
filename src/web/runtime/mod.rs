@@ -175,6 +175,10 @@ pub const MODULES: &[Module] = &[
     module!("navigation", exports: [
         same("navMenu"), same("menuBar"), same("contextMenu"),
     ], deps: ["layer", "gesture"], triggers: []),
+    module!("covers", exports: [
+        same("hoverCard"), same("loadingOverlay"), same("lightbox"), same("tour"),
+        same("consentScripts"), same("consentBanner"),
+    ], deps: ["layer", "overlay", "gesture", "later"], triggers: []),
     module!("collections", exports: [
         same("listbox"), same("tree"), same("dataTable"), same("combobox"), same("commandPalette"),
     ], deps: ["focus", "each", "layer"], triggers: []),
