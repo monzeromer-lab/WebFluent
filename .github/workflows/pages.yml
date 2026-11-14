@@ -49,7 +49,7 @@ jobs:
       # The pages written from md-docs/ and the compiler are committed;
       # one that is behind would publish an old page.
       - name: The site's generated files are current
-        run: WF_BIN=target/release/wf python3 scripts/docsite --check
+        run: WF_BIN="$GITHUB_WORKSPACE/target/release/wf" python3 scripts/docsite --check
 
       - name: Build the site
         run: target/release/wf build -d site --allow-output-outside
