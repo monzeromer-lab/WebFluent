@@ -99,7 +99,7 @@ fn a_web_project_is_offered_everything_with_paper_last() {
 
 #[test]
 fn a_presentation_holds_slides_and_a_slide_holds_the_rest() {
-    let decl = "component Stat(_ n: String) {\n    Slide { Heading(n).h1 }\n}\n";
+    let decl = "component Point(_ n: String) {\n    Slide { Heading(n).h1 }\n}\n";
     let in_deck =
         format!("{decl}page D(path: \"/\") {{\n    Presentation {{\n        |\n    }}\n}}\n");
     let items = offered(&in_deck, OutputType::Slides);
@@ -109,7 +109,7 @@ fn a_presentation_holds_slides_and_a_slide_holds_the_rest() {
         "SectionSlide",
         "TwoColumn",
         "ImageSlide",
-        "Stat",
+        "Point",
     ] {
         assert!(
             items.iter().any(|i| i == slide),
@@ -135,7 +135,7 @@ fn a_presentation_holds_slides_and_a_slide_holds_the_rest() {
     }
     for other in [
         "Slide",
-        "Stat",
+        "Point",
         "Header",
         "Footer",
         "PageBreak",

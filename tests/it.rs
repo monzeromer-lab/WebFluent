@@ -30,6 +30,7 @@ mod bundle_size;
 mod check_threads;
 #[path = "checks.rs"]
 mod checks;
+mod choosing;
 #[path = "codegen_fixes.rs"]
 mod codegen_fixes;
 #[path = "codegen_fixes_0b.rs"]

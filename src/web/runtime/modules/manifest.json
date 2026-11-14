@@ -1024,6 +1024,17 @@
       "triggers": []
     },
     {
+      "deps": [],
+      "exports": [
+        [
+          "calendar",
+          "calendar"
+        ]
+      ],
+      "name": "calendar",
+      "triggers": []
+    },
+    {
       "deps": [
         "theme",
         "announce"

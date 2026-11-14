@@ -1,6 +1,6 @@
 /// Chapter 14 of the guide, written from md-docs/learn/14-forms.md by
 /// scripts/docsite/guide.py; edit the guide, not this file.
-page Learn14Forms(path: "/learn/14-forms", title: "Forms and validation", description: "Bind every control to state, use the Form handle, write validate rules, upload files, send a form to an API, and show server errors and pending state.", layout: DocsShell("Forms and validation", kind: .tutorial, chapter: t("nav.group.build"), blurb: "Bind controls to state, validate what the reader types, upload files, and show what the server said.", source: "md-docs/learn/14-forms.md", sections: [Anchor(id: "before-you-start", label: "Before you start"), Anchor(id: "bind-a-control-to-state", label: "Bind a control to state"), Anchor(id: "add-a-label-a-hint-or-your-own-error", label: "Add a label, a hint or your own error"), Anchor(id: "group-controls-in-a-form", label: "Group controls in a form"), Anchor(id: "validate-a-field", label: "Validate a field"), Anchor(id: "upload-a-file", label: "Upload a file"), Anchor(id: "send-a-form-to-a-server", label: "Send a form to a server"), Anchor(id: "show-that-a-request-is-running", label: "Show that a request is running"), Anchor(id: "checklist-for-a-good-form", label: "Checklist for a good form"), Anchor(id: "troubleshooting", label: "Troubleshooting"), Anchor(id: "common-mistakes", label: "Common mistakes")], learned: ["Bind any control to a state, a store member or a list item with `bind:`", "Write `validate` rules and let the bound control show their messages", "Read the whole form through `Form(bind: form)`: `form.valid`, `form.errors`, `form.apply`", "Upload a file and follow its progress", "Send a form to an `api` and show what the server answered"], prevTo: "/learn/13-styling", prevLabel: t("ch.13"), nextTo: "/learn/15-data", nextLabel: t("ch.15"))) {
+page Learn14Forms(path: "/learn/14-forms", title: "Forms and validation", description: "Bind every control to state, use the Form handle, write validate rules, upload files, send a form to an API, and show server errors and pending state.", layout: DocsShell("Forms and validation", kind: .tutorial, chapter: t("nav.group.build"), blurb: "Bind controls to state, validate what the reader types, upload files, and show what the server said.", source: "md-docs/learn/14-forms.md", sections: [Anchor(id: "before-you-start", label: "Before you start"), Anchor(id: "bind-a-control-to-state", label: "Bind a control to state"), Anchor(id: "add-a-label-a-hint-or-your-own-error", label: "Add a label, a hint or your own error"), Anchor(id: "group-controls-in-a-form", label: "Group controls in a form"), Anchor(id: "validate-a-field", label: "Validate a field"), Anchor(id: "upload-a-file", label: "Upload a file"), Anchor(id: "send-a-form-to-a-server", label: "Send a form to a server"), Anchor(id: "show-that-a-request-is-running", label: "Show that a request is running"), Anchor(id: "choosing-toggles-groups-steps-and-days", label: "Choosing: toggles, groups, steps and days"), Anchor(id: "checklist-for-a-good-form", label: "Checklist for a good form"), Anchor(id: "troubleshooting", label: "Troubleshooting"), Anchor(id: "common-mistakes", label: "Common mistakes")], learned: ["Bind any control to a state, a store member or a list item with `bind:`", "Write `validate` rules and let the bound control show their messages", "Read the whole form through `Form(bind: form)`: `form.valid`, `form.errors`, `form.apply`", "Upload a file and follow its progress", "Send a form to an `api` and show what the server answered"], prevTo: "/learn/13-styling", prevLabel: t("ch.13"), nextTo: "/learn/15-data", nextLabel: t("ch.15"))) {
     Stack(gap: .lg) {
         Markdown("This chapter is about forms in WebFluent: controls that read and write state, rules that say what each value must be, and a submit that sends the form to a server and shows what came back.\n\nYou will be able to:\n\n- bind any control to a state, in both directions;\n- validate a field with a `validate` block, without writing the error messages' markup;\n- know whether the whole form is valid, and submit it;\n- upload a file and show its progress;\n- show the errors a server sends back, and a busy state while a request runs.\n\nWebFluent writes the accessible parts for you: a real `<label>` for every label, `aria-describedby` for hints and errors, `aria-invalid`, errors announced as they appear, and focus moved to the first problem.")
 
@@ -473,6 +473,36 @@ page Notes(path: "/notes", title: "Notes", description: "Save a note.") {
 }"#, title: "wf")
 
         Markdown("- **A button or a form waits for its work.** A `Button`'s `on click` or a `Form`'s `on submit` that calls an action that awaits is busy until that call ends: `aria-busy`, a press that does nothing, and, past a moment, a spinner in place of its label at the same width. The focus stays on it. Nothing has to be written for it.\n- **A double click submits once.** A call of an action with the same arguments as one still running *is* that call: the work is not done twice, and both get the same answer. A call with other arguments — the next row's save — runs beside it. An action whose every call should run, a poll, says so: `action poll() concurrent \{ … \}`.\n- **`loading:`** keeps any button busy while a value holds — another button's work, a store's state.\n\nReading `.pending` on an action that awaits nothing is `T17`.")
+
+        Heading("Choosing: toggles, groups, steps and days", id: "choosing-toggles-groups-steps-and-days").h2
+
+        Markdown("Some choices are not a text field. These built-ins draw them, each with the keyboard a reader expects:")
+
+        CodeBlock(#"page Order(path: "/", title: "Order", description: "Choose how it is sent.") {
+    state view = "grid"
+    state plan = "free"
+    state qty = 1
+    state step = 0
+    state day: Date? = null
+    Heading("Order").h1
+    ToggleGroup(bind: view, label: "View") {
+        ToggleGroup.Item("Grid", value: "grid", icon: "grid")
+        ToggleGroup.Item("List", value: "list", icon: "list")
+    }
+    RadioGroup(bind: plan, label: "Plan").cards {
+        RadioGroup.Option("Free", value: "free", hint: "For trying it out")
+        RadioGroup.Option("Team", value: "team", hint: "€8 a seat")
+    }
+    NumberInput(bind: qty, min: 1, max: 9, label: "Quantity")
+    Stepper(bind: step) {
+        Stepper.Step("Address") { Text("Where it goes.") }
+        Stepper.Step("Delivery") {
+            Calendar(bind: day, disabled: d => d.weekday() >= 6, label: "Delivery day")
+        }
+    }
+}"#, title: "wf")
+
+        Markdown("- **`Toggle`** is one button that stays pressed; **`ToggleGroup`** is a row of them, one chosen (or several, `.multiple`). Tab stops once on the group, and the arrow keys move inside it.\n- **`RadioGroup`** is native radio buttons under a legend; `.cards` draws each as a card with its hint.\n- **`NumberInput`** steps with − and +, the arrow keys, and PageUp and PageDown, and stays between `min:` and `max:`.\n- **`Pagination(bind: page, pages: n)`** draws the pages of a list, with gaps for the ones it leaves out.\n- **`Stepper`** shows one step at a time and each step's state.\n- **`Calendar`** is a month a keyboard can work: the arrows by day and week (the other way round right to left), PageUp and PageDown by month. `.range` holds `\{ start, end \}`, `.multiple` a list.")
 
         Heading("Checklist for a good form", id: "checklist-for-a-good-form").h2
 

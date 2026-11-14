@@ -1646,6 +1646,8 @@ fn render_ui_element_unmarked(ui: &UIElement, ctx: &mut RenderContext<'_>) -> St
         ComponentRef::SubComponent(parent, sub)
             if let Some(sig) = crate::registry::declared_part(parent, sub) =>
         {
+            // Over the names in reach, as a built-in is drawn.
+            ctx.paint.scope = ctx.scope();
             crate::web::codegen::ssg::render_declared_part(sig, ui, ctx)
         }
         ComponentRef::SubComponent(parent, sub) => {

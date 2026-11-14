@@ -1,5 +1,5 @@
 {
- "count": 154,
+ "count": 174,
  "families": [
   "Layout",
   "Navigation",
@@ -2728,6 +2728,723 @@
      "kind": "C04",
      "title": "An attribute a built-in does not declare",
      "to": "/errors/C04"
+    }
+   ]
+  },
+  {
+   "name": "Pagination",
+   "slug": "pagination",
+   "family": "Navigation",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Pages of a list: Previous, the first and last pages, those around the current one with a gap for the rest, and Next. The current page is `aria-current=\"page\"`; `bind:` holds it, from 1.",
+   "plain": "Pages of a list: Previous, the first and last pages, those around the current one with a gap for the rest, and Next. The current page is aria-current=\"page\"; bind: holds it, from 1.",
+   "signature": "Pagination(bind: State, pages: Number, siblings: Number, …)",
+   "block": false,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "bind:",
+     "type": "State  (required)",
+     "meaning": "The current page, from 1"
+    },
+    {
+     "name": "pages:",
+     "type": "Number  (required)",
+     "meaning": "How many pages there are"
+    },
+    {
+     "name": "siblings:",
+     "type": "Number",
+     "meaning": "How many pages either side of the current one it shows (unset, 1)"
+    },
+    {
+     "name": "label:",
+     "type": "String",
+     "meaning": "Its name for a screen reader; unset, `Pagination`"
+    }
+   ],
+   "controls": [
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [],
+   "parts": [
+    {
+     "name": "Pagination.Prev",
+     "kind": "pagination-prev",
+     "detail": "The previous page. Drawn for it.",
+     "fallback": ""
+    },
+    {
+     "name": "Pagination.Next",
+     "kind": "pagination-next",
+     "detail": "The next page. Drawn for it.",
+     "fallback": ""
+    },
+    {
+     "name": "Pagination.Page",
+     "kind": "pagination-page",
+     "detail": "A page. Drawn for it.",
+     "fallback": ""
+    },
+    {
+     "name": "Pagination.Gap",
+     "kind": "pagination-gap",
+     "detail": "The pages left out. Drawn for it.",
+     "fallback": ""
+    }
+   ],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-pagination",
+   "example": "state page = 5\nPagination(bind: page, pages: 12, siblings: 1)",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "Pagination.Prev",
+   "slug": "pagination-prev",
+   "family": "Navigation",
+   "owner": "Pagination",
+   "ownerSlug": "pagination",
+   "summary": "The previous page. Drawn for it.",
+   "plain": "The previous page. Drawn for it.",
+   "signature": "Pagination.Prev(disabled: Bool) { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "disabled:",
+     "type": "Bool",
+     "meaning": "Whether the control is inert"
+    }
+   ],
+   "controls": [
+    {
+     "name": "disabled",
+     "kind": "bool",
+     "options": [],
+     "value": "",
+     "sink": "attribute"
+    }
+   ],
+   "flags": [
+    ".disabled"
+   ],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "state page = 5\nPagination(bind: page, pages: 12, siblings: 1)",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "Pagination.Next",
+   "slug": "pagination-next",
+   "family": "Navigation",
+   "owner": "Pagination",
+   "ownerSlug": "pagination",
+   "summary": "The next page. Drawn for it.",
+   "plain": "The next page. Drawn for it.",
+   "signature": "Pagination.Next(disabled: Bool) { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "disabled:",
+     "type": "Bool",
+     "meaning": "Whether the control is inert"
+    }
+   ],
+   "controls": [
+    {
+     "name": "disabled",
+     "kind": "bool",
+     "options": [],
+     "value": "",
+     "sink": "attribute"
+    }
+   ],
+   "flags": [
+    ".disabled"
+   ],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "state page = 5\nPagination(bind: page, pages: 12, siblings: 1)",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "Pagination.Page",
+   "slug": "pagination-page",
+   "family": "Navigation",
+   "owner": "Pagination",
+   "ownerSlug": "pagination",
+   "summary": "A page. Drawn for it.",
+   "plain": "A page. Drawn for it.",
+   "signature": "Pagination.Page(_ text: String) { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "text",
+     "type": "String  (positional)",
+     "meaning": "Its number"
+    }
+   ],
+   "controls": [
+    {
+     "name": "text",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "state page = 5\nPagination(bind: page, pages: 12, siblings: 1)",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
+   ]
+  },
+  {
+   "name": "Pagination.Gap",
+   "slug": "pagination-gap",
+   "family": "Navigation",
+   "owner": "Pagination",
+   "ownerSlug": "pagination",
+   "summary": "The pages left out. Drawn for it.",
+   "plain": "The pages left out. Drawn for it.",
+   "signature": "Pagination.Gap(_ text: String) { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "text",
+     "type": "String  (positional)",
+     "meaning": "An ellipsis"
+    }
+   ],
+   "controls": [
+    {
+     "name": "text",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "state page = 5\nPagination(bind: page, pages: 12, siblings: 1)",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
+   ]
+  },
+  {
+   "name": "Stepper",
+   "slug": "stepper",
+   "family": "Navigation",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Steps taken in order — an account, then billing, then a summary — with each step's state (done, current, an error) and the current step's block shown. `bind:` holds the current step, from 0; `.linear` keeps a step out of reach until the ones before it are passed.",
+   "plain": "Steps taken in order — an account, then billing, then a summary — with each step's state (done, current, an error) and the current step's block shown. bind: holds the current step, from 0; .linear keeps a step out of reach until the ones before it are passed.",
+   "signature": "Stepper(bind: State, linear: Bool) { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "bind:",
+     "type": "State  (required)",
+     "meaning": "The current step, from 0"
+    },
+    {
+     "name": "linear:",
+     "type": "Bool",
+     "meaning": "A step ahead of the current one cannot be pressed"
+    }
+   ],
+   "controls": [
+    {
+     "name": "linear",
+     "kind": "bool",
+     "options": [],
+     "value": "",
+     "sink": "special"
+    }
+   ],
+   "flags": [
+    ".linear"
+   ],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [
+    {
+     "name": "Stepper.Step",
+     "kind": "stepper-step",
+     "detail": "One step: its title in the list, its block shown while it is the current one.",
+     "fallback": ""
+    },
+    {
+     "name": "Stepper.List",
+     "kind": "stepper-list",
+     "detail": "The steps, in order. Drawn for it.",
+     "fallback": ""
+    },
+    {
+     "name": "Stepper.Item",
+     "kind": "stepper-item",
+     "detail": "A step in the list. Drawn for it.",
+     "fallback": ""
+    }
+   ],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-stepper",
+   "example": "state step = 0\nStepper(bind: step) {\n    Stepper.Step(\"Account\") { Text(\"Your name and email.\") }\n    Stepper.Step(\"Billing\", done: step > 1) { Text(\"A card on file.\") }\n    Stepper.Step(\"Confirm\") { Text(\"Check and send.\") }\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "Stepper.Step",
+   "slug": "stepper-step",
+   "family": "Navigation",
+   "owner": "Stepper",
+   "ownerSlug": "stepper",
+   "summary": "One step: its title in the list, its block shown while it is the current one.",
+   "plain": "One step: its title in the list, its block shown while it is the current one.",
+   "signature": "Stepper.Step(_ title: String, done: Bool, error: Bool) { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "title",
+     "type": "String  (positional)",
+     "meaning": "Its title"
+    },
+    {
+     "name": "done:",
+     "type": "Bool",
+     "meaning": "Passed: drawn with a check"
+    },
+    {
+     "name": "error:",
+     "type": "Bool",
+     "meaning": "Something in it needs fixing"
+    }
+   ],
+   "controls": [
+    {
+     "name": "title",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "done",
+     "kind": "bool",
+     "options": [],
+     "value": "",
+     "sink": "special"
+    },
+    {
+     "name": "error",
+     "kind": "bool",
+     "options": [],
+     "value": "",
+     "sink": "special"
+    }
+   ],
+   "flags": [
+    ".done",
+    ".error"
+   ],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "state step = 0\nStepper(bind: step) {\n    Stepper.Step(\"Account\") { Text(\"Your name and email.\") }\n    Stepper.Step(\"Billing\", done: step > 1) { Text(\"A card on file.\") }\n    Stepper.Step(\"Confirm\") { Text(\"Check and send.\") }\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
+   ]
+  },
+  {
+   "name": "Stepper.List",
+   "slug": "stepper-list",
+   "family": "Navigation",
+   "owner": "Stepper",
+   "ownerSlug": "stepper",
+   "summary": "The steps, in order. Drawn for it.",
+   "plain": "The steps, in order. Drawn for it.",
+   "signature": "Stepper.List { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [],
+   "controls": [],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "state step = 0\nStepper(bind: step) {\n    Stepper.Step(\"Account\") { Text(\"Your name and email.\") }\n    Stepper.Step(\"Billing\", done: step > 1) { Text(\"A card on file.\") }\n    Stepper.Step(\"Confirm\") { Text(\"Check and send.\") }\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "Stepper.Item",
+   "slug": "stepper-item",
+   "family": "Navigation",
+   "owner": "Stepper",
+   "ownerSlug": "stepper",
+   "summary": "A step in the list. Drawn for it.",
+   "plain": "A step in the list. Drawn for it.",
+   "signature": "Stepper.Item { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [],
+   "controls": [],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "state step = 0\nStepper(bind: step) {\n    Stepper.Step(\"Account\") { Text(\"Your name and email.\") }\n    Stepper.Step(\"Billing\", done: step > 1) { Text(\"A card on file.\") }\n    Stepper.Step(\"Confirm\") { Text(\"Check and send.\") }\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
     }
    ]
   },
@@ -8179,6 +8896,706 @@
    ]
   },
   {
+   "name": "RadioGroup",
+   "slug": "radiogroup",
+   "family": "Form",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "One choice of several, as native radio buttons under a legend: the arrow keys move between them, and `.cards` draws each as a card with its hint.",
+   "plain": "One choice of several, as native radio buttons under a legend: the arrow keys move between them, and .cards draws each as a card with its hint.",
+   "signature": "RadioGroup(bind: State, label: String, cards: Bool) { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "bind:",
+     "type": "State  (required)",
+     "meaning": "The chosen value"
+    },
+    {
+     "name": "label:",
+     "type": "String  (required)",
+     "meaning": "What is being chosen: the group's legend"
+    },
+    {
+     "name": "cards:",
+     "type": "Bool",
+     "meaning": "Each option a card, its hint beneath its words"
+    }
+   ],
+   "controls": [
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "cards",
+     "kind": "bool",
+     "options": [],
+     "value": "",
+     "sink": "special"
+    }
+   ],
+   "flags": [
+    ".cards"
+   ],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [
+    {
+     "name": "RadioGroup.Option",
+     "kind": "radiogroup-option",
+     "detail": "One choice: its words, its value, and a hint said with it.",
+     "fallback": ""
+    },
+    {
+     "name": "RadioGroup.Legend",
+     "kind": "radiogroup-legend",
+     "detail": "Its legend. Drawn for it.",
+     "fallback": ""
+    },
+    {
+     "name": "RadioGroup.Hint",
+     "kind": "radiogroup-hint",
+     "detail": "An option's hint. Drawn for it.",
+     "fallback": ""
+    }
+   ],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-radio-group",
+   "example": "state plan = \"free\"\nRadioGroup(bind: plan, label: \"Plan\").cards {\n    RadioGroup.Option(\"Free\", value: \"free\", hint: \"For trying it out\")\n    RadioGroup.Option(\"Team\", value: \"team\", hint: \"€8 a seat\")\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "RadioGroup.Option",
+   "slug": "radiogroup-option",
+   "family": "Form",
+   "owner": "RadioGroup",
+   "ownerSlug": "radiogroup",
+   "summary": "One choice: its words, its value, and a hint said with it.",
+   "plain": "One choice: its words, its value, and a hint said with it.",
+   "signature": "RadioGroup.Option(_ label: String, value: Any, hint: String) { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "label",
+     "type": "String  (positional)",
+     "meaning": "Its words"
+    },
+    {
+     "name": "value:",
+     "type": "Any  (required)",
+     "meaning": "What `bind:` holds when it is chosen"
+    },
+    {
+     "name": "hint:",
+     "type": "String",
+     "meaning": "A line beneath it, read with it"
+    }
+   ],
+   "controls": [
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "hint",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "state plan = \"free\"\nRadioGroup(bind: plan, label: \"Plan\").cards {\n    RadioGroup.Option(\"Free\", value: \"free\", hint: \"For trying it out\")\n    RadioGroup.Option(\"Team\", value: \"team\", hint: \"€8 a seat\")\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
+   ]
+  },
+  {
+   "name": "RadioGroup.Legend",
+   "slug": "radiogroup-legend",
+   "family": "Form",
+   "owner": "RadioGroup",
+   "ownerSlug": "radiogroup",
+   "summary": "Its legend. Drawn for it.",
+   "plain": "Its legend. Drawn for it.",
+   "signature": "RadioGroup.Legend(_ text: String) { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "text",
+     "type": "String  (positional)",
+     "meaning": "The legend"
+    }
+   ],
+   "controls": [
+    {
+     "name": "text",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "state plan = \"free\"\nRadioGroup(bind: plan, label: \"Plan\").cards {\n    RadioGroup.Option(\"Free\", value: \"free\", hint: \"For trying it out\")\n    RadioGroup.Option(\"Team\", value: \"team\", hint: \"€8 a seat\")\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
+   ]
+  },
+  {
+   "name": "RadioGroup.Hint",
+   "slug": "radiogroup-hint",
+   "family": "Form",
+   "owner": "RadioGroup",
+   "ownerSlug": "radiogroup",
+   "summary": "An option's hint. Drawn for it.",
+   "plain": "An option's hint. Drawn for it.",
+   "signature": "RadioGroup.Hint(_ text: String) { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "text",
+     "type": "String  (positional)",
+     "meaning": "The hint"
+    }
+   ],
+   "controls": [
+    {
+     "name": "text",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "state plan = \"free\"\nRadioGroup(bind: plan, label: \"Plan\").cards {\n    RadioGroup.Option(\"Free\", value: \"free\", hint: \"For trying it out\")\n    RadioGroup.Option(\"Team\", value: \"team\", hint: \"€8 a seat\")\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
+   ]
+  },
+  {
+   "name": "NumberInput",
+   "slug": "numberinput",
+   "family": "Form",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "A number with − and + beside it: the arrow keys step it, PageUp and PageDown by ten steps, and it stays between `min:` and `max:`.",
+   "plain": "A number with − and + beside it: the arrow keys step it, PageUp and PageDown by ten steps, and it stays between min: and max:.",
+   "signature": "NumberInput(bind: State, min: Number, max: Number, …)",
+   "block": false,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "bind:",
+     "type": "State  (required)",
+     "meaning": "The `Number` it holds"
+    },
+    {
+     "name": "min:",
+     "type": "Number",
+     "meaning": "The lowest it goes"
+    },
+    {
+     "name": "max:",
+     "type": "Number",
+     "meaning": "The highest it goes"
+    },
+    {
+     "name": "step:",
+     "type": "Number",
+     "meaning": "How far a press moves it (unset, 1)"
+    },
+    {
+     "name": "label:",
+     "type": "String",
+     "meaning": "Visible label; also the control's accessible name"
+    },
+    {
+     "name": "hint:",
+     "type": "String",
+     "meaning": "Help text under the control, linked to it by `aria-describedby`"
+    }
+   ],
+   "controls": [
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "hint",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [],
+   "parts": [
+    {
+     "name": "NumberInput.Decrease",
+     "kind": "numberinput-decrease",
+     "detail": "Its − button. Drawn for it.",
+     "fallback": ""
+    },
+    {
+     "name": "NumberInput.Increase",
+     "kind": "numberinput-increase",
+     "detail": "Its + button. Drawn for it.",
+     "fallback": ""
+    }
+   ],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-number-input",
+   "example": "state qty = 1\nNumberInput(bind: qty, min: 1, max: 99, label: \"Quantity\")",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "NumberInput.Decrease",
+   "slug": "numberinput-decrease",
+   "family": "Form",
+   "owner": "NumberInput",
+   "ownerSlug": "numberinput",
+   "summary": "Its − button. Drawn for it.",
+   "plain": "Its − button. Drawn for it.",
+   "signature": "NumberInput.Decrease(disabled: Bool) { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "disabled:",
+     "type": "Bool",
+     "meaning": "Whether the control is inert"
+    }
+   ],
+   "controls": [
+    {
+     "name": "disabled",
+     "kind": "bool",
+     "options": [],
+     "value": "",
+     "sink": "attribute"
+    }
+   ],
+   "flags": [
+    ".disabled"
+   ],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "state qty = 1\nNumberInput(bind: qty, min: 1, max: 99, label: \"Quantity\")",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "NumberInput.Increase",
+   "slug": "numberinput-increase",
+   "family": "Form",
+   "owner": "NumberInput",
+   "ownerSlug": "numberinput",
+   "summary": "Its + button. Drawn for it.",
+   "plain": "Its + button. Drawn for it.",
+   "signature": "NumberInput.Increase(disabled: Bool) { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "disabled:",
+     "type": "Bool",
+     "meaning": "Whether the control is inert"
+    }
+   ],
+   "controls": [
+    {
+     "name": "disabled",
+     "kind": "bool",
+     "options": [],
+     "value": "",
+     "sink": "attribute"
+    }
+   ],
+   "flags": [
+    ".disabled"
+   ],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "state qty = 1\nNumberInput(bind: qty, min: 1, max: 99, label: \"Quantity\")",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "Calendar",
+   "slug": "calendar",
+   "family": "Form",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "A month as a grid of days, chosen with a press or the keyboard — the arrows by day and week, PageUp and PageDown by month, Home and End to the week's ends — one day, a range, or several. `bind:` holds a `Date`, a `{ start, end }` with `.range`, a list with `.multiple`.",
+   "plain": "A month as a grid of days, chosen with a press or the keyboard — the arrows by day and week, PageUp and PageDown by month, Home and End to the week's ends — one day, a range, or several. bind: holds a Date, a { start, end } with .range, a list with .multiple.",
+   "signature": "Calendar(bind: State, mode: Enum, min: Any, …)",
+   "block": false,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "bind:",
+     "type": "State  (required)",
+     "meaning": "The chosen day, range or days"
+    },
+    {
+     "name": "mode:",
+     "type": ".single .range .multiple",
+     "meaning": "How many days it holds"
+    },
+    {
+     "name": "min:",
+     "type": "Any",
+     "meaning": "The first day that can be chosen"
+    },
+    {
+     "name": "max:",
+     "type": "Any",
+     "meaning": "The last day that can be chosen"
+    },
+    {
+     "name": "disabled:",
+     "type": "Any",
+     "meaning": "Days that cannot be chosen: a list of them, or `d => d.weekday() >= 6`"
+    },
+    {
+     "name": "label:",
+     "type": "String",
+     "meaning": "Its name for a screen reader; unset, `Calendar`"
+    }
+   ],
+   "controls": [
+    {
+     "name": "mode",
+     "kind": "enum",
+     "options": [
+      "single",
+      "range",
+      "multiple"
+     ],
+     "value": "single",
+     "sink": "special"
+    },
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [
+    ".single",
+    ".range",
+    ".multiple"
+   ],
+   "events": [],
+   "domEvents": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-calendar",
+   "example": "state day: Date? = null\nCalendar(bind: day, min: @2026-01-01, disabled: d => d.weekday() >= 6, label: \"Delivery day\")",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
    "name": "Alert",
    "slug": "alert",
    "family": "Feedback",
@@ -9938,6 +11355,269 @@
      "kind": "C05",
      "title": "A positional argument a built-in does not take",
      "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "Toggle",
+   "slug": "toggle",
+   "family": "Actions",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "A button that stays pressed while its state holds — bold in an editor, a filter that is on: `aria-pressed`, a press flipping `bind:`.",
+   "plain": "A button that stays pressed while its state holds — bold in an editor, a filter that is on: aria-pressed, a press flipping bind:.",
+   "signature": "Toggle(_ label: String, bind: State, icon: String)",
+   "block": false,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "label",
+     "type": "String  (positional)",
+     "meaning": "Its words"
+    },
+    {
+     "name": "bind:",
+     "type": "State  (required)",
+     "meaning": "The `Bool` state it shows and flips"
+    },
+    {
+     "name": "icon:",
+     "type": "String",
+     "meaning": "An icon before the words"
+    }
+   ],
+   "controls": [
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "icon",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-btn wf-toggle",
+   "example": "state bold = false\nToggle(\"Bold\", bind: bold, icon: \"type\")",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
+   ]
+  },
+  {
+   "name": "ToggleGroup",
+   "slug": "togglegroup",
+   "family": "Actions",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Buttons of which one is chosen — a view switcher, a segmented control — or, `.multiple`, several: one stop for Tab, the arrow keys inside it, each `aria-pressed`. `bind:` holds the chosen `value:` (a list with `.multiple`).",
+   "plain": "Buttons of which one is chosen — a view switcher, a segmented control — or, .multiple, several: one stop for Tab, the arrow keys inside it, each aria-pressed. bind: holds the chosen value: (a list with .multiple).",
+   "signature": "ToggleGroup(bind: State, label: String, multiple: Bool) { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "bind:",
+     "type": "State  (required)",
+     "meaning": "The chosen value, or a list of them with `.multiple`"
+    },
+    {
+     "name": "label:",
+     "type": "String  (required)",
+     "meaning": "What the group chooses, for a screen reader"
+    },
+    {
+     "name": "multiple:",
+     "type": "Bool",
+     "meaning": "Several at once: `bind:` is a list"
+    }
+   ],
+   "controls": [
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "multiple",
+     "kind": "bool",
+     "options": [],
+     "value": "",
+     "sink": "special"
+    }
+   ],
+   "flags": [
+    ".multiple"
+   ],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [
+    {
+     "name": "ToggleGroup.Item",
+     "kind": "togglegroup-item",
+     "detail": "One choice: its words, and the value bind: holds when it is chosen.",
+     "fallback": ""
+    }
+   ],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-toggle-group",
+   "example": "state view = \"grid\"\nToggleGroup(bind: view, label: \"View\") {\n    ToggleGroup.Item(\"Grid\", value: \"grid\", icon: \"grid\")\n    ToggleGroup.Item(\"List\", value: \"list\", icon: \"list\")\n}\nstate styles: [String] = []\nToggleGroup(bind: styles, label: \"Text style\").multiple {\n    ToggleGroup.Item(\"Bold\", value: \"b\")\n    ToggleGroup.Item(\"Italic\", value: \"i\")\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "ToggleGroup.Item",
+   "slug": "togglegroup-item",
+   "family": "Actions",
+   "owner": "ToggleGroup",
+   "ownerSlug": "togglegroup",
+   "summary": "One choice: its words, and the value `bind:` holds when it is chosen.",
+   "plain": "One choice: its words, and the value bind: holds when it is chosen.",
+   "signature": "ToggleGroup.Item(_ label: String, value: Any, icon: String, disabled: Bool)",
+   "block": false,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "label",
+     "type": "String  (positional)",
+     "meaning": "Its words"
+    },
+    {
+     "name": "value:",
+     "type": "Any  (required)",
+     "meaning": "What `bind:` holds when it is chosen"
+    },
+    {
+     "name": "icon:",
+     "type": "String",
+     "meaning": "An icon before the words"
+    },
+    {
+     "name": "disabled:",
+     "type": "Bool",
+     "meaning": "Whether the control is inert"
+    }
+   ],
+   "controls": [
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "icon",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "disabled",
+     "kind": "bool",
+     "options": [],
+     "value": "",
+     "sink": "attribute"
+    }
+   ],
+   "flags": [
+    ".disabled"
+   ],
+   "events": [],
+   "domEvents": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "state view = \"grid\"\nToggleGroup(bind: view, label: \"View\") {\n    ToggleGroup.Item(\"Grid\", value: \"grid\", icon: \"grid\")\n    ToggleGroup.Item(\"List\", value: \"list\", icon: \"list\")\n}\nstate styles: [String] = []\nToggleGroup(bind: styles, label: \"Text style\").multiple {\n    ToggleGroup.Item(\"Bold\", value: \"b\")\n    ToggleGroup.Item(\"Italic\", value: \"i\")\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
     }
    ]
   },

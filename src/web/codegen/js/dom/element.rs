@@ -153,6 +153,10 @@ impl JsCodegen {
                 self.emit_popover(var, ui, parent);
                 true
             }
+            "Calendar" => {
+                self.emit_calendar(var, ui, parent);
+                true
+            }
             "Tabs" => {
                 self.emit_tabs(var, ui, parent);
                 true

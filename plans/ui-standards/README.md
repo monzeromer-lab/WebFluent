@@ -623,6 +623,12 @@ Chrome, with `wf test`) and `tests/content.rs`. What differs:
 Toggle, ToggleGroup / SegmentedControl, RadioGroup, Pagination, Stepper /
 Wizard, NumberInput and Calendar.
 
+**Status: done, 2026-11-14.** Six are rewritten during lowering, as
+stage 5's are, their `bind:` written back by handlers the rewrite adds;
+`Calendar` has its own emitter and runtime (`WF.calendar`). The checks are
+`tests/browser/choosing.mjs` (29 in Chrome, the arrow keys again right to
+left) and `tests/choosing.rs`. What differs is under Leftovers.
+
 ### Stage 7: Tier 1, the larger components
 
 1. AppShell, which replaces DocsShell and the other shells.
@@ -655,3 +661,61 @@ Each group is released on its own:
   BackToTop, Popconfirm, Highlight, ClientOnly.
 - **`wf generate block <name>`:** a sign-in form, pricing, a dashboard and
   settings pages, written into `src/` as ordinary source.
+
+## Leftovers
+
+What each stage left undone, said at its end and kept here, to be taken
+up together once stage 9 is done. A line comes off when its work lands.
+
+### From stage 2
+
+- Keyboard tests do not run a second time with `dir="rtl"`, as the
+  definition of done asks; the right-to-left cases are separate checks.
+- The site's hand-made tab strips (`CodeTabs`, `OutputTabs`, `Example`, the
+  search's kinds) keep their own markup with `roving: .x` rather than
+  built-in `Tabs`; the search's kinds want stage 6's `ToggleGroup`.
+
+### From stage 3
+
+- The exit of a modal, a dialog, a sheet or a popover is the stylesheet's
+  (`allow-discrete`): a browser without it closes at once.
+- The Sidebar's drawer is not a `Sheet` (its panel is the page's own on a
+  wide screen); it joins the layers and holds the focus instead.
+
+### From stage 4
+
+- No `InView` component (`on visible` covers it).
+- `wf verify` warns of a target under 24×24 and never fails on one; the
+  site has 1,714 of them (the footer links at 21px, the cookie button at
+  18px).
+- `E901`, the read-back of the JavaScript the build writes, did not catch
+  `--0.02` (a decrement of a literal), which a browser refuses.
+
+### From stage 5
+
+- `CodeBlock` has no tabs (`files:`) and no highlighted lines.
+- `Stat` has no sparkline.
+- `Accordion` opens with the stylesheet's `::details-content` transition,
+  not `.expand`.
+- `LocaleSwitch` and `OnThisPage` are drawn once the page runs, not in the
+  static paint.
+- The guide's example component `Chip` became `Pill`; two examples
+  (`medium-field-notes`'s `ThemeToggle`, `hard-pocket`'s `EmptyState`)
+  keep components named like a built-in, which draws a `V11` note.
+- The site keeps its own `Callout`, `Aside`, `CodeBlock`, `CodeTabs`,
+  `KpiCard`, `ThemeToggle`, `LangSwitch` and `OnThisPage` rather than the
+  built-ins, so stage 5's "done when" is not met.
+
+### From stage 6
+
+- There is no `SegmentedControl` or `Wizard` by those names:
+  `ToggleGroup` is the segmented control, and `Stepper` has no form of its
+  own over it.
+- A `Stepper.Step` must be a direct child of its `Stepper`, not drawn by
+  a `for` or an `if`.
+- `NumberInput` does not write its value through `format`.
+- `Calendar` is drawn once the page runs, not in the static paint, and
+  has no month or year picker beyond the previous and next buttons.
+- A live `Radio` has no `value` attribute (its binding holds the value),
+  where its static paint has one: a form posted without script sends `on`.
+- The site's search kinds are still hand-made buttons, not `ToggleGroup`.

@@ -244,10 +244,63 @@
     "after": "Each is drawn the same on the live page, in the static paint, by the\ntemplate engine and, where it can be, in a PDF."
    },
    {
+    "title": "Choosing built-ins",
+    "id": "6.2.0-choosing-built-ins",
+    "intro": "",
+    "items": [
+     {
+      "text": "`Toggle(\"Bold\", bind: bold)` is a button that stays pressed.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`ToggleGroup(bind: view, label: \"View\") { ToggleGroup.Item(…) }` is one\nchoice of several, or several with `.multiple`: one stop for Tab, the\narrow keys inside it.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`RadioGroup(bind: plan, label: \"Plan\").cards` is radio buttons under a\nlegend, each option's hint read with it, drawn as cards if asked.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`Pagination(bind: page, pages: 12)` is Previous, the pages around the\ncurrent one with gaps for the rest, and Next.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`Stepper(bind: step) { Stepper.Step(\"Account\") { … } }` shows one step\nat a time and each step's state.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`NumberInput(bind: qty, min: 1, max: 99)` is a number between − and +,\nstepped by the keys too.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`Calendar(bind: day, mode: .range)` is a month a keyboard can work, for\none day, a range or several, with days that cannot be chosen.",
+      "points": [],
+      "after": ""
+     }
+    ],
+    "after": ""
+   },
+   {
     "title": "Fixes",
     "id": "6.2.0-fixes",
     "intro": "",
     "items": [
+     {
+      "text": "`wf test` drew a built-in where the project had a component of its\nname in another file.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`x ?? y` where `x` could only be `null` (a field written `null` in a map)\nwas taken to be `null` too, and spliced into text drew `T19`.",
+      "points": [],
+      "after": ""
+     },
      {
       "text": "`-(x)` where `x` is negative compiled to `--x`, which a browser refuses,\nand the page did not run.",
       "points": [],
@@ -386,7 +439,7 @@
     "after": ""
    }
   ],
-  "count": 60
+  "count": 69
  },
  {
   "version": "6.1.0",

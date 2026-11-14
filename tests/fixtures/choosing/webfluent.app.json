@@ -1,0 +1,4 @@
+{
+  "name": "choosing",
+  "build": { "ssg": true, "csp": true }
+}

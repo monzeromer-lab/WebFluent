@@ -189,7 +189,27 @@ input and what goes beside it as one box."#),
 read."#)
                 ], after: #"Each is drawn the same on the live page, in the static paint, by the
 template engine and, where it can be, in a PDF."#),
+                NotesSection(title: #"Choosing built-ins"#, id: "6.2.0-choosing-built-ins", items: [
+                    Change(text: #"`Toggle("Bold", bind: bold)` is a button that stays pressed."#),
+                    Change(text: #"`ToggleGroup(bind: view, label: "View") { ToggleGroup.Item(…) }` is one
+choice of several, or several with `.multiple`: one stop for Tab, the
+arrow keys inside it."#),
+                    Change(text: #"`RadioGroup(bind: plan, label: "Plan").cards` is radio buttons under a
+legend, each option's hint read with it, drawn as cards if asked."#),
+                    Change(text: #"`Pagination(bind: page, pages: 12)` is Previous, the pages around the
+current one with gaps for the rest, and Next."#),
+                    Change(text: #"`Stepper(bind: step) { Stepper.Step("Account") { … } }` shows one step
+at a time and each step's state."#),
+                    Change(text: #"`NumberInput(bind: qty, min: 1, max: 99)` is a number between − and +,
+stepped by the keys too."#),
+                    Change(text: #"`Calendar(bind: day, mode: .range)` is a month a keyboard can work, for
+one day, a range or several, with days that cannot be chosen."#)
+                ]),
                 NotesSection(title: #"Fixes"#, id: "6.2.0-fixes", items: [
+                    Change(text: #"`wf test` drew a built-in where the project had a component of its
+name in another file."#),
+                    Change(text: #"`x ?? y` where `x` could only be `null` (a field written `null` in a map)
+was taken to be `null` too, and spliced into text drew `T19`."#),
                     Change(text: #"`-(x)` where `x` is negative compiled to `--x`, which a browser refuses,
 and the page did not run."#),
                     Change(text: #"`format(v, .percent, 1)` wrote `2%` once the page ran where the static
@@ -255,7 +275,7 @@ again before the exit ended."#),
                     Change(text: #"A `Splitter`'s handle reaches 24px, WCAG 2.2's least target, around its
 4px line."#)
                 ])
-            ], count: 60), latest: true)
+            ], count: 69), latest: true)
 
             ReleaseEntry(ReleaseNotes(version: "6.1.0", id: "6.1.0", date: "2026-11-14", when: "14 November 2026", summary: #"A site sends much less: the runtime ships only the functions a program
 reaches, with short names, and only the styles and animations it draws
@@ -3714,6 +3734,6 @@ flattened diagnostics, and the reason a theme failed to resolve."#),
             ], count: 15))
         }
 
-        OnThisPage(sections: [Anchor(id: "6.2.0-a-project-s-own-component-wins", label: #"A project's own component wins"#), Anchor(id: "6.2.0-stacking-and-target-sizes-are-tokens", label: #"Stacking and target sizes are tokens"#), Anchor(id: "6.2.0-the-arrow-keys-everywhere-a-group-needs-them", label: #"The arrow keys, everywhere a group needs them"#), Anchor(id: "6.2.0-overlays-on-one-path", label: #"Overlays on one path"#), Anchor(id: "6.2.0-presses-that-hold-up", label: #"Presses that hold up"#), Anchor(id: "6.2.0-content-built-ins", label: #"Content built-ins"#), Anchor(id: "6.2.0-fixes", label: #"Fixes"#), Anchor(id: "6.2.0-reached-by-every-reader", label: #"Reached by every reader"#), Anchor(id: "6.2.0-right-to-left", label: #"Right to left"#), Anchor(id: "6.2.0-smaller-fixes", label: #"Smaller fixes"#)], source: "RELEASE_NOTES.md")
+        OnThisPage(sections: [Anchor(id: "6.2.0-a-project-s-own-component-wins", label: #"A project's own component wins"#), Anchor(id: "6.2.0-stacking-and-target-sizes-are-tokens", label: #"Stacking and target sizes are tokens"#), Anchor(id: "6.2.0-the-arrow-keys-everywhere-a-group-needs-them", label: #"The arrow keys, everywhere a group needs them"#), Anchor(id: "6.2.0-overlays-on-one-path", label: #"Overlays on one path"#), Anchor(id: "6.2.0-presses-that-hold-up", label: #"Presses that hold up"#), Anchor(id: "6.2.0-content-built-ins", label: #"Content built-ins"#), Anchor(id: "6.2.0-choosing-built-ins", label: #"Choosing built-ins"#), Anchor(id: "6.2.0-fixes", label: #"Fixes"#), Anchor(id: "6.2.0-reached-by-every-reader", label: #"Reached by every reader"#), Anchor(id: "6.2.0-right-to-left", label: #"Right to left"#), Anchor(id: "6.2.0-smaller-fixes", label: #"Smaller fixes"#)], source: "RELEASE_NOTES.md")
     }
 }

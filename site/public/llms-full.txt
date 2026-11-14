@@ -3049,12 +3049,12 @@ The built-ins fall into these families:
 | Family | Elements |
 |---|---|
 | Layout | `Container`, `Row`, `Column`, `Grid`, `Stack`, `Spacer`, `Divider`, `Header`, `Section`, `Footer`, `VirtualList`, `Splitter` |
-| Navigation | `Navbar`, `Sidebar`, `Link`, `Tabs`, `Breadcrumb`, `Menu`, `OnThisPage` |
+| Navigation | `Navbar`, `Sidebar`, `Link`, `Tabs`, `Breadcrumb`, `Menu`, `OnThisPage`, `Pagination`, `Stepper` |
 | Data display | `Card`, `Table`, `List`, `Badge`, `Tag`, `Avatar`, `Tooltip` |
 | Content | `Callout`, `Kbd`, `EmptyState`, `Stat`, `CodeBlock`, `Chip`, `Accordion`, `VisuallyHidden` ([below](#content-a-note-a-key-a-figure)) |
-| Forms | `Form`, `Input`, `Textarea`, `Select`, `Checkbox`, `Radio`, `Switch`, `Slider`, `DatePicker`, `FileUpload`, `Field`, `Fieldset`, `InputGroup` ([Forms](/learn/14-forms)) |
+| Forms | `Form`, `Input`, `Textarea`, `Select`, `Checkbox`, `Radio`, `Switch`, `Slider`, `DatePicker`, `FileUpload`, `Field`, `Fieldset`, `InputGroup`, `RadioGroup`, `NumberInput`, `Calendar` ([Forms](/learn/14-forms)) |
 | Feedback | `Alert`, `Toast`, `Modal`, `Dialog`, `Popover`, `Spinner`, `Progress`, `Skeleton` ([Events](/learn/08-events#overlays-modals-dialogs-toasts-and-menus)) |
-| Actions | `Button`, `IconButton`, `ButtonGroup`, `Dropdown`, `CopyButton`, `ThemeToggle`, `LocaleSwitch` |
+| Actions | `Button`, `IconButton`, `ButtonGroup`, `Dropdown`, `CopyButton`, `ThemeToggle`, `LocaleSwitch`, `Toggle`, `ToggleGroup` |
 | Media | `Image`, `Video`, `Audio`, `Frame`, `Icon`, `Carousel` ([Add a picture](/recipes/add-a-picture), [Video and audio](/recipes/video-and-audio)) |
 | Typography | `Text`, `Heading`, `Paragraph`, `Code`, `Blockquote`, `Markdown`, `Unsafe.Html` |
 | Somebody else's code | `Host`, `Element`, `Portal` ([Call your own JavaScript](/recipes/call-your-own-script), [Hand an element to a script](/recipes/hand-an-element-to-a-script)) |
@@ -5013,10 +5013,10 @@ around it, is `C03`.
 
 A component may have its own `state`, `derived` values, `effect`s, actions,
 timers and handles. Each placed instance gets its own copy, so the two
-`Stepper`s on this page count separately:
+`Counter`s on this page count separately:
 
 ```wf
-component Stepper(_ start: Number, step: Number = 1) {
+component Counter(_ start: Number, step: Number = 1) {
     event change(value: Number)
     state n = start
     derived even = n % 2 == 0
@@ -5029,11 +5029,11 @@ component Stepper(_ start: Number, step: Number = 1) {
     }
 }
 
-page Counters(path: "/", title: "Counters", description: "Two steppers, two counts.") {
+page Counters(path: "/", title: "Counters", description: "Two counters, two counts.") {
     state last = 0
     Heading("Counters").h1
-    Stepper(0) { on change(v) { last = v } }
-    Stepper(10, step: 5) { on change(v) { last = v } }
+    Counter(0) { on change(v) { last = v } }
+    Counter(10, step: 5) { on change(v) { last = v } }
     Text("Last value: {last}")
 }
 ```
@@ -5121,7 +5121,7 @@ value as a prop and fire an event when it should change. The caller decides
 what to do with the new value:
 
 ```wf
-component Stepper(_ value: Number, label: String, min: Number = 0) {
+component Counter(_ value: Number, label: String, min: Number = 0) {
     event change(value: Number)
     Row(gap: .sm, align: .center) {
         Button("−", disabled: value <= min).sm { on click { emit change(value - 1) } }
@@ -5133,7 +5133,7 @@ component Stepper(_ value: Number, label: String, min: Number = 0) {
 page Booking(path: "/", title: "Booking", description: "How many seats.") {
     state seats = 1
     Heading("Book").h1
-    Stepper(seats, label: "Seats", min: 1) { on change(v) { seats = v } }
+    Counter(seats, label: "Seats", min: 1) { on change(v) { seats = v } }
 }
 ```
 
@@ -5228,14 +5228,14 @@ A page declares `state count = 3` and places `Panel("Totals") { Text("{count}") 
 ```
 
 ```quiz
-A page places `Stepper(0)` twice, and `Stepper` declares `state n = start`. You press **+** on the first. What does the second show?
+A page places `Counter(0)` twice, and `Counter` declares `state n = start`. You press **+** on the first. What does the second show?
 + 0 -- Each placed instance has its own copy of the component's state.
 - 1 -- State shared by every instance belongs in a store, not in a component.
 - It depends on which instance was drawn first -- No instance reads another's state, whatever the order.
 ```
 
 ```quiz
-`for row in rows { Stepper(row.start) }` draws three steppers, and you press **+** on each. Then `rows` gains an item. What happens to the three?
+`for row in rows { Counter(row.start) }` draws three counters, and you press **+** on each. Then `rows` gains an item. What happens to the three?
 - They keep their counts, matched by position -- Without `by` there is nothing to match an item by; the list is rebuilt.
 + They start again from `row.start`, since a list with no key is rebuilt when it changes -- Key it, `for row in rows by row.id`, and each keeps its state; the build warns of this (U09).
 - The build refuses the loop until it has a key -- It builds; the missing key is a warning, U09.
@@ -5278,7 +5278,7 @@ Declare the prop, or correct its name. See [C02](/errors/C02).
 what it declares, and nothing else:
 
 ```wf expect=T22
-component Stepper(_ value: Number) {
+component Counter(_ value: Number) {
     event change(value: Number)
     Button("+") { on click { emit change(value + 1) } }
 }
@@ -5287,7 +5287,7 @@ page P(path: "/", title: "T", description: "D") {
     state seats = 1
     state last = 0
     Heading("Seats: {seats}").h1
-    Stepper(seats) { on change(next, previous) { last = previous  seats = next } }
+    Counter(seats) { on change(next, previous) { last = previous  seats = next } }
     Text("Was {last}")
 }
 ```
@@ -7772,6 +7772,51 @@ page Notes(path: "/notes", title: "Notes", description: "Save a note.") {
   button's work, a store's state.
 
 Reading `.pending` on an action that awaits nothing is `T17`.
+
+## Choosing: toggles, groups, steps and days
+
+Some choices are not a text field. These built-ins draw them, each with the
+keyboard a reader expects:
+
+```wf
+page Order(path: "/", title: "Order", description: "Choose how it is sent.") {
+    state view = "grid"
+    state plan = "free"
+    state qty = 1
+    state step = 0
+    state day: Date? = null
+    Heading("Order").h1
+    ToggleGroup(bind: view, label: "View") {
+        ToggleGroup.Item("Grid", value: "grid", icon: "grid")
+        ToggleGroup.Item("List", value: "list", icon: "list")
+    }
+    RadioGroup(bind: plan, label: "Plan").cards {
+        RadioGroup.Option("Free", value: "free", hint: "For trying it out")
+        RadioGroup.Option("Team", value: "team", hint: "€8 a seat")
+    }
+    NumberInput(bind: qty, min: 1, max: 9, label: "Quantity")
+    Stepper(bind: step) {
+        Stepper.Step("Address") { Text("Where it goes.") }
+        Stepper.Step("Delivery") {
+            Calendar(bind: day, disabled: d => d.weekday() >= 6, label: "Delivery day")
+        }
+    }
+}
+```
+
+- **`Toggle`** is one button that stays pressed; **`ToggleGroup`** is a row
+  of them, one chosen (or several, `.multiple`). Tab stops once on the
+  group, and the arrow keys move inside it.
+- **`RadioGroup`** is native radio buttons under a legend; `.cards` draws
+  each as a card with its hint.
+- **`NumberInput`** steps with − and +, the arrow keys, and PageUp and
+  PageDown, and stays between `min:` and `max:`.
+- **`Pagination(bind: page, pages: n)`** draws the pages of a list, with
+  gaps for the ones it leaves out.
+- **`Stepper`** shows one step at a time and each step's state.
+- **`Calendar`** is a month a keyboard can work: the arrows by day and
+  week (the other way round right to left), PageUp and PageDown by month.
+  `.range` holds `{ start, end }`, `.multiple` a list.
 
 ## Checklist for a good form
 

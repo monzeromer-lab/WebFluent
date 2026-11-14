@@ -51,6 +51,15 @@ const BUILTIN_INDEX: [IndexEntry] = [
     IndexEntry(label: "Menu.Divider", to: "/reference/menu-divider", group: "Navigation"),
     IndexEntry(label: "OnThisPage", to: "/reference/onthispage", group: "Navigation"),
     IndexEntry(label: "OnThisPage.Title", to: "/reference/onthispage-title", group: "Navigation"),
+    IndexEntry(label: "Pagination", to: "/reference/pagination", group: "Navigation"),
+    IndexEntry(label: "Pagination.Prev", to: "/reference/pagination-prev", group: "Navigation"),
+    IndexEntry(label: "Pagination.Next", to: "/reference/pagination-next", group: "Navigation"),
+    IndexEntry(label: "Pagination.Page", to: "/reference/pagination-page", group: "Navigation"),
+    IndexEntry(label: "Pagination.Gap", to: "/reference/pagination-gap", group: "Navigation"),
+    IndexEntry(label: "Stepper", to: "/reference/stepper", group: "Navigation"),
+    IndexEntry(label: "Stepper.Step", to: "/reference/stepper-step", group: "Navigation"),
+    IndexEntry(label: "Stepper.List", to: "/reference/stepper-list", group: "Navigation"),
+    IndexEntry(label: "Stepper.Item", to: "/reference/stepper-item", group: "Navigation"),
     IndexEntry(label: "Router", to: "/reference/router", group: "Routing"),
     IndexEntry(label: "Card", to: "/reference/card", group: "Data display"),
     IndexEntry(label: "Card.Header", to: "/reference/card-header", group: "Data display"),
@@ -112,6 +121,14 @@ const BUILTIN_INDEX: [IndexEntry] = [
     IndexEntry(label: "InputGroup", to: "/reference/inputgroup", group: "Form"),
     IndexEntry(label: "InputGroup.Addon", to: "/reference/inputgroup-addon", group: "Form"),
     IndexEntry(label: "InputGroup.Clear", to: "/reference/inputgroup-clear", group: "Form"),
+    IndexEntry(label: "RadioGroup", to: "/reference/radiogroup", group: "Form"),
+    IndexEntry(label: "RadioGroup.Option", to: "/reference/radiogroup-option", group: "Form"),
+    IndexEntry(label: "RadioGroup.Legend", to: "/reference/radiogroup-legend", group: "Form"),
+    IndexEntry(label: "RadioGroup.Hint", to: "/reference/radiogroup-hint", group: "Form"),
+    IndexEntry(label: "NumberInput", to: "/reference/numberinput", group: "Form"),
+    IndexEntry(label: "NumberInput.Decrease", to: "/reference/numberinput-decrease", group: "Form"),
+    IndexEntry(label: "NumberInput.Increase", to: "/reference/numberinput-increase", group: "Form"),
+    IndexEntry(label: "Calendar", to: "/reference/calendar", group: "Form"),
     IndexEntry(label: "Alert", to: "/reference/alert", group: "Feedback"),
     IndexEntry(label: "Toast", to: "/reference/toast", group: "Feedback"),
     IndexEntry(label: "Modal", to: "/reference/modal", group: "Feedback"),
@@ -132,6 +149,9 @@ const BUILTIN_INDEX: [IndexEntry] = [
     IndexEntry(label: "CopyButton", to: "/reference/copybutton", group: "Actions"),
     IndexEntry(label: "ThemeToggle", to: "/reference/themetoggle", group: "Actions"),
     IndexEntry(label: "LocaleSwitch", to: "/reference/localeswitch", group: "Actions"),
+    IndexEntry(label: "Toggle", to: "/reference/toggle", group: "Actions"),
+    IndexEntry(label: "ToggleGroup", to: "/reference/togglegroup", group: "Actions"),
+    IndexEntry(label: "ToggleGroup.Item", to: "/reference/togglegroup-item", group: "Actions"),
     IndexEntry(label: "Button", to: "/reference/button", group: "Actions"),
     IndexEntry(label: "IconButton", to: "/reference/iconbutton", group: "Actions"),
     IndexEntry(label: "ButtonGroup", to: "/reference/buttongroup", group: "Actions"),
@@ -177,7 +197,7 @@ const BUILTIN_INDEX: [IndexEntry] = [
 ]
 
 page ReferenceIndexPage(path: "/reference", title: "Reference", description: "Every built-in element, command, setting and design token, read from the compiler itself, with the language's reference pages.") {
-    ReferenceItemShell(t("nav.reference"), summary: t("ref.lede", { count: 154 }), entries: REFERENCE_PAGES, sections: [Anchor(id: "pages", label: t("ref.pages")), Anchor(id: "layout", label: "Layout"), Anchor(id: "navigation", label: "Navigation"), Anchor(id: "routing", label: "Routing"), Anchor(id: "data-display", label: "Data display"), Anchor(id: "content", label: "Content"), Anchor(id: "form", label: "Form"), Anchor(id: "feedback", label: "Feedback"), Anchor(id: "actions", label: "Actions"), Anchor(id: "media", label: "Media"), Anchor(id: "typography", label: "Typography"), Anchor(id: "pdf", label: "PDF"), Anchor(id: "slides", label: "Slides"), Anchor(id: "original-spellings", label: "Original spellings"), Anchor(id: "on-every-element", label: t("ref.universal.title"))], source: "scripts/docsite/reference.py") {
+    ReferenceItemShell(t("nav.reference"), summary: t("ref.lede", { count: 174 }), entries: REFERENCE_PAGES, sections: [Anchor(id: "pages", label: t("ref.pages")), Anchor(id: "layout", label: "Layout"), Anchor(id: "navigation", label: "Navigation"), Anchor(id: "routing", label: "Routing"), Anchor(id: "data-display", label: "Data display"), Anchor(id: "content", label: "Content"), Anchor(id: "form", label: "Form"), Anchor(id: "feedback", label: "Feedback"), Anchor(id: "actions", label: "Actions"), Anchor(id: "media", label: "Media"), Anchor(id: "typography", label: "Typography"), Anchor(id: "pdf", label: "PDF"), Anchor(id: "slides", label: "Slides"), Anchor(id: "original-spellings", label: "Original spellings"), Anchor(id: "on-every-element", label: t("ref.universal.title"))], source: "scripts/docsite/reference.py") {
         Heading(t("ref.pages"), id: "pages").h2
         Grid(columns: { base: 1, sm: 2, xl: 3 }, gap: .sm) {
             Link(to: "/reference/expressions", class: "bp-card") { Text("Expressions") { style { font-weight: 600 } }  Text("Language", class: "bp-small") }
@@ -321,6 +341,42 @@ page ReferenceIndexPage(path: "/reference", title: "Reference", description: "Ev
             Link(to: "/reference/onthispage-title", class: "bp-card") {
                 Text("OnThisPage.Title", class: "bp-mono") { style { font-size: 14px; color: $link } }
                 Text("Its title. Drawn for it.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+            }
+            Link(to: "/reference/pagination", class: "bp-card") {
+                Text("Pagination", class: "bp-mono") { style { font-size: 14px; color: $link } }
+                Text("Pages of a list: Previous, the first and last pages, those around the current one with a gap for the rest, and Next. The current page is aria-current=\"page\"; bind: holds it, from 1.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+            }
+            Link(to: "/reference/pagination-prev", class: "bp-card") {
+                Text("Pagination.Prev", class: "bp-mono") { style { font-size: 14px; color: $link } }
+                Text("The previous page. Drawn for it.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+            }
+            Link(to: "/reference/pagination-next", class: "bp-card") {
+                Text("Pagination.Next", class: "bp-mono") { style { font-size: 14px; color: $link } }
+                Text("The next page. Drawn for it.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+            }
+            Link(to: "/reference/pagination-page", class: "bp-card") {
+                Text("Pagination.Page", class: "bp-mono") { style { font-size: 14px; color: $link } }
+                Text("A page. Drawn for it.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+            }
+            Link(to: "/reference/pagination-gap", class: "bp-card") {
+                Text("Pagination.Gap", class: "bp-mono") { style { font-size: 14px; color: $link } }
+                Text("The pages left out. Drawn for it.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+            }
+            Link(to: "/reference/stepper", class: "bp-card") {
+                Text("Stepper", class: "bp-mono") { style { font-size: 14px; color: $link } }
+                Text("Steps taken in order — an account, then billing, then a summary — with each step's state (done, current, an error) and the current step's block shown. bind: holds the current step, from 0; .linear keeps a step out of reach until the ones before it are passed.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+            }
+            Link(to: "/reference/stepper-step", class: "bp-card") {
+                Text("Stepper.Step", class: "bp-mono") { style { font-size: 14px; color: $link } }
+                Text("One step: its title in the list, its block shown while it is the current one.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+            }
+            Link(to: "/reference/stepper-list", class: "bp-card") {
+                Text("Stepper.List", class: "bp-mono") { style { font-size: 14px; color: $link } }
+                Text("The steps, in order. Drawn for it.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+            }
+            Link(to: "/reference/stepper-item", class: "bp-card") {
+                Text("Stepper.Item", class: "bp-mono") { style { font-size: 14px; color: $link } }
+                Text("A step in the list. Drawn for it.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
             }
         }
         Heading("Routing", id: "routing").h2
@@ -578,6 +634,38 @@ page ReferenceIndexPage(path: "/reference", title: "Reference", description: "Ev
                 Text("InputGroup.Clear", class: "bp-mono") { style { font-size: 14px; color: $link } }
                 Text("A button that empties the input and puts the focus back in it; hidden while it is empty.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
             }
+            Link(to: "/reference/radiogroup", class: "bp-card") {
+                Text("RadioGroup", class: "bp-mono") { style { font-size: 14px; color: $link } }
+                Text("One choice of several, as native radio buttons under a legend: the arrow keys move between them, and .cards draws each as a card with its hint.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+            }
+            Link(to: "/reference/radiogroup-option", class: "bp-card") {
+                Text("RadioGroup.Option", class: "bp-mono") { style { font-size: 14px; color: $link } }
+                Text("One choice: its words, its value, and a hint said with it.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+            }
+            Link(to: "/reference/radiogroup-legend", class: "bp-card") {
+                Text("RadioGroup.Legend", class: "bp-mono") { style { font-size: 14px; color: $link } }
+                Text("Its legend. Drawn for it.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+            }
+            Link(to: "/reference/radiogroup-hint", class: "bp-card") {
+                Text("RadioGroup.Hint", class: "bp-mono") { style { font-size: 14px; color: $link } }
+                Text("An option's hint. Drawn for it.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+            }
+            Link(to: "/reference/numberinput", class: "bp-card") {
+                Text("NumberInput", class: "bp-mono") { style { font-size: 14px; color: $link } }
+                Text("A number with − and + beside it: the arrow keys step it, PageUp and PageDown by ten steps, and it stays between min: and max:.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+            }
+            Link(to: "/reference/numberinput-decrease", class: "bp-card") {
+                Text("NumberInput.Decrease", class: "bp-mono") { style { font-size: 14px; color: $link } }
+                Text("Its − button. Drawn for it.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+            }
+            Link(to: "/reference/numberinput-increase", class: "bp-card") {
+                Text("NumberInput.Increase", class: "bp-mono") { style { font-size: 14px; color: $link } }
+                Text("Its + button. Drawn for it.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+            }
+            Link(to: "/reference/calendar", class: "bp-card") {
+                Text("Calendar", class: "bp-mono") { style { font-size: 14px; color: $link } }
+                Text("A month as a grid of days, chosen with a press or the keyboard — the arrows by day and week, PageUp and PageDown by month, Home and End to the week's ends — one day, a range, or several. bind: holds a Date, a \{ start, end \} with .range, a list with .multiple.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+            }
         }
         Heading("Feedback", id: "feedback").h2
         Grid(columns: { base: 1, sm: 2, xl: 3 }, gap: .sm) {
@@ -663,6 +751,18 @@ page ReferenceIndexPage(path: "/reference", title: "Reference", description: "Ev
             Link(to: "/reference/localeswitch", class: "bp-card") {
                 Text("LocaleSwitch", class: "bp-mono") { style { font-size: 14px; color: $link } }
                 Text("One button for each of i18n.locales, each written in its own language (English, العربية), the current one pressed; a press is setLocale.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+            }
+            Link(to: "/reference/toggle", class: "bp-card") {
+                Text("Toggle", class: "bp-mono") { style { font-size: 14px; color: $link } }
+                Text("A button that stays pressed while its state holds — bold in an editor, a filter that is on: aria-pressed, a press flipping bind:.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+            }
+            Link(to: "/reference/togglegroup", class: "bp-card") {
+                Text("ToggleGroup", class: "bp-mono") { style { font-size: 14px; color: $link } }
+                Text("Buttons of which one is chosen — a view switcher, a segmented control — or, .multiple, several: one stop for Tab, the arrow keys inside it, each aria-pressed. bind: holds the chosen value: (a list with .multiple).", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+            }
+            Link(to: "/reference/togglegroup-item", class: "bp-card") {
+                Text("ToggleGroup.Item", class: "bp-mono") { style { font-size: 14px; color: $link } }
+                Text("One choice: its words, and the value bind: holds when it is chosen.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
             }
             Link(to: "/reference/button", class: "bp-card") {
                 Text("Button", class: "bp-mono") { style { font-size: 14px; color: $link } }
@@ -2052,6 +2152,302 @@ page BuiltinOnthispageTitle(path: "/reference/onthispage-title", title: "OnThisP
         SlotsAndParts(slots: [], parts: [])
         Heading(t("ref.example"), id: "example").h2
         CodeBlock(#"OnThisPage(levels: 2)"#, title: "wf")
+    }
+}
+
+page BuiltinPagination(path: "/reference/pagination", title: "Pagination — Reference", description: "Pagination: Pages of a list: Previous, the first and last pages, those around the current one with a gap for the rest, and Next. The current page is…") {
+    ReferenceItemShell("Pagination", summary: "Pages of a list: Previous, the first and last pages, those around the current one with a gap for the rest, and Next. The current page is aria-current=\"page\"; bind: holds it, from 1.", signature: "Pagination(bind: State, pages: Number, siblings: Number, …)", since: "6.2.0", outputs: [], group: "Navigation", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
+        stage {
+            Stage(label: "Pagination") {
+                controls {
+                    StageControl({ name: "label", kind: "string", options: [], value: "" })
+                }
+                Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
+            }
+        }
+        notes { Text(t("stage.static"), class: "bp-small") }
+        Heading(t("ref.tab.props"), id: "props").h2
+        PropsTable(rows: [{ name: "bind:", type: "State  (required)", meaning: "The current page, from 1" }, { name: "pages:", type: "Number  (required)", meaning: "How many pages there are" }, { name: "siblings:", type: "Number", meaning: "How many pages either side of the current one it shows (unset, 1)" }, { name: "label:", type: "String", meaning: "Its name for a screen reader; unset, `Pagination`" }], caption: "Props of Pagination")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Heading(t("ref.tab.flags"), id: "flags").h2
+        Markdown(t("ref.flags.body"), class: "bp-prose")
+        Text(t("ref.noflags"), class: "bp-small")
+        Heading(t("ref.tab.events"), id: "events").h2
+        Markdown(t("ref.universal.link"), class: "bp-prose")
+        Heading(t("ref.slotsparts"), id: "slots").h2
+        SlotsAndParts(slots: [], parts: [PropRow(name: "Pagination.Prev", kind: "pagination-prev", detail: "The previous page. Drawn for it."), PropRow(name: "Pagination.Next", kind: "pagination-next", detail: "The next page. Drawn for it."), PropRow(name: "Pagination.Page", kind: "pagination-page", detail: "A page. Drawn for it."), PropRow(name: "Pagination.Gap", kind: "pagination-gap", detail: "The pages left out. Drawn for it.")])
+        Row(gap: .sm) {
+            style { gap: 8px; flex-wrap: wrap }
+            Link("Pagination.Prev", to: "/reference/pagination-prev", class: "bp-button")
+            Link("Pagination.Next", to: "/reference/pagination-next", class: "bp-button")
+            Link("Pagination.Page", to: "/reference/pagination-page", class: "bp-button")
+            Link("Pagination.Gap", to: "/reference/pagination-gap", class: "bp-button")
+        }
+        Heading(t("ref.example"), id: "example").h2
+        CodeBlock(#"state page = 5
+Pagination(bind: page, pages: 12, siblings: 1)"#, title: "wf")
+        Markdown(t("ref.renders", { cls: "wf-pagination" }), class: "bp-prose")
+    }
+}
+
+page BuiltinPaginationPrev(path: "/reference/pagination-prev", title: "Pagination.Prev — Reference", description: "Pagination.Prev: The previous page. Drawn for it.") {
+    ReferenceItemShell("Pagination.Prev", summary: "The previous page. Drawn for it.", signature: "Pagination.Prev(disabled: Bool) \{ … \}", since: "6.2.0", outputs: [], group: "Navigation", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C03", title: "A part outside the component it belongs to", to: "/errors/C03"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
+        stage {
+            Stage(label: "Pagination.Prev") {
+                controls {
+                    StageControl({ name: "disabled", kind: "bool", options: [], value: "", sink: "attribute" })
+                }
+                Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
+            }
+        }
+        notes { Text(t("stage.static"), class: "bp-small") }
+        Markdown(t("ref.partof", { owner: "Pagination", to: "/reference/pagination" }), class: "bp-prose")
+        Heading(t("ref.tab.props"), id: "props").h2
+        PropsTable(rows: [{ name: "disabled:", type: "Bool", meaning: "Whether the control is inert" }], caption: "Props of Pagination.Prev")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Heading(t("ref.tab.flags"), id: "flags").h2
+        Markdown(t("ref.flags.body"), class: "bp-prose")
+        Row(gap: .sm) {
+            style { gap: 8px; flex-wrap: wrap }
+            Text(".disabled", class: "bp-label bp-mono")
+        }
+        Heading(t("ref.tab.events"), id: "events").h2
+        Markdown(t("ref.universal.link"), class: "bp-prose")
+        Heading(t("ref.slotsparts"), id: "slots").h2
+        SlotsAndParts(slots: [PropRow(name: "children", kind: "", detail: "")], parts: [])
+        Heading(t("ref.example"), id: "example").h2
+        CodeBlock(#"state page = 5
+Pagination(bind: page, pages: 12, siblings: 1)"#, title: "wf")
+    }
+}
+
+page BuiltinPaginationNext(path: "/reference/pagination-next", title: "Pagination.Next — Reference", description: "Pagination.Next: The next page. Drawn for it.") {
+    ReferenceItemShell("Pagination.Next", summary: "The next page. Drawn for it.", signature: "Pagination.Next(disabled: Bool) \{ … \}", since: "6.2.0", outputs: [], group: "Navigation", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C03", title: "A part outside the component it belongs to", to: "/errors/C03"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
+        stage {
+            Stage(label: "Pagination.Next") {
+                controls {
+                    StageControl({ name: "disabled", kind: "bool", options: [], value: "", sink: "attribute" })
+                }
+                Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
+            }
+        }
+        notes { Text(t("stage.static"), class: "bp-small") }
+        Markdown(t("ref.partof", { owner: "Pagination", to: "/reference/pagination" }), class: "bp-prose")
+        Heading(t("ref.tab.props"), id: "props").h2
+        PropsTable(rows: [{ name: "disabled:", type: "Bool", meaning: "Whether the control is inert" }], caption: "Props of Pagination.Next")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Heading(t("ref.tab.flags"), id: "flags").h2
+        Markdown(t("ref.flags.body"), class: "bp-prose")
+        Row(gap: .sm) {
+            style { gap: 8px; flex-wrap: wrap }
+            Text(".disabled", class: "bp-label bp-mono")
+        }
+        Heading(t("ref.tab.events"), id: "events").h2
+        Markdown(t("ref.universal.link"), class: "bp-prose")
+        Heading(t("ref.slotsparts"), id: "slots").h2
+        SlotsAndParts(slots: [PropRow(name: "children", kind: "", detail: "")], parts: [])
+        Heading(t("ref.example"), id: "example").h2
+        CodeBlock(#"state page = 5
+Pagination(bind: page, pages: 12, siblings: 1)"#, title: "wf")
+    }
+}
+
+page BuiltinPaginationPage(path: "/reference/pagination-page", title: "Pagination.Page — Reference", description: "Pagination.Page: A page. Drawn for it.") {
+    ReferenceItemShell("Pagination.Page", summary: "A page. Drawn for it.", signature: "Pagination.Page(_ text: String) \{ … \}", since: "6.2.0", outputs: [], group: "Navigation", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C03", title: "A part outside the component it belongs to", to: "/errors/C03"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04")], source: "src/registry/builtins.rs") {
+        stage {
+            Stage(label: "Pagination.Page") {
+                controls {
+                    StageControl({ name: "text", kind: "string", options: [], value: "" })
+                }
+                Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
+            }
+        }
+        notes { Text(t("stage.static"), class: "bp-small") }
+        Markdown(t("ref.partof", { owner: "Pagination", to: "/reference/pagination" }), class: "bp-prose")
+        Heading(t("ref.tab.props"), id: "props").h2
+        PropsTable(rows: [{ name: "text", type: "String  (positional)", meaning: "Its number" }], caption: "Props of Pagination.Page")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Heading(t("ref.tab.flags"), id: "flags").h2
+        Markdown(t("ref.flags.body"), class: "bp-prose")
+        Text(t("ref.noflags"), class: "bp-small")
+        Heading(t("ref.tab.events"), id: "events").h2
+        Markdown(t("ref.universal.link"), class: "bp-prose")
+        Heading(t("ref.slotsparts"), id: "slots").h2
+        SlotsAndParts(slots: [PropRow(name: "children", kind: "", detail: "")], parts: [])
+        Heading(t("ref.example"), id: "example").h2
+        CodeBlock(#"state page = 5
+Pagination(bind: page, pages: 12, siblings: 1)"#, title: "wf")
+    }
+}
+
+page BuiltinPaginationGap(path: "/reference/pagination-gap", title: "Pagination.Gap — Reference", description: "Pagination.Gap: The pages left out. Drawn for it.") {
+    ReferenceItemShell("Pagination.Gap", summary: "The pages left out. Drawn for it.", signature: "Pagination.Gap(_ text: String) \{ … \}", since: "6.2.0", outputs: [], group: "Navigation", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C03", title: "A part outside the component it belongs to", to: "/errors/C03"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04")], source: "src/registry/builtins.rs") {
+        stage {
+            Stage(label: "Pagination.Gap") {
+                controls {
+                    StageControl({ name: "text", kind: "string", options: [], value: "" })
+                }
+                Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
+            }
+        }
+        notes { Text(t("stage.static"), class: "bp-small") }
+        Markdown(t("ref.partof", { owner: "Pagination", to: "/reference/pagination" }), class: "bp-prose")
+        Heading(t("ref.tab.props"), id: "props").h2
+        PropsTable(rows: [{ name: "text", type: "String  (positional)", meaning: "An ellipsis" }], caption: "Props of Pagination.Gap")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Heading(t("ref.tab.flags"), id: "flags").h2
+        Markdown(t("ref.flags.body"), class: "bp-prose")
+        Text(t("ref.noflags"), class: "bp-small")
+        Heading(t("ref.tab.events"), id: "events").h2
+        Markdown(t("ref.universal.link"), class: "bp-prose")
+        Heading(t("ref.slotsparts"), id: "slots").h2
+        SlotsAndParts(slots: [PropRow(name: "children", kind: "", detail: "")], parts: [])
+        Heading(t("ref.example"), id: "example").h2
+        CodeBlock(#"state page = 5
+Pagination(bind: page, pages: 12, siblings: 1)"#, title: "wf")
+    }
+}
+
+page BuiltinStepper(path: "/reference/stepper", title: "Stepper — Reference", description: "Stepper: Steps taken in order — an account, then billing, then a summary — with each step's state (done, current, an error) and the current step's…") {
+    ReferenceItemShell("Stepper", summary: "Steps taken in order — an account, then billing, then a summary — with each step's state (done, current, an error) and the current step's block shown. bind: holds the current step, from 0; .linear keeps a step out of reach until the ones before it are passed.", signature: "Stepper(bind: State, linear: Bool) \{ … \}", since: "6.2.0", outputs: [], group: "Navigation", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
+        stage {
+            Stage(label: "Stepper") {
+                controls {
+                    StageControl({ name: "linear", kind: "bool", options: [], value: "", sink: "special" })
+                }
+                Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
+            }
+        }
+        notes { Text(t("stage.static"), class: "bp-small") }
+        Heading(t("ref.tab.props"), id: "props").h2
+        PropsTable(rows: [{ name: "bind:", type: "State  (required)", meaning: "The current step, from 0" }, { name: "linear:", type: "Bool", meaning: "A step ahead of the current one cannot be pressed" }], caption: "Props of Stepper")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Heading(t("ref.tab.flags"), id: "flags").h2
+        Markdown(t("ref.flags.body"), class: "bp-prose")
+        Row(gap: .sm) {
+            style { gap: 8px; flex-wrap: wrap }
+            Text(".linear", class: "bp-label bp-mono")
+        }
+        Heading(t("ref.tab.events"), id: "events").h2
+        Markdown(t("ref.universal.link"), class: "bp-prose")
+        Heading(t("ref.slotsparts"), id: "slots").h2
+        SlotsAndParts(slots: [PropRow(name: "children", kind: "", detail: "")], parts: [PropRow(name: "Stepper.Step", kind: "stepper-step", detail: "One step: its title in the list, its block shown while it is the current one."), PropRow(name: "Stepper.List", kind: "stepper-list", detail: "The steps, in order. Drawn for it."), PropRow(name: "Stepper.Item", kind: "stepper-item", detail: "A step in the list. Drawn for it.")])
+        Row(gap: .sm) {
+            style { gap: 8px; flex-wrap: wrap }
+            Link("Stepper.Step", to: "/reference/stepper-step", class: "bp-button")
+            Link("Stepper.List", to: "/reference/stepper-list", class: "bp-button")
+            Link("Stepper.Item", to: "/reference/stepper-item", class: "bp-button")
+        }
+        Heading(t("ref.example"), id: "example").h2
+        CodeBlock(#"state step = 0
+Stepper(bind: step) {
+    Stepper.Step("Account") { Text("Your name and email.") }
+    Stepper.Step("Billing", done: step > 1) { Text("A card on file.") }
+    Stepper.Step("Confirm") { Text("Check and send.") }
+}"#, title: "wf")
+        Markdown(t("ref.renders", { cls: "wf-stepper" }), class: "bp-prose")
+    }
+}
+
+page BuiltinStepperStep(path: "/reference/stepper-step", title: "Stepper.Step — Reference", description: "Stepper.Step: One step: its title in the list, its block shown while it is the current one.") {
+    ReferenceItemShell("Stepper.Step", summary: "One step: its title in the list, its block shown while it is the current one.", signature: "Stepper.Step(_ title: String, done: Bool, error: Bool) \{ … \}", since: "6.2.0", outputs: [], group: "Navigation", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C03", title: "A part outside the component it belongs to", to: "/errors/C03"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04")], source: "src/registry/builtins.rs") {
+        stage {
+            Stage(label: "Stepper.Step") {
+                controls {
+                    StageControl({ name: "title", kind: "string", options: [], value: "" })
+                    StageControl({ name: "done", kind: "bool", options: [], value: "", sink: "special" })
+                    StageControl({ name: "error", kind: "bool", options: [], value: "", sink: "special" })
+                }
+                Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
+            }
+        }
+        notes { Text(t("stage.static"), class: "bp-small") }
+        Markdown(t("ref.partof", { owner: "Stepper", to: "/reference/stepper" }), class: "bp-prose")
+        Heading(t("ref.tab.props"), id: "props").h2
+        PropsTable(rows: [{ name: "title", type: "String  (positional)", meaning: "Its title" }, { name: "done:", type: "Bool", meaning: "Passed: drawn with a check" }, { name: "error:", type: "Bool", meaning: "Something in it needs fixing" }], caption: "Props of Stepper.Step")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Heading(t("ref.tab.flags"), id: "flags").h2
+        Markdown(t("ref.flags.body"), class: "bp-prose")
+        Row(gap: .sm) {
+            style { gap: 8px; flex-wrap: wrap }
+            Text(".done", class: "bp-label bp-mono")
+            Text(".error", class: "bp-label bp-mono")
+        }
+        Heading(t("ref.tab.events"), id: "events").h2
+        Markdown(t("ref.universal.link"), class: "bp-prose")
+        Heading(t("ref.slotsparts"), id: "slots").h2
+        SlotsAndParts(slots: [PropRow(name: "children", kind: "", detail: "")], parts: [])
+        Heading(t("ref.example"), id: "example").h2
+        CodeBlock(#"state step = 0
+Stepper(bind: step) {
+    Stepper.Step("Account") { Text("Your name and email.") }
+    Stepper.Step("Billing", done: step > 1) { Text("A card on file.") }
+    Stepper.Step("Confirm") { Text("Check and send.") }
+}"#, title: "wf")
+    }
+}
+
+page BuiltinStepperList(path: "/reference/stepper-list", title: "Stepper.List — Reference", description: "Stepper.List: The steps, in order. Drawn for it.") {
+    ReferenceItemShell("Stepper.List", summary: "The steps, in order. Drawn for it.", signature: "Stepper.List \{ … \}", since: "6.2.0", outputs: [], group: "Navigation", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C03", title: "A part outside the component it belongs to", to: "/errors/C03"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
+        stage {
+            Stage(label: "Stepper.List") {
+                controls {
+                    Text(t("stage.nocontrols"), class: "bp-small")
+                }
+                Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
+            }
+        }
+        notes { Text(t("stage.static"), class: "bp-small") }
+        Markdown(t("ref.partof", { owner: "Stepper", to: "/reference/stepper" }), class: "bp-prose")
+        Heading(t("ref.tab.props"), id: "props").h2
+        Text(t("ref.noprops"), class: "bp-small")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Heading(t("ref.tab.flags"), id: "flags").h2
+        Markdown(t("ref.flags.body"), class: "bp-prose")
+        Text(t("ref.noflags"), class: "bp-small")
+        Heading(t("ref.tab.events"), id: "events").h2
+        Markdown(t("ref.universal.link"), class: "bp-prose")
+        Heading(t("ref.slotsparts"), id: "slots").h2
+        SlotsAndParts(slots: [PropRow(name: "children", kind: "", detail: "")], parts: [])
+        Heading(t("ref.example"), id: "example").h2
+        CodeBlock(#"state step = 0
+Stepper(bind: step) {
+    Stepper.Step("Account") { Text("Your name and email.") }
+    Stepper.Step("Billing", done: step > 1) { Text("A card on file.") }
+    Stepper.Step("Confirm") { Text("Check and send.") }
+}"#, title: "wf")
+    }
+}
+
+page BuiltinStepperItem(path: "/reference/stepper-item", title: "Stepper.Item — Reference", description: "Stepper.Item: A step in the list. Drawn for it.") {
+    ReferenceItemShell("Stepper.Item", summary: "A step in the list. Drawn for it.", signature: "Stepper.Item \{ … \}", since: "6.2.0", outputs: [], group: "Navigation", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C03", title: "A part outside the component it belongs to", to: "/errors/C03"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
+        stage {
+            Stage(label: "Stepper.Item") {
+                controls {
+                    Text(t("stage.nocontrols"), class: "bp-small")
+                }
+                Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
+            }
+        }
+        notes { Text(t("stage.static"), class: "bp-small") }
+        Markdown(t("ref.partof", { owner: "Stepper", to: "/reference/stepper" }), class: "bp-prose")
+        Heading(t("ref.tab.props"), id: "props").h2
+        Text(t("ref.noprops"), class: "bp-small")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Heading(t("ref.tab.flags"), id: "flags").h2
+        Markdown(t("ref.flags.body"), class: "bp-prose")
+        Text(t("ref.noflags"), class: "bp-small")
+        Heading(t("ref.tab.events"), id: "events").h2
+        Markdown(t("ref.universal.link"), class: "bp-prose")
+        Heading(t("ref.slotsparts"), id: "slots").h2
+        SlotsAndParts(slots: [PropRow(name: "children", kind: "", detail: "")], parts: [])
+        Heading(t("ref.example"), id: "example").h2
+        CodeBlock(#"state step = 0
+Stepper(bind: step) {
+    Stepper.Step("Account") { Text("Your name and email.") }
+    Stepper.Step("Billing", done: step > 1) { Text("A card on file.") }
+    Stepper.Step("Confirm") { Text("Check and send.") }
+}"#, title: "wf")
     }
 }
 
@@ -4142,6 +4538,271 @@ InputGroup { InputGroup.Addon("https://")  Input(bind: site, aria-label: "Site")
     }
 }
 
+page BuiltinRadiogroup(path: "/reference/radiogroup", title: "RadioGroup — Reference", description: "RadioGroup: One choice of several, as native radio buttons under a legend: the arrow keys move between them, and .cards draws each as a card with its hint.") {
+    ReferenceItemShell("RadioGroup", summary: "One choice of several, as native radio buttons under a legend: the arrow keys move between them, and .cards draws each as a card with its hint.", signature: "RadioGroup(bind: State, label: String, cards: Bool) \{ … \}", since: "6.2.0", outputs: [], group: "Form", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
+        stage {
+            Stage(label: "RadioGroup") {
+                controls {
+                    StageControl({ name: "label", kind: "string", options: [], value: "" })
+                    StageControl({ name: "cards", kind: "bool", options: [], value: "", sink: "special" })
+                }
+                Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
+            }
+        }
+        notes { Text(t("stage.static"), class: "bp-small") }
+        Heading(t("ref.tab.props"), id: "props").h2
+        PropsTable(rows: [{ name: "bind:", type: "State  (required)", meaning: "The chosen value" }, { name: "label:", type: "String  (required)", meaning: "What is being chosen: the group's legend" }, { name: "cards:", type: "Bool", meaning: "Each option a card, its hint beneath its words" }], caption: "Props of RadioGroup")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Heading(t("ref.tab.flags"), id: "flags").h2
+        Markdown(t("ref.flags.body"), class: "bp-prose")
+        Row(gap: .sm) {
+            style { gap: 8px; flex-wrap: wrap }
+            Text(".cards", class: "bp-label bp-mono")
+        }
+        Heading(t("ref.tab.events"), id: "events").h2
+        Markdown(t("ref.universal.link"), class: "bp-prose")
+        Heading(t("ref.slotsparts"), id: "slots").h2
+        SlotsAndParts(slots: [PropRow(name: "children", kind: "", detail: "")], parts: [PropRow(name: "RadioGroup.Option", kind: "radiogroup-option", detail: "One choice: its words, its value, and a hint said with it."), PropRow(name: "RadioGroup.Legend", kind: "radiogroup-legend", detail: "Its legend. Drawn for it."), PropRow(name: "RadioGroup.Hint", kind: "radiogroup-hint", detail: "An option's hint. Drawn for it.")])
+        Row(gap: .sm) {
+            style { gap: 8px; flex-wrap: wrap }
+            Link("RadioGroup.Option", to: "/reference/radiogroup-option", class: "bp-button")
+            Link("RadioGroup.Legend", to: "/reference/radiogroup-legend", class: "bp-button")
+            Link("RadioGroup.Hint", to: "/reference/radiogroup-hint", class: "bp-button")
+        }
+        Heading(t("ref.example"), id: "example").h2
+        CodeBlock(#"state plan = "free"
+RadioGroup(bind: plan, label: "Plan").cards {
+    RadioGroup.Option("Free", value: "free", hint: "For trying it out")
+    RadioGroup.Option("Team", value: "team", hint: "€8 a seat")
+}"#, title: "wf")
+        Markdown(t("ref.renders", { cls: "wf-radio-group" }), class: "bp-prose")
+    }
+}
+
+page BuiltinRadiogroupOption(path: "/reference/radiogroup-option", title: "RadioGroup.Option — Reference", description: "RadioGroup.Option: One choice: its words, its value, and a hint said with it.") {
+    ReferenceItemShell("RadioGroup.Option", summary: "One choice: its words, its value, and a hint said with it.", signature: "RadioGroup.Option(_ label: String, value: Any, hint: String) \{ … \}", since: "6.2.0", outputs: [], group: "Form", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C03", title: "A part outside the component it belongs to", to: "/errors/C03"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04")], source: "src/registry/builtins.rs") {
+        stage {
+            Stage(label: "RadioGroup.Option") {
+                controls {
+                    StageControl({ name: "label", kind: "string", options: [], value: "" })
+                    StageControl({ name: "hint", kind: "string", options: [], value: "" })
+                }
+                Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
+            }
+        }
+        notes { Text(t("stage.static"), class: "bp-small") }
+        Markdown(t("ref.partof", { owner: "RadioGroup", to: "/reference/radiogroup" }), class: "bp-prose")
+        Heading(t("ref.tab.props"), id: "props").h2
+        PropsTable(rows: [{ name: "label", type: "String  (positional)", meaning: "Its words" }, { name: "value:", type: "Any  (required)", meaning: "What `bind:` holds when it is chosen" }, { name: "hint:", type: "String", meaning: "A line beneath it, read with it" }], caption: "Props of RadioGroup.Option")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Heading(t("ref.tab.flags"), id: "flags").h2
+        Markdown(t("ref.flags.body"), class: "bp-prose")
+        Text(t("ref.noflags"), class: "bp-small")
+        Heading(t("ref.tab.events"), id: "events").h2
+        Markdown(t("ref.universal.link"), class: "bp-prose")
+        Heading(t("ref.slotsparts"), id: "slots").h2
+        SlotsAndParts(slots: [PropRow(name: "children", kind: "", detail: "")], parts: [])
+        Heading(t("ref.example"), id: "example").h2
+        CodeBlock(#"state plan = "free"
+RadioGroup(bind: plan, label: "Plan").cards {
+    RadioGroup.Option("Free", value: "free", hint: "For trying it out")
+    RadioGroup.Option("Team", value: "team", hint: "€8 a seat")
+}"#, title: "wf")
+    }
+}
+
+page BuiltinRadiogroupLegend(path: "/reference/radiogroup-legend", title: "RadioGroup.Legend — Reference", description: "RadioGroup.Legend: Its legend. Drawn for it.") {
+    ReferenceItemShell("RadioGroup.Legend", summary: "Its legend. Drawn for it.", signature: "RadioGroup.Legend(_ text: String) \{ … \}", since: "6.2.0", outputs: [], group: "Form", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C03", title: "A part outside the component it belongs to", to: "/errors/C03"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04")], source: "src/registry/builtins.rs") {
+        stage {
+            Stage(label: "RadioGroup.Legend") {
+                controls {
+                    StageControl({ name: "text", kind: "string", options: [], value: "" })
+                }
+                Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
+            }
+        }
+        notes { Text(t("stage.static"), class: "bp-small") }
+        Markdown(t("ref.partof", { owner: "RadioGroup", to: "/reference/radiogroup" }), class: "bp-prose")
+        Heading(t("ref.tab.props"), id: "props").h2
+        PropsTable(rows: [{ name: "text", type: "String  (positional)", meaning: "The legend" }], caption: "Props of RadioGroup.Legend")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Heading(t("ref.tab.flags"), id: "flags").h2
+        Markdown(t("ref.flags.body"), class: "bp-prose")
+        Text(t("ref.noflags"), class: "bp-small")
+        Heading(t("ref.tab.events"), id: "events").h2
+        Markdown(t("ref.universal.link"), class: "bp-prose")
+        Heading(t("ref.slotsparts"), id: "slots").h2
+        SlotsAndParts(slots: [PropRow(name: "children", kind: "", detail: "")], parts: [])
+        Heading(t("ref.example"), id: "example").h2
+        CodeBlock(#"state plan = "free"
+RadioGroup(bind: plan, label: "Plan").cards {
+    RadioGroup.Option("Free", value: "free", hint: "For trying it out")
+    RadioGroup.Option("Team", value: "team", hint: "€8 a seat")
+}"#, title: "wf")
+    }
+}
+
+page BuiltinRadiogroupHint(path: "/reference/radiogroup-hint", title: "RadioGroup.Hint — Reference", description: "RadioGroup.Hint: An option's hint. Drawn for it.") {
+    ReferenceItemShell("RadioGroup.Hint", summary: "An option's hint. Drawn for it.", signature: "RadioGroup.Hint(_ text: String) \{ … \}", since: "6.2.0", outputs: [], group: "Form", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C03", title: "A part outside the component it belongs to", to: "/errors/C03"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04")], source: "src/registry/builtins.rs") {
+        stage {
+            Stage(label: "RadioGroup.Hint") {
+                controls {
+                    StageControl({ name: "text", kind: "string", options: [], value: "" })
+                }
+                Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
+            }
+        }
+        notes { Text(t("stage.static"), class: "bp-small") }
+        Markdown(t("ref.partof", { owner: "RadioGroup", to: "/reference/radiogroup" }), class: "bp-prose")
+        Heading(t("ref.tab.props"), id: "props").h2
+        PropsTable(rows: [{ name: "text", type: "String  (positional)", meaning: "The hint" }], caption: "Props of RadioGroup.Hint")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Heading(t("ref.tab.flags"), id: "flags").h2
+        Markdown(t("ref.flags.body"), class: "bp-prose")
+        Text(t("ref.noflags"), class: "bp-small")
+        Heading(t("ref.tab.events"), id: "events").h2
+        Markdown(t("ref.universal.link"), class: "bp-prose")
+        Heading(t("ref.slotsparts"), id: "slots").h2
+        SlotsAndParts(slots: [PropRow(name: "children", kind: "", detail: "")], parts: [])
+        Heading(t("ref.example"), id: "example").h2
+        CodeBlock(#"state plan = "free"
+RadioGroup(bind: plan, label: "Plan").cards {
+    RadioGroup.Option("Free", value: "free", hint: "For trying it out")
+    RadioGroup.Option("Team", value: "team", hint: "€8 a seat")
+}"#, title: "wf")
+    }
+}
+
+page BuiltinNumberinput(path: "/reference/numberinput", title: "NumberInput — Reference", description: "NumberInput: A number with − and + beside it: the arrow keys step it, PageUp and PageDown by ten steps, and it stays between min: and max:.") {
+    ReferenceItemShell("NumberInput", summary: "A number with − and + beside it: the arrow keys step it, PageUp and PageDown by ten steps, and it stays between min: and max:.", signature: "NumberInput(bind: State, min: Number, max: Number, …)", since: "6.2.0", outputs: [], group: "Form", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
+        stage {
+            Stage(label: "NumberInput") {
+                controls {
+                    StageControl({ name: "label", kind: "string", options: [], value: "" })
+                    StageControl({ name: "hint", kind: "string", options: [], value: "" })
+                }
+                Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
+            }
+        }
+        notes { Text(t("stage.static"), class: "bp-small") }
+        Heading(t("ref.tab.props"), id: "props").h2
+        PropsTable(rows: [{ name: "bind:", type: "State  (required)", meaning: "The `Number` it holds" }, { name: "min:", type: "Number", meaning: "The lowest it goes" }, { name: "max:", type: "Number", meaning: "The highest it goes" }, { name: "step:", type: "Number", meaning: "How far a press moves it (unset, 1)" }, { name: "label:", type: "String", meaning: "Visible label; also the control's accessible name" }, { name: "hint:", type: "String", meaning: "Help text under the control, linked to it by `aria-describedby`" }], caption: "Props of NumberInput")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Heading(t("ref.tab.flags"), id: "flags").h2
+        Markdown(t("ref.flags.body"), class: "bp-prose")
+        Text(t("ref.noflags"), class: "bp-small")
+        Heading(t("ref.tab.events"), id: "events").h2
+        Markdown(t("ref.universal.link"), class: "bp-prose")
+        Heading(t("ref.slotsparts"), id: "slots").h2
+        SlotsAndParts(slots: [], parts: [PropRow(name: "NumberInput.Decrease", kind: "numberinput-decrease", detail: "Its − button. Drawn for it."), PropRow(name: "NumberInput.Increase", kind: "numberinput-increase", detail: "Its + button. Drawn for it.")])
+        Row(gap: .sm) {
+            style { gap: 8px; flex-wrap: wrap }
+            Link("NumberInput.Decrease", to: "/reference/numberinput-decrease", class: "bp-button")
+            Link("NumberInput.Increase", to: "/reference/numberinput-increase", class: "bp-button")
+        }
+        Heading(t("ref.example"), id: "example").h2
+        CodeBlock(#"state qty = 1
+NumberInput(bind: qty, min: 1, max: 99, label: "Quantity")"#, title: "wf")
+        Markdown(t("ref.renders", { cls: "wf-number-input" }), class: "bp-prose")
+    }
+}
+
+page BuiltinNumberinputDecrease(path: "/reference/numberinput-decrease", title: "NumberInput.Decrease — Reference", description: "NumberInput.Decrease: Its − button. Drawn for it.") {
+    ReferenceItemShell("NumberInput.Decrease", summary: "Its − button. Drawn for it.", signature: "NumberInput.Decrease(disabled: Bool) \{ … \}", since: "6.2.0", outputs: [], group: "Form", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C03", title: "A part outside the component it belongs to", to: "/errors/C03"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
+        stage {
+            Stage(label: "NumberInput.Decrease") {
+                controls {
+                    StageControl({ name: "disabled", kind: "bool", options: [], value: "", sink: "attribute" })
+                }
+                Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
+            }
+        }
+        notes { Text(t("stage.static"), class: "bp-small") }
+        Markdown(t("ref.partof", { owner: "NumberInput", to: "/reference/numberinput" }), class: "bp-prose")
+        Heading(t("ref.tab.props"), id: "props").h2
+        PropsTable(rows: [{ name: "disabled:", type: "Bool", meaning: "Whether the control is inert" }], caption: "Props of NumberInput.Decrease")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Heading(t("ref.tab.flags"), id: "flags").h2
+        Markdown(t("ref.flags.body"), class: "bp-prose")
+        Row(gap: .sm) {
+            style { gap: 8px; flex-wrap: wrap }
+            Text(".disabled", class: "bp-label bp-mono")
+        }
+        Heading(t("ref.tab.events"), id: "events").h2
+        Markdown(t("ref.universal.link"), class: "bp-prose")
+        Heading(t("ref.slotsparts"), id: "slots").h2
+        SlotsAndParts(slots: [PropRow(name: "children", kind: "", detail: "")], parts: [])
+        Heading(t("ref.example"), id: "example").h2
+        CodeBlock(#"state qty = 1
+NumberInput(bind: qty, min: 1, max: 99, label: "Quantity")"#, title: "wf")
+    }
+}
+
+page BuiltinNumberinputIncrease(path: "/reference/numberinput-increase", title: "NumberInput.Increase — Reference", description: "NumberInput.Increase: Its + button. Drawn for it.") {
+    ReferenceItemShell("NumberInput.Increase", summary: "Its + button. Drawn for it.", signature: "NumberInput.Increase(disabled: Bool) \{ … \}", since: "6.2.0", outputs: [], group: "Form", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C03", title: "A part outside the component it belongs to", to: "/errors/C03"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
+        stage {
+            Stage(label: "NumberInput.Increase") {
+                controls {
+                    StageControl({ name: "disabled", kind: "bool", options: [], value: "", sink: "attribute" })
+                }
+                Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
+            }
+        }
+        notes { Text(t("stage.static"), class: "bp-small") }
+        Markdown(t("ref.partof", { owner: "NumberInput", to: "/reference/numberinput" }), class: "bp-prose")
+        Heading(t("ref.tab.props"), id: "props").h2
+        PropsTable(rows: [{ name: "disabled:", type: "Bool", meaning: "Whether the control is inert" }], caption: "Props of NumberInput.Increase")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Heading(t("ref.tab.flags"), id: "flags").h2
+        Markdown(t("ref.flags.body"), class: "bp-prose")
+        Row(gap: .sm) {
+            style { gap: 8px; flex-wrap: wrap }
+            Text(".disabled", class: "bp-label bp-mono")
+        }
+        Heading(t("ref.tab.events"), id: "events").h2
+        Markdown(t("ref.universal.link"), class: "bp-prose")
+        Heading(t("ref.slotsparts"), id: "slots").h2
+        SlotsAndParts(slots: [PropRow(name: "children", kind: "", detail: "")], parts: [])
+        Heading(t("ref.example"), id: "example").h2
+        CodeBlock(#"state qty = 1
+NumberInput(bind: qty, min: 1, max: 99, label: "Quantity")"#, title: "wf")
+    }
+}
+
+page BuiltinCalendar(path: "/reference/calendar", title: "Calendar — Reference", description: "Calendar: A month as a grid of days, chosen with a press or the keyboard — the arrows by day and week, PageUp and PageDown by month, Home and End to…") {
+    ReferenceItemShell("Calendar", summary: "A month as a grid of days, chosen with a press or the keyboard — the arrows by day and week, PageUp and PageDown by month, Home and End to the week's ends — one day, a range, or several. bind: holds a Date, a \{ start, end \} with .range, a list with .multiple.", signature: "Calendar(bind: State, mode: Enum, min: Any, …)", since: "6.2.0", outputs: [], group: "Form", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
+        stage {
+            Stage(label: "Calendar") {
+                controls {
+                    StageControl({ name: "mode", kind: "enum", options: ["single", "range", "multiple"], value: "single", sink: "special" })
+                    StageControl({ name: "label", kind: "string", options: [], value: "" })
+                }
+                Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
+            }
+        }
+        notes { Text(t("stage.static"), class: "bp-small") }
+        Heading(t("ref.tab.props"), id: "props").h2
+        PropsTable(rows: [{ name: "bind:", type: "State  (required)", meaning: "The chosen day, range or days" }, { name: "mode:", type: ".single .range .multiple", meaning: "How many days it holds" }, { name: "min:", type: "Any", meaning: "The first day that can be chosen" }, { name: "max:", type: "Any", meaning: "The last day that can be chosen" }, { name: "disabled:", type: "Any", meaning: "Days that cannot be chosen: a list of them, or `d => d.weekday() >= 6`" }, { name: "label:", type: "String", meaning: "Its name for a screen reader; unset, `Calendar`" }], caption: "Props of Calendar")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Heading(t("ref.tab.flags"), id: "flags").h2
+        Markdown(t("ref.flags.body"), class: "bp-prose")
+        Row(gap: .sm) {
+            style { gap: 8px; flex-wrap: wrap }
+            Text(".single", class: "bp-label bp-mono")
+            Text(".range", class: "bp-label bp-mono")
+            Text(".multiple", class: "bp-label bp-mono")
+        }
+        Heading(t("ref.tab.events"), id: "events").h2
+        Markdown(t("ref.universal.link"), class: "bp-prose")
+        Heading(t("ref.slotsparts"), id: "slots").h2
+        SlotsAndParts(slots: [], parts: [])
+        Heading(t("ref.example"), id: "example").h2
+        CodeBlock(#"state day: Date? = null
+Calendar(bind: day, min: @2026-01-01, disabled: d => d.weekday() >= 6, label: "Delivery day")"#, title: "wf")
+        Markdown(t("ref.renders", { cls: "wf-calendar" }), class: "bp-prose")
+    }
+}
+
 page BuiltinAlert(path: "/reference/alert", title: "Alert — Reference", description: "Alert: Inline notice; a danger or warning one is announced as an alert.") {
     state stageTone = "info"
     ReferenceItemShell("Alert", summary: "Inline notice; a danger or warning one is announced as an alert.", signature: "Alert(_ message: String, tone: Enum) \{ … \}", older: true, outputs: [], group: "Feedback", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04")], source: "src/registry/builtins.rs") {
@@ -4872,6 +5533,120 @@ page BuiltinLocaleswitch(path: "/reference/localeswitch", title: "LocaleSwitch �
         Heading(t("ref.example"), id: "example").h2
         CodeBlock(#"LocaleSwitch(label: "Language")"#, title: "wf")
         Markdown(t("ref.renders", { cls: "wf-locale-switch" }), class: "bp-prose")
+    }
+}
+
+page BuiltinToggle(path: "/reference/toggle", title: "Toggle — Reference", description: "Toggle: A button that stays pressed while its state holds — bold in an editor, a filter that is on: aria-pressed, a press flipping bind:.") {
+    ReferenceItemShell("Toggle", summary: "A button that stays pressed while its state holds — bold in an editor, a filter that is on: aria-pressed, a press flipping bind:.", signature: "Toggle(_ label: String, bind: State, icon: String)", since: "6.2.0", outputs: [], group: "Actions", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04")], source: "src/registry/builtins.rs") {
+        stage {
+            Stage(label: "Toggle") {
+                controls {
+                    StageControl({ name: "label", kind: "string", options: [], value: "" })
+                    StageControl({ name: "icon", kind: "string", options: [], value: "" })
+                }
+                Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
+            }
+        }
+        notes { Text(t("stage.static"), class: "bp-small") }
+        Heading(t("ref.tab.props"), id: "props").h2
+        PropsTable(rows: [{ name: "label", type: "String  (positional)", meaning: "Its words" }, { name: "bind:", type: "State  (required)", meaning: "The `Bool` state it shows and flips" }, { name: "icon:", type: "String", meaning: "An icon before the words" }], caption: "Props of Toggle")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Heading(t("ref.tab.flags"), id: "flags").h2
+        Markdown(t("ref.flags.body"), class: "bp-prose")
+        Text(t("ref.noflags"), class: "bp-small")
+        Heading(t("ref.tab.events"), id: "events").h2
+        Markdown(t("ref.universal.link"), class: "bp-prose")
+        Heading(t("ref.slotsparts"), id: "slots").h2
+        SlotsAndParts(slots: [], parts: [])
+        Heading(t("ref.example"), id: "example").h2
+        CodeBlock(#"state bold = false
+Toggle("Bold", bind: bold, icon: "type")"#, title: "wf")
+        Markdown(t("ref.renders", { cls: "wf-btn wf-toggle" }), class: "bp-prose")
+    }
+}
+
+page BuiltinTogglegroup(path: "/reference/togglegroup", title: "ToggleGroup — Reference", description: "ToggleGroup: Buttons of which one is chosen — a view switcher, a segmented control — or, .multiple, several: one stop for Tab, the arrow keys inside…") {
+    ReferenceItemShell("ToggleGroup", summary: "Buttons of which one is chosen — a view switcher, a segmented control — or, .multiple, several: one stop for Tab, the arrow keys inside it, each aria-pressed. bind: holds the chosen value: (a list with .multiple).", signature: "ToggleGroup(bind: State, label: String, multiple: Bool) \{ … \}", since: "6.2.0", outputs: [], group: "Actions", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
+        stage {
+            Stage(label: "ToggleGroup") {
+                controls {
+                    StageControl({ name: "label", kind: "string", options: [], value: "" })
+                    StageControl({ name: "multiple", kind: "bool", options: [], value: "", sink: "special" })
+                }
+                Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
+            }
+        }
+        notes { Text(t("stage.static"), class: "bp-small") }
+        Heading(t("ref.tab.props"), id: "props").h2
+        PropsTable(rows: [{ name: "bind:", type: "State  (required)", meaning: "The chosen value, or a list of them with `.multiple`" }, { name: "label:", type: "String  (required)", meaning: "What the group chooses, for a screen reader" }, { name: "multiple:", type: "Bool", meaning: "Several at once: `bind:` is a list" }], caption: "Props of ToggleGroup")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Heading(t("ref.tab.flags"), id: "flags").h2
+        Markdown(t("ref.flags.body"), class: "bp-prose")
+        Row(gap: .sm) {
+            style { gap: 8px; flex-wrap: wrap }
+            Text(".multiple", class: "bp-label bp-mono")
+        }
+        Heading(t("ref.tab.events"), id: "events").h2
+        Markdown(t("ref.universal.link"), class: "bp-prose")
+        Heading(t("ref.slotsparts"), id: "slots").h2
+        SlotsAndParts(slots: [PropRow(name: "children", kind: "", detail: "")], parts: [PropRow(name: "ToggleGroup.Item", kind: "togglegroup-item", detail: "One choice: its words, and the value bind: holds when it is chosen.")])
+        Row(gap: .sm) {
+            style { gap: 8px; flex-wrap: wrap }
+            Link("ToggleGroup.Item", to: "/reference/togglegroup-item", class: "bp-button")
+        }
+        Heading(t("ref.example"), id: "example").h2
+        CodeBlock(#"state view = "grid"
+ToggleGroup(bind: view, label: "View") {
+    ToggleGroup.Item("Grid", value: "grid", icon: "grid")
+    ToggleGroup.Item("List", value: "list", icon: "list")
+}
+state styles: [String] = []
+ToggleGroup(bind: styles, label: "Text style").multiple {
+    ToggleGroup.Item("Bold", value: "b")
+    ToggleGroup.Item("Italic", value: "i")
+}"#, title: "wf")
+        Markdown(t("ref.renders", { cls: "wf-toggle-group" }), class: "bp-prose")
+    }
+}
+
+page BuiltinTogglegroupItem(path: "/reference/togglegroup-item", title: "ToggleGroup.Item — Reference", description: "ToggleGroup.Item: One choice: its words, and the value bind: holds when it is chosen.") {
+    ReferenceItemShell("ToggleGroup.Item", summary: "One choice: its words, and the value bind: holds when it is chosen.", signature: "ToggleGroup.Item(_ label: String, value: Any, icon: String, disabled: Bool)", since: "6.2.0", outputs: [], group: "Actions", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C03", title: "A part outside the component it belongs to", to: "/errors/C03"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04")], source: "src/registry/builtins.rs") {
+        stage {
+            Stage(label: "ToggleGroup.Item") {
+                controls {
+                    StageControl({ name: "label", kind: "string", options: [], value: "" })
+                    StageControl({ name: "icon", kind: "string", options: [], value: "" })
+                    StageControl({ name: "disabled", kind: "bool", options: [], value: "", sink: "attribute" })
+                }
+                Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
+            }
+        }
+        notes { Text(t("stage.static"), class: "bp-small") }
+        Markdown(t("ref.partof", { owner: "ToggleGroup", to: "/reference/togglegroup" }), class: "bp-prose")
+        Heading(t("ref.tab.props"), id: "props").h2
+        PropsTable(rows: [{ name: "label", type: "String  (positional)", meaning: "Its words" }, { name: "value:", type: "Any  (required)", meaning: "What `bind:` holds when it is chosen" }, { name: "icon:", type: "String", meaning: "An icon before the words" }, { name: "disabled:", type: "Bool", meaning: "Whether the control is inert" }], caption: "Props of ToggleGroup.Item")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Heading(t("ref.tab.flags"), id: "flags").h2
+        Markdown(t("ref.flags.body"), class: "bp-prose")
+        Row(gap: .sm) {
+            style { gap: 8px; flex-wrap: wrap }
+            Text(".disabled", class: "bp-label bp-mono")
+        }
+        Heading(t("ref.tab.events"), id: "events").h2
+        Markdown(t("ref.universal.link"), class: "bp-prose")
+        Heading(t("ref.slotsparts"), id: "slots").h2
+        SlotsAndParts(slots: [], parts: [])
+        Heading(t("ref.example"), id: "example").h2
+        CodeBlock(#"state view = "grid"
+ToggleGroup(bind: view, label: "View") {
+    ToggleGroup.Item("Grid", value: "grid", icon: "grid")
+    ToggleGroup.Item("List", value: "list", icon: "list")
+}
+state styles: [String] = []
+ToggleGroup(bind: styles, label: "Text style").multiple {
+    ToggleGroup.Item("Bold", value: "b")
+    ToggleGroup.Item("Italic", value: "i")
+}"#, title: "wf")
     }
 }
 

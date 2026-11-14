@@ -15,12 +15,12 @@ Every component is written `Name(positional, prop: value).flag { block }`. A **p
 ## Contents
 
 - **Layout**: [`Container`](https://webfluent.monzeromer.dev/reference/container), [`Row`](https://webfluent.monzeromer.dev/reference/row), [`Column`](https://webfluent.monzeromer.dev/reference/column), [`Grid`](https://webfluent.monzeromer.dev/reference/grid), [`Stack`](https://webfluent.monzeromer.dev/reference/stack), [`Spacer`](https://webfluent.monzeromer.dev/reference/spacer), [`VirtualList`](https://webfluent.monzeromer.dev/reference/virtuallist), [`Splitter`](https://webfluent.monzeromer.dev/reference/splitter), [`Divider`](https://webfluent.monzeromer.dev/reference/divider), [`Host`](https://webfluent.monzeromer.dev/reference/host), [`Portal`](https://webfluent.monzeromer.dev/reference/portal), [`Element`](https://webfluent.monzeromer.dev/reference/element)
-- **Navigation**: [`Navbar`](https://webfluent.monzeromer.dev/reference/navbar), [`Sidebar`](https://webfluent.monzeromer.dev/reference/sidebar), [`Link`](https://webfluent.monzeromer.dev/reference/link), [`Tabs`](https://webfluent.monzeromer.dev/reference/tabs), [`Breadcrumb`](https://webfluent.monzeromer.dev/reference/breadcrumb), [`Menu`](https://webfluent.monzeromer.dev/reference/menu), [`OnThisPage`](https://webfluent.monzeromer.dev/reference/onthispage)
+- **Navigation**: [`Navbar`](https://webfluent.monzeromer.dev/reference/navbar), [`Sidebar`](https://webfluent.monzeromer.dev/reference/sidebar), [`Link`](https://webfluent.monzeromer.dev/reference/link), [`Tabs`](https://webfluent.monzeromer.dev/reference/tabs), [`Breadcrumb`](https://webfluent.monzeromer.dev/reference/breadcrumb), [`Menu`](https://webfluent.monzeromer.dev/reference/menu), [`OnThisPage`](https://webfluent.monzeromer.dev/reference/onthispage), [`Pagination`](https://webfluent.monzeromer.dev/reference/pagination), [`Stepper`](https://webfluent.monzeromer.dev/reference/stepper)
 - **Data display**: [`Card`](https://webfluent.monzeromer.dev/reference/card), [`Table`](https://webfluent.monzeromer.dev/reference/table), [`List`](https://webfluent.monzeromer.dev/reference/list), [`Badge`](https://webfluent.monzeromer.dev/reference/badge), [`Tag`](https://webfluent.monzeromer.dev/reference/tag), [`Avatar`](https://webfluent.monzeromer.dev/reference/avatar), [`Tooltip`](https://webfluent.monzeromer.dev/reference/tooltip), [`Chart`](https://webfluent.monzeromer.dev/reference/chart), [`QrCode`](https://webfluent.monzeromer.dev/reference/qrcode)
-- **Form**: [`Input`](https://webfluent.monzeromer.dev/reference/input), [`Select`](https://webfluent.monzeromer.dev/reference/select), [`Checkbox`](https://webfluent.monzeromer.dev/reference/checkbox), [`Radio`](https://webfluent.monzeromer.dev/reference/radio), [`Switch`](https://webfluent.monzeromer.dev/reference/switch), [`Slider`](https://webfluent.monzeromer.dev/reference/slider), [`DatePicker`](https://webfluent.monzeromer.dev/reference/datepicker), [`FileUpload`](https://webfluent.monzeromer.dev/reference/fileupload), [`Form`](https://webfluent.monzeromer.dev/reference/form), [`Textarea`](https://webfluent.monzeromer.dev/reference/textarea), [`Field`](https://webfluent.monzeromer.dev/reference/field), [`Fieldset`](https://webfluent.monzeromer.dev/reference/fieldset), [`InputGroup`](https://webfluent.monzeromer.dev/reference/inputgroup)
+- **Form**: [`Input`](https://webfluent.monzeromer.dev/reference/input), [`Select`](https://webfluent.monzeromer.dev/reference/select), [`Checkbox`](https://webfluent.monzeromer.dev/reference/checkbox), [`Radio`](https://webfluent.monzeromer.dev/reference/radio), [`Switch`](https://webfluent.monzeromer.dev/reference/switch), [`Slider`](https://webfluent.monzeromer.dev/reference/slider), [`DatePicker`](https://webfluent.monzeromer.dev/reference/datepicker), [`FileUpload`](https://webfluent.monzeromer.dev/reference/fileupload), [`Form`](https://webfluent.monzeromer.dev/reference/form), [`Textarea`](https://webfluent.monzeromer.dev/reference/textarea), [`Field`](https://webfluent.monzeromer.dev/reference/field), [`Fieldset`](https://webfluent.monzeromer.dev/reference/fieldset), [`InputGroup`](https://webfluent.monzeromer.dev/reference/inputgroup), [`RadioGroup`](https://webfluent.monzeromer.dev/reference/radiogroup), [`NumberInput`](https://webfluent.monzeromer.dev/reference/numberinput), [`Calendar`](https://webfluent.monzeromer.dev/reference/calendar)
 - **Feedback**: [`Alert`](https://webfluent.monzeromer.dev/reference/alert), [`Toast`](https://webfluent.monzeromer.dev/reference/toast), [`Modal`](https://webfluent.monzeromer.dev/reference/modal), [`Popover`](https://webfluent.monzeromer.dev/reference/popover), [`Dialog`](https://webfluent.monzeromer.dev/reference/dialog), [`AlertDialog`](https://webfluent.monzeromer.dev/reference/alertdialog), [`Sheet`](https://webfluent.monzeromer.dev/reference/sheet), [`Spinner`](https://webfluent.monzeromer.dev/reference/spinner), [`Progress`](https://webfluent.monzeromer.dev/reference/progress), [`Skeleton`](https://webfluent.monzeromer.dev/reference/skeleton)
 - **Content**: [`Callout`](https://webfluent.monzeromer.dev/reference/callout), [`Kbd`](https://webfluent.monzeromer.dev/reference/kbd), [`EmptyState`](https://webfluent.monzeromer.dev/reference/emptystate), [`Stat`](https://webfluent.monzeromer.dev/reference/stat), [`CodeBlock`](https://webfluent.monzeromer.dev/reference/codeblock), [`Chip`](https://webfluent.monzeromer.dev/reference/chip), [`VisuallyHidden`](https://webfluent.monzeromer.dev/reference/visuallyhidden), [`Accordion`](https://webfluent.monzeromer.dev/reference/accordion)
-- **Actions**: [`CopyButton`](https://webfluent.monzeromer.dev/reference/copybutton), [`ThemeToggle`](https://webfluent.monzeromer.dev/reference/themetoggle), [`LocaleSwitch`](https://webfluent.monzeromer.dev/reference/localeswitch), [`Button`](https://webfluent.monzeromer.dev/reference/button), [`IconButton`](https://webfluent.monzeromer.dev/reference/iconbutton), [`ButtonGroup`](https://webfluent.monzeromer.dev/reference/buttongroup), [`Dropdown`](https://webfluent.monzeromer.dev/reference/dropdown)
+- **Actions**: [`CopyButton`](https://webfluent.monzeromer.dev/reference/copybutton), [`ThemeToggle`](https://webfluent.monzeromer.dev/reference/themetoggle), [`LocaleSwitch`](https://webfluent.monzeromer.dev/reference/localeswitch), [`Toggle`](https://webfluent.monzeromer.dev/reference/toggle), [`ToggleGroup`](https://webfluent.monzeromer.dev/reference/togglegroup), [`Button`](https://webfluent.monzeromer.dev/reference/button), [`IconButton`](https://webfluent.monzeromer.dev/reference/iconbutton), [`ButtonGroup`](https://webfluent.monzeromer.dev/reference/buttongroup), [`Dropdown`](https://webfluent.monzeromer.dev/reference/dropdown)
 - **Media**: [`Image`](https://webfluent.monzeromer.dev/reference/image), [`Video`](https://webfluent.monzeromer.dev/reference/video), [`Audio`](https://webfluent.monzeromer.dev/reference/audio), [`Frame`](https://webfluent.monzeromer.dev/reference/frame), [`Icon`](https://webfluent.monzeromer.dev/reference/icon), [`Carousel`](https://webfluent.monzeromer.dev/reference/carousel)
 - **Typography**: [`Text`](https://webfluent.monzeromer.dev/reference/text), [`Heading`](https://webfluent.monzeromer.dev/reference/heading), [`Code`](https://webfluent.monzeromer.dev/reference/code), [`Markdown`](https://webfluent.monzeromer.dev/reference/markdown), [`Unsafe`](https://webfluent.monzeromer.dev/reference/unsafe), [`Blockquote`](https://webfluent.monzeromer.dev/reference/blockquote)
 - **PDF**: [`TableOfContents`](https://webfluent.monzeromer.dev/reference/tableofcontents), [`Document`](https://webfluent.monzeromer.dev/reference/document), [`Section`](https://webfluent.monzeromer.dev/reference/section), [`Paragraph`](https://webfluent.monzeromer.dev/reference/paragraph), [`Header`](https://webfluent.monzeromer.dev/reference/header), [`Footer`](https://webfluent.monzeromer.dev/reference/footer), [`Background`](https://webfluent.monzeromer.dev/reference/background), [`Watermark`](https://webfluent.monzeromer.dev/reference/watermark), [`PageBreak`](https://webfluent.monzeromer.dev/reference/pagebreak)
@@ -578,6 +578,83 @@ Renders with the class `wf-on-this-page`.
 
 - `OnThisPage.Title(text)` — Its title. Drawn for it.
   - `text:` `String` — The title
+
+Attribute families: `global`, `aria`, `data`.
+
+### Pagination
+
+Pages of a list: Previous, the first and last pages, those around the current one with a gap for the rest, and Next. The current page is `aria-current="page"`; `bind:` holds it, from 1.
+
+```
+Pagination(bind: …, pages: …, siblings: …)
+```
+
+```wf
+state page = 5
+Pagination(bind: page, pages: 12, siblings: 1)
+```
+
+Renders with the class `wf-pagination`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `bind:` (required) | `State` | The current page, from 1 |
+| `pages:` (required) | `Number` | How many pages there are |
+| `siblings:` | `Number` | How many pages either side of the current one it shows (unset, 1) |
+| `label:` | `String` | Its name for a screen reader; unset, `Pagination` |
+
+**Parts:**
+
+- `Pagination.Prev(disabled: …) { … }` — The previous page. Drawn for it.
+  - `disabled:` `Bool` — Whether the control is inert
+  - flags: `.disabled`
+- `Pagination.Next(disabled: …) { … }` — The next page. Drawn for it.
+  - `disabled:` `Bool` — Whether the control is inert
+  - flags: `.disabled`
+- `Pagination.Page(text) { … }` — A page. Drawn for it.
+  - `text:` `String` — Its number
+- `Pagination.Gap(text) { … }` — The pages left out. Drawn for it.
+  - `text:` `String` — An ellipsis
+
+Attribute families: `global`, `aria`, `data`.
+
+### Stepper
+
+Steps taken in order — an account, then billing, then a summary — with each step's state (done, current, an error) and the current step's block shown. `bind:` holds the current step, from 0; `.linear` keeps a step out of reach until the ones before it are passed.
+
+```
+Stepper(bind: …, linear: …) { … }
+```
+
+```wf
+state step = 0
+Stepper(bind: step) {
+    Stepper.Step("Account") { Text("Your name and email.") }
+    Stepper.Step("Billing", done: step > 1) { Text("A card on file.") }
+    Stepper.Step("Confirm") { Text("Check and send.") }
+}
+```
+
+Renders with the class `wf-stepper`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `bind:` (required) | `State` | The current step, from 0 |
+| `linear:` | `Bool` | A step ahead of the current one cannot be pressed |
+
+**Flags:** `.linear`
+
+**Parts:**
+
+- `Stepper.Step(title, done: …, error: …) { … }` — One step: its title in the list, its block shown while it is the current one.
+  - `title:` `String` — Its title
+  - `done:` `Bool` — Passed: drawn with a check
+  - `error:` `Bool` — Something in it needs fixing
+  - flags: `.done` `.error`
+- `Stepper.List { … }` — The steps, in order. Drawn for it.
+- `Stepper.Item { … }` — A step in the list. Drawn for it.
+
+Takes a block of children.
 
 Attribute families: `global`, `aria`, `data`.
 
@@ -1241,6 +1318,110 @@ Takes a block of children.
 
 Attribute families: `global`, `aria`, `data`.
 
+### RadioGroup
+
+One choice of several, as native radio buttons under a legend: the arrow keys move between them, and `.cards` draws each as a card with its hint.
+
+```
+RadioGroup(bind: …, label: …, cards: …) { … }
+```
+
+```wf
+state plan = "free"
+RadioGroup(bind: plan, label: "Plan").cards {
+    RadioGroup.Option("Free", value: "free", hint: "For trying it out")
+    RadioGroup.Option("Team", value: "team", hint: "€8 a seat")
+}
+```
+
+Renders with the class `wf-radio-group`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `bind:` (required) | `State` | The chosen value |
+| `label:` (required) | `String` | What is being chosen: the group's legend |
+| `cards:` | `Bool` | Each option a card, its hint beneath its words |
+
+**Flags:** `.cards`
+
+**Parts:**
+
+- `RadioGroup.Option(label, value: …, hint: …) { … }` — One choice: its words, its value, and a hint said with it.
+  - `label:` `String` — Its words
+  - `value:` `Any` — What `bind:` holds when it is chosen
+  - `hint:` `String` — A line beneath it, read with it
+- `RadioGroup.Legend(text) { … }` — Its legend. Drawn for it.
+  - `text:` `String` — The legend
+- `RadioGroup.Hint(text) { … }` — An option's hint. Drawn for it.
+  - `text:` `String` — The hint
+
+Takes a block of children.
+
+Attribute families: `global`, `aria`, `data`.
+
+### NumberInput
+
+A number with − and + beside it: the arrow keys step it, PageUp and PageDown by ten steps, and it stays between `min:` and `max:`.
+
+```
+NumberInput(bind: …, min: …, max: …)
+```
+
+```wf
+state qty = 1
+NumberInput(bind: qty, min: 1, max: 99, label: "Quantity")
+```
+
+Renders with the class `wf-number-input`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `bind:` (required) | `State` | The `Number` it holds |
+| `min:` | `Number` | The lowest it goes |
+| `max:` | `Number` | The highest it goes |
+| `step:` | `Number` | How far a press moves it (unset, 1) |
+| `label:` | `String` | Visible label; also the control's accessible name |
+| `hint:` | `String` | Help text under the control, linked to it by `aria-describedby` |
+
+**Parts:**
+
+- `NumberInput.Decrease(disabled: …) { … }` — Its − button. Drawn for it.
+  - `disabled:` `Bool` — Whether the control is inert
+  - flags: `.disabled`
+- `NumberInput.Increase(disabled: …) { … }` — Its + button. Drawn for it.
+  - `disabled:` `Bool` — Whether the control is inert
+  - flags: `.disabled`
+
+Attribute families: `global`, `aria`, `data`.
+
+### Calendar
+
+A month as a grid of days, chosen with a press or the keyboard — the arrows by day and week, PageUp and PageDown by month, Home and End to the week's ends — one day, a range, or several. `bind:` holds a `Date`, a `{ start, end }` with `.range`, a list with `.multiple`.
+
+```
+Calendar(bind: …, mode: …, min: …)
+```
+
+```wf
+state day: Date? = null
+Calendar(bind: day, min: @2026-01-01, disabled: d => d.weekday() >= 6, label: "Delivery day")
+```
+
+Renders with the class `wf-calendar`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `bind:` (required) | `State` | The chosen day, range or days |
+| `mode:` | `.single` `.range` `.multiple` | How many days it holds |
+| `min:` | `Any` | The first day that can be chosen |
+| `max:` | `Any` | The last day that can be chosen |
+| `disabled:` | `Any` | Days that cannot be chosen: a list of them, or `d => d.weekday() >= 6` |
+| `label:` | `String` | Its name for a screen reader; unset, `Calendar` |
+
+**Flags:** `.single` `.range` `.multiple`
+
+Attribute families: `global`, `aria`, `data`.
+
 ## Feedback
 
 ### Alert
@@ -1881,6 +2062,73 @@ Renders with the class `wf-locale-switch`.
 | Prop | Type | Meaning |
 |---|---|---|
 | `label:` | `String` | The group's name for a screen reader; unset, `Language` |
+
+Attribute families: `global`, `aria`, `data`.
+
+### Toggle
+
+A button that stays pressed while its state holds — bold in an editor, a filter that is on: `aria-pressed`, a press flipping `bind:`.
+
+```
+Toggle(label, bind: …, icon: …)
+```
+
+```wf
+state bold = false
+Toggle("Bold", bind: bold, icon: "type")
+```
+
+Renders with the class `wf-btn wf-toggle`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `label` (positional) | `String` | Its words |
+| `bind:` (required) | `State` | The `Bool` state it shows and flips |
+| `icon:` | `String` | An icon before the words |
+
+Attribute families: `global`, `aria`, `data`.
+
+### ToggleGroup
+
+Buttons of which one is chosen — a view switcher, a segmented control — or, `.multiple`, several: one stop for Tab, the arrow keys inside it, each `aria-pressed`. `bind:` holds the chosen `value:` (a list with `.multiple`).
+
+```
+ToggleGroup(bind: …, label: …, multiple: …) { … }
+```
+
+```wf
+state view = "grid"
+ToggleGroup(bind: view, label: "View") {
+    ToggleGroup.Item("Grid", value: "grid", icon: "grid")
+    ToggleGroup.Item("List", value: "list", icon: "list")
+}
+state styles: [String] = []
+ToggleGroup(bind: styles, label: "Text style").multiple {
+    ToggleGroup.Item("Bold", value: "b")
+    ToggleGroup.Item("Italic", value: "i")
+}
+```
+
+Renders with the class `wf-toggle-group`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `bind:` (required) | `State` | The chosen value, or a list of them with `.multiple` |
+| `label:` (required) | `String` | What the group chooses, for a screen reader |
+| `multiple:` | `Bool` | Several at once: `bind:` is a list |
+
+**Flags:** `.multiple`
+
+**Parts:**
+
+- `ToggleGroup.Item(label, value: …, icon: …, disabled: …)` — One choice: its words, and the value `bind:` holds when it is chosen.
+  - `label:` `String` — Its words
+  - `value:` `Any` — What `bind:` holds when it is chosen
+  - `icon:` `String` — An icon before the words
+  - `disabled:` `Bool` — Whether the control is inert
+  - flags: `.disabled`
+
+Takes a block of children.
 
 Attribute families: `global`, `aria`, `data`.
 

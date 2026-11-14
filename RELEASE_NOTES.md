@@ -126,8 +126,29 @@ component takes the built-in's place, which cannot then be placed there.
 Each is drawn the same on the live page, in the static paint, by the
 template engine and, where it can be, in a PDF.
 
+## Choosing built-ins
+
+- `Toggle("Bold", bind: bold)` is a button that stays pressed.
+- `ToggleGroup(bind: view, label: "View") { ToggleGroup.Item(…) }` is one
+  choice of several, or several with `.multiple`: one stop for Tab, the
+  arrow keys inside it.
+- `RadioGroup(bind: plan, label: "Plan").cards` is radio buttons under a
+  legend, each option's hint read with it, drawn as cards if asked.
+- `Pagination(bind: page, pages: 12)` is Previous, the pages around the
+  current one with gaps for the rest, and Next.
+- `Stepper(bind: step) { Stepper.Step("Account") { … } }` shows one step
+  at a time and each step's state.
+- `NumberInput(bind: qty, min: 1, max: 99)` is a number between − and +,
+  stepped by the keys too.
+- `Calendar(bind: day, mode: .range)` is a month a keyboard can work, for
+  one day, a range or several, with days that cannot be chosen.
+
 ## Fixes
 
+- `wf test` drew a built-in where the project had a component of its
+  name in another file.
+- `x ?? y` where `x` could only be `null` (a field written `null` in a map)
+  was taken to be `null` too, and spliced into text drew `T19`.
 - `-(x)` where `x` is negative compiled to `--x`, which a browser refuses,
   and the page did not run.
 - `format(v, .percent, 1)` wrote `2%` once the page ran where the static

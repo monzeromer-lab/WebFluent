@@ -324,10 +324,10 @@ around it, is `C03`.
 
 A component may have its own `state`, `derived` values, `effect`s, actions,
 timers and handles. Each placed instance gets its own copy, so the two
-`Stepper`s on this page count separately:
+`Counter`s on this page count separately:
 
 ```wf
-component Stepper(_ start: Number, step: Number = 1) {
+component Counter(_ start: Number, step: Number = 1) {
     event change(value: Number)
     state n = start
     derived even = n % 2 == 0
@@ -340,11 +340,11 @@ component Stepper(_ start: Number, step: Number = 1) {
     }
 }
 
-page Counters(path: "/", title: "Counters", description: "Two steppers, two counts.") {
+page Counters(path: "/", title: "Counters", description: "Two counters, two counts.") {
     state last = 0
     Heading("Counters").h1
-    Stepper(0) { on change(v) { last = v } }
-    Stepper(10, step: 5) { on change(v) { last = v } }
+    Counter(0) { on change(v) { last = v } }
+    Counter(10, step: 5) { on change(v) { last = v } }
     Text("Last value: {last}")
 }
 ```
@@ -432,7 +432,7 @@ value as a prop and fire an event when it should change. The caller decides
 what to do with the new value:
 
 ```wf
-component Stepper(_ value: Number, label: String, min: Number = 0) {
+component Counter(_ value: Number, label: String, min: Number = 0) {
     event change(value: Number)
     Row(gap: .sm, align: .center) {
         Button("−", disabled: value <= min).sm { on click { emit change(value - 1) } }
@@ -444,7 +444,7 @@ component Stepper(_ value: Number, label: String, min: Number = 0) {
 page Booking(path: "/", title: "Booking", description: "How many seats.") {
     state seats = 1
     Heading("Book").h1
-    Stepper(seats, label: "Seats", min: 1) { on change(v) { seats = v } }
+    Counter(seats, label: "Seats", min: 1) { on change(v) { seats = v } }
 }
 ```
 
@@ -539,14 +539,14 @@ A page declares `state count = 3` and places `Panel("Totals") { Text("{count}") 
 ```
 
 ```quiz
-A page places `Stepper(0)` twice, and `Stepper` declares `state n = start`. You press **+** on the first. What does the second show?
+A page places `Counter(0)` twice, and `Counter` declares `state n = start`. You press **+** on the first. What does the second show?
 + 0 -- Each placed instance has its own copy of the component's state.
 - 1 -- State shared by every instance belongs in a store, not in a component.
 - It depends on which instance was drawn first -- No instance reads another's state, whatever the order.
 ```
 
 ```quiz
-`for row in rows { Stepper(row.start) }` draws three steppers, and you press **+** on each. Then `rows` gains an item. What happens to the three?
+`for row in rows { Counter(row.start) }` draws three counters, and you press **+** on each. Then `rows` gains an item. What happens to the three?
 - They keep their counts, matched by position -- Without `by` there is nothing to match an item by; the list is rebuilt.
 + They start again from `row.start`, since a list with no key is rebuilt when it changes -- Key it, `for row in rows by row.id`, and each keeps its state; the build warns of this (U09).
 - The build refuses the loop until it has a key -- It builds; the missing key is a warning, U09.
@@ -589,7 +589,7 @@ Declare the prop, or correct its name. See [C02](../errors/C02.md).
 what it declares, and nothing else:
 
 ```wf expect=T22
-component Stepper(_ value: Number) {
+component Counter(_ value: Number) {
     event change(value: Number)
     Button("+") { on click { emit change(value + 1) } }
 }
@@ -598,7 +598,7 @@ page P(path: "/", title: "T", description: "D") {
     state seats = 1
     state last = 0
     Heading("Seats: {seats}").h1
-    Stepper(seats) { on change(next, previous) { last = previous  seats = next } }
+    Counter(seats) { on change(next, previous) { last = previous  seats = next } }
     Text("Was {last}")
 }
 ```

@@ -445,6 +445,14 @@ pub const ALL_COMPONENT_NAMES: &[&str] = &[
     "Fieldset",
     "InputGroup",
     "OnThisPage",
+    // Choosing
+    "Toggle",
+    "ToggleGroup",
+    "RadioGroup",
+    "Pagination",
+    "Stepper",
+    "NumberInput",
+    "Calendar",
     // A node handed to somebody else's code, with a lifetime.
     "Host",
     // A custom element a script defines, by its tag.

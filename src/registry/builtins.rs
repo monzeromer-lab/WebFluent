@@ -2348,6 +2348,202 @@ pub const COMPONENTS: &[ComponentSig] = &[
     .not_on_paper("a PDF lists its headings with TableOfContents"),
     part("OnThisPage", "Title", Ir::Sub("OnThisPage", "Title"), "Its title. Drawn for it.", Some(special("text", PropType::Str, "The title")), &[], G, Children::None)
         .html("p", "wf-on-this-page__title"),
+    // ─── Choosing ─────────────────────────────────────────────────────────
+    comp(
+        "Toggle",
+        "Actions",
+        "A button that stays pressed while its state holds — bold in an editor, a filter that is on: `aria-pressed`, a press flipping `bind:`.",
+        Some(required(special("label", PropType::Str, "Its words"))),
+        &[
+            required(special("bind", PropType::State, "The `Bool` state it shows and flips")),
+            special("icon", PropType::Str, "An icon before the words"),
+        ],
+        &[],
+        G,
+        Children::None,
+    )
+    .html("button", "wf-btn wf-toggle")
+    .css(&["Button", "Toggle", "Icon"])
+    .not_on_paper("interactive elements are not supported in PDF"),
+    comp(
+        "ToggleGroup",
+        "Actions",
+        "Buttons of which one is chosen — a view switcher, a segmented control — or, `.multiple`, several: one stop for Tab, the arrow keys inside it, each `aria-pressed`. `bind:` holds the chosen `value:` (a list with `.multiple`).",
+        None,
+        &[
+            required(special("bind", PropType::State, "The chosen value, or a list of them with `.multiple`")),
+            required(special("label", PropType::Str, "What the group chooses, for a screen reader")),
+            special("multiple", PropType::Bool, "Several at once: `bind:` is a list"),
+        ],
+        &["Item"],
+        G,
+        Children::Elements,
+    )
+    .html("div", "wf-toggle-group")
+    .css(&["Button", "Toggle", "Icon"])
+    .not_on_paper("interactive elements are not supported in PDF"),
+    part(
+        "ToggleGroup",
+        "Item",
+        Ir::Sub("ToggleGroup", "Item"),
+        "One choice: its words, and the value `bind:` holds when it is chosen.",
+        Some(required(special("label", PropType::Str, "Its words"))),
+        &[
+            required(special("value", PropType::Any, "What `bind:` holds when it is chosen")),
+            special("icon", PropType::Str, "An icon before the words"),
+            DISABLED,
+        ],
+        G,
+        Children::None,
+    )
+    .html("button", "wf-btn wf-toggle-group__item"),
+    comp(
+        "RadioGroup",
+        "Form",
+        "One choice of several, as native radio buttons under a legend: the arrow keys move between them, and `.cards` draws each as a card with its hint.",
+        None,
+        &[
+            required(special("bind", PropType::State, "The chosen value")),
+            required(special("label", PropType::Str, "What is being chosen: the group's legend")),
+            special("cards", PropType::Bool, "Each option a card, its hint beneath its words"),
+        ],
+        &["Option", "Legend", "Hint"],
+        G,
+        Children::Elements,
+    )
+    .html("fieldset", "wf-radio-group")
+    .css(&["Radio", "Radio Group", "Field"])
+    .on_paper(),
+    part(
+        "RadioGroup",
+        "Option",
+        Ir::Sub("RadioGroup", "Option"),
+        "One choice: its words, its value, and a hint said with it.",
+        Some(required(special("label", PropType::Str, "Its words"))),
+        &[
+            required(special("value", PropType::Any, "What `bind:` holds when it is chosen")),
+            special("hint", PropType::Str, "A line beneath it, read with it"),
+        ],
+        G,
+        Children::Elements,
+    )
+    .html("div", "wf-radio-group__option"),
+    part("RadioGroup", "Legend", Ir::Sub("RadioGroup", "Legend"), "Its legend. Drawn for it.", Some(special("text", PropType::Str, "The legend")), &[], G, Children::Elements)
+        .html("legend", "wf-radio-group__legend"),
+    part("RadioGroup", "Hint", Ir::Sub("RadioGroup", "Hint"), "An option's hint. Drawn for it.", Some(special("text", PropType::Str, "The hint")), &[], G, Children::Elements)
+        .html("p", "wf-radio-group__hint"),
+    comp(
+        "Pagination",
+        "Navigation",
+        "Pages of a list: Previous, the first and last pages, those around the current one with a gap for the rest, and Next. The current page is `aria-current=\"page\"`; `bind:` holds it, from 1.",
+        None,
+        &[
+            required(special("bind", PropType::State, "The current page, from 1")),
+            required(special("pages", PropType::Num, "How many pages there are")),
+            special("siblings", PropType::Num, "How many pages either side of the current one it shows (unset, 1)"),
+            special("label", PropType::Str, "Its name for a screen reader; unset, `Pagination`"),
+        ],
+        &["Prev", "Next", "Page", "Gap"],
+        G,
+        Children::None,
+    )
+    .html("nav", "wf-pagination")
+    .css(&["Button", "Pagination", "Icon"])
+    .not_on_paper("interactive elements are not supported in PDF"),
+    part("Pagination", "Prev", Ir::Sub("Pagination", "Prev"), "The previous page. Drawn for it.", None, &[DISABLED], G, Children::Elements)
+        .html("button", "wf-btn wf-pagination__prev"),
+    part("Pagination", "Next", Ir::Sub("Pagination", "Next"), "The next page. Drawn for it.", None, &[DISABLED], G, Children::Elements)
+        .html("button", "wf-btn wf-pagination__next"),
+    part("Pagination", "Page", Ir::Sub("Pagination", "Page"), "A page. Drawn for it.", Some(special("text", PropType::Str, "Its number")), &[], G, Children::Elements)
+        .html("button", "wf-btn wf-pagination__page"),
+    part("Pagination", "Gap", Ir::Sub("Pagination", "Gap"), "The pages left out. Drawn for it.", Some(special("text", PropType::Str, "An ellipsis")), &[], G, Children::Elements)
+        .html("span", "wf-pagination__gap"),
+    comp(
+        "Stepper",
+        "Navigation",
+        "Steps taken in order — an account, then billing, then a summary — with each step's state (done, current, an error) and the current step's block shown. `bind:` holds the current step, from 0; `.linear` keeps a step out of reach until the ones before it are passed.",
+        None,
+        &[
+            required(special("bind", PropType::State, "The current step, from 0")),
+            special("linear", PropType::Bool, "A step ahead of the current one cannot be pressed"),
+        ],
+        &["Step", "List", "Item"],
+        G,
+        Children::Elements,
+    )
+    .html("div", "wf-stepper")
+    .css(&["Button", "Stepper"])
+    .on_paper(),
+    part(
+        "Stepper",
+        "Step",
+        Ir::Sub("Stepper", "Step"),
+        "One step: its title in the list, its block shown while it is the current one.",
+        Some(required(special("title", PropType::Str, "Its title"))),
+        &[
+            special("done", PropType::Bool, "Passed: drawn with a check"),
+            special("error", PropType::Bool, "Something in it needs fixing"),
+        ],
+        G,
+        Children::Elements,
+    )
+    .html("div", "wf-stepper__panel"),
+    part("Stepper", "List", Ir::Sub("Stepper", "List"), "The steps, in order. Drawn for it.", None, &[], G, Children::Elements)
+        .html("ol", "wf-stepper__list"),
+    part("Stepper", "Item", Ir::Sub("Stepper", "Item"), "A step in the list. Drawn for it.", None, &[], G, Children::Elements)
+        .html("li", "wf-stepper__item"),
+    comp(
+        "NumberInput",
+        "Form",
+        "A number with − and + beside it: the arrow keys step it, PageUp and PageDown by ten steps, and it stays between `min:` and `max:`.",
+        None,
+        &[
+            required(special("bind", PropType::State, "The `Number` it holds")),
+            special("min", PropType::Num, "The lowest it goes"),
+            special("max", PropType::Num, "The highest it goes"),
+            special("step", PropType::Num, "How far a press moves it (unset, 1)"),
+            LABEL,
+            HINT,
+        ],
+        &["Decrease", "Increase"],
+        G,
+        Children::None,
+    )
+    .html("div", "wf-number-input")
+    .css(&["Input", "Field", "Input Group", "Number Input", "Icon"])
+    .not_on_paper("interactive elements are not supported in PDF"),
+    part("NumberInput", "Decrease", Ir::Sub("NumberInput", "Decrease"), "Its − button. Drawn for it.", None, &[DISABLED], G, Children::Elements)
+        .html("button", "wf-number-input__step"),
+    part("NumberInput", "Increase", Ir::Sub("NumberInput", "Increase"), "Its + button. Drawn for it.", None, &[DISABLED], G, Children::Elements)
+        .html("button", "wf-number-input__step"),
+    comp(
+        "Calendar",
+        "Form",
+        "A month as a grid of days, chosen with a press or the keyboard — the arrows by day and week, PageUp and PageDown by month, Home and End to the week's ends — one day, a range, or several. `bind:` holds a `Date`, a `{ start, end }` with `.range`, a list with `.multiple`.",
+        None,
+        &[
+            required(special("bind", PropType::State, "The chosen day, range or days")),
+            special(
+                "mode",
+                PropType::Enum(&[
+                    case("single", "", "One day (the default)"),
+                    case("range", "", "A first and a last day: `{ start, end }`"),
+                    case("multiple", "", "Any number of days: a list"),
+                ]),
+                "How many days it holds",
+            ),
+            special("min", PropType::Any, "The first day that can be chosen"),
+            special("max", PropType::Any, "The last day that can be chosen"),
+            special("disabled", PropType::Any, "Days that cannot be chosen: a list of them, or `d => d.weekday() >= 6`"),
+            special("label", PropType::Str, "Its name for a screen reader; unset, `Calendar`"),
+        ],
+        &[],
+        G,
+        Children::None,
+    )
+    .html("div", "wf-calendar")
+    .css(&["Calendar"])
+    .not_on_paper("interactive elements are not supported in PDF"),
     // ─── Actions ──────────────────────────────────────────────────────────
     comp(
         "Button",

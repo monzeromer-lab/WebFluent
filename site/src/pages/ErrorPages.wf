@@ -834,18 +834,18 @@ page ErrorT09(path: "/errors/T09", title: "T09 — An emit that does not match i
   |                              ^^^^^^^^^^^^^^^^^
   = help: `event change(value: Number)`
   = docs: https://webfluent.monzeromer.dev/errors/T09"#, quickfix: "", lowerable: false, why: false, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix"))], source: "md-docs/errors/T09.md") {
-        broken { CodeBlock(#"component Stepper(_ start: Number) {
+        broken { CodeBlock(#"component Counter(_ start: Number) {
     event change(value: Number)
     Button("+") { on click { emit change(1, 2) } }
 }"#, title: "wf") }
-        fixed { CodeBlock(#"component Stepper(_ start: Number) {
+        fixed { CodeBlock(#"component Counter(_ start: Number) {
     event change(value: Number)
     Button("+") { on click { emit change(start + 1) } }
 }
 page P(path: "/", title: "T", description: "D") {
     state n = 0
     Heading("Count {n}").h1
-    Stepper(n) { on change(v) { n = v } }
+    Counter(n) { on change(v) { n = v } }
 }"#, title: "wf") }
         note {
             Markdown("Pass what the `event` declares, in order, or change the declaration.")

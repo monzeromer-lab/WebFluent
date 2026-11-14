@@ -228,6 +228,48 @@ impl JsCodegen {
         self.emit_line(&format!("{parent}.appendChild({var});"));
     }
 
+    /// `Calendar(bind: day, mode: .range, min:, max:, disabled:)`: a month
+    /// the runtime draws and keeps, writing the chosen day, range or days
+    /// back to `bind:`.
+    pub(in super::super) fn emit_calendar(&mut self, var: &str, ui: &UIElement, parent: &str) {
+        let (read, write) = match self.bind_arg(ui) {
+            Some(t) => (
+                format!("() => {}", t.read),
+                format!(
+                    "(v) => {{ {} }}",
+                    Self::with_commit(&t, &t.write.replace("$V", "v"))
+                ),
+            ),
+            None => ("() => null".to_string(), "null".to_string()),
+        };
+        let mut opts = vec![format!(
+            "mode: \"{}\"",
+            ui.case_of("mode", &["single", "range", "multiple"])
+                .unwrap_or("single")
+        )];
+        for key in ["min", "max", "disabled", "label"] {
+            if let Some(v) = ui.args.iter().find_map(|a| match a {
+                Arg::Named(k, v) if k == key => Some(v.clone()),
+                _ => None,
+            }) {
+                let v = self.emit_expr(&v);
+                opts.push(format!("{key}: () => {v}"));
+            }
+        }
+        let extra = self.root_attrs("Calendar", ui, &[]);
+        self.emit_line(&format!(
+            "const {var} = WF.el(\"div\", {{ className: \"{}\"{extra}{} }});",
+            self.class_attr("Calendar", ui),
+            self.wf_node_inline(ui)
+        ));
+        self.emit_root_handlers(var, ui, false);
+        self.emit_line(&format!(
+            "WF.calendar({var}, {read}, {write}, {{ {} }});",
+            opts.join(", ")
+        ));
+        self.emit_line(&format!("{parent}.appendChild({var});"));
+    }
+
     /// `initialFocus: someRef` as the option `WF.dialog` and `WF.layer` take:
     /// a read, so a handle written further down is there by the time it
     /// opens.

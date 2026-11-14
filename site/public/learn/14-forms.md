@@ -561,6 +561,51 @@ page Notes(path: "/notes", title: "Notes", description: "Save a note.") {
 
 Reading `.pending` on an action that awaits nothing is `T17`.
 
+## Choosing: toggles, groups, steps and days
+
+Some choices are not a text field. These built-ins draw them, each with the
+keyboard a reader expects:
+
+```wf
+page Order(path: "/", title: "Order", description: "Choose how it is sent.") {
+    state view = "grid"
+    state plan = "free"
+    state qty = 1
+    state step = 0
+    state day: Date? = null
+    Heading("Order").h1
+    ToggleGroup(bind: view, label: "View") {
+        ToggleGroup.Item("Grid", value: "grid", icon: "grid")
+        ToggleGroup.Item("List", value: "list", icon: "list")
+    }
+    RadioGroup(bind: plan, label: "Plan").cards {
+        RadioGroup.Option("Free", value: "free", hint: "For trying it out")
+        RadioGroup.Option("Team", value: "team", hint: "€8 a seat")
+    }
+    NumberInput(bind: qty, min: 1, max: 9, label: "Quantity")
+    Stepper(bind: step) {
+        Stepper.Step("Address") { Text("Where it goes.") }
+        Stepper.Step("Delivery") {
+            Calendar(bind: day, disabled: d => d.weekday() >= 6, label: "Delivery day")
+        }
+    }
+}
+```
+
+- **`Toggle`** is one button that stays pressed; **`ToggleGroup`** is a row
+  of them, one chosen (or several, `.multiple`). Tab stops once on the
+  group, and the arrow keys move inside it.
+- **`RadioGroup`** is native radio buttons under a legend; `.cards` draws
+  each as a card with its hint.
+- **`NumberInput`** steps with − and +, the arrow keys, and PageUp and
+  PageDown, and stays between `min:` and `max:`.
+- **`Pagination(bind: page, pages: n)`** draws the pages of a list, with
+  gaps for the ones it leaves out.
+- **`Stepper`** shows one step at a time and each step's state.
+- **`Calendar`** is a month a keyboard can work: the arrows by day and
+  week (the other way round right to left), PageUp and PageDown by month.
+  `.range` holds `{ start, end }`, `.multiple` a list.
+
 ## Checklist for a good form
 
 - Every control has a `label:`. A placeholder is not a label.

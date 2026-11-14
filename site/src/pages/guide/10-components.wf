@@ -204,9 +204,9 @@ page Parts(path: "/", title: "Parts", description: "A panel with parts of its ow
 
         Heading("Local state and actions", id: "local-state-and-actions").h2
 
-        Markdown("A component may have its own `state`, `derived` values, `effect`s, actions, timers and handles. Each placed instance gets its own copy, so the two `Stepper`s on this page count separately:")
+        Markdown("A component may have its own `state`, `derived` values, `effect`s, actions, timers and handles. Each placed instance gets its own copy, so the two `Counter`s on this page count separately:")
 
-        CodeBlock(#"component Stepper(_ start: Number, step: Number = 1) {
+        CodeBlock(#"component Counter(_ start: Number, step: Number = 1) {
     event change(value: Number)
     state n = start
     derived even = n % 2 == 0
@@ -219,11 +219,11 @@ page Parts(path: "/", title: "Parts", description: "A panel with parts of its ow
     }
 }
 
-page Counters(path: "/", title: "Counters", description: "Two steppers, two counts.") {
+page Counters(path: "/", title: "Counters", description: "Two counters, two counts.") {
     state last = 0
     Heading("Counters").h1
-    Stepper(0) { on change(v) { last = v } }
-    Stepper(10, step: 5) { on change(v) { last = v } }
+    Counter(0) { on change(v) { last = v } }
+    Counter(10, step: 5) { on change(v) { last = v } }
     Text("Last value: {last}")
 }"#, title: "wf")
 
@@ -275,7 +275,7 @@ page Pills(path: "/", title: "Pills", description: "Styled by the caller.") {
 
         Markdown("A component does not take `bind:`. To make a control of your own, take the value as a prop and fire an event when it should change. The caller decides what to do with the new value:")
 
-        CodeBlock(#"component Stepper(_ value: Number, label: String, min: Number = 0) {
+        CodeBlock(#"component Counter(_ value: Number, label: String, min: Number = 0) {
     event change(value: Number)
     Row(gap: .sm, align: .center) {
         Button("−", disabled: value <= min).sm { on click { emit change(value - 1) } }
@@ -287,7 +287,7 @@ page Pills(path: "/", title: "Pills", description: "Styled by the caller.") {
 page Booking(path: "/", title: "Booking", description: "How many seats.") {
     state seats = 1
     Heading("Book").h1
-    Stepper(seats, label: "Seats", min: 1) { on change(v) { seats = v } }
+    Counter(seats, label: "Seats", min: 1) { on change(v) { seats = v } }
 }"#, title: "wf")
 
         Markdown("Clicking **+** sets `seats` to 2, and the component shows **Seats: 2** because its `value` prop reads `seats`.")
@@ -426,13 +426,13 @@ page Booking(path: "/", title: "Booking", description: "How many seats.") {
             QuizChoice(text: "The build stops with `C02`: `Note` declares no prop `tone`", right: true, why: "Declare the prop, or correct its spelling.")
         ])
 
-        Quiz("A page places `Stepper(0)` twice, and `Stepper` declares `state n = start`. You press **+** on the first. What does the second show?", id: "Components#14", choices: [
+        Quiz("A page places `Counter(0)` twice, and `Counter` declares `state n = start`. You press **+** on the first. What does the second show?", id: "Components#14", choices: [
             QuizChoice(text: "0", right: true, why: "Each placed instance has its own copy of the component's state."),
             QuizChoice(text: "1", right: false, why: "State shared by every instance belongs in a store, not in a component."),
             QuizChoice(text: "It depends on which instance was drawn first", right: false, why: "No instance reads another's state, whatever the order.")
         ])
 
-        Quiz("`for row in rows \{ Stepper(row.start) \}` draws three steppers, and you press **+** on each. Then `rows` gains an item. What happens to the three?", id: "Components#14", choices: [
+        Quiz("`for row in rows \{ Counter(row.start) \}` draws three counters, and you press **+** on each. Then `rows` gains an item. What happens to the three?", id: "Components#14", choices: [
             QuizChoice(text: "They keep their counts, matched by position", right: false, why: "Without `by` there is nothing to match an item by; the list is rebuilt."),
             QuizChoice(text: "They start again from `row.start`, since a list with no key is rebuilt when it changes", right: true, why: "Key it, `for row in rows by row.id`, and each keeps its state; the build warns of this (U09)."),
             QuizChoice(text: "The build refuses the loop until it has a key", right: false, why: "It builds; the missing key is a warning, U09.")
@@ -462,7 +462,7 @@ page P(path: "/", title: "T", description: "D") {
 
         Markdown("Declare the prop, or correct its name. See [C02](/errors/C02).\n\n**A handler that names more values than its event sends.** An event sends what it declares, and nothing else:")
 
-        CodeBlock(#"component Stepper(_ value: Number) {
+        CodeBlock(#"component Counter(_ value: Number) {
     event change(value: Number)
     Button("+") { on click { emit change(value + 1) } }
 }
@@ -471,7 +471,7 @@ page P(path: "/", title: "T", description: "D") {
     state seats = 1
     state last = 0
     Heading("Seats: {seats}").h1
-    Stepper(seats) { on change(next, previous) { last = previous  seats = next } }
+    Counter(seats) { on change(next, previous) { last = previous  seats = next } }
     Text("Was {last}")
 }"#, title: "wf · draws T22")
 

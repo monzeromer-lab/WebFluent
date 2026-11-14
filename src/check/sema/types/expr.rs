@@ -365,6 +365,9 @@ impl Checker<'_, '_> {
                     }
                     BinOp::Lt | BinOp::Gt | BinOp::Lte | BinOp::Gte => Type::Bool,
                     BinOp::And | BinOp::Or => Type::Bool,
+                    // A left side that is only ever null (a field written
+                    // `null` in a map literal) gives way to the right.
+                    BinOp::NullCoalesce if matches!(lt, Type::Null) => rt,
                     BinOp::NullCoalesce => Type::join(lt.unwrapped(), rt),
                 }
             }

@@ -56,6 +56,12 @@ fn expand_element(el: &mut UIElement, seq: &mut usize) {
         "Fieldset" => fieldset(el),
         "InputGroup" => input_group(el),
         "OnThisPage" => on_this_page(el),
+        "Toggle" => toggle(el),
+        "ToggleGroup" => toggle_group(el),
+        "RadioGroup" => radio_group(el),
+        "Pagination" => pagination(el),
+        "Stepper" => stepper(el),
+        "NumberInput" => number_input(el),
         _ => {}
     }
 }
@@ -194,6 +200,21 @@ fn take_handlers(el: &mut UIElement, event: &str) -> Vec<EventHandler> {
         .partition(|h| h.event == event);
     el.events = kept;
     taken
+}
+
+/// The handlers `src` writes (`on click { … }`), placed nowhere.
+fn handlers(src: &str) -> Vec<EventHandler> {
+    let mut stmts = parse(&format!("Text(\"\") {{ {src} }}"));
+    element_of(&mut stmts)
+        .map(|e| std::mem::take(&mut e.events))
+        .unwrap_or_default()
+}
+
+/// `on click { … }` run before the call's own.
+fn first_handlers(el: &mut UIElement, src: &str) {
+    let mut own = std::mem::take(&mut el.events);
+    el.events = handlers(src);
+    el.events.append(&mut own);
 }
 
 /// The first element of `stmts`, for a snippet of one.
@@ -524,4 +545,269 @@ fn on_this_page(el: &mut UIElement) {
     give(el, "aria-label", &label);
     give(el, "mount", &format!("(n) => __wf.onThisPage(n, {levels})"));
     el.children = parse(&format!("OnThisPage.Title({label}, aria-hidden: \"true\")"));
+}
+
+/// `Toggle("Bold", bind: bold, icon: "type")`: pressed while `bold` holds.
+fn toggle(el: &mut UIElement) {
+    let Some(bind) = take(el, "bind") else {
+        return;
+    };
+    let b = src(&bind);
+    if let Some(icon) = take(el, "icon") {
+        el.children = parse(&format!("Icon({}, aria-hidden: \"true\")", src(&icon)));
+    }
+    give(el, "type", "\"button\"");
+    give(
+        el,
+        "aria-pressed",
+        &format!("if {b} {{ \"true\" }} else {{ \"false\" }}"),
+    );
+    first_handlers(el, &format!("on click {{ {b} = !{b} }}"));
+}
+
+/// `ToggleGroup(bind: view, label: "View") { ToggleGroup.Item("Grid", value: "grid") }`.
+fn toggle_group(el: &mut UIElement) {
+    let Some(bind) = take(el, "bind") else {
+        return;
+    };
+    let b = src(&bind);
+    let multiple = take_flag(el, "multiple").is_some();
+    if let Some(label) = take(el, "label") {
+        give(el, "aria-label", &src(&label));
+    }
+    give(el, "role", "\"group\"");
+    give(el, "roving", ".x");
+    toggle_items(&mut el.children, &b, multiple);
+}
+
+fn toggle_items(stmts: &mut [Statement], b: &str, multiple: bool) {
+    for stmt in stmts.iter_mut() {
+        if let StatementKind::UIElement(item) = &mut stmt.kind
+            && matches!(&item.component, ComponentRef::SubComponent(p, s) if p == "ToggleGroup" && s == "Item")
+        {
+            let Some(value) = take(item, "value") else {
+                continue;
+            };
+            let v = src(&value);
+            if let Some(icon) = take(item, "icon") {
+                item.children = parse(&format!("Icon({}, aria-hidden: \"true\")", src(&icon)));
+            }
+            give(item, "type", "\"button\"");
+            let (pressed, press) = if multiple {
+                (
+                    format!("{b}.includes({v})"),
+                    format!(
+                        "{b} = if {b}.includes({v}) {{ {b}.filter(wfChosen => wfChosen != {v}) }} else {{ {b}.concat([{v}]) }}"
+                    ),
+                )
+            } else {
+                (format!("{b} == {v}"), format!("{b} = {v}"))
+            };
+            give(
+                item,
+                "aria-pressed",
+                &format!("if {pressed} {{ \"true\" }} else {{ \"false\" }}"),
+            );
+            first_handlers(item, &format!("on click {{ {press} }}"));
+            continue;
+        }
+        if !matches!(stmt.kind, StatementKind::UIElement(_)) {
+            for body in stmt.kind.bodies_mut() {
+                toggle_items(body, b, multiple);
+            }
+        }
+    }
+}
+
+/// `RadioGroup(bind: plan, label: "Plan").cards { RadioGroup.Option("Free", value: "free", hint: "…") }`:
+/// native radios under a legend, each option's hint read with it.
+fn radio_group(el: &mut UIElement) {
+    let Some(bind) = take(el, "bind") else {
+        return;
+    };
+    let b = src(&bind);
+    if take_flag(el, "cards").is_some() {
+        give(el, "data-look", "\"cards\"");
+    }
+    let legend = take(el, "label")
+        .map(|l| format!("RadioGroup.Legend({})", src(&l)))
+        .unwrap_or_default();
+    radio_options(&mut el.children, &b);
+    let mut children = parse(&legend);
+    children.append(&mut el.children);
+    el.children = children;
+}
+
+fn radio_options(stmts: &mut [Statement], b: &str) {
+    for stmt in stmts.iter_mut() {
+        if let StatementKind::UIElement(option) = &mut stmt.kind
+            && matches!(&option.component, ComponentRef::SubComponent(p, s) if p == "RadioGroup" && s == "Option")
+        {
+            let Some(label) = take_positional(option) else {
+                continue;
+            };
+            let value = take(option, "value").map_or_else(|| src(&label), |v| src(&v));
+            let hint = take(option, "hint");
+            let described = hint
+                .as_ref()
+                .map(|h| format!(", aria-description: {}", src(h)))
+                .unwrap_or_default();
+            let mut out = format!(
+                "Radio(bind: {b}, value: {value}, label: {}{described})\n",
+                src(&label)
+            );
+            if let Some(h) = &hint {
+                out.push_str(&format!(
+                    "RadioGroup.Hint({}, aria-hidden: \"true\")\n",
+                    src(h)
+                ));
+            }
+            let mut children = parse(&out);
+            children.append(&mut option.children);
+            option.children = children;
+            continue;
+        }
+        if !matches!(stmt.kind, StatementKind::UIElement(_)) {
+            for body in stmt.kind.bodies_mut() {
+                radio_options(body, b);
+            }
+        }
+    }
+}
+
+/// `Pagination(bind: page, pages: 12, siblings: 1)`: Previous, the first and
+/// last pages and those around the current one, a gap for the rest, Next.
+fn pagination(el: &mut UIElement) {
+    let (Some(bind), Some(pages)) = (take(el, "bind"), take(el, "pages")) else {
+        return;
+    };
+    let b = src(&bind);
+    let p = src(&pages);
+    let s = take(el, "siblings").map_or_else(|| "1".to_string(), |e| src(&e));
+    let label = take(el, "label").map_or_else(|| lit("Pagination"), |e| src(&e));
+    give(el, "aria-label", &label);
+    let shown = format!(
+        "(1..=({p})).filter(wfN => wfN == 1 || wfN == ({p}) || (wfN >= ({b}) - ({s}) && wfN <= ({b}) + ({s})))"
+    );
+    el.children = parse(&format!(
+        r#"Pagination.Prev(type: "button", aria-label: "Previous page", disabled: ({b}) <= 1) {{
+    on click {{ {b} = ({b}) - 1 }}
+    Icon("chevron-left", aria-hidden: "true")
+}}
+for wfPage, wfAt in {shown} by wfPage {{
+    if wfAt > 0 && {shown}[wfAt - 1] != wfPage - 1 {{ Pagination.Gap("…", aria-hidden: "true") }}
+    Pagination.Page("{{wfPage}}", type: "button", aria-label: "Page {{wfPage}}", aria-current: if wfPage == ({b}) {{ "page" }} else {{ null }}) {{
+        on click {{ {b} = wfPage }}
+    }}
+}}
+Pagination.Next(type: "button", aria-label: "Next page", disabled: ({b}) >= ({p})) {{
+    on click {{ {b} = ({b}) + 1 }}
+    Icon("chevron-right", aria-hidden: "true")
+}}"#
+    ));
+}
+
+/// `Stepper(bind: step) { Stepper.Step("Account") { … }  Stepper.Step("Billing", done: billed) { … } }`:
+/// the steps listed with their states, and each step the panel of its
+/// block, hidden while another is the current one. The steps stay where
+/// the author wrote them, so each keeps its place (and its id).
+fn stepper(el: &mut UIElement) {
+    let Some(bind) = take(el, "bind") else {
+        return;
+    };
+    let b = src(&bind);
+    let linear = take_flag(el, "linear").is_some();
+    let mut list = String::new();
+    let mut i = 0;
+    for stmt in &mut el.children {
+        let StatementKind::UIElement(step) = &mut stmt.kind else {
+            continue;
+        };
+        if !matches!(&step.component, ComponentRef::SubComponent(p, s) if p == "Stepper" && s == "Step")
+        {
+            continue;
+        }
+        let title = take_positional(step).map_or_else(|| lit(""), |t| src(&t));
+        let done = take(step, "done").map_or_else(|| "false".to_string(), |e| src(&e));
+        let error = take(step, "error").map_or_else(|| "false".to_string(), |e| src(&e));
+        let disabled = if linear {
+            format!(", disabled: {i} > ({b})")
+        } else {
+            String::new()
+        };
+        list.push_str(&format!(
+            "Stepper.Item {{ Button({title}, data-state: if {error} {{ \"error\" }} else if {b} == {i} {{ \"current\" }} else if {done} {{ \"done\" }} else {{ \"upcoming\" }}, aria-current: if {b} == {i} {{ \"step\" }} else {{ null }}{disabled}) {{ on click {{ {b} = {i} }} }} }}\n"
+        ));
+        give(step, "hidden", &format!("({b}) != {i}"));
+        give(step, "aria-label", &title);
+        i += 1;
+    }
+    let mut children = parse(&format!("Stepper.List {{ {list} }}"));
+    children.append(&mut el.children);
+    el.children = children;
+}
+
+/// `NumberInput(bind: qty, min: 1, max: 99, label: "Quantity")`: the input
+/// between − and +, stepped by the arrow keys and, ten at a time, `PageUp` and
+/// `PageDown`, and held between its ends.
+fn number_input(el: &mut UIElement) {
+    let Some(bind) = take(el, "bind") else {
+        return;
+    };
+    let b = src(&bind);
+    let min = take(el, "min").map(|e| src(&e));
+    let max = take(el, "max").map(|e| src(&e));
+    let step = take(el, "step").map_or_else(|| "1".to_string(), |e| src(&e));
+    let label = take(el, "label").map(|e| src(&e));
+    let hint = take(el, "hint").map(|e| src(&e));
+    // Its name where the field's label cannot reach it yet (the static
+    // paint); the label names it once the page runs.
+    let named = format!(
+        ", aria-label: {}",
+        label.clone().unwrap_or_else(|| lit("Number"))
+    );
+    let lo = min.clone().unwrap_or_else(|| "-Infinity".to_string());
+    let hi = max.clone().unwrap_or_else(|| "Infinity".to_string());
+    let clamp = |v: &str| format!("Math.min({hi}, Math.max({lo}, {v}))");
+    let attrs = [
+        min.map(|m| format!(", min: {m}")).unwrap_or_default(),
+        max.map(|m| format!(", max: {m}")).unwrap_or_default(),
+        format!(", step: {step}"),
+    ]
+    .concat();
+    let field = [
+        label.map(|l| format!("label: {l}")),
+        hint.map(|h| format!("hint: {h}")),
+    ]
+    .into_iter()
+    .flatten()
+    .collect::<Vec<_>>()
+    .join(", ");
+    let mut children = parse(&format!(
+        r#"Field({field}) {{
+    InputGroup {{
+        Input(bind: {b}{attrs}{named}).number {{
+            on keydown(wfKey) {{
+                if wfKey.key == "PageUp" {{ wfKey.preventDefault()  {b} = {up10} }}
+                if wfKey.key == "PageDown" {{ wfKey.preventDefault()  {b} = {down10} }}
+            }}
+        }}
+        NumberInput.Decrease(type: "button", tabindex: "-1", aria-label: "Decrease", disabled: ({b}) <= {lo}) {{
+            on click {{ {b} = {down} }}
+            Icon("minus", aria-hidden: "true")
+        }}
+        NumberInput.Increase(type: "button", tabindex: "-1", aria-label: "Increase", disabled: ({b}) >= {hi}) {{
+            on click {{ {b} = {up} }}
+            Icon("plus", aria-hidden: "true")
+        }}
+    }}
+}}"#,
+        up10 = clamp(&format!("({b}) + ({step}) * 10")),
+        down10 = clamp(&format!("({b}) - ({step}) * 10")),
+        up = clamp(&format!("({b}) + ({step})")),
+        down = clamp(&format!("({b}) - ({step})")),
+    ));
+    let mut seq = 0;
+    expand(&mut children, &mut seq);
+    el.children = children;
 }

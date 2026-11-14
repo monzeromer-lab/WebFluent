@@ -1,0 +1,46 @@
+// Every choosing built-in, for `tests/browser/choosing.mjs`.
+page Home(path: "/", title: "Choosing", description: "Every choosing built-in.") {
+    state bold = false
+    state view = "grid"
+    state styles: [String] = []
+    state plan = "free"
+    state page = 5
+    state step = 0
+    state qty = 3
+    state day: Date? = null
+    state stay = { start: null, end: null }
+    Heading("Choosing").h1
+    Toggle("Bold", bind: bold, icon: "type")
+    Text("bold {bold}", id: "bold")
+    ToggleGroup(bind: view, label: "View") {
+        ToggleGroup.Item("Grid", value: "grid", icon: "grid")
+        ToggleGroup.Item("List", value: "list", icon: "list")
+        ToggleGroup.Item("Board", value: "board")
+    }
+    Text("view {view}", id: "view")
+    ToggleGroup(bind: styles, label: "Text style").multiple {
+        ToggleGroup.Item("B", value: "b")
+        ToggleGroup.Item("I", value: "i")
+    }
+    Text("styles {styles.join(\",\")}", id: "styles")
+    RadioGroup(bind: plan, label: "Plan").cards {
+        RadioGroup.Option("Free", value: "free", hint: "For trying it out")
+        RadioGroup.Option("Team", value: "team", hint: "€8 a seat")
+    }
+    Text("plan {plan}", id: "plan")
+    Pagination(bind: page, pages: 12)
+    Text("page {page}", id: "page")
+    Stepper(bind: step) {
+        Stepper.Step("Account") { Text("The account step") }
+        Stepper.Step("Billing", done: step > 1) { Text("The billing step") }
+        Stepper.Step("Confirm") { Text("The confirm step") }
+    }
+    NumberInput(bind: qty, min: 1, max: 5, label: "Quantity")
+    Text("qty {qty}", id: "qty")
+    Calendar(bind: day, min: @2026-03-03, disabled: d => d.weekday() >= 6, label: "Delivery day")
+    derived dayText = day ?? "none"
+    Text("day {dayText}", id: "day")
+    Calendar(bind: stay, mode: .range, id: "stay")
+    derived stayText = "{stay.start ?? "-"} {stay.end ?? "-"}"
+    Text("stay {stayText}", id: "stayed")
+}
