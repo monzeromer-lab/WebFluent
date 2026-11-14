@@ -3052,7 +3052,7 @@ The built-ins fall into these families:
 | Navigation | `Navbar`, `Sidebar`, `Link`, `Tabs`, `Breadcrumb`, `Menu`, `OnThisPage`, `Pagination`, `Stepper`, `CommandPalette` |
 | Data display | `Card`, `Table`, `DataTable`, `Tree`, `List`, `Badge`, `Tag`, `Avatar`, `Tooltip` ([Lists of data](/learn/15-data#lists-of-data-a-table-a-tree-a-search)) |
 | Content | `Callout`, `Kbd`, `EmptyState`, `Stat`, `CodeBlock`, `Chip`, `Accordion`, `VisuallyHidden` ([below](#content-a-note-a-key-a-figure)) |
-| Forms | `Form`, `Input`, `Textarea`, `Select`, `Checkbox`, `Radio`, `Switch`, `Slider`, `DatePicker`, `FileUpload`, `Field`, `Fieldset`, `InputGroup`, `RadioGroup`, `NumberInput`, `Calendar`, `Listbox`, `Combobox` ([Forms](/learn/14-forms)) |
+| Forms | `Form`, `Input`, `Textarea`, `Select`, `Checkbox`, `Radio`, `Switch`, `Slider`, `DatePicker`, `FileUpload`, `Field`, `Fieldset`, `InputGroup`, `RadioGroup`, `NumberInput`, `Calendar`, `Listbox`, `Combobox`, `CheckboxGroup`, `InputOTP`, `TagInput`, `Rating`, `DateRangePicker` ([Forms](/learn/14-forms)) |
 | Feedback | `Alert`, `Toast`, `Modal`, `Dialog`, `Popover`, `Spinner`, `Progress`, `Skeleton` ([Events](/learn/08-events#overlays-modals-dialogs-toasts-and-menus)) |
 | Actions | `Button`, `IconButton`, `ButtonGroup`, `Dropdown`, `CopyButton`, `ThemeToggle`, `LocaleSwitch`, `Toggle`, `ToggleGroup` |
 | Media | `Image`, `Video`, `Audio`, `Frame`, `Icon`, `Carousel` ([Add a picture](/recipes/add-a-picture), [Video and audio](/recipes/video-and-audio)) |
@@ -7814,6 +7814,14 @@ page Order(path: "/", title: "Order", description: "Choose how it is sent.") {
 - **`Pagination(bind: page, pages: n)`** draws the pages of a list, with
   gaps for the ones it leaves out.
 - **`Stepper`** shows one step at a time and each step's state.
+- **`CheckboxGroup`** ticks the values of a list, with `all:` a box for
+  every one; **`TagInput`** makes words chips; **`InputOTP`** takes a
+  one-time code a digit to a box; **`Rating`** is stars a keyboard can set;
+  `Slider(…).range` has two thumbs; **`DateRangePicker`** chooses a first
+  and a last day in two months, or by a preset.
+- `Textarea(…).autosize` grows with its text, `Input(…).password.reveal`
+  can show what was typed, and `FileUpload(bind: files).dropzone` takes
+  files dropped on it.
 - **`Calendar`** is a month a keyboard can work: the arrows by day and
   week (the other way round right to left), PageUp and PageDown by month.
   `.range` holds `{ start, end }`, `.multiple` a list.
@@ -15143,7 +15151,7 @@ component PriceTag(label: String, amount: Number, sale: Bool = false) {
     }
 }
 
-component Rating(value: Number = 0) {
+component Stars(value: Number = 0) {
     event rate(stars: Number)
     Row(gap: .xs) {
         for n in 1..=5 by n {
@@ -15158,14 +15166,14 @@ page Preview(path: "/", title: "Preview", description: "The components this proj
     state stars = 3
     Heading("Preview").h1
     PriceTag(label: "Pro", amount: 29).sale
-    Rating(value: stars) { on rate(n) { stars = n } }
+    Stars(value: stars) { on rate(n) { stars = n } }
 }
 ```
 
 Name the components in `build.elements`, in `webfluent.app.json`:
 
 ```json
-{ "build": { "output_type": "elements", "elements": ["PriceTag", "Rating"] } }
+{ "build": { "output_type": "elements", "elements": ["PriceTag", "Stars"] } }
 ```
 
 This HTML places the published components on any page, and listens for a
@@ -15176,7 +15184,7 @@ rating:
 <link rel="stylesheet" href="/styles.css">
 
 <price-tag label="Pro" amount="29" sale></price-tag>
-<wf-rating value="3"></wf-rating>
+<wf-stars value="3"></wf-stars>
 
 <script>
   document.addEventListener("rate", (e) => console.log("rated", e.detail));
@@ -15187,7 +15195,7 @@ rating:
 
 Each name becomes a standard custom element. `PriceTag` is `<price-tag>`.
 A one-word component gets a prefix, so its tag has the hyphen a custom
-element needs: `Rating` is `<wf-rating>`. The build writes `elements.js`,
+element needs: `Stars` is `<wf-stars>`. The build writes `elements.js`,
 `styles.css`, and a page that lists the tags it published.
 
 A published element behaves this way:

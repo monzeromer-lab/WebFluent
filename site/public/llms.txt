@@ -168,6 +168,9 @@ Every page below is Markdown. The language's whole reference in one file is [AGE
 - [Carousel.Slide](https://webfluent.monzeromer.dev/reference/carousel-slide.md): One slide of a carousel.
 - [Chart](https://webfluent.monzeromer.dev/reference/chart.md): A chart drawn as vector graphics when the page is built: bars, lines, areas, a pie or a donut over a list of records.
 - [Checkbox](https://webfluent.monzeromer.dev/reference/checkbox.md): Checkbox bound to a boolean state.
+- [CheckboxGroup](https://webfluent.monzeromer.dev/reference/checkboxgroup.md): Check boxes under a legend whose bind: is the list of the values ticked, with all: a box above them for every one at once — ticked when all are, mixed when some are.
+- [CheckboxGroup.Legend](https://webfluent.monzeromer.dev/reference/checkboxgroup-legend.md): Its legend. Drawn for it.
+- [CheckboxGroup.Option](https://webfluent.monzeromer.dev/reference/checkboxgroup-option.md): One box: its words and its value.
 - [Chip](https://webfluent.monzeromer.dev/reference/chip.md): A compact label — a filter, a tag, a person — that can carry an icon, be pressed (selected:, with on click), and be removed (.removable, with on remove). Tag is the one that does none of it.
 - [Chip.Action](https://webfluent.monzeromer.dev/reference/chip-action.md): What pressing a chip presses: its icon and words, a toggle button when it can be selected:.
 - [Chip.Label](https://webfluent.monzeromer.dev/reference/chip-label.md): Its icon and words, when pressing it does nothing.
@@ -215,6 +218,7 @@ Every page below is Markdown. The language's whole reference in one file is [AGE
 - [DataTable](https://webfluent.monzeromer.dev/reference/datatable.md): Rows of records with their columns declared once: a column sorts when it is .sortable (its header a button, aria-sort saying which way), cell(r) { … } draws a cell, empty { … } shows when there are no rows, and bind: chooses rows (a list with .multiple, a box for each and one for all).
 - [DataTable.Column](https://webfluent.monzeromer.dev/reference/datatable-column.md): One column: its title, its value: (what it shows and sorts by), and a cell(r) { … } that draws it instead.
 - [DatePicker](https://webfluent.monzeromer.dev/reference/datepicker.md): A date field: the reader picks a day, and the bound state holds a Date.
+- [DateRangePicker](https://webfluent.monzeromer.dev/reference/daterangepicker.md): A first and a last day, chosen in two months side by side that a button opens, or by a preset: presets: [.last7, .thisMonth]. bind: holds { start, end }.
 - [Dialog](https://webfluent.monzeromer.dev/reference/dialog.md): Confirmation <dialog>, opened by a state flag. on close runs when it closes, however it was closed, and the focus goes back to what had it.
 - [Dialog.Title](https://webfluent.monzeromer.dev/reference/dialog-title.md): What the dialog's heading draws, in place of its title:'s words, which stay its name.
 - [Divider](https://webfluent.monzeromer.dev/reference/divider.md): Horizontal rule.
@@ -253,6 +257,7 @@ Every page below is Markdown. The language's whole reference in one file is [AGE
 - [InputGroup](https://webfluent.monzeromer.dev/reference/inputgroup.md): An input drawn as one box with what goes beside it: an icon, InputGroup.Addon("https://"), a button, or InputGroup.Clear, which empties the input and gives it the focus back.
 - [InputGroup.Addon](https://webfluent.monzeromer.dev/reference/inputgroup-addon.md): Text beside the input: https://, .com, kg.
 - [InputGroup.Clear](https://webfluent.monzeromer.dev/reference/inputgroup-clear.md): A button that empties the input and puts the focus back in it; hidden while it is empty.
+- [InputOTP](https://webfluent.monzeromer.dev/reference/inputotp.md): A one-time code typed a digit to a box: the focus moves on as each is typed and back with Backspace, and a code pasted into any box fills them all; the browser offers the code it was sent (autocomplete="one-time-code").
 - [Kbd](https://webfluent.monzeromer.dev/reference/kbd.md): A key or a combination, written as this system writes it: Kbd("mod+k") is ⌘K on a Mac and Ctrl+K elsewhere.
 - [Library](https://webfluent.monzeromer.dev/reference/library.md): The compiler as a library: the webfluent crate (Template, build, memory, vfs, diagnostics, config, errors, semver), the Node package and wf.js.
 - [Link](https://webfluent.monzeromer.dev/reference/link.md): Client-side navigation link; its label or its block is the link text.
@@ -297,6 +302,7 @@ Every page below is Markdown. The language's whole reference in one file is [AGE
 - [RadioGroup.Hint](https://webfluent.monzeromer.dev/reference/radiogroup-hint.md): An option's hint. Drawn for it.
 - [RadioGroup.Legend](https://webfluent.monzeromer.dev/reference/radiogroup-legend.md): Its legend. Drawn for it.
 - [RadioGroup.Option](https://webfluent.monzeromer.dev/reference/radiogroup-option.md): One choice: its words, its value, and a hint said with it.
+- [Rating](https://webfluent.monzeromer.dev/reference/rating.md): Stars, as radio buttons a screen reader hears as a choice of one to max:: the arrow keys move between them; .half takes halves; .readonly only shows.
 - [Route](https://webfluent.monzeromer.dev/reference/route.md): Maps a path to a page (the original grammar; pages now declare their paths).
 - [Router](https://webfluent.monzeromer.dev/reference/router.md): Where the current page renders. May sit at any depth inside app; pages declare their own paths.
 - [Row](https://webfluent.monzeromer.dev/reference/row.md): Horizontal flex layout. It stays a row at every width unless .stacks or a responsive direction says otherwise.
@@ -338,6 +344,7 @@ Every page below is Markdown. The language's whole reference in one file is [AGE
 - [Tabs](https://webfluent.monzeromer.dev/reference/tabs.md): Tab strip switching between its pages: the arrow keys move between the tabs (the other way round in a right-to-left page), Home and End go to the ends.
 - [Tabs.Page](https://webfluent.monzeromer.dev/reference/tabs-page.md): One tab and its panel.
 - [Tag](https://webfluent.monzeromer.dev/reference/tag.md): Compact chip.
+- [TagInput](https://webfluent.monzeromer.dev/reference/taginput.md): Words typed into a field, each a chip once Enter or a comma ends it; Backspace in the empty field takes the last back, and each chip has a button to take it out.
 - [Tbody](https://webfluent.monzeromer.dev/reference/tbody.md): Table body section (the original spelling of Table.Body).
 - [Tcell](https://webfluent.monzeromer.dev/reference/tcell.md): Table cell (the original spelling of Table.Cell).
 - [Text](https://webfluent.monzeromer.dev/reference/text.md): A paragraph of text. {…} in the string reads state and stays live.

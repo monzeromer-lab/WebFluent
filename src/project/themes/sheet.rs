@@ -1209,6 +1209,60 @@ th[aria-sort="descending"] > .wf-data-table__sort::after { content: "↓" / ""; 
 .wf-app-shell__footer { padding: var(--spacing-md); border-top: 1px solid var(--color-border); }
 /*@both*/
 
+/* ─── Input OTP ─────────────────────────────────────── */
+.wf-otp { display: inline-flex; gap: var(--spacing-xs); }
+.wf-otp__box { width: 2.75rem; min-height: 3rem; padding: 0; text-align: center; font-size: var(--font-size-lg); font-variant-numeric: tabular-nums; }
+
+/* ─── Tag Input ─────────────────────────────────────── */
+.wf-tag-input { display: flex; flex-wrap: wrap; align-items: center; gap: var(--spacing-xs); }
+.wf-tag-input__chips { display: contents; }
+.wf-tag-input__field { flex: 1; min-width: 8rem; }
+
+/* ─── Rating ────────────────────────────────────────── */
+/* Stars drawn under the choices that set them: each star a fill, each
+   choice a transparent button over its half or its whole. */
+.wf-rating { position: relative; display: inline-flex; gap: 2px; font-size: 1.5rem; line-height: 1; }
+.wf-rating__star { width: 1em; height: 1em; }
+.wf-rating__star::before { content: "★" / ""; display: block; width: 1em; color: var(--color-border); background: linear-gradient(90deg, var(--wf-star, #f5a623) var(--wf-fill, 0%), transparent var(--wf-fill, 0%)); -webkit-background-clip: text; background-clip: text; }
+.wf-rating__star[data-fill="full"]::before { --wf-fill: 100%; color: transparent; }
+.wf-rating__star[data-fill="half"]::before { --wf-fill: 50%; color: transparent; background-image: linear-gradient(90deg, #f5a623 50%, var(--color-border) 50%); }
+.wf-rating__star[data-fill="none"]::before { background: none; }
+.wf-rating__choices { position: absolute; inset: 0; display: flex; }
+.wf-rating__choice { flex: 1; min-width: 0; padding: 0; border: 0; background: none; cursor: pointer; }
+.wf-rating__choice:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+
+/* ─── Range Slider ──────────────────────────────────── */
+/* Two native range inputs over one track, each thumb its own. */
+.wf-slider__track { position: relative; height: var(--target-min); }
+.wf-slider__thumb { position: absolute; inset: 0; width: 100%; margin: 0; pointer-events: none; background: none; }
+.wf-slider__thumb::-webkit-slider-thumb { pointer-events: auto; }
+.wf-slider__thumb::-moz-range-thumb { pointer-events: auto; }
+/*@full*/
+/* The second thumb's track would hide the first's: only the thumbs show. */
+.wf-slider__thumb { -webkit-appearance: none; appearance: none; }
+/*@both*/
+
+/* ─── Drop Zone ─────────────────────────────────────── */
+.wf-dropzone__area { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: var(--spacing-sm); padding: var(--spacing-lg); text-align: center; border: 2px dashed var(--color-border); border-radius: var(--radius-md); }
+.wf-dropzone__area[data-over] { border-color: var(--color-primary); }
+.wf-dropzone__list { display: flex; flex-direction: column; gap: var(--spacing-xs); margin: var(--spacing-sm) 0 0; padding: 0; list-style: none; }
+.wf-dropzone__file { display: flex; align-items: center; gap: var(--spacing-sm); }
+.wf-dropzone__preview { width: 3rem; height: 3rem; object-fit: cover; border-radius: var(--radius-sm); }
+.wf-dropzone__name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ─── Date Range Picker ─────────────────────────────── */
+.wf-date-range__panel { display: flex; flex-direction: column; gap: var(--spacing-sm); max-width: min(44rem, calc(100vw - 16px)); }
+.wf-date-range__months { display: flex; flex-wrap: wrap; gap: var(--spacing-md); }
+.wf-date-range__presets { display: flex; flex-wrap: wrap; gap: var(--spacing-xs); }
+
+/* ─── Reveal ────────────────────────────────────────── */
+.wf-reveal { min-height: var(--target-min); padding: 0 var(--spacing-sm); border: 0; background: none; color: var(--color-primary); font: inherit; font-size: var(--font-size-sm); cursor: pointer; }
+.wf-field:has(> .wf-reveal) { display: grid; grid-template-columns: 1fr auto; align-items: center; }
+.wf-field:has(> .wf-reveal) > :not(.wf-input):not(.wf-reveal) { grid-column: 1 / -1; }
+
+/* ─── Autosize ──────────────────────────────────────── */
+textarea[data-autosize="true"] { field-sizing: content; min-height: 3lh; resize: none; overflow: hidden; }
+
 /* ─── Highlight ─────────────────────────────────────── */
 .wf-tok-kw { color: var(--syntax-keyword); }
 .wf-tok-name { color: var(--syntax-function); }

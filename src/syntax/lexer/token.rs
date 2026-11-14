@@ -460,6 +460,12 @@ pub const ALL_COMPONENT_NAMES: &[&str] = &[
     "Combobox",
     "CommandPalette",
     "AppShell",
+    // More form controls
+    "CheckboxGroup",
+    "InputOTP",
+    "TagInput",
+    "Rating",
+    "DateRangePicker",
     // A node handed to somebody else's code, with a lifetime.
     "Host",
     // A custom element a script defines, by its tag.

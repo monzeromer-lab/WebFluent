@@ -17,7 +17,7 @@ impl JsCodegen {
     }
 
     /// Whether a `Bool` prop is given, as a flag or as `true`.
-    fn flag_given(ui: &UIElement, key: &str) -> bool {
+    pub(in super::super) fn flag_given(ui: &UIElement, key: &str) -> bool {
         ui.modifiers.iter().any(|m| m == key)
             || ui
                 .args
@@ -74,6 +74,36 @@ impl JsCodegen {
             self.wf_node_inline(ui)
         ));
         self.emit_root_handlers(var, ui, false);
+    }
+
+    /// A control the runtime draws whole, its `bind:` handed as a read and a
+    /// write and each of `keys` as a read of what it was given (`true` for a
+    /// flag): `WF.rating(box, read, write, { max: () => 5, half: () => true })`.
+    pub(in super::super) fn emit_bound_widget(
+        &mut self,
+        var: &str,
+        ui: &UIElement,
+        parent: &str,
+        name: &str,
+        func: &str,
+        keys: &[&str],
+    ) {
+        let tag = crate::registry::component(name).map_or("div", |c| c.tag);
+        self.collection_root(name, tag, var, ui);
+        let (read, write) = self.bind_pair(ui);
+        let mut opts = Vec::new();
+        for key in keys {
+            if let Some(v) = self.named_js(ui, key) {
+                opts.push(format!("{key}: () => {v}"));
+            } else if Self::flag_given(ui, key) {
+                opts.push(format!("{key}: () => true"));
+            }
+        }
+        self.emit_line(&format!(
+            "WF.{func}({var}, {read}, {write}, {{ {} }});",
+            opts.join(", ")
+        ));
+        self.emit_line(&format!("{parent}.appendChild({var});"));
     }
 
     /// `Tree(items:, children:, key:, bind:, label:) { row(f) { … } }`.

@@ -1036,6 +1036,54 @@
     },
     {
       "deps": [
+        "calendar",
+        "focus",
+        "layer",
+        "announce"
+      ],
+      "exports": [
+        [
+          "otp",
+          "otp"
+        ],
+        [
+          "tagInput",
+          "tagInput"
+        ],
+        [
+          "rating",
+          "rating"
+        ],
+        [
+          "rangeSlider",
+          "rangeSlider"
+        ],
+        [
+          "dropzone",
+          "dropzone"
+        ],
+        [
+          "dateRange",
+          "dateRange"
+        ],
+        [
+          "checkboxGroup",
+          "checkboxGroup"
+        ],
+        [
+          "autosize",
+          "autosize"
+        ],
+        [
+          "reveal",
+          "reveal"
+        ]
+      ],
+      "name": "forms",
+      "triggers": []
+    },
+    {
+      "deps": [
         "focus",
         "each",
         "layer"

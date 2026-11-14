@@ -1,0 +1,35 @@
+// The second group of form controls, for `tests/browser/forms2.mjs`.
+page Home(path: "/", title: "Forms", description: "More form controls.") {
+    state toppings: [String] = ["olives"]
+    state code = ""
+    state tags: [String] = ["rust"]
+    state stars = 3
+    state price = [20, 80]
+    state files: [File] = []
+    state stay = { start: null, end: null }
+    state note = ""
+    state secret = ""
+    state when: Time? = null
+    Heading("More form controls").h1
+    CheckboxGroup(bind: toppings, label: "Toppings", all: "Every topping") {
+        CheckboxGroup.Option("Olives", value: "olives")
+        CheckboxGroup.Option("Onions", value: "onions")
+        CheckboxGroup.Option("Peppers", value: "peppers")
+    }
+    Text("toppings {toppings.join(\",\")}", id: "toppings")
+    InputOTP(bind: code, length: 4, label: "Code from your app")
+    Text("code {code}", id: "code")
+    TagInput(bind: tags, label: "Tags")
+    Text("tags {tags.join(\",\")}", id: "tags")
+    Rating(bind: stars, label: "Your rating")
+    Text("stars {stars}", id: "stars")
+    Rating(bind: stars, label: "Average", id: "shown").readonly
+    Slider(bind: price, min: 0, max: 100, label: "Price").range
+    Text("price {price.join(\"-\")}", id: "price")
+    FileUpload(bind: files, label: "Choose photos").dropzone.multiple
+    Text("files {files.length}", id: "files")
+    DateRangePicker(bind: stay, label: "Stay", presets: [.last7, .thisMonth])
+    Textarea(bind: note, label: "Note", rows: 2).autosize
+    Input(bind: secret, label: "Password").password.reveal
+    Input(bind: when, label: "Time").time
+}

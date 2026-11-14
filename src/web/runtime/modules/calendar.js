@@ -50,8 +50,9 @@
       if (mode === "multiple") return v[0] || today;
       return v || today;
     };
-    // The day that holds the Tab stop, and so which month shows.
-    const focus = signal(first());
+    // The day that holds the Tab stop, and so which month shows: `offset`
+    // months on, for the second month of a range picker.
+    const focus = signal(opts.offset ? _plusMonths(first(), opts.offset) : first());
     const blocked = (day) => {
       const min = opts.min && opts.min();
       const max = opts.max && opts.max();

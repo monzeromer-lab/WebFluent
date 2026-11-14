@@ -40,6 +40,7 @@ pub(super) const GLOBALS: &[&str] = &[
     "Infinity",
     "IntersectionObserver",
     "matchMedia",
+    "CSS",
     "Intl",
     "JSON",
     "Map",

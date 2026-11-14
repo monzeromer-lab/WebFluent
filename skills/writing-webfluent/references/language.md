@@ -1856,21 +1856,28 @@ file would change; a `.wfx` file is normalised through its braced spelling.
 | `Checkbox` | `Checkbox(bind: var, label: "Agree")` |
 | `Radio` | `Radio(bind: var, value: "opt1", label: "Option 1")` |
 | `Switch` | `Switch(bind: var, label: "Enable")` |
-| `Slider` | `Slider(bind: volume, min: 0, max: 100, step: 1, label: "Volume")` — range input with reactive value. `aria-*`, `id:`, `role:`, `disabled:` and the rest of its attributes reach the input (`hidden`, `lang`, `dir` its box); with `aria-valuetext:` the raw number is not shown beside the track (you are showing it) |
+| `Slider` | `Slider(bind: volume, min: 0, max: 100, step: 1, label: "Volume")` — range input with reactive value; `.range` has two thumbs, `bind:` holding `[low, high]`. `aria-*`, `id:`, `role:`, `disabled:` and the rest of its attributes reach the input (`hidden`, `lang`, `dir` its box); with `aria-valuetext:` the raw number is not shown beside the track (you are showing it) |
 | `DatePicker` | `DatePicker(bind: selectedDate, label: "Start Date", min: "2026-01-01")` — date input; the bound state holds a `Date` (`state selectedDate: Date? = null`) |
 | `FileUpload` | `FileUpload(accept: "image/*", label: "Upload Photo") { on change(e) { handleFile(e) } }` — flags: `.multiple` |
-| `Textarea` | `Textarea(bind: note, label: "Notes", rows: 4, maxLength: 200)` — several lines; with `maxLength` it counts what is left |
+| `Textarea` | `Textarea(bind: note, label: "Notes", rows: 4, maxLength: 200)` — several lines; with `maxLength` it counts what is left; `.autosize` grows with its text |
 | `Form` | `Form(bind: form, show: .onBlur) { on submit { save() } ... }` — `show`: when a `validate` message appears (`.onBlur`, `.onSubmit`, `.live`) |
 | `Field` | `Field(label: "Plan", hint: "…", error: planError) { PlanPicker(bind: plan) }` — a label, hint and error around a control of your own: the first control in its block is named by the label (`aria-labelledby`, `for`), described by the hint and the error, and `aria-invalid` while there is one |
 | `Fieldset` | `Fieldset(legend: "Address") { Input(…) Input(…) }` — controls that belong together, under a legend |
 | `Listbox` | `Listbox(bind: fruit, label: "Fruit") { Listbox.Option("Apple", value: "apple") … }` — options always shown: one (the choice follows the arrow keys) or, `.multiple`, several — Space chooses, Shift with an arrow takes the next in too, Ctrl/⌘+A all; a letter goes to the option it starts; `aria-disabled: "true"` passes one over |
 | `Combobox` | `Combobox(bind: city, options: Cities.all, text: c => c.name, key: c => c.id, label: "City")`, or `search: q => Geo.cities(q: q), debounce: 250` to ask as the reader types; `{ option(c) { … }  empty { … } }` — a field (`role="combobox"`) offering what matches in a layer at it: the arrows go through them with the focus kept in the field (`aria-activedescendant`), Enter takes one, Escape closes; `bind:` holds the key (the option itself without `key:`); `.multiple` keeps several as chips, Backspace in the empty field takes the last back |
+| `CheckboxGroup` | `CheckboxGroup(bind: picked, label: "Toppings", all: "Every topping") { CheckboxGroup.Option("Olives", value: "olives") … }` — boxes under a legend, `bind:` the list of what is ticked; `all:` adds a box for every one, mixed while some are ticked |
+| `InputOTP` | `InputOTP(bind: code, length: 6, label: "Code from your app")` — a box a digit: typing moves on, Backspace in an empty box goes back, a paste or the browser's offered code (`autocomplete="one-time-code"`) fills them all |
+| `TagInput` | `TagInput(bind: tags, label: "Tags")` — words become chips at Enter or a comma; Backspace in the empty field takes the last back; each chip has a button to take it out |
+| `Rating` | `Rating(bind: stars, max: 5, label: "Your rating").half` — stars as a radio group (the arrow keys rate); `.readonly` is an image saying the rating |
+| `DateRangePicker` | `DateRangePicker(bind: stay, label: "Stay", presets: [.last7, .thisMonth])` — a button saying the range, opening two months and the presets (`.today`, `.last7`, `.last30`, `.thisMonth`, `.lastMonth`); `bind:` holds `{ start, end }` |
 | `RadioGroup` | `RadioGroup(bind: plan, label: "Plan").cards { RadioGroup.Option("Free", value: "free", hint: "For trying it out") }` — native radios under a legend (the arrow keys choose), each hint read with its option (`aria-description`); `.cards` draws each as a card |
 | `NumberInput` | `NumberInput(bind: qty, min: 1, max: 99, step: 1, label: "Quantity")` — a number input between − and + buttons (out of the Tab order: the arrow keys step it), PageUp and PageDown ten steps, held between its ends |
 | `Calendar` | `Calendar(bind: day, mode: .range, min: @2026-01-01, disabled: d => d.weekday() >= 6, label: "Delivery day")` — a month as a grid: one Tab stop, the arrows by day (the other way round right to left) and week, PageUp and PageDown by month (Shift: year), Home and End to the week's ends, Enter or Space chooses; `.single` (a `Date`), `.range` (`{ start, end }`), `.multiple` (a list); `disabled:` a list of days or a test of one; drawn once the page runs |
 | `InputGroup` | `InputGroup { Icon("search")  Input(bind: q, aria-label: "Search")  InputGroup.Clear }` — an input and what goes beside it drawn as one box; `InputGroup.Addon("https://")` is text beside it; `InputGroup.Clear` empties the input (its binding follows), gives it the focus back, and hides while it is empty |
 
-Input types (a flag): `.text`, `.email`, `.password`, `.number`, `.search`, `.tel`, `.url`, `.date`, `.time`, `.datetime`, `.color`
+Input types (a flag): `.text`, `.email`, `.password`, `.number`, `.search`, `.tel`, `.url`, `.date`, `.time`, `.datetime`, `.color`. `.time` and `.datetime` are the time pickers, holding a `Time` or a `DateTime`. `.password.reveal` adds a button that shows the password and hides it again.
+
+`FileUpload(bind: files, label: "Photos").dropzone.multiple` is an area files are dropped on or chosen into, each listed with its preview and a button to take it out.
 
 ### Content
 

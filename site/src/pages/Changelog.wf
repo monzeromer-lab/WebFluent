@@ -221,6 +221,22 @@ is a dialog of everything to do, filtered as the reader types."#),
                     Change(text: #"A built-in may take named blocks its entry lists; `E103` names the ones
 it takes."#)
                 ]),
+                NotesSection(title: #"More form controls"#, id: "6.2.0-more-form-controls", items: [
+                    Change(text: #"`CheckboxGroup(bind: picked, label:, all: "Every topping")` ticks the
+values of a list, with a box for all that is mixed while some are ticked."#),
+                    Change(text: #"`InputOTP(bind: code, length: 6)` is a one-time code a digit to a box,
+filled whole by a paste or by the code the browser offers."#),
+                    Change(text: #"`TagInput(bind: tags)` makes words chips."#),
+                    Change(text: #"`Rating(bind: stars).half` is stars a keyboard can set; `.readonly`
+only shows."#),
+                    Change(text: #"`Slider(bind: price).range` has two thumbs."#),
+                    Change(text: #"`DateRangePicker(bind: stay, presets: [.last7])` chooses a range in two
+months, or by a preset."#),
+                    Change(text: #"`Textarea(…).autosize` grows with its text; `Input(…).password.reveal`
+shows the password on a press; `FileUpload(bind: files).dropzone` takes
+files dropped on it, each shown with a preview and a button to take it
+out."#)
+                ]),
                 NotesSection(title: #"Fixes"#, id: "6.2.0-fixes", items: [
                     Change(text: #"`wf test` drew a built-in where the project had a component of its
 name in another file."#),
@@ -291,7 +307,7 @@ again before the exit ended."#),
                     Change(text: #"A `Splitter`'s handle reaches 24px, WCAG 2.2's least target, around its
 4px line."#)
                 ])
-            ], count: 76), latest: true)
+            ], count: 83), latest: true)
 
             ReleaseEntry(ReleaseNotes(version: "6.1.0", id: "6.1.0", date: "2026-11-14", when: "14 November 2026", summary: #"A site sends much less: the runtime ships only the functions a program
 reaches, with short names, and only the styles and animations it draws
@@ -3750,6 +3766,6 @@ flattened diagnostics, and the reason a theme failed to resolve."#),
             ], count: 15))
         }
 
-        OnThisPage(sections: [Anchor(id: "6.2.0-a-project-s-own-component-wins", label: #"A project's own component wins"#), Anchor(id: "6.2.0-stacking-and-target-sizes-are-tokens", label: #"Stacking and target sizes are tokens"#), Anchor(id: "6.2.0-the-arrow-keys-everywhere-a-group-needs-them", label: #"The arrow keys, everywhere a group needs them"#), Anchor(id: "6.2.0-overlays-on-one-path", label: #"Overlays on one path"#), Anchor(id: "6.2.0-presses-that-hold-up", label: #"Presses that hold up"#), Anchor(id: "6.2.0-content-built-ins", label: #"Content built-ins"#), Anchor(id: "6.2.0-choosing-built-ins", label: #"Choosing built-ins"#), Anchor(id: "6.2.0-collections-and-an-app-s-frame", label: #"Collections and an app's frame"#), Anchor(id: "6.2.0-fixes", label: #"Fixes"#), Anchor(id: "6.2.0-reached-by-every-reader", label: #"Reached by every reader"#), Anchor(id: "6.2.0-right-to-left", label: #"Right to left"#), Anchor(id: "6.2.0-smaller-fixes", label: #"Smaller fixes"#)], source: "RELEASE_NOTES.md")
+        OnThisPage(sections: [Anchor(id: "6.2.0-a-project-s-own-component-wins", label: #"A project's own component wins"#), Anchor(id: "6.2.0-stacking-and-target-sizes-are-tokens", label: #"Stacking and target sizes are tokens"#), Anchor(id: "6.2.0-the-arrow-keys-everywhere-a-group-needs-them", label: #"The arrow keys, everywhere a group needs them"#), Anchor(id: "6.2.0-overlays-on-one-path", label: #"Overlays on one path"#), Anchor(id: "6.2.0-presses-that-hold-up", label: #"Presses that hold up"#), Anchor(id: "6.2.0-content-built-ins", label: #"Content built-ins"#), Anchor(id: "6.2.0-choosing-built-ins", label: #"Choosing built-ins"#), Anchor(id: "6.2.0-collections-and-an-app-s-frame", label: #"Collections and an app's frame"#), Anchor(id: "6.2.0-more-form-controls", label: #"More form controls"#), Anchor(id: "6.2.0-fixes", label: #"Fixes"#), Anchor(id: "6.2.0-reached-by-every-reader", label: #"Reached by every reader"#), Anchor(id: "6.2.0-right-to-left", label: #"Right to left"#), Anchor(id: "6.2.0-smaller-fixes", label: #"Smaller fixes"#)], source: "RELEASE_NOTES.md")
     }
 }

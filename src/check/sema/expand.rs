@@ -41,6 +41,7 @@ fn expand_element(el: &mut UIElement, seq: &mut usize) {
     let ComponentRef::BuiltIn(name) = &el.component else {
         return;
     };
+    let name = name.clone();
     match name.as_str() {
         "Callout" => callout(el),
         "Kbd" => kbd(el),
@@ -64,6 +65,14 @@ fn expand_element(el: &mut UIElement, seq: &mut usize) {
         "NumberInput" => number_input(el),
         "Listbox" => listbox(el),
         "CommandPalette" => command_palette(el),
+        "CheckboxGroup" => checkbox_group(el),
+        "Textarea" if take_flag(el, "autosize").is_some() => {
+            give(el, "data-autosize", "\"true\"");
+            give(el, "mount", "(n) => __wf.autosize(n)");
+        }
+        "Input" if take_flag(el, "reveal").is_some() => {
+            give(el, "mount", "(n) => __wf.reveal(n)");
+        }
         _ => {}
     }
 }
@@ -934,4 +943,48 @@ fn palette_parts(stmts: &mut [Statement]) {
             palette_parts(body);
         }
     }
+}
+
+/// `CheckboxGroup(bind: picked, label: "Toppings", all: "Every topping") { CheckboxGroup.Option("Olives", value: "o") }`:
+/// a box for each value, ticked while the list holds it, and one for all.
+fn checkbox_group(el: &mut UIElement) {
+    let Some(bind) = take(el, "bind") else {
+        return;
+    };
+    let b = src(&bind);
+    let all = take(el, "all");
+    let legend = take(el, "label").map(|l| format!("CheckboxGroup.Legend({})\n", src(&l)));
+    let mut values = Vec::new();
+    for stmt in &mut el.children {
+        let StatementKind::UIElement(option) = &mut stmt.kind else {
+            continue;
+        };
+        if !matches!(&option.component, ComponentRef::SubComponent(p, s) if p == "CheckboxGroup" && s == "Option")
+        {
+            continue;
+        }
+        let Some(label) = take_positional(option) else {
+            continue;
+        };
+        let l = src(&label);
+        let v = take(option, "value").map_or_else(|| l.clone(), |e| src(&e));
+        values.push(v.clone());
+        let mut boxed = parse(&format!(
+            "Checkbox(checked: {b}.includes({v}), label: {l}) {{ on change {{ {b} = if {b}.includes({v}) {{ {b}.filter(wfTicked => wfTicked != {v}) }} else {{ {b}.concat([{v}]) }} }} }}"
+        ));
+        boxed.append(&mut option.children);
+        option.children = boxed;
+    }
+    let mut head = legend.unwrap_or_default();
+    if let Some(words) = all {
+        let list = format!("[{}]", values.join(", "));
+        head.push_str(&format!(
+            "Checkbox(checked: {list}.every(wfOne => {b}.includes(wfOne)), label: {w}, data-all: \"true\") {{ on change {{ {b} = if {list}.every(wfOne => {b}.includes(wfOne)) {{ [] }} else {{ {list} }} }} }}\n",
+            w = src(&words)
+        ));
+        give(el, "mount", "(n) => __wf.checkboxGroup(n)");
+    }
+    let mut children = parse(&head);
+    children.append(&mut el.children);
+    el.children = children;
 }

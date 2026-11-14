@@ -608,6 +608,14 @@ page Order(path: "/", title: "Order", description: "Choose how it is sent.") {
 - **`Pagination(bind: page, pages: n)`** draws the pages of a list, with
   gaps for the ones it leaves out.
 - **`Stepper`** shows one step at a time and each step's state.
+- **`CheckboxGroup`** ticks the values of a list, with `all:` a box for
+  every one; **`TagInput`** makes words chips; **`InputOTP`** takes a
+  one-time code a digit to a box; **`Rating`** is stars a keyboard can set;
+  `Slider(…).range` has two thumbs; **`DateRangePicker`** chooses a first
+  and a last day in two months, or by a preset.
+- `Textarea(…).autosize` grows with its text, `Input(…).password.reveal`
+  can show what was typed, and `FileUpload(bind: files).dropzone` takes
+  files dropped on it.
 - **`Calendar`** is a month a keyboard can work: the arrows by day and
   week (the other way round right to left), PageUp and PageDown by month.
   `.range` holds `{ start, end }`, `.multiple` a list.

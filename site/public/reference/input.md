@@ -7,13 +7,14 @@ The page: https://webfluent.monzeromer.dev/reference/input
 Text field. With label, hint or error it is a labelled field.
 
 ```wf
-Input(bind: State, label: String, hint: String, …)
+Input(reveal: Bool, bind: State, label: String, …)
 ```
 
 ## Props
 
 | Prop | Type | Meaning |
 |---|---|---|
+| `reveal:` | `Bool` | A password's button to show it and hide it again, said to a screen reader |
 | `bind:` | `State` | State variable the control reads and writes (two-way) |
 | `label:` | `String` | Visible label; also the control's accessible name |
 | `hint:` | `String` | Help text under the control, linked to it by `aria-describedby` |
@@ -32,7 +33,7 @@ Input(bind: State, label: String, hint: String, …)
 
 ## Flags
 
-`.text` `.email` `.password` `.number` `.search` `.tel` `.url` `.date` `.time` `.datetime` `.color` `.required` `.disabled` `.sm` `.md` `.lg` `.full` `.rounded`
+`.reveal` `.text` `.email` `.password` `.number` `.search` `.tel` `.url` `.date` `.time` `.datetime` `.color` `.required` `.disabled` `.sm` `.md` `.lg` `.full` `.rounded`
 
 ## DOM events it answers
 

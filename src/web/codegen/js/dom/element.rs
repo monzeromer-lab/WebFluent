@@ -230,8 +230,68 @@ impl JsCodegen {
                 self.emit_icon_button(var, ui, parent);
                 true
             }
+            // Two thumbs, a low and a high: the runtime's.
+            "Slider" if Self::flag_given(ui, "range") => {
+                self.emit_bound_widget(
+                    var,
+                    ui,
+                    parent,
+                    "Slider",
+                    "rangeSlider",
+                    &["min", "max", "step", "label"],
+                );
+                true
+            }
             "Slider" => {
                 self.emit_slider(var, ui, parent);
+                true
+            }
+            "FileUpload" if Self::flag_given(ui, "dropzone") => {
+                self.emit_bound_widget(
+                    var,
+                    ui,
+                    parent,
+                    "FileUpload",
+                    "dropzone",
+                    &["accept", "multiple", "label"],
+                );
+                true
+            }
+            "InputOTP" => {
+                self.emit_bound_widget(var, ui, parent, "InputOTP", "otp", &["length", "label"]);
+                true
+            }
+            "TagInput" => {
+                self.emit_bound_widget(
+                    var,
+                    ui,
+                    parent,
+                    "TagInput",
+                    "tagInput",
+                    &["label", "placeholder"],
+                );
+                true
+            }
+            "Rating" => {
+                self.emit_bound_widget(
+                    var,
+                    ui,
+                    parent,
+                    "Rating",
+                    "rating",
+                    &["max", "label", "half", "readonly"],
+                );
+                true
+            }
+            "DateRangePicker" => {
+                self.emit_bound_widget(
+                    var,
+                    ui,
+                    parent,
+                    "DateRangePicker",
+                    "dateRange",
+                    &["label", "min", "max", "presets"],
+                );
                 true
             }
             "DatePicker" => {

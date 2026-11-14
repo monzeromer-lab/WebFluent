@@ -1,5 +1,5 @@
 {
- "count": 187,
+ "count": 194,
  "families": [
   "Layout",
   "Navigation",
@@ -7588,7 +7588,7 @@
    "ownerSlug": "",
    "summary": "Text field. With `label`, `hint` or `error` it is a labelled field.",
    "plain": "Text field. With label, hint or error it is a labelled field.",
-   "signature": "Input(bind: State, label: String, hint: String, …)",
+   "signature": "Input(reveal: Bool, bind: State, label: String, …)",
    "block": false,
    "legacy": false,
    "modern": [
@@ -7596,6 +7596,11 @@
     ""
    ],
    "props": [
+    {
+     "name": "reveal:",
+     "type": "Bool",
+     "meaning": "A password's button to show it and hide it again, said to a screen reader"
+    },
     {
      "name": "bind:",
      "type": "State",
@@ -7674,6 +7679,13 @@
    ],
    "controls": [
     {
+     "name": "reveal",
+     "kind": "bool",
+     "options": [],
+     "value": "",
+     "sink": "special"
+    },
+    {
      "name": "label",
      "kind": "string",
      "options": [],
@@ -7709,16 +7721,10 @@
      "kind": "string",
      "options": [],
      "value": ""
-    },
-    {
-     "name": "required",
-     "kind": "bool",
-     "options": [],
-     "value": "",
-     "sink": "attribute"
     }
    ],
    "flags": [
+    ".reveal",
     ".text",
     ".email",
     ".password",
@@ -8447,6 +8453,11 @@
      "meaning": "Granularity"
     },
     {
+     "name": "range:",
+     "type": "Bool",
+     "meaning": "Two thumbs, a low and a high: `bind:` holds `[low, high]`"
+    },
+    {
      "name": "label:",
      "type": "String",
      "meaning": "Visible label; also the control's accessible name"
@@ -8458,6 +8469,13 @@
     }
    ],
    "controls": [
+    {
+     "name": "range",
+     "kind": "bool",
+     "options": [],
+     "value": "",
+     "sink": "special"
+    },
     {
      "name": "label",
      "kind": "string",
@@ -8473,6 +8491,7 @@
     }
    ],
    "flags": [
+    ".range",
     ".disabled"
    ],
    "events": [],
@@ -8683,6 +8702,16 @@
      "name": "disabled:",
      "type": "Bool",
      "meaning": "Whether the control is inert"
+    },
+    {
+     "name": "bind:",
+     "type": "State",
+     "meaning": "The chosen files: a `File`, or a list of them with `.multiple`"
+    },
+    {
+     "name": "dropzone:",
+     "type": "Bool",
+     "meaning": "An area files are dropped on or chosen into, each shown with its preview and a button to take it out"
     }
    ],
    "controls": [
@@ -8711,11 +8740,19 @@
      "options": [],
      "value": "",
      "sink": "attribute"
+    },
+    {
+     "name": "dropzone",
+     "kind": "bool",
+     "options": [],
+     "value": "",
+     "sink": "special"
     }
    ],
    "flags": [
     ".multiple",
-    ".disabled"
+    ".disabled",
+    ".dropzone"
    ],
    "events": [],
    "domEvents": [
@@ -8929,6 +8966,11 @@
      "meaning": "Whether the form refuses to submit without it"
     },
     {
+     "name": "autosize:",
+     "type": "Bool",
+     "meaning": "Grows with its text, from `rows:` up"
+    },
+    {
      "name": "disabled:",
      "type": "Bool",
      "meaning": "Whether the control is inert"
@@ -8967,15 +9009,16 @@
      "sink": "attribute"
     },
     {
-     "name": "disabled",
+     "name": "autosize",
      "kind": "bool",
      "options": [],
      "value": "",
-     "sink": "attribute"
+     "sink": "special"
     }
    ],
    "flags": [
     ".required",
+    ".autosize",
     ".disabled"
    ],
    "events": [],
@@ -9023,7 +9066,7 @@
    "example": "state note = \"\"\nTextarea(bind: note, label: \"Notes\", rows: 4, maxLength: 200)",
    "preview": true,
    "outputs": [],
-   "since": "5.0",
+   "since": "6.2.0",
    "codes": [
     {
      "kind": "E103",
@@ -10705,6 +10748,578 @@
    ],
    "cssClass": "wf-combobox",
    "example": "state city = \"\"\nstate cities = [{ id: \"par\", name: \"Paris\", country: \"France\" }, { id: \"por\", name: \"Porto\", country: \"Portugal\" }]\nCombobox(bind: city, options: cities, text: c => c.name, key: c => c.id, label: \"City\") {\n    option(c) { Text(c.name)  Text(c.country).muted }\n    empty { Text(\"No city by that name\") }\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "CheckboxGroup",
+   "slug": "checkboxgroup",
+   "family": "Form",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Check boxes under a legend whose `bind:` is the list of the values ticked, with `all:` a box above them for every one at once — ticked when all are, mixed when some are.",
+   "plain": "Check boxes under a legend whose bind: is the list of the values ticked, with all: a box above them for every one at once — ticked when all are, mixed when some are.",
+   "signature": "CheckboxGroup(bind: State, label: String, all: String) { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "bind:",
+     "type": "State  (required)",
+     "meaning": "The list of the values ticked"
+    },
+    {
+     "name": "label:",
+     "type": "String  (required)",
+     "meaning": "What is being chosen: the legend"
+    },
+    {
+     "name": "all:",
+     "type": "String",
+     "meaning": "The words of a box that ticks every option at once: `Select all`"
+    }
+   ],
+   "controls": [
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "all",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [
+    {
+     "name": "CheckboxGroup.Option",
+     "kind": "checkboxgroup-option",
+     "detail": "One box: its words and its value.",
+     "fallback": ""
+    },
+    {
+     "name": "CheckboxGroup.Legend",
+     "kind": "checkboxgroup-legend",
+     "detail": "Its legend. Drawn for it.",
+     "fallback": ""
+    }
+   ],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-checkbox-group",
+   "example": "state toppings: [String] = []\nCheckboxGroup(bind: toppings, label: \"Toppings\", all: \"Every topping\") {\n    CheckboxGroup.Option(\"Olives\", value: \"olives\")\n    CheckboxGroup.Option(\"Onions\", value: \"onions\")\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "CheckboxGroup.Option",
+   "slug": "checkboxgroup-option",
+   "family": "Form",
+   "owner": "CheckboxGroup",
+   "ownerSlug": "checkboxgroup",
+   "summary": "One box: its words and its value.",
+   "plain": "One box: its words and its value.",
+   "signature": "CheckboxGroup.Option(_ label: String, value: Any)",
+   "block": false,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "label",
+     "type": "String  (positional)",
+     "meaning": "Its words"
+    },
+    {
+     "name": "value:",
+     "type": "Any",
+     "meaning": "What the list holds while it is ticked; unset, its words"
+    }
+   ],
+   "controls": [
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "state toppings: [String] = []\nCheckboxGroup(bind: toppings, label: \"Toppings\", all: \"Every topping\") {\n    CheckboxGroup.Option(\"Olives\", value: \"olives\")\n    CheckboxGroup.Option(\"Onions\", value: \"onions\")\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
+   ]
+  },
+  {
+   "name": "CheckboxGroup.Legend",
+   "slug": "checkboxgroup-legend",
+   "family": "Form",
+   "owner": "CheckboxGroup",
+   "ownerSlug": "checkboxgroup",
+   "summary": "Its legend. Drawn for it.",
+   "plain": "Its legend. Drawn for it.",
+   "signature": "CheckboxGroup.Legend(_ text: String) { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "text",
+     "type": "String  (positional)",
+     "meaning": "The legend"
+    }
+   ],
+   "controls": [
+    {
+     "name": "text",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "state toppings: [String] = []\nCheckboxGroup(bind: toppings, label: \"Toppings\", all: \"Every topping\") {\n    CheckboxGroup.Option(\"Olives\", value: \"olives\")\n    CheckboxGroup.Option(\"Onions\", value: \"onions\")\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
+   ]
+  },
+  {
+   "name": "InputOTP",
+   "slug": "inputotp",
+   "family": "Form",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "A one-time code typed a digit to a box: the focus moves on as each is typed and back with Backspace, and a code pasted into any box fills them all; the browser offers the code it was sent (`autocomplete=\"one-time-code\"`).",
+   "plain": "A one-time code typed a digit to a box: the focus moves on as each is typed and back with Backspace, and a code pasted into any box fills them all; the browser offers the code it was sent (autocomplete=\"one-time-code\").",
+   "signature": "InputOTP(bind: State, length: Number, label: String)",
+   "block": false,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "bind:",
+     "type": "State  (required)",
+     "meaning": "The code, as text"
+    },
+    {
+     "name": "length:",
+     "type": "Number",
+     "meaning": "How many digits (unset, 6)"
+    },
+    {
+     "name": "label:",
+     "type": "String  (required)",
+     "meaning": "What the code is, for a screen reader"
+    }
+   ],
+   "controls": [
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-otp",
+   "example": "state code = \"\"\nInputOTP(bind: code, length: 6, label: \"Code from your app\")",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "TagInput",
+   "slug": "taginput",
+   "family": "Form",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Words typed into a field, each a chip once Enter or a comma ends it; Backspace in the empty field takes the last back, and each chip has a button to take it out.",
+   "plain": "Words typed into a field, each a chip once Enter or a comma ends it; Backspace in the empty field takes the last back, and each chip has a button to take it out.",
+   "signature": "TagInput(bind: State, label: String, placeholder: String)",
+   "block": false,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "bind:",
+     "type": "State  (required)",
+     "meaning": "The list of the words"
+    },
+    {
+     "name": "label:",
+     "type": "String  (required)",
+     "meaning": "What the words are, for a screen reader"
+    },
+    {
+     "name": "placeholder:",
+     "type": "String",
+     "meaning": "Shown while the field is empty"
+    }
+   ],
+   "controls": [
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "placeholder",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-tag-input",
+   "example": "state tags: [String] = [\"rust\"]\nTagInput(bind: tags, label: \"Tags\", placeholder: \"Add a tag\")",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "Rating",
+   "slug": "rating",
+   "family": "Form",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Stars, as radio buttons a screen reader hears as a choice of one to `max:`: the arrow keys move between them; `.half` takes halves; `.readonly` only shows.",
+   "plain": "Stars, as radio buttons a screen reader hears as a choice of one to max:: the arrow keys move between them; .half takes halves; .readonly only shows.",
+   "signature": "Rating(bind: State, max: Number, label: String, …)",
+   "block": false,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "bind:",
+     "type": "State  (required)",
+     "meaning": "The rating, a `Number`"
+    },
+    {
+     "name": "max:",
+     "type": "Number",
+     "meaning": "How many stars (unset, 5)"
+    },
+    {
+     "name": "label:",
+     "type": "String  (required)",
+     "meaning": "What is being rated, for a screen reader"
+    },
+    {
+     "name": "half:",
+     "type": "Bool",
+     "meaning": "Half stars too"
+    },
+    {
+     "name": "readonly:",
+     "type": "Bool",
+     "meaning": "Shown, not chosen"
+    }
+   ],
+   "controls": [
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "half",
+     "kind": "bool",
+     "options": [],
+     "value": "",
+     "sink": "special"
+    },
+    {
+     "name": "readonly",
+     "kind": "bool",
+     "options": [],
+     "value": "",
+     "sink": "special"
+    }
+   ],
+   "flags": [
+    ".half",
+    ".readonly"
+   ],
+   "events": [],
+   "domEvents": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-rating",
+   "example": "state stars = 4\nRating(bind: stars, max: 5, label: \"Your rating\").half\nRating(bind: stars, label: \"Average\").readonly",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "DateRangePicker",
+   "slug": "daterangepicker",
+   "family": "Form",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "A first and a last day, chosen in two months side by side that a button opens, or by a preset: `presets: [.last7, .thisMonth]`. `bind:` holds `{ start, end }`.",
+   "plain": "A first and a last day, chosen in two months side by side that a button opens, or by a preset: presets: [.last7, .thisMonth]. bind: holds { start, end }.",
+   "signature": "DateRangePicker(bind: State, label: String, min: Any, …)",
+   "block": false,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "bind:",
+     "type": "State  (required)",
+     "meaning": "The range: `{ start, end }`"
+    },
+    {
+     "name": "label:",
+     "type": "String  (required)",
+     "meaning": "What the range is"
+    },
+    {
+     "name": "min:",
+     "type": "Any",
+     "meaning": "The first day that can be chosen"
+    },
+    {
+     "name": "max:",
+     "type": "Any",
+     "meaning": "The last day that can be chosen"
+    },
+    {
+     "name": "presets:",
+     "type": "Any",
+     "meaning": "Ranges a press takes: `.today`, `.last7`, `.last30`, `.thisMonth`, `.lastMonth`"
+    }
+   ],
+   "controls": [
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-date-range",
+   "example": "state stay = { start: null, end: null }\nDateRangePicker(bind: stay, label: \"Stay\", presets: [.last7, .thisMonth])",
    "preview": false,
    "outputs": [],
    "since": "6.2.0",

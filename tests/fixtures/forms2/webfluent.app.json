@@ -1,0 +1,4 @@
+{
+  "name": "forms2",
+  "build": { "ssg": true, "csp": true }
+}

@@ -22,11 +22,12 @@ Textarea(bind: State, label: String, hint: String, …)
 | `rows:` | `Number` | How many lines it shows |
 | `maxLength:` | `Number` | The most characters it takes |
 | `required:` | `Bool` | Whether the form refuses to submit without it |
+| `autosize:` | `Bool` | Grows with its text, from `rows:` up |
 | `disabled:` | `Bool` | Whether the control is inert |
 
 ## Flags
 
-`.required` `.disabled`
+`.required` `.autosize` `.disabled`
 
 ## DOM events it answers
 
@@ -55,4 +56,4 @@ Textarea(bind: note, label: "Notes", rows: 4, maxLength: 200)
 - [C05](https://webfluent.monzeromer.dev/errors/C05.md): A positional argument a built-in does not take
 - [A04](https://webfluent.monzeromer.dev/errors/A04.md): A control with no label
 
-Before WebFluent 5.0.
+Since WebFluent 6.2.0.

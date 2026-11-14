@@ -18,10 +18,12 @@ FileUpload(accept: String, label: String, multiple: Bool, …) { … }
 | `label:` | `String` | Visible label; also the control's accessible name |
 | `multiple:` | `Bool` | Accept several files |
 | `disabled:` | `Bool` | Whether the control is inert |
+| `bind:` | `State` | The chosen files: a `File`, or a list of them with `.multiple` |
+| `dropzone:` | `Bool` | An area files are dropped on or chosen into, each shown with its preview and a button to take it out |
 
 ## Flags
 
-`.multiple` `.disabled`
+`.multiple` `.disabled` `.dropzone`
 
 ## DOM events it answers
 

@@ -163,7 +163,11 @@ pub(super) const NUMBER_METHODS: &[&str] = &[
 pub(super) fn bound_type(component: &str, modifiers: &[String]) -> Option<Type> {
     match component {
         "Checkbox" | "Switch" => Some(Type::Bool),
-        "Slider" => Some(Type::Number),
+        // Two thumbs hold a low and a high.
+        "Slider" if modifiers.iter().any(|m| m == "range") => Some(Type::list(Type::Number)),
+        "Slider" | "Rating" => Some(Type::Number),
+        "InputOTP" => Some(Type::String),
+        "TagInput" => Some(Type::list(Type::String)),
         // A date picker picks a date, which is a `Date` — not a string
         // that happens to look like one. Empty, it holds nothing.
         "DatePicker" => Some(Type::optional(Type::Scalar(Scalar::Date))),

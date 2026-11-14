@@ -18,12 +18,13 @@ Slider(bind: State, min: Number, max: Number, …)
 | `min:` | `Number` | Lowest value |
 | `max:` | `Number` | Highest value |
 | `step:` | `Number` | Granularity |
+| `range:` | `Bool` | Two thumbs, a low and a high: `bind:` holds `[low, high]` |
 | `label:` | `String` | Visible label; also the control's accessible name |
 | `disabled:` | `Bool` | Whether the control is inert |
 
 ## Flags
 
-`.disabled`
+`.range` `.disabled`
 
 ## DOM events it answers
 

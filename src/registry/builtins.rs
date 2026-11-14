@@ -1502,6 +1502,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
         "Text field. With `label`, `hint` or `error` it is a labelled field.",
         None,
         &[
+            special("reveal", PropType::Bool, "A password's button to show it and hide it again, said to a screen reader"),
             BIND,
             LABEL,
             HINT,
@@ -1665,6 +1666,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
             special("min", PropType::Num, "Lowest value"),
             special("max", PropType::Num, "Highest value"),
             special("step", PropType::Num, "Granularity"),
+            special("range", PropType::Bool, "Two thumbs, a low and a high: `bind:` holds `[low, high]`"),
             LABEL,
             DISABLED,
         ],
@@ -1716,6 +1718,8 @@ pub const COMPONENTS: &[ComponentSig] = &[
                 required: false,
             },
             DISABLED,
+            special("bind", PropType::State, "The chosen files: a `File`, or a list of them with `.multiple`"),
+            special("dropzone", PropType::Bool, "An area files are dropped on or chosen into, each shown with its preview and a button to take it out"),
         ],
         &[],
         G_INPUT,
@@ -1774,6 +1778,7 @@ pub const COMPONENTS: &[ComponentSig] = &[
             attr("rows", PropType::Num, "How many lines it shows"),
             attr("maxLength", PropType::Num, "The most characters it takes"),
             attr_flag("required", "Whether the form refuses to submit without it"),
+            special("autosize", PropType::Bool, "Grows with its text, from `rows:` up"),
             DISABLED,
         ],
         &[],
@@ -2714,6 +2719,109 @@ pub const COMPONENTS: &[ComponentSig] = &[
         .html("header", "wf-app-shell__header"),
     part("AppShell", "Footer", Ir::Sub("AppShell", "Footer"), "The bar along the bottom.", None, &[], G, Children::Elements)
         .html("footer", "wf-app-shell__footer"),
+    // ─── More form controls ───────────────────────────────────────────────
+    comp(
+        "CheckboxGroup",
+        "Form",
+        "Check boxes under a legend whose `bind:` is the list of the values ticked, with `all:` a box above them for every one at once — ticked when all are, mixed when some are.",
+        None,
+        &[
+            required(special("bind", PropType::State, "The list of the values ticked")),
+            required(special("label", PropType::Str, "What is being chosen: the legend")),
+            special("all", PropType::Str, "The words of a box that ticks every option at once: `Select all`"),
+        ],
+        &["Option", "Legend"],
+        G,
+        Children::Elements,
+    )
+    .html("fieldset", "wf-checkbox-group")
+    .css(&["Checkbox", "Radio Group", "Field"])
+    .on_paper(),
+    part(
+        "CheckboxGroup",
+        "Option",
+        Ir::Sub("CheckboxGroup", "Option"),
+        "One box: its words and its value.",
+        Some(required(special("label", PropType::Str, "Its words"))),
+        &[special("value", PropType::Any, "What the list holds while it is ticked; unset, its words")],
+        G,
+        Children::None,
+    )
+    .html("div", "wf-checkbox-group__option"),
+    part("CheckboxGroup", "Legend", Ir::Sub("CheckboxGroup", "Legend"), "Its legend. Drawn for it.", Some(special("text", PropType::Str, "The legend")), &[], G, Children::Elements)
+        .html("legend", "wf-checkbox-group__legend"),
+    comp(
+        "InputOTP",
+        "Form",
+        "A one-time code typed a digit to a box: the focus moves on as each is typed and back with Backspace, and a code pasted into any box fills them all; the browser offers the code it was sent (`autocomplete=\"one-time-code\"`).",
+        None,
+        &[
+            required(special("bind", PropType::State, "The code, as text")),
+            special("length", PropType::Num, "How many digits (unset, 6)"),
+            required(special("label", PropType::Str, "What the code is, for a screen reader")),
+        ],
+        &[],
+        G,
+        Children::None,
+    )
+    .html("div", "wf-otp")
+    .css(&["Input", "Input OTP"])
+    .not_on_paper("interactive elements are not supported in PDF"),
+    comp(
+        "TagInput",
+        "Form",
+        "Words typed into a field, each a chip once Enter or a comma ends it; Backspace in the empty field takes the last back, and each chip has a button to take it out.",
+        None,
+        &[
+            required(special("bind", PropType::State, "The list of the words")),
+            required(special("label", PropType::Str, "What the words are, for a screen reader")),
+            special("placeholder", PropType::Str, "Shown while the field is empty"),
+        ],
+        &[],
+        G,
+        Children::None,
+    )
+    .html("div", "wf-tag-input")
+    .css(&["Input", "Chip", "Tag Input"])
+    .not_on_paper("interactive elements are not supported in PDF"),
+    comp(
+        "Rating",
+        "Form",
+        "Stars, as radio buttons a screen reader hears as a choice of one to `max:`: the arrow keys move between them; `.half` takes halves; `.readonly` only shows.",
+        None,
+        &[
+            required(special("bind", PropType::State, "The rating, a `Number`")),
+            special("max", PropType::Num, "How many stars (unset, 5)"),
+            required(special("label", PropType::Str, "What is being rated, for a screen reader")),
+            special("half", PropType::Bool, "Half stars too"),
+            special("readonly", PropType::Bool, "Shown, not chosen"),
+        ],
+        &[],
+        G,
+        Children::None,
+    )
+    .html("div", "wf-rating")
+    .css(&["Rating"])
+    .on_paper(),
+    comp(
+        "DateRangePicker",
+        "Form",
+        "A first and a last day, chosen in two months side by side that a button opens, or by a preset: `presets: [.last7, .thisMonth]`. `bind:` holds `{ start, end }`.",
+        None,
+        &[
+            required(special("bind", PropType::State, "The range: `{ start, end }`")),
+            required(special("label", PropType::Str, "What the range is")),
+            special("min", PropType::Any, "The first day that can be chosen"),
+            special("max", PropType::Any, "The last day that can be chosen"),
+            special("presets", PropType::Any, "Ranges a press takes: `.today`, `.last7`, `.last30`, `.thisMonth`, `.lastMonth`"),
+        ],
+        &[],
+        G,
+        Children::None,
+    )
+    .html("div", "wf-date-range")
+    .css(&["Calendar", "Popover", "Layer", "Button", "Date Range Picker"])
+    .not_on_paper("interactive elements are not supported in PDF"),
     // ─── Actions ──────────────────────────────────────────────────────────
     comp(
         "Button",

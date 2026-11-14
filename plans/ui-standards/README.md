@@ -655,6 +655,13 @@ Leftovers.
 
 Each group is released on its own:
 
+**Status: group 1 (forms) done, 2026-11-14; groups 2 to 4 to come.** The
+controls the runtime draws whole (`InputOTP`, `TagInput`, `Rating`,
+`DateRangePicker`, `Slider.range`, `FileUpload.dropzone`) share one emitter
+that hands each its `bind:` and its options; `CheckboxGroup`, `.autosize`
+and `.reveal` are rewritten during lowering. The checks are
+`tests/browser/forms2.mjs` (25 in Chrome) and `tests/forms2.rs`.
+
 1. **Forms:** InputOTP, TagInput, Rating, a two-thumb Slider, the date and
    time pickers, the FileUpload drop zone, a self-sizing Textarea, password
    reveal, CheckboxGroup.
@@ -746,3 +753,16 @@ up together once stage 9 is done. A line comes off when its work lands.
   `.pending` of its own beyond `aria-busy`.
 - `AppShell.Sidebar` is not a part: the frame takes the project's own
   `Sidebar`, which is a drawer on a narrow screen rather than a `Sheet`.
+
+### From stage 8, group 1
+
+- There is no `TimePicker` or `DateTimePicker`: `Input(…).time` and
+  `.datetime` are the native pickers, holding a `Time` and a `DateTime`.
+- `InputOTP`, `TagInput`, `Rating` and `DateRangePicker` are drawn once the
+  page runs; a read-only `Rating` in a PDF draws nothing.
+- `Slider.range` and `FileUpload.dropzone` paint as the plain control until
+  the page runs.
+- The drop zone shows no upload progress (`Backend.x.progress` is the
+  page's to show).
+- `CheckboxGroup.Option`s are read from the group's own block, not from a
+  `for` or an `if`.

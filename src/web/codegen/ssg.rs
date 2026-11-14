@@ -1635,7 +1635,8 @@ pub(crate) fn render_builtin<C: Paint>(name: &str, ui: &UIElement, ctx: &mut C) 
         }
         // Drawn from data by the runtime once the page runs: the paint
         // holds their place, with nothing in it to show and then take back.
-        "Tree" | "DataTable" | "Combobox" | "Calendar" => {
+        "Tree" | "DataTable" | "Combobox" | "Calendar" | "InputOTP" | "TagInput" | "Rating"
+        | "DateRangePicker" => {
             let own = own_attrs(name, ui, ctx, &[]);
             let (tag, _) = builtin_to_html(name);
             return format!(

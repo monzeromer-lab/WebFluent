@@ -24,10 +24,10 @@
     "pages/Settings.js": "2bb5c642c8136675fb562cb1eb464c10fb83ccbfb2b12ffebece5eb4dec80419",
     "pages/Settings.js.gz": "1cab971171dbb147ecf5a1eed55ca5e4e932ebd508da4fc0473a57e17e907f2a",
     "robots.txt": "16ceb5ee3e0dc13aa9adf31a3ebbe45a1d965b8c2b9f72eaf84e5911e140ed95",
-    "styles.css": "f7e6d908e488b9a5fb5601a1239fa249d84600dc506a8169328eb5ff80be8eb6",
-    "styles.css.gz": "3a14adb1ad93a8d14ffab491bc9a5adb66996643eb1fe8b965b42c36166021a1",
-    "sw.js": "66d94599d34613ed483796a8d77d0fe74cae3b4ac718c2e24bd230e09550db1b",
-    "sw.js.gz": "235d15ef46c3c3224624dc337e73f71fbc40351c8adbdb02385c9d78467a0501",
+    "styles.css": "536ae3cd5dfbc4d27f321860b6bea7bf6beef4868a2b6e08f6c5426e15e5f861",
+    "styles.css.gz": "b199cb301bdbf880f2b31268f2cb3dc2b96b7dabe7f364c6abc8ddd04e401cd0",
+    "sw.js": "9fbce74b45cf1855ff5cff5317b4dbc2e397b1f4bd2d9dee3adb93f17503eae4",
+    "sw.js.gz": "18f14d3c7d7db7a8f1ca639226d39ff72a9ec76ba083b71b5d79ac5702328b6a",
     "theme.js": "ece5bb41a0b05bc1e887bc97f1466299b28e1a8e7eb43f9711dd1f1367dfc358"
   }
 }

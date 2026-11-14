@@ -22,7 +22,7 @@ component PriceTag(label: String, amount: Number, sale: Bool = false) {
     }
 }
 
-component Rating(value: Number = 0) {
+component Stars(value: Number = 0) {
     event rate(stars: Number)
     Row(gap: .xs) {
         for n in 1..=5 by n {
@@ -37,14 +37,14 @@ page Preview(path: "/", title: "Preview", description: "The components this proj
     state stars = 3
     Heading("Preview").h1
     PriceTag(label: "Pro", amount: 29).sale
-    Rating(value: stars) { on rate(n) { stars = n } }
+    Stars(value: stars) { on rate(n) { stars = n } }
 }
 ```
 
 Name the components in `build.elements`, in `webfluent.app.json`:
 
 ```json
-{ "build": { "output_type": "elements", "elements": ["PriceTag", "Rating"] } }
+{ "build": { "output_type": "elements", "elements": ["PriceTag", "Stars"] } }
 ```
 
 This HTML places the published components on any page, and listens for a
@@ -55,7 +55,7 @@ rating:
 <link rel="stylesheet" href="/styles.css">
 
 <price-tag label="Pro" amount="29" sale></price-tag>
-<wf-rating value="3"></wf-rating>
+<wf-stars value="3"></wf-stars>
 
 <script>
   document.addEventListener("rate", (e) => console.log("rated", e.detail));
@@ -66,7 +66,7 @@ rating:
 
 Each name becomes a standard custom element. `PriceTag` is `<price-tag>`.
 A one-word component gets a prefix, so its tag has the hyphen a custom
-element needs: `Rating` is `<wf-rating>`. The build writes `elements.js`,
+element needs: `Stars` is `<wf-stars>`. The build writes `elements.js`,
 `styles.css`, and a page that lists the tags it published.
 
 A published element behaves this way:

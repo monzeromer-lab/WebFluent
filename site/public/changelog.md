@@ -164,6 +164,23 @@ template engine and, where it can be, in a PDF.
 - A built-in may take named blocks its entry lists; `E103` names the ones
   it takes.
 
+## More form controls
+
+- `CheckboxGroup(bind: picked, label:, all: "Every topping")` ticks the
+  values of a list, with a box for all that is mixed while some are ticked.
+- `InputOTP(bind: code, length: 6)` is a one-time code a digit to a box,
+  filled whole by a paste or by the code the browser offers.
+- `TagInput(bind: tags)` makes words chips.
+- `Rating(bind: stars).half` is stars a keyboard can set; `.readonly`
+  only shows.
+- `Slider(bind: price).range` has two thumbs.
+- `DateRangePicker(bind: stay, presets: [.last7])` chooses a range in two
+  months, or by a preset.
+- `Textarea(…).autosize` grows with its text; `Input(…).password.reveal`
+  shows the password on a press; `FileUpload(bind: files).dropzone` takes
+  files dropped on it, each shown with a preview and a button to take it
+  out.
+
 ## Fixes
 
 - `wf test` drew a built-in where the project had a component of its

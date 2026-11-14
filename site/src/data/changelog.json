@@ -330,6 +330,49 @@
     "after": ""
    },
    {
+    "title": "More form controls",
+    "id": "6.2.0-more-form-controls",
+    "intro": "",
+    "items": [
+     {
+      "text": "`CheckboxGroup(bind: picked, label:, all: \"Every topping\")` ticks the\nvalues of a list, with a box for all that is mixed while some are ticked.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`InputOTP(bind: code, length: 6)` is a one-time code a digit to a box,\nfilled whole by a paste or by the code the browser offers.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`TagInput(bind: tags)` makes words chips.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`Rating(bind: stars).half` is stars a keyboard can set; `.readonly`\nonly shows.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`Slider(bind: price).range` has two thumbs.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`DateRangePicker(bind: stay, presets: [.last7])` chooses a range in two\nmonths, or by a preset.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`Textarea(…).autosize` grows with its text; `Input(…).password.reveal`\nshows the password on a press; `FileUpload(bind: files).dropzone` takes\nfiles dropped on it, each shown with a preview and a button to take it\nout.",
+      "points": [],
+      "after": ""
+     }
+    ],
+    "after": ""
+   },
+   {
     "title": "Fixes",
     "id": "6.2.0-fixes",
     "intro": "",
@@ -482,7 +525,7 @@
     "after": ""
    }
   ],
-  "count": 76
+  "count": 83
  },
  {
   "version": "6.1.0",

@@ -17,7 +17,7 @@ Every component is written `Name(positional, prop: value).flag { block }`. A **p
 - **Layout**: [`Container`](https://webfluent.monzeromer.dev/reference/container), [`Row`](https://webfluent.monzeromer.dev/reference/row), [`Column`](https://webfluent.monzeromer.dev/reference/column), [`Grid`](https://webfluent.monzeromer.dev/reference/grid), [`Stack`](https://webfluent.monzeromer.dev/reference/stack), [`Spacer`](https://webfluent.monzeromer.dev/reference/spacer), [`VirtualList`](https://webfluent.monzeromer.dev/reference/virtuallist), [`Splitter`](https://webfluent.monzeromer.dev/reference/splitter), [`Divider`](https://webfluent.monzeromer.dev/reference/divider), [`AppShell`](https://webfluent.monzeromer.dev/reference/appshell), [`Host`](https://webfluent.monzeromer.dev/reference/host), [`Portal`](https://webfluent.monzeromer.dev/reference/portal), [`Element`](https://webfluent.monzeromer.dev/reference/element)
 - **Navigation**: [`Navbar`](https://webfluent.monzeromer.dev/reference/navbar), [`Sidebar`](https://webfluent.monzeromer.dev/reference/sidebar), [`Link`](https://webfluent.monzeromer.dev/reference/link), [`Tabs`](https://webfluent.monzeromer.dev/reference/tabs), [`Breadcrumb`](https://webfluent.monzeromer.dev/reference/breadcrumb), [`Menu`](https://webfluent.monzeromer.dev/reference/menu), [`OnThisPage`](https://webfluent.monzeromer.dev/reference/onthispage), [`Pagination`](https://webfluent.monzeromer.dev/reference/pagination), [`Stepper`](https://webfluent.monzeromer.dev/reference/stepper), [`CommandPalette`](https://webfluent.monzeromer.dev/reference/commandpalette)
 - **Data display**: [`Card`](https://webfluent.monzeromer.dev/reference/card), [`Table`](https://webfluent.monzeromer.dev/reference/table), [`List`](https://webfluent.monzeromer.dev/reference/list), [`Badge`](https://webfluent.monzeromer.dev/reference/badge), [`Tag`](https://webfluent.monzeromer.dev/reference/tag), [`Avatar`](https://webfluent.monzeromer.dev/reference/avatar), [`Tooltip`](https://webfluent.monzeromer.dev/reference/tooltip), [`Tree`](https://webfluent.monzeromer.dev/reference/tree), [`DataTable`](https://webfluent.monzeromer.dev/reference/datatable), [`Chart`](https://webfluent.monzeromer.dev/reference/chart), [`QrCode`](https://webfluent.monzeromer.dev/reference/qrcode)
-- **Form**: [`Input`](https://webfluent.monzeromer.dev/reference/input), [`Select`](https://webfluent.monzeromer.dev/reference/select), [`Checkbox`](https://webfluent.monzeromer.dev/reference/checkbox), [`Radio`](https://webfluent.monzeromer.dev/reference/radio), [`Switch`](https://webfluent.monzeromer.dev/reference/switch), [`Slider`](https://webfluent.monzeromer.dev/reference/slider), [`DatePicker`](https://webfluent.monzeromer.dev/reference/datepicker), [`FileUpload`](https://webfluent.monzeromer.dev/reference/fileupload), [`Form`](https://webfluent.monzeromer.dev/reference/form), [`Textarea`](https://webfluent.monzeromer.dev/reference/textarea), [`Field`](https://webfluent.monzeromer.dev/reference/field), [`Fieldset`](https://webfluent.monzeromer.dev/reference/fieldset), [`InputGroup`](https://webfluent.monzeromer.dev/reference/inputgroup), [`RadioGroup`](https://webfluent.monzeromer.dev/reference/radiogroup), [`NumberInput`](https://webfluent.monzeromer.dev/reference/numberinput), [`Calendar`](https://webfluent.monzeromer.dev/reference/calendar), [`Listbox`](https://webfluent.monzeromer.dev/reference/listbox), [`Combobox`](https://webfluent.monzeromer.dev/reference/combobox)
+- **Form**: [`Input`](https://webfluent.monzeromer.dev/reference/input), [`Select`](https://webfluent.monzeromer.dev/reference/select), [`Checkbox`](https://webfluent.monzeromer.dev/reference/checkbox), [`Radio`](https://webfluent.monzeromer.dev/reference/radio), [`Switch`](https://webfluent.monzeromer.dev/reference/switch), [`Slider`](https://webfluent.monzeromer.dev/reference/slider), [`DatePicker`](https://webfluent.monzeromer.dev/reference/datepicker), [`FileUpload`](https://webfluent.monzeromer.dev/reference/fileupload), [`Form`](https://webfluent.monzeromer.dev/reference/form), [`Textarea`](https://webfluent.monzeromer.dev/reference/textarea), [`Field`](https://webfluent.monzeromer.dev/reference/field), [`Fieldset`](https://webfluent.monzeromer.dev/reference/fieldset), [`InputGroup`](https://webfluent.monzeromer.dev/reference/inputgroup), [`RadioGroup`](https://webfluent.monzeromer.dev/reference/radiogroup), [`NumberInput`](https://webfluent.monzeromer.dev/reference/numberinput), [`Calendar`](https://webfluent.monzeromer.dev/reference/calendar), [`Listbox`](https://webfluent.monzeromer.dev/reference/listbox), [`Combobox`](https://webfluent.monzeromer.dev/reference/combobox), [`CheckboxGroup`](https://webfluent.monzeromer.dev/reference/checkboxgroup), [`InputOTP`](https://webfluent.monzeromer.dev/reference/inputotp), [`TagInput`](https://webfluent.monzeromer.dev/reference/taginput), [`Rating`](https://webfluent.monzeromer.dev/reference/rating), [`DateRangePicker`](https://webfluent.monzeromer.dev/reference/daterangepicker)
 - **Feedback**: [`Alert`](https://webfluent.monzeromer.dev/reference/alert), [`Toast`](https://webfluent.monzeromer.dev/reference/toast), [`Modal`](https://webfluent.monzeromer.dev/reference/modal), [`Popover`](https://webfluent.monzeromer.dev/reference/popover), [`Dialog`](https://webfluent.monzeromer.dev/reference/dialog), [`AlertDialog`](https://webfluent.monzeromer.dev/reference/alertdialog), [`Sheet`](https://webfluent.monzeromer.dev/reference/sheet), [`Spinner`](https://webfluent.monzeromer.dev/reference/spinner), [`Progress`](https://webfluent.monzeromer.dev/reference/progress), [`Skeleton`](https://webfluent.monzeromer.dev/reference/skeleton)
 - **Content**: [`Callout`](https://webfluent.monzeromer.dev/reference/callout), [`Kbd`](https://webfluent.monzeromer.dev/reference/kbd), [`EmptyState`](https://webfluent.monzeromer.dev/reference/emptystate), [`Stat`](https://webfluent.monzeromer.dev/reference/stat), [`CodeBlock`](https://webfluent.monzeromer.dev/reference/codeblock), [`Chip`](https://webfluent.monzeromer.dev/reference/chip), [`VisuallyHidden`](https://webfluent.monzeromer.dev/reference/visuallyhidden), [`Accordion`](https://webfluent.monzeromer.dev/reference/accordion)
 - **Actions**: [`CopyButton`](https://webfluent.monzeromer.dev/reference/copybutton), [`ThemeToggle`](https://webfluent.monzeromer.dev/reference/themetoggle), [`LocaleSwitch`](https://webfluent.monzeromer.dev/reference/localeswitch), [`Toggle`](https://webfluent.monzeromer.dev/reference/toggle), [`ToggleGroup`](https://webfluent.monzeromer.dev/reference/togglegroup), [`Button`](https://webfluent.monzeromer.dev/reference/button), [`IconButton`](https://webfluent.monzeromer.dev/reference/iconbutton), [`ButtonGroup`](https://webfluent.monzeromer.dev/reference/buttongroup), [`Dropdown`](https://webfluent.monzeromer.dev/reference/dropdown)
@@ -1068,7 +1068,7 @@ Attribute families: `global`, `aria`, `data`.
 Text field. With `label`, `hint` or `error` it is a labelled field.
 
 ```
-Input(bind: …, label: …, hint: …)
+Input(reveal: …, bind: …, label: …)
 ```
 
 ```wf
@@ -1080,6 +1080,7 @@ Renders with the class `wf-input`.
 
 | Prop | Type | Meaning |
 |---|---|---|
+| `reveal:` | `Bool` | A password's button to show it and hide it again, said to a screen reader |
 | `bind:` | `State` | State variable the control reads and writes (two-way) |
 | `label:` | `String` | Visible label; also the control's accessible name |
 | `hint:` | `String` | Help text under the control, linked to it by `aria-describedby` |
@@ -1096,7 +1097,7 @@ Renders with the class `wf-input`.
 | `width:` | `.full` | Width |
 | `rounded:` | `Bool` | Rounded corners |
 
-**Flags:** `.text` `.email` `.password` `.number` `.search` `.tel` `.url` `.date` `.time` `.datetime` `.color` `.required` `.disabled` `.sm` `.md` `.lg` `.full` `.rounded`
+**Flags:** `.reveal` `.text` `.email` `.password` `.number` `.search` `.tel` `.url` `.date` `.time` `.datetime` `.color` `.required` `.disabled` `.sm` `.md` `.lg` `.full` `.rounded`
 
 Attribute families: `global`, `aria`, `data`, `input`.
 
@@ -1241,10 +1242,11 @@ Renders with the class `wf-slider`.
 | `min:` | `Number` | Lowest value |
 | `max:` | `Number` | Highest value |
 | `step:` | `Number` | Granularity |
+| `range:` | `Bool` | Two thumbs, a low and a high: `bind:` holds `[low, high]` |
 | `label:` | `String` | Visible label; also the control's accessible name |
 | `disabled:` | `Bool` | Whether the control is inert |
 
-**Flags:** `.disabled`
+**Flags:** `.range` `.disabled`
 
 Attribute families: `global`, `aria`, `data`, `input`.
 
@@ -1295,8 +1297,10 @@ Renders with the class `wf-file-upload`.
 | `label:` | `String` | Visible label; also the control's accessible name |
 | `multiple:` | `Bool` | Accept several files |
 | `disabled:` | `Bool` | Whether the control is inert |
+| `bind:` | `State` | The chosen files: a `File`, or a list of them with `.multiple` |
+| `dropzone:` | `Bool` | An area files are dropped on or chosen into, each shown with its preview and a button to take it out |
 
-**Flags:** `.multiple` `.disabled`
+**Flags:** `.multiple` `.disabled` `.dropzone`
 
 Takes a block of children.
 
@@ -1357,9 +1361,10 @@ Renders with the class `wf-input wf-textarea`.
 | `rows:` | `Number` | How many lines it shows |
 | `maxLength:` | `Number` | The most characters it takes |
 | `required:` | `Bool` | Whether the form refuses to submit without it |
+| `autosize:` | `Bool` | Grows with its text, from `rows:` up |
 | `disabled:` | `Bool` | Whether the control is inert |
 
-**Flags:** `.required` `.disabled`
+**Flags:** `.required` `.autosize` `.disabled`
 
 Attribute families: `global`, `aria`, `data`, `input`.
 
@@ -1637,6 +1642,141 @@ Renders with the class `wf-combobox`.
 | `placeholder:` | `String` | Shown while it is empty |
 
 **Flags:** `.multiple`
+
+Attribute families: `global`, `aria`, `data`.
+
+### CheckboxGroup
+
+Check boxes under a legend whose `bind:` is the list of the values ticked, with `all:` a box above them for every one at once — ticked when all are, mixed when some are.
+
+```
+CheckboxGroup(bind: …, label: …, all: …) { … }
+```
+
+```wf
+state toppings: [String] = []
+CheckboxGroup(bind: toppings, label: "Toppings", all: "Every topping") {
+    CheckboxGroup.Option("Olives", value: "olives")
+    CheckboxGroup.Option("Onions", value: "onions")
+}
+```
+
+Renders with the class `wf-checkbox-group`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `bind:` (required) | `State` | The list of the values ticked |
+| `label:` (required) | `String` | What is being chosen: the legend |
+| `all:` | `String` | The words of a box that ticks every option at once: `Select all` |
+
+**Parts:**
+
+- `CheckboxGroup.Option(label, value: …)` — One box: its words and its value.
+  - `label:` `String` — Its words
+  - `value:` `Any` — What the list holds while it is ticked; unset, its words
+- `CheckboxGroup.Legend(text) { … }` — Its legend. Drawn for it.
+  - `text:` `String` — The legend
+
+Takes a block of children.
+
+Attribute families: `global`, `aria`, `data`.
+
+### InputOTP
+
+A one-time code typed a digit to a box: the focus moves on as each is typed and back with Backspace, and a code pasted into any box fills them all; the browser offers the code it was sent (`autocomplete="one-time-code"`).
+
+```
+InputOTP(bind: …, length: …, label: …)
+```
+
+```wf
+state code = ""
+InputOTP(bind: code, length: 6, label: "Code from your app")
+```
+
+Renders with the class `wf-otp`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `bind:` (required) | `State` | The code, as text |
+| `length:` | `Number` | How many digits (unset, 6) |
+| `label:` (required) | `String` | What the code is, for a screen reader |
+
+Attribute families: `global`, `aria`, `data`.
+
+### TagInput
+
+Words typed into a field, each a chip once Enter or a comma ends it; Backspace in the empty field takes the last back, and each chip has a button to take it out.
+
+```
+TagInput(bind: …, label: …, placeholder: …)
+```
+
+```wf
+state tags: [String] = ["rust"]
+TagInput(bind: tags, label: "Tags", placeholder: "Add a tag")
+```
+
+Renders with the class `wf-tag-input`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `bind:` (required) | `State` | The list of the words |
+| `label:` (required) | `String` | What the words are, for a screen reader |
+| `placeholder:` | `String` | Shown while the field is empty |
+
+Attribute families: `global`, `aria`, `data`.
+
+### Rating
+
+Stars, as radio buttons a screen reader hears as a choice of one to `max:`: the arrow keys move between them; `.half` takes halves; `.readonly` only shows.
+
+```
+Rating(bind: …, max: …, label: …)
+```
+
+```wf
+state stars = 4
+Rating(bind: stars, max: 5, label: "Your rating").half
+Rating(bind: stars, label: "Average").readonly
+```
+
+Renders with the class `wf-rating`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `bind:` (required) | `State` | The rating, a `Number` |
+| `max:` | `Number` | How many stars (unset, 5) |
+| `label:` (required) | `String` | What is being rated, for a screen reader |
+| `half:` | `Bool` | Half stars too |
+| `readonly:` | `Bool` | Shown, not chosen |
+
+**Flags:** `.half` `.readonly`
+
+Attribute families: `global`, `aria`, `data`.
+
+### DateRangePicker
+
+A first and a last day, chosen in two months side by side that a button opens, or by a preset: `presets: [.last7, .thisMonth]`. `bind:` holds `{ start, end }`.
+
+```
+DateRangePicker(bind: …, label: …, min: …)
+```
+
+```wf
+state stay = { start: null, end: null }
+DateRangePicker(bind: stay, label: "Stay", presets: [.last7, .thisMonth])
+```
+
+Renders with the class `wf-date-range`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `bind:` (required) | `State` | The range: `{ start, end }` |
+| `label:` (required) | `String` | What the range is |
+| `min:` | `Any` | The first day that can be chosen |
+| `max:` | `Any` | The last day that can be chosen |
+| `presets:` | `Any` | Ranges a press takes: `.today`, `.last7`, `.last30`, `.thisMonth`, `.lastMonth` |
 
 Attribute families: `global`, `aria`, `data`.
 

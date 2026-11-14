@@ -142,6 +142,13 @@ const BUILTIN_INDEX: [IndexEntry] = [
     IndexEntry(label: "Listbox", to: "/reference/listbox", group: "Form"),
     IndexEntry(label: "Listbox.Option", to: "/reference/listbox-option", group: "Form"),
     IndexEntry(label: "Combobox", to: "/reference/combobox", group: "Form"),
+    IndexEntry(label: "CheckboxGroup", to: "/reference/checkboxgroup", group: "Form"),
+    IndexEntry(label: "CheckboxGroup.Option", to: "/reference/checkboxgroup-option", group: "Form"),
+    IndexEntry(label: "CheckboxGroup.Legend", to: "/reference/checkboxgroup-legend", group: "Form"),
+    IndexEntry(label: "InputOTP", to: "/reference/inputotp", group: "Form"),
+    IndexEntry(label: "TagInput", to: "/reference/taginput", group: "Form"),
+    IndexEntry(label: "Rating", to: "/reference/rating", group: "Form"),
+    IndexEntry(label: "DateRangePicker", to: "/reference/daterangepicker", group: "Form"),
     IndexEntry(label: "Alert", to: "/reference/alert", group: "Feedback"),
     IndexEntry(label: "Toast", to: "/reference/toast", group: "Feedback"),
     IndexEntry(label: "Modal", to: "/reference/modal", group: "Feedback"),
@@ -210,7 +217,7 @@ const BUILTIN_INDEX: [IndexEntry] = [
 ]
 
 page ReferenceIndexPage(path: "/reference", title: "Reference", description: "Every built-in element, command, setting and design token, read from the compiler itself, with the language's reference pages.") {
-    ReferenceItemShell(t("nav.reference"), summary: t("ref.lede", { count: 187 }), entries: REFERENCE_PAGES, sections: [Anchor(id: "pages", label: t("ref.pages")), Anchor(id: "layout", label: "Layout"), Anchor(id: "navigation", label: "Navigation"), Anchor(id: "routing", label: "Routing"), Anchor(id: "data-display", label: "Data display"), Anchor(id: "content", label: "Content"), Anchor(id: "form", label: "Form"), Anchor(id: "feedback", label: "Feedback"), Anchor(id: "actions", label: "Actions"), Anchor(id: "media", label: "Media"), Anchor(id: "typography", label: "Typography"), Anchor(id: "pdf", label: "PDF"), Anchor(id: "slides", label: "Slides"), Anchor(id: "original-spellings", label: "Original spellings"), Anchor(id: "on-every-element", label: t("ref.universal.title"))], source: "scripts/docsite/reference.py") {
+    ReferenceItemShell(t("nav.reference"), summary: t("ref.lede", { count: 194 }), entries: REFERENCE_PAGES, sections: [Anchor(id: "pages", label: t("ref.pages")), Anchor(id: "layout", label: "Layout"), Anchor(id: "navigation", label: "Navigation"), Anchor(id: "routing", label: "Routing"), Anchor(id: "data-display", label: "Data display"), Anchor(id: "content", label: "Content"), Anchor(id: "form", label: "Form"), Anchor(id: "feedback", label: "Feedback"), Anchor(id: "actions", label: "Actions"), Anchor(id: "media", label: "Media"), Anchor(id: "typography", label: "Typography"), Anchor(id: "pdf", label: "PDF"), Anchor(id: "slides", label: "Slides"), Anchor(id: "original-spellings", label: "Original spellings"), Anchor(id: "on-every-element", label: t("ref.universal.title"))], source: "scripts/docsite/reference.py") {
         Heading(t("ref.pages"), id: "pages").h2
         Grid(columns: { base: 1, sm: 2, xl: 3 }, gap: .sm) {
             Link(to: "/reference/expressions", class: "bp-card") { Text("Expressions") { style { font-weight: 600 } }  Text("Language", class: "bp-small") }
@@ -730,6 +737,34 @@ page ReferenceIndexPage(path: "/reference", title: "Reference", description: "Ev
             Link(to: "/reference/combobox", class: "bp-card") {
                 Text("Combobox", class: "bp-mono") { style { font-size: 14px; color: $link } }
                 Text("A text field that offers what matches as the reader types: from options:, or search: asked of a server. The arrow keys go through the offers, Enter takes one, Escape closes them; .multiple keeps several, each a chip Backspace takes back. option(o) \{ … \} draws an offer; empty \{ … \} shows when nothing matches.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+            }
+            Link(to: "/reference/checkboxgroup", class: "bp-card") {
+                Text("CheckboxGroup", class: "bp-mono") { style { font-size: 14px; color: $link } }
+                Text("Check boxes under a legend whose bind: is the list of the values ticked, with all: a box above them for every one at once — ticked when all are, mixed when some are.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+            }
+            Link(to: "/reference/checkboxgroup-option", class: "bp-card") {
+                Text("CheckboxGroup.Option", class: "bp-mono") { style { font-size: 14px; color: $link } }
+                Text("One box: its words and its value.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+            }
+            Link(to: "/reference/checkboxgroup-legend", class: "bp-card") {
+                Text("CheckboxGroup.Legend", class: "bp-mono") { style { font-size: 14px; color: $link } }
+                Text("Its legend. Drawn for it.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+            }
+            Link(to: "/reference/inputotp", class: "bp-card") {
+                Text("InputOTP", class: "bp-mono") { style { font-size: 14px; color: $link } }
+                Text("A one-time code typed a digit to a box: the focus moves on as each is typed and back with Backspace, and a code pasted into any box fills them all; the browser offers the code it was sent (autocomplete=\"one-time-code\").", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+            }
+            Link(to: "/reference/taginput", class: "bp-card") {
+                Text("TagInput", class: "bp-mono") { style { font-size: 14px; color: $link } }
+                Text("Words typed into a field, each a chip once Enter or a comma ends it; Backspace in the empty field takes the last back, and each chip has a button to take it out.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+            }
+            Link(to: "/reference/rating", class: "bp-card") {
+                Text("Rating", class: "bp-mono") { style { font-size: 14px; color: $link } }
+                Text("Stars, as radio buttons a screen reader hears as a choice of one to max:: the arrow keys move between them; .half takes halves; .readonly only shows.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+            }
+            Link(to: "/reference/daterangepicker", class: "bp-card") {
+                Text("DateRangePicker", class: "bp-mono") { style { font-size: 14px; color: $link } }
+                Text("A first and a last day, chosen in two months side by side that a button opens, or by a preset: presets: [.last7, .thisMonth]. bind: holds \{ start, end \}.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
             }
         }
         Heading("Feedback", id: "feedback").h2
@@ -4235,28 +4270,29 @@ page BuiltinAccordionPanel(path: "/reference/accordion-panel", title: "Accordion
 
 page BuiltinInput(path: "/reference/input", title: "Input — Reference", description: "Input: Text field. With label, hint or error it is a labelled field.") {
     state text = ""
-    ReferenceItemShell("Input", summary: "Text field. With label, hint or error it is a labelled field.", signature: "Input(bind: State, label: String, hint: String, …)", older: true, outputs: [], group: "Form", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "E109", title: "An element this output cannot draw", to: "/errors/E109"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05"), RelatedLink(kind: "F01", title: "A bind: to something that cannot be written", to: "/errors/F01"), RelatedLink(kind: "F02", title: "A bind: to a state the control cannot hold", to: "/errors/F02"), RelatedLink(kind: "F03", title: "A validate block no control can satisfy", to: "/errors/F03"), RelatedLink(kind: "A03", title: "An input with no label", to: "/errors/A03")], source: "src/registry/builtins.rs") {
+    ReferenceItemShell("Input", summary: "Text field. With label, hint or error it is a labelled field.", signature: "Input(reveal: Bool, bind: State, label: String, …)", older: true, outputs: [], group: "Form", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "E109", title: "An element this output cannot draw", to: "/errors/E109"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05"), RelatedLink(kind: "F01", title: "A bind: to something that cannot be written", to: "/errors/F01"), RelatedLink(kind: "F02", title: "A bind: to a state the control cannot hold", to: "/errors/F02"), RelatedLink(kind: "F03", title: "A validate block no control can satisfy", to: "/errors/F03"), RelatedLink(kind: "A03", title: "An input with no label", to: "/errors/A03")], source: "src/registry/builtins.rs") {
         stage {
             Stage(label: "Input") {
                 controls {
+                    StageControl({ name: "reveal", kind: "bool", options: [], value: "", sink: "special" })
                     StageControl({ name: "label", kind: "string", options: [], value: "" })
                     StageControl({ name: "hint", kind: "string", options: [], value: "" })
                     StageControl({ name: "error", kind: "string", options: [], value: "" })
                     StageControl({ name: "type", kind: "enum", options: ["text", "email", "password", "number", "search"], value: "", sink: "attribute" })
                     StageControl({ name: "placeholder", kind: "string", options: [], value: "" })
-                    StageControl({ name: "required", kind: "bool", options: [], value: "", sink: "attribute" })
                 }
                 Input(bind: text, label: "Email", hint: "We never share it").email
             }
         }
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
-        PropsTable(rows: [{ name: "bind:", type: "State", meaning: "State variable the control reads and writes (two-way)" }, { name: "label:", type: "String", meaning: "Visible label; also the control's accessible name" }, { name: "hint:", type: "String", meaning: "Help text under the control, linked to it by `aria-describedby`" }, { name: "error:", type: "String", meaning: "Error text (a string; empty when there is none): announced as it appears and sets `aria-invalid`" }, { name: "type:", type: ".text .email .password .number .search .tel .url .date .time .datetime .color", meaning: "What the field holds" }, { name: "placeholder:", type: "String", meaning: "Hint shown while the field is empty" }, { name: "value:", type: "Any", meaning: "The control's value, when its state is not bound" }, { name: "min:", type: "Any", meaning: "Lowest value" }, { name: "max:", type: "Any", meaning: "Highest value" }, { name: "step:", type: "Number", meaning: "Granularity" }, { name: "required:", type: "Bool", meaning: "Whether the form refuses to submit without it" }, { name: "disabled:", type: "Bool", meaning: "Whether the control is inert" }, { name: "size:", type: ".sm .md .lg", meaning: "Its size" }, { name: "width:", type: ".full", meaning: "Width" }, { name: "rounded:", type: "Bool", meaning: "Rounded corners" }], caption: "Props of Input")
+        PropsTable(rows: [{ name: "reveal:", type: "Bool", meaning: "A password's button to show it and hide it again, said to a screen reader" }, { name: "bind:", type: "State", meaning: "State variable the control reads and writes (two-way)" }, { name: "label:", type: "String", meaning: "Visible label; also the control's accessible name" }, { name: "hint:", type: "String", meaning: "Help text under the control, linked to it by `aria-describedby`" }, { name: "error:", type: "String", meaning: "Error text (a string; empty when there is none): announced as it appears and sets `aria-invalid`" }, { name: "type:", type: ".text .email .password .number .search .tel .url .date .time .datetime .color", meaning: "What the field holds" }, { name: "placeholder:", type: "String", meaning: "Hint shown while the field is empty" }, { name: "value:", type: "Any", meaning: "The control's value, when its state is not bound" }, { name: "min:", type: "Any", meaning: "Lowest value" }, { name: "max:", type: "Any", meaning: "Highest value" }, { name: "step:", type: "Number", meaning: "Granularity" }, { name: "required:", type: "Bool", meaning: "Whether the form refuses to submit without it" }, { name: "disabled:", type: "Bool", meaning: "Whether the control is inert" }, { name: "size:", type: ".sm .md .lg", meaning: "Its size" }, { name: "width:", type: ".full", meaning: "Width" }, { name: "rounded:", type: "Bool", meaning: "Rounded corners" }], caption: "Props of Input")
         Markdown(t("ref.attrs", { families: "global, aria, data, input", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Row(gap: .sm) {
             style { gap: 8px; flex-wrap: wrap }
+            Text(".reveal", class: "bp-label bp-mono")
             Text(".text", class: "bp-label bp-mono")
             Text(".email", class: "bp-label bp-mono")
             Text(".password", class: "bp-label bp-mono")
@@ -4485,6 +4521,7 @@ page BuiltinSlider(path: "/reference/slider", title: "Slider — Reference", des
         stage {
             Stage(label: "Slider") {
                 controls {
+                    StageControl({ name: "range", kind: "bool", options: [], value: "", sink: "special" })
                     StageControl({ name: "label", kind: "string", options: [], value: "" })
                     StageControl({ name: "disabled", kind: "bool", options: [], value: "", sink: "attribute" })
                 }
@@ -4493,12 +4530,13 @@ page BuiltinSlider(path: "/reference/slider", title: "Slider — Reference", des
         }
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
-        PropsTable(rows: [{ name: "bind:", type: "State", meaning: "State variable the control reads and writes (two-way)" }, { name: "min:", type: "Number", meaning: "Lowest value" }, { name: "max:", type: "Number", meaning: "Highest value" }, { name: "step:", type: "Number", meaning: "Granularity" }, { name: "label:", type: "String", meaning: "Visible label; also the control's accessible name" }, { name: "disabled:", type: "Bool", meaning: "Whether the control is inert" }], caption: "Props of Slider")
+        PropsTable(rows: [{ name: "bind:", type: "State", meaning: "State variable the control reads and writes (two-way)" }, { name: "min:", type: "Number", meaning: "Lowest value" }, { name: "max:", type: "Number", meaning: "Highest value" }, { name: "step:", type: "Number", meaning: "Granularity" }, { name: "range:", type: "Bool", meaning: "Two thumbs, a low and a high: `bind:` holds `[low, high]`" }, { name: "label:", type: "String", meaning: "Visible label; also the control's accessible name" }, { name: "disabled:", type: "Bool", meaning: "Whether the control is inert" }], caption: "Props of Slider")
         Markdown(t("ref.attrs", { families: "global, aria, data, input", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Row(gap: .sm) {
             style { gap: 8px; flex-wrap: wrap }
+            Text(".range", class: "bp-label bp-mono")
             Text(".disabled", class: "bp-label bp-mono")
         }
         Heading(t("ref.tab.events"), id: "events").h2
@@ -4559,13 +4597,14 @@ page BuiltinFileupload(path: "/reference/fileupload", title: "FileUpload — Ref
                     StageControl({ name: "label", kind: "string", options: [], value: "" })
                     StageControl({ name: "multiple", kind: "bool", options: [], value: "", sink: "attribute" })
                     StageControl({ name: "disabled", kind: "bool", options: [], value: "", sink: "attribute" })
+                    StageControl({ name: "dropzone", kind: "bool", options: [], value: "", sink: "special" })
                 }
                 Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
             }
         }
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
-        PropsTable(rows: [{ name: "accept:", type: "String", meaning: "Accepted types, e.g. `image/*` or `.pdf,.doc`" }, { name: "label:", type: "String", meaning: "Visible label; also the control's accessible name" }, { name: "multiple:", type: "Bool", meaning: "Accept several files" }, { name: "disabled:", type: "Bool", meaning: "Whether the control is inert" }], caption: "Props of FileUpload")
+        PropsTable(rows: [{ name: "accept:", type: "String", meaning: "Accepted types, e.g. `image/*` or `.pdf,.doc`" }, { name: "label:", type: "String", meaning: "Visible label; also the control's accessible name" }, { name: "multiple:", type: "Bool", meaning: "Accept several files" }, { name: "disabled:", type: "Bool", meaning: "Whether the control is inert" }, { name: "bind:", type: "State", meaning: "The chosen files: a `File`, or a list of them with `.multiple`" }, { name: "dropzone:", type: "Bool", meaning: "An area files are dropped on or chosen into, each shown with its preview and a button to take it out" }], caption: "Props of FileUpload")
         Markdown(t("ref.attrs", { families: "global, aria, data, input", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
@@ -4573,6 +4612,7 @@ page BuiltinFileupload(path: "/reference/fileupload", title: "FileUpload — Ref
             style { gap: 8px; flex-wrap: wrap }
             Text(".multiple", class: "bp-label bp-mono")
             Text(".disabled", class: "bp-label bp-mono")
+            Text(".dropzone", class: "bp-label bp-mono")
         }
         Heading(t("ref.tab.events"), id: "events").h2
         Markdown(t("ref.domevents"), class: "bp-prose")
@@ -4627,7 +4667,7 @@ Form(bind: form) {
 
 page BuiltinTextarea(path: "/reference/textarea", title: "Textarea — Reference", description: "Textarea: Several lines of text. With label, hint or error it is a labelled field; with maxLength it counts what is left.") {
     state text = ""
-    ReferenceItemShell("Textarea", summary: "Several lines of text. With label, hint or error it is a labelled field; with maxLength it counts what is left.", signature: "Textarea(bind: State, label: String, hint: String, …)", older: true, outputs: [], group: "Form", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "E109", title: "An element this output cannot draw", to: "/errors/E109"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05"), RelatedLink(kind: "A04", title: "A control with no label", to: "/errors/A04")], source: "src/registry/builtins.rs") {
+    ReferenceItemShell("Textarea", summary: "Several lines of text. With label, hint or error it is a labelled field; with maxLength it counts what is left.", signature: "Textarea(bind: State, label: String, hint: String, …)", since: "6.2.0", outputs: [], group: "Form", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "E109", title: "An element this output cannot draw", to: "/errors/E109"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05"), RelatedLink(kind: "A04", title: "A control with no label", to: "/errors/A04")], source: "src/registry/builtins.rs") {
         stage {
             Stage(label: "Textarea") {
                 controls {
@@ -4636,20 +4676,21 @@ page BuiltinTextarea(path: "/reference/textarea", title: "Textarea — Reference
                     StageControl({ name: "error", kind: "string", options: [], value: "" })
                     StageControl({ name: "placeholder", kind: "string", options: [], value: "" })
                     StageControl({ name: "required", kind: "bool", options: [], value: "", sink: "attribute" })
-                    StageControl({ name: "disabled", kind: "bool", options: [], value: "", sink: "attribute" })
+                    StageControl({ name: "autosize", kind: "bool", options: [], value: "", sink: "special" })
                 }
                 Textarea(bind: text, label: "Notes", rows: 3, maxLength: 200)
             }
         }
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
-        PropsTable(rows: [{ name: "bind:", type: "State", meaning: "State variable the control reads and writes (two-way)" }, { name: "label:", type: "String", meaning: "Visible label; also the control's accessible name" }, { name: "hint:", type: "String", meaning: "Help text under the control, linked to it by `aria-describedby`" }, { name: "error:", type: "String", meaning: "Error text (a string; empty when there is none): announced as it appears and sets `aria-invalid`" }, { name: "placeholder:", type: "String", meaning: "Hint shown while the field is empty" }, { name: "rows:", type: "Number", meaning: "How many lines it shows" }, { name: "maxLength:", type: "Number", meaning: "The most characters it takes" }, { name: "required:", type: "Bool", meaning: "Whether the form refuses to submit without it" }, { name: "disabled:", type: "Bool", meaning: "Whether the control is inert" }], caption: "Props of Textarea")
+        PropsTable(rows: [{ name: "bind:", type: "State", meaning: "State variable the control reads and writes (two-way)" }, { name: "label:", type: "String", meaning: "Visible label; also the control's accessible name" }, { name: "hint:", type: "String", meaning: "Help text under the control, linked to it by `aria-describedby`" }, { name: "error:", type: "String", meaning: "Error text (a string; empty when there is none): announced as it appears and sets `aria-invalid`" }, { name: "placeholder:", type: "String", meaning: "Hint shown while the field is empty" }, { name: "rows:", type: "Number", meaning: "How many lines it shows" }, { name: "maxLength:", type: "Number", meaning: "The most characters it takes" }, { name: "required:", type: "Bool", meaning: "Whether the form refuses to submit without it" }, { name: "autosize:", type: "Bool", meaning: "Grows with its text, from `rows:` up" }, { name: "disabled:", type: "Bool", meaning: "Whether the control is inert" }], caption: "Props of Textarea")
         Markdown(t("ref.attrs", { families: "global, aria, data, input", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Row(gap: .sm) {
             style { gap: 8px; flex-wrap: wrap }
             Text(".required", class: "bp-label bp-mono")
+            Text(".autosize", class: "bp-label bp-mono")
             Text(".disabled", class: "bp-label bp-mono")
         }
         Heading(t("ref.tab.events"), id: "events").h2
@@ -5341,6 +5382,225 @@ Combobox(bind: city, options: cities, text: c => c.name, key: c => c.id, label: 
     empty { Text("No city by that name") }
 }"#, title: "wf")
         Markdown(t("ref.renders", { cls: "wf-combobox" }), class: "bp-prose")
+    }
+}
+
+page BuiltinCheckboxgroup(path: "/reference/checkboxgroup", title: "CheckboxGroup — Reference", description: "CheckboxGroup: Check boxes under a legend whose bind: is the list of the values ticked, with all: a box above them for every one at once — ticked when…") {
+    ReferenceItemShell("CheckboxGroup", summary: "Check boxes under a legend whose bind: is the list of the values ticked, with all: a box above them for every one at once — ticked when all are, mixed when some are.", signature: "CheckboxGroup(bind: State, label: String, all: String) \{ … \}", since: "6.2.0", outputs: [], group: "Form", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
+        stage {
+            Stage(label: "CheckboxGroup") {
+                controls {
+                    StageControl({ name: "label", kind: "string", options: [], value: "" })
+                    StageControl({ name: "all", kind: "string", options: [], value: "" })
+                }
+                Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
+            }
+        }
+        notes { Text(t("stage.static"), class: "bp-small") }
+        Heading(t("ref.tab.props"), id: "props").h2
+        PropsTable(rows: [{ name: "bind:", type: "State  (required)", meaning: "The list of the values ticked" }, { name: "label:", type: "String  (required)", meaning: "What is being chosen: the legend" }, { name: "all:", type: "String", meaning: "The words of a box that ticks every option at once: `Select all`" }], caption: "Props of CheckboxGroup")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Heading(t("ref.tab.flags"), id: "flags").h2
+        Markdown(t("ref.flags.body"), class: "bp-prose")
+        Text(t("ref.noflags"), class: "bp-small")
+        Heading(t("ref.tab.events"), id: "events").h2
+        Markdown(t("ref.universal.link"), class: "bp-prose")
+        Heading(t("ref.slotsparts"), id: "slots").h2
+        SlotsAndParts(slots: [PropRow(name: "children", kind: "", detail: "")], parts: [PropRow(name: "CheckboxGroup.Option", kind: "checkboxgroup-option", detail: "One box: its words and its value."), PropRow(name: "CheckboxGroup.Legend", kind: "checkboxgroup-legend", detail: "Its legend. Drawn for it.")])
+        Row(gap: .sm) {
+            style { gap: 8px; flex-wrap: wrap }
+            Link("CheckboxGroup.Option", to: "/reference/checkboxgroup-option", class: "bp-button")
+            Link("CheckboxGroup.Legend", to: "/reference/checkboxgroup-legend", class: "bp-button")
+        }
+        Heading(t("ref.example"), id: "example").h2
+        CodeBlock(#"state toppings: [String] = []
+CheckboxGroup(bind: toppings, label: "Toppings", all: "Every topping") {
+    CheckboxGroup.Option("Olives", value: "olives")
+    CheckboxGroup.Option("Onions", value: "onions")
+}"#, title: "wf")
+        Markdown(t("ref.renders", { cls: "wf-checkbox-group" }), class: "bp-prose")
+    }
+}
+
+page BuiltinCheckboxgroupOption(path: "/reference/checkboxgroup-option", title: "CheckboxGroup.Option — Reference", description: "CheckboxGroup.Option: One box: its words and its value.") {
+    ReferenceItemShell("CheckboxGroup.Option", summary: "One box: its words and its value.", signature: "CheckboxGroup.Option(_ label: String, value: Any)", since: "6.2.0", outputs: [], group: "Form", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C03", title: "A part outside the component it belongs to", to: "/errors/C03"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04")], source: "src/registry/builtins.rs") {
+        stage {
+            Stage(label: "CheckboxGroup.Option") {
+                controls {
+                    StageControl({ name: "label", kind: "string", options: [], value: "" })
+                }
+                Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
+            }
+        }
+        notes { Text(t("stage.static"), class: "bp-small") }
+        Markdown(t("ref.partof", { owner: "CheckboxGroup", to: "/reference/checkboxgroup" }), class: "bp-prose")
+        Heading(t("ref.tab.props"), id: "props").h2
+        PropsTable(rows: [{ name: "label", type: "String  (positional)", meaning: "Its words" }, { name: "value:", type: "Any", meaning: "What the list holds while it is ticked; unset, its words" }], caption: "Props of CheckboxGroup.Option")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Heading(t("ref.tab.flags"), id: "flags").h2
+        Markdown(t("ref.flags.body"), class: "bp-prose")
+        Text(t("ref.noflags"), class: "bp-small")
+        Heading(t("ref.tab.events"), id: "events").h2
+        Markdown(t("ref.universal.link"), class: "bp-prose")
+        Heading(t("ref.slotsparts"), id: "slots").h2
+        SlotsAndParts(slots: [], parts: [])
+        Heading(t("ref.example"), id: "example").h2
+        CodeBlock(#"state toppings: [String] = []
+CheckboxGroup(bind: toppings, label: "Toppings", all: "Every topping") {
+    CheckboxGroup.Option("Olives", value: "olives")
+    CheckboxGroup.Option("Onions", value: "onions")
+}"#, title: "wf")
+    }
+}
+
+page BuiltinCheckboxgroupLegend(path: "/reference/checkboxgroup-legend", title: "CheckboxGroup.Legend — Reference", description: "CheckboxGroup.Legend: Its legend. Drawn for it.") {
+    ReferenceItemShell("CheckboxGroup.Legend", summary: "Its legend. Drawn for it.", signature: "CheckboxGroup.Legend(_ text: String) \{ … \}", since: "6.2.0", outputs: [], group: "Form", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C03", title: "A part outside the component it belongs to", to: "/errors/C03"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04")], source: "src/registry/builtins.rs") {
+        stage {
+            Stage(label: "CheckboxGroup.Legend") {
+                controls {
+                    StageControl({ name: "text", kind: "string", options: [], value: "" })
+                }
+                Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
+            }
+        }
+        notes { Text(t("stage.static"), class: "bp-small") }
+        Markdown(t("ref.partof", { owner: "CheckboxGroup", to: "/reference/checkboxgroup" }), class: "bp-prose")
+        Heading(t("ref.tab.props"), id: "props").h2
+        PropsTable(rows: [{ name: "text", type: "String  (positional)", meaning: "The legend" }], caption: "Props of CheckboxGroup.Legend")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Heading(t("ref.tab.flags"), id: "flags").h2
+        Markdown(t("ref.flags.body"), class: "bp-prose")
+        Text(t("ref.noflags"), class: "bp-small")
+        Heading(t("ref.tab.events"), id: "events").h2
+        Markdown(t("ref.universal.link"), class: "bp-prose")
+        Heading(t("ref.slotsparts"), id: "slots").h2
+        SlotsAndParts(slots: [PropRow(name: "children", kind: "", detail: "")], parts: [])
+        Heading(t("ref.example"), id: "example").h2
+        CodeBlock(#"state toppings: [String] = []
+CheckboxGroup(bind: toppings, label: "Toppings", all: "Every topping") {
+    CheckboxGroup.Option("Olives", value: "olives")
+    CheckboxGroup.Option("Onions", value: "onions")
+}"#, title: "wf")
+    }
+}
+
+page BuiltinInputotp(path: "/reference/inputotp", title: "InputOTP — Reference", description: "InputOTP: A one-time code typed a digit to a box: the focus moves on as each is typed and back with Backspace, and a code pasted into any box fills…") {
+    ReferenceItemShell("InputOTP", summary: "A one-time code typed a digit to a box: the focus moves on as each is typed and back with Backspace, and a code pasted into any box fills them all; the browser offers the code it was sent (autocomplete=\"one-time-code\").", signature: "InputOTP(bind: State, length: Number, label: String)", since: "6.2.0", outputs: [], group: "Form", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
+        stage {
+            Stage(label: "InputOTP") {
+                controls {
+                    StageControl({ name: "label", kind: "string", options: [], value: "" })
+                }
+                Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
+            }
+        }
+        notes { Text(t("stage.static"), class: "bp-small") }
+        Heading(t("ref.tab.props"), id: "props").h2
+        PropsTable(rows: [{ name: "bind:", type: "State  (required)", meaning: "The code, as text" }, { name: "length:", type: "Number", meaning: "How many digits (unset, 6)" }, { name: "label:", type: "String  (required)", meaning: "What the code is, for a screen reader" }], caption: "Props of InputOTP")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Heading(t("ref.tab.flags"), id: "flags").h2
+        Markdown(t("ref.flags.body"), class: "bp-prose")
+        Text(t("ref.noflags"), class: "bp-small")
+        Heading(t("ref.tab.events"), id: "events").h2
+        Markdown(t("ref.universal.link"), class: "bp-prose")
+        Heading(t("ref.slotsparts"), id: "slots").h2
+        SlotsAndParts(slots: [], parts: [])
+        Heading(t("ref.example"), id: "example").h2
+        CodeBlock(#"state code = ""
+InputOTP(bind: code, length: 6, label: "Code from your app")"#, title: "wf")
+        Markdown(t("ref.renders", { cls: "wf-otp" }), class: "bp-prose")
+    }
+}
+
+page BuiltinTaginput(path: "/reference/taginput", title: "TagInput — Reference", description: "TagInput: Words typed into a field, each a chip once Enter or a comma ends it; Backspace in the empty field takes the last back, and each chip has a…") {
+    ReferenceItemShell("TagInput", summary: "Words typed into a field, each a chip once Enter or a comma ends it; Backspace in the empty field takes the last back, and each chip has a button to take it out.", signature: "TagInput(bind: State, label: String, placeholder: String)", since: "6.2.0", outputs: [], group: "Form", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
+        stage {
+            Stage(label: "TagInput") {
+                controls {
+                    StageControl({ name: "label", kind: "string", options: [], value: "" })
+                    StageControl({ name: "placeholder", kind: "string", options: [], value: "" })
+                }
+                Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
+            }
+        }
+        notes { Text(t("stage.static"), class: "bp-small") }
+        Heading(t("ref.tab.props"), id: "props").h2
+        PropsTable(rows: [{ name: "bind:", type: "State  (required)", meaning: "The list of the words" }, { name: "label:", type: "String  (required)", meaning: "What the words are, for a screen reader" }, { name: "placeholder:", type: "String", meaning: "Shown while the field is empty" }], caption: "Props of TagInput")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Heading(t("ref.tab.flags"), id: "flags").h2
+        Markdown(t("ref.flags.body"), class: "bp-prose")
+        Text(t("ref.noflags"), class: "bp-small")
+        Heading(t("ref.tab.events"), id: "events").h2
+        Markdown(t("ref.universal.link"), class: "bp-prose")
+        Heading(t("ref.slotsparts"), id: "slots").h2
+        SlotsAndParts(slots: [], parts: [])
+        Heading(t("ref.example"), id: "example").h2
+        CodeBlock(#"state tags: [String] = ["rust"]
+TagInput(bind: tags, label: "Tags", placeholder: "Add a tag")"#, title: "wf")
+        Markdown(t("ref.renders", { cls: "wf-tag-input" }), class: "bp-prose")
+    }
+}
+
+page BuiltinRating(path: "/reference/rating", title: "Rating — Reference", description: "Rating: Stars, as radio buttons a screen reader hears as a choice of one to max:: the arrow keys move between them; .half takes halves; .readonly only…") {
+    ReferenceItemShell("Rating", summary: "Stars, as radio buttons a screen reader hears as a choice of one to max:: the arrow keys move between them; .half takes halves; .readonly only shows.", signature: "Rating(bind: State, max: Number, label: String, …)", since: "6.2.0", outputs: [], group: "Form", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
+        stage {
+            Stage(label: "Rating") {
+                controls {
+                    StageControl({ name: "label", kind: "string", options: [], value: "" })
+                    StageControl({ name: "half", kind: "bool", options: [], value: "", sink: "special" })
+                    StageControl({ name: "readonly", kind: "bool", options: [], value: "", sink: "special" })
+                }
+                Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
+            }
+        }
+        notes { Text(t("stage.static"), class: "bp-small") }
+        Heading(t("ref.tab.props"), id: "props").h2
+        PropsTable(rows: [{ name: "bind:", type: "State  (required)", meaning: "The rating, a `Number`" }, { name: "max:", type: "Number", meaning: "How many stars (unset, 5)" }, { name: "label:", type: "String  (required)", meaning: "What is being rated, for a screen reader" }, { name: "half:", type: "Bool", meaning: "Half stars too" }, { name: "readonly:", type: "Bool", meaning: "Shown, not chosen" }], caption: "Props of Rating")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Heading(t("ref.tab.flags"), id: "flags").h2
+        Markdown(t("ref.flags.body"), class: "bp-prose")
+        Row(gap: .sm) {
+            style { gap: 8px; flex-wrap: wrap }
+            Text(".half", class: "bp-label bp-mono")
+            Text(".readonly", class: "bp-label bp-mono")
+        }
+        Heading(t("ref.tab.events"), id: "events").h2
+        Markdown(t("ref.universal.link"), class: "bp-prose")
+        Heading(t("ref.slotsparts"), id: "slots").h2
+        SlotsAndParts(slots: [], parts: [])
+        Heading(t("ref.example"), id: "example").h2
+        CodeBlock(#"state stars = 4
+Rating(bind: stars, max: 5, label: "Your rating").half
+Rating(bind: stars, label: "Average").readonly"#, title: "wf")
+        Markdown(t("ref.renders", { cls: "wf-rating" }), class: "bp-prose")
+    }
+}
+
+page BuiltinDaterangepicker(path: "/reference/daterangepicker", title: "DateRangePicker — Reference", description: "DateRangePicker: A first and a last day, chosen in two months side by side that a button opens, or by a preset: presets: [.last7, .thisMonth]. bind…") {
+    ReferenceItemShell("DateRangePicker", summary: "A first and a last day, chosen in two months side by side that a button opens, or by a preset: presets: [.last7, .thisMonth]. bind: holds \{ start, end \}.", signature: "DateRangePicker(bind: State, label: String, min: Any, …)", since: "6.2.0", outputs: [], group: "Form", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
+        stage {
+            Stage(label: "DateRangePicker") {
+                controls {
+                    StageControl({ name: "label", kind: "string", options: [], value: "" })
+                }
+                Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
+            }
+        }
+        notes { Text(t("stage.static"), class: "bp-small") }
+        Heading(t("ref.tab.props"), id: "props").h2
+        PropsTable(rows: [{ name: "bind:", type: "State  (required)", meaning: "The range: `\{ start, end \}`" }, { name: "label:", type: "String  (required)", meaning: "What the range is" }, { name: "min:", type: "Any", meaning: "The first day that can be chosen" }, { name: "max:", type: "Any", meaning: "The last day that can be chosen" }, { name: "presets:", type: "Any", meaning: "Ranges a press takes: `.today`, `.last7`, `.last30`, `.thisMonth`, `.lastMonth`" }], caption: "Props of DateRangePicker")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Heading(t("ref.tab.flags"), id: "flags").h2
+        Markdown(t("ref.flags.body"), class: "bp-prose")
+        Text(t("ref.noflags"), class: "bp-small")
+        Heading(t("ref.tab.events"), id: "events").h2
+        Markdown(t("ref.universal.link"), class: "bp-prose")
+        Heading(t("ref.slotsparts"), id: "slots").h2
+        SlotsAndParts(slots: [], parts: [])
+        Heading(t("ref.example"), id: "example").h2
+        CodeBlock(#"state stay = { start: null, end: null }
+DateRangePicker(bind: stay, label: "Stay", presets: [.last7, .thisMonth])"#, title: "wf")
+        Markdown(t("ref.renders", { cls: "wf-date-range" }), class: "bp-prose")
     }
 }
 
