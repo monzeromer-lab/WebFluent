@@ -25,6 +25,30 @@ component takes the built-in's place, which cannot then be placed there.
   box, radio, switch and carousel control is at least 44px; with a mouse
   nothing changes size.
 
+## Fixes
+
+- `wf check` knows an `image`'s fields: `hero.width`, `.height`, `.color`
+  and the rest were a `T05` there, though `wf build` read them.
+- `wf test`'s `press "ctrl+k"` holds its modifiers — `ctrl`, `shift`,
+  `alt`, `meta`, and `mod` (⌘ on a Mac, Ctrl elsewhere) — so a shortcut can
+  be tested by pressing it.
+- A page on `/docs/*` answers `/docs` and every address beneath it in the
+  running site, as the link check always said; a static build paints it
+  at `docs/index.html` instead of a directory named `*`.
+- A page's `image:` works out what it splices (`"{CDN}{post.cover}"`), as
+  `title:` and `description:` do.
+- A `Link`'s own `aria-current:` is kept: the router marks the current link
+  only while the author's value is `null`, and the static paint no longer
+  writes the attribute twice.
+- `I03` says what a reader sees: a locale with no file reads the default
+  locale's messages, not the keys; under `i18n.literals` the default
+  locale's table may leave out its own words.
+- A `theme` declared twice is a duplicate (`E102`), and two pages that
+  share a name no longer draw a puzzling `R05`.
+- The editors' indented-layout grammar reads an `if` value's branches and a
+  `match` value's arms written on the lines under them, as `wf fmt --to
+  wfx` writes them.
+
 ## Reached by every reader
 
 - **A `Switch` can be reached from the keyboard and is heard as a switch.**

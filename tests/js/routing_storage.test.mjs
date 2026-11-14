@@ -94,6 +94,48 @@ test("a ?p= that is a path of this site is still taken", () => {
   assert.ok(container.textContent.includes("bee"));
 });
 
+// ─── A route for everything under a path ──
+
+test("`/docs/*` answers `/docs` and every address beneath it, and nothing beside it", () => {
+  for (const [path, drawn] of [["/docs", "docs"], ["/docs/a", "docs"], ["/docs/a/b", "docs"], ["/docsx", "missing"], ["/", "home"]]) {
+    const { WF, document } = load({ path });
+    const container = document.createElement("main");
+    document.body.appendChild(container);
+    WF.router([
+      { path: "/", render: () => WF.el("p", {}, ["home"]) },
+      { path: "/docs/*", render: () => WF.el("p", {}, ["docs"]) },
+      { path: "*", render: () => WF.el("p", {}, ["missing"]) },
+    ], container);
+    assert.ok(container.textContent.includes(drawn), `${path} draws ${drawn}: ${container.textContent}`);
+  }
+});
+
+test("a link keeps the aria-current its author gives it; while theirs is null the router marks it", () => {
+  const { WF, document } = load({ path: "/" });
+  const container = document.createElement("main");
+  document.body.appendChild(container);
+  WF.router([{ path: "/", render: () => WF.el("p", {}, ["home"]) }, { path: "/b", render: () => WF.el("p", {}, ["b"]) }], container);
+  const own = WF.el("a", { href: "/", "aria-current": "step" });
+  WF.activeLink(own, "/", false, null, () => "step");
+  const mine = WF.signal(null);
+  const sometimes = WF.el("a", { href: "/", "aria-current": () => mine() });
+  WF.activeLink(sometimes, "/", false, null, () => mine());
+  assert.equal(sometimes.getAttribute("aria-current"), "page", "null is no value of theirs");
+  mine.set("location");
+  assert.equal(sometimes.getAttribute("aria-current"), "location", "a value of theirs is theirs");
+  mine.set(null);
+  assert.equal(sometimes.getAttribute("aria-current"), "page", "and the router's mark comes back");
+  const plain = WF.el("a", { href: "/" });
+  WF.activeLink(plain, "/", false);
+  assert.equal(own.getAttribute("aria-current"), "step", "the author's value stays");
+  assert.ok(own.classList.contains("active"));
+  assert.equal(plain.getAttribute("aria-current"), "page");
+  WF.navigate("/b");
+  assert.equal(own.getAttribute("aria-current"), "step", "and is not taken away");
+  assert.ok(!own.classList.contains("active"));
+  assert.equal(plain.getAttribute("aria-current"), null);
+});
+
 // ─── S32: translations splice values as written ──
 
 test("a value spliced into a translation is put in as it is, `$` patterns and all", () => {

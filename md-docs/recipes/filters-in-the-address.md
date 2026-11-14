@@ -21,7 +21,11 @@ const PRODUCTS = [
 
 page Products(path: "/products", title: "Products", description: "Everything we sell.") {
     derived sort = query.sort ?? "name"
-    derived shown = if sort == "price" { PRODUCTS.sortBy(p => p.price) } else { PRODUCTS.sortBy(p => p.name) }
+    derived shown = if sort == "price" {
+        PRODUCTS.sortBy(p => p.price)
+    } else {
+        PRODUCTS.sortBy(p => p.name)
+    }
     Heading("Products").h1
     Row(gap: .sm) {
         Link("By name", to: "/products?sort=name")

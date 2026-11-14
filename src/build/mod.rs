@@ -1108,6 +1108,22 @@ fn run(options: &BuildOptions<'_>, out: &Out<'_>) -> Result<()> {
                 // written to a directory literally named `*`.
                 fs::write(output_dir.join("404.html"), &page_html)?;
                 written_html.push(output_dir.join("404.html"));
+            } else if let Some(prefix) = route.strip_suffix("/*") {
+                // `/docs/*` answers `/docs` and everything beneath it. It is
+                // painted at `/docs`, unless a page of its own has that
+                // path; what is beneath is the router's, reached from the
+                // host's 404 page. It used to be written to a directory
+                // literally named `*`.
+                let owned = program.declarations.iter().any(
+                    |d| matches!(d, Declaration::Page(p) if p.path.trim_matches('/') == prefix),
+                );
+                if !owned {
+                    let dir = page_dir(&output_dir, &page.name, prefix)?;
+                    fs::create_dir_all(&dir)?;
+                    fs::write(dir.join("index.html"), &page_html)?;
+                    written_html.push(dir.join("index.html"));
+                    write_beside(&config, &dir, &page_html)?;
+                }
             } else {
                 let dir = page_dir(&output_dir, &page.name, route)?;
                 fs::create_dir_all(&dir)?;

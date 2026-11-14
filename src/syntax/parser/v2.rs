@@ -627,6 +627,7 @@ impl ParserV2 {
             title: None,
             title_expr: None,
             description_expr: None,
+            image_expr: None,
             guard: None,
             redirect: None,
             description: None,
@@ -680,7 +681,21 @@ impl ParserV2 {
                             _ => false,
                         });
                     }
-                    "image" => page.image = Some(self.expect_string("the image")?),
+                    "image" => {
+                        let expr = match self.kind() {
+                            TokenType::StringLiteral(lit) => Some(self.string_expr(&lit.clone())?),
+                            _ => None,
+                        };
+                        page.image = Some(self.expect_string("the image")?);
+                        // Any splice is worked out, a constant's name too:
+                        // `"{SITE}{post.cover}"` is one address.
+                        page.image_expr = expr.filter(|e| match e {
+                            Expr::InterpolatedString(parts) => {
+                                parts.iter().any(|p| matches!(p, StringPart::Expression(_)))
+                            }
+                            _ => false,
+                        });
+                    }
                     "image_alt" => {
                         page.image_alt = Some(self.expect_string("the image's description")?);
                     }

@@ -179,7 +179,8 @@ impl JsCodegen {
                                 let prefix = ui_child.args.iter().any(|a| {
                                     matches!(a, Arg::Named(k, Expr::StringLiteral(v)) if k == "active" && v == "prefix")
                                 });
-                                self.emit_line(&active_link(&item_var, &href, prefix));
+                                let own = self.own_aria_current(ui_child);
+                                self.emit_line(&active_link(&item_var, &href, prefix, own));
                             } else {
                                 self.emit_line(&format!(
                                         "const {} = WF.el(\"div\", {{ className: \"wf-sidebar__item\"{} }});",

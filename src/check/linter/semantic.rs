@@ -128,6 +128,16 @@ fn check_duplicate_names(
             _ => None,
         });
     check_dupes(components, "component", file_of, diags);
+
+    let themes = program
+        .declarations
+        .iter()
+        .enumerate()
+        .filter_map(|(i, d)| match d {
+            Declaration::Theme(t) => Some((t.name.as_str(), t.span, i)),
+            _ => None,
+        });
+    check_dupes(themes, "theme", file_of, diags);
 }
 
 /// One name, one meaning. What exists when the page runs — a store, a

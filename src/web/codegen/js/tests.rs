@@ -189,6 +189,7 @@ fn page(name: &str, body: Vec<Statement>) -> Declaration {
         title: None,
         title_expr: None,
         description_expr: None,
+        image_expr: None,
         guard: None,
         redirect: None,
         description: None,

@@ -157,7 +157,7 @@ or `aria-label`), and a handler that throws fails the test.
 | `expect "text"` · `expect not "text"` | What the page must, or must not, show |
 | `click "Save"` | Clicks whatever carries that name |
 | `type "Ada" into "Name"` | Types into the control that label names |
-| `press "Enter"` · `press "Escape" in "Search"` | A key, on the focused element or a named one; `Escape` closes an open `Modal` or `Dialog` |
+| `press "Enter"` · `press "Escape" in "Search"` · `press "mod+k"` | A key, on the focused element or a named one, with the modifiers a combination names (`mod` is ⌘ on a Mac, Ctrl elsewhere); `Escape` closes an open `Modal` or `Dialog` |
 
 `wf docs` writes `docs/index.html`: a self-contained gallery of every
 built-in — props, cases, flags, events, slots, parts — and of the
@@ -235,7 +235,10 @@ page Post(path: "/blog/slow-roasting", title: "Slow roasting, explained",
 
 Pages own their routes: `app` places a bare `Router`, and the table is built
 from every page's `path`, ordered by specificity (static segments before
-`:params`, `*` last), so declaration order cannot shadow a route.
+`:params`, `*` last), so declaration order cannot shadow a route. A path
+ending in `*` (`/docs/*`) answers that path and everything beneath it; a
+static build paints it at the path (`docs/index.html`) unless a page of its
+own has that path, and `path: "*"` alone is the site's `404.html`.
 
 A page may add tags of its own to the document's head — painted at build
 time where the value is known, kept current on the live page, and gone

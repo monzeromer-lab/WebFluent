@@ -1456,7 +1456,7 @@ pub fn page_header(p: &PageDecl) -> String {
         attrs.push(format!("description: {}", text(d, &p.description_expr)));
     }
     if let Some(i) = &p.image {
-        attrs.push(format!("image: {}", text_with_names(i)));
+        attrs.push(format!("image: {}", text(i, &p.image_expr)));
     }
     if let Some(i) = &p.image_alt {
         attrs.push(format!("image_alt: {}", text_with_names(i)));

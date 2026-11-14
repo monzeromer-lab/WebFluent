@@ -92,8 +92,8 @@ test "reporting an incident opens one more" {
                     Table.Cell("Types into the control that label names")
                 }
                 Table.Row {
-                    Table.Cell { Markdown("`press \"Enter\"` · `press \"Escape\" in \"Search\"`") }
-                    Table.Cell { Markdown("A key, on the focused element or a named one; `Escape` closes an open `Modal` or `Dialog` as a real one would") }
+                    Table.Cell { Markdown("`press \"Enter\"` · `press \"Escape\" in \"Search\"` · `press \"mod+k\"`") }
+                    Table.Cell { Markdown("A key, on the focused element or a named one, with the modifiers a combination names (`mod` is ⌘ on a Mac, Ctrl elsewhere); `Escape` closes an open `Modal` or `Dialog` as a real one would") }
                 }
             }
         }

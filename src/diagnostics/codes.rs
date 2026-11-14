@@ -548,7 +548,7 @@ pub static CODES: &[CodeInfo] = &[
         "I03",
         Warning,
         "A message one locale has and another does not",
-        "A reader in the locale that lacks it sees the key instead of the words.",
+        "A reader in the locale that lacks it sees the default locale's words instead of their own — or, where the default locale is the one that lacks it, the key.",
     ),
     code(
         "I04",

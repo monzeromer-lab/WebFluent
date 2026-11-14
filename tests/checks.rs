@@ -1180,3 +1180,50 @@ fn e118_is_reported_in_every_file_that_declares_the_name() {
     assert!(out.contains("src/stores/a.wf:2:5"), "{out}");
     assert!(out.contains("src/stores/b.wf:2:5"), "{out}");
 }
+
+#[test]
+fn an_image_read_with_nowhere_to_write_it_has_every_field_a_build_gives_it() {
+    // `wf check` reads the project with no output to write pictures to, and
+    // resolved `image hero` to `{ src }` alone, so `hero.width` was a T05
+    // that `wf build` never reported.
+    let dir = std::env::temp_dir().join(format!("wf-image-fields-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&dir);
+    std::fs::create_dir_all(dir.join("src/pages")).unwrap();
+    std::fs::create_dir_all(dir.join("public")).unwrap();
+    // A 3×2 PNG: the header is all the check reads.
+    let png: &[u8] = &[
+        0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0, 0, 0, 13, 0x49, 0x48, 0x44, 0x52, 0, 0,
+        0, 3, 0, 0, 0, 2, 8, 2, 0, 0, 0, 0x12, 0x16, 0xF1, 0x4D,
+    ];
+    std::fs::write(dir.join("public/hero.png"), png).unwrap();
+    std::fs::write(dir.join("webfluent.app.json"), r#"{ "name": "t" }"#).unwrap();
+    let src = "image hero = \"hero.png\"\npage P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"H\").h1\n    Text(\"{hero.width} by {hero.height}, {hero.color}, {hero.placeholder}, {hero.srcset}\")\n}\n";
+    std::fs::write(dir.join("src/pages/P.wf"), src).unwrap();
+    let vfs = webfluent::vfs::FsVfs;
+    let options = webfluent::build::BuildOptions::new(&dir, &vfs);
+    let found = match webfluent::build::check(&options) {
+        Ok(r) => r.diagnostics,
+        Err(f) => f.report.diagnostics,
+    };
+    let _ = std::fs::remove_dir_all(&dir);
+    let t05: Vec<_> = found.iter().filter(|d| d.code == "T05").collect();
+    assert!(t05.is_empty(), "{t05:?}");
+}
+
+#[test]
+fn a_theme_declared_twice_is_a_duplicate() {
+    let src = "theme Brand { color-primary: #3B82F6 }\ntheme Brand { color-primary: #FF0000 }\npage P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"H\").h1\n}\n";
+    let found = with(src, "E102");
+    assert_eq!(found.len(), 1, "{found:?}");
+    assert!(found[0].contains("duplicate theme `Brand`"), "{found:?}");
+}
+
+#[test]
+fn pages_that_share_a_name_are_a_duplicate_and_not_a_translation() {
+    // R05 said "`Tasks` and `Tasks` are translations of each other" of two
+    // pages that only shared a name.
+    let src = "page Tasks(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"H\").h1\n}\npage Tasks(path: \"/fr\", title: \"T\", description: \"D\", lang: \"fr\", translates: Tasks) {\n    Heading(\"H\").h1\n}\n";
+    assert_eq!(with(src, "E102").len(), 1);
+    let r05 = with(src, "R05");
+    assert!(r05.is_empty(), "{r05:?}");
+}

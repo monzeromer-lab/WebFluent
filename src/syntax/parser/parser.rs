@@ -276,6 +276,7 @@ impl Parser {
             title,
             title_expr: None,
             description_expr: None,
+            image_expr: None,
             description,
             image,
             image_alt,

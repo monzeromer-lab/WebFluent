@@ -145,10 +145,14 @@ pub fn resolve_dark_tokens(
 fn select_theme<'a>(program: &'a Program, config: &ThemeConfig) -> Result<Option<&'a ThemeDecl>> {
     // The dark theme is the other one: it never stands for the build's own.
     let dark = config.dark.as_deref().filter(|n| !n.is_empty());
-    let themes: Vec<&ThemeDecl> = declared_themes(program)
-        .into_iter()
-        .filter(|t| Some(t.name.as_str()) != dark)
-        .collect();
+    // A theme declared twice is one name (the second is `E102`'s to
+    // report): the first is the one meant.
+    let mut themes: Vec<&ThemeDecl> = Vec::new();
+    for t in declared_themes(program) {
+        if Some(t.name.as_str()) != dark && !themes.iter().any(|seen| seen.name == t.name) {
+            themes.push(t);
+        }
+    }
     let requested = config.name.as_deref().filter(|n| !n.is_empty());
 
     match requested {

@@ -86,7 +86,9 @@ pub fn absolute_url(config: &ProjectConfig, path: &str) -> Option<String> {
 /// `/contact/` under `build.clean_urls: "directory"`, where the build writes
 /// `contact/index.html` and a host answers `/contact` with a `301` to it.
 pub fn route_address(config: &ProjectConfig, path: &str) -> String {
+    // `/docs/*` is painted at, and answers, `/docs`.
     let route = path.trim_start_matches('/');
+    let route = route.strip_suffix("/*").unwrap_or(route);
     if route.is_empty() {
         return "/".to_string();
     }

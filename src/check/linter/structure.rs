@@ -327,6 +327,9 @@ fn translations(
         })
         .collect();
     let names: Vec<&str> = pages.iter().map(|(_, p)| p.name.as_str()).collect();
+    // A name two pages share is `E102`'s to report; what `translates:` says
+    // of it cannot be read, so it is left alone here.
+    let twice = |name: &str| names.iter().filter(|n| **n == name).count() > 1;
     let at = |p: &PageDecl| {
         (
             p.header_span.line.max(1) as usize,
@@ -337,6 +340,9 @@ fn translations(
         let Some(original) = p.translates.as_deref() else {
             continue;
         };
+        if twice(&p.name) || twice(original) {
+            continue;
+        }
         let (line, col) = at(p);
         if original == p.name {
             out.push(
@@ -376,7 +382,7 @@ fn translations(
     // the site's language.
     let mut reported: Vec<&str> = Vec::new();
     for (_, p) in &pages {
-        if reported.contains(&p.name.as_str()) {
+        if reported.contains(&p.name.as_str()) || twice(&p.name) {
             continue;
         }
         let group = crate::syntax::parser::walk::translation_group(&p.name, program);

@@ -106,13 +106,28 @@ pub fn resolve_data_via(
                     root.display()
                 )));
             };
-            // Nothing to write to: the name still resolves, to the file as
-            // it stands.
+            // Nothing to write to (`wf check`, the editor): the name still
+            // resolves, to the file as it stands, with every field a build
+            // gives it — its size read from the file's header, which costs
+            // no decoding — so `hero.width` checks as it builds.
             let Some((out_dir, settings, base_path)) = media else {
+                let (width, height) = vfs
+                    .read(path)
+                    .ok()
+                    .and_then(|bytes| crate::project::media::probe::dimensions(&bytes, path).ok())
+                    .unwrap_or((0, 0));
                 *decl = Declaration::Const(ConstDecl {
                     name: d.name.clone(),
                     ty: d.ty.clone(),
-                    value: json_expr(&serde_json::json!({ "src": format!("/{}", d.file) })),
+                    value: json_expr(&serde_json::json!({
+                        "src": format!("/{}", d.file),
+                        "width": width,
+                        "height": height,
+                        "color": "",
+                        "placeholder": "",
+                        "srcset": "",
+                        "sources": [],
+                    })),
                     doc: d.doc.clone(),
                     span: d.span,
                 });
@@ -379,6 +394,7 @@ pub fn markdown_page(source: &str, file: &str) -> Result<Program> {
             title: get("title"),
             title_expr: None,
             description_expr: None,
+            image_expr: None,
             guard: None,
             redirect: None,
             description: get("description"),

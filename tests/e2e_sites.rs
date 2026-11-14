@@ -571,6 +571,37 @@ fn the_catch_all_page_is_written_as_404_html() {
     assert!(!root.join("*").exists(), "no directory named *");
 }
 
+/// `/docs/*` answers `/docs` and everything beneath it: a static build
+/// paints it at `/docs`, unless a page of its own has that path, and never
+/// in a directory named `*`, where it used to go.
+#[test]
+fn a_page_for_everything_under_a_path_is_painted_at_the_path() {
+    let (ok, out) = build_scratch(
+        "_ssg_rest",
+        "app { Router }\n",
+        "page Home(path: \"/\", title: \"Home\", description: \"d\") { Heading(\"Hi\").h1 }\npage Docs(path: \"/docs/*\", title: \"Docs\", description: \"d\") { Heading(\"Every doc\").h1 }\n",
+    );
+    assert!(ok, "{out}");
+    let root = repo_root().join("target/e2e/_ssg_rest/build");
+    let html = std::fs::read_to_string(root.join("docs/index.html")).expect("docs/index.html");
+    assert!(html.contains("Every doc"), "{html}");
+    assert!(!root.join("docs/*").exists(), "no directory named *");
+
+    let (ok, out) = build_scratch(
+        "_ssg_rest_owned",
+        "app { Router }\n",
+        "page Home(path: \"/\", title: \"Home\", description: \"d\") { Heading(\"Hi\").h1 }\npage Index(path: \"/docs\", title: \"Docs\", description: \"d\") { Heading(\"The index\").h1 }\npage Docs(path: \"/docs/*\", title: \"Docs\", description: \"d\") { Heading(\"Every doc\").h1 }\n",
+    );
+    assert!(ok, "{out}");
+    let root = repo_root().join("target/e2e/_ssg_rest_owned/build");
+    let html = std::fs::read_to_string(root.join("docs/index.html")).expect("docs/index.html");
+    assert!(
+        html.contains("The index"),
+        "the page of its own keeps its path: {html}"
+    );
+    assert!(!root.join("docs/*").exists());
+}
+
 /// A `hover { }` block is a stylesheet rule, not a run-time `<style>`: the
 /// built sheet carries it under a content-named class, the element carries
 /// the class, and the bundle appends nothing to the document head.

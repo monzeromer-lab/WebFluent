@@ -794,3 +794,58 @@ test "a key is written as the build writes it" {
     assert!(said.contains("2 passed"), "{said}");
     let _ = std::fs::remove_dir_all(&dir);
 }
+
+/// What `I03` says a reader sees is what the runtime shows: a locale with no
+/// file reads the default locale's messages, and under `i18n.literals` the
+/// default locale's table lacking a text is no fault — the text is its key.
+#[test]
+fn i03_says_what_a_reader_sees() {
+    let i03 = |config: &str, files: &[(&str, &str)]| -> Vec<String> {
+        let mut all = vec![("webfluent.app.json", config)];
+        all.extend_from_slice(files);
+        let dir = project(&all);
+        let options = webfluent::build::BuildOptions::new(&dir, &webfluent::vfs::FsVfs);
+        let report = match webfluent::build::check(&options) {
+            Ok(r) => r,
+            Err(f) => *f.report,
+        };
+        let _ = std::fs::remove_dir_all(&dir);
+        report
+            .diagnostics
+            .into_iter()
+            .filter(|d| d.code == "I03")
+            .map(|d| d.message)
+            .collect()
+    };
+    let missing = i03(
+        r#"{ "name": "t", "i18n": { "default_locale": "en", "locales": ["en", "ar"], "dir": "src/translations" } }"#,
+        &[
+            ("src/pages/Inbox.wf", PAGE),
+            ("src/translations/en.json", EN),
+        ],
+    );
+    assert_eq!(missing.len(), 1, "{missing:?}");
+    assert!(
+        missing[0].contains("a reader in `ar` sees every message in `en`"),
+        "{missing:?}"
+    );
+
+    let literals = i03(
+        r#"{ "name": "t", "i18n": { "default_locale": "en", "locales": ["en", "ar"], "dir": "src/translations", "literals": true } }"#,
+        &[
+            (
+                "src/pages/P.wf",
+                "page P(path: \"/\", title: \"T\", description: \"D\") {\n    state files = 3\n    Heading(\"Files\").h1\n    Text(\"{files} files\")\n}\n",
+            ),
+            ("src/translations/en.json", "{}"),
+            (
+                "src/translations/ar.json",
+                r#"{ "Files": "ملفات", "{files} files.other": "{files} ملفات", "T": "T", "D": "D" }"#,
+            ),
+        ],
+    );
+    assert!(
+        literals.iter().all(|m| !m.contains("`en.json`")),
+        "the default locale's words are its keys: {literals:?}"
+    );
+}

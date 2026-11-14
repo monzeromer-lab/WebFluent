@@ -467,6 +467,7 @@ pub fn render_test(
         title: None,
         title_expr: None,
         description_expr: None,
+        image_expr: None,
         guard: None,
         redirect: None,
         description: None,
@@ -1153,6 +1154,7 @@ fn as_program(shared: &[Declaration], test: &TestDecl) -> Program {
         title: Some(test.name.clone()),
         title_expr: None,
         description_expr: None,
+        image_expr: None,
         description: Some("A test.".to_string()),
         guard: None,
         redirect: None,
@@ -1304,8 +1306,25 @@ const ACT: &str = r#"
   if (what === "press") {
     const el = name ? find(name, "input, textarea, select, button, a, [tabindex]") : (document.activeElement || document.body);
     if (!el) return "none";
-    const key = value;
-    const init = { key, code: key.length === 1 ? "Key" + key.toUpperCase() : key, bubbles: true, cancelable: true };
+    // `press "ctrl+k"`, `press "mod+shift+p"`: the modifiers held with the
+    // key, read as `on key("…")` reads them — `mod` is ⌘ on a Mac and Ctrl
+    // elsewhere — and the key's short names (`esc`, `down`, `space`).
+    const plus = value.length > 1 && value.endsWith("+");
+    const parts = (plus ? value.slice(0, -1) : value).split("+");
+    let key = plus ? "+" : parts.pop();
+    if (plus && parts[parts.length - 1] === "") parts.pop();
+    const names = { esc: "Escape", up: "ArrowUp", down: "ArrowDown", left: "ArrowLeft", right: "ArrowRight", space: " ", del: "Delete" };
+    if (names[key.toLowerCase()]) key = names[key.toLowerCase()];
+    const mac = /Mac|iP(hone|ad|od)/.test(navigator.platform || "");
+    const held = { ctrlKey: false, shiftKey: false, altKey: false, metaKey: false };
+    for (const m of value.length > 1 ? parts.map((p) => p.toLowerCase()) : []) {
+      if (m === "ctrl" || m === "control") held.ctrlKey = true;
+      else if (m === "shift") held.shiftKey = true;
+      else if (m === "alt" || m === "option") held.altKey = true;
+      else if (m === "meta" || m === "cmd" || m === "command") held.metaKey = true;
+      else if (m === "mod") { if (mac) held.metaKey = true; else held.ctrlKey = true; }
+    }
+    const init = { key, code: key.length === 1 && /[a-z]/i.test(key) ? "Key" + key.toUpperCase() : key, bubbles: true, cancelable: true, ...held };
     const down = el.dispatchEvent(new KeyboardEvent("keydown", init));
     el.dispatchEvent(new KeyboardEvent("keyup", init));
     // What the browser does with a real Escape that nothing cancelled: the

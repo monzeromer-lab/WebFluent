@@ -137,7 +137,7 @@ what a click did is visible only in the `expect` that follows it.
 | `expect "text"` · `expect not "text"` | What the page must, or must not, show |
 | `click "Save"` | Clicks whatever carries that name: a button or a link, a control, a tab, a menu's item, an option, a row of a tree |
 | `type "Ada" into "Name"` | Types into the control that label names |
-| `press "Enter"` · `press "Escape" in "Search"` | A key, on the focused element or a named one; `Escape` closes an open `Modal` or `Dialog` as a real one would |
+| `press "Enter"` · `press "Escape" in "Search"` · `press "mod+k"` | A key, on the focused element or a named one, with the modifiers a combination names (`mod` is ⌘ on a Mac, Ctrl elsewhere); `Escape` closes an open `Modal` or `Dialog` as a real one would |
 
 A step finds what it acts on the way a reader does: by the name on it. A
 button's name is its text; a control's is its label, its placeholder or its

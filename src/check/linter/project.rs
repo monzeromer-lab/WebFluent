@@ -388,9 +388,25 @@ pub fn translations(
     for locale in &config.locales {
         let file = format!("{}/{locale}.json", config.dir.trim_end_matches('/'));
         let Some(own) = messages.get(locale) else {
+            // A locale with no table of its own reads the default's; only
+            // the default locale with none shows its keys.
+            let seen = if *locale == config.default_locale {
+                "every message shows its key".to_string()
+            } else {
+                format!(
+                    "a reader in `{locale}` sees every message in `{}`",
+                    config.default_locale
+                )
+            };
             out.push(
-                Diagnostic::coded("I03", format!("the locale `{locale}` has no `{locale}.json`, so every message shows its key"), &file, 1, 1)
-                    .with_hint(format!("Add `{file}`")),
+                Diagnostic::coded(
+                    "I03",
+                    format!("the locale `{locale}` has no `{locale}.json`, so {seen}"),
+                    &file,
+                    1,
+                    1,
+                )
+                .with_hint(format!("Add `{file}`")),
             );
             continue;
         };
@@ -408,6 +424,12 @@ pub fn translations(
                         own.contains_key(&format!("{base}.other")) || own.contains_key(base)
                     })
         };
+        // Under `i18n.literals` the default locale's words are their own
+        // keys: a message its table lacks is shown as written, which is
+        // what it says.
+        if config.literals && *locale == config.default_locale {
+            continue;
+        }
         let missing: Vec<&&String> = all
             .iter()
             .filter(|k| !own.contains_key(**k) && !falls_back(k))

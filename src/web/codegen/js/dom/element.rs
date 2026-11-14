@@ -375,7 +375,8 @@ impl JsCodegen {
         if let Some(href) = &link_to
             && name == "Link"
         {
-            self.emit_line(&active_link(var, href, link_prefix));
+            let own = self.own_aria_current(ui);
+            self.emit_line(&active_link(var, href, link_prefix, own));
         }
 
         self.emit_style_and_transition(var, ui);
@@ -504,7 +505,8 @@ impl JsCodegen {
             let prefix = ui.args.iter().any(|a| {
                         matches!(a, Arg::Named(k, Expr::StringLiteral(v)) if k == "active" && v == "prefix")
                     });
-            self.emit_line(&active_link(var, href, prefix));
+            let own = self.own_aria_current(ui);
+            self.emit_line(&active_link(var, href, prefix, own));
         }
         for child in &ui.children {
             self.emit_statement_dom(child, var);

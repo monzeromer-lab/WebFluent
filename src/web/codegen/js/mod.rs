@@ -1408,11 +1408,33 @@ pub(crate) fn attr_key(key: &str) -> String {
 /// The call that keeps a link's `active` class and `aria-current` with the
 /// route. A link whose address has a query is the page's only when the
 /// query matches too, so it is handed `WF.query` — which brings that module
-/// only into a program that has one.
-fn active_link(var: &str, href: &str, prefix: impl std::fmt::Display) -> String {
-    if href.contains('?') {
-        format!("WF.activeLink({var}, {href}, {prefix}, WF.query);")
+/// only into a program that has one. `own` is the `aria-current:` the link's
+/// author wrote, compiled: a value of theirs is never replaced, and while
+/// it is `null` the router marks the link as it would any other.
+fn active_link(
+    var: &str,
+    href: &str,
+    prefix: impl std::fmt::Display,
+    own: Option<String>,
+) -> String {
+    let query = if href.contains('?') {
+        "WF.query"
     } else {
-        format!("WF.activeLink({var}, {href}, {prefix});")
+        "null"
+    };
+    match (query, own) {
+        ("null", None) => format!("WF.activeLink({var}, {href}, {prefix});"),
+        (q, None) => format!("WF.activeLink({var}, {href}, {prefix}, {q});"),
+        (q, Some(own)) => format!("WF.activeLink({var}, {href}, {prefix}, {q}, () => {own});"),
+    }
+}
+
+impl JsCodegen {
+    /// The `aria-current:` an element's author wrote, compiled.
+    fn own_aria_current(&mut self, ui: &UIElement) -> Option<String> {
+        ui.args.iter().find_map(|a| match a {
+            Arg::Named(k, v) if k == "aria-current" => Some(self.emit_expr(v)),
+            _ => None,
+        })
     }
 }

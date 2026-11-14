@@ -94,6 +94,29 @@ screen every button, icon button, tab, menu item, sidebar item, check
 box, radio, switch and carousel control is at least 44px; with a mouse
 nothing changes size."#)
                 ]),
+                NotesSection(title: #"Fixes"#, id: "6.2.0-fixes", items: [
+                    Change(text: #"`wf check` knows an `image`'s fields: `hero.width`, `.height`, `.color`
+and the rest were a `T05` there, though `wf build` read them."#),
+                    Change(text: #"`wf test`'s `press "ctrl+k"` holds its modifiers — `ctrl`, `shift`,
+`alt`, `meta`, and `mod` (⌘ on a Mac, Ctrl elsewhere) — so a shortcut can
+be tested by pressing it."#),
+                    Change(text: #"A page on `/docs/*` answers `/docs` and every address beneath it in the
+running site, as the link check always said; a static build paints it
+at `docs/index.html` instead of a directory named `*`."#),
+                    Change(text: #"A page's `image:` works out what it splices (`"{CDN}{post.cover}"`), as
+`title:` and `description:` do."#),
+                    Change(text: #"A `Link`'s own `aria-current:` is kept: the router marks the current link
+only while the author's value is `null`, and the static paint no longer
+writes the attribute twice."#),
+                    Change(text: #"`I03` says what a reader sees: a locale with no file reads the default
+locale's messages, not the keys; under `i18n.literals` the default
+locale's table may leave out its own words."#),
+                    Change(text: #"A `theme` declared twice is a duplicate (`E102`), and two pages that
+share a name no longer draw a puzzling `R05`."#),
+                    Change(text: #"The editors' indented-layout grammar reads an `if` value's branches and a
+`match` value's arms written on the lines under them, as `wf fmt --to
+wfx` writes them."#)
+                ]),
                 NotesSection(title: #"Reached by every reader"#, id: "6.2.0-reached-by-every-reader", items: [
                     Change(text: #"**A `Switch` can be reached from the keyboard and is heard as a switch.**
 Its input was `display: none`, which took the very element that says
@@ -132,7 +155,7 @@ again before the exit ended."#),
                     Change(text: #"A `Splitter`'s handle reaches 24px, WCAG 2.2's least target, around its
 4px line."#)
                 ])
-            ], count: 13), latest: true)
+            ], count: 21), latest: true)
 
             ReleaseEntry(ReleaseNotes(version: "6.1.0", id: "6.1.0", date: "2026-11-14", when: "14 November 2026", summary: #"A site sends much less: the runtime ships only the functions a program
 reaches, with short names, and only the styles and animations it draws
@@ -3591,6 +3614,6 @@ flattened diagnostics, and the reason a theme failed to resolve."#),
             ], count: 15))
         }
 
-        OnThisPage(sections: [Anchor(id: "6.2.0-a-project-s-own-component-wins", label: #"A project's own component wins"#), Anchor(id: "6.2.0-stacking-and-target-sizes-are-tokens", label: #"Stacking and target sizes are tokens"#), Anchor(id: "6.2.0-reached-by-every-reader", label: #"Reached by every reader"#), Anchor(id: "6.2.0-right-to-left", label: #"Right to left"#), Anchor(id: "6.2.0-smaller-fixes", label: #"Smaller fixes"#)], source: "RELEASE_NOTES.md")
+        OnThisPage(sections: [Anchor(id: "6.2.0-a-project-s-own-component-wins", label: #"A project's own component wins"#), Anchor(id: "6.2.0-stacking-and-target-sizes-are-tokens", label: #"Stacking and target sizes are tokens"#), Anchor(id: "6.2.0-fixes", label: #"Fixes"#), Anchor(id: "6.2.0-reached-by-every-reader", label: #"Reached by every reader"#), Anchor(id: "6.2.0-right-to-left", label: #"Right to left"#), Anchor(id: "6.2.0-smaller-fixes", label: #"Smaller fixes"#)], source: "RELEASE_NOTES.md")
     }
 }

@@ -1914,14 +1914,14 @@ page ErrorI02(path: "/errors/I02", title: "I02 — A message and its call that d
     }
 }
 
-page ErrorI03(path: "/errors/I03", title: "I03 — A message one locale has and another does not", description: "A reader in the locale that lacks it sees the key instead of the words.") {
-    ErrorShell("I03", title: "A message one locale has and another does not", severity: "warning", family: "Translations", summary: "A reader in the locale that lacks it sees the key instead of the words.", printed: #""#, quickfix: "", lowerable: true, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/I03.md") {
+page ErrorI03(path: "/errors/I03", title: "I03 — A message one locale has and another does not", description: "A reader in the locale that lacks it sees the default locale's words instead of their own — or, where the default locale is the one that lacks it, the key.") {
+    ErrorShell("I03", title: "A message one locale has and another does not", severity: "warning", family: "Translations", summary: "A reader in the locale that lacks it sees the default locale's words instead of their own — or, where the default locale is the one that lacks it, the key.", printed: #""#, quickfix: "", lowerable: true, why: true, example: false, families: ERROR_INDEX, related: [], sections: [Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/I03.md") {
         fixed {
             Stack(gap: .sm) {
-                Markdown("translate it, or remove it from the others.")
+                Markdown("translate it, or\nremove it from the others.")
             }
         }
-        Markdown("Warning. `nav.blog` in `en.json` and not in `ar.json`: a reader in Arabic\nsees `nav.blog`.")
+        Markdown("Warning. `nav.blog` in `en.json` and not in `ar.json`: a reader in Arabic\nsees the English message, since a key the reader's locale lacks falls back to\nthe default locale's. Where the default locale is the one that lacks it, the\nreader sees the key itself. A locale with no file at all reads every message\nfrom the default locale's.\n\nUnder `i18n.literals`, the default locale's words are their own keys, so its\ntable lacking one is no fault and is not reported.")
     }
 }
 

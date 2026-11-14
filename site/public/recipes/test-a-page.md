@@ -110,6 +110,6 @@ wf test
 - **In CI**: run `wf check`, `wf test` and `wf build` in that order
   ([Install wf on a build machine](https://webfluent.monzeromer.dev/recipes/install-wf-in-ci.md)).
 
-A key step names one key, as the browser names it (`"Enter"`, `"Escape"`,
-`"a"`); it does not hold a modifier, so a shortcut such as Ctrl+K is
-checked by calling what it runs.
+A key step names a key as the browser names it (`"Enter"`, `"Escape"`,
+`"a"`), or a combination as `on key(…)` writes one: `press "mod+k"` holds ⌘
+on a Mac and Ctrl elsewhere, so a shortcut is tested by pressing it.

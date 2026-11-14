@@ -32,6 +32,54 @@
     "after": ""
    },
    {
+    "title": "Fixes",
+    "id": "6.2.0-fixes",
+    "intro": "",
+    "items": [
+     {
+      "text": "`wf check` knows an `image`'s fields: `hero.width`, `.height`, `.color`\nand the rest were a `T05` there, though `wf build` read them.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`wf test`'s `press \"ctrl+k\"` holds its modifiers — `ctrl`, `shift`,\n`alt`, `meta`, and `mod` (⌘ on a Mac, Ctrl elsewhere) — so a shortcut can\nbe tested by pressing it.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "A page on `/docs/*` answers `/docs` and every address beneath it in the\nrunning site, as the link check always said; a static build paints it\nat `docs/index.html` instead of a directory named `*`.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "A page's `image:` works out what it splices (`\"{CDN}{post.cover}\"`), as\n`title:` and `description:` do.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "A `Link`'s own `aria-current:` is kept: the router marks the current link\nonly while the author's value is `null`, and the static paint no longer\nwrites the attribute twice.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`I03` says what a reader sees: a locale with no file reads the default\nlocale's messages, not the keys; under `i18n.literals` the default\nlocale's table may leave out its own words.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "A `theme` declared twice is a duplicate (`E102`), and two pages that\nshare a name no longer draw a puzzling `R05`.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "The editors' indented-layout grammar reads an `if` value's branches and a\n`match` value's arms written on the lines under them, as `wf fmt --to\nwfx` writes them.",
+      "points": [],
+      "after": ""
+     }
+    ],
+    "after": ""
+   },
+   {
     "title": "Reached by every reader",
     "id": "6.2.0-reached-by-every-reader",
     "intro": "",
@@ -111,7 +159,7 @@
     "after": ""
    }
   ],
-  "count": 13
+  "count": 21
  },
  {
   "version": "6.1.0",

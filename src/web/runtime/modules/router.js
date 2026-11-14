@@ -24,7 +24,10 @@
     return frag;
   }
 
-  function activeLink(el, href, prefix, query) {
+  // `ownAria`: the `aria-current` the link's author wrote, as a read. A
+  // value of theirs is theirs; while it is null the router marks the link
+  // as it marks any other.
+  function activeLink(el, href, prefix, query, ownAria) {
     const target = _routeOf(href).replace(/\/$/, "") || "/";
     const search = String(href).split("#")[0].split("?")[1] || "";
     const wanted = query && search ? [...new URLSearchParams(search)] : [];
@@ -52,12 +55,13 @@
         const shadowed = _queryLinks.some((l) => l.target === target && l.wanted.every(([k, v]) => now[k] === v));
         if (shadowed) on = false;
       }
+      const mine = ownAria ? ownAria() : null;
       if (on) {
         el.classList.add("active");
-        el.setAttribute("aria-current", "page");
+        if (mine == null) el.setAttribute("aria-current", "page");
       } else {
         el.classList.remove("active");
-        el.removeAttribute("aria-current");
+        if (mine == null) el.removeAttribute("aria-current");
       }
     });
   }
@@ -116,7 +120,10 @@
       if (pattern === path) return {};
       const patternParts = pattern.split("/").filter(Boolean);
       const pathParts = path.split("/").filter(Boolean);
-      if (patternParts.length !== pathParts.length) return null;
+      // `/docs/*`: the path, and everything beneath it.
+      const rest = patternParts[patternParts.length - 1] === "*";
+      if (rest) patternParts.pop();
+      if (rest ? pathParts.length < patternParts.length : patternParts.length !== pathParts.length) return null;
 
       const params = {};
       for (let i = 0; i < patternParts.length; i++) {

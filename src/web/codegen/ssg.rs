@@ -49,6 +49,7 @@ pub fn render_page_html_with_params(
     };
     seeded.title = seeded.title.as_deref().map(fill);
     seeded.description = seeded.description.as_deref().map(fill);
+    seeded.image = seeded.image.as_deref().map(fill);
     // Seed as declarations at the top of the body: `params` as a map, and
     // each parameter as a constant of the page.
     let mut extra: Vec<Statement> = Vec::new();
@@ -258,7 +259,10 @@ pub fn render_page_html_studio(
     // `description:` likewise; one that cannot be worked out falls back to
     // the project's, never to its `{…}` source.
     let worked;
-    let page = if page.title_expr.is_some() || page.description_expr.is_some() {
+    let page = if page.title_expr.is_some()
+        || page.description_expr.is_some()
+        || page.image_expr.is_some()
+    {
         let scope = site.page_scope(&page.body);
         let mut p = page.clone();
         if let Some(value) = page.title_expr.as_ref().and_then(|e| eval(e, &scope)) {
@@ -266,6 +270,11 @@ pub fn render_page_html_studio(
         }
         if let Some(expr) = &page.description_expr {
             p.description = eval(expr, &scope).map(|v| v.to_text());
+        }
+        // `image: "{SITE}{post.cover}"`: an address that cannot be worked
+        // out falls back to the project's image, never to its source.
+        if let Some(expr) = &page.image_expr {
+            p.image = eval(expr, &scope).map(|v| v.to_text());
         }
         worked = p;
         &worked
@@ -1857,8 +1866,18 @@ pub(crate) fn render_builtin<C: Paint>(name: &str, ui: &UIElement, ctx: &mut C) 
                             let prefix = ui.args.iter().any(|a| {
                                 matches!(a, Arg::Named(k, Expr::StringLiteral(v)) if k == "active" && v == "prefix")
                             });
+                            // An `aria-current:` its author wrote is theirs where
+                            // it holds a value; `null`, or a value only the
+                            // running page knows, leaves the router's mark.
+                            let own_aria = ui.args.iter().any(|a| {
+                                matches!(a, Arg::Named(k, v) if k == "aria-current"
+                                    && (expr_to_static_string(v).is_some()
+                                        || eval(v, &ctx.scope).is_some_and(|s| !matches!(s, Static::Null))))
+                            });
                             if name == "Link" && link_is_current(&s, &ctx.current_path, prefix) {
-                                attrs.push("aria-current=\"page\"".to_string());
+                                if !own_aria {
+                                    attrs.push("aria-current=\"page\"".to_string());
+                                }
                                 current_link = true;
                             }
                         }

@@ -411,6 +411,9 @@ pub struct PageDecl {
     pub description: Option<String>,
     /// The image a shared link previews with, as a site-relative or absolute URL.
     pub image: Option<String>,
+    /// The image as an expression, when it splices anything —
+    /// `image: "{SITE}{post.cover}"` — worked out for each file.
+    pub image_expr: Option<Expr>,
     /// What the sharing image shows, for a reader who cannot see it:
     /// `og:image:alt` and `twitter:image:alt`. Falls back to `meta.image_alt`.
     pub image_alt: Option<String>,

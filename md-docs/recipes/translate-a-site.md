@@ -130,8 +130,7 @@ And `src/translations/es.json`, whose words have the two forms English has:
 ```
 
 A locale with no file, and a key one locale has and another lacks, are
-build warnings (`I03`). The warning for a missing file says every message
-shows its key; in fact, at run time a key missing from the reader's locale
+build warnings (`I03`). At run time a key missing from the reader's locale
 falls back to the default locale's message, and only then to the key itself.
 
 ### Translate text with `t()`

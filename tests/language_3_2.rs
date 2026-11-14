@@ -425,3 +425,42 @@ fn a_derived_function_paints_what_it_gives_in_every_backend() {
         assert!(out.contains("c=0"), "{name}: {out}");
     }
 }
+
+#[test]
+fn a_page_image_splices_what_it_names() {
+    // `image: "{CDN}/cover.png"` reached `og:image` as typed, while `title:`
+    // and `description:` were worked out.
+    let src = "const CDN = \"https://cdn.example\"\npage Post(path: \"/\", title: \"Post\", description: \"D\", image: \"{CDN}/cover.png\") {\n    Heading(\"Post\").h1\n}\n";
+    let html = crate::common::ssg_html(src);
+    assert!(
+        html.contains("content=\"https://cdn.example/cover.png\""),
+        "{html}"
+    );
+    assert!(!html.contains("{CDN}"), "{html}");
+    // And the formatter writes it back as it was written.
+    let program = webfluent::parse_source(src, "t.wf").unwrap();
+    let webfluent::syntax::parser::Declaration::Page(page) = &program.declarations[1] else {
+        panic!("a page");
+    };
+    assert!(
+        webfluent::syntax::print::page_header(page).contains("image: \"{CDN}/cover.png\""),
+        "{}",
+        webfluent::syntax::print::page_header(page)
+    );
+}
+
+#[test]
+fn a_link_keeps_the_aria_current_its_author_wrote() {
+    // The router set `aria-current="page"` over a wizard step's own
+    // `aria-current: "step"`.
+    let src = "page Home(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"H\").h1\n    Link(\"Step 2\", to: \"/\", aria-current: \"step\")\n    Link(\"Home\", to: \"/\")\n}\n";
+    let js = crate::common::spa_generated(src);
+    assert!(js.contains(", false, null, () => \"step\");"), "{js}");
+    let html = crate::common::ssg_html(src);
+    assert!(html.contains("aria-current=\"step\""), "{html}");
+    assert_eq!(
+        html.matches("aria-current=").count(),
+        2,
+        "the author's on one link, the router's on the other: {html}"
+    );
+}
