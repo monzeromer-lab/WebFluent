@@ -8,7 +8,8 @@
 //! class of its own.
 
 use super::{
-    AttrFamily, CaseSig, Children, ComponentSig, FileKind, Ir, Legacy, PropSig, PropType, Sink,
+    AttrFamily, CaseSig, Children, ComponentSig, FileKind, Ir, Legacy, NOT_ON_PAPER, Paper,
+    PropSig, PropType, Sink,
 };
 
 // ─── Construction helpers ────────────────────────────────────────────────
@@ -130,6 +131,10 @@ const fn comp(
         parts,
         attrs,
         children,
+        tag: "div",
+        class: "",
+        css: &[],
+        paper: Paper::Undecided,
     }
 }
 
@@ -159,6 +164,10 @@ const fn part(
         parts: &[],
         attrs,
         children,
+        tag: "div",
+        class: "",
+        css: &[],
+        paper: Paper::Undecided,
     }
 }
 
@@ -699,7 +708,9 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G,
         Children::Elements,
-    ),
+    )
+    .html("div", "wf-container")
+    .on_paper(),
     comp(
         "Row",
         "Layout",
@@ -722,7 +733,9 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G,
         Children::Elements,
-    ),
+    )
+    .html("div", "wf-row")
+    .on_paper(),
     comp(
         "Column",
         "Layout",
@@ -739,7 +752,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G,
         Children::Elements,
-    ),
+    )
+    .html("div", "wf-col")
+    .css(&["Column"])
+    .on_paper(),
     comp(
         "Grid",
         "Layout",
@@ -755,7 +771,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G,
         Children::Elements,
-    ),
+    )
+    .html("div", "wf-grid")
+    .css(&["Grid"])
+    .on_paper(),
     comp(
         "Stack",
         "Layout",
@@ -765,7 +784,9 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G,
         Children::Elements,
-    ),
+    )
+    .html("div", "wf-stack")
+    .on_paper(),
     comp(
         "Spacer",
         "Layout",
@@ -775,7 +796,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G,
         Children::None,
-    ),
+    )
+    .html("div", "wf-spacer")
+    .css(&["Spacer"])
+    .on_paper(),
     comp(
         "VirtualList",
         "Layout",
@@ -806,7 +830,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G,
         Children::Elements,
-    ),
+    )
+    .html("div", "wf-virtual-list")
+    .css(&["Virtual List"])
+    .not_on_paper(NOT_ON_PAPER),
     comp(
         "Splitter",
         "Layout",
@@ -840,7 +867,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G,
         Children::None,
-    ),
+    )
+    .html("div", "wf-splitter")
+    .css(&["Splitter"])
+    .not_on_paper(NOT_ON_PAPER),
     comp(
         "Divider",
         "Layout",
@@ -850,7 +880,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G,
         Children::None,
-    ),
+    )
+    .html("hr", "wf-divider")
+    .css(&["Divider"])
+    .on_paper(),
     // ─── Navigation ───────────────────────────────────────────────────────
     comp(
         "Navbar",
@@ -861,7 +894,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &["Brand", "Links", "Actions"],
         G,
         Children::Elements,
-    ),
+    )
+    .html("nav", "wf-navbar")
+    .css(&["Navbar", "Off-canvas controls", "Link"])
+    .not_on_paper("navigation components are web-only"),
     part(
         "Navbar",
         "Brand",
@@ -901,7 +937,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &["Header", "Item", "Divider"],
         G,
         Children::Elements,
-    ),
+    )
+    .html("aside", "wf-sidebar")
+    .css(&["Sidebar", "Off-canvas controls", "Link", "Icon"])
+    .not_on_paper("navigation components are web-only"),
     part(
         "Sidebar",
         "Header",
@@ -945,7 +984,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G_ANCHOR,
         Children::Elements,
-    ),
+    )
+    .html("a", "wf-link")
+    .css(&["Link"])
+    .on_paper(),
     comp(
         "Tabs",
         "Navigation",
@@ -955,7 +997,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &["Page"],
         G,
         Children::Elements,
-    ),
+    )
+    .html("div", "wf-tabs")
+    .css(&["Tabs"])
+    .not_on_paper("navigation components are web-only"),
     part(
         "Tabs",
         "Page",
@@ -965,7 +1010,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G,
         Children::Elements,
-    ),
+    )
+    .html("div", "wf-tab-page")
+    .css(&["Tabs"])
+    .not_on_paper("navigation components are web-only"),
     comp(
         "TabPage",
         "Navigation",
@@ -975,7 +1023,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G,
         Children::Elements,
-    ),
+    )
+    .html("div", "wf-tab-page")
+    .css(&["Tabs"])
+    .not_on_paper("navigation components are web-only"),
     comp(
         "Breadcrumb",
         "Navigation",
@@ -985,7 +1036,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &["Item"],
         G,
         Children::Elements,
-    ),
+    )
+    .html("nav", "wf-breadcrumb")
+    .css(&["Breadcrumb", "Link"])
+    .on_paper(),
     part(
         "Breadcrumb",
         "Item",
@@ -1020,7 +1074,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
             G,
             Children::Elements,
         )
-    },
+    }
+    .html("div", "wf-menu")
+    .css(&["Menu", "Button", "Layer"])
+    .not_on_paper("navigation components are web-only"),
     part(
         "Menu",
         "Item",
@@ -1090,7 +1147,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &["Header", "Body", "Footer"],
         G,
         Children::Elements,
-    ),
+    )
+    .html("div", "wf-card")
+    .css(&["Card"])
+    .on_paper(),
     part(
         "Card",
         "Header",
@@ -1134,7 +1194,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &["Head", "Body", "Row", "Cell"],
         G,
         Children::Elements,
-    ),
+    )
+    .html("table", "wf-table")
+    .css(&["Table"])
+    .on_paper(),
     part(
         "Table",
         "Head",
@@ -1144,7 +1207,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G,
         Children::Elements,
-    ),
+    )
+    .html("thead", "")
+    .css(&["Table"])
+    .on_paper(),
     part(
         "Table",
         "Body",
@@ -1154,7 +1220,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G,
         Children::Elements,
-    ),
+    )
+    .html("tbody", "")
+    .css(&["Table"])
+    .on_paper(),
     part(
         "Table",
         "Row",
@@ -1164,7 +1233,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G,
         Children::Elements,
-    ),
+    )
+    .html("tr", "")
+    .css(&["Table"])
+    .on_paper(),
     part(
         "Table",
         "Cell",
@@ -1174,7 +1246,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[flag("header", "header", "Render as a `<th>`")],
         G_TABLE,
         Children::Elements,
-    ),
+    )
+    .html("td", "")
+    .css(&["Table"])
+    .on_paper(),
     comp(
         "Thead",
         "Data display",
@@ -1184,7 +1259,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G,
         Children::Elements,
-    ),
+    )
+    .html("thead", "")
+    .css(&["Table"])
+    .on_paper(),
     comp(
         "Tbody",
         "Data display",
@@ -1194,7 +1272,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G,
         Children::Elements,
-    ),
+    )
+    .html("tbody", "")
+    .css(&["Table"])
+    .on_paper(),
     comp(
         "Trow",
         "Data display",
@@ -1204,7 +1285,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G,
         Children::Elements,
-    ),
+    )
+    .html("tr", "")
+    .css(&["Table"])
+    .on_paper(),
     comp(
         "Tcell",
         "Data display",
@@ -1214,7 +1298,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G_TABLE,
         Children::Elements,
-    ),
+    )
+    .html("td", "")
+    .css(&["Table"])
+    .on_paper(),
     comp(
         "List",
         "Data display",
@@ -1224,7 +1311,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &["Item"],
         G,
         Children::Elements,
-    ),
+    )
+    .html("ul", "wf-list")
+    .css(&["List"])
+    .on_paper(),
     part(
         "List",
         "Item",
@@ -1247,7 +1337,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G,
         Children::None,
-    ),
+    )
+    .html("span", "wf-badge")
+    .css(&["Badge"])
+    .on_paper(),
     comp(
         "Tag",
         "Data display",
@@ -1257,7 +1350,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G,
         Children::None,
-    ),
+    )
+    .html("span", "wf-tag")
+    .css(&["Tag"])
+    .on_paper(),
     comp(
         "Avatar",
         "Data display",
@@ -1277,7 +1373,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G,
         Children::None,
-    ),
+    )
+    .html("div", "wf-avatar")
+    .css(&["Avatar", "Image"])
+    .on_paper(),
     comp(
         "Tooltip",
         "Data display",
@@ -1299,7 +1398,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G,
         Children::Elements,
-    ),
+    )
+    .html("div", "wf-tooltip")
+    .css(&["Tooltip", "Layer"])
+    .not_on_paper(NOT_ON_PAPER),
     // ─── Form & input ─────────────────────────────────────────────────────
     comp(
         "Input",
@@ -1346,7 +1448,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G_INPUT,
         Children::None,
-    ),
+    )
+    .html("input", "wf-input")
+    .css(&["Input"])
+    .not_on_paper("interactive elements are not supported in PDF"),
     comp(
         "Select",
         "Form",
@@ -1372,7 +1477,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &["Option"],
         G_INPUT,
         Children::Elements,
-    ),
+    )
+    .html("select", "wf-select")
+    .css(&["Input", "Select"])
+    .not_on_paper("interactive elements are not supported in PDF"),
     part(
         "Select",
         "Option",
@@ -1386,7 +1494,9 @@ pub const COMPONENTS: &[ComponentSig] = &[
         )],
         G,
         Children::None,
-    ),
+    )
+    .html("option", "")
+    .not_on_paper("interactive elements are not supported in PDF"),
     comp(
         "Option",
         "Form",
@@ -1400,7 +1510,9 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G,
         Children::None,
-    ),
+    )
+    .html("option", "")
+    .not_on_paper("interactive elements are not supported in PDF"),
     comp(
         "Checkbox",
         "Form",
@@ -1410,7 +1522,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G_INPUT,
         Children::None,
-    ),
+    )
+    .html("label", "wf-checkbox")
+    .css(&["Checkbox"])
+    .not_on_paper("interactive elements are not supported in PDF"),
     comp(
         "Radio",
         "Form",
@@ -1430,7 +1545,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G_INPUT,
         Children::None,
-    ),
+    )
+    .html("label", "wf-radio")
+    .css(&["Radio"])
+    .not_on_paper("interactive elements are not supported in PDF"),
     comp(
         "Switch",
         "Form",
@@ -1440,7 +1558,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G_INPUT,
         Children::None,
-    ),
+    )
+    .html("label", "wf-switch")
+    .css(&["Switch"])
+    .not_on_paper("interactive elements are not supported in PDF"),
     comp(
         "Slider",
         "Form",
@@ -1457,7 +1578,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G_INPUT,
         Children::None,
-    ),
+    )
+    .html("div", "wf-slider")
+    .css(&["Input", "Slider"])
+    .not_on_paper("interactive elements are not supported in PDF"),
     comp(
         "DatePicker",
         "Form",
@@ -1473,7 +1597,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G_INPUT,
         Children::None,
-    ),
+    )
+    .html("div", "wf-datepicker")
+    .css(&["Input", "Date Picker"])
+    .not_on_paper("interactive elements are not supported in PDF"),
     comp(
         "FileUpload",
         "Form",
@@ -1500,7 +1627,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G_INPUT,
         Children::Elements,
-    ),
+    )
+    .html("div", "wf-file-upload")
+    .css(&["Input", "File Upload"])
+    .not_on_paper("interactive elements are not supported in PDF"),
     comp(
         "Form",
         "Form",
@@ -1529,7 +1659,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G_FORM,
         Children::Elements,
-    ),
+    )
+    .html("form", "wf-form")
+    .css(&["Button", "Input", "Form"])
+    .not_on_paper("interactive elements are not supported in PDF"),
     comp(
         "Textarea",
         "Form",
@@ -1553,7 +1686,9 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G_INPUT,
         Children::None,
-    ),
+    )
+    .html("textarea", "wf-input wf-textarea")
+    .not_on_paper("interactive elements are not supported in PDF"),
     // ─── Feedback ─────────────────────────────────────────────────────────
     comp(
         "Alert",
@@ -1564,7 +1699,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G,
         Children::Elements,
-    ),
+    )
+    .html("div", "wf-alert")
+    .css(&["Alert"])
+    .on_paper(),
     comp(
         "Toast",
         "Feedback",
@@ -1574,7 +1712,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G,
         Children::None,
-    ),
+    )
+    .html("div", "wf-toast")
+    .css(&["Toast", "Animation Keyframes", "Animation Utility Classes", "Hover Replay"])
+    .not_on_paper(NOT_ON_PAPER),
     ComponentSig {
         events: &["close"],
         ..comp(
@@ -1587,7 +1728,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
             G,
             Children::Elements,
         )
-    },
+    }
+    .html("dialog", "wf-modal")
+    .css(&["Button", "Modal"])
+    .not_on_paper(NOT_ON_PAPER),
     part(
         "Modal",
         "Title",
@@ -1632,7 +1776,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
             G,
             Children::Elements,
         )
-    },
+    }
+    .html("div", "wf-popover")
+    .css(&["Popover", "Layer"])
+    .not_on_paper(NOT_ON_PAPER),
     ComponentSig {
         events: &["close"],
         ..comp(
@@ -1645,7 +1792,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
             G,
             Children::Elements,
         )
-    },
+    }
+    .html("dialog", "wf-dialog")
+    .css(&["Button", "Dialog"])
+    .not_on_paper(NOT_ON_PAPER),
     part(
         "Dialog",
         "Title",
@@ -1665,7 +1815,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G,
         Children::None,
-    ),
+    )
+    .html("div", "wf-spinner")
+    .css(&["Spinner", "Animation Keyframes", "Animation Utility Classes", "Hover Replay"])
+    .not_on_paper(NOT_ON_PAPER),
     comp(
         "Progress",
         "Feedback",
@@ -1678,7 +1831,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G,
         Children::None,
-    ),
+    )
+    .html("progress", "wf-progress")
+    .css(&["Progress", "Animation Keyframes", "Animation Utility Classes", "Hover Replay"])
+    .on_paper(),
     comp(
         "Skeleton",
         "Feedback",
@@ -1693,7 +1849,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G,
         Children::None,
-    ),
+    )
+    .html("div", "wf-skeleton")
+    .css(&["Skeleton", "Animation Keyframes", "Animation Utility Classes", "Hover Replay"])
+    .not_on_paper(NOT_ON_PAPER),
     // ─── Actions ──────────────────────────────────────────────────────────
     comp(
         "Button",
@@ -1728,7 +1887,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G,
         Children::Elements,
-    ),
+    )
+    .html("button", "wf-btn")
+    .css(&["Button"])
+    .not_on_paper("interactive elements are not supported in PDF"),
     comp(
         "IconButton",
         "Actions",
@@ -1757,7 +1919,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G,
         Children::Elements,
-    ),
+    )
+    .html("button", "wf-icon-btn")
+    .css(&["Button", "Icon Button", "Icon"])
+    .not_on_paper("interactive elements are not supported in PDF"),
     comp(
         "ButtonGroup",
         "Actions",
@@ -1767,7 +1932,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G,
         Children::Elements,
-    ),
+    )
+    .html("div", "wf-btn-group")
+    .css(&["Button", "Button Group"])
+    .not_on_paper("interactive elements are not supported in PDF"),
     comp(
         "Dropdown",
         "Actions",
@@ -1781,7 +1949,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &["Item", "Divider"],
         G,
         Children::Elements,
-    ),
+    )
+    .html("div", "wf-dropdown")
+    .css(&["Button", "Dropdown", "Layer"])
+    .not_on_paper("interactive elements are not supported in PDF"),
     part(
         "Dropdown",
         "Item",
@@ -1859,7 +2030,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G,
         Children::None,
-    ),
+    )
+    .html("img", "wf-image")
+    .css(&["Image"])
+    .on_paper(),
     comp(
         "Video",
         "Media",
@@ -1888,7 +2062,9 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G_MEDIA,
         Children::None,
-    ),
+    )
+    .html("video", "wf-video")
+    .not_on_paper("a PDF cannot play or animate it"),
     comp(
         "Audio",
         "Media",
@@ -1908,7 +2084,9 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G,
         Children::None,
-    ),
+    )
+    .html("audio", "wf-audio")
+    .not_on_paper("a PDF cannot play or animate it"),
     ComponentSig {
         events: &["message", "load"],
         ..comp(
@@ -1951,7 +2129,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
             G,
             Children::None,
         )
-    },
+    }
+    .html("iframe", "wf-frame")
+    .css(&["Frame"])
+    .not_on_paper("a PDF cannot show another page inside it"),
     comp(
         "Icon",
         "Media",
@@ -1961,7 +2142,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G,
         Children::None,
-    ),
+    )
+    .html("i", "wf-icon")
+    .css(&["Icon"])
+    .on_paper(),
     comp(
         "Carousel",
         "Media",
@@ -1975,7 +2159,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &["Slide"],
         G,
         Children::Elements,
-    ),
+    )
+    .html("div", "wf-carousel")
+    .css(&["Image", "Carousel"])
+    .not_on_paper("a PDF cannot play or animate it"),
     part(
         "Carousel",
         "Slide",
@@ -1996,7 +2183,9 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G,
         Children::None,
-    ),
+    )
+    .html("p", "wf-text")
+    .on_paper(),
     comp(
         "Heading",
         "Typography",
@@ -2021,7 +2210,9 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G,
         Children::None,
-    ),
+    )
+    .html("h2", "wf-heading")
+    .on_paper(),
     comp(
         "Code",
         "Typography",
@@ -2038,7 +2229,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G,
         Children::None,
-    ),
+    )
+    .html("code", "wf-code")
+    .css(&["Code", "Highlight"])
+    .on_paper(),
     comp(
         "Markdown",
         "Typography",
@@ -2052,7 +2246,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G,
         Children::None,
-    ),
+    )
+    .html("div", "wf-markdown")
+    .css(&["Highlight", "Markdown"])
+    .on_paper(),
     comp(
         "Host",
         "Layout",
@@ -2066,7 +2263,9 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G,
         Children::None,
-    ),
+    )
+    .html("div", "wf-host")
+    .not_on_paper("a script draws it in a browser, and a PDF runs no script"),
     comp(
         "Portal",
         "Layout",
@@ -2080,7 +2279,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G,
         Children::Elements,
-    ),
+    )
+    .html("div", "wf-portal")
+    .css(&["Portal"])
+    .not_on_paper("a script draws it in a browser, and a PDF runs no script"),
     comp(
         "Element",
         "Layout",
@@ -2094,7 +2296,8 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         &[AttrFamily::Any],
         Children::Elements,
-    ),
+    )
+    .not_on_paper("a script draws it in a browser, and a PDF runs no script"),
     comp(
         "Unsafe",
         "Typography",
@@ -2104,7 +2307,9 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &["Html"],
         G,
         Children::None,
-    ),
+    )
+    .css(&["Highlight"])
+    .on_paper(),
     part(
         "Unsafe",
         "Html",
@@ -2114,7 +2319,9 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G,
         Children::None,
-    ),
+    )
+    .html("div", "wf-html")
+    .on_paper(),
     comp(
         "Blockquote",
         "Typography",
@@ -2124,7 +2331,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G,
         Children::Elements,
-    ),
+    )
+    .html("blockquote", "wf-blockquote")
+    .css(&["Blockquote"])
+    .on_paper(),
     // ─── Charts and codes ─────────────────────────────────────────────────
     comp(
         "Chart",
@@ -2183,7 +2393,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G,
         Children::None,
-    ),
+    )
+    .html("figure", "wf-chart")
+    .css(&["Paged documents and slide decks"])
+    .on_paper(),
     comp(
         "QrCode",
         "Data display",
@@ -2196,7 +2409,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G,
         Children::None,
-    ),
+    )
+    .html("figure", "wf-qr")
+    .css(&["Paged documents and slide decks"])
+    .on_paper(),
     comp(
         "TableOfContents",
         "PDF",
@@ -2213,7 +2429,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G,
         Children::None,
-    ),
+    )
+    .html("nav", "wf-toc")
+    .css(&["Paged documents and slide decks"])
+    .on_paper(),
     // ─── Document (PDF) ───────────────────────────────────────────────────
     comp(
         "Document",
@@ -2264,7 +2483,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G,
         Children::Elements,
-    ),
+    )
+    .html("div", "wf-document")
+    .css(&["Paged documents and slide decks"])
+    .on_paper(),
     comp(
         "Section",
         "PDF",
@@ -2274,7 +2496,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G,
         Children::Elements,
-    ),
+    )
+    .html("section", "wf-section")
+    .css(&["Paged documents and slide decks"])
+    .on_paper(),
     comp(
         "Paragraph",
         "PDF",
@@ -2284,7 +2509,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G,
         Children::None,
-    ),
+    )
+    .html("p", "wf-text")
+    .css(&["Paged documents and slide decks"])
+    .on_paper(),
     comp(
         "Header",
         "PDF",
@@ -2298,7 +2526,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G,
         Children::Elements,
-    ),
+    )
+    .html("header", "wf-header")
+    .css(&["Paged documents and slide decks"])
+    .on_paper(),
     comp(
         "Footer",
         "PDF",
@@ -2312,7 +2543,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G,
         Children::Elements,
-    ),
+    )
+    .html("footer", "wf-footer")
+    .css(&["Paged documents and slide decks"])
+    .on_paper(),
     comp(
         "Background",
         "PDF",
@@ -2326,7 +2560,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G,
         Children::Elements,
-    ),
+    )
+    .html("div", "wf-background")
+    .css(&["Paged documents and slide decks"])
+    .on_paper(),
     comp(
         "Watermark",
         "PDF",
@@ -2340,7 +2577,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G,
         Children::None,
-    ),
+    )
+    .html("div", "wf-watermark")
+    .css(&["Paged documents and slide decks"])
+    .on_paper(),
     comp(
         "PageBreak",
         "PDF",
@@ -2350,7 +2590,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G,
         Children::None,
-    ),
+    )
+    .html("div", "wf-page-break")
+    .css(&["Paged documents and slide decks"])
+    .on_paper(),
     // ─── Slides ───────────────────────────────────────────────────────────
     comp(
         "Presentation",
@@ -2361,7 +2604,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G,
         Children::Elements,
-    ),
+    )
+    .html("div", "wf-presentation")
+    .css(&["Paged documents and slide decks"])
+    .on_paper(),
     comp(
         "Slide",
         "Slides",
@@ -2371,7 +2617,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G,
         Children::Elements,
-    ),
+    )
+    .html("section", "wf-slide")
+    .css(&["Paged documents and slide decks"])
+    .on_paper(),
     comp(
         "TitleSlide",
         "Slides",
@@ -2381,7 +2630,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G,
         Children::None,
-    ),
+    )
+    .html("section", "wf-title-slide")
+    .css(&["Paged documents and slide decks"])
+    .on_paper(),
     comp(
         "SectionSlide",
         "Slides",
@@ -2391,7 +2643,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G,
         Children::None,
-    ),
+    )
+    .html("section", "wf-section-slide")
+    .css(&["Paged documents and slide decks"])
+    .on_paper(),
     comp(
         "TwoColumn",
         "Slides",
@@ -2401,7 +2656,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G,
         Children::Elements,
-    ),
+    )
+    .html("section", "wf-two-column")
+    .css(&["Paged documents and slide decks"])
+    .on_paper(),
     comp(
         "ImageSlide",
         "Slides",
@@ -2418,7 +2676,10 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G,
         Children::None,
-    ),
+    )
+    .html("section", "wf-image-slide")
+    .css(&["Paged documents and slide decks"])
+    .on_paper(),
     // ─── Routing ──────────────────────────────────────────────────────────
     comp(
         "Router",
@@ -2448,7 +2709,9 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G,
         Children::Elements,
-    ),
+    )
+    .html("div", "wf-router")
+    .not_on_paper("navigation components are web-only"),
     comp(
         "Route",
         "Routing",
@@ -2461,5 +2724,6 @@ pub const COMPONENTS: &[ComponentSig] = &[
         &[],
         G,
         Children::None,
-    ),
+    )
+    .not_on_paper("navigation components are web-only"),
 ];

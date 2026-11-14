@@ -3064,13 +3064,13 @@ page ErrorV10(path: "/errors/V10", title: "V10 — A Host tag it does not make",
     }
 }
 
-page ErrorV11(path: "/errors/V11", title: "V11 — A component named like a built-in", description: "A call of a built-in's name draws the built-in, so a component of that name is never drawn — the case of a component written before WebFluent gained…") {
-    ErrorShell("V11", title: "A component named like a built-in", severity: "warning", family: "Vocabulary", summary: "A call of a built-in's name draws the built-in, so a component of that name is never drawn — the case of a component written before WebFluent gained an element of its name (`Footer`, `Chart`).", printed: #"warning[V11]: `Chart` is a built-in component, so a call of that name draws the built-in, never this one
+page ErrorV11(path: "/errors/V11", title: "V11 — A component named like a built-in", description: "A component the project declares takes the place of a built-in of its name, so the built-in cannot be placed in that project.") {
+    ErrorShell("V11", title: "A component named like a built-in", severity: "info", family: "Vocabulary", summary: "A component the project declares takes the place of a built-in of its name: every call of the name draws the project's own, so the built-in cannot be placed in that project. A new built-in never changes what an existing project draws.", printed: #"info[V11]: `Chart` is this project's component, so a call of that name draws it rather than the built-in `Chart`
  --> src/App.wf:1:1
   |
 1 | component Chart(_ title: String) {
   | ^^^^^^^^^
-  = help: Rename it — `MyChart`, `ReportChart` — and its call sites
+  = help: To place the built-in too, rename this one — `MyChart`, `ReportChart` — and its call sites
   = docs: https://webfluent.monzeromer.dev/errors/V11"#, quickfix: "", lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/V11.md") {
         broken { CodeBlock(#"component Chart(_ title: String) {
     Text(title)
@@ -3078,20 +3078,21 @@ page ErrorV11(path: "/errors/V11", title: "V11 — A component named like a buil
 
 page P(path: "/", title: "T", description: "D") {
     Heading("Sales").h1
-    Chart(kind: .bar, data: [3, 5, 2])
+    Chart("Sales by month")
 }"#, title: "wf") }
-        fixed { CodeBlock(#"component SalesChart(_ title: String) {
+        fixed { CodeBlock(#"component SalesTitle(_ title: String) {
     Text(title)
 }
 
 page P(path: "/", title: "T", description: "D") {
     Heading("Sales").h1
-    SalesChart("Sales by month")
+    SalesTitle("Sales by month")
+    Chart(kind: .bar, data: [3, 5, 2])
 }"#, title: "wf") }
         note {
-            Markdown("Rename the component and its call sites.")
+            Markdown("Nothing needs fixing. To place the built-in too, rename the\ncomponent and its call sites; to stop the note, set `\"lints\": \{ \"V11\": \"off\" \}`.")
             Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
         }
-        Markdown("A call of a built-in's name draws the built-in, so a component declared\nwith that name is never drawn: its body, its props, its slots go unused, and\nwhat the page shows is the built-in instead. It happens to a component\nwritten before WebFluent gained an element of the same name — a `Footer`\nfrom WebFluent 2, a `Chart` from before 5.2.")
+        Markdown("A component the project declares takes the place of a built-in of the same\nname: every call of the name draws the project's own component. This is\ninformation (`info`), not a warning. Nothing is wrong, and a new built-in in a later\nWebFluent never changes what an existing project draws. The one thing to\nknow is that the built-in of that name cannot be placed in this project.\n\nTo use the built-in as well, rename the component and its call sites:")
     }
 }

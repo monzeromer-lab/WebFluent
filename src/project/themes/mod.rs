@@ -15,7 +15,7 @@
 #[doc(hidden)]
 macro_rules! paged_rules {
     () => {
-        r#"
+        r"
 /* ─── Paged documents and slide decks ───────────────── */
 /* A PDF is this markup laid out on paper, so a document's own elements and a
    deck's slides are styled here, as the web styles everything else. Sizes are
@@ -51,7 +51,7 @@ macro_rules! paged_rules {
 .wf-slide :where(h1), .wf-two-column :where(h1) { font-size: 2em; }
 .wf-slide :where(h2), .wf-two-column :where(h2) { font-size: 1.6em; }
 .wf-slide :where(h3), .wf-two-column :where(h3) { font-size: 1.3em; }
-"#
+"
     };
 }
 
@@ -60,6 +60,7 @@ use serde::{Deserialize, Serialize};
 pub mod components;
 pub mod prune;
 pub mod resolve;
+mod sheet;
 pub mod structural;
 pub mod tokens;
 internal! {

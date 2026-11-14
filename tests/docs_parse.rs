@@ -579,6 +579,8 @@ fn the_design_tokens_chapter_is_the_baseline() {
         ("Breakpoints", &["screen-"]),
         ("Code", &["syntax-"]),
         ("Terminal", &["term-"]),
+        ("Stacking", &["z-"]),
+        ("Targets", &["target-"]),
     ];
     let mut names: Vec<&String> = tokens.keys().collect();
     names.sort();

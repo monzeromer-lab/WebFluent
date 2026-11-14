@@ -2,87 +2,20 @@ use crate::syntax::parser::{
     ComponentRef, Declaration, Program, Statement, StatementKind, UIElement,
 };
 
-/// The elements a paged output (a PDF document or a slide deck) draws.
-/// Every other built-in is refused where it is written — an element that
-/// would compile and draw nothing is an error, never a silent gap. The test
-/// below holds every registry entry to one side of the line.
-pub(crate) const PAGED_DRAWN: &[&str] = &[
-    // Layout
-    "Container",
-    "Row",
-    "Column",
-    "Grid",
-    "Stack",
-    "Spacer",
-    "Divider",
-    "Section",
-    // Typography
-    "Text",
-    "Heading",
-    "Paragraph",
-    "Code",
-    "Blockquote",
-    "Markdown",
-    "Unsafe",
-    // Data display
-    "Card",
-    "Table",
-    "List",
-    "Badge",
-    "Tag",
-    "Avatar",
-    "Progress",
-    "Alert",
-    // The parts a table and unsafe markup lower to.
-    "Thead",
-    "Tbody",
-    "Trow",
-    "Tcell",
-    "UnsafeHtml",
-    // Media and graphics
-    "Image",
-    "Icon",
-    "Chart",
-    "QrCode",
-    "TableOfContents",
-    // A link is a link in a PDF too; a trail of them is a breadcrumb.
-    "Link",
-    "Breadcrumb",
-    // The document's own
-    "Document",
-    "Header",
-    "Footer",
-    "PageBreak",
-    "Background",
-    "Watermark",
-    // A deck's (where they may go is the slides check's to say)
-    "Presentation",
-    "Slide",
-    "TitleSlide",
-    "SectionSlide",
-    "TwoColumn",
-    "ImageSlide",
-];
+/// Whether a built-in is drawn in a paged output (a PDF document or a slide
+/// deck): its registry entry says (`ComponentSig::paper`). Every other
+/// built-in is refused where it is written — an element that would compile
+/// and draw nothing is an error, never a silent gap.
+pub(crate) fn drawn_in_pdf(name: &str) -> bool {
+    crate::registry::by_ir_name(name).is_some_and(|sig| sig.paper == crate::registry::Paper::Draws)
+}
 
 /// Why an element a paged output does not draw is refused.
 fn refusal(name: &str) -> &'static str {
-    match name {
-        "Button" | "IconButton" | "ButtonGroup" | "Input" | "Select" | "Option" | "Checkbox"
-        | "Radio" | "Switch" | "Slider" | "DatePicker" | "FileUpload" | "Form" | "Dropdown"
-        | "Textarea" => "interactive elements are not supported in PDF",
-        "Router" | "Route" | "Navbar" | "Sidebar" | "Menu" | "Tabs" | "TabPage" => {
-            "navigation components are web-only"
-        }
-        "Host" | "Element" | "Portal" => "a script draws it in a browser, and a PDF runs no script",
-        "Video" | "Audio" | "Carousel" => "a PDF cannot play or animate it",
-        "Frame" => "a PDF cannot show another page inside it",
+    match crate::registry::by_ir_name(name).map(|sig| sig.paper) {
+        Some(crate::registry::Paper::Refused(why)) => why,
         _ => "this component is not supported in PDF output",
     }
-}
-
-/// Whether a built-in is drawn in a paged output.
-pub(crate) fn drawn_in_pdf(name: &str) -> bool {
-    PAGED_DRAWN.contains(&name)
 }
 
 /// Whether an output draws a built-in, and why not when it does not — what
@@ -280,64 +213,17 @@ fn validate_ui_element(
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-
     /// A new built-in is drawn in a paged output or refused there by a
     /// decision, not by forgetting: this lists the ones on neither side.
     #[test]
     fn every_builtin_is_drawn_or_refused_on_purpose() {
-        let refused_on_purpose: &[&str] = &[
-            "Button",
-            "IconButton",
-            "ButtonGroup",
-            "Input",
-            "Select",
-            "Checkbox",
-            "Radio",
-            "Switch",
-            "Slider",
-            "DatePicker",
-            "FileUpload",
-            "Form",
-            "Dropdown",
-            "Textarea",
-            "Modal",
-            "Dialog",
-            "Popover",
-            "Splitter",
-            "VirtualList",
-            "Toast",
-            "Spinner",
-            "Skeleton",
-            "Router",
-            "Navbar",
-            "Sidebar",
-            "Menu",
-            "Tabs",
-            "Tooltip",
-            "Video",
-            "Audio",
-            "Frame",
-            "Carousel",
-            "Host",
-            "Element",
-            "Portal",
-            "TabPage",
-            "Option",
-            "Route",
-        ];
-        let mut unclassified = Vec::new();
-        for sig in crate::registry::components() {
-            if sig.owner.is_some() {
-                continue;
-            }
-            if !drawn_in_pdf(sig.name) && !refused_on_purpose.contains(&sig.name) {
-                unclassified.push(sig.name);
-            }
-        }
+        let unclassified: Vec<&str> = crate::registry::components()
+            .filter(|sig| sig.paper == crate::registry::Paper::Undecided)
+            .map(|sig| sig.name)
+            .collect();
         assert!(
             unclassified.is_empty(),
-            "decide whether a PDF draws: {unclassified:?}"
+            "decide whether a PDF draws (`.on_paper()` or `.not_on_paper(…)`): {unclassified:?}"
         );
     }
 }

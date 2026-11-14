@@ -7,12 +7,16 @@
 //! at runtime, and hydration would find a DOM it did not build. The three copies
 //! had already drifted on nine components and eleven modifiers.
 //!
-//! Adding a component or a modifier now means editing one table, the way
-//! [`crate::syntax::parser::MODIFIER_KEYWORDS`] did for the modifier vocabulary.
+//! A component's tag and class are its registry entry's; the modifiers'
+//! classes are this module's, one table the way
+//! [`crate::syntax::parser::MODIFIER_KEYWORDS`] is for the modifier
+//! vocabulary.
 
 use crate::syntax::parser::ast::{Arg, Expr};
 
-/// The HTML tag and base class a built-in component renders as.
+/// The HTML tag and base class a built-in component renders as: its
+/// registry entry's (`registry::ComponentSig::tag` and `class`), by the
+/// name the code generators know it by (`Thead` for `Table.Head`).
 ///
 /// Components with no class of their own (`Thead`, `Option`, the table parts)
 /// return `""`; callers must not emit an empty `class` attribute for them.
@@ -20,131 +24,7 @@ use crate::syntax::parser::ast::{Arg, Expr};
 /// Unknown names fall back to `("div", "")` — the parser has already reported an
 /// unknown component, and a renderer is not the place to fail a build.
 pub fn builtin_to_html(name: &str) -> (&'static str, &'static str) {
-    match name {
-        // ─── Layout ──────────────────────────────────────
-        "Container" => ("div", "wf-container"),
-        // A node handed to somebody else's code.
-        "Host" => ("div", "wf-host"),
-        // A block drawn into a node somebody else's code owns; the box is
-        // `display: contents`, so it adds nothing to the layout there.
-        "Portal" => ("div", "wf-portal"),
-        // `Unsafe.html(markup)`: the one element whose content is markup.
-        "UnsafeHtml" => ("div", "wf-html"),
-        "Row" => ("div", "wf-row"),
-        "Column" => ("div", "wf-col"),
-        "Grid" => ("div", "wf-grid"),
-        "Stack" => ("div", "wf-stack"),
-        "Spacer" => ("div", "wf-spacer"),
-        "Divider" => ("hr", "wf-divider"),
-        "Splitter" => ("div", "wf-splitter"),
-        "VirtualList" => ("div", "wf-virtual-list"),
-
-        // ─── Navigation ──────────────────────────────────
-        "Navbar" => ("nav", "wf-navbar"),
-        "Sidebar" => ("aside", "wf-sidebar"),
-        "Breadcrumb" => ("nav", "wf-breadcrumb"),
-        "Link" => ("a", "wf-link"),
-        "Menu" => ("div", "wf-menu"),
-        "Tabs" => ("div", "wf-tabs"),
-        "TabPage" => ("div", "wf-tab-page"),
-
-        // ─── Data display ────────────────────────────────
-        "Card" => ("div", "wf-card"),
-        "Table" => ("table", "wf-table"),
-        "Thead" => ("thead", ""),
-        "Tbody" => ("tbody", ""),
-        "Trow" => ("tr", ""),
-        "Tcell" => ("td", ""),
-        "List" => ("ul", "wf-list"),
-        "Badge" => ("span", "wf-badge"),
-        "Avatar" => ("div", "wf-avatar"),
-        "Tooltip" => ("div", "wf-tooltip"),
-        "Tag" => ("span", "wf-tag"),
-
-        // ─── Data input ──────────────────────────────────
-        "Input" => ("input", "wf-input"),
-        "Select" => ("select", "wf-select"),
-        "Option" => ("option", ""),
-        "Checkbox" => ("label", "wf-checkbox"),
-        "Radio" => ("label", "wf-radio"),
-        "Switch" => ("label", "wf-switch"),
-        // The next three wrap a label and an input, so their root is the wrapper
-        // in every backend. The static renderers used to emit the bare `<input>`,
-        // which hydration could not reconcile with the wrapper the SPA builds.
-        "Slider" => ("div", "wf-slider"),
-        "DatePicker" => ("div", "wf-datepicker"),
-        "FileUpload" => ("div", "wf-file-upload"),
-        "Textarea" => ("textarea", "wf-input wf-textarea"),
-        "Form" => ("form", "wf-form"),
-
-        // ─── Feedback ────────────────────────────────────
-        "Alert" => ("div", "wf-alert"),
-        "Toast" => ("div", "wf-toast"),
-        // `<dialog>`, driven by `showModal()`. The browser then supplies focus
-        // trapping, an inert background, Escape-to-close, `aria-modal` and the
-        // `::backdrop` — every one of which a `div` with an `.open` class has to
-        // reimplement, and none of which this engine had.
-        "Modal" => ("dialog", "wf-modal"),
-        "Dialog" => ("dialog", "wf-dialog"),
-        "Popover" => ("div", "wf-popover"),
-        "Spinner" => ("div", "wf-spinner"),
-        "Progress" => ("progress", "wf-progress"),
-        "Skeleton" => ("div", "wf-skeleton"),
-
-        // ─── Actions ─────────────────────────────────────
-        "Button" => ("button", "wf-btn"),
-        "IconButton" => ("button", "wf-icon-btn"),
-        "ButtonGroup" => ("div", "wf-btn-group"),
-        "Dropdown" => ("div", "wf-dropdown"),
-
-        // ─── Media ───────────────────────────────────────
-        "Image" => ("img", "wf-image"),
-        "Video" => ("video", "wf-video"),
-        "Audio" => ("audio", "wf-audio"),
-        "Frame" => ("iframe", "wf-frame"),
-        "Icon" => ("i", "wf-icon"),
-        "Carousel" => ("div", "wf-carousel"),
-
-        // ─── Typography ──────────────────────────────────
-        "Text" => ("p", "wf-text"),
-        // The level modifier picks the real tag; see [`heading_tag`].
-        "Heading" => ("h2", "wf-heading"),
-        "Code" => ("code", "wf-code"),
-        "Blockquote" => ("blockquote", "wf-blockquote"),
-        "Markdown" => ("div", "wf-markdown"),
-
-        // ─── Document structure ──────────────────────────
-        // These come from the PDF vocabulary but are ordinary HTML on the web,
-        // and `App { … Footer }` is the documented site-shell idiom. The SPA and
-        // SSG renderers used to drop them to an unclassed `<div>`.
-        "Section" => ("section", "wf-section"),
-        "Paragraph" => ("p", "wf-text"),
-        "Document" => ("div", "wf-document"),
-        "Header" => ("header", "wf-header"),
-        "Footer" => ("footer", "wf-footer"),
-        "Background" => ("div", "wf-background"),
-        "Watermark" => ("div", "wf-watermark"),
-        "PageBreak" => ("div", "wf-page-break"),
-        "Chart" => ("figure", "wf-chart"),
-        "QrCode" => ("figure", "wf-qr"),
-        "TableOfContents" => ("nav", "wf-toc"),
-
-        // ─── Slides ──────────────────────────────────────
-        // A deck is a paged document of fixed pages; each slide kind is a
-        // section the engine sizes to the slide.
-        "Presentation" => ("div", "wf-presentation"),
-        "Slide" => ("section", "wf-slide"),
-        "TitleSlide" => ("section", "wf-title-slide"),
-        "SectionSlide" => ("section", "wf-section-slide"),
-        "TwoColumn" => ("section", "wf-two-column"),
-        "ImageSlide" => ("section", "wf-image-slide"),
-
-        // ─── Routing ─────────────────────────────────────
-        "Router" => ("div", "wf-router"),
-        "Route" => ("div", ""),
-
-        _ => ("div", ""),
-    }
+    crate::registry::by_ir_name(name).map_or(("div", ""), |sig| (sig.tag, sig.class))
 }
 
 /// The class a modifier contributes, given the component's base class.

@@ -64,7 +64,7 @@ const fn unused(code: &'static str, title: &'static str, summary: &'static str) 
     }
 }
 
-use Severity::{Error, Warning};
+use Severity::{Error, Info, Warning};
 
 /// Every code, in the order the guide lists them.
 pub static CODES: &[CodeInfo] = &[
@@ -830,9 +830,9 @@ pub static CODES: &[CodeInfo] = &[
     ),
     code(
         "V11",
-        Warning,
+        Info,
         "A component named like a built-in",
-        "A call of a built-in's name draws the built-in, so a component of that name is never drawn — the case of a component written before WebFluent gained an element of its name (`Footer`, `Chart`).",
+        "A component the project declares takes the place of a built-in of its name: every call of the name draws the project's own, so the built-in cannot be placed in that project. A new built-in never changes what an existing project draws.",
     ),
 ];
 

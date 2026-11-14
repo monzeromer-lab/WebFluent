@@ -450,8 +450,10 @@ page Report(path: "/", title: "Report", description: "The quarter.") {
 Move the line into `Footer { Text("Page {page} of {pages}") }`
 ([T13](../errors/T13.md)).
 
-**A component named like a built-in.** `Footer` is already a built-in
-(the document's footer here, the `<footer>` landmark on the web), so a call of that name draws the built-in and never your component:
+**A component named like a built-in.** `Footer` is already a built-in: the
+document's footer, drawn at the bottom of every page. A component you name
+`Footer` takes its place, so it is drawn once, where it is called, and no
+page gets a footer:
 
 ```wf expect=V11
 component Footer(_ note: String) {
@@ -467,8 +469,9 @@ page Invoice(path: "/", title: "Invoice", description: "An invoice.") {
 }
 ```
 
-Name it for what it is, such as `component InvoiceNote`, or use the
-built-in: `Footer { Text("Acme Studio · invoice 2026-014") }`
+For a line on every page, use the built-in:
+`Footer { Text("Acme Studio · invoice 2026-014") }`, and name your own
+component for what it is, such as `component InvoiceNote`
 ([V11](../errors/V11.md)).
 
 **A table with no header row.** Without `Table.Head`, a reader of the file

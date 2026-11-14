@@ -267,7 +267,35 @@ pub struct ComponentSig {
     pub parts: &'static [&'static str],
     pub attrs: &'static [AttrFamily],
     pub children: Children,
+    /// The element it draws on a web page, and its class: `("button",
+    /// "wf-btn")`. `""` for a class it does not have (a table's cells) and
+    /// for a part its owner draws itself.
+    pub tag: &'static str,
+    pub class: &'static str,
+    /// The sections of the built-in stylesheet it draws on, by title: its
+    /// own (`"Button"`), and any it borrows (a menu's trigger is a
+    /// button). A section no entry names is kept for every page.
+    pub css: &'static [&'static str],
+    /// What a PDF or a slide deck does with it.
+    pub paper: Paper,
 }
+
+/// What a paged output — a PDF, a slide deck — does with a built-in.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Paper {
+    /// It is drawn.
+    Draws,
+    /// It is refused where it is written (`E109`), for this reason.
+    Refused(&'static str),
+    /// Its entry does not say — refused as [`Paper::Refused`] is, and a
+    /// test fails, so a new built-in is drawn or refused on paper by a
+    /// decision rather than by forgetting.
+    Undecided,
+}
+
+/// Why a built-in no paged output draws is refused, when its entry says
+/// nothing more particular.
+pub(crate) const NOT_ON_PAPER: &str = "this component is not supported in PDF output";
 
 /// What a bare `.word` on an element means.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -282,6 +310,45 @@ pub enum Flag {
 }
 
 impl ComponentSig {
+    /// This entry, drawn on the web as `tag` with `class`.
+    pub(crate) const fn html(self, tag: &'static str, class: &'static str) -> Self {
+        Self { tag, class, ..self }
+    }
+
+    /// This entry, drawing on these sections of the built-in stylesheet.
+    pub(crate) const fn css(self, sections: &'static [&'static str]) -> Self {
+        Self {
+            css: sections,
+            ..self
+        }
+    }
+
+    /// This entry, drawn in a PDF and a deck.
+    pub(crate) const fn on_paper(self) -> Self {
+        Self {
+            paper: Paper::Draws,
+            ..self
+        }
+    }
+
+    /// This entry, refused in a PDF and a deck, for `why`.
+    pub(crate) const fn not_on_paper(self, why: &'static str) -> Self {
+        Self {
+            paper: Paper::Refused(why),
+            ..self
+        }
+    }
+
+    /// The name the code generators know it by: a component's own, or
+    /// the one a part lowers to (`Table.Head` is `Thead`); a part its
+    /// owner draws has none.
+    pub fn ir_name(&self) -> Option<&'static str> {
+        match self.ir {
+            Ir::BuiltIn(name) => Some(name),
+            Ir::Sub(..) => None,
+        }
+    }
+
     /// Every prop this component takes: the positional one (which may also
     /// be passed by name), its own, then the universal ones.
     pub fn all_props(&'static self) -> impl Iterator<Item = &'static PropSig> {
@@ -392,6 +459,12 @@ pub fn component(name: &str) -> Option<&'static ComponentSig> {
     COMPONENTS
         .iter()
         .find(|c| c.owner.is_none() && c.name == name)
+}
+
+/// The entry the code generators know as `name`: a component, or the part
+/// that lowers to it (`Thead` is `Table.Head`).
+pub fn by_ir_name(name: &str) -> Option<&'static ComponentSig> {
+    COMPONENTS.iter().find(|c| c.ir_name() == Some(name))
 }
 
 /// The part `name` of `owner`: `part("Card", "Header")`.

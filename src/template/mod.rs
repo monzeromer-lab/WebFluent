@@ -275,6 +275,7 @@ impl Template {
             declarations.extend(program.declarations);
         }
         let mut program = Program { declarations };
+        crate::syntax::prefer_own_components(&mut program);
         // Held to what a build is held to: a component nothing declares, a
         // flag or case a component does not take, a value of the wrong type.
         // A name the template reads is its data's, known only at render

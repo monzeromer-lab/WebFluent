@@ -148,125 +148,39 @@ fn element(el: &UIElement, usage: &mut Usage) {
     }
 }
 
-/// Whether a section named `title` (the text between the dashes) is needed.
-/// The paged elements: a document's and a deck's own, and `Chart` and
-/// `QrCode`, which draw on a web page too.
-const PAGED: &[&str] = &[
-    "Document",
-    "Header",
-    "Footer",
-    "Background",
-    "Watermark",
-    "PageBreak",
-    "Chart",
-    "QrCode",
-    "TableOfContents",
-    "Presentation",
-    "Slide",
-    "TitleSlide",
-    "SectionSlide",
-    "TwoColumn",
-    "ImageSlide",
-    "Section",
-    "Paragraph",
-];
-
-/// Whether a section named `title` belongs to something the program may not
-/// use, and if so whether it does; `None` for a section every page needs.
+/// Whether a section named `title` (the text between the dashes) belongs
+/// to something the program may not use, and if so whether it does; `None`
+/// for a section every page needs.
+///
+/// Which components draw on a section is their registry entry's
+/// (`ComponentSig::css`); a section no entry names is kept. Beside them, a
+/// section is wanted by what the program does rather than calls: the drag
+/// rules by a `drag:`, the icons by an `icon:` argument, the keyframes by
+/// any animation.
 fn decide(title: &str, usage: &Usage) -> Option<bool> {
     // The name up to a colon or parenthesis: "Switch (mechanism paint)" and
     // "Typography: requested modifiers only" are their first word.
     let name = title.split(['(', ':']).next().unwrap_or(title).trim();
-    let any = |names: &[&str]| names.iter().any(|n| usage.uses(n));
-    Some(match name {
-        "Navbar" => any(&["Navbar"]),
-        "Sidebar" => any(&["Sidebar"]),
-        // The toggle that opens a narrow screen's menu: a navbar has one too,
-        // which without this rule shows at every width.
-        "Off-canvas controls" => any(&["Sidebar", "Navbar"]),
-        "Breadcrumb" => any(&["Breadcrumb"]),
-        // A navbar's and a sidebar's entries are links.
-        "Link" => any(&["Link", "Navbar", "Sidebar", "Breadcrumb"]),
-        "Menu" => any(&["Menu"]),
-        "Tabs" => any(&["Tabs", "TabPage"]),
-        "Card" => any(&["Card"]),
-        "Table" => any(&["Table", "Thead", "Tbody", "Trow", "Tcell"]),
-        "List" => any(&["List"]),
-        "Badge" => any(&["Badge"]),
-        "Avatar" => any(&["Avatar"]),
-        "Tooltip" => any(&["Tooltip"]),
-        "Tag" => any(&["Tag"]),
-        // A menu's trigger and a dialog's actions are buttons.
-        "Button" => any(&[
-            "Button",
-            "IconButton",
-            "ButtonGroup",
-            "Dropdown",
-            "Menu",
-            "Form",
-            "Modal",
-            "Dialog",
-        ]),
-        "Icon Button" => any(&["IconButton"]),
-        "Button Group" => any(&["ButtonGroup"]),
-        "Dropdown" => any(&["Dropdown"]),
-        "Input" => any(&[
-            "Input",
-            "Form",
-            "DatePicker",
-            "Slider",
-            "FileUpload",
-            "Select",
-        ]),
-        "Select" => any(&["Select"]),
-        "Checkbox" => any(&["Checkbox"]),
-        "Radio" => any(&["Radio"]),
-        "Switch" => any(&["Switch"]),
-        "Slider" => any(&["Slider"]),
-        "Date Picker" => any(&["DatePicker"]),
-        "File Upload" => any(&["FileUpload"]),
-        "Form" => any(&["Form"]),
-        "Alert" => any(&["Alert"]),
-        "Toast" => any(&["Toast"]),
-        "Modal" => any(&["Modal"]),
-        "Dialog" => any(&["Dialog"]),
-        "Popover" => any(&["Popover"]),
-        "Frame" => any(&["Frame"]),
-        "Splitter" => any(&["Splitter"]),
-        "Virtual List" => any(&["VirtualList"]),
-        "Portal" => any(&["Portal"]),
-        // What puts a box in the top layer at its anchor.
-        "Layer" => any(&["Popover", "Menu", "Dropdown", "Tooltip"]),
-        "Spinner" => any(&["Spinner"]),
-        "Progress" => any(&["Progress"]),
-        "Skeleton" => any(&["Skeleton"]),
-        "Image" => any(&["Image", "Avatar", "Carousel"]),
-        "Icon" => any(&["Icon", "IconButton", "Sidebar"]) || usage.icon_arg,
-        "Carousel" => any(&["Carousel"]),
-        // Layout and typography a project may not use: each with its
-        // component.
-        "Column" => any(&["Column"]),
-        "Grid" => any(&["Grid"]),
-        "Spacer" => any(&["Spacer"]),
-        "Divider" => any(&["Divider"]),
-        "Code" => any(&["Code"]),
-        // Highlighted code: a `Code` block, a Markdown fence, or markup a
-        // page took from elsewhere that `highlight` coloured.
-        "Highlight" => any(&["Code", "Markdown", "Unsafe"]),
-        "Blockquote" => any(&["Blockquote"]),
-        "Markdown" => any(&["Markdown"]),
-        "Drag" => usage.drag,
-        // A document's and a deck's own elements; `Chart` and `QrCode`
-        // draw on a web page too.
-        "Paged documents and slide decks" => any(PAGED),
-        "Animation Keyframes" | "Animation Utility Classes" | "Hover Replay" => {
-            usage.animation || any(&["Toast", "Spinner", "Skeleton", "Progress"])
+    let mut listed = false;
+    let mut used = false;
+    for sig in crate::registry::COMPONENTS {
+        if sig.css.contains(&name) {
+            listed = true;
+            used |= sig.ir_name().is_some_and(|ir| usage.uses(ir));
         }
-        // Everything else — reset, layout, typography, variants, responsive
-        // reflow, focus, reduced motion, hit areas, the skip link, and any
-        // section this table does not know — stays.
-        _ => return None,
-    })
+    }
+    match name {
+        "Drag" => Some(usage.drag),
+        "Icon" => Some(used || usage.icon_arg),
+        "Animation Keyframes" | "Animation Utility Classes" | "Hover Replay" => {
+            Some(used || usage.animation)
+        }
+        // Everything else no entry names — reset, layout, typography,
+        // variants, responsive reflow, focus, reduced motion, hit areas, the
+        // skip link, and any section new to the sheet — stays.
+        _ if !listed => None,
+        _ => Some(used),
+    }
 }
 
 /// `css` with the sections the program does not draw on removed, and, in
@@ -314,7 +228,12 @@ fn unused_classes(css: &str, usage: &Usage) -> HashSet<String> {
         let name = title.split(['(', ':']).next().unwrap_or(title).trim();
         let classes: Vec<&str> = match name {
             "Highlight" => vec!["wf-tok"],
-            "Paged documents and slide decks" => PAGED.iter().map(|c| class_of(c)).collect(),
+            "Paged documents and slide decks" => crate::registry::COMPONENTS
+                .iter()
+                .filter(|sig| sig.css.contains(&name))
+                .filter_map(crate::registry::ComponentSig::ir_name)
+                .map(class_of)
+                .collect(),
             _ => vec![class_of(&name.replace(' ', ""))],
         };
         for class in classes {

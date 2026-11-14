@@ -166,20 +166,35 @@ fn the_fix_for_a_portal_without_into_passes_it() {
 }
 
 #[test]
-fn a_component_named_portal_is_never_drawn_and_says_so() {
+fn a_component_named_portal_is_the_projects_own_and_says_so() {
     let src = format!(
         "{}{}",
         "component Portal {\n    Text(\"mine\")\n}\n",
-        page("    Text(\"x\")")
+        page("    Portal")
     );
     let found = with(&src, "V11");
     assert_eq!(found.len(), 1, "{found:?}");
+    assert_eq!(
+        found[0].severity,
+        webfluent::diagnostics::Severity::Info,
+        "a note: nothing is wrong"
+    );
     assert!(
         found[0]
             .message
-            .contains("`Portal` is a built-in component"),
+            .contains("`Portal` is this project's component"),
         "{found:?}"
     );
+    assert!(
+        with(&src, "C01").is_empty(),
+        "the built-in's `into:` is not asked of the project's own"
+    );
+    let js = spa_generated(&src);
+    assert!(
+        !js.contains("WF.portal("),
+        "the built-in is not drawn: {js}"
+    );
+    assert!(ssg_html(&src).contains("mine"), "the project's own is");
 }
 
 #[test]

@@ -111,7 +111,11 @@ pub fn parse_source(source: &str, file: &str) -> Result<Program> {
                 .with_hint("Run `wf migrate` to convert the project to the current grammar"),
             )))
         }
-        Dialect::V2 => crate::syntax::parser::v2::parse_v2(source, file),
+        Dialect::V2 => {
+            let mut program = crate::syntax::parser::v2::parse_v2(source, file)?;
+            prefer_own_components(&mut program);
+            Ok(program)
+        }
     }
 }
 
@@ -131,8 +135,69 @@ pub fn parse_source_recovering(source: &str, file: &str) -> (Program, Vec<Diagno
         return (empty(), err);
     }
     match crate::syntax::lexer::LexerV2::for_file(source, file).tokenize() {
-        Ok(tokens) => crate::syntax::parser::v2::ParserV2::new(tokens, file).parse_recovering(),
+        Ok(tokens) => {
+            let (mut program, errors) =
+                crate::syntax::parser::v2::ParserV2::new(tokens, file).parse_recovering();
+            prefer_own_components(&mut program);
+            (program, errors)
+        }
         Err(e) => (empty(), e.diagnostics()),
+    }
+}
+
+/// A component the program declares is what a call of its name draws, even
+/// where a built-in has that name: the project's `Callout`, not the one a
+/// later WebFluent brought. Without this, every built-in added to the
+/// language would quietly take the place of a component projects already
+/// had. The parser cannot know what the program declares, so a reader of
+/// a whole program — one file, or every file merged — calls this.
+pub fn prefer_own_components(program: &mut Program) {
+    use crate::syntax::parser::ast::{ComponentRef, Declaration, Statement, StatementKind};
+    use std::collections::HashSet;
+
+    fn redirect(stmts: &mut [Statement], own: &HashSet<String>) {
+        for stmt in stmts {
+            if let StatementKind::UIElement(el) = &mut stmt.kind {
+                if let ComponentRef::BuiltIn(name) = &el.component
+                    && own.contains(name)
+                {
+                    el.component = ComponentRef::UserDefined(name.clone());
+                }
+                redirect(&mut el.children, own);
+                for handler in &mut el.events {
+                    redirect(&mut handler.body, own);
+                }
+                for fill in &mut el.slot_fills {
+                    redirect(&mut fill.body, own);
+                }
+            }
+            for body in stmt.kind.bodies_mut() {
+                redirect(body, own);
+            }
+        }
+    }
+
+    let own: HashSet<String> = program
+        .declarations
+        .iter()
+        .filter_map(|d| match d {
+            Declaration::Component(c) => Some(c.name.clone()),
+            _ => None,
+        })
+        .collect();
+    if own.is_empty() {
+        return;
+    }
+    for decl in &mut program.declarations {
+        let body = match decl {
+            Declaration::Page(p) => &mut p.body,
+            Declaration::Component(c) => &mut c.body,
+            Declaration::Store(s) => &mut s.body,
+            Declaration::App(a) => &mut a.body,
+            Declaration::Test(t) => &mut t.body,
+            _ => continue,
+        };
+        redirect(body, &own);
     }
 }
 

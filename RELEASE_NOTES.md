@@ -1,7 +1,29 @@
-# WebFluent v6.1.1 Release Notes
+# WebFluent v6.2.0 Release Notes
 
-Fixes to the built-ins, for keyboards, screen readers and right-to-left
-pages. Nothing a project writes changes.
+The built-ins work for keyboards, screen readers, touch screens and
+right-to-left pages, and a built-in a later WebFluent adds never changes
+what a project draws.
+
+## A project's own component wins
+
+A component a project declares is what a call of its name draws, even
+where a built-in has that name. It used to be the other way: the built-in
+was drawn and the project's component never was, so every built-in the
+language gained could take the place of a component a project already had.
+`V11` is now information rather than a warning: it says the project's
+component takes the built-in's place, which cannot then be placed there.
+
+## Stacking and target sizes are tokens
+
+- A stacking scale — `z-sticky`, `z-drawer`, `z-dropdown`, `z-modal`,
+  `z-toast`, `z-tooltip`, `z-skip-link` — replaces the numbers the
+  built-ins' rules wrote out (100, 200, 9999, 10000), so a page's own
+  sticky header or drawer can sit where it should against them.
+- `target-min` (24px, WCAG 2.2's floor for a pointer) and
+  `target-min-touch` (44px) are the least a control reaches. On a touch
+  screen every button, icon button, tab, menu item, sidebar item, check
+  box, radio, switch and carousel control is at least 44px; with a mouse
+  nothing changes size.
 
 ## Reached by every reader
 

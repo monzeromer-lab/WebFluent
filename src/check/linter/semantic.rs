@@ -175,8 +175,9 @@ fn check_one_meaning(
         });
     report_clashes(types, file_of, diags);
 
-    // A component named like a built-in would never be drawn: a call of that
-    // name is the built-in's. It used to be accepted and quietly shadowed.
+    // A component named like a built-in takes its place in this project:
+    // every call of the name draws the project's own. Worth knowing — the
+    // built-in cannot be placed here — but nothing is wrong.
     for (index, decl) in program.declarations.iter().enumerate() {
         if let Declaration::Component(c) = decl
             && crate::registry::component(&c.name).is_some()
@@ -184,11 +185,11 @@ fn check_one_meaning(
             diags.push(
                     diag(
                         "V11",
-                        format!("`{}` is a built-in component, so a call of that name draws the built-in, never this one", c.name),
+                        format!("`{}` is this project's component, so a call of that name draws it rather than the built-in `{}`", c.name, c.name),
                         &file_of(index),
                         c.header_span,
                     )
-                    .with_hint(format!("Rename it — `My{0}`, `Report{0}` — and its call sites", c.name)),
+                    .with_hint(format!("To place the built-in too, rename this one — `My{0}`, `Report{0}` — and its call sites", c.name)),
                 );
         }
     }

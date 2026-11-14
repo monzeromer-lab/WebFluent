@@ -436,7 +436,7 @@ page Report(path: "/", title: "Sales", description: "The quarter.") {
     }
 }"#, title: "wf · draws T13")
 
-        Markdown("Move the line into `Footer \{ Text(\"Page \{page\} of \{pages\}\") \}` ([T13](/errors/T13)).\n\n**A component named like a built-in.** `Footer` is already a built-in (the document's footer here, the `<footer>` landmark on the web), so a call of that name draws the built-in and never your component:")
+        Markdown("Move the line into `Footer \{ Text(\"Page \{page\} of \{pages\}\") \}` ([T13](/errors/T13)).\n\n**A component named like a built-in.** `Footer` is already a built-in: the document's footer, drawn at the bottom of every page. A component you name `Footer` takes its place, so it is drawn once, where it is called, and no page gets a footer:")
 
         CodeBlock(#"component Footer(_ note: String) {
     Text(note).muted.sm.center
@@ -450,7 +450,7 @@ page Invoice(path: "/", title: "Invoice", description: "An invoice.") {
     }
 }"#, title: "wf · draws V11")
 
-        Markdown("Name it for what it is, such as `component InvoiceNote`, or use the built-in: `Footer \{ Text(\"Acme Studio · invoice 2026-014\") \}` ([V11](/errors/V11)).\n\n**A table with no header row.** Without `Table.Head`, a reader of the file has no column names, and a table that runs onto a second page has no header to draw again there:")
+        Markdown("For a line on every page, use the built-in: `Footer \{ Text(\"Acme Studio · invoice 2026-014\") \}`, and name your own component for what it is, such as `component InvoiceNote` ([V11](/errors/V11)).\n\n**A table with no header row.** Without `Table.Head`, a reader of the file has no column names, and a table that runs onto a second page has no header to draw again there:")
 
         CodeBlock(#"page Invoice(path: "/", title: "Invoice", description: "An invoice.") {
     Document(size: "A4", title: "Invoice 2026-014") {

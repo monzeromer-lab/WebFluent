@@ -435,6 +435,29 @@ No new components, and no change to anything a project's build writes.
 - adding a test component takes one registry entry, one emitter and one CSS
   block.
 
+**Status: done, 2026-11-14.** What adding a built-in takes now:
+
+1. a registry entry, with its tag and class (`.html(…)`), the stylesheet
+   sections it draws on (`.css(…)`) and what paper does with it
+   (`.on_paper()` or `.not_on_paper(…)`; a test fails on an entry that says
+   neither);
+2. its name in the parser's list, `ALL_COMPONENT_NAMES` in `syntax`. The
+   layers keep the parser below the registry, so it cannot ask it; a test
+   holds the two lists equal;
+3. an emitter (the static paint and the template engine draw its tag and
+   class without one);
+4. its CSS, once, in `themes/sheet.rs`, under a section titled as its
+   `.css(…)` says.
+
+`builtin_to_html`, the stylesheet pruning and the PDF list read the
+registry. The lexer's 104 component tokens were left alone: they belong to
+the WebFluent 2 parser `wf migrate` uses, whose grammar is frozen; the
+parser every build uses already read names as identifiers. The two sheets
+are one file, `sheet.rs`, line by line: 841 lines of CSS in place of 1,270,
+each shared line written once and each difference marked `/*@full*/` or
+`/*@structural*/`. Both sheets come out byte for byte as they were; the
+build output of every project is unchanged but for the new tokens.
+
 ### Stage 2: keyboard and focus
 
 - **One `focus` runtime module:**

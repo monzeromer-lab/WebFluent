@@ -141,6 +141,22 @@ pub fn default_tokens() -> HashMap<String, String> {
     t.insert("syntax-punct".into(), "#B3BAC0".into());
     t.insert("syntax-comment".into(), "#959BA1".into());
 
+    // Stacking: one scale, so a page's own sticky header, drawer or
+    // overlay sits where it should against the built-ins'. Modals,
+    // popovers, menus and tooltips are drawn in the browser's top layer
+    // and need none.
+    t.insert("z-sticky".into(), "100".into());
+    t.insert("z-drawer".into(), "200".into());
+    t.insert("z-dropdown".into(), "1000".into());
+    t.insert("z-modal".into(), "1300".into());
+    t.insert("z-toast".into(), "1400".into());
+    t.insert("z-tooltip".into(), "1500".into());
+    t.insert("z-skip-link".into(), "10000".into());
+
+    // Targets: the least a control reaches, for a pointer and for a finger.
+    t.insert("target-min".into(), "24px".into());
+    t.insert("target-min-touch".into(), "44px".into());
+
     // Transitions
     t.insert("transition-fast".into(), "150ms ease".into());
     t.insert("transition-normal".into(), "250ms ease".into());

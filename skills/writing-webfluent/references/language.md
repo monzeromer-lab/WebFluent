@@ -286,6 +286,9 @@ UserCard("Sam", role: "Designer").active
 - `_ name: Type` — the one prop a call may pass positionally; it must be first
 - Default values: `active: Bool = true`; a `Bool` prop is set with a flag
   (`.active`), an enum prop with a flag or by name (`.loud`, `tone: .loud`)
+- A component named like a built-in takes its place in the project: every
+  call of the name draws the project's own (`V11`, information), so a built-in a
+  later WebFluent adds never changes what a project draws
 - A `///` comment above a declaration, a prop or an event is its
   documentation, shown on hover; above a `state`, `persist`, `derived` or
   `action`, it is that member's
@@ -2334,6 +2337,15 @@ from a stylesheet as `var(--surface-raised)`. Declare one and it is used
 automatically; declare several and pick one with `"theme": { "name":
 "Brand" }`.
 
+The baseline holds a stacking scale — `z-sticky`, `z-drawer`, `z-dropdown`,
+`z-modal`, `z-toast`, `z-tooltip`, `z-skip-link` — for a page's own sticky
+header or drawer to sit where it should against the built-ins (modals,
+popovers, menus and tooltips are in the browser's top layer and need none),
+and the least a control reaches: `target-min` (24px, WCAG 2.2's floor) and
+`target-min-touch` (44px, where the pointer is a finger). Every built-in
+control is at least that size; `style { min-block-size: $target-min }` gives a
+control of your own the same.
+
 **Dark mode.** Declare a second theme with the tokens that change and name
 it in the config: `"theme": { "name": "Brand", "dark": "Night" }`. Its
 tokens apply under `prefers-color-scheme: dark`, and whenever the reader
@@ -3243,7 +3255,7 @@ paint alike.
 | `V08` | An icon the runtime does not draw |
 | `V09` | A handler for an event the element does not fire |
 | `V10` | A `Host(tag: …)` it does not make — it makes `div`, `span`, `canvas`, `svg`, `section`, `figure`, `pre`, `p`, `ul`, `table`; any other is a `div` |
-| `V11` | A component named like a built-in (`Footer`, `Chart`): a call of that name draws the built-in, so the component is never drawn |
+| `V11` | Information, not a warning: a component named like a built-in (`Footer`, `Chart`) takes its place, so every call of the name draws the project's own and the built-in cannot be placed there |
 | `X06` | A `state` whose initial value reads `now`, `viewport`, `query`, `hash`, `theme`, `network` or `update` (outside a lambda) and that nothing assigns, binds or changes in place: it holds the value it started with, so `state clock = now(every: 1.seconds)` never ticks. The fix makes it `derived` |
 | `I05` | Under `i18n.literals`, shown words no table can translate: text splicing more than a name, or a value shown by a name that does not say it is words |
 | `V12` | A `VirtualList` whose body is not one keyed `for`: it draws every row |

@@ -1662,3 +1662,29 @@ fn the_template_and_the_static_paint_draw_the_same_html() {
     }
     assert!(failures.is_empty(), "{}", failures.join("\n"));
 }
+
+#[test]
+fn a_component_one_file_declares_takes_a_builtins_place_in_every_file() {
+    // A built-in a later WebFluent adds must never change what a project
+    // draws: the project's `Badge`, declared in one file, is what another
+    // file's call of the name places.
+    let tpl = webfluent::Template::from_sources(&[
+        (
+            "badge.wf",
+            "component Badge(_ text: String) {\n    Text(\"own {text}\")\n}\n",
+        ),
+        (
+            "page.wf",
+            "page P(path: \"/\", title: \"T\", description: \"D\") {\n    Heading(\"H\").h1\n    Badge(\"new\")\n}\n",
+        ),
+    ])
+    .expect("the templates parse");
+    let html = tpl
+        .render_html_fragment(&serde_json::json!({}))
+        .expect("it renders");
+    assert!(html.contains("own new"), "{html}");
+    assert!(
+        !html.contains("wf-badge"),
+        "the built-in is not drawn: {html}"
+    );
+}

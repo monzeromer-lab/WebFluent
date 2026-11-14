@@ -1,14 +1,39 @@
 [
  {
-  "version": "6.1.1",
-  "id": "6.1.1",
+  "version": "6.2.0",
+  "id": "6.2.0",
   "date": "",
   "when": "",
-  "summary": "Fixes to the built-ins, for keyboards, screen readers and right-to-left\npages. Nothing a project writes changes.",
+  "summary": "The built-ins work for keyboards, screen readers, touch screens and\nright-to-left pages, and a built-in a later WebFluent adds never changes\nwhat a project draws.",
   "sections": [
    {
+    "title": "A project's own component wins",
+    "id": "6.2.0-a-project-s-own-component-wins",
+    "intro": "A component a project declares is what a call of its name draws, even\nwhere a built-in has that name. It used to be the other way: the built-in\nwas drawn and the project's component never was, so every built-in the\nlanguage gained could take the place of a component a project already had.\n`V11` is now information rather than a warning: it says the project's\ncomponent takes the built-in's place, which cannot then be placed there.",
+    "items": [],
+    "after": ""
+   },
+   {
+    "title": "Stacking and target sizes are tokens",
+    "id": "6.2.0-stacking-and-target-sizes-are-tokens",
+    "intro": "",
+    "items": [
+     {
+      "text": "A stacking scale — `z-sticky`, `z-drawer`, `z-dropdown`, `z-modal`,\n`z-toast`, `z-tooltip`, `z-skip-link` — replaces the numbers the\nbuilt-ins' rules wrote out (100, 200, 9999, 10000), so a page's own\nsticky header or drawer can sit where it should against them.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`target-min` (24px, WCAG 2.2's floor for a pointer) and\n`target-min-touch` (44px) are the least a control reaches. On a touch\nscreen every button, icon button, tab, menu item, sidebar item, check\nbox, radio, switch and carousel control is at least 44px; with a mouse\nnothing changes size.",
+      "points": [],
+      "after": ""
+     }
+    ],
+    "after": ""
+   },
+   {
     "title": "Reached by every reader",
-    "id": "6.1.1-reached-by-every-reader",
+    "id": "6.2.0-reached-by-every-reader",
     "intro": "",
     "items": [
      {
@@ -41,7 +66,7 @@
    },
    {
     "title": "Right to left",
-    "id": "6.1.1-right-to-left",
+    "id": "6.2.0-right-to-left",
     "intro": "",
     "items": [
      {
@@ -64,7 +89,7 @@
    },
    {
     "title": "Smaller fixes",
-    "id": "6.1.1-smaller-fixes",
+    "id": "6.2.0-smaller-fixes",
     "intro": "",
     "items": [
      {
@@ -86,7 +111,7 @@
     "after": ""
    }
   ],
-  "count": 11
+  "count": 13
  },
  {
   "version": "6.1.0",

@@ -8,7 +8,7 @@ page Changelog(path: "/changelog", title: "Changelog — WebFluent", description
         style { flex-wrap: nowrap; gap: 0; @md { gap: 32px } @xl { gap: 48px } }
 
         VersionList(releases: [
-                ReleaseNotes(version: "6.1.1", id: "6.1.1"),
+                ReleaseNotes(version: "6.2.0", id: "6.2.0"),
                 ReleaseNotes(version: "6.1.0", id: "6.1.0", date: "2026-11-14"),
                 ReleaseNotes(version: "6.0.0", id: "6.0.0", date: "2026-11-13"),
                 ReleaseNotes(version: "5.14.0", id: "5.14.0", date: "2026-11-12"),
@@ -74,9 +74,27 @@ page Changelog(path: "/changelog", title: "Changelog — WebFluent", description
                 }
             }
 
-            ReleaseEntry(ReleaseNotes(version: "6.1.1", id: "6.1.1", summary: #"Fixes to the built-ins, for keyboards, screen readers and right-to-left
-pages. Nothing a project writes changes."#, sections: [
-                NotesSection(title: #"Reached by every reader"#, id: "6.1.1-reached-by-every-reader", items: [
+            ReleaseEntry(ReleaseNotes(version: "6.2.0", id: "6.2.0", summary: #"The built-ins work for keyboards, screen readers, touch screens and
+right-to-left pages, and a built-in a later WebFluent adds never changes
+what a project draws."#, sections: [
+                NotesSection(title: #"A project's own component wins"#, id: "6.2.0-a-project-s-own-component-wins", intro: #"A component a project declares is what a call of its name draws, even
+where a built-in has that name. It used to be the other way: the built-in
+was drawn and the project's component never was, so every built-in the
+language gained could take the place of a component a project already had.
+`V11` is now information rather than a warning: it says the project's
+component takes the built-in's place, which cannot then be placed there."#),
+                NotesSection(title: #"Stacking and target sizes are tokens"#, id: "6.2.0-stacking-and-target-sizes-are-tokens", items: [
+                    Change(text: #"A stacking scale — `z-sticky`, `z-drawer`, `z-dropdown`, `z-modal`,
+`z-toast`, `z-tooltip`, `z-skip-link` — replaces the numbers the
+built-ins' rules wrote out (100, 200, 9999, 10000), so a page's own
+sticky header or drawer can sit where it should against them."#),
+                    Change(text: #"`target-min` (24px, WCAG 2.2's floor for a pointer) and
+`target-min-touch` (44px) are the least a control reaches. On a touch
+screen every button, icon button, tab, menu item, sidebar item, check
+box, radio, switch and carousel control is at least 44px; with a mouse
+nothing changes size."#)
+                ]),
+                NotesSection(title: #"Reached by every reader"#, id: "6.2.0-reached-by-every-reader", items: [
                     Change(text: #"**A `Switch` can be reached from the keyboard and is heard as a switch.**
 Its input was `display: none`, which took the very element that says
 "switch" and "on" out of the Tab order and the accessibility tree. It is
@@ -96,7 +114,7 @@ changes and form errors speak through were made on their first message,
 which a screen reader does not announce. They are made when the page
 loads. A form error is no longer said twice."#)
                 ]),
-                NotesSection(title: #"Right to left"#, id: "6.1.1-right-to-left", items: [
+                NotesSection(title: #"Right to left"#, id: "6.2.0-right-to-left", items: [
                     Change(text: #"`Tabs`, menus and a `Splitter` follow the page's direction: in an Arabic
 page ArrowLeft moves to the next tab, opens a submenu, and widens the
 region before a splitter. A submenu opens to the left of its item, and a
@@ -106,7 +124,7 @@ thumb slides the right way, and toasts come in from the page's end."#),
                     Change(text: #"Arrow keys pressed with Alt, Ctrl or ⌘ are left to the browser, so
 Alt+ArrowLeft goes back from a tab strip or a menu."#)
                 ]),
-                NotesSection(title: #"Smaller fixes"#, id: "6.1.1-smaller-fixes", items: [
+                NotesSection(title: #"Smaller fixes"#, id: "6.2.0-smaller-fixes", items: [
                     Change(text: #"An async action's `pending` stays true until every call of it has ended;
 the first of two calls to end used to clear it while the second ran."#),
                     Change(text: #"`show` with an exit animation no longer hides content that was shown
@@ -114,7 +132,7 @@ again before the exit ended."#),
                     Change(text: #"A `Splitter`'s handle reaches 24px, WCAG 2.2's least target, around its
 4px line."#)
                 ])
-            ], count: 11), latest: true)
+            ], count: 13), latest: true)
 
             ReleaseEntry(ReleaseNotes(version: "6.1.0", id: "6.1.0", date: "2026-11-14", when: "14 November 2026", summary: #"A site sends much less: the runtime ships only the functions a program
 reaches, with short names, and only the styles and animations it draws
@@ -3573,6 +3591,6 @@ flattened diagnostics, and the reason a theme failed to resolve."#),
             ], count: 15))
         }
 
-        OnThisPage(sections: [Anchor(id: "6.1.1-reached-by-every-reader", label: #"Reached by every reader"#), Anchor(id: "6.1.1-right-to-left", label: #"Right to left"#), Anchor(id: "6.1.1-smaller-fixes", label: #"Smaller fixes"#)], source: "RELEASE_NOTES.md")
+        OnThisPage(sections: [Anchor(id: "6.2.0-a-project-s-own-component-wins", label: #"A project's own component wins"#), Anchor(id: "6.2.0-stacking-and-target-sizes-are-tokens", label: #"Stacking and target sizes are tokens"#), Anchor(id: "6.2.0-reached-by-every-reader", label: #"Reached by every reader"#), Anchor(id: "6.2.0-right-to-left", label: #"Right to left"#), Anchor(id: "6.2.0-smaller-fixes", label: #"Smaller fixes"#)], source: "RELEASE_NOTES.md")
     }
 }

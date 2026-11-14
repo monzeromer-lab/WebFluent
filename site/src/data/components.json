@@ -7982,7 +7982,7 @@
    "example": "Carousel(label: \"Recent work\", autoplay: true, interval: 5000) {\n    Carousel.Slide { Image(src: \"/one.jpg\", alt: \"A bridge at dusk\") }\n    Carousel.Slide { Image(src: \"/two.jpg\", alt: \"The harbour\") }\n}",
    "preview": false,
    "outputs": [],
-   "since": "6.1.1",
+   "since": "6.2.0",
    "codes": [
     {
      "kind": "E103",
@@ -8049,7 +8049,7 @@
    "example": "Carousel(label: \"Recent work\", autoplay: true, interval: 5000) {\n    Carousel.Slide { Image(src: \"/one.jpg\", alt: \"A bridge at dusk\") }\n    Carousel.Slide { Image(src: \"/two.jpg\", alt: \"The harbour\") }\n}",
    "preview": false,
    "outputs": [],
-   "since": "6.1.1",
+   "since": "6.2.0",
    "codes": [
     {
      "kind": "E103",

@@ -49,4 +49,4 @@ Carousel(label: "Recent work", autoplay: true, interval: 5000) {
 - [C04](https://webfluent.monzeromer.dev/errors/C04.md): An attribute a built-in does not declare
 - [C05](https://webfluent.monzeromer.dev/errors/C05.md): A positional argument a built-in does not take
 
-Since WebFluent 6.1.1.
+Since WebFluent 6.2.0.

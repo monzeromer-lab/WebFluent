@@ -409,6 +409,45 @@ fn pointer_targets_meet_the_minimum_size() {
     );
 }
 
+/// A `z-index` value as the sheet means it: a number, a stacking token
+/// (`var(--z-drawer)`, read from the sheet's `:root`), or one plus or
+/// minus a number (`calc(var(--z-drawer) - 1)`).
+fn z_value(css: &str, value: &str) -> Option<u32> {
+    let value: String = value
+        .trim_start()
+        .chars()
+        .take_while(|c| *c != ';' && *c != '}' && *c != '\n')
+        .collect();
+    let value = value.trim();
+    if let Ok(n) = value.parse::<u32>() {
+        return Some(n);
+    }
+    let token = |name: &str| -> Option<i64> {
+        let at = css.find(&format!("--{name}:"))? + name.len() + 3;
+        css[at..]
+            .trim_start()
+            .chars()
+            .take_while(char::is_ascii_digit)
+            .collect::<String>()
+            .parse()
+            .ok()
+    };
+    let inner = value
+        .strip_prefix("calc(")
+        .and_then(|v| v.strip_suffix(')'))
+        .unwrap_or(value);
+    let name_start = inner.find("var(--")? + 6;
+    let name_end = name_start + inner[name_start..].find(')')?;
+    let base = token(&inner[name_start..name_end])?;
+    let rest = inner[name_end + 1..].replace(' ', "");
+    let offset: i64 = if rest.is_empty() {
+        0
+    } else {
+        rest.parse().ok()?
+    };
+    u32::try_from(base + offset).ok()
+}
+
 /// The z-index ladder must be ordered and free of collisions between layers that
 /// can be on screen together.
 #[test]
@@ -427,12 +466,7 @@ fn the_stacking_order_is_coherent() {
                 {
                     let body = &after[open + 1..close];
                     if let Some(at) = body.find("z-index:")
-                        && let Ok(v) = body[at + 8..]
-                            .trim_start()
-                            .chars()
-                            .take_while(char::is_ascii_digit)
-                            .collect::<String>()
-                            .parse::<u32>()
+                        && let Some(v) = z_value(&css, &body[at + 8..])
                     {
                         best = Some(v);
                     }

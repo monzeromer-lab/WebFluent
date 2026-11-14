@@ -170,6 +170,9 @@ pub fn read_project_collecting_via(
     let mut program = Program {
         declarations: all_declarations,
     };
+    // A component one file declares takes the place of a built-in of its
+    // name in every file.
+    crate::syntax::prefer_own_components(&mut program);
     // `data x = "file.json"` is a constant once the file is read, and
     // `image hero = "…"` once the picture is.
     if let Err(e) = crate::project::data::resolve_data_via(vfs, &mut program, project_dir, media) {

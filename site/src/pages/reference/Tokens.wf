@@ -2,7 +2,7 @@
 // edit the compiler or the script, not this file.
 
 page TokensPage(path: "/reference/tokens", title: "Design tokens — Reference", description: "Every baseline design token with its default value, how a theme overrides one, and how a style block or a stylesheet reads it, by full or short name.") {
-    ReferenceItemShell(t("tokens.title"), summary: t("tokens.lede", { count: 71 }), signature: "theme Brand \{ color-primary: #3B82F6 \}", group: t("tokens.title"), entries: REFERENCE_PAGES, sections: [Anchor(id: "tokens-color", label: "color"), Anchor(id: "tokens-spacing", label: "spacing"), Anchor(id: "tokens-font-size", label: "font-size"), Anchor(id: "tokens-line-height", label: "line-height"), Anchor(id: "tokens-radius", label: "radius"), Anchor(id: "tokens-shadow", label: "shadow"), Anchor(id: "tokens-transition", label: "transition"), Anchor(id: "tokens-font", label: "font"), Anchor(id: "tokens-motion", label: "motion"), Anchor(id: "tokens-other", label: "other"), Anchor(id: "reading-a-token", label: "Reading a token"), Anchor(id: "the-baseline", label: "The baseline"), Anchor(id: "short-names", label: "Short names")], source: "md-docs/reference/design-tokens.md") {
+    ReferenceItemShell(t("tokens.title"), summary: t("tokens.lede", { count: 80 }), signature: "theme Brand \{ color-primary: #3B82F6 \}", group: t("tokens.title"), entries: REFERENCE_PAGES, sections: [Anchor(id: "tokens-color", label: "color"), Anchor(id: "tokens-spacing", label: "spacing"), Anchor(id: "tokens-font-size", label: "font-size"), Anchor(id: "tokens-line-height", label: "line-height"), Anchor(id: "tokens-radius", label: "radius"), Anchor(id: "tokens-shadow", label: "shadow"), Anchor(id: "tokens-transition", label: "transition"), Anchor(id: "tokens-font", label: "font"), Anchor(id: "tokens-motion", label: "motion"), Anchor(id: "tokens-other", label: "other"), Anchor(id: "reading-a-token", label: "Reading a token"), Anchor(id: "the-baseline", label: "The baseline"), Anchor(id: "short-names", label: "Short names")], source: "md-docs/reference/design-tokens.md") {
         notes {
             Stack(gap: .lg) {
                 Markdown("This chapter lists every design token of the baseline theme with its value, and how a style reads one. A *design token* is a named value — a colour, a size, a duration — that every built-in is drawn with. Change a token and every element drawn with it changes.\n\nA `theme` declaration changes the tokens it names and keeps the baseline value of every other one. A theme may also add tokens of its own. Each token becomes a CSS custom property on `:root`:")
@@ -486,6 +486,68 @@ page Pricing(path: "/pricing", title: "Pricing", description: "Plans and prices 
                     }
                 }
 
+                Heading("Stacking", id: "stacking").h3
+
+                Table(caption: "Stacking") {
+                    Table.Head {
+                        Table.Row {
+                            Table.Cell("Token").header
+                            Table.Cell("Baseline").header
+                        }
+                    }
+                    Table.Body {
+                        Table.Row {
+                            Table.Cell { Markdown("`z-drawer`") }
+                            Table.Cell { Markdown("`200`") }
+                        }
+                        Table.Row {
+                            Table.Cell { Markdown("`z-dropdown`") }
+                            Table.Cell { Markdown("`1000`") }
+                        }
+                        Table.Row {
+                            Table.Cell { Markdown("`z-modal`") }
+                            Table.Cell { Markdown("`1300`") }
+                        }
+                        Table.Row {
+                            Table.Cell { Markdown("`z-skip-link`") }
+                            Table.Cell { Markdown("`10000`") }
+                        }
+                        Table.Row {
+                            Table.Cell { Markdown("`z-sticky`") }
+                            Table.Cell { Markdown("`100`") }
+                        }
+                        Table.Row {
+                            Table.Cell { Markdown("`z-toast`") }
+                            Table.Cell { Markdown("`1400`") }
+                        }
+                        Table.Row {
+                            Table.Cell { Markdown("`z-tooltip`") }
+                            Table.Cell { Markdown("`1500`") }
+                        }
+                    }
+                }
+
+                Heading("Targets", id: "targets").h3
+
+                Table(caption: "Targets") {
+                    Table.Head {
+                        Table.Row {
+                            Table.Cell("Token").header
+                            Table.Cell("Baseline").header
+                        }
+                    }
+                    Table.Body {
+                        Table.Row {
+                            Table.Cell { Markdown("`target-min`") }
+                            Table.Cell { Markdown("`24px`") }
+                        }
+                        Table.Row {
+                            Table.Cell { Markdown("`target-min-touch`") }
+                            Table.Cell { Markdown("`44px`") }
+                        }
+                    }
+                }
+
                 Heading("Layout", id: "layout").h3
 
                 Table(caption: "Layout") {
@@ -503,7 +565,7 @@ page Pricing(path: "/pricing", title: "Pricing", description: "Plans and prices 
                     }
                 }
 
-                Markdown("71 tokens in all.")
+                Markdown("80 tokens in all.")
 
                 Heading("Short names", id: "short-names").h2
 
@@ -1022,6 +1084,16 @@ page Pricing(path: "/pricing", title: "Pricing", description: "Plans and prices 
                     Table.Cell("")
                 }
                 Table.Row {
+                    Table.Cell { Code("$target-min") }
+                    Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("24px") } }
+                    Table.Cell("")
+                }
+                Table.Row {
+                    Table.Cell { Code("$target-min-touch") }
+                    Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("44px") } }
+                    Table.Cell("")
+                }
+                Table.Row {
                     Table.Cell { Code("$term-bg") }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("#1B1F22") } }
                     Table.Cell("")
@@ -1039,6 +1111,41 @@ page Pricing(path: "/pricing", title: "Pricing", description: "Plans and prices 
                 Table.Row {
                     Table.Cell { Code("$wf-header-height") }
                     Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("56px") } }
+                    Table.Cell("")
+                }
+                Table.Row {
+                    Table.Cell { Code("$z-drawer") }
+                    Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("200") } }
+                    Table.Cell("")
+                }
+                Table.Row {
+                    Table.Cell { Code("$z-dropdown") }
+                    Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("1000") } }
+                    Table.Cell("")
+                }
+                Table.Row {
+                    Table.Cell { Code("$z-modal") }
+                    Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("1300") } }
+                    Table.Cell("")
+                }
+                Table.Row {
+                    Table.Cell { Code("$z-skip-link") }
+                    Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("10000") } }
+                    Table.Cell("")
+                }
+                Table.Row {
+                    Table.Cell { Code("$z-sticky") }
+                    Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("100") } }
+                    Table.Cell("")
+                }
+                Table.Row {
+                    Table.Cell { Code("$z-toast") }
+                    Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("1400") } }
+                    Table.Cell("")
+                }
+                Table.Row {
+                    Table.Cell { Code("$z-tooltip") }
+                    Table.Cell { Row(align: .center, gap: .xs) { style { flex-wrap: nowrap; gap: 8px; & p { margin: 0 } } Code("1500") } }
                     Table.Cell("")
                 }
             }

@@ -197,13 +197,32 @@ test suite checks them against it.
 | `term-dim` | `#959BA1` |
 | `term-ink` | `#E6E9EC` |
 
+### Stacking
+
+| Token | Baseline |
+|---|---|
+| `z-drawer` | `200` |
+| `z-dropdown` | `1000` |
+| `z-modal` | `1300` |
+| `z-skip-link` | `10000` |
+| `z-sticky` | `100` |
+| `z-toast` | `1400` |
+| `z-tooltip` | `1500` |
+
+### Targets
+
+| Token | Baseline |
+|---|---|
+| `target-min` | `24px` |
+| `target-min-touch` | `44px` |
+
 ### Layout
 
 | Token | Baseline |
 |---|---|
 | `wf-header-height` | `56px` |
 
-71 tokens in all.
+80 tokens in all.
 
 <!-- /tokens -->
 
