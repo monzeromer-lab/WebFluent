@@ -831,7 +831,9 @@
       "triggers": []
     },
     {
-      "deps": [],
+      "deps": [
+        "announce"
+      ],
       "exports": [
         [
           "toast",

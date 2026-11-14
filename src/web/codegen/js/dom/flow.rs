@@ -90,7 +90,12 @@ impl JsCodegen {
                 ));
                 self.indent += 1;
                 if is_async {
-                    self.emit_line(&format!("{}_pending.set(true);", sig(&a.name)));
+                    // `pending` holds while any call of it runs: two clicks
+                    // are two calls, and the first to end must not clear it
+                    // while the second is still going. The count is kept
+                    // on the signal, which stays a Bool to its readers.
+                    let p = format!("{}_pending", sig(&a.name));
+                    self.emit_line(&format!("{p}.runs = ({p}.runs || 0) + 1; {p}.set(true);"));
                     self.emit_line("try {");
                     self.indent += 1;
                 }
@@ -128,9 +133,9 @@ impl JsCodegen {
                 }
                 if is_async {
                     self.indent -= 1;
+                    let p = format!("{}_pending", sig(&a.name));
                     self.emit_line(&format!(
-                        "}} finally {{ {}_pending.set(false); }}",
-                        sig(&a.name)
+                        "}} finally {{ {p}.runs -= 1; if (!{p}.runs) {p}.set(false); }}"
                     ));
                 }
                 self.indent -= 1;

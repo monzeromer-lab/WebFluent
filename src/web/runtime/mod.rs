@@ -147,7 +147,7 @@ pub const MODULES: &[Module] = &[
         ("fetch", "wfFetch"),
     ],
         deps: ["http"], triggers: []),
-    module!("toast", exports: [same("toast")], deps: [], triggers: []),
+    module!("toast", exports: [same("toast")], deps: ["announce"], triggers: []),
     module!("overlay", exports: [
         same("dialog"), same("popup"), same("tabs"),
     ], deps: [], triggers: []),

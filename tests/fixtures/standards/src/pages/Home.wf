@@ -1,0 +1,51 @@
+// The built-ins against the rules a widget is held to, where only a real
+// browser can tell: a switch the keyboard reaches, a narrow sidebar that
+// is out of the Tab order while it is shut, a modal a press on its
+// backdrop closes, a toast drawn and heard over a modal, a `show` whose
+// exit ends after it came back, an action called twice, and a submenu in
+// a right-to-left box.
+page Home(path: "/", title: "Standards", description: "The built-ins, held to the rules.") {
+    state notify = false
+    state editing = false
+    state saved = false
+    state visible = true
+    state said = ""
+
+    action save(ms: Number) {
+        await wait(ms)
+        said = "saved {ms}"
+    }
+
+    Heading("Standards").h1
+    Sidebar(id: "nav") {
+        Sidebar.Item(to: "/", icon: "home") { Text("Home") }
+        Sidebar.Item(to: "/", icon: "info") { Text("About") }
+    }
+    Stack {
+        Switch(bind: notify, label: "Notifications", id: "notify")
+        Text(if notify { "on" } else { "off" }, id: "notified")
+
+        Button("Edit", id: "edit") { on click { editing = true } }
+        Text(if editing { "editing" } else { "closed" }, id: "editing")
+        Modal(visible: editing, title: "Edit profile", id: "modal") {
+            Button("Save", id: "save-modal") { on click { saved = true } }
+        }
+        if saved { Toast("Profile saved").success }
+
+        Button("Toggle", id: "toggle") { on click { visible = !visible } }
+        show visible { Text("Shown", id: "shown", exit: .fadeOut, duration: "600ms") }
+
+        Button("Slow", id: "slow") { on click { save(600) } }
+        Button("Fast", id: "fast") { on click { save(100) } }
+        Text(if save.pending { "busy" } else { "idle" }, id: "busy")
+        Text(said, id: "said")
+
+        Stack(dir: "rtl", id: "rtl") {
+            Menu(trigger: "تعديل", id: "edit-menu") {
+                Menu.Sub(label: "نقل إلى", id: "move") {
+                    Menu.Item(id: "inbox") { Text("الوارد") }
+                }
+            }
+        }
+    }
+}

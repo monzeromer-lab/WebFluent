@@ -29,7 +29,9 @@
 
     effect(() => {
       const current = index();
-      track.style.transform = `translateX(-${current * 100}%)`;
+      // The track runs from the start edge: in a right-to-left page the
+      // next slide is to the left, so the track moves right.
+      track.style.transform = `translateX(${_isRtl(track) ? "" : "-"}${current * 100}%)`;
       slides.forEach((slide, i) => {
         const shown = i === current;
         slide.setAttribute("aria-hidden", shown ? "false" : "true");

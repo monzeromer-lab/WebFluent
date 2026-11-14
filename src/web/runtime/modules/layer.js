@@ -54,6 +54,18 @@
     return { x: Math.round(Math.max(x, LAYER_MARGIN)), y: Math.round(Math.max(y, LAYER_MARGIN)), placement: `${side}-${align}` };
   }
 
+  // A placement read in the anchor's direction: `start` and `end` are the
+  // right and the left across a right-to-left page, and a submenu
+  // (`mirror`) opens to the left of its item there.
+  function _logical(placement, anchor, mirror) {
+    if (!_isRtl(anchor)) return placement;
+    const spelled = String(placement || "bottom-start").replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();
+    let [side, align] = spelled.split("-");
+    if ((side === "top" || side === "bottom") && (align === "start" || align === "end")) align = align === "start" ? "end" : "start";
+    if (mirror && (side === "left" || side === "right")) side = side === "left" ? "right" : "left";
+    return align ? `${side}-${align}` : side;
+  }
+
   // The open layers, the newest last.
   const _layers = [];
 
@@ -190,7 +202,7 @@
       if (!rect) return;
       const size = { width: el.offsetWidth || 0, height: el.offsetHeight || 0 };
       const viewport = { width: window.innerWidth || 0, height: window.innerHeight || 0 };
-      const at = placeAt(rect, size, viewport, opts.placement, offset);
+      const at = placeAt(rect, size, viewport, _logical(opts.placement, anchorOf(), opts.mirror), offset);
       el.style.left = `${at.x}px`;
       el.style.top = `${at.y}px`;
       el.setAttribute("data-placement", at.placement);
@@ -331,6 +343,8 @@
     _menus.set(list, state);
     const itemOf = (node) => _menuItems(list).find((item) => item === node || (item.contains && item.contains(node)));
     list.addEventListener("keydown", (e) => {
+      // Alt+ArrowLeft is the browser's back, not a move in the menu.
+      if (e.altKey || e.ctrlKey || e.metaKey) return;
       const all = _menuItems(list).filter(_usable);
       const current = all.indexOf(document.activeElement);
       let consumed = true;
@@ -338,7 +352,7 @@
       else if (e.key === "ArrowUp") _focusItem(list, current - 1);
       else if (e.key === "Home") _focusItem(list, 0);
       else if (e.key === "End") _focusItem(list, -1);
-      else if (e.key === "ArrowLeft" && back) back();
+      else if (e.key === (_isRtl(list) ? "ArrowRight" : "ArrowLeft") && back) back();
       else if ((e.key === "Enter" || e.key === " ") && current >= 0) all[current].click();
       else if (e.key === "Tab") { close("tab"); consumed = false; }
       else consumed = false;
@@ -404,6 +418,7 @@
     handle = layer(list, read, write, opts);
     if (trigger) {
       trigger.addEventListener("keydown", (e) => {
+        if (e.altKey || e.ctrlKey || e.metaKey) return;
         if (e.key === "ArrowDown" || e.key === "ArrowUp" || e.key === "Enter" || e.key === " ") {
           if (e.preventDefault) e.preventDefault();
           if (write) write(true);
@@ -449,7 +464,7 @@
       set(false);
       if (item.focus) item.focus();
     });
-    layer(list, open, set, { anchor: item, placement: "right-start", offset: 2, focus: false });
+    layer(list, open, set, { anchor: item, placement: "right-start", mirror: true, offset: 2, focus: false });
     if (owner) {
       // Its place in its menu goes with it: a submenu a changing `for`
       // draws is not kept, with its item, by the menu that stays.
@@ -476,7 +491,9 @@
     });
     item.addEventListener("keydown", (e) => {
       if (list.contains(e.target)) return;
-      if (e.key === "ArrowRight" || e.key === "Enter" || e.key === " ") {
+      if (e.altKey || e.ctrlKey || e.metaKey) return;
+      const into = _isRtl(item) ? "ArrowLeft" : "ArrowRight";
+      if (e.key === into || e.key === "Enter" || e.key === " ") {
         if (e.preventDefault) e.preventDefault();
         if (e.stopPropagation) e.stopPropagation();
         show(true);

@@ -31,7 +31,11 @@
     }
 
     if (animConfig) {
+      // Each change is a turn: an exit that ends after the content was
+      // shown again is an old turn's, and hides nothing.
+      let turn = 0;
       effect(() => {
+        const mine = ++turn;
         const shown = box();
         if (condFn()) {
           shown.style.display = "contents";
@@ -40,7 +44,7 @@
           }
         } else {
           const plays = leave([...shown.children], animConfig);
-          if (plays.length) Promise.all(plays).then(() => { shown.style.display = "none"; });
+          if (plays.length) Promise.all(plays).then(() => { if (mine === turn) shown.style.display = "none"; });
           else shown.style.display = "none";
         }
       });

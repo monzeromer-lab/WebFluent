@@ -348,8 +348,12 @@
       const control = element && element.querySelector
         ? element.querySelector(`[name="${name}"]`) || element.querySelector("[aria-invalid='true']")
         : null;
+      // The control the focus lands on reads its message out as its
+      // description (`aria-describedby`), and a message that has just
+      // appeared is an alert besides; only a fault with no control to
+      // land on needs saying again.
       if (control && control.focus) control.focus();
-      announce(entry.message());
+      else announce(entry.message());
       return;
     }
   }

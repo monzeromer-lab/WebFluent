@@ -167,6 +167,25 @@
     return id;
   }
 
+  // Whether `node` is laid out right to left: as the browser worked its
+  // direction out, so a left-to-right box inside an Arabic page is still
+  // left to right; where there is no layout to ask, the nearest `dir`.
+  // What the arrow keys mean across a widget turns on it.
+  function _isRtl(node) {
+    try {
+      if (typeof getComputedStyle === "function" && node && node.nodeType === 1) {
+        const d = getComputedStyle(node).direction;
+        if (d) return d === "rtl";
+      }
+    } catch (e) {
+      // A node from another document: read its attribute instead.
+    }
+    const scoped = node && node.closest ? node.closest("[dir]") : null;
+    const root = typeof document !== "undefined" ? document.documentElement : null;
+    const dir = scoped ? scoped.getAttribute("dir") : root && root.getAttribute ? root.getAttribute("dir") : "";
+    return dir === "rtl";
+  }
+
   // A listener that leaves with its scope.
   function listen(target, event, fn, options) {
     live(target);

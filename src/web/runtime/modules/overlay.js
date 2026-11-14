@@ -72,6 +72,25 @@
       if (write && read()) write(false);
     };
     onCleanup(unstacked);
+    // A press on the backdrop closes it — light dismiss, as a reader
+    // expects of anything drawn over the page. The dialog's box is exactly
+    // its card, and a press on the backdrop lands on the dialog itself, so
+    // a press outside the box that also began there (not a text selection
+    // dragged out of the card) is the backdrop's. `closedby` asks the same
+    // of a browser that knows it.
+    if (el.setAttribute) el.setAttribute("closedby", "any");
+    const outside = (e) => {
+      if (e.target !== el || !el.getBoundingClientRect) return false;
+      const r = el.getBoundingClientRect();
+      return e.clientX < r.left || e.clientX > r.right || e.clientY < r.top || e.clientY > r.bottom;
+    };
+    let pressedOutside = false;
+    el.addEventListener("pointerdown", (e) => { pressedOutside = outside(e); });
+    el.addEventListener("click", (e) => {
+      const close = pressedOutside && outside(e);
+      pressedOutside = false;
+      if (close && el.open) el._wfShut();
+    });
     // The Escape that closes it is its own: nothing behind it — a page's
     // `on key("Escape")`, the back rule of an app — hears it too. The
     // browser still closes the dialog (its `cancel` is not prevented).
@@ -106,12 +125,19 @@
   function tabs(nav, activeSignal) {
     live(nav);
     nav.addEventListener("keydown", (e) => {
+      // A key held with a modifier is the browser's or the page's —
+      // Alt+ArrowLeft goes back — not a move between tabs.
+      if (e.altKey || e.ctrlKey || e.metaKey) return;
       const tabs = nav.querySelectorAll("button");
       if (!tabs.length) return;
       const current = activeSignal();
+      // Across a right-to-left page the next tab is to the left.
+      const rtl = _isRtl(nav);
+      const forward = rtl ? "ArrowLeft" : "ArrowRight";
+      const back = rtl ? "ArrowRight" : "ArrowLeft";
       let next = null;
-      if (e.key === "ArrowRight" || e.key === "ArrowDown") next = (current + 1) % tabs.length;
-      else if (e.key === "ArrowLeft" || e.key === "ArrowUp") next = (current - 1 + tabs.length) % tabs.length;
+      if (e.key === forward || e.key === "ArrowDown") next = (current + 1) % tabs.length;
+      else if (e.key === back || e.key === "ArrowUp") next = (current - 1 + tabs.length) % tabs.length;
       else if (e.key === "Home") next = 0;
       else if (e.key === "End") next = tabs.length - 1;
       if (next === null) return;
@@ -121,4 +147,3 @@
     });
   }
 
-  /// Move the reader to a page the router just rendered into `container`.

@@ -18,7 +18,19 @@
       if (!next && restoreFocus && toggle.focus) toggle.focus();
     };
 
-    toggle.addEventListener("click", () => set(!open, false));
+    // A sidebar opened from its toggle takes the focus to its first link,
+    // so a keyboard reader is in the navigation they asked for rather than
+    // behind it.
+    const enter = () => {
+      if (!scrim || !panel.querySelector) return;
+      const first = panel.querySelector("a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex='-1'])");
+      if (first && first.focus) first.focus();
+    };
+
+    toggle.addEventListener("click", () => {
+      set(!open, false);
+      if (open) enter();
+    });
     if (scrim) scrim.addEventListener("click", () => set(false, true));
     // On the document, so it is taken off when the page leaves.
     listen(document, "keydown", (e) => {

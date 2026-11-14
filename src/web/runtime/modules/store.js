@@ -135,14 +135,18 @@
             storeWatcher({ store: name, action: key, args, before, after: snap(states) });
           }
         };
-        // An async action carries `pending`: true while a call runs.
+        // An async action carries `pending`: true while any call of it
+        // runs, so the first of two calls to end does not clear it.
         if (fn.constructor && fn.constructor.name === "AsyncFunction") {
           const pending = signal(false);
+          let runs = 0;
           store[key] = async (...args) => {
             const before = storeWatcher ? snap(states) : null;
+            runs += 1;
             pending.set(true);
             try { return await fn(store, ...args); } finally {
-              pending.set(false);
+              runs -= 1;
+              if (!runs) pending.set(false);
               report(args, before);
             }
           };

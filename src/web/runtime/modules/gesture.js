@@ -347,6 +347,9 @@
     const opts = options || {};
     const across = opts.horizontal ? false : true;
     const sign = opts.reverse ? -1 : 1;
+    // Across a right-to-left page the region before the handle is on its
+    // right, so moving left (and ArrowLeft) grows it.
+    const flow = () => (across && _isRtl(el) ? -1 : 1);
     const min = () => (opts.min === undefined ? 0 : Number(opts.min()));
     const max = () => (opts.max === undefined ? Infinity : Number(opts.max()));
     const clamp = (v) => Math.round(Math.min(Math.max(v, min()), max()));
@@ -375,7 +378,7 @@
     let from = null;
     el.addEventListener("pointerdown", (e) => {
       if (e.button !== undefined && e.button !== 0) return;
-      from = { at: across ? e.clientX : e.clientY, size: drawn() };
+      from = { at: across ? e.clientX : e.clientY, size: drawn(), flow: flow() };
       el.setAttribute("data-dragging", "");
       document.documentElement.setAttribute("data-wf-resizing", across ? "x" : "y");
       if (el.setPointerCapture && e.pointerId !== undefined) {
@@ -386,7 +389,7 @@
     el.addEventListener("pointermove", (e) => {
       if (!from) return;
       const now = across ? e.clientX : e.clientY;
-      set(from.size + sign * (now - from.at));
+      set(from.size + sign * from.flow * (now - from.at));
     });
     const done = () => {
       if (!from) return;
@@ -403,10 +406,11 @@
     };
     el.addEventListener("dblclick", reset);
     el.addEventListener("keydown", (e) => {
+      if (e.altKey || e.ctrlKey || e.metaKey) return;
       const step = e.shiftKey ? 64 : 16;
       const grow = across ? (e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0) : (e.key === "ArrowDown" ? 1 : e.key === "ArrowUp" ? -1 : 0);
       let consumed = true;
-      if (grow) set(drawn() + sign * grow * step);
+      if (grow) set(drawn() + sign * flow() * grow * step);
       else if (e.key === "Home") set(min());
       else if (e.key === "End" && max() !== Infinity) set(max());
       else if (e.key === "Enter" && opts.reset) reset();

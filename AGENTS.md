@@ -1798,8 +1798,8 @@ Input types (a flag): `.text`, `.email`, `.password`, `.number`, `.search`, `.te
 | Component | Usage |
 |-----------|-------|
 | `Alert` | `Alert("Message").success` — tones: `.success`, `.danger`, `.warning`, `.info` |
-| `Toast` | `Toast("Saved!").success` — temporary notification |
-| `Modal` | `Modal(visible: showModal, title: "Title") { on close { ... } ... Modal.Footer { ... } }` — a `<dialog>`; `title:` is its heading, and `Modal.Title { Markdown("Rename `{name}`") }` draws the heading instead, `title:` staying its name; `.closable` puts a close button in the heading row; `on close` runs however it closes; an open one is the newest layer, so opened over a popover it takes the first Escape and the popover the next |
+| `Toast` | `Toast("Saved!").success` — temporary notification, drawn above everything (an open modal included) and announced |
+| `Modal` | `Modal(visible: showModal, title: "Title") { on close { ... } ... Modal.Footer { ... } }` — a `<dialog>`; Escape or a press on its backdrop closes it; `title:` is its heading, and `Modal.Title { Markdown("Rename `{name}`") }` draws the heading instead, `title:` staying its name; `.closable` puts a close button in the heading row; `on close` runs however it closes; an open one is the newest layer, so opened over a popover it takes the first Escape and the popover the next |
 | `Dialog` | `Dialog(visible: asking, title: "Confirm") { ... }` — as `Modal`, with `Dialog.Title` and no footer part |
 | `Popover` | `Popover(visible: open, anchor: button, placement: .bottomStart, label: "Branches").arrow { on close(reason) { ... } ... }` — a layer above everything at `anchor:` (a `ref:`) or `at:` a point; flips and slides to stay on screen; Escape or a press outside sets `visible:` back to `false`, and `on close` hears `"escape"` or `"outside"`; `role:` (in place of `dialog`), `tabindex:`, `aria-*`, `data-*`, `ref:` and its other `on` handlers are its element's, as on any element — and on a `Menu`, a `Tooltip`, a `Modal` and a `Dialog` too |
 | `Spinner` | `Spinner` or `Spinner.lg` |

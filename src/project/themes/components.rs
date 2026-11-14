@@ -318,12 +318,16 @@ ol.wf-list { list-style: decimal; padding-left: var(--spacing-lg); }
 .wf-radio input[type="radio"] { width: 20px; height: 20px; accent-color: var(--color-primary); cursor: pointer; }
 
 /* ─── Switch ────────────────────────────────────────── */
-.wf-switch { display: inline-flex; align-items: center; gap: var(--spacing-sm); cursor: pointer; min-height: 24px; }
+.wf-switch { display: inline-flex; align-items: center; gap: var(--spacing-sm); cursor: pointer; position: relative; min-height: 24px; }
 .wf-switch__track { width: 44px; height: 24px; background: var(--color-border); border-radius: var(--radius-full); position: relative; transition: background var(--transition-fast); }
-.wf-switch__thumb { width: 20px; height: 20px; background: #fff; border-radius: var(--radius-full); position: absolute; top: 2px; left: 2px; transition: transform var(--transition-fast); box-shadow: var(--shadow-sm); }
+.wf-switch__thumb { width: 20px; height: 20px; background: #fff; border-radius: var(--radius-full); position: absolute; top: 2px; inset-inline-start: 2px; transition: transform var(--transition-fast); box-shadow: var(--shadow-sm); }
 .wf-switch input:checked + .wf-switch__track { background: var(--color-primary); }
 .wf-switch input:checked + .wf-switch__track .wf-switch__thumb { transform: translateX(20px); }
-.wf-switch input { display: none; }
+/* The input is the switch to a keyboard and a screen reader (`role="switch"`,
+   `aria-checked`): laid over the whole control, unseen, never `display: none`. */
+.wf-switch input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; z-index: 1; }
+.wf-switch input:focus-visible + .wf-switch__track { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+.wf-switch:dir(rtl) input:checked + .wf-switch__track .wf-switch__thumb { transform: translateX(-20px); }
 
 /* ─── Slider ────────────────────────────────────────── */
 .wf-slider { display: flex; align-items: center; gap: var(--spacing-sm); flex-wrap: wrap; }
@@ -354,15 +358,20 @@ ol.wf-list { list-style: decimal; padding-left: var(--spacing-lg); }
 .wf-alert__dismiss:hover { opacity: 1; }
 
 /* ─── Toast ─────────────────────────────────────────── */
-.wf-toast-container { position: fixed; top: var(--spacing-md); right: var(--spacing-md); z-index: 9999; display: flex; flex-direction: column; gap: var(--spacing-sm); }
+.wf-toast-container { position: fixed; top: var(--spacing-md); inset-inline-end: var(--spacing-md); z-index: 9999; display: flex; flex-direction: column; gap: var(--spacing-sm); }
+/* Drawn in the top layer as a popover: none of the box a popover is given. */
+.wf-toast-container[popover] { inset: auto; top: var(--spacing-md); inset-inline-end: var(--spacing-md); margin: 0; padding: 0; border: 0; background: transparent; color: inherit; overflow: visible; width: auto; height: auto; }
+.wf-toast-container[popover]:not(:popover-open) { display: none; }
 .wf-toast { padding: var(--spacing-sm) var(--spacing-md); border-radius: var(--radius-md); color: #fff; font-size: var(--font-size-sm); box-shadow: var(--shadow-lg); animation: wf-toast-in 0.3s ease; min-width: 200px; }
 .wf-toast--success { background: var(--color-success); }
 .wf-toast--danger { background: var(--color-danger); }
 .wf-toast--warning { background: var(--color-warning); color: #000; }
 .wf-toast--info { background: var(--color-info); }
 .wf-toast--exit { animation: wf-toast-out 0.3s ease forwards; }
-@keyframes wf-toast-in { from { transform: translateX(100%); opacity: 0; } to { transform: none; opacity: 1; } }
-@keyframes wf-toast-out { from { opacity: 1; } to { opacity: 0; transform: translateX(100%); } }
+.wf-toast { --wf-toast-from: 100%; }
+.wf-toast:dir(rtl) { --wf-toast-from: -100%; }
+@keyframes wf-toast-in { from { transform: translateX(var(--wf-toast-from)); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes wf-toast-out { from { opacity: 1; } to { opacity: 0; transform: translateX(var(--wf-toast-from)); } }
 
 /* ─── Modal ─────────────────────────────────────────── */
 /* A native <dialog>: the browser centres it (with the `margin: auto` the reset
@@ -417,9 +426,10 @@ ol.wf-list { list-style: decimal; padding-left: var(--spacing-lg); }
 
 /* ─── Splitter ──────────────────────────────────────── */
 .wf-splitter { flex: none; align-self: stretch; position: relative; width: 4px; cursor: col-resize; touch-action: none; background: transparent; transition: background var(--transition-fast); }
-.wf-splitter::before { content: ""; position: absolute; inset: 0 -3px; }
+/* A 4px line with a 24px reach, WCAG 2.2's least target. */
+.wf-splitter::before { content: ""; position: absolute; inset: 0 -10px; }
 .wf-splitter--horizontal { width: auto; height: 4px; cursor: row-resize; }
-.wf-splitter--horizontal::before { inset: -3px 0; }
+.wf-splitter--horizontal::before { inset: -10px 0; }
 .wf-splitter:hover, .wf-splitter:focus-visible { background: var(--color-border); }
 .wf-splitter[data-dragging] { background: var(--color-primary); }
 :root[data-wf-resizing] { user-select: none; }
@@ -562,13 +572,18 @@ pre.wf-code, .wf-code--block { display: block; padding: var(--spacing-md); overf
     height: 100vh;
     z-index: 200;
     transform: translateX(-100%);
-    transition: transform var(--transition-normal);
+    /* Off the page, it is out of the Tab order and the accessibility tree
+       too. */
+    visibility: hidden;
+    transition: transform var(--transition-normal), visibility var(--transition-normal);
     box-shadow: var(--shadow-lg);
   }
   /* It waits off its own edge: the left in a left-to-right page, the right
      in a right-to-left one. */
   [dir="rtl"] .wf-sidebar { transform: translateX(100%); }
-  .wf-sidebar[data-open="true"], [dir="rtl"] .wf-sidebar[data-open="true"] { transform: none; }
+  /* Opening, it is visible at once (so the focus can go into it); shutting,
+     only once it has slid out. */
+  .wf-sidebar[data-open="true"], [dir="rtl"] .wf-sidebar[data-open="true"] { transform: none; visibility: visible; transition: transform var(--transition-normal); }
   .wf-sidebar__toggle { display: inline-flex; position: fixed; inset-inline-start: var(--spacing-sm); top: var(--spacing-sm); z-index: 201; }
   .wf-sidebar__scrim { display: block; }
   .wf-container { padding: 0 var(--spacing-sm); }
