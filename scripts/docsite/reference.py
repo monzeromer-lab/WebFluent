@@ -136,9 +136,9 @@ def control(p: dict) -> dict | None:
     if p.get("cases"):
         cases = [c["name"] for c in p["cases"]]
         chosen = next((c["name"] for c in p["cases"] if c.get("default")), "")
-        return {"name": p["name"], "kind": "enum", "options": cases[:5], "value": chosen}
+        return {"name": p["name"], "kind": "enum", "options": cases[:5], "value": chosen, "sink": p.get("sink") or ""}
     if p["type"] == "Bool":
-        return {"name": p["name"], "kind": "bool", "options": [], "value": ""}
+        return {"name": p["name"], "kind": "bool", "options": [], "value": "", "sink": p.get("sink") or ""}
     if p["type"] == "String":
         return {"name": p["name"], "kind": "string", "options": [], "value": ""}
     return None
@@ -496,13 +496,81 @@ REFERENCE_PAGES = [
 ]
 
 
+def stage_state(control: dict) -> str:
+    """The state a live control sets: `stageTone` for `tone`."""
+    return "stage" + control["name"][0].upper() + control["name"][1:]
+
+
+def live_preview(c: dict, src: str) -> tuple:
+    """The preview with its subject reading the stage's controls: a state
+    per control (named `stage` and the prop), started at what the preview
+    writes (its flag, or its `prop: .case`), and passed to the subject by
+    name, so pressing a control changes the element. A control whose prop is
+    neither a class nor an attribute stays as it is drawn. Returns the
+    states, the preview and the controls made live."""
+    live = [k for k in c["controls"] if k["kind"] in ("enum", "bool")
+            and (k.get("sink") in ("class", "attr") or k["name"] in ("gap", "align", "justify"))]
+    if c["owner"] or not live:
+        return [], src, []
+    m = re.search(r"(?<![\w.\"])" + re.escape(c["name"]) + r"(?=[(.{\s]|$)", src)
+    if not m:
+        return [], src, []
+    i, args = m.end(), ""
+    if src[i:i + 1] == "(":
+        depth, quoted, j = 0, False, i
+        for j in range(i, len(src)):
+            ch = src[j]
+            if ch == '"' and src[j - 1] != "\\":
+                quoted = not quoted
+            elif not quoted and ch == "(":
+                depth += 1
+            elif not quoted and ch == ")":
+                depth -= 1
+                if depth == 0:
+                    break
+        args, i = src[i + 1:j], j + 1
+    flags = []
+    while (f := re.match(r"\.([A-Za-z]\w*)", src[i:])):
+        flags.append(f.group(1))
+        i += f.end()
+    values = {k["name"]: k["value"] for k in live}
+    kept = []
+    for f in flags:
+        owner = next((k for k in live if (k["kind"] == "enum" and f in k["options"])
+                      or (k["kind"] == "bool" and f == k["name"])), None)
+        if owner:
+            values[owner["name"]] = f if owner["kind"] == "enum" else "true"
+        else:
+            kept.append(f)
+    for k in live:
+        named = re.search(r"(^|,)\s*" + k["name"] + r":\s*\.(\w+)\s*(?=,|$)", args)
+        if named:
+            values[k["name"]] = named.group(2)
+            args = (args[:named.start()] + args[named.end():]).strip().strip(",").strip()
+    states, passed = [], []
+    for k in live:
+        name = stage_state(k)
+        if k["kind"] == "enum":
+            states.append(f"state {name} = {q(values[k['name']])}")
+        else:
+            states.append(f"state {name} = {'true' if values[k['name']] == 'true' else 'false'}")
+        passed.append(f"{k['name']}: {name}")
+    given = ", ".join([a for a in [args.strip()] if a] + passed)
+    out = src[:m.start()] + c["name"] + "(" + given + ")" + "".join("." + f for f in kept) + src[i:]
+    return states, out, live
+
+
 def builtin_page(c: dict, by_slug: dict, universal: list) -> list:
     out = [f'page Builtin{pascal(c["slug"])}(path: "/reference/{c["slug"]}", title: {q(c["name"] + " — Reference")}, '
            f'description: {q(describe(c["name"] + ": " + c["plain"]))}) {{']
     preview = PREVIEWS.get(c["name"]) or PREVIEWS.get(c["owner"])
+    live = []
     if preview:
         for st in preview[1]:
             out.append(f"    state {st} = {STATES[st]}")
+        states, code, live = live_preview(c, preview[0])
+        preview = (code, preview[1])
+        out += [f"    {st}" for st in states]
     sections = anchors([("props", 't("ref.tab.props")'), ("flags", 't("ref.tab.flags")'), ("events", 't("ref.tab.events")'),
                         ("slots", 't("ref.slotsparts")'), ("example", 't("ref.example")')])
     outputs = "[" + ", ".join(q(o) for o in c["outputs"]) + "]"
@@ -517,7 +585,13 @@ def builtin_page(c: dict, by_slug: dict, universal: list) -> list:
     out.append(f'            Stage(label: {q(c["name"])}) {{')
     out.append("                controls {")
     for k in c["controls"]:
-        out.append(f"                    StageControl({wf_map(k)})")
+        st = stage_state(k)
+        if k in live and k["kind"] == "enum":
+            out.append(f"                    StageControl({wf_map(k)}, live: true, current: {st}) {{ on pick(v) {{ {st} = v }} }}")
+        elif k in live:
+            out.append(f"                    StageControl({wf_map(k)}, live: true, pressed: {st}) {{ on pick(v) {{ {st} = !{st} }} }}")
+        else:
+            out.append(f"                    StageControl({wf_map(k)})")
     if not c["controls"]:
         out.append('                    Text(t("stage.nocontrols"), class: "bp-small")')
     out.append("                }")
@@ -527,7 +601,8 @@ def builtin_page(c: dict, by_slug: dict, universal: list) -> list:
         out.append('                Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }')
     out.append("            }")
     out.append("        }")
-    out.append('        notes { Text(t("stage.static"), class: "bp-small") }')
+    if not live:
+        out.append('        notes { Text(t("stage.static"), class: "bp-small") }')
     if c["owner"]:
         out.append(f'        Markdown(t("ref.partof", {{ owner: {q(c["owner"])}, to: "/reference/{c["ownerSlug"]}" }}), class: "bp-prose")')
     out.append('        Heading(t("ref.tab.props"), id: "props").h2')
