@@ -911,6 +911,18 @@ pub struct UIElement {
 }
 
 impl UIElement {
+    /// Which of `cases` an enum prop `key` names: as a flag (`.bottom`) or
+    /// by name (`side: .bottom`, `side: "bottom"`).
+    pub fn case_of<'a>(&self, key: &str, cases: &[&'a str]) -> Option<&'a str> {
+        let named = self.args.iter().find_map(|a| match a {
+            Arg::Named(k, Expr::EnumCase(c) | Expr::StringLiteral(c)) if k == key => Some(c),
+            _ => None,
+        });
+        cases.iter().copied().find(|case| {
+            named.is_some_and(|c| c == case) || self.modifiers.iter().any(|m| m == case)
+        })
+    }
+
     /// The slot this element stands for, when it is a slot use: the pseudo
     /// element `Children` names the default slot, or a named one through
     /// its `slot:` argument.

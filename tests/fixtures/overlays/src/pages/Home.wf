@@ -1,0 +1,65 @@
+// Every overlay, for `tests/browser/overlays.mjs`: where the focus goes
+// when one opens and when it closes, what closes it, and what a screen
+// reader is told.
+page Home(path: "/", title: "Overlays", description: "Every overlay, held to the standards.") {
+    state editing = false
+    state filters = false
+    state side = false
+    state confirming = false
+    state pop = false
+    state name = ""
+    state answer = "none"
+    action undo() { answer = "undone" }
+
+    Heading("Overlays").h1
+    Row(gap: .sm) {
+        Button("Edit", id: "edit") { on click { editing = true } }
+        Button("Filters", id: "filters") { on click { filters = true } }
+        Button("Details", id: "details") { on click { side = true } }
+        Button("Discard", id: "discard") { on click { confirming = true } }
+        Button("Branches", id: "branches", ref: branchBtn) { on click { pop = !pop } }
+        Button("Delete", id: "ask") {
+            on click {
+                if await ask("Delete the project?", detail: "This cannot be undone.", yes: "Delete", danger: true) {
+                    answer = "yes"
+                } else {
+                    answer = "no"
+                }
+            }
+        }
+        Button("Archive", id: "archive") { on click { toast("Conversation archived", action: "Undo", onAction: undo) } }
+        Button("Lose", id: "lose") { on click { announce("Connection lost", .assertive) } }
+        Button("Save", id: "save") { on click { toast.promise(Saver.save(), loading: "Saving…", done: "Saved", failed: "Not saved") } }
+    }
+    Text("answer {answer}", id: "answer")
+    Text(if editing { "editing" } else { "closed" }, id: "editing")
+    Text(if filters { "open" } else { "shut" }, id: "filtering")
+
+    Modal(visible: editing, title: "Edit profile", dismiss: .escape, initialFocus: nameField, id: "modal") {
+        Input(bind: name, label: "Name", ref: nameField, id: "name")
+        Modal.Footer { Button("Done").primary { on click { editing = false } } }
+    }
+    Sheet(visible: filters, title: "Filters", snap: [0.5, 1], id: "sheet").closable {
+        Text("Sort by")
+        Sheet.Footer { Button("Show results").primary { on click { filters = false } } }
+    }
+    Sheet(visible: side, side: .end, title: "Details", id: "side") { Button("Copy link") }
+    AlertDialog(visible: confirming, title: "Discard changes?", id: "alert") {
+        Text("Your edits will be lost.")
+        AlertDialog.Footer {
+            Button("Keep editing") { on click { confirming = false } }
+            Button("Discard").danger { on click { confirming = false } }
+        }
+    }
+    Popover(visible: pop, anchor: branchBtn, label: "Branches", dismiss: .escape, id: "pop") {
+        Button("main")
+        Button("dev")
+    }
+}
+
+store Saver {
+    action save() {
+        await wait(150)
+        return true
+    }
+}

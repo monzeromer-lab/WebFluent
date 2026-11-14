@@ -68,6 +68,7 @@ mod fixes;
 mod fmt_corpus;
 #[path = "focus.rs"]
 mod focus;
+mod overlays;
 #[path = "frontend_fixes.rs"]
 mod frontend_fixes;
 #[path = "fs_security.rs"]

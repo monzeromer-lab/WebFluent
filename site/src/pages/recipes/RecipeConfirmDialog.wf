@@ -1,11 +1,11 @@
 // A recipe, written from md-docs/recipes/confirm-dialog.md by scripts/docsite/recipes.py;
 // edit the recipe, not this file.
-page RecipeConfirmDialog(path: "/recipes/confirm-dialog", title: "Build a confirm dialog — Recipes", description: "Ask before a destructive action: a component that wraps a Dialog and fires confirm or cancel, with the question's detail written by the caller.") {
-    RecipeShell("Build a confirm dialog", summary: "Before a reader deletes something, ask them. This component wraps a `Dialog` with **Cancel** and **Confirm** buttons and tells the page which one was pressed, so every destructive action on the site asks the same way:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works")], related: [RelatedLink(kind: "Recipe", title: "Copy to the clipboard", to: "/recipes/copy-to-the-clipboard"), RelatedLink(kind: "Recipe", title: "Debounce a search", to: "/recipes/debounce-a-search"), RelatedLink(kind: "Recipe", title: "Count down", to: "/recipes/count-down")], source: "md-docs/recipes/confirm-dialog.md", how: true, hasVariations: false, project: { "src/pages/ConfirmDialog.wf": #"component Confirm(_ title: String, visible: Bool, danger: Bool = false) {
+page RecipeConfirmDialog(path: "/recipes/confirm-dialog", title: "Build a confirm dialog — Recipes", description: "Ask before a destructive action: an AlertDialog in a component that fires confirm or cancel, or one line, await ask(…).") {
+    RecipeShell("Build a confirm dialog", summary: "Before a reader deletes something, ask them. This component wraps an `AlertDialog` with **Cancel** and **Confirm** buttons and tells the page which one was pressed, so every destructive action on the site asks the same way:", outputs: ["website", "app"], since: "", recipes: RECIPE_INDEX, sections: [Anchor(id: "how-it-works", label: "How it works"), Anchor(id: "one-question-from-a-handler", label: "One question, from a handler")], related: [RelatedLink(kind: "Recipe", title: "Copy to the clipboard", to: "/recipes/copy-to-the-clipboard"), RelatedLink(kind: "Recipe", title: "Debounce a search", to: "/recipes/debounce-a-search"), RelatedLink(kind: "Recipe", title: "Count down", to: "/recipes/count-down")], source: "md-docs/recipes/confirm-dialog.md", how: true, hasVariations: false, project: { "src/pages/ConfirmDialog.wf": #"component Confirm(_ title: String, visible: Bool, danger: Bool = false) {
     event confirm()
     event cancel()
     slot
-    Dialog(visible: visible, title: title) {
+    AlertDialog(visible: visible, title: title) {
         children
         Row(gap: .sm, justify: .end) {
             Button("Cancel") { on click { emit cancel() } }
@@ -36,7 +36,7 @@ page Account(path: "/", title: "Account", description: "Close your account.") {
     event confirm()
     event cancel()
     slot
-    Dialog(visible: visible, title: title) {
+    AlertDialog(visible: visible, title: title) {
         children
         Row(gap: .sm, justify: .end) {
             Button("Cancel") { on click { emit cancel() } }
@@ -58,7 +58,26 @@ page Account(path: "/", title: "Account", description: "Close your account.") {
     if gone { Alert("Account deleted.").info }
 }"#, title: "wf")
         }
-        Markdown("- `Confirm` takes the question as its positional `title`, whether it shows as `visible`, and a `danger` prop that turns the confirm button red. `tone:` picks the button's case from a condition instead of a fixed flag.\n- It declares two [events](/learn/10-components#events), `confirm` and `cancel`, and each button fires one with `emit`. The component decides nothing; the page does.\n- `slot` declares a default [slot](/learn/10-components#slots), and `children` places it inside the dialog. The caller's block fills it, so the question's detail is the caller's to write.\n- The page owns `asking`. **Delete account** sets it, and both handlers clear it, which closes the [dialog](/learn/08-events#overlays-modals-dialogs-toasts-and-menus).")
+        Markdown("- `Confirm` takes the question as its positional `title`, whether it shows as `visible`, and a `danger` prop that turns the confirm button red. `tone:` picks the button's case from a condition instead of a fixed flag.\n- It declares two [events](/learn/10-components#events), `confirm` and `cancel`, and each button fires one with `emit`. The component decides nothing; the page does.\n- `slot` declares a default [slot](/learn/10-components#slots), and `children` places it inside the dialog. The caller's block fills it, so the question's detail is the caller's to write.\n- The page owns `asking`. **Delete account** sets it, and both handlers clear it, which closes the [dialog](/learn/08-events#overlays-modals-dialogs-toasts-and-menus).\n- An `AlertDialog` is one to a screen reader, read with its body. Escape closes it as **Cancel** would, and a press beside it does not: an answer is a button.")
+
+        Heading("One question, from a handler", id: "one-question-from-a-handler").h2
+
+        Markdown("When the question is asked once, from one handler, `await ask(…)` draws the alert dialog itself and is the answer:")
+
+        CodeBlock(#"page Account(path: "/", title: "Account", description: "Close your account.") {
+    state gone = false
+    Heading("Account").h1
+    Button("Delete account").danger {
+        on click {
+            if await ask("Delete your account?", detail: "Everything goes. This cannot be undone.", yes: "Delete", danger: true) {
+                gone = true
+            }
+        }
+    }
+    if gone { Alert("Account deleted.").info }
+}"#, title: "wf")
+
+        Markdown("The focus starts on **Cancel**, the answer that loses nothing, and goes back to the button once it is answered.")
 
     }
 }

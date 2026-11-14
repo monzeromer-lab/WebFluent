@@ -21,7 +21,7 @@ In this chapter:
 - handlers and the event object
 - keys, and shortcuts for a whole app
 - the events your own components fire
-- overlays: modals, toasts, menus, popovers and tooltips, and how they stack
+- overlays: modals, sheets, toasts, menus, popovers and tooltips, what closes them, and how they stack
 - gestures: drag and drop, long-press, swipe and the splitter
 - listening to the window and the document
 
@@ -301,22 +301,120 @@ page Overlays(path: "/", title: "Overlays", description: "What a page opens.") {
 
 - **`Modal`** and **`Dialog`** are real `<dialog>` elements, open while their
   `visible:` state is true.
-  - The browser traps focus, makes the rest of the page inert and closes the
-    dialog on Escape. A click on the backdrop leaves it open.
-  - When it closes that way, the state is set back to `false`, so it never
-    disagrees with what is on screen. Focus returns to what opened it.
+  - The browser traps focus and makes the rest of the page inert. Escape or
+    a press on the backdrop closes it, and the state is set back to `false`,
+    so it never disagrees with what is on screen.
+  - When it opens, the focus goes to what says `autofocus`, else its first
+    control; when it closes, the focus goes back to what had it.
+  - It fades out before it goes, however it was closed.
   - `on close` runs when it closes, however it was closed.
   - `title:` is its heading, which names it (`A08` without one).
     `Modal.Footer` is the row of actions, and `.closable` adds a close
     button. [`Modal`](../reference/components.md#modal) lists the rest.
 - **`Toast`** shows the moment it is rendered and leaves after three seconds.
   It is announced politely to screen readers. Put it under a condition that
-  turns true.
+  turns true, or call `toast(…)` from a handler (below).
 - **`Menu`** and **`Dropdown`** open a list from a button. Arrow keys move
-  between items, Home and End jump to the ends, Enter and Space choose, Escape
-  closes with focus back on the button, and a click outside closes it.
+  between items, Home and End jump to the ends, a letter jumps to the next
+  item that starts with it, Enter and Space choose, Escape closes with focus
+  back on the button, and a click outside closes it.
 - **`Tooltip`** shows its text when its child is hovered or focused, and is
   linked to it with `aria-describedby`.
+
+### What closes an overlay, and where the focus goes
+
+`dismiss:` says what closes a `Modal`, a `Dialog`, a `Sheet` or a `Popover`
+besides the page's own button: `.any` (Escape or a press outside, the
+default), `.escape`, or `.none`, for a form that must be answered.
+`initialFocus:` names, by its `ref:`, what takes the focus when it opens:
+
+```wf
+page Profile(path: "/", title: "Profile", description: "A modal that starts in a field.") {
+    state editing = false
+    state name = ""
+    Heading("Profile").h1
+    Button("Edit profile") { on click { editing = true } }
+    Modal(visible: editing, title: "Edit profile", dismiss: .escape, initialFocus: nameField) {
+        Input(bind: name, label: "Name", ref: nameField)
+        Modal.Footer { Button("Save").primary { on click { editing = false } } }
+    }
+}
+```
+
+An **`AlertDialog`** asks before something that cannot be undone. A screen
+reader hears an alert dialog, read with its body; Escape answers it, and a
+press beside it does not. Put the answer that loses nothing first in its
+footer.
+
+A **`Sheet`** is a modal that comes in from an edge: `side: .bottom` (the
+default), `.start` or `.end`, which swap in a right-to-left page. Dragged by
+its handle or heading toward that edge, past 30% of its size, it closes; a
+bottom sheet with `snap:` points opens at the first and settles at the
+nearest one it is let go near:
+
+```wf
+page Shop(path: "/", title: "Shop", description: "Filters in a bottom sheet.") {
+    state filters = false
+    state sort = "new"
+    Heading("Shop").h1
+    Button("Filters") { on click { filters = true } }
+    Sheet(visible: filters, title: "Filters", snap: [0.5, 1]).closable {
+        Radio(bind: sort, value: "new", label: "Newest")
+        Radio(bind: sort, value: "price", label: "Price")
+        Sheet.Footer { Button("Show results").primary { on click { filters = false } } }
+    }
+}
+```
+
+On a narrow screen a `Sidebar` opens over the page as a drawer, which is a
+layer like these: the focus goes in and stays there, Escape or a press
+outside closes it, and the focus goes back to its toggle.
+
+### Toasts, questions and announcements from a handler
+
+Three functions open an overlay from code rather than from state:
+
+```wf
+store Mail {
+    state archived: [String] = []
+    action archive(id: String) {
+        archived = archived.concat([id])
+        toast("Conversation archived", action: "Undo", onAction: restore)
+    }
+    action restore() { archived = archived.slice(0, -1) }
+}
+
+page Inbox(path: "/", title: "Inbox", description: "Toasts, a question, an announcement.") {
+    use Mail
+    state gone = false
+    Heading("Inbox").h1
+    Button("Archive") { on click { Mail.archive("m1") } }
+    Button("Delete everything").danger {
+        on click {
+            if await ask("Delete every message?", detail: "This cannot be undone.", yes: "Delete", danger: true) {
+                gone = true
+                announce("Every message deleted", .assertive)
+            }
+        }
+    }
+}
+```
+
+- **`toast(message, …)`** shows a toast above everything, a modal included,
+  and says it to a screen reader. It takes `tone:` (`.success`, `.danger`,
+  `.warning`, `.info`), `duration:` in milliseconds, and `action:` with
+  `onAction:` for a button on it. It waits while the pointer is on it or the
+  focus is in it, has a close button, and no more than three show at once.
+  `toast.promise(p, loading: …, done: …, failed: …)` follows a promise.
+- **`await ask(question, …)`** draws an alert dialog and is `true` for yes,
+  `false` for no or Escape. It takes `detail:`, `yes:`, `no:` and
+  `danger: true`; the focus starts on no. (`confirm` is the browser's.)
+- **`announce(text)`** says something to a screen reader with nothing on
+  screen moving; `announce(text, .assertive)` interrupts, for what cannot
+  wait.
+
+A program that names something `toast`, `ask` or `announce` of its own keeps
+it; the function is then out of reach there.
 
 ### Layers: popovers, menus and tooltips above everything
 
@@ -358,9 +456,11 @@ page Editor(path: "/", title: "Editor", description: "Layers at a control and at
 ```
 
 - **`Popover`** is open while its `visible:` state is true, placed against
-  `anchor:`, an element's `ref:`. Escape or a press outside closes it, sets
-  `visible:` back to `false`, and `on close(reason)` hears `"escape"` or
-  `"outside"`.
+  `anchor:`, an element's `ref:`. Escape or a press outside closes it (as
+  `dismiss:` allows), sets `visible:` back to `false`, and `on close(reason)`
+  hears `"escape"` or `"outside"`. Its anchor says what it opens and whether
+  it is open (`aria-controls`, `aria-expanded`), the focus goes to its first
+  control, and `label:` is its name (`A18` without one).
 - **`Menu`** without `trigger:` is a list that state opens, at an `anchor:`
   or `at:` a point. Choosing an item closes it.
 - The open layers form one stack, newest on top. Escape closes the newest

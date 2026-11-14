@@ -38,8 +38,11 @@ const until = (page, fn, arg, timeout = 3000) =>
   page.waitForFunction(fn, { timeout, polling: 30 }, arg).then(() => true, () => false);
 
 // What the page says about the layers: which are open and in the top layer,
-// and where each is against its anchor.
-const look = (page) => page.evaluate(() => {
+// and where each is against its anchor — once a layer that is closing has
+// played its exit (it stays shown, in the top layer, until it has).
+const look = (page) => page.evaluate(async () => {
+  const closing = document.getAnimations().filter((a) => a.playState === "running" && a.effect?.getTiming().iterations !== Infinity);
+  await Promise.all(closing.map((a) => a.finished.catch(() => {})));
   const rect = (sel) => {
     const el = document.querySelector(sel);
     if (!el) return null;

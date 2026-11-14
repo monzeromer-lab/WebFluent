@@ -50,7 +50,7 @@ Every page below is Markdown. The language's whole reference in one file is [AGE
 - [Call your own JavaScript](https://webfluent.monzeromer.dev/recipes/call-your-own-script.md): Call a function of your own JavaScript from a WebFluent page: a plain script under src/, typed with JSDoc, linked on every page, its names in scope.
 - [Draw a chart from a library](https://webfluent.monzeromer.dev/recipes/chart-from-a-library.md): Draw a Chart.js chart on a page: load the library from a CDN, call it from a script of your own, and redraw the chart when the page's data changes.
 - [Check a deploy](https://webfluent.monzeromer.dev/recipes/check-a-deploy.md): Check a WebFluent site after each deploy: deep links that reload, text in the HTML, the response headers, link previews and the sitemap.
-- [Build a confirm dialog](https://webfluent.monzeromer.dev/recipes/confirm-dialog.md): Ask before a destructive action: a component that wraps a Dialog and fires confirm or cancel, with the question's detail written by the caller.
+- [Build a confirm dialog](https://webfluent.monzeromer.dev/recipes/confirm-dialog.md): Ask before a destructive action: an AlertDialog in a component that fires confirm or cancel, or one line, await ask(…).
 - [Connect two readers' pages](https://webfluent.monzeromer.dev/recipes/connect-two-readers.md): Send messages straight from one reader's page to another's over a WebRTC data channel, with a `peer` opened by `rtc(…)` and no server relaying them.
 - [Copy to the clipboard](https://webfluent.monzeromer.dev/recipes/copy-to-the-clipboard.md): Copy text to the reader's clipboard from a button: an action that awaits the browser's clipboard, then shows a toast.
 - [Count a number to its new value](https://webfluent.monzeromer.dev/recipes/count-a-number.md): Make a number count to its new value instead of jumping: give its element count: with a length of time, and each step keeps its format.
@@ -136,6 +136,9 @@ Every page below is Markdown. The language's whole reference in one file is [AGE
 
 - [Components reference](https://webfluent.monzeromer.dev/reference.md): The components reference: every built-in element, its props, flags, events, slots, parts, attribute families and an example.
 - [Alert](https://webfluent.monzeromer.dev/reference/alert.md): Inline notice; a danger or warning one is announced as an alert.
+- [AlertDialog](https://webfluent.monzeromer.dev/reference/alertdialog.md): A <dialog> that asks before something that cannot be undone: role="alertdialog", its body read out with its title, and closed by Escape or its own buttons, not a press outside. For a question asked from a handler, await ask(…) draws one.
+- [AlertDialog.Footer](https://webfluent.monzeromer.dev/reference/alertdialog-footer.md): Its answers: the button that loses nothing first.
+- [AlertDialog.Title](https://webfluent.monzeromer.dev/reference/alertdialog-title.md): What the alert dialog's heading draws, in place of its title:'s words, which stay its name.
 - [Audio](https://webfluent.monzeromer.dev/reference/audio.md): Audio player. transcript links what was said, which is what a reader who cannot hear it needs.
 - [Avatar](https://webfluent.monzeromer.dev/reference/avatar.md): A picture of a person, or their initials.
 - [Background](https://webfluent.monzeromer.dev/reference/background.md): Drawn behind each PDF page's content, the size of the page: a cover, a band, a full-bleed picture.
@@ -187,7 +190,7 @@ Every page below is Markdown. The language's whole reference in one file is [AGE
 - [Configuration](https://webfluent.monzeromer.dev/reference/config.md): Every key of webfluent.app.json, its type and default: project, build, media, PDF, slides, dev, motion, meta, theme, i18n, env, offline and lints.
 - [Container](https://webfluent.monzeromer.dev/reference/container.md): Centred wrapper with a maximum width and horizontal padding.
 - [DatePicker](https://webfluent.monzeromer.dev/reference/datepicker.md): A date field: the reader picks a day, and the bound state holds a Date.
-- [Dialog](https://webfluent.monzeromer.dev/reference/dialog.md): Confirmation <dialog>, opened by a state flag. on close runs when it closes, however it was closed.
+- [Dialog](https://webfluent.monzeromer.dev/reference/dialog.md): Confirmation <dialog>, opened by a state flag. on close runs when it closes, however it was closed, and the focus goes back to what had it.
 - [Dialog.Title](https://webfluent.monzeromer.dev/reference/dialog-title.md): What the dialog's heading draws, in place of its title:'s words, which stay its name.
 - [Divider](https://webfluent.monzeromer.dev/reference/divider.md): Horizontal rule.
 - [Document](https://webfluent.monzeromer.dev/reference/document.md): Root of a PDF document: the paper, the margins and what the file says about itself.
@@ -221,7 +224,7 @@ Every page below is Markdown. The language's whole reference in one file is [AGE
 - [Menu.Divider](https://webfluent.monzeromer.dev/reference/menu-divider.md): A rule between groups of entries.
 - [Menu.Item](https://webfluent.monzeromer.dev/reference/menu-item.md): One entry of the menu; on click is what choosing it does.
 - [Menu.Sub](https://webfluent.monzeromer.dev/reference/menu-sub.md): An entry that opens a menu of its own beside it.
-- [Modal](https://webfluent.monzeromer.dev/reference/modal.md): Modal <dialog>, opened by a state flag; the browser supplies focus trapping and Escape. on close runs when it closes, however it was closed.
+- [Modal](https://webfluent.monzeromer.dev/reference/modal.md): Modal <dialog>, opened by a state flag; the browser supplies focus trapping and Escape. on close runs when it closes, however it was closed, and the focus goes back to what had it.
 - [Modal.Footer](https://webfluent.monzeromer.dev/reference/modal-footer.md): The modal's action row.
 - [Modal.Title](https://webfluent.monzeromer.dev/reference/modal-title.md): What the modal's heading draws, in place of its title:'s words, which stay its name: Modal.Title { Text { "Rename "  Code(name) } }.
 - [Navbar](https://webfluent.monzeromer.dev/reference/navbar.md): Top navigation bar with brand, links and action areas.
@@ -246,6 +249,9 @@ Every page below is Markdown. The language's whole reference in one file is [AGE
 - [SectionSlide](https://webfluent.monzeromer.dev/reference/sectionslide.md): Full-bleed coloured band with a centred label.
 - [Select](https://webfluent.monzeromer.dev/reference/select.md): Drop-down of Select.Option children.
 - [Select.Option](https://webfluent.monzeromer.dev/reference/select-option.md): One choice: the visible label, and the value sent with the form.
+- [Sheet](https://webfluent.monzeromer.dev/reference/sheet.md): A modal <dialog> that comes in from an edge: the bottom (a phone's filters, a share list) or the start or end of the line. Dragged by its handle or heading toward its edge it closes; a bottom sheet with snap: points settles at the nearest.
+- [Sheet.Footer](https://webfluent.monzeromer.dev/reference/sheet-footer.md): The sheet's action row, kept in view below what scrolls.
+- [Sheet.Title](https://webfluent.monzeromer.dev/reference/sheet-title.md): What the sheet's heading draws, in place of its title:'s words, which stay its name.
 - [Sidebar](https://webfluent.monzeromer.dev/reference/sidebar.md): Side navigation. A Sidebar.Item whose to matches the current route is marked .active and aria-current="page".
 - [Sidebar.Divider](https://webfluent.monzeromer.dev/reference/sidebar-divider.md): A rule between groups of items.
 - [Sidebar.Header](https://webfluent.monzeromer.dev/reference/sidebar-header.md): The sidebar's heading area.
@@ -295,7 +301,7 @@ Every page below is Markdown. The language's whole reference in one file is [AGE
 - [A05 — A button with no text](https://webfluent.monzeromer.dev/errors/A05.md): A `Button` with no text: no label, no `aria-label:`, and no `Text` in its block.
 - [A06 — A link with no text](https://webfluent.monzeromer.dev/errors/A06.md): A `Link` with no text.
 - [A07 — An empty heading](https://webfluent.monzeromer.dev/errors/A07.md): A `Heading` with no text.
-- [A08 — A dialog with no title](https://webfluent.monzeromer.dev/errors/A08.md): A `Modal` or `Dialog` with no `title:`, which is its accessible name.
+- [A08 — A dialog with no title](https://webfluent.monzeromer.dev/errors/A08.md): A `Modal`, `Dialog`, `AlertDialog` or `Sheet` with no `title:` (a `Sheet` may take a `label:`), which is its accessible name.
 - [A09 — Media nobody can follow without sound](https://webfluent.monzeromer.dev/errors/A09.md): A `Video` with no `controls`, or a `Video` or `Audio` with no `captions:` or `transcript:`.
 - [A10 — A table with no header row](https://webfluent.monzeromer.dev/errors/A10.md): A `Table` with no `Table.Head`.
 - [A11 — A skipped heading level](https://webfluent.monzeromer.dev/errors/A11.md): A heading level skipped — `h2` straight to `h4`.
@@ -305,6 +311,7 @@ Every page below is Markdown. The language's whole reference in one file is [AGE
 - [A15 — An `aria-label` that does not contain the visible text](https://webfluent.monzeromer.dev/errors/A15.md): A control's `aria-label` does not contain the text it shows, so what a voice-control user says does not match what they see.
 - [A16 — One id on several elements](https://webfluent.monzeromer.dev/errors/A16.md): A literal `id:` inside a `for`, or in a component placed more than once, gives several elements one id; a label's `for` and `aria-*` find only the first.
 - [A17 — A frame with no title](https://webfluent.monzeromer.dev/errors/A17.md): A `Frame` with no `title:`, which is its accessible name: a screen reader announces a frame by its title, and a frame without one as only a frame.
+- [A18 — A popover with no name](https://webfluent.monzeromer.dev/errors/A18.md): A `Popover` drawn as a dialog (it has no other `role:`) with no `label:`: a screen reader announces it as a dialog and nothing more.
 - [C01 — A required prop or field left out](https://webfluent.monzeromer.dev/errors/C01.md): A component's prop, or a record's field, that has no default is not given. The value would be `undefined` where the declaration promises one.
 - [C02 — A prop the component does not declare](https://webfluent.monzeromer.dev/errors/C02.md): Your own component is called with a prop it does not declare. Nothing in it reads the value, so the call does not do what it says; often a misspelling.
 - [C03 — A part outside the component it belongs to](https://webfluent.monzeromer.dev/errors/C03.md): `Select.Option`, `Table.Row`, `Card.Header` — a part is placed inside its owner. Outside it, it draws a stray element with nothing around it.
@@ -421,7 +428,7 @@ Every page below is Markdown. The language's whole reference in one file is [AGE
 ## About
 
 - [About WebFluent](https://webfluent.monzeromer.dev/about.md)
-- [Accessibility](https://webfluent.monzeromer.dev/about/accessibility.md): What the built-ins do for keyboard and screen-reader users, the A01–A17 checks, and the part of accessibility that stays a person's judgement.
+- [Accessibility](https://webfluent.monzeromer.dev/about/accessibility.md): What the built-ins do for keyboard and screen-reader users, the A01–A18 checks, and the part of accessibility that stays a person's judgement.
 - [Contributing](https://webfluent.monzeromer.dev/about/contributing.md): Build and test the compiler, find your way around the repository and its pipeline, and change a built-in, the grammar, the runtime or this guide.
 - [How reactivity works](https://webfluent.monzeromer.dev/about/how-reactivity-works.md): How WebFluent's signals, derived values, effects and keyed lists work under the hood, and why what reads a value is what redraws.
 - [Security](https://webfluent.monzeromer.dev/about/security.md): What WebFluent enforces and why, and where its guarantees stop: outside markup, sessions, env secrets, uploads, the CSP and code you choose to trust.

@@ -1,11 +1,11 @@
 # Build a confirm dialog
 
-> Ask before a destructive action: a component that wraps a Dialog and fires confirm or cancel, with the question's detail written by the caller.
+> Ask before a destructive action: an AlertDialog in a component that fires confirm or cancel, or one line, await ask(…).
 
 The page: https://webfluent.monzeromer.dev/recipes/confirm-dialog
 
-Before a reader deletes something, ask them. This component wraps a
-`Dialog` with **Cancel** and **Confirm** buttons and tells the page which
+Before a reader deletes something, ask them. This component wraps an
+`AlertDialog` with **Cancel** and **Confirm** buttons and tells the page which
 one was pressed, so every destructive action on the site asks the same way:
 
 **Needs:** nothing besides the page. It claims `/`: paste it into a new
@@ -16,7 +16,7 @@ component Confirm(_ title: String, visible: Bool, danger: Bool = false) {
     event confirm()
     event cancel()
     slot
-    Dialog(visible: visible, title: title) {
+    AlertDialog(visible: visible, title: title) {
         children
         Row(gap: .sm, justify: .end) {
             Button("Cancel") { on click { emit cancel() } }
@@ -53,3 +53,29 @@ page Account(path: "/", title: "Account", description: "Close your account.") {
 - The page owns `asking`. **Delete account** sets it, and both handlers
   clear it, which closes the
   [dialog](https://webfluent.monzeromer.dev/learn/08-events.md#overlays-modals-dialogs-toasts-and-menus).
+- An `AlertDialog` is one to a screen reader, read with its body. Escape
+  closes it as **Cancel** would, and a press beside it does not: an answer
+  is a button.
+
+## One question, from a handler
+
+When the question is asked once, from one handler, `await ask(…)` draws the
+alert dialog itself and is the answer:
+
+```wf
+page Account(path: "/", title: "Account", description: "Close your account.") {
+    state gone = false
+    Heading("Account").h1
+    Button("Delete account").danger {
+        on click {
+            if await ask("Delete your account?", detail: "Everything goes. This cannot be undone.", yes: "Delete", danger: true) {
+                gone = true
+            }
+        }
+    }
+    if gone { Alert("Account deleted.").info }
+}
+```
+
+The focus starts on **Cancel**, the answer that loses nothing, and goes
+back to the button once it is answered.

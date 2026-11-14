@@ -44,8 +44,11 @@ impl Usage {
                 Declaration::Page(p) => &p.body,
                 Declaration::Component(c) => &c.body,
                 Declaration::App(a) => &a.body,
-                Declaration::Store(_)
-                | Declaration::Theme(_)
+                Declaration::Store(s) => {
+                    calls(&s.body, &mut usage);
+                    continue;
+                }
+                Declaration::Theme(_)
                 | Declaration::Type(_)
                 | Declaration::Enum(_)
                 | Declaration::Api(_)
@@ -56,6 +59,7 @@ impl Usage {
                 | Declaration::Data(_) => continue,
             };
             walk(body, &mut usage);
+            calls(body, &mut usage);
         }
         usage
     }
@@ -63,6 +67,24 @@ impl Usage {
     fn uses(&self, name: &str) -> bool {
         self.components.contains(name)
     }
+}
+
+/// What a program draws by calling rather than placing: `toast(…)` a
+/// toast, `ask(…)` an alert dialog with its two buttons.
+fn calls(body: &[Statement], usage: &mut Usage) {
+    let mut body = body.to_vec();
+    crate::syntax::parser::ast::walk_exprs_mut(&mut body, &mut |e| match e {
+        Expr::FunctionCall(name, _) if name == "toast" => {
+            usage.components.insert("Toast".to_string());
+        }
+        Expr::MethodCall(obj, _, _) if matches!(&**obj, Expr::Identifier(n) if n == "toast") => {
+            usage.components.insert("Toast".to_string());
+        }
+        Expr::FunctionCall(name, _) if name == "ask" => {
+            usage.components.insert("AlertDialog".to_string());
+        }
+        _ => {}
+    });
 }
 
 /// The animation modifier words.

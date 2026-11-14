@@ -21,10 +21,12 @@ Popover(visible: State, anchor: Any, at: Any, …) { … }
 | `offset:` | `Number` | How far from the anchor, in px |
 | `label:` | `String` | What it is, for a screen reader: its accessible name |
 | `arrow:` | `Bool` | A point toward the anchor |
+| `dismiss:` | `.any .escape .none` | What closes it besides the page's own button |
+| `initialFocus:` | `Any` | What takes the focus when it opens, by its `ref:`; unset, what says `autofocus`, else its first control |
 
 ## Flags
 
-`.bottom` `.bottomStart` `.bottomEnd` `.top` `.topStart` `.topEnd` `.left` `.leftStart` `.leftEnd` `.right` `.rightStart` `.rightEnd` `.arrow`
+`.bottom` `.bottomStart` `.bottomEnd` `.top` `.topStart` `.topEnd` `.left` `.leftStart` `.leftEnd` `.right` `.rightStart` `.rightEnd` `.arrow` `.any` `.escape` `.none`
 
 ## Events
 

@@ -596,6 +596,12 @@ ol.wf-list { list-style: decimal; padding-left: var(--spacing-lg); }
 .wf-toast--info { background: var(--color-info); color: #fff; }
 /*@both*/
 .wf-toast--exit { animation: wf-toast-out 0.3s ease forwards; }
+.wf-toast { display: flex; align-items: center; gap: var(--spacing-sm); }
+.wf-toast__text { flex: 1; }
+.wf-toast__action, .wf-toast__close { flex-shrink: 0; min-height: var(--target-min); min-width: var(--target-min); border: 0; background: none; color: inherit; font: inherit; cursor: pointer; padding: 0 var(--spacing-xs); }
+.wf-toast__action { font-weight: var(--font-weight-bold); text-decoration: underline; }
+.wf-toast__close { opacity: 0.8; font-size: var(--font-size-lg); line-height: 1; }
+.wf-toast__close:hover { opacity: 1; }
 .wf-toast { --wf-toast-from: 100%; }
 .wf-toast:dir(rtl) { --wf-toast-from: -100%; }
 @keyframes wf-toast-in { from { transform: translateX(var(--wf-toast-from)); opacity: 0; } to { transform: none; opacity: 1; } }
@@ -611,6 +617,13 @@ ol.wf-list { list-style: decimal; padding-left: var(--spacing-lg); }
 /*@both*/
 .wf-modal { margin: auto; border: none; padding: 0; background: transparent; max-width: 90vw; max-height: 90vh; overflow: visible; }
 .wf-modal::backdrop { background: rgba(0,0,0,0.5); }
+/* It comes in and goes out: the browser keeps a closing dialog in the top
+   layer, and shown, until its transition has played (`allow-discrete`), so
+   Escape, the backdrop and its state all play the same exit. */
+.wf-modal, .wf-modal::backdrop { transition: opacity var(--animation-duration-fast) var(--ease-standard), transform var(--animation-duration-fast) var(--ease-standard), overlay var(--animation-duration-fast) allow-discrete, display var(--animation-duration-fast) allow-discrete; }
+.wf-modal:not([open]), .wf-modal:not([open])::backdrop { opacity: 0; }
+.wf-modal:not([open]) { transform: scale(0.97); }
+@starting-style { .wf-modal[open], .wf-modal[open]::backdrop { opacity: 0; } .wf-modal[open] { transform: scale(0.97); } }
 /*@full*/
 .wf-modal__content { background: var(--color-background); border-radius: var(--radius-lg); box-shadow: var(--shadow-xl); max-width: 500px; width: 90vw; max-height: 90vh; overflow-y: auto; }
 .wf-modal__header { padding: var(--spacing-md); border-bottom: 1px solid var(--color-border); display: flex; justify-content: space-between; align-items: center; }
@@ -635,10 +648,62 @@ ol.wf-list { list-style: decimal; padding-left: var(--spacing-lg); }
 /*@both*/
 .wf-dialog { margin: auto; border: none; padding: 0; background: transparent; max-width: 90vw; max-height: 90vh; overflow: visible; }
 .wf-dialog::backdrop { background: rgba(0,0,0,0.5); }
+.wf-dialog, .wf-dialog::backdrop { transition: opacity var(--animation-duration-fast) var(--ease-standard), transform var(--animation-duration-fast) var(--ease-standard), overlay var(--animation-duration-fast) allow-discrete, display var(--animation-duration-fast) allow-discrete; }
+.wf-dialog:not([open]), .wf-dialog:not([open])::backdrop { opacity: 0; }
+.wf-dialog:not([open]) { transform: scale(0.97); }
+@starting-style { .wf-dialog[open], .wf-dialog[open]::backdrop { opacity: 0; } .wf-dialog[open] { transform: scale(0.97); } }
 /*@full*/
 .wf-dialog__content { background: var(--color-background); border-radius: var(--radius-lg); box-shadow: var(--shadow-xl); padding: var(--spacing-lg); max-width: 400px; width: 90vw; display: flex; flex-direction: column; gap: var(--spacing-md); }
 /*@structural*/
 .wf-dialog__content { background: var(--color-background); padding: var(--spacing-lg); max-width: 400px; width: 90%; display: flex; flex-direction: column; gap: var(--spacing-md); }
+/*@both*/
+.wf-dialog__header { display: flex; justify-content: space-between; align-items: center; gap: var(--spacing-sm); }
+.wf-dialog__header h3 { margin: 0; }
+.wf-dialog__detail { margin: 0; }
+.wf-dialog__footer { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: var(--spacing-sm); }
+
+/*@full*/
+/* ─── Sheet ─────────────────────────────────────────── */
+/* A modal <dialog> drawn against an edge: the bottom, or the start or end
+   of the line. `--wf-sheet-drag` is how far a finger has pulled it toward
+   that edge. */
+/*@structural*/
+/* ─── Sheet (overlay) ───────────────────────────────── */
+/*@both*/
+.wf-sheet { position: fixed; border: none; padding: 0; margin: 0; max-width: 100vw; max-height: 100dvh; overflow: visible; background: transparent; display: flex; flex-direction: column; --wf-sheet-drag: 0px; }
+.wf-sheet:not([open]) { display: none; }
+.wf-sheet::backdrop { background: rgba(0,0,0,0.5); }
+.wf-sheet[data-side="bottom"] { inset: auto 0 0 0; width: 100%; max-height: 90dvh; transform: translateY(var(--wf-sheet-drag)); }
+.wf-sheet[data-side="start"] { inset-block: 0; inset-inline-start: 0; inset-inline-end: auto; height: 100dvh; width: min(360px, 85vw); }
+.wf-sheet[data-side="end"] { inset-block: 0; inset-inline-end: 0; inset-inline-start: auto; height: 100dvh; width: min(360px, 85vw); }
+.wf-sheet[data-side="start"] { transform: translateX(calc(-1 * var(--wf-sheet-drag))); }
+.wf-sheet[data-side="end"] { transform: translateX(var(--wf-sheet-drag)); }
+.wf-sheet[data-side="start"]:dir(rtl) { transform: translateX(var(--wf-sheet-drag)); }
+.wf-sheet[data-side="end"]:dir(rtl) { transform: translateX(calc(-1 * var(--wf-sheet-drag))); }
+.wf-sheet, .wf-sheet::backdrop { transition: transform var(--transition-normal), height var(--transition-normal), opacity var(--transition-normal), overlay var(--transition-normal) allow-discrete, display var(--transition-normal) allow-discrete; }
+.wf-sheet[data-dragging] { transition: none; }
+.wf-sheet:not([open])::backdrop { opacity: 0; }
+.wf-sheet[data-side="bottom"]:not([open]) { transform: translateY(100%); }
+.wf-sheet[data-side="start"]:not([open]), .wf-sheet[data-side="end"]:dir(rtl):not([open]) { transform: translateX(-100%); }
+.wf-sheet[data-side="end"]:not([open]), .wf-sheet[data-side="start"]:dir(rtl):not([open]) { transform: translateX(100%); }
+@starting-style {
+  .wf-sheet[open]::backdrop { opacity: 0; }
+  .wf-sheet[data-side="bottom"][open] { transform: translateY(100%); }
+  .wf-sheet[data-side="start"][open], .wf-sheet[data-side="end"]:dir(rtl)[open] { transform: translateX(-100%); }
+  .wf-sheet[data-side="end"][open], .wf-sheet[data-side="start"]:dir(rtl)[open] { transform: translateX(100%); }
+}
+.wf-sheet__content { display: flex; flex-direction: column; flex: 1; min-height: 0; background: var(--color-background); color: var(--color-text); overflow: hidden; }
+.wf-sheet__handle { align-self: center; width: 44px; min-height: 24px; display: flex; align-items: center; justify-content: center; cursor: grab; touch-action: none; flex-shrink: 0; }
+.wf-sheet__handle::before { content: ""; width: 36px; height: 4px; border-radius: 2px; background: var(--color-border); }
+.wf-sheet__header { display: flex; justify-content: space-between; align-items: center; gap: var(--spacing-sm); padding: var(--spacing-md); touch-action: none; flex-shrink: 0; }
+.wf-sheet__header h3 { margin: 0; }
+.wf-sheet__close { display: inline-flex; align-items: center; justify-content: center; min-width: var(--target-min); min-height: var(--target-min); padding: 0; border: 0; background: none; color: inherit; cursor: pointer; }
+.wf-sheet__body { padding: 0 var(--spacing-md) var(--spacing-md); overflow-y: auto; flex: 1; min-height: 0; }
+.wf-sheet__footer { padding: var(--spacing-md); display: flex; justify-content: flex-end; gap: var(--spacing-sm); flex-shrink: 0; padding-bottom: max(var(--spacing-md), env(safe-area-inset-bottom)); }
+/*@full*/
+.wf-sheet__content { box-shadow: var(--shadow-xl); }
+.wf-sheet[data-side="bottom"] .wf-sheet__content { border-radius: var(--radius-lg) var(--radius-lg) 0 0; }
+.wf-sheet__footer { border-top: 1px solid var(--color-border); }
 /*@both*/
 
 /*@full*/
@@ -726,6 +791,10 @@ ol.wf-list { list-style: decimal; padding-left: var(--spacing-lg); }
 /* ─── Layer ─────────────────────────────────────────── */
 .wf-layer { position: fixed; inset: auto; margin: 0; }
 .wf-layer:not([data-open]) { display: none; }
+/* A layer drawn as a popover fades out, kept in the top layer until it has. */
+.wf-layer[popover] { transition: opacity var(--animation-duration-fast) var(--ease-standard), overlay var(--animation-duration-fast) allow-discrete, display var(--animation-duration-fast) allow-discrete; }
+.wf-layer[popover]:not([data-open]) { opacity: 0; }
+@starting-style { .wf-layer[popover][data-open] { opacity: 0; } }
 
 /* ─── Icon ─────────────────────────────────────────── */
 .wf-icon { display: inline-flex; align-items: center; justify-content: center; width: 1em; height: 1em; vertical-align: middle; }

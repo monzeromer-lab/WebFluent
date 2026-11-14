@@ -1,13 +1,13 @@
 # Modal
 
-> Modal <dialog>, opened by a state flag; the browser supplies focus trapping and Escape. on close runs when it closes, however it was closed.
+> Modal <dialog>, opened by a state flag; the browser supplies focus trapping and Escape. on close runs when it closes, however it was closed, and the focus goes back to what had it.
 
 The page: https://webfluent.monzeromer.dev/reference/modal
 
-Modal <dialog>, opened by a state flag; the browser supplies focus trapping and Escape. on close runs when it closes, however it was closed.
+Modal <dialog>, opened by a state flag; the browser supplies focus trapping and Escape. on close runs when it closes, however it was closed, and the focus goes back to what had it.
 
 ```wf
-Modal(visible: State, title: String, closable: Bool) { … }
+Modal(visible: State, title: String, closable: Bool, …) { … }
 ```
 
 ## Props
@@ -17,10 +17,12 @@ Modal(visible: State, title: String, closable: Bool) { … }
 | `visible:` | `State` | State flag that opens and closes it |
 | `title:` | `String` | Heading shown at the top |
 | `closable:` | `Bool` | A close button in the heading row, which closes it as Escape does |
+| `dismiss:` | `.any .escape .none` | What closes it besides the page's own button |
+| `initialFocus:` | `Any` | What takes the focus when it opens, by its `ref:`; unset, what says `autofocus`, else its first control |
 
 ## Flags
 
-`.closable`
+`.closable` `.any` `.escape` `.none`
 
 ## Events
 

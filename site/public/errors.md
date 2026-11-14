@@ -328,6 +328,7 @@ Warnings. What makes a page unusable with a screen reader, a keyboard or a voice
 - [A15](https://webfluent.monzeromer.dev/errors/A15.md) — An `aria-label` that does not contain the visible text
 - [A16](https://webfluent.monzeromer.dev/errors/A16.md) — One id on several elements
 - [A17](https://webfluent.monzeromer.dev/errors/A17.md) — A frame with no title
+- [A18](https://webfluent.monzeromer.dev/errors/A18.md) — A popover with no name
 
 ### Search and sharing
 

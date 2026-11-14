@@ -3,8 +3,8 @@
 //
 // - a switch is reached and toggled from the keyboard, and is a switch to a
 //   screen reader;
-// - a sidebar shut off a narrow page is out of the Tab order, and opening
-//   it takes the focus into it;
+// - a sidebar shut off a narrow page is out of the Tab order, opening it
+//   takes the focus into it, and Tab stays there while it is open;
 // - a press on a modal's backdrop closes it, and a press inside does not;
 // - a toast shown over a modal is drawn above it and is heard, and goes back
 //   to the page when the modal closes;
@@ -83,6 +83,9 @@ try {
     return { visibility: getComputedStyle(nav).visibility, inside: nav.contains(document.activeElement) };
   });
   check("opened from its toggle, it shows and the focus goes into it", opened.visibility === "visible" && opened.inside, JSON.stringify(opened));
+  for (let i = 0; i < 3; i++) await page.keyboard.press("Tab");
+  check("open, Tab goes round its links and does not leave it",
+    await page.evaluate(() => document.getElementById("nav").contains(document.activeElement)));
   await page.keyboard.press("Escape");
   await pause(400);
   const closed = await page.evaluate(() => ({

@@ -514,13 +514,36 @@ since stage 0. Two things differ from the plan:
   - **Sheet**: bottom, start and end, with swipe to close, snap points and a
     handle;
   - **the Sidebar's mobile drawer**, which moves onto Sheet;
-  - **AlertDialog**, with `await confirm(…)`;
+  - **AlertDialog**, with `await ask(…)`;
   - **Toast**, upgraded: the top layer, an action, pause, close, a limit, and
     `toast.promise`.
 - `announce(text)` and `announce(text, .assertive)`.
 - **Lint:** `A18`, a Modal with no name.
 
 **Done when** standards 3, 4 and 6 hold for every overlay, checked by tests.
+
+**Status: done, 2026-11-14.** `WF.dialog` serves Modal, Dialog,
+AlertDialog and Sheet, and `WF.layer` serves Popover, with the same
+`dismiss:` and `initialFocus:`; the checks are `tests/browser/overlays.mjs`
+(30 in Chrome), `tests/js/overlays.test.mjs` and `tests/overlays.rs`. Four
+things differ from the plan:
+
+- The exit is the stylesheet's (`transition` with `allow-discrete`), not a
+  script's: the browser keeps a closing dialog or popover in the top layer
+  until it has played, so Escape, a press outside and `visible:` all play
+  it with no code in their way. A browser without `allow-discrete` closes
+  at once.
+- The Sidebar's drawer did not move onto Sheet. Its panel is the same
+  element a wide page shows in place, which a `<dialog>` cannot be; the
+  drawer instead joins the layers (Escape in turn, a press outside), holds
+  the focus with `trapFocus`, and gives it back to its toggle.
+- The question is `await ask(…)`, not `await confirm(…)`: `confirm` is the
+  browser's own function.
+- `A08` already named a modal with no title, so it now covers AlertDialog
+  and Sheet too, and `A18` is a Popover with no name.
+
+`toast`, `ask` and `announce` are the language's only where a program has
+no name of its own so called: `state toast` stays a program's, as it was.
 
 ### Stage 4: interactions that hold up
 

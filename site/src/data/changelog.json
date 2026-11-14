@@ -70,6 +70,64 @@
     "after": ""
    },
    {
+    "title": "Overlays on one path",
+    "id": "6.2.0-overlays-on-one-path",
+    "intro": "",
+    "items": [
+     {
+      "text": "`Modal`, `Dialog`, `Sheet` and `Popover` take `dismiss:` — `.any` (Escape\nor a press outside, the default), `.escape`, or `.none` for what must be\nanswered — and `initialFocus:`, the `ref:` that takes the focus when one\nopens. When one closes, the focus goes back to what had it.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "A modal, a dialog, a popover and a menu fade out before they go, however\nthey were closed, and come in the same way.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "A popover's anchor says what it opens and whether it is open\n(`aria-controls`, `aria-expanded`, `aria-haspopup`), and the focus goes to\nthe popover's first control, where it stayed on the anchor before.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`Sheet` is new: a modal from the bottom, or the start or end of the line,\ndragged shut by its handle or heading, with `snap:` points for a bottom\nsheet.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`AlertDialog` is new: a dialog a screen reader hears as an alert, read\nwith its body, which Escape answers and a press beside it does not.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`await ask(\"Delete the project?\", danger: true)` asks from a handler and\nis the answer, in an alert dialog with the focus on no.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`toast(…)` shows a toast from a handler, with `action:` and `onAction:`\nfor a button on it; every toast now has a close button, waits while the\npointer is on it or the focus is in it, and no more than three show at\nonce. `toast.promise(p, loading:, done:, failed:)` follows a promise.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`announce(text)` speaks to a screen reader with nothing on screen moving;\n`announce(text, .assertive)` interrupts.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "On a narrow screen an open `Sidebar` holds the focus, closes on a press\noutside, and is one of the layers Escape closes in turn.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`A18` warns of a `Popover` with no name; `A08` covers `AlertDialog` and\n`Sheet`.",
+      "points": [],
+      "after": ""
+     }
+    ],
+    "after": ""
+   },
+   {
     "title": "Fixes",
     "id": "6.2.0-fixes",
     "intro": "",
@@ -197,7 +255,7 @@
     "after": ""
    }
   ],
-  "count": 27
+  "count": 37
  },
  {
   "version": "6.1.0",

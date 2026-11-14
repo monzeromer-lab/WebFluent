@@ -45,6 +45,35 @@ component takes the built-in's place, which cannot then be placed there.
 - `wf test` has `expect focus "Beta"`, and a `click` step puts the focus
   where a real click would, so the keys a test presses next go there.
 
+## Overlays on one path
+
+- `Modal`, `Dialog`, `Sheet` and `Popover` take `dismiss:` — `.any` (Escape
+  or a press outside, the default), `.escape`, or `.none` for what must be
+  answered — and `initialFocus:`, the `ref:` that takes the focus when one
+  opens. When one closes, the focus goes back to what had it.
+- A modal, a dialog, a popover and a menu fade out before they go, however
+  they were closed, and come in the same way.
+- A popover's anchor says what it opens and whether it is open
+  (`aria-controls`, `aria-expanded`, `aria-haspopup`), and the focus goes to
+  the popover's first control, where it stayed on the anchor before.
+- `Sheet` is new: a modal from the bottom, or the start or end of the line,
+  dragged shut by its handle or heading, with `snap:` points for a bottom
+  sheet.
+- `AlertDialog` is new: a dialog a screen reader hears as an alert, read
+  with its body, which Escape answers and a press beside it does not.
+- `await ask("Delete the project?", danger: true)` asks from a handler and
+  is the answer, in an alert dialog with the focus on no.
+- `toast(…)` shows a toast from a handler, with `action:` and `onAction:`
+  for a button on it; every toast now has a close button, waits while the
+  pointer is on it or the focus is in it, and no more than three show at
+  once. `toast.promise(p, loading:, done:, failed:)` follows a promise.
+- `announce(text)` speaks to a screen reader with nothing on screen moving;
+  `announce(text, .assertive)` interrupts.
+- On a narrow screen an open `Sidebar` holds the focus, closes on a press
+  outside, and is one of the layers Escape closes in turn.
+- `A18` warns of a `Popover` with no name; `A08` covers `AlertDialog` and
+  `Sheet`.
+
 ## Fixes
 
 - `wf check` knows an `image`'s fields: `hero.width`, `.height`, `.color`

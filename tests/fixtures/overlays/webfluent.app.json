@@ -1,0 +1,4 @@
+{
+  "name": "overlays",
+  "build": { "ssg": true, "csp": true }
+}

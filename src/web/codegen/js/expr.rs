@@ -139,6 +139,28 @@ pub(super) enum Cx<'s> {
 }
 
 impl JsCodegen {
+    /// Whether `name` is something the program declares where it is read —
+    /// a state, a prop, an action, a local, a constant — which then means
+    /// that, not the language's function of the name.
+    pub(super) fn programs_own(&self, name: &str, cx: Cx<'_>) -> bool {
+        let name = &name.to_string();
+        let store = match cx {
+            Cx::Store(members) => {
+                self.is_own_member(name, members)
+                    || self.store_locals.borrow().iter().any(|l| l == name)
+            }
+            Cx::Page => false,
+        };
+        store
+            || self.body.own_names.contains(name)
+            || self.body.own_actions.contains(name)
+            || self.body.current_props.contains(name)
+            || self.consts.contains(name)
+            || self.loop_bindings.contains(name)
+            || self.lambda_params.borrow().contains(name)
+            || self.script_names.contains(name)
+    }
+
     /// An expression on a page.
     pub(super) fn emit_expr(&self, expr: &Expr) -> String {
         self.emit_expr_in(expr, Cx::Page)
@@ -441,6 +463,15 @@ impl JsCodegen {
                 }
             }
             (Expr::MethodCall(obj, method, args), _) => {
+                // `toast.promise(p, loading: …, done: …)`: a toast that
+                // follows a promise, unless `toast` is the program's own.
+                if method == "promise"
+                    && matches!(&**obj, Expr::Identifier(n) if n == "toast")
+                    && !self.programs_own("toast", cx)
+                {
+                    let args: Vec<String> = args.iter().map(|a| self.emit_expr_in(a, cx)).collect();
+                    return format!("WF.toastPromise({})", args.join(", "));
+                }
                 // The arm a `match` with no `else` cannot reach: the checker
                 // proved every case has one.
                 if method == "__exhaustive" {
@@ -630,6 +661,14 @@ impl JsCodegen {
                     return format!("WF.{name}({})", args_str.join(", "));
                 }
 
+                // `toast(…)`, `ask(…)`, `announce(…)`: the runtime's, where the
+                // program has no name of its own so called.
+                if matches!(name.as_str(), "toast" | "ask" | "announce")
+                    && !self.programs_own(name, Cx::Page)
+                {
+                    let args: Vec<String> = args.iter().map(|a| self.emit_expr(a)).collect();
+                    return format!("WF.{name}({})", args.join(", "));
+                }
                 let args_str: Vec<String> = args.iter().map(|a| self.emit_expr(a)).collect();
                 // `await fetch(url, opts)`: the parsed body, as a `resource`
                 // reads it; a failed response throws.
@@ -712,6 +751,10 @@ impl JsCodegen {
                     format!("WF.{}({})", name, args_str.join(", "))
                 } else if name == "fetch" {
                     format!("WF.request({})", args_str.join(", "))
+                } else if matches!(name.as_str(), "toast" | "ask" | "announce")
+                    && !self.programs_own(name, cx)
+                {
+                    format!("WF.{}({})", name, args_str.join(", "))
                 } else if self.store_locals.borrow().contains(name) {
                     format!("{}({})", bare(name), args_str.join(", "))
                 } else if self.consts.contains(name) {

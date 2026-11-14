@@ -1,13 +1,15 @@
 {
-  "diagnostics": [],
+  "diagnostics": [
+    "{\"code\":\"V11\",\"severity\":\"info\",\"message\":\"`Sheet` is this project's component, so a call of that name draws it rather than the built-in `Sheet`\",\"file\":\"src/components/Sheet.wf\",\"line\":3,\"column\":1,\"end_line\":0,\"end_column\":0,\"hint\":\"To place the built-in too, rename this one — `MySheet`, `ReportSheet` — and its call sites\",\"related\":[],\"fixes\":[],\"tags\":[]}"
+  ],
   "files": {
     "404.html": "062c2adb7814deab91914146f85c983a9cadbf51164820491594ebd7a04661d5",
     "404.html.gz": "e8a93143ba7f3a4d47d9324809c156ff6643691aa966dbf712c6bca88b102bfd",
     "_headers": "ab659ef6aa87e4994c047f0afe74c1882b43db8b48e5ed9315716374a749c4b2",
     "about/index.html": "97e7e1160f68d29e8d14c737438aeafe1266ce881c91aa6823cdc41ef7834cca",
     "about/index.html.gz": "30164a735c59ba36a99f9326f4d2bddc2346f18af4ee88c1d3822c6c05f4eb3d",
-    "app.js": "498bfea7ff0bbcf740b91a91b1420f1951f799765619ec44c58bcd7529b10c8d",
-    "app.js.gz": "ab50290ad19e38d0aca38db5fa57066c27293607feb4d2c0c476b21d9395bf41",
+    "app.js": "79a6e0951ff7a8e86d50f735b1efe74e986072a7325a0204c09c0914af609ea9",
+    "app.js.gz": "95f0d11915e395d532db31e31c33873264a524cfa24dae412bb3a9d90e5423e4",
     "card.png": "ecf6fa2a3d6a9435630a73180224d8d14cc129e3a723ff41a65d34dcc7323dca",
     "favicon.svg": "27db8809a3c152062fb19c209c5b2b6249831acc2a44c7f6c347280e7a63a03f",
     "index.html": "e33f415442cd2d204305b35f85a12e244a8337b87f15ecc73fe41e222d1b0a3c",

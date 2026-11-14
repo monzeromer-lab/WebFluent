@@ -133,7 +133,7 @@ impl JsCodegen {
                 self.emit_picture(var, ui, parent);
                 true
             }
-            "Modal" | "Dialog" => {
+            "Modal" | "Dialog" | "AlertDialog" | "Sheet" => {
                 self.emit_modal_dialog(name, var, &attrs_str, ui, parent);
                 true
             }
@@ -902,7 +902,7 @@ impl JsCodegen {
                         // A Modal's or Dialog's title is its heading, which
                         // the dialog reads; on anything else `title` is the
                         // global attribute — the tooltip a pointer shows.
-                        "title" if matches!(name, "Modal" | "Dialog") => {
+                        "title" if matches!(name, "Modal" | "Dialog" | "AlertDialog" | "Sheet") => {
                             let v = self.emit_expr(val);
                             attrs.push(format!("\"data-title\": {v}"));
                         }

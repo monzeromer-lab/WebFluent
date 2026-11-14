@@ -400,6 +400,26 @@ const AT: PropSig = special(
     "A point to place it at, `{ x: e.clientX, y: e.clientY }`: where the pointer asked for a context menu",
 );
 const OFFSET: PropSig = special("offset", PropType::Num, "How far from the anchor, in px");
+/// What closes a layer besides the page's own button.
+const DISMISS: PropSig = special(
+    "dismiss",
+    PropType::Enum(&[
+        case("any", "", "Escape, or a press outside it (the default)"),
+        case("escape", "", "Escape only: a press outside is the page's"),
+        case(
+            "none",
+            "",
+            "Neither: only the page's own button closes it, for what must be answered",
+        ),
+    ]),
+    "What closes it besides the page's own button",
+);
+/// What takes the focus when a layer opens.
+const INITIAL_FOCUS: PropSig = special(
+    "initialFocus",
+    PropType::Any,
+    "What takes the focus when it opens, by its `ref:`; unset, what says `autofocus`, else its first control",
+);
 const SIZE: PropSig = variant("size", SIZES, "Its size");
 const MUTED: PropSig = flag("muted", "muted", "Dimmed, for secondary text");
 
@@ -511,7 +531,11 @@ pub const UNIVERSAL_PROPS: &[PropSig] = &[
     PropSig {
         name: "roving",
         ty: PropType::Enum(&[
-            case("x", "", "A row: ArrowLeft and ArrowRight move, the other way round in a right-to-left box"),
+            case(
+                "x",
+                "",
+                "A row: ArrowLeft and ArrowRight move, the other way round in a right-to-left box",
+            ),
             case("y", "", "A column: ArrowUp and ArrowDown move"),
             case("both", "", "Both: a wrapping row of choices"),
         ]),
@@ -1784,9 +1808,9 @@ pub const COMPONENTS: &[ComponentSig] = &[
         ..comp(
             "Modal",
             "Feedback",
-            "Modal `<dialog>`, opened by a state flag; the browser supplies focus trapping and Escape. `on close` runs when it closes, however it was closed.",
+            "Modal `<dialog>`, opened by a state flag; the browser supplies focus trapping and Escape. `on close` runs when it closes, however it was closed, and the focus goes back to what had it.",
             None,
-            &[VISIBLE, TITLE, CLOSABLE],
+            &[VISIBLE, TITLE, CLOSABLE, DISMISS, INITIAL_FOCUS],
             &["Title", "Footer"],
             G,
             Children::Elements,
@@ -1834,6 +1858,8 @@ pub const COMPONENTS: &[ComponentSig] = &[
                     "What it is, for a screen reader: its accessible name",
                 ),
                 flag("arrow", "arrow", "A point toward the anchor"),
+                DISMISS,
+                INITIAL_FOCUS,
             ],
             &[],
             G,
@@ -1848,9 +1874,9 @@ pub const COMPONENTS: &[ComponentSig] = &[
         ..comp(
             "Dialog",
             "Feedback",
-            "Confirmation `<dialog>`, opened by a state flag. `on close` runs when it closes, however it was closed.",
+            "Confirmation `<dialog>`, opened by a state flag. `on close` runs when it closes, however it was closed, and the focus goes back to what had it.",
             None,
-            &[VISIBLE, TITLE, CLOSABLE],
+            &[VISIBLE, TITLE, CLOSABLE, DISMISS, INITIAL_FOCUS],
             &["Title"],
             G,
             Children::Elements,
@@ -1864,6 +1890,99 @@ pub const COMPONENTS: &[ComponentSig] = &[
         "Title",
         Ir::Sub("Dialog", "Title"),
         "What the dialog's heading draws, in place of its `title:`'s words, which stay its name.",
+        None,
+        &[],
+        G,
+        Children::Elements,
+    ),
+    ComponentSig {
+        events: &["close"],
+        ..comp(
+            "AlertDialog",
+            "Feedback",
+            "A `<dialog>` that asks before something that cannot be undone: `role=\"alertdialog\"`, its body read out with its title, and closed by Escape or its own buttons, not a press outside. For a question asked from a handler, `await ask(…)` draws one.",
+            None,
+            &[VISIBLE, TITLE, DISMISS, INITIAL_FOCUS],
+            &["Title", "Footer"],
+            G,
+            Children::Elements,
+        )
+    }
+    .html("dialog", "wf-dialog wf-alert-dialog")
+    .css(&["Button", "Dialog"])
+    .not_on_paper(NOT_ON_PAPER),
+    part(
+        "AlertDialog",
+        "Title",
+        Ir::Sub("AlertDialog", "Title"),
+        "What the alert dialog's heading draws, in place of its `title:`'s words, which stay its name.",
+        None,
+        &[],
+        G,
+        Children::Elements,
+    ),
+    part(
+        "AlertDialog",
+        "Footer",
+        Ir::Sub("AlertDialog", "Footer"),
+        "Its answers: the button that loses nothing first.",
+        None,
+        &[],
+        G,
+        Children::Elements,
+    ),
+    ComponentSig {
+        events: &["close"],
+        ..comp(
+            "Sheet",
+            "Feedback",
+            "A modal `<dialog>` that comes in from an edge: the bottom (a phone's filters, a share list) or the start or end of the line. Dragged by its handle or heading toward its edge it closes; a bottom sheet with `snap:` points settles at the nearest.",
+            None,
+            &[
+                VISIBLE,
+                TITLE,
+                CLOSABLE,
+                special(
+                    "side",
+                    PropType::Enum(&[
+                        case("bottom", "", "From the bottom of the window (the default)"),
+                        case("start", "", "From where a line starts: the left, the right in a right-to-left page"),
+                        case("end", "", "From where a line ends"),
+                    ]),
+                    "The edge it comes in from",
+                ),
+                special(
+                    "snap",
+                    PropType::Any,
+                    "A bottom sheet's heights, as fractions of the window's, `[0.5, 1]`: it opens at the first",
+                ),
+                special("label", PropType::Str, "Its accessible name, when it has no `title:`"),
+                DISMISS,
+                INITIAL_FOCUS,
+            ],
+            &["Title", "Footer"],
+            G,
+            Children::Elements,
+        )
+    }
+    .html("dialog", "wf-sheet")
+    .css(&["Button", "Sheet"])
+    .not_on_paper(NOT_ON_PAPER),
+    part(
+        "Sheet",
+        "Title",
+        Ir::Sub("Sheet", "Title"),
+        "What the sheet's heading draws, in place of its `title:`'s words, which stay its name.",
+        None,
+        &[],
+        G,
+        Children::Elements,
+    ),
+    part(
+        "Sheet",
+        "Footer",
+        Ir::Sub("Sheet", "Footer"),
+        "The sheet's action row, kept in view below what scrolls.",
         None,
         &[],
         G,

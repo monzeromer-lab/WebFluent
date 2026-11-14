@@ -150,10 +150,11 @@ pub const MODULES: &[Module] = &[
         ("fetch", "wfFetch"),
     ],
         deps: ["http"], triggers: []),
-    module!("toast", exports: [same("toast")], deps: ["announce"], triggers: []),
+    module!("toast", exports: [same("toast"), same("toastPromise")], deps: ["announce"], triggers: []),
     module!("overlay", exports: [
-        same("dialog"), same("popup"), same("tabs"),
+        same("dialog"), same("popup"), same("tabs"), same("ask"),
     ], deps: ["focus"], triggers: []),
+    module!("sheet", exports: [same("sheet")], deps: ["overlay"], triggers: []),
     module!("worker", exports: [same("worker")], deps: [], triggers: []),
     module!("windowed", exports: [same("windowed")], deps: ["nodes"], triggers: []),
     module!("gesture", exports: [
@@ -166,7 +167,7 @@ pub const MODULES: &[Module] = &[
     module!("announce", exports: [same("announce")], deps: [], triggers: []),
     module!("field", exports: [same("field"), same("choiceError")], deps: [], triggers: []),
     module!("carousel", exports: [same("carousel")], deps: ["field", "focus"], triggers: []),
-    module!("drawer", exports: [same("drawer")], deps: [], triggers: []),
+    module!("drawer", exports: [same("drawer")], deps: ["layer"], triggers: []),
     module!("head", exports: [same("head")], deps: [], triggers: []),
     module!("hydrate", exports: [same("hydrate"), same("hydrating")], deps: [], triggers: []),
     module!("i18n", exports: [same("locales")], deps: ["format"], triggers: []),

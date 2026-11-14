@@ -58,8 +58,21 @@
     document.addEventListener("close", seen, true);
   }
 
-  function _announcer() {
-    if (!announcer && typeof document !== "undefined" && document.body) {
+  let assertive = null;
+
+  function _region(urgent) {
+    if (typeof document === "undefined" || !document.body) return null;
+    if (urgent) {
+      if (!assertive) {
+        assertive = document.createElement("div");
+        assertive.className = "wf-visually-hidden";
+        assertive.setAttribute("aria-live", "assertive");
+        assertive.setAttribute("aria-atomic", "true");
+        _keepHeard(assertive);
+      }
+      return assertive;
+    }
+    if (!announcer) {
       announcer = document.createElement("div");
       announcer.className = "wf-visually-hidden";
       announcer.setAttribute("role", "status");
@@ -67,6 +80,11 @@
       _keepHeard(announcer);
     }
     return announcer;
+  }
+
+  function _announcer() {
+    _region(false);
+    _region(true);
   }
 
   function _bootAnnouncer() {
@@ -77,8 +95,11 @@
   }
   _bootAnnouncer();
 
-  function announce(text) {
-    const region = _announcer();
+  /// Say `text` to a screen reader, with nothing on screen moving:
+  /// politely, after what it is reading, or with `"assertive"` at once,
+  /// for what cannot wait (a connection lost, a save that failed).
+  function announce(text, politeness) {
+    const region = _region(politeness === "assertive");
     if (!region) return;
     _rehome();
     // Each message is a new line, added a moment after the region is
@@ -87,7 +108,7 @@
     setTimeout(() => {
       while (region.firstChild) region.removeChild(region.firstChild);
       const line = document.createElement("div");
-      line.textContent = text;
+      line.textContent = text == null ? "" : String(text);
       region.appendChild(line);
     }, 50);
   }

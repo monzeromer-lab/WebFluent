@@ -14,7 +14,7 @@ Every component is written `Name(positional, prop: value).flag { block }`. A **p
 - **Navigation**: [`Navbar`](https://webfluent.monzeromer.dev/reference/navbar), [`Sidebar`](https://webfluent.monzeromer.dev/reference/sidebar), [`Link`](https://webfluent.monzeromer.dev/reference/link), [`Tabs`](https://webfluent.monzeromer.dev/reference/tabs), [`Breadcrumb`](https://webfluent.monzeromer.dev/reference/breadcrumb), [`Menu`](https://webfluent.monzeromer.dev/reference/menu)
 - **Data display**: [`Card`](https://webfluent.monzeromer.dev/reference/card), [`Table`](https://webfluent.monzeromer.dev/reference/table), [`List`](https://webfluent.monzeromer.dev/reference/list), [`Badge`](https://webfluent.monzeromer.dev/reference/badge), [`Tag`](https://webfluent.monzeromer.dev/reference/tag), [`Avatar`](https://webfluent.monzeromer.dev/reference/avatar), [`Tooltip`](https://webfluent.monzeromer.dev/reference/tooltip), [`Chart`](https://webfluent.monzeromer.dev/reference/chart), [`QrCode`](https://webfluent.monzeromer.dev/reference/qrcode)
 - **Form**: [`Input`](https://webfluent.monzeromer.dev/reference/input), [`Select`](https://webfluent.monzeromer.dev/reference/select), [`Checkbox`](https://webfluent.monzeromer.dev/reference/checkbox), [`Radio`](https://webfluent.monzeromer.dev/reference/radio), [`Switch`](https://webfluent.monzeromer.dev/reference/switch), [`Slider`](https://webfluent.monzeromer.dev/reference/slider), [`DatePicker`](https://webfluent.monzeromer.dev/reference/datepicker), [`FileUpload`](https://webfluent.monzeromer.dev/reference/fileupload), [`Form`](https://webfluent.monzeromer.dev/reference/form), [`Textarea`](https://webfluent.monzeromer.dev/reference/textarea)
-- **Feedback**: [`Alert`](https://webfluent.monzeromer.dev/reference/alert), [`Toast`](https://webfluent.monzeromer.dev/reference/toast), [`Modal`](https://webfluent.monzeromer.dev/reference/modal), [`Popover`](https://webfluent.monzeromer.dev/reference/popover), [`Dialog`](https://webfluent.monzeromer.dev/reference/dialog), [`Spinner`](https://webfluent.monzeromer.dev/reference/spinner), [`Progress`](https://webfluent.monzeromer.dev/reference/progress), [`Skeleton`](https://webfluent.monzeromer.dev/reference/skeleton)
+- **Feedback**: [`Alert`](https://webfluent.monzeromer.dev/reference/alert), [`Toast`](https://webfluent.monzeromer.dev/reference/toast), [`Modal`](https://webfluent.monzeromer.dev/reference/modal), [`Popover`](https://webfluent.monzeromer.dev/reference/popover), [`Dialog`](https://webfluent.monzeromer.dev/reference/dialog), [`AlertDialog`](https://webfluent.monzeromer.dev/reference/alertdialog), [`Sheet`](https://webfluent.monzeromer.dev/reference/sheet), [`Spinner`](https://webfluent.monzeromer.dev/reference/spinner), [`Progress`](https://webfluent.monzeromer.dev/reference/progress), [`Skeleton`](https://webfluent.monzeromer.dev/reference/skeleton)
 - **Actions**: [`Button`](https://webfluent.monzeromer.dev/reference/button), [`IconButton`](https://webfluent.monzeromer.dev/reference/iconbutton), [`ButtonGroup`](https://webfluent.monzeromer.dev/reference/buttongroup), [`Dropdown`](https://webfluent.monzeromer.dev/reference/dropdown)
 - **Media**: [`Image`](https://webfluent.monzeromer.dev/reference/image), [`Video`](https://webfluent.monzeromer.dev/reference/video), [`Audio`](https://webfluent.monzeromer.dev/reference/audio), [`Frame`](https://webfluent.monzeromer.dev/reference/frame), [`Icon`](https://webfluent.monzeromer.dev/reference/icon), [`Carousel`](https://webfluent.monzeromer.dev/reference/carousel)
 - **Typography**: [`Text`](https://webfluent.monzeromer.dev/reference/text), [`Heading`](https://webfluent.monzeromer.dev/reference/heading), [`Code`](https://webfluent.monzeromer.dev/reference/code), [`Markdown`](https://webfluent.monzeromer.dev/reference/markdown), [`Unsafe`](https://webfluent.monzeromer.dev/reference/unsafe), [`Blockquote`](https://webfluent.monzeromer.dev/reference/blockquote)
@@ -1165,7 +1165,7 @@ Attribute families: `global`, `aria`, `data`.
 
 ### Modal
 
-Modal `<dialog>`, opened by a state flag; the browser supplies focus trapping and Escape. `on close` runs when it closes, however it was closed.
+Modal `<dialog>`, opened by a state flag; the browser supplies focus trapping and Escape. `on close` runs when it closes, however it was closed, and the focus goes back to what had it.
 
 ```
 Modal(visible: …, title: …, closable: …) { … }
@@ -1188,8 +1188,10 @@ Renders with the class `wf-modal`.
 | `visible:` | `State` | State flag that opens and closes it |
 | `title:` | `String` | Heading shown at the top |
 | `closable:` | `Bool` | A close button in the heading row, which closes it as Escape does |
+| `dismiss:` | `.any` `.escape` `.none` | What closes it besides the page's own button |
+| `initialFocus:` | `Any` | What takes the focus when it opens, by its `ref:`; unset, what says `autofocus`, else its first control |
 
-**Flags:** `.closable`
+**Flags:** `.closable` `.any` `.escape` `.none`
 
 **Events of its own:** `on close`
 
@@ -1230,8 +1232,10 @@ Renders with the class `wf-popover`.
 | `offset:` | `Number` | How far from the anchor, in px |
 | `label:` | `String` | What it is, for a screen reader: its accessible name |
 | `arrow:` | `Bool` | A point toward the anchor |
+| `dismiss:` | `.any` `.escape` `.none` | What closes it besides the page's own button |
+| `initialFocus:` | `Any` | What takes the focus when it opens, by its `ref:`; unset, what says `autofocus`, else its first control |
 
-**Flags:** `.bottom` `.bottomStart` `.bottomEnd` `.top` `.topStart` `.topEnd` `.left` `.leftStart` `.leftEnd` `.right` `.rightStart` `.rightEnd` `.arrow`
+**Flags:** `.bottom` `.bottomStart` `.bottomEnd` `.top` `.topStart` `.topEnd` `.left` `.leftStart` `.leftEnd` `.right` `.rightStart` `.rightEnd` `.arrow` `.any` `.escape` `.none`
 
 **Events of its own:** `on close`
 
@@ -1241,7 +1245,7 @@ Attribute families: `global`, `aria`, `data`.
 
 ### Dialog
 
-Confirmation `<dialog>`, opened by a state flag. `on close` runs when it closes, however it was closed.
+Confirmation `<dialog>`, opened by a state flag. `on close` runs when it closes, however it was closed, and the focus goes back to what had it.
 
 ```
 Dialog(visible: …, title: …, closable: …) { … }
@@ -1262,14 +1266,105 @@ Renders with the class `wf-dialog`.
 | `visible:` | `State` | State flag that opens and closes it |
 | `title:` | `String` | Heading shown at the top |
 | `closable:` | `Bool` | A close button in the heading row, which closes it as Escape does |
+| `dismiss:` | `.any` `.escape` `.none` | What closes it besides the page's own button |
+| `initialFocus:` | `Any` | What takes the focus when it opens, by its `ref:`; unset, what says `autofocus`, else its first control |
 
-**Flags:** `.closable`
+**Flags:** `.closable` `.any` `.escape` `.none`
 
 **Events of its own:** `on close`
 
 **Parts:**
 
 - `Dialog.Title { … }` — What the dialog's heading draws, in place of its `title:`'s words, which stay its name.
+
+Takes a block of children.
+
+Attribute families: `global`, `aria`, `data`.
+
+### AlertDialog
+
+A `<dialog>` that asks before something that cannot be undone: `role="alertdialog"`, its body read out with its title, and closed by Escape or its own buttons, not a press outside. For a question asked from a handler, `await ask(…)` draws one.
+
+```
+AlertDialog(visible: …, title: …, dismiss: …) { … }
+```
+
+```wf
+state sure = false
+Button("Discard") { on click { sure = true } }
+AlertDialog(visible: sure, title: "Discard your changes?") {
+    Text("Your edits will be lost.")
+    AlertDialog.Footer {
+        Button("Keep editing") { on click { sure = false } }
+        Button("Discard").danger { on click { sure = false } }
+    }
+}
+```
+
+Renders with the class `wf-dialog wf-alert-dialog`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `visible:` | `State` | State flag that opens and closes it |
+| `title:` | `String` | Heading shown at the top |
+| `dismiss:` | `.any` `.escape` `.none` | What closes it besides the page's own button |
+| `initialFocus:` | `Any` | What takes the focus when it opens, by its `ref:`; unset, what says `autofocus`, else its first control |
+
+**Flags:** `.any` `.escape` `.none`
+
+**Events of its own:** `on close`
+
+**Parts:**
+
+- `AlertDialog.Title { … }` — What the alert dialog's heading draws, in place of its `title:`'s words, which stay its name.
+- `AlertDialog.Footer { … }` — Its answers: the button that loses nothing first.
+
+Takes a block of children.
+
+Attribute families: `global`, `aria`, `data`.
+
+### Sheet
+
+A modal `<dialog>` that comes in from an edge: the bottom (a phone's filters, a share list) or the start or end of the line. Dragged by its handle or heading toward its edge it closes; a bottom sheet with `snap:` points settles at the nearest.
+
+```
+Sheet(visible: …, title: …, closable: …) { … }
+```
+
+```wf
+state filters = false
+state sort = "new"
+Button("Filters") { on click { filters = true } }
+Sheet(visible: filters, title: "Filters", snap: [0.5, 1]).closable {
+    Radio(bind: sort, value: "new", label: "Newest")
+    Radio(bind: sort, value: "price", label: "Price")
+    Sheet.Footer { Button("Show results").primary { on click { filters = false } } }
+}
+state details = false
+Sheet(visible: details, side: .end, title: "Details") { Text("Opened 3 days ago") }
+```
+
+Renders with the class `wf-sheet`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `visible:` | `State` | State flag that opens and closes it |
+| `title:` | `String` | Heading shown at the top |
+| `closable:` | `Bool` | A close button in the heading row, which closes it as Escape does |
+| `side:` | `.bottom` `.start` `.end` | The edge it comes in from |
+| `snap:` | `Any` | A bottom sheet's heights, as fractions of the window's, `[0.5, 1]`: it opens at the first |
+| `label:` | `String` | Its accessible name, when it has no `title:` |
+| `dismiss:` | `.any` `.escape` `.none` | What closes it besides the page's own button |
+| `initialFocus:` | `Any` | What takes the focus when it opens, by its `ref:`; unset, what says `autofocus`, else its first control |
+
+**Flags:** `.closable` `.bottom` `.start` `.end` `.any` `.escape` `.none`
+
+**Events of its own:** `on close`
+
+**Parts:**
+
+- `Sheet.Title { … }` — What the sheet's heading draws, in place of its `title:`'s words, which stay its name.
+- `Sheet.Footer { … }` — The sheet's action row, kept in view below what scrolls.
 
 Takes a block of children.
 

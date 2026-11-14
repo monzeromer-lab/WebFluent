@@ -1,5 +1,5 @@
 {
- "count": 111,
+ "count": 117,
  "families": [
   "Layout",
   "Navigation",
@@ -5775,9 +5775,9 @@
    "family": "Feedback",
    "owner": "",
    "ownerSlug": "",
-   "summary": "Modal `<dialog>`, opened by a state flag; the browser supplies focus trapping and Escape. `on close` runs when it closes, however it was closed.",
-   "plain": "Modal <dialog>, opened by a state flag; the browser supplies focus trapping and Escape. on close runs when it closes, however it was closed.",
-   "signature": "Modal(visible: State, title: String, closable: Bool) { … }",
+   "summary": "Modal `<dialog>`, opened by a state flag; the browser supplies focus trapping and Escape. `on close` runs when it closes, however it was closed, and the focus goes back to what had it.",
+   "plain": "Modal <dialog>, opened by a state flag; the browser supplies focus trapping and Escape. on close runs when it closes, however it was closed, and the focus goes back to what had it.",
+   "signature": "Modal(visible: State, title: String, closable: Bool, …) { … }",
    "block": true,
    "legacy": false,
    "modern": [
@@ -5799,6 +5799,16 @@
      "name": "closable:",
      "type": "Bool",
      "meaning": "A close button in the heading row, which closes it as Escape does"
+    },
+    {
+     "name": "dismiss:",
+     "type": ".any .escape .none",
+     "meaning": "What closes it besides the page's own button"
+    },
+    {
+     "name": "initialFocus:",
+     "type": "Any",
+     "meaning": "What takes the focus when it opens, by its `ref:`; unset, what says `autofocus`, else its first control"
     }
    ],
    "controls": [
@@ -5814,10 +5824,24 @@
      "options": [],
      "value": "",
      "sink": "class"
+    },
+    {
+     "name": "dismiss",
+     "kind": "enum",
+     "options": [
+      "any",
+      "escape",
+      "none"
+     ],
+     "value": "any",
+     "sink": "special"
     }
    ],
    "flags": [
-    ".closable"
+    ".closable",
+    ".any",
+    ".escape",
+    ".none"
    ],
    "events": [
     {
@@ -6062,6 +6086,16 @@
      "name": "arrow:",
      "type": "Bool",
      "meaning": "A point toward the anchor"
+    },
+    {
+     "name": "dismiss:",
+     "type": ".any .escape .none",
+     "meaning": "What closes it besides the page's own button"
+    },
+    {
+     "name": "initialFocus:",
+     "type": "Any",
+     "meaning": "What takes the focus when it opens, by its `ref:`; unset, what says `autofocus`, else its first control"
     }
    ],
    "controls": [
@@ -6090,6 +6124,17 @@
      "options": [],
      "value": "",
      "sink": "class"
+    },
+    {
+     "name": "dismiss",
+     "kind": "enum",
+     "options": [
+      "any",
+      "escape",
+      "none"
+     ],
+     "value": "any",
+     "sink": "special"
     }
    ],
    "flags": [
@@ -6105,7 +6150,10 @@
     ".right",
     ".rightStart",
     ".rightEnd",
-    ".arrow"
+    ".arrow",
+    ".any",
+    ".escape",
+    ".none"
    ],
    "events": [
     {
@@ -6164,9 +6212,9 @@
    "family": "Feedback",
    "owner": "",
    "ownerSlug": "",
-   "summary": "Confirmation `<dialog>`, opened by a state flag. `on close` runs when it closes, however it was closed.",
-   "plain": "Confirmation <dialog>, opened by a state flag. on close runs when it closes, however it was closed.",
-   "signature": "Dialog(visible: State, title: String, closable: Bool) { … }",
+   "summary": "Confirmation `<dialog>`, opened by a state flag. `on close` runs when it closes, however it was closed, and the focus goes back to what had it.",
+   "plain": "Confirmation <dialog>, opened by a state flag. on close runs when it closes, however it was closed, and the focus goes back to what had it.",
+   "signature": "Dialog(visible: State, title: String, closable: Bool, …) { … }",
    "block": true,
    "legacy": false,
    "modern": [
@@ -6188,6 +6236,16 @@
      "name": "closable:",
      "type": "Bool",
      "meaning": "A close button in the heading row, which closes it as Escape does"
+    },
+    {
+     "name": "dismiss:",
+     "type": ".any .escape .none",
+     "meaning": "What closes it besides the page's own button"
+    },
+    {
+     "name": "initialFocus:",
+     "type": "Any",
+     "meaning": "What takes the focus when it opens, by its `ref:`; unset, what says `autofocus`, else its first control"
     }
    ],
    "controls": [
@@ -6203,10 +6261,24 @@
      "options": [],
      "value": "",
      "sink": "class"
+    },
+    {
+     "name": "dismiss",
+     "kind": "enum",
+     "options": [
+      "any",
+      "escape",
+      "none"
+     ],
+     "value": "any",
+     "sink": "special"
     }
    ],
    "flags": [
-    ".closable"
+    ".closable",
+    ".any",
+    ".escape",
+    ".none"
    ],
    "events": [
     {
@@ -6310,6 +6382,542 @@
    "preview": false,
    "outputs": [],
    "since": "5.11.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "AlertDialog",
+   "slug": "alertdialog",
+   "family": "Feedback",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "A `<dialog>` that asks before something that cannot be undone: `role=\"alertdialog\"`, its body read out with its title, and closed by Escape or its own buttons, not a press outside. For a question asked from a handler, `await ask(…)` draws one.",
+   "plain": "A <dialog> that asks before something that cannot be undone: role=\"alertdialog\", its body read out with its title, and closed by Escape or its own buttons, not a press outside. For a question asked from a handler, await ask(…) draws one.",
+   "signature": "AlertDialog(visible: State, title: String, dismiss: Enum, …) { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "visible:",
+     "type": "State",
+     "meaning": "State flag that opens and closes it"
+    },
+    {
+     "name": "title:",
+     "type": "String",
+     "meaning": "Heading shown at the top"
+    },
+    {
+     "name": "dismiss:",
+     "type": ".any .escape .none",
+     "meaning": "What closes it besides the page's own button"
+    },
+    {
+     "name": "initialFocus:",
+     "type": "Any",
+     "meaning": "What takes the focus when it opens, by its `ref:`; unset, what says `autofocus`, else its first control"
+    }
+   ],
+   "controls": [
+    {
+     "name": "title",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "dismiss",
+     "kind": "enum",
+     "options": [
+      "any",
+      "escape",
+      "none"
+     ],
+     "value": "any",
+     "sink": "special"
+    }
+   ],
+   "flags": [
+    ".any",
+    ".escape",
+    ".none"
+   ],
+   "events": [
+    {
+     "name": "close",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [
+    {
+     "name": "AlertDialog.Title",
+     "kind": "alertdialog-title",
+     "detail": "What the alert dialog's heading draws, in place of its title:'s words, which stay its name.",
+     "fallback": ""
+    },
+    {
+     "name": "AlertDialog.Footer",
+     "kind": "alertdialog-footer",
+     "detail": "Its answers: the button that loses nothing first.",
+     "fallback": ""
+    }
+   ],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-dialog wf-alert-dialog",
+   "example": "state sure = false\nButton(\"Discard\") { on click { sure = true } }\nAlertDialog(visible: sure, title: \"Discard your changes?\") {\n    Text(\"Your edits will be lost.\")\n    AlertDialog.Footer {\n        Button(\"Keep editing\") { on click { sure = false } }\n        Button(\"Discard\").danger { on click { sure = false } }\n    }\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "AlertDialog.Title",
+   "slug": "alertdialog-title",
+   "family": "Feedback",
+   "owner": "AlertDialog",
+   "ownerSlug": "alertdialog",
+   "summary": "What the alert dialog's heading draws, in place of its `title:`'s words, which stay its name.",
+   "plain": "What the alert dialog's heading draws, in place of its title:'s words, which stay its name.",
+   "signature": "AlertDialog.Title { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [],
+   "controls": [],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "state sure = false\nButton(\"Discard\") { on click { sure = true } }\nAlertDialog(visible: sure, title: \"Discard your changes?\") {\n    Text(\"Your edits will be lost.\")\n    AlertDialog.Footer {\n        Button(\"Keep editing\") { on click { sure = false } }\n        Button(\"Discard\").danger { on click { sure = false } }\n    }\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "AlertDialog.Footer",
+   "slug": "alertdialog-footer",
+   "family": "Feedback",
+   "owner": "AlertDialog",
+   "ownerSlug": "alertdialog",
+   "summary": "Its answers: the button that loses nothing first.",
+   "plain": "Its answers: the button that loses nothing first.",
+   "signature": "AlertDialog.Footer { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [],
+   "controls": [],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "state sure = false\nButton(\"Discard\") { on click { sure = true } }\nAlertDialog(visible: sure, title: \"Discard your changes?\") {\n    Text(\"Your edits will be lost.\")\n    AlertDialog.Footer {\n        Button(\"Keep editing\") { on click { sure = false } }\n        Button(\"Discard\").danger { on click { sure = false } }\n    }\n}",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "Sheet",
+   "slug": "sheet",
+   "family": "Feedback",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "A modal `<dialog>` that comes in from an edge: the bottom (a phone's filters, a share list) or the start or end of the line. Dragged by its handle or heading toward its edge it closes; a bottom sheet with `snap:` points settles at the nearest.",
+   "plain": "A modal <dialog> that comes in from an edge: the bottom (a phone's filters, a share list) or the start or end of the line. Dragged by its handle or heading toward its edge it closes; a bottom sheet with snap: points settles at the nearest.",
+   "signature": "Sheet(visible: State, title: String, closable: Bool, …) { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "visible:",
+     "type": "State",
+     "meaning": "State flag that opens and closes it"
+    },
+    {
+     "name": "title:",
+     "type": "String",
+     "meaning": "Heading shown at the top"
+    },
+    {
+     "name": "closable:",
+     "type": "Bool",
+     "meaning": "A close button in the heading row, which closes it as Escape does"
+    },
+    {
+     "name": "side:",
+     "type": ".bottom .start .end",
+     "meaning": "The edge it comes in from"
+    },
+    {
+     "name": "snap:",
+     "type": "Any",
+     "meaning": "A bottom sheet's heights, as fractions of the window's, `[0.5, 1]`: it opens at the first"
+    },
+    {
+     "name": "label:",
+     "type": "String",
+     "meaning": "Its accessible name, when it has no `title:`"
+    },
+    {
+     "name": "dismiss:",
+     "type": ".any .escape .none",
+     "meaning": "What closes it besides the page's own button"
+    },
+    {
+     "name": "initialFocus:",
+     "type": "Any",
+     "meaning": "What takes the focus when it opens, by its `ref:`; unset, what says `autofocus`, else its first control"
+    }
+   ],
+   "controls": [
+    {
+     "name": "title",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "closable",
+     "kind": "bool",
+     "options": [],
+     "value": "",
+     "sink": "class"
+    },
+    {
+     "name": "side",
+     "kind": "enum",
+     "options": [
+      "bottom",
+      "start",
+      "end"
+     ],
+     "value": "bottom",
+     "sink": "special"
+    },
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "dismiss",
+     "kind": "enum",
+     "options": [
+      "any",
+      "escape",
+      "none"
+     ],
+     "value": "any",
+     "sink": "special"
+    }
+   ],
+   "flags": [
+    ".closable",
+    ".bottom",
+    ".start",
+    ".end",
+    ".any",
+    ".escape",
+    ".none"
+   ],
+   "events": [
+    {
+     "name": "close",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [
+    {
+     "name": "Sheet.Title",
+     "kind": "sheet-title",
+     "detail": "What the sheet's heading draws, in place of its title:'s words, which stay its name.",
+     "fallback": ""
+    },
+    {
+     "name": "Sheet.Footer",
+     "kind": "sheet-footer",
+     "detail": "The sheet's action row, kept in view below what scrolls.",
+     "fallback": ""
+    }
+   ],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-sheet",
+   "example": "state filters = false\nstate sort = \"new\"\nButton(\"Filters\") { on click { filters = true } }\nSheet(visible: filters, title: \"Filters\", snap: [0.5, 1]).closable {\n    Radio(bind: sort, value: \"new\", label: \"Newest\")\n    Radio(bind: sort, value: \"price\", label: \"Price\")\n    Sheet.Footer { Button(\"Show results\").primary { on click { filters = false } } }\n}\nstate details = false\nSheet(visible: details, side: .end, title: \"Details\") { Text(\"Opened 3 days ago\") }",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "Sheet.Title",
+   "slug": "sheet-title",
+   "family": "Feedback",
+   "owner": "Sheet",
+   "ownerSlug": "sheet",
+   "summary": "What the sheet's heading draws, in place of its `title:`'s words, which stay its name.",
+   "plain": "What the sheet's heading draws, in place of its title:'s words, which stay its name.",
+   "signature": "Sheet.Title { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [],
+   "controls": [],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "state filters = false\nstate sort = \"new\"\nButton(\"Filters\") { on click { filters = true } }\nSheet(visible: filters, title: \"Filters\", snap: [0.5, 1]).closable {\n    Radio(bind: sort, value: \"new\", label: \"Newest\")\n    Radio(bind: sort, value: \"price\", label: \"Price\")\n    Sheet.Footer { Button(\"Show results\").primary { on click { filters = false } } }\n}\nstate details = false\nSheet(visible: details, side: .end, title: \"Details\") { Text(\"Opened 3 days ago\") }",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "Sheet.Footer",
+   "slug": "sheet-footer",
+   "family": "Feedback",
+   "owner": "Sheet",
+   "ownerSlug": "sheet",
+   "summary": "The sheet's action row, kept in view below what scrolls.",
+   "plain": "The sheet's action row, kept in view below what scrolls.",
+   "signature": "Sheet.Footer { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [],
+   "controls": [],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "state filters = false\nstate sort = \"new\"\nButton(\"Filters\") { on click { filters = true } }\nSheet(visible: filters, title: \"Filters\", snap: [0.5, 1]).closable {\n    Radio(bind: sort, value: \"new\", label: \"Newest\")\n    Radio(bind: sort, value: \"price\", label: \"Price\")\n    Sheet.Footer { Button(\"Show results\").primary { on click { filters = false } } }\n}\nstate details = false\nSheet(visible: details, side: .end, title: \"Details\") { Text(\"Opened 3 days ago\") }",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
    "codes": [
     {
      "kind": "E103",

@@ -405,6 +405,8 @@ pub const ALL_COMPONENT_NAMES: &[&str] = &[
     "Toast",
     "Modal",
     "Dialog",
+    "AlertDialog",
+    "Sheet",
     "Popover",
     "Spinner",
     "Progress",

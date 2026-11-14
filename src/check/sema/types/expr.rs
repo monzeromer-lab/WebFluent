@@ -1100,6 +1100,7 @@ impl Checker<'_, '_> {
                     | "globalThis"
                     | "this"
             )
+            || super::names::OVERLAY_FUNCTIONS.contains(&name)
             || self.world.scripts.contains_key(name)
             || self.world.apis.contains_key(name)
             || self.world.stores.contains_key(name)

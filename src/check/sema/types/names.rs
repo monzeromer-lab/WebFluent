@@ -35,6 +35,13 @@ pub(crate) const BUILT_IN_FUNCTIONS: &[&str] = &[
     "Money",
 ];
 
+/// The functions the language gives a program that a program may still
+/// name something of its own (`state toast`, `action ask()`): where it
+/// does, the name is its own, and the function is out of reach there.
+/// `toast(…)` and `toast.promise(…)` show a toast, `await ask(…)` asks a
+/// question with two answers, `announce(…)` speaks to a screen reader.
+pub(crate) const OVERLAY_FUNCTIONS: &[&str] = &["toast", "ask", "announce"];
+
 /// The words of the grammar a program's own name may not be: those a
 /// statement in a body or an imperative block is written with.
 pub(super) const GRAMMAR_WORDS: &[&str] = &[

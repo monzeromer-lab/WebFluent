@@ -86,6 +86,12 @@ const BUILTIN_INDEX: [IndexEntry] = [
     IndexEntry(label: "Popover", to: "/reference/popover", group: "Feedback"),
     IndexEntry(label: "Dialog", to: "/reference/dialog", group: "Feedback"),
     IndexEntry(label: "Dialog.Title", to: "/reference/dialog-title", group: "Feedback"),
+    IndexEntry(label: "AlertDialog", to: "/reference/alertdialog", group: "Feedback"),
+    IndexEntry(label: "AlertDialog.Title", to: "/reference/alertdialog-title", group: "Feedback"),
+    IndexEntry(label: "AlertDialog.Footer", to: "/reference/alertdialog-footer", group: "Feedback"),
+    IndexEntry(label: "Sheet", to: "/reference/sheet", group: "Feedback"),
+    IndexEntry(label: "Sheet.Title", to: "/reference/sheet-title", group: "Feedback"),
+    IndexEntry(label: "Sheet.Footer", to: "/reference/sheet-footer", group: "Feedback"),
     IndexEntry(label: "Spinner", to: "/reference/spinner", group: "Feedback"),
     IndexEntry(label: "Progress", to: "/reference/progress", group: "Feedback"),
     IndexEntry(label: "Skeleton", to: "/reference/skeleton", group: "Feedback"),
@@ -134,7 +140,7 @@ const BUILTIN_INDEX: [IndexEntry] = [
 ]
 
 page ReferenceIndexPage(path: "/reference", title: "Reference", description: "Every built-in element, command, setting and design token, read from the compiler itself, with the language's reference pages.") {
-    ReferenceItemShell(t("nav.reference"), summary: t("ref.lede", { count: 111 }), entries: REFERENCE_PAGES, sections: [Anchor(id: "pages", label: t("ref.pages")), Anchor(id: "layout", label: "Layout"), Anchor(id: "navigation", label: "Navigation"), Anchor(id: "routing", label: "Routing"), Anchor(id: "data-display", label: "Data display"), Anchor(id: "form", label: "Form"), Anchor(id: "feedback", label: "Feedback"), Anchor(id: "actions", label: "Actions"), Anchor(id: "media", label: "Media"), Anchor(id: "typography", label: "Typography"), Anchor(id: "pdf", label: "PDF"), Anchor(id: "slides", label: "Slides"), Anchor(id: "original-spellings", label: "Original spellings"), Anchor(id: "on-every-element", label: t("ref.universal.title"))], source: "scripts/docsite/reference.py") {
+    ReferenceItemShell(t("nav.reference"), summary: t("ref.lede", { count: 117 }), entries: REFERENCE_PAGES, sections: [Anchor(id: "pages", label: t("ref.pages")), Anchor(id: "layout", label: "Layout"), Anchor(id: "navigation", label: "Navigation"), Anchor(id: "routing", label: "Routing"), Anchor(id: "data-display", label: "Data display"), Anchor(id: "form", label: "Form"), Anchor(id: "feedback", label: "Feedback"), Anchor(id: "actions", label: "Actions"), Anchor(id: "media", label: "Media"), Anchor(id: "typography", label: "Typography"), Anchor(id: "pdf", label: "PDF"), Anchor(id: "slides", label: "Slides"), Anchor(id: "original-spellings", label: "Original spellings"), Anchor(id: "on-every-element", label: t("ref.universal.title"))], source: "scripts/docsite/reference.py") {
         Heading(t("ref.pages"), id: "pages").h2
         Grid(columns: { base: 1, sm: 2, xl: 3 }, gap: .sm) {
             Link(to: "/reference/expressions", class: "bp-card") { Text("Expressions") { style { font-weight: 600 } }  Text("Language", class: "bp-small") }
@@ -409,7 +415,7 @@ page ReferenceIndexPage(path: "/reference", title: "Reference", description: "Ev
             }
             Link(to: "/reference/modal", class: "bp-card") {
                 Text("Modal", class: "bp-mono") { style { font-size: 14px; color: $link } }
-                Text("Modal <dialog>, opened by a state flag; the browser supplies focus trapping and Escape. on close runs when it closes, however it was closed.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+                Text("Modal <dialog>, opened by a state flag; the browser supplies focus trapping and Escape. on close runs when it closes, however it was closed, and the focus goes back to what had it.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
             }
             Link(to: "/reference/modal-title", class: "bp-card") {
                 Text("Modal.Title", class: "bp-mono") { style { font-size: 14px; color: $link } }
@@ -425,11 +431,35 @@ page ReferenceIndexPage(path: "/reference", title: "Reference", description: "Ev
             }
             Link(to: "/reference/dialog", class: "bp-card") {
                 Text("Dialog", class: "bp-mono") { style { font-size: 14px; color: $link } }
-                Text("Confirmation <dialog>, opened by a state flag. on close runs when it closes, however it was closed.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+                Text("Confirmation <dialog>, opened by a state flag. on close runs when it closes, however it was closed, and the focus goes back to what had it.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
             }
             Link(to: "/reference/dialog-title", class: "bp-card") {
                 Text("Dialog.Title", class: "bp-mono") { style { font-size: 14px; color: $link } }
                 Text("What the dialog's heading draws, in place of its title:'s words, which stay its name.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+            }
+            Link(to: "/reference/alertdialog", class: "bp-card") {
+                Text("AlertDialog", class: "bp-mono") { style { font-size: 14px; color: $link } }
+                Text("A <dialog> that asks before something that cannot be undone: role=\"alertdialog\", its body read out with its title, and closed by Escape or its own buttons, not a press outside. For a question asked from a handler, await ask(…) draws one.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+            }
+            Link(to: "/reference/alertdialog-title", class: "bp-card") {
+                Text("AlertDialog.Title", class: "bp-mono") { style { font-size: 14px; color: $link } }
+                Text("What the alert dialog's heading draws, in place of its title:'s words, which stay its name.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+            }
+            Link(to: "/reference/alertdialog-footer", class: "bp-card") {
+                Text("AlertDialog.Footer", class: "bp-mono") { style { font-size: 14px; color: $link } }
+                Text("Its answers: the button that loses nothing first.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+            }
+            Link(to: "/reference/sheet", class: "bp-card") {
+                Text("Sheet", class: "bp-mono") { style { font-size: 14px; color: $link } }
+                Text("A modal <dialog> that comes in from an edge: the bottom (a phone's filters, a share list) or the start or end of the line. Dragged by its handle or heading toward its edge it closes; a bottom sheet with snap: points settles at the nearest.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+            }
+            Link(to: "/reference/sheet-title", class: "bp-card") {
+                Text("Sheet.Title", class: "bp-mono") { style { font-size: 14px; color: $link } }
+                Text("What the sheet's heading draws, in place of its title:'s words, which stay its name.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+            }
+            Link(to: "/reference/sheet-footer", class: "bp-card") {
+                Text("Sheet.Footer", class: "bp-mono") { style { font-size: 14px; color: $link } }
+                Text("The sheet's action row, kept in view below what scrolls.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
             }
             Link(to: "/reference/spinner", class: "bp-card") {
                 Text("Spinner", class: "bp-mono") { style { font-size: 14px; color: $link } }
@@ -2902,26 +2932,30 @@ if saved { Toast("Saved").success }"#, title: "wf")
     }
 }
 
-page BuiltinModal(path: "/reference/modal", title: "Modal — Reference", description: "Modal: Modal <dialog>, opened by a state flag; the browser supplies focus trapping and Escape. on close runs when it closes, however it was closed.") {
-    ReferenceItemShell("Modal", summary: "Modal <dialog>, opened by a state flag; the browser supplies focus trapping and Escape. on close runs when it closes, however it was closed.", signature: "Modal(visible: State, title: String, closable: Bool) \{ … \}", older: true, outputs: [], group: "Feedback", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "E109", title: "An element this output cannot draw", to: "/errors/E109"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05"), RelatedLink(kind: "A08", title: "A dialog with no title", to: "/errors/A08")], source: "src/registry/builtins.rs") {
+page BuiltinModal(path: "/reference/modal", title: "Modal — Reference", description: "Modal: Modal <dialog>, opened by a state flag; the browser supplies focus trapping and Escape. on close runs when it closes, however it was closed, and…") {
+    ReferenceItemShell("Modal", summary: "Modal <dialog>, opened by a state flag; the browser supplies focus trapping and Escape. on close runs when it closes, however it was closed, and the focus goes back to what had it.", signature: "Modal(visible: State, title: String, closable: Bool, …) \{ … \}", older: true, outputs: [], group: "Feedback", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "E109", title: "An element this output cannot draw", to: "/errors/E109"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05"), RelatedLink(kind: "A08", title: "A dialog with no title", to: "/errors/A08")], source: "src/registry/builtins.rs") {
         stage {
             Stage(label: "Modal") {
                 controls {
                     StageControl({ name: "title", kind: "string", options: [], value: "" })
                     StageControl({ name: "closable", kind: "bool", options: [], value: "", sink: "class" })
+                    StageControl({ name: "dismiss", kind: "enum", options: ["any", "escape", "none"], value: "any", sink: "special" })
                 }
                 Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
             }
         }
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
-        PropsTable(rows: [{ name: "visible:", type: "State", meaning: "State flag that opens and closes it" }, { name: "title:", type: "String", meaning: "Heading shown at the top" }, { name: "closable:", type: "Bool", meaning: "A close button in the heading row, which closes it as Escape does" }], caption: "Props of Modal")
+        PropsTable(rows: [{ name: "visible:", type: "State", meaning: "State flag that opens and closes it" }, { name: "title:", type: "String", meaning: "Heading shown at the top" }, { name: "closable:", type: "Bool", meaning: "A close button in the heading row, which closes it as Escape does" }, { name: "dismiss:", type: ".any .escape .none", meaning: "What closes it besides the page's own button" }, { name: "initialFocus:", type: "Any", meaning: "What takes the focus when it opens, by its `ref:`; unset, what says `autofocus`, else its first control" }], caption: "Props of Modal")
         Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Row(gap: .sm) {
             style { gap: 8px; flex-wrap: wrap }
             Text(".closable", class: "bp-label bp-mono")
+            Text(".any", class: "bp-label bp-mono")
+            Text(".escape", class: "bp-label bp-mono")
+            Text(".none", class: "bp-label bp-mono")
         }
         Heading(t("ref.tab.events"), id: "events").h2
         EventsTable(rows: [PropRow(name: "close", kind: "", detail: "")], caption: "Events of Modal")
@@ -3019,13 +3053,14 @@ page BuiltinPopover(path: "/reference/popover", title: "Popover — Reference", 
                     StageControl({ name: "placement", kind: "enum", options: ["bottom", "bottomStart", "bottomEnd", "top", "topStart"], value: "bottom", sink: "special" })
                     StageControl({ name: "label", kind: "string", options: [], value: "" })
                     StageControl({ name: "arrow", kind: "bool", options: [], value: "", sink: "class" })
+                    StageControl({ name: "dismiss", kind: "enum", options: ["any", "escape", "none"], value: "any", sink: "special" })
                 }
                 Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
             }
         }
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
-        PropsTable(rows: [{ name: "visible:", type: "State", meaning: "State flag that opens and closes it" }, { name: "anchor:", type: "Any", meaning: "What it is placed against: an element's `ref:`, or a point `\{ x: e.clientX, y: e.clientY \}`" }, { name: "at:", type: "Any", meaning: "A point to place it at, `\{ x: e.clientX, y: e.clientY \}`: where the pointer asked for a context menu" }, { name: "placement:", type: ".bottom .bottomStart .bottomEnd .top .topStart .topEnd .left .leftStart .leftEnd .right .rightStart .rightEnd", meaning: "Where it goes against its anchor; it flips to the other side when there is no room. Unset, `.bottomStart`" }, { name: "offset:", type: "Number", meaning: "How far from the anchor, in px" }, { name: "label:", type: "String", meaning: "What it is, for a screen reader: its accessible name" }, { name: "arrow:", type: "Bool", meaning: "A point toward the anchor" }], caption: "Props of Popover")
+        PropsTable(rows: [{ name: "visible:", type: "State", meaning: "State flag that opens and closes it" }, { name: "anchor:", type: "Any", meaning: "What it is placed against: an element's `ref:`, or a point `\{ x: e.clientX, y: e.clientY \}`" }, { name: "at:", type: "Any", meaning: "A point to place it at, `\{ x: e.clientX, y: e.clientY \}`: where the pointer asked for a context menu" }, { name: "placement:", type: ".bottom .bottomStart .bottomEnd .top .topStart .topEnd .left .leftStart .leftEnd .right .rightStart .rightEnd", meaning: "Where it goes against its anchor; it flips to the other side when there is no room. Unset, `.bottomStart`" }, { name: "offset:", type: "Number", meaning: "How far from the anchor, in px" }, { name: "label:", type: "String", meaning: "What it is, for a screen reader: its accessible name" }, { name: "arrow:", type: "Bool", meaning: "A point toward the anchor" }, { name: "dismiss:", type: ".any .escape .none", meaning: "What closes it besides the page's own button" }, { name: "initialFocus:", type: "Any", meaning: "What takes the focus when it opens, by its `ref:`; unset, what says `autofocus`, else its first control" }], caption: "Props of Popover")
         Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
@@ -3044,6 +3079,9 @@ page BuiltinPopover(path: "/reference/popover", title: "Popover — Reference", 
             Text(".rightStart", class: "bp-label bp-mono")
             Text(".rightEnd", class: "bp-label bp-mono")
             Text(".arrow", class: "bp-label bp-mono")
+            Text(".any", class: "bp-label bp-mono")
+            Text(".escape", class: "bp-label bp-mono")
+            Text(".none", class: "bp-label bp-mono")
         }
         Heading(t("ref.tab.events"), id: "events").h2
         EventsTable(rows: [PropRow(name: "close", kind: "", detail: "")], caption: "Events of Popover")
@@ -3061,26 +3099,30 @@ Popover(visible: open, anchor: branches, placement: .bottomStart, label: "Branch
     }
 }
 
-page BuiltinDialog(path: "/reference/dialog", title: "Dialog — Reference", description: "Dialog: Confirmation <dialog>, opened by a state flag. on close runs when it closes, however it was closed.") {
-    ReferenceItemShell("Dialog", summary: "Confirmation <dialog>, opened by a state flag. on close runs when it closes, however it was closed.", signature: "Dialog(visible: State, title: String, closable: Bool) \{ … \}", older: true, outputs: [], group: "Feedback", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "E109", title: "An element this output cannot draw", to: "/errors/E109"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05"), RelatedLink(kind: "A08", title: "A dialog with no title", to: "/errors/A08")], source: "src/registry/builtins.rs") {
+page BuiltinDialog(path: "/reference/dialog", title: "Dialog — Reference", description: "Dialog: Confirmation <dialog>, opened by a state flag. on close runs when it closes, however it was closed, and the focus goes back to what had it.") {
+    ReferenceItemShell("Dialog", summary: "Confirmation <dialog>, opened by a state flag. on close runs when it closes, however it was closed, and the focus goes back to what had it.", signature: "Dialog(visible: State, title: String, closable: Bool, …) \{ … \}", older: true, outputs: [], group: "Feedback", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "E109", title: "An element this output cannot draw", to: "/errors/E109"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05"), RelatedLink(kind: "A08", title: "A dialog with no title", to: "/errors/A08")], source: "src/registry/builtins.rs") {
         stage {
             Stage(label: "Dialog") {
                 controls {
                     StageControl({ name: "title", kind: "string", options: [], value: "" })
                     StageControl({ name: "closable", kind: "bool", options: [], value: "", sink: "class" })
+                    StageControl({ name: "dismiss", kind: "enum", options: ["any", "escape", "none"], value: "any", sink: "special" })
                 }
                 Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
             }
         }
         notes { Text(t("stage.static"), class: "bp-small") }
         Heading(t("ref.tab.props"), id: "props").h2
-        PropsTable(rows: [{ name: "visible:", type: "State", meaning: "State flag that opens and closes it" }, { name: "title:", type: "String", meaning: "Heading shown at the top" }, { name: "closable:", type: "Bool", meaning: "A close button in the heading row, which closes it as Escape does" }], caption: "Props of Dialog")
+        PropsTable(rows: [{ name: "visible:", type: "State", meaning: "State flag that opens and closes it" }, { name: "title:", type: "String", meaning: "Heading shown at the top" }, { name: "closable:", type: "Bool", meaning: "A close button in the heading row, which closes it as Escape does" }, { name: "dismiss:", type: ".any .escape .none", meaning: "What closes it besides the page's own button" }, { name: "initialFocus:", type: "Any", meaning: "What takes the focus when it opens, by its `ref:`; unset, what says `autofocus`, else its first control" }], caption: "Props of Dialog")
         Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
         Heading(t("ref.tab.flags"), id: "flags").h2
         Markdown(t("ref.flags.body"), class: "bp-prose")
         Row(gap: .sm) {
             style { gap: 8px; flex-wrap: wrap }
             Text(".closable", class: "bp-label bp-mono")
+            Text(".any", class: "bp-label bp-mono")
+            Text(".escape", class: "bp-label bp-mono")
+            Text(".none", class: "bp-label bp-mono")
         }
         Heading(t("ref.tab.events"), id: "events").h2
         EventsTable(rows: [PropRow(name: "close", kind: "", detail: "")], caption: "Events of Dialog")
@@ -3129,6 +3171,250 @@ Dialog(visible: asking, title: "Leave without saving notes.md?") {
     Dialog.Title { Markdown("Leave without saving `notes.md`?") }
     Text("Your draft will be lost.")
 }"#, title: "wf")
+    }
+}
+
+page BuiltinAlertdialog(path: "/reference/alertdialog", title: "AlertDialog — Reference", description: "AlertDialog: A <dialog> that asks before something that cannot be undone: role=\"alertdialog\", its body read out with its title, and closed by Escape or…") {
+    ReferenceItemShell("AlertDialog", summary: "A <dialog> that asks before something that cannot be undone: role=\"alertdialog\", its body read out with its title, and closed by Escape or its own buttons, not a press outside. For a question asked from a handler, await ask(…) draws one.", signature: "AlertDialog(visible: State, title: String, dismiss: Enum, …) \{ … \}", since: "6.2.0", outputs: [], group: "Feedback", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
+        stage {
+            Stage(label: "AlertDialog") {
+                controls {
+                    StageControl({ name: "title", kind: "string", options: [], value: "" })
+                    StageControl({ name: "dismiss", kind: "enum", options: ["any", "escape", "none"], value: "any", sink: "special" })
+                }
+                Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
+            }
+        }
+        notes { Text(t("stage.static"), class: "bp-small") }
+        Heading(t("ref.tab.props"), id: "props").h2
+        PropsTable(rows: [{ name: "visible:", type: "State", meaning: "State flag that opens and closes it" }, { name: "title:", type: "String", meaning: "Heading shown at the top" }, { name: "dismiss:", type: ".any .escape .none", meaning: "What closes it besides the page's own button" }, { name: "initialFocus:", type: "Any", meaning: "What takes the focus when it opens, by its `ref:`; unset, what says `autofocus`, else its first control" }], caption: "Props of AlertDialog")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Heading(t("ref.tab.flags"), id: "flags").h2
+        Markdown(t("ref.flags.body"), class: "bp-prose")
+        Row(gap: .sm) {
+            style { gap: 8px; flex-wrap: wrap }
+            Text(".any", class: "bp-label bp-mono")
+            Text(".escape", class: "bp-label bp-mono")
+            Text(".none", class: "bp-label bp-mono")
+        }
+        Heading(t("ref.tab.events"), id: "events").h2
+        EventsTable(rows: [PropRow(name: "close", kind: "", detail: "")], caption: "Events of AlertDialog")
+        Markdown(t("ref.universal.link"), class: "bp-prose")
+        Heading(t("ref.slotsparts"), id: "slots").h2
+        SlotsAndParts(slots: [PropRow(name: "children", kind: "", detail: "")], parts: [PropRow(name: "AlertDialog.Title", kind: "alertdialog-title", detail: "What the alert dialog's heading draws, in place of its title:'s words, which stay its name."), PropRow(name: "AlertDialog.Footer", kind: "alertdialog-footer", detail: "Its answers: the button that loses nothing first.")])
+        Row(gap: .sm) {
+            style { gap: 8px; flex-wrap: wrap }
+            Link("AlertDialog.Title", to: "/reference/alertdialog-title", class: "bp-button")
+            Link("AlertDialog.Footer", to: "/reference/alertdialog-footer", class: "bp-button")
+        }
+        Heading(t("ref.example"), id: "example").h2
+        CodeBlock(#"state sure = false
+Button("Discard") { on click { sure = true } }
+AlertDialog(visible: sure, title: "Discard your changes?") {
+    Text("Your edits will be lost.")
+    AlertDialog.Footer {
+        Button("Keep editing") { on click { sure = false } }
+        Button("Discard").danger { on click { sure = false } }
+    }
+}"#, title: "wf")
+        Markdown(t("ref.renders", { cls: "wf-dialog wf-alert-dialog" }), class: "bp-prose")
+    }
+}
+
+page BuiltinAlertdialogTitle(path: "/reference/alertdialog-title", title: "AlertDialog.Title — Reference", description: "AlertDialog.Title: What the alert dialog's heading draws, in place of its title:'s words, which stay its name.") {
+    ReferenceItemShell("AlertDialog.Title", summary: "What the alert dialog's heading draws, in place of its title:'s words, which stay its name.", signature: "AlertDialog.Title \{ … \}", since: "6.2.0", outputs: [], group: "Feedback", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C03", title: "A part outside the component it belongs to", to: "/errors/C03"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
+        stage {
+            Stage(label: "AlertDialog.Title") {
+                controls {
+                    Text(t("stage.nocontrols"), class: "bp-small")
+                }
+                Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
+            }
+        }
+        notes { Text(t("stage.static"), class: "bp-small") }
+        Markdown(t("ref.partof", { owner: "AlertDialog", to: "/reference/alertdialog" }), class: "bp-prose")
+        Heading(t("ref.tab.props"), id: "props").h2
+        Text(t("ref.noprops"), class: "bp-small")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Heading(t("ref.tab.flags"), id: "flags").h2
+        Markdown(t("ref.flags.body"), class: "bp-prose")
+        Text(t("ref.noflags"), class: "bp-small")
+        Heading(t("ref.tab.events"), id: "events").h2
+        Markdown(t("ref.universal.link"), class: "bp-prose")
+        Heading(t("ref.slotsparts"), id: "slots").h2
+        SlotsAndParts(slots: [PropRow(name: "children", kind: "", detail: "")], parts: [])
+        Heading(t("ref.example"), id: "example").h2
+        CodeBlock(#"state sure = false
+Button("Discard") { on click { sure = true } }
+AlertDialog(visible: sure, title: "Discard your changes?") {
+    Text("Your edits will be lost.")
+    AlertDialog.Footer {
+        Button("Keep editing") { on click { sure = false } }
+        Button("Discard").danger { on click { sure = false } }
+    }
+}"#, title: "wf")
+    }
+}
+
+page BuiltinAlertdialogFooter(path: "/reference/alertdialog-footer", title: "AlertDialog.Footer — Reference", description: "AlertDialog.Footer: Its answers: the button that loses nothing first.") {
+    ReferenceItemShell("AlertDialog.Footer", summary: "Its answers: the button that loses nothing first.", signature: "AlertDialog.Footer \{ … \}", since: "6.2.0", outputs: [], group: "Feedback", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C03", title: "A part outside the component it belongs to", to: "/errors/C03"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
+        stage {
+            Stage(label: "AlertDialog.Footer") {
+                controls {
+                    Text(t("stage.nocontrols"), class: "bp-small")
+                }
+                Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
+            }
+        }
+        notes { Text(t("stage.static"), class: "bp-small") }
+        Markdown(t("ref.partof", { owner: "AlertDialog", to: "/reference/alertdialog" }), class: "bp-prose")
+        Heading(t("ref.tab.props"), id: "props").h2
+        Text(t("ref.noprops"), class: "bp-small")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Heading(t("ref.tab.flags"), id: "flags").h2
+        Markdown(t("ref.flags.body"), class: "bp-prose")
+        Text(t("ref.noflags"), class: "bp-small")
+        Heading(t("ref.tab.events"), id: "events").h2
+        Markdown(t("ref.universal.link"), class: "bp-prose")
+        Heading(t("ref.slotsparts"), id: "slots").h2
+        SlotsAndParts(slots: [PropRow(name: "children", kind: "", detail: "")], parts: [])
+        Heading(t("ref.example"), id: "example").h2
+        CodeBlock(#"state sure = false
+Button("Discard") { on click { sure = true } }
+AlertDialog(visible: sure, title: "Discard your changes?") {
+    Text("Your edits will be lost.")
+    AlertDialog.Footer {
+        Button("Keep editing") { on click { sure = false } }
+        Button("Discard").danger { on click { sure = false } }
+    }
+}"#, title: "wf")
+    }
+}
+
+page BuiltinSheet(path: "/reference/sheet", title: "Sheet — Reference", description: "Sheet: A modal <dialog> that comes in from an edge: the bottom (a phone's filters, a share list) or the start or end of the line. Dragged by its handle…") {
+    ReferenceItemShell("Sheet", summary: "A modal <dialog> that comes in from an edge: the bottom (a phone's filters, a share list) or the start or end of the line. Dragged by its handle or heading toward its edge it closes; a bottom sheet with snap: points settles at the nearest.", signature: "Sheet(visible: State, title: String, closable: Bool, …) \{ … \}", since: "6.2.0", outputs: [], group: "Feedback", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
+        stage {
+            Stage(label: "Sheet") {
+                controls {
+                    StageControl({ name: "title", kind: "string", options: [], value: "" })
+                    StageControl({ name: "closable", kind: "bool", options: [], value: "", sink: "class" })
+                    StageControl({ name: "side", kind: "enum", options: ["bottom", "start", "end"], value: "bottom", sink: "special" })
+                    StageControl({ name: "label", kind: "string", options: [], value: "" })
+                    StageControl({ name: "dismiss", kind: "enum", options: ["any", "escape", "none"], value: "any", sink: "special" })
+                }
+                Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
+            }
+        }
+        notes { Text(t("stage.static"), class: "bp-small") }
+        Heading(t("ref.tab.props"), id: "props").h2
+        PropsTable(rows: [{ name: "visible:", type: "State", meaning: "State flag that opens and closes it" }, { name: "title:", type: "String", meaning: "Heading shown at the top" }, { name: "closable:", type: "Bool", meaning: "A close button in the heading row, which closes it as Escape does" }, { name: "side:", type: ".bottom .start .end", meaning: "The edge it comes in from" }, { name: "snap:", type: "Any", meaning: "A bottom sheet's heights, as fractions of the window's, `[0.5, 1]`: it opens at the first" }, { name: "label:", type: "String", meaning: "Its accessible name, when it has no `title:`" }, { name: "dismiss:", type: ".any .escape .none", meaning: "What closes it besides the page's own button" }, { name: "initialFocus:", type: "Any", meaning: "What takes the focus when it opens, by its `ref:`; unset, what says `autofocus`, else its first control" }], caption: "Props of Sheet")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Heading(t("ref.tab.flags"), id: "flags").h2
+        Markdown(t("ref.flags.body"), class: "bp-prose")
+        Row(gap: .sm) {
+            style { gap: 8px; flex-wrap: wrap }
+            Text(".closable", class: "bp-label bp-mono")
+            Text(".bottom", class: "bp-label bp-mono")
+            Text(".start", class: "bp-label bp-mono")
+            Text(".end", class: "bp-label bp-mono")
+            Text(".any", class: "bp-label bp-mono")
+            Text(".escape", class: "bp-label bp-mono")
+            Text(".none", class: "bp-label bp-mono")
+        }
+        Heading(t("ref.tab.events"), id: "events").h2
+        EventsTable(rows: [PropRow(name: "close", kind: "", detail: "")], caption: "Events of Sheet")
+        Markdown(t("ref.universal.link"), class: "bp-prose")
+        Heading(t("ref.slotsparts"), id: "slots").h2
+        SlotsAndParts(slots: [PropRow(name: "children", kind: "", detail: "")], parts: [PropRow(name: "Sheet.Title", kind: "sheet-title", detail: "What the sheet's heading draws, in place of its title:'s words, which stay its name."), PropRow(name: "Sheet.Footer", kind: "sheet-footer", detail: "The sheet's action row, kept in view below what scrolls.")])
+        Row(gap: .sm) {
+            style { gap: 8px; flex-wrap: wrap }
+            Link("Sheet.Title", to: "/reference/sheet-title", class: "bp-button")
+            Link("Sheet.Footer", to: "/reference/sheet-footer", class: "bp-button")
+        }
+        Heading(t("ref.example"), id: "example").h2
+        CodeBlock(#"state filters = false
+state sort = "new"
+Button("Filters") { on click { filters = true } }
+Sheet(visible: filters, title: "Filters", snap: [0.5, 1]).closable {
+    Radio(bind: sort, value: "new", label: "Newest")
+    Radio(bind: sort, value: "price", label: "Price")
+    Sheet.Footer { Button("Show results").primary { on click { filters = false } } }
+}
+state details = false
+Sheet(visible: details, side: .end, title: "Details") { Text("Opened 3 days ago") }"#, title: "wf")
+        Markdown(t("ref.renders", { cls: "wf-sheet" }), class: "bp-prose")
+    }
+}
+
+page BuiltinSheetTitle(path: "/reference/sheet-title", title: "Sheet.Title — Reference", description: "Sheet.Title: What the sheet's heading draws, in place of its title:'s words, which stay its name.") {
+    ReferenceItemShell("Sheet.Title", summary: "What the sheet's heading draws, in place of its title:'s words, which stay its name.", signature: "Sheet.Title \{ … \}", since: "6.2.0", outputs: [], group: "Feedback", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C03", title: "A part outside the component it belongs to", to: "/errors/C03"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
+        stage {
+            Stage(label: "Sheet.Title") {
+                controls {
+                    Text(t("stage.nocontrols"), class: "bp-small")
+                }
+                Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
+            }
+        }
+        notes { Text(t("stage.static"), class: "bp-small") }
+        Markdown(t("ref.partof", { owner: "Sheet", to: "/reference/sheet" }), class: "bp-prose")
+        Heading(t("ref.tab.props"), id: "props").h2
+        Text(t("ref.noprops"), class: "bp-small")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Heading(t("ref.tab.flags"), id: "flags").h2
+        Markdown(t("ref.flags.body"), class: "bp-prose")
+        Text(t("ref.noflags"), class: "bp-small")
+        Heading(t("ref.tab.events"), id: "events").h2
+        Markdown(t("ref.universal.link"), class: "bp-prose")
+        Heading(t("ref.slotsparts"), id: "slots").h2
+        SlotsAndParts(slots: [PropRow(name: "children", kind: "", detail: "")], parts: [])
+        Heading(t("ref.example"), id: "example").h2
+        CodeBlock(#"state filters = false
+state sort = "new"
+Button("Filters") { on click { filters = true } }
+Sheet(visible: filters, title: "Filters", snap: [0.5, 1]).closable {
+    Radio(bind: sort, value: "new", label: "Newest")
+    Radio(bind: sort, value: "price", label: "Price")
+    Sheet.Footer { Button("Show results").primary { on click { filters = false } } }
+}
+state details = false
+Sheet(visible: details, side: .end, title: "Details") { Text("Opened 3 days ago") }"#, title: "wf")
+    }
+}
+
+page BuiltinSheetFooter(path: "/reference/sheet-footer", title: "Sheet.Footer — Reference", description: "Sheet.Footer: The sheet's action row, kept in view below what scrolls.") {
+    ReferenceItemShell("Sheet.Footer", summary: "The sheet's action row, kept in view below what scrolls.", signature: "Sheet.Footer \{ … \}", since: "6.2.0", outputs: [], group: "Feedback", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C03", title: "A part outside the component it belongs to", to: "/errors/C03"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
+        stage {
+            Stage(label: "Sheet.Footer") {
+                controls {
+                    Text(t("stage.nocontrols"), class: "bp-small")
+                }
+                Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
+            }
+        }
+        notes { Text(t("stage.static"), class: "bp-small") }
+        Markdown(t("ref.partof", { owner: "Sheet", to: "/reference/sheet" }), class: "bp-prose")
+        Heading(t("ref.tab.props"), id: "props").h2
+        Text(t("ref.noprops"), class: "bp-small")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Heading(t("ref.tab.flags"), id: "flags").h2
+        Markdown(t("ref.flags.body"), class: "bp-prose")
+        Text(t("ref.noflags"), class: "bp-small")
+        Heading(t("ref.tab.events"), id: "events").h2
+        Markdown(t("ref.universal.link"), class: "bp-prose")
+        Heading(t("ref.slotsparts"), id: "slots").h2
+        SlotsAndParts(slots: [PropRow(name: "children", kind: "", detail: "")], parts: [])
+        Heading(t("ref.example"), id: "example").h2
+        CodeBlock(#"state filters = false
+state sort = "new"
+Button("Filters") { on click { filters = true } }
+Sheet(visible: filters, title: "Filters", snap: [0.5, 1]).closable {
+    Radio(bind: sort, value: "new", label: "Newest")
+    Radio(bind: sort, value: "price", label: "Price")
+    Sheet.Footer { Button("Show results").primary { on click { filters = false } } }
+}
+state details = false
+Sheet(visible: details, side: .end, title: "Details") { Text("Opened 3 days ago") }"#, title: "wf")
     }
 }
 

@@ -32,27 +32,130 @@
     }
   }
 
-  function toast(message, variant, duration) {
+  // The most toasts shown at once: a fourth closes the oldest.
+  const _TOAST_LIMIT = 3;
+  const _toasts = [];
+
+  /// Show `message` for a while, above everything, and say it to a screen
+  /// reader. `options` (or, as before, a tone and a duration):
+  ///   tone      "info" (the default), "success", "warning", "danger"
+  ///   duration  how long it stays, in ms (3 s; 8 s with an action);
+  ///             `Infinity` until it is closed
+  ///   action    the words of a button on it ("Undo"), and `onAction` what
+  ///             the button does; pressing it closes the toast
+  ///   closable  false for no close button
+  /// It waits while the pointer is on it or the focus is in it, so there is
+  /// time to read it and reach its button. What this returns closes it, or
+  /// changes what it says.
+  function toast(message, options, duration) {
+    const opts = typeof options === "object" && options !== null ? options : { tone: options, duration };
     const container = _toastContainer();
     _rehome();
-    const toast = document.createElement("div");
-    toast.className = `wf-toast wf-toast--${variant || "info"}`;
-    toast.textContent = message;
-    container.appendChild(toast);
-    _raiseToasts();
-    announce(message);
-    setTimeout(() => {
-      toast.classList.add("wf-toast--exit");
-      let gone = false;
+    const node = document.createElement("div");
+    const text = document.createElement("span");
+    text.className = "wf-toast__text";
+    node.appendChild(text);
+    let tone = "info";
+    const say = (words, t) => {
+      tone = t || tone;
+      node.className = `wf-toast wf-toast--${tone}`;
+      text.textContent = words == null ? "" : String(words);
+      announce(text.textContent, tone === "danger" ? "assertive" : "polite");
+    };
+    say(message, opts.tone || opts.variant || "info");
+    let gone = false;
+    let timer = 0;
+    let left = 0;
+    let since = 0;
+    const close = () => {
+      if (gone) return;
+      gone = true;
+      clearTimeout(timer);
+      const at = _toasts.indexOf(handle);
+      if (at >= 0) _toasts.splice(at, 1);
+      node.classList.add("wf-toast--exit");
+      let removed = false;
       const remove = () => {
-        if (gone) return;
-        gone = true;
-        toast.remove();
+        if (removed) return;
+        removed = true;
+        node.remove();
         if (!container.firstElementChild) _raiseToasts();
       };
       // Gone when its exit has played, or at once for a reader who asked
       // for less motion (no animation runs, so none ends).
-      toast.addEventListener("animationend", remove);
+      node.addEventListener("animationend", remove);
       setTimeout(remove, 400);
-    }, duration || 3000);
+    };
+    const run = (ms) => {
+      clearTimeout(timer);
+      left = ms;
+      if (!(ms < Infinity)) return;
+      since = Date.now();
+      timer = setTimeout(close, ms);
+    };
+    const pause = () => {
+      if (gone || !(left < Infinity)) return;
+      clearTimeout(timer);
+      left = Math.max(0, left - (Date.now() - since));
+      timer = 0;
+    };
+    const resume = () => {
+      if (gone || timer || !(left < Infinity)) return;
+      if (node.matches && (node.matches(":hover") || node.matches(":focus-within"))) return;
+      run(Math.max(left, 1000));
+    };
+    if (opts.action) {
+      const act = document.createElement("button");
+      act.type = "button";
+      act.className = "wf-toast__action";
+      act.textContent = String(opts.action);
+      act.addEventListener("click", () => {
+        if (typeof opts.onAction === "function") opts.onAction();
+        close();
+      });
+      node.appendChild(act);
+    }
+    if (opts.closable !== false) {
+      const x = document.createElement("button");
+      x.type = "button";
+      x.className = "wf-toast__close";
+      x.setAttribute("aria-label", "Close");
+      x.textContent = "\u00d7";
+      x.addEventListener("click", close);
+      node.appendChild(x);
+    }
+    node.addEventListener("mouseenter", pause);
+    node.addEventListener("mouseleave", resume);
+    node.addEventListener("focusin", pause);
+    node.addEventListener("focusout", () => setTimeout(resume, 0));
+    container.appendChild(node);
+    _raiseToasts();
+    const handle = {
+      el: node,
+      close,
+      /// Say something else, in another tone, and stay for `ms` from now.
+      update: (words, t, ms) => {
+        if (gone) return;
+        say(words, t);
+        run(ms === undefined ? 3000 : ms);
+      },
+    };
+    _toasts.push(handle);
+    while (_toasts.length > _TOAST_LIMIT) _toasts[0].close();
+    run(opts.duration !== undefined && opts.duration !== null ? opts.duration : opts.action ? 8000 : 3000);
+    return handle;
+  }
+
+  /// `toast.promise(…)` in a program: a toast that follows a promise: `loading` while it runs, then `done`
+  /// or `failed` — words, or a function of the value or the error. It
+  /// hands back the promise, so the action can still `await` it.
+  function toastPromise(promise, options) {
+    const opts = options || {};
+    const words = (w, v, fallback) => (typeof w === "function" ? w(v) : w == null ? fallback : w);
+    const shown = toast(words(opts.loading, undefined, "…"), { tone: "info", duration: Infinity, closable: false });
+    Promise.resolve(promise).then(
+      (v) => shown.update(words(opts.done, v, "Done"), "success"),
+      (e) => shown.update(words(opts.failed, e, e && e.message ? e.message : "Failed"), "danger", 6000),
+    );
+    return promise;
   }

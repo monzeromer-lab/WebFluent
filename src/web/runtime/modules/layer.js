@@ -82,15 +82,27 @@
     return null;
   }
 
+  function _autofocused(root) {
+    for (const child of root.children || []) {
+      if (child.hasAttribute && child.hasAttribute("autofocus")) return child;
+      const deeper = _autofocused(child);
+      if (deeper) return deeper;
+    }
+    return null;
+  }
+
   // Where focus goes in a layer that opens: what says `autofocus`, else a
-  // menu's first item that is not disabled.
-  function _firstStop(root) {
+  // menu's first item that is not disabled, or a dialog's first control.
+  function _firstStop(root, tabbable) {
+    const asked = _autofocused(root);
+    if (asked) return asked;
     for (const child of root.children || []) {
       const role = (child.getAttribute && child.getAttribute("role")) || "";
       const usable = child.getAttribute && child.getAttribute("aria-disabled") !== "true";
-      if (child.hasAttribute && child.hasAttribute("autofocus")) return child;
       if (role.startsWith("menuitem") && usable) return child;
-      const deeper = _firstStop(child);
+      // A dialog's first control, as a modal's is.
+      if (tabbable && child.matches && child.matches("a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex='-1'])") && !child.hidden) return child;
+      const deeper = _firstStop(child, tabbable);
       if (deeper) return deeper;
     }
     return null;
@@ -123,6 +135,8 @@
         if (layer.el.open) return false;
         continue;
       }
+      // One that must be answered keeps its Escape, and so does the page.
+      if (layer.dismiss === "none") return false;
       if (layer.dismiss) {
         layer.close("escape");
         return true;
@@ -156,6 +170,9 @@
           continue;
         }
         if (!layer.dismiss) continue;
+        // Escape alone closes it, or nothing does: a press outside is the
+        // page's, and the layers under it stay too.
+        if (layer.dismiss === "escape" || layer.dismiss === "none") break;
         const anchor = layer.anchor && layer.anchor.el !== undefined ? layer.anchor.el : layer.anchor;
         if (inside(layer.el) || inside(anchor)) break;
         layer.close("outside");
@@ -222,12 +239,29 @@
       if (typeof requestAnimationFrame === "function") frame = requestAnimationFrame(place);
       else place();
     };
+    // The control a popover is anchored to says what it opens and whether
+    // it is open: `aria-controls`, `aria-expanded`, `aria-haspopup` — what
+    // a screen reader announces on the button. A point anchors nothing.
+    const controls = () => {
+      if (!opts.controls) return;
+      const target = _anchorEl(anchorOf());
+      if (!target || !target.setAttribute) return;
+      if (!el.id) el.id = uid("wf-layer");
+      target.setAttribute("aria-controls", el.id);
+      target.setAttribute("aria-expanded", entry ? "true" : "false");
+      if (!target.hasAttribute("aria-haspopup")) {
+        const role = el.getAttribute("role") || "dialog";
+        target.setAttribute("aria-haspopup", ["menu", "listbox", "tree", "grid", "dialog"].includes(role) ? role : "dialog");
+      }
+    };
     const open = () => {
       if (entry) return;
       entry = {
         el,
         anchor: anchorOf(),
-        dismiss: opts.dismiss !== false,
+        // `false`: a tooltip's; `"escape"`, `"none"`: what a `dismiss:`
+        // asked for; anything else, Escape and a press outside.
+        dismiss: opts.dismiss === false ? false : opts.dismiss === "escape" || opts.dismiss === "none" ? opts.dismiss : true,
         before: typeof document !== "undefined" ? document.activeElement : null,
         close: (reason) => {
           if (write) write(false);
@@ -243,8 +277,15 @@
       window.addEventListener("scroll", soon, true);
       window.addEventListener("resize", soon);
       if (opts.focus !== false && typeof el.focus === "function") {
-        (_firstStop(el) || el).focus();
+        const want = opts.initial ? opts.initial() : null;
+        const asked = want && want.el !== undefined ? want.el : want;
+        const target = (asked && asked.focus ? asked : null) || _firstStop(el, el.getAttribute("role") === "dialog");
+        // With nothing in it to take the focus, the layer itself does: a
+        // `div` takes it only with a `tabindex`.
+        if (!target && !el.hasAttribute("tabindex")) el.setAttribute("tabindex", "-1");
+        (target || el).focus();
       }
+      controls();
     };
     const shut = () => {
       if (!entry) return;
@@ -255,6 +296,7 @@
       if (top) el.hidePopover();
       else el.setAttribute("hidden", "");
       el.removeAttribute("data-open");
+      controls();
       window.removeEventListener("scroll", soon, true);
       window.removeEventListener("resize", soon);
       // Focus goes back to where the reader was, if it is still inside.
@@ -282,6 +324,7 @@
       if (!read()) shut();
       else if (entry) place();
       else openWhenThere();
+      controls();
     });
     onCleanup(() => {
       shut();

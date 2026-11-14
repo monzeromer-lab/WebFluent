@@ -2,7 +2,7 @@
 /// scripts/docsite/guide.py; edit the guide, not this file.
 page Learn08Events(path: "/learn/08-events", title: "Events", description: "DOM event handlers, the event object, keyboard shortcuts, component events, modals, menus, popovers, gestures and window events.", layout: DocsShell("Events", kind: .tutorial, chapter: t("nav.group.language"), blurb: "Handlers on elements, keyboard shortcuts, the events components fire, the overlays a page opens, and drag and drop.", source: "md-docs/learn/08-events.md", sections: [Anchor(id: "handlers", label: "Handlers"), Anchor(id: "keys", label: "Keys"), Anchor(id: "emitting-events-from-components", label: "Emitting events from components"), Anchor(id: "overlays-modals-dialogs-toasts-and-menus", label: "Overlays: modals, dialogs, toasts and menus"), Anchor(id: "gestures-drag-long-press-swipe-and-the-splitter", label: "Gestures: drag, long-press, swipe and the splitter"), Anchor(id: "listening-outside-the-page-s-elements", label: "Listening outside the page's elements"), Anchor(id: "summary", label: "Summary"), Anchor(id: "common-mistakes", label: "Common mistakes")], learned: ["Handle a DOM event with `on click \{ \}`, and read the event with `on keydown(e) \{ \}`", "Answer a key or a chord with `on key(\"mod+k\")`, on an element or for the whole app", "Fire your component's own events with `event` and `emit`", "Open modals, menus, popovers and tooltips from state, and know how they stack", "Drag, drop, long-press, swipe and listen to the window"], prevTo: "/learn/07-state-and-reactivity", prevLabel: t("ch.07"), nextTo: "/learn/09-control-flow", nextLabel: t("ch.09"))) {
     Stack(gap: .lg) {
-        Markdown("This chapter covers events in WebFluent. An event handler is the code that runs when something happens: a click, a key, a drop, a component saying it changed. You write it as `on <event> \{ … \}` inside the block of the element it listens to, and its body can change state, call actions and navigate.\n\nIn this chapter:\n\n- handlers and the event object\n- keys, and shortcuts for a whole app\n- the events your own components fire\n- overlays: modals, toasts, menus, popovers and tooltips, and how they stack\n- gestures: drag and drop, long-press, swipe and the splitter\n- listening to the window and the document")
+        Markdown("This chapter covers events in WebFluent. An event handler is the code that runs when something happens: a click, a key, a drop, a component saying it changed. You write it as `on <event> \{ … \}` inside the block of the element it listens to, and its body can change state, call actions and navigate.\n\nIn this chapter:\n\n- handlers and the event object\n- keys, and shortcuts for a whole app\n- the events your own components fire\n- overlays: modals, sheets, toasts, menus, popovers and tooltips, what closes them, and how they stack\n- gestures: drag and drop, long-press, swipe and the splitter\n- listening to the window and the document")
 
         Heading("Handlers", id: "handlers").h2
 
@@ -163,7 +163,68 @@ page Tally(path: "/", title: "Tally", description: "A component that reports its
     Tooltip("Copies the link") { IconButton(icon: "copy", label: "Copy link") }
 }"#, title: "wf")
 
-        Markdown("- **`Modal`** and **`Dialog`** are real `<dialog>` elements, open while their `visible:` state is true.\n  - The browser traps focus, makes the rest of the page inert and closes the dialog on Escape. A click on the backdrop leaves it open.\n  - When it closes that way, the state is set back to `false`, so it never disagrees with what is on screen. Focus returns to what opened it.\n  - `on close` runs when it closes, however it was closed.\n  - `title:` is its heading, which names it (`A08` without one). `Modal.Footer` is the row of actions, and `.closable` adds a close button. [`Modal`](/reference#modal) lists the rest.\n- **`Toast`** shows the moment it is rendered and leaves after three seconds. It is announced politely to screen readers. Put it under a condition that turns true.\n- **`Menu`** and **`Dropdown`** open a list from a button. Arrow keys move between items, Home and End jump to the ends, Enter and Space choose, Escape closes with focus back on the button, and a click outside closes it.\n- **`Tooltip`** shows its text when its child is hovered or focused, and is linked to it with `aria-describedby`.")
+        Markdown("- **`Modal`** and **`Dialog`** are real `<dialog>` elements, open while their `visible:` state is true.\n  - The browser traps focus and makes the rest of the page inert. Escape or a press on the backdrop closes it, and the state is set back to `false`, so it never disagrees with what is on screen.\n  - When it opens, the focus goes to what says `autofocus`, else its first control; when it closes, the focus goes back to what had it.\n  - It fades out before it goes, however it was closed.\n  - `on close` runs when it closes, however it was closed.\n  - `title:` is its heading, which names it (`A08` without one). `Modal.Footer` is the row of actions, and `.closable` adds a close button. [`Modal`](/reference#modal) lists the rest.\n- **`Toast`** shows the moment it is rendered and leaves after three seconds. It is announced politely to screen readers. Put it under a condition that turns true, or call `toast(…)` from a handler (below).\n- **`Menu`** and **`Dropdown`** open a list from a button. Arrow keys move between items, Home and End jump to the ends, a letter jumps to the next item that starts with it, Enter and Space choose, Escape closes with focus back on the button, and a click outside closes it.\n- **`Tooltip`** shows its text when its child is hovered or focused, and is linked to it with `aria-describedby`.")
+
+        Heading("What closes an overlay, and where the focus goes", id: "what-closes-an-overlay-and-where-the-focus-goes").h3
+
+        Markdown("`dismiss:` says what closes a `Modal`, a `Dialog`, a `Sheet` or a `Popover` besides the page's own button: `.any` (Escape or a press outside, the default), `.escape`, or `.none`, for a form that must be answered. `initialFocus:` names, by its `ref:`, what takes the focus when it opens:")
+
+        CodeBlock(#"page Profile(path: "/", title: "Profile", description: "A modal that starts in a field.") {
+    state editing = false
+    state name = ""
+    Heading("Profile").h1
+    Button("Edit profile") { on click { editing = true } }
+    Modal(visible: editing, title: "Edit profile", dismiss: .escape, initialFocus: nameField) {
+        Input(bind: name, label: "Name", ref: nameField)
+        Modal.Footer { Button("Save").primary { on click { editing = false } } }
+    }
+}"#, title: "wf")
+
+        Markdown("An **`AlertDialog`** asks before something that cannot be undone. A screen reader hears an alert dialog, read with its body; Escape answers it, and a press beside it does not. Put the answer that loses nothing first in its footer.\n\nA **`Sheet`** is a modal that comes in from an edge: `side: .bottom` (the default), `.start` or `.end`, which swap in a right-to-left page. Dragged by its handle or heading toward that edge, past 30% of its size, it closes; a bottom sheet with `snap:` points opens at the first and settles at the nearest one it is let go near:")
+
+        CodeBlock(#"page Shop(path: "/", title: "Shop", description: "Filters in a bottom sheet.") {
+    state filters = false
+    state sort = "new"
+    Heading("Shop").h1
+    Button("Filters") { on click { filters = true } }
+    Sheet(visible: filters, title: "Filters", snap: [0.5, 1]).closable {
+        Radio(bind: sort, value: "new", label: "Newest")
+        Radio(bind: sort, value: "price", label: "Price")
+        Sheet.Footer { Button("Show results").primary { on click { filters = false } } }
+    }
+}"#, title: "wf")
+
+        Markdown("On a narrow screen a `Sidebar` opens over the page as a drawer, which is a layer like these: the focus goes in and stays there, Escape or a press outside closes it, and the focus goes back to its toggle.")
+
+        Heading("Toasts, questions and announcements from a handler", id: "toasts-questions-and-announcements-from-a-handler").h3
+
+        Markdown("Three functions open an overlay from code rather than from state:")
+
+        CodeBlock(#"store Mail {
+    state archived: [String] = []
+    action archive(id: String) {
+        archived = archived.concat([id])
+        toast("Conversation archived", action: "Undo", onAction: restore)
+    }
+    action restore() { archived = archived.slice(0, -1) }
+}
+
+page Inbox(path: "/", title: "Inbox", description: "Toasts, a question, an announcement.") {
+    use Mail
+    state gone = false
+    Heading("Inbox").h1
+    Button("Archive") { on click { Mail.archive("m1") } }
+    Button("Delete everything").danger {
+        on click {
+            if await ask("Delete every message?", detail: "This cannot be undone.", yes: "Delete", danger: true) {
+                gone = true
+                announce("Every message deleted", .assertive)
+            }
+        }
+    }
+}"#, title: "wf")
+
+        Markdown("- **`toast(message, …)`** shows a toast above everything, a modal included, and says it to a screen reader. It takes `tone:` (`.success`, `.danger`, `.warning`, `.info`), `duration:` in milliseconds, and `action:` with `onAction:` for a button on it. It waits while the pointer is on it or the focus is in it, has a close button, and no more than three show at once. `toast.promise(p, loading: …, done: …, failed: …)` follows a promise.\n- **`await ask(question, …)`** draws an alert dialog and is `true` for yes, `false` for no or Escape. It takes `detail:`, `yes:`, `no:` and `danger: true`; the focus starts on no. (`confirm` is the browser's.)\n- **`announce(text)`** says something to a screen reader with nothing on screen moving; `announce(text, .assertive)` interrupts, for what cannot wait.\n\nA program that names something `toast`, `ask` or `announce` of its own keeps it; the function is then out of reach there.")
 
         Heading("Layers: popovers, menus and tooltips above everything", id: "layers-popovers-menus-and-tooltips-above-everything").h3
 
@@ -197,7 +258,7 @@ page Tally(path: "/", title: "Tally", description: "A component that reports its
     Text(said)
 }"#, title: "wf")
 
-        Markdown("- **`Popover`** is open while its `visible:` state is true, placed against `anchor:`, an element's `ref:`. Escape or a press outside closes it, sets `visible:` back to `false`, and `on close(reason)` hears `\"escape\"` or `\"outside\"`.\n- **`Menu`** without `trigger:` is a list that state opens, at an `anchor:` or `at:` a point. Choosing an item closes it.\n- The open layers form one stack, newest on top. Escape closes the newest layer that can be dismissed — a popover, a menu, an open `Modal` or `Dialog` — and nothing behind it hears that key. A modal opened from a popover takes the first Escape; the popover takes the next.\n- A tooltip keeps Escape only while focus is on its control. Otherwise the key goes on to the layer below, or to the element with focus.\n- A layer takes the attributes and handlers any element takes — `role:`, `aria-*`, `ref:` — on the element it draws. A `Popover` is a `dialog` unless its `role:` says otherwise.\n\nEvery option of these — `placement:`, `offset:`, `.arrow`, a menu's `checked:`, `disabled:` and `Menu.Sub`, a tooltip's `delay:` and `shortcut:` — is listed under [`Popover`](/reference#popover), [`Menu`](/reference#menu) and [`Tooltip`](/reference#tooltip). To ask before a destructive action, see [Build a confirm dialog](/recipes/confirm-dialog).")
+        Markdown("- **`Popover`** is open while its `visible:` state is true, placed against `anchor:`, an element's `ref:`. Escape or a press outside closes it (as `dismiss:` allows), sets `visible:` back to `false`, and `on close(reason)` hears `\"escape\"` or `\"outside\"`. Its anchor says what it opens and whether it is open (`aria-controls`, `aria-expanded`), the focus goes to its first control, and `label:` is its name (`A18` without one).\n- **`Menu`** without `trigger:` is a list that state opens, at an `anchor:` or `at:` a point. Choosing an item closes it.\n- The open layers form one stack, newest on top. Escape closes the newest layer that can be dismissed — a popover, a menu, an open `Modal` or `Dialog` — and nothing behind it hears that key. A modal opened from a popover takes the first Escape; the popover takes the next.\n- A tooltip keeps Escape only while focus is on its control. Otherwise the key goes on to the layer below, or to the element with focus.\n- A layer takes the attributes and handlers any element takes — `role:`, `aria-*`, `ref:` — on the element it draws. A `Popover` is a `dialog` unless its `role:` says otherwise.\n\nEvery option of these — `placement:`, `offset:`, `.arrow`, a menu's `checked:`, `disabled:` and `Menu.Sub`, a tooltip's `delay:` and `shortcut:` — is listed under [`Popover`](/reference#popover), [`Menu`](/reference#menu) and [`Tooltip`](/reference#tooltip). To ask before a destructive action, see [Build a confirm dialog](/recipes/confirm-dialog).")
 
         Heading("Gestures: drag, long-press, swipe and the splitter", id: "gestures-drag-long-press-swipe-and-the-splitter").h2
 

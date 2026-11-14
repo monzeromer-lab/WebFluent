@@ -113,6 +113,34 @@ where a line starts or ends, swapped in a right-to-left box."#),
                     Change(text: #"`wf test` has `expect focus "Beta"`, and a `click` step puts the focus
 where a real click would, so the keys a test presses next go there."#)
                 ]),
+                NotesSection(title: #"Overlays on one path"#, id: "6.2.0-overlays-on-one-path", items: [
+                    Change(text: #"`Modal`, `Dialog`, `Sheet` and `Popover` take `dismiss:` — `.any` (Escape
+or a press outside, the default), `.escape`, or `.none` for what must be
+answered — and `initialFocus:`, the `ref:` that takes the focus when one
+opens. When one closes, the focus goes back to what had it."#),
+                    Change(text: #"A modal, a dialog, a popover and a menu fade out before they go, however
+they were closed, and come in the same way."#),
+                    Change(text: #"A popover's anchor says what it opens and whether it is open
+(`aria-controls`, `aria-expanded`, `aria-haspopup`), and the focus goes to
+the popover's first control, where it stayed on the anchor before."#),
+                    Change(text: #"`Sheet` is new: a modal from the bottom, or the start or end of the line,
+dragged shut by its handle or heading, with `snap:` points for a bottom
+sheet."#),
+                    Change(text: #"`AlertDialog` is new: a dialog a screen reader hears as an alert, read
+with its body, which Escape answers and a press beside it does not."#),
+                    Change(text: #"`await ask("Delete the project?", danger: true)` asks from a handler and
+is the answer, in an alert dialog with the focus on no."#),
+                    Change(text: #"`toast(…)` shows a toast from a handler, with `action:` and `onAction:`
+for a button on it; every toast now has a close button, waits while the
+pointer is on it or the focus is in it, and no more than three show at
+once. `toast.promise(p, loading:, done:, failed:)` follows a promise."#),
+                    Change(text: #"`announce(text)` speaks to a screen reader with nothing on screen moving;
+`announce(text, .assertive)` interrupts."#),
+                    Change(text: #"On a narrow screen an open `Sidebar` holds the focus, closes on a press
+outside, and is one of the layers Escape closes in turn."#),
+                    Change(text: #"`A18` warns of a `Popover` with no name; `A08` covers `AlertDialog` and
+`Sheet`."#)
+                ]),
                 NotesSection(title: #"Fixes"#, id: "6.2.0-fixes", items: [
                     Change(text: #"`wf check` knows an `image`'s fields: `hero.width`, `.height`, `.color`
 and the rest were a `T05` there, though `wf build` read them."#),
@@ -174,7 +202,7 @@ again before the exit ended."#),
                     Change(text: #"A `Splitter`'s handle reaches 24px, WCAG 2.2's least target, around its
 4px line."#)
                 ])
-            ], count: 27), latest: true)
+            ], count: 37), latest: true)
 
             ReleaseEntry(ReleaseNotes(version: "6.1.0", id: "6.1.0", date: "2026-11-14", when: "14 November 2026", summary: #"A site sends much less: the runtime ships only the functions a program
 reaches, with short names, and only the styles and animations it draws
@@ -3633,6 +3661,6 @@ flattened diagnostics, and the reason a theme failed to resolve."#),
             ], count: 15))
         }
 
-        OnThisPage(sections: [Anchor(id: "6.2.0-a-project-s-own-component-wins", label: #"A project's own component wins"#), Anchor(id: "6.2.0-stacking-and-target-sizes-are-tokens", label: #"Stacking and target sizes are tokens"#), Anchor(id: "6.2.0-the-arrow-keys-everywhere-a-group-needs-them", label: #"The arrow keys, everywhere a group needs them"#), Anchor(id: "6.2.0-fixes", label: #"Fixes"#), Anchor(id: "6.2.0-reached-by-every-reader", label: #"Reached by every reader"#), Anchor(id: "6.2.0-right-to-left", label: #"Right to left"#), Anchor(id: "6.2.0-smaller-fixes", label: #"Smaller fixes"#)], source: "RELEASE_NOTES.md")
+        OnThisPage(sections: [Anchor(id: "6.2.0-a-project-s-own-component-wins", label: #"A project's own component wins"#), Anchor(id: "6.2.0-stacking-and-target-sizes-are-tokens", label: #"Stacking and target sizes are tokens"#), Anchor(id: "6.2.0-the-arrow-keys-everywhere-a-group-needs-them", label: #"The arrow keys, everywhere a group needs them"#), Anchor(id: "6.2.0-overlays-on-one-path", label: #"Overlays on one path"#), Anchor(id: "6.2.0-fixes", label: #"Fixes"#), Anchor(id: "6.2.0-reached-by-every-reader", label: #"Reached by every reader"#), Anchor(id: "6.2.0-right-to-left", label: #"Right to left"#), Anchor(id: "6.2.0-smaller-fixes", label: #"Smaller fixes"#)], source: "RELEASE_NOTES.md")
     }
 }

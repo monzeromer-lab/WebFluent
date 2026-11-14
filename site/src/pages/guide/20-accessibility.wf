@@ -1,6 +1,6 @@
 /// Chapter 20 of the guide, written from md-docs/about/accessibility.md by
 /// scripts/docsite/guide.py; edit the guide, not this file.
-page AboutAccessibility(path: "/about/accessibility", title: "Accessibility", description: "What the built-ins do for keyboard and screen-reader users, the A01–A17 checks, and the part of accessibility that stays a person's judgement.", layout: DocsShell("Accessibility", kind: .explanation, chapter: t("nav.group.about"), blurb: "Pages that work with a keyboard, a screen reader or voice control: what the built-ins do, what the compiler checks, and what no tool can check for you.", source: "md-docs/about/accessibility.md", sections: [Anchor(id: "what-the-built-ins-do", label: "What the built-ins do"), Anchor(id: "what-the-compiler-checks", label: "What the compiler checks"), Anchor(id: "what-the-compiler-cannot-check", label: "What the compiler cannot check")], prevTo: "/about/how-reactivity-works", prevLabel: t("ch.19"), nextTo: "/about/security", nextLabel: t("ch.21"))) {
+page AboutAccessibility(path: "/about/accessibility", title: "Accessibility", description: "What the built-ins do for keyboard and screen-reader users, the A01–A18 checks, and the part of accessibility that stays a person's judgement.", layout: DocsShell("Accessibility", kind: .explanation, chapter: t("nav.group.about"), blurb: "Pages that work with a keyboard, a screen reader or voice control: what the built-ins do, what the compiler checks, and what no tool can check for you.", source: "md-docs/about/accessibility.md", sections: [Anchor(id: "what-the-built-ins-do", label: "What the built-ins do"), Anchor(id: "what-the-compiler-checks", label: "What the compiler checks"), Anchor(id: "what-the-compiler-cannot-check", label: "What the compiler cannot check")], prevTo: "/about/how-reactivity-works", prevLabel: t("ch.19"), nextTo: "/about/security", nextLabel: t("ch.21"))) {
     Stack(gap: .lg) {
         Markdown("This essay is about the accessibility a WebFluent page has before you do anything, the part the compiler checks on every build, and the part that stays yours: building pages people can use with a keyboard, a screen reader, voice control, zoom or reduced motion.\n\nMost inaccessible pages were not made that way on purpose. A `<div>` with a click handler looks like a button and is not one; a field whose label is a placeholder looks labelled until the reader types. Each is a small mistake that a checklist would catch, and checklists are read once.\n\nWebFluent moves as much of the checklist as it can out of your hands. The built-ins render the markup assistive technology expects, the router and forms manage focus, and the compiler reports what it can see as a finding with a code, on every build. That leaves the work no tool can do (meaning, wording, order) and frees your attention for it.")
 
@@ -38,7 +38,7 @@ page AboutAccessibility(path: "/about/accessibility", title: "Accessibility", de
                 }
                 Table.Row {
                     Table.Cell { Markdown("`A08`") }
-                    Table.Cell { Markdown("Every `Modal` and `Dialog` has a `title:`") }
+                    Table.Cell { Markdown("Every `Modal`, `Dialog`, `AlertDialog` and `Sheet` has a `title:` (a `Sheet` may have a `label:`)") }
                 }
                 Table.Row {
                     Table.Cell { Markdown("`A09`") }
@@ -71,6 +71,10 @@ page AboutAccessibility(path: "/about/accessibility", title: "Accessibility", de
                 Table.Row {
                     Table.Cell { Markdown("`A17`") }
                     Table.Cell { Markdown("Every `Frame` has a `title:`") }
+                }
+                Table.Row {
+                    Table.Cell { Markdown("`A18`") }
+                    Table.Cell { Markdown("Every `Popover` drawn as a dialog has a `label:`") }
                 }
             }
         }

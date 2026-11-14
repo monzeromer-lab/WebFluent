@@ -5,7 +5,7 @@ route: "/about/accessibility"
 from: ["/docs/guide/accessibility"]
 group: "about"
 blurb: "Pages that work with a keyboard, a screen reader or voice control: what the built-ins do, what the compiler checks, and what no tool can check for you."
-description: "What the built-ins do for keyboard and screen-reader users, the A01–A17 checks, and the part of accessibility that stays a person's judgement."
+description: "What the built-ins do for keyboard and screen-reader users, the A01–A18 checks, and the part of accessibility that stays a person's judgement."
 ---
 # Accessibility
 
@@ -82,7 +82,7 @@ and `wf explain CODE` prints it in your terminal.
 | `A02` | Every `IconButton` has a `label:` |
 | `A03`, `A04` | Every `Input` has a label or at least a placeholder (prefer a label); every `Checkbox`, `Radio`, `Switch`, `Slider` and `Textarea` has a label |
 | `A05`, `A06`, `A07` | Buttons, links and headings have text |
-| `A08` | Every `Modal` and `Dialog` has a `title:` |
+| `A08` | Every `Modal`, `Dialog`, `AlertDialog` and `Sheet` has a `title:` (a `Sheet` may have a `label:`) |
 | `A09` | A video has captions and controls; audio has a transcript |
 | `A10` | A table has a header row |
 | `A11`, `A12` | No heading level is skipped, and each page has exactly one `h1` |
@@ -91,6 +91,7 @@ and `wf explain CODE` prints it in your terminal.
 | `A15` | A control's `aria-label` contains its visible text, for voice control |
 | `A16` | No literal `id:` is shared by several elements, in a loop or a reused component |
 | `A17` | Every `Frame` has a `title:` |
+| `A18` | Every `Popover` drawn as a dialog has a `label:` |
 
 For example, this button's `aria-label` does not contain the word it
 shows, so a voice-control user who says "click Save" may not reach it:

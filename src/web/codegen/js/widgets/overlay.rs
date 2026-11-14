@@ -13,11 +13,14 @@ impl JsCodegen {
         ui: &UIElement,
         parent: &str,
     ) {
-        let class = if name == "Modal" {
-            "wf-modal"
-        } else {
-            "wf-dialog"
+        // The class its parts are named after: an alert dialog is drawn as a
+        // dialog is.
+        let class = match name {
+            "Modal" => "wf-modal",
+            "Sheet" => "wf-sheet",
+            _ => "wf-dialog",
         };
+        let side = ui.case_of("side", &["bottom", "start", "end"]);
         let title = ui.args.iter().find_map(|a| {
             if let Arg::Named(k, v) = a {
                 if k == "title" {
@@ -38,11 +41,34 @@ impl JsCodegen {
         // A real `<dialog>`: the browser then traps focus inside it, makes the
         // rest of the page inert, closes on Escape and exposes `aria-modal`.
         let title_id = format!("wf-dlg-{}", var.trim_start_matches("_e"));
-        let labelled = if title.is_some() {
+        let mut labelled = if title.is_some() {
             format!(", \"aria-labelledby\": \"{title_id}\"")
         } else {
             String::new()
         };
+        if name == "AlertDialog" && !Self::gives(ui, "role") {
+            labelled.push_str(", role: \"alertdialog\"");
+        }
+        if name == "Sheet" {
+            labelled.push_str(&format!(
+                ", \"data-side\": \"{}\"",
+                side.unwrap_or("bottom")
+            ));
+            if title.is_none()
+                && let Some(label) = ui.args.iter().find_map(|a| match a {
+                    Arg::Named(k, v) if k == "label" => Some(v.clone()),
+                    _ => None,
+                })
+            {
+                let l = self.emit_expr(&label);
+                let l = if self.is_reactive(&l) {
+                    format!("() => {l}")
+                } else {
+                    l
+                };
+                labelled.push_str(&format!(", \"aria-label\": {l}"));
+            }
+        }
         let extra = self.root_attrs(name, ui, &[]);
         self.emit_line(&format!(
             "const {} = WF.el(\"dialog\", {{ className: \"{}\"{}{}{} }});",
@@ -58,6 +84,13 @@ impl JsCodegen {
         self.emit_line(&format!(
             "const {content_var} = WF.el(\"div\", {{ className: \"{content_class}\" }});"
         ));
+        // A bottom sheet's handle: what a finger drags it by. The heading
+        // drags it too; neither is a control, so a screen reader skips it.
+        if name == "Sheet" && side.is_none_or(|s| s == "bottom") {
+            self.emit_line(&format!(
+                "{content_var}.appendChild(WF.el(\"div\", {{ className: \"wf-sheet__handle\", \"aria-hidden\": \"true\" }}));"
+            ));
+        }
 
         // `Modal.Title { … }`: what the heading draws, in place of the
         // title's words, which stay its name.
@@ -101,8 +134,18 @@ impl JsCodegen {
         }
 
         let body_var = self.fresh_var();
+        // An alert dialog's body is read out with its title.
+        let described = if name == "AlertDialog" {
+            let body_id = format!("wf-dlg-{}-body", var.trim_start_matches("_e"));
+            self.emit_line(&format!(
+                "{var}.setAttribute(\"aria-describedby\", \"{body_id}\");"
+            ));
+            format!(", id: \"{body_id}\"")
+        } else {
+            String::new()
+        };
         self.emit_line(&format!(
-            "const {body_var} = WF.el(\"div\", {{ className: \"{class}__body\" }});"
+            "const {body_var} = WF.el(\"div\", {{ className: \"{class}__body\"{described} }});"
         ));
 
         // Check for Modal.Footer
@@ -149,10 +192,51 @@ impl JsCodegen {
         // Escape or the backdrop — so the state cannot drift out of sync with
         // what is on screen.
         if let Some(binding) = visible_binding {
-            self.emit_line(&format!("WF.dialog({var}, {binding});"));
+            let mut opts = Vec::new();
+            // An alert dialog is answered, not dismissed with a press beside
+            // it: Escape (its cancel) unless it says otherwise.
+            let dismiss = ui
+                .case_of("dismiss", &["any", "escape", "none"])
+                .or((name == "AlertDialog").then_some("escape"));
+            if let Some(d) = dismiss {
+                opts.push(format!("dismiss: \"{d}\""));
+            }
+            if let Some(initial) = self.initial_focus(ui) {
+                opts.push(initial);
+            }
+            if opts.is_empty() {
+                self.emit_line(&format!("WF.dialog({var}, {binding});"));
+            } else {
+                self.emit_line(&format!(
+                    "WF.dialog({var}, {binding}, {{ {} }});",
+                    opts.join(", ")
+                ));
+            }
+        }
+        if name == "Sheet" {
+            let snap = ui.args.iter().find_map(|a| match a {
+                Arg::Named(k, v) if k == "snap" => Some(v.clone()),
+                _ => None,
+            });
+            let snap = snap.map_or(String::new(), |v| format!(", snap: {}", self.emit_expr(&v)));
+            self.emit_line(&format!(
+                "WF.sheet({var}, {{ side: \"{}\"{snap} }});",
+                side.unwrap_or("bottom")
+            ));
         }
 
         self.emit_line(&format!("{parent}.appendChild({var});"));
+    }
+
+    /// `initialFocus: someRef` as the option `WF.dialog` and `WF.layer` take:
+    /// a read, so a handle written further down is there by the time it
+    /// opens.
+    pub(in super::super) fn initial_focus(&mut self, ui: &UIElement) -> Option<String> {
+        let target = ui.args.iter().find_map(|a| match a {
+            Arg::Named(k, v) if k == "initialFocus" => Some(v.clone()),
+            _ => None,
+        })?;
+        Some(format!("initial: () => {}", self.emit_expr(&target)))
     }
 
     /// `visible:` as a read, and the write that follows the screen when the
@@ -260,6 +344,14 @@ impl JsCodegen {
         self.emit_root_handlers(var, ui, true);
         let mut opts = self.layer_options(ui);
         opts.extend(self.close_handler(ui));
+        if let Some(d) = ui.case_of("dismiss", &["any", "escape", "none"]) {
+            opts.push(format!("dismiss: \"{d}\""));
+        }
+        opts.extend(self.initial_focus(ui));
+        // Its control says what it opens, and whether it is open.
+        if Self::gives(ui, "anchor") {
+            opts.push("controls: true".to_string());
+        }
         self.emit_line(&format!(
             "WF.layer({var}, {binding}, {{ {} }});",
             opts.join(", ")

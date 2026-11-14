@@ -1,8 +1,8 @@
 {
   "diagnostics": [],
   "files": {
-    "app.js": "1cde4f479a9dbf6cf8bb0011f854e9598939ddc00b93fecda902abe0698b7acb",
-    "app.js.gz": "911831bf30dfd4aad7a46b399708d1e1a3c5b81e08a3481593918bfd5acf1297",
+    "app.js": "d9c6c1c8f5fa706142cfe512cc64f406cac13ca1c98d8173901e2ac1fe16a765",
+    "app.js.gz": "b268c48f206158e4513109a929bab494805b4002fca46510199138d6e9e83c5f",
     "index.html": "fa4689bc64dee78f4c4c891b12509b312a3497d833b0b17b56c73e38734eddba",
     "pages/Board.js": "83e12c805a95c04bda8c823e0e467e85f315b4cf49360431f9bf1115b1a44b2f",
     "pages/Board.js.gz": "7ecc24ba0801b36b929d89308b5dfdbddaadbff322f1e473cbfba7f1a706d69a",

@@ -2,8 +2,8 @@
   "diagnostics": [],
   "files": {
     "_headers": "f6ffacb13947987fecdb4835f839a6a162000b6108f4e0b98eca82534c2b5fc3",
-    "app.js": "2b95733c2538b1511398a6b2197b461b51c1a2ece00aec714dc54cb25c80be34",
-    "app.js.gz": "c809d5ade810b5df03e6ec5a56359f37910d977f8d66c0a402dc0de96f26c42f",
+    "app.js": "bfd9952b76666d45d1fb7e0dcc706c3896432bbde1e9f678d820b2b4b569aa24",
+    "app.js.gz": "e255d2cd4cbe91d951afd9a427691700312761324ea9f094934248ab61586b6b",
     "index.html": "ecb62ce8486717e71bed55b9f5ce71acf3e99863e328f833a4c8f9bc5834b52d",
     "index.html.gz": "e95a4a6059d4460a0a39ce1a434874c6317e88966b44a08bfda2d6c8c5b32272",
     "js/files.js": "b5492f6db77f9ac5256007e2346531eebd10fcc4147b4a80804999f33489174d",
@@ -22,10 +22,10 @@
     "pages/Settings.js": "2bb5c642c8136675fb562cb1eb464c10fb83ccbfb2b12ffebece5eb4dec80419",
     "pages/Settings.js.gz": "1cab971171dbb147ecf5a1eed55ca5e4e932ebd508da4fc0473a57e17e907f2a",
     "robots.txt": "16ceb5ee3e0dc13aa9adf31a3ebbe45a1d965b8c2b9f72eaf84e5911e140ed95",
-    "styles.css": "a87a90a8b420b5ef231642be6c69fe6ad1af829523e5b081754b1332b2ab6239",
-    "styles.css.gz": "1cc272198859aac1cbe7ec4d595239463a68d481bc01097d64371bae8efcffd6",
-    "sw.js": "9061e0fc6c5fdec5e1943d8d340dfc2c9b0494337530d5e3d0cd685e543db27e",
-    "sw.js.gz": "3ebdb7431ffc589ebf39845b8a1e34cdce631a19a484147242305b2b29d28e38",
+    "styles.css": "47e8ffb656a9ac901d94a6ea181e8e953828d4d4eff65f6f32d941736c4d462a",
+    "styles.css.gz": "0ad59ddba1467a226fa9d38d09ac298563eb6b8c9c3dbade1375233428c3e075",
+    "sw.js": "7c04ca6cf1b74c7e84aa887371eb28e96af2544da55cd9361a5c0850bb808646",
+    "sw.js.gz": "04f731f7d6a9bc8a09c3e39c27314f9a8c2b07929913f9feb10487f1d5d81cb6",
     "theme.js": "ece5bb41a0b05bc1e887bc97f1466299b28e1a8e7eb43f9711dd1f1367dfc358"
   }
 }

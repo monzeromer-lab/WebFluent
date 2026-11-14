@@ -1,13 +1,13 @@
 # Dialog
 
-> Confirmation <dialog>, opened by a state flag. on close runs when it closes, however it was closed.
+> Confirmation <dialog>, opened by a state flag. on close runs when it closes, however it was closed, and the focus goes back to what had it.
 
 The page: https://webfluent.monzeromer.dev/reference/dialog
 
-Confirmation <dialog>, opened by a state flag. on close runs when it closes, however it was closed.
+Confirmation <dialog>, opened by a state flag. on close runs when it closes, however it was closed, and the focus goes back to what had it.
 
 ```wf
-Dialog(visible: State, title: String, closable: Bool) { … }
+Dialog(visible: State, title: String, closable: Bool, …) { … }
 ```
 
 ## Props
@@ -17,10 +17,12 @@ Dialog(visible: State, title: String, closable: Bool) { … }
 | `visible:` | `State` | State flag that opens and closes it |
 | `title:` | `String` | Heading shown at the top |
 | `closable:` | `Bool` | A close button in the heading row, which closes it as Escape does |
+| `dismiss:` | `.any .escape .none` | What closes it besides the page's own button |
+| `initialFocus:` | `Any` | What takes the focus when it opens, by its `ref:`; unset, what says `autofocus`, else its first control |
 
 ## Flags
 
-`.closable`
+`.closable` `.any` `.escape` `.none`
 
 ## Events
 

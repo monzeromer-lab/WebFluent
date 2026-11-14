@@ -1628,7 +1628,7 @@ pub(crate) fn render_builtin<C: Paint>(name: &str, ui: &UIElement, ctx: &mut C) 
             out.push_str(&format!("{indent}</div>\n"));
             return out;
         }
-        "Modal" | "Dialog" => {
+        "Modal" | "Dialog" | "AlertDialog" | "Sheet" => {
             let title = ui.args.iter().find_map(|a| match a {
                 Arg::Named(k, v) if k == "title" => Some(
                     resolve_text_scoped(v, &ctx.default_messages, &ctx.scope).unwrap_or_default(),
@@ -1639,7 +1639,33 @@ pub(crate) fn render_builtin<C: Paint>(name: &str, ui: &UIElement, ctx: &mut C) 
                 ctx.dialogs += 1;
                 format!("wf-dlg-s{}", ctx.dialogs)
             });
-            let own = own_attrs(name, ui, ctx, &[]);
+            let mut own = own_attrs(name, ui, ctx, &[]);
+            // An alert dialog says so; a sheet says which edge it is on, and
+            // takes its `label:` as its name when it has no title.
+            if name == "AlertDialog" && !own.contains(" role=") {
+                own.push_str(" role=\"alertdialog\"");
+            }
+            if name == "Sheet" {
+                let side = ui
+                    .case_of("side", &["bottom", "start", "end"])
+                    .unwrap_or("bottom");
+                own.push_str(&format!(" data-side=\"{side}\""));
+                if title.is_none()
+                    && let Some(label) = ui.args.iter().find_map(|a| match a {
+                        Arg::Named(k, v) if k == "label" => {
+                            resolve_text_scoped(v, &ctx.default_messages, &ctx.scope)
+                        }
+                        _ => None,
+                    })
+                {
+                    own.push_str(&format!(" aria-label=\"{}\"", html_escape(&label)));
+                }
+            }
+            let part_class = match name {
+                "Modal" => "wf-modal",
+                "Sheet" => "wf-sheet",
+                _ => "wf-dialog",
+            };
             let indent = ctx.indent_str();
             ctx.indent += 3;
             let mut body = Vec::new();
@@ -1667,7 +1693,11 @@ pub(crate) fn render_builtin<C: Paint>(name: &str, ui: &UIElement, ctx: &mut C) 
                 &indent,
                 &DialogPaint {
                     root_class: &class_str,
-                    class: base_class,
+                    class: part_class,
+                    handle: name == "Sheet"
+                        && ui
+                            .case_of("side", &["bottom", "start", "end"])
+                            .is_none_or(|s| s == "bottom"),
                     attrs: &format!("{own}{wf}{inline_style}"),
                     title: title.as_deref().zip(id.as_deref()),
                     heading: heading.as_deref(),
@@ -3087,6 +3117,8 @@ pub struct DialogPaint<'a> {
     pub heading: Option<&'a str>,
     /// Whether its heading row has a close button (`.closable`).
     pub closable: bool,
+    /// Whether it has a handle to drag it by (a bottom `Sheet`).
+    pub handle: bool,
     /// Its body, painted, three levels in.
     pub body: &'a str,
     /// Its `Modal.Footer`: the studio's node id, and what is in it.
@@ -3115,6 +3147,12 @@ pub fn static_dialog(indent: &str, d: &DialogPaint<'_>) -> String {
     let inner = format!("{indent}    ");
     let part = format!("{indent}        ");
     out.push_str(&format!("{inner}<div class=\"{}__content\">\n", d.class));
+    if d.handle {
+        out.push_str(&format!(
+            "{part}<div class=\"{}__handle\" aria-hidden=\"true\"></div>\n",
+            d.class
+        ));
+    }
     if let Some((title, id)) = d.title {
         let words = match d.heading {
             Some(drawn) => drawn.trim().to_string(),

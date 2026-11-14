@@ -103,6 +103,7 @@ const ERROR_INDEX: [IndexEntry] = [
     IndexEntry(label: "A15 An aria-label that does not contain the visible text", to: "/errors/A15", group: "Accessibility"),
     IndexEntry(label: "A16 One id on several elements", to: "/errors/A16", group: "Accessibility"),
     IndexEntry(label: "A17 A frame with no title", to: "/errors/A17", group: "Accessibility"),
+    IndexEntry(label: "A18 A popover with no name", to: "/errors/A18", group: "Accessibility"),
     IndexEntry(label: "S01 A page with no title", to: "/errors/S01", group: "Search and sharing"),
     IndexEntry(label: "S02 A page with no description", to: "/errors/S02", group: "Search and sharing"),
     IndexEntry(label: "S03 A description too long for a search result", to: "/errors/S03", group: "Search and sharing"),
@@ -2115,8 +2116,8 @@ page ErrorA07(path: "/errors/A07", title: "A07 — An empty heading", descriptio
     }
 }
 
-page ErrorA08(path: "/errors/A08", title: "A08 — A dialog with no title", description: "A `Modal` or `Dialog` with no `title:`, which is its accessible name.") {
-    ErrorShell("A08", title: "A dialog with no title", severity: "warning", family: "Accessibility", summary: "A `Modal` or `Dialog` with no `title:`, which is its accessible name.", printed: #"warning[A08]: Modal missing "title" attribute
+page ErrorA08(path: "/errors/A08", title: "A08 — A dialog with no title", description: "A `Modal`, `Dialog`, `AlertDialog` or `Sheet` with no `title:` (a `Sheet` may take a `label:`), which is its accessible name.") {
+    ErrorShell("A08", title: "A dialog with no title", severity: "warning", family: "Accessibility", summary: "A `Modal`, `Dialog`, `AlertDialog` or `Sheet` with no `title:` (a `Sheet` may take a `label:`), which is its accessible name.", printed: #"warning[A08]: Modal missing "title" attribute
  --> src/App.wf:4:5
   |
 4 |     Modal(visible: open) { Text("Hello") }
@@ -2359,6 +2360,34 @@ page ErrorA17(path: "/errors/A17", title: "A17 — A frame with no title", descr
 }"#, title: "wf") }
         note {
             Markdown("`Frame(src: \"https://example.com/\", title: \"Example\")` — the title is how a screen reader announces it.")
+            Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
+        }
+        Markdown("Warning.")
+    }
+}
+
+page ErrorA18(path: "/errors/A18", title: "A18 — A popover with no name", description: "A `Popover` drawn as a dialog (it has no other `role:`) with no `label:`: a screen reader announces it as a dialog and nothing more.") {
+    ErrorShell("A18", title: "A popover with no name", severity: "warning", family: "Accessibility", summary: "A `Popover` drawn as a dialog (it has no other `role:`) with no `label:`: a screen reader announces it as a dialog and nothing more.", printed: #"warning[A18]: Popover has no accessible name
+ --> src/App.wf:5:5
+  |
+5 |     Popover(visible: open, anchor: branch) { Button("feature/layers") }
+  |     ^^^^^^^
+  = help: Say what it is: Popover(visible: open, anchor: button, label: "Branches")
+  = docs: https://webfluent.monzeromer.dev/errors/A18"#, quickfix: "", lowerable: true, why: true, example: true, families: ERROR_INDEX, related: [], sections: [Anchor(id: "printed", label: t("error.printed")), Anchor(id: "fix", label: t("error.fix")), Anchor(id: "why", label: t("error.why"))], source: "md-docs/errors/A18.md") {
+        broken { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    state open = false
+    Heading("Branches").h1
+    Button("main", ref: branch) { on click { open = !open } }
+    Popover(visible: open, anchor: branch) { Button("feature/layers") }
+}"#, title: "wf") }
+        fixed { CodeBlock(#"page P(path: "/", title: "T", description: "D") {
+    state open = false
+    Heading("Branches").h1
+    Button("main", ref: branch) { on click { open = !open } }
+    Popover(visible: open, anchor: branch, label: "Branches") { Button("feature/layers") }
+}"#, title: "wf") }
+        note {
+            Markdown("`label: \"Branches\"` — what a screen reader says as the focus goes into it. A popover that is something other than a dialog says so with `role:` (`\"listbox\"`, `\"tooltip\"`), and is named as that role asks.")
             Markdown("Each example is a whole program: it is all of `src/App.wf` in a project with no other `.wf` file ([trying an example](/errors#trying-an-example)).") { style { font-size: 14px; color: $muted } }
         }
         Markdown("Warning.")

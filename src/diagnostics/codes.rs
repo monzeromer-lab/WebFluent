@@ -609,7 +609,7 @@ pub static CODES: &[CodeInfo] = &[
         "A08",
         Warning,
         "A dialog with no title",
-        "A `Modal` or `Dialog` with no `title:`, which is its accessible name.",
+        "A `Modal`, `Dialog`, `AlertDialog` or `Sheet` with no `title:` (a `Sheet` may take a `label:`), which is its accessible name.",
     ),
     code(
         "A09",
@@ -664,6 +664,12 @@ pub static CODES: &[CodeInfo] = &[
         Warning,
         "A frame with no title",
         "A `Frame` with no `title:`, which is its accessible name: a screen reader announces a frame by its title, and a frame without one as only a frame.",
+    ),
+    code(
+        "A18",
+        Warning,
+        "A popover with no name",
+        "A `Popover` drawn as a dialog (it has no other `role:`) with no `label:`: a screen reader announces it as a dialog and nothing more.",
     ),
     // ── S: search and sharing ────────────────────────────────────────
     code(

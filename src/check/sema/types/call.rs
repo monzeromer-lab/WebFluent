@@ -124,6 +124,8 @@ impl Checker<'_, '_> {
                     // the reader, `⌘S` or `Ctrl+S`.
                     "keyIs" => Type::Bool,
                     "keyLabel" => Type::String,
+                    // `await ask(…)`: the answer, yes or no.
+                    "ask" => Type::Bool,
                     _ => Type::Any,
                 }
             }

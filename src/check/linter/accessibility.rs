@@ -843,9 +843,36 @@ fn lint_ui_element(
                 }
             }
 
+            // A18: a popover drawn as a dialog is announced by its name
+            "Popover" => {
+                let named = has_named_arg(&ui.args, "label")
+                    || has_named_arg(&ui.args, "aria-label")
+                    || has_named_arg(&ui.args, "aria-labelledby");
+                let other_role = ui.args.iter().any(|a| {
+                    matches!(a, Arg::Named(k, Expr::StringLiteral(r)) if k == "role" && r != "dialog")
+                });
+                if !named && !other_role {
+                    warnings.push(
+                        crate::diagnostics::finding(
+                            "A18",
+                            "Popover has no accessible name",
+                            file,
+                            line,
+                            col,
+                            "Say what it is: Popover(visible: open, anchor: button, label: \"Branches\")",
+                        )
+                        .with_plans(add_named("label", None)),
+                    );
+                }
+            }
+
             // A08: Modal/Dialog missing title
-            "Modal" | "Dialog" => {
-                if !has_named_arg(&ui.args, "title") {
+            "Modal" | "Dialog" | "AlertDialog" | "Sheet" => {
+                let named = has_named_arg(&ui.args, "title")
+                    || (name == "Sheet"
+                        && (has_named_arg(&ui.args, "label")
+                            || has_named_arg(&ui.args, "aria-label")));
+                if !named {
                     // What opens it is its title's first draft:
                     // `visible: confirmDelete` is "Confirm delete".
                     let opened_by = ui.args.iter().find_map(|a| match a {

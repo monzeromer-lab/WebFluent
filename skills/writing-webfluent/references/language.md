@@ -1695,6 +1695,24 @@ navigate("/path")                    // Programmatic; an address on another orig
 Link("About", to: "/about")          // Declarative
 ```
 
+### Toasts, questions and announcements
+
+```wf
+toast("Conversation archived", action: "Undo", onAction: restore)   // tone:, duration:, closable:
+toast.promise(Profile.save(), loading: "Saving…", done: "Saved", failed: "Not saved")
+if await ask("Delete the project?", detail: "This cannot be undone.", yes: "Delete", danger: true) { … }
+announce("{results.length} results")                                 // politely
+announce("Connection lost", .assertive)                              // at once
+```
+
+A toast is drawn above everything, a modal included, and said to a screen
+reader; it waits while the pointer is on it or the focus is in it, has a
+close button, and no more than three show at once (a fourth closes the
+oldest). `ask` draws an alert dialog, the focus on its no, and is `true` for
+yes and `false` for no or Escape (`confirm` is the browser's). A program's
+own `toast`, `ask` or `announce` — a state, an action — keeps its name; the
+function is then out of reach there.
+
 ### The indented layout: `.wfx`
 
 The same grammar, with blocks written by indentation instead of braces. A
@@ -1823,10 +1841,12 @@ Input types (a flag): `.text`, `.email`, `.password`, `.number`, `.search`, `.te
 | Component | Usage |
 |-----------|-------|
 | `Alert` | `Alert("Message").success` — tones: `.success`, `.danger`, `.warning`, `.info` |
-| `Toast` | `Toast("Saved!").success` — temporary notification, drawn above everything (an open modal included) and announced |
-| `Modal` | `Modal(visible: showModal, title: "Title") { on close { ... } ... Modal.Footer { ... } }` — a `<dialog>`; Escape or a press on its backdrop closes it; `title:` is its heading, and `Modal.Title { Markdown("Rename `{name}`") }` draws the heading instead, `title:` staying its name; `.closable` puts a close button in the heading row; `on close` runs however it closes; an open one is the newest layer, so opened over a popover it takes the first Escape and the popover the next |
+| `Toast` | `Toast("Saved!").success` — temporary notification, drawn above everything (an open modal included) and announced; from a handler, `toast(…)` (below) |
+| `Modal` | `Modal(visible: showModal, title: "Title", dismiss: .escape, initialFocus: nameField) { on close { ... } ... Modal.Footer { ... } }` — a `<dialog>`; Escape or a press on its backdrop closes it, as `dismiss:` allows (`.any`, the default · `.escape` · `.none`); the focus goes to `initialFocus:` (a `ref:`), else what says `autofocus`, else its first control, and back to what had it when it closes; it fades out however it closes; `title:` is its heading, and `Modal.Title { Markdown("Rename `{name}`") }` draws the heading instead, `title:` staying its name; `.closable` puts a close button in the heading row; `on close` runs however it closes; an open one is the newest layer, so opened over a popover it takes the first Escape and the popover the next |
 | `Dialog` | `Dialog(visible: asking, title: "Confirm") { ... }` — as `Modal`, with `Dialog.Title` and no footer part |
-| `Popover` | `Popover(visible: open, anchor: button, placement: .bottomStart, label: "Branches").arrow { on close(reason) { ... } ... }` — a layer above everything at `anchor:` (a `ref:`) or `at:` a point; flips and slides to stay on screen; Escape or a press outside sets `visible:` back to `false`, and `on close` hears `"escape"` or `"outside"`; `role:` (in place of `dialog`), `tabindex:`, `aria-*`, `data-*`, `ref:` and its other `on` handlers are its element's, as on any element — and on a `Menu`, a `Tooltip`, a `Modal` and a `Dialog` too |
+| `AlertDialog` | `AlertDialog(visible: sure, title: "Discard changes?") { Text("Your edits will be lost.") AlertDialog.Footer { Button("Keep editing") { … } Button("Discard").danger { … } } }` — `role="alertdialog"`, read with its body; Escape answers it and a press beside it does not (`dismiss: .escape` unless it says otherwise); the answer that loses nothing goes first |
+| `Sheet` | `Sheet(visible: filters, title: "Filters", side: .bottom, snap: [0.5, 1]).closable { … Sheet.Footer { … } }` — a modal `<dialog>` from an edge: `.bottom` (the default), `.start` or `.end`, swapped in a right-to-left page; dragged by its handle or heading toward its edge past 30% of its size, or flicked, it closes; a bottom sheet opens at its first `snap:` point (fractions of the window's height) and settles at the nearest; `dismiss:`, `initialFocus:`, `Sheet.Title` as on `Modal`; `label:` names one with no title |
+| `Popover` | `Popover(visible: open, anchor: button, placement: .bottomStart, label: "Branches").arrow { on close(reason) { ... } ... }` — a layer above everything at `anchor:` (a `ref:`) or `at:` a point; flips and slides to stay on screen; Escape or a press outside sets `visible:` back to `false` (as `dismiss:` allows), and `on close` hears `"escape"` or `"outside"`; the focus goes to `initialFocus:`, else its first control; its anchor carries `aria-controls`, `aria-expanded` and `aria-haspopup`; `label:` is its name (`A18` without one); `role:` (in place of `dialog`), `tabindex:`, `aria-*`, `data-*`, `ref:` and its other `on` handlers are its element's, as on any element — and on a `Menu`, a `Tooltip`, a `Modal` and a `Dialog` too |
 | `Spinner` | `Spinner` or `Spinner.lg` |
 | `Progress` | `Progress(value: 75, max: 100)` |
 | `Skeleton` | `Skeleton(height: "20px", width: "200px")` or `Skeleton(size: "48px").circle` — flags: `.circle` |
@@ -2517,7 +2537,7 @@ may too. Its surface:
 | Routing | `router(routes, container, {transition, duration})` — `fade` or `slide` plays the old page out and the new one in; `navigate(path)`; `params()`; `activeLink(a, href, prefix)`; `page(name, fn)`; `loadPage`; `loadSheet` |
 | Data | `resource(url, options)` → `{state, data, error, refreshing, pending, reload, invalidate, cancel}`; `request(url, options)` → the parsed body (`await fetch(…)` in an action compiles to it); `fetch(url, options)`; `store(name, define, options)` — a proxy that builds `define()` on first read; `dropRouteStores()`; `emit(props, event, …args)`; `locales(default, tables)` → `WF.i18n` |
 | Stores, seen | `watchStores(fn)` → every action with the state on each side of it, and the function that stops it; `storeSnapshot(name?)`; `restoreStore(name, values)`. Nothing is recorded while nothing is watching |
-| Widgets | `toast(message, tone, ms)`; `dialog(el, read, write)`; `popup`; `tabs`; `drawer`; `announce(text)`; `carousel`; `tooltip`; `menu`; `field` |
+| Widgets | `toast(message, { tone, duration, action, onAction, closable })` → `{ close, update }`; `toastPromise(promise, { loading, done, failed })`; `dialog(el, read, write, { dismiss, initial })`; `ask(message, { detail, yes, no, danger })` → a promise of the answer; `sheet(el, { side, snap })`; `popup`; `tabs`; `drawer`; `announce(text, "assertive")`; `carousel`; `tooltip`; `menu`; `field` |
 | Safety | `safeUrl(url)` → the URL where a browser may follow it, `""` where it may not; `sanitize(html)` → the allow-listed markup. Both have a build-time twin, pinned by a shared case table |
 | Text | `markdown(text)` → HTML; `highlight(code, lang)` → HTML with `wf-tok-*` spans (`wf`, `json`, `bash`, `css`), the twin of `codegen::highlight` |
 | Interop | `attach(node, mount, update, cleanup)` — what `mount:`/`update:`/`cleanup:` compile to on any element (a component's fragment is attached at its root); `portal(box, read)` — what `Portal` compiles to: `box` kept in the node `read()` names (read again once the drawing is over), aside on `null`, gone with its scope, returning what runs the lifetimes its block held; `wf:render` on `document` after each drawing; `jsonAttr(raw)` — an attribute holding JSON, as the prop it stands for |
@@ -2932,7 +2952,7 @@ page Report(path: "/", title: "Report", description: "The quarter.") {
 **Refused in a PDF or a deck** (`E109`, where it is written): controls
 (`Button`, `Input`, `Select`, `Checkbox`, `Switch`, `Form`, …), navigation
 (`Router`, `Navbar`, `Sidebar`, `Tabs`, `Menu`), overlays (`Modal`, `Dialog`,
-`Toast`, `Tooltip`), media that plays (`Video`, `Audio`, `Carousel`),
+`AlertDialog`, `Sheet`, `Toast`, `Tooltip`), media that plays (`Video`, `Audio`, `Carousel`),
 elements a script draws (`Host`, `Element`, `Portal`), handlers, `resource`, motion.
 Everything static draws.
 
@@ -3227,7 +3247,7 @@ paint alike.
 | `A05` | A `Button` with no text — no label, no `aria-label:`, and no `Text` in its block (a branch or a component it places counts) |
 | `A06` | A `Link` with no text |
 | `A07` | A `Heading` with no text |
-| `A08` | A `Modal` or `Dialog` with no `title:`, which is its accessible name |
+| `A08` | A `Modal`, `Dialog`, `AlertDialog` or `Sheet` with no `title:` (a `Sheet` may take a `label:`), which is its accessible name |
 | `A09` | A `Video` with no `controls`, or a `Video`/`Audio` with no `captions:`/`transcript:` |
 | `A10` | A `Table` with no header row (`Table.Head`) |
 | `A11` | A heading level skipped — `h2` straight to `h4` |
@@ -3265,6 +3285,7 @@ paint alike.
 | `I03` | A message one locale has and another does not |
 | `A16` | A literal `id:` inside a `for`, or in a component placed more than once, which several elements then share |
 | `A17` | A `Frame` with no `title:`, which is how a screen reader announces it |
+| `A18` | A `Popover` drawn as a dialog (no other `role:`) with no `label:` |
 | `U06` | Code after a `return` in the same block |
 | `U08` | A condition that is always the same — a literal, or a value compared with itself |
 | `U09` | A `for` with no `by` whose items hold state, a control or a stateful component, which starts again when the list changes |
