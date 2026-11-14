@@ -237,6 +237,54 @@ jobs:
         working-directory: tests/browser
         run: node output_security.mjs
 
+      - name: A test that clicks, in a browser
+        working-directory: tests/browser
+        run: node testing.mjs
+
+      - name: Frames
+        working-directory: tests/browser
+        run: node frames.mjs
+
+      - name: The built-ins against the standards
+        working-directory: tests/browser
+        run: node standards.mjs
+
+      - name: Overlays
+        working-directory: tests/browser
+        run: node overlays.mjs
+
+      - name: Busy presses
+        working-directory: tests/browser
+        run: node busy.mjs
+
+      - name: Content
+        working-directory: tests/browser
+        run: node content.mjs
+
+      - name: Choosing
+        working-directory: tests/browser
+        run: node choosing.mjs
+
+      - name: Collections
+        working-directory: tests/browser
+        run: node collections.mjs
+
+      - name: More form controls
+        working-directory: tests/browser
+        run: node forms2.mjs
+
+      - name: Navigation
+        working-directory: tests/browser
+        run: node navigation.mjs
+
+      - name: More overlays
+        working-directory: tests/browser
+        run: node overlays2.mjs
+
+      - name: Display and layout
+        working-directory: tests/browser
+        run: node display.mjs
+
       # What the compiler once compiled wrong, clicked and typed into.
       - name: Behaviour
         run: target/release/wf test tests/fixtures/behaviour
