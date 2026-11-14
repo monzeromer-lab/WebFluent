@@ -1863,7 +1863,7 @@ dependencies = [
 
 [[package]]
 name = "webfluent"
-version = "6.0.0"
+version = "6.1.0"
 dependencies = [
  "clap",
  "fontdb",
@@ -1907,7 +1907,7 @@ checksum = "a28ac98ddc8b9274cb41bb4d9d4d5c425b6020c50c46f25559911905610b4a88"
 
 [[package]]
 name = "wf-lsp"
-version = "6.0.0"
+version = "6.1.0"
 dependencies = [
  "dashmap 6.2.1",
  "lsp-types",
@@ -1920,7 +1920,7 @@ dependencies = [
 
 [[package]]
 name = "wf-wasm"
-version = "6.0.0"
+version = "6.1.0"
 dependencies = [
  "cc",
  "libm",

@@ -27,11 +27,11 @@ const REPO = "https://github.com/monzeromer-lab/WebFluent"
 const STUDIO = "https://github.com/monzeromer-lab/webfluent-studio"
 
 /// The release the site documents, on the header's pill.
-const VERSION = "6.0"
+const VERSION = "6.1"
 
 /// The release the compiler in the page is: `scripts/site-wasm.sh` ships it
 /// under `/wasm/<release>/`, and the live examples load it from there.
-const WF_RELEASE = "6.0.0"
+const WF_RELEASE = "6.1.0"
 
 /// Where that compiler lives.
 const WASM = "/wasm/" + WF_RELEASE + "/"

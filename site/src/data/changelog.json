@@ -1,5 +1,179 @@
 [
  {
+  "version": "6.1.0",
+  "id": "6.1.0",
+  "date": "",
+  "when": "",
+  "summary": "A site sends much less: the runtime ships only the functions a program\nreaches, with short names, and only the styles and animations it draws\non. The compiler draws icons and the reader's theme before any script\nruns, and refuses a few more programs that built and then failed in the\nbrowser. A project that builds with 6.0 builds with 6.1 unless `wf check`\nnow finds one of those (see \"Upgrading\").",
+  "sections": [
+   {
+    "title": "Smaller",
+    "id": "6.1.0-smaller",
+    "intro": "Gzipped, built by 6.0.0 and by 6.1.0 from the same sources:\n\n| Project | `app.js` | `styles.css` |\n|---|---|---|\n| The counter example | 9.2 → 4.2 kB | 3.8 → 1.9 kB |\n| `wf init -t static` | 23.7 → 14.8 kB | 5.5 → 4.3 kB |\n| `wf init -t spa` | 23.9 → 16.9 kB | 6.2 → 5.0 kB |\n| The documentation site (564 pages) | 142 → 111 kB | 16.7 → 15.8 kB |",
+    "items": [
+     {
+      "text": "**The runtime is cut by function, not by module.** One call into a\nmodule used to ship all of it, and every function of `core` shipped to\nevery project. A build now keeps what runs at load, every function the\nprogram calls through `WF`, and what those name, until nothing new is\nnamed; `WF` exports only what is called. A project's own scripts, an\n`elements` build's definitions, the dev server's stores panel and the\nstudio count as callers. `\"build\": { \"runtime\": \"full\" }` still ships\neverything.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**The runtime's names are shortened** in a minified build: its\ntop-level functions and values, and each function's locals, the most\nused first. What a program calls on `WF` keeps its name.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**Only the styles a project draws on.** The grid, columns, spacers,\ndividers, code highlighting, Markdown, drag and drop, and the document\nand slide elements are each kept only with the component that uses\nthem, and the rules every page keeps (reflow, focus, reduced motion)\nlose the selectors of components a project does not use.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**Only the motion a project uses.** The animation module ships to a\nprogram that animates: an animation, an element marked to enter or\nleave, or a router transition. The route-transition player and async\nvalidation ship only when used; key combinations and the theme are\nmodules of their own.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**A one-page site is one file**: its code is in `app.js`, with no chunk.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**A route table without the pages' details.** A split build sends each\npage's title, language and layout with the page's own chunk, so\n`app.js` holds only each route's path and page name.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**`wf build --stats`** counts what the build keeps of each runtime\nmodule, and what that comes to with its names shortened.",
+      "points": [],
+      "after": ""
+     }
+    ],
+    "after": "A build does more to prune, so it takes a few milliseconds longer on a\nsmall project (about 8% on the documentation site)."
+   },
+   {
+    "title": "Additions",
+    "id": "6.1.0-additions",
+    "intro": "",
+    "items": [
+     {
+      "text": "**Icons in the static paint.** Every built-in icon is drawn into the\npre-rendered HTML, from the same table the runtime draws it from.\nBefore, an icon was an empty element until the script ran, so a\nheader's icon buttons were blank squares on the first paint.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**The reader's theme before the first paint.** A site that calls\n`setTheme` gets a small `theme.js`, linked first, which puts the\nreader's choice on the page before it is drawn: no flash of the other\ntheme.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**A page's own language in its text.** A page with `lang:` shows its\n`t()` text from that language's table, in the pre-render and while it\nshows; leaving it puts back the reader's language.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**A call at the top of `app` is set-up code**, run once when the site\nopens: `app { use Session  Session.load()  Router }`. It was read as an\nelement with a flag.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**One `main` landmark.** A program that draws its own `main` (an\nelement with `role: \"main\"`) gets a plain `div` as the box the router\ndraws pages into, so a page has one main landmark and its header is a\ntop-level banner. The box keeps its `id`, `wf-main`.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**One skip link.** The engine's own skip link is left out when a page\nopens with its own.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**A Markdown code block takes keyboard focus** (`<pre tabindex=\"0\">`),\nbuilt and live, so a long line can be scrolled without a mouse.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**`reduce` and `reduceRight` at build time**, so a `derived` value\nfolded with them shows in the static paint, a template and `wf test`.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**The browser compiler's preview without a service worker.**\n`previewInline()` in `crates/wf-wasm/wf.js` serves a build through\n`run.html` where a browser refuses a service worker (a private window,\nsome embedded browsers).",
+      "points": [],
+      "after": ""
+     }
+    ],
+    "after": ""
+   },
+   {
+    "title": "Checks",
+    "id": "6.1.0-checks",
+    "intro": "",
+    "items": [
+     {
+      "text": "**`T10`: an endpoint called with positional arguments.**\n`Backend.signUp(email, password)` sent the first value as the call's\nmap and the second nowhere; the finding writes the call by name.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**`E111` in `wf check`: a theme the config names and the program does\nnot declare.** `wf build` stopped on it while `wf check` said \"No\nproblems\".",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**`R05` reads the site's language.** A page with no `lang:` is in\n`meta.lang`, so a translation written in that language is now caught.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**`log(a, b)`** says `log` takes one value and how to log several.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "A component or store member only a `test` reaches is no longer `U03`\nor `U04`; a `t()` key a string elsewhere in the program names is no\nlonger unused.",
+      "points": [],
+      "after": ""
+     }
+    ],
+    "after": ""
+   },
+   {
+    "title": "Fixes",
+    "id": "6.1.0-fixes",
+    "intro": "",
+    "items": [
+     {
+      "text": "**`optimistic()` works.** It was handed the state's value instead of\nthe state, and threw `holder is not a function` every time. An action\nthat used it without awaiting anything was written with `await` in a\nplain function, which stopped the page; and a store's action never\nrolled back what it showed.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**A variant or a size given state follows it.** `Button(\"Save\", tone:\ntone)` and `Stack(gap: gap)` wrote the value as an attribute nothing\nreads, so the element kept its default look. A class prop (and `gap`,\n`align`, `justify`) that reads state is now a class looked up from its\ncase, followed as the state changes and painted at its first value.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**A short token as a value.** `state accent = $primary` compiled to\n`var(--primary)`, which no theme sets; a short name only one token\ngroup has is that group's (`$color-primary`).",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "**`wf verify` is ten times faster**: a page is done once it has loaded\nand been quiet for 100 ms (900 ms at most), and up to three browsers\nvisit a site's routes at once.",
+      "points": [],
+      "after": ""
+     }
+    ],
+    "after": ""
+   },
+   {
+    "title": "Upgrading",
+    "id": "6.1.0-upgrading",
+    "intro": "Run `wf check`. It may find `T10` (call an endpoint by name), `E111` (a\ntheme the config names that no file declares) or `R05` (a page and its\ntranslation both in the site's language: set `meta.lang`, or give the\npage `lang:`). A stylesheet that selects `main#wf-main` should select\n`#wf-main` when the program draws its own `main`.",
+    "items": [],
+    "after": ""
+   }
+  ],
+  "count": 25
+ },
+ {
   "version": "6.0.0",
   "id": "6.0.0",
   "date": "2026-11-13",

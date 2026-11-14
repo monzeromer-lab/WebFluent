@@ -1,3 +1,127 @@
+# WebFluent v6.1.0 Release Notes
+
+A site sends much less: the runtime ships only the functions a program
+reaches, with short names, and only the styles and animations it draws
+on. The compiler draws icons and the reader's theme before any script
+runs, and refuses a few more programs that built and then failed in the
+browser. A project that builds with 6.0 builds with 6.1 unless `wf check`
+now finds one of those (see "Upgrading").
+
+## Smaller
+
+Gzipped, built by 6.0.0 and by 6.1.0 from the same sources:
+
+| Project | `app.js` | `styles.css` |
+|---|---|---|
+| The counter example | 9.2 → 4.2 kB | 3.8 → 1.9 kB |
+| `wf init -t static` | 23.7 → 14.8 kB | 5.5 → 4.3 kB |
+| `wf init -t spa` | 23.9 → 16.9 kB | 6.2 → 5.0 kB |
+| The documentation site (564 pages) | 142 → 111 kB | 16.7 → 15.8 kB |
+
+- **The runtime is cut by function, not by module.** One call into a
+  module used to ship all of it, and every function of `core` shipped to
+  every project. A build now keeps what runs at load, every function the
+  program calls through `WF`, and what those name, until nothing new is
+  named; `WF` exports only what is called. A project's own scripts, an
+  `elements` build's definitions, the dev server's stores panel and the
+  studio count as callers. `"build": { "runtime": "full" }` still ships
+  everything.
+- **The runtime's names are shortened** in a minified build: its
+  top-level functions and values, and each function's locals, the most
+  used first. What a program calls on `WF` keeps its name.
+- **Only the styles a project draws on.** The grid, columns, spacers,
+  dividers, code highlighting, Markdown, drag and drop, and the document
+  and slide elements are each kept only with the component that uses
+  them, and the rules every page keeps (reflow, focus, reduced motion)
+  lose the selectors of components a project does not use.
+- **Only the motion a project uses.** The animation module ships to a
+  program that animates: an animation, an element marked to enter or
+  leave, or a router transition. The route-transition player and async
+  validation ship only when used; key combinations and the theme are
+  modules of their own.
+- **A one-page site is one file**: its code is in `app.js`, with no chunk.
+- **A route table without the pages' details.** A split build sends each
+  page's title, language and layout with the page's own chunk, so
+  `app.js` holds only each route's path and page name.
+- **`wf build --stats`** counts what the build keeps of each runtime
+  module, and what that comes to with its names shortened.
+
+A build does more to prune, so it takes a few milliseconds longer on a
+small project (about 8% on the documentation site).
+
+## Additions
+
+- **Icons in the static paint.** Every built-in icon is drawn into the
+  pre-rendered HTML, from the same table the runtime draws it from.
+  Before, an icon was an empty element until the script ran, so a
+  header's icon buttons were blank squares on the first paint.
+- **The reader's theme before the first paint.** A site that calls
+  `setTheme` gets a small `theme.js`, linked first, which puts the
+  reader's choice on the page before it is drawn: no flash of the other
+  theme.
+- **A page's own language in its text.** A page with `lang:` shows its
+  `t()` text from that language's table, in the pre-render and while it
+  shows; leaving it puts back the reader's language.
+- **A call at the top of `app` is set-up code**, run once when the site
+  opens: `app { use Session  Session.load()  Router }`. It was read as an
+  element with a flag.
+- **One `main` landmark.** A program that draws its own `main` (an
+  element with `role: "main"`) gets a plain `div` as the box the router
+  draws pages into, so a page has one main landmark and its header is a
+  top-level banner. The box keeps its `id`, `wf-main`.
+- **One skip link.** The engine's own skip link is left out when a page
+  opens with its own.
+- **A Markdown code block takes keyboard focus** (`<pre tabindex="0">`),
+  built and live, so a long line can be scrolled without a mouse.
+- **`reduce` and `reduceRight` at build time**, so a `derived` value
+  folded with them shows in the static paint, a template and `wf test`.
+- **The browser compiler's preview without a service worker.**
+  `previewInline()` in `crates/wf-wasm/wf.js` serves a build through
+  `run.html` where a browser refuses a service worker (a private window,
+  some embedded browsers).
+
+## Checks
+
+- **`T10`: an endpoint called with positional arguments.**
+  `Backend.signUp(email, password)` sent the first value as the call's
+  map and the second nowhere; the finding writes the call by name.
+- **`E111` in `wf check`: a theme the config names and the program does
+  not declare.** `wf build` stopped on it while `wf check` said "No
+  problems".
+- **`R05` reads the site's language.** A page with no `lang:` is in
+  `meta.lang`, so a translation written in that language is now caught.
+- **`log(a, b)`** says `log` takes one value and how to log several.
+- A component or store member only a `test` reaches is no longer `U03`
+  or `U04`; a `t()` key a string elsewhere in the program names is no
+  longer unused.
+
+## Fixes
+
+- **`optimistic()` works.** It was handed the state's value instead of
+  the state, and threw `holder is not a function` every time. An action
+  that used it without awaiting anything was written with `await` in a
+  plain function, which stopped the page; and a store's action never
+  rolled back what it showed.
+- **A variant or a size given state follows it.** `Button("Save", tone:
+  tone)` and `Stack(gap: gap)` wrote the value as an attribute nothing
+  reads, so the element kept its default look. A class prop (and `gap`,
+  `align`, `justify`) that reads state is now a class looked up from its
+  case, followed as the state changes and painted at its first value.
+- **A short token as a value.** `state accent = $primary` compiled to
+  `var(--primary)`, which no theme sets; a short name only one token
+  group has is that group's (`$color-primary`).
+- **`wf verify` is ten times faster**: a page is done once it has loaded
+  and been quiet for 100 ms (900 ms at most), and up to three browsers
+  visit a site's routes at once.
+
+## Upgrading
+
+Run `wf check`. It may find `T10` (call an endpoint by name), `E111` (a
+theme the config names that no file declares) or `R05` (a page and its
+translation both in the site's language: set `meta.lang`, or give the
+page `lang:`). A stylesheet that selects `main#wf-main` should select
+`#wf-main` when the program draws its own `main`.
+
 # WebFluent v6.0.0 Release Notes
 
 A page can be in a language of its own, the compiler holds up to anything
