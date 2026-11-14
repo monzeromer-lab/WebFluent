@@ -692,6 +692,15 @@ and `.reveal` are rewritten during lowering. The checks are
 - **`wf generate block <name>`:** a sign-in form, pricing, a dashboard and
   settings pages, written into `src/` as ordinary source.
 
+**Status: done, 2026-11-14.** `ColorPicker`, `TransferList` and `Editable`
+are drawn by the `extras` runtime module through the shared bound-control
+emitter; `Fab`, `BackToTop` and `Popconfirm` are rewritten during lowering;
+`Highlight` marks its matches in the static paint and live; `ClientOnly` is
+left out of every paint. `wf generate block` writes `sign-in`, `pricing`,
+`dashboard` and `settings`, each checked to build with nothing to report in
+either layout. The checks are `tests/browser/tier3.mjs` (25 in Chrome) and
+`tests/tier3.rs`.
+
 ## Leftovers
 
 What each stage left undone, said at its end and kept here, to be taken
@@ -817,3 +826,13 @@ up together once stage 9 is done. A line comes off when its work lands.
 - `PanelGroup`'s handles are not in the static paint, and it has no
   collapsing a panel to nothing.
 - `Sparkline` takes numbers it can read at build time, as `Chart` does.
+
+### From stage 9
+
+- `ColorPicker`, `TransferList` and `Editable` are drawn once the page
+  runs; the static paint holds their place.
+- `TransferList` is two native multiple selects: no filter, no drag.
+- `ClientOnly` has no placeholder for the static paint to show.
+- `Popconfirm` asks for the first button in its block only.
+- The `spa` starter has a Settings page of its own, so
+  `wf generate block settings` stops there rather than overwrite it.

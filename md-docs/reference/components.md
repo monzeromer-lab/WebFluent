@@ -14,15 +14,15 @@ Every component is written `Name(positional, prop: value).flag { block }`. A **p
 
 ## Contents
 
-- **Layout**: [`Container`](https://webfluent.monzeromer.dev/reference/container), [`Row`](https://webfluent.monzeromer.dev/reference/row), [`Column`](https://webfluent.monzeromer.dev/reference/column), [`Grid`](https://webfluent.monzeromer.dev/reference/grid), [`Stack`](https://webfluent.monzeromer.dev/reference/stack), [`Spacer`](https://webfluent.monzeromer.dev/reference/spacer), [`VirtualList`](https://webfluent.monzeromer.dev/reference/virtuallist), [`Splitter`](https://webfluent.monzeromer.dev/reference/splitter), [`Divider`](https://webfluent.monzeromer.dev/reference/divider), [`Masonry`](https://webfluent.monzeromer.dev/reference/masonry), [`AspectRatio`](https://webfluent.monzeromer.dev/reference/aspectratio), [`ScrollArea`](https://webfluent.monzeromer.dev/reference/scrollarea), [`Center`](https://webfluent.monzeromer.dev/reference/center), [`Sticky`](https://webfluent.monzeromer.dev/reference/sticky), [`PanelGroup`](https://webfluent.monzeromer.dev/reference/panelgroup), [`AppShell`](https://webfluent.monzeromer.dev/reference/appshell), [`Host`](https://webfluent.monzeromer.dev/reference/host), [`Portal`](https://webfluent.monzeromer.dev/reference/portal), [`Element`](https://webfluent.monzeromer.dev/reference/element)
+- **Layout**: [`Container`](https://webfluent.monzeromer.dev/reference/container), [`Row`](https://webfluent.monzeromer.dev/reference/row), [`Column`](https://webfluent.monzeromer.dev/reference/column), [`Grid`](https://webfluent.monzeromer.dev/reference/grid), [`Stack`](https://webfluent.monzeromer.dev/reference/stack), [`Spacer`](https://webfluent.monzeromer.dev/reference/spacer), [`VirtualList`](https://webfluent.monzeromer.dev/reference/virtuallist), [`Splitter`](https://webfluent.monzeromer.dev/reference/splitter), [`Divider`](https://webfluent.monzeromer.dev/reference/divider), [`Masonry`](https://webfluent.monzeromer.dev/reference/masonry), [`AspectRatio`](https://webfluent.monzeromer.dev/reference/aspectratio), [`ScrollArea`](https://webfluent.monzeromer.dev/reference/scrollarea), [`Center`](https://webfluent.monzeromer.dev/reference/center), [`Sticky`](https://webfluent.monzeromer.dev/reference/sticky), [`PanelGroup`](https://webfluent.monzeromer.dev/reference/panelgroup), [`ClientOnly`](https://webfluent.monzeromer.dev/reference/clientonly), [`AppShell`](https://webfluent.monzeromer.dev/reference/appshell), [`Host`](https://webfluent.monzeromer.dev/reference/host), [`Portal`](https://webfluent.monzeromer.dev/reference/portal), [`Element`](https://webfluent.monzeromer.dev/reference/element)
 - **Navigation**: [`Navbar`](https://webfluent.monzeromer.dev/reference/navbar), [`Sidebar`](https://webfluent.monzeromer.dev/reference/sidebar), [`Link`](https://webfluent.monzeromer.dev/reference/link), [`Tabs`](https://webfluent.monzeromer.dev/reference/tabs), [`Breadcrumb`](https://webfluent.monzeromer.dev/reference/breadcrumb), [`Menu`](https://webfluent.monzeromer.dev/reference/menu), [`NavigationMenu`](https://webfluent.monzeromer.dev/reference/navigationmenu), [`Menubar`](https://webfluent.monzeromer.dev/reference/menubar), [`ContextMenu`](https://webfluent.monzeromer.dev/reference/contextmenu), [`BottomNavigation`](https://webfluent.monzeromer.dev/reference/bottomnavigation), [`PrevNext`](https://webfluent.monzeromer.dev/reference/prevnext), [`OnThisPage`](https://webfluent.monzeromer.dev/reference/onthispage), [`Pagination`](https://webfluent.monzeromer.dev/reference/pagination), [`Stepper`](https://webfluent.monzeromer.dev/reference/stepper), [`CommandPalette`](https://webfluent.monzeromer.dev/reference/commandpalette)
-- **Feedback**: [`HoverCard`](https://webfluent.monzeromer.dev/reference/hovercard), [`LoadingOverlay`](https://webfluent.monzeromer.dev/reference/loadingoverlay), [`Tour`](https://webfluent.monzeromer.dev/reference/tour), [`ConsentBanner`](https://webfluent.monzeromer.dev/reference/consentbanner), [`CircularProgress`](https://webfluent.monzeromer.dev/reference/circularprogress), [`Meter`](https://webfluent.monzeromer.dev/reference/meter), [`Alert`](https://webfluent.monzeromer.dev/reference/alert), [`Toast`](https://webfluent.monzeromer.dev/reference/toast), [`Modal`](https://webfluent.monzeromer.dev/reference/modal), [`Popover`](https://webfluent.monzeromer.dev/reference/popover), [`Dialog`](https://webfluent.monzeromer.dev/reference/dialog), [`AlertDialog`](https://webfluent.monzeromer.dev/reference/alertdialog), [`Sheet`](https://webfluent.monzeromer.dev/reference/sheet), [`Spinner`](https://webfluent.monzeromer.dev/reference/spinner), [`Progress`](https://webfluent.monzeromer.dev/reference/progress), [`Skeleton`](https://webfluent.monzeromer.dev/reference/skeleton)
+- **Feedback**: [`HoverCard`](https://webfluent.monzeromer.dev/reference/hovercard), [`LoadingOverlay`](https://webfluent.monzeromer.dev/reference/loadingoverlay), [`Tour`](https://webfluent.monzeromer.dev/reference/tour), [`ConsentBanner`](https://webfluent.monzeromer.dev/reference/consentbanner), [`CircularProgress`](https://webfluent.monzeromer.dev/reference/circularprogress), [`Meter`](https://webfluent.monzeromer.dev/reference/meter), [`Popconfirm`](https://webfluent.monzeromer.dev/reference/popconfirm), [`Alert`](https://webfluent.monzeromer.dev/reference/alert), [`Toast`](https://webfluent.monzeromer.dev/reference/toast), [`Modal`](https://webfluent.monzeromer.dev/reference/modal), [`Popover`](https://webfluent.monzeromer.dev/reference/popover), [`Dialog`](https://webfluent.monzeromer.dev/reference/dialog), [`AlertDialog`](https://webfluent.monzeromer.dev/reference/alertdialog), [`Sheet`](https://webfluent.monzeromer.dev/reference/sheet), [`Spinner`](https://webfluent.monzeromer.dev/reference/spinner), [`Progress`](https://webfluent.monzeromer.dev/reference/progress), [`Skeleton`](https://webfluent.monzeromer.dev/reference/skeleton)
 - **Media**: [`Lightbox`](https://webfluent.monzeromer.dev/reference/lightbox), [`Gallery`](https://webfluent.monzeromer.dev/reference/gallery), [`Image`](https://webfluent.monzeromer.dev/reference/image), [`Video`](https://webfluent.monzeromer.dev/reference/video), [`Audio`](https://webfluent.monzeromer.dev/reference/audio), [`Frame`](https://webfluent.monzeromer.dev/reference/frame), [`Icon`](https://webfluent.monzeromer.dev/reference/icon), [`Carousel`](https://webfluent.monzeromer.dev/reference/carousel)
 - **Data display**: [`DescriptionList`](https://webfluent.monzeromer.dev/reference/descriptionlist), [`Timeline`](https://webfluent.monzeromer.dev/reference/timeline), [`AvatarGroup`](https://webfluent.monzeromer.dev/reference/avatargroup), [`Item`](https://webfluent.monzeromer.dev/reference/item), [`Sparkline`](https://webfluent.monzeromer.dev/reference/sparkline), [`RelativeTime`](https://webfluent.monzeromer.dev/reference/relativetime), [`Card`](https://webfluent.monzeromer.dev/reference/card), [`Table`](https://webfluent.monzeromer.dev/reference/table), [`List`](https://webfluent.monzeromer.dev/reference/list), [`Badge`](https://webfluent.monzeromer.dev/reference/badge), [`Tag`](https://webfluent.monzeromer.dev/reference/tag), [`Avatar`](https://webfluent.monzeromer.dev/reference/avatar), [`Tooltip`](https://webfluent.monzeromer.dev/reference/tooltip), [`Tree`](https://webfluent.monzeromer.dev/reference/tree), [`DataTable`](https://webfluent.monzeromer.dev/reference/datatable), [`Chart`](https://webfluent.monzeromer.dev/reference/chart), [`QrCode`](https://webfluent.monzeromer.dev/reference/qrcode)
-- **Form**: [`Input`](https://webfluent.monzeromer.dev/reference/input), [`Select`](https://webfluent.monzeromer.dev/reference/select), [`Checkbox`](https://webfluent.monzeromer.dev/reference/checkbox), [`Radio`](https://webfluent.monzeromer.dev/reference/radio), [`Switch`](https://webfluent.monzeromer.dev/reference/switch), [`Slider`](https://webfluent.monzeromer.dev/reference/slider), [`DatePicker`](https://webfluent.monzeromer.dev/reference/datepicker), [`FileUpload`](https://webfluent.monzeromer.dev/reference/fileupload), [`Form`](https://webfluent.monzeromer.dev/reference/form), [`Textarea`](https://webfluent.monzeromer.dev/reference/textarea), [`Field`](https://webfluent.monzeromer.dev/reference/field), [`Fieldset`](https://webfluent.monzeromer.dev/reference/fieldset), [`InputGroup`](https://webfluent.monzeromer.dev/reference/inputgroup), [`RadioGroup`](https://webfluent.monzeromer.dev/reference/radiogroup), [`NumberInput`](https://webfluent.monzeromer.dev/reference/numberinput), [`Calendar`](https://webfluent.monzeromer.dev/reference/calendar), [`Listbox`](https://webfluent.monzeromer.dev/reference/listbox), [`Combobox`](https://webfluent.monzeromer.dev/reference/combobox), [`CheckboxGroup`](https://webfluent.monzeromer.dev/reference/checkboxgroup), [`InputOTP`](https://webfluent.monzeromer.dev/reference/inputotp), [`TagInput`](https://webfluent.monzeromer.dev/reference/taginput), [`Rating`](https://webfluent.monzeromer.dev/reference/rating), [`DateRangePicker`](https://webfluent.monzeromer.dev/reference/daterangepicker)
+- **Form**: [`ColorPicker`](https://webfluent.monzeromer.dev/reference/colorpicker), [`TransferList`](https://webfluent.monzeromer.dev/reference/transferlist), [`Editable`](https://webfluent.monzeromer.dev/reference/editable), [`Input`](https://webfluent.monzeromer.dev/reference/input), [`Select`](https://webfluent.monzeromer.dev/reference/select), [`Checkbox`](https://webfluent.monzeromer.dev/reference/checkbox), [`Radio`](https://webfluent.monzeromer.dev/reference/radio), [`Switch`](https://webfluent.monzeromer.dev/reference/switch), [`Slider`](https://webfluent.monzeromer.dev/reference/slider), [`DatePicker`](https://webfluent.monzeromer.dev/reference/datepicker), [`FileUpload`](https://webfluent.monzeromer.dev/reference/fileupload), [`Form`](https://webfluent.monzeromer.dev/reference/form), [`Textarea`](https://webfluent.monzeromer.dev/reference/textarea), [`Field`](https://webfluent.monzeromer.dev/reference/field), [`Fieldset`](https://webfluent.monzeromer.dev/reference/fieldset), [`InputGroup`](https://webfluent.monzeromer.dev/reference/inputgroup), [`RadioGroup`](https://webfluent.monzeromer.dev/reference/radiogroup), [`NumberInput`](https://webfluent.monzeromer.dev/reference/numberinput), [`Calendar`](https://webfluent.monzeromer.dev/reference/calendar), [`Listbox`](https://webfluent.monzeromer.dev/reference/listbox), [`Combobox`](https://webfluent.monzeromer.dev/reference/combobox), [`CheckboxGroup`](https://webfluent.monzeromer.dev/reference/checkboxgroup), [`InputOTP`](https://webfluent.monzeromer.dev/reference/inputotp), [`TagInput`](https://webfluent.monzeromer.dev/reference/taginput), [`Rating`](https://webfluent.monzeromer.dev/reference/rating), [`DateRangePicker`](https://webfluent.monzeromer.dev/reference/daterangepicker)
+- **Actions**: [`Fab`](https://webfluent.monzeromer.dev/reference/fab), [`BackToTop`](https://webfluent.monzeromer.dev/reference/backtotop), [`CopyButton`](https://webfluent.monzeromer.dev/reference/copybutton), [`ThemeToggle`](https://webfluent.monzeromer.dev/reference/themetoggle), [`LocaleSwitch`](https://webfluent.monzeromer.dev/reference/localeswitch), [`Toggle`](https://webfluent.monzeromer.dev/reference/toggle), [`ToggleGroup`](https://webfluent.monzeromer.dev/reference/togglegroup), [`Button`](https://webfluent.monzeromer.dev/reference/button), [`IconButton`](https://webfluent.monzeromer.dev/reference/iconbutton), [`ButtonGroup`](https://webfluent.monzeromer.dev/reference/buttongroup), [`Dropdown`](https://webfluent.monzeromer.dev/reference/dropdown)
+- **Typography**: [`Highlight`](https://webfluent.monzeromer.dev/reference/highlight), [`Text`](https://webfluent.monzeromer.dev/reference/text), [`Heading`](https://webfluent.monzeromer.dev/reference/heading), [`Code`](https://webfluent.monzeromer.dev/reference/code), [`Markdown`](https://webfluent.monzeromer.dev/reference/markdown), [`Unsafe`](https://webfluent.monzeromer.dev/reference/unsafe), [`Blockquote`](https://webfluent.monzeromer.dev/reference/blockquote)
 - **Content**: [`Callout`](https://webfluent.monzeromer.dev/reference/callout), [`Kbd`](https://webfluent.monzeromer.dev/reference/kbd), [`EmptyState`](https://webfluent.monzeromer.dev/reference/emptystate), [`Stat`](https://webfluent.monzeromer.dev/reference/stat), [`CodeBlock`](https://webfluent.monzeromer.dev/reference/codeblock), [`Chip`](https://webfluent.monzeromer.dev/reference/chip), [`VisuallyHidden`](https://webfluent.monzeromer.dev/reference/visuallyhidden), [`Accordion`](https://webfluent.monzeromer.dev/reference/accordion)
-- **Actions**: [`CopyButton`](https://webfluent.monzeromer.dev/reference/copybutton), [`ThemeToggle`](https://webfluent.monzeromer.dev/reference/themetoggle), [`LocaleSwitch`](https://webfluent.monzeromer.dev/reference/localeswitch), [`Toggle`](https://webfluent.monzeromer.dev/reference/toggle), [`ToggleGroup`](https://webfluent.monzeromer.dev/reference/togglegroup), [`Button`](https://webfluent.monzeromer.dev/reference/button), [`IconButton`](https://webfluent.monzeromer.dev/reference/iconbutton), [`ButtonGroup`](https://webfluent.monzeromer.dev/reference/buttongroup), [`Dropdown`](https://webfluent.monzeromer.dev/reference/dropdown)
-- **Typography**: [`Text`](https://webfluent.monzeromer.dev/reference/text), [`Heading`](https://webfluent.monzeromer.dev/reference/heading), [`Code`](https://webfluent.monzeromer.dev/reference/code), [`Markdown`](https://webfluent.monzeromer.dev/reference/markdown), [`Unsafe`](https://webfluent.monzeromer.dev/reference/unsafe), [`Blockquote`](https://webfluent.monzeromer.dev/reference/blockquote)
 - **PDF**: [`TableOfContents`](https://webfluent.monzeromer.dev/reference/tableofcontents), [`Document`](https://webfluent.monzeromer.dev/reference/document), [`Section`](https://webfluent.monzeromer.dev/reference/section), [`Paragraph`](https://webfluent.monzeromer.dev/reference/paragraph), [`Header`](https://webfluent.monzeromer.dev/reference/header), [`Footer`](https://webfluent.monzeromer.dev/reference/footer), [`Background`](https://webfluent.monzeromer.dev/reference/background), [`Watermark`](https://webfluent.monzeromer.dev/reference/watermark), [`PageBreak`](https://webfluent.monzeromer.dev/reference/pagebreak)
 - **Slides**: [`Presentation`](https://webfluent.monzeromer.dev/reference/presentation), [`Slide`](https://webfluent.monzeromer.dev/reference/slide), [`TitleSlide`](https://webfluent.monzeromer.dev/reference/titleslide), [`SectionSlide`](https://webfluent.monzeromer.dev/reference/sectionslide), [`TwoColumn`](https://webfluent.monzeromer.dev/reference/twocolumn), [`ImageSlide`](https://webfluent.monzeromer.dev/reference/imageslide)
 - **Routing**: [`Router`](https://webfluent.monzeromer.dev/reference/router)
@@ -437,6 +437,24 @@ Renders with the class `wf-panel-group`.
 
 - `PanelGroup.Panel(min: …) { … }` — One panel.
   - `min:` `Number` — The least it may be, in percent (unset, 10)
+
+Takes a block of children.
+
+Attribute families: `global`, `aria`, `data`.
+
+### ClientOnly
+
+Its block drawn in the browser alone, never in the static paint, a template or a PDF: a clock, the reader's own data.
+
+```
+ClientOnly { … }
+```
+
+```wf
+ClientOnly { Text("Drawn in your browser only") }
+```
+
+Renders with the class `wf-client-only`.
 
 Takes a block of children.
 
@@ -1250,6 +1268,40 @@ Renders with the class `wf-meter`.
 | `high:` | `Number` | Over this, it is high |
 | `optimum:` | `Number` | The best level |
 | `label:` | `String` | What it measures, for a screen reader |
+
+Attribute families: `global`, `aria`, `data`.
+
+### Popconfirm
+
+A question beside the button in its block before what it does: the button opens it, `on confirm` hears yes, `on cancel` no or Escape; the focus starts on the answer that loses nothing.
+
+```
+Popconfirm(title: …, yes: …, no: …) { … }
+```
+
+```wf
+state said = ""
+Popconfirm(title: "Delete this file?", yes: "Delete").danger {
+    on confirm { said = "deleted" }
+    Button("Delete")
+}
+Text(said)
+```
+
+Renders with the class `wf-popconfirm`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `title:` (required) | `String` | The question |
+| `yes:` | `String` | The yes button's words (unset, `Yes`) |
+| `no:` | `String` | The no button's words (unset, `Cancel`) |
+| `danger:` | `Bool` | What yes does cannot be taken back: drawn in the danger colour |
+
+**Flags:** `.danger`
+
+**Events of its own:** `on confirm`, `on cancel`
+
+Takes a block of children.
 
 Attribute families: `global`, `aria`, `data`.
 
@@ -2327,6 +2379,79 @@ Attribute families: `global`, `aria`, `data`.
 
 ## Form
 
+### ColorPicker
+
+A colour, chosen from `swatches:` (each a button, the chosen one pressed), with the browser's own picker, or typed as hex; `bind:` holds it as `#rrggbb`.
+
+```
+ColorPicker(bind: …, label: …, swatches: …)
+```
+
+```wf
+state accent = "#0f766e"
+ColorPicker(bind: accent, label: "Accent", swatches: ["#0f766e", "#b91c1c", "#1d4ed8"])
+```
+
+Renders with the class `wf-color-picker`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `bind:` (required) | `State` | The colour, `#rrggbb` |
+| `label:` (required) | `String` | What the colour is for |
+| `swatches:` | `Any` | The colours offered first: a list of `#rrggbb` |
+
+Attribute families: `global`, `aria`, `data`.
+
+### TransferList
+
+Two lists side by side — what can be chosen and what is — with buttons that move the selected across, or all of them; `bind:` holds the keys of the chosen.
+
+```
+TransferList(bind: …, options: …, text: …)
+```
+
+```wf
+state picked: [String] = ["b"]
+TransferList(bind: picked, options: [{ id: "a", name: "Ada" }, { id: "b", name: "Grace" }, { id: "c", name: "Alan" }], text: p => p.name, key: p => p.id, label: "Reviewers")
+```
+
+Renders with the class `wf-transfer-list`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `bind:` (required) | `State` | The keys of what is chosen |
+| `options:` (required) | `Any` | Everything that can be chosen |
+| `text:` | `Any` | What an option says: `o => o.name` (unset, the option) |
+| `key:` | `Any` | What identifies an option: `o => o.id` (unset, the option) |
+| `label:` (required) | `String` | What is being chosen |
+| `from:` | `String` | The first list's heading (unset, `Available`) |
+| `to:` | `String` | The second list's heading (unset, `Chosen`) |
+
+Attribute families: `global`, `aria`, `data`.
+
+### Editable
+
+Text that turns into a field when pressed: Enter or leaving keeps what was typed, Escape puts it back; `bind:` holds the text.
+
+```
+Editable(bind: …, label: …, placeholder: …)
+```
+
+```wf
+state title = "Untitled"
+Editable(bind: title, label: "Project name")
+```
+
+Renders with the class `wf-editable`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `bind:` (required) | `State` | The text |
+| `label:` (required) | `String` | What the text is, for a screen reader |
+| `placeholder:` | `String` | Shown while it is empty |
+
+Attribute families: `global`, `aria`, `data`.
+
 ### Input
 
 Text field. With `label`, `hint` or `error` it is a labelled field.
@@ -3044,6 +3169,485 @@ Renders with the class `wf-date-range`.
 
 Attribute families: `global`, `aria`, `data`.
 
+## Actions
+
+### Fab
+
+A round button floating at the bottom of the screen for the page's main action; with `Fab.Action`s in its block it opens them instead (a speed dial).
+
+```
+Fab(icon: …, label: …) { … }
+```
+
+```wf
+state said = ""
+Fab(icon: "plus", label: "Create") {
+    Fab.Action("Note", icon: "file") { on click { said = "note" } }
+    Fab.Action("Folder", icon: "folder") { on click { said = "folder" } }
+}
+Text(said)
+```
+
+Renders with the class `wf-fab`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `icon:` (required) | `String` | Its icon |
+| `label:` (required) | `String` | What it does, for a screen reader and its tooltip |
+
+**Parts:**
+
+- `Fab.Action(label, icon: …) { … }` — One more action the button opens: its words and its icon; `on click` is what it does.
+  - `label:` `String` — What it does
+  - `icon:` `String` — Its icon
+- `Fab.Trigger { … }` — Its button. Drawn for it.
+
+Takes a block of children.
+
+Attribute families: `global`, `aria`, `data`.
+
+### BackToTop
+
+A button that appears once the page has scrolled past `after:` px, and takes the reader — and the focus — back to the top.
+
+```
+BackToTop(label: …, after: …)
+```
+
+```wf
+BackToTop(after: 600)
+```
+
+Renders with the class `wf-back-to-top`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `label:` | `String` | What it says, for a screen reader (unset, `Back to top`) |
+| `after:` | `Number` | How far down it appears, in px (unset, 400) |
+
+Attribute families: `global`, `aria`, `data`.
+
+### CopyButton
+
+A button that copies `value:` to the clipboard, says `Copied` for a moment, and tells a screen reader so.
+
+```
+CopyButton(label, value: …, copied: …)
+```
+
+```wf
+CopyButton(value: "https://example.com/invite/42")
+CopyButton("Copy link", value: "https://example.com", copied: "Link copied")
+```
+
+Renders with the class `wf-btn wf-copy-button`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `label` (positional) | `String` | Its words; unset, `Copy` |
+| `value:` (required) | `Any` | What it copies |
+| `copied:` | `String` | What it says once it has copied; unset, `Copied` |
+
+Attribute families: `global`, `aria`, `data`.
+
+### ThemeToggle
+
+A button that switches the page between light and dark, over `setTheme`: a moon in a light page, a sun in a dark one, named for the theme it switches to. The reader's choice is kept.
+
+```
+ThemeToggle
+```
+
+```wf
+Row(gap: .sm) { ThemeToggle  LocaleSwitch }
+```
+
+Renders with the class `wf-icon-btn wf-theme-toggle`.
+
+Attribute families: `global`, `aria`, `data`.
+
+### LocaleSwitch
+
+One button for each of `i18n.locales`, each written in its own language (`English`, `العربية`), the current one pressed; a press is `setLocale`.
+
+```
+LocaleSwitch(label: …)
+```
+
+```wf
+LocaleSwitch(label: "Language")
+```
+
+Renders with the class `wf-locale-switch`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `label:` | `String` | The group's name for a screen reader; unset, `Language` |
+
+Attribute families: `global`, `aria`, `data`.
+
+### Toggle
+
+A button that stays pressed while its state holds — bold in an editor, a filter that is on: `aria-pressed`, a press flipping `bind:`.
+
+```
+Toggle(label, bind: …, icon: …)
+```
+
+```wf
+state bold = false
+Toggle("Bold", bind: bold, icon: "type")
+```
+
+Renders with the class `wf-btn wf-toggle`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `label` (positional) | `String` | Its words |
+| `bind:` (required) | `State` | The `Bool` state it shows and flips |
+| `icon:` | `String` | An icon before the words |
+
+Attribute families: `global`, `aria`, `data`.
+
+### ToggleGroup
+
+Buttons of which one is chosen — a view switcher, a segmented control — or, `.multiple`, several: one stop for Tab, the arrow keys inside it, each `aria-pressed`. `bind:` holds the chosen `value:` (a list with `.multiple`).
+
+```
+ToggleGroup(bind: …, label: …, multiple: …) { … }
+```
+
+```wf
+state view = "grid"
+ToggleGroup(bind: view, label: "View") {
+    ToggleGroup.Item("Grid", value: "grid", icon: "grid")
+    ToggleGroup.Item("List", value: "list", icon: "list")
+}
+state styles: [String] = []
+ToggleGroup(bind: styles, label: "Text style").multiple {
+    ToggleGroup.Item("Bold", value: "b")
+    ToggleGroup.Item("Italic", value: "i")
+}
+```
+
+Renders with the class `wf-toggle-group`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `bind:` (required) | `State` | The chosen value, or a list of them with `.multiple` |
+| `label:` (required) | `String` | What the group chooses, for a screen reader |
+| `multiple:` | `Bool` | Several at once: `bind:` is a list |
+
+**Flags:** `.multiple`
+
+**Parts:**
+
+- `ToggleGroup.Item(label, value: …, icon: …, disabled: …)` — One choice: its words, and the value `bind:` holds when it is chosen.
+  - `label:` `String` — Its words
+  - `value:` `Any` — What `bind:` holds when it is chosen
+  - `icon:` `String` — An icon before the words
+  - `disabled:` `Bool` — Whether the control is inert
+  - flags: `.disabled`
+
+Takes a block of children.
+
+Attribute families: `global`, `aria`, `data`.
+
+### Button
+
+A button: its label or block is what it shows, `on click` what it does.
+
+```
+Button(label, tone: …, size: …, shape: …) { … }
+```
+
+```wf
+Button("Save").primary { on click { log("saved") } }
+Button("Delete").danger.outlined.sm
+Button("Send", type: .submit).primary.full
+```
+
+Renders with the class `wf-btn`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `label` (positional) | `String` | The label |
+| `tone:` | `.primary` `.secondary` `.success` `.danger` `.warning` `.info` | Colour |
+| `size:` | `.sm` `.md` `.lg` | Its size |
+| `shape:` | `.rounded` `.pill` | Corner shape |
+| `width:` | `.full` | Width |
+| `outlined:` | `Bool` | A border and no fill |
+| `type:` | `.button` `.submit` `.reset` | Its role inside a form |
+| `to:` | `Path` | The route to go to when it is pressed |
+| `disabled:` | `Bool` | Whether the control is inert |
+| `loading:` | `Bool` | Busy while it holds — `loading: Checkout.pay.pending`: a spinner in place of its label, at the same width, and a press does nothing |
+
+**Flags:** `.primary` `.secondary` `.success` `.danger` `.warning` `.info` `.sm` `.md` `.lg` `.rounded` `.pill` `.full` `.outlined` `.button` `.submit` `.reset` `.disabled` `.loading`
+
+Takes a block of children.
+
+Attribute families: `global`, `aria`, `data`.
+
+### IconButton
+
+Icon-only button. `label` is its accessible name, never visible text.
+
+```
+IconButton(icon: …, label: …, size: …) { … }
+```
+
+```wf
+IconButton(icon: "close", label: "Close")
+IconButton(icon: "edit", label: "Edit the title").primary.sm
+```
+
+Renders with the class `wf-icon-btn`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `icon:` | `String` | One of the built-in icon names |
+| `label:` | `String` | Accessible name (`aria-label` and `title`) |
+| `size:` | `.sm` `.md` `.lg` | Its size |
+| `tone:` | `.primary` `.danger` | Colour |
+| `type:` | `.button` `.submit` `.reset` | Its role inside a form |
+| `disabled:` | `Bool` | Whether the control is inert |
+
+**Flags:** `.sm` `.md` `.lg` `.primary` `.danger` `.button` `.submit` `.reset` `.disabled`
+
+Takes a block of children.
+
+Attribute families: `global`, `aria`, `data`.
+
+### ButtonGroup
+
+Buttons joined into one row.
+
+```
+ButtonGroup { … }
+```
+
+```wf
+ButtonGroup {
+    Button("Day")
+    Button("Week")
+    Button("Month")
+}
+```
+
+Renders with the class `wf-btn-group`.
+
+Takes a block of children.
+
+Attribute families: `global`, `aria`, `data`.
+
+### Dropdown
+
+Button that opens a menu of `Dropdown.Item`s.
+
+```
+Dropdown(label) { … }
+```
+
+```wf
+Dropdown(label: "Actions") {
+    Dropdown.Item { Text("Duplicate") }
+    Dropdown.Divider
+    Dropdown.Item { Text("Archive") }
+}
+```
+
+Renders with the class `wf-dropdown`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `label` (positional) | `String` | Label of the button that opens it |
+
+**Parts:**
+
+- `Dropdown.Item { … }` — One entry of the menu.
+- `Dropdown.Divider` — A rule between groups of entries.
+
+Takes a block of children.
+
+Attribute families: `global`, `aria`, `data`.
+
+## Typography
+
+### Highlight
+
+Text with every match of `query:` marked (`<mark>`), as a search's results show what was found; the case is ignored.
+
+```
+Highlight(text, query: …)
+```
+
+```wf
+state q = "ea"
+Input(bind: q, label: "Search")
+Highlight("Search near and far: each area is clear.", query: q)
+```
+
+Renders with the class `wf-highlight`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `text` (positional) | `String` | The text |
+| `query:` | `String` | What to mark |
+
+Attribute families: `global`, `aria`, `data`.
+
+### Text
+
+A paragraph of text. `{…}` in the string reads state and stays live.
+
+```
+Text(content, tone: …, size: …, align: …)
+```
+
+```wf
+Text("Hello, world")
+Text("Last updated today").muted.sm
+Text("Important").bold.danger
+```
+
+Renders with the class `wf-text`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `content` (positional) | `Any` | The text |
+| `tone:` | `.primary` `.secondary` `.success` `.danger` `.warning` `.info` | Colour |
+| `size:` | `.sm` `.md` `.lg` | Its size |
+| `align:` | `.left` `.center` `.right` | Text alignment |
+| `transform:` | `.uppercase` `.lowercase` | Letter case |
+| `kind:` | `.heading` `.subtitle` | Typographic role |
+| `bold:` | `Bool` | Bold |
+| `italic:` | `Bool` | Italic |
+| `underline:` | `Bool` | Underlined |
+| `muted:` | `Bool` | Dimmed, for secondary text |
+
+**Flags:** `.primary` `.secondary` `.success` `.danger` `.warning` `.info` `.sm` `.md` `.lg` `.left` `.center` `.right` `.uppercase` `.lowercase` `.heading` `.subtitle` `.bold` `.italic` `.underline` `.muted`
+
+Attribute families: `global`, `aria`, `data`.
+
+### Heading
+
+Heading; `level` picks the tag (`h2` when none is given).
+
+```
+Heading(content, level: …, align: …, muted: …)
+```
+
+```wf
+Heading("Pricing").h1
+Heading("Frequently asked").h2
+```
+
+Renders with the class `wf-heading`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `content` (positional) | `Any` | The heading text |
+| `level:` | `.h1` `.h2` `.h3` `.h4` `.h5` `.h6` | Heading level: the tag, and its place in the outline |
+| `align:` | `.left` `.center` `.right` | Text alignment |
+| `muted:` | `Bool` | Dimmed, for secondary text |
+
+**Flags:** `.h1` `.h2` `.h3` `.h4` `.h5` `.h6` `.left` `.center` `.right` `.muted`
+
+Attribute families: `global`, `aria`, `data`.
+
+### Code
+
+Inline code, or a code block with `block`; `language:` colours it.
+
+```
+Code(content, block: …, language: …)
+```
+
+```wf
+Text("Run ")
+Code("wf serve")
+Code("page Home(path: \"/\") { Text(\"Hi\") }", language: "wf").block
+```
+
+Renders with the class `wf-code`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `content` (positional) | `Any` | The code |
+| `block:` | `Bool` | A multi-line block |
+| `language:` | `String` | Colours the code as this language: `wf`, `json`, `bash` or `css` |
+
+**Flags:** `.block`
+
+Attribute families: `global`, `aria`, `data`.
+
+### Markdown
+
+Markdown text rendered as HTML: headings, paragraphs, lists, quotes, code, links, emphasis. The text is escaped first, so HTML in it is shown, not run, and a link or picture whose URL a browser would run is drawn as its words. `.inert` is for text somebody else wrote.
+
+```
+Markdown(text, inert: …)
+```
+
+```wf
+state docs = "Returns &lt;T&gt;, as [the guide](/docs) says."
+Markdown("Some **bold** text and a [link](/docs).")
+Markdown(docs).inert
+```
+
+Renders with the class `wf-markdown`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `text` (positional) | `String` | The Markdown text |
+| `inert:` | `Bool` | Text somebody else wrote, such as a language server's documentation: its entities are decoded, a link is drawn as its words and a picture is left out |
+
+**Flags:** `.inert`
+
+Attribute families: `global`, `aria`, `data`.
+
+### Unsafe
+
+The one door for markup a page did not write. It has a single part, `Unsafe.Html`.
+
+```
+Unsafe
+```
+
+```wf
+state body = "<p>From the CMS</p>"
+Unsafe.Html(sanitize(body))
+```
+
+**Parts:**
+
+- `Unsafe.Html(markup)` — Markup, put in as markup. It is **not** sanitised — the name says so — and `sanitize(…)` is one call away for anything the project did not write itself.
+  - `markup:` `String` — The HTML to insert
+
+Attribute families: `global`, `aria`, `data`.
+
+### Blockquote
+
+Quotation: the text, or its block as the quoted content.
+
+```
+Blockquote(content) { … }
+```
+
+```wf
+Blockquote { Text("Make it work, make it right, make it fast.") }
+```
+
+Renders with the class `wf-blockquote`.
+
+| Prop | Type | Meaning |
+|---|---|---|
+| `content` (positional) | `Any` | The quoted text |
+
+Takes a block of children.
+
+Attribute families: `global`, `aria`, `data`.
+
 ## Content
 
 ### Callout
@@ -3292,406 +3896,6 @@ Renders with the class `wf-accordion`.
 - `Accordion.Summary(text) { … }` — What a reader presses to open an item: its title. Drawn for it.
   - `text:` `String` — The title
 - `Accordion.Panel { … }` — What opens: the item's block. Drawn for it.
-
-Takes a block of children.
-
-Attribute families: `global`, `aria`, `data`.
-
-## Actions
-
-### CopyButton
-
-A button that copies `value:` to the clipboard, says `Copied` for a moment, and tells a screen reader so.
-
-```
-CopyButton(label, value: …, copied: …)
-```
-
-```wf
-CopyButton(value: "https://example.com/invite/42")
-CopyButton("Copy link", value: "https://example.com", copied: "Link copied")
-```
-
-Renders with the class `wf-btn wf-copy-button`.
-
-| Prop | Type | Meaning |
-|---|---|---|
-| `label` (positional) | `String` | Its words; unset, `Copy` |
-| `value:` (required) | `Any` | What it copies |
-| `copied:` | `String` | What it says once it has copied; unset, `Copied` |
-
-Attribute families: `global`, `aria`, `data`.
-
-### ThemeToggle
-
-A button that switches the page between light and dark, over `setTheme`: a moon in a light page, a sun in a dark one, named for the theme it switches to. The reader's choice is kept.
-
-```
-ThemeToggle
-```
-
-```wf
-Row(gap: .sm) { ThemeToggle  LocaleSwitch }
-```
-
-Renders with the class `wf-icon-btn wf-theme-toggle`.
-
-Attribute families: `global`, `aria`, `data`.
-
-### LocaleSwitch
-
-One button for each of `i18n.locales`, each written in its own language (`English`, `العربية`), the current one pressed; a press is `setLocale`.
-
-```
-LocaleSwitch(label: …)
-```
-
-```wf
-LocaleSwitch(label: "Language")
-```
-
-Renders with the class `wf-locale-switch`.
-
-| Prop | Type | Meaning |
-|---|---|---|
-| `label:` | `String` | The group's name for a screen reader; unset, `Language` |
-
-Attribute families: `global`, `aria`, `data`.
-
-### Toggle
-
-A button that stays pressed while its state holds — bold in an editor, a filter that is on: `aria-pressed`, a press flipping `bind:`.
-
-```
-Toggle(label, bind: …, icon: …)
-```
-
-```wf
-state bold = false
-Toggle("Bold", bind: bold, icon: "type")
-```
-
-Renders with the class `wf-btn wf-toggle`.
-
-| Prop | Type | Meaning |
-|---|---|---|
-| `label` (positional) | `String` | Its words |
-| `bind:` (required) | `State` | The `Bool` state it shows and flips |
-| `icon:` | `String` | An icon before the words |
-
-Attribute families: `global`, `aria`, `data`.
-
-### ToggleGroup
-
-Buttons of which one is chosen — a view switcher, a segmented control — or, `.multiple`, several: one stop for Tab, the arrow keys inside it, each `aria-pressed`. `bind:` holds the chosen `value:` (a list with `.multiple`).
-
-```
-ToggleGroup(bind: …, label: …, multiple: …) { … }
-```
-
-```wf
-state view = "grid"
-ToggleGroup(bind: view, label: "View") {
-    ToggleGroup.Item("Grid", value: "grid", icon: "grid")
-    ToggleGroup.Item("List", value: "list", icon: "list")
-}
-state styles: [String] = []
-ToggleGroup(bind: styles, label: "Text style").multiple {
-    ToggleGroup.Item("Bold", value: "b")
-    ToggleGroup.Item("Italic", value: "i")
-}
-```
-
-Renders with the class `wf-toggle-group`.
-
-| Prop | Type | Meaning |
-|---|---|---|
-| `bind:` (required) | `State` | The chosen value, or a list of them with `.multiple` |
-| `label:` (required) | `String` | What the group chooses, for a screen reader |
-| `multiple:` | `Bool` | Several at once: `bind:` is a list |
-
-**Flags:** `.multiple`
-
-**Parts:**
-
-- `ToggleGroup.Item(label, value: …, icon: …, disabled: …)` — One choice: its words, and the value `bind:` holds when it is chosen.
-  - `label:` `String` — Its words
-  - `value:` `Any` — What `bind:` holds when it is chosen
-  - `icon:` `String` — An icon before the words
-  - `disabled:` `Bool` — Whether the control is inert
-  - flags: `.disabled`
-
-Takes a block of children.
-
-Attribute families: `global`, `aria`, `data`.
-
-### Button
-
-A button: its label or block is what it shows, `on click` what it does.
-
-```
-Button(label, tone: …, size: …, shape: …) { … }
-```
-
-```wf
-Button("Save").primary { on click { log("saved") } }
-Button("Delete").danger.outlined.sm
-Button("Send", type: .submit).primary.full
-```
-
-Renders with the class `wf-btn`.
-
-| Prop | Type | Meaning |
-|---|---|---|
-| `label` (positional) | `String` | The label |
-| `tone:` | `.primary` `.secondary` `.success` `.danger` `.warning` `.info` | Colour |
-| `size:` | `.sm` `.md` `.lg` | Its size |
-| `shape:` | `.rounded` `.pill` | Corner shape |
-| `width:` | `.full` | Width |
-| `outlined:` | `Bool` | A border and no fill |
-| `type:` | `.button` `.submit` `.reset` | Its role inside a form |
-| `to:` | `Path` | The route to go to when it is pressed |
-| `disabled:` | `Bool` | Whether the control is inert |
-| `loading:` | `Bool` | Busy while it holds — `loading: Checkout.pay.pending`: a spinner in place of its label, at the same width, and a press does nothing |
-
-**Flags:** `.primary` `.secondary` `.success` `.danger` `.warning` `.info` `.sm` `.md` `.lg` `.rounded` `.pill` `.full` `.outlined` `.button` `.submit` `.reset` `.disabled` `.loading`
-
-Takes a block of children.
-
-Attribute families: `global`, `aria`, `data`.
-
-### IconButton
-
-Icon-only button. `label` is its accessible name, never visible text.
-
-```
-IconButton(icon: …, label: …, size: …) { … }
-```
-
-```wf
-IconButton(icon: "close", label: "Close")
-IconButton(icon: "edit", label: "Edit the title").primary.sm
-```
-
-Renders with the class `wf-icon-btn`.
-
-| Prop | Type | Meaning |
-|---|---|---|
-| `icon:` | `String` | One of the built-in icon names |
-| `label:` | `String` | Accessible name (`aria-label` and `title`) |
-| `size:` | `.sm` `.md` `.lg` | Its size |
-| `tone:` | `.primary` `.danger` | Colour |
-| `type:` | `.button` `.submit` `.reset` | Its role inside a form |
-| `disabled:` | `Bool` | Whether the control is inert |
-
-**Flags:** `.sm` `.md` `.lg` `.primary` `.danger` `.button` `.submit` `.reset` `.disabled`
-
-Takes a block of children.
-
-Attribute families: `global`, `aria`, `data`.
-
-### ButtonGroup
-
-Buttons joined into one row.
-
-```
-ButtonGroup { … }
-```
-
-```wf
-ButtonGroup {
-    Button("Day")
-    Button("Week")
-    Button("Month")
-}
-```
-
-Renders with the class `wf-btn-group`.
-
-Takes a block of children.
-
-Attribute families: `global`, `aria`, `data`.
-
-### Dropdown
-
-Button that opens a menu of `Dropdown.Item`s.
-
-```
-Dropdown(label) { … }
-```
-
-```wf
-Dropdown(label: "Actions") {
-    Dropdown.Item { Text("Duplicate") }
-    Dropdown.Divider
-    Dropdown.Item { Text("Archive") }
-}
-```
-
-Renders with the class `wf-dropdown`.
-
-| Prop | Type | Meaning |
-|---|---|---|
-| `label` (positional) | `String` | Label of the button that opens it |
-
-**Parts:**
-
-- `Dropdown.Item { … }` — One entry of the menu.
-- `Dropdown.Divider` — A rule between groups of entries.
-
-Takes a block of children.
-
-Attribute families: `global`, `aria`, `data`.
-
-## Typography
-
-### Text
-
-A paragraph of text. `{…}` in the string reads state and stays live.
-
-```
-Text(content, tone: …, size: …, align: …)
-```
-
-```wf
-Text("Hello, world")
-Text("Last updated today").muted.sm
-Text("Important").bold.danger
-```
-
-Renders with the class `wf-text`.
-
-| Prop | Type | Meaning |
-|---|---|---|
-| `content` (positional) | `Any` | The text |
-| `tone:` | `.primary` `.secondary` `.success` `.danger` `.warning` `.info` | Colour |
-| `size:` | `.sm` `.md` `.lg` | Its size |
-| `align:` | `.left` `.center` `.right` | Text alignment |
-| `transform:` | `.uppercase` `.lowercase` | Letter case |
-| `kind:` | `.heading` `.subtitle` | Typographic role |
-| `bold:` | `Bool` | Bold |
-| `italic:` | `Bool` | Italic |
-| `underline:` | `Bool` | Underlined |
-| `muted:` | `Bool` | Dimmed, for secondary text |
-
-**Flags:** `.primary` `.secondary` `.success` `.danger` `.warning` `.info` `.sm` `.md` `.lg` `.left` `.center` `.right` `.uppercase` `.lowercase` `.heading` `.subtitle` `.bold` `.italic` `.underline` `.muted`
-
-Attribute families: `global`, `aria`, `data`.
-
-### Heading
-
-Heading; `level` picks the tag (`h2` when none is given).
-
-```
-Heading(content, level: …, align: …, muted: …)
-```
-
-```wf
-Heading("Pricing").h1
-Heading("Frequently asked").h2
-```
-
-Renders with the class `wf-heading`.
-
-| Prop | Type | Meaning |
-|---|---|---|
-| `content` (positional) | `Any` | The heading text |
-| `level:` | `.h1` `.h2` `.h3` `.h4` `.h5` `.h6` | Heading level: the tag, and its place in the outline |
-| `align:` | `.left` `.center` `.right` | Text alignment |
-| `muted:` | `Bool` | Dimmed, for secondary text |
-
-**Flags:** `.h1` `.h2` `.h3` `.h4` `.h5` `.h6` `.left` `.center` `.right` `.muted`
-
-Attribute families: `global`, `aria`, `data`.
-
-### Code
-
-Inline code, or a code block with `block`; `language:` colours it.
-
-```
-Code(content, block: …, language: …)
-```
-
-```wf
-Text("Run ")
-Code("wf serve")
-Code("page Home(path: \"/\") { Text(\"Hi\") }", language: "wf").block
-```
-
-Renders with the class `wf-code`.
-
-| Prop | Type | Meaning |
-|---|---|---|
-| `content` (positional) | `Any` | The code |
-| `block:` | `Bool` | A multi-line block |
-| `language:` | `String` | Colours the code as this language: `wf`, `json`, `bash` or `css` |
-
-**Flags:** `.block`
-
-Attribute families: `global`, `aria`, `data`.
-
-### Markdown
-
-Markdown text rendered as HTML: headings, paragraphs, lists, quotes, code, links, emphasis. The text is escaped first, so HTML in it is shown, not run, and a link or picture whose URL a browser would run is drawn as its words. `.inert` is for text somebody else wrote.
-
-```
-Markdown(text, inert: …)
-```
-
-```wf
-state docs = "Returns &lt;T&gt;, as [the guide](/docs) says."
-Markdown("Some **bold** text and a [link](/docs).")
-Markdown(docs).inert
-```
-
-Renders with the class `wf-markdown`.
-
-| Prop | Type | Meaning |
-|---|---|---|
-| `text` (positional) | `String` | The Markdown text |
-| `inert:` | `Bool` | Text somebody else wrote, such as a language server's documentation: its entities are decoded, a link is drawn as its words and a picture is left out |
-
-**Flags:** `.inert`
-
-Attribute families: `global`, `aria`, `data`.
-
-### Unsafe
-
-The one door for markup a page did not write. It has a single part, `Unsafe.Html`.
-
-```
-Unsafe
-```
-
-```wf
-state body = "<p>From the CMS</p>"
-Unsafe.Html(sanitize(body))
-```
-
-**Parts:**
-
-- `Unsafe.Html(markup)` — Markup, put in as markup. It is **not** sanitised — the name says so — and `sanitize(…)` is one call away for anything the project did not write itself.
-  - `markup:` `String` — The HTML to insert
-
-Attribute families: `global`, `aria`, `data`.
-
-### Blockquote
-
-Quotation: the text, or its block as the quoted content.
-
-```
-Blockquote(content) { … }
-```
-
-```wf
-Blockquote { Text("Make it work, make it right, make it fast.") }
-```
-
-Renders with the class `wf-blockquote`.
-
-| Prop | Type | Meaning |
-|---|---|---|
-| `content` (positional) | `Any` | The quoted text |
 
 Takes a block of children.
 

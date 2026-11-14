@@ -182,6 +182,10 @@ pub const MODULES: &[Module] = &[
     module!("display", exports: [
         same("avatarGroup"), same("ring"), same("scrollArea"), same("sticky"), same("panelGroup"),
     ], deps: ["layer"], triggers: []),
+    module!("extras", exports: [
+        same("colorPicker"), same("transferList"), same("editable"), same("fab"),
+        same("backToTop"), same("popconfirm"), same("markMatches"),
+    ], deps: ["layer", "announce"], triggers: []),
     module!("collections", exports: [
         same("listbox"), same("tree"), same("dataTable"), same("combobox"), same("commandPalette"),
     ], deps: ["focus", "each", "layer"], triggers: []),

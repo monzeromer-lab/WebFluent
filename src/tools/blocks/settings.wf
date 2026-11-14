@@ -1,0 +1,64 @@
+// Settings, written by `wf generate block settings`. It is the project's
+// own page now: keep its values with your own `api`, or `persist` them.
+page Settings(path: "/settings", title: "Settings", description: "Your profile and preferences.") {
+    state name = "Ada Lovelace"
+    state email = "ada@example.com"
+    state notify = true
+    state digest = false
+    state language = "en"
+    state saved = false
+    state deleted = false
+
+    validate name { required "Enter your name" }
+    validate email { required "Enter your email address"  email }
+
+    Container {
+        Stack(gap: .lg) {
+            Heading("Settings").h1
+            Tabs(label: "Settings") {
+                Tabs.Page("Profile") {
+                    Form {
+                        on submit { saved = true }
+                        Stack(gap: .md) {
+                            Input(bind: name, label: "Name")
+                            Input(bind: email, label: "Email").email
+                            Button("Save", type: .submit).primary
+                            if saved {
+                                Alert("Your profile is saved.").success
+                            }
+                        }
+                    }
+                }
+                Tabs.Page("Notifications") {
+                    Item(title: "Activity", description: "Replies and mentions, by email") {
+                        Item.Actions { Switch(bind: notify, label: "Email me") }
+                    }
+                    Item(title: "Weekly digest", description: "A summary every Monday") {
+                        Item.Actions { Switch(bind: digest, label: "Send it") }
+                    }
+                }
+                Tabs.Page("Account") {
+                    Stack(gap: .md) {
+                        Select(bind: language, label: "Language") {
+                            Select.Option("English", value: "en")
+                            Select.Option("العربية", value: "ar")
+                        }
+                        Card.outlined {
+                            Stack(gap: .sm) {
+                                Heading("Delete the account").h2
+                                Text("Everything in it goes, and this cannot be undone.").muted
+                                Popconfirm(title: "Delete your account?", yes: "Delete").danger {
+                                    on confirm { deleted = true }
+                                    Button("Delete the account").danger
+                                }
+                                if deleted {
+                                    Alert("Your account is deleted.").info
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

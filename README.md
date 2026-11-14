@@ -202,7 +202,7 @@ wf build [-d DIR] [--stats] [--cache]       Compile; --stats prints what it weig
 wf check [--format json|sarif|github]       Every finding, nothing written; --deny-warnings for CI
 wf explain [CODE]                           What a diagnostic means, and the fix
 wf serve [-d DIR]                           Dev server with live reload
-wf generate page|component|store <name>     Scaffold a file
+wf generate page|component|store|block <name>  Scaffold a file, or a whole page
 wf fmt [path] [--check] [--to wfx|wf]       Format, or switch layout
 wf test [path] [--update]                   Run the project's tests, in a browser when one acts
 wf verify [path] [--json] [--budget MS]     Visit every route in a headless browser (--returning-visitor: again, with storage)

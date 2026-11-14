@@ -1441,6 +1441,29 @@ pub(crate) fn render_builtin<C: Paint>(name: &str, ui: &UIElement, ctx: &mut C) 
             out.push_str(&format!("{indent}</{tag}>\n"));
             return out;
         }
+        // Text with every match of its query marked, as the live page marks
+        // it.
+        "Highlight" => {
+            let read = |key: &str| {
+                ui.args.iter().find_map(|a| match a {
+                    Arg::Positional(v) if key == "text" => {
+                        resolve_text_scoped(v, &ctx.default_messages, &ctx.scope)
+                    }
+                    Arg::Named(k, v) if k == key => {
+                        resolve_text_scoped(v, &ctx.default_messages, &ctx.scope)
+                    }
+                    _ => None,
+                })
+            };
+            let text = read("text").unwrap_or_default();
+            let query = read("query").unwrap_or_default();
+            return format!(
+                "{}<span class=\"{class_str}\"{}{wf}{inline_style}>{}</span>\n",
+                ctx.indent_str(),
+                own_attrs(name, ui, ctx, &["query", "text"]),
+                highlight_marks(&text, &query)
+            );
+        }
         // A moment, painted as the exact time its title says: `3 minutes
         // ago` depends on when it is read, which the live page knows and
         // the build does not.
@@ -1738,7 +1761,7 @@ pub(crate) fn render_builtin<C: Paint>(name: &str, ui: &UIElement, ctx: &mut C) 
         // Drawn from data by the runtime once the page runs: the paint
         // holds their place, with nothing in it to show and then take back.
         "Tree" | "DataTable" | "Combobox" | "Calendar" | "InputOTP" | "TagInput" | "Rating"
-        | "DateRangePicker" => {
+        | "DateRangePicker" | "ColorPicker" | "TransferList" | "Editable" | "ClientOnly" => {
             let own = own_attrs(name, ui, ctx, &[]);
             let (tag, _) = builtin_to_html(name);
             return format!(
@@ -3858,4 +3881,40 @@ mod skip_link_tests {
         assert!(!opens_with_its_own_skip_link(r##"<a href="#">Top</a>"##));
         assert!(!opens_with_its_own_skip_link("<p>No links</p>"));
     }
+}
+
+/// `text`, escaped, with every match of `query` (its case ignored) in a
+/// `<mark>`: what `Highlight` paints, and `WF.markMatches` draws.
+pub(crate) fn highlight_marks(text: &str, query: &str) -> String {
+    let query = query.trim();
+    if query.is_empty() {
+        return html_escape(text);
+    }
+    let lower: Vec<char> = text.chars().flat_map(char::to_lowercase).collect();
+    let chars: Vec<char> = text.chars().collect();
+    let want: Vec<char> = query.chars().flat_map(char::to_lowercase).collect();
+    // A letter whose lower case is longer than itself (`İ`) would put the
+    // two out of step: such text is marked by the live page alone.
+    if lower.len() != chars.len() {
+        return html_escape(text);
+    }
+    let mut out = String::new();
+    let mut at = 0;
+    let mut i = 0;
+    while i + want.len() <= chars.len() {
+        if lower[i..i + want.len()] == want[..] {
+            out.push_str(&html_escape(&chars[at..i].iter().collect::<String>()));
+            out.push_str("<mark>");
+            out.push_str(&html_escape(
+                &chars[i..i + want.len()].iter().collect::<String>(),
+            ));
+            out.push_str("</mark>");
+            i += want.len();
+            at = i;
+        } else {
+            i += 1;
+        }
+    }
+    out.push_str(&html_escape(&chars[at..].iter().collect::<String>()));
+    out
 }

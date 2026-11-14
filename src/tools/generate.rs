@@ -87,6 +87,41 @@ pub fn source(kind: Kind, name: &str) -> String {
     }
 }
 
+/// The blocks `wf generate block <name>` writes: whole pages — a sign-in
+/// form, pricing, a dashboard, settings — the project then owns. Each is
+/// its name, what it is, and its source.
+pub const BLOCKS: &[(&str, &str, &str)] = &[
+    (
+        "sign-in",
+        "A sign-in form: email, password, a box to stay signed in",
+        include_str!("blocks/sign-in.wf"),
+    ),
+    (
+        "pricing",
+        "Three plans side by side, monthly or yearly",
+        include_str!("blocks/pricing.wf"),
+    ),
+    (
+        "dashboard",
+        "Figures, a trend and a table of recent deploys",
+        include_str!("blocks/dashboard.wf"),
+    ),
+    (
+        "settings",
+        "A profile, notifications and the account, in tabs",
+        include_str!("blocks/settings.wf"),
+    ),
+];
+
+/// The source of the block `name` (`sign-in`), and the page it declares
+/// (`SignIn`); `None` for a name no block has.
+pub fn block(name: &str) -> Option<(String, &'static str)> {
+    BLOCKS
+        .iter()
+        .find(|(n, _, _)| *n == name)
+        .map(|(n, _, src)| (declaration_name(n), *src))
+}
+
 /// The name a file of stem `file_stem` declares: `status-pill` →
 /// `StatusPill`, `deploys` → `Deploys`.
 ///
@@ -220,6 +255,20 @@ mod tests {
         }
         assert_eq!(source(Kind::Empty, "X"), "");
         assert!(source(Kind::Page, "Home").contains("path: \"/home\""));
+    }
+
+    #[test]
+    fn every_block_is_a_page_named_for_it() {
+        for (name, _, _) in BLOCKS {
+            let (page, text) = block(name).unwrap();
+            let program =
+                crate::syntax::parse_source(text, "x.wf").unwrap_or_else(|e| panic!("{name}: {e}"));
+            assert!(
+                matches!(program.declarations.as_slice(), [crate::syntax::parser::ast::Declaration::Page(p)] if p.name == page),
+                "{name} declares the page {page}"
+            );
+        }
+        assert!(block("nothing").is_none());
     }
 
     #[test]

@@ -240,7 +240,7 @@ page Learn06Elements(path: "/learn/06-elements", title: "Elements", description:
             Table.Body {
                 Table.Row {
                     Table.Cell("Layout")
-                    Table.Cell { Markdown("`AppShell`, `Container`, `Row`, `Column`, `Grid`, `Stack`, `Spacer`, `Divider`, `Header`, `Section`, `Footer`, `VirtualList`, `Splitter`, `Masonry`, `AspectRatio`, `ScrollArea`, `Center`, `Sticky`, `PanelGroup`") }
+                    Table.Cell { Markdown("`AppShell`, `Container`, `Row`, `Column`, `Grid`, `Stack`, `Spacer`, `Divider`, `Header`, `Section`, `Footer`, `VirtualList`, `Splitter`, `Masonry`, `AspectRatio`, `ScrollArea`, `Center`, `Sticky`, `PanelGroup`, `ClientOnly`") }
                 }
                 Table.Row {
                     Table.Cell("Navigation")
@@ -256,15 +256,15 @@ page Learn06Elements(path: "/learn/06-elements", title: "Elements", description:
                 }
                 Table.Row {
                     Table.Cell("Forms")
-                    Table.Cell { Markdown("`Form`, `Input`, `Textarea`, `Select`, `Checkbox`, `Radio`, `Switch`, `Slider`, `DatePicker`, `FileUpload`, `Field`, `Fieldset`, `InputGroup`, `RadioGroup`, `NumberInput`, `Calendar`, `Listbox`, `Combobox`, `CheckboxGroup`, `InputOTP`, `TagInput`, `Rating`, `DateRangePicker` ([Forms](/learn/14-forms))") }
+                    Table.Cell { Markdown("`Form`, `Input`, `Textarea`, `Select`, `Checkbox`, `Radio`, `Switch`, `Slider`, `DatePicker`, `FileUpload`, `Field`, `Fieldset`, `InputGroup`, `RadioGroup`, `NumberInput`, `Calendar`, `Listbox`, `Combobox`, `CheckboxGroup`, `InputOTP`, `TagInput`, `Rating`, `DateRangePicker`, `ColorPicker`, `TransferList`, `Editable` ([Forms](/learn/14-forms))") }
                 }
                 Table.Row {
                     Table.Cell("Feedback")
-                    Table.Cell { Markdown("`Alert`, `Toast`, `Modal`, `Dialog`, `Popover`, `Spinner`, `Progress`, `CircularProgress`, `Meter`, `Skeleton`, `HoverCard`, `LoadingOverlay`, `Tour`, `ConsentBanner` ([Events](/learn/08-events#overlays-modals-dialogs-toasts-and-menus))") }
+                    Table.Cell { Markdown("`Alert`, `Toast`, `Modal`, `Dialog`, `Popover`, `Spinner`, `Progress`, `CircularProgress`, `Meter`, `Skeleton`, `Popconfirm`, `HoverCard`, `LoadingOverlay`, `Tour`, `ConsentBanner` ([Events](/learn/08-events#overlays-modals-dialogs-toasts-and-menus))") }
                 }
                 Table.Row {
                     Table.Cell("Actions")
-                    Table.Cell { Markdown("`Button`, `IconButton`, `ButtonGroup`, `Dropdown`, `CopyButton`, `ThemeToggle`, `LocaleSwitch`, `Toggle`, `ToggleGroup`") }
+                    Table.Cell { Markdown("`Button`, `IconButton`, `ButtonGroup`, `Dropdown`, `CopyButton`, `ThemeToggle`, `LocaleSwitch`, `Toggle`, `ToggleGroup`, `Fab`, `BackToTop`") }
                 }
                 Table.Row {
                     Table.Cell("Media")
@@ -272,7 +272,7 @@ page Learn06Elements(path: "/learn/06-elements", title: "Elements", description:
                 }
                 Table.Row {
                     Table.Cell("Typography")
-                    Table.Cell { Markdown("`Text`, `Heading`, `Paragraph`, `Code`, `Blockquote`, `Markdown`, `Unsafe.Html`") }
+                    Table.Cell { Markdown("`Text`, `Heading`, `Paragraph`, `Code`, `Blockquote`, `Markdown`, `Highlight`, `Unsafe.Html`") }
                 }
                 Table.Row {
                     Table.Cell("Somebody else's code")

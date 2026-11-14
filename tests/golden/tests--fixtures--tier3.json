@@ -1,0 +1,13 @@
+{
+  "diagnostics": [],
+  "files": {
+    "_headers": "ab659ef6aa87e4994c047f0afe74c1882b43db8b48e5ed9315716374a749c4b2",
+    "app.js": "74f8dacdc9ddd1078af9e3e3ab6bcf6dac5859678a450ab62c8f9eec29bbcd3c",
+    "app.js.gz": "1e13c7184bd474df13895f6b6770786555e7c41be47f9ff5a4e2abcbb2fac092",
+    "index.html": "dc775fca821241ada964a6375f7b52c48f2bee4f2436f041522bdae858069a46",
+    "index.html.gz": "3ddde90ad5fe2f6c842d7b1d846c67dd2e63a12c50d2890aa72517fd85cfd713",
+    "robots.txt": "16ceb5ee3e0dc13aa9adf31a3ebbe45a1d965b8c2b9f72eaf84e5911e140ed95",
+    "styles.css": "559ee9deffcde3bf6ce64672727ae0ca88c880f0f4ea2fdce675cfaf68a4fc4a",
+    "styles.css.gz": "5a1d8a7ee729478b2aeb3e9e5bcc758a099ec8eac4ca2a8ef2dc975aa13d5db0"
+  }
+}

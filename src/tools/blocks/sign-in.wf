@@ -1,0 +1,47 @@
+// A sign-in form, written by `wf generate block sign-in`. It is the
+// project's own page now: change what it says, where it sends the reader
+// and how it signs them in.
+page SignIn(path: "/sign-in", title: "Sign in", description: "Sign in to your account.") {
+    state email = ""
+    state password = ""
+    state remember = true
+    state signedIn = false
+
+    validate email {
+        required "Enter your email address"
+        email "Enter an email address like name@example.com"
+    }
+    validate password {
+        required "Enter your password"
+        minLength(8) "Your password has at least 8 characters"
+    }
+
+    // Send the address and the password to your server here — an `api`
+    // call that sets a session cookie — then go on with `navigate("/")`.
+    action signIn() {
+        signedIn = true
+    }
+
+    Center {
+        style { min-height: 80vh; padding: $spacing-lg }
+        Card.elevated {
+            style { width: min(26rem, 100%) }
+            Stack(gap: .md) {
+                Heading("Sign in").h1
+                Text("Welcome back.").muted
+                Form(bind: form) {
+                    on submit { signIn() }
+                    Stack(gap: .md) {
+                        Input(bind: email, label: "Email").email
+                        Input(bind: password, label: "Password").password.reveal
+                        Checkbox(bind: remember, label: "Keep me signed in")
+                        Button("Sign in", type: .submit, disabled: form.pending).primary.full
+                    }
+                }
+                if signedIn {
+                    Alert("You are signed in.").success
+                }
+            }
+        }
+    }
+}

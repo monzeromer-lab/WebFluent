@@ -179,6 +179,7 @@ mod template_fixes;
 mod theme_boot;
 #[path = "theme_view.rs"]
 mod theme_view;
+mod tier3;
 #[path = "tooling_fixes.rs"]
 mod tooling_fixes;
 #[path = "tools_api.rs"]

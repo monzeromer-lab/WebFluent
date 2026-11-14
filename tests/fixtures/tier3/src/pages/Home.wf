@@ -1,0 +1,42 @@
+// The third tier of built-ins, each on the one page
+// `tests/browser/tier3.mjs` drives.
+page Home(path: "/", title: "Extras", description: "A colour, two lists, a question and more.") {
+    state colour = "#0f766e"
+    state picked: [String] = ["b"]
+    state name = "Untitled"
+    state heard = ""
+    state q = "ea"
+
+    Heading("Extras").h1
+    Text("heard {heard}", id: "heard")
+
+    ColorPicker(bind: colour, label: "Accent", swatches: ["#0f766e", "#b91c1c", "#1d4ed8"], id: "accent")
+    Text("colour {colour}", id: "colour")
+
+    TransferList(bind: picked, options: [{ id: "a", name: "Alpha" }, { id: "b", name: "Beta" }, { id: "c", name: "Gamma" }],
+                 text: o => o.name, key: o => o.id, label: "Letters", id: "letters")
+    Text("picked {picked.join(\",\")}", id: "picked")
+
+    Editable(bind: name, label: "Project name", id: "name")
+    Text("name {name}", id: "named")
+
+    Popconfirm(title: "Delete this file?", yes: "Delete", id: "ask").danger {
+        on confirm { heard = "deleted" }
+        on cancel { heard = "kept" }
+        Button("Delete file", id: "delete")
+    }
+
+    Input(bind: q, label: "Search")
+    Highlight("Search near and far: each area is clear.", query: q, id: "marked")
+
+    ClientOnly(id: "client") { Text("Only in the browser", id: "only") }
+
+    Fab(icon: "plus", label: "Create", id: "dial") {
+        Fab.Action("Note", icon: "file") { on click { heard = "note" } }
+        Fab.Action("Folder", icon: "folder") { on click { heard = "folder" } }
+    }
+
+    BackToTop(after: 300, id: "top")
+
+    for n in 1..=60 { Text("Filler {n}") }
+}

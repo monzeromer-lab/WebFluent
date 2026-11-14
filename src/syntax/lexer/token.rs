@@ -494,6 +494,15 @@ pub const ALL_COMPONENT_NAMES: &[&str] = &[
     "Center",
     "Sticky",
     "PanelGroup",
+    // Tier 3
+    "ColorPicker",
+    "TransferList",
+    "Editable",
+    "Fab",
+    "BackToTop",
+    "Popconfirm",
+    "Highlight",
+    "ClientOnly",
     // A node handed to somebody else's code, with a lifetime.
     "Host",
     // A custom element a script defines, by its tag.

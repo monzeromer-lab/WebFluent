@@ -966,7 +966,7 @@
         {
           "default": null,
           "flag": false,
-          "help": "What to generate: page, component, or store",
+          "help": "What to generate: page, component, store, or block",
           "long": null,
           "name": "kind",
           "positional": true,
@@ -978,13 +978,14 @@
           "values": [
             "page",
             "component",
-            "store"
+            "store",
+            "block"
           ]
         },
         {
           "default": null,
           "flag": false,
-          "help": "Name of the item to generate",
+          "help": "Name of the item to generate; for a block, which: sign-in, pricing, dashboard or settings",
           "long": null,
           "name": "name",
           "positional": true,
@@ -1011,7 +1012,7 @@
         }
       ],
       "preview": null,
-      "summary": "Generate a new page, component, or store",
+      "summary": "Generate a new page, component, or store — or a block, a whole page to own: sign-in, pricing, dashboard, settings",
       "writes": "a new source file"
     },
     {

@@ -1759,6 +1759,154 @@ pub const COMPONENTS: &[ComponentSig] = &[
         Children::Elements,
     )
     .html("div", "wf-panel-group__panel"),
+    // ─── Tier 3 ───────────────────────────────────────────────────────────
+    comp(
+        "ColorPicker",
+        "Form",
+        "A colour, chosen from `swatches:` (each a button, the chosen one pressed), with the browser's own picker, or typed as hex; `bind:` holds it as `#rrggbb`.",
+        None,
+        &[
+            required(special("bind", PropType::State, "The colour, `#rrggbb`")),
+            required(special("label", PropType::Str, "What the colour is for")),
+            special("swatches", PropType::Any, "The colours offered first: a list of `#rrggbb`"),
+        ],
+        &[],
+        G,
+        Children::None,
+    )
+    .html("div", "wf-color-picker")
+    .css(&["Input", "Color Picker"])
+    .not_on_paper("interactive elements are not supported in PDF"),
+    comp(
+        "TransferList",
+        "Form",
+        "Two lists side by side — what can be chosen and what is — with buttons that move the selected across, or all of them; `bind:` holds the keys of the chosen.",
+        None,
+        &[
+            required(special("bind", PropType::State, "The keys of what is chosen")),
+            required(special("options", PropType::Any, "Everything that can be chosen")),
+            special("text", PropType::Any, "What an option says: `o => o.name` (unset, the option)"),
+            special("key", PropType::Any, "What identifies an option: `o => o.id` (unset, the option)"),
+            required(special("label", PropType::Str, "What is being chosen")),
+            special("from", PropType::Str, "The first list's heading (unset, `Available`)"),
+            special("to", PropType::Str, "The second list's heading (unset, `Chosen`)"),
+        ],
+        &[],
+        G,
+        Children::None,
+    )
+    .html("div", "wf-transfer-list")
+    .css(&["Button", "Transfer List"])
+    .not_on_paper("interactive elements are not supported in PDF"),
+    comp(
+        "Editable",
+        "Form",
+        "Text that turns into a field when pressed: Enter or leaving keeps what was typed, Escape puts it back; `bind:` holds the text.",
+        None,
+        &[
+            required(special("bind", PropType::State, "The text")),
+            required(special("label", PropType::Str, "What the text is, for a screen reader")),
+            special("placeholder", PropType::Str, "Shown while it is empty"),
+        ],
+        &[],
+        G,
+        Children::None,
+    )
+    .html("span", "wf-editable")
+    .css(&["Input", "Editable"])
+    .not_on_paper("interactive elements are not supported in PDF"),
+    comp(
+        "Fab",
+        "Actions",
+        "A round button floating at the bottom of the screen for the page's main action; with `Fab.Action`s in its block it opens them instead (a speed dial).",
+        None,
+        &[
+            required(special("icon", PropType::Str, "Its icon")),
+            required(special("label", PropType::Str, "What it does, for a screen reader and its tooltip")),
+        ],
+        &["Action", "Trigger"],
+        G,
+        Children::Elements,
+    )
+    .html("div", "wf-fab")
+    .css(&["Fab"])
+    .not_on_paper("interactive elements are not supported in PDF"),
+    part(
+        "Fab",
+        "Action",
+        Ir::Sub("Fab", "Action"),
+        "One more action the button opens: its words and its icon; `on click` is what it does.",
+        Some(required(special("label", PropType::Str, "What it does"))),
+        &[special("icon", PropType::Str, "Its icon")],
+        G,
+        Children::Elements,
+    )
+    .html("button", "wf-fab__action"),
+    part("Fab", "Trigger", Ir::Sub("Fab", "Trigger"), "Its button. Drawn for it.", None, &[], G, Children::Elements)
+        .html("button", "wf-fab__trigger"),
+    comp(
+        "BackToTop",
+        "Actions",
+        "A button that appears once the page has scrolled past `after:` px, and takes the reader — and the focus — back to the top.",
+        None,
+        &[
+            special("label", PropType::Str, "What it says, for a screen reader (unset, `Back to top`)"),
+            special("after", PropType::Num, "How far down it appears, in px (unset, 400)"),
+        ],
+        &[],
+        G,
+        Children::None,
+    )
+    .html("button", "wf-back-to-top")
+    .css(&["Back To Top"])
+    .not_on_paper("interactive elements are not supported in PDF"),
+    ComponentSig {
+        events: &["confirm", "cancel"],
+        ..comp(
+            "Popconfirm",
+            "Feedback",
+            "A question beside the button in its block before what it does: the button opens it, `on confirm` hears yes, `on cancel` no or Escape; the focus starts on the answer that loses nothing.",
+            None,
+            &[
+                required(special("title", PropType::Str, "The question")),
+                special("yes", PropType::Str, "The yes button's words (unset, `Yes`)"),
+                special("no", PropType::Str, "The no button's words (unset, `Cancel`)"),
+                flag("danger", "danger", "What yes does cannot be taken back: drawn in the danger colour"),
+            ],
+            &[],
+            G,
+            Children::Elements,
+        )
+    }
+    .html("span", "wf-popconfirm")
+    .css(&["Button", "Layer", "Popconfirm"])
+    .not_on_paper("interactive elements are not supported in PDF"),
+    comp(
+        "Highlight",
+        "Typography",
+        "Text with every match of `query:` marked (`<mark>`), as a search's results show what was found; the case is ignored.",
+        Some(required(special("text", PropType::Str, "The text"))),
+        &[special("query", PropType::Str, "What to mark")],
+        &[],
+        G,
+        Children::None,
+    )
+    .html("span", "wf-highlight")
+    .css(&["Highlight Marks"])
+    .on_paper(),
+    comp(
+        "ClientOnly",
+        "Layout",
+        "Its block drawn in the browser alone, never in the static paint, a template or a PDF: a clock, the reader's own data.",
+        None,
+        &[],
+        &[],
+        G,
+        Children::Elements,
+    )
+    .html("div", "wf-client-only")
+    .css(&["Client Only"])
+    .on_paper(),
     // ─── Data display ─────────────────────────────────────────────────────
     comp(
         "Card",

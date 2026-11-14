@@ -3048,15 +3048,15 @@ The built-ins fall into these families:
 
 | Family | Elements |
 |---|---|
-| Layout | `AppShell`, `Container`, `Row`, `Column`, `Grid`, `Stack`, `Spacer`, `Divider`, `Header`, `Section`, `Footer`, `VirtualList`, `Splitter`, `Masonry`, `AspectRatio`, `ScrollArea`, `Center`, `Sticky`, `PanelGroup` |
+| Layout | `AppShell`, `Container`, `Row`, `Column`, `Grid`, `Stack`, `Spacer`, `Divider`, `Header`, `Section`, `Footer`, `VirtualList`, `Splitter`, `Masonry`, `AspectRatio`, `ScrollArea`, `Center`, `Sticky`, `PanelGroup`, `ClientOnly` |
 | Navigation | `Navbar`, `Sidebar`, `Link`, `Tabs`, `Breadcrumb`, `Menu`, `OnThisPage`, `Pagination`, `Stepper`, `CommandPalette`, `NavigationMenu`, `Menubar`, `ContextMenu`, `BottomNavigation`, `PrevNext` |
 | Data display | `Card`, `Table`, `DataTable`, `Tree`, `List`, `Badge`, `Tag`, `Avatar`, `Tooltip`, `DescriptionList`, `Timeline`, `AvatarGroup`, `Item`, `Sparkline`, `RelativeTime` ([Lists of data](/learn/15-data#lists-of-data-a-table-a-tree-a-search)) |
 | Content | `Callout`, `Kbd`, `EmptyState`, `Stat`, `CodeBlock`, `Chip`, `Accordion`, `VisuallyHidden` ([below](#content-a-note-a-key-a-figure)) |
-| Forms | `Form`, `Input`, `Textarea`, `Select`, `Checkbox`, `Radio`, `Switch`, `Slider`, `DatePicker`, `FileUpload`, `Field`, `Fieldset`, `InputGroup`, `RadioGroup`, `NumberInput`, `Calendar`, `Listbox`, `Combobox`, `CheckboxGroup`, `InputOTP`, `TagInput`, `Rating`, `DateRangePicker` ([Forms](/learn/14-forms)) |
-| Feedback | `Alert`, `Toast`, `Modal`, `Dialog`, `Popover`, `Spinner`, `Progress`, `CircularProgress`, `Meter`, `Skeleton`, `HoverCard`, `LoadingOverlay`, `Tour`, `ConsentBanner` ([Events](/learn/08-events#overlays-modals-dialogs-toasts-and-menus)) |
-| Actions | `Button`, `IconButton`, `ButtonGroup`, `Dropdown`, `CopyButton`, `ThemeToggle`, `LocaleSwitch`, `Toggle`, `ToggleGroup` |
+| Forms | `Form`, `Input`, `Textarea`, `Select`, `Checkbox`, `Radio`, `Switch`, `Slider`, `DatePicker`, `FileUpload`, `Field`, `Fieldset`, `InputGroup`, `RadioGroup`, `NumberInput`, `Calendar`, `Listbox`, `Combobox`, `CheckboxGroup`, `InputOTP`, `TagInput`, `Rating`, `DateRangePicker`, `ColorPicker`, `TransferList`, `Editable` ([Forms](/learn/14-forms)) |
+| Feedback | `Alert`, `Toast`, `Modal`, `Dialog`, `Popover`, `Spinner`, `Progress`, `CircularProgress`, `Meter`, `Skeleton`, `Popconfirm`, `HoverCard`, `LoadingOverlay`, `Tour`, `ConsentBanner` ([Events](/learn/08-events#overlays-modals-dialogs-toasts-and-menus)) |
+| Actions | `Button`, `IconButton`, `ButtonGroup`, `Dropdown`, `CopyButton`, `ThemeToggle`, `LocaleSwitch`, `Toggle`, `ToggleGroup`, `Fab`, `BackToTop` |
 | Media | `Image`, `Video`, `Audio`, `Frame`, `Icon`, `Carousel`, `Lightbox`, `Gallery` ([Add a picture](/recipes/add-a-picture), [Video and audio](/recipes/video-and-audio)) |
-| Typography | `Text`, `Heading`, `Paragraph`, `Code`, `Blockquote`, `Markdown`, `Unsafe.Html` |
+| Typography | `Text`, `Heading`, `Paragraph`, `Code`, `Blockquote`, `Markdown`, `Highlight`, `Unsafe.Html` |
 | Somebody else's code | `Host`, `Element`, `Portal` ([Call your own JavaScript](/recipes/call-your-own-script), [Hand an element to a script](/recipes/hand-an-element-to-a-script)) |
 | Documents and decks | `Document`, `PageBreak`, `TableOfContents`, `Background`, `Watermark`, `Chart`, `QrCode`, `Presentation`, `Slide`, `TitleSlide`, `SectionSlide`, `TwoColumn`, `ImageSlide` ([PDF and slides](/learn/17-pdf-and-slides)) |
 | Routing | `Router` ([Pages](/learn/05-pages-and-routing#the-app-shell)) |
@@ -21695,6 +21695,7 @@ Each command writes a starter declaration in the conventional folder:
 | `wf generate page Pricing` | `src/pages/Pricing.wf`, with `path: "/pricing"`, a title, a description and an `h1` |
 | `wf generate component PriceCard` | `src/components/PriceCard.wf` |
 | `wf generate store Cart` | `src/stores/cart.wf` |
+| `wf generate block sign-in` | `src/pages/SignIn.wf`: a whole page to own — `sign-in`, `pricing`, `dashboard` or `settings` |
 
 In a project written in `.wfx`, the files are `.wfx`. `wf generate` never
 overwrites a file: when one exists, it says so and stops. Add `-d DIR` to
@@ -22820,7 +22821,7 @@ wf serve
 | `wf init NAME [-t, --template spa\|static\|pdf\|slides] [-l, --locales LIST]` | Creates a project from a template, translated into `LIST` when given |
 | `wf build [-d, --dir DIR] [--stats] [--format FORMAT] [--deny-warnings] [--cache] [--studio] [--allow-output-outside]` | Compiles the project; fails on errors, prints warnings |
 | `wf serve [-d, --dir DIR] [--host ADDRESS] [--allow-output-outside]` | Builds, serves on `dev.port` to this machine, and rebuilds and reloads on every save |
-| `wf generate page\|component\|store NAME [-d, --dir DIR]` | Writes a starter file |
+| `wf generate page\|component\|store\|block NAME [-d, --dir DIR]` | Writes a starter file, or a whole page to own |
 | `wf check [-d, --dir DIR] [--format FORMAT] [--deny-warnings] [--allow-output-outside]` | Reports every finding a build would report, and writes nothing |
 | `wf fix [-d, --dir DIR] [--code CODE] [--dry-run]` | Applies every finding's fix, or the fixes for one code |
 | `wf config schema [--json]`, `wf config get\|set\|unset PATH [VALUE] [-d, --dir DIR]` | Lists every setting, and edits `webfluent.app.json` without changing its shape |
@@ -23072,6 +23073,13 @@ wf generate store Cart
 
 A page gets a path from its name (`/pricing`), a title, a description and an
 `h1`. The file is `.wfx` when the project is written in that layout.
+
+`wf generate block NAME` writes a whole page instead — `sign-in` (a form
+that checks what is typed), `pricing` (three plans, monthly or yearly),
+`dashboard` (figures, a trend and a table) or `settings` (a profile,
+notifications and the account, in tabs) — into `src/pages/`. It is
+ordinary source, the project's own to change; it builds with nothing to
+report.
 `wf generate` never overwrites a file: when one exists, it says so and
 writes nothing.
 

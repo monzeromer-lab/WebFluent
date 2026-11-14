@@ -477,6 +477,44 @@
     "after": ""
    },
    {
+    "title": "The last of the built-ins, and blocks",
+    "id": "6.2.0-the-last-of-the-built-ins-and-blocks",
+    "intro": "",
+    "items": [
+     {
+      "text": "`ColorPicker`, `TransferList` and `Editable` choose a colour, move\nthings between two lists, and edit text in place.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`Fab` is a floating main action, a speed dial with `Fab.Action`s;\n`BackToTop` appears once the page has scrolled.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`Popconfirm` asks before the button in it acts.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`Highlight(text, query: q)` marks what a search found.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`ClientOnly { … }` is drawn in the browser alone.",
+      "points": [],
+      "after": ""
+     },
+     {
+      "text": "`wf generate block sign-in` — or `pricing`, `dashboard`, `settings` —\nwrites a whole page into `src/pages/` for the project to own.",
+      "points": [],
+      "after": ""
+     }
+    ],
+    "after": ""
+   },
+   {
     "title": "Fixes",
     "id": "6.2.0-fixes",
     "intro": "",
@@ -629,7 +667,7 @@
     "after": ""
    }
   ],
-  "count": 99
+  "count": 105
  },
  {
   "version": "6.1.0",

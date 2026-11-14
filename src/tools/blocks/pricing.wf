@@ -1,0 +1,50 @@
+// Pricing, written by `wf generate block pricing`. It is the project's own
+// page now: change the plans, their prices and what each includes.
+page Pricing(path: "/pricing", title: "Pricing", description: "Plans for every size of team.") {
+    state period = "monthly"
+    state plans = [
+        { name: "Free", monthly: 0, blurb: "For trying it out", features: ["One project", "Community support"], best: false },
+        { name: "Team", monthly: 12, blurb: "For a team at work", features: ["Unlimited projects", "Email support", "Shared settings"], best: true },
+        { name: "Business", monthly: 40, blurb: "For a company", features: ["Everything in Team", "Single sign-on", "An account manager"], best: false },
+    ]
+
+    Container {
+        Stack(gap: .lg) {
+            Stack(gap: .sm, align: .center) {
+                Heading("Pricing").h1
+                Text("Start free. Change plans at any time.").muted
+                ToggleGroup(bind: period, label: "Billing period") {
+                    ToggleGroup.Item("Monthly", value: "monthly")
+                    ToggleGroup.Item("Yearly, two months free", value: "yearly")
+                }
+            }
+            Grid(columns: { base: 1, md: 3 }, gap: .lg) {
+                for plan in plans by plan.name {
+                    Card.outlined {
+                        Stack(gap: .sm) {
+                            Row(justify: .between, align: .center) {
+                                Heading(plan.name).h2
+                                if plan.best {
+                                    Badge("Most popular").primary
+                                }
+                            }
+                            Text(plan.blurb).muted
+                            Text(if period == "yearly" { "{format(plan.monthly * 10, .currency)} a year" } else { "{format(plan.monthly, .currency)} a month" }).lg.bold
+                            List {
+                                for feature in plan.features by feature {
+                                    List.Item {
+                                        Row(gap: .xs, align: .center) {
+                                            Icon("check")
+                                            Text(feature)
+                                        }
+                                    }
+                                }
+                            }
+                            Button("Choose {plan.name}", outlined: !plan.best).primary.full
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

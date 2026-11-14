@@ -66,8 +66,8 @@ page CliIndexPage(path: "/reference/cli", title: "Command line — Reference", d
                             Table.Cell { Markdown("Builds, serves on `dev.port` to this machine, and rebuilds and reloads on every save") }
                         }
                         Table.Row {
-                            Table.Cell { Markdown("`wf generate page|component|store NAME [-d, --dir DIR]`") }
-                            Table.Cell("Writes a starter file")
+                            Table.Cell { Markdown("`wf generate page|component|store|block NAME [-d, --dir DIR]`") }
+                            Table.Cell("Writes a starter file, or a whole page to own")
                         }
                         Table.Row {
                             Table.Cell { Markdown("`wf check [-d, --dir DIR] [--format FORMAT] [--deny-warnings] [--allow-output-outside]`") }
@@ -386,7 +386,7 @@ page CliIndexPage(path: "/reference/cli", title: "Command line — Reference", d
                 Line(command: "wf generate store Cart")
             ])
 
-                Markdown("A page gets a path from its name (`/pricing`), a title, a description and an `h1`. The file is `.wfx` when the project is written in that layout. `wf generate` never overwrites a file: when one exists, it says so and writes nothing.")
+                Markdown("A page gets a path from its name (`/pricing`), a title, a description and an `h1`. The file is `.wfx` when the project is written in that layout.\n\n`wf generate block NAME` writes a whole page instead — `sign-in` (a form that checks what is typed), `pricing` (three plans, monthly or yearly), `dashboard` (figures, a trend and a table) or `settings` (a profile, notifications and the account, in tabs) — into `src/pages/`. It is ordinary source, the project's own to change; it builds with nothing to report. `wf generate` never overwrites a file: when one exists, it says so and writes nothing.")
 
                 Heading("Checking and testing", id: "checking-and-testing").h2
 
@@ -1603,7 +1603,7 @@ page CliIndexPage(path: "/reference/cli", title: "Command line — Reference", d
             Link(to: "/reference/cli/generate") {
                 style { display: flex; align-items: baseline; gap: 16px; min-height: 44px; padding: 8px 14px; border-bottom: 1px solid $line; color: $ink; text-decoration: none; &:last-child { border-bottom: 0 } &:hover { background: $raised; text-decoration: none } & p { margin: 0 } }
                 Text("wf generate", class: "bp-mono") { style { flex-shrink: 0; width: 140px; font-size: 13px; color: $link } }
-                Text("Generate a new page, component, or store", class: "bp-small")
+                Text("Generate a new page, component, or store — or a block, a whole page to own: sign-in, pricing, dashboard, settings", class: "bp-small")
             }
             Link(to: "/reference/cli/render") {
                 style { display: flex; align-items: baseline; gap: 16px; min-height: 44px; padding: 8px 14px; border-bottom: 1px solid $line; color: $ink; text-decoration: none; &:last-child { border-bottom: 0 } &:hover { background: $raised; text-decoration: none } & p { margin: 0 } }
@@ -1817,11 +1817,11 @@ page CliServe(path: "/reference/cli/serve", title: "wf serve — Reference", des
     }
 }
 
-page CliGenerate(path: "/reference/cli/generate", title: "wf generate — Reference", description: "wf generate: Generate a new page, component, or store. What it writes, and every option it takes.") {
-    ReferenceItemShell("wf generate", summary: "Generate a new page, component, or store", signature: "wf generate KIND NAME [options]", group: t("cli.title"), entries: CLI_INDEX, sections: [Anchor(id: "options", label: t("cli.options"))], source: "src/cli/app.rs") {
+page CliGenerate(path: "/reference/cli/generate", title: "wf generate — Reference", description: "wf generate: Generate a new page, component, or store — or a block, a whole page to own: sign-in, pricing, dashboard, settings. What it writes, and…") {
+    ReferenceItemShell("wf generate", summary: "Generate a new page, component, or store — or a block, a whole page to own: sign-in, pricing, dashboard, settings", signature: "wf generate KIND NAME [options]", group: t("cli.title"), entries: CLI_INDEX, sections: [Anchor(id: "options", label: t("cli.options"))], source: "src/cli/app.rs") {
         Markdown(t("cli.writes", { what: "a new source file" }), class: "bp-prose")
         Heading(t("cli.options"), id: "options").h2
-        PropsTable(rows: [{ name: "KIND", type: "page | component | store", meaning: "What to generate: page, component, or store" }, { name: "NAME", type: "text", meaning: "Name of the item to generate" }, { name: "--dir, -d DIR", type: "path", meaning: "Project directory (default: current directory)" }], caption: "Options of wf generate", nameLabel: t("cli.option"))
+        PropsTable(rows: [{ name: "KIND", type: "page | component | store | block", meaning: "What to generate: page, component, store, or block" }, { name: "NAME", type: "text", meaning: "Name of the item to generate; for a block, which: sign-in, pricing, dashboard or settings" }, { name: "--dir, -d DIR", type: "path", meaning: "Project directory (default: current directory)" }], caption: "Options of wf generate", nameLabel: t("cli.option"))
         Markdown(t("cli.full", { name: "generate" }), class: "bp-prose")
         Link(t("cli.all"), to: "/reference/cli")
     }

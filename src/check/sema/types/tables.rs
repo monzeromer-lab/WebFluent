@@ -166,7 +166,7 @@ pub(super) fn bound_type(component: &str, modifiers: &[String]) -> Option<Type> 
         // Two thumbs hold a low and a high.
         "Slider" if modifiers.iter().any(|m| m == "range") => Some(Type::list(Type::Number)),
         "Slider" | "Rating" => Some(Type::Number),
-        "InputOTP" => Some(Type::String),
+        "InputOTP" | "Editable" => Some(Type::String),
         "TagInput" => Some(Type::list(Type::String)),
         // A date picker picks a date, which is a `Date` — not a string
         // that happens to look like one. Empty, it holds nothing.

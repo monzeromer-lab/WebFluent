@@ -138,6 +138,10 @@ page Pricing(path: "/pricing", title: "Pricing", description: "Plans and prices.
                     Table.Cell { Markdown("`wf generate store Cart`") }
                     Table.Cell { Markdown("`src/stores/cart.wf`") }
                 }
+                Table.Row {
+                    Table.Cell { Markdown("`wf generate block sign-in`") }
+                    Table.Cell { Markdown("`src/pages/SignIn.wf`: a whole page to own — `sign-in`, `pricing`, `dashboard` or `settings`") }
+                }
             }
         }
 

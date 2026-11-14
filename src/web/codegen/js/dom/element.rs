@@ -280,6 +280,43 @@ impl JsCodegen {
                 self.emit_bound_widget(var, ui, parent, "InputOTP", "otp", &["length", "label"]);
                 true
             }
+            "ColorPicker" => {
+                self.emit_bound_widget(
+                    var,
+                    ui,
+                    parent,
+                    "ColorPicker",
+                    "colorPicker",
+                    &["label", "swatches"],
+                );
+                true
+            }
+            "TransferList" => {
+                self.emit_bound_widget(
+                    var,
+                    ui,
+                    parent,
+                    "TransferList",
+                    "transferList",
+                    &["options", "text", "key", "label", "from", "to"],
+                );
+                true
+            }
+            "Editable" => {
+                self.emit_bound_widget(
+                    var,
+                    ui,
+                    parent,
+                    "Editable",
+                    "editable",
+                    &["label", "placeholder"],
+                );
+                true
+            }
+            "Highlight" => {
+                self.emit_highlight(var, ui, parent);
+                true
+            }
             "TagInput" => {
                 self.emit_bound_widget(
                     var,

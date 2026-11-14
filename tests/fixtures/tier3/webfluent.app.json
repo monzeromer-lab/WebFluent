@@ -1,0 +1,4 @@
+{
+  "name": "tier3",
+  "build": { "ssg": true, "csp": true }
+}

@@ -1,5 +1,5 @@
 {
- "count": 242,
+ "count": 252,
  "families": [
   "Layout",
   "Navigation",
@@ -1438,6 +1438,63 @@
      "kind": "C03",
      "title": "A part outside the component it belongs to",
      "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "ClientOnly",
+   "slug": "clientonly",
+   "family": "Layout",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Its block drawn in the browser alone, never in the static paint, a template or a PDF: a clock, the reader's own data.",
+   "plain": "Its block drawn in the browser alone, never in the static paint, a template or a PDF: a clock, the reader's own data.",
+   "signature": "ClientOnly { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [],
+   "controls": [],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-client-only",
+   "example": "ClientOnly { Text(\"Drawn in your browser only\") }",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
     },
     {
      "kind": "C04",
@@ -10317,6 +10374,263 @@
    ]
   },
   {
+   "name": "ColorPicker",
+   "slug": "colorpicker",
+   "family": "Form",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "A colour, chosen from `swatches:` (each a button, the chosen one pressed), with the browser's own picker, or typed as hex; `bind:` holds it as `#rrggbb`.",
+   "plain": "A colour, chosen from swatches: (each a button, the chosen one pressed), with the browser's own picker, or typed as hex; bind: holds it as #rrggbb.",
+   "signature": "ColorPicker(bind: State, label: String, swatches: Any)",
+   "block": false,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "bind:",
+     "type": "State  (required)",
+     "meaning": "The colour, `#rrggbb`"
+    },
+    {
+     "name": "label:",
+     "type": "String  (required)",
+     "meaning": "What the colour is for"
+    },
+    {
+     "name": "swatches:",
+     "type": "Any",
+     "meaning": "The colours offered first: a list of `#rrggbb`"
+    }
+   ],
+   "controls": [
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-color-picker",
+   "example": "state accent = \"#0f766e\"\nColorPicker(bind: accent, label: \"Accent\", swatches: [\"#0f766e\", \"#b91c1c\", \"#1d4ed8\"])",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "TransferList",
+   "slug": "transferlist",
+   "family": "Form",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Two lists side by side — what can be chosen and what is — with buttons that move the selected across, or all of them; `bind:` holds the keys of the chosen.",
+   "plain": "Two lists side by side — what can be chosen and what is — with buttons that move the selected across, or all of them; bind: holds the keys of the chosen.",
+   "signature": "TransferList(bind: State, options: Any, text: Any, …)",
+   "block": false,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "bind:",
+     "type": "State  (required)",
+     "meaning": "The keys of what is chosen"
+    },
+    {
+     "name": "options:",
+     "type": "Any  (required)",
+     "meaning": "Everything that can be chosen"
+    },
+    {
+     "name": "text:",
+     "type": "Any",
+     "meaning": "What an option says: `o => o.name` (unset, the option)"
+    },
+    {
+     "name": "key:",
+     "type": "Any",
+     "meaning": "What identifies an option: `o => o.id` (unset, the option)"
+    },
+    {
+     "name": "label:",
+     "type": "String  (required)",
+     "meaning": "What is being chosen"
+    },
+    {
+     "name": "from:",
+     "type": "String",
+     "meaning": "The first list's heading (unset, `Available`)"
+    },
+    {
+     "name": "to:",
+     "type": "String",
+     "meaning": "The second list's heading (unset, `Chosen`)"
+    }
+   ],
+   "controls": [
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "from",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "to",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-transfer-list",
+   "example": "state picked: [String] = [\"b\"]\nTransferList(bind: picked, options: [{ id: \"a\", name: \"Ada\" }, { id: \"b\", name: \"Grace\" }, { id: \"c\", name: \"Alan\" }], text: p => p.name, key: p => p.id, label: \"Reviewers\")",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "Editable",
+   "slug": "editable",
+   "family": "Form",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Text that turns into a field when pressed: Enter or leaving keeps what was typed, Escape puts it back; `bind:` holds the text.",
+   "plain": "Text that turns into a field when pressed: Enter or leaving keeps what was typed, Escape puts it back; bind: holds the text.",
+   "signature": "Editable(bind: State, label: String, placeholder: String)",
+   "block": false,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "bind:",
+     "type": "State  (required)",
+     "meaning": "The text"
+    },
+    {
+     "name": "label:",
+     "type": "String  (required)",
+     "meaning": "What the text is, for a screen reader"
+    },
+    {
+     "name": "placeholder:",
+     "type": "String",
+     "meaning": "Shown while it is empty"
+    }
+   ],
+   "controls": [
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "placeholder",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-editable",
+   "example": "state title = \"Untitled\"\nEditable(bind: title, label: \"Project name\")",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
    "name": "Input",
    "slug": "input",
    "family": "Form",
@@ -14865,6 +15179,125 @@
    ]
   },
   {
+   "name": "Popconfirm",
+   "slug": "popconfirm",
+   "family": "Feedback",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "A question beside the button in its block before what it does: the button opens it, `on confirm` hears yes, `on cancel` no or Escape; the focus starts on the answer that loses nothing.",
+   "plain": "A question beside the button in its block before what it does: the button opens it, on confirm hears yes, on cancel no or Escape; the focus starts on the answer that loses nothing.",
+   "signature": "Popconfirm(title: String, yes: String, no: String, …) { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "title:",
+     "type": "String  (required)",
+     "meaning": "The question"
+    },
+    {
+     "name": "yes:",
+     "type": "String",
+     "meaning": "The yes button's words (unset, `Yes`)"
+    },
+    {
+     "name": "no:",
+     "type": "String",
+     "meaning": "The no button's words (unset, `Cancel`)"
+    },
+    {
+     "name": "danger:",
+     "type": "Bool",
+     "meaning": "What yes does cannot be taken back: drawn in the danger colour"
+    }
+   ],
+   "controls": [
+    {
+     "name": "title",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "yes",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "no",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "danger",
+     "kind": "bool",
+     "options": [],
+     "value": "",
+     "sink": "class"
+    }
+   ],
+   "flags": [
+    ".danger"
+   ],
+   "events": [
+    {
+     "name": "confirm",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    },
+    {
+     "name": "cancel",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-popconfirm",
+   "example": "state said = \"\"\nPopconfirm(title: \"Delete this file?\", yes: \"Delete\").danger {\n    on confirm { said = \"deleted\" }\n    Button(\"Delete\")\n}\nText(said)",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
    "name": "Alert",
    "slug": "alert",
    "family": "Feedback",
@@ -16422,6 +16855,311 @@
    "preview": true,
    "outputs": [],
    "since": "5.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "Fab",
+   "slug": "fab",
+   "family": "Actions",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "A round button floating at the bottom of the screen for the page's main action; with `Fab.Action`s in its block it opens them instead (a speed dial).",
+   "plain": "A round button floating at the bottom of the screen for the page's main action; with Fab.Actions in its block it opens them instead (a speed dial).",
+   "signature": "Fab(icon: String, label: String) { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "icon:",
+     "type": "String  (required)",
+     "meaning": "Its icon"
+    },
+    {
+     "name": "label:",
+     "type": "String  (required)",
+     "meaning": "What it does, for a screen reader and its tooltip"
+    }
+   ],
+   "controls": [
+    {
+     "name": "icon",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [
+    {
+     "name": "Fab.Action",
+     "kind": "fab-action",
+     "detail": "One more action the button opens: its words and its icon; on click is what it does.",
+     "fallback": ""
+    },
+    {
+     "name": "Fab.Trigger",
+     "kind": "fab-trigger",
+     "detail": "Its button. Drawn for it.",
+     "fallback": ""
+    }
+   ],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-fab",
+   "example": "state said = \"\"\nFab(icon: \"plus\", label: \"Create\") {\n    Fab.Action(\"Note\", icon: \"file\") { on click { said = \"note\" } }\n    Fab.Action(\"Folder\", icon: \"folder\") { on click { said = \"folder\" } }\n}\nText(said)",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "Fab.Action",
+   "slug": "fab-action",
+   "family": "Actions",
+   "owner": "Fab",
+   "ownerSlug": "fab",
+   "summary": "One more action the button opens: its words and its icon; `on click` is what it does.",
+   "plain": "One more action the button opens: its words and its icon; on click is what it does.",
+   "signature": "Fab.Action(_ label: String, icon: String) { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "label",
+     "type": "String  (positional)",
+     "meaning": "What it does"
+    },
+    {
+     "name": "icon:",
+     "type": "String",
+     "meaning": "Its icon"
+    }
+   ],
+   "controls": [
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "icon",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "state said = \"\"\nFab(icon: \"plus\", label: \"Create\") {\n    Fab.Action(\"Note\", icon: \"file\") { on click { said = \"note\" } }\n    Fab.Action(\"Folder\", icon: \"folder\") { on click { said = \"folder\" } }\n}\nText(said)",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    }
+   ]
+  },
+  {
+   "name": "Fab.Trigger",
+   "slug": "fab-trigger",
+   "family": "Actions",
+   "owner": "Fab",
+   "ownerSlug": "fab",
+   "summary": "Its button. Drawn for it.",
+   "plain": "Its button. Drawn for it.",
+   "signature": "Fab.Trigger { … }",
+   "block": true,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [],
+   "controls": [],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [
+    {
+     "name": "children",
+     "kind": "",
+     "detail": "",
+     "fallback": ""
+    }
+   ],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "",
+   "example": "state said = \"\"\nFab(icon: \"plus\", label: \"Create\") {\n    Fab.Action(\"Note\", icon: \"file\") { on click { said = \"note\" } }\n    Fab.Action(\"Folder\", icon: \"folder\") { on click { said = \"folder\" } }\n}\nText(said)",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C03",
+     "title": "A part outside the component it belongs to",
+     "to": "/errors/C03"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
+    },
+    {
+     "kind": "C05",
+     "title": "A positional argument a built-in does not take",
+     "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "BackToTop",
+   "slug": "backtotop",
+   "family": "Actions",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "A button that appears once the page has scrolled past `after:` px, and takes the reader — and the focus — back to the top.",
+   "plain": "A button that appears once the page has scrolled past after: px, and takes the reader — and the focus — back to the top.",
+   "signature": "BackToTop(label: String, after: Number)",
+   "block": false,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "label:",
+     "type": "String",
+     "meaning": "What it says, for a screen reader (unset, `Back to top`)"
+    },
+    {
+     "name": "after:",
+     "type": "Number",
+     "meaning": "How far down it appears, in px (unset, 400)"
+    }
+   ],
+   "controls": [
+    {
+     "name": "label",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-back-to-top",
+   "example": "BackToTop(after: 600)",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
    "codes": [
     {
      "kind": "E103",
@@ -18623,6 +19361,75 @@
      "kind": "C05",
      "title": "A positional argument a built-in does not take",
      "to": "/errors/C05"
+    }
+   ]
+  },
+  {
+   "name": "Highlight",
+   "slug": "highlight",
+   "family": "Typography",
+   "owner": "",
+   "ownerSlug": "",
+   "summary": "Text with every match of `query:` marked (`<mark>`), as a search's results show what was found; the case is ignored.",
+   "plain": "Text with every match of query: marked (<mark>), as a search's results show what was found; the case is ignored.",
+   "signature": "Highlight(_ text: String, query: String)",
+   "block": false,
+   "legacy": false,
+   "modern": [
+    "",
+    ""
+   ],
+   "props": [
+    {
+     "name": "text",
+     "type": "String  (positional)",
+     "meaning": "The text"
+    },
+    {
+     "name": "query:",
+     "type": "String",
+     "meaning": "What to mark"
+    }
+   ],
+   "controls": [
+    {
+     "name": "text",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    },
+    {
+     "name": "query",
+     "kind": "string",
+     "options": [],
+     "value": ""
+    }
+   ],
+   "flags": [],
+   "events": [],
+   "domEvents": [],
+   "slots": [],
+   "parts": [],
+   "attributes": [
+    "global",
+    "aria",
+    "data"
+   ],
+   "cssClass": "wf-highlight",
+   "example": "state q = \"ea\"\nInput(bind: q, label: \"Search\")\nHighlight(\"Search near and far: each area is clear.\", query: q)",
+   "preview": false,
+   "outputs": [],
+   "since": "6.2.0",
+   "codes": [
+    {
+     "kind": "E103",
+     "title": "A flag, case, part, event or slot the component does not have",
+     "to": "/errors/E103"
+    },
+    {
+     "kind": "C04",
+     "title": "An attribute a built-in does not declare",
+     "to": "/errors/C04"
     }
    ]
   },

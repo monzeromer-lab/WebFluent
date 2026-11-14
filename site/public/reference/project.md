@@ -134,6 +134,7 @@ Each command writes a starter declaration in the conventional folder:
 | `wf generate page Pricing` | `src/pages/Pricing.wf`, with `path: "/pricing"`, a title, a description and an `h1` |
 | `wf generate component PriceCard` | `src/components/PriceCard.wf` |
 | `wf generate store Cart` | `src/stores/cart.wf` |
+| `wf generate block sign-in` | `src/pages/SignIn.wf`: a whole page to own — `sign-in`, `pricing`, `dashboard` or `settings` |
 
 In a project written in `.wfx`, the files are `.wfx`. `wf generate` never
 overwrites a file: when one exists, it says so and stops. Add `-d DIR` to

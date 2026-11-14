@@ -246,12 +246,14 @@ enum Commands {
         #[arg(long)]
         allow_output_outside: bool,
     },
-    /// Generate a new page, component, or store
+    /// Generate a new page, component, or store — or a block, a whole page
+    /// to own: sign-in, pricing, dashboard, settings
     Generate {
-        /// What to generate: page, component, or store
-        #[arg(value_parser = ["page", "component", "store"])]
+        /// What to generate: page, component, store, or block
+        #[arg(value_parser = ["page", "component", "store", "block"])]
         kind: String,
-        /// Name of the item to generate
+        /// Name of the item to generate; for a block, which: sign-in,
+        /// pricing, dashboard or settings
         name: String,
         /// Project directory (default: current directory)
         #[arg(short, long, default_value = ".")]

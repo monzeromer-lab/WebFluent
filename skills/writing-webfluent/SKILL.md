@@ -279,7 +279,8 @@ keep them. See [references/testing.md](references/testing.md).
 - **Output.** `public/` is copied to the root of the build. `build/` is
   output: never edit it.
 - **Scaffolding.** `wf generate page Name` scaffolds a file in the project's
-  layout.
+  layout; `wf generate block sign-in` (or `pricing`, `dashboard`,
+  `settings`) writes a whole page to start from.
 
 ## Other shapes of project
 

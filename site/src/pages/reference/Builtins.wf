@@ -36,6 +36,7 @@ const BUILTIN_INDEX: [IndexEntry] = [
     IndexEntry(label: "Sticky", to: "/reference/sticky", group: "Layout"),
     IndexEntry(label: "PanelGroup", to: "/reference/panelgroup", group: "Layout"),
     IndexEntry(label: "PanelGroup.Panel", to: "/reference/panelgroup-panel", group: "Layout"),
+    IndexEntry(label: "ClientOnly", to: "/reference/clientonly", group: "Layout"),
     IndexEntry(label: "AppShell", to: "/reference/appshell", group: "Layout"),
     IndexEntry(label: "AppShell.Header", to: "/reference/appshell-header", group: "Layout"),
     IndexEntry(label: "AppShell.Footer", to: "/reference/appshell-footer", group: "Layout"),
@@ -147,6 +148,9 @@ const BUILTIN_INDEX: [IndexEntry] = [
     IndexEntry(label: "Accordion.Item", to: "/reference/accordion-item", group: "Content"),
     IndexEntry(label: "Accordion.Summary", to: "/reference/accordion-summary", group: "Content"),
     IndexEntry(label: "Accordion.Panel", to: "/reference/accordion-panel", group: "Content"),
+    IndexEntry(label: "ColorPicker", to: "/reference/colorpicker", group: "Form"),
+    IndexEntry(label: "TransferList", to: "/reference/transferlist", group: "Form"),
+    IndexEntry(label: "Editable", to: "/reference/editable", group: "Form"),
     IndexEntry(label: "Input", to: "/reference/input", group: "Form"),
     IndexEntry(label: "Select", to: "/reference/select", group: "Form"),
     IndexEntry(label: "Select.Option", to: "/reference/select-option", group: "Form"),
@@ -195,6 +199,7 @@ const BUILTIN_INDEX: [IndexEntry] = [
     IndexEntry(label: "ConsentBanner", to: "/reference/consentbanner", group: "Feedback"),
     IndexEntry(label: "CircularProgress", to: "/reference/circularprogress", group: "Feedback"),
     IndexEntry(label: "Meter", to: "/reference/meter", group: "Feedback"),
+    IndexEntry(label: "Popconfirm", to: "/reference/popconfirm", group: "Feedback"),
     IndexEntry(label: "Alert", to: "/reference/alert", group: "Feedback"),
     IndexEntry(label: "Toast", to: "/reference/toast", group: "Feedback"),
     IndexEntry(label: "Modal", to: "/reference/modal", group: "Feedback"),
@@ -212,6 +217,10 @@ const BUILTIN_INDEX: [IndexEntry] = [
     IndexEntry(label: "Spinner", to: "/reference/spinner", group: "Feedback"),
     IndexEntry(label: "Progress", to: "/reference/progress", group: "Feedback"),
     IndexEntry(label: "Skeleton", to: "/reference/skeleton", group: "Feedback"),
+    IndexEntry(label: "Fab", to: "/reference/fab", group: "Actions"),
+    IndexEntry(label: "Fab.Action", to: "/reference/fab-action", group: "Actions"),
+    IndexEntry(label: "Fab.Trigger", to: "/reference/fab-trigger", group: "Actions"),
+    IndexEntry(label: "BackToTop", to: "/reference/backtotop", group: "Actions"),
     IndexEntry(label: "CopyButton", to: "/reference/copybutton", group: "Actions"),
     IndexEntry(label: "ThemeToggle", to: "/reference/themetoggle", group: "Actions"),
     IndexEntry(label: "LocaleSwitch", to: "/reference/localeswitch", group: "Actions"),
@@ -233,6 +242,7 @@ const BUILTIN_INDEX: [IndexEntry] = [
     IndexEntry(label: "Icon", to: "/reference/icon", group: "Media"),
     IndexEntry(label: "Carousel", to: "/reference/carousel", group: "Media"),
     IndexEntry(label: "Carousel.Slide", to: "/reference/carousel-slide", group: "Media"),
+    IndexEntry(label: "Highlight", to: "/reference/highlight", group: "Typography"),
     IndexEntry(label: "Text", to: "/reference/text", group: "Typography"),
     IndexEntry(label: "Heading", to: "/reference/heading", group: "Typography"),
     IndexEntry(label: "Code", to: "/reference/code", group: "Typography"),
@@ -265,7 +275,7 @@ const BUILTIN_INDEX: [IndexEntry] = [
 ]
 
 page ReferenceIndexPage(path: "/reference", title: "Reference", description: "Every built-in element, command, setting and design token, read from the compiler itself, with the language's reference pages.") {
-    ReferenceItemShell(t("nav.reference"), summary: t("ref.lede", { count: 242 }), entries: REFERENCE_PAGES, sections: [Anchor(id: "pages", label: t("ref.pages")), Anchor(id: "layout", label: "Layout"), Anchor(id: "navigation", label: "Navigation"), Anchor(id: "routing", label: "Routing"), Anchor(id: "data-display", label: "Data display"), Anchor(id: "content", label: "Content"), Anchor(id: "form", label: "Form"), Anchor(id: "feedback", label: "Feedback"), Anchor(id: "actions", label: "Actions"), Anchor(id: "media", label: "Media"), Anchor(id: "typography", label: "Typography"), Anchor(id: "pdf", label: "PDF"), Anchor(id: "slides", label: "Slides"), Anchor(id: "original-spellings", label: "Original spellings"), Anchor(id: "on-every-element", label: t("ref.universal.title"))], source: "scripts/docsite/reference.py") {
+    ReferenceItemShell(t("nav.reference"), summary: t("ref.lede", { count: 252 }), entries: REFERENCE_PAGES, sections: [Anchor(id: "pages", label: t("ref.pages")), Anchor(id: "layout", label: "Layout"), Anchor(id: "navigation", label: "Navigation"), Anchor(id: "routing", label: "Routing"), Anchor(id: "data-display", label: "Data display"), Anchor(id: "content", label: "Content"), Anchor(id: "form", label: "Form"), Anchor(id: "feedback", label: "Feedback"), Anchor(id: "actions", label: "Actions"), Anchor(id: "media", label: "Media"), Anchor(id: "typography", label: "Typography"), Anchor(id: "pdf", label: "PDF"), Anchor(id: "slides", label: "Slides"), Anchor(id: "original-spellings", label: "Original spellings"), Anchor(id: "on-every-element", label: t("ref.universal.title"))], source: "scripts/docsite/reference.py") {
         Heading(t("ref.pages"), id: "pages").h2
         Grid(columns: { base: 1, sm: 2, xl: 3 }, gap: .sm) {
             Link(to: "/reference/expressions", class: "bp-card") { Text("Expressions") { style { font-weight: 600 } }  Text("Language", class: "bp-small") }
@@ -346,6 +356,10 @@ page ReferenceIndexPage(path: "/reference", title: "Reference", description: "Ev
             Link(to: "/reference/panelgroup-panel", class: "bp-card") {
                 Text("PanelGroup.Panel", class: "bp-mono") { style { font-size: 14px; color: $link } }
                 Text("One panel.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+            }
+            Link(to: "/reference/clientonly", class: "bp-card") {
+                Text("ClientOnly", class: "bp-mono") { style { font-size: 14px; color: $link } }
+                Text("Its block drawn in the browser alone, never in the static paint, a template or a PDF: a clock, the reader's own data.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
             }
             Link(to: "/reference/appshell", class: "bp-card") {
                 Text("AppShell", class: "bp-mono") { style { font-size: 14px; color: $link } }
@@ -806,6 +820,18 @@ page ReferenceIndexPage(path: "/reference", title: "Reference", description: "Ev
         }
         Heading("Form", id: "form").h2
         Grid(columns: { base: 1, sm: 2, xl: 3 }, gap: .sm) {
+            Link(to: "/reference/colorpicker", class: "bp-card") {
+                Text("ColorPicker", class: "bp-mono") { style { font-size: 14px; color: $link } }
+                Text("A colour, chosen from swatches: (each a button, the chosen one pressed), with the browser's own picker, or typed as hex; bind: holds it as #rrggbb.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+            }
+            Link(to: "/reference/transferlist", class: "bp-card") {
+                Text("TransferList", class: "bp-mono") { style { font-size: 14px; color: $link } }
+                Text("Two lists side by side — what can be chosen and what is — with buttons that move the selected across, or all of them; bind: holds the keys of the chosen.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+            }
+            Link(to: "/reference/editable", class: "bp-card") {
+                Text("Editable", class: "bp-mono") { style { font-size: 14px; color: $link } }
+                Text("Text that turns into a field when pressed: Enter or leaving keeps what was typed, Escape puts it back; bind: holds the text.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+            }
             Link(to: "/reference/input", class: "bp-card") {
                 Text("Input", class: "bp-mono") { style { font-size: 14px; color: $link } }
                 Text("Text field. With label, hint or error it is a labelled field.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
@@ -1001,6 +1027,10 @@ page ReferenceIndexPage(path: "/reference", title: "Reference", description: "Ev
                 Text("Meter", class: "bp-mono") { style { font-size: 14px; color: $link } }
                 Text("A level against its range (<meter>): a disk's use, a password's strength. Past high: or under low: it says so in its colour; optimum: says which end is good.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
             }
+            Link(to: "/reference/popconfirm", class: "bp-card") {
+                Text("Popconfirm", class: "bp-mono") { style { font-size: 14px; color: $link } }
+                Text("A question beside the button in its block before what it does: the button opens it, on confirm hears yes, on cancel no or Escape; the focus starts on the answer that loses nothing.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+            }
             Link(to: "/reference/alert", class: "bp-card") {
                 Text("Alert", class: "bp-mono") { style { font-size: 14px; color: $link } }
                 Text("Inline notice; a danger or warning one is announced as an alert.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
@@ -1072,6 +1102,22 @@ page ReferenceIndexPage(path: "/reference", title: "Reference", description: "Ev
         }
         Heading("Actions", id: "actions").h2
         Grid(columns: { base: 1, sm: 2, xl: 3 }, gap: .sm) {
+            Link(to: "/reference/fab", class: "bp-card") {
+                Text("Fab", class: "bp-mono") { style { font-size: 14px; color: $link } }
+                Text("A round button floating at the bottom of the screen for the page's main action; with Fab.Actions in its block it opens them instead (a speed dial).", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+            }
+            Link(to: "/reference/fab-action", class: "bp-card") {
+                Text("Fab.Action", class: "bp-mono") { style { font-size: 14px; color: $link } }
+                Text("One more action the button opens: its words and its icon; on click is what it does.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+            }
+            Link(to: "/reference/fab-trigger", class: "bp-card") {
+                Text("Fab.Trigger", class: "bp-mono") { style { font-size: 14px; color: $link } }
+                Text("Its button. Drawn for it.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+            }
+            Link(to: "/reference/backtotop", class: "bp-card") {
+                Text("BackToTop", class: "bp-mono") { style { font-size: 14px; color: $link } }
+                Text("A button that appears once the page has scrolled past after: px, and takes the reader — and the focus — back to the top.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+            }
             Link(to: "/reference/copybutton", class: "bp-card") {
                 Text("CopyButton", class: "bp-mono") { style { font-size: 14px; color: $link } }
                 Text("A button that copies value: to the clipboard, says Copied for a moment, and tells a screen reader so.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
@@ -1162,6 +1208,10 @@ page ReferenceIndexPage(path: "/reference", title: "Reference", description: "Ev
         }
         Heading("Typography", id: "typography").h2
         Grid(columns: { base: 1, sm: 2, xl: 3 }, gap: .sm) {
+            Link(to: "/reference/highlight", class: "bp-card") {
+                Text("Highlight", class: "bp-mono") { style { font-size: 14px; color: $link } }
+                Text("Text with every match of query: marked (<mark>), as a search's results show what was found; the case is ignored.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
+            }
             Link(to: "/reference/text", class: "bp-card") {
                 Text("Text", class: "bp-mono") { style { font-size: 14px; color: $link } }
                 Text("A paragraph of text. \{…\} in the string reads state and stays live.", class: "bp-small") { style { overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical } }
@@ -1956,6 +2006,33 @@ PanelGroup(bind: sizes, label: "Resize the panels") {
     PanelGroup.Panel(min: 20) { Text("Files") }
     PanelGroup.Panel { Text("Editor") }
 }"#, title: "wf")
+    }
+}
+
+page BuiltinClientonly(path: "/reference/clientonly", title: "ClientOnly — Reference", description: "ClientOnly: Its block drawn in the browser alone, never in the static paint, a template or a PDF: a clock, the reader's own data.") {
+    ReferenceItemShell("ClientOnly", summary: "Its block drawn in the browser alone, never in the static paint, a template or a PDF: a clock, the reader's own data.", signature: "ClientOnly \{ … \}", since: "6.2.0", outputs: [], group: "Layout", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
+        stage {
+            Stage(label: "ClientOnly") {
+                controls {
+                    Text(t("stage.nocontrols"), class: "bp-small")
+                }
+                Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
+            }
+        }
+        notes { Text(t("stage.static"), class: "bp-small") }
+        Heading(t("ref.tab.props"), id: "props").h2
+        Text(t("ref.noprops"), class: "bp-small")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Heading(t("ref.tab.flags"), id: "flags").h2
+        Markdown(t("ref.flags.body"), class: "bp-prose")
+        Text(t("ref.noflags"), class: "bp-small")
+        Heading(t("ref.tab.events"), id: "events").h2
+        Markdown(t("ref.universal.link"), class: "bp-prose")
+        Heading(t("ref.slotsparts"), id: "slots").h2
+        SlotsAndParts(slots: [PropRow(name: "children", kind: "", detail: "")], parts: [])
+        Heading(t("ref.example"), id: "example").h2
+        CodeBlock(#"ClientOnly { Text("Drawn in your browser only") }"#, title: "wf")
+        Markdown(t("ref.renders", { cls: "wf-client-only" }), class: "bp-prose")
     }
 }
 
@@ -5715,6 +5792,93 @@ page BuiltinAccordionPanel(path: "/reference/accordion-panel", title: "Accordion
     }
 }
 
+page BuiltinColorpicker(path: "/reference/colorpicker", title: "ColorPicker — Reference", description: "ColorPicker: A colour, chosen from swatches: (each a button, the chosen one pressed), with the browser's own picker, or typed as hex; bind: holds it as…") {
+    ReferenceItemShell("ColorPicker", summary: "A colour, chosen from swatches: (each a button, the chosen one pressed), with the browser's own picker, or typed as hex; bind: holds it as #rrggbb.", signature: "ColorPicker(bind: State, label: String, swatches: Any)", since: "6.2.0", outputs: [], group: "Form", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
+        stage {
+            Stage(label: "ColorPicker") {
+                controls {
+                    StageControl({ name: "label", kind: "string", options: [], value: "" })
+                }
+                Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
+            }
+        }
+        notes { Text(t("stage.static"), class: "bp-small") }
+        Heading(t("ref.tab.props"), id: "props").h2
+        PropsTable(rows: [{ name: "bind:", type: "State  (required)", meaning: "The colour, `#rrggbb`" }, { name: "label:", type: "String  (required)", meaning: "What the colour is for" }, { name: "swatches:", type: "Any", meaning: "The colours offered first: a list of `#rrggbb`" }], caption: "Props of ColorPicker")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Heading(t("ref.tab.flags"), id: "flags").h2
+        Markdown(t("ref.flags.body"), class: "bp-prose")
+        Text(t("ref.noflags"), class: "bp-small")
+        Heading(t("ref.tab.events"), id: "events").h2
+        Markdown(t("ref.universal.link"), class: "bp-prose")
+        Heading(t("ref.slotsparts"), id: "slots").h2
+        SlotsAndParts(slots: [], parts: [])
+        Heading(t("ref.example"), id: "example").h2
+        CodeBlock(##"state accent = "#0f766e"
+ColorPicker(bind: accent, label: "Accent", swatches: ["#0f766e", "#b91c1c", "#1d4ed8"])"##, title: "wf")
+        Markdown(t("ref.renders", { cls: "wf-color-picker" }), class: "bp-prose")
+    }
+}
+
+page BuiltinTransferlist(path: "/reference/transferlist", title: "TransferList — Reference", description: "TransferList: Two lists side by side — what can be chosen and what is — with buttons that move the selected across, or all of them; bind: holds the…") {
+    ReferenceItemShell("TransferList", summary: "Two lists side by side — what can be chosen and what is — with buttons that move the selected across, or all of them; bind: holds the keys of the chosen.", signature: "TransferList(bind: State, options: Any, text: Any, …)", since: "6.2.0", outputs: [], group: "Form", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
+        stage {
+            Stage(label: "TransferList") {
+                controls {
+                    StageControl({ name: "label", kind: "string", options: [], value: "" })
+                    StageControl({ name: "from", kind: "string", options: [], value: "" })
+                    StageControl({ name: "to", kind: "string", options: [], value: "" })
+                }
+                Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
+            }
+        }
+        notes { Text(t("stage.static"), class: "bp-small") }
+        Heading(t("ref.tab.props"), id: "props").h2
+        PropsTable(rows: [{ name: "bind:", type: "State  (required)", meaning: "The keys of what is chosen" }, { name: "options:", type: "Any  (required)", meaning: "Everything that can be chosen" }, { name: "text:", type: "Any", meaning: "What an option says: `o => o.name` (unset, the option)" }, { name: "key:", type: "Any", meaning: "What identifies an option: `o => o.id` (unset, the option)" }, { name: "label:", type: "String  (required)", meaning: "What is being chosen" }, { name: "from:", type: "String", meaning: "The first list's heading (unset, `Available`)" }, { name: "to:", type: "String", meaning: "The second list's heading (unset, `Chosen`)" }], caption: "Props of TransferList")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Heading(t("ref.tab.flags"), id: "flags").h2
+        Markdown(t("ref.flags.body"), class: "bp-prose")
+        Text(t("ref.noflags"), class: "bp-small")
+        Heading(t("ref.tab.events"), id: "events").h2
+        Markdown(t("ref.universal.link"), class: "bp-prose")
+        Heading(t("ref.slotsparts"), id: "slots").h2
+        SlotsAndParts(slots: [], parts: [])
+        Heading(t("ref.example"), id: "example").h2
+        CodeBlock(#"state picked: [String] = ["b"]
+TransferList(bind: picked, options: [{ id: "a", name: "Ada" }, { id: "b", name: "Grace" }, { id: "c", name: "Alan" }], text: p => p.name, key: p => p.id, label: "Reviewers")"#, title: "wf")
+        Markdown(t("ref.renders", { cls: "wf-transfer-list" }), class: "bp-prose")
+    }
+}
+
+page BuiltinEditable(path: "/reference/editable", title: "Editable — Reference", description: "Editable: Text that turns into a field when pressed: Enter or leaving keeps what was typed, Escape puts it back; bind: holds the text.") {
+    ReferenceItemShell("Editable", summary: "Text that turns into a field when pressed: Enter or leaving keeps what was typed, Escape puts it back; bind: holds the text.", signature: "Editable(bind: State, label: String, placeholder: String)", since: "6.2.0", outputs: [], group: "Form", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
+        stage {
+            Stage(label: "Editable") {
+                controls {
+                    StageControl({ name: "label", kind: "string", options: [], value: "" })
+                    StageControl({ name: "placeholder", kind: "string", options: [], value: "" })
+                }
+                Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
+            }
+        }
+        notes { Text(t("stage.static"), class: "bp-small") }
+        Heading(t("ref.tab.props"), id: "props").h2
+        PropsTable(rows: [{ name: "bind:", type: "State  (required)", meaning: "The text" }, { name: "label:", type: "String  (required)", meaning: "What the text is, for a screen reader" }, { name: "placeholder:", type: "String", meaning: "Shown while it is empty" }], caption: "Props of Editable")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Heading(t("ref.tab.flags"), id: "flags").h2
+        Markdown(t("ref.flags.body"), class: "bp-prose")
+        Text(t("ref.noflags"), class: "bp-small")
+        Heading(t("ref.tab.events"), id: "events").h2
+        Markdown(t("ref.universal.link"), class: "bp-prose")
+        Heading(t("ref.slotsparts"), id: "slots").h2
+        SlotsAndParts(slots: [], parts: [])
+        Heading(t("ref.example"), id: "example").h2
+        CodeBlock(#"state title = "Untitled"
+Editable(bind: title, label: "Project name")"#, title: "wf")
+        Markdown(t("ref.renders", { cls: "wf-editable" }), class: "bp-prose")
+    }
+}
+
 page BuiltinInput(path: "/reference/input", title: "Input — Reference", description: "Input: Text field. With label, hint or error it is a labelled field.") {
     state text = ""
     ReferenceItemShell("Input", summary: "Text field. With label, hint or error it is a labelled field.", signature: "Input(reveal: Bool, bind: State, label: String, …)", older: true, outputs: [], group: "Form", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "E109", title: "An element this output cannot draw", to: "/errors/E109"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05"), RelatedLink(kind: "F01", title: "A bind: to something that cannot be written", to: "/errors/F01"), RelatedLink(kind: "F02", title: "A bind: to a state the control cannot hold", to: "/errors/F02"), RelatedLink(kind: "F03", title: "A validate block no control can satisfy", to: "/errors/F03"), RelatedLink(kind: "A03", title: "An input with no label", to: "/errors/A03")], source: "src/registry/builtins.rs") {
@@ -7380,6 +7544,45 @@ page BuiltinMeter(path: "/reference/meter", title: "Meter — Reference", descri
     }
 }
 
+page BuiltinPopconfirm(path: "/reference/popconfirm", title: "Popconfirm — Reference", description: "Popconfirm: A question beside the button in its block before what it does: the button opens it, on confirm hears yes, on cancel no or Escape; the focus…") {
+    ReferenceItemShell("Popconfirm", summary: "A question beside the button in its block before what it does: the button opens it, on confirm hears yes, on cancel no or Escape; the focus starts on the answer that loses nothing.", signature: "Popconfirm(title: String, yes: String, no: String, …) \{ … \}", since: "6.2.0", outputs: [], group: "Feedback", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
+        stage {
+            Stage(label: "Popconfirm") {
+                controls {
+                    StageControl({ name: "title", kind: "string", options: [], value: "" })
+                    StageControl({ name: "yes", kind: "string", options: [], value: "" })
+                    StageControl({ name: "no", kind: "string", options: [], value: "" })
+                    StageControl({ name: "danger", kind: "bool", options: [], value: "", sink: "class" })
+                }
+                Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
+            }
+        }
+        notes { Text(t("stage.static"), class: "bp-small") }
+        Heading(t("ref.tab.props"), id: "props").h2
+        PropsTable(rows: [{ name: "title:", type: "String  (required)", meaning: "The question" }, { name: "yes:", type: "String", meaning: "The yes button's words (unset, `Yes`)" }, { name: "no:", type: "String", meaning: "The no button's words (unset, `Cancel`)" }, { name: "danger:", type: "Bool", meaning: "What yes does cannot be taken back: drawn in the danger colour" }], caption: "Props of Popconfirm")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Heading(t("ref.tab.flags"), id: "flags").h2
+        Markdown(t("ref.flags.body"), class: "bp-prose")
+        Row(gap: .sm) {
+            style { gap: 8px; flex-wrap: wrap }
+            Text(".danger", class: "bp-label bp-mono")
+        }
+        Heading(t("ref.tab.events"), id: "events").h2
+        EventsTable(rows: [PropRow(name: "confirm", kind: "", detail: ""), PropRow(name: "cancel", kind: "", detail: "")], caption: "Events of Popconfirm")
+        Markdown(t("ref.universal.link"), class: "bp-prose")
+        Heading(t("ref.slotsparts"), id: "slots").h2
+        SlotsAndParts(slots: [PropRow(name: "children", kind: "", detail: "")], parts: [])
+        Heading(t("ref.example"), id: "example").h2
+        CodeBlock(#"state said = ""
+Popconfirm(title: "Delete this file?", yes: "Delete").danger {
+    on confirm { said = "deleted" }
+    Button("Delete")
+}
+Text(said)"#, title: "wf")
+        Markdown(t("ref.renders", { cls: "wf-popconfirm" }), class: "bp-prose")
+    }
+}
+
 page BuiltinAlert(path: "/reference/alert", title: "Alert — Reference", description: "Alert: Inline notice; a danger or warning one is announced as an alert.") {
     state stageTone = "info"
     ReferenceItemShell("Alert", summary: "Inline notice; a danger or warning one is announced as an alert.", signature: "Alert(_ message: String, tone: Enum) \{ … \}", older: true, outputs: [], group: "Feedback", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04")], source: "src/registry/builtins.rs") {
@@ -8027,6 +8230,136 @@ page BuiltinSkeleton(path: "/reference/skeleton", title: "Skeleton — Reference
         CodeBlock(#"Skeleton(height: "20px", width: "200px")
 Skeleton(size: "48px").circle"#, title: "wf")
         Markdown(t("ref.renders", { cls: "wf-skeleton" }), class: "bp-prose")
+    }
+}
+
+page BuiltinFab(path: "/reference/fab", title: "Fab — Reference", description: "Fab: A round button floating at the bottom of the screen for the page's main action; with Fab.Actions in its block it opens them instead (a speed dial).") {
+    ReferenceItemShell("Fab", summary: "A round button floating at the bottom of the screen for the page's main action; with Fab.Actions in its block it opens them instead (a speed dial).", signature: "Fab(icon: String, label: String) \{ … \}", since: "6.2.0", outputs: [], group: "Actions", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
+        stage {
+            Stage(label: "Fab") {
+                controls {
+                    StageControl({ name: "icon", kind: "string", options: [], value: "" })
+                    StageControl({ name: "label", kind: "string", options: [], value: "" })
+                }
+                Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
+            }
+        }
+        notes { Text(t("stage.static"), class: "bp-small") }
+        Heading(t("ref.tab.props"), id: "props").h2
+        PropsTable(rows: [{ name: "icon:", type: "String  (required)", meaning: "Its icon" }, { name: "label:", type: "String  (required)", meaning: "What it does, for a screen reader and its tooltip" }], caption: "Props of Fab")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Heading(t("ref.tab.flags"), id: "flags").h2
+        Markdown(t("ref.flags.body"), class: "bp-prose")
+        Text(t("ref.noflags"), class: "bp-small")
+        Heading(t("ref.tab.events"), id: "events").h2
+        Markdown(t("ref.universal.link"), class: "bp-prose")
+        Heading(t("ref.slotsparts"), id: "slots").h2
+        SlotsAndParts(slots: [PropRow(name: "children", kind: "", detail: "")], parts: [PropRow(name: "Fab.Action", kind: "fab-action", detail: "One more action the button opens: its words and its icon; on click is what it does."), PropRow(name: "Fab.Trigger", kind: "fab-trigger", detail: "Its button. Drawn for it.")])
+        Row(gap: .sm) {
+            style { gap: 8px; flex-wrap: wrap }
+            Link("Fab.Action", to: "/reference/fab-action", class: "bp-button")
+            Link("Fab.Trigger", to: "/reference/fab-trigger", class: "bp-button")
+        }
+        Heading(t("ref.example"), id: "example").h2
+        CodeBlock(#"state said = ""
+Fab(icon: "plus", label: "Create") {
+    Fab.Action("Note", icon: "file") { on click { said = "note" } }
+    Fab.Action("Folder", icon: "folder") { on click { said = "folder" } }
+}
+Text(said)"#, title: "wf")
+        Markdown(t("ref.renders", { cls: "wf-fab" }), class: "bp-prose")
+    }
+}
+
+page BuiltinFabAction(path: "/reference/fab-action", title: "Fab.Action — Reference", description: "Fab.Action: One more action the button opens: its words and its icon; on click is what it does.") {
+    ReferenceItemShell("Fab.Action", summary: "One more action the button opens: its words and its icon; on click is what it does.", signature: "Fab.Action(_ label: String, icon: String) \{ … \}", since: "6.2.0", outputs: [], group: "Actions", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C03", title: "A part outside the component it belongs to", to: "/errors/C03"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04")], source: "src/registry/builtins.rs") {
+        stage {
+            Stage(label: "Fab.Action") {
+                controls {
+                    StageControl({ name: "label", kind: "string", options: [], value: "" })
+                    StageControl({ name: "icon", kind: "string", options: [], value: "" })
+                }
+                Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
+            }
+        }
+        notes { Text(t("stage.static"), class: "bp-small") }
+        Markdown(t("ref.partof", { owner: "Fab", to: "/reference/fab" }), class: "bp-prose")
+        Heading(t("ref.tab.props"), id: "props").h2
+        PropsTable(rows: [{ name: "label", type: "String  (positional)", meaning: "What it does" }, { name: "icon:", type: "String", meaning: "Its icon" }], caption: "Props of Fab.Action")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Heading(t("ref.tab.flags"), id: "flags").h2
+        Markdown(t("ref.flags.body"), class: "bp-prose")
+        Text(t("ref.noflags"), class: "bp-small")
+        Heading(t("ref.tab.events"), id: "events").h2
+        Markdown(t("ref.universal.link"), class: "bp-prose")
+        Heading(t("ref.slotsparts"), id: "slots").h2
+        SlotsAndParts(slots: [PropRow(name: "children", kind: "", detail: "")], parts: [])
+        Heading(t("ref.example"), id: "example").h2
+        CodeBlock(#"state said = ""
+Fab(icon: "plus", label: "Create") {
+    Fab.Action("Note", icon: "file") { on click { said = "note" } }
+    Fab.Action("Folder", icon: "folder") { on click { said = "folder" } }
+}
+Text(said)"#, title: "wf")
+    }
+}
+
+page BuiltinFabTrigger(path: "/reference/fab-trigger", title: "Fab.Trigger — Reference", description: "Fab.Trigger: Its button. Drawn for it.") {
+    ReferenceItemShell("Fab.Trigger", summary: "Its button. Drawn for it.", signature: "Fab.Trigger \{ … \}", since: "6.2.0", outputs: [], group: "Actions", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C03", title: "A part outside the component it belongs to", to: "/errors/C03"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
+        stage {
+            Stage(label: "Fab.Trigger") {
+                controls {
+                    Text(t("stage.nocontrols"), class: "bp-small")
+                }
+                Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
+            }
+        }
+        notes { Text(t("stage.static"), class: "bp-small") }
+        Markdown(t("ref.partof", { owner: "Fab", to: "/reference/fab" }), class: "bp-prose")
+        Heading(t("ref.tab.props"), id: "props").h2
+        Text(t("ref.noprops"), class: "bp-small")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Heading(t("ref.tab.flags"), id: "flags").h2
+        Markdown(t("ref.flags.body"), class: "bp-prose")
+        Text(t("ref.noflags"), class: "bp-small")
+        Heading(t("ref.tab.events"), id: "events").h2
+        Markdown(t("ref.universal.link"), class: "bp-prose")
+        Heading(t("ref.slotsparts"), id: "slots").h2
+        SlotsAndParts(slots: [PropRow(name: "children", kind: "", detail: "")], parts: [])
+        Heading(t("ref.example"), id: "example").h2
+        CodeBlock(#"state said = ""
+Fab(icon: "plus", label: "Create") {
+    Fab.Action("Note", icon: "file") { on click { said = "note" } }
+    Fab.Action("Folder", icon: "folder") { on click { said = "folder" } }
+}
+Text(said)"#, title: "wf")
+    }
+}
+
+page BuiltinBacktotop(path: "/reference/backtotop", title: "BackToTop — Reference", description: "BackToTop: A button that appears once the page has scrolled past after: px, and takes the reader — and the focus — back to the top.") {
+    ReferenceItemShell("BackToTop", summary: "A button that appears once the page has scrolled past after: px, and takes the reader — and the focus — back to the top.", signature: "BackToTop(label: String, after: Number)", since: "6.2.0", outputs: [], group: "Actions", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04"), RelatedLink(kind: "C05", title: "A positional argument a built-in does not take", to: "/errors/C05")], source: "src/registry/builtins.rs") {
+        stage {
+            Stage(label: "BackToTop") {
+                controls {
+                    StageControl({ name: "label", kind: "string", options: [], value: "" })
+                }
+                Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
+            }
+        }
+        notes { Text(t("stage.static"), class: "bp-small") }
+        Heading(t("ref.tab.props"), id: "props").h2
+        PropsTable(rows: [{ name: "label:", type: "String", meaning: "What it says, for a screen reader (unset, `Back to top`)" }, { name: "after:", type: "Number", meaning: "How far down it appears, in px (unset, 400)" }], caption: "Props of BackToTop")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Heading(t("ref.tab.flags"), id: "flags").h2
+        Markdown(t("ref.flags.body"), class: "bp-prose")
+        Text(t("ref.noflags"), class: "bp-small")
+        Heading(t("ref.tab.events"), id: "events").h2
+        Markdown(t("ref.universal.link"), class: "bp-prose")
+        Heading(t("ref.slotsparts"), id: "slots").h2
+        SlotsAndParts(slots: [], parts: [])
+        Heading(t("ref.example"), id: "example").h2
+        CodeBlock(#"BackToTop(after: 600)"#, title: "wf")
+        Markdown(t("ref.renders", { cls: "wf-back-to-top" }), class: "bp-prose")
     }
 }
 
@@ -8800,6 +9133,36 @@ page BuiltinCarouselSlide(path: "/reference/carousel-slide", title: "Carousel.Sl
     Carousel.Slide { Image(src: "/one.jpg", alt: "A bridge at dusk") }
     Carousel.Slide { Image(src: "/two.jpg", alt: "The harbour") }
 }"#, title: "wf")
+    }
+}
+
+page BuiltinHighlight(path: "/reference/highlight", title: "Highlight — Reference", description: "Highlight: Text with every match of query: marked (<mark>), as a search's results show what was found; the case is ignored.") {
+    ReferenceItemShell("Highlight", summary: "Text with every match of query: marked (<mark>), as a search's results show what was found; the case is ignored.", signature: "Highlight(_ text: String, query: String)", since: "6.2.0", outputs: [], group: "Typography", entries: BUILTIN_INDEX, sections: [Anchor(id: "props", label: t("ref.tab.props")), Anchor(id: "flags", label: t("ref.tab.flags")), Anchor(id: "events", label: t("ref.tab.events")), Anchor(id: "slots", label: t("ref.slotsparts")), Anchor(id: "example", label: t("ref.example"))], codes: [RelatedLink(kind: "E103", title: "A flag, case, part, event or slot the component does not have", to: "/errors/E103"), RelatedLink(kind: "C04", title: "An attribute a built-in does not declare", to: "/errors/C04")], source: "src/registry/builtins.rs") {
+        stage {
+            Stage(label: "Highlight") {
+                controls {
+                    StageControl({ name: "text", kind: "string", options: [], value: "" })
+                    StageControl({ name: "query", kind: "string", options: [], value: "" })
+                }
+                Text(t("stage.later"), class: "bp-small") { style { max-width: 420px; text-align: center } }
+            }
+        }
+        notes { Text(t("stage.static"), class: "bp-small") }
+        Heading(t("ref.tab.props"), id: "props").h2
+        PropsTable(rows: [{ name: "text", type: "String  (positional)", meaning: "The text" }, { name: "query:", type: "String", meaning: "What to mark" }], caption: "Props of Highlight")
+        Markdown(t("ref.attrs", { families: "global, aria, data", n: 22, props: "`animate:`, `exit:`, `speed:`, `duration:`, `delay:`, `easing:`, `stagger:`, `on:`, `count:`, `shared:`, `class:`, `ref:`, `drag:`, `dragGroup:`, `dropValue:`, `dropAxis:`, `dropInside:`, `roving:`, `trapFocus:`, `mount:`, `update:`, `cleanup:`" }), class: "bp-prose")
+        Heading(t("ref.tab.flags"), id: "flags").h2
+        Markdown(t("ref.flags.body"), class: "bp-prose")
+        Text(t("ref.noflags"), class: "bp-small")
+        Heading(t("ref.tab.events"), id: "events").h2
+        Markdown(t("ref.universal.link"), class: "bp-prose")
+        Heading(t("ref.slotsparts"), id: "slots").h2
+        SlotsAndParts(slots: [], parts: [])
+        Heading(t("ref.example"), id: "example").h2
+        CodeBlock(#"state q = "ea"
+Input(bind: q, label: "Search")
+Highlight("Search near and far: each area is clear.", query: q)"#, title: "wf")
+        Markdown(t("ref.renders", { cls: "wf-highlight" }), class: "bp-prose")
     }
 }
 

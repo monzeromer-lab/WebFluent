@@ -220,6 +220,18 @@ template engine and, where it can be, in a PDF.
 - `PanelGroup(bind: sizes)` puts handles between panels that resize them,
   by pointer or keyboard; a `persist` keeps the sizes.
 
+## The last of the built-ins, and blocks
+
+- `ColorPicker`, `TransferList` and `Editable` choose a colour, move
+  things between two lists, and edit text in place.
+- `Fab` is a floating main action, a speed dial with `Fab.Action`s;
+  `BackToTop` appears once the page has scrolled.
+- `Popconfirm` asks before the button in it acts.
+- `Highlight(text, query: q)` marks what a search found.
+- `ClientOnly { … }` is drawn in the browser alone.
+- `wf generate block sign-in` — or `pricing`, `dashboard`, `settings` —
+  writes a whole page into `src/pages/` for the project to own.
+
 ## Fixes
 
 - `wf test` drew a built-in where the project had a component of its

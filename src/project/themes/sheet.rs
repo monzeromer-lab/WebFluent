@@ -1489,6 +1489,67 @@ body:has(.wf-bottom-nav) { padding-bottom: calc(3.5rem + env(safe-area-inset-bot
 .wf-panel-group__handle:hover, .wf-panel-group__handle:focus-visible, .wf-panel-group[data-dragging] > .wf-panel-group__handle { background: var(--color-primary); opacity: 1; }
 /*@both*/
 
+/* ─── Color Picker ──────────────────────────────────── */
+.wf-color-picker { display: flex; flex-wrap: wrap; align-items: center; gap: var(--spacing-sm); }
+.wf-color-picker__swatches { display: flex; flex-wrap: wrap; gap: var(--spacing-xs); }
+.wf-color-picker__swatch { width: var(--target-min); height: var(--target-min); padding: 0; border: 2px solid transparent; border-radius: 50%; cursor: pointer; box-shadow: inset 0 0 0 1px rgb(0 0 0 / 0.15); }
+.wf-color-picker__swatch[aria-pressed="true"] { border-color: currentColor; }
+.wf-color-picker__native { width: var(--target-min); height: var(--target-min); padding: 0; border: 0; background: none; cursor: pointer; }
+.wf-color-picker__hex { width: 6.5rem; font-family: var(--font-family-mono); }
+
+/* ─── Transfer List ─────────────────────────────────── */
+.wf-transfer-list { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: var(--spacing-sm); }
+.wf-transfer-list__side { display: flex; flex-direction: column; gap: var(--spacing-xs); min-width: 0; }
+.wf-transfer-list__title { margin: 0; font-weight: var(--font-weight-bold); }
+.wf-transfer-list__list { width: 100%; min-height: 10rem; font: inherit; }
+.wf-transfer-list__buttons { display: flex; flex-direction: column; gap: var(--spacing-xs); }
+/*@full*/
+.wf-transfer-list__list { padding: var(--spacing-xs); color: var(--color-text); background: var(--color-background); border: 1px solid var(--color-border); border-radius: var(--radius-sm); }
+/*@both*/
+
+/* ─── Editable ──────────────────────────────────────── */
+.wf-editable { display: inline-flex; }
+.wf-editable__text { min-height: var(--target-min); padding: 0 var(--spacing-xs); border: 1px dashed transparent; background: none; color: inherit; font: inherit; text-align: start; cursor: text; }
+.wf-editable__text:hover, .wf-editable__text:focus-visible { border-color: currentColor; }
+.wf-editable__text[data-empty] { opacity: 0.6; }
+.wf-editable__text[hidden], .wf-editable__field[hidden] { display: none; }
+
+/* ─── Fab ───────────────────────────────────────────── */
+/* At the bottom of the screen, at the end of the line, clear of the
+   home indicator; a speed dial's actions stand above it. */
+.wf-fab { position: fixed; inset-inline-end: var(--spacing-lg); bottom: calc(var(--spacing-lg) + env(safe-area-inset-bottom)); z-index: var(--z-sticky); display: flex; flex-direction: column; align-items: flex-end; gap: var(--spacing-sm); }
+.wf-fab__trigger { display: inline-flex; align-items: center; justify-content: center; width: 3.5rem; height: 3.5rem; padding: 0; border: 0; border-radius: 50%; font-size: 1.5rem; cursor: pointer; }
+.wf-fab__action { display: inline-flex; align-items: center; gap: var(--spacing-sm); min-height: var(--target-min-touch); padding: 0 var(--spacing-md); border: 0; border-radius: 999px; font: inherit; cursor: pointer; }
+.wf-fab__action[hidden] { display: none; }
+.wf-fab[data-open] .wf-fab__trigger > * { transform: rotate(45deg); }
+/*@full*/
+.wf-fab__trigger { color: var(--color-surface); background: var(--color-primary); box-shadow: var(--shadow-lg); }
+.wf-fab__action { color: var(--color-text); background: var(--color-surface); box-shadow: var(--shadow-md); }
+/*@both*/
+
+/* ─── Back To Top ───────────────────────────────────── */
+.wf-back-to-top { position: fixed; inset-inline-end: var(--spacing-lg); bottom: calc(var(--spacing-lg) + env(safe-area-inset-bottom)); z-index: var(--z-sticky); display: inline-flex; align-items: center; justify-content: center; width: var(--target-min-touch); height: var(--target-min-touch); padding: 0; border-radius: 50%; cursor: pointer; }
+.wf-back-to-top[hidden] { display: none; }
+/*@full*/
+.wf-back-to-top { color: var(--color-text); background: var(--color-surface); border: 1px solid var(--color-border); box-shadow: var(--shadow-lg); }
+/*@both*/
+
+/* ─── Popconfirm ────────────────────────────────────── */
+.wf-popconfirm { display: inline-block; }
+.wf-popconfirm__card { max-width: min(20rem, calc(100vw - 16px)); padding: var(--spacing-md); }
+.wf-popconfirm__title { margin: 0 0 var(--spacing-sm); }
+.wf-popconfirm__buttons { display: flex; justify-content: flex-end; gap: var(--spacing-xs); }
+/*@full*/
+.wf-popconfirm__card { color: var(--color-text); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); box-shadow: var(--shadow-lg); }
+/*@both*/
+.wf-popconfirm--danger .wf-popconfirm__title { font-weight: var(--font-weight-bold); }
+
+/* ─── Highlight Marks ───────────────────────────────── */
+.wf-highlight mark { padding: 0 1px; border-radius: 2px; color: inherit; background: color-mix(in srgb, #facc15 55%, transparent); }
+
+/* ─── Client Only ───────────────────────────────────── */
+.wf-client-only { display: contents; }
+
 /* ─── Highlight ─────────────────────────────────────── */
 .wf-tok-kw { color: var(--syntax-keyword); }
 .wf-tok-name { color: var(--syntax-function); }

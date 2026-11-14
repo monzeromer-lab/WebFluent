@@ -26,7 +26,7 @@ wf serve
 | `wf init NAME [-t, --template spa\|static\|pdf\|slides] [-l, --locales LIST]` | Creates a project from a template, translated into `LIST` when given |
 | `wf build [-d, --dir DIR] [--stats] [--format FORMAT] [--deny-warnings] [--cache] [--studio] [--allow-output-outside]` | Compiles the project; fails on errors, prints warnings |
 | `wf serve [-d, --dir DIR] [--host ADDRESS] [--allow-output-outside]` | Builds, serves on `dev.port` to this machine, and rebuilds and reloads on every save |
-| `wf generate page\|component\|store NAME [-d, --dir DIR]` | Writes a starter file |
+| `wf generate page\|component\|store\|block NAME [-d, --dir DIR]` | Writes a starter file, or a whole page to own |
 | `wf check [-d, --dir DIR] [--format FORMAT] [--deny-warnings] [--allow-output-outside]` | Reports every finding a build would report, and writes nothing |
 | `wf fix [-d, --dir DIR] [--code CODE] [--dry-run]` | Applies every finding's fix, or the fixes for one code |
 | `wf config schema [--json]`, `wf config get\|set\|unset PATH [VALUE] [-d, --dir DIR]` | Lists every setting, and edits `webfluent.app.json` without changing its shape |
@@ -278,6 +278,13 @@ wf generate store Cart
 
 A page gets a path from its name (`/pricing`), a title, a description and an
 `h1`. The file is `.wfx` when the project is written in that layout.
+
+`wf generate block NAME` writes a whole page instead — `sign-in` (a form
+that checks what is typed), `pricing` (three plans, monthly or yearly),
+`dashboard` (figures, a trend and a table) or `settings` (a profile,
+notifications and the account, in tabs) — into `src/pages/`. It is
+ordinary source, the project's own to change; it builds with nothing to
+report.
 `wf generate` never overwrites a file: when one exists, it says so and
 writes nothing.
 

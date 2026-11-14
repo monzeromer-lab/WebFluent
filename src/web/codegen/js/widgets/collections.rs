@@ -106,6 +106,33 @@ impl JsCodegen {
         self.emit_line(&format!("{parent}.appendChild({var});"));
     }
 
+    /// `Highlight(text, query: q)`: its text, every match of `query`
+    /// marked, both followed by `WF.markMatches`.
+    pub(in super::super) fn emit_highlight(&mut self, var: &str, ui: &UIElement, parent: &str) {
+        let text = ui
+            .args
+            .iter()
+            .find_map(|a| match a {
+                Arg::Positional(v) => Some(self.emit_expr(v)),
+                Arg::Named(k, v) if k == "text" => Some(self.emit_expr(v)),
+                Arg::Named(..) => None,
+            })
+            .unwrap_or_else(|| "\"\"".into());
+        let query = self.named_js(ui, "query").unwrap_or_else(|| "\"\"".into());
+        let extra = self.root_attrs("Highlight", ui, &["query", "text"]);
+        self.emit_line(&format!(
+            "const {var} = WF.el(\"span\", {{ className: \"{}\"{extra}{} }});",
+            self.class_attr("Highlight", ui),
+            self.wf_node_inline(ui)
+        ));
+        self.emit_line(&format!(
+            "WF.markMatches({var}, () => {text}, () => {query});"
+        ));
+        // Its style, motion and lifetime are the shared tail's.
+        self.emit_root_handlers(var, ui, false);
+        self.emit_line(&format!("{parent}.appendChild({var});"));
+    }
+
     /// `Tree(items:, children:, key:, bind:, label:) { row(f) { … } }`.
     pub(in super::super) fn emit_tree(&mut self, var: &str, ui: &UIElement, parent: &str) {
         let row = self.fill_function(ui, "row");

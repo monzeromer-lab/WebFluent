@@ -1,0 +1,41 @@
+// A dashboard, written by `wf generate block dashboard`. It is the
+// project's own page now: read its figures and its deploys from your own
+// `api` in place of the values written here.
+page Dashboard(path: "/dashboard", title: "Dashboard", description: "How things stand today.") {
+    state period = "week"
+    state deploys = [
+        { id: "1", service: "web", status: "live", when: "2026-11-14T09:00:00Z" },
+        { id: "2", service: "api", status: "failed", when: "2026-11-13T16:30:00Z" },
+        { id: "3", service: "worker", status: "live", when: "2026-11-12T11:15:00Z" },
+    ]
+
+    Container {
+        Stack(gap: .lg) {
+            Row(justify: .between, align: .center) {
+                Heading("Dashboard").h1
+                Select(bind: period, label: "Period") {
+                    Select.Option("This week", value: "week")
+                    Select.Option("This month", value: "month")
+                }
+            }
+            Grid(columns: { base: 1, md: 2, lg: 4 }, gap: .md) {
+                Card { Stat("Visitors", value: 12840, format: .compact, change: 0.124) }
+                Card { Stat("Sign-ups", value: 342, change: 0.031) }
+                Card { Stat("Revenue", value: 9120, format: .currency, change: -0.018) }
+                Card { Stat("Errors", value: 12, change: -0.25) }
+            }
+            Card {
+                Stack(gap: .sm) {
+                    Heading("Sign-ups by day").h2
+                    Sparkline([31, 40, 28, 51, 42, 60, 55], label: "Sign-ups by day, this week", width: 320, height: 64)
+                }
+            }
+            DataTable(rows: deploys, key: d => d.id, label: "Recent deploys") {
+                empty { EmptyState(icon: "list", title: "No deploys yet") }
+                DataTable.Column("Service", value: d => d.service).sortable
+                DataTable.Column("Status") { cell(d) { Badge(d.status) } }
+                DataTable.Column("When") { cell(d) { RelativeTime(d.when) } }
+            }
+        }
+    }
+}

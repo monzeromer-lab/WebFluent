@@ -1171,6 +1171,44 @@
     },
     {
       "deps": [
+        "layer",
+        "announce"
+      ],
+      "exports": [
+        [
+          "colorPicker",
+          "colorPicker"
+        ],
+        [
+          "transferList",
+          "transferList"
+        ],
+        [
+          "editable",
+          "editable"
+        ],
+        [
+          "fab",
+          "fab"
+        ],
+        [
+          "backToTop",
+          "backToTop"
+        ],
+        [
+          "popconfirm",
+          "popconfirm"
+        ],
+        [
+          "markMatches",
+          "markMatches"
+        ]
+      ],
+      "name": "extras",
+      "triggers": []
+    },
+    {
+      "deps": [
         "focus",
         "each",
         "layer"

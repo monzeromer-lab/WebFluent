@@ -88,6 +88,9 @@ fn expand_element(el: &mut UIElement, seq: &mut usize) {
         "ScrollArea" => scroll_area(el),
         "Sticky" => sticky(el),
         "PanelGroup" => panel_group(el),
+        "Fab" => fab(el),
+        "BackToTop" => back_to_top(el),
+        "Popconfirm" => popconfirm(el),
         "Textarea" if take_flag(el, "autosize").is_some() => {
             give(el, "data-autosize", "\"true\"");
             give(el, "mount", "(n) => __wf.autosize(n)");
@@ -1492,5 +1495,61 @@ fn panel_group(el: &mut UIElement) {
         el,
         "mount",
         &format!("(n) => __wf.panelGroup(n, {read}, {label})"),
+    );
+}
+
+/// `Fab(icon: "plus", label: "New")`, or with `Fab.Action`s a speed dial:
+/// the actions, hidden until its button opens them, then its button.
+fn fab(el: &mut UIElement) {
+    let (Some(icon), Some(label)) = (take(el, "icon"), take(el, "label")) else {
+        return;
+    };
+    let mut dial = false;
+    each_part(&mut el.children, "Fab", &mut |name, part| {
+        if name != "Action" {
+            return;
+        }
+        dial = true;
+        if let Some(icon) = take(part, "icon") {
+            let mut glyph = parse(&format!("Icon({}, aria-hidden: \"true\")", src(&icon)));
+            glyph.append(&mut part.children);
+            part.children = glyph;
+        }
+        give(part, "hidden", "true");
+    });
+    let l = src(&label);
+    let mut trigger = parse(&format!(
+        "Fab.Trigger(aria-label: {l}, title: {l}) {{ Icon({}, aria-hidden: \"true\") }}",
+        src(&icon)
+    ));
+    el.children.append(&mut trigger);
+    give(el, "mount", &format!("(n) => __wf.fab(n, {dial})"));
+}
+
+/// `BackToTop(after: 600)`: hidden until the page has scrolled that far.
+fn back_to_top(el: &mut UIElement) {
+    let label = take(el, "label").map_or_else(|| lit("Back to top"), |e| src(&e));
+    let after = take(el, "after").map_or_else(|| "400".to_string(), |e| src(&e));
+    give(el, "aria-label", &label);
+    give(el, "title", &label);
+    give(el, "hidden", "true");
+    el.children = parse("Icon(\"chevron-up\", aria-hidden: \"true\")");
+    give(el, "mount", &format!("(n) => __wf.backToTop(n, {after})"));
+}
+
+/// `Popconfirm(title: "Delete this file?", yes: "Delete").danger { Button("Delete")  on confirm { … } }`.
+fn popconfirm(el: &mut UIElement) {
+    let Some(title) = take(el, "title") else {
+        return;
+    };
+    let yes = take(el, "yes").map_or_else(|| lit("Yes"), |e| src(&e));
+    let no = take(el, "no").map_or_else(|| lit("Cancel"), |e| src(&e));
+    give(
+        el,
+        "mount",
+        &format!(
+            "(n) => __wf.popconfirm(n, () => {}, () => {yes}, () => {no})",
+            src(&title)
+        ),
     );
 }
